@@ -78,10 +78,13 @@ export default function BlogSection() {
               className="flex flex-col rounded-lg shadow-lg overflow-hidden"
             >
               <div className="flex-shrink-0">
-                <img
+                <Image
                   className="h-48 w-full object-cover"
                   src={post.imageUrl}
                   alt=""
+                  width="413"
+                  height="192"
+                  layout="responsive"
                 />
               </div>
               <div className="flex-1 bg-white p-6 flex flex-col justify-between">
