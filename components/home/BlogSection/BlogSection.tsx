@@ -1,11 +1,9 @@
 import Image from 'next/image'
-import Link from 'next/link'
-
 const posts = [
   {
     title: 'Boost your conversion rate',
     href: '#',
-    category: { name: 'FCS', href: '/fcs' },
+    category: { name: 'Article', href: '#' },
     description:
       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto accusantium praesentium eius, ut atque fuga culpa, similique sequi cum eos quis dolorum.',
     date: 'Mar 16, 2020',
@@ -23,7 +21,7 @@ const posts = [
   {
     title: 'How to use search engine optimization to drive sales',
     href: '#',
-    category: { name: 'FCS', href: '/fcs' },
+    category: { name: 'Video', href: '#' },
     description:
       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit facilis asperiores porro quaerat doloribus, eveniet dolore. Adipisci tempora aut inventore optio animi., tempore temporibus quo laudantium.',
     date: 'Mar 10, 2020',
@@ -41,7 +39,7 @@ const posts = [
   {
     title: 'Improve your customer experience',
     href: '#',
-    category: { name: 'FBS', href: '/fbs' },
+    category: { name: 'Case Study', href: '#' },
     description:
       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint harum rerum voluptatem quo recusandae magni placeat saepe molestiae, sed excepturi cumque corporis perferendis hic.',
     date: 'Feb 12, 2020',
@@ -58,10 +56,13 @@ const posts = [
   },
 ]
 
-export default function BlogSection() {
+export default function Example() {
   return (
-    <div className=" bg-gray-50 pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
-      <div className=" max-w-7xl mx-auto">
+    <div className="relative bg-gray-50 pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
+      <div className="absolute inset-0">
+        <div className="bg-white h-1/3 sm:h-2/3" />
+      </div>
+      <div className="relative max-w-7xl mx-auto">
         <div className="text-center">
           <h2 className="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl">
             From the blog
@@ -82,17 +83,17 @@ export default function BlogSection() {
                   className="h-48 w-full object-cover"
                   src={post.imageUrl}
                   alt=""
-                  width="413"
                   height="192"
+                  width="413"
                   layout="responsive"
                 />
               </div>
               <div className="flex-1 bg-white p-6 flex flex-col justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-indigo-600">
-                    <Link href={post.category.href}>
-                      <a className="hover:underline">{post.category.name}</a>
-                    </Link>
+                    <a href={post.category.href} className="hover:underline">
+                      {post.category.name}
+                    </a>
                   </p>
                   <a href={post.href} className="block mt-2">
                     <p className="text-xl font-semibold text-gray-900">
@@ -107,10 +108,12 @@ export default function BlogSection() {
                   <div className="flex-shrink-0">
                     <a href={post.author.href}>
                       <span className="sr-only">{post.author.name}</span>
-                      <img
+                      <Image
                         className="h-10 w-10 rounded-full"
                         src={post.author.imageUrl}
                         alt=""
+                        width="40"
+                        height="40"
                       />
                     </a>
                   </div>
