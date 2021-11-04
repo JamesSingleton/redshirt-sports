@@ -14,7 +14,7 @@ import {
 } from '@heroicons/react/solid'
 
 import { Layout } from '@components/common'
-import { Hero, BlogSection } from '@components/home'
+import { Hero, BlogSection, FeaturedArticle } from '@components/home'
 
 const trendingPosts = [
   {
@@ -30,28 +30,16 @@ const trendingPosts = [
 ]
 const tabs = [
   { name: 'Recent', href: '#', current: true },
-  { name: 'Most Liked', href: '#', current: false },
-  { name: 'Most Answers', href: '#', current: false },
-]
-const whoToFollow = [
-  {
-    name: 'Leonard Krasner',
-    handle: 'leonardkrasner',
-    href: '#',
-    imageUrl:
-      'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  },
+  { name: 'Trending', href: '#', current: false },
 ]
 const questions = [
   {
     id: '81614',
     likes: '29',
-    replies: '11',
     views: '2.7k',
     author: {
-      name: 'Dries Vincent',
-      imageUrl:
-        'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      name: 'James Singleton',
+      imageUrl: '/images/james_singleton.png',
       href: '#',
     },
     date: 'December 9 at 11:43 AM',
@@ -128,10 +116,14 @@ function Home() {
                   <div>
                     <div className="flex space-x-3">
                       <div className="flex-shrink-0">
-                        <img
-                          className="h-10 w-10 rounded-full"
+                        <Image
+                          className="rounded-full"
                           src={question.author.imageUrl}
                           alt=""
+                          width="40"
+                          height="40"
+                          // layout="responsive"
+                          objectFit="cover"
                         />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -270,18 +262,6 @@ function Home() {
                           type="button"
                           className="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
                         >
-                          <ChatAltIcon className="h-5 w-5" aria-hidden="true" />
-                          <span className="font-medium text-gray-900">
-                            {question.replies}
-                          </span>
-                          <span className="sr-only">replies</span>
-                        </button>
-                      </span>
-                      <span className="inline-flex items-center text-sm">
-                        <button
-                          type="button"
-                          className="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
-                        >
                           <EyeIcon className="h-5 w-5" aria-hidden="true" />
                           <span className="font-medium text-gray-900">
                             {question.views}
@@ -312,46 +292,14 @@ function Home() {
       </div>
       <aside className="hidden xl:block xl:col-span-3">
         <div className="sticky top-4 space-y-4">
-          <section aria-labelledby="who-to-follow-heading">
-            <div className="bg-white rounded-lg shadow">
-              <div>
-                <h2
-                  id="who-to-follow-heading"
-                  className="p-6 pb-0 text-base font-medium text-gray-900"
-                >
-                  Featured FCS
-                </h2>
-                <div className="mt-6 flex flex-col overflow-hidden rounded-b-lg">
-                  <div className="flex-shrink-0">
-                    <Image
-                      src="https://vmikeydets.com/images/2021/10/2/8CS_8745.JPG?width=1920&quality=80&format=jpg"
-                      alt=""
-                      width="392"
-                      height="192"
-                      layout="responsive"
-                      quality="75"
-                      objectFit="cover"
-                    />
-                  </div>
-                  <div className="flex-1 bg-white p-6 flex flex-col justify-between">
-                    <div className="flex-1">
-                      <a href="#" className="block mt-2">
-                        <p className="text-xl font-semibold text-gray-900">
-                          Boost your conversion rate
-                        </p>
-                        <p className="mt-3 text-base text-gray-500">
-                          Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Architecto accusantium praesentium eius, ut
-                          atque fuga culpa, similique sequi cum eos quis
-                          dolorum.
-                        </p>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+          <FeaturedArticle
+            title="Featured FCS"
+            imageSrc="https://vmikeydets.com/images/2021/10/2/8CS_8745.JPG?width=1920&quality=80&format=jpg"
+            imageAlt="VMI vs The Citadel"
+            articleTitle="VMI falls to rival The Citadel 35-24 in Military Classic of the South"
+            articleHref="/fcs/vmi-vs-the-citadel"
+            articleSnippet="The Bulldogs had six pass attempts with only two completions. But their was certainly damage done on the ground--363 yards and 4 touchdowns."
+          />
           <section aria-labelledby="trending-heading">
             <div className="bg-white rounded-lg shadow">
               <div>
