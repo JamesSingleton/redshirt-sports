@@ -3,7 +3,7 @@ const posts = [
   {
     title: 'Boost your conversion rate',
     href: '#',
-    category: { name: 'Article', href: '#' },
+    category: { name: 'FCS', href: '/fcs' },
     description:
       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto accusantium praesentium eius, ut atque fuga culpa, similique sequi cum eos quis dolorum.',
     date: 'Mar 16, 2020',
@@ -21,7 +21,7 @@ const posts = [
   {
     title: 'How to use search engine optimization to drive sales',
     href: '#',
-    category: { name: 'Video', href: '#' },
+    category: { name: 'FCS', href: '/fcs' },
     description:
       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit facilis asperiores porro quaerat doloribus, eveniet dolore. Adipisci tempora aut inventore optio animi., tempore temporibus quo laudantium.',
     date: 'Mar 10, 2020',
@@ -39,7 +39,7 @@ const posts = [
   {
     title: 'Improve your customer experience',
     href: '#',
-    category: { name: 'Case Study', href: '#' },
+    category: { name: 'FBS', href: '/fbs' },
     description:
       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint harum rerum voluptatem quo recusandae magni placeat saepe molestiae, sed excepturi cumque corporis perferendis hic.',
     date: 'Feb 12, 2020',
@@ -65,7 +65,7 @@ export default function Example() {
       <div className="relative max-w-7xl mx-auto">
         <div className="text-center">
           <h2 className="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl">
-            From the blog
+            Top Stories
           </h2>
           <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
             Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsa
