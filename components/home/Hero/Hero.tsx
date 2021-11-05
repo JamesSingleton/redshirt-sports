@@ -4,11 +4,10 @@ import Image from 'next/image'
 const Hero: FC = () => {
   return (
     <div>
-      {/* Hero card */}
       <div className="relative">
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gray-100" />
         <div className="max-w-none mx-auto">
-          <div className="relative shadow-xl sm:rounded-2xl sm:overflow-hidden">
+          <div className="relative shadow-xl sm:rounded-lg sm:overflow-hidden">
             <div>
               <Image
                 className="h-full w-full object-cover"

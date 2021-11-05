@@ -10,6 +10,7 @@ module.exports = {
       'herosports.com',
       'vmikeydets.com',
       'www.ncaa.com',
+      'images2.minutemediacdn.com',
     ],
   },
   i18n: {

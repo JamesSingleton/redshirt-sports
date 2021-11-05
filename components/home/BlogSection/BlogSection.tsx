@@ -1,140 +1,471 @@
+import { Fragment, FC } from 'react'
 import Image from 'next/image'
-const posts = [
+import { Tab } from '@headlessui/react'
+import cn from 'classnames'
+import { Menu, Transition } from '@headlessui/react'
+import {
+  CodeIcon,
+  DotsVerticalIcon,
+  EyeIcon,
+  FlagIcon,
+  ShareIcon,
+  StarIcon,
+  ThumbUpIcon,
+} from '@heroicons/react/solid'
+
+const questions = [
   {
-    title: 'Boost your conversion rate',
-    href: '#',
-    category: { name: 'FCS', href: '/fcs' },
-    description:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto accusantium praesentium eius, ut atque fuga culpa, similique sequi cum eos quis dolorum.',
-    date: 'Mar 16, 2020',
-    datetime: '2020-03-16',
-    imageUrl:
-      'https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1679&q=80',
-    readingTime: '6 min',
+    id: '81614',
+    likes: '29',
+    views: '2.7k',
     author: {
-      name: 'Roel Aufderehar',
+      name: 'James Singleton',
+      imageUrl: '/images/james_singleton.png',
       href: '#',
-      imageUrl:
-        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     },
-  },
-  {
-    title: 'How to use search engine optimization to drive sales',
+    date: 'December 9 at 11:43 AM',
+    datetime: '2020-12-09T11:43:00',
     href: '#',
-    category: { name: 'FCS', href: '/fcs' },
-    description:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit facilis asperiores porro quaerat doloribus, eveniet dolore. Adipisci tempora aut inventore optio animi., tempore temporibus quo laudantium.',
-    date: 'Mar 10, 2020',
-    datetime: '2020-03-10',
-    imageUrl:
-      'https://images.unsplash.com/photo-1547586696-ea22b4d4235d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1679&q=80',
-    readingTime: '4 min',
-    author: {
-      name: 'Brenna Goyette',
-      href: '#',
-      imageUrl:
-        'https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-  },
-  {
-    title: 'Improve your customer experience',
-    href: '#',
-    category: { name: 'FBS', href: '/fbs' },
-    description:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint harum rerum voluptatem quo recusandae magni placeat saepe molestiae, sed excepturi cumque corporis perferendis hic.',
-    date: 'Feb 12, 2020',
-    datetime: '2020-02-12',
-    imageUrl:
-      'https://images.unsplash.com/photo-1492724441997-5dc865305da7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1679&q=80',
-    readingTime: '11 min',
-    author: {
-      name: 'Daniela Metz',
-      href: '#',
-      imageUrl:
-        'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
+    title: 'What would you have done differently if you ran Jurassic Park?',
+    body: `
+      <p>Jurassic Park was an incredible idea and a magnificent feat of engineering, but poor protocols and a disregard for human safety killed what could have otherwise been one of the best businesses of our generation.</p>
+      <p>Ultimately, I think that if you wanted to run the park successfully and keep visitors safe, the most important thing to prioritize would be&hellip;</p>
+    `,
   },
 ]
 
-export default function Example() {
+const BlogSection: FC = () => {
   return (
-    <div className="relative bg-gray-50 pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
-      <div className="absolute inset-0">
-        <div className="bg-white h-1/3 sm:h-2/3" />
-      </div>
-      <div className="relative max-w-7xl mx-auto">
-        <div className="text-center">
-          <h2 className="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl">
-            Top Stories
-          </h2>
-          <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsa
-            libero labore natus atque, ducimus sed.
-          </p>
-        </div>
-        <div className="mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
-          {posts.map((post) => (
-            <div
-              key={post.title}
-              className="flex flex-col rounded-lg shadow-lg overflow-hidden"
-            >
-              <div className="flex-shrink-0">
-                <Image
-                  className="h-48 w-full object-cover"
-                  src={post.imageUrl}
-                  alt=""
-                  height="192"
-                  width="413"
-                  layout="responsive"
+    <div className="py-4">
+      <Tab.Group>
+        <Tab.List
+          className="relative z-0 rounded-lg shadow flex divide-x divide-gray-200"
+          aria-label="Tabs"
+        >
+          <Tab as={Fragment}>
+            {({ selected }) => (
+              <button
+                className={cn(
+                  selected
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700',
+
+                  'group relative min-w-0 flex-1 overflow-hidden bg-white py-4 px-6 text-sm font-medium text-center hover:bg-gray-50 focus:z-10'
+                )}
+              >
+                <span>Trending</span>
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    selected ? 'bg-rose-500' : 'bg-transparent',
+                    'absolute inset-x-0 bottom-0 h-0.5'
+                  )}
                 />
-              </div>
-              <div className="flex-1 bg-white p-6 flex flex-col justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-indigo-600">
-                    <a href={post.category.href} className="hover:underline">
-                      {post.category.name}
-                    </a>
-                  </p>
-                  <a href={post.href} className="block mt-2">
-                    <p className="text-xl font-semibold text-gray-900">
-                      {post.title}
-                    </p>
-                    <p className="mt-3 text-base text-gray-500">
-                      {post.description}
-                    </p>
-                  </a>
-                </div>
-                <div className="mt-6 flex items-center">
-                  <div className="flex-shrink-0">
-                    <a href={post.author.href}>
-                      <span className="sr-only">{post.author.name}</span>
-                      <Image
-                        className="h-10 w-10 rounded-full"
-                        src={post.author.imageUrl}
-                        alt=""
-                        width="40"
-                        height="40"
-                      />
-                    </a>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">
-                      <a href={post.author.href} className="hover:underline">
-                        {post.author.name}
-                      </a>
-                    </p>
-                    <div className="flex space-x-1 text-sm text-gray-500">
-                      <time dateTime={post.datetime}>{post.date}</time>
-                      <span aria-hidden="true">&middot;</span>
-                      <span>{post.readingTime} read</span>
+              </button>
+            )}
+          </Tab>
+          <Tab as={Fragment}>
+            {({ selected }) => (
+              <button
+                className={cn(
+                  selected
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700',
+
+                  'group relative min-w-0 flex-1 overflow-hidden bg-white py-4 px-6 text-sm font-medium text-center hover:bg-gray-50 focus:z-10'
+                )}
+              >
+                <span>Recent</span>
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    selected ? 'bg-rose-500' : 'bg-transparent',
+                    'absolute inset-x-0 bottom-0 h-0.5'
+                  )}
+                />
+              </button>
+            )}
+          </Tab>
+        </Tab.List>
+        <Tab.Panels>
+          <Tab.Panel className="mt-4">
+            <ul role="list" className="space-y-4">
+              {questions.map((question) => (
+                <li
+                  key={question.id}
+                  className="bg-white px-4 py-6 shadow sm:p-6 sm:rounded-lg"
+                >
+                  <article aria-labelledby={'question-title-' + question.id}>
+                    <div>
+                      <div className="flex space-x-3">
+                        <div className="flex-shrink-0">
+                          <Image
+                            className="rounded-full"
+                            src={question.author.imageUrl}
+                            alt=""
+                            width="40"
+                            height="40"
+                            // layout="responsive"
+                            objectFit="cover"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            <a
+                              href={question.author.href}
+                              className="hover:underline"
+                            >
+                              {question.author.name}
+                            </a>
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            <a href={question.href} className="hover:underline">
+                              <time dateTime={question.datetime}>
+                                {question.date}
+                              </time>
+                            </a>
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0 self-center flex">
+                          <Menu
+                            as="div"
+                            className="relative inline-block text-left"
+                          >
+                            <div>
+                              <Menu.Button className="-m-2 p-2 rounded-full flex items-center text-gray-400 hover:text-gray-600">
+                                <span className="sr-only">Open options</span>
+                                <DotsVerticalIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              </Menu.Button>
+                            </div>
+
+                            <Transition
+                              as={Fragment}
+                              enter="transition ease-out duration-100"
+                              enterFrom="transform opacity-0 scale-95"
+                              enterTo="transform opacity-100 scale-100"
+                              leave="transition ease-in duration-75"
+                              leaveFrom="transform opacity-100 scale-100"
+                              leaveTo="transform opacity-0 scale-95"
+                            >
+                              <Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div className="py-1">
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <a
+                                        href="#"
+                                        className={cn(
+                                          active
+                                            ? 'bg-gray-100 text-gray-900'
+                                            : 'text-gray-700',
+                                          'flex px-4 py-2 text-sm'
+                                        )}
+                                      >
+                                        <StarIcon
+                                          className="mr-3 h-5 w-5 text-gray-400"
+                                          aria-hidden="true"
+                                        />
+                                        <span>Add to favorites</span>
+                                      </a>
+                                    )}
+                                  </Menu.Item>
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <a
+                                        href="#"
+                                        className={cn(
+                                          active
+                                            ? 'bg-gray-100 text-gray-900'
+                                            : 'text-gray-700',
+                                          'flex px-4 py-2 text-sm'
+                                        )}
+                                      >
+                                        <CodeIcon
+                                          className="mr-3 h-5 w-5 text-gray-400"
+                                          aria-hidden="true"
+                                        />
+                                        <span>Embed</span>
+                                      </a>
+                                    )}
+                                  </Menu.Item>
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <a
+                                        href="#"
+                                        className={cn(
+                                          active
+                                            ? 'bg-gray-100 text-gray-900'
+                                            : 'text-gray-700',
+                                          'flex px-4 py-2 text-sm'
+                                        )}
+                                      >
+                                        <FlagIcon
+                                          className="mr-3 h-5 w-5 text-gray-400"
+                                          aria-hidden="true"
+                                        />
+                                        <span>Report content</span>
+                                      </a>
+                                    )}
+                                  </Menu.Item>
+                                </div>
+                              </Menu.Items>
+                            </Transition>
+                          </Menu>
+                        </div>
+                      </div>
+                      <h2
+                        id={'question-title-' + question.id}
+                        className="mt-4 text-base font-medium text-gray-900"
+                      >
+                        {question.title}
+                      </h2>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+                    <div
+                      className="mt-2 text-sm text-gray-700 space-y-4"
+                      dangerouslySetInnerHTML={{ __html: question.body }}
+                    />
+                    <div className="mt-6 flex justify-between space-x-8">
+                      <div className="flex space-x-6">
+                        <span className="inline-flex items-center text-sm">
+                          <button
+                            type="button"
+                            className="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+                          >
+                            <ThumbUpIcon
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            />
+                            <span className="font-medium text-gray-900">
+                              {question.likes}
+                            </span>
+                            <span className="sr-only">likes</span>
+                          </button>
+                        </span>
+                        <span className="inline-flex items-center text-sm">
+                          <button
+                            type="button"
+                            className="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+                          >
+                            <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                            <span className="font-medium text-gray-900">
+                              {question.views}
+                            </span>
+                            <span className="sr-only">views</span>
+                          </button>
+                        </span>
+                      </div>
+                      <div className="flex text-sm">
+                        <span className="inline-flex items-center text-sm">
+                          <button
+                            type="button"
+                            className="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+                          >
+                            <ShareIcon className="h-5 w-5" aria-hidden="true" />
+                            <span className="font-medium text-gray-900">
+                              Share
+                            </span>
+                          </button>
+                        </span>
+                      </div>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          </Tab.Panel>
+          <Tab.Panel className="mt-4">
+            <ul role="list" className="space-y-4">
+              {questions.map((question) => (
+                <li
+                  key={question.id}
+                  className="bg-white px-4 py-6 shadow sm:p-6 sm:rounded-lg"
+                >
+                  <article aria-labelledby={'question-title-' + question.id}>
+                    <div>
+                      <div className="flex space-x-3">
+                        <div className="flex-shrink-0">
+                          <Image
+                            className="rounded-full"
+                            src={question.author.imageUrl}
+                            alt=""
+                            width="40"
+                            height="40"
+                            // layout="responsive"
+                            objectFit="cover"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            <a
+                              href={question.author.href}
+                              className="hover:underline"
+                            >
+                              {question.author.name}
+                            </a>
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            <a href={question.href} className="hover:underline">
+                              <time dateTime={question.datetime}>
+                                {question.date}
+                              </time>
+                            </a>
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0 self-center flex">
+                          <Menu
+                            as="div"
+                            className="relative inline-block text-left"
+                          >
+                            <div>
+                              <Menu.Button className="-m-2 p-2 rounded-full flex items-center text-gray-400 hover:text-gray-600">
+                                <span className="sr-only">Open options</span>
+                                <DotsVerticalIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              </Menu.Button>
+                            </div>
+
+                            <Transition
+                              as={Fragment}
+                              enter="transition ease-out duration-100"
+                              enterFrom="transform opacity-0 scale-95"
+                              enterTo="transform opacity-100 scale-100"
+                              leave="transition ease-in duration-75"
+                              leaveFrom="transform opacity-100 scale-100"
+                              leaveTo="transform opacity-0 scale-95"
+                            >
+                              <Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div className="py-1">
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <a
+                                        href="#"
+                                        className={cn(
+                                          active
+                                            ? 'bg-gray-100 text-gray-900'
+                                            : 'text-gray-700',
+                                          'flex px-4 py-2 text-sm'
+                                        )}
+                                      >
+                                        <StarIcon
+                                          className="mr-3 h-5 w-5 text-gray-400"
+                                          aria-hidden="true"
+                                        />
+                                        <span>Add to favorites</span>
+                                      </a>
+                                    )}
+                                  </Menu.Item>
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <a
+                                        href="#"
+                                        className={cn(
+                                          active
+                                            ? 'bg-gray-100 text-gray-900'
+                                            : 'text-gray-700',
+                                          'flex px-4 py-2 text-sm'
+                                        )}
+                                      >
+                                        <CodeIcon
+                                          className="mr-3 h-5 w-5 text-gray-400"
+                                          aria-hidden="true"
+                                        />
+                                        <span>Embed</span>
+                                      </a>
+                                    )}
+                                  </Menu.Item>
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <a
+                                        href="#"
+                                        className={cn(
+                                          active
+                                            ? 'bg-gray-100 text-gray-900'
+                                            : 'text-gray-700',
+                                          'flex px-4 py-2 text-sm'
+                                        )}
+                                      >
+                                        <FlagIcon
+                                          className="mr-3 h-5 w-5 text-gray-400"
+                                          aria-hidden="true"
+                                        />
+                                        <span>Report content</span>
+                                      </a>
+                                    )}
+                                  </Menu.Item>
+                                </div>
+                              </Menu.Items>
+                            </Transition>
+                          </Menu>
+                        </div>
+                      </div>
+                      <h2
+                        id={'question-title-' + question.id}
+                        className="mt-4 text-base font-medium text-gray-900"
+                      >
+                        {question.title}
+                      </h2>
+                    </div>
+                    <div
+                      className="mt-2 text-sm text-gray-700 space-y-4"
+                      dangerouslySetInnerHTML={{ __html: question.body }}
+                    />
+                    <div className="mt-6 flex justify-between space-x-8">
+                      <div className="flex space-x-6">
+                        <span className="inline-flex items-center text-sm">
+                          <button
+                            type="button"
+                            className="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+                          >
+                            <ThumbUpIcon
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            />
+                            <span className="font-medium text-gray-900">
+                              {question.likes}
+                            </span>
+                            <span className="sr-only">likes</span>
+                          </button>
+                        </span>
+                        <span className="inline-flex items-center text-sm">
+                          <button
+                            type="button"
+                            className="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+                          >
+                            <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                            <span className="font-medium text-gray-900">
+                              {question.views}
+                            </span>
+                            <span className="sr-only">views</span>
+                          </button>
+                        </span>
+                      </div>
+                      <div className="flex text-sm">
+                        <span className="inline-flex items-center text-sm">
+                          <button
+                            type="button"
+                            className="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+                          >
+                            <ShareIcon className="h-5 w-5" aria-hidden="true" />
+                            <span className="font-medium text-gray-900">
+                              Share
+                            </span>
+                          </button>
+                        </span>
+                      </div>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          </Tab.Panel>
+        </Tab.Panels>
+      </Tab.Group>
     </div>
   )
 }
+
+export default BlogSection
