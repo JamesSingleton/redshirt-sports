@@ -3,7 +3,7 @@ import FeaturedArticle from '../FeaturedArticle'
 
 const FeaturedArticleSection: FC = () => {
   return (
-    <div className="sticky top-4 space-y-4">
+    <>
       <FeaturedArticle
         title="Featured FCS"
         imageSrc="https://vmikeydets.com/images/2021/10/2/8CS_8745.JPG?width=1920&quality=80&format=jpg"
@@ -20,7 +20,7 @@ const FeaturedArticleSection: FC = () => {
         articleHref="/fbs/tennesse-vols"
         articleSnippet="The University of Tennessee has concluded its year-long internal investigation into rules violations within the football program that led to the firing of head football coach Jeremy Pruitt and will not self-impose a bowl ban, the university announced Thursday."
       />
-    </div>
+    </>
   )
 }
 

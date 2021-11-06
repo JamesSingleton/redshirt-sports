@@ -49,11 +49,12 @@ function Home() {
     <div className="py-0 px-4 sm:py-10 max-w-3xl mx-auto sm:px-6 lg:max-w-8xl lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8">
       <div className="lg:col-span-9">
         <Hero />
-        <BlogSection />
       </div>
       <aside className="lg:col-span-3">
-        <ArticlesSection />
-        <FeaturedArticleSection />
+        <div className="sticky top-4 space-y-4">
+          <ArticlesSection />
+          <FeaturedArticleSection />
+        </div>
       </aside>
     </div>
   )

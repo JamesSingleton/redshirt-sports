@@ -29,7 +29,7 @@ const ArticlesSection: FC = () => {
       <div className="bg-white rounded-lg shadow">
         <Tab.Group>
           <Tab.List
-            className="relative z-0 rounded-lg shadow flex divide-x divide-gray-200"
+            className="relative z-0 shadow flex divide-x divide-gray-200"
             aria-label="Tabs"
           >
             <Tab as={Fragment}>
@@ -40,7 +40,7 @@ const ArticlesSection: FC = () => {
                       ? 'text-gray-900'
                       : 'text-gray-500 hover:text-gray-700',
 
-                    'group relative min-w-0 flex-1 overflow-hidden bg-white py-4 px-6 text-sm font-medium text-center hover:bg-gray-50 focus:z-10'
+                    'group rounded-tl-lg relative min-w-0 flex-1 overflow-hidden bg-white py-4 px-6 text-sm font-medium text-center hover:bg-gray-50 focus:z-10'
                   )}
                 >
                   <span>Latest</span>
@@ -84,7 +84,7 @@ const ArticlesSection: FC = () => {
                       ? 'text-gray-900'
                       : 'text-gray-500 hover:text-gray-700',
 
-                    'group relative min-w-0 flex-1 overflow-hidden bg-white py-4 px-6 text-sm font-medium text-center hover:bg-gray-50 focus:z-10'
+                    'group rounded-tr-lg relative min-w-0 flex-1 overflow-hidden bg-white py-4 px-6 text-sm font-medium text-center hover:bg-gray-50 focus:z-10'
                   )}
                 >
                   <span>Audio</span>
@@ -101,8 +101,8 @@ const ArticlesSection: FC = () => {
           </Tab.List>
           <Tab.Panels>
             <Tab.Panel>
-              <div className="flow-root m-6">
-                <ul role="list" className="-my-5 divide-y divide-gray-200">
+              <div className="flow-root px-5">
+                <ul role="list" className="divide-y divide-gray-200">
                   {announcements.map((announcement) => (
                     <li key={announcement.id} className="py-5">
                       <div className="relative focus-within:ring-2 focus-within:ring-indigo-500">
@@ -128,8 +128,62 @@ const ArticlesSection: FC = () => {
                 </ul>
               </div>
             </Tab.Panel>
-            <Tab.Panel>Trending</Tab.Panel>
-            <Tab.Panel>Audio</Tab.Panel>
+            <Tab.Panel>
+              <div className="flow-root px-5">
+                <ul role="list" className="divide-y divide-gray-200">
+                  {announcements.map((announcement) => (
+                    <li key={announcement.id} className="py-5">
+                      <div className="relative focus-within:ring-2 focus-within:ring-indigo-500">
+                        <h3 className="text-sm font-semibold text-gray-800">
+                          <a
+                            href="#"
+                            className="hover:underline focus:outline-none"
+                          >
+                            {/* Extend touch target to entire panel */}
+                            <span
+                              className="absolute inset-0"
+                              aria-hidden="true"
+                            />
+                            {announcement.title}
+                          </a>
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                          {announcement.preview}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Tab.Panel>
+            <Tab.Panel>
+              <div className="flow-root px-5">
+                <ul role="list" className="divide-y divide-gray-200">
+                  {announcements.map((announcement) => (
+                    <li key={announcement.id} className="py-5">
+                      <div className="relative focus-within:ring-2 focus-within:ring-indigo-500">
+                        <h3 className="text-sm font-semibold text-gray-800">
+                          <a
+                            href="#"
+                            className="hover:underline focus:outline-none"
+                          >
+                            {/* Extend touch target to entire panel */}
+                            <span
+                              className="absolute inset-0"
+                              aria-hidden="true"
+                            />
+                            {announcement.title}
+                          </a>
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                          {announcement.preview}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
       </div>
