@@ -1,26 +1,26 @@
 {
-  "title": "ACME Storefront | Powered by Next.js Commerce",
+  "title": "FCS and FBS news, scores, and stats - Redshirt Sports",
   "titleTemplate": "%s - Redshirt Sports",
-  "description": "Redshirt Sports - https://www.nextjs.org/commerce",
+  "description": "Visit Redshirt Sports to get sports news coverage, scores, highlights and commentary for College Football.",
   "openGraph": {
-    "title": "ACME Storefront | Powered by Next.js Commerce",
-    "description": "Next.js Commerce - https://www.nextjs.org/commerce",
+    "title": "FCS and FBS news, scores, and stats - Redshirt Sports",
+    "description": "Visit Redshirt Sports to get sports news coverage, scores, highlights and commentary for College Football.",
     "type": "website",
     "locale": "en_IE",
-    "url": "https://nextjs.org/commerce",
-    "site_name": "Next.js Commerce",
+    "url": "https://www.redshirtsports.xyz",
+    "site_name": "Redshirt Sports",
     "images": [
       {
         "url": "/card.png",
         "width": 800,
         "height": 600,
-        "alt": "Next.js Commerce"
+        "alt": "Redshirt Sports"
       }
     ]
   },
   "twitter": {
-    "handle": "@nextjs",
-    "site": "@nextjs",
+    "handle": "@_redshirtsports",
+    "site": "@_redshirtsports",
     "cardType": "summary_large_image"
   }
 }

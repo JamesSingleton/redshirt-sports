@@ -25,21 +25,20 @@ const resources = [{ name: 'Partners', href: '/partners', icon: BriefcaseIcon }]
 const blogPosts = [
   {
     id: 1,
-    name: 'Boost your conversion rate',
+    name: 'FCS: Week 11 Resumes For The Top 10-Ranked Teams',
     href: '#',
-    preview:
-      'Eget ullamcorper ac ut vulputate fames nec mattis pellentesque elementum. Viverra tempor id mus.',
+    preview: 'Top 10 teams and their resumes.',
     imageUrl:
-      'https://images.unsplash.com/photo-1558478551-1a378f63328e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2849&q=80',
+      'https://herosports.com/wp-content/uploads/2021/11/Kennesaw-Football-Top-25-750x375.jpeg',
   },
   {
     id: 2,
-    name: 'How to use search engine optimization to drive traffic to your site',
+    name: 'James Madison Announces Transition To FBS',
     href: '#',
     preview:
-      'Eget ullamcorper ac ut vulputate fames nec mattis pellentesque elementum. Viverra tempor id mus.',
+      'It was the culmination of years of scuttlebutt and rumors Saturday morning at the Atlantic Union Bank Center.',
     imageUrl:
-      'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2300&q=80',
+      'https://herosports.com/wp-content/uploads/2021/11/JMU-Sun-Belt-750x375.jpg',
   },
 ]
 
@@ -65,12 +64,6 @@ const Navbar: FC = () => {
                 />
               </a>
             </Link>
-          </div>
-          <div className="-mr-2 -my-2 md:hidden">
-            <Popover.Button className="bg-gray-800 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-              <span className="sr-only">Open menu</span>
-              <MenuIcon className="h-6 w-6" aria-hidden="true" />
-            </Popover.Button>
           </div>
           <div className="hidden md:flex-1 md:flex md:items-center md:justify-between">
             <Popover.Group as="nav" className="flex space-x-10">
@@ -167,7 +160,7 @@ const Navbar: FC = () => {
                           <div className="bg-gray-50 px-4 py-8 sm:py-12 sm:px-6 lg:px-8 xl:pl-12">
                             <div>
                               <h3 className="text-sm font-medium tracking-wide text-gray-500 uppercase">
-                                From the blog
+                                Featured Articles
                               </h3>
                               <ul role="list" className="mt-6 space-y-6">
                                 {blogPosts.map((post) => (
@@ -198,16 +191,6 @@ const Navbar: FC = () => {
                                 ))}
                               </ul>
                             </div>
-                            <div className="mt-6 text-sm font-medium">
-                              <a
-                                href="#"
-                                className="text-indigo-600 hover:text-indigo-500"
-                              >
-                                {' '}
-                                View all posts{' '}
-                                <span aria-hidden="true">&rarr;</span>
-                              </a>
-                            </div>
                           </div>
                         </div>
                       </Popover.Panel>
@@ -216,28 +199,34 @@ const Navbar: FC = () => {
                 )}
               </Popover>
             </Popover.Group>
-            <div className="flex-1 flex justify-center px-2 lg:ml-6 lg:justify-end">
-              <div className="max-w-lg w-full lg:max-w-xs">
-                <label htmlFor="search" className="sr-only">
-                  Search
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <SearchIcon
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <input
-                    id="search"
-                    name="search"
-                    className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-white focus:ring-white focus:text-gray-900 sm:text-sm"
-                    placeholder="Search"
-                    type="search"
+          </div>
+          <div className="flex-1 flex justify-center px-2 lg:ml-6 lg:justify-end">
+            <div className="max-w-lg w-full lg:max-w-xs">
+              <label htmlFor="search" className="sr-only">
+                Search
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <SearchIcon
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
                   />
                 </div>
+                <input
+                  id="search"
+                  name="search"
+                  className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-white focus:ring-white focus:text-gray-900 sm:text-sm"
+                  placeholder="Search"
+                  type="search"
+                />
               </div>
             </div>
+          </div>
+          <div className="-mr-2 -my-2 md:hidden">
+            <Popover.Button className="bg-gray-800 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+              <span className="sr-only">Open menu</span>
+              <MenuIcon className="h-6 w-6" aria-hidden="true" />
+            </Popover.Button>
           </div>
         </div>
       </div>
@@ -274,75 +263,55 @@ const Navbar: FC = () => {
               </div>
               <div className="mt-6 sm:mt-8">
                 <nav>
-                  <div className="mt-8 text-base">
-                    <a
-                      href="#"
-                      className="font-medium text-indigo-600 hover:text-indigo-500"
-                    >
-                      {' '}
-                      View all products <span aria-hidden="true">&rarr;</span>
-                    </a>
+                  <div className="grid gap-7 sm:grid-cols-2 sm:gap-y-8 sm:gap-x-4">
+                    <Link href="/fcs">
+                      <a className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700">
+                        FCS
+                      </a>
+                    </Link>
+
+                    <Link href="/fbs">
+                      <a className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700">
+                        FBS
+                      </a>
+                    </Link>
                   </div>
                 </nav>
               </div>
             </div>
-            <div className="py-6 px-5">
-              <div className="grid grid-cols-2 gap-4">
-                <a
-                  href="#"
-                  className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
-                >
-                  Pricing
-                </a>
-
-                <a
-                  href="#"
-                  className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
-                >
-                  Docs
-                </a>
-
-                <a
-                  href="#"
-                  className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
-                >
-                  Company
-                </a>
-
-                <a
-                  href="#"
-                  className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
-                >
-                  Resources
-                </a>
-
-                <a
-                  href="#"
-                  className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
-                >
-                  Blog
-                </a>
-
-                <a
-                  href="#"
-                  className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
-                >
-                  Contact Sales
-                </a>
-              </div>
-              <div className="mt-6">
-                <a
-                  href="#"
-                  className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                >
-                  Sign up
-                </a>
-                <p className="mt-6 text-center text-base font-medium text-gray-500">
-                  Existing customer?{' '}
-                  <a href="#" className="text-indigo-600 hover:text-indigo-500">
-                    Sign in
-                  </a>
-                </p>
+            <div className="bg-gray-50 px-4 py-8 rounded-b-md">
+              <div>
+                <h3 className="text-sm font-medium tracking-wide text-gray-500 uppercase">
+                  Featured Articles
+                </h3>
+                <ul role="list" className="mt-6 space-y-6">
+                  {blogPosts.map((post) => (
+                    <li key={post.id} className="flow-root">
+                      <a
+                        href={post.href}
+                        className="p-3 flex rounded-lg hover:bg-gray-100"
+                      >
+                        <div className="flex-shrink-0">
+                          <Image
+                            className="w-32 h-20 object-cover rounded-md"
+                            src={post.imageUrl}
+                            alt=""
+                            width="128"
+                            height="80"
+                          />
+                        </div>
+                        <div className="ml-4 w-0 flex-1 sm:ml-8">
+                          <h4 className="text-base font-medium text-gray-900 truncate">
+                            {post.name}
+                          </h4>
+                          <p className="mt-1 text-sm text-gray-500">
+                            {post.preview}
+                          </p>
+                        </div>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
