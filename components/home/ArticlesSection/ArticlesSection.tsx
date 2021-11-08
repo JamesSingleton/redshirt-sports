@@ -29,7 +29,7 @@ const ArticlesSection: FC = () => {
       <div className="bg-white rounded-lg shadow">
         <Tab.Group>
           <Tab.List
-            className="relative z-0 shadow flex divide-x divide-gray-200"
+            className="relative rounded-lg z-0 shadow flex divide-x divide-gray-200"
             aria-label="Tabs"
           >
             <Tab as={Fragment}>
