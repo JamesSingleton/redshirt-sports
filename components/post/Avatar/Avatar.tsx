@@ -18,7 +18,7 @@ const Avatar: FC<AvatarProps> = ({ name, image, dateString, slug }) => {
         <div className="relative">
           <Image
             className="h-9 w-9 rounded-full"
-            src={urlForImage(image).height(36).width(36).url()}
+            src={urlForImage(image).height(36).width(36).url()!}
             alt={name}
             width="36"
             height="36"

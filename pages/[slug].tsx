@@ -5,8 +5,48 @@ import { ClockIcon } from '@heroicons/react/outline'
 import { Layout } from '@components/common'
 import { PostHeader } from '@components/post'
 import { postQuery, postSlugsQuery } from '@lib/sanityGroqQueries'
-import { urlForImage, usePreviewSubscription } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity'
 import { sanityClient, getClient, overlayDrafts } from '@lib/sanity.server'
+
+interface PostProps {
+  data: {
+    post: {
+      _id: string
+      author: {
+        name: string
+        image: string
+        slug: string
+      }
+      mainImage: string
+      publishedAt: string
+      slug: string
+      title: string
+      category: {
+        title: string
+        description: string
+      }
+    }
+    morePosts: [
+      {
+        _id: string
+        author: {
+          name: string
+          image: string
+          slug: string
+        }
+        mainImage: string
+        publishedAt: string
+        slug: string
+        title: string
+        category: {
+          title: string
+          description: string
+        }
+      }
+    ]
+  }
+  preview: boolean
+}
 
 const messages = [
   {
@@ -47,22 +87,12 @@ const messages = [
   },
 ]
 
-const author = {
-  picture: '/images/james_singleton.png',
-  name: 'James Singleton',
-}
-
-const Post = ({ data = {}, preview }) => {
+const Post = ({ data, preview }: PostProps) => {
   const router = useRouter()
 
   const slug = data?.post?.slug
-  const {
-    data: { post, morePosts },
-  } = usePreviewSubscription(postQuery, {
-    params: { slug },
-    initialData: data,
-    enabled: preview && slug,
-  })
+  const { post, morePosts } = data
+
   return (
     <>
       <div className="sm:my-8 max-w-3xl mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-col-dense lg:grid-cols-3">
@@ -120,10 +150,9 @@ const Post = ({ data = {}, preview }) => {
               <div className="w-full relative">
                 <div>
                   <Image
-                    src={urlForImage(post.mainImage)
-                      .height(574)
-                      .width(1020)
-                      .url()}
+                    src={
+                      urlForImage(post.mainImage).height(574).width(1020).url()!
+                    }
                     width="1020"
                     height="574"
                     layout="responsive"
@@ -188,7 +217,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   return {
     paths: paths.map((slug: string) => ({ params: { slug } })),
-    fallback: true,
+    fallback: 'blocking',
   }
 }
 
