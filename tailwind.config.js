@@ -8,6 +8,7 @@ module.exports = {
     extend: {
       colors: {
         rose: colors.rose,
+        'warm-gray': colors.warmGray,
       },
       maxWidth: {
         '8xl': '1920px',
@@ -25,5 +26,6 @@ module.exports = {
     require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/forms'),
     require('@tailwindcss/line-clamp'),
+    require('@tailwindcss/typography'),
   ],
 }

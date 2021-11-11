@@ -8,7 +8,7 @@ function Home() {
         <Hero />
       </div>
       <aside className="px-4 py-4 sm:px-0 sm:py-0 lg:col-span-3">
-        <div className="sticky top-4 space-y-4">
+        <div className="sticky top-28 space-y-4">
           <ArticlesSection />
           <FeaturedArticleSection />
         </div>
