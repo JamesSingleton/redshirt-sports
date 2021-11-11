@@ -11,6 +11,7 @@ module.exports = {
       'vmikeydets.com',
       'www.ncaa.com',
       'images2.minutemediacdn.com',
+      'cdn.sanity.io',
     ],
   },
   i18n: {

@@ -1,7 +1,12 @@
+import { GetStaticProps, GetStaticPaths } from 'next'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { ClockIcon } from '@heroicons/react/outline'
 import { Layout } from '@components/common'
 import { PostHeader } from '@components/post'
+import { postQuery, postSlugsQuery } from '@lib/sanityGroqQueries'
+import { urlForImage, usePreviewSubscription } from '@lib/sanity'
+import { sanityClient, getClient, overlayDrafts } from '@lib/sanity.server'
 
 const messages = [
   {
@@ -47,7 +52,17 @@ const author = {
   name: 'James Singleton',
 }
 
-const Post = () => {
+const Post = ({ data = {}, preview }) => {
+  const router = useRouter()
+
+  const slug = data?.post?.slug
+  const {
+    data: { post, morePosts },
+  } = usePreviewSubscription(postQuery, {
+    params: { slug },
+    initialData: data,
+    enabled: preview && slug,
+  })
   return (
     <>
       <div className="sm:my-8 max-w-3xl mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-col-dense lg:grid-cols-3">
@@ -105,7 +120,10 @@ const Post = () => {
               <div className="w-full relative">
                 <div>
                   <Image
-                    src="https://herosports.com/wp-content/uploads/2021/11/JMU-Sun-Belt.jpg"
+                    src={urlForImage(post.mainImage)
+                      .height(574)
+                      .width(1020)
+                      .url()}
                     width="1020"
                     height="574"
                     layout="responsive"
@@ -117,10 +135,10 @@ const Post = () => {
               {/* Article */}
               <div className="my-0 mx-auto px-4 max-w-2xl py-10 xl:px-0">
                 <PostHeader
-                  author={author}
-                  title="James Madison Announces Transition To FBS"
-                  category="fcs"
-                  date="November 6, 2021"
+                  author={post.author}
+                  title={post.title}
+                  category={post.category.title}
+                  date={post.publishedAt}
                   snippet="It was the culmination of years of scuttlebutt and rumors Saturday morning at the Atlantic Union Bank Center."
                 />
                 <div className="my-6 prose prose-indigo prose-lg text-gray-500 mx-auto">
@@ -145,5 +163,33 @@ const Post = () => {
 }
 
 Post.Layout = Layout
+
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+}) => {
+  const { post, morePosts } = await getClient(preview).fetch(postQuery, {
+    slug: params?.slug,
+  })
+
+  return {
+    props: {
+      preview,
+      data: {
+        post,
+        morePosts: overlayDrafts(morePosts),
+      },
+    },
+  }
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const paths = await sanityClient.fetch(postSlugsQuery)
+
+  return {
+    paths: paths.map((slug: string) => ({ params: { slug } })),
+    fallback: true,
+  }
+}
 
 export default Post
