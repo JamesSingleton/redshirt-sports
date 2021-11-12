@@ -43,7 +43,7 @@ const navigation = {
 
 const Footer: FC = () => {
   return (
-    <footer className="bg-white" aria-labelledby="footer-heading">
+    <footer className="bg-gray-800" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">
         Footer
       </h2>
@@ -55,7 +55,7 @@ const Footer: FC = () => {
               src="https://tailwindui.com/img/logos/workflow-mark-gray-300.svg"
               alt="Company name"
             />
-            <p className="text-gray-500 text-base">
+            <p className="text-gray-400 text-base">
               Making the world a better place through constructing elegant
               hierarchies.
             </p>
@@ -64,7 +64,7 @@ const Footer: FC = () => {
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-gray-400 hover:text-gray-500"
+                  className="text-gray-400 hover:text-gray-300"
                 >
                   <span className="sr-only">{item.name}</span>
                   <item.icon className="h-6 w-6" aria-hidden="true" />
@@ -83,7 +83,7 @@ const Footer: FC = () => {
                     <li key={item.name}>
                       <a
                         href={item.href}
-                        className="text-base text-gray-500 hover:text-gray-900"
+                        className="text-base text-gray-400 hover:text-gray-300"
                       >
                         {item.name}
                       </a>
@@ -100,7 +100,7 @@ const Footer: FC = () => {
                     <li key={item.name}>
                       <a
                         href={item.href}
-                        className="text-base text-gray-500 hover:text-gray-900"
+                        className="text-base text-gray-400 hover:text-gray-300"
                       >
                         {item.name}
                       </a>
@@ -119,7 +119,7 @@ const Footer: FC = () => {
                     <li key={item.name}>
                       <a
                         href={item.href}
-                        className="text-base text-gray-500 hover:text-gray-900"
+                        className="text-base text-gray-400 hover:text-gray-300"
                       >
                         {item.name}
                       </a>
@@ -136,7 +136,7 @@ const Footer: FC = () => {
                     <li key={item.name}>
                       <a
                         href={item.href}
-                        className="text-base text-gray-500 hover:text-gray-900"
+                        className="text-base text-gray-400 hover:text-gray-300"
                       >
                         {item.name}
                       </a>
