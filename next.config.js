@@ -18,4 +18,17 @@ module.exports = {
     locales: ['en-US'],
     defaultLocale: 'en-US',
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'x-robots-tag',
+            value: 'all',
+          },
+        ],
+      },
+    ]
+  },
 }

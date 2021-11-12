@@ -1,9 +1,10 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { ClockIcon } from '@heroicons/react/outline'
+import { NextSeo, ArticleJsonLd } from 'next-seo'
+import { CameraIcon } from '@heroicons/react/solid'
 import { Layout } from '@components/common'
-import { PostHeader } from '@components/post'
+import { PostHeader, MorePosts } from '@components/post'
 import { postQuery, postSlugsQuery } from '@lib/sanityGroqQueries'
 import { urlForImage } from '@lib/sanity'
 import { sanityClient, getClient, overlayDrafts } from '@lib/sanity.server'
@@ -12,6 +13,7 @@ interface PostProps {
   data: {
     post: {
       _id: string
+      _updatedAt: string
       author: {
         name: string
         image: string
@@ -48,107 +50,64 @@ interface PostProps {
   preview: boolean
 }
 
-const messages = [
-  {
-    id: 1,
-    title: 'FCS: Week 11 Games With Playoff Implications',
-    time: 'November 10, 2021',
-    datetime: '2021-01-27T16:35',
-    imageSrc:
-      'https://herosports.com/wp-content/uploads/2021/11/Ford_at_Wofford_CroppedLS-75x75.jpg',
-    articleLink: '/week-11-games-with-playoffs-implications',
-  },
-  {
-    id: 2,
-    title: 'FCS: Week 11 Games With Playoff Implications',
-    time: 'November 10, 2021',
-    datetime: '2021-01-27T16:35',
-    imageSrc:
-      'https://herosports.com/wp-content/uploads/2021/11/Ford_at_Wofford_CroppedLS-75x75.jpg',
-    articleLink: '/week-11-games-with-playoffs-implications',
-  },
-  {
-    id: 3,
-    title: 'FCS: Week 11 Games With Playoff Implications',
-    time: 'November 10, 2021',
-    datetime: '2021-01-27T16:35',
-    imageSrc:
-      'https://herosports.com/wp-content/uploads/2021/11/Ford_at_Wofford_CroppedLS-75x75.jpg',
-    articleLink: '/week-11-games-with-playoffs-implications',
-  },
-  {
-    id: 4,
-    title: 'FCS: Week 11 Games With Playoff Implications',
-    time: 'November 10, 2021',
-    datetime: '2021-01-27T16:35',
-    imageSrc:
-      'https://herosports.com/wp-content/uploads/2021/11/Ford_at_Wofford_CroppedLS-75x75.jpg',
-    articleLink: '/week-11-games-with-playoffs-implications',
-  },
-]
-
 const Post = ({ data, preview }: PostProps) => {
   const router = useRouter()
 
-  const slug = data?.post?.slug
   const { post, morePosts } = data
 
   return (
     <>
+      <NextSeo
+        title={`${post.title}`}
+        canonical={`https://www.redshirtsports.xyz/${post.slug}`}
+        openGraph={{
+          title: post.title,
+          url: `https://www.redshirtsports.xyz/${post.slug}`,
+          type: 'article',
+          article: {
+            publishedTime: post.publishedAt,
+            modifiedTime: post._updatedAt,
+            authors: [
+              `https://www.redshirtsports.xyz/authors/${post.author.slug}`,
+            ],
+            tags: [`${post.category.title}`],
+          },
+          images: [
+            {
+              url: urlForImage(post.mainImage).height(574).width(1020).url()!,
+              width: 1020,
+              height: 574,
+              alt: 'JMU joins SunBelt Conference',
+            },
+          ],
+        }}
+      />
+      <ArticleJsonLd
+        url={`https://www.redshirtsports.xyz/${post.slug}`}
+        title={post.title}
+        datePublished={post.publishedAt}
+        dateModified={post._updatedAt}
+        authorName={[post.author.name]}
+        publisherName="Redshirt Sports"
+        publisherLogo="https://www.redshirtsports.xyz/images/james_singleton.png"
+        images={[urlForImage(post.mainImage).height(574).width(1020).url()!]}
+        description="Post"
+      />
       <div className="sm:my-8 max-w-3xl mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-col-dense lg:grid-cols-3">
         <section
           aria-labelledby="timeline-title"
           className="hidden lg:block lg:col-start-1 lg:col-span-1"
         >
           <div className="sticky top-24 space-y-4">
-            <div className="bg-white px-4 pb-5 shadow sm:rounded-lg sm:px-6 ">
-              <ul role="list" className="divide-y space-y-5 divide-gray-200">
-                {messages.map((message) => (
-                  <li
-                    key={message.id}
-                    className="relative bg-white pt-5 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600"
-                  >
-                    <div className="flex justify-between space-x-3">
-                      <div>
-                        <Image
-                          alt="Image"
-                          src={message.imageSrc}
-                          width="75"
-                          height="75"
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <a
-                          href={message.articleLink}
-                          className="block focus:outline-none"
-                        >
-                          <span
-                            className="absolute inset-0"
-                            aria-hidden="true"
-                          />
-                          <p className="text-sm font-medium text-gray-900">
-                            {message.title}
-                          </p>
-                          <span className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500">
-                            <ClockIcon className="w-3 h-3 mr-1 inline-block" />
-                            <time dateTime={message.datetime}>
-                              {message.time}
-                            </time>
-                          </span>
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <div className="bg-white px-4 pb-5 shadow sm:rounded-lg sm:px-6 h-80"></div>
+            {morePosts.length > 0 && <MorePosts />}
           </div>
         </section>
         <div className="space-y-6 lg:col-start-2 lg:col-span-2">
           <article aria-labelledby="applicant-information-title">
             <div className="bg-white shadow sm:rounded-lg">
               <div className="w-full relative">
-                <div>
+                <figure>
                   <Image
                     src={
                       urlForImage(post.mainImage).height(574).width(1020).url()!
@@ -159,7 +118,14 @@ const Post = ({ data, preview }: PostProps) => {
                     alt="Missouri State"
                     className="sm:rounded-t-lg"
                   />
-                </div>
+                  <figcaption className="mt-3 ml-3 flex text-sm text-gray-500">
+                    <CameraIcon
+                      className="flex-none w-5 h-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                    <span className="ml-2">Source: JMU Athletics</span>
+                  </figcaption>
+                </figure>
               </div>
               {/* Article */}
               <div className="my-0 mx-auto px-4 max-w-2xl py-10 xl:px-0">

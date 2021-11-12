@@ -33,7 +33,9 @@ const Avatar: FC<AvatarProps> = ({ name, image, dateString, slug }) => {
         <span>
           By&nbsp;
           <Link href={`/authors/${slug}`}>
-            <a className="font-bold text-warm-gray-900">{name}</a>
+            <a rel="author" className="font-bold text-warm-gray-900">
+              {name}
+            </a>
           </Link>
         </span>
         <p className="text-sm font-medium text-gray-500">
