@@ -248,10 +248,12 @@ const Navbar: FC = () => {
             <div className="pt-5 pb-6 px-5 sm:pb-8">
               <div className="flex items-center justify-between">
                 <div>
-                  <img
+                  <Image
                     className="h-8 w-auto"
                     src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
                     alt="Workflow"
+                    height="32"
+                    width="32"
                   />
                 </div>
                 <div className="-mr-2">

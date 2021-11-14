@@ -14,10 +14,6 @@ module.exports = {
       'cdn.sanity.io',
     ],
   },
-  i18n: {
-    locales: ['en-US'],
-    defaultLocale: 'en-US',
-  },
   async headers() {
     return [
       {

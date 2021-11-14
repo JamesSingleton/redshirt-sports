@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "prettier-fix": "prettier --write .",
-    "find:unused": "npx next-unused"
+    "find:unused": "npx next-unused",
+    "postbuild": "next-sitemap"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",
@@ -34,6 +35,7 @@
     "eslint": "7",
     "eslint-config-next": "^12.0.3",
     "eslint-config-prettier": "^8.3.0",
+    "next-sitemap": "^1.6.203",
     "postcss": "^8.3.11",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-nesting": "^9.0.0",
