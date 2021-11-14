@@ -1,4 +1,5 @@
 import { FC, SVGProps } from 'react'
+import Image from 'next/image'
 import cn from 'classnames'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -50,10 +51,12 @@ const Footer: FC = () => {
       <div className="max-w-none mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8 xl:col-span-1">
-            <img
+            <Image
               className="h-10"
               src="https://tailwindui.com/img/logos/workflow-mark-gray-300.svg"
               alt="Company name"
+              width="40"
+              height="40"
             />
             <p className="text-gray-400 text-base">
               Making the world a better place through constructing elegant
