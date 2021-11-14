@@ -1,0 +1,26 @@
+{
+  "title": "FCS and FBS news, scores, and stats - Redshirt Sports",
+  "titleTemplate": "%s - Redshirt Sports",
+  "description": "Visit Redshirt Sports to get sports news coverage, scores, highlights and commentary for College Football.",
+  "openGraph": {
+    "title": "FCS and FBS news, scores, and stats - Redshirt Sports",
+    "description": "Visit Redshirt Sports to get sports news coverage, scores, highlights and commentary for College Football.",
+    "type": "website",
+    "locale": "en_IE",
+    "url": "https://www.redshirtsports.xyz",
+    "site_name": "Redshirt Sports",
+    "images": [
+      {
+        "url": "/card.png",
+        "width": 800,
+        "height": 600,
+        "alt": "Redshirt Sports"
+      }
+    ]
+  },
+  "twitter": {
+    "handle": "@_redshirtsports",
+    "site": "@_redshirtsports",
+    "cardType": "summary_large_image"
+  }
+}

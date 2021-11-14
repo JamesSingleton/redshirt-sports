@@ -1,0 +1,5 @@
+.root {
+  @apply sticky top-0 bg-gray-800 transition-all duration-150;
+  min-height: 74px;
+  z-index: 1;
+}
