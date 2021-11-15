@@ -55,11 +55,11 @@ const Hero: FC<HeroProps> = ({ post }) => {
                 </span>
               </div>
               <div className="m-0 w-full transform-none">
-                <Link href="#">
+                <Link href={post.slug}>
                   <a>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
                       {post.title}
-                    </h2>
+                    </h1>
                   </a>
                 </Link>
               </div>

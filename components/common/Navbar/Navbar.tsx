@@ -19,9 +19,7 @@ const company = [
   { name: 'Meet the Team', href: '/about', icon: UserGroupIcon },
   { name: 'About', href: '/about', icon: InformationCircleIcon },
   { name: 'Privacy', href: '/privacy-policy', icon: ShieldCheckIcon },
-  { name: 'Contact Us', href: '/contact-us', icon: PencilAltIcon },
 ]
-const resources = [{ name: 'Partners', href: '/partners', icon: BriefcaseIcon }]
 const blogPosts = [
   {
     id: 1,
@@ -118,28 +116,6 @@ const Navbar: FC = () => {
                               </h3>
                               <ul role="list" className="mt-5 space-y-6">
                                 {company.map((item) => (
-                                  <li key={item.name} className="flow-root">
-                                    <Link href={item.href}>
-                                      <a className="-m-3 p-3 flex items-center rounded-md text-base font-medium text-gray-900 hover:bg-gray-50">
-                                        <item.icon
-                                          className="flex-shrink-0 h-6 w-6 text-gray-400"
-                                          aria-hidden="true"
-                                        />
-                                        <span className="ml-4">
-                                          {item.name}
-                                        </span>
-                                      </a>
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div>
-                              <h3 className="text-sm font-medium tracking-wide text-gray-500 uppercase">
-                                Resources
-                              </h3>
-                              <ul role="list" className="mt-5 space-y-6">
-                                {resources.map((item) => (
                                   <li key={item.name} className="flow-root">
                                     <Link href={item.href}>
                                       <a className="-m-3 p-3 flex items-center rounded-md text-base font-medium text-gray-900 hover:bg-gray-50">

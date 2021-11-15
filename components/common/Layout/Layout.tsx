@@ -4,7 +4,7 @@ import { Navbar, Footer } from '@components/common'
 
 const Layout: FC = ({ children }) => {
   return (
-    <div>
+    <div className="h-full bg-gray-50 mx-auto transition-colors duration-150 relative overflow-hidden">
       <Navbar />
       <main className="fit">{children}</main>
       <Footer />

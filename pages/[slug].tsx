@@ -6,14 +6,32 @@ import { CameraIcon } from '@heroicons/react/solid'
 import { Layout } from '@components/common'
 import { PostHeader, MorePosts } from '@components/post'
 import { postQuery, postSlugsQuery } from '@lib/sanityGroqQueries'
-import { urlForImage } from '@lib/sanity'
+import { urlForImage, PortableText } from '@lib/sanity'
 import { sanityClient, getClient, overlayDrafts } from '@lib/sanity.server'
 
 interface PostProps {
-  data: {
-    post: {
+  post: {
+    _id: string
+    _updatedAt: string
+    author: {
+      name: string
+      image: string
+      slug: string
+    }
+    mainImage: string
+    publishedAt: string
+    slug: string
+    title: string
+    category: {
+      title: string
+      description: string
+    }
+    excerpt: string
+    body: string
+  }
+  morePosts: [
+    {
       _id: string
-      _updatedAt: string
       author: {
         name: string
         image: string
@@ -28,33 +46,10 @@ interface PostProps {
         description: string
       }
     }
-    morePosts: [
-      {
-        _id: string
-        author: {
-          name: string
-          image: string
-          slug: string
-        }
-        mainImage: string
-        publishedAt: string
-        slug: string
-        title: string
-        category: {
-          title: string
-          description: string
-        }
-      }
-    ]
-  }
-  preview: boolean
+  ]
 }
 
-const Post = ({ data, preview }: PostProps) => {
-  const router = useRouter()
-
-  const { post, morePosts } = data
-
+const Post = ({ post, morePosts }: PostProps) => {
   return (
     <>
       <NextSeo
@@ -138,19 +133,10 @@ const Post = ({ data, preview }: PostProps) => {
                   title={post?.title}
                   category={post?.category?.title}
                   date={post?.publishedAt}
-                  snippet="It was the culmination of years of scuttlebutt and rumors Saturday morning at the Atlantic Union Bank Center."
+                  snippet={post.excerpt}
                 />
                 <div className="my-6 prose prose-indigo prose-lg text-gray-500 mx-auto">
-                  <p>
-                    Faucibus commodo massa rhoncus, volutpat.{' '}
-                    <strong>Dignissim</strong> sed{' '}
-                    <strong>eget risus enim</strong>. Mattis mauris semper sed
-                    amet vitae sed turpis id. Id dolor praesent donec est. Odio
-                    penatibus risus viverra tellus varius sit neque erat velit.
-                    Faucibus commodo massa rhoncus, volutpat. Dignissim sed eget
-                    risus enim. <a href="#">Mattis mauris semper</a> sed amet
-                    vitae sed turpis id.
-                  </p>
+                  <PortableText blocks={post.body} />
                 </div>
               </div>
             </div>
@@ -173,11 +159,8 @@ export const getStaticProps: GetStaticProps = async ({
 
   return {
     props: {
-      preview,
-      data: {
-        post,
-        morePosts: overlayDrafts(morePosts),
-      },
+      post,
+      morePosts: overlayDrafts(morePosts),
     },
   }
 }

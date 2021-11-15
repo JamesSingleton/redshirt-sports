@@ -56,7 +56,7 @@ const RecentArticles: FC<RecentArticlesProps> = ({ posts, authorName }) => {
                   <h3 className="text-base text-warm-gray-900 leading-6 font-bold sm:text-2xl">
                     {post.title}
                   </h3>
-                  <p className="mt-1 text-sm text-gray-500">{post.preview}</p>
+                  <p className="mt-1 text-sm text-gray-500">{post.excerpt}</p>
                 </div>
               </a>
             </Link>
