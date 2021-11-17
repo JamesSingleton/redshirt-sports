@@ -1,6 +1,5 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 import Image from 'next/image'
-import { useRouter } from 'next/router'
 import { NextSeo, ArticleJsonLd } from 'next-seo'
 import { CameraIcon } from '@heroicons/react/solid'
 import { Layout } from '@components/common'
@@ -50,6 +49,7 @@ interface PostProps {
 }
 
 const Post = ({ post, morePosts }: PostProps) => {
+  console.log('INSIDE SLUG FILE')
   return (
     <>
       <NextSeo
@@ -157,6 +157,10 @@ export const getStaticProps: GetStaticProps = async ({
     slug: params?.slug,
   })
 
+  if (!post) {
+    return { notFound: true }
+  }
+
   return {
     props: {
       post,
@@ -167,6 +171,8 @@ export const getStaticProps: GetStaticProps = async ({
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const paths = await sanityClient.fetch(postSlugsQuery)
+
+  console.log('INSIDE HERE 2')
 
   return {
     paths: paths.map((slug: string) => ({ params: { slug } })),

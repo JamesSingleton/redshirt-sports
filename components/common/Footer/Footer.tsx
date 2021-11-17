@@ -4,8 +4,7 @@ import Link from 'next/link'
 /* This example requires Tailwind CSS v2.0+ */
 const navigation = {
   main: [
-    { name: 'About', href: '/about' },
-    { name: 'Team', href: '/authors' },
+    { name: 'Meet the Team', href: '/authors' },
     { name: 'FBS', href: '/fbs' },
     { name: 'FCS', href: '/fcs' },
   ],

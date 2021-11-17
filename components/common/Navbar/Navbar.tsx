@@ -1,44 +1,10 @@
 import { Fragment, FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import cn from 'classnames'
 import { Popover, Transition } from '@headlessui/react'
-import {
-  BriefcaseIcon,
-  InformationCircleIcon,
-  MenuIcon,
-  ShieldCheckIcon,
-  PencilAltIcon,
-  XIcon,
-  UserGroupIcon,
-} from '@heroicons/react/outline'
-import { ChevronDownIcon, SearchIcon } from '@heroicons/react/solid'
+import { MenuIcon, XIcon } from '@heroicons/react/outline'
+import { SearchIcon } from '@heroicons/react/solid'
 import NavbarRoot from './NavbarRoot'
-
-const company = [
-  { name: 'Meet the Team', href: '/about', icon: UserGroupIcon },
-  { name: 'About', href: '/about', icon: InformationCircleIcon },
-  { name: 'Privacy', href: '/privacy-policy', icon: ShieldCheckIcon },
-]
-const blogPosts = [
-  {
-    id: 1,
-    name: 'FCS: Week 11 Resumes For The Top 10-Ranked Teams',
-    href: '#',
-    preview: 'Top 10 teams and their resumes.',
-    imageUrl:
-      'https://herosports.com/wp-content/uploads/2021/11/Kennesaw-Football-Top-25-750x375.jpeg',
-  },
-  {
-    id: 2,
-    name: 'James Madison Announces Transition To FBS',
-    href: '#',
-    preview:
-      'It was the culmination of years of scuttlebutt and rumors Saturday morning at the Atlantic Union Bank Center.',
-    imageUrl:
-      'https://herosports.com/wp-content/uploads/2021/11/JMU-Sun-Belt-750x375.jpg',
-  },
-]
 
 const Navbar: FC = () => {
   return (
@@ -75,105 +41,11 @@ const Navbar: FC = () => {
                   FCS
                 </a>
               </Link>
-              <Popover>
-                {({ open }) => (
-                  <>
-                    <Popover.Button
-                      className={cn(
-                        open ? 'text-white bg-gray-900' : 'text-gray-300',
-                        'group px-3 py-2 rounded-md inline-flex items-center text-base font-medium hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
-                      )}
-                    >
-                      <span>More</span>
-                      <ChevronDownIcon
-                        className={cn(
-                          open ? 'text-white' : 'text-gray-300',
-                          'ml-2 h-5 w-5 group-hover:text-white group-hover:bg-gray-700'
-                        )}
-                        aria-hidden="true"
-                      />
-                    </Popover.Button>
-
-                    <Transition
-                      as={Fragment}
-                      enter="transition ease-out duration-200"
-                      enterFrom="opacity-0 -translate-y-1"
-                      enterTo="opacity-100 translate-y-0"
-                      leave="transition ease-in duration-150"
-                      leaveFrom="opacity-100 translate-y-0"
-                      leaveTo="opacity-0 -translate-y-1"
-                    >
-                      <Popover.Panel className="hidden md:block absolute z-10 top-full inset-x-0 transform shadow-lg">
-                        <div className="absolute inset-0 flex">
-                          <div className="bg-white w-1/2" />
-                          <div className="bg-gray-50 w-1/2" />
-                        </div>
-                        <div className="relative max-w-8xl mx-auto grid grid-cols-1 lg:grid-cols-2">
-                          <nav className="grid gap-y-10 px-4 py-8 bg-white sm:grid-cols-2 sm:gap-x-8 sm:py-12 sm:px-6 lg:px-8 xl:pr-12">
-                            <div>
-                              <h3 className="text-sm font-medium tracking-wide text-gray-500 uppercase">
-                                Company
-                              </h3>
-                              <ul role="list" className="mt-5 space-y-6">
-                                {company.map((item) => (
-                                  <li key={item.name} className="flow-root">
-                                    <Link href={item.href}>
-                                      <a className="-m-3 p-3 flex items-center rounded-md text-base font-medium text-gray-900 hover:bg-gray-50">
-                                        <item.icon
-                                          className="flex-shrink-0 h-6 w-6 text-gray-400"
-                                          aria-hidden="true"
-                                        />
-                                        <span className="ml-4">
-                                          {item.name}
-                                        </span>
-                                      </a>
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </nav>
-                          <div className="bg-gray-50 px-4 py-8 sm:py-12 sm:px-6 lg:px-8 xl:pl-12">
-                            <div>
-                              <h3 className="text-sm font-medium tracking-wide text-gray-500 uppercase">
-                                Featured Articles
-                              </h3>
-                              <ul role="list" className="mt-6 space-y-6">
-                                {blogPosts.map((post) => (
-                                  <li key={post.id} className="flow-root">
-                                    <a
-                                      href={post.href}
-                                      className="-m-3 p-3 flex rounded-lg hover:bg-gray-100"
-                                    >
-                                      <div className="hidden sm:block flex-shrink-0">
-                                        <Image
-                                          className="w-32 h-20 object-cover rounded-md"
-                                          src={post.imageUrl}
-                                          alt=""
-                                          width="128"
-                                          height="80"
-                                        />
-                                      </div>
-                                      <div className="w-0 flex-1 sm:ml-8">
-                                        <h4 className="text-base font-medium text-gray-900 truncate">
-                                          {post.name}
-                                        </h4>
-                                        <p className="mt-1 text-sm text-gray-500">
-                                          {post.preview}
-                                        </p>
-                                      </div>
-                                    </a>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      </Popover.Panel>
-                    </Transition>
-                  </>
-                )}
-              </Popover>
+              <Link href="/authors">
+                <a className="text-base px-3 py-2 font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">
+                  Meet the Team
+                </a>
+              </Link>
             </Popover.Group>
           </div>
           <div className="flex-1 flex justify-center px-4 lg:ml-6 lg:justify-end">
@@ -253,43 +125,13 @@ const Navbar: FC = () => {
                         FBS
                       </a>
                     </Link>
+                    <Link href="/authors">
+                      <a className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700">
+                        Meet the Team
+                      </a>
+                    </Link>
                   </div>
                 </nav>
-              </div>
-            </div>
-            <div className="bg-gray-50 px-4 py-8 rounded-b-md">
-              <div>
-                <h3 className="text-sm font-medium tracking-wide text-gray-500 uppercase">
-                  Featured Articles
-                </h3>
-                <ul role="list" className="mt-6 space-y-6">
-                  {blogPosts.map((post) => (
-                    <li key={post.id} className="flow-root">
-                      <a
-                        href={post.href}
-                        className="p-3 flex rounded-lg hover:bg-gray-100"
-                      >
-                        <div className="flex-shrink-0">
-                          <Image
-                            className="w-32 h-20 object-cover rounded-md"
-                            src={post.imageUrl}
-                            alt=""
-                            width="128"
-                            height="80"
-                          />
-                        </div>
-                        <div className="ml-4 w-0 flex-1 sm:ml-8">
-                          <h4 className="text-base font-medium text-gray-900 truncate">
-                            {post.name}
-                          </h4>
-                          <p className="mt-1 text-sm text-gray-500">
-                            {post.preview}
-                          </p>
-                        </div>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
               </div>
             </div>
           </div>
