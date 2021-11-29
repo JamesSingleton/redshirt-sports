@@ -7,49 +7,14 @@ import { PostHeader, MorePosts } from '@components/post'
 import { postQuery, postSlugsQuery } from '@lib/sanityGroqQueries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { sanityClient, getClient, overlayDrafts } from '@lib/sanity.server'
+import type { Post } from '@lib/types/post'
 
 interface PostProps {
-  post: {
-    _id: string
-    _updatedAt: string
-    author: {
-      name: string
-      image: string
-      slug: string
-    }
-    mainImage: string
-    publishedAt: string
-    slug: string
-    title: string
-    category: {
-      title: string
-      description: string
-    }
-    excerpt: string
-    body: string
-  }
-  morePosts: [
-    {
-      _id: string
-      author: {
-        name: string
-        image: string
-        slug: string
-      }
-      mainImage: string
-      publishedAt: string
-      slug: string
-      title: string
-      category: {
-        title: string
-        description: string
-      }
-    }
-  ]
+  post: Post
+  morePosts: Post[]
 }
 
-const Post = ({ post, morePosts }: PostProps) => {
-  console.log('INSIDE SLUG FILE')
+const Article = ({ post, morePosts }: PostProps) => {
   return (
     <>
       <NextSeo
@@ -65,14 +30,14 @@ const Post = ({ post, morePosts }: PostProps) => {
             authors: [
               `https://www.redshirtsports.xyz/authors/${post?.author?.slug}`,
             ],
-            tags: [`${post?.category?.title}`],
+            tags: post.categories,
           },
           images: [
             {
               url: urlForImage(post?.mainImage).height(574).width(1020).url()!,
               width: 1020,
               height: 574,
-              alt: 'JMU joins SunBelt Conference',
+              alt: post.mainImage.caption,
             },
           ],
         }}
@@ -95,7 +60,7 @@ const Post = ({ post, morePosts }: PostProps) => {
         >
           <div className="sticky top-24 space-y-4">
             <div className="bg-white px-4 pb-5 shadow sm:rounded-lg sm:px-6 h-80"></div>
-            {morePosts.length > 0 && <MorePosts />}
+            {morePosts.length > 0 && <MorePosts morePosts={morePosts} />}
           </div>
         </section>
         <div className="space-y-6 lg:col-start-2 lg:col-span-2">
@@ -122,7 +87,7 @@ const Post = ({ post, morePosts }: PostProps) => {
                       className="flex-none w-5 h-5 text-gray-400"
                       aria-hidden="true"
                     />
-                    <span className="ml-2">Source: JMU Athletics</span>
+                    <span className="ml-2">{`Source: ${post.mainImage.attribution}`}</span>
                   </figcaption>
                 </figure>
               </div>
@@ -131,7 +96,7 @@ const Post = ({ post, morePosts }: PostProps) => {
                 <PostHeader
                   author={post?.author}
                   title={post?.title}
-                  category={post?.category?.title}
+                  category={post?.categories[0]}
                   date={post?.publishedAt}
                   snippet={post.excerpt}
                 />
@@ -147,7 +112,7 @@ const Post = ({ post, morePosts }: PostProps) => {
   )
 }
 
-Post.Layout = Layout
+Article.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async ({
   params,
@@ -172,12 +137,10 @@ export const getStaticProps: GetStaticProps = async ({
 export const getStaticPaths: GetStaticPaths = async () => {
   const paths = await sanityClient.fetch(postSlugsQuery)
 
-  console.log('INSIDE HERE 2')
-
   return {
     paths: paths.map((slug: string) => ({ params: { slug } })),
     fallback: 'blocking',
   }
 }
 
-export default Post
+export default Article

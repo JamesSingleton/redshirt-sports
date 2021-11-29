@@ -1,6 +1,7 @@
 export type PostImage = {
   url: string
-  alt: string
+  caption: string
+  attribution: string
 }
 
 export type PostAuthor = {
@@ -18,11 +19,11 @@ export type Post = {
   _id: string
   _updatedAt: string
   author: PostAuthor
-  mainImage: string
+  mainImage: PostImage
   publishedAt: string
   slug: string
   title: string
-  category: PostCategory
+  categories: string[]
   excerpt: string
   body: string
 }

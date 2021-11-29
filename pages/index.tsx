@@ -2,7 +2,7 @@ import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
 import { Hero, FeaturedArticleSection, ArticlesSection } from '@components/home'
-import { indexQuery } from '@lib/sanityGroqQueries'
+import { indexQuery, lastThreePosts } from '@lib/sanityGroqQueries'
 import { getClient } from '@lib/sanity.server'
 import type { Post } from '@lib/types/post'
 import { urlForImage } from '@lib/sanity'
@@ -14,6 +14,8 @@ interface HomeProps {
 function Home({ allPosts }: HomeProps) {
   const heroPost = allPosts[0]
   const morePosts = allPosts.slice(1)
+
+  console.log(heroPost.categories)
 
   return (
     <>
@@ -53,6 +55,10 @@ Home.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const allPosts = await getClient().fetch(indexQuery)
+  const lastThree = await getClient().fetch(lastThreePosts)
+
+  // console.log({ allPosts })
+  // console.log({ lastThree })
 
   return {
     props: {
