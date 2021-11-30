@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { parseISO, format } from 'date-fns'
 import { ClockIcon } from '@heroicons/react/outline'
 import type { Post } from '@lib/types/post'
-import { urlForImage, PortableText } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity'
 
 interface MorePostsProps {
   morePosts: Post[]

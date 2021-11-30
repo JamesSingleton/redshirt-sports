@@ -1,15 +1,39 @@
 import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
+import { ArticleSnippet, CategoryHeader } from '@components/category'
 import { getClient } from '@lib/sanity.server'
 import { allFCSPosts } from '@lib/sanityGroqQueries'
+import type { Post } from '@lib/types/post'
 
-const FCS = () => {
+interface fcsProps {
+  fcsPosts: Post[]
+}
+
+const FCS = ({ fcsPosts }: fcsProps) => {
   return (
     <>
-      <NextSeo />
-      <div>
-        <h1 className="text-4xl text-warmy-gray-900">FCS</h1>
+      <NextSeo
+        title="FCS Football"
+        description="All Articles by Redshirt Sports on NCAA Division 1 Football Championship Subdivision"
+        openGraph={{
+          title: 'FCS Football',
+          description:
+            'All Articles by Redshirt Sports on NCAA Division 1 Football Championship Subdivision',
+        }}
+      />
+      <div className="mx-auto py-12 px-4 max-w-7xl sm:px-6 lg:px-8 lg:py-24">
+        <CategoryHeader
+          heading="FCS"
+          subHeading="NCAA Division 1 Football Championship Subdivision"
+        />
+        {/* Loop over articles */}
+        <div className="pt-6">
+          {fcsPosts &&
+            fcsPosts.map((post) => (
+              <ArticleSnippet key={post.title} post={post} />
+            ))}
+        </div>
       </div>
     </>
   )

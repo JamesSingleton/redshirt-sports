@@ -33,7 +33,7 @@ const Authors = ({ authors }: any) => {
                 className="space-y-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 sm:space-y-0 lg:gap-x-8"
               >
                 {authors.map((author: any) => (
-                  <Link key={author._id} href={`/authors/${author.slug}`}>
+                  <Link key={author._id} href={`authors/${author.slug}`}>
                     <a>
                       <li>
                         <div className="space-y-4">

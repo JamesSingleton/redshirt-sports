@@ -1,13 +1,12 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
 import { getClient, sanityClient } from '@lib/sanity.server'
 import { authorSlugsQuery, postsByAuthor } from '@lib/sanityGroqQueries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { RecentArticles } from '@components/author'
-
+import type { Post } from '@lib/types/post'
 import styles from './Authors.module.css'
 
 interface AuthorProps {
@@ -18,30 +17,11 @@ interface AuthorProps {
     backgroundImage: string
     bio: string
     twitterURL: string
-    posts: [
-      {
-        _id: string
-        _updatedAt: string
-        author: {
-          name: string
-          image: string
-          slug: string
-        }
-        mainImage: string
-        publishedAt: string
-        slug: string
-        title: string
-        category: {
-          title: string
-          description: string
-        }
-      }
-    ]
+    posts: Post[]
   }
 }
 
 const Author = ({ author }: AuthorProps) => {
-  const { posts } = author
   return (
     <>
       <NextSeo

@@ -6,6 +6,12 @@ import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import { SearchIcon } from '@heroicons/react/solid'
 import NavbarRoot from './NavbarRoot'
 
+const navigation = [
+  { name: 'FBS', href: '/fbs' },
+  { name: 'FCS', href: '/fcs' },
+  { name: 'Meet the Team', href: '/authors' },
+]
+
 const Navbar: FC = () => {
   return (
     <NavbarRoot>
@@ -30,23 +36,15 @@ const Navbar: FC = () => {
             </Link>
           </div>
           <div className="hidden md:flex-1 md:flex md:items-center md:justify-between">
-            <Popover.Group as="nav" className="flex space-x-10">
-              <Link href="/fbs">
-                <a className="text-base px-3 py-2 font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">
-                  FBS
-                </a>
-              </Link>
-              <Link href="/fcs">
-                <a className="text-base px-3 py-2 font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">
-                  FCS
-                </a>
-              </Link>
-              <Link href="/authors">
-                <a className="text-base px-3 py-2 font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">
-                  Meet the Team
-                </a>
-              </Link>
-            </Popover.Group>
+            <nav className="flex space-x-10">
+              {navigation.map(({ name, href }) => (
+                <Link href={href} key={name}>
+                  <a className="text-base px-3 py-2 font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">
+                    {name}
+                  </a>
+                </Link>
+              ))}
+            </nav>
           </div>
           <div className="flex-1 flex justify-center px-4 lg:ml-6 lg:justify-end">
             <div className="max-w-lg w-full lg:max-w-xs">
@@ -114,22 +112,13 @@ const Navbar: FC = () => {
               <div className="mt-6 sm:mt-8">
                 <nav>
                   <div className="grid gap-7 sm:grid-cols-2 sm:gap-y-8 sm:gap-x-4">
-                    <Link href="/fcs">
-                      <a className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700">
-                        FCS
-                      </a>
-                    </Link>
-
-                    <Link href="/fbs">
-                      <a className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700">
-                        FBS
-                      </a>
-                    </Link>
-                    <Link href="/authors">
-                      <a className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700">
-                        Meet the Team
-                      </a>
-                    </Link>
+                    {navigation.map(({ name, href }) => (
+                      <Link href={href} key={name}>
+                        <a className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700">
+                          {name}
+                        </a>
+                      </Link>
+                    ))}
                   </div>
                 </nav>
               </div>
