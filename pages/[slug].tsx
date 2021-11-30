@@ -50,7 +50,7 @@ const Article = ({ post, morePosts }: PostProps) => {
         dateModified={post._updatedAt}
         authorName={[post.author.name]}
         publisherName="Redshirt Sports"
-        publisherLogo="https://www.redshirtsports.xyz/images/james_singleton.png"
+        publisherLogo={urlForImage(post.author.image).url()!}
         images={[urlForImage(post.mainImage).height(574).width(1020).url()!]}
         description="Post"
       />

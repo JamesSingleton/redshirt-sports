@@ -1,6 +1,7 @@
 import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
+import { Container } from '@components/ui'
 import { ArticleSnippet, CategoryHeader } from '@components/category'
 import { getClient } from '@lib/sanity.server'
 import { allFCSPosts } from '@lib/sanityGroqQueries'
@@ -23,7 +24,7 @@ const FCS = ({ fcsPosts }: fcsProps) => {
             'All Articles by Redshirt Sports on NCAA Division 1 Football Bowl Subdivision',
         }}
       />
-      <div className="mx-auto py-12 px-4 max-w-7xl sm:px-6 lg:px-8 lg:py-24">
+      <Container>
         <CategoryHeader
           heading="FBS"
           subHeading="NCAA Division 1 Football Bowl Subdivision"
@@ -35,7 +36,7 @@ const FCS = ({ fcsPosts }: fcsProps) => {
               <ArticleSnippet key={post.title} post={post} />
             ))}
         </div>
-      </div>
+      </Container>
     </>
   )
 }
