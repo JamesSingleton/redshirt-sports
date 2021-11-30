@@ -27,6 +27,18 @@ const Author = ({ author }: AuthorProps) => {
       <NextSeo
         title={`${author.name} Profile`}
         canonical={`https://www.redshirtsports.xyz/authors/${author.slug}`}
+        openGraph={{
+          title: `${author.name} Profile - Redshirt Sports`,
+          images: [
+            {
+              url: urlForImage(author.image).width(600).height(600).url()!,
+              width: 600,
+              height: 600,
+              alt: author.name,
+              type: 'image/jpeg',
+            },
+          ],
+        }}
       />
       <div className="max-w-7xl mx-auto">
         <div>

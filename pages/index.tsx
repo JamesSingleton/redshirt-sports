@@ -22,7 +22,7 @@ function Home({ allPosts }: HomeProps) {
         openGraph={{
           images: [
             {
-              url: urlForImage(heroPost?.mainImage)
+              url: urlForImage(heroPost.mainImage)
                 .width(800)
                 .height(600)
                 .url()!,
@@ -54,9 +54,6 @@ Home.Layout = Layout
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const allPosts = await getClient().fetch(indexQuery)
   const lastThree = await getClient().fetch(lastThreePosts)
-
-  // console.log({ allPosts })
-  // console.log({ lastThree })
 
   return {
     props: {

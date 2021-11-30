@@ -18,23 +18,24 @@ const Article = ({ post, morePosts }: PostProps) => {
   return (
     <>
       <NextSeo
-        title={`${post?.title}`}
-        canonical={`https://www.redshirtsports.xyz/${post?.slug}`}
+        title={post.title}
+        description={post.excerpt}
+        canonical={`https://www.redshirtsports.xyz/${post.slug}`}
         openGraph={{
-          title: post?.title,
-          url: `https://www.redshirtsports.xyz/${post?.slug}`,
+          title: `${post.title} - Redshirt Sports`,
+          url: `https://www.redshirtsports.xyz/${post.slug}`,
           type: 'article',
           article: {
-            publishedTime: post?.publishedAt,
-            modifiedTime: post?._updatedAt,
+            publishedTime: post.publishedAt,
+            modifiedTime: post._updatedAt,
             authors: [
-              `https://www.redshirtsports.xyz/authors/${post?.author?.slug}`,
+              `https://www.redshirtsports.xyz/authors/${post.author.slug}`,
             ],
             tags: post.categories,
           },
           images: [
             {
-              url: urlForImage(post?.mainImage).height(574).width(1020).url()!,
+              url: urlForImage(post.mainImage).height(574).width(1020).url()!,
               width: 1020,
               height: 574,
               alt: post.mainImage.caption,
@@ -43,14 +44,14 @@ const Article = ({ post, morePosts }: PostProps) => {
         }}
       />
       <ArticleJsonLd
-        url={`https://www.redshirtsports.xyz/${post?.slug}`}
-        title={post?.title}
-        datePublished={post?.publishedAt}
-        dateModified={post?._updatedAt}
-        authorName={[post?.author?.name]}
+        url={`https://www.redshirtsports.xyz/${post.slug}`}
+        title={post.title}
+        datePublished={post.publishedAt}
+        dateModified={post._updatedAt}
+        authorName={[post.author.name]}
         publisherName="Redshirt Sports"
         publisherLogo="https://www.redshirtsports.xyz/images/james_singleton.png"
-        images={[urlForImage(post?.mainImage).height(574).width(1020).url()!]}
+        images={[urlForImage(post.mainImage).height(574).width(1020).url()!]}
         description="Post"
       />
       <div className="sm:my-8 max-w-3xl mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-col-dense lg:grid-cols-3">
@@ -70,10 +71,7 @@ const Article = ({ post, morePosts }: PostProps) => {
                 <figure>
                   <Image
                     src={
-                      urlForImage(post?.mainImage)
-                        .height(574)
-                        .width(1020)
-                        .url()!
+                      urlForImage(post.mainImage).height(574).width(1020).url()!
                     }
                     width="1020"
                     height="574"
@@ -94,10 +92,10 @@ const Article = ({ post, morePosts }: PostProps) => {
               {/* Article */}
               <div className="my-0 mx-auto px-4 max-w-2xl py-10 xl:px-0">
                 <PostHeader
-                  author={post?.author}
-                  title={post?.title}
-                  category={post?.categories[0]}
-                  date={post?.publishedAt}
+                  author={post.author}
+                  title={post.title}
+                  category={post.categories[0]}
+                  date={post.publishedAt}
                   snippet={post.excerpt}
                 />
                 <div className="my-6 prose prose-indigo prose-lg text-gray-500 mx-auto">

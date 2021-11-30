@@ -16,8 +16,9 @@ const FCS = ({ fcsPosts }: fcsProps) => {
       <NextSeo
         title="FCS Football"
         description="All Articles by Redshirt Sports on NCAA Division 1 Football Championship Subdivision"
+        canonical="https://www.redshirtsports.xyz/fcs"
         openGraph={{
-          title: 'FCS Football',
+          title: 'FCS Football - Redshirt Sports',
           description:
             'All Articles by Redshirt Sports on NCAA Division 1 Football Championship Subdivision',
         }}

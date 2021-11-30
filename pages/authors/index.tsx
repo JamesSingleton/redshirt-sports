@@ -13,6 +13,11 @@ const Authors = ({ authors }: any) => {
       <NextSeo
         title="Meet the Team"
         description="Meet the team that makes Redshirt Sports possible!"
+        canonical="https://www.redshirtsports.xyz/authors"
+        openGraph={{
+          title: 'Meet the Team - Redshirt Sports',
+          description: 'Meet the team that makes Redshirt Sports possible!',
+        }}
       />
       <div>
         <div className="mx-auto py-12 px-4 max-w-7xl sm:px-6 lg:px-8 lg:py-24">
