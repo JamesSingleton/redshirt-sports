@@ -21,7 +21,7 @@ const FeaturedArticle: FC<FeaturedArticleProps> = ({
   return (
     <section aria-labelledby="">
       <div className="bg-white rounded-lg shadow">
-        <h2 className="p-6 pb-0 text-base font-medium text-gray-900">
+        <h2 className="h-11 mx-3 flex items-center justify-between text-base font-medium text-gray-900 border-b border-gray-300">
           {title}
         </h2>
         <div className="mt-6 flex flex-col overflow-hidden rounded-b-lg">
@@ -35,7 +35,7 @@ const FeaturedArticle: FC<FeaturedArticleProps> = ({
               objectFit="cover"
             />
           </div>
-          <div className="flex-1 bg-white p-6 flex flex-col justify-between">
+          <div className="flex-1 bg-white p-3 flex flex-col justify-between">
             <div className="flex-1">
               <Link href={articleHref}>
                 <a className="block mt-2">

@@ -1,12 +1,12 @@
 {
-  "title": "FCS and FBS news, scores, and stats - Redshirt Sports",
+  "title": "NCAA College Football Teams, News, Standings, Rumors",
   "titleTemplate": "%s - Redshirt Sports",
-  "description": "Visit Redshirt Sports to get sports news coverage, scores, highlights and commentary for College Football.",
+  "description": "Get the latest NCAA college football news, stats, standings, and rumors from Redshirt Sports.",
   "openGraph": {
-    "title": "FCS and FBS news, scores, and stats - Redshirt Sports",
-    "description": "Visit Redshirt Sports to get sports news coverage, scores, highlights and commentary for College Football.",
+    "title": "NCAA College Football Teams, News, Standings, Rumors - Redshirt Sports",
+    "description": "Get the latest NCAA college football news, stats, standings, and rumors from Redshirt Sports.",
     "type": "website",
-    "locale": "en_IE",
+    "locale": "en_US",
     "url": "https://www.redshirtsports.xyz",
     "site_name": "Redshirt Sports",
     "images": [

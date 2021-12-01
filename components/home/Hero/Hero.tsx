@@ -4,25 +4,10 @@ import Link from 'next/link'
 import { ClockIcon } from '@heroicons/react/outline'
 import { parseISO, format } from 'date-fns'
 import { urlForImage } from '@lib/sanity'
+import type { Post } from '@lib/types/post'
 
 interface HeroProps {
-  post: {
-    _id: string
-    _updatedAt: string
-    author: {
-      name: string
-      image: string
-      slug: string
-    }
-    mainImage: string
-    publishedAt: string
-    slug: string
-    title: string
-    category: {
-      title: string
-      description: string
-    }
-  }
+  post: Post
 }
 const Hero: FC<HeroProps> = ({ post }) => {
   const date = parseISO(post.publishedAt)
@@ -51,15 +36,15 @@ const Hero: FC<HeroProps> = ({ post }) => {
             <div className="w-full">
               <div className="relative mb-1 sm:mb-2.5 left-auto top-auto">
                 <span className="text-gray-50 uppercase p-0 text-xs font-normal">
-                  {post.category.title}
+                  {post.categories[0]}
                 </span>
               </div>
               <div className="m-0 w-full transform-none">
-                <Link href="#">
+                <Link href={post.slug}>
                   <a>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
                       {post.title}
-                    </h2>
+                    </h1>
                   </a>
                 </Link>
               </div>

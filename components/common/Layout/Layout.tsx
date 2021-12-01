@@ -1,12 +1,29 @@
 import React, { FC } from 'react'
-import cn from 'classnames'
+import { useRouter } from 'next/router'
+import { motion } from 'framer-motion'
 import { Navbar, Footer } from '@components/common'
 
 const Layout: FC = ({ children }) => {
+  const router = useRouter()
   return (
-    <div>
+    <div className="h-full bg-gray-50 mx-auto transition-colors duration-150 relative overflow-hidden">
       <Navbar />
-      <main className="fit">{children}</main>
+      <motion.main
+        key={router.route}
+        initial="initial"
+        animate="animate"
+        variants={{
+          initial: {
+            opacity: 0,
+          },
+          animate: {
+            opacity: 1,
+          },
+        }}
+        className="fit"
+      >
+        {children}
+      </motion.main>
       <Footer />
     </div>
   )
