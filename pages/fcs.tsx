@@ -2,7 +2,11 @@ import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
 import { Container } from '@components/ui'
-import { ArticleSnippet, CategoryHeader } from '@components/category'
+import {
+  ArticleSnippet,
+  CategoryHeader,
+  EmptyState,
+} from '@components/category'
 import { getClient } from '@lib/sanity.server'
 import { allFCSPosts } from '@lib/sanityGroqQueries'
 import type { Post } from '@lib/types/post'
@@ -35,6 +39,7 @@ const FCS = ({ fcsPosts }: fcsProps) => {
             fcsPosts.map((post) => (
               <ArticleSnippet key={post.title} post={post} />
             ))}
+          {fcsPosts.length === 0 && <EmptyState />}
         </div>
       </Container>
     </>

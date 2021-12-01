@@ -11,8 +11,9 @@ import { SITE_URL } from '@lib/constants'
 interface HomeProps {
   heroPost: Post
   morePosts: Post[]
+  featuredArticles: Post[]
 }
-function Home({ heroPost, morePosts }: HomeProps) {
+function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
   return (
     <>
       <NextSeo
@@ -39,7 +40,7 @@ function Home({ heroPost, morePosts }: HomeProps) {
         <aside className="px-4 py-4 sm:px-0 lg:py-0 lg:col-span-3">
           <div className="sticky top-28 space-y-4">
             <ArticlesSection posts={morePosts} />
-            <FeaturedArticleSection />
+            {featuredArticles.length > 0 && <FeaturedArticleSection />}
           </div>
         </aside>
       </div>
@@ -50,12 +51,15 @@ function Home({ heroPost, morePosts }: HomeProps) {
 Home.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { heroPost, morePosts } = await getClient().fetch(homePageQuery)
+  const { heroPost, morePosts, featuredArticles } = await getClient().fetch(
+    homePageQuery
+  )
 
   return {
     props: {
       heroPost,
       morePosts,
+      featuredArticles,
     },
   }
 }
