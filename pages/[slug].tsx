@@ -60,7 +60,6 @@ const Article = ({ post, morePosts }: PostProps) => {
           className="hidden lg:block lg:col-start-1 lg:col-span-1"
         >
           <div className="sticky top-24 space-y-4">
-            <div className="bg-white px-4 pb-5 shadow sm:rounded-lg sm:px-6 h-80"></div>
             {morePosts.length > 0 && <MorePosts morePosts={morePosts} />}
           </div>
         </section>
