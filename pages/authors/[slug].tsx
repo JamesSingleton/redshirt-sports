@@ -142,6 +142,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       author,
     },
+    revalidate: 86400, // Revalidate every 24 hours
   }
 }
 

@@ -61,6 +61,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       morePosts,
       featuredArticles,
     },
+    revalidate: 3600, // Revalidate every hour
   }
 }
 

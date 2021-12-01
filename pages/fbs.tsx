@@ -55,6 +55,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       fbsPosts,
     },
+    revalidate: 7200, // Revalidate every 2 hours
   }
 }
 

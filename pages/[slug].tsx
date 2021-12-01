@@ -129,6 +129,7 @@ export const getStaticProps: GetStaticProps = async ({
       post,
       morePosts: overlayDrafts(morePosts),
     },
+    revalidate: 7200, // Revalidate every 2 hours
   }
 }
 
