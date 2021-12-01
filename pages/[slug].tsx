@@ -52,7 +52,7 @@ const Article = ({ post, morePosts }: PostProps) => {
         publisherName="Redshirt Sports"
         publisherLogo={urlForImage(post.author.image).url()!}
         images={[urlForImage(post.mainImage).height(574).width(1020).url()!]}
-        description="Post"
+        description={post.excerpt}
       />
       <div className="sm:my-8 max-w-3xl mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-col-dense lg:grid-cols-3">
         <section

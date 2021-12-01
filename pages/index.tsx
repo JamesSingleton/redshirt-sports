@@ -39,7 +39,7 @@ function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
         </div>
         <aside className="px-4 py-4 sm:px-0 lg:py-0 lg:col-span-3">
           <div className="sticky top-28 space-y-4">
-            <ArticlesSection posts={morePosts} />
+            {morePosts.length > 0 && <ArticlesSection posts={morePosts} />}
             {featuredArticles.length > 0 && <FeaturedArticleSection />}
           </div>
         </aside>
