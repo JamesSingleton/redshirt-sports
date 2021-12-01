@@ -1,6 +1,6 @@
-import { Fragment, FC } from 'react'
-import cn from 'classnames'
-import { Tab } from '@headlessui/react'
+import { FC } from 'react'
+import Link from 'next/link'
+import type { Post } from '@lib/types/post'
 
 const latestArticles = [
   {
@@ -20,27 +20,33 @@ const latestArticles = [
   },
 ]
 
-const ArticlesSection: FC = () => {
+interface ArticleSectionProps {
+  posts: Post[]
+}
+
+const ArticlesSection: FC<ArticleSectionProps> = ({ posts }) => {
   return (
     <section>
       <div className="bg-white rounded-lg shadow">
         <h2 className="h-11 mx-3 flex items-center justify-between text-base font-medium text-gray-900 border-b border-gray-300">
           Recent Headlines
         </h2>
-        <div className="m-3">
-          <ul role="list" className="divide-y divide-gray-200 space-y-5">
-            {latestArticles.map(({ title, preview }) => (
-              <li key={title} className="pb-5">
+        <div className="m-3 mt-0">
+          <ul role="list" className="divide-y divide-gray-200">
+            {posts.map(({ title, excerpt, slug }) => (
+              <li key={title} className="py-5">
                 <div className="relative focus-within:ring-2 focus-within:ring-indigo-500">
                   <h3 className="text-sm font-semibold text-gray-800">
-                    <a href="#" className="hover:underline focus:outline-none">
-                      {/* Extend touch target to entire panel */}
-                      <span className="absolute inset-0" aria-hidden="true" />
-                      {title}
-                    </a>
+                    <Link href={`/${slug}`}>
+                      <a className="hover:underline focus:outline-none">
+                        {/* Extend touch target to entire panel */}
+                        <span className="absolute inset-0" aria-hidden="true" />
+                        {title}
+                      </a>
+                    </Link>
                   </h3>
                   <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                    {preview}
+                    {excerpt}
                   </p>
                 </div>
               </li>
