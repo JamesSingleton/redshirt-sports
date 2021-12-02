@@ -52,7 +52,7 @@ const Authors = ({ authors }: any) => {
                                   .height(256)
                                   .url()!
                               }
-                              alt=""
+                              alt={author.name}
                               width="384"
                               height="256"
                               layout="responsive"

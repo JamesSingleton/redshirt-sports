@@ -50,7 +50,7 @@ const Author = ({ author }: AuthorProps) => {
                   .width(1020)
                   .url()!
               }
-              alt=""
+              alt={`${author.name} banner image`}
               layout="fill"
               objectFit="cover"
             />
@@ -64,7 +64,7 @@ const Author = ({ author }: AuthorProps) => {
                     src={
                       urlForImage(author.image).height(128).width(128).url()!
                     }
-                    alt=""
+                    alt={author.name}
                     height="128"
                     width="128"
                   />

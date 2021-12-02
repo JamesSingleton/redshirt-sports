@@ -75,7 +75,7 @@ const Article = ({ post, morePosts }: PostProps) => {
                     width="1020"
                     height="574"
                     layout="responsive"
-                    alt="Missouri State"
+                    alt={post.mainImage.caption}
                     className="sm:rounded-t-lg"
                     priority
                   />

@@ -22,7 +22,7 @@ const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
             <div className="flex justify-between space-x-3">
               <div>
                 <Image
-                  alt="Image"
+                  alt={post.mainImage.caption}
                   src={urlForImage(post?.mainImage).height(75).width(75).url()!}
                   width="75"
                   height="75"

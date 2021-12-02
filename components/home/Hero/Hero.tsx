@@ -22,7 +22,7 @@ const Hero: FC<HeroProps> = ({ post }) => {
                   src={
                     urlForImage(post.mainImage).width(850).height(400).url()!
                   }
-                  alt="People working on laptops"
+                  alt={post.mainImage.caption}
                   width="850"
                   height="400"
                   layout="responsive"
