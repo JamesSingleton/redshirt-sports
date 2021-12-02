@@ -6,19 +6,11 @@ import { getClient, sanityClient } from '@lib/sanity.server'
 import { authorSlugsQuery, postsByAuthor } from '@lib/sanityGroqQueries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { RecentArticles } from '@components/author'
-import type { Post } from '@lib/types/post'
+import type { AuthorTypes } from '@lib/types/author'
 import styles from './Authors.module.css'
 
 interface AuthorProps {
-  author: {
-    name: string
-    slug: string
-    image: string
-    backgroundImage: string
-    bio: string
-    twitterURL: string
-    posts: Post[]
-  }
+  author: AuthorTypes
 }
 
 const Author = ({ author }: AuthorProps) => {
