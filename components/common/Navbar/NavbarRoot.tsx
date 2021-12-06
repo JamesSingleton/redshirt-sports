@@ -26,7 +26,10 @@ const NavbarRoot: FC = ({ children }) => {
   }, [hasScrolled])
 
   return (
-    <Popover className={cn(styles.root, { 'shadow-magical': hasScrolled })}>
+    <Popover
+      as="header"
+      className={cn(styles.root, { 'shadow-magical': hasScrolled })}
+    >
       {children}
     </Popover>
   )

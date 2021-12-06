@@ -24,9 +24,9 @@ const Authors = ({ authors }: any) => {
         <Container>
           <div className="space-y-12 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
             <div className="space-y-5 sm:space-y-4">
-              <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
                 Our Team
-              </h2>
+              </h1>
               <p className="text-xl text-gray-500">
                 Redshirt Sports is dedicated to college football with an
                 emphasis on the FCS. The only way to create such coverage is
@@ -59,7 +59,7 @@ const Authors = ({ authors }: any) => {
                             />
                           </div>
                           <div className="text-lg leading-6 font-medium space-y-1">
-                            <h3>{author.name}</h3>
+                            <h2>{author.name}</h2>
                             <p className="text-indigo-600">{author.role}</p>
                           </div>
                           <div className="text-lg">
@@ -74,7 +74,9 @@ const Authors = ({ authors }: any) => {
                                 href={author.twitterURL}
                                 className="text-gray-400 hover:text-gray-500"
                               >
-                                <span className="sr-only">Twitter</span>
+                                <span className="sr-only">
+                                  Twitter Link for ${author.name}
+                                </span>
                                 <svg
                                   className="w-5 h-5"
                                   aria-hidden="true"

@@ -75,7 +75,9 @@ const Author = ({ author }: AuthorProps) => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <span className="sr-only">Twitter</span>
+                      <span className="sr-only">
+                        Twitter link for {author.name}
+                      </span>
                       <svg
                         fill="currentColor"
                         viewBox="0 0 24 24"

@@ -55,16 +55,13 @@ const Article = ({ post, morePosts }: PostProps) => {
         description={post.excerpt}
       />
       <div className="sm:my-8 max-w-3xl mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-col-dense lg:grid-cols-3">
-        <section
-          aria-labelledby="timeline-title"
-          className="hidden lg:block lg:col-start-1 lg:col-span-1"
-        >
+        <section className="hidden lg:block lg:col-start-1 lg:col-span-1">
           <div className="sticky top-24 space-y-4">
             {morePosts.length > 0 && <MorePosts morePosts={morePosts} />}
           </div>
         </section>
         <div className="space-y-6 lg:col-start-2 lg:col-span-2">
-          <article aria-labelledby="applicant-information-title">
+          <article>
             <div className="bg-white shadow sm:rounded-lg">
               <div className="w-full relative">
                 <figure>

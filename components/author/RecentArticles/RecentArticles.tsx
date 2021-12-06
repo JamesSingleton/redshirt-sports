@@ -1,7 +1,4 @@
 import { FC } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { urlForImage } from '@lib/sanity'
 import type { Post } from '@lib/types/post'
 import { ArticleSnippet } from '@components/category'
 

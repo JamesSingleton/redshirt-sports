@@ -2,7 +2,6 @@ import { FC } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { parseISO, format } from 'date-fns'
-import { ClockIcon } from '@heroicons/react/outline'
 import { urlForImage } from '@lib/sanity'
 import type { Post } from '@lib/types/post'
 
@@ -27,14 +26,14 @@ const Snippet: FC<SnippetProps> = ({ post }) => {
           <Link href={`/${post.slug}`}>
             <a className="block focus:outline-none">
               <span className="absolute inset-0" aria-hidden="true" />
-              <h2 className="text-base sm:text-lg md:text-2xl font-semibold leading-7">
+              <h2 className="mt-1 text-base font-semibold leading-7 text-warm-gray-900 sm:text-lg sm:mt-4 md:text-2xl">
                 {post.title}
               </h2>
               <div>
-                <div className="inline-block text-xs mr-2 sm:text-sm text-gray-500">
+                <div className="inline-block text-xs mr-2 sm:text-sm text-gray-600">
                   {post.author.name}
                 </div>
-                <div className="inline-block text-xs text-gray-500 sm:text-sm">
+                <div className="inline-block text-xs text-gray-600 sm:text-sm">
                   <time dateTime={post.publishedAt}>
                     {format(parseISO(post.publishedAt), 'LLLL	d, yyyy')}
                   </time>
