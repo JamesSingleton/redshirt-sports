@@ -28,7 +28,7 @@ const Hero: FC<HeroProps> = ({ post }) => {
                   layout="responsive"
                   objectFit="cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-800 via-gray-200 to-gray-50 mix-blend-multiply" />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-400 to-gray-50 mix-blend-multiply" />
               </div>
               <div className="px-5 pb-2 pt-14 text-left absolute w-full top-auto left-0 bottom-0 sm:pb-5">
                 <div className="w-full">
