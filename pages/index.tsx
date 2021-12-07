@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next'
 import Image from 'next/image'
 import { NextSeo } from 'next-seo'
-import { Layout } from '@components/common'
+import { Layout, AdBanner } from '@components/common'
 import { Hero, FeaturedArticleSection, ArticlesSection } from '@components/home'
 import { homePageQuery } from '@lib/sanityGroqQueries'
 import { getClient } from '@lib/sanity.server'
@@ -41,6 +41,7 @@ function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
         <aside className="px-4 py-4 sm:px-0 lg:py-0 lg:col-span-3">
           <div className="sticky top-28 space-y-4">
             {morePosts.length > 0 && <ArticlesSection posts={morePosts} />}
+            <AdBanner />
             <div className="bg-white rounded-lg shadow">
               <h2 className="h-11 mx-3 flex items-center justify-between text-base font-medium text-gray-900 border-b border-gray-300">
                 Podcasts
@@ -54,35 +55,35 @@ function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
                     height="176"
                   />
                 </div>
-                <div className="flex-1 bg-white p-3 flex flex-col justify-between items-center">
-                  <div className="flex-1">
-                    <a
-                      href="https://podcasts.apple.com/us/podcast/fcs-nation/id1436799349?mt=2&ls=1"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Image
-                        src="/images/US_UK_Apple_Podcasts_Listen_Badge_RGB.svg"
-                        height="38"
-                        width="185"
-                        alt="Listen on Apple Podcasts"
-                        quality="65"
-                      />
-                    </a>
-                    <a
-                      href="https://www.stitcher.com/show/fcs-nation"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Image
-                        src="/images/stitcher_logo.svg"
-                        height="38"
-                        width="185"
-                        alt="Listen on Stitcher"
-                        quality="65"
-                      />
-                    </a>
-                  </div>
+                <div className="grid grid-cols-2 mb-6">
+                  <a
+                    href="https://podcasts.apple.com/us/podcast/fcs-nation/id1436799349?mt=2&ls=1"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Image
+                      src="/images/US_UK_Apple_Podcasts_Listen_Badge_RGB.svg"
+                      height="38"
+                      width="185"
+                      alt="Listen on Apple Podcasts"
+                      quality="65"
+                      layout="responsive"
+                    />
+                  </a>
+                  <a
+                    href="https://www.stitcher.com/show/fcs-nation"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Image
+                      src="/images/stitcher_logo.svg"
+                      height="38"
+                      width="185"
+                      alt="Listen on Stitcher"
+                      quality="65"
+                      layout="responsive"
+                    />
+                  </a>
                 </div>
               </div>
             </div>
