@@ -16,7 +16,7 @@ const Snippet: FC<SnippetProps> = ({ post }) => {
         <div className="w-40 sm:w-80">
           <Image
             alt={post.mainImage.caption}
-            src={urlForImage(post.mainImage).url()!}
+            src={urlForImage(post.mainImage).width(320).height(245).url()!}
             width="360"
             height="275"
             layout="responsive"
