@@ -7,6 +7,7 @@ declare global {
 }
 
 const AdBanner: FC = () => {
+  const ADSENSE_ID = process.env.NEXT_PUBLIC_ADSENSE_ID
   useEffect(() => {
     try {
       ;(window.adsbygoogle = window.adsbygoogle || []).push({})
@@ -20,8 +21,10 @@ const AdBanner: FC = () => {
       style={{
         display: 'block',
       }}
-      data-ad-client="ca-pub-8360890643217349"
-      data-ad-slot=""
+      data-ad-client={ADSENSE_ID}
+      data-ad-slot="9178230911"
+      data-ad-format="auto"
+      data-full-width-responsive="true"
     />
   )
 }
