@@ -19,11 +19,6 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     <>
       <Head />
       <Script
-        async
-        strategy="afterInteractive"
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?${ADSENSE_ID}`}
-      />
-      <Script
         id="adsense-init"
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{

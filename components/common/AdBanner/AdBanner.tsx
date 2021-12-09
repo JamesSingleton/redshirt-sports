@@ -6,13 +6,15 @@ declare global {
   }
 }
 
-const AdBanner: FC = () => {
+interface AdBannerProps {
+  adSlot: number
+}
+
+const AdBanner: FC<AdBannerProps> = ({ adSlot }) => {
   const ADSENSE_ID = process.env.NEXT_PUBLIC_ADSENSE_ID
   useEffect(() => {
-    try {
+    if (typeof window !== 'undefined') {
       ;(window.adsbygoogle = window.adsbygoogle || []).push({})
-    } catch (err) {
-      console.log(err)
     }
   }, [])
   return (
@@ -22,7 +24,7 @@ const AdBanner: FC = () => {
         display: 'block',
       }}
       data-ad-client={ADSENSE_ID}
-      data-ad-slot="9178230911"
+      data-ad-slot={adSlot}
       data-ad-format="auto"
       data-full-width-responsive="true"
     />

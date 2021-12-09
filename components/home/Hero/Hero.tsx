@@ -15,7 +15,7 @@ const Hero: FC<HeroProps> = ({ post }) => {
     <div className="relative overflow-hidden shadow sm:rounded-lg">
       <div className="relative">
         <section className="realtive w-full">
-          <Link href={post.slug}>
+          <Link href={`/${post.slug}`}>
             <a>
               <div className="relative">
                 <Image

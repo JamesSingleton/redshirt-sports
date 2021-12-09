@@ -2,7 +2,7 @@ import { GetStaticProps, GetStaticPaths } from 'next'
 import Image from 'next/image'
 import { NextSeo, ArticleJsonLd } from 'next-seo'
 import { CameraIcon } from '@heroicons/react/solid'
-import { Layout } from '@components/common'
+import { Layout, AdBanner } from '@components/common'
 import { PostHeader, MorePosts } from '@components/post'
 import { postQuery, postSlugsQuery } from '@lib/sanityGroqQueries'
 import { urlForImage, PortableText } from '@lib/sanity'
@@ -58,6 +58,7 @@ const Article = ({ post, morePosts }: PostProps) => {
         <section className="hidden lg:block lg:col-start-1 lg:col-span-1">
           <div className="sticky top-24 space-y-4">
             {morePosts.length > 0 && <MorePosts morePosts={morePosts} />}
+            <AdBanner adSlot={8122609047} />
           </div>
         </section>
         <div className="space-y-6 lg:col-start-2 lg:col-span-2">
