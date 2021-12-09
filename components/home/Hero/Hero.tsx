@@ -17,16 +17,15 @@ const Hero: FC<HeroProps> = ({ post }) => {
         <section className="realtive w-full">
           <Link href={post.slug}>
             <a>
-              <div className="relative w-full h-full">
+              <div className="relative">
                 <Image
                   src={
-                    urlForImage(post.mainImage).width(850).height(400).url()!
+                    urlForImage(post.mainImage).width(1020).height(574).url()!
                   }
                   alt={post.mainImage.caption}
-                  width="850"
-                  height="400"
+                  width="1020"
+                  height="574"
                   layout="responsive"
-                  objectFit="cover"
                   priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-400 to-gray-50 mix-blend-multiply" />
