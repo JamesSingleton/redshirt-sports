@@ -37,7 +37,7 @@ const FeaturedArticle: FC<FeaturedArticleProps> = ({
           </div>
           <div className="flex-1 bg-white p-3 flex flex-col justify-between">
             <div className="flex-1">
-              <Link href={articleHref}>
+              <Link href={articleHref} prefetch={false}>
                 <a className="block mt-2">
                   <p className="text-xl font-semibold text-gray-900">
                     {articleTitle}

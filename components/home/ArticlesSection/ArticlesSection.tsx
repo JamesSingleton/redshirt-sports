@@ -37,7 +37,7 @@ const ArticlesSection: FC<ArticleSectionProps> = ({ posts }) => {
               <li key={title} className="py-5">
                 <div className="relative focus-within:ring-2 focus-within:ring-indigo-500">
                   <h3 className="text-sm font-semibold text-gray-800">
-                    <Link href={`/${slug}`}>
+                    <Link href={`/${slug}`} prefetch={false}>
                       <a className="hover:underline focus:outline-none">
                         {/* Extend touch target to entire panel */}
                         <span className="absolute inset-0" aria-hidden="true" />

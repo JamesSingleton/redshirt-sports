@@ -32,7 +32,7 @@ const Avatar: FC<AvatarProps> = ({ name, image, dateString, slug }) => {
       <div>
         <span>
           By&nbsp;
-          <Link href={`/authors/${slug}`}>
+          <Link href={`/authors/${slug}`} prefetch={false}>
             <a rel="author" className="font-bold text-warm-gray-900">
               {name}
             </a>

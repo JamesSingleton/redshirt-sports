@@ -20,7 +20,7 @@ const Navbar: FC = () => {
       <div className="relative">
         <div className="flex justify-between items-center px-4 sm:px-6 md:justify-start md:space-x-10">
           <div>
-            <Link href="/">
+            <Link href="/" prefetch={false}>
               <a>
                 <span className="sr-only">Redshirt Sports</span>
                 <Image
@@ -36,7 +36,7 @@ const Navbar: FC = () => {
           <div className="hidden md:flex-1 md:flex md:items-center md:justify-between">
             <nav className="flex space-x-10">
               {navigation.map(({ name, href }) => (
-                <Link href={href} key={name}>
+                <Link href={href} key={name} prefetch={false}>
                   <a
                     className={cn(
                       asPath === href
@@ -96,7 +96,7 @@ const Navbar: FC = () => {
                   <nav>
                     <div className="grid gap-7 sm:grid-cols-2 sm:gap-y-8 sm:gap-x-4">
                       {navigation.map(({ name, href }) => (
-                        <Link href={href} key={name}>
+                        <Link href={href} key={name} prefetch={false}>
                           <a
                             onClick={() => close()}
                             className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"

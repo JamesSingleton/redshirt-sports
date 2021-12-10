@@ -29,7 +29,7 @@ const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <Link href={post.slug}>
+                <Link href={post.slug} prefetch={false}>
                   <a className="block focus:outline-none">
                     <span className="absolute inset-0" aria-hidden="true" />
                     <p className="text-sm font-medium text-gray-900">

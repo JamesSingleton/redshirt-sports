@@ -40,7 +40,7 @@ const Authors = ({ authors }: any) => {
               >
                 {authors.map((author: any) => (
                   <li key={author._id} role="listitem">
-                    <Link href={`authors/${author.slug}`}>
+                    <Link href={`authors/${author.slug}`} prefetch={false}>
                       <a>
                         <div className="space-y-4">
                           <div>

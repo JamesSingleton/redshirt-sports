@@ -31,7 +31,7 @@ export default function Footer() {
         >
           {navigation.main.map((item) => (
             <div key={item.name} className="px-5 py-2">
-              <Link href={item.href}>
+              <Link href={item.href} prefetch={false}>
                 <a className="text-base text-gray-400 hover:text-gray-300">
                   {item.name}
                 </a>

@@ -22,7 +22,7 @@ const PostHeader: FC<PostHeaderProps> = ({
 }) => {
   return (
     <>
-      <Link href={`/${category.toLowerCase()}`}>
+      <Link href={`/${category.toLowerCase()}`} prefetch={false}>
         <a className="text-red-700 font-semibold">
           <span className="text-lg uppercase">{category}</span>
         </a>
