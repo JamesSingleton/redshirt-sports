@@ -15,6 +15,7 @@ const Head: FC = () => {
           href="/images/icons/RS_192.png"
         />
         <link rel="manifest" href="/manifest.webmanifest" key="site-manifest" />
+        <meta name="theme-color" content="#DC2727" />
       </NextHead>
     </>
   )
