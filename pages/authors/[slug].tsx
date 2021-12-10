@@ -1,6 +1,6 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 import Image from 'next/image'
-import { NextSeo } from 'next-seo'
+import { NextSeo, SocialProfileJsonLd } from 'next-seo'
 import { Layout } from '@components/common'
 import { getClient, sanityClient } from '@lib/sanity.server'
 import { authorSlugsQuery, postsByAuthor } from '@lib/sanityGroqQueries'
@@ -31,6 +31,12 @@ const Author = ({ author }: AuthorProps) => {
             },
           ],
         }}
+      />
+      <SocialProfileJsonLd
+        type="Person"
+        name={author.name}
+        url={`https://www.redshirtsports.xyz/authors/${author.slug}`}
+        sameAs={[author.twitterURL]}
       />
       <div className="max-w-7xl mx-auto">
         <div>
