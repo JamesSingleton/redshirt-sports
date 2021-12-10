@@ -18,6 +18,8 @@ const NavbarRoot: FC = ({ children }) => {
       }
     }, 200)
 
+    console.log({ hasScrolled })
+
     document.addEventListener('scroll', handleScroll)
 
     return () => {
