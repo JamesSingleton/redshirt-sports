@@ -1,9 +1,10 @@
 import { Fragment, FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
+import cn from 'classnames'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
-import { SearchIcon } from '@heroicons/react/solid'
 import NavbarRoot from './NavbarRoot'
 
 const navigation = [
@@ -13,24 +14,37 @@ const navigation = [
 ]
 
 const Navbar: FC = () => {
+  const { asPath } = useRouter()
   return (
     <NavbarRoot>
-      <div
-        className="absolute inset-0 shadow z-30 pointer-events-none"
-        aria-hidden="true"
-      />
-      <div className="relative z-20">
-        <div className="max-w-8xl mx-auto flex justify-between items-center px-4 py-5 sm:px-6 sm:py-4 lg:px-8 md:justify-start md:space-x-10">
+      <div className="relative">
+        <div className="flex justify-between items-center px-4 sm:px-6 md:justify-start md:space-x-10">
           <div>
             <Link href="/">
-              <a className="flex text-4xl font-bold text-white">R/S</a>
+              <a>
+                <span className="sr-only">Redshirt Sports</span>
+                <Image
+                  src="/images/icons/RS_red.svg"
+                  alt="Redshirt Sports Logo"
+                  width="74"
+                  height="74"
+                  layout="fixed"
+                />
+              </a>
             </Link>
           </div>
           <div className="hidden md:flex-1 md:flex md:items-center md:justify-between">
             <nav className="flex space-x-10">
               {navigation.map(({ name, href }) => (
                 <Link href={href} key={name}>
-                  <a className="text-base px-3 py-2 font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">
+                  <a
+                    className={cn(
+                      asPath === href
+                        ? 'bg-gray-900 text-white'
+                        : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                      'px-3 py-2 rounded-md font-medium text-lg'
+                    )}
+                  >
                     {name}
                   </a>
                 </Link>
@@ -63,7 +77,14 @@ const Navbar: FC = () => {
             <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50">
               <div className="pt-5 pb-6 px-5 sm:pb-8">
                 <div className="flex items-center justify-between">
-                  <div className="font-bold text-3xl">R/S</div>
+                  <div>
+                    <Image
+                      src="/images/icons/RS_red.svg"
+                      height="74"
+                      width="74"
+                      alt="Redshirt Sports logo"
+                    />
+                  </div>
                   <div className="-mr-2">
                     <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                       <span className="sr-only">Close menu</span>

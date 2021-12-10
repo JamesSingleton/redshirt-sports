@@ -11,9 +11,9 @@
     "site_name": "Redshirt Sports",
     "images": [
       {
-        "url": "/card.png",
-        "width": 800,
-        "height": 600,
+        "url": "/images/icons/RS_horizontal_513x512.png",
+        "width": 513,
+        "height": 512,
         "alt": "Redshirt Sports"
       }
     ]

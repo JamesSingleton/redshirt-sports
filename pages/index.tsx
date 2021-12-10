@@ -27,14 +27,11 @@ function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
         openGraph={{
           images: [
             {
-              url: urlForImage(heroPost.mainImage)
-                .width(800)
-                .height(600)
-                .url()!,
-              width: 800,
-              height: 600,
-              alt: heroPost.title,
-              type: 'image/jpeg',
+              url: '/images/icons/RS_horizontal_513x512.png',
+              width: 513,
+              height: 512,
+              alt: 'Redshirt Sports',
+              type: 'image/png',
             },
           ],
         }}

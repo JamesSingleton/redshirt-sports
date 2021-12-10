@@ -1,3 +1,5 @@
+const withPWA = require('next-pwa')
+
 const securityHeaders = [
   {
     key: 'X-Frame-Options',
@@ -13,7 +15,7 @@ const securityHeaders = [
   },
 ]
 /** @type {import('next').NextConfig} */
-module.exports = {
+module.exports = withPWA({
   swcMinify: true,
   reactStrictMode: true,
   images: {
@@ -45,4 +47,7 @@ module.exports = {
       },
     ]
   },
-}
+  pwa: {
+    dest: 'public',
+  },
+})
