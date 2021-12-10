@@ -26,7 +26,7 @@ const Snippet: FC<SnippetProps> = ({ post }) => {
           <Link href={`/${post.slug}`} prefetch={false}>
             <a className="block focus:outline-none">
               <span className="absolute inset-0" aria-hidden="true" />
-              <h2 className="mt-1 text-base font-semibold leading-7 text-warm-gray-900 sm:text-lg sm:mt-4 md:text-2xl">
+              <h2 className="mt-1 text-base font-semibold leading-7 text-stone-900 sm:text-lg sm:mt-4 md:text-2xl">
                 {post.title}
               </h2>
               <div>

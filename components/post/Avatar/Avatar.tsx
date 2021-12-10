@@ -14,7 +14,7 @@ const Avatar: FC<AvatarProps> = ({ name, image, dateString, slug }) => {
   const date = parseISO(dateString)
   return (
     <div className="flex items-center space-x-5">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <div className="relative">
           <Image
             className="h-9 w-9 rounded-full"
@@ -33,14 +33,16 @@ const Avatar: FC<AvatarProps> = ({ name, image, dateString, slug }) => {
         <span>
           By&nbsp;
           <Link href={`/authors/${slug}`} prefetch={false}>
-            <a rel="author" className="font-bold text-warm-gray-900">
+            <a rel="author" className="font-bold text-stone-900">
               {name}
             </a>
           </Link>
         </span>
         <p className="text-sm font-medium text-gray-500">
           Published on&nbsp;
-          <time dateTime={dateString}>{format(date, 'LLLL	d, yyyy')}</time>
+          <time dateTime={dateString}>
+            {format(date, "LLLL	d, yyyy 'at' h:mm a")}
+          </time>
         </p>
       </div>
     </div>
