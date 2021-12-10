@@ -44,7 +44,6 @@ function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
           <div className="sticky top-28 space-y-4">
             {morePosts.length > 0 && <ArticlesSection posts={morePosts} />}
             <Podcasts />
-            <AdBanner adSlot={9178230911} />
             {featuredArticles.length > 0 && <FeaturedArticleSection />}
           </div>
         </aside>
