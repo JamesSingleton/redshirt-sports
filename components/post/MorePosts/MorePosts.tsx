@@ -35,7 +35,7 @@ const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
                     <p className="text-sm font-medium text-gray-900">
                       {post.title}
                     </p>
-                    <span className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500">
+                    <span className="shrink-0 whitespace-nowrap text-sm text-gray-500">
                       <ClockIcon className="w-3 h-3 mr-1 inline-block" />
                       <time dateTime={post.publishedAt}>
                         {format(parseISO(post.publishedAt), 'LLLL	d, yyyy')}

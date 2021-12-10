@@ -8,7 +8,7 @@ const Podcasts: FC = () => {
         Podcasts
       </h2>
       <div className="mt-6 flex flex-col overflow-hidden rounded-b-lg">
-        <div className="flex-shrink-0 text-center">
+        <div className="shrink-0 text-center">
           <Image
             src="/images/FCS_Nation_Logo.jpeg"
             alt="FCS Nation Logo"

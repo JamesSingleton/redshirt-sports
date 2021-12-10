@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import cn from 'classnames'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
-import NavbarRoot from './NavbarRoot'
 
 const navigation = [
   { name: 'FBS', href: '/fbs' },
@@ -16,7 +15,7 @@ const navigation = [
 const Navbar: FC = () => {
   const { asPath } = useRouter()
   return (
-    <NavbarRoot>
+    <Popover as="header" className="bg-gray-800">
       <div className="relative">
         <div className="flex justify-between items-center px-4 sm:px-6 md:justify-start md:space-x-10">
           <div>
@@ -113,7 +112,7 @@ const Navbar: FC = () => {
           )}
         </Popover.Panel>
       </Transition>
-    </NavbarRoot>
+    </Popover>
   )
 }
 

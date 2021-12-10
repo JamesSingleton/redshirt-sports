@@ -28,8 +28,8 @@ const PostHeader: FC<PostHeaderProps> = ({
         </a>
       </Link>
       <PostTitle>{title}</PostTitle>
-      <p className="mt-5 text-xl leading-5 text-warm-gray-500">{snippet}</p>
-      <div className="border-t border-warm-gray-300 py-6 mt-6">
+      <p className="mt-5 text-xl leading-5 text-stone-500">{snippet}</p>
+      <div className="border-t border-stone-300 py-6 mt-6">
         <Avatar
           name={author.name}
           slug={author.slug}
