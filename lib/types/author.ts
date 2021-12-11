@@ -6,6 +6,7 @@ export type AuthorImage = {
 
 export type AuthorTypes = {
   _id: string
+  _updatedAt: string
   name: string
   slug: string
   role: string
