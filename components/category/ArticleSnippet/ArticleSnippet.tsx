@@ -4,12 +4,14 @@ import Link from 'next/link'
 import { parseISO, format } from 'date-fns'
 import { urlForImage } from '@lib/sanity'
 import type { Post } from '@lib/types/post'
+import { usePlausible } from 'next-plausible'
 
 interface SnippetProps {
   post: Post
 }
 
 const Snippet: FC<SnippetProps> = ({ post }) => {
+  const plausible = usePlausible()
   return (
     <article className="overflow-hidden mb-7 bg-white shadow-lg rounded relative">
       <div className="flex justify-between">
@@ -24,7 +26,10 @@ const Snippet: FC<SnippetProps> = ({ post }) => {
         </div>
         <div className="min-w-0 flex-1 mx-2 sm:mx-7">
           <Link href={`/${post.slug}`} prefetch={false}>
-            <a className="block focus:outline-none">
+            <a
+              className="block focus:outline-none"
+              onClick={() => plausible(`clickOnArticleSnippet-${post.title}`)}
+            >
               <span className="absolute inset-0" aria-hidden="true" />
               <h2 className="mt-1 text-base font-semibold leading-7 text-stone-900 sm:text-lg sm:mt-4 md:text-2xl">
                 {post.title}

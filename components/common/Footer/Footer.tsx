@@ -1,5 +1,6 @@
 import { SVGProps } from 'react'
 import Link from 'next/link'
+import { usePlausible } from 'next-plausible'
 
 /* This example requires Tailwind CSS v2.0+ */
 const navigation = {
@@ -22,6 +23,7 @@ const navigation = {
 }
 
 export default function Footer() {
+  const plausible = usePlausible()
   return (
     <footer className="bg-gray-800">
       <div className="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
@@ -32,7 +34,10 @@ export default function Footer() {
           {navigation.main.map((item) => (
             <div key={item.name} className="px-5 py-2">
               <Link href={item.href} prefetch={false}>
-                <a className="text-base text-gray-400 hover:text-gray-300">
+                <a
+                  onClick={() => plausible(`clickOnFooter-${item.name}`)}
+                  className="text-base text-gray-400 hover:text-gray-300"
+                >
                   {item.name}
                 </a>
               </Link>
@@ -44,6 +49,7 @@ export default function Footer() {
             <a
               key={item.name}
               href={item.href}
+              onClick={() => plausible(`clickOnFooter-${item.name}`)}
               className="text-gray-400 hover:text-gray-500"
             >
               <span className="sr-only">{item.name}</span>

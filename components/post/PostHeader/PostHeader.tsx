@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import Link from 'next/link'
 import { PostTitle, Avatar } from '@components/post'
+import { usePlausible } from 'next-plausible'
 
 interface PostHeaderProps {
   title: string
@@ -20,10 +21,14 @@ const PostHeader: FC<PostHeaderProps> = ({
   category,
   snippet,
 }) => {
+  const plausible = usePlausible()
   return (
     <>
       <Link href={`/${category.toLowerCase()}`} prefetch={false}>
-        <a className="text-red-700 font-semibold">
+        <a
+          onClick={() => plausible(`clickOnPostCategory-${category}`)}
+          className="text-red-700 font-semibold"
+        >
           <span className="text-lg uppercase">{category}</span>
         </a>
       </Link>

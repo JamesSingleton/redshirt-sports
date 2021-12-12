@@ -13,6 +13,7 @@ import { RecentArticles } from '@components/author'
 import type { AuthorTypes } from '@lib/types/author'
 import { Post } from '@lib/types/post'
 import styles from './Authors.module.css'
+import { usePlausible } from 'next-plausible'
 
 interface AuthorProps {
   author: AuthorTypes
@@ -20,6 +21,7 @@ interface AuthorProps {
 }
 
 const Author = ({ author, posts }: AuthorProps) => {
+  const plausible = usePlausible()
   return (
     <>
       <NextSeo
@@ -86,6 +88,9 @@ const Author = ({ author, posts }: AuthorProps) => {
                       href={author.twitterURL}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() =>
+                        plausible(`clickOnAuthor-${author.name}-Twitter`)
+                      }
                     >
                       <span className="sr-only">
                         Twitter link for {author.name}

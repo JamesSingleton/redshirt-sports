@@ -1,7 +1,9 @@
 import { FC } from 'react'
 import Image from 'next/image'
+import { usePlausible } from 'next-plausible'
 
 const Podcasts: FC = () => {
+  const plausible = usePlausible()
   return (
     <div className="bg-white rounded-lg shadow">
       <h2 className="h-11 mx-3 flex items-center justify-between text-base font-medium text-gray-900 border-b border-gray-300">
@@ -21,6 +23,7 @@ const Podcasts: FC = () => {
             href="https://podcasts.apple.com/us/podcast/fcs-nation/id1436799349?mt=2&ls=1"
             target="_blank"
             rel="noreferrer"
+            onClick={() => plausible('clickApplePodcast')}
           >
             <Image
               src="/images/US_UK_Apple_Podcasts_Listen_Badge_RGB.svg"
@@ -35,6 +38,7 @@ const Podcasts: FC = () => {
             href="https://www.stitcher.com/show/fcs-nation"
             target="_blank"
             rel="noreferrer"
+            onClick={() => plausible('clickStitcherPodcast')}
           >
             <Image
               src="/images/stitcher_logo.svg"

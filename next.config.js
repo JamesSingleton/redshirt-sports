@@ -1,3 +1,5 @@
+const { withPlausibleProxy } = require('next-plausible')
+
 const securityHeaders = [
   {
     key: 'X-Frame-Options',
@@ -13,7 +15,7 @@ const securityHeaders = [
   },
 ]
 /** @type {import('next').NextConfig} */
-module.exports = {
+module.exports = withPlausibleProxy({
   swcMinify: true,
   reactStrictMode: true,
   images: {
@@ -37,4 +39,4 @@ module.exports = {
       },
     ]
   },
-}
+})

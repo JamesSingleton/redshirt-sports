@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import Link from 'next/link'
 import type { Post } from '@lib/types/post'
+import { usePlausible } from 'next-plausible'
 
 const latestArticles = [
   {
@@ -25,6 +26,7 @@ interface ArticleSectionProps {
 }
 
 const ArticlesSection: FC<ArticleSectionProps> = ({ posts }) => {
+  const plausible = usePlausible()
   return (
     <section>
       <div className="bg-white rounded-lg shadow">
@@ -38,7 +40,12 @@ const ArticlesSection: FC<ArticleSectionProps> = ({ posts }) => {
                 <div className="relative focus-within:ring-2 focus-within:ring-indigo-500">
                   <h3 className="text-sm font-semibold text-gray-800">
                     <Link href={`/${slug}`} prefetch={false}>
-                      <a className="hover:underline focus:outline-none">
+                      <a
+                        className="hover:underline focus:outline-none"
+                        onClick={() =>
+                          plausible(`clickOnRecentHeadlines-${title}`)
+                        }
+                      >
                         {/* Extend touch target to entire panel */}
                         <span className="absolute inset-0" aria-hidden="true" />
                         {title}
