@@ -3,17 +3,23 @@ import Image from 'next/image'
 import { NextSeo, SocialProfileJsonLd } from 'next-seo'
 import { Layout } from '@components/common'
 import { getClient, sanityClient } from '@lib/sanity.server'
-import { authorSlugsQuery, postsByAuthor } from '@lib/sanityGroqQueries'
+import {
+  authorSlugsQuery,
+  postsByAuthor,
+  authorBySlugQuery,
+} from '@lib/sanityGroqQueries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { RecentArticles } from '@components/author'
 import type { AuthorTypes } from '@lib/types/author'
+import { Post } from '@lib/types/post'
 import styles from './Authors.module.css'
 
 interface AuthorProps {
   author: AuthorTypes
+  posts: Post[]
 }
 
-const Author = ({ author }: AuthorProps) => {
+const Author = ({ author, posts }: AuthorProps) => {
   return (
     <>
       <NextSeo
@@ -118,7 +124,9 @@ const Author = ({ author }: AuthorProps) => {
             </div>
             {/* Article List */}
             <div className="mt-10">
-              <RecentArticles authorName={author.name} posts={author.posts} />
+              {posts?.length > 0 && (
+                <RecentArticles authorName={author.name} posts={posts} />
+              )}
             </div>
           </div>
         </div>
@@ -130,7 +138,11 @@ const Author = ({ author }: AuthorProps) => {
 Author.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const author = await getClient().fetch(postsByAuthor, {
+  const author = await getClient().fetch(authorBySlugQuery, {
+    slug: params?.slug,
+  })
+
+  const posts = await getClient().fetch(postsByAuthor, {
     slug: params?.slug,
   })
 
@@ -141,6 +153,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       author,
+      posts,
     },
     revalidate: 86400, // Revalidate every 24 hours
   }
