@@ -26,7 +26,13 @@ const PostHeader: FC<PostHeaderProps> = ({
     <>
       <Link href={`/${category.toLowerCase()}`} prefetch={false}>
         <a
-          onClick={() => plausible(`clickOnPostCategory-${category}`)}
+          onClick={() =>
+            plausible('clickOnPostCategory', {
+              props: {
+                category: category,
+              },
+            })
+          }
           className="text-red-700 font-semibold"
         >
           <span className="text-lg uppercase">{category}</span>

@@ -8,9 +8,10 @@ import { usePlausible } from 'next-plausible'
 
 interface SnippetProps {
   post: Post
+  location: string
 }
 
-const Snippet: FC<SnippetProps> = ({ post }) => {
+const Snippet: FC<SnippetProps> = ({ post, location }) => {
   const plausible = usePlausible()
   return (
     <article className="overflow-hidden mb-7 bg-white shadow-lg rounded relative">
@@ -28,7 +29,14 @@ const Snippet: FC<SnippetProps> = ({ post }) => {
           <Link href={`/${post.slug}`} prefetch={false}>
             <a
               className="block focus:outline-none"
-              onClick={() => plausible(`clickOnArticleSnippet-${post.title}`)}
+              onClick={() =>
+                plausible('clickOnArticleSnippet', {
+                  props: {
+                    title: post.title,
+                    location: location,
+                  },
+                })
+              }
             >
               <span className="absolute inset-0" aria-hidden="true" />
               <h2 className="mt-1 text-base font-semibold leading-7 text-stone-900 sm:text-lg sm:mt-4 md:text-2xl">

@@ -45,7 +45,12 @@ const Authors = ({ authors }: any) => {
                     <Link href={`authors/${author.slug}`} prefetch={false}>
                       <a
                         onClick={() =>
-                          plausible(`clickOnAuthor-${author.name}`)
+                          plausible('clickOnAuthor', {
+                            props: {
+                              name: author.name,
+                              location: 'Authors Page',
+                            },
+                          })
                         }
                       >
                         <div className="space-y-4">

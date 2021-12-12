@@ -89,7 +89,11 @@ const Author = ({ author, posts }: AuthorProps) => {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() =>
-                        plausible(`clickOnAuthor-${author.name}-Twitter`)
+                        plausible('clickOnAuthorsTwitter', {
+                          props: {
+                            author: author.name,
+                          },
+                        })
                       }
                     >
                       <span className="sr-only">

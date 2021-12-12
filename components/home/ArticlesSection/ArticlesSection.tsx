@@ -43,7 +43,11 @@ const ArticlesSection: FC<ArticleSectionProps> = ({ posts }) => {
                       <a
                         className="hover:underline focus:outline-none"
                         onClick={() =>
-                          plausible(`clickOnRecentHeadlines-${title}`)
+                          plausible('clickOnRecentHeadlines', {
+                            props: {
+                              title: title,
+                            },
+                          })
                         }
                       >
                         {/* Extend touch target to entire panel */}

@@ -43,7 +43,11 @@ const FeaturedArticle: FC<FeaturedArticleProps> = ({
                 <a
                   className="block mt-2"
                   onClick={() =>
-                    plausible(`clickOnFeaturedArticle-${articleTitle}`)
+                    plausible('clickOnFeaturedArticle', {
+                      props: {
+                        title: articleTitle,
+                      },
+                    })
                   }
                 >
                   <p className="text-xl font-semibold text-gray-900">

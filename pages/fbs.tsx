@@ -37,7 +37,7 @@ const FBS = ({ fbsPosts }: fbsProps) => {
         <div className="pt-6">
           {fbsPosts &&
             fbsPosts.map((post) => (
-              <ArticleSnippet key={post.title} post={post} />
+              <ArticleSnippet key={post.title} post={post} location="FBS" />
             ))}
           {fbsPosts.length === 0 && <EmptyState />}
         </div>

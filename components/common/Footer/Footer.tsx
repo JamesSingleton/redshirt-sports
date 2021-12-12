@@ -35,7 +35,13 @@ export default function Footer() {
             <div key={item.name} className="px-5 py-2">
               <Link href={item.href} prefetch={false}>
                 <a
-                  onClick={() => plausible(`clickOnFooter-${item.name}`)}
+                  onClick={() =>
+                    plausible('clickOnFooter', {
+                      props: {
+                        item: item.name,
+                      },
+                    })
+                  }
                   className="text-base text-gray-400 hover:text-gray-300"
                 >
                   {item.name}
@@ -49,7 +55,13 @@ export default function Footer() {
             <a
               key={item.name}
               href={item.href}
-              onClick={() => plausible(`clickOnFooter-${item.name}`)}
+              onClick={() =>
+                plausible('clickOnFooter', {
+                  props: {
+                    item: item.name,
+                  },
+                })
+              }
               className="text-gray-400 hover:text-gray-500"
             >
               <span className="sr-only">{item.name}</span>

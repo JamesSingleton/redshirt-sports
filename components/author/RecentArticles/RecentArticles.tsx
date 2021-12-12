@@ -12,7 +12,11 @@ const RecentArticles: FC<RecentArticlesProps> = ({ posts, authorName }) => {
       <h2 className="text-2xl text-stone-900">{`Recent articles by ${authorName}`}</h2>
       <div className="pt-6">
         {posts.map((post: any) => (
-          <ArticleSnippet key={post.title} post={post} />
+          <ArticleSnippet
+            key={post.title}
+            post={post}
+            location="Authors Recent Articles"
+          />
         ))}
       </div>
     </>

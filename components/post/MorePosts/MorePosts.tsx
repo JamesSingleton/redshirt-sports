@@ -35,7 +35,11 @@ const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
                   <a
                     className="block focus:outline-none"
                     onClick={() =>
-                      plausible(`clickOnPostMoreArticles-${post.title}`)
+                      plausible('clickOnPostMoreArticles', {
+                        props: {
+                          title: post.title,
+                        },
+                      })
                     }
                   >
                     <span className="absolute inset-0" aria-hidden="true" />

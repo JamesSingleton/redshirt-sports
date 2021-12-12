@@ -37,7 +37,7 @@ const FCS = ({ fcsPosts }: fcsProps) => {
         <div className="pt-6">
           {fcsPosts &&
             fcsPosts.map((post) => (
-              <ArticleSnippet key={post.title} post={post} />
+              <ArticleSnippet key={post.title} post={post} location="FCS" />
             ))}
           {fcsPosts.length === 0 && <EmptyState />}
         </div>

@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { parseISO, format } from 'date-fns'
 import { urlForImage } from '@lib/sanity'
+import { usePlausible } from 'next-plausible'
 
 interface AvatarProps {
   name: string
@@ -12,6 +13,7 @@ interface AvatarProps {
 }
 const Avatar: FC<AvatarProps> = ({ name, image, dateString, slug }) => {
   const date = parseISO(dateString)
+  const plausible = usePlausible()
   return (
     <div className="flex items-center space-x-5">
       <div className="shrink-0">
@@ -33,7 +35,18 @@ const Avatar: FC<AvatarProps> = ({ name, image, dateString, slug }) => {
         <span>
           By&nbsp;
           <Link href={`/authors/${slug}`} prefetch={false}>
-            <a rel="author" className="font-bold text-stone-900">
+            <a
+              rel="author"
+              className="font-bold text-stone-900"
+              onClick={() =>
+                plausible('clickOnAuthor', {
+                  props: {
+                    author: name,
+                    location: 'Post',
+                  },
+                })
+              }
+            >
               {name}
             </a>
           </Link>

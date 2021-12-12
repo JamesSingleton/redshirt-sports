@@ -22,7 +22,15 @@ const Navbar: FC = () => {
         <div className="flex justify-between items-center px-4 sm:px-6 md:justify-start md:space-x-10">
           <div>
             <Link href="/" prefetch={false}>
-              <a onClick={() => plausible('clickOnNavbar-Home')}>
+              <a
+                onClick={() =>
+                  plausible('clickOnNavbar', {
+                    props: {
+                      item: 'Home',
+                    },
+                  })
+                }
+              >
                 <span className="sr-only">Redshirt Sports</span>
                 <Image
                   src="/images/icons/RS_red.svg"
@@ -39,7 +47,13 @@ const Navbar: FC = () => {
               {navigation.map(({ name, href }) => (
                 <Link href={href} key={name} prefetch={false}>
                   <a
-                    onClick={() => plausible(`clickOnNavbar-${name}`)}
+                    onClick={() =>
+                      plausible('clickOnNavbar', {
+                        props: {
+                          item: name,
+                        },
+                      })
+                    }
                     className={cn(
                       asPath === href
                         ? 'bg-gray-900 text-white'
@@ -101,7 +115,11 @@ const Navbar: FC = () => {
                         <Link href={href} key={name} prefetch={false}>
                           <a
                             onClick={() => {
-                              plausible(`clickOnMobileNavbar-${name}`)
+                              plausible('clickOnMobileNavbar', {
+                                props: {
+                                  item: name,
+                                },
+                              })
                               close()
                             }}
                             className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
