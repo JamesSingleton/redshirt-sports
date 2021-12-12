@@ -18,15 +18,7 @@ module.exports = {
   reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
-    domains: [
-      'tailwindui.com',
-      'images.unsplash.com',
-      'herosports.com',
-      'vmikeydets.com',
-      'www.ncaa.com',
-      'images2.minutemediacdn.com',
-      'cdn.sanity.io',
-    ],
+    domains: ['cdn.sanity.io'],
   },
   async headers() {
     return [
