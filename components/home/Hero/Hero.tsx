@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ClockIcon } from '@heroicons/react/outline'
 import { parseISO, format } from 'date-fns'
+import { usePlausible } from 'next-plausible'
 import { urlForImage } from '@lib/sanity'
 import type { Post } from '@lib/types/post'
 
@@ -11,12 +12,13 @@ interface HeroProps {
 }
 const Hero: FC<HeroProps> = ({ post }) => {
   const date = parseISO(post.publishedAt)
+  const plausible = usePlausible()
   return (
     <div className="relative overflow-hidden shadow sm:rounded-lg">
       <div className="relative">
         <section className="realtive w-full">
           <Link href={`/${post.slug}`} prefetch={false}>
-            <a>
+            <a onClick={() => plausible('clickOnHeroImage')}>
               <div className="relative">
                 <Image
                   src={

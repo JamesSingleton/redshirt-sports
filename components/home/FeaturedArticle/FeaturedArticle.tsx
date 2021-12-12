@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePlausible } from 'next-plausible'
 
 interface FeaturedArticleProps {
   title: string
@@ -18,6 +19,7 @@ const FeaturedArticle: FC<FeaturedArticleProps> = ({
   articleTitle,
   articleSnippet,
 }) => {
+  const plausible = usePlausible()
   return (
     <section aria-labelledby="">
       <div className="bg-white rounded-lg shadow">
@@ -38,7 +40,12 @@ const FeaturedArticle: FC<FeaturedArticleProps> = ({
           <div className="flex-1 bg-white p-3 flex flex-col justify-between">
             <div className="flex-1">
               <Link href={articleHref} prefetch={false}>
-                <a className="block mt-2">
+                <a
+                  className="block mt-2"
+                  onClick={() =>
+                    plausible(`clickOnFeaturedArticle-${articleTitle}`)
+                  }
+                >
                   <p className="text-xl font-semibold text-gray-900">
                     {articleTitle}
                   </p>

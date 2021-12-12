@@ -1,7 +1,6 @@
 import { GetStaticProps } from 'next'
-import Image from 'next/image'
 import { NextSeo } from 'next-seo'
-import { Layout, AdBanner } from '@components/common'
+import { Layout } from '@components/common'
 import {
   Hero,
   FeaturedArticleSection,
@@ -11,7 +10,6 @@ import {
 import { homePageQuery } from '@lib/sanityGroqQueries'
 import { getClient } from '@lib/sanity.server'
 import type { Post } from '@lib/types/post'
-import { urlForImage } from '@lib/sanity'
 import { SITE_URL } from '@lib/constants'
 
 interface HomeProps {
@@ -27,7 +25,7 @@ function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
         openGraph={{
           images: [
             {
-              url: '/images/icons/RS_horizontal_513x512.png',
+              url: 'https://www.redshirtsports.xyz/images/icons/RS_horizontal_513x512.png',
               width: 513,
               height: 512,
               alt: 'Redshirt Sports',

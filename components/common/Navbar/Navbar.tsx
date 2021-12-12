@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import cn from 'classnames'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
+import { usePlausible } from 'next-plausible'
 
 const navigation = [
   { name: 'FBS', href: '/fbs' },
@@ -14,13 +15,14 @@ const navigation = [
 
 const Navbar: FC = () => {
   const { asPath } = useRouter()
+  const plausible = usePlausible()
   return (
     <Popover as="header" className="bg-gray-800">
       <div className="relative">
         <div className="flex justify-between items-center px-4 sm:px-6 md:justify-start md:space-x-10">
           <div>
             <Link href="/" prefetch={false}>
-              <a>
+              <a onClick={() => plausible('clickOnNavbar-Home')}>
                 <span className="sr-only">Redshirt Sports</span>
                 <Image
                   src="/images/icons/RS_red.svg"
@@ -37,6 +39,7 @@ const Navbar: FC = () => {
               {navigation.map(({ name, href }) => (
                 <Link href={href} key={name} prefetch={false}>
                   <a
+                    onClick={() => plausible(`clickOnNavbar-${name}`)}
                     className={cn(
                       asPath === href
                         ? 'bg-gray-900 text-white'
@@ -97,7 +100,10 @@ const Navbar: FC = () => {
                       {navigation.map(({ name, href }) => (
                         <Link href={href} key={name} prefetch={false}>
                           <a
-                            onClick={() => close()}
+                            onClick={() => {
+                              plausible(`clickOnMobileNavbar-${name}`)
+                              close()
+                            }}
                             className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
                           >
                             {name}

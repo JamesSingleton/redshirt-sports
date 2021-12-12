@@ -5,12 +5,14 @@ import { parseISO, format } from 'date-fns'
 import { ClockIcon } from '@heroicons/react/outline'
 import type { Post } from '@lib/types/post'
 import { urlForImage } from '@lib/sanity'
+import { usePlausible } from 'next-plausible'
 
 interface MorePostsProps {
   morePosts: Post[]
 }
 
 const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
+  const plausible = usePlausible()
   return (
     <div className="bg-white px-4 pb-5 shadow sm:rounded-lg sm:px-6">
       <ul role="list" className="divide-y space-y-5 divide-gray-200">
@@ -30,7 +32,12 @@ const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
               </div>
               <div className="min-w-0 flex-1">
                 <Link href={post.slug} prefetch={false}>
-                  <a className="block focus:outline-none">
+                  <a
+                    className="block focus:outline-none"
+                    onClick={() =>
+                      plausible(`clickOnPostMoreArticles-${post.title}`)
+                    }
+                  >
                     <span className="absolute inset-0" aria-hidden="true" />
                     <p className="text-sm font-medium text-gray-900">
                       {post.title}

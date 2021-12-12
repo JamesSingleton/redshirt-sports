@@ -7,8 +7,10 @@ import { Container } from '@components/ui'
 import { getClient } from '@lib/sanity.server'
 import { allAuthors } from '@lib/sanityGroqQueries'
 import { urlForImage, PortableText } from '@lib/sanity'
+import { usePlausible } from 'next-plausible'
 
 const Authors = ({ authors }: any) => {
+  const plausible = usePlausible()
   return (
     <>
       <NextSeo
@@ -41,7 +43,11 @@ const Authors = ({ authors }: any) => {
                 {authors.map((author: any) => (
                   <li key={author._id} role="listitem">
                     <Link href={`authors/${author.slug}`} prefetch={false}>
-                      <a>
+                      <a
+                        onClick={() =>
+                          plausible(`clickOnAuthor-${author.name}`)
+                        }
+                      >
                         <div className="space-y-4">
                           <div>
                             <Image
@@ -73,6 +79,11 @@ const Authors = ({ authors }: any) => {
                               <a
                                 href={author.twitterURL}
                                 className="text-gray-400 hover:text-gray-500"
+                                onClick={() =>
+                                  plausible(
+                                    `clickOn-${author.name}TwitterFromAuthorsPage`
+                                  )
+                                }
                               >
                                 <span className="sr-only">
                                   Twitter Link for ${author.name}
