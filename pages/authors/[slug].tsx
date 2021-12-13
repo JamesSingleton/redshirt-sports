@@ -5,8 +5,7 @@ import { Layout } from '@components/common'
 import { getClient, sanityClient } from '@lib/sanity.server'
 import {
   authorSlugsQuery,
-  postsByAuthor,
-  authorBySlugQuery,
+  authorAndTheirPostsBySlug,
 } from '@lib/sanityGroqQueries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { RecentArticles } from '@components/author'
@@ -17,10 +16,9 @@ import { usePlausible } from 'next-plausible'
 
 interface AuthorProps {
   author: AuthorTypes
-  posts: Post[]
 }
 
-const Author = ({ author, posts }: AuthorProps) => {
+const Author = ({ author }: AuthorProps) => {
   const plausible = usePlausible()
   return (
     <>
@@ -133,8 +131,8 @@ const Author = ({ author, posts }: AuthorProps) => {
             </div>
             {/* Article List */}
             <div className="mt-10">
-              {posts?.length > 0 && (
-                <RecentArticles authorName={author.name} posts={posts} />
+              {author.posts && author.posts?.length > 0 && (
+                <RecentArticles authorName={author.name} posts={author.posts} />
               )}
             </div>
           </div>
@@ -147,11 +145,7 @@ const Author = ({ author, posts }: AuthorProps) => {
 Author.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const author = await getClient().fetch(authorBySlugQuery, {
-    slug: params?.slug,
-  })
-
-  const posts = await getClient().fetch(postsByAuthor, {
+  const author = await getClient().fetch(authorAndTheirPostsBySlug, {
     slug: params?.slug,
   })
 
@@ -162,7 +156,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       author,
-      posts,
     },
     revalidate: 86400, // Revalidate every 24 hours
   }
