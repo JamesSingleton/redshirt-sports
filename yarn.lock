@@ -430,10 +430,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-15.14.9.tgz#bc43c990c3c9be7281868bbc7b8fdd6e2b57adfa"
   integrity sha512-qjd88DrCxupx/kJD5yQgZdcYKZKSIGBVDIBE1/LTGcNm3d2Np/jxojkdePDdfnBHJc5W7vSMpbJ1aB7p/Py69A==
 
-"@types/node@^16.11.12":
-  version "16.11.12"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.12.tgz#ac7fb693ac587ee182c3780c26eb65546a1a3c10"
-  integrity sha512-+2Iggwg7PxoO5Kyhvsq9VarmPbIelXP070HMImEpbtGCoyWNINQj4wzjbQCXzdHTRXnqufutJb5KAURZANNBAw==
+"@types/node@^16.11.13":
+  version "16.11.13"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.13.tgz#6b71641b81a98c6a538d89892440c06f147edddc"
+  integrity sha512-eUXZzHLHoZqj1frtUetNkUetYoJ6X55UmrVnFD4DMhVeAmwLjniZhtBmsRiemQh4uq4G3vUra/Ws/hs9vEvL3Q==
 
 "@types/parse-json@^4.0.0":
   version "4.0.0"
@@ -3367,6 +3367,13 @@ postcss-nesting@^10.0.2:
   dependencies:
     postcss-selector-parser "6.0.6"
 
+postcss-nesting@^10.0.3:
+  version "10.0.3"
+  resolved "https://registry.yarnpkg.com/postcss-nesting/-/postcss-nesting-10.0.3.tgz#f19288ad07ef5ee47eb86991580b5d7b16a7f5ca"
+  integrity sha512-Dshtj57d5ytK1AeVNpQHp8gINgdjsRJaRjH1QmJHGcfOQIP4TNtlrrrh5o3i3bBTwge2+nh1D9xbI2wrckz5Xw==
+  dependencies:
+    postcss-selector-parser "^6.0.7"
+
 postcss-overflow-shorthand@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/postcss-overflow-shorthand/-/postcss-overflow-shorthand-3.0.0.tgz#f57631672333b302ffdcfc0735b8b7d0244c2a25"
@@ -3447,6 +3454,14 @@ postcss-selector-parser@6.0.6, postcss-selector-parser@^6, postcss-selector-pars
   version "6.0.6"
   resolved "https://registry.yarnpkg.com/postcss-selector-parser/-/postcss-selector-parser-6.0.6.tgz#2c5bba8174ac2f6981ab631a42ab0ee54af332ea"
   integrity sha512-9LXrvaaX3+mcv5xkg5kFwqSzSH1JIObIx51PrndZwlmznwXRfxMddDvo9gve3gVR8ZTKgoFDdWkbRFmEhT4PMg==
+  dependencies:
+    cssesc "^3.0.0"
+    util-deprecate "^1.0.2"
+
+postcss-selector-parser@^6.0.7:
+  version "6.0.7"
+  resolved "https://registry.yarnpkg.com/postcss-selector-parser/-/postcss-selector-parser-6.0.7.tgz#48404830a635113a71fd79397de8209ed05a66fc"
+  integrity sha512-U+b/Deoi4I/UmE6KOVPpnhS7I7AYdKbhGcat+qTQ27gycvaACvNEw11ba6RrkwVmDVRW7sigWgLj4/KbbJjeDA==
   dependencies:
     cssesc "^3.0.0"
     util-deprecate "^1.0.2"
@@ -4205,10 +4220,10 @@ supports-color@^8.0.0:
   dependencies:
     has-flag "^4.0.0"
 
-tailwindcss@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.0.1.tgz#bef72ff45d5cfed79bb648d30da952e521e98da4"
-  integrity sha512-EVDXVZkcueZ77/zfOJw7XkzCuxe5TCiT/S9pw9P183oRzSuwMZ7WO+W/L76jbJQA5qxGeUBJOVOLVBuAUfeZ3g==
+tailwindcss@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.0.2.tgz#9eea4c6dbe8d6d2c11363d313f4a4eba2baeb652"
+  integrity sha512-i1KpjYnGYftjzdAth6jA5iMPjhxpUkk5L6DafhfnQs+KiiWaThYxmk47Weh4oFH1mZqP6MuiQNHxtoRVPOraLg==
   dependencies:
     arg "^5.0.1"
     chalk "^4.1.2"
@@ -4365,10 +4380,10 @@ type-fest@^0.7.1:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.7.1.tgz#8dda65feaf03ed78f0a3f9678f1869147f7c5c48"
   integrity sha512-Ne2YiiGN8bmrmJJEuTWTLJR32nh/JdL1+PSicowtNb0WFpn59GK8/lfD61bVtzguz7b3PBt74nxpv/Pw5po5Rg==
 
-typescript@^4.5.3:
-  version "4.5.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.3.tgz#afaa858e68c7103317d89eb90c5d8906268d353c"
-  integrity sha512-eVYaEHALSt+s9LbvgEv4Ef+Tdq7hBiIZgii12xXJnukryt3pMgJf6aKhoCZ3FWQsu6sydEnkg11fYXLzhLBjeQ==
+typescript@^4.5.4:
+  version "4.5.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.4.tgz#a17d3a0263bf5c8723b9c52f43c5084edf13c2e8"
+  integrity sha512-VgYs2A2QIRuGphtzFV7aQJduJ2gyfTljngLzjpfW9FoYZF6xuw1W0vW9ghCKLfcWrCFxK81CSGRAvS1pn4fIUg==
 
 unbox-primitive@^1.0.1:
   version "1.0.1"
