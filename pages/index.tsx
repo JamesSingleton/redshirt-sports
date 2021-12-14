@@ -3,7 +3,7 @@ import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
 import {
   Hero,
-  FeaturedArticleSection,
+  FeaturedArticle,
   ArticlesSection,
   Podcasts,
 } from '@components/home'
@@ -41,8 +41,8 @@ function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
         <aside className="px-4 py-4 sm:px-0 lg:py-0 lg:col-span-3">
           <div className="sticky top-28 space-y-4">
             {morePosts.length > 0 && <ArticlesSection posts={morePosts} />}
+            <FeaturedArticle title="Featured FCS" post={featuredArticles[0]} />
             <Podcasts />
-            {featuredArticles.length > 0 && <FeaturedArticleSection />}
           </div>
         </aside>
       </div>
@@ -56,6 +56,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { heroPost, morePosts, featuredArticles } = await getClient().fetch(
     homePageQuery
   )
+
+  console.log({ featuredArticles })
 
   return {
     props: {
