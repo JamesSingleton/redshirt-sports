@@ -57,8 +57,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     homePageQuery
   )
 
-  console.log({ featuredArticles })
-
   return {
     props: {
       heroPost,
