@@ -1,8 +1,8 @@
 import { FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 import { Post } from '@lib/types/post'
-import styles from './PostCard.module.css'
 import { urlForImage } from '@lib/sanity'
 
 interface postCardProps {
@@ -24,7 +24,7 @@ const PostCard: FC<postCardProps> = ({ post }) => {
           />
         </a>
       </Link>
-      <div className={styles.pills}>
+      <div className="relative w-full -top-3 left-3">
         {post.categories.map((category) => {
           if (category === 'FCS' || category === 'FBS') {
             return (
@@ -46,10 +46,12 @@ const PostCard: FC<postCardProps> = ({ post }) => {
           </a>
         </Link>
       </div>
-      <div className="uppercase p-2 pb-3 text-xs text-stone-800">
-        <time dateTime={post.publishedAt}>11 hours ago</time>
+      <div className="uppercase p-2 pb-3 text-xs text-stone-800 divide-x-2 divide-gray-700/20 divide-solid">
+        <time className="first:pl-0 first:pr-2 " dateTime={post.publishedAt}>
+          {`${formatDistanceToNow(new Date(post.publishedAt))} ago`}
+        </time>
         <Link href={`/authors/${post.author.slug}`}>
-          <a>{post.author.name}</a>
+          <a className="last:pl-2 last:pr-0">{post.author.name}</a>
         </Link>
       </div>
     </article>
