@@ -1,0 +1,20 @@
+.teaser {
+  /* flex: 0 0 320px; */
+  margin: 2px 20px 3px 0;
+  @apply flex flex-col rounded-lg shadow-lg overflow-hidden max-w-xs relative w-80 flex-1 shrink-0;
+}
+
+.teaser img {
+  min-height: 175px;
+  display: block;
+}
+
+.pills {
+  position: relative;
+  width: calc(100% - 10px);
+  top: -10px;
+  left: 10px;
+}
+
+.pill {
+}

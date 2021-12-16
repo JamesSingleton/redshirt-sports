@@ -31,7 +31,7 @@ const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <Link href={post.slug} prefetch={false}>
+                <Link href={`/${post.slug}`} prefetch={false}>
                   <a
                     className="block focus:outline-none"
                     onClick={() =>
