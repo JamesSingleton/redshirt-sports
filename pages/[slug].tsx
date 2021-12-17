@@ -9,6 +9,7 @@ import { postSlugsQuery, postQuery } from '@lib/sanityGroqQueries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { sanityClient, getClient, overlayDrafts } from '@lib/sanity.server'
 import type { Post } from '@lib/types/post'
+import RelatedArticles from '@components/post/RelatedArticles'
 
 interface PostProps {
   post: Post
@@ -95,15 +96,7 @@ const Article = ({ post, morePosts }: PostProps) => {
             </div>
           </div>
         </article>
-        <div className="my-10 mx-7 sm:mx-0">
-          <h3 className="text-2xl border-b-2 border-slate-800">
-            Related Articles
-          </h3>
-          <div className="w-full flex flex-nowrap overflow-x-auto mb-5 mt-7">
-            {morePosts &&
-              morePosts.map((post) => <PostCard post={post} key={post._id} />)}
-          </div>
-        </div>
+        <RelatedArticles posts={morePosts} />
       </div>
     </>
   )
