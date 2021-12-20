@@ -22,7 +22,7 @@ const Podcasts: FC = () => {
           <a
             href="https://podcasts.apple.com/us/podcast/fcs-nation/id1436799349?mt=2&ls=1"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             onClick={() => plausible('clickApplePodcast')}
           >
             <Image
@@ -37,7 +37,7 @@ const Podcasts: FC = () => {
           <a
             href="https://www.stitcher.com/show/fcs-nation"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             onClick={() => plausible('clickStitcherPodcast')}
           >
             <Image
