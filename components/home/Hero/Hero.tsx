@@ -40,7 +40,7 @@ const Hero: FC<HeroProps> = ({ post }) => {
                         return (
                           <span
                             key={category}
-                            className="inline-flex items-center px-3 py-0.5 rounded-full text-sm uppercase font-medium bg-red-500 text-white"
+                            className="inline-flex items-center px-3 py-0.5 rounded-full text-sm uppercase font-medium bg-red-700 text-white"
                           >
                             {category}
                           </span>

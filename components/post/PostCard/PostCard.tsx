@@ -48,7 +48,7 @@ const PostCard: FC<postCardProps> = ({ post }) => {
                       },
                     })
                   }
-                  className="text-xs uppercase rounded-full text-white py-1 px-2 bg-red-500 font-bold"
+                  className="text-xs uppercase rounded-full text-white py-1 px-2 bg-red-700 font-bold"
                 >
                   {category}
                 </a>
@@ -68,9 +68,9 @@ const PostCard: FC<postCardProps> = ({ post }) => {
               })
             }
           >
-            <h4 className="pt-1 text-stone-800 text-xl p-2 mb-2">
+            <h3 className="pt-1 text-stone-800 text-xl p-2 mb-2">
               {post.title}
-            </h4>
+            </h3>
           </a>
         </Link>
       </div>

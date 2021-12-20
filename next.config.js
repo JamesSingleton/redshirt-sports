@@ -16,6 +16,7 @@ const securityHeaders = [
 ]
 /** @type {import('next').NextConfig} */
 module.exports = withPlausibleProxy()({
+  productionBrowserSourceMaps: true,
   swcMinify: true,
   reactStrictMode: true,
   images: {
