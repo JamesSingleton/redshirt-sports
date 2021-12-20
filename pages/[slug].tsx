@@ -1,15 +1,13 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
 import { NextSeo, ArticleJsonLd } from 'next-seo'
 import { CameraIcon } from '@heroicons/react/solid'
 import { Layout } from '@components/common'
-import { PostHeader, PostCard } from '@components/post'
+import { PostHeader, RelatedArticles } from '@components/post'
 import { postSlugsQuery, postQuery } from '@lib/sanityGroqQueries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { sanityClient, getClient, overlayDrafts } from '@lib/sanity.server'
 import type { Post } from '@lib/types/post'
-import RelatedArticles from '@components/post/RelatedArticles'
 
 interface PostProps {
   post: Post
@@ -63,10 +61,10 @@ const Article = ({ post, morePosts }: PostProps) => {
               <figure>
                 <Image
                   src={
-                    urlForImage(post.mainImage).height(574).width(1020).url()!
+                    urlForImage(post.mainImage).height(738).width(1312).url()!
                   }
-                  width="1020"
-                  height="574"
+                  width="1312"
+                  height="738"
                   layout="responsive"
                   alt={post.mainImage.caption}
                   className="sm:rounded-t-lg"
@@ -90,7 +88,7 @@ const Article = ({ post, morePosts }: PostProps) => {
                 date={post.publishedAt}
                 snippet={post.excerpt}
               />
-              <div className="my-6 prose prose-indigo prose-lg text-gray-500 mx-auto max-w-3xl lg:max-w-5xl">
+              <div className="my-6 prose prose-slate prose-lg mx-auto max-w-3xl prose-a:text-indigo-600 hover:prose-a:text-indigo-500 lg:max-w-5xl">
                 <PortableText blocks={post.body} />
               </div>
             </div>
