@@ -1,7 +1,8 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 import Image from 'next/image'
-import { NextSeo, ArticleJsonLd } from 'next-seo'
-import { CameraIcon } from '@heroicons/react/solid'
+import Link from 'next/link'
+import { NextSeo, ArticleJsonLd, BreadcrumbJsonLd } from 'next-seo'
+import { CameraIcon, HomeIcon, ChevronRightIcon } from '@heroicons/react/solid'
 import { Layout } from '@components/common'
 import { PostHeader, RelatedArticles } from '@components/post'
 import { postSlugsQuery, postQuery } from '@lib/sanityGroqQueries'
@@ -15,6 +16,13 @@ interface PostProps {
 }
 
 const Article = ({ post, morePosts }: PostProps) => {
+  let categoryName = 'FCS'
+
+  post.categories.map((category) => {
+    if (category === 'FBS') {
+      categoryName = category
+    }
+  })
   return (
     <>
       <NextSeo
@@ -54,7 +62,72 @@ const Article = ({ post, morePosts }: PostProps) => {
         images={[urlForImage(post.mainImage).height(574).width(1020).url()!]}
         description={post.excerpt}
       />
-      <div className="sm:my-8 max-w-3xl mx-auto sm:px-6 lg:max-w-[1360px]">
+      <BreadcrumbJsonLd
+        itemListElements={[
+          {
+            position: 1,
+            name: 'Home',
+            item: 'https://www.redshirtsports.xyz',
+          },
+          {
+            position: 2,
+            name: categoryName,
+            item: `https://www.redshirtsports.xyz/${categoryName.toLowerCase()}`,
+          },
+          {
+            position: 3,
+            name: post.title,
+            item: `https://www.redshirtsports.xyz/${post.slug}`,
+          },
+        ]}
+      />
+      <div className="max-w-3xl mx-auto sm:px-6 lg:max-w-[1360px]">
+        <nav className="flex my-4" aria-label="Breadcrumb">
+          <ol role="list" className="px-4 flex space-x-4 sm:px-6 lg:px-0">
+            <li className="flex">
+              <div className="flex items-center">
+                <Link href="/" prefetch={false}>
+                  <a className="text-gray-400 hover:text-gray-500">
+                    <HomeIcon
+                      className="flex-shrink-0 h-5 w-5"
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">Home</span>
+                  </a>
+                </Link>
+              </div>
+            </li>
+            <li key={`${categoryName}_breadcrumb`}>
+              <div className="flex items-center">
+                <ChevronRightIcon
+                  className="flex-shrink-0 h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+                <Link href={`/${categoryName.toLowerCase()}`} prefetch={false}>
+                  <a className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    {categoryName}
+                  </a>
+                </Link>
+              </div>
+            </li>
+            <li>
+              <div className="flex items-center">
+                <ChevronRightIcon
+                  className="flex-shrink-0 h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+                <Link href={`/${post.slug}`} prefetch={false}>
+                  <a
+                    className="truncate w-44 ml-4 text-sm font-medium text-gray-500 hover:text-gray-700 sm:w-80 md:w-full"
+                    aria-current="page"
+                  >
+                    {post.title}
+                  </a>
+                </Link>
+              </div>
+            </li>
+          </ol>
+        </nav>
         <article>
           <div className="bg-white shadow sm:rounded-lg">
             <div className="w-full relative">
