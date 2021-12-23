@@ -11,6 +11,7 @@ import { homePageQuery } from '@lib/sanityGroqQueries'
 import { getClient } from '@lib/sanity.server'
 import type { Post } from '@lib/types/post'
 import { SITE_URL } from '@lib/constants'
+import generateRssFeed from '@lib/generateRssFeed'
 
 interface HomeProps {
   heroPost: Post
@@ -56,6 +57,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { heroPost, morePosts, featuredArticles } = await getClient().fetch(
     homePageQuery
   )
+  await generateRssFeed()
 
   return {
     props: {
