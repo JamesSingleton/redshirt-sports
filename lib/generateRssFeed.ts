@@ -15,7 +15,7 @@ const generateRssFeed = async () => {
     description: '',
     id: baseURL,
     link: baseURL,
-    image: `${baseURL}/images/icons/RS_red_horizontal.svg`,
+    image: `${baseURL}/images/icons/RS_horizontal_513x512.png`,
     favicon: `${baseURL}/favicon.ico`,
     copyright: `All rights reserved ${new Date().getFullYear()}, Redshirt Sports`,
     feedLinks: {
