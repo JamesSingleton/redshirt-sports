@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { NextSeo, ArticleJsonLd, BreadcrumbJsonLd } from 'next-seo'
 import { CameraIcon, HomeIcon, ChevronRightIcon } from '@heroicons/react/solid'
+import { usePlausible } from 'next-plausible'
 import { Layout } from '@components/common'
 import { PostHeader, RelatedArticles } from '@components/post'
 import { postSlugsQuery, postQuery } from '@lib/sanityGroqQueries'
@@ -16,6 +17,7 @@ interface PostProps {
 }
 
 const Article = ({ post, morePosts }: PostProps) => {
+  const plausible = usePlausible()
   let categoryName = 'FCS'
 
   post.categories.map((category) => {
@@ -87,7 +89,16 @@ const Article = ({ post, morePosts }: PostProps) => {
             <li className="flex">
               <div className="flex items-center">
                 <Link href="/" prefetch={false}>
-                  <a className="text-gray-400 hover:text-gray-500">
+                  <a
+                    onClick={() =>
+                      plausible('clickOnBreadCrumb', {
+                        props: {
+                          location: 'Home',
+                        },
+                      })
+                    }
+                    className="text-gray-400 hover:text-gray-500"
+                  >
                     <HomeIcon
                       className="flex-shrink-0 h-5 w-5"
                       aria-hidden="true"
@@ -104,7 +115,16 @@ const Article = ({ post, morePosts }: PostProps) => {
                   aria-hidden="true"
                 />
                 <Link href={`/${categoryName.toLowerCase()}`} prefetch={false}>
-                  <a className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                  <a
+                    onClick={() =>
+                      plausible('clickOnBreadCrumb', {
+                        props: {
+                          location: categoryName,
+                        },
+                      })
+                    }
+                    className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700"
+                  >
                     {categoryName}
                   </a>
                 </Link>
@@ -118,6 +138,13 @@ const Article = ({ post, morePosts }: PostProps) => {
                 />
                 <Link href={`/${post.slug}`} prefetch={false}>
                   <a
+                    onClick={() =>
+                      plausible('clickOnBreadCrumb', {
+                        props: {
+                          location: post.title,
+                        },
+                      })
+                    }
                     className="truncate w-44 ml-4 text-sm font-medium text-gray-500 hover:text-gray-700 sm:w-80 md:w-full"
                     aria-current="page"
                   >
