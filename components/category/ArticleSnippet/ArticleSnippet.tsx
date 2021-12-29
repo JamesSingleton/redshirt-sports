@@ -2,6 +2,7 @@ import { FC } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { parseISO, format } from 'date-fns'
+import { ClockIcon } from '@heroicons/react/outline'
 import { urlForImage } from '@lib/sanity'
 import type { Post } from '@lib/types/post'
 import { usePlausible } from 'next-plausible'
@@ -14,53 +15,51 @@ interface SnippetProps {
 const Snippet: FC<SnippetProps> = ({ post, location }) => {
   const plausible = usePlausible()
   return (
-    <article className="overflow-hidden mb-7 bg-white shadow-lg rounded relative">
-      <div className="flex justify-between">
-        <div className="w-40 sm:w-80">
-          <Image
-            alt={post.mainImage.caption}
-            src={urlForImage(post.mainImage).width(320).height(245).url()!}
-            width="360"
-            height="275"
-            layout="responsive"
-          />
-        </div>
-        <div className="min-w-0 flex-1 mx-2 sm:mx-7">
-          <Link href={`/${post.slug}`} prefetch={false}>
-            <a
-              className="block focus:outline-none"
-              onClick={() =>
-                plausible('clickOnArticleSnippet', {
-                  props: {
-                    title: post.title,
-                    location: location,
-                  },
-                })
-              }
-            >
-              <span className="absolute inset-0" aria-hidden="true" />
-              <h2 className="mt-1 text-base font-semibold leading-7 text-stone-900 sm:text-lg sm:mt-4 md:text-2xl">
-                {post.title}
-              </h2>
-              <div>
-                <div className="inline-block text-xs mr-2 sm:text-sm text-gray-600">
-                  {post.author.name}
+    <article>
+      <Link href={`/${post.slug}`} prefetch={false}>
+        <a
+          onClick={() =>
+            plausible('clickOnArticleSnippet', {
+              props: {
+                title: post.title,
+                location: location,
+              },
+            })
+          }
+        >
+          <div className="bg-white shadow-lg rounded-lg">
+            <div className="py-6 px-4 sm:px-6 lg:grid lg:grid-cols-12 lg:gap-x-8 lg:p-8">
+              <div className="sm:flex lg:col-span-7">
+                <div className="flex-shrink-0 w-full aspect-w-1 rounded-lg overflow-hidden sm:aspect-none sm:w-40 sm:h-40">
+                  <Image
+                    src={urlForImage(post.mainImage).url()!}
+                    alt={post.mainImage.caption}
+                    className="w-full h-full object-center object-cover sm:w-full sm:h-full"
+                    layout="responsive"
+                    objectFit="cover"
+                    width={160}
+                    height={160}
+                  />
                 </div>
-                <div className="inline-block text-xs text-gray-600 sm:text-sm">
-                  <time dateTime={post.publishedAt}>
-                    {format(parseISO(post.publishedAt), 'LLLL	d, yyyy')}
-                  </time>
+
+                <div className="mt-6 sm:mt-0 sm:ml-6">
+                  <h2 className="text-base font-medium text-gray-900">
+                    {post.title}
+                  </h2>
+                  <p className="mt-2 text-sm font-medium text-gray-900">
+                    {post.author.name}
+                    <time dateTime={post.publishedAt} className="ml-4">
+                      <ClockIcon className="w-3 h-3 inline-block text-gray-400" />
+                      {format(parseISO(post.publishedAt), 'LLLL	d, yyyy')}
+                    </time>
+                  </p>
+                  <p className="mt-3 text-sm text-gray-500">{post.excerpt}</p>
                 </div>
               </div>
-              <div className="mt-4 hidden sm:block">
-                <p className="text-sm line-clamp-2 sm:line-clamp-3">
-                  {post.excerpt}
-                </p>
-              </div>
-            </a>
-          </Link>
-        </div>
-      </div>
+            </div>
+          </div>
+        </a>
+      </Link>
     </article>
   )
 }

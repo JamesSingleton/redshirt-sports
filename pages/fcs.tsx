@@ -34,12 +34,14 @@ const FCS = ({ fcsPosts }: fcsProps) => {
           subHeading="NCAA Division 1 Football Championship Subdivision"
         />
         {/* Loop over articles */}
-        <div className="pt-6">
-          {fcsPosts &&
-            fcsPosts.map((post) => (
-              <ArticleSnippet key={post.title} post={post} location="FCS" />
-            ))}
-          {fcsPosts.length === 0 && <EmptyState />}
+        <div className="mt-6">
+          <div className="space-y-8">
+            {fcsPosts &&
+              fcsPosts.map((post) => (
+                <ArticleSnippet key={post.title} post={post} location="FCS" />
+              ))}
+            {fcsPosts.length === 0 && <EmptyState />}
+          </div>
         </div>
       </Container>
     </>

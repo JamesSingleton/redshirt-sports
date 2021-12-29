@@ -34,12 +34,14 @@ const FBS = ({ fbsPosts }: fbsProps) => {
           subHeading="NCAA Division 1 Football Bowl Subdivision"
         />
         {/* Loop over articles */}
-        <div className="pt-6">
-          {fbsPosts &&
-            fbsPosts.map((post) => (
-              <ArticleSnippet key={post.title} post={post} location="FBS" />
-            ))}
-          {fbsPosts.length === 0 && <EmptyState />}
+        <div className="mt-6">
+          <div className="space-y-8">
+            {fbsPosts &&
+              fbsPosts.map((post) => (
+                <ArticleSnippet key={post.title} post={post} location="FBS" />
+              ))}
+            {fbsPosts.length === 0 && <EmptyState />}
+          </div>
         </div>
       </Container>
     </>
