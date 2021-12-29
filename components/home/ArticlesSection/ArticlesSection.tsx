@@ -36,30 +36,27 @@ const ArticlesSection: FC<ArticleSectionProps> = ({ posts }) => {
         <div className="m-3 mt-0">
           <ul role="list" className="divide-y divide-gray-200">
             {posts.map(({ title, excerpt, slug }) => (
-              <li key={title} className="py-5">
-                <div className="relative focus-within:ring-2 focus-within:ring-indigo-500">
-                  <h3 className="text-sm font-semibold text-gray-800">
-                    <Link href={`/${slug}`} prefetch={false}>
-                      <a
-                        className="hover:underline focus:outline-none"
-                        onClick={() =>
-                          plausible('clickOnRecentHeadlines', {
-                            props: {
-                              title: title,
-                            },
-                          })
-                        }
-                      >
-                        {/* Extend touch target to entire panel */}
-                        <span className="absolute inset-0" aria-hidden="true" />
+              <li className="py-5" key={title}>
+                <Link href={`/${slug}`} prefetch={false}>
+                  <a
+                    onClick={() =>
+                      plausible('clickOnRecentHeadlines', {
+                        props: {
+                          title: title,
+                        },
+                      })
+                    }
+                  >
+                    <div className="relative focus-within:ring-2 focus-within:ring-indigo-500">
+                      <h3 className="text-sm font-semibold text-gray-800">
                         {title}
-                      </a>
-                    </Link>
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                    {excerpt}
-                  </p>
-                </div>
+                      </h3>
+                      <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                        {excerpt}
+                      </p>
+                    </div>
+                  </a>
+                </Link>
               </li>
             ))}
           </ul>
