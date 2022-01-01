@@ -21,7 +21,7 @@ module.exports = withPlausibleProxy()({
   reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
-    domains: ['cdn.sanity.io'],
+    domains: ['cdn.sanity.io', 'images.unsplash.com'],
   },
   async headers() {
     return [

@@ -10,7 +10,6 @@ import {
 import { urlForImage, PortableText } from '@lib/sanity'
 import { RecentArticles } from '@components/author'
 import type { AuthorTypes } from '@lib/types/author'
-import { Post } from '@lib/types/post'
 import styles from './Authors.module.css'
 import { usePlausible } from 'next-plausible'
 

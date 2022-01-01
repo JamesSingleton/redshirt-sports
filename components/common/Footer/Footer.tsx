@@ -8,6 +8,8 @@ const navigation = {
     { name: 'FBS', href: '/fbs' },
     { name: 'FCS', href: '/fcs' },
     { name: 'Meet the Team', href: '/authors' },
+    { name: 'Advertising', href: '/advertising' },
+    { name: 'Privacy Policy', href: '/privacy' },
   ],
   social: [
     {
