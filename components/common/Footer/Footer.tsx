@@ -18,7 +18,7 @@ const navigation = {
     { name: 'Meet the Team', href: '/authors' },
     { name: 'Advertising', href: '/advertising' },
   ],
-  legal: [{ name: 'Privacy', href: '/privacy-policy' }],
+  legal: [{ name: 'Privacy', href: '/privacy' }],
   social: [
     {
       name: 'Twitter',
