@@ -4,7 +4,17 @@ import { getClient } from '@lib/sanity.server'
 import { getPrivacyPolicyPage } from '@lib/sanityGroqQueries'
 import { PortableText } from '@lib/sanity'
 
-const Privacy = ({ privacyPolicy }) => {
+interface privacyPolicyProps {
+  privacyPolicy: {
+    _id: string
+    _updatedAt: string
+    title: string
+    slug: string
+    body: string
+  }
+}
+
+const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
   return (
     <div className="relative py-16 bg-white overflow-hidden">
       <div className="hidden lg:block lg:absolute lg:inset-y-0 lg:h-full lg:w-full">
