@@ -73,7 +73,7 @@ const Article = ({ post, morePosts }: PostProps) => {
           },
           {
             position: 2,
-            name: categoryName,
+            name: categoryName.toLowerCase(),
             item: `https://www.redshirtsports.xyz/${categoryName.toLowerCase()}`,
           },
           {
@@ -108,7 +108,7 @@ const Article = ({ post, morePosts }: PostProps) => {
                 </Link>
               </div>
             </li>
-            <li key={`${categoryName}_breadcrumb`}>
+            <li key={`${categoryName.toLowerCase()}_breadcrumb`}>
               <div className="flex items-center">
                 <ChevronRightIcon
                   className="flex-shrink-0 h-5 w-5 text-gray-400"
