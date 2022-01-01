@@ -1,16 +1,24 @@
 import { SVGProps } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePlausible } from 'next-plausible'
 
-/* This example requires Tailwind CSS v2.0+ */
 const navigation = {
-  main: [
-    { name: 'FBS', href: '/fbs' },
+  football: [
     { name: 'FCS', href: '/fcs' },
+    { name: 'FBS', href: '/fbs' },
+  ],
+  media: [
+    {
+      name: 'Podcast',
+      href: 'https://podcasts.apple.com/us/podcast/fcs-nation/id1436799349?mt=2&ls=1',
+    },
+  ],
+  company: [
     { name: 'Meet the Team', href: '/authors' },
     { name: 'Advertising', href: '/advertising' },
-    { name: 'Privacy Policy', href: '/privacy' },
   ],
+  legal: [{ name: 'Privacy', href: '/privacy-policy' }],
   social: [
     {
       name: 'Twitter',
@@ -27,53 +35,150 @@ const navigation = {
 export default function Footer() {
   const plausible = usePlausible()
   return (
-    <footer className="bg-gray-800">
-      <div className="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
-        <nav
-          className="-mx-5 -my-2 flex flex-wrap justify-center"
-          aria-label="Footer"
-        >
-          {navigation.main.map((item) => (
-            <div key={item.name} className="px-5 py-2">
-              <Link href={item.href} prefetch={false}>
+    <footer className="bg-gray-800" aria-labelledby="footer-heading">
+      <h2 id="footer-heading" className="sr-only">
+        Footer
+      </h2>
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
+        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
+          <div className="space-y-8 xl:col-span-1">
+            <Image
+              className="h-10"
+              src="/images/icons/RS_red.svg"
+              alt="Company name"
+              width="74"
+              height="74"
+            />
+            <p className="text-gray-300 text-base">
+              Your go to source for all things FCS.
+            </p>
+            <div className="flex space-x-6">
+              {navigation.social.map((item) => (
                 <a
-                  onClick={() =>
-                    plausible('clickOnFooter', {
-                      props: {
-                        item: item.name,
-                      },
-                    })
-                  }
-                  className="text-base text-gray-400 hover:text-gray-300"
+                  key={item.name}
+                  href={item.href}
+                  className="text-gray-400 hover:text-gray-500"
                 >
-                  {item.name}
+                  <span className="sr-only">{item.name}</span>
+                  <item.icon className="h-6 w-6" aria-hidden="true" />
                 </a>
-              </Link>
+              ))}
             </div>
-          ))}
-        </nav>
-        <div className="mt-8 flex justify-center space-x-6">
-          {navigation.social.map((item) => (
-            <a
-              key={item.name}
-              href={item.href}
-              onClick={() =>
-                plausible('clickOnFooter', {
-                  props: {
-                    item: item.name,
-                  },
-                })
-              }
-              className="text-gray-400 hover:text-gray-500"
-            >
-              <span className="sr-only">{item.name}</span>
-              <item.icon className="h-6 w-6" aria-hidden="true" />
-            </a>
-          ))}
+          </div>
+          <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
+            <div className="md:grid md:grid-cols-2 md:gap-8">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
+                  Football
+                </h3>
+                <ul role="list" className="mt-4 space-y-4">
+                  {navigation.football.map((item) => (
+                    <li key={item.name}>
+                      <Link href={item.href} prefetch={false}>
+                        <a
+                          onClick={() =>
+                            plausible('clickOnFooter', {
+                              props: {
+                                item: item.name,
+                              },
+                            })
+                          }
+                          className="text-base text-gray-300 hover:text-white"
+                        >
+                          {item.name}
+                        </a>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-12 md:mt-0">
+                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
+                  Media
+                </h3>
+                <ul role="list" className="mt-4 space-y-4">
+                  {navigation.media.map((item) => (
+                    <li key={item.name}>
+                      <a
+                        onClick={() =>
+                          plausible('clickOnFooter', {
+                            props: {
+                              item: item.name,
+                            },
+                          })
+                        }
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-base text-gray-300 hover:text-white"
+                      >
+                        {item.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="md:grid md:grid-cols-2 md:gap-8">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
+                  Company
+                </h3>
+                <ul role="list" className="mt-4 space-y-4">
+                  {navigation.company.map((item) => (
+                    <li key={item.name}>
+                      <Link href={item.href} prefetch={false}>
+                        <a
+                          onClick={() =>
+                            plausible('clickOnFooter', {
+                              props: {
+                                item: item.name,
+                              },
+                            })
+                          }
+                          className="text-base text-gray-300 hover:text-white"
+                        >
+                          {item.name}
+                        </a>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-12 md:mt-0">
+                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
+                  Legal
+                </h3>
+                <ul role="list" className="mt-4 space-y-4">
+                  {navigation.legal.map((item) => (
+                    <li key={item.name}>
+                      <Link href={item.href} prefetch={false}>
+                        <a
+                          onClick={() =>
+                            plausible('clickOnFooter', {
+                              props: {
+                                item: item.name,
+                              },
+                            })
+                          }
+                          className="text-base text-gray-300 hover:text-white"
+                        >
+                          {item.name}
+                        </a>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
-        <p className="mt-8 text-center text-base text-gray-400">
-          &copy; 2021 Redshirt Sports, Inc. All rights reserved.
-        </p>
+        <div className="mt-12 border-t border-gray-200 pt-8">
+          <p className="text-base text-gray-400 xl:text-center">
+            &copy;
+            {`${new Date().getFullYear()} Redshirt Sports. All rights reserved.`}
+          </p>
+        </div>
       </div>
     </footer>
   )
