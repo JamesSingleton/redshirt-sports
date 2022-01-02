@@ -21,6 +21,7 @@ const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
       <NextSeo
         title="Redshirt Sports Privacy Policy"
         description="Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period."
+        canonical="https://www.redshirtsports.xyz/privacy"
         openGraph={{
           title: 'Redshirt Sports Privacy Policy - Redshirt Sports',
           description:

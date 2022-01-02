@@ -29,6 +29,7 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
       <NextSeo
         title="Advertising"
         description="If you'd like to discuss advertising on redshirtsports.xyz, please reach out at editors@redshirtsports.xyz."
+        canonical="https://www.redshirtsports.xyz/advertising"
         openGraph={{
           title: 'Advertising - Redshirt Sports',
           description:
