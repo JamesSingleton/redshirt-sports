@@ -32,7 +32,14 @@ const Snippet: FC<SnippetProps> = ({ post, location }) => {
               <div className="sm:flex lg:col-span-7">
                 <div className="flex-shrink-0 w-full aspect-w-1 rounded-lg overflow-hidden sm:aspect-none sm:w-40 sm:h-40">
                   <Image
-                    src={urlForImage(post.mainImage).url()!}
+                    src={
+                      urlForImage(post.mainImage)
+                        .height(320)
+                        .fit('min')
+                        .quality(75)
+                        .url()!
+                    }
+                    sizes="50vw"
                     alt={post.mainImage.caption}
                     className="w-full h-full object-center object-cover sm:w-full sm:h-full"
                     layout="responsive"
