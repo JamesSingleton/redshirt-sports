@@ -161,10 +161,16 @@ const Article = ({ post, morePosts }: PostProps) => {
               <figure>
                 <Image
                   src={
-                    urlForImage(post.mainImage).height(738).width(1312).url()!
+                    urlForImage(post.mainImage)
+                      .height(738)
+                      .width(1312)
+                      .fit('min')
+                      .quality(75)
+                      .url()!
                   }
                   width="1312"
                   height="738"
+                  sizes="50vw"
                   layout="responsive"
                   alt={post.mainImage.caption}
                   className="sm:rounded-t-lg"

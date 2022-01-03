@@ -26,11 +26,18 @@ const PostCard: FC<postCardProps> = ({ post }) => {
         >
           <Image
             className="max-h-96 w-full object-cover"
-            src={urlForImage(post.mainImage).url()!}
+            src={
+              urlForImage(post.mainImage)
+                .height(175)
+                .quality(75)
+                .fit('min')
+                .url()!
+            }
             alt={post.mainImage.caption}
             height="175"
             width="320"
             layout="responsive"
+            sizes="50vw"
           />
         </a>
       </Link>
