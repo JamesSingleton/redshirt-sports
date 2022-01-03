@@ -170,6 +170,7 @@ const Article = ({ post, morePosts }: PostProps) => {
                   }
                   width="1312"
                   height="738"
+                  sizes="50vw"
                   layout="responsive"
                   alt={post.mainImage.caption}
                   className="sm:rounded-t-lg"
