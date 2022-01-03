@@ -36,9 +36,9 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
             "If you'd like to discuss advertising on redshirtsports.xyz, please reach out at editors@redshirtsports.xyz.",
         }}
       />
-      <div className="relative bg-white flex h-screen items-center justify-center">
+      <div className="relative md:flex md:h-screen md:items-center md:justify-center">
         <div className="lg:mx-auto lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-2 lg:gap-24 lg:items-start">
-          <div className="relative sm:py-16 lg:py-0">
+          <div className="relative hidden md:block sm:py-16 lg:py-0">
             <div
               aria-hidden="true"
               className="hidden sm:block lg:absolute lg:inset-y-0 lg:right-0 lg:w-screen"
@@ -79,13 +79,16 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
             </div>
             <div className="relative mx-auto max-w-md px-4 sm:max-w-3xl sm:px-6 lg:px-0 lg:max-w-none lg:py-20">
               {/* Testimonial card*/}
-              <div className="relative pt-64 pb-10 rounded-2xl shadow-xl overflow-hidden">
+              <div className="relative rounded-2xl shadow-xl overflow-hidden">
                 <Image
                   className="absolute inset-0 h-full w-full object-cover"
-                  src="https://images.unsplash.com/photo-1513757378314-e46255f6ed16?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80"
+                  src="https://images.unsplash.com/photo-1513757378314-e46255f6ed16?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=min&h=300&q=75"
                   alt="Blank billboard"
-                  layout="fill"
+                  layout="responsive"
                   objectFit="cover"
+                  height="300"
+                  width="560"
+                  sizes="50vw"
                 />
               </div>
             </div>
