@@ -4,7 +4,7 @@
         <title>Redshirt Sports</title>
         <link>https://www.redshirtsports.xyz</link>
         <description></description>
-        <lastBuildDate>Sat, 01 Jan 2022 22:31:28 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 04 Jan 2022 20:27:11 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -15,8 +15,8 @@
         <copyright>All rights reserved 2022, Redshirt Sports</copyright>
         <item>
             <title><![CDATA[2022 FBS Transfers to FCS]]></title>
-            <link>https://www.redshirtsports.xyz/2022-fbs-transfers-to-fcs</link>
-            <guid>https://www.redshirtsports.xyz/2022-fbs-transfers-to-fcs</guid>
+            <link>https://www.redshirtsports.xyz/2022-fbs-transfers-to-fcs?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/2022-fbs-transfers-to-fcs?utm_source=RSS</guid>
             <pubDate>Tue, 28 Dec 2021 20:00:11 GMT</pubDate>
             <description><![CDATA[Since August 1st, 1,300 players (scholarship and non-scholarship) FBS players have entered the transfer portal]]></description>
             <content:encoded><![CDATA[We are already tracking all FCS transfers this season, here are FBS players that are transfering to the FCS.
@@ -27,15 +27,25 @@ Please DM Redshirt Sports if you see any missing FBS to FCS transfers.
 
 
 
+Andrew Cole (DL) Southern Miss → Alcorn State
+
 Benny McCray (DB) FIU → Southern U
 
 Bryce McNair (OL) Ohio → Southern U
 
 Cameron Gardner (WR) Mississippi State → Mississippi Valley State
 
+Camron Buckley (WR) Indiana → Jackson State
+
+Carlos Becker III (DB) Florida State → Alabama A&M
+
+Charles Bell VI (DB) Maryland → Alabama A&M
+
 Chris Harris Jr. (LB) Georgia Southern → Southern Illinois
 
 Christian Galvan (RB)Washington → Drake
+
+Colby Suits (QB) University of Louisiana-Monroe → Southeastern Louisiana
 
 Conner Parsons (OL) Louisiana-Monroe → Austin Peay
 
@@ -48,6 +58,14 @@ Danny Joiner (TE) Army → Southeast Missouri State
 Detravion Green (DB) Arkansas State → Central Arkansas
 
 Devell Washington (WR) West Virginia → Northern Iowa
+
+Diata Burns (DB) Bowling Green → Alabama A&M
+
+Dorian Wesley (DT) Toledo → Alabama A&M
+
+Eddie Watkins (DE) West Virginia → Alabama A&M
+
+Emmanuel Logan-Greene (WR) New Mexico → Southeastern Louisiana
 
 Evan Henry (OL) Louisiana-Monroe → Jackson State
 
@@ -63,9 +81,17 @@ Jack Green (OL) South Alabama → Central Arkansas
 
 Jacob Sirmon (QB) Central Michigan → Northern Colorado
 
+Jarren Williams (QB) Miami → Alabama A&M
+
+Jarveon Howard (RB) Syracuse → Alcorn State
+
 Jason Mercier (DL) FIU → Jackson State
 
 Javien Clemmer (WR) New Mexico State → Arkansas-Pine Bluff
+
+Jordan Moore (DB) Texas A&M → Florida A&M
+
+Kajiya Hollawayne (QB) UCLA → Grambling State
 
 Keveon Mullins (TE) South Carolina → Jackson State
 
@@ -83,7 +109,11 @@ Mark Davis Jr. (DB) Buffalo → Southern Illinois
 
 Mark Pope (WR) Miami → Jackson State
 
+Marquez Beason (DB) Illinois → Alabama A&M
+
 Matthew Napier (OL) Kentucky → Eastern Kentucky
+
+Michael Bowe Jr (LB) New Mexico State → Southeastern Louisiana
 
 Mike Pleas Jr. (LB) Southern Miss → Jackson State
 
@@ -93,9 +123,17 @@ Nik Scalzo (QB) Kentucky → Samford
 
 Noah Mitchell (LB) University of Texas at San Antonio → Central Arkansas
 
+Preston Hutchinson (QB) Eastern Michigan → University of Tennessee at Chattanooga
+
 Raylen Sharpe (WR) Houston → Missouri State
 
+Reece Udinkski (QB) Maryland → Richmond
+
+Robert Floyd (DB) Colorado State → Hampton
+
 Sebastian Alonso (LS) Maryland → Georgetown
+
+Shaker Denson (DB) Ohio → Alabama A&M
 
 Shamel Lazarus (DB) UConn → Stony Brook
 
@@ -111,12 +149,14 @@ Trevis Graham (WR) Texas State → Northern Colorado
 
 Trustin Oliver (WR) Colorado → Central Arkansas
 
-Tyler Gore (DB) Georgia State → UT Martin]]></content:encoded>
+Tyler Gore (DB) Georgia State → UT Martin
+
+Zareon Hayes (DE) App State → Alabama A&M]]></content:encoded>
         </item>
         <item>
             <title><![CDATA[McNeese State Rounds Out Their Staff]]></title>
-            <link>https://www.redshirtsports.xyz/mcneese-state-rounds-out-their-staff</link>
-            <guid>https://www.redshirtsports.xyz/mcneese-state-rounds-out-their-staff</guid>
+            <link>https://www.redshirtsports.xyz/mcneese-state-rounds-out-their-staff?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/mcneese-state-rounds-out-their-staff?utm_source=RSS</guid>
             <pubDate>Thu, 30 Dec 2021 17:46:48 GMT</pubDate>
             <description><![CDATA[D-II coaches help fill out McNeese State coaching staff]]></description>
             <content:encoded><![CDATA[After hiring Gary Goff as their head coach on December 19th, they have been hard at work rounding out their staff.
@@ -131,8 +171,8 @@ McNeese has announced the hiring of Marc Yellock (DL), Mike Johnson (DBs), Dwigh
         </item>
         <item>
             <title><![CDATA[SoCon 2022 National Signing Day]]></title>
-            <link>https://www.redshirtsports.xyz/socon-2022-national-signing-day</link>
-            <guid>https://www.redshirtsports.xyz/socon-2022-national-signing-day</guid>
+            <link>https://www.redshirtsports.xyz/socon-2022-national-signing-day?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/socon-2022-national-signing-day?utm_source=RSS</guid>
             <pubDate>Wed, 15 Dec 2021 23:57:51 GMT</pubDate>
             <description><![CDATA[Tracking the 2022 signings of Southern Conference teams.]]></description>
             <content:encoded><![CDATA[East Tennessee State University
@@ -300,8 +340,8 @@ Lathan McComis (6-4, 280, OL, West Chester, Ohio / Lakota West High School)]]></
         </item>
         <item>
             <title><![CDATA[ETSU Hiring Furman Offensive Coordinator George Quarles as Their New Head Coach]]></title>
-            <link>https://www.redshirtsports.xyz/etsu-hiring-furman-offensive-coordinator-george-quarles-as-their-new-head-coach</link>
-            <guid>https://www.redshirtsports.xyz/etsu-hiring-furman-offensive-coordinator-george-quarles-as-their-new-head-coach</guid>
+            <link>https://www.redshirtsports.xyz/etsu-hiring-furman-offensive-coordinator-george-quarles-as-their-new-head-coach?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/etsu-hiring-furman-offensive-coordinator-george-quarles-as-their-new-head-coach?utm_source=RSS</guid>
             <pubDate>Thu, 23 Dec 2021 15:28:32 GMT</pubDate>
             <description><![CDATA[George Quarles will replace Randy Sanders, who retired after the Bucs finished 11-2 this season]]></description>
             <content:encoded><![CDATA[ETSU has been on the hunt for their next head coach after Randy Sanders announced his retirement on December 13th. Some of the candidates to have been considered were ETSU’s defensive coordinator Billy Taylor, VMI’s head coach Scott Wachenheim, Furman’s offensive coordinator George Quarles, and Los Angeles Chargers wide receivers coach Chris Beatty.
@@ -314,8 +354,8 @@ Quarles will be taking charge of an ETSU team that went 11-2 this season and mad
         </item>
         <item>
             <title><![CDATA[FCS Second Round Playoff Review]]></title>
-            <link>https://www.redshirtsports.xyz/fcs-second-round-playoff-review</link>
-            <guid>https://www.redshirtsports.xyz/fcs-second-round-playoff-review</guid>
+            <link>https://www.redshirtsports.xyz/fcs-second-round-playoff-review?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/fcs-second-round-playoff-review?utm_source=RSS</guid>
             <pubDate>Sun, 05 Dec 2021 22:05:00 GMT</pubDate>
             <description><![CDATA[Following a first round bye, the home teams were able to win seven of the eight games this weekend.]]></description>
             <content:encoded><![CDATA[The highlight of this weekend was ETSU's late rally scoring 14 points in the last 1:28 against Kennesaw St.
@@ -360,8 +400,8 @@ The Jackrabbits were the only unseeded road team to win in the second round. Isa
         </item>
         <item>
             <title><![CDATA[2021 FCS Playoffs Semifinal Schedule Is Set]]></title>
-            <link>https://www.redshirtsports.xyz/2021-fcs-playoffs-semifinal-schedule-is-set</link>
-            <guid>https://www.redshirtsports.xyz/2021-fcs-playoffs-semifinal-schedule-is-set</guid>
+            <link>https://www.redshirtsports.xyz/2021-fcs-playoffs-semifinal-schedule-is-set?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/2021-fcs-playoffs-semifinal-schedule-is-set?utm_source=RSS</guid>
             <pubDate>Mon, 13 Dec 2021 00:47:57 GMT</pubDate>
             <description><![CDATA[Unseeded South Dakota State is in the FCS semifinals for the fourth time in the past five seasons.]]></description>
             <content:encoded><![CDATA[The 2021 FCS playoffs semifinals are set.
@@ -384,8 +424,8 @@ Montana State will need to slow down Isaiah Davis and if healthy Pierre Strong J
         </item>
         <item>
             <title><![CDATA[McNeese State Head Coach Unexpectedly Resigns To Join Brian Kelly at LSU]]></title>
-            <link>https://www.redshirtsports.xyz/mcneese-state-head-coach-unexpectedly-resigns-to-join-brian-kelly-at-lsu</link>
-            <guid>https://www.redshirtsports.xyz/mcneese-state-head-coach-unexpectedly-resigns-to-join-brian-kelly-at-lsu</guid>
+            <link>https://www.redshirtsports.xyz/mcneese-state-head-coach-unexpectedly-resigns-to-join-brian-kelly-at-lsu?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/mcneese-state-head-coach-unexpectedly-resigns-to-join-brian-kelly-at-lsu?utm_source=RSS</guid>
             <pubDate>Thu, 09 Dec 2021 02:38:54 GMT</pubDate>
             <description><![CDATA[New Orleans native, and long time LSU assistant resigns from McNeese State.]]></description>
             <content:encoded><![CDATA[On Tuesday, Brian Kelly announced he has hired Frank Wilson as associate head coach for LSU.
@@ -404,8 +444,8 @@ Brian Kelly is looking to tap into Wilson's recruiting prowess as he has been re
         </item>
         <item>
             <title><![CDATA[Tracking FCS Transfers for the 2022 Season]]></title>
-            <link>https://www.redshirtsports.xyz/tracking-fcs-transfers-for-the-2022-season</link>
-            <guid>https://www.redshirtsports.xyz/tracking-fcs-transfers-for-the-2022-season</guid>
+            <link>https://www.redshirtsports.xyz/tracking-fcs-transfers-for-the-2022-season?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/tracking-fcs-transfers-for-the-2022-season?utm_source=RSS</guid>
             <pubDate>Thu, 23 Dec 2021 21:55:09 GMT</pubDate>
             <description><![CDATA[Since August 1st, roughly 1,000 to 1,100 FCS players have entered the transfer portal]]></description>
             <content:encoded><![CDATA[Please DM Redshirt Sports if you see any missing FCS transfers.
@@ -431,6 +471,8 @@ Collin James (OL) Abilene Christian → New Mexico
 Cutrell Haywood (WR) Idaho → Gardner-Webb
 
 Damoriea Vick (WR) Missouri State → Southeast Missouri State
+
+Darius Lewis (WR) Abilene Christian → Southeastern Louisiana
 
 Devon McKinney (ATH) Mercer → Mississippi Valley State
 
@@ -508,8 +550,8 @@ Xavier Stephens (DL) Lehigh → Furman
         </item>
         <item>
             <title><![CDATA[2021-2022 FCS Head Coaching Changes]]></title>
-            <link>https://www.redshirtsports.xyz/2021-2022-fcs-head-coaching-changes</link>
-            <guid>https://www.redshirtsports.xyz/2021-2022-fcs-head-coaching-changes</guid>
+            <link>https://www.redshirtsports.xyz/2021-2022-fcs-head-coaching-changes?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/2021-2022-fcs-head-coaching-changes?utm_source=RSS</guid>
             <pubDate>Tue, 14 Dec 2021 00:57:47 GMT</pubDate>
             <description><![CDATA[There have been a lot of head coaching changes in the FCS since the start of the 2021 season.]]></description>
             <content:encoded><![CDATA[A list of FCS schools that have had a head coaching change since the start of the 2021 season:
@@ -574,6 +616,12 @@ Former coach: John Garrett
 
 New coach: John Troxell
 
+Long Island University
+
+Former coach: Bryan Collins
+
+New coach: TBD, Jonathan Gill served as interim coach for the 2021 season
+
 Maine
 
 Former coach: Nick Charlton
@@ -602,7 +650,7 @@ Presbyterian
 
 Former coach: Kevin Kelley
 
-New coach: TBD
+New coach: Steve Englehart
 
 Southern
 
@@ -630,8 +678,8 @@ New coach: Myers Hendrickson]]></content:encoded>
         </item>
         <item>
             <title><![CDATA[FCS Semifinal Preview: South Dakota State at Montana State]]></title>
-            <link>https://www.redshirtsports.xyz/fcs-semifinal-preview-south-dakota-state-at-montana-state</link>
-            <guid>https://www.redshirtsports.xyz/fcs-semifinal-preview-south-dakota-state-at-montana-state</guid>
+            <link>https://www.redshirtsports.xyz/fcs-semifinal-preview-south-dakota-state-at-montana-state?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/fcs-semifinal-preview-south-dakota-state-at-montana-state?utm_source=RSS</guid>
             <pubDate>Sat, 18 Dec 2021 16:28:31 GMT</pubDate>
             <description><![CDATA[This match is a little surprising as South Dakota State is there as an unseeded team and Montana State is hosting despite being the last of the playoff's eight seeded teams.]]></description>
             <content:encoded><![CDATA[This is the fourth time in the last five seasons that South Dakota State has reached the semifinals. For them to get back to the champsionship game they will need to make it through a tough 11-2 Montana State that is coming off a a huge win against defending national champions Sam Houston. 
@@ -654,8 +702,8 @@ For the Bobcats, the offense has rallied around Tommy Mellot who has 8 rushing t
         </item>
         <item>
             <title><![CDATA[VMI Offensive Coordinator Billy Cosh Hired by University of Richmond]]></title>
-            <link>https://www.redshirtsports.xyz/vmi-offensive-coordinator-billy-cosh-hired-by-university-of-richmond</link>
-            <guid>https://www.redshirtsports.xyz/vmi-offensive-coordinator-billy-cosh-hired-by-university-of-richmond</guid>
+            <link>https://www.redshirtsports.xyz/vmi-offensive-coordinator-billy-cosh-hired-by-university-of-richmond?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/vmi-offensive-coordinator-billy-cosh-hired-by-university-of-richmond?utm_source=RSS</guid>
             <pubDate>Tue, 07 Dec 2021 04:30:00 GMT</pubDate>
             <description><![CDATA[Cosh has been a huge part of VMI's offensive success over the past two seasons.]]></description>
             <content:encoded><![CDATA[After two successful seasons as Virginia Military Institute's offensive coordinator, Billy Cosh has been named the offensive coordinator for The University of Richmond.
@@ -670,8 +718,8 @@ In the fall season, the Keydets and Cosh finished 6-5, which marked VMI's second
         </item>
         <item>
             <title><![CDATA[2021 FCS National Championship: North Dakota State vs Montana State]]></title>
-            <link>https://www.redshirtsports.xyz/2021-fcs-national-championship-north-dakota-state-vs-montana-state</link>
-            <guid>https://www.redshirtsports.xyz/2021-fcs-national-championship-north-dakota-state-vs-montana-state</guid>
+            <link>https://www.redshirtsports.xyz/2021-fcs-national-championship-north-dakota-state-vs-montana-state?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/2021-fcs-national-championship-north-dakota-state-vs-montana-state?utm_source=RSS</guid>
             <pubDate>Sun, 19 Dec 2021 20:42:01 GMT</pubDate>
             <description><![CDATA[Number two ranked North Dakota State will face number eight ranked Montana State for the 2021 FCS championship on Jan. 8 in Frisco, Texas. ]]></description>
             <content:encoded><![CDATA[The Bison will be looking for their ninth title in ten years whereas the Bobcats will attempting to to win their second title in program history. The last time Montana State won a title was back in 1984 defeating Louisiana Tech 19-6 whereas the last time North Dakota State won was back in 2019 when they beat JMU 28-20. This will be the third time these two teams have met in the FCS playoffs with the Bison winning each contest by a considerable margin.
@@ -694,8 +742,8 @@ Montana State kept the momentum going in the semifinals against South Dakota Sta
         </item>
         <item>
             <title><![CDATA[FCS Semifinal Preview: James Madison at North Dakota State]]></title>
-            <link>https://www.redshirtsports.xyz/fcs-semifinal-preview-james-madison-at-north-dakota-state</link>
-            <guid>https://www.redshirtsports.xyz/fcs-semifinal-preview-james-madison-at-north-dakota-state</guid>
+            <link>https://www.redshirtsports.xyz/fcs-semifinal-preview-james-madison-at-north-dakota-state?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/fcs-semifinal-preview-james-madison-at-north-dakota-state?utm_source=RSS</guid>
             <pubDate>Fri, 17 Dec 2021 17:18:31 GMT</pubDate>
             <description><![CDATA[One of the most well known FCS stats is NDSU's 30-1 record at home in the playoffs.]]></description>
             <content:encoded><![CDATA[Friday night marks a battle of two FCS powerhouses in James Madison University and North Dakota State University. NDSU is the No. 2 seed and has won eight FCS titles since 2010 and plays host to the No. 3 seed JMU which is the only team to beat NDSU at home during the playoffs, doing so in 2016. Both schools met in the championship game in 2017 and 2019.
@@ -716,8 +764,8 @@ Cole Johnson and the JMU offense will look to exploit NDSU's young cornerbacks. 
         </item>
         <item>
             <title><![CDATA[VMI promoting Patrick Ashford to Offensive Coordinator and Quarterbacks Coach]]></title>
-            <link>https://www.redshirtsports.xyz/vmi-promoting-patrick-ashford-to-offensive-coordinator-and-quarterbacks-coach</link>
-            <guid>https://www.redshirtsports.xyz/vmi-promoting-patrick-ashford-to-offensive-coordinator-and-quarterbacks-coach</guid>
+            <link>https://www.redshirtsports.xyz/vmi-promoting-patrick-ashford-to-offensive-coordinator-and-quarterbacks-coach?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/vmi-promoting-patrick-ashford-to-offensive-coordinator-and-quarterbacks-coach?utm_source=RSS</guid>
             <pubDate>Sat, 18 Dec 2021 21:46:30 GMT</pubDate>
             <description><![CDATA[VMI’s Scott Wachenheim is promoting wide receivers coach Patrick Ashford to offensive coordinator and quarterbacks coach]]></description>
             <content:encoded><![CDATA[Early this month we reported that former VMI offensive coordinator Billy Cosh was leaving to fill the same role at Richmond University. That left VMI with a huge hole to fill and they found their man in Wide Receivers coach Patrick Ashford.
@@ -730,8 +778,8 @@ Ashford played a crucial role in VMI’s 2020 season in which they played in the
         </item>
         <item>
             <title><![CDATA[Projecting Second Round Upsets]]></title>
-            <link>https://www.redshirtsports.xyz/projecting-second-round-upsets</link>
-            <guid>https://www.redshirtsports.xyz/projecting-second-round-upsets</guid>
+            <link>https://www.redshirtsports.xyz/projecting-second-round-upsets?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/projecting-second-round-upsets?utm_source=RSS</guid>
             <pubDate>Thu, 02 Dec 2021 00:28:00 GMT</pubDate>
             <description><![CDATA[Top seeds have not always faired well in the second round of FCS playoffs, going 5-3 in 2019, 2017, 2016 and 2015. Could we possibly be in for more upsets this year?]]></description>
             <content:encoded><![CDATA[Earning a seed in the FCS playoffs is a big deal for teams. It gives the top eight teams a bye week and guarantees home-field advantage in the second round.
@@ -758,8 +806,8 @@ Some would call UT Martin the sleeper of the first round and proved everyone wro
         </item>
         <item>
             <title><![CDATA[Bill Schwanke Award Finalists Announced]]></title>
-            <link>https://www.redshirtsports.xyz/bill-schwanke-award-finalists-announced</link>
-            <guid>https://www.redshirtsports.xyz/bill-schwanke-award-finalists-announced</guid>
+            <link>https://www.redshirtsports.xyz/bill-schwanke-award-finalists-announced?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/bill-schwanke-award-finalists-announced?utm_source=RSS</guid>
             <pubDate>Fri, 31 Dec 2021 18:11:33 GMT</pubDate>
             <description><![CDATA[The finalists for the inaugural Bill Schwanke Award, which will be awarded annually to the top play-by-play radio broadcaster in FCS, were announced this week via Twitter by FCS Nation Radio.]]></description>
             <content:encoded><![CDATA[The finalists for the inaugural Bill Schwanke Award, which will be awarded annually to the top play-by-play radio broadcaster in FCS, were announced this week via Twitter by FCS Nation Radio. The finalists are: Mr. Larry Weir of Eastern Washington University, Mr. Jay Colley of William and Mary, Mr. Gary Rima of Northern Iowa, Mr. Brian Rives of Austin Peay, and Mr. Jay Sandos of East Tennessee State.
@@ -772,8 +820,8 @@ The announcement of the winner will be made on Wednesday 5 January, 2022 at noon
         </item>
         <item>
             <title><![CDATA[Deion Sanders Flips No. 1 Recruit in 2022 Class From Florida State to FCS Jackson State]]></title>
-            <link>https://www.redshirtsports.xyz/deion-sanders-flips-no-1-recruit-in-2022-class-from-florida-state-to-fcs-jackson-state</link>
-            <guid>https://www.redshirtsports.xyz/deion-sanders-flips-no-1-recruit-in-2022-class-from-florida-state-to-fcs-jackson-state</guid>
+            <link>https://www.redshirtsports.xyz/deion-sanders-flips-no-1-recruit-in-2022-class-from-florida-state-to-fcs-jackson-state?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/deion-sanders-flips-no-1-recruit-in-2022-class-from-florida-state-to-fcs-jackson-state?utm_source=RSS</guid>
             <pubDate>Fri, 17 Dec 2021 16:18:47 GMT</pubDate>
             <description><![CDATA[Deion Sanders kept telling people that he was going to shock everyone come National Signing day.]]></description>
             <content:encoded><![CDATA[A day after being named the Eddie Robinson Coach of the Year, Deion Sanders flipped the nation's No. 1 recruit in the class of 2022 in Travis Hunter from his commit to Florida State (Deion Sanders' alma mater) to an FCS program in Jackson State.
@@ -814,8 +862,8 @@ Camron Buckley (6-2, 198, WR, Indiana)]]></content:encoded>
         </item>
         <item>
             <title><![CDATA[Five-star QB Malachi Nelson follows Lincoln Riley to USC]]></title>
-            <link>https://www.redshirtsports.xyz/five-star-qb-malachi-nelson-follows-lincoln-riley-to-usc</link>
-            <guid>https://www.redshirtsports.xyz/five-star-qb-malachi-nelson-follows-lincoln-riley-to-usc</guid>
+            <link>https://www.redshirtsports.xyz/five-star-qb-malachi-nelson-follows-lincoln-riley-to-usc?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/five-star-qb-malachi-nelson-follows-lincoln-riley-to-usc?utm_source=RSS</guid>
             <pubDate>Wed, 01 Dec 2021 05:07:00 GMT</pubDate>
             <description><![CDATA[Los Alamitos (Calif.) junior quarterback Malachi Nelson decommits to Oklahoma on Sunday and wasted no time in making a new decision, committing to USC on Tuesday.]]></description>
             <content:encoded><![CDATA[Malachi Nelson is the No. 2 prospect in the 2023 class and was committed to the Sooners since July. Hours following Riley's departure, Malachi Nelson decommitted from Oklahoma and is Riley's first big commitment of his USC tenure. Malachi Nelson is a 6-foot-3, 175-pound prospect from Los Alamitos High School in Los Alamitos, California. With him flipping to USC he will be staying home and playing for the team he grew up rooting for.
@@ -826,8 +874,8 @@ Malachi Nelson is the second commitment in USC's 2023 class and the highest-rank
         </item>
         <item>
             <title><![CDATA[ETSU at North Dakota State]]></title>
-            <link>https://www.redshirtsports.xyz/etsu-at-north-dakota-state</link>
-            <guid>https://www.redshirtsports.xyz/etsu-at-north-dakota-state</guid>
+            <link>https://www.redshirtsports.xyz/etsu-at-north-dakota-state?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/etsu-at-north-dakota-state?utm_source=RSS</guid>
             <pubDate>Fri, 10 Dec 2021 23:31:22 GMT</pubDate>
             <description><![CDATA[No. 7 ETSU faces off against No. 2 NDSU who is headed back home after beating Southern Illinois on the road.]]></description>
             <content:encoded><![CDATA[East Tennesse State put together an impressive comeback to overcome a two touchdown deffecit with less than 1:30 to play. It took a frantic rally which included a successful onside kick and a go-ahead two-point conversion which propelled ETSU into this FCS quarterfinals matchup. To say that ETSU is this weekend's biggest underdog would be an understatement.
@@ -840,8 +888,8 @@ NDSU is known to quickly smother teams going into half-time with a substantial l
         </item>
         <item>
             <title><![CDATA[Montana State with a dominate start beats Sam Houston]]></title>
-            <link>https://www.redshirtsports.xyz/montana-state-with-a-dominate-start-beats-sam-houston</link>
-            <guid>https://www.redshirtsports.xyz/montana-state-with-a-dominate-start-beats-sam-houston</guid>
+            <link>https://www.redshirtsports.xyz/montana-state-with-a-dominate-start-beats-sam-houston?utm_source=RSS</link>
+            <guid>https://www.redshirtsports.xyz/montana-state-with-a-dominate-start-beats-sam-houston?utm_source=RSS</guid>
             <pubDate>Sun, 12 Dec 2021 16:10:48 GMT</pubDate>
             <description><![CDATA[Montana State took down defending FCS champions Sam Houston State 42-19.]]></description>
             <content:encoded><![CDATA[After weeks of not scoring above 30 points a game and their then starting quarterback Matthew McKay entering the transfer portal, Montana State lit up the scoreboard anyway possible. In his second career start, quarterback Tommy Mellott had a hand in five touchdowns helping lead the No. 8 Montana State Bobcats to a 41-19 victory over No. 1 Sam Houston. 

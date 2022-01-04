@@ -24,7 +24,7 @@ const generateRssFeed = async () => {
   })
 
   posts.forEach((post: Post) => {
-    const url = `${baseURL}/${post.slug}`
+    const url = `${baseURL}/${post.slug}?utm_source=RSS`
 
     feed.addItem({
       title: post.title,
