@@ -24,6 +24,7 @@ export type Post = {
   slug: string
   title: string
   categories: string[]
+  featuredArticle: boolean
   excerpt: string
   body: string
 }
