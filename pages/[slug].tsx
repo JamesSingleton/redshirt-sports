@@ -1,15 +1,21 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { NextSeo, ArticleJsonLd, BreadcrumbJsonLd } from 'next-seo'
 import { CameraIcon, HomeIcon, ChevronRightIcon } from '@heroicons/react/solid'
 import { usePlausible } from 'next-plausible'
+import LazyHydrate from 'react-lazy-hydration'
 import { Layout } from '@components/common'
-import { PostHeader, RelatedArticles } from '@components/post'
+import { PostHeader } from '@components/post'
 import { postSlugsQuery, postQuery } from '@lib/sanityGroqQueries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { sanityClient, getClient, overlayDrafts } from '@lib/sanity.server'
 import type { Post } from '@lib/types/post'
+
+const RelatedArticles = dynamic(
+  () => import('@components/post/RelatedArticles')
+)
 
 interface PostProps {
   post: Post
@@ -200,7 +206,9 @@ const Article = ({ post, morePosts }: PostProps) => {
             </div>
           </div>
         </article>
-        <RelatedArticles posts={morePosts} />
+        <LazyHydrate whenVisible>
+          <RelatedArticles posts={morePosts} />
+        </LazyHydrate>
       </div>
     </>
   )

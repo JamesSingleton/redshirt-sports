@@ -6,6 +6,7 @@ import cn from 'classnames'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import { usePlausible } from 'next-plausible'
+import LazyHydrate from 'react-lazy-hydration'
 
 const navigation = [
   { name: 'FBS', href: '/fbs' },
@@ -102,56 +103,58 @@ const Navbar: FC = () => {
         leaveFrom="opacity-100 scale-100"
         leaveTo="opacity-0 scale-95"
       >
-        <Popover.Panel
-          focus
-          className="absolute z-30 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden"
-        >
-          {({ close }) => (
-            <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50">
-              <div className="pt-5 pb-6 px-5 sm:pb-8">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Image
-                      src="/images/icons/RS_red.svg"
-                      height="74"
-                      width="74"
-                      alt="Redshirt Sports logo"
-                    />
-                  </div>
-                  <div className="-mr-2">
-                    <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-                      <span className="sr-only">Close menu</span>
-                      <XIcon className="h-6 w-6" aria-hidden="true" />
-                    </Popover.Button>
-                  </div>
-                </div>
-                <div className="mt-6 sm:mt-8">
-                  <nav>
-                    <div className="grid gap-7 sm:grid-cols-2 sm:gap-y-8 sm:gap-x-4">
-                      {navigation.map(({ name, href }) => (
-                        <Link href={href} key={name} prefetch={false}>
-                          <a
-                            onClick={() => {
-                              plausible('clickOnMobileNavbar', {
-                                props: {
-                                  item: name,
-                                },
-                              })
-                              close()
-                            }}
-                            className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
-                          >
-                            {name}
-                          </a>
-                        </Link>
-                      ))}
+        <LazyHydrate whenVisible>
+          <Popover.Panel
+            focus
+            className="absolute z-30 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden"
+          >
+            {({ close }) => (
+              <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50">
+                <div className="pt-5 pb-6 px-5 sm:pb-8">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Image
+                        src="/images/icons/RS_red.svg"
+                        height="74"
+                        width="74"
+                        alt="Redshirt Sports logo"
+                      />
                     </div>
-                  </nav>
+                    <div className="-mr-2">
+                      <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                        <span className="sr-only">Close menu</span>
+                        <XIcon className="h-6 w-6" aria-hidden="true" />
+                      </Popover.Button>
+                    </div>
+                  </div>
+                  <div className="mt-6 sm:mt-8">
+                    <nav>
+                      <div className="grid gap-7 sm:grid-cols-2 sm:gap-y-8 sm:gap-x-4">
+                        {navigation.map(({ name, href }) => (
+                          <Link href={href} key={name} prefetch={false}>
+                            <a
+                              onClick={() => {
+                                plausible('clickOnMobileNavbar', {
+                                  props: {
+                                    item: name,
+                                  },
+                                })
+                                close()
+                              }}
+                              className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
+                            >
+                              {name}
+                            </a>
+                          </Link>
+                        ))}
+                      </div>
+                    </nav>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </Popover.Panel>
+            )}
+          </Popover.Panel>
+        </LazyHydrate>
       </Transition>
     </Popover>
   )
