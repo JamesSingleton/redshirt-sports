@@ -23,6 +23,7 @@ const Author = ({ author }: AuthorProps) => {
     <>
       <NextSeo
         title={`${author.name} Profile`}
+        description={`Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`}
         canonical={`https://www.redshirtsports.xyz/authors/${author.slug}`}
         openGraph={{
           title: `${author.name} Profile - Redshirt Sports`,
