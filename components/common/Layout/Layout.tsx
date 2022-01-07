@@ -15,9 +15,9 @@ const Layout: FC = ({ children }) => {
       <div className="h-full bg-gray-50 mx-auto transition-colors duration-150 relative overflow-hidden">
         <Navbar />
         <main className="fit">{children}</main>
-        <LazyHydrate whenVisible>
+        {/* <LazyHydrate whenVisible>
           <Footer />
-        </LazyHydrate>
+        </LazyHydrate> */}
       </div>
     </>
   )
