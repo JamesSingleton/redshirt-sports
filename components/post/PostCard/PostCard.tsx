@@ -14,7 +14,7 @@ const PostCard: FC<postCardProps> = ({ post }) => {
   const plausible = usePlausible()
   return (
     <article className="w-80 flex flex-col relative max-w-xs grow shrink-0 my-1 mr-5 rounded-lg shadow-lg overflow-hidden">
-      <Link href={`/${post.slug}`}>
+      <Link href={`/${post.slug}`} prefetch={false}>
         <a
           onClick={() =>
             plausible('clickOnRelatedArticles-Image', {
@@ -45,7 +45,11 @@ const PostCard: FC<postCardProps> = ({ post }) => {
         {post.categories.map((category) => {
           if (category === 'FCS' || category === 'FBS') {
             return (
-              <Link href={`/${category.toLowerCase()}`} key={post._id}>
+              <Link
+                href={`/${category.toLowerCase()}`}
+                key={post._id}
+                prefetch={false}
+              >
                 <a
                   onClick={() =>
                     plausible('clickOnRelatedArticles-Category', {
@@ -65,7 +69,7 @@ const PostCard: FC<postCardProps> = ({ post }) => {
         })}
       </div>
       <div className="h-full flex flex-col justify-between">
-        <Link href={`/${post.slug}`}>
+        <Link href={`/${post.slug}`} prefetch={false}>
           <a
             onClick={() =>
               plausible('clickOnRelatedArticles-Title', {
@@ -85,7 +89,7 @@ const PostCard: FC<postCardProps> = ({ post }) => {
         <time className="first:pl-0 first:pr-2 " dateTime={post.publishedAt}>
           {`${formatDistanceToNow(new Date(post.publishedAt))} ago`}
         </time>
-        <Link href={`/authors/${post.author.slug}`}>
+        <Link href={`/authors/${post.author.slug}`} prefetch={false}>
           <a
             onClick={() =>
               plausible('clickOnRelatedArticles-Author', {
