@@ -30,7 +30,7 @@ const FCS = ({ fcsPosts }: fcsProps) => {
       />
       <Container>
         <CategoryHeader
-          heading="FCS"
+          heading="FCS Football"
           subHeading="NCAA Division 1 Football Championship Subdivision"
         />
         {/* Loop over articles */}

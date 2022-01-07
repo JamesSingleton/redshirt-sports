@@ -30,7 +30,7 @@ const FBS = ({ fbsPosts }: fbsProps) => {
       />
       <Container>
         <CategoryHeader
-          heading="FBS"
+          heading="FBS Football"
           subHeading="NCAA Division 1 Football Bowl Subdivision"
         />
         {/* Loop over articles */}
