@@ -51,6 +51,16 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
       </url>
+      <url>
+        <loc>https://www.redshirtsports.xyz/advertising</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+      </url>
+      <url>
+        <loc>https://www.redshirtsports.xyz/privacy</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+      </url>
       ${postsSitemap.map((post: any) => `<url>${post}</url>`).join('')}
       ${authorsSitemap.map((author: any) => `<url>${author}</url>`).join('')}
     </urlset>
