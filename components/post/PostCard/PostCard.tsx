@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import formatDistanceToNow from 'date-fns/formatDistanceToNow'
+import formatDistanceStrict from 'date-fns/formatDistanceStrict'
 import { usePlausible } from 'next-plausible'
 import { Post } from '@lib/types/post'
 import { urlForImage } from '@lib/sanity'
@@ -87,7 +87,10 @@ const PostCard: FC<postCardProps> = ({ post }) => {
       </div>
       <div className="uppercase p-2 pb-3 text-xs text-stone-800 divide-x-2 divide-gray-700/20 divide-solid">
         <time className="first:pl-0 first:pr-2 " dateTime={post.publishedAt}>
-          {`${formatDistanceToNow(new Date(post.publishedAt))} ago`}
+          {`${formatDistanceStrict(
+            new Date(post.publishedAt),
+            new Date()
+          )} ago`}
         </time>
         <Link href={`/authors/${post.author.slug}`} prefetch={false}>
           <a

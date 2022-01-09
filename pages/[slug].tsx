@@ -83,7 +83,7 @@ const Article = ({ post, morePosts }: PostProps) => {
           },
         ]}
       />
-      <div className="max-w-3xl mx-auto sm:px-6 lg:max-w-[1360px]">
+      <div className="max-w-3xl mx-auto sm:px-6 lg:max-w-7xl">
         <nav className="flex my-4" aria-label="Breadcrumb">
           <ol role="list" className="px-4 flex space-x-4 sm:px-6 lg:px-0">
             <li className="flex">
@@ -163,12 +163,12 @@ const Article = ({ post, morePosts }: PostProps) => {
                   src={
                     urlForImage(post.mainImage)
                       .height(738)
-                      .width(1312)
+                      .width(1280)
                       .fit('min')
                       .quality(75)
                       .url()!
                   }
-                  width="1312"
+                  width="1280"
                   height="738"
                   sizes="50vw"
                   layout="responsive"

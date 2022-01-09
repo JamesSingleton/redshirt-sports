@@ -37,7 +37,7 @@ const Navbar: FC = () => {
                   alt="Redshirt Sports Logo"
                   width="74"
                   height="74"
-                  layout="fixed"
+                  // layout="fixed"
                 />
               </a>
             </Link>

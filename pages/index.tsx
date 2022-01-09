@@ -53,7 +53,7 @@ function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
 
 Home.Layout = Layout
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async () => {
   const { heroPost, morePosts, featuredArticles } = await getClient().fetch(
     homePageQuery
   )
@@ -65,7 +65,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       morePosts,
       featuredArticles,
     },
-    revalidate: 3600, // Revalidate every hour
+    revalidate: 86400, // Revalidate every hour
   }
 }
 
