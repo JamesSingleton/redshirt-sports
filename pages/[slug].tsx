@@ -193,6 +193,7 @@ const Article = ({ post, morePosts }: PostProps) => {
                 categories={post.categories}
                 date={post.publishedAt}
                 snippet={post.excerpt}
+                slug={post.slug}
               />
               <div className="my-6 prose prose-slate prose-lg mx-auto max-w-3xl prose-a:text-indigo-600 hover:prose-a:text-indigo-500 lg:max-w-5xl">
                 <PortableText blocks={post.body} />
@@ -214,7 +215,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   })
 
   if (!post) {
-    return { notFound: true }
+    return {
+      notFound: true,
+    }
   }
 
   return {
