@@ -1,24 +1,22 @@
 import { GetStaticProps } from 'next'
+import Link from 'next/link'
+import Image from 'next/image'
 import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
-import {
-  Hero,
-  FeaturedArticle,
-  ArticlesSection,
-  Podcasts,
-} from '@components/home'
+import { Hero, Podcasts, LatestArticles } from '@components/home'
 import { homePageQuery } from '@lib/sanityGroqQueries'
 import { getClient } from '@lib/sanity.server'
 import type { Post } from '@lib/types/post'
 import { SITE_URL } from '@lib/constants'
 import generateRssFeed from '@lib/generateRssFeed'
+import { urlForImage } from '@lib/sanity'
 
 interface HomeProps {
-  heroPost: Post
-  morePosts: Post[]
-  featuredArticles: Post[]
+  heroPosts: Post[]
+  latestPosts: Post[]
+  featuredArticle: Post
 }
-function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
+function Home({ heroPosts, latestPosts, featuredArticle }: HomeProps) {
   return (
     <>
       <NextSeo
@@ -35,17 +33,10 @@ function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
           ],
         }}
       />
-      <div className="sm:py-10 max-w-3xl mx-auto sm:px-6 lg:max-w-8xl lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8">
-        <div className="lg:col-span-9">
-          <Hero post={heroPost} />
-        </div>
-        <aside className="px-4 py-4 sm:px-0 lg:py-0 lg:col-span-3">
-          <div className="sticky top-28 space-y-4">
-            {morePosts.length > 0 && <ArticlesSection posts={morePosts} />}
-            <FeaturedArticle title="Featured FCS" post={featuredArticles[0]} />
-            <Podcasts />
-          </div>
-        </aside>
+      <div className="container relative mx-auto px-4 py-12">
+        <Hero posts={heroPosts} featuredArticle={featuredArticle} />
+        <LatestArticles posts={latestPosts} />
+        <Podcasts />
       </div>
     </>
   )
@@ -54,16 +45,16 @@ function Home({ heroPost, morePosts, featuredArticles }: HomeProps) {
 Home.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { heroPost, morePosts, featuredArticles } = await getClient().fetch(
+  const { heroPosts, featuredArticle, latestPosts } = await getClient().fetch(
     homePageQuery
   )
   await generateRssFeed()
 
   return {
     props: {
-      heroPost,
-      morePosts,
-      featuredArticles,
+      heroPosts,
+      latestPosts,
+      featuredArticle,
     },
     revalidate: 86400, // Revalidate every hour
   }

@@ -1,55 +1,25 @@
 import { FC } from 'react'
-import Image from 'next/image'
-import { usePlausible } from 'next-plausible'
+import PodcastCard from './PodcastCard'
 
 const Podcasts: FC = () => {
-  const plausible = usePlausible()
   return (
-    <div className="bg-white rounded-lg shadow">
-      <h2 className="h-11 mx-3 flex items-center justify-between text-base font-medium text-gray-900 border-b border-gray-300">
-        Podcasts
-      </h2>
-      <div className="mt-6 flex flex-col overflow-hidden rounded-b-lg">
-        <div className="shrink-0 text-center">
-          <Image
-            src="/images/FCS_Nation_Logo.jpeg"
-            alt="FCS Nation Logo"
-            width="176"
-            height="176"
-          />
+    <div className="py-16 lg:py-28">
+      <div className="relative flex flex-col sm:flex-row sm:items-end justify-between mb-12 md:mb-16">
+        <div className="max-w-2xl">
+          <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 dark:text-slate-50">
+            Latest Podcasts from FCS Nation Radio
+          </h2>
+          <span className="mt-2 md:mt-3 font-normal block text-base sm:text-xl">
+            The only nationally syndicated radio show about the Football
+            Championship Subdivision. Heard on better radio stations from Maine
+            to Spokane.
+          </span>
         </div>
-        <div className="grid grid-cols-2 mb-6">
-          <a
-            href="https://podcasts.apple.com/us/podcast/fcs-nation/id1436799349?mt=2&ls=1"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => plausible('clickApplePodcast')}
-          >
-            <Image
-              src="/images/US_UK_Apple_Podcasts_Listen_Badge_RGB.svg"
-              height="38"
-              width="185"
-              alt="Listen on Apple Podcasts"
-              quality="65"
-              layout="responsive"
-            />
-          </a>
-          <a
-            href="https://www.stitcher.com/show/fcs-nation"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => plausible('clickStitcherPodcast')}
-          >
-            <Image
-              src="/images/stitcher_logo.svg"
-              height="38"
-              width="185"
-              alt="Listen on Stitcher"
-              quality="65"
-              layout="responsive"
-            />
-          </a>
-        </div>
+      </div>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <PodcastCard />
+        <PodcastCard />
+        <PodcastCard />
       </div>
     </div>
   )
