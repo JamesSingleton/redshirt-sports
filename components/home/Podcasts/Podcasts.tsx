@@ -1,7 +1,12 @@
 import { FC } from 'react'
 import PodcastCard from './PodcastCard'
+import type { Podcast } from '@lib/types/podcast'
 
-const Podcasts: FC = () => {
+interface PodcastsProps {
+  podcasts: Podcast[]
+}
+
+const Podcasts: FC<PodcastsProps> = ({ podcasts }) => {
   return (
     <div className="py-16 lg:py-28">
       <div className="relative flex flex-col sm:flex-row sm:items-end justify-between mb-12 md:mb-16">
@@ -17,9 +22,9 @@ const Podcasts: FC = () => {
         </div>
       </div>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-        <PodcastCard />
-        <PodcastCard />
-        <PodcastCard />
+        {podcasts.map((podcast) => (
+          <PodcastCard podcast={podcast} key={podcast.title} />
+        ))}
       </div>
     </div>
   )

@@ -1,7 +1,6 @@
 import { GetStaticProps } from 'next'
-import Link from 'next/link'
-import Image from 'next/image'
 import { NextSeo } from 'next-seo'
+import Parser from 'rss-parser'
 import { Layout } from '@components/common'
 import { Hero, Podcasts, LatestArticles } from '@components/home'
 import { homePageQuery } from '@lib/sanityGroqQueries'
@@ -9,14 +8,19 @@ import { getClient } from '@lib/sanity.server'
 import type { Post } from '@lib/types/post'
 import { SITE_URL } from '@lib/constants'
 import generateRssFeed from '@lib/generateRssFeed'
-import { urlForImage } from '@lib/sanity'
 
 interface HomeProps {
   heroPosts: Post[]
   latestPosts: Post[]
   featuredArticle: Post
+  topThreePodcasts: []
 }
-function Home({ heroPosts, latestPosts, featuredArticle }: HomeProps) {
+function Home({
+  heroPosts,
+  latestPosts,
+  featuredArticle,
+  topThreePodcasts,
+}: HomeProps) {
   return (
     <>
       <NextSeo
@@ -36,7 +40,7 @@ function Home({ heroPosts, latestPosts, featuredArticle }: HomeProps) {
       <div className="container relative mx-auto px-4 py-12">
         <Hero posts={heroPosts} featuredArticle={featuredArticle} />
         <LatestArticles posts={latestPosts} />
-        <Podcasts />
+        <Podcasts podcasts={topThreePodcasts} />
       </div>
     </>
   )
@@ -48,6 +52,11 @@ export const getStaticProps: GetStaticProps = async () => {
   const { heroPosts, featuredArticle, latestPosts } = await getClient().fetch(
     homePageQuery
   )
+  const feed = await new Parser().parseURL(
+    'https://media.rss.com/fcsnation/feed.xml'
+  )
+
+  const topThreePodcasts = feed.items.slice(0, 3)
   await generateRssFeed()
 
   return {
@@ -55,6 +64,7 @@ export const getStaticProps: GetStaticProps = async () => {
       heroPosts,
       latestPosts,
       featuredArticle,
+      topThreePodcasts,
     },
     revalidate: 86400, // Revalidate every hour
   }
