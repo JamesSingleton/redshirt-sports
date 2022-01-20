@@ -56,7 +56,7 @@ export const getStaticProps: GetStaticProps = async () => {
     'https://media.rss.com/fcsnation/feed.xml'
   )
 
-  const topThreePodcasts = feed.items.slice(0, 3)
+  const topThreePodcasts = feed.items.slice(0, 6)
   await generateRssFeed()
 
   return {

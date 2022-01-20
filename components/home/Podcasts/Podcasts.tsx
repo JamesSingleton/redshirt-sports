@@ -21,7 +21,7 @@ const Podcasts: FC<PodcastsProps> = ({ podcasts }) => {
           </span>
         </div>
       </div>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-8">
         {podcasts.map((podcast) => (
           <PodcastCard podcast={podcast} key={podcast.title} />
         ))}
