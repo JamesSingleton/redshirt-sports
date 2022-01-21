@@ -17,7 +17,7 @@ const Navbar: FC = () => {
   const { asPath } = useRouter()
   const plausible = usePlausible()
   return (
-    <Popover as="header" className="bg-gray-800">
+    <Popover as="header" className="bg-slate-900">
       <div className="relative">
         <div className="flex justify-between items-center px-4 sm:px-6 md:justify-start md:space-x-10">
           <div>

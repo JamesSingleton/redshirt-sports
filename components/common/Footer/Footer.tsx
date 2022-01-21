@@ -35,7 +35,10 @@ const navigation = {
 export default function Footer() {
   const plausible = usePlausible()
   return (
-    <footer className="bg-gray-800" aria-labelledby="footer-heading">
+    <footer
+      className="bg-slate-900 border-t border-neutral-200 dark:border-neutral-700"
+      aria-labelledby="footer-heading"
+    >
       <h2 id="footer-heading" className="sr-only">
         Footer
       </h2>

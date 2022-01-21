@@ -25,23 +25,20 @@ const PodcastCard: FC<PodcastProps> = ({ podcast }) => {
         </div>
       </div>
       <div className="flex flex-col grow ml-4">
-        <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-50">
+        <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-50 line-clamp-1">
           {podcast.title}
         </h3>
         <span className="text-xs mt-1">{`Season ${podcast.itunes.season} · Episode ${podcast.itunes.episode}`}</span>
         <div>
-          <div className="inline-flex items-center mt-3 pr-4 py-0.5 cursor-pointer rounded-full transition-all hover:pl-0.5 hover:bg-slate-100 dark:hover:bg-slate-900">
-            <button className="flex items-center justify-center rounded-full">
+          <div className="">
+            <button
+              onClick={() => setPlaying(!playing)}
+              className="items-center justify-center rounded-full inline-flex mt-3 pr-4 py-0.5 cursor-pointer transition-all hover:pl-0.5 hover:bg-slate-100 dark:hover:bg-slate-900"
+            >
               {playing ? (
-                <PauseIcon
-                  className="text-red-500 w-14 h-14"
-                  onClick={() => setPlaying(false)}
-                />
+                <PauseIcon className="text-red-500 w-14 h-14" />
               ) : (
-                <PlayIcon
-                  className="text-red-500 w-14 h-14"
-                  onClick={() => setPlaying(true)}
-                />
+                <PlayIcon className="text-red-500 w-14 h-14" />
               )}
               <ReactPlayer
                 url={podcast.enclosure.url}
@@ -49,8 +46,8 @@ const PodcastCard: FC<PodcastProps> = ({ podcast }) => {
                 width="0"
                 height="0"
               />
+              <span className="ml-3 text-sm font-medium">Listen now</span>
             </button>
-            <span className="ml-3 text-sm font-medium">Listen now</span>
           </div>
         </div>
       </div>
