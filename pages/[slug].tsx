@@ -309,7 +309,7 @@ const Article = ({ post, morePosts }: PostProps) => {
                           <div className="relative shrink-0 inline-flex items-center justify-center overflow-hidden text-neutral-100 uppercase font-semibold shadow-inner rounded-full h-10 w-10 text-base mr-4">
                             <img
                               className="absolute inset-0 w-full h-full object-cover"
-                              src={urlForImage(post.author.image).url()}
+                              src={urlForImage(post.author.image).url()!}
                             />
                           </div>
                           <div>
@@ -325,7 +325,7 @@ const Article = ({ post, morePosts }: PostProps) => {
                           <div className="relative shrink-0 inline-flex items-center justify-center overflow-hidden text-neutral-100 uppercase font-semibold shadow-inner rounded-full h-10 w-10 text-base mr-4">
                             <img
                               className="absolute inset-0 w-full h-full object-cover"
-                              src={urlForImage(post.author.image).url()}
+                              src={urlForImage(post.author.image).url()!}
                             />
                           </div>
                           <div>
