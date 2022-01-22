@@ -1,11 +1,7 @@
 import { FC } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { parseISO, format } from 'date-fns'
-import { ClockIcon } from '@heroicons/react/outline'
 import type { Post } from '@lib/types/post'
-import { urlForImage } from '@lib/sanity'
 import { usePlausible } from 'next-plausible'
+import MorePostsCard from './MorePostsCard'
 
 interface MorePostsProps {
   morePosts: Post[]
@@ -14,51 +10,17 @@ interface MorePostsProps {
 const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
   const plausible = usePlausible()
   return (
-    <div className="bg-white px-4 pb-5 shadow sm:rounded-lg sm:px-6">
-      <ul role="list" className="divide-y space-y-5 divide-gray-200">
-        {morePosts.map((post) => (
-          <li
-            key={post.title}
-            className="relative bg-white pt-5 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600"
-          >
-            <div className="flex justify-between space-x-3">
-              <div>
-                <Image
-                  alt={post.mainImage.caption}
-                  src={urlForImage(post?.mainImage).height(75).width(75).url()!}
-                  width="75"
-                  height="75"
-                />
-              </div>
-              <div className="min-w-0 flex-1">
-                <Link href={`/${post.slug}`} prefetch={false}>
-                  <a
-                    className="block focus:outline-none"
-                    onClick={() =>
-                      plausible('clickOnPostMoreArticles', {
-                        props: {
-                          title: post.title,
-                        },
-                      })
-                    }
-                  >
-                    <span className="absolute inset-0" aria-hidden="true" />
-                    <p className="text-sm font-medium text-gray-900">
-                      {post.title}
-                    </p>
-                    <span className="shrink-0 whitespace-nowrap text-sm text-gray-500">
-                      <ClockIcon className="w-3 h-3 mr-1 inline-block" />
-                      <time dateTime={post.publishedAt}>
-                        {format(parseISO(post.publishedAt), 'LLLL	d, yyyy')}
-                      </time>
-                    </span>
-                  </a>
-                </Link>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <div className="relative bg-slate-100 dark:bg-slate-800 py-16 lg:py-28 mt-16 lg:mt-28">
+      <div className="container mx-auto px-4 xl:px-32">
+        <div className="relative flex flex-col sm:flex-row sm:items-end justify-between mb-10 text-slate-900 dark:text-slate-50 max-w-2xl">
+          <h2 className="text-3xl md:text-4xl font-semibold">Related Posts</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+          {morePosts.map((post) => (
+            <MorePostsCard key={post.title} post={post} />
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

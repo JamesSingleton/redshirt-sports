@@ -21,6 +21,7 @@ export type Post = {
   _id: string
   _updatedAt: string
   author: AuthorTypes
+  otherAuthors?: AuthorTypes[]
   mainImage: PostImage
   publishedAt: string
   slug: string
