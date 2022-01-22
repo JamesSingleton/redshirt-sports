@@ -26,10 +26,10 @@ const Authors = ({ authors }: any) => {
         <Container>
           <div className="space-y-12 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
             <div className="space-y-5 sm:space-y-4">
-              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl text-slate-900 dark:text-slate-50">
                 Our Team
               </h1>
-              <p className="text-xl text-gray-500">
+              <p className="text-xl">
                 Redshirt Sports is dedicated to college football with an
                 emphasis on the FCS. The only way to create such coverage is
                 with great people who truly enjoy their job.
@@ -73,17 +73,15 @@ const Authors = ({ authors }: any) => {
                             <h2>{author.name}</h2>
                             <p className="text-indigo-600">{author.role}</p>
                           </div>
-                          <div className="text-lg">
-                            <p className="text-gray-500">
-                              <PortableText blocks={author.bio} />
-                            </p>
+                          <div className="text-lg line-clamp-3">
+                            <PortableText blocks={author.bio} />
                           </div>
 
                           <ul role="list" className="flex space-x-5">
                             <li>
                               <a
                                 href={author.twitterURL}
-                                className="text-gray-400 hover:text-gray-500"
+                                className="hover:text-gray-400"
                                 onClick={() =>
                                   plausible(
                                     `clickOn-${author.name}TwitterFromAuthorsPage`

@@ -6,9 +6,8 @@ import { usePlausible } from 'next-plausible'
 import { parseISO, format } from 'date-fns'
 import {
   TwitterShareButton,
-  TwitterIcon,
   FacebookShareButton,
-  FacebookIcon,
+  EmailShareButton,
 } from 'react-share'
 import { urlForImage } from '@lib/sanity'
 import type { AuthorTypes } from '@lib/types/author'
@@ -20,6 +19,7 @@ interface PostHeaderProps {
   category: string
   excerpt: string
   estimatedReadingTime: number
+  slug: string
 }
 const PostHeader: FC<PostHeaderProps> = ({
   title,
@@ -28,8 +28,10 @@ const PostHeader: FC<PostHeaderProps> = ({
   category,
   excerpt,
   estimatedReadingTime,
+  slug,
 }) => {
   const plausible = usePlausible()
+  const socialShareUrl = `https://www.redshirtsports.xyz/${slug}`
   return (
     <header className="container mx-auto px-4">
       <div className="max-w-screen-md mx-auto">
@@ -105,7 +107,9 @@ const PostHeader: FC<PostHeaderProps> = ({
                     <div className="px-1 py-1 ">
                       <Menu.Item>
                         {({ active }) => (
-                          <button
+                          <FacebookShareButton
+                            url={socialShareUrl}
+                            resetButtonStyle={false}
                             className={`${
                               active
                                 ? 'bg-slate-500 text-white'
@@ -138,12 +142,17 @@ const PostHeader: FC<PostHeaderProps> = ({
                               </svg>
                             )}
                             Facebook
-                          </button>
+                          </FacebookShareButton>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <button
+                          <TwitterShareButton
+                            url={socialShareUrl}
+                            resetButtonStyle={false}
+                            title={title}
+                            hashtags={['FCS', 'redshirtsports']}
+                            related={['FCSNationRadio1']}
                             className={`${
                               active
                                 ? 'bg-slate-500 text-white'
@@ -168,7 +177,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                               </svg>
                             )}
                             Twitter
-                          </button>
+                          </TwitterShareButton>
                         )}
                       </Menu.Item>
                       <Menu.Item>
@@ -179,6 +188,11 @@ const PostHeader: FC<PostHeaderProps> = ({
                                 ? 'bg-slate-500 text-white'
                                 : 'text-slate-900'
                             } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                            onClick={() =>
+                              navigator.clipboard.writeText(
+                                `https://www.redshirtsports.xyz/${slug}`
+                              )
+                            }
                           >
                             {active ? (
                               <DuplicateIcon
@@ -197,7 +211,11 @@ const PostHeader: FC<PostHeaderProps> = ({
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <button
+                          <EmailShareButton
+                            resetButtonStyle={false}
+                            url={socialShareUrl}
+                            subject={title}
+                            openShareDialogOnClick={true}
                             className={`${
                               active
                                 ? 'bg-slate-500 text-white'
@@ -216,7 +234,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                               />
                             )}
                             Email
-                          </button>
+                          </EmailShareButton>
                         )}
                       </Menu.Item>
                     </div>

@@ -1,11 +1,12 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
-import { NextSeo, ArticleJsonLd, BreadcrumbJsonLd } from 'next-seo'
-
+import {
+  NextSeo,
+  ArticleJsonLd,
+  BreadcrumbJsonLd,
+  WebPageJsonLd,
+} from 'next-seo'
 import { usePlausible } from 'next-plausible'
-import { parseISO, format } from 'date-fns'
-
 import { Layout } from '@components/common'
 import {
   MorePosts,
@@ -15,7 +16,7 @@ import {
   WrittenBy,
 } from '@components/post'
 import { postSlugsQuery, postQuery } from '@lib/sanityGroqQueries'
-import { urlForImage, PortableText } from '@lib/sanity'
+import { PortableText, urlForImage } from '@lib/sanity'
 import { sanityClient, getClient, overlayDrafts } from '@lib/sanity.server'
 import type { Post } from '@lib/types/post'
 
@@ -35,6 +36,67 @@ const Article = ({ post, morePosts }: PostProps) => {
   })
   return (
     <>
+      <NextSeo
+        title={post.title}
+        description={post.excerpt}
+        canonical={`https://www.redshirtsports.xyz/${post.slug}`}
+        openGraph={{
+          title: `${post.title} - Redshirt Sports`,
+          url: `https://www.redshirtsports.xyz/${post.slug}`,
+          type: 'article',
+          article: {
+            publishedTime: post.publishedAt,
+            modifiedTime: post._updatedAt,
+            authors: [
+              `https://www.redshirtsports.xyz/authors/${post.author.slug}`,
+            ],
+            tags: post.categories,
+          },
+          images: [
+            {
+              url: urlForImage(post.mainImage).height(574).width(1020).url()!,
+              width: 1020,
+              height: 574,
+              alt: post.mainImage.caption,
+            },
+          ],
+        }}
+      />
+      <WebPageJsonLd
+        id={`https://www.redshirtsports.xyz/${post.slug}`}
+        description={post.title}
+      />
+      <ArticleJsonLd
+        url={`https://www.redshirtsports.xyz/${post.slug}`}
+        title={post.title}
+        datePublished={post.publishedAt}
+        dateModified={post._updatedAt}
+        authorName={[post.author.name]}
+        publisherName="Redshirt Sports"
+        publisherLogo="/images/icons/RS_512.png"
+        images={[urlForImage(post.mainImage).height(574).width(1020).url()!]}
+        description={post.excerpt}
+      />
+      <BreadcrumbJsonLd
+        itemListElements={[
+          {
+            position: 1,
+            name: 'Home',
+            item: 'https://www.redshirtsports.xyz',
+          },
+          {
+            position: 2,
+            name: categoryName.toLowerCase(),
+            item: `https://www.redshirtsports.xyz/${categoryName.toLowerCase()}`,
+          },
+          {
+            position: 3,
+            name: post.title,
+            item: `https://www.redshirtsports.xyz/${post.slug}`,
+          },
+        ]}
+      />
+
       <article>
         <div className="pt-10 lg:pt-16">
           <PostHeader
@@ -44,6 +106,7 @@ const Article = ({ post, morePosts }: PostProps) => {
             author={post.author}
             excerpt={post.excerpt}
             estimatedReadingTime={post.estimatedReadingTime}
+            slug={post.slug}
           />
           <PostImage image={post.mainImage} />
           <div className="container mx-auto px-4 lg:px-32 flex flex-col my-10 lg:flex-row">
