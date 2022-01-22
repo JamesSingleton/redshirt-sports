@@ -43,6 +43,7 @@ const Article = ({ post, morePosts }: PostProps) => {
             category={categoryName}
             author={post.author}
             excerpt={post.excerpt}
+            estimatedReadingTime={post.estimatedReadingTime}
           />
           <PostImage image={post.mainImage} />
           <div className="container mx-auto px-4 lg:px-32 flex flex-col my-10 lg:flex-row">
@@ -53,12 +54,12 @@ const Article = ({ post, morePosts }: PostProps) => {
                 </div>
                 <div className="max-w-screen-md mx-autor flex flex-wrap">
                   <Link href={`/${categoryName.toLowerCase()}`}>
-                    <a className="nc-Tag inline-block bg-white text-sm py-2 px-3 rounded-lg border border-slate-100 md:py-2.5 md:px-4 dark:bg-slate-700 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-6000 mr-2 mb-2">
+                    <a className="nc-Tag inline-block bg-white text-sm py-2 px-3 rounded-lg border border-slate-300 md:py-2.5 md:px-4 dark:bg-slate-700 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-6000 mr-2 mb-2">
                       {categoryName}
                     </a>
                   </Link>
                 </div>
-                <div className="max-w-screen-md mx-auto border-b border-2 border-slate-100 dark:border-slate-700" />
+                <div className="max-w-screen-md mx-auto border-b border-t border-slate-200 dark:border-slate-700" />
                 <WrittenBy author={post.author} />
               </div>
             </section>

@@ -19,6 +19,7 @@ interface PostHeaderProps {
   author: AuthorTypes
   category: string
   excerpt: string
+  estimatedReadingTime: number
 }
 const PostHeader: FC<PostHeaderProps> = ({
   title,
@@ -26,6 +27,7 @@ const PostHeader: FC<PostHeaderProps> = ({
   author,
   category,
   excerpt,
+  estimatedReadingTime,
 }) => {
   const plausible = usePlausible()
   return (
@@ -78,7 +80,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                     </time>
                   </span>
                   <span className="mx-2 font-semibold">·</span>
-                  <span>6 min read</span>
+                  <span>{`${estimatedReadingTime} min read`}</span>
                 </div>
               </div>
             </div>

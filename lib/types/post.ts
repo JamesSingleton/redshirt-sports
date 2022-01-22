@@ -30,6 +30,7 @@ export type Post = {
   featuredArticle: boolean
   excerpt: string
   body: string
+  estimatedReadingTime: number
 }
 
 export type PostTypes = {
