@@ -72,9 +72,6 @@ const PopularPosts: FC<PopularPostsProps> = ({ topPosts }) => {
                     alt={post.mainImage.caption}
                     className="object-cover w-full h-full"
                     layout="fill"
-                    width={80}
-                    height={80}
-                    sizes="50vw"
                     objectFit="cover"
                   />
                 </div>

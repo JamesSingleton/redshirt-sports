@@ -16,6 +16,7 @@ const navigation = [
 const Navbar: FC = () => {
   const { asPath } = useRouter()
   const plausible = usePlausible()
+
   return (
     <Popover as="header" className="bg-slate-900">
       <div className="relative">
@@ -37,7 +38,6 @@ const Navbar: FC = () => {
                   alt="Redshirt Sports Logo"
                   width="74"
                   height="74"
-                  // layout="fixed"
                 />
               </a>
             </Link>

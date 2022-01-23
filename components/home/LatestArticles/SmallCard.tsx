@@ -40,15 +40,12 @@ const SmallCard: FC<SmallCardProps> = ({ post }) => {
             {post.categories.map((category) => {
               if (category === 'FCS' || category === 'FBS') {
                 return (
-                  <Link
-                    href={`/${category.toLocaleLowerCase()}`}
-                    prefetch={false}
+                  <span
                     key={`${category}_${post.title}`}
+                    className="transition-colors hover:text-slate-50 duration-300 nc-Badge relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-slate-50 bg-red-800 hover:bg-red-600"
                   >
-                    <a className="transition-colors hover:text-slate-50 duration-300 nc-Badge relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-slate-50 bg-red-800 hover:bg-red-600">
-                      {category}
-                    </a>
-                  </Link>
+                    {category}
+                  </span>
                 )
               }
             })}
