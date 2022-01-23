@@ -76,7 +76,7 @@ const Author = ({ author }: AuthorProps) => {
               </div>
               <div className="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
                 <div className="sm:hidden 2xl:block mt-6 min-w-0 flex-1">
-                  <h1 className="text-2xl font-bold text-gray-900 truncate">
+                  <h1 className="text-2xl font-bold text-slate-900 truncate">
                     {author.name}
                   </h1>
                 </div>
@@ -110,7 +110,7 @@ const Author = ({ author }: AuthorProps) => {
               </div>
             </div>
             <div className="hidden sm:block 2xl:hidden mt-6 min-w-0 flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 truncate">
+              <h1 className="text-2xl font-bold text-slate-900 truncate">
                 {author.name}
               </h1>
             </div>
@@ -120,12 +120,12 @@ const Author = ({ author }: AuthorProps) => {
         <div className="mt-6 sm:mt-2 2xl:mt-5">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="border-b border-gray-200">
-              <span className="border-transparent text-gray-500 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+              <span className="border-transparent text-slate-500 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                 About
               </span>
             </div>
             <div className="mt-6">
-              <div className="mt-1 text-sm text-gray-900 space-y-5">
+              <div className="mt-1 text-sm text-slate-900 space-y-5">
                 <PortableText blocks={author.bio} />
               </div>
             </div>

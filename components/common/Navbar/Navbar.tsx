@@ -56,8 +56,8 @@ const Navbar: FC = () => {
                     }
                     className={cn(
                       asPath === href
-                        ? 'bg-gray-900 text-white'
-                        : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                        ? 'bg-gray-900 text-slate-50'
+                        : 'text-slate-300 hover:bg-gray-700 hover:text-slate-50',
                       'px-3 py-2 rounded-md font-medium text-lg'
                     )}
                   >
@@ -71,7 +71,7 @@ const Navbar: FC = () => {
                 href="https://twitter.com/_redshirtsports"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-8 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white"
+                className="ml-8 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-slate-50"
               >
                 <span className="sr-only">Redshirt Sports Twitter Link</span>
                 <svg
@@ -85,7 +85,7 @@ const Navbar: FC = () => {
             </div>
           </div>
           <div className="md:hidden">
-            <Popover.Button className="bg-gray-800 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+            <Popover.Button className="bg-gray-800 rounded-md p-2 inline-flex items-center justify-center text-slate-400 hover:text-slate-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
               <span className="sr-only">Open menu</span>
               <MenuIcon className="h-6 w-6" aria-hidden="true" />
             </Popover.Button>
@@ -119,7 +119,7 @@ const Navbar: FC = () => {
                     />
                   </div>
                   <div className="-mr-2">
-                    <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                    <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center text-slate-400 hover:text-slate-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                       <span className="sr-only">Close menu</span>
                       <XIcon className="h-6 w-6" aria-hidden="true" />
                     </Popover.Button>
@@ -139,7 +139,7 @@ const Navbar: FC = () => {
                               })
                               close()
                             }}
-                            className="rounded-md text-base font-medium text-gray-900 hover:text-gray-700"
+                            className="rounded-md text-base font-medium text-slate-900 hover:text-slate-700"
                           >
                             {name}
                           </a>

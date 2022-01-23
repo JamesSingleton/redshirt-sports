@@ -52,7 +52,7 @@ export default function Footer() {
               width="74"
               height="74"
             />
-            <p className="text-gray-300 text-base">
+            <p className="text-slate-300 text-base">
               Your go to source for all things FCS.
             </p>
             <div className="flex space-x-6">
@@ -60,7 +60,7 @@ export default function Footer() {
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-gray-400 hover:text-gray-500"
+                  className="text-slate-400 hover:text-slate-500"
                 >
                   <span className="sr-only">{item.name}</span>
                   <item.icon className="h-6 w-6" aria-hidden="true" />
@@ -71,7 +71,7 @@ export default function Footer() {
           <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
+                <h3 className="text-sm font-semibold text-slate-400 tracking-wider uppercase">
                   Football
                 </h3>
                 <ul role="list" className="mt-4 space-y-4">
@@ -86,7 +86,7 @@ export default function Footer() {
                               },
                             })
                           }
-                          className="text-base text-gray-300 hover:text-white"
+                          className="text-base text-slate-300 hover:text-slate-50"
                         >
                           {item.name}
                         </a>
@@ -96,7 +96,7 @@ export default function Footer() {
                 </ul>
               </div>
               <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
+                <h3 className="text-sm font-semibold text-slate-400 tracking-wider uppercase">
                   Media
                 </h3>
                 <ul role="list" className="mt-4 space-y-4">
@@ -113,7 +113,7 @@ export default function Footer() {
                         href={item.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-base text-gray-300 hover:text-white"
+                        className="text-base text-slate-300 hover:text-slate-50"
                       >
                         {item.name}
                       </a>
@@ -124,7 +124,7 @@ export default function Footer() {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
+                <h3 className="text-sm font-semibold text-slate-400 tracking-wider uppercase">
                   Company
                 </h3>
                 <ul role="list" className="mt-4 space-y-4">
@@ -139,7 +139,7 @@ export default function Footer() {
                               },
                             })
                           }
-                          className="text-base text-gray-300 hover:text-white"
+                          className="text-base text-slate-300 hover:text-slate-50"
                         >
                           {item.name}
                         </a>
@@ -149,7 +149,7 @@ export default function Footer() {
                 </ul>
               </div>
               <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
+                <h3 className="text-sm font-semibold text-slate-400 tracking-wider uppercase">
                   Legal
                 </h3>
                 <ul role="list" className="mt-4 space-y-4">
@@ -164,7 +164,7 @@ export default function Footer() {
                               },
                             })
                           }
-                          className="text-base text-gray-300 hover:text-white"
+                          className="text-base text-slate-300 hover:text-slate-50"
                         >
                           {item.name}
                         </a>
@@ -177,7 +177,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-12 border-t border-gray-200 pt-8">
-          <p className="text-base text-gray-400 xl:text-center">
+          <p className="text-base text-slate-400 xl:text-center">
             &copy;
             {`${new Date().getFullYear()} Redshirt Sports. All rights reserved.`}
           </p>

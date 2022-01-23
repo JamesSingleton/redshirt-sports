@@ -1,5 +1,6 @@
 import { FC, Fragment } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Menu, Transition } from '@headlessui/react'
 import { ShareIcon, DuplicateIcon, InboxIcon } from '@heroicons/react/outline'
 import { usePlausible } from 'next-plausible'
@@ -39,7 +40,7 @@ const PostHeader: FC<PostHeaderProps> = ({
           <div className="flex flex-wrap space-x-2">
             <a
               href={`/${category.toLowerCase()}`}
-              className="transition-colors hover:text-white duration-300 relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-white bg-red-800 hover:bg-red-600"
+              className="transition-colors hover:text-slate-50 duration-300 relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-slate-50 bg-red-800 hover:bg-red-600"
               onClick={() =>
                 plausible('clickOnPostCategory', {
                   props: {
@@ -58,22 +59,24 @@ const PostHeader: FC<PostHeaderProps> = ({
           <div className="w-full border-b border-slate-100 dark:border-slate-800" />
           <div className="flex flex-col sm:flex-row justify-between sm:items-end space-y-5 sm:space-y-0 sm:space-x-5">
             <div className="flex items-center flex-wrap text-slate-700 text-left dark:text-slate-200 text-sm leading-none shrink-0">
-              <a className="flex items-center space-x-2" href="#">
-                <div className="relative flex-shrink-0 inline-flex items-center justify-center overflow-hidden text-slate-100 uppercase font-semibold shadow-inner rounded-full h-10 w-10 sm:h-11 sm:w-11 text-xl ring-1 ring-white dark:ring-slate-900">
-                  <Image
-                    className="absolute inset-0 w-full h-full object-cover"
-                    src={urlForImage(author.image).url()!}
-                    alt={`Profile image of ${author.name}`}
-                    width={44}
-                    height={44}
-                  />
-                </div>
-              </a>
+              <Link href={`/authors/${author.slug}`} prefetch={false}>
+                <a className="flex items-center space-x-2">
+                  <div className="relative flex-shrink-0 inline-flex items-center justify-center overflow-hidden text-slate-100 uppercase font-semibold shadow-inner rounded-full h-10 w-10 sm:h-11 sm:w-11 text-xl ring-1 ring-white dark:ring-slate-900">
+                    <Image
+                      className="absolute inset-0 w-full h-full object-cover"
+                      src={urlForImage(author.image).url()!}
+                      alt={`Profile image of ${author.name}`}
+                      width={44}
+                      height={44}
+                    />
+                  </div>
+                </a>
+              </Link>
               <div className="ml-3">
                 <div className="flex items-center">
-                  <a className="block font-semibold" href="#">
-                    {author.name}
-                  </a>
+                  <Link href={`/authors/${author.slug}`} prefetch={false}>
+                    <a className="block font-semibold">{author.name}</a>
+                  </Link>
                 </div>
                 <div className="text-xs mt-2">
                   <span>
@@ -112,7 +115,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                             resetButtonStyle={false}
                             className={`${
                               active
-                                ? 'bg-slate-500 text-white'
+                                ? 'bg-slate-500 text-slate-50'
                                 : 'text-slate-900'
                             } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                           >
@@ -155,7 +158,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                             related={['FCSNationRadio1']}
                             className={`${
                               active
-                                ? 'bg-slate-500 text-white'
+                                ? 'bg-slate-500 text-slate-50'
                                 : 'text-slate-900'
                             } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                           >
@@ -185,7 +188,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                           <button
                             className={`${
                               active
-                                ? 'bg-slate-500 text-white'
+                                ? 'bg-slate-500 text-slate-50'
                                 : 'text-slate-900'
                             } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                             onClick={() =>
@@ -218,7 +221,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                             openShareDialogOnClick={true}
                             className={`${
                               active
-                                ? 'bg-slate-500 text-white'
+                                ? 'bg-slate-500 text-slate-50'
                                 : 'text-slate-900'
                             } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                           >

@@ -36,7 +36,7 @@ const MorePostsCard: FC<MorePostsCardProps> = ({ post }) => {
             </div>
           </div>
           <div className="absolute top-3 inset-x-3">
-            <span className="transition-colors hover:text-white duration-300 relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-white bg-red-800 hover:bg-red-600">
+            <span className="transition-colors hover:text-slate-50 duration-300 relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-slate-50 bg-red-800 hover:bg-red-600">
               FCS
             </span>
           </div>

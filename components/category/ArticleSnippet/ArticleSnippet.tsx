@@ -50,17 +50,17 @@ const Snippet: FC<SnippetProps> = ({ post, location }) => {
                 </div>
 
                 <div className="mt-6 sm:mt-0 sm:ml-6">
-                  <h2 className="text-base font-medium text-gray-900">
+                  <h2 className="text-base font-medium text-slate-900">
                     {post.title}
                   </h2>
-                  <p className="mt-2 text-sm font-medium text-gray-900">
+                  <p className="mt-2 text-sm font-medium text-slate-900">
                     {post.author.name}
                     <time dateTime={post.publishedAt} className="ml-4">
-                      <ClockIcon className="w-3 h-3 inline-block text-gray-400" />
+                      <ClockIcon className="w-3 h-3 inline-block text-slate-400" />
                       {format(parseISO(post.publishedAt), 'LLLL	d, yyyy')}
                     </time>
                   </p>
-                  <p className="mt-3 text-sm text-gray-500">{post.excerpt}</p>
+                  <p className="mt-3 text-sm text-slate-500">{post.excerpt}</p>
                 </div>
               </div>
             </div>

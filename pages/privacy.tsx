@@ -55,7 +55,7 @@ const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
                     y={0}
                     width={4}
                     height={4}
-                    className="text-gray-200"
+                    className="text-slate-200"
                     fill="currentColor"
                   />
                 </pattern>
@@ -87,7 +87,7 @@ const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
                     y={0}
                     width={4}
                     height={4}
-                    className="text-gray-200"
+                    className="text-slate-200"
                     fill="currentColor"
                   />
                 </pattern>
@@ -119,7 +119,7 @@ const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
                     y={0}
                     width={4}
                     height={4}
-                    className="text-gray-200"
+                    className="text-slate-200"
                     fill="currentColor"
                   />
                 </pattern>
@@ -134,11 +134,11 @@ const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
         </div>
         <div className="relative px-4 sm:px-6 lg:px-8">
           <div className="text-lg max-w-prose mx-auto">
-            <h1 className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+            <h1 className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-slate-900 sm:text-4xl">
               {privacyPolicy.title}
             </h1>
           </div>
-          <div className="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto">
+          <div className="mt-6 prose prose-indigo prose-lg text-slate-500 mx-auto">
             <PortableText blocks={privacyPolicy.body} />
           </div>
         </div>

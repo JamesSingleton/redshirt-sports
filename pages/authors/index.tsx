@@ -81,7 +81,7 @@ const Authors = ({ authors }: any) => {
                             <li>
                               <a
                                 href={author.twitterURL}
-                                className="hover:text-gray-400"
+                                className="hover:text-slate-400"
                                 onClick={() =>
                                   plausible(
                                     `clickOn-${author.name}TwitterFromAuthorsPage`

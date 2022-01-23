@@ -21,6 +21,7 @@ const PostImage: FC<PostImageProps> = ({ image }) => (
         alt={image.caption}
         layout="responsive"
         sizes="50vw"
+        priority
       />
       <figcaption className="mt-3 flex text-sm">
         <CameraIcon className="flex-none w-5 h-5" aria-hidden="true" />

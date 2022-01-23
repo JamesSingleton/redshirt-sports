@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePlausible } from 'next-plausible'
 import { urlForImage } from '@lib/sanity'
 import type { AuthorTypes } from '@lib/types/author'
 
@@ -9,6 +10,7 @@ interface OtherAuthorsProps {
 }
 
 const OtherAuthors: FC<OtherAuthorsProps> = ({ otherAuthors }) => {
+  const plausible = usePlausible()
   return (
     <div className="rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800">
       <div className="flex items-center justify-between p-4 xl:p-5 border-b border-slate-200 dark:border-slate-700">
@@ -29,7 +31,16 @@ const OtherAuthors: FC<OtherAuthorsProps> = ({ otherAuthors }) => {
               prefetch={false}
               key={author.name}
             >
-              <a className="flex items-center p-4 xl:p-5 hover:bg-slate-200 dark:hover:bg-slate-700">
+              <a
+                onClick={() =>
+                  plausible('clickOnOtherAuthors', {
+                    props: {
+                      author: author.name,
+                    },
+                  })
+                }
+                className="flex items-center p-4 xl:p-5 hover:bg-slate-200 dark:hover:bg-slate-700"
+              >
                 <div className="relative shrink-0 inline-flex items-center justify-center overflow-hidden text-slate-100 uppercase font-semibold shadow-inner rounded-full h-10 w-10 text-base mr-4">
                   <Image
                     className="absolute inset-0 w-full h-full object-cover"

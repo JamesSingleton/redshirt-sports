@@ -58,7 +58,7 @@ const Hero: FC<HeroProps> = ({ posts, featuredArticle }) => {
                         prefetch={false}
                         key={`${category}_${heroPost.title}`}
                       >
-                        <a className="transition-colors hover:text-white duration-300 nc-Badge relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-white bg-red-800 hover:bg-red-600">
+                        <a className="transition-colors hover:text-slate-50 duration-300 nc-Badge relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-slate-50 bg-red-800 hover:bg-red-600">
                           {category}
                         </a>
                       </Link>
@@ -118,7 +118,7 @@ const Hero: FC<HeroProps> = ({ posts, featuredArticle }) => {
                             prefetch={false}
                             key={`${category}_${post.title}`}
                           >
-                            <a className="transition-colors hover:text-white duration-300 relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-white bg-red-800 hover:bg-red-600">
+                            <a className="transition-colors hover:text-slate-50 duration-300 relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-slate-50 bg-red-800 hover:bg-red-600">
                               {category}
                             </a>
                           </Link>
@@ -128,7 +128,7 @@ const Hero: FC<HeroProps> = ({ posts, featuredArticle }) => {
                   </div>
                 </div>
                 <div className="inline-flex items-center text-xs text-slate-50">
-                  <h2 className="block font-semibold text-white text-lg">
+                  <h2 className="block font-semibold text-slate-50 text-lg">
                     {post.title}
                   </h2>
                 </div>
@@ -172,7 +172,7 @@ const Hero: FC<HeroProps> = ({ posts, featuredArticle }) => {
                           prefetch={false}
                           key={`${category}_${featuredArticle.title}`}
                         >
-                          <a className="transition-colors hover:text-white duration-300 relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-white bg-red-800 hover:bg-red-600">{`Featured ${category}`}</a>
+                          <a className="transition-colors hover:text-slate-50 duration-300 relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-slate-50 bg-red-800 hover:bg-red-600">{`Featured ${category}`}</a>
                         </Link>
                       )
                     }
@@ -180,7 +180,7 @@ const Hero: FC<HeroProps> = ({ posts, featuredArticle }) => {
                 </div>
               </div>
               <div className="inline-flex items-center text-xs text-slate-50">
-                <h2 className="block font-semibold text-white text-xl sm:text-2xl xl:text-2xl">
+                <h2 className="block font-semibold text-slate-50 text-xl sm:text-2xl xl:text-2xl">
                   {featuredArticle.title}
                 </h2>
               </div>

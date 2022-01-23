@@ -14,6 +14,7 @@ import {
   PostHeader,
   PostImage,
   WrittenBy,
+  PopularPosts,
 } from '@components/post'
 import { postSlugsQuery, postQuery } from '@lib/sanityGroqQueries'
 import { PortableText, urlForImage } from '@lib/sanity'
@@ -23,10 +24,10 @@ import type { Post } from '@lib/types/post'
 interface PostProps {
   post: Post
   morePosts: Post[]
+  topPosts: Post[]
 }
 
-const Article = ({ post, morePosts }: PostProps) => {
-  const plausible = usePlausible()
+const Article = ({ post, morePosts, topPosts }: PostProps) => {
   let categoryName = 'FCS'
 
   post.categories.map((category) => {
@@ -34,6 +35,7 @@ const Article = ({ post, morePosts }: PostProps) => {
       categoryName = category
     }
   })
+
   return (
     <>
       <NextSeo
@@ -129,6 +131,7 @@ const Article = ({ post, morePosts }: PostProps) => {
             <section className="w-full mt-12 lg:mt-0 lg:w-2/5 lg:pl-10 xl:pl-0 xl:w-1/3">
               <div className="space-y-6">
                 <OtherAuthors otherAuthors={post.otherAuthors!} />
+                <PopularPosts topPosts={topPosts} />
               </div>
             </section>
           </div>
@@ -142,8 +145,23 @@ const Article = ({ post, morePosts }: PostProps) => {
 Article.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { post, morePosts } = await getClient().fetch(postQuery, {
+  const topPages = await fetch(
+    'https://plausible.io/api/v1/stats/breakdown?site_id=redshirtsports.xyz&period=6mo&property=event:page&limit=5',
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.PLAUSIBLE_API_TOKEN}`,
+      },
+    }
+  )
+    .then(async (res) => res.json())
+    .then((res) =>
+      res.results
+        .filter((result: { page: string }) => result.page !== '/')
+        .map((result: { page: string }) => result.page.replace('/', ''))
+    )
+  const { post, morePosts, topPosts } = await getClient().fetch(postQuery, {
     slug: params?.slug,
+    topPages: topPages,
   })
 
   if (!post) {
@@ -156,6 +174,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       post,
       morePosts: overlayDrafts(morePosts),
+      topPosts,
     },
     revalidate: 60, // In seconds
   }

@@ -59,7 +59,7 @@ const PostCard: FC<postCardProps> = ({ post }) => {
                       },
                     })
                   }
-                  className="text-xs uppercase rounded-full text-white py-1 px-2 bg-red-700 font-bold"
+                  className="text-xs uppercase rounded-full text-slate-50 py-1 px-2 bg-red-700 font-bold"
                 >
                   {category}
                 </a>

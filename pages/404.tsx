@@ -13,10 +13,10 @@ const Custom404 = () => {
           </p>
           <div className="sm:ml-6">
             <div className="sm:border-l sm:border-gray-200 sm:pl-6">
-              <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
+              <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">
                 Page not found
               </h1>
-              <p className="mt-1 text-base text-gray-500">
+              <p className="mt-1 text-base text-slate-500">
                 Please check the URL in the address bar and try again.
               </p>
             </div>
@@ -24,7 +24,7 @@ const Custom404 = () => {
               <Link href="/" prefetch={false}>
                 <a
                   onClick={() => plausible('clickOn404BackHome')}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-slate-50 bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Go back home
                 </a>
