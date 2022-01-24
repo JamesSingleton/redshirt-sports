@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { parseISO, format } from 'date-fns'
 import { Post } from '@lib/types/post'
 import { urlForImage } from '@lib/sanity'
+import { Badge } from '@components/ui'
 
 interface LargeCardProps {
   post: Post
@@ -30,20 +31,13 @@ const LargeCard: FC<LargeCardProps> = ({ post }) => {
         <div className="absolute hidden md:grid gap-[5px] right-4 top-4 opacity-0 z-[-1] group-hover:z-10 group-hover:opacity-100"></div>
         <div className="p-4 sm:p-5 flex flex-col">
           <div className="space-y-3">
-            <div className="flex flex-wrap space-x-2">
-              {post.categories.map((category) => {
-                if (category === 'FCS' || category === 'FBS') {
-                  return (
-                    <span
-                      key={`${category}_${post.title}`}
-                      className="transition-colors hover:text-slate-50 duration-300 nc-Badge relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-slate-50 bg-red-800 hover:bg-red-600"
-                    >
-                      {category}
-                    </span>
-                  )
-                }
-              })}
-            </div>
+            {post.categories.map((category) => {
+              if (category === 'FCS' || category === 'FBS') {
+                return (
+                  <Badge key={`${category}_${post.title}`}>{category}</Badge>
+                )
+              }
+            })}
             <h2 className="block font-semibold text-slate-900 dark:text-slate-50 transition-colors text-lg sm:text-2xl line-clamp-2">
               {post.title}
             </h2>

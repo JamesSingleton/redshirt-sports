@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { parseISO, format } from 'date-fns'
 import { urlForImage } from '@lib/sanity'
 import { Post } from '@lib/types/post'
+import { Badge } from '@components/ui'
 
 interface SmallCardProps {
   post: Post
@@ -36,20 +37,11 @@ const SmallCard: FC<SmallCardProps> = ({ post }) => {
           </div>
         </div>
         <span className="absolute top-3 inset-x-3">
-          <div className="flex flex-wrap space-x-2">
-            {post.categories.map((category) => {
-              if (category === 'FCS' || category === 'FBS') {
-                return (
-                  <span
-                    key={`${category}_${post.title}`}
-                    className="transition-colors hover:text-slate-50 duration-300 nc-Badge relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-slate-50 bg-red-800 hover:bg-red-600"
-                  >
-                    {category}
-                  </span>
-                )
-              }
-            })}
-          </div>
+          {post.categories.map((category) => {
+            if (category === 'FCS' || category === 'FBS') {
+              return <Badge key={`${category}_${post.title}`}>{category}</Badge>
+            }
+          })}
         </span>
         <div className="p-4 flex flex-col flex-grow space-y-3">
           <div className="inline-flex items-center flex-wrap text-xs leading-none">
