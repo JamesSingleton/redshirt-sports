@@ -15,7 +15,7 @@ const LargeHeroCard: FC<LargeHeroCardProps> = ({ heroPost }) => {
       <Link href={`/${heroPost.slug}`} prefetch={false}>
         <a>
           <div className="flex items-start relative w-full aspect-w-4 sm:aspect-w-3 aspect-h-3">
-            <div className="absolute inset-0 rounded-md">
+            <div className="rounded-md">
               <Image
                 src={
                   urlForImage(heroPost.mainImage).width(742).height(742).url()!
@@ -29,11 +29,8 @@ const LargeHeroCard: FC<LargeHeroCardProps> = ({ heroPost }) => {
                 priority
               />
             </div>
-            <div className="absolute top-3 left-3 group-hover:hidden" />
-            <span className="absolute inset-0 bg-slate-900 bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-          <span className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black" />
-          <div className="absolute bottom-0 inset-x-0 p-5 sm:p-10 flex flex-col flex-grow">
+          <div className="absolute bottom-0 inset-x-0 p-5 sm:p-10 flex flex-col flex-grow bg-gradient-to-t from-black via-black">
             <div className="mb-3">
               {heroPost.categories.map((category) => {
                 if (category === 'FCS' || category === 'FBS') {

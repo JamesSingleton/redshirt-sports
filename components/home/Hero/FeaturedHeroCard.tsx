@@ -30,9 +30,7 @@ const FeaturedHeroCard: FC<FeaturedHeroCardProps> = ({ featuredPost }) => {
               objectFit="cover"
             />
           </div>
-          <span className="absolute inset-0 bg-slate-900 bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-          <span className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black" />
-          <div className="absolute bottom-0 inset-x-0 p-5 sm:p-10 flex flex-col flex-grow">
+          <div className="absolute bottom-0 inset-x-0 p-5 sm:p-10 flex flex-col flex-grow bg-gradient-to-t from-black via-black/75">
             <div className="mb-3">
               {featuredPost.categories.map((category) => {
                 if (category === 'FCS' || category === 'FBS') {

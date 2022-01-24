@@ -15,7 +15,7 @@ const SmallHeroCard: FC<SmallHeroCardProps> = ({ post }) => {
       <Link href={`/${post.slug}`} prefetch={false}>
         <a>
           <div className="flex items-start relative w-full aspect-w-4 sm:aspect-w-3 aspect-h-3">
-            <div className="absolute inset-0 rounded-md">
+            <div className="rounded-md">
               <Image
                 src={urlForImage(post.mainImage).width(361).height(437).url()!}
                 className="object-cover w-full h-full rounded-md"
@@ -26,10 +26,8 @@ const SmallHeroCard: FC<SmallHeroCardProps> = ({ post }) => {
                 alt={post.mainImage.caption}
               />
             </div>
-            <span className="absolute inset-0 bg-slate-900 bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-          <span className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black" />
-          <div className="absolute bottom-0 inset-x-0 p-6 flex flex-col flex-grow">
+          <div className="absolute bottom-0 inset-x-0 p-6 flex flex-col flex-grow bg-gradient-to-t from-black via-black">
             <div className="mb-3">
               {post.categories.map((category) => {
                 if (category === 'FCS' || category === 'FBS') {
