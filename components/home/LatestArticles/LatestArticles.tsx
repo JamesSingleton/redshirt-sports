@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { Post } from '@lib/types/post'
-import SmallCard from './SmallCard'
 import LargeCard from './LargeCard'
+import { Card } from '@components/ui'
 
 interface LatestArticlesProps {
   posts: Post[]
@@ -28,7 +28,7 @@ const LatestArticles: FC<LatestArticlesProps> = ({ posts }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <div className="grid gap-6">
           {firstTwoArticles.map((article) => (
-            <SmallCard key={article.title} post={article} />
+            <Card key={article.title} post={article} />
           ))}
         </div>
         <div className="lg:col-span-2">
@@ -36,7 +36,7 @@ const LatestArticles: FC<LatestArticlesProps> = ({ posts }) => {
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-1 md:col-span-3 xl:col-span-1">
           {lastTwoArticles.map((article) => (
-            <SmallCard key={article.title} post={article} />
+            <Card key={article.title} post={article} />
           ))}
         </div>
       </div>

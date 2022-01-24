@@ -4,14 +4,13 @@ import Image from 'next/image'
 import { parseISO, format } from 'date-fns'
 import { urlForImage } from '@lib/sanity'
 import { Post } from '@lib/types/post'
-import { Badge } from '@components/ui'
+import Badge from '../Badge'
 
-interface SmallCardProps {
+interface CardProps {
   post: Post
 }
 
-const SmallCard: FC<SmallCardProps> = ({ post }) => {
-  const date = parseISO(post.publishedAt)
+const Card: FC<CardProps> = ({ post }) => {
   return (
     <Link href={`/${post.slug}`} prefetch={false}>
       <a className="relative flex flex-col group h-full border rounded-md border-slate-200 dark:border-slate-700">
@@ -68,7 +67,7 @@ const SmallCard: FC<SmallCardProps> = ({ post }) => {
             <span className="mx-[6px] font-medium">·</span>
             <span className="font-normal">
               <time dateTime={post.publishedAt}>
-                {format(date, 'LLLL	d, yyyy')}
+                {format(parseISO(post.publishedAt), 'LLLL	d, yyyy')}
               </time>
             </span>
           </div>
@@ -81,4 +80,4 @@ const SmallCard: FC<SmallCardProps> = ({ post }) => {
   )
 }
 
-export default SmallCard
+export default Card

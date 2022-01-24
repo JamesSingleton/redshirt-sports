@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import type { Post } from '@lib/types/post'
 import { usePlausible } from 'next-plausible'
-import MorePostsCard from './MorePostsCard'
+import { Card } from '@components/ui'
 
 interface MorePostsProps {
   morePosts: Post[]
@@ -17,7 +17,7 @@ const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
           {morePosts.map((post) => (
-            <MorePostsCard key={post.title} post={post} />
+            <Card key={post.title} post={post} />
           ))}
         </div>
       </div>
