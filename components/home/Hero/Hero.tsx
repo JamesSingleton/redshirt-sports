@@ -17,15 +17,13 @@ const Hero: FC<HeroProps> = ({ posts, featuredArticle }) => {
   const heroPost = posts[0]
   const morePosts = posts.slice(1)
   return (
-    <div>
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-        <LargeHeroCard heroPost={heroPost} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-5 gap-5">
-          {morePosts.map((post) => (
-            <SmallHeroCard key={post.title} post={post} />
-          ))}
-          <FeaturedHeroCard featuredPost={featuredArticle} />
-        </div>
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+      <LargeHeroCard heroPost={heroPost} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-5 gap-5">
+        {morePosts.map((post) => (
+          <SmallHeroCard key={post.title} post={post} />
+        ))}
+        <FeaturedHeroCard featuredPost={featuredArticle} />
       </div>
     </div>
   )

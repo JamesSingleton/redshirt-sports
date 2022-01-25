@@ -20,7 +20,8 @@ const LatestArticles: FC<LatestArticlesProps> = ({ posts }) => {
               Latest Articles
             </h2>
             <span className="mt-2 md:mt-3 font-normal block text-base sm:text-xl">
-              Discover the most outstanding articles in all topics of life
+              Discover the latest articles written by the members of Redshirt
+              Sports
             </span>
           </div>
         </div>
@@ -28,7 +29,11 @@ const LatestArticles: FC<LatestArticlesProps> = ({ posts }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <div className="grid gap-6">
           {firstTwoArticles.map((article) => (
-            <Card key={article.title} post={article} />
+            <Card
+              key={article.title}
+              post={article}
+              location="Home Page Latest Articles"
+            />
           ))}
         </div>
         <div className="lg:col-span-2">
@@ -36,7 +41,11 @@ const LatestArticles: FC<LatestArticlesProps> = ({ posts }) => {
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-1 md:col-span-3 xl:col-span-1">
           {lastTwoArticles.map((article) => (
-            <Card key={article.title} post={article} />
+            <Card
+              key={article.title}
+              post={article}
+              location="Home Page Latest Articles"
+            />
           ))}
         </div>
       </div>

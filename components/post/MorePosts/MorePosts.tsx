@@ -17,7 +17,7 @@ const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
           {morePosts.map((post) => (
-            <Card key={post.title} post={post} />
+            <Card key={post.title} post={post} location="Article" />
           ))}
         </div>
       </div>

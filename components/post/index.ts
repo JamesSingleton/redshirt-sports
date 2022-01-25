@@ -1,7 +1,5 @@
 export { default as PostHeader } from './PostHeader'
 export { default as MorePosts } from './MorePosts'
-export { default as PostCard } from './PostCard'
-export { default as RelatedArticles } from './RelatedArticles'
 export { default as PostImage } from './PostImage'
 export { default as WrittenBy } from './WrittenBy'
 export { default as OtherAuthors } from './OtherAuthors'

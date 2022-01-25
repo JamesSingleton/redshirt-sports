@@ -2,18 +2,32 @@ import { FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { parseISO, format } from 'date-fns'
+import { usePlausible } from 'next-plausible'
 import { urlForImage } from '@lib/sanity'
 import { Post } from '@lib/types/post'
 import Badge from '../Badge'
 
 interface CardProps {
   post: Post
+  location: string
+  showExcerpt?: boolean
 }
 
-const Card: FC<CardProps> = ({ post }) => {
+const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
+  const plausible = usePlausible()
   return (
     <Link href={`/${post.slug}`} prefetch={false}>
-      <a className="relative flex flex-col group h-full border rounded-md border-slate-200 dark:border-slate-700">
+      <a
+        onClick={() =>
+          plausible('clickOnArticleSnippet', {
+            props: {
+              title: post.title,
+              location: location,
+            },
+          })
+        }
+        className="relative flex flex-col group h-full border rounded-md border-slate-200 dark:border-slate-700"
+      >
         <div className="block flex-shrink-0 relative w-full rounded-t-md overflow-hidden aspect-w-5 aspect-h-3">
           <div>
             <div
@@ -35,13 +49,13 @@ const Card: FC<CardProps> = ({ post }) => {
             </div>
           </div>
         </div>
-        <span className="absolute top-3 inset-x-3">
+        <div className="absolute top-3 inset-x-3">
           {post.categories.map((category) => {
             if (category === 'FCS' || category === 'FBS') {
               return <Badge key={`${category}_${post.title}`}>{category}</Badge>
             }
           })}
-        </span>
+        </div>
         <div className="p-4 flex flex-col flex-grow space-y-3">
           <div className="inline-flex items-center flex-wrap text-xs leading-none">
             <div className="relative flex items-center space-x-2">
@@ -71,9 +85,14 @@ const Card: FC<CardProps> = ({ post }) => {
               </time>
             </span>
           </div>
-          <h2 className="block text-base font-semibold text-slate-900 dark:text-slate-50 line-clamp-2">
+          <h2 className="block text-lg font-semibold text-slate-900 dark:text-slate-50 line-clamp-2">
             {post.title}
           </h2>
+          {showExcerpt && (
+            <div className="line-clamp-2 text-sm text-slate-700 dark:text-slate-400">
+              {post.excerpt}
+            </div>
+          )}
         </div>
       </a>
     </Link>

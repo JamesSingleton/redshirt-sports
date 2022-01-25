@@ -18,7 +18,7 @@ const Navbar: FC = () => {
   const plausible = usePlausible()
 
   return (
-    <Popover as="header" className="bg-slate-900">
+    <Popover as="header" className="bg-white dark:bg-slate-900">
       <div className="relative">
         <div className="flex justify-between items-center px-4 sm:px-6 md:justify-start md:space-x-10">
           <div>
@@ -56,9 +56,9 @@ const Navbar: FC = () => {
                     }
                     className={cn(
                       asPath === href
-                        ? 'bg-gray-900 text-slate-50'
-                        : 'text-slate-300 hover:bg-gray-700 hover:text-slate-50',
-                      'px-3 py-2 rounded-md font-medium text-lg'
+                        ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-50'
+                        : 'text-slate-900 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-50 dark:hover:bg-slate-800',
+                      'block rounded-md py-2 px-3 text-base font-medium'
                     )}
                   >
                     {name}
@@ -71,7 +71,7 @@ const Navbar: FC = () => {
                 href="https://twitter.com/_redshirtsports"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-8 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-slate-50"
+                className="ml-8 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium"
               >
                 <span className="sr-only">Redshirt Sports Twitter Link</span>
                 <svg
