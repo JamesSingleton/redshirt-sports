@@ -97,10 +97,10 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
           <div className="relative mx-auto max-w-md px-4 sm:max-w-3xl sm:px-6 lg:px-0">
             {/* Content area */}
             <div className="pt-12 sm:pt-16 lg:pt-20">
-              <h1 className="text-3xl text-slate-900 font-extrabold tracking-tight sm:text-4xl">
+              <h1 className="text-3xl text-slate-900 dark:text-slate-50 font-extrabold tracking-tight sm:text-4xl">
                 {advertising.title}
               </h1>
-              <div className="mt-6 prose">
+              <div className="mt-6 prose dark:prose-invert">
                 <PortableText blocks={advertising.body} />
               </div>
             </div>
@@ -111,12 +111,10 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
                 {stats.map((stat) => (
                   <div
                     key={stat.label}
-                    className="border-t-2 border-gray-100 pt-6"
+                    className="border-t-2 border-slate-100 pt-6"
                   >
-                    <dt className="text-base font-medium text-slate-500">
-                      {stat.label}
-                    </dt>
-                    <dd className="text-3xl font-extrabold tracking-tight text-slate-900">
+                    <dt className="text-base font-medium">{stat.label}</dt>
+                    <dd className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
                       {stat.value}
                     </dd>
                   </div>
