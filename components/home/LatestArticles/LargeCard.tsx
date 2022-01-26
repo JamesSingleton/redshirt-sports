@@ -2,6 +2,7 @@ import { FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { parseISO, format } from 'date-fns'
+import { usePlausible } from 'next-plausible'
 import { Post } from '@lib/types/post'
 import { urlForImage } from '@lib/sanity'
 import { Badge } from '@components/ui'
@@ -11,9 +12,20 @@ interface LargeCardProps {
 }
 const LargeCard: FC<LargeCardProps> = ({ post }) => {
   const date = parseISO(post.publishedAt)
+  const plausible = usePlausible()
   return (
     <Link href={`/${post.slug}`} prefetch={false}>
-      <a className="border border-slate-200 dark:border-slate-700 group relative flex flex-col overflow-hidden h-full rounded-md">
+      <a
+        onClick={() =>
+          plausible('clickOnArticleSnippet', {
+            props: {
+              title: post.title,
+              location: 'Home Page Latest Articles (lg)',
+            },
+          })
+        }
+        className="border border-slate-200 dark:border-slate-700 group relative flex flex-col overflow-hidden h-full rounded-md"
+      >
         <span className="block flex-shrink-0 flex-grow relative w-full h-0 pt-[75%] sm:pt-[55%] sm:rounded-b-none overflow-hidden">
           <div className="absolute inset-0">
             <Image

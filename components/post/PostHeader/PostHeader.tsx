@@ -60,7 +60,17 @@ const PostHeader: FC<PostHeaderProps> = ({
           <div className="flex flex-col sm:flex-row justify-between sm:items-end space-y-5 sm:space-y-0 sm:space-x-5">
             <div className="flex items-center flex-wrap text-slate-700 text-left dark:text-slate-200 text-sm leading-none shrink-0">
               <Link href={`/authors/${author.slug}`} prefetch={false}>
-                <a className="flex items-center space-x-2">
+                <a
+                  onClick={() =>
+                    plausible('clickOnAuthor', {
+                      props: {
+                        author: author.name,
+                        location: 'Post Header - Author Image',
+                      },
+                    })
+                  }
+                  className="flex items-center space-x-2"
+                >
                   <div className="relative flex-shrink-0 inline-flex items-center justify-center overflow-hidden text-slate-100 uppercase font-semibold shadow-inner rounded-full h-10 w-10 sm:h-11 sm:w-11 text-xl ring-1 ring-white dark:ring-slate-900">
                     <Image
                       className="absolute inset-0 w-full h-full object-cover"
@@ -75,7 +85,19 @@ const PostHeader: FC<PostHeaderProps> = ({
               <div className="ml-3">
                 <div className="flex items-center">
                   <Link href={`/authors/${author.slug}`} prefetch={false}>
-                    <a className="block font-semibold">{author.name}</a>
+                    <a
+                      onClick={() =>
+                        plausible('clickOnAuthor', {
+                          props: {
+                            author: author.name,
+                            location: 'Post Header - Author Name',
+                          },
+                        })
+                      }
+                      className="block font-semibold"
+                    >
+                      {author.name}
+                    </a>
                   </Link>
                 </div>
                 <div className="text-xs mt-2">

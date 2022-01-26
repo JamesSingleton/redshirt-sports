@@ -3,9 +3,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import cn from 'classnames'
-import { Popover, Transition } from '@headlessui/react'
+import { Popover, Transition, Dialog } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import { usePlausible } from 'next-plausible'
+import { ThemeToggle, ThemeSelect } from '../ThemeToggle/ThemeToggle'
 
 const navigation = [
   { name: 'FBS', href: '/fbs' },
@@ -18,7 +19,10 @@ const Navbar: FC = () => {
   const plausible = usePlausible()
 
   return (
-    <Popover as="header" className="bg-white dark:bg-slate-900">
+    <Popover
+      as="header"
+      className="bg-white dark:bg-slate-900 max-w-8xl mx-auto"
+    >
       <div className="relative">
         <div className="flex justify-between items-center px-4 sm:px-6 md:justify-start md:space-x-10">
           <div>
@@ -67,11 +71,12 @@ const Navbar: FC = () => {
               ))}
             </nav>
             <div className="flex items-center md:ml-12">
+              <ThemeToggle />
               <a
                 href="https://twitter.com/_redshirtsports"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-8 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium"
+                className="ml-8"
               >
                 <span className="sr-only">Redshirt Sports Twitter Link</span>
                 <svg
@@ -85,7 +90,7 @@ const Navbar: FC = () => {
             </div>
           </div>
           <div className="md:hidden">
-            <Popover.Button className="bg-gray-800 rounded-md p-2 inline-flex items-center justify-center text-slate-400 hover:text-slate-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+            <Popover.Button className="bg-white dark:bg-slate-800 rounded-md p-2 inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
               <span className="sr-only">Open menu</span>
               <MenuIcon className="h-6 w-6" aria-hidden="true" />
             </Popover.Button>
@@ -107,7 +112,7 @@ const Navbar: FC = () => {
           className="absolute z-30 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden"
         >
           {({ close }) => (
-            <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50">
+            <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-slate-50 text-slate-900 dark:bg-slate-800 dark:text-slate-400 dark:highlight-white/5">
               <div className="pt-5 pb-6 px-5 sm:pb-8">
                 <div className="flex items-center justify-between">
                   <div>
@@ -119,7 +124,7 @@ const Navbar: FC = () => {
                     />
                   </div>
                   <div className="-mr-2">
-                    <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center text-slate-400 hover:text-slate-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                    <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                       <span className="sr-only">Close menu</span>
                       <XIcon className="h-6 w-6" aria-hidden="true" />
                     </Popover.Button>
@@ -139,7 +144,7 @@ const Navbar: FC = () => {
                               })
                               close()
                             }}
-                            className="rounded-md text-base font-medium text-slate-900 hover:text-slate-700"
+                            className="rounded-md text-base font-medium hover:text-sky-500 dark:hover:text-sky-400"
                           >
                             {name}
                           </a>
@@ -147,6 +152,9 @@ const Navbar: FC = () => {
                       ))}
                     </div>
                   </nav>
+                  <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-200/10">
+                    <ThemeSelect />
+                  </div>
                 </div>
               </div>
             </div>

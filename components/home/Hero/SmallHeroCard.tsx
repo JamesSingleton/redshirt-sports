@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePlausible } from 'next-plausible'
 import { Post } from '@lib/types/post'
 import { urlForImage } from '@lib/sanity'
 import { Badge } from '@components/ui'
@@ -10,10 +11,19 @@ interface SmallHeroCardProps {
 }
 
 const SmallHeroCard: FC<SmallHeroCardProps> = ({ post }) => {
+  const plausible = usePlausible()
   return (
     <div className="rounded-md relative flex flex-col group overflow-hidden sm:row-span-3 col-span-1">
       <Link href={`/${post.slug}`} prefetch={false}>
-        <a>
+        <a
+          onClick={() =>
+            plausible('clickOnHeroImage', {
+              props: {
+                item: 'small',
+              },
+            })
+          }
+        >
           <div className="flex items-start relative w-full aspect-w-4 sm:aspect-w-3 aspect-h-3">
             <div className="rounded-md">
               <Image

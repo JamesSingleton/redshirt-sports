@@ -9,7 +9,7 @@ module.exports = {
   theme: {
     extend: {
       maxWidth: {
-        '8xl': '1920px',
+        '8xl': '90rem',
       },
       boxShadow: {
         magical:

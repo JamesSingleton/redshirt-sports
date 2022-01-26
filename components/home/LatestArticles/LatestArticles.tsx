@@ -32,7 +32,7 @@ const LatestArticles: FC<LatestArticlesProps> = ({ posts }) => {
             <Card
               key={article.title}
               post={article}
-              location="Home Page Latest Articles"
+              location="Home Page Latest Articles (sm)"
             />
           ))}
         </div>
@@ -44,7 +44,7 @@ const LatestArticles: FC<LatestArticlesProps> = ({ posts }) => {
             <Card
               key={article.title}
               post={article}
-              location="Home Page Latest Articles"
+              location="Home Page Latest Articles (sm)"
             />
           ))}
         </div>
