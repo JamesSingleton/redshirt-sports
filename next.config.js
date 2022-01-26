@@ -50,7 +50,7 @@ module.exports = withPlausibleProxy()({
 
       config.entry = async () => {
         let entries = { ...(await originalEntry()) }
-        entries['scripts/build-rss'] = './lib/build-rss.js'
+        entries['lib/build-rss'] = './lib/build-rss.js'
         return entries
       }
     }

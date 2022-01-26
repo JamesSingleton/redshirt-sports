@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "prettier-fix": "prettier --write .",
-    "find:unused": "npx next-unused"
+    "find:unused": "npx next-unused",
+    "postbuild": "if [ -f './.next/serverless/lib/build-rss.js' ]; then node ./.next/serverless/lib/build-rss.js; else node ./.next/server/lib/build-rss.js; fi"
   },
   "dependencies": {
     "@badrap/bar-of-progress": "^0.1.2",
