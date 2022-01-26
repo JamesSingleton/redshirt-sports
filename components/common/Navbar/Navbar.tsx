@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import cn from 'classnames'
-import { Popover, Transition, Dialog } from '@headlessui/react'
+import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import { usePlausible } from 'next-plausible'
 import { ThemeToggle, ThemeSelect } from '../ThemeToggle/ThemeToggle'
@@ -21,7 +21,7 @@ const Navbar: FC = () => {
   return (
     <Popover
       as="header"
-      className="bg-white dark:bg-slate-900 max-w-8xl mx-auto"
+      className="bg-white dark:bg-slate-900 mx-auto  lg:border-b lg:border-slate-900/10 dark:border-slate-50/[0.06]"
     >
       <div className="relative">
         <div className="flex justify-between items-center px-4 sm:px-6 md:justify-start md:space-x-10">

@@ -7,7 +7,6 @@ import { homePageQuery } from '@lib/sanityGroqQueries'
 import { getClient } from '@lib/sanity.server'
 import type { Post } from '@lib/types/post'
 import { SITE_URL } from '@lib/constants'
-import generateRssFeed from '@lib/generateRssFeed'
 
 interface HomeProps {
   heroPosts: Post[]
@@ -57,7 +56,6 @@ export const getStaticProps: GetStaticProps = async () => {
   )
 
   const topThreePodcasts = feed.items.slice(0, 3)
-  await generateRssFeed()
 
   return {
     props: {

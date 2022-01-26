@@ -11,6 +11,7 @@
     "find:unused": "npx next-unused"
   },
   "dependencies": {
+    "@badrap/bar-of-progress": "^0.1.2",
     "@headlessui/react": "^1.4.3",
     "@heroicons/react": "^1.0.5",
     "@tailwindcss/aspect-ratio": "^0.4.0",
