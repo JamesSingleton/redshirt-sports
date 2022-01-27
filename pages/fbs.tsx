@@ -1,12 +1,8 @@
 import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
-import { Container } from '@components/ui'
-import {
-  ArticleSnippet,
-  CategoryHeader,
-  EmptyState,
-} from '@components/category'
+import { Card } from '@components/ui'
+import { CategoryHeader, EmptyState } from '@components/category'
 import { getClient } from '@lib/sanity.server'
 import { allFBSPosts } from '@lib/sanityGroqQueries'
 import type { Post } from '@lib/types/post'
@@ -28,22 +24,25 @@ const FBS = ({ fbsPosts }: fbsProps) => {
             'All Articles by Redshirt Sports on NCAA Division 1 Football Bowl Subdivision',
         }}
       />
-      <Container>
-        <CategoryHeader
-          heading="FBS Football"
-          subHeading="NCAA Division 1 Football Bowl Subdivision"
-        />
-        {/* Loop over articles */}
-        <div className="mt-6">
-          <div className="space-y-8">
-            {fbsPosts &&
-              fbsPosts.map((post) => (
-                <ArticleSnippet key={post.title} post={post} location="FBS" />
-              ))}
-            {fbsPosts.length === 0 && <EmptyState />}
-          </div>
+      <div className="container mx-auto px-4 py-12 lg:py-24 xl:px-32">
+        <div className="relative mb-4 flex flex-col">
+          <CategoryHeader
+            heading="FBS Football"
+            subHeading="NCAA Division 1 Football Bowl Subdivision"
+          />
         </div>
-      </Container>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {fbsPosts &&
+            fbsPosts.map((post) => (
+              <Card
+                key={post.title}
+                post={post}
+                location="FBS"
+                showExcerpt={true}
+              />
+            ))}
+        </div>
+      </div>
     </>
   )
 }

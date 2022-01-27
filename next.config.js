@@ -44,4 +44,17 @@ module.exports = withPlausibleProxy()({
       },
     ]
   },
+  webpack(config, options) {
+    if (!options.dev && options.isServer) {
+      let originalEntry = config.entry
+
+      config.entry = async () => {
+        let entries = { ...(await originalEntry()) }
+        entries['lib/build-rss'] = './lib/build-rss.js'
+        return entries
+      }
+    }
+
+    return config
+  },
 })

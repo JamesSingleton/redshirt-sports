@@ -11,6 +11,7 @@
 # next.js
 /.next/
 /out/
+/public/feeds/
 
 # production
 /build
@@ -35,5 +36,3 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-
-/public/rss/feed.xml

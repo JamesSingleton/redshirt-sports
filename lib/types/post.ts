@@ -1,3 +1,5 @@
+import type { AuthorTypes } from './author'
+
 export type PostImage = {
   url: string
   caption: string
@@ -18,7 +20,8 @@ export type PostCategory = {
 export type Post = {
   _id: string
   _updatedAt: string
-  author: PostAuthor
+  author: AuthorTypes
+  otherAuthors?: AuthorTypes[]
   mainImage: PostImage
   publishedAt: string
   slug: string
@@ -27,6 +30,7 @@ export type Post = {
   featuredArticle: boolean
   excerpt: string
   body: string
+  estimatedReadingTime: number
 }
 
 export type PostTypes = {

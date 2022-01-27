@@ -1,12 +1,8 @@
 import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
-import { Container } from '@components/ui'
-import {
-  ArticleSnippet,
-  CategoryHeader,
-  EmptyState,
-} from '@components/category'
+import { Card } from '@components/ui'
+import { CategoryHeader, EmptyState } from '@components/category'
 import { getClient } from '@lib/sanity.server'
 import { allFCSPosts } from '@lib/sanityGroqQueries'
 import type { Post } from '@lib/types/post'
@@ -28,22 +24,25 @@ const FCS = ({ fcsPosts }: fcsProps) => {
             'All Articles by Redshirt Sports on NCAA Division 1 Football Championship Subdivision',
         }}
       />
-      <Container>
-        <CategoryHeader
-          heading="FCS Football"
-          subHeading="NCAA Division 1 Football Championship Subdivision"
-        />
-        {/* Loop over articles */}
-        <div className="mt-6">
-          <div className="space-y-8">
-            {fcsPosts &&
-              fcsPosts.map((post) => (
-                <ArticleSnippet key={post.title} post={post} location="FCS" />
-              ))}
-            {fcsPosts.length === 0 && <EmptyState />}
-          </div>
+      <div className="container mx-auto px-4 py-12 lg:py-24 xl:px-32">
+        <div className="relative mb-4 flex flex-col">
+          <CategoryHeader
+            heading="FCS Football"
+            subHeading="NCAA Division 1 Football Championship Subdivision"
+          />
         </div>
-      </Container>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {fcsPosts &&
+            fcsPosts.map((post) => (
+              <Card
+                key={post.title}
+                post={post}
+                location="FCS"
+                showExcerpt={true}
+              />
+            ))}
+        </div>
+      </div>
     </>
   )
 }

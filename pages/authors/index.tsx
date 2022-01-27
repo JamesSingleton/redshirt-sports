@@ -2,12 +2,12 @@ import { GetStaticProps } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
+import { usePlausible } from 'next-plausible'
 import { Layout } from '@components/common'
-import { Container } from '@components/ui'
 import { getClient } from '@lib/sanity.server'
 import { allAuthors } from '@lib/sanityGroqQueries'
-import { urlForImage, PortableText } from '@lib/sanity'
-import { usePlausible } from 'next-plausible'
+import { urlForImage } from '@lib/sanity'
+import type { AuthorTypes } from '@lib/types/author'
 
 const Authors = ({ authors }: any) => {
   const plausible = usePlausible()
@@ -22,97 +22,61 @@ const Authors = ({ authors }: any) => {
           description: 'Meet the team that makes Redshirt Sports possible!',
         }}
       />
-      <div>
-        <Container>
-          <div className="space-y-12 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
-            <div className="space-y-5 sm:space-y-4">
-              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-                Our Team
-              </h1>
-              <p className="text-xl text-gray-500">
-                Redshirt Sports is dedicated to college football with an
-                emphasis on the FCS. The only way to create such coverage is
-                with great people who truly enjoy their job.
-              </p>
-            </div>
-            <div className="lg:col-span-2">
-              <ul
-                role="list"
-                className="space-y-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 sm:space-y-0 lg:gap-x-8"
-              >
-                {authors.map((author: any) => (
-                  <li key={author._id} role="listitem">
-                    <Link href={`authors/${author.slug}`} prefetch={false}>
-                      <a
-                        onClick={() =>
-                          plausible('clickOnAuthor', {
-                            props: {
-                              name: author.name,
-                              location: 'Authors Page',
-                            },
-                          })
-                        }
-                      >
-                        <div className="space-y-4">
-                          <div>
-                            <Image
-                              className="object-cover shadow-lg rounded-lg"
-                              src={
-                                urlForImage(author.image)
-                                  .width(384)
-                                  .height(256)
-                                  .url()!
-                              }
-                              alt={author.name}
-                              width="384"
-                              height="256"
-                              layout="responsive"
-                            />
-                          </div>
-                          <div className="text-lg leading-6 font-medium space-y-1">
-                            <h2>{author.name}</h2>
-                            <p className="text-indigo-600">{author.role}</p>
-                          </div>
-                          <div className="text-lg">
-                            <p className="text-gray-500">
-                              <PortableText blocks={author.bio} />
-                            </p>
-                          </div>
-
-                          <ul role="list" className="flex space-x-5">
-                            <li>
-                              <a
-                                href={author.twitterURL}
-                                className="text-gray-400 hover:text-gray-500"
-                                onClick={() =>
-                                  plausible(
-                                    `clickOn-${author.name}TwitterFromAuthorsPage`
-                                  )
-                                }
-                              >
-                                <span className="sr-only">
-                                  Twitter Link for ${author.name}
-                                </span>
-                                <svg
-                                  className="w-5 h-5"
-                                  aria-hidden="true"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
-                                </svg>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                      </a>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+      <div className="relative overflow-hidden">
+        <div className="container mx-auto space-y-16 px-4 py-16 lg:space-y-28 lg:py-28 xl:px-32">
+          <div className="relative">
+            <div className="relative flex flex-col items-center space-y-14 text-center lg:flex-row lg:space-y-0 lg:space-x-10 lg:text-left">
+              <div className="w-screen max-w-full space-y-5 lg:space-y-7 xl:max-w-lg">
+                <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-50 md:text-4xl xl:text-5xl">
+                  Our Team
+                </h1>
+                <p className="block text-base dark:text-slate-400 xl:text-lg">
+                  Redshirt Sports is dedicated to college football with an
+                  emphasis on the FCS. The only way to create such coverage is
+                  with great people who truly enjoy their job.
+                </p>
+              </div>
             </div>
           </div>
-        </Container>
+          <div className="relative">
+            <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+              {authors.map((author: AuthorTypes) => (
+                <Link
+                  key={author.name}
+                  href={`authors/${author.slug}`}
+                  prefetch={false}
+                >
+                  <a>
+                    <div className="max-w-sm">
+                      <div className="aspect-h-1 aspect-w-1 relative h-0 overflow-hidden rounded-md">
+                        <Image
+                          src={
+                            urlForImage(author.image)
+                              .width(296)
+                              .height(296)
+                              .url()!
+                          }
+                          className="absolute inset-0 object-cover"
+                          alt={`Profile image of author ${author.name}`}
+                          width={296}
+                          height={296}
+                          layout="responsive"
+                          sizes="50vw"
+                        />
+                      </div>
+                      <h2 className="mt-4 text-lg font-semibold text-neutral-900 dark:text-neutral-200 md:text-xl">
+                        {author.name}
+                      </h2>
+                      <p className="block text-sm text-neutral-500 dark:text-neutral-400 sm:text-base">
+                        {author.role}
+                      </p>
+                    </div>
+                  </a>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </>
   )

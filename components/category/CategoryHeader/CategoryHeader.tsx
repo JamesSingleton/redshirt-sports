@@ -6,11 +6,15 @@ interface CategoryHeaderProps {
 }
 
 const CategoryHeader: FC<CategoryHeaderProps> = ({ heading, subHeading }) => (
-  <div className="pb-6 border-b border-gray-300">
-    <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-4xl sm:truncate">
-      {heading}
-    </h1>
-    <div className="mt-1 sm:mt-0 text-gray-500">{subHeading}</div>
+  <div className="relative mb-6 flex flex-col justify-between sm:flex-row sm:items-end md:mb-8">
+    <div className="max-w-2xl">
+      <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-50 md:text-4xl">
+        {heading}
+      </h1>
+      <span className="mt-2 block text-base font-normal sm:text-xl md:mt-3">
+        {subHeading}
+      </span>
+    </div>
   </div>
 )
 
