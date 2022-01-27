@@ -143,7 +143,12 @@ function useTheme() {
 
   useEffect(() => {
     let mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', update)
+
+    if (mediaQuery?.addEventListener) {
+      mediaQuery.addEventListener('change', update)
+    } else {
+      mediaQuery.addListener(update)
+    }
 
     function onStorage() {
       update()
@@ -157,7 +162,12 @@ function useTheme() {
     window.addEventListener('storage', onStorage)
 
     return () => {
-      mediaQuery.removeEventListener('change', update)
+      if (mediaQuery?.removeEventListener) {
+        mediaQuery.removeEventListener('change', update)
+      } else {
+        mediaQuery.removeListener(update)
+      }
+
       window.removeEventListener('storage', onStorage)
     }
   }, [])
@@ -165,7 +175,7 @@ function useTheme() {
   return [setting, setSetting]
 }
 
-export function ThemeToggle() {
+export function ThemeToggle({ panelClassName = 'mt-4' }) {
   let [setting, setSetting] = useTheme()
 
   return (
@@ -181,7 +191,8 @@ export function ThemeToggle() {
       </Listbox.Button>
       <Listbox.Options
         className={cn(
-          'dark:highlight-white/5 absolute top-full right-0 z-50 w-36 origin-top-right overflow-hidden rounded-lg bg-white py-1 text-sm font-semibold text-slate-700 shadow-lg ring-1 ring-slate-900/10 ring-black ring-opacity-5 focus:outline-none dark:bg-slate-800 dark:text-slate-300 dark:ring-0'
+          'dark:highlight-white/5 absolute top-full right-0 z-50 w-36 overflow-hidden rounded-lg bg-white py-1 text-sm font-semibold text-slate-700 shadow-lg ring-1 ring-slate-900/10 dark:bg-slate-800 dark:text-slate-300 dark:ring-0',
+          panelClassName
         )}
       >
         {settings.map(({ value, label, icon: Icon }) => (
