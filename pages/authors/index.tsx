@@ -26,7 +26,7 @@ const Authors = ({ authors }: any) => {
         <Container>
           <div className="space-y-12 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
             <div className="space-y-5 sm:space-y-4">
-              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl text-slate-900 dark:text-slate-50">
+              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
                 Our Team
               </h1>
               <p className="text-xl">
@@ -56,7 +56,7 @@ const Authors = ({ authors }: any) => {
                         <div className="space-y-4">
                           <div>
                             <Image
-                              className="object-cover shadow-lg rounded-lg"
+                              className="rounded-lg object-cover shadow-lg"
                               src={
                                 urlForImage(author.image)
                                   .width(384)
@@ -69,7 +69,7 @@ const Authors = ({ authors }: any) => {
                               layout="responsive"
                             />
                           </div>
-                          <div className="text-lg leading-6 font-medium space-y-1">
+                          <div className="space-y-1 text-lg font-medium leading-6">
                             <h2>{author.name}</h2>
                             <p className="text-indigo-600">{author.role}</p>
                           </div>
@@ -92,7 +92,7 @@ const Authors = ({ authors }: any) => {
                                   Twitter Link for ${author.name}
                                 </span>
                                 <svg
-                                  className="w-5 h-5"
+                                  className="h-5 w-5"
                                   aria-hidden="true"
                                   fill="currentColor"
                                   viewBox="0 0 20 20"

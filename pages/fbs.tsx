@@ -24,14 +24,14 @@ const FBS = ({ fbsPosts }: fbsProps) => {
             'All Articles by Redshirt Sports on NCAA Division 1 Football Bowl Subdivision',
         }}
       />
-      <div className="container mx-auto px-4 xl:px-32 py-12 lg:py-24">
-        <div className="flex flex-col mb-4 relative">
+      <div className="container mx-auto px-4 py-12 lg:py-24 xl:px-32">
+        <div className="relative mb-4 flex flex-col">
           <CategoryHeader
             heading="FBS Football"
             subHeading="NCAA Division 1 Football Bowl Subdivision"
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {fbsPosts &&
             fbsPosts.map((post) => (
               <Card

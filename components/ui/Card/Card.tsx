@@ -26,18 +26,18 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
             },
           })
         }
-        className="relative flex flex-col group h-full border rounded-md border-slate-200 dark:border-slate-700"
+        className="group relative flex h-full flex-col rounded-md border border-slate-200 dark:border-slate-700"
       >
-        <div className="block flex-shrink-0 relative w-full rounded-t-md overflow-hidden aspect-w-5 aspect-h-3">
+        <div className="aspect-w-5 aspect-h-3 relative block w-full flex-shrink-0 overflow-hidden rounded-t-md">
           <div>
             <div
-              className="nc-PostFeaturedMedia relative w-full h-full "
+              className="nc-PostFeaturedMedia relative h-full w-full "
               data-nc-id="PostFeaturedMedia"
             >
               <div className="nc-NcImage absolute inset-0" data-nc-id="NcImage">
                 <Image
                   src={urlForImage(post.mainImage).width(356).fit('min').url()!}
-                  className="object-cover w-full h-full"
+                  className="h-full w-full object-cover"
                   alt={post.mainImage.caption}
                   width={356}
                   height={214}
@@ -49,19 +49,19 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
             </div>
           </div>
         </div>
-        <div className="absolute top-3 inset-x-3">
+        <div className="absolute inset-x-3 top-3">
           {post.categories.map((category) => {
             if (category === 'FCS' || category === 'FBS') {
               return <Badge key={`${category}_${post.title}`}>{category}</Badge>
             }
           })}
         </div>
-        <div className="p-4 flex flex-col flex-grow space-y-3">
-          <div className="inline-flex items-center flex-wrap text-xs leading-none">
+        <div className="flex flex-grow flex-col space-y-3 p-4">
+          <div className="inline-flex flex-wrap items-center text-xs leading-none">
             <div className="relative flex items-center space-x-2">
-              <div className="relative shrink-0 inline-flex items-center justify-center overflow-hidden uppercase font-semibold shadow-inner rounded-full h-7 w-7 text-sm ring-1 ring-white dark:ring-neutral-900">
+              <div className="relative inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-semibold uppercase shadow-inner ring-1 ring-white dark:ring-neutral-900">
                 <Image
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover"
                   src={
                     urlForImage(post.author.image)
                       .width(28)
@@ -74,7 +74,7 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
                   width={28}
                 />
               </div>
-              <span className="block text-slate-900 dark:text-slate-50 font-medium">
+              <span className="block font-medium text-slate-900 dark:text-slate-50">
                 {post.author.name}
               </span>
             </div>
@@ -85,11 +85,11 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
               </time>
             </span>
           </div>
-          <h2 className="block text-lg font-semibold text-slate-900 dark:text-slate-50 line-clamp-2">
+          <h2 className="block text-lg font-semibold text-slate-900 line-clamp-2 dark:text-slate-50">
             {post.title}
           </h2>
           {showExcerpt && (
-            <div className="line-clamp-2 text-sm text-slate-700 dark:text-slate-400">
+            <div className="text-sm text-slate-700 line-clamp-2 dark:text-slate-400">
               {post.excerpt}
             </div>
           )}

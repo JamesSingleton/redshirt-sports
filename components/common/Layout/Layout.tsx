@@ -17,7 +17,7 @@ const Layout: FC = ({ children }) => {
         logo="https://www.redshirtsports.xyz/images/icons/RS_horizontal_513x512.png"
         url="https://www.redshirtsports.xyz"
       />
-      <div className="h-full mx-auto transition-colors duration-150 relative overflow-hidden">
+      <div className="relative mx-auto h-full overflow-hidden transition-colors duration-150">
         <Navbar />
         <main className="fit">{children}</main>
         <Footer />

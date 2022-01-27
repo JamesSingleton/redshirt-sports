@@ -37,13 +37,13 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
         }}
       />
       <div className="relative md:flex md:h-screen md:items-center md:justify-center">
-        <div className="lg:mx-auto lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-2 lg:gap-24 lg:items-start">
-          <div className="relative hidden md:block sm:py-16 lg:py-0">
+        <div className="lg:mx-auto lg:grid lg:max-w-7xl lg:grid-cols-2 lg:items-start lg:gap-24 lg:px-8">
+          <div className="relative hidden sm:py-16 md:block lg:py-0">
             <div
               aria-hidden="true"
               className="hidden sm:block lg:absolute lg:inset-y-0 lg:right-0 lg:w-screen"
             >
-              <div className="absolute inset-y-0 right-1/2 w-full bg-[#DC2727] rounded-r-3xl lg:right-72" />
+              <div className="absolute inset-y-0 right-1/2 w-full rounded-r-3xl bg-[#DC2727] lg:right-72" />
               <svg
                 className="absolute top-8 left-1/2 -ml-3 lg:-right-8 lg:left-auto lg:top-12"
                 width={404}
@@ -77,9 +77,9 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
                 />
               </svg>
             </div>
-            <div className="relative mx-auto max-w-md px-4 sm:max-w-3xl sm:px-6 lg:px-0 lg:max-w-none lg:py-20">
+            <div className="relative mx-auto max-w-md px-4 sm:max-w-3xl sm:px-6 lg:max-w-none lg:px-0 lg:py-20">
               {/* Testimonial card*/}
-              <div className="relative rounded-2xl shadow-xl overflow-hidden">
+              <div className="relative overflow-hidden rounded-2xl shadow-xl">
                 <Image
                   className="absolute inset-0 h-full w-full object-cover"
                   src="https://images.unsplash.com/photo-1513757378314-e46255f6ed16?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=min&h=300&q=75"
@@ -97,10 +97,10 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
           <div className="relative mx-auto max-w-md px-4 sm:max-w-3xl sm:px-6 lg:px-0">
             {/* Content area */}
             <div className="pt-12 sm:pt-16 lg:pt-20">
-              <h1 className="text-3xl text-slate-900 dark:text-slate-50 font-extrabold tracking-tight sm:text-4xl">
+              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
                 {advertising.title}
               </h1>
-              <div className="mt-6 prose dark:prose-invert">
+              <div className="prose mt-6 dark:prose-invert">
                 <PortableText blocks={advertising.body} />
               </div>
             </div>

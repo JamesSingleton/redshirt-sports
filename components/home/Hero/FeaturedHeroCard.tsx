@@ -13,13 +13,13 @@ interface FeaturedHeroCardProps {
 const FeaturedHeroCard: FC<FeaturedHeroCardProps> = ({ featuredPost }) => {
   const plausible = usePlausible()
   return (
-    <div className="rounded-md relative flex flex-col group overflow-hidden sm:col-span-2 sm:row-span-2">
+    <div className="group relative flex flex-col overflow-hidden rounded-md sm:col-span-2 sm:row-span-2">
       <Link href={`/${featuredPost.slug}`} prefetch={false}>
         <a onClick={() => plausible('clickOnFeaturedArticle')}>
-          <div className="flex items-start relative w-full aspect-w-4 aspect-h-3 sm:aspect-h-1 sm:aspect-w-16" />
+          <div className="aspect-w-4 aspect-h-3 relative flex w-full items-start sm:aspect-h-1 sm:aspect-w-16" />
           <div className="rounded-md">
             <Image
-              className="object-cover w-full h-full rounded-md"
+              className="h-full w-full rounded-md object-cover"
               alt={featuredPost.mainImage.caption}
               src={
                 urlForImage(featuredPost.mainImage)
@@ -32,7 +32,7 @@ const FeaturedHeroCard: FC<FeaturedHeroCardProps> = ({ featuredPost }) => {
               objectFit="cover"
             />
           </div>
-          <div className="absolute bottom-0 inset-x-0 p-5 sm:p-10 flex flex-col flex-grow bg-gradient-to-t from-black via-black/75">
+          <div className="absolute inset-x-0 bottom-0 flex flex-grow flex-col bg-gradient-to-t from-black via-black/75 p-5 sm:p-10">
             <div className="mb-3">
               {featuredPost.categories.map((category) => {
                 if (category === 'FCS' || category === 'FBS') {
@@ -45,7 +45,7 @@ const FeaturedHeroCard: FC<FeaturedHeroCardProps> = ({ featuredPost }) => {
               })}
             </div>
             <div className="inline-flex items-center text-xs text-slate-50">
-              <h2 className="block font-semibold text-slate-50 text-xl sm:text-2xl xl:text-2xl">
+              <h2 className="block text-xl font-semibold text-slate-50 sm:text-2xl xl:text-2xl">
                 {featuredPost.title}
               </h2>
             </div>

@@ -13,7 +13,7 @@ interface SmallHeroCardProps {
 const SmallHeroCard: FC<SmallHeroCardProps> = ({ post }) => {
   const plausible = usePlausible()
   return (
-    <div className="rounded-md relative flex flex-col group overflow-hidden sm:row-span-3 col-span-1">
+    <div className="group relative col-span-1 flex flex-col overflow-hidden rounded-md sm:row-span-3">
       <Link href={`/${post.slug}`} prefetch={false}>
         <a
           onClick={() =>
@@ -24,11 +24,11 @@ const SmallHeroCard: FC<SmallHeroCardProps> = ({ post }) => {
             })
           }
         >
-          <div className="flex items-start relative w-full aspect-w-4 sm:aspect-w-3 aspect-h-3">
+          <div className="aspect-w-4 aspect-h-3 relative flex w-full items-start sm:aspect-w-3">
             <div className="rounded-md">
               <Image
                 src={urlForImage(post.mainImage).width(361).height(437).url()!}
-                className="object-cover w-full h-full rounded-md"
+                className="h-full w-full rounded-md object-cover"
                 height={437}
                 width={361}
                 sizes="50vw"
@@ -37,7 +37,7 @@ const SmallHeroCard: FC<SmallHeroCardProps> = ({ post }) => {
               />
             </div>
           </div>
-          <div className="absolute bottom-0 inset-x-0 p-6 flex flex-col flex-grow bg-gradient-to-t from-black via-black">
+          <div className="absolute inset-x-0 bottom-0 flex flex-grow flex-col bg-gradient-to-t from-black via-black p-6">
             <div className="mb-3">
               {post.categories.map((category) => {
                 if (category === 'FCS' || category === 'FBS') {
@@ -48,7 +48,7 @@ const SmallHeroCard: FC<SmallHeroCardProps> = ({ post }) => {
               })}
             </div>
             <div className="inline-flex items-center text-xs text-slate-50">
-              <h2 className="block font-semibold text-slate-50 text-lg">
+              <h2 className="block text-lg font-semibold text-slate-50">
                 {post.title}
               </h2>
             </div>

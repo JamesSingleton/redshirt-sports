@@ -21,10 +21,10 @@ const Navbar: FC = () => {
   return (
     <Popover
       as="header"
-      className="bg-white dark:bg-slate-900 mx-auto  lg:border-b lg:border-slate-900/10 dark:border-slate-50/[0.06]"
+      className="mx-auto bg-white dark:border-slate-50/[0.06]  dark:bg-slate-900 lg:border-b lg:border-slate-900/10"
     >
       <div className="relative">
-        <div className="flex justify-between items-center px-4 sm:px-6 md:justify-start md:space-x-10">
+        <div className="flex items-center justify-between px-4 sm:px-6 md:justify-start md:space-x-10">
           <div>
             <Link href="/" prefetch={false}>
               <a
@@ -46,7 +46,7 @@ const Navbar: FC = () => {
               </a>
             </Link>
           </div>
-          <div className="hidden md:flex-1 md:flex md:items-center md:justify-between">
+          <div className="hidden md:flex md:flex-1 md:items-center md:justify-between">
             <nav className="flex space-x-10">
               {navigation.map(({ name, href }) => (
                 <Link href={href} key={name} prefetch={false}>
@@ -90,7 +90,7 @@ const Navbar: FC = () => {
             </div>
           </div>
           <div className="md:hidden">
-            <Popover.Button className="bg-white dark:bg-slate-800 rounded-md p-2 inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+            <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:bg-slate-800">
               <span className="sr-only">Open menu</span>
               <MenuIcon className="h-6 w-6" aria-hidden="true" />
             </Popover.Button>
@@ -109,11 +109,11 @@ const Navbar: FC = () => {
       >
         <Popover.Panel
           focus
-          className="absolute z-30 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden"
+          className="absolute inset-x-0 top-0 z-30 origin-top-right transform p-2 transition md:hidden"
         >
           {({ close }) => (
-            <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-slate-50 text-slate-900 dark:bg-slate-800 dark:text-slate-400 dark:highlight-white/5">
-              <div className="pt-5 pb-6 px-5 sm:pb-8">
+            <div className="dark:highlight-white/5 divide-y-2 divide-slate-50 rounded-lg bg-white text-slate-900 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-slate-800 dark:text-slate-400">
+              <div className="px-5 pt-5 pb-6 sm:pb-8">
                 <div className="flex items-center justify-between">
                   <div>
                     <Image
@@ -124,7 +124,7 @@ const Navbar: FC = () => {
                     />
                   </div>
                   <div className="-mr-2">
-                    <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                    <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                       <span className="sr-only">Close menu</span>
                       <XIcon className="h-6 w-6" aria-hidden="true" />
                     </Popover.Button>
@@ -152,7 +152,7 @@ const Navbar: FC = () => {
                       ))}
                     </div>
                   </nav>
-                  <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-200/10">
+                  <div className="mt-6 border-t border-slate-200 pt-6 dark:border-slate-200/10">
                     <ThemeSelect />
                   </div>
                 </div>

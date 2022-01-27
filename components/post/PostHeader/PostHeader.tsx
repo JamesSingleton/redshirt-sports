@@ -35,12 +35,12 @@ const PostHeader: FC<PostHeaderProps> = ({
   const socialShareUrl = `https://www.redshirtsports.xyz/${slug}`
   return (
     <header className="container mx-auto px-4">
-      <div className="max-w-screen-md mx-auto">
+      <div className="mx-auto max-w-screen-md">
         <div className="space-y-5">
           <div className="flex flex-wrap space-x-2">
             <a
               href={`/${category.toLowerCase()}`}
-              className="transition-colors hover:text-slate-50 duration-300 relative inline-flex px-2.5 py-1 rounded-full font-medium text-xs text-slate-50 bg-red-800 hover:bg-red-600"
+              className="relative inline-flex rounded-full bg-red-800 px-2.5 py-1 text-xs font-medium text-slate-50 transition-colors duration-300 hover:bg-red-600 hover:text-slate-50"
               onClick={() =>
                 plausible('clickOnPostCategory', {
                   props: {
@@ -52,13 +52,13 @@ const PostHeader: FC<PostHeaderProps> = ({
               {category}
             </a>
           </div>
-          <h1 className="text-slate-900 dark:text-slate-50 font-semibold text-3xl md:text-4xl lg:text-5xl max-w-4xl">
+          <h1 className="max-w-4xl text-3xl font-semibold text-slate-900 dark:text-slate-50 md:text-4xl lg:text-5xl">
             {title}
           </h1>
-          <span className="block text-base md:text-lg pb-1">{excerpt}</span>
+          <span className="block pb-1 text-base md:text-lg">{excerpt}</span>
           <div className="w-full border-b border-slate-100 dark:border-slate-800" />
-          <div className="flex flex-col sm:flex-row justify-between sm:items-end space-y-5 sm:space-y-0 sm:space-x-5">
-            <div className="flex items-center flex-wrap text-slate-700 text-left dark:text-slate-200 text-sm leading-none shrink-0">
+          <div className="flex flex-col justify-between space-y-5 sm:flex-row sm:items-end sm:space-y-0 sm:space-x-5">
+            <div className="flex shrink-0 flex-wrap items-center text-left text-sm leading-none text-slate-700 dark:text-slate-200">
               <Link href={`/authors/${author.slug}`} prefetch={false}>
                 <a
                   onClick={() =>
@@ -71,9 +71,9 @@ const PostHeader: FC<PostHeaderProps> = ({
                   }
                   className="flex items-center space-x-2"
                 >
-                  <div className="relative flex-shrink-0 inline-flex items-center justify-center overflow-hidden text-slate-100 uppercase font-semibold shadow-inner rounded-full h-10 w-10 sm:h-11 sm:w-11 text-xl ring-1 ring-white dark:ring-slate-900">
+                  <div className="relative inline-flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full text-xl font-semibold uppercase text-slate-100 shadow-inner ring-1 ring-white dark:ring-slate-900 sm:h-11 sm:w-11">
                     <Image
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 h-full w-full object-cover"
                       src={urlForImage(author.image).url()!}
                       alt={`Profile image of ${author.name}`}
                       width={44}
@@ -100,7 +100,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                     </a>
                   </Link>
                 </div>
-                <div className="text-xs mt-2">
+                <div className="mt-2 text-xs">
                   <span>
                     <time dateTime={publishedAt}>
                       {format(parseISO(publishedAt), 'LLLL	d, yyyy')}
@@ -111,11 +111,11 @@ const PostHeader: FC<PostHeaderProps> = ({
                 </div>
               </div>
             </div>
-            <div className="flex flex-row space-x-2.5 items-center">
-              <Menu as="div" className="relative inline-block text-left z-10">
+            <div className="flex flex-row items-center space-x-2.5">
+              <Menu as="div" className="relative z-10 inline-block text-left">
                 <Menu.Button
                   aria-label="Share Article"
-                  className="flex items-center justify-center rounded-full h-9 w-9 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <ShareIcon aria-hidden="true" className="h-5 w-5" />
                 </Menu.Button>
@@ -128,7 +128,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="absolute right-0 w-56 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div className="px-1 py-1 ">
                       <Menu.Item>
                         {({ active }) => (
@@ -139,13 +139,13 @@ const PostHeader: FC<PostHeaderProps> = ({
                               active
                                 ? 'bg-slate-500 text-slate-50'
                                 : 'text-slate-900'
-                            } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                           >
                             {active ? (
                               <svg
                                 fill="currentColor"
                                 viewBox="0 0 24 24"
-                                className="h-5 w-5 mr-2"
+                                className="mr-2 h-5 w-5"
                               >
                                 <path
                                   fillRule="evenodd"
@@ -157,7 +157,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                               <svg
                                 fill="currentColor"
                                 viewBox="0 0 24 24"
-                                className="h-5 w-5 mr-2"
+                                className="mr-2 h-5 w-5"
                               >
                                 <path
                                   fillRule="evenodd"
@@ -182,13 +182,13 @@ const PostHeader: FC<PostHeaderProps> = ({
                               active
                                 ? 'bg-slate-500 text-slate-50'
                                 : 'text-slate-900'
-                            } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                           >
                             {active ? (
                               <svg
                                 fill="currentColor"
                                 viewBox="0 0 24 24"
-                                className="h-5 w-5 mr-2"
+                                className="mr-2 h-5 w-5"
                               >
                                 <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
                               </svg>
@@ -196,7 +196,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                               <svg
                                 fill="currentColor"
                                 viewBox="0 0 24 24"
-                                className="h-5 w-5 mr-2"
+                                className="mr-2 h-5 w-5"
                               >
                                 <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
                               </svg>
@@ -212,7 +212,7 @@ const PostHeader: FC<PostHeaderProps> = ({
                               active
                                 ? 'bg-slate-500 text-slate-50'
                                 : 'text-slate-900'
-                            } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                             onClick={() =>
                               navigator.clipboard.writeText(
                                 `https://www.redshirtsports.xyz/${slug}`
@@ -221,12 +221,12 @@ const PostHeader: FC<PostHeaderProps> = ({
                           >
                             {active ? (
                               <DuplicateIcon
-                                className="w-5 h-5 mr-2"
+                                className="mr-2 h-5 w-5"
                                 aria-hidden="true"
                               />
                             ) : (
                               <DuplicateIcon
-                                className="w-5 h-5 mr-2"
+                                className="mr-2 h-5 w-5"
                                 aria-hidden="true"
                               />
                             )}
@@ -245,16 +245,16 @@ const PostHeader: FC<PostHeaderProps> = ({
                               active
                                 ? 'bg-slate-500 text-slate-50'
                                 : 'text-slate-900'
-                            } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                           >
                             {active ? (
                               <InboxIcon
-                                className="w-5 h-5 mr-2"
+                                className="mr-2 h-5 w-5"
                                 aria-hidden="true"
                               />
                             ) : (
                               <InboxIcon
-                                className="w-5 h-5 mr-2"
+                                className="mr-2 h-5 w-5"
                                 aria-hidden="true"
                               />
                             )}

@@ -13,7 +13,7 @@ interface LargeHeroCardProps {
 const LargeHeroCard: FC<LargeHeroCardProps> = ({ heroPost }) => {
   const plausible = usePlausible()
   return (
-    <div className="rounded-md relative flex flex-col group overflow-hidden">
+    <div className="group relative flex flex-col overflow-hidden rounded-md">
       <Link href={`/${heroPost.slug}`} prefetch={false}>
         <a
           onClick={() =>
@@ -24,7 +24,7 @@ const LargeHeroCard: FC<LargeHeroCardProps> = ({ heroPost }) => {
             })
           }
         >
-          <div className="flex items-start relative w-full aspect-w-4 sm:aspect-w-3 aspect-h-3">
+          <div className="aspect-w-4 aspect-h-3 relative flex w-full items-start sm:aspect-w-3">
             <div className="rounded-md">
               <Image
                 src={
@@ -34,13 +34,13 @@ const LargeHeroCard: FC<LargeHeroCardProps> = ({ heroPost }) => {
                 height={742}
                 width={742}
                 sizes="50vw"
-                className="object-cover w-full h-full rounded-md"
+                className="h-full w-full rounded-md object-cover"
                 alt={heroPost.mainImage.caption}
                 priority
               />
             </div>
           </div>
-          <div className="absolute bottom-0 inset-x-0 p-5 sm:p-10 flex flex-col flex-grow bg-gradient-to-t from-black via-black">
+          <div className="absolute inset-x-0 bottom-0 flex flex-grow flex-col bg-gradient-to-t from-black via-black p-5 sm:p-10">
             <div className="mb-3">
               {heroPost.categories.map((category) => {
                 if (category === 'FCS' || category === 'FBS') {
@@ -53,7 +53,7 @@ const LargeHeroCard: FC<LargeHeroCardProps> = ({ heroPost }) => {
               })}
             </div>
             <div className="inline-flex items-center text-xs text-slate-50">
-              <h2 className="block font-semibold text-xl sm:text-2xl xl:text-4xl">
+              <h2 className="block text-xl font-semibold sm:text-2xl xl:text-4xl">
                 {heroPost.title}
               </h2>
             </div>

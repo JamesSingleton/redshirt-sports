@@ -44,10 +44,10 @@ const Author = ({ author }: AuthorProps) => {
         sameAs={[author.twitterURL]}
       />
       <div>
-        <div className="w-screen px-2 xl:max-w-screen-2xl mx-auto">
-          <div className="rounded-md relative aspect-w-16 aspect-h-16 sm:aspect-h-9 lg:aspect-h-6 overflow-hidden">
+        <div className="mx-auto w-screen px-2 xl:max-w-screen-2xl">
+          <div className="aspect-w-16 aspect-h-16 relative overflow-hidden rounded-md sm:aspect-h-9 lg:aspect-h-6">
             <Image
-              className="object-cover w-full h-full"
+              className="h-full w-full object-cover"
               alt={`${author.name} banner image`}
               src={urlForImage(author.backgroundImage).fit('min').url()!}
               layout="fill"
@@ -55,12 +55,12 @@ const Author = ({ author }: AuthorProps) => {
               objectFit="cover"
             />
           </div>
-          <div className="relative container mx-auto px-4 xl:px-32 -mt-20 lg:-mt-48">
-            <div className="bg-white dark:bg-slate-900 dark:border dark:border-slate-700 p-5 lg:p-16 rounded-md shadow-2xl flex flex-col sm:flex-row sm:items-center">
-              <div className="relative shrink-0 overflow-hidden rounded-full w-20 h-20 lg:w-36 lg:h-36 shadow-2xl">
+          <div className="container relative mx-auto -mt-20 px-4 lg:-mt-48 xl:px-32">
+            <div className="flex flex-col rounded-md bg-white p-5 shadow-2xl dark:border dark:border-slate-700 dark:bg-slate-900 sm:flex-row sm:items-center lg:p-16">
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full shadow-2xl lg:h-36 lg:w-36">
                 <Image
                   src={urlForImage(author.image).fit('min').url()!}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover"
                   alt={`Profile image for Author ${author.name}`}
                   width={80}
                   height={80}
@@ -68,8 +68,8 @@ const Author = ({ author }: AuthorProps) => {
                   sizes="50vw"
                 />
               </div>
-              <div className="mt-5 sm:mt-0 sm:ml-8 space-y-4">
-                <h1 className="inline-block text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-900 dark:text-slate-50">
+              <div className="mt-5 space-y-4 sm:mt-0 sm:ml-8">
+                <h1 className="inline-block text-2xl font-semibold text-slate-900 dark:text-slate-50 sm:text-3xl md:text-4xl">
                   {author.name}
                 </h1>
                 <PortableText blocks={author.bio} />
@@ -92,7 +92,7 @@ const Author = ({ author }: AuthorProps) => {
                     <svg
                       fill="currentColor"
                       viewBox="0 0 24 24"
-                      className="w-6 h-6"
+                      className="h-6 w-6"
                     >
                       <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
                     </svg>

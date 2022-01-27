@@ -28,14 +28,14 @@ const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
             "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
         }}
       />
-      <div className="relative py-16 overflow-hidden">
+      <div className="relative overflow-hidden py-16">
         <div className="relative px-4 sm:px-6 lg:px-8">
-          <div className="text-lg max-w-prose mx-auto">
-            <h1 className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          <div className="mx-auto max-w-prose text-lg">
+            <h1 className="mt-2 block text-center text-3xl font-extrabold leading-8 tracking-tight text-slate-900 sm:text-4xl">
               {privacyPolicy.title}
             </h1>
           </div>
-          <div className="mt-6 prose prose-indigo prose-lg dark:prose-invert mx-auto">
+          <div className="prose prose-lg prose-indigo mx-auto mt-6 dark:prose-invert">
             <PortableText blocks={privacyPolicy.body} />
           </div>
         </div>

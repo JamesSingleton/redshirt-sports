@@ -100,7 +100,7 @@ function PcIcon({ selected, ...props }) {
         strokeLinejoin="round"
         className={
           selected
-            ? 'stroke-sky-500 fill-sky-400/20'
+            ? 'fill-sky-400/20 stroke-sky-500'
             : 'stroke-slate-400 dark:stroke-slate-500'
         }
       />
@@ -173,15 +173,15 @@ export function ThemeToggle() {
       <Listbox.Label className="sr-only">Theme</Listbox.Label>
       <Listbox.Button type="button">
         <span className="dark:hidden">
-          <SunIcon className="w-6 h-6" selected={setting !== 'system'} />
+          <SunIcon className="h-6 w-6" selected={setting !== 'system'} />
         </span>
         <span className="hidden dark:inline">
-          <MoonIcon className="w-6 h-6" selected={setting !== 'system'} />
+          <MoonIcon className="h-6 w-6" selected={setting !== 'system'} />
         </span>
       </Listbox.Button>
       <Listbox.Options
         className={cn(
-          'absolute z-50 top-full right-0 bg-white rounded-lg ring-1 ring-slate-900/10 shadow-lg overflow-hidden w-36 py-1 text-sm text-slate-700 font-semibold dark:bg-slate-800 dark:ring-0 dark:highlight-white/5 dark:text-slate-300 origin-top-right ring-black ring-opacity-5 focus:outline-none'
+          'dark:highlight-white/5 absolute top-full right-0 z-50 w-36 origin-top-right overflow-hidden rounded-lg bg-white py-1 text-sm font-semibold text-slate-700 shadow-lg ring-1 ring-slate-900/10 ring-black ring-opacity-5 focus:outline-none dark:bg-slate-800 dark:text-slate-300 dark:ring-0'
         )}
       >
         {settings.map(({ value, label, icon: Icon }) => (
@@ -189,12 +189,12 @@ export function ThemeToggle() {
             {({ active, selected }) => (
               <li
                 className={cn(
-                  'py-1 px-2 flex items-center cursor-pointer',
+                  'flex cursor-pointer items-center py-1 px-2',
                   selected && 'text-sky-500',
                   active && 'bg-slate-50 dark:bg-slate-600/30'
                 )}
               >
-                <Icon selected={selected} className="w-6 h-6 mr-2" />
+                <Icon selected={selected} className="mr-2 h-6 w-6" />
                 {label}
               </li>
             )}
@@ -214,16 +214,16 @@ export function ThemeSelect() {
     <div className="flex items-center justify-between">
       <label
         htmlFor="theme"
-        className="text-slate-700 font-normal dark:text-slate-400"
+        className="font-normal text-slate-700 dark:text-slate-400"
       >
         Switch theme
       </label>
-      <div className="relative flex items-center ring-1 ring-slate-900/10 rounded-lg shadow-sm p-2 text-slate-700 font-semibold dark:bg-slate-600 dark:ring-0 dark:highlight-white/5 dark:text-slate-200">
-        <SunIcon className="w-6 h-6 mr-2 dark:hidden" />
+      <div className="dark:highlight-white/5 relative flex items-center rounded-lg p-2 font-semibold text-slate-700 shadow-sm ring-1 ring-slate-900/10 dark:bg-slate-600 dark:text-slate-200 dark:ring-0">
+        <SunIcon className="mr-2 h-6 w-6 dark:hidden" />
         <svg
           viewBox="0 0 24 24"
           fill="none"
-          className="w-6 h-6 mr-2 hidden dark:block"
+          className="mr-2 hidden h-6 w-6 dark:block"
         >
           <path
             fillRule="evenodd"
@@ -243,7 +243,7 @@ export function ThemeSelect() {
           />
         </svg>
         {label}
-        <svg className="w-6 h-6 ml-2 text-slate-400" fill="none">
+        <svg className="ml-2 h-6 w-6 text-slate-400" fill="none">
           <path
             d="m15 11-3 3-3-3"
             stroke="currentColor"
@@ -256,7 +256,7 @@ export function ThemeSelect() {
           id="theme"
           value={setting}
           onChange={(e) => setSetting(e.target.value)}
-          className="absolute appearance-none inset-0 w-full h-full opacity-0"
+          className="absolute inset-0 h-full w-full appearance-none opacity-0"
         >
           {settings.map(({ value, label }) => (
             <option key={value} value={value}>

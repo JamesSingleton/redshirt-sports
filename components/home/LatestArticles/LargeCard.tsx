@@ -24,13 +24,13 @@ const LargeCard: FC<LargeCardProps> = ({ post }) => {
             },
           })
         }
-        className="border border-slate-200 dark:border-slate-700 group relative flex flex-col overflow-hidden h-full rounded-md"
+        className="group relative flex h-full flex-col overflow-hidden rounded-md border border-slate-200 dark:border-slate-700"
       >
-        <span className="block flex-shrink-0 flex-grow relative w-full h-0 pt-[75%] sm:pt-[55%] sm:rounded-b-none overflow-hidden">
+        <span className="relative block h-0 w-full flex-shrink-0 flex-grow overflow-hidden pt-[75%] sm:rounded-b-none sm:pt-[55%]">
           <div className="absolute inset-0">
             <Image
               src={urlForImage(post.mainImage).fit('min').url()!}
-              className="object-cover w-full h-full"
+              className="h-full w-full object-cover"
               alt={post.mainImage.caption}
               width={738}
               height={473}
@@ -40,8 +40,8 @@ const LargeCard: FC<LargeCardProps> = ({ post }) => {
           </div>
           <div className="absolute bottom-2 left-2" />
         </span>
-        <div className="absolute hidden md:grid gap-[5px] right-4 top-4 opacity-0 z-[-1] group-hover:z-10 group-hover:opacity-100"></div>
-        <div className="p-4 sm:p-5 flex flex-col">
+        <div className="absolute right-4 top-4 z-[-1] hidden gap-[5px] opacity-0 group-hover:z-10 group-hover:opacity-100 md:grid"></div>
+        <div className="flex flex-col p-4 sm:p-5">
           <div className="space-y-3">
             {post.categories.map((category) => {
               if (category === 'FCS' || category === 'FBS') {
@@ -50,13 +50,13 @@ const LargeCard: FC<LargeCardProps> = ({ post }) => {
                 )
               }
             })}
-            <h2 className="block font-semibold text-slate-900 dark:text-slate-50 transition-colors text-lg sm:text-2xl line-clamp-2">
+            <h2 className="block text-lg font-semibold text-slate-900 transition-colors line-clamp-2 dark:text-slate-50 sm:text-2xl">
               {post.title}
             </h2>
             <span className="block text-sm line-clamp-2">{post.excerpt}</span>
           </div>
-          <div className="relaative inline-flex items-center relative my-4">
-            <div className="relative flex-shrink-0 inline-flex items-center justify-center overflow-hidden uppercase font-semibold shadow-inner rounded-full h-10 w-10 text-base mr-3">
+          <div className="relaative relative my-4 inline-flex items-center">
+            <div className="relative mr-3 inline-flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full text-base font-semibold uppercase shadow-inner">
               <Image
                 src={
                   urlForImage(post.author.image)
@@ -65,24 +65,24 @@ const LargeCard: FC<LargeCardProps> = ({ post }) => {
                     .fit('min')
                     .url()!
                 }
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
                 alt={`Profile image of author ${post.author.name}`}
                 height={40}
                 width={40}
               />
             </div>
             <div>
-              <h2 className="text-sm text-slate-900 dark:text-slate-50 font-medium">
+              <h2 className="text-sm font-medium text-slate-900 dark:text-slate-50">
                 {post.author.name}
               </h2>
-              <span className="flex items-center mt-1 text-xs">
+              <span className="mt-1 flex items-center text-xs">
                 <time dateTime={post.publishedAt}>
                   {format(date, 'LLLL	d, yyyy')}
                 </time>
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-between mt-auto"></div>
+          <div className="mt-auto flex items-center justify-between"></div>
         </div>
       </a>
     </Link>

@@ -111,24 +111,24 @@ const Article = ({ post, morePosts, topPosts }: PostProps) => {
             slug={post.slug}
           />
           <PostImage image={post.mainImage} />
-          <div className="container mx-auto px-4 lg:px-32 flex flex-col my-10 lg:flex-row">
+          <div className="container mx-auto my-10 flex flex-col px-4 lg:flex-row lg:px-32">
             <section className="w-full lg:w-3/5 xl:w-2/3 xl:pr-20">
               <div className="space-y-10">
-                <div className="prose prose-slate prose-lg prose-a:text-indigo-600 hover:prose-a:text-indigo-500 !max-w-screen-md  mx-auto dark:prose-invert">
+                <div className="prose prose-lg prose-slate mx-auto !max-w-screen-md prose-a:text-indigo-600  hover:prose-a:text-indigo-500 dark:prose-invert">
                   <PortableText blocks={post.body} />
                 </div>
-                <div className="max-w-screen-md mx-autor flex flex-wrap">
+                <div className="mx-autor flex max-w-screen-md flex-wrap">
                   <Link href={`/${categoryName.toLowerCase()}`}>
-                    <a className="nc-Tag inline-block bg-white text-sm py-2 px-3 rounded-lg border border-slate-300 md:py-2.5 md:px-4 dark:bg-slate-700 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-6000 mr-2 mb-2">
+                    <a className="nc-Tag dark:hover:border-slate-6000 mr-2 mb-2 inline-block rounded-lg border border-slate-300 bg-white py-2 px-3 text-sm hover:border-slate-200 dark:border-slate-700 dark:bg-slate-700 md:py-2.5 md:px-4">
                       {categoryName}
                     </a>
                   </Link>
                 </div>
-                <div className="max-w-screen-md mx-auto border-b border-t border-slate-200 dark:border-slate-700" />
+                <div className="mx-auto max-w-screen-md border-b border-t border-slate-200 dark:border-slate-700" />
                 <WrittenBy author={post.author} />
               </div>
             </section>
-            <section className="w-full mt-12 lg:mt-0 lg:w-2/5 lg:pl-10 xl:pl-0 xl:w-1/3">
+            <section className="mt-12 w-full lg:mt-0 lg:w-2/5 lg:pl-10 xl:w-1/3 xl:pl-0">
               <div className="space-y-6">
                 <OtherAuthors otherAuthors={post.otherAuthors!} />
                 <PopularPosts topPosts={topPosts} />

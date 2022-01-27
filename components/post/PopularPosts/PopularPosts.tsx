@@ -12,9 +12,9 @@ interface PopularPostsProps {
 const PopularPosts: FC<PopularPostsProps> = ({ topPosts }) => {
   const plausible = usePlausible()
   return (
-    <div className="rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800">
-      <div className="p-4 xl:p-5 border-b border-slate-200 dark:border-slate-700">
-        <h2 className="text-lg text-slate-900 dark:text-slate-50 font-semibold grow">
+    <div className="overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800">
+      <div className="border-b border-slate-200 p-4 dark:border-slate-700 xl:p-5">
+        <h2 className="grow text-lg font-semibold text-slate-900 dark:text-slate-50">
           Popular Posts
         </h2>
       </div>
@@ -33,13 +33,13 @@ const PopularPosts: FC<PopularPostsProps> = ({ topPosts }) => {
                   },
                 })
               }
-              className="relative flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center p-4 xl:px-5 xl:py-6 hover:bg-slate-200 dark:hover:bg-slate-700"
+              className="relative flex flex-col-reverse p-4 hover:bg-slate-200 dark:hover:bg-slate-700 sm:flex-row sm:items-center sm:justify-between xl:px-5 xl:py-6"
             >
               <div className="relative space-y-2">
-                <div className="inline-flex items-center flex-wrap text-slate-800 dark:text-slate-100 text-xs leading-none">
-                  <div className="relative shrink-0 inline-flex items-center justify-center overflow-hidden text-slate-100 uppercase font-semibold shadow-inner rounded-full h-7 w-7 text-sm ring-1 ring-white dark:ring-slate-900">
+                <div className="inline-flex flex-wrap items-center text-xs leading-none text-slate-800 dark:text-slate-100">
+                  <div className="relative inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-semibold uppercase text-slate-100 shadow-inner ring-1 ring-white dark:ring-slate-900">
                     <Image
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 h-full w-full object-cover"
                       src={
                         urlForImage(post.author.image)
                           .width(28)
@@ -51,7 +51,7 @@ const PopularPosts: FC<PopularPostsProps> = ({ topPosts }) => {
                       height={28}
                     />
                   </div>
-                  <span className="ml-2 block text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-50 font-medium">
+                  <span className="ml-2 block font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-50">
                     {post.author.name}
                   </span>
                   <span className="mx-2 font-medium">·</span>
@@ -65,12 +65,12 @@ const PopularPosts: FC<PopularPostsProps> = ({ topPosts }) => {
                   {post.title}
                 </h3>
               </div>
-              <div className="sm:w-20 shrink-0 relative rounded-md overflow-hidden mb-5 sm:ml-4 sm:mb-0 group">
-                <div className="w-full h-0 aspect-w-16 aspect-h-9 sm:aspect-h-16">
+              <div className="group relative mb-5 shrink-0 overflow-hidden rounded-md sm:ml-4 sm:mb-0 sm:w-20">
+                <div className="aspect-w-16 aspect-h-9 h-0 w-full sm:aspect-h-16">
                   <Image
                     src={urlForImage(post.mainImage).fit('min').url()!}
                     alt={post.mainImage.caption}
-                    className="object-cover w-full h-full"
+                    className="h-full w-full object-cover"
                     layout="fill"
                     objectFit="cover"
                   />

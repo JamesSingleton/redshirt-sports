@@ -36,13 +36,13 @@ export default function Footer() {
   const plausible = usePlausible()
   return (
     <footer
-      className="bg-white dark:bg-slate-900 border-t border-neutral-200 dark:border-neutral-700"
+      className="border-t border-neutral-200 bg-white dark:border-neutral-700 dark:bg-slate-900"
       aria-labelledby="footer-heading"
     >
       <h2 id="footer-heading" className="sr-only">
         Footer
       </h2>
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
+      <div className="mx-auto max-w-7xl py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8 xl:col-span-1">
             <Image
@@ -62,10 +62,10 @@ export default function Footer() {
               ))}
             </div>
           </div>
-          <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
+          <div className="mt-12 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200 tracking-wider uppercase">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
                   Football
                 </h3>
                 <ul role="list" className="mt-4 space-y-4">
@@ -80,7 +80,7 @@ export default function Footer() {
                               },
                             })
                           }
-                          className="text-base hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                          className="text-base text-slate-700 hover:border-slate-400 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-300"
                         >
                           {item.name}
                         </a>
@@ -90,7 +90,7 @@ export default function Footer() {
                 </ul>
               </div>
               <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200 tracking-wider uppercase">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
                   Media
                 </h3>
                 <ul role="list" className="mt-4 space-y-4">
@@ -107,7 +107,7 @@ export default function Footer() {
                         href={item.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-base hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                        className="text-base text-slate-700 hover:border-slate-400 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-300"
                       >
                         {item.name}
                       </a>
@@ -118,7 +118,7 @@ export default function Footer() {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200 tracking-wider uppercase">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
                   Company
                 </h3>
                 <ul role="list" className="mt-4 space-y-4">
@@ -133,7 +133,7 @@ export default function Footer() {
                               },
                             })
                           }
-                          className="text-base hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                          className="text-base text-slate-700 hover:border-slate-400 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-300"
                         >
                           {item.name}
                         </a>
@@ -143,7 +143,7 @@ export default function Footer() {
                 </ul>
               </div>
               <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200 tracking-wider uppercase">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
                   Legal
                 </h3>
                 <ul role="list" className="mt-4 space-y-4">
@@ -158,7 +158,7 @@ export default function Footer() {
                               },
                             })
                           }
-                          className="text-base hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                          className="text-base text-slate-700 hover:border-slate-400 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-300"
                         >
                           {item.name}
                         </a>

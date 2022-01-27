@@ -12,33 +12,33 @@ interface PodcastProps {
 const PodcastCard: FC<PodcastProps> = ({ podcast }) => {
   const [playing, setPlaying] = useState(false)
   return (
-    <div className="relative flex group items-center p-3 h-full border border-slate-200 dark:border-slate-700 rounded-md hover:border-transparent hover:shadow-lg dark:hover:bg-slate-800">
+    <div className="group relative flex h-full items-center rounded-md border border-slate-200 p-3 hover:border-transparent hover:shadow-lg dark:border-slate-700 dark:hover:bg-slate-800">
       <div className="w-1/4 shrink-0">
-        <div className="h-0 aspect-w-1 aspect-h-1 relative rounded-md overflow-hidden shadow-lg">
+        <div className="aspect-w-1 aspect-h-1 relative h-0 overflow-hidden rounded-md shadow-lg">
           <div className="absolute inset-0">
             <Image
               src={FCSNationLogo}
-              className="object-cover w-full h-full"
+              className="h-full w-full object-cover"
               alt="FCS Nation Logo"
             />
           </div>
         </div>
       </div>
-      <div className="flex flex-col grow ml-4">
-        <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-50 line-clamp-1">
+      <div className="ml-4 flex grow flex-col">
+        <h3 className="text-lg font-semibold text-slate-900 line-clamp-1 dark:text-slate-50">
           {podcast.title}
         </h3>
-        <span className="text-xs mt-1">{`Season ${podcast.itunes.season} · Episode ${podcast.itunes.episode}`}</span>
+        <span className="mt-1 text-xs">{`Season ${podcast.itunes.season} · Episode ${podcast.itunes.episode}`}</span>
         <div>
           <div className="">
             <button
               onClick={() => setPlaying(!playing)}
-              className="items-center justify-center rounded-full inline-flex mt-3 pr-4 py-0.5 cursor-pointer transition-all hover:pl-0.5 hover:bg-slate-100 dark:hover:bg-slate-900"
+              className="mt-3 inline-flex cursor-pointer items-center justify-center rounded-full py-0.5 pr-4 transition-all hover:bg-slate-100 hover:pl-0.5 dark:hover:bg-slate-900"
             >
               {playing ? (
-                <PauseIcon className="text-red-500 w-14 h-14" />
+                <PauseIcon className="h-14 w-14 text-red-500" />
               ) : (
-                <PlayIcon className="text-red-500 w-14 h-14" />
+                <PlayIcon className="h-14 w-14 text-red-500" />
               )}
               <ReactPlayer
                 url={podcast.enclosure.url}

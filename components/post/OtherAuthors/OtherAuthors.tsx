@@ -12,13 +12,13 @@ interface OtherAuthorsProps {
 const OtherAuthors: FC<OtherAuthorsProps> = ({ otherAuthors }) => {
   const plausible = usePlausible()
   return (
-    <div className="rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800">
-      <div className="flex items-center justify-between p-4 xl:p-5 border-b border-slate-200 dark:border-slate-700">
-        <h2 className="text-lg text-slate-900 dark:text-slate-50 font-semibold grow">
+    <div className="overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800">
+      <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-700 xl:p-5">
+        <h2 className="grow text-lg font-semibold text-slate-900 dark:text-slate-50">
           Discover Authors
         </h2>
         <Link href="/authors" prefetch={false}>
-          <a className="shrink-0 block text-indigo-700 dark:text-indigo500 font-semibold text-sm">
+          <a className="dark:text-indigo500 block shrink-0 text-sm font-semibold text-indigo-700">
             View all
           </a>
         </Link>
@@ -39,11 +39,11 @@ const OtherAuthors: FC<OtherAuthorsProps> = ({ otherAuthors }) => {
                     },
                   })
                 }
-                className="flex items-center p-4 xl:p-5 hover:bg-slate-200 dark:hover:bg-slate-700"
+                className="flex items-center p-4 hover:bg-slate-200 dark:hover:bg-slate-700 xl:p-5"
               >
-                <div className="relative shrink-0 inline-flex items-center justify-center overflow-hidden text-slate-100 uppercase font-semibold shadow-inner rounded-full h-10 w-10 text-base mr-4">
+                <div className="relative mr-4 inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-base font-semibold uppercase text-slate-100 shadow-inner">
                   <Image
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 h-full w-full object-cover"
                     src={
                       urlForImage(author.image)
                         .width(40)
@@ -57,10 +57,10 @@ const OtherAuthors: FC<OtherAuthorsProps> = ({ otherAuthors }) => {
                   />
                 </div>
                 <div>
-                  <h3 className="text-base text-slate-900 dark:text-slate-50 font-semibold">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-slate-50">
                     {author.name}
                   </h3>
-                  <span className="block mt-1 text-xs">{author.role}</span>
+                  <span className="mt-1 block text-xs">{author.role}</span>
                 </div>
               </a>
             </Link>

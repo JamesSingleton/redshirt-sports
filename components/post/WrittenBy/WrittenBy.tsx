@@ -12,7 +12,7 @@ interface WrittenByProps {
 const WrittenBy: FC<WrittenByProps> = ({ author }) => {
   const plausible = usePlausible()
   return (
-    <div className="max-w-screen-md mx-auto">
+    <div className="mx-auto max-w-screen-md">
       <div className="flex">
         <Link href={`/authors/${author.slug}`} prefetch={false}>
           <a
@@ -25,9 +25,9 @@ const WrittenBy: FC<WrittenByProps> = ({ author }) => {
               })
             }
           >
-            <div className="wil-avatar relative flex-shrink-0 inline-flex items-center justify-center overflow-hidden text-slate-100 uppercase font-semibold shadow-inner rounded-xl h-12 w-12 text-lg sm:text-xl sm:h-24 sm:w-24 ring-1 ring-white dark:ring-slate-900">
+            <div className="wil-avatar relative inline-flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl text-lg font-semibold uppercase text-slate-100 shadow-inner ring-1 ring-white dark:ring-slate-900 sm:h-24 sm:w-24 sm:text-xl">
               <Image
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
                 src={urlForImage(author.image).url()!}
                 alt={`Profile image of ${author.name}`}
                 width={96}
@@ -36,7 +36,7 @@ const WrittenBy: FC<WrittenByProps> = ({ author }) => {
             </div>
           </a>
         </Link>
-        <div className="flex flex-col ml-3 max-w-lg sm:ml-5">
+        <div className="ml-3 flex max-w-lg flex-col sm:ml-5">
           <span className="text-xs uppercase tracking-wider">written by</span>
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
             <Link href={`/authors/${author.slug}`} prefetch={false}>
@@ -54,7 +54,7 @@ const WrittenBy: FC<WrittenByProps> = ({ author }) => {
               </a>
             </Link>
           </h2>
-          <span className="text-sm sm:text-base line-clamp-2">
+          <span className="text-sm line-clamp-2 sm:text-base">
             <PortableText blocks={author.bio} />
           </span>
         </div>

@@ -11,10 +11,10 @@ interface PostImageProps {
 }
 
 const PostImage: FC<PostImageProps> = ({ image }) => (
-  <div className="container my-10 sm:my-12 mx-auto px-4 xl:px-32">
+  <div className="container my-10 mx-auto px-4 sm:my-12 xl:px-32">
     <figure>
       <Image
-        className="object-cover w-full h-full rounded-md"
+        className="h-full w-full rounded-md object-cover"
         src={urlForImage(image).width(1280).height(606).url()!}
         width={1280}
         height={606}
@@ -24,7 +24,7 @@ const PostImage: FC<PostImageProps> = ({ image }) => (
         priority
       />
       <figcaption className="mt-3 flex text-sm">
-        <CameraIcon className="flex-none w-5 h-5" aria-hidden="true" />
+        <CameraIcon className="h-5 w-5 flex-none" aria-hidden="true" />
         <span className="ml-2">{`Source: ${image.attribution}`}</span>
       </figcaption>
     </figure>

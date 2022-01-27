@@ -10,7 +10,7 @@ class MyDocument extends Document {
             rel="stylesheet"
           />
         </Head>
-        <body className="loading antialiased text-slate-600 dark:text-slate-200 bg-white dark:bg-slate-900">
+        <body className="loading bg-white text-slate-600 antialiased dark:bg-slate-900 dark:text-slate-200">
           <Main />
           <NextScript />
         </body>
