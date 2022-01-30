@@ -100,9 +100,10 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
               <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
                 {advertising.title}
               </h1>
-              <div className="prose mt-6 dark:prose-invert">
-                <PortableText blocks={advertising.body} />
-              </div>
+              <PortableText
+                blocks={advertising.body}
+                className="prose mt-6 dark:prose-invert"
+              />
             </div>
 
             {/* Stats section */}

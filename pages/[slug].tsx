@@ -114,9 +114,10 @@ const Article = ({ post, morePosts, topPosts }: PostProps) => {
           <div className="container mx-auto my-10 flex flex-col px-4 lg:flex-row lg:px-32">
             <section className="w-full lg:w-3/5 xl:w-2/3 xl:pr-20">
               <div className="space-y-10">
-                <div className="prose prose-lg prose-slate mx-auto !max-w-screen-md prose-a:text-indigo-600  hover:prose-a:text-indigo-500 dark:prose-invert">
-                  <PortableText blocks={post.body} />
-                </div>
+                <PortableText
+                  blocks={post.body}
+                  className="prose prose-lg prose-slate mx-auto !max-w-screen-md prose-a:text-indigo-600  hover:prose-a:text-indigo-500 dark:prose-invert"
+                />
                 <div className="mx-autor flex max-w-screen-md flex-wrap">
                   <Link href={`/${categoryName.toLowerCase()}`}>
                     <a className="nc-Tag dark:hover:border-slate-6000 mr-2 mb-2 inline-block rounded-lg border border-slate-300 bg-white py-2 px-3 text-sm hover:border-slate-200 dark:border-slate-700 dark:bg-slate-700 md:py-2.5 md:px-4">
