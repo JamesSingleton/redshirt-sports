@@ -22,5 +22,39 @@
     "handle": "@_redshirtsports",
     "site": "@_redshirtsports",
     "cardType": "summary_large_image"
-  }
+  },
+  "additionalLinkTags": [
+    {
+      "rel": "manifest",
+      "href": "/manifest.webmanifest"
+    },
+    {
+      "rel": "alternate",
+      "type": "application/rss+xml",
+      "title": "RSS 2.0",
+      "href": "/feeds/feed.xml"
+    },
+    {
+      "rel": "alternate",
+      "type": "application/atom+xml",
+      "title": "Atom 1.0",
+      "href": "/feeds/atom.xml"
+    },
+    {
+      "rel": "alternate",
+      "type": "application/json",
+      "title": "JSON Feed",
+      "href": "/feeds/feed.json"
+    }
+  ],
+  "additionalMetaTags": [
+    {
+      "name": "viewport",
+      "content": "width=device-width, initial-scale=1"
+    },
+    {
+      "name": "theme-color",
+      "content": "#DC2727"
+    }
+  ]
 }

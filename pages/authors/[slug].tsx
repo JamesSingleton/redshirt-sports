@@ -1,6 +1,6 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 import Image from 'next/image'
-import { NextSeo, SocialProfileJsonLd } from 'next-seo'
+import { NextSeo, SocialProfileJsonLd, BreadcrumbJsonLd } from 'next-seo'
 import { Layout } from '@components/common'
 import { getClient, sanityClient } from '@lib/sanity.server'
 import {
@@ -18,6 +18,7 @@ interface AuthorProps {
 
 const Author = ({ author }: AuthorProps) => {
   const plausible = usePlausible()
+  const [firstName, lastName] = author.name.split(' ')
   return (
     <>
       <NextSeo
@@ -26,6 +27,7 @@ const Author = ({ author }: AuthorProps) => {
         canonical={`https://www.redshirtsports.xyz/authors/${author.slug}`}
         openGraph={{
           title: `${author.name} Profile - Redshirt Sports`,
+          description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,
           images: [
             {
               url: urlForImage(author.image).width(600).height(600).url()!,
@@ -35,7 +37,31 @@ const Author = ({ author }: AuthorProps) => {
               type: 'image/jpeg',
             },
           ],
+          type: 'profile',
+          profile: {
+            firstName,
+            lastName,
+          },
         }}
+      />
+      <BreadcrumbJsonLd
+        itemListElements={[
+          {
+            position: 1,
+            name: 'Home',
+            item: 'https://www.redshirtsports.xyz',
+          },
+          {
+            position: 2,
+            name: 'Authors',
+            item: 'https://www.redshirtsports.xyz/authors',
+          },
+          {
+            position: 3,
+            name: author.name,
+            item: `https://www.redshirtsports.xyz/authors/${author.name}`,
+          },
+        ]}
       />
       <SocialProfileJsonLd
         type="Person"

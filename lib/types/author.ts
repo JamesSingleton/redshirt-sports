@@ -14,5 +14,6 @@ export type AuthorTypes = {
   backgroundImage: AuthorImage
   bio: string
   twitterURL: string
+  twitterHandle: string
   posts: Post[]
 }

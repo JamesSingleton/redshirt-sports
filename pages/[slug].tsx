@@ -49,6 +49,7 @@ const Article = ({ post, morePosts, topPosts }: PostProps) => {
           article: {
             publishedTime: post.publishedAt,
             modifiedTime: post._updatedAt,
+            section: `${categoryName} College Football`,
             authors: [
               `https://www.redshirtsports.xyz/authors/${post.author.slug}`,
             ],
@@ -63,6 +64,9 @@ const Article = ({ post, morePosts, topPosts }: PostProps) => {
             },
           ],
         }}
+        twitter={{
+          handle: post.author.twitterHandle,
+        }}
       />
       <WebPageJsonLd
         id={`https://www.redshirtsports.xyz/${post.slug}`}
@@ -75,7 +79,7 @@ const Article = ({ post, morePosts, topPosts }: PostProps) => {
         dateModified={post._updatedAt}
         authorName={[post.author.name]}
         publisherName="Redshirt Sports"
-        publisherLogo="/images/icons/RS_512.png"
+        publisherLogo="https://www.redshirtsports.xyz/images/icons/RS_512.png"
         images={[urlForImage(post.mainImage).height(574).width(1020).url()!]}
         description={post.excerpt}
       />
