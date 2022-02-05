@@ -59,9 +59,8 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
         <div className="flex flex-grow flex-col space-y-3 p-4">
           <div className="inline-flex flex-wrap items-center text-xs leading-none">
             <div className="relative flex items-center space-x-2">
-              <div className="relative inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-semibold uppercase shadow-inner ring-1 ring-white dark:ring-neutral-900">
+              <div className="relative inline-flex overflow-hidden rounded-full shadow-inner ring-1 ring-white dark:ring-neutral-900">
                 <Image
-                  className="absolute inset-0 h-full w-full object-cover"
                   src={
                     urlForImage(post.author.image)
                       .width(28)
@@ -72,6 +71,7 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
                   alt={`Profile image of author ${post.author.name}`}
                   height={28}
                   width={28}
+                  objectFit="cover"
                 />
               </div>
               <span className="block font-medium text-slate-900 dark:text-slate-50">

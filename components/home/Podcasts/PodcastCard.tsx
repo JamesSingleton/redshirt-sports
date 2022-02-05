@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { PlayIcon, PauseIcon } from '@heroicons/react/solid'
 import ReactPlayer from 'react-player'
 import type { Podcast } from '@lib/types/podcast'
-import FCSNationLogo from '../../../public/images/FCS_Nation_Logo.jpeg'
 
 interface PodcastProps {
   podcast: Podcast
@@ -14,14 +13,14 @@ const PodcastCard: FC<PodcastProps> = ({ podcast }) => {
   return (
     <div className="group relative flex h-full items-center rounded-md border border-slate-200 p-3 hover:border-transparent hover:shadow-lg dark:border-slate-700 dark:hover:bg-slate-800">
       <div className="w-1/4 shrink-0">
-        <div className="aspect-w-1 aspect-h-1 relative h-0 overflow-hidden rounded-md shadow-lg">
-          <div className="absolute inset-0">
-            <Image
-              src={FCSNationLogo}
-              className="h-full w-full object-cover"
-              alt="FCS Nation Logo"
-            />
-          </div>
+        <div>
+          <Image
+            src="/images/FCS_Nation_Logo.jpeg"
+            className="h-full w-full rounded-md object-cover"
+            alt="FCS Nation Logo"
+            width={113.5}
+            height={113.5}
+          />
         </div>
       </div>
       <div className="ml-4 flex grow flex-col">

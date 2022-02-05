@@ -40,8 +40,8 @@ const Navbar: FC = () => {
                 <Image
                   src="/images/icons/RS_red.svg"
                   alt="Redshirt Sports Logo"
-                  width="74"
-                  height="74"
+                  width={74}
+                  height={74}
                 />
               </a>
             </Link>

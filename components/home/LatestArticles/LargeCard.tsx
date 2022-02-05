@@ -56,7 +56,7 @@ const LargeCard: FC<LargeCardProps> = ({ post }) => {
             <span className="block text-sm line-clamp-2">{post.excerpt}</span>
           </div>
           <div className="relaative relative my-4 inline-flex items-center">
-            <div className="relative mr-3 inline-flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full text-base font-semibold uppercase shadow-inner">
+            <div className="relative mr-3 inline-flex overflow-hidden rounded-full shadow-inner">
               <Image
                 src={
                   urlForImage(post.author.image)
