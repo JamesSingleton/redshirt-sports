@@ -17,8 +17,10 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
           <news:name>Redshirt Sports</news:name>
           <news:language>en</news:language>
         </news:publication>
+        <news:genres>UserGenerated</news:genres>
         <news:publication_date>${post.publishedAt}</news:publication_date>
         <news:title>${post.title}</news:title>
+        <news:keywords>sports, college football</news:keywords>
       </news:news>
     `
   )
