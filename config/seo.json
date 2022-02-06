@@ -11,10 +11,10 @@
     "site_name": "Redshirt Sports",
     "images": [
       {
-        "url": "/images/icons/RS_horizontal_513x512.png",
+        "url": "https://www.redshirtsports.xyz/images/icons/RS_horizontal_513x512.png",
         "width": 513,
         "height": 512,
-        "alt": "Redshirt Sports"
+        "alt": "Redshirt Sports Logo"
       }
     ]
   },
@@ -49,6 +49,10 @@
     {
       "rel": "icon",
       "href": "https://www.redshirtsports.xyz/favicon.ico"
+    },
+    {
+      "rel": "apple-touch-icon",
+      "href": "https://www.redshirtsports.xyz/images/icons/RS_192.png"
     }
   ],
   "additionalMetaTags": [

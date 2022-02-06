@@ -48,7 +48,7 @@ export default function Footer() {
             <Image
               className="h-10"
               src="/images/icons/RS_red.svg"
-              alt="Company name"
+              alt="Redshirt Sports Logo"
               width="74"
               height="74"
             />
