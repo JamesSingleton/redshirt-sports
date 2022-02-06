@@ -1,10 +1,10 @@
 {
-  "title": "NCAA College Football Teams, News, Standings, Rumors",
+  "title": "College Football News, Standings, Rumors",
   "titleTemplate": "%s - Redshirt Sports",
-  "description": "Get the latest NCAA college football news, stats, standings, and rumors from Redshirt Sports.",
+  "description": "Get the latest college football news, stats, standings, and rumors from Redshirt Sports.",
   "openGraph": {
-    "title": "NCAA College Football Teams, News, Standings, Rumors - Redshirt Sports",
-    "description": "Get the latest NCAA college football news, stats, standings, and rumors from Redshirt Sports.",
+    "title": " College Football News, Standings, Rumors - Redshirt Sports",
+    "description": "Get the latest college football news, stats, standings, and rumors from Redshirt Sports.",
     "type": "website",
     "locale": "en_US",
     "url": "https://www.redshirtsports.xyz",
@@ -45,6 +45,10 @@
       "type": "application/json",
       "title": "JSON Feed",
       "href": "/feeds/feed.json"
+    },
+    {
+      "rel": "icon",
+      "href": "https://www.redshirtsports.xyz/favicon.ico"
     }
   ],
   "additionalMetaTags": [
