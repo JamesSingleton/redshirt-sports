@@ -13,7 +13,7 @@ interface LargeHeroCardProps {
 const LargeHeroCard: FC<LargeHeroCardProps> = ({ heroPost }) => {
   const plausible = usePlausible()
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-md">
+    <article className="group relative flex flex-col overflow-hidden rounded-md">
       <Link href={`/${heroPost.slug}`} prefetch={false}>
         <a
           onClick={() =>
@@ -60,7 +60,7 @@ const LargeHeroCard: FC<LargeHeroCardProps> = ({ heroPost }) => {
           </div>
         </a>
       </Link>
-    </div>
+    </article>
   )
 }
 

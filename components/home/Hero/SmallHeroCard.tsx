@@ -13,7 +13,7 @@ interface SmallHeroCardProps {
 const SmallHeroCard: FC<SmallHeroCardProps> = ({ post }) => {
   const plausible = usePlausible()
   return (
-    <div className="group relative col-span-1 flex flex-col overflow-hidden rounded-md sm:row-span-3">
+    <article className="group relative col-span-1 flex flex-col overflow-hidden rounded-md sm:row-span-3">
       <Link href={`/${post.slug}`} prefetch={false}>
         <a
           onClick={() =>
@@ -55,7 +55,7 @@ const SmallHeroCard: FC<SmallHeroCardProps> = ({ post }) => {
           </div>
         </a>
       </Link>
-    </div>
+    </article>
   )
 }
 

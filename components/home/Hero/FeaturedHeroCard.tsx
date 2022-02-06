@@ -13,7 +13,7 @@ interface FeaturedHeroCardProps {
 const FeaturedHeroCard: FC<FeaturedHeroCardProps> = ({ featuredPost }) => {
   const plausible = usePlausible()
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-md sm:col-span-2 sm:row-span-2">
+    <article className="group relative flex flex-col overflow-hidden rounded-md sm:col-span-2 sm:row-span-2">
       <Link href={`/${featuredPost.slug}`} prefetch={false}>
         <a onClick={() => plausible('clickOnFeaturedArticle')}>
           <div className="aspect-w-4 aspect-h-3 relative flex w-full items-start sm:aspect-h-1 sm:aspect-w-16" />
@@ -52,7 +52,7 @@ const FeaturedHeroCard: FC<FeaturedHeroCardProps> = ({ featuredPost }) => {
           </div>
         </a>
       </Link>
-    </div>
+    </article>
   )
 }
 
