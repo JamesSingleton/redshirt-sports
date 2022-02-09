@@ -68,7 +68,7 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
                   Football
                 </h3>
-                <ul role="list" className="mt-4 space-y-4">
+                <ul className="mt-4 space-y-4">
                   {navigation.football.map((item) => (
                     <li key={item.name}>
                       <Link href={item.href} prefetch={false}>
@@ -93,7 +93,7 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
                   Media
                 </h3>
-                <ul role="list" className="mt-4 space-y-4">
+                <ul className="mt-4 space-y-4">
                   {navigation.media.map((item) => (
                     <li key={item.name}>
                       <a
@@ -121,7 +121,7 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
                   Company
                 </h3>
-                <ul role="list" className="mt-4 space-y-4">
+                <ul className="mt-4 space-y-4">
                   {navigation.company.map((item) => (
                     <li key={item.name}>
                       <Link href={item.href} prefetch={false}>
@@ -146,7 +146,7 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
                   Legal
                 </h3>
-                <ul role="list" className="mt-4 space-y-4">
+                <ul className="mt-4 space-y-4">
                   {navigation.legal.map((item) => (
                     <li key={item.name}>
                       <Link href={item.href} prefetch={false}>
