@@ -130,7 +130,16 @@ const PostHeader: FC<PostHeaderProps> = ({
                 >
                   <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div className="px-1 py-1 ">
-                      <Menu.Item>
+                      <Menu.Item
+                        onClick={() =>
+                          plausible('ShareArticle', {
+                            props: {
+                              article: title,
+                              method: 'Facebook',
+                            },
+                          })
+                        }
+                      >
                         {({ active }) => (
                           <FacebookShareButton
                             url={socialShareUrl}
@@ -170,7 +179,16 @@ const PostHeader: FC<PostHeaderProps> = ({
                           </FacebookShareButton>
                         )}
                       </Menu.Item>
-                      <Menu.Item>
+                      <Menu.Item
+                        onClick={() =>
+                          plausible('ShareArticle', {
+                            props: {
+                              article: title,
+                              method: 'Twitter',
+                            },
+                          })
+                        }
+                      >
                         {({ active }) => (
                           <TwitterShareButton
                             url={socialShareUrl}
@@ -205,7 +223,16 @@ const PostHeader: FC<PostHeaderProps> = ({
                           </TwitterShareButton>
                         )}
                       </Menu.Item>
-                      <Menu.Item>
+                      <Menu.Item
+                        onClick={() =>
+                          plausible('ShareArticle', {
+                            props: {
+                              article: title,
+                              method: 'Copy Link',
+                            },
+                          })
+                        }
+                      >
                         {({ active }) => (
                           <button
                             className={`${
@@ -234,7 +261,16 @@ const PostHeader: FC<PostHeaderProps> = ({
                           </button>
                         )}
                       </Menu.Item>
-                      <Menu.Item>
+                      <Menu.Item
+                        onClick={() =>
+                          plausible('ShareArticle', {
+                            props: {
+                              article: title,
+                              method: 'Email',
+                            },
+                          })
+                        }
+                      >
                         {({ active }) => (
                           <EmailShareButton
                             resetButtonStyle={false}
