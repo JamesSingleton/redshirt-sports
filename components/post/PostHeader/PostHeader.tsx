@@ -1,8 +1,10 @@
 import { FC, Fragment } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { Menu, Transition } from '@headlessui/react'
 import { ShareIcon, DuplicateIcon, InboxIcon } from '@heroicons/react/outline'
+import { HomeIcon, ChevronRightIcon } from '@heroicons/react/solid'
 import { usePlausible } from 'next-plausible'
 import { parseISO, format } from 'date-fns'
 import {
@@ -22,6 +24,11 @@ interface PostHeaderProps {
   estimatedReadingTime: number
   slug: string
 }
+const pages = [
+  { name: 'Projects', href: '#', current: false },
+  { name: 'Project Nero', href: '#', current: true },
+]
+
 const PostHeader: FC<PostHeaderProps> = ({
   title,
   publishedAt,
@@ -33,24 +40,84 @@ const PostHeader: FC<PostHeaderProps> = ({
 }) => {
   const plausible = usePlausible()
   const socialShareUrl = `https://www.redshirtsports.xyz/${slug}`
+  const { asPath } = useRouter()
+
+  const ariaCurrent = `/${slug}` === asPath ? 'page' : undefined
+
   return (
     <header className="container mx-auto px-4">
       <div className="mx-auto max-w-screen-md">
         <div className="space-y-5">
           <div className="flex flex-wrap space-x-2">
-            <a
-              href={`/${category.toLowerCase()}`}
-              className="relative inline-flex rounded-full bg-red-800 px-2.5 py-1 text-xs font-medium text-slate-50 transition-colors duration-300 hover:bg-red-600 hover:text-slate-50"
-              onClick={() =>
-                plausible('clickOnPostCategory', {
-                  props: {
-                    category: category,
-                  },
-                })
-              }
-            >
-              {category}
-            </a>
+            <nav className="flex" aria-label="Breadcrumb">
+              <ol role="list" className="flex items-center  space-x-4">
+                <li>
+                  <div>
+                    <Link href="/" prefetch={false}>
+                      <a
+                        className="hover:text-gray-500"
+                        onClick={() =>
+                          plausible('clickOnBreadCrumb', {
+                            props: {
+                              location: 'Home',
+                            },
+                          })
+                        }
+                      >
+                        <HomeIcon
+                          className="h-5 w-5 flex-shrink-0"
+                          aria-hidden="true"
+                        />
+                        <span className="sr-only">Home</span>
+                      </a>
+                    </Link>
+                  </div>
+                </li>
+                <li>
+                  <div className="flex items-center">
+                    <ChevronRightIcon
+                      className="h-5 w-5 flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <a
+                      href={`/${category.toLowerCase()}`}
+                      className="ml-4 text-sm font-medium hover:text-gray-500"
+                      onClick={() =>
+                        plausible('clickOnBreadCrumb', {
+                          props: {
+                            location: category,
+                          },
+                        })
+                      }
+                    >
+                      {category}
+                    </a>
+                  </div>
+                </li>
+                <li>
+                  <div className="flex w-72 items-center sm:w-full">
+                    <ChevronRightIcon
+                      className="h-5 w-5 flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <a
+                      href={`/${title}`}
+                      className="ml-4 truncate text-sm font-medium hover:text-gray-500"
+                      aria-current={ariaCurrent}
+                      onClick={() =>
+                        plausible('clickOnBreadCrumb', {
+                          props: {
+                            location: title,
+                          },
+                        })
+                      }
+                    >
+                      {title}
+                    </a>
+                  </div>
+                </li>
+              </ol>
+            </nav>
           </div>
           <h1 className="max-w-4xl text-3xl font-semibold text-slate-900 dark:text-slate-50 md:text-4xl lg:text-5xl">
             {title}

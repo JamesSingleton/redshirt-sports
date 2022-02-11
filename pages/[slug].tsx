@@ -120,7 +120,7 @@ const Article = ({ post, morePosts, topPosts }: PostProps) => {
               <div className="space-y-10">
                 <PortableText
                   blocks={post.body}
-                  className="prose prose-lg prose-slate mx-auto !max-w-screen-md prose-a:text-indigo-600  hover:prose-a:text-indigo-500 dark:prose-invert"
+                  className="prose prose-lg prose-slate mx-auto !max-w-screen-md prose-a:text-indigo-600 hover:prose-a:text-indigo-500  dark:prose-invert dark:prose-a:text-sky-400 dark:hover:prose-a:text-sky-600"
                 />
                 <div className="mx-autor flex max-w-screen-md flex-wrap">
                   <Link href={`/${categoryName.toLowerCase()}`}>

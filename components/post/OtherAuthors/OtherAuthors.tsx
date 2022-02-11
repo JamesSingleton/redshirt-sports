@@ -18,7 +18,7 @@ const OtherAuthors: FC<OtherAuthorsProps> = ({ otherAuthors }) => {
           Discover Authors
         </h2>
         <Link href="/authors" prefetch={false}>
-          <a className="dark:text-indigo500 block shrink-0 text-sm font-semibold text-indigo-700">
+          <a className="block shrink-0 text-sm font-semibold text-indigo-700 dark:text-sky-500">
             View all
           </a>
         </Link>
