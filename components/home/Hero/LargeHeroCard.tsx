@@ -53,9 +53,9 @@ const LargeHeroCard: FC<LargeHeroCardProps> = ({ heroPost }) => {
               })}
             </div>
             <div className="inline-flex items-center text-xs text-slate-50">
-              <h2 className="block text-xl font-semibold sm:text-2xl xl:text-4xl">
+              <h1 className="block text-xl font-semibold sm:text-2xl xl:text-4xl">
                 {heroPost.title}
-              </h2>
+              </h1>
             </div>
           </div>
         </a>
