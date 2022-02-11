@@ -79,19 +79,20 @@ const PostHeader: FC<PostHeaderProps> = ({
                       className="h-5 w-5 flex-shrink-0"
                       aria-hidden="true"
                     />
-                    <a
-                      href={`/${category.toLowerCase()}`}
-                      className="ml-4 text-sm font-medium hover:text-gray-500"
-                      onClick={() =>
-                        plausible('clickOnBreadCrumb', {
-                          props: {
-                            location: category,
-                          },
-                        })
-                      }
-                    >
-                      {category}
-                    </a>
+                    <Link href={`/${category.toLowerCase()}`} prefetch={false}>
+                      <a
+                        className="ml-4 text-sm font-medium hover:text-gray-500"
+                        onClick={() =>
+                          plausible('clickOnBreadCrumb', {
+                            props: {
+                              location: category,
+                            },
+                          })
+                        }
+                      >
+                        {category}
+                      </a>
+                    </Link>
                   </div>
                 </li>
                 <li>
@@ -100,20 +101,21 @@ const PostHeader: FC<PostHeaderProps> = ({
                       className="h-5 w-5 flex-shrink-0"
                       aria-hidden="true"
                     />
-                    <a
-                      href={`/${title}`}
-                      className="ml-4 truncate text-sm font-medium hover:text-gray-500"
-                      aria-current={ariaCurrent}
-                      onClick={() =>
-                        plausible('clickOnBreadCrumb', {
-                          props: {
-                            location: title,
-                          },
-                        })
-                      }
-                    >
-                      {title}
-                    </a>
+                    <Link href={`/${slug}`} prefetch={false}>
+                      <a
+                        className="ml-4 truncate text-sm font-medium hover:text-gray-500"
+                        aria-current={ariaCurrent}
+                        onClick={() =>
+                          plausible('clickOnBreadCrumb', {
+                            props: {
+                              location: title,
+                            },
+                          })
+                        }
+                      >
+                        {title}
+                      </a>
+                    </Link>
                   </div>
                 </li>
               </ol>
