@@ -20,6 +20,9 @@ const securityHeaders = [
 ]
 /** @type {import('next').NextConfig} */
 module.exports = withPlausibleProxy()({
+  experimental: {
+    optimizeCss: true,
+  },
   productionBrowserSourceMaps: true,
   swcMinify: true,
   reactStrictMode: true,

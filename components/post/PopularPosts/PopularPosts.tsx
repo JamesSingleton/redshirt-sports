@@ -12,9 +12,15 @@ interface PopularPostsProps {
 const PopularPosts: FC<PopularPostsProps> = ({ topPosts }) => {
   const plausible = usePlausible()
   return (
-    <div className="overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800">
+    <section
+      aria-labelledby="popular-posts-heading"
+      className="overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800"
+    >
       <div className="border-b border-slate-200 p-4 dark:border-slate-700 xl:p-5">
-        <h2 className="grow text-lg font-semibold text-slate-900 dark:text-slate-50">
+        <h2
+          id="popular-posts-heading"
+          className="grow text-lg font-semibold text-slate-900 dark:text-slate-50"
+        >
           Popular Posts
         </h2>
       </div>
@@ -78,7 +84,7 @@ const PopularPosts: FC<PopularPostsProps> = ({ topPosts }) => {
           </article>
         ))}
       </div>
-    </div>
+    </section>
   )
 }
 

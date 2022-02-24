@@ -116,7 +116,7 @@ const Article = ({ post, morePosts, topPosts }: PostProps) => {
           />
           <PostImage image={post.mainImage} />
           <div className="container mx-auto my-10 flex flex-col px-4 lg:flex-row lg:px-32">
-            <section className="w-full lg:w-3/5 xl:w-2/3 xl:pr-20">
+            <div className="w-full lg:w-3/5 xl:w-2/3 xl:pr-20">
               <div className="space-y-10">
                 <PortableText
                   blocks={post.body}
@@ -132,13 +132,13 @@ const Article = ({ post, morePosts, topPosts }: PostProps) => {
                 <div className="mx-auto max-w-screen-md border-b border-t border-slate-200 dark:border-slate-700" />
                 <WrittenBy author={post.author} />
               </div>
-            </section>
-            <section className="mt-12 w-full lg:mt-0 lg:w-2/5 lg:pl-10 xl:w-1/3 xl:pl-0">
+            </div>
+            <div className="mt-12 w-full lg:mt-0 lg:w-2/5 lg:pl-10 xl:w-1/3 xl:pl-0">
               <div className="space-y-6">
                 <OtherAuthors otherAuthors={post.otherAuthors!} />
                 <PopularPosts topPosts={topPosts} />
               </div>
-            </section>
+            </div>
           </div>
           <MorePosts morePosts={morePosts} />
         </div>
