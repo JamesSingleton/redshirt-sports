@@ -98,7 +98,7 @@ const Author = ({ author }: AuthorProps) => {
                 <h1 className="inline-block text-2xl font-semibold text-slate-900 dark:text-slate-50 sm:text-3xl md:text-4xl">
                   {author.name}
                 </h1>
-                <PortableText blocks={author.bio} />
+                <PortableText value={author.bio} />
                 <div className="flex space-x-2.5 text-2xl text-slate-600 dark:text-slate-300">
                   <a
                     href={author.twitterURL}

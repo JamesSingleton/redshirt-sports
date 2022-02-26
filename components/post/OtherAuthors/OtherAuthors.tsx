@@ -12,9 +12,15 @@ interface OtherAuthorsProps {
 const OtherAuthors: FC<OtherAuthorsProps> = ({ otherAuthors }) => {
   const plausible = usePlausible()
   return (
-    <div className="overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800">
+    <section
+      aria-labelledby="discover-authors-heading"
+      className="overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800"
+    >
       <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-700 xl:p-5">
-        <h2 className="grow text-lg font-semibold text-slate-900 dark:text-slate-50">
+        <h2
+          id="discover-authors-heading"
+          className="grow text-lg font-semibold text-slate-900 dark:text-slate-50"
+        >
           Discover Authors
         </h2>
         <Link href="/authors" prefetch={false}>
@@ -67,7 +73,7 @@ const OtherAuthors: FC<OtherAuthorsProps> = ({ otherAuthors }) => {
           ))}
         </div>
       </div>
-    </div>
+    </section>
   )
 }
 
