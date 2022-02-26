@@ -36,7 +36,7 @@ const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
             </h1>
           </div>
           <PortableText
-            blocks={privacyPolicy.body}
+            value={privacyPolicy.body}
             className="prose prose-lg prose-indigo mx-auto mt-6 dark:prose-invert"
           />
         </div>

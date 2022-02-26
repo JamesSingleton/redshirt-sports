@@ -101,7 +101,7 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
                 {advertising.title}
               </h1>
               <PortableText
-                blocks={advertising.body}
+                value={advertising.body}
                 className="prose mt-6 dark:prose-invert"
               />
             </div>

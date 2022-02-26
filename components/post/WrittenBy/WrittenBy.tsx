@@ -55,7 +55,7 @@ const WrittenBy: FC<WrittenByProps> = ({ author }) => {
             </Link>
           </h2>
           <PortableText
-            blocks={author.bio}
+            value={author.bio}
             className="text-sm line-clamp-2 sm:text-base"
           />
         </div>
