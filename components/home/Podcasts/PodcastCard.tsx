@@ -1,7 +1,6 @@
-import { FC, useState } from 'react'
+import { FC } from 'react'
 import Image from 'next/image'
-import { PlayIcon, PauseIcon } from '@heroicons/react/solid'
-import ReactPlayer from 'react-player'
+import { PlayIcon } from '@heroicons/react/solid'
 import type { Podcast } from '@lib/types/podcast'
 
 interface PodcastProps {
@@ -9,7 +8,6 @@ interface PodcastProps {
 }
 
 const PodcastCard: FC<PodcastProps> = ({ podcast }) => {
-  const [playing, setPlaying] = useState(false)
   return (
     <div className="group relative flex h-full items-center rounded-md border border-slate-200 p-3 hover:border-transparent hover:shadow-lg dark:border-slate-700 dark:hover:bg-slate-800">
       <div className="w-1/4 shrink-0">
@@ -30,23 +28,15 @@ const PodcastCard: FC<PodcastProps> = ({ podcast }) => {
         <span className="mt-1 text-xs">{`Season ${podcast.itunes.season} · Episode ${podcast.itunes.episode}`}</span>
         <div>
           <div className="">
-            <button
-              onClick={() => setPlaying(!playing)}
+            <a
+              href={podcast.link}
+              target="_blank"
+              rel="noreferrer"
               className="mt-3 inline-flex cursor-pointer items-center justify-center rounded-full py-0.5 pr-4 transition-all hover:bg-slate-100 hover:pl-0.5 dark:hover:bg-slate-900"
             >
-              {playing ? (
-                <PauseIcon className="h-14 w-14 text-red-500" />
-              ) : (
-                <PlayIcon className="h-14 w-14 text-red-500" />
-              )}
-              <ReactPlayer
-                url={podcast.enclosure.url}
-                playing={playing}
-                width="0"
-                height="0"
-              />
+              <PlayIcon className="h-14 w-14 text-red-500" />
               <span className="ml-3 text-sm font-medium">Listen now</span>
-            </button>
+            </a>
           </div>
         </div>
       </div>
