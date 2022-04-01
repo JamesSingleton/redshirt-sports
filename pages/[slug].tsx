@@ -6,7 +6,6 @@ import {
   BreadcrumbJsonLd,
   WebPageJsonLd,
 } from 'next-seo'
-import { usePlausible } from 'next-plausible'
 import { Layout } from '@components/common'
 import {
   MorePosts,
@@ -180,7 +179,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       morePosts: overlayDrafts(morePosts),
       topPosts,
     },
-    revalidate: 10, // In seconds
+    revalidate: 1, // In seconds
   }
 }
 
