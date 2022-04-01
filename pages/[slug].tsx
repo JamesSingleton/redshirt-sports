@@ -180,7 +180,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       morePosts: overlayDrafts(morePosts),
       topPosts,
     },
-    revalidate: 10, // In seconds
   }
 }
 
