@@ -37,14 +37,6 @@ function Home({
         }}
       />
       <div className="container relative mx-auto px-4 py-12">
-        <button
-          type="button"
-          onClick={() => {
-            throw new Error('Sentry Frontend Error')
-          }}
-        >
-          Throw error
-        </button>
         <Hero posts={heroPosts} featuredArticle={featuredArticle} />
         <LatestArticles posts={latestPosts} />
         <Podcasts podcasts={topThreePodcasts} />
