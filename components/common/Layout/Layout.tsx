@@ -2,7 +2,11 @@ import React, { FC } from 'react'
 import { LogoJsonLd, OrganizationJsonLd } from 'next-seo'
 import { Navbar, Footer } from '@components/common'
 
-const Layout: FC = ({ children }) => {
+type LayoutProps = {
+  children: React.ReactNode
+}
+
+const Layout: FC<LayoutProps> = ({ children }) => {
   return (
     <>
       <OrganizationJsonLd

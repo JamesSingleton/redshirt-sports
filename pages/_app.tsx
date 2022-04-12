@@ -6,7 +6,11 @@ import PlausibleProvider from 'next-plausible'
 import ProgressBar from '@badrap/bar-of-progress'
 import { Head } from '@components/common'
 
-const Noop: FC = ({ children }) => <>{children}</>
+type NoopProps = {
+  children: React.ReactNode
+}
+
+const Noop: FC<NoopProps> = ({ children }) => <>{children}</>
 
 const progress = new ProgressBar({
   size: 2,
