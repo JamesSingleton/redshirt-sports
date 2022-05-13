@@ -48,8 +48,8 @@ const moduleExports = {
       },
     ]
   },
-  webpack(config, options) {
-    if (!options.dev && options.isServer) {
+  webpack(config, { dev, isServer, nextRuntime }) {
+    if (!dev && isServer && nextRuntime === 'nodejs') {
       let originalEntry = config.entry
 
       config.entry = async () => {
