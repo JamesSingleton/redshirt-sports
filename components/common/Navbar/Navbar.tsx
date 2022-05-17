@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -7,7 +8,8 @@ import { Popover } from '@headlessui/react'
 import { MenuIcon } from '@heroicons/react/outline'
 import { usePlausible } from 'next-plausible'
 import { ThemeToggle } from '../ThemeToggle/ThemeToggle'
-import MobileNav from './MobileNav'
+
+const MobileNav = dynamic(() => import('./MobileNav'))
 
 const navigation = [
   { name: 'FBS', href: '/fbs' },
