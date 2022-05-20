@@ -149,7 +149,7 @@ Article.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const topPages = await fetch(
-    'https://plausible.io/api/v1/stats/breakdown?site_id=redshirtsports.xyz&period=30d&property=event:page&limit=5',
+    'https://plausible.io/api/v1/stats/breakdown?site_id=redshirtsports.xyz&period=6mo&property=event:page&limit=5',
     {
       headers: {
         Authorization: `Bearer ${process.env.PLAUSIBLE_API_TOKEN}`,
