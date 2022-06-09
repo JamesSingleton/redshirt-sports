@@ -3,10 +3,7 @@ import Image from 'next/image'
 import { NextSeo, SocialProfileJsonLd, BreadcrumbJsonLd } from 'next-seo'
 import { Layout } from '@components/common'
 import { getClient, sanityClient } from '@lib/sanity.server'
-import {
-  authorSlugsQuery,
-  authorAndTheirPostsBySlug,
-} from '@lib/sanityGroqQueries'
+import { authorSlugsQuery, authorAndTheirPostsBySlug } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { RecentArticles } from '@components/author'
 import type { AuthorTypes } from '@lib/types/author'

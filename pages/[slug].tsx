@@ -1,195 +1,139 @@
-import { GetStaticProps, GetStaticPaths } from 'next'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
-import {
-  NextSeo,
-  ArticleJsonLd,
-  BreadcrumbJsonLd,
-  WebPageJsonLd,
-} from 'next-seo'
-import { Layout } from '@components/common'
-import {
-  MorePosts,
-  OtherAuthors,
-  PostHeader,
-  PostImage,
-  WrittenBy,
-  PopularPosts,
-} from '@components/post'
-import { postSlugsQuery, postQuery } from '@lib/sanityGroqQueries'
-import { PortableText, urlForImage } from '@lib/sanity'
-import { sanityClient, getClient, overlayDrafts } from '@lib/sanity.server'
-import type { Post } from '@lib/types/post'
+
+import Layout from '@components/common/Layout'
+import BlogCard from '@components/ui/BlogCard'
+import BlurImage from '@components/ui/BlurImage'
+import Loader from '@components/ui/Loader'
+import { sanityClient } from '@lib/sanity.server'
+import { postSlugsQuery, postQuery } from '@lib/queries'
+import Date from '@components/ui/Date'
+import { urlForImage, PortableText } from '@lib/sanity'
+
+import type { GetStaticPaths, GetStaticProps } from 'next'
+import type { Post } from '@types'
 
 interface PostProps {
   post: Post
   morePosts: Post[]
-  topPosts: Post[]
 }
 
-const Article = ({ post, morePosts, topPosts }: PostProps) => {
-  let categoryName = 'FCS'
+export default function Post({ post, morePosts }: PostProps) {
+  const router = useRouter()
 
-  post.categories.map((category) => {
-    if (category === 'FBS') {
-      categoryName = category
-    }
-  })
+  if (router.isFallback) return <Loader />
 
   return (
-    <>
-      <NextSeo
-        title={post.title}
-        description={post.excerpt}
-        canonical={`https://www.redshirtsports.xyz/${post.slug}`}
-        openGraph={{
-          title: `${post.title} - Redshirt Sports`,
-          url: `https://www.redshirtsports.xyz/${post.slug}`,
-          type: 'article',
-          article: {
-            publishedTime: post.publishedAt,
-            modifiedTime: post._updatedAt,
-            section: `${categoryName} College Football`,
-            authors: [
-              `https://www.redshirtsports.xyz/authors/${post.author.slug}`,
-            ],
-            tags: post.categories,
-          },
-          images: [
-            {
-              url: urlForImage(post.mainImage).height(574).width(1020).url()!,
-              width: 1020,
-              height: 574,
-              alt: post.mainImage.caption,
-            },
-          ],
-        }}
-        twitter={{
-          handle: post.author.twitterHandle,
-        }}
-      />
-      <WebPageJsonLd
-        id={`https://www.redshirtsports.xyz/${post.slug}`}
-        description={post.title}
-      />
-      <ArticleJsonLd
-        url={`https://www.redshirtsports.xyz/${post.slug}`}
-        title={post.title}
-        datePublished={post.publishedAt}
-        dateModified={post._updatedAt}
-        authorName={[post.author.name]}
-        publisherName="Redshirt Sports"
-        publisherLogo="https://www.redshirtsports.xyz/images/icons/RS_512.png"
-        images={[urlForImage(post.mainImage).height(574).width(1020).url()!]}
-        description={post.excerpt}
-      />
-      <BreadcrumbJsonLd
-        itemListElements={[
-          {
-            position: 1,
-            name: 'Home',
-            item: 'https://www.redshirtsports.xyz',
-          },
-          {
-            position: 2,
-            name: categoryName.toLowerCase(),
-            item: `https://www.redshirtsports.xyz/${categoryName.toLowerCase()}`,
-          },
-          {
-            position: 3,
-            name: post.title,
-            item: `https://www.redshirtsports.xyz/${post.slug}`,
-          },
-        ]}
-      />
-
-      <article>
-        <div className="pt-10 lg:pt-16">
-          <PostHeader
-            title={post.title}
-            publishedAt={post.publishedAt}
-            category={categoryName}
-            author={post.author}
-            excerpt={post.excerpt}
-            estimatedReadingTime={post.estimatedReadingTime}
-            slug={post.slug}
-          />
-          <PostImage image={post.mainImage} />
-          <div className="container mx-auto my-10 flex flex-col px-4 lg:flex-row lg:px-32">
-            <div className="w-full lg:w-3/5 xl:w-2/3 xl:pr-20">
-              <div className="space-y-10">
-                <div className="prose prose-lg prose-slate mx-auto !max-w-screen-md prose-a:text-indigo-600 hover:prose-a:text-indigo-500  dark:prose-invert dark:prose-a:text-sky-400 dark:hover:prose-a:text-sky-600">
-                  <PortableText value={post.body} />
-                </div>
-                <div className="mx-autor flex max-w-screen-md flex-wrap">
-                  <Link href={`/${categoryName.toLowerCase()}`}>
-                    <a className="nc-Tag dark:hover:border-slate-6000 mr-2 mb-2 inline-block rounded-lg border border-slate-300 bg-white py-2 px-3 text-sm hover:border-slate-200 dark:border-slate-700 dark:bg-slate-700 md:py-2.5 md:px-4">
-                      {categoryName}
-                    </a>
-                  </Link>
-                </div>
-                <div className="mx-auto max-w-screen-md border-b border-t border-slate-200 dark:border-slate-700" />
-                <WrittenBy author={post.author} />
-              </div>
-            </div>
-            <div className="mt-12 w-full lg:mt-0 lg:w-2/5 lg:pl-10 xl:w-1/3 xl:pl-0">
-              <div className="space-y-6">
-                <OtherAuthors otherAuthors={post.otherAuthors!} />
-                <PopularPosts topPosts={topPosts} />
-              </div>
-            </div>
-          </div>
-          <MorePosts morePosts={morePosts} />
+    <Layout>
+      <div className="flex flex-col items-center justify-center">
+        <div className="m-auto w-full text-center md:w-7/12">
+          <p className="m-auto my-5 w-10/12 text-sm font-light md:text-base">
+            <Date dateString={post.publishedAt.toString()} />
+          </p>
+          <h1 className="mb-10 font-cal text-3xl font-bold md:text-6xl">
+            {post.title}
+          </h1>
+          <p className="text-md m-auto w-10/12 md:text-lg">{post.excerpt}</p>
         </div>
+        <Link href={`/authors/${post.author.slug}`}>
+          <a>
+            <div className="my-8">
+              <div className="relative inline-block h-8 w-8 overflow-hidden rounded-full align-middle md:h-12 md:w-12">
+                {post.author.image ? (
+                  <BlurImage
+                    alt={post.author.name ?? 'Author Avatar'}
+                    height={80}
+                    width={80}
+                    src={urlForImage(post.author.image)
+                      .width(80)
+                      .height(80)
+                      .url()}
+                  />
+                ) : (
+                  <div className="absolute flex h-full w-full select-none items-center justify-center bg-gray-100 text-4xl text-gray-500">
+                    ?
+                  </div>
+                )}
+              </div>
+              <div className="text-md ml-3 inline-block align-middle md:text-lg">
+                by <span className="font-semibold">{post?.author?.name}</span>
+              </div>
+            </div>
+          </a>
+        </Link>
+      </div>
+      <div className="lg:2/3 relative m-auto mb-10 h-80 w-full max-w-screen-lg overflow-hidden md:mb-20 md:h-150 md:w-5/6 md:rounded-2xl">
+        {post.mainImage ? (
+          <BlurImage
+            alt={post.mainImage.caption ?? 'Post image'}
+            layout="fill"
+            objectFit="cover"
+            placeholder="blur"
+            blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
+            src={urlForImage(post.mainImage).url()}
+          />
+        ) : (
+          <div className="absolute flex h-full w-full select-none items-center justify-center bg-gray-100 text-4xl text-gray-500">
+            ?
+          </div>
+        )}
+      </div>
+      <article className="prose-md prose prose-slate m-auto w-11/12 prose-a:text-indigo-600 hover:prose-a:text-indigo-500 dark:prose-invert dark:prose-a:text-sky-400 dark:hover:prose-a:text-sky-600 sm:prose-lg sm:w-3/4">
+        <PortableText value={post.body} />
       </article>
-    </>
+      {morePosts.length > 0 && (
+        <div className="relative mt-10 mb-20 sm:mt-20">
+          <div
+            className="absolute inset-0 flex items-center"
+            aria-hidden="true"
+          >
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-white px-2 text-sm dark:bg-slate-900">
+              Continue Reading
+            </span>
+          </div>
+        </div>
+      )}
+      {morePosts && (
+        <div className="mx-5 mb-20 grid max-w-screen-xl grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-2 lg:mx-12 xl:grid-cols-3 2xl:mx-auto">
+          {morePosts.map((data, index) => (
+            <BlogCard key={index} data={data} />
+          ))}
+        </div>
+      )}
+    </Layout>
   )
 }
 
-Article.Layout = Layout
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = await sanityClient.fetch(postSlugsQuery)
+
+  return {
+    paths: posts.map((slug: string) => ({ params: { slug } })),
+    fallback: true,
+  }
+}
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const topPages = await fetch(
-    'https://plausible.io/api/v1/stats/breakdown?site_id=redshirtsports.xyz&period=6mo&property=event:page&limit=5',
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.PLAUSIBLE_API_TOKEN}`,
-      },
-    }
-  )
-    .then(async (res) => res.json())
-    .then((res) =>
-      res.results
-        .filter((result: { page: string }) => result.page !== '/')
-        .map((result: { page: string }) => result.page.replace('/', ''))
-    )
-  const { post, morePosts, topPosts } = await getClient().fetch(postQuery, {
-    slug: params?.slug,
-    topPages: topPages,
-  })
+  if (!params) throw new Error('No path parameters found')
+
+  const { slug } = params
+  const { post, morePosts } = await sanityClient.fetch(postQuery, { slug })
 
   if (!post) {
     return {
       notFound: true,
+      revalidate: 10,
     }
   }
 
   return {
     props: {
       post,
-      morePosts: overlayDrafts(morePosts),
-      topPosts,
+      morePosts,
     },
-    revalidate: 1, // In seconds
+    revalidate: 3600,
   }
 }
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  const paths = await sanityClient.fetch(postSlugsQuery)
-
-  return {
-    paths: paths.map((slug: string) => ({ params: { slug } })),
-    fallback: 'blocking',
-  }
-}
-
-export default Article

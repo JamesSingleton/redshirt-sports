@@ -5,7 +5,16 @@ const postFields = `
   _updatedAt,
   title,
   publishedAt,
-  mainImage,
+  "mainImage": {
+    "caption": mainImage.caption,
+    "attribution": mainImage.attribution,
+    "asset": mainImage.asset->{ 
+      _id,
+      _type,
+      metadata,
+      url
+     }
+  },
   "categories": categories[]->title,
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, image, bio, twitterHandle},
@@ -39,29 +48,22 @@ const legalFields = `
 export const postQuery = groq`
   {
     'post': *[_type == "post" && slug.current == $slug] | order(_updatedAt desc)[0] {
-      ${postFields},
-      "otherAuthors": *[_type == "author" && _id != ^.author._ref]{
-        _id,
-        name,
-        'slug': slug.current,
-        role,
-        image
-      }
+      ${postFields}
     },
-    "morePosts": *[_type == "post" && slug.current != $slug] | order(publishedAt desc, _updatedAt desc)[0...4] {
+    "morePosts": *[_type == "post" && slug.current != $slug] | order(publishedAt desc, _updatedAt desc)[0...3] {
       _id,
       title,
       publishedAt,
-      mainImage,
-      categories,
-      'slug': slug.current,
-      "author": author->{name, 'slug': slug.current, image}
-    },
-    "topPosts": *[_type == "post" && slug.current in $topPages] {
-      _id,
-      title,
-      publishedAt,
-      mainImage,
+      "mainImage": {
+        "caption": mainImage.caption,
+        "attribution": mainImage.attribution,
+        "asset": mainImage.asset->{ 
+          _id,
+          _type,
+          metadata,
+          url
+         }
+      },
       categories,
       'slug': slug.current,
       "author": author->{name, 'slug': slug.current, image}
@@ -130,6 +132,24 @@ export const allFCSPosts = groq`
   }
 `
 
+const ITEMS_PER_PAGE = 10
+const slice = `[($pageIndex * ${ITEMS_PER_PAGE})...($pageIndex + 1) * ${ITEMS_PER_PAGE}]`
+const sliceWithParam = `[($pageIndex * 10)...($pageIndex + 1) * 10]`
+
+export const fcsPostsQuery = groq`
+  {
+    "posts": *[_type == "post" && 'FCS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc)[($pageIndex * ${ITEMS_PER_PAGE})...($pageIndex + 1) * ${ITEMS_PER_PAGE}]{
+      ${postFields}
+    },
+    "pagination": {
+      "totalPages": round(count(${allFCSPosts}._id) / ${ITEMS_PER_PAGE}),
+      "pageNumber": $pageIndex + 1
+    }
+  }
+`
+
+export const totalFCSPosts = groq`count(*[_type == "post" && 'FCS' in categories[]->title ])`
+
 export const allFBSPosts = groq`
 *[_type == "post" && 'FBS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc){
     ${postFields}
@@ -138,26 +158,56 @@ export const allFBSPosts = groq`
 
 export const homePageQuery = groq`
   {
-    'heroPosts': *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0..2] {
+    'heroPost': *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0] {
       _id,
       title,
-      mainImage,
+      publishedAt,
+      "mainImage": {
+        "caption": mainImage.caption,
+        "attribution": mainImage.attribution,
+        "asset": mainImage.asset->{ 
+          _id,
+          _type,
+          metadata,
+          url
+         }
+      },
       "categories": categories[]->title,
       "slug": slug.current,
+      excerpt,
+      "author": author->{name, 'slug': slug.current, image},
     },
     "featuredArticle": *[_type == "post" && featuredArticle == true ][0]{
       _id,
       title,
-      mainImage,
+      "mainImage": {
+        "caption": mainImage.caption,
+        "attribution": mainImage.attribution,
+        "asset": mainImage.asset->{ 
+          _id,
+          _type,
+          metadata,
+          url
+         }
+      },
       "categories": categories[]->title,
       "slug": slug.current,
       featuredArticle,
     },
-    "latestPosts": *[_type == "post"] | order(publishedAt desc, _updatedAt desc)[4..9] {
+    "latestPosts": *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..3] {
       _id,
       title,
       publishedAt,
-      mainImage,
+      "mainImage": {
+        "caption": mainImage.caption,
+        "attribution": mainImage.attribution,
+        "asset": mainImage.asset->{ 
+          _id,
+          _type,
+          metadata,
+          url
+         }
+      },
       "categories": categories[]->title,
       "slug": slug.current,
       "author": author->{name, 'slug': slug.current, image},

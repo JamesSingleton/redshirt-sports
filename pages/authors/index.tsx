@@ -5,7 +5,7 @@ import { NextSeo } from 'next-seo'
 import { usePlausible } from 'next-plausible'
 import { Layout } from '@components/common'
 import { getClient } from '@lib/sanity.server'
-import { allAuthors } from '@lib/sanityGroqQueries'
+import { allAuthors } from '@lib/queries'
 import { urlForImage } from '@lib/sanity'
 import type { AuthorTypes } from '@lib/types/author'
 

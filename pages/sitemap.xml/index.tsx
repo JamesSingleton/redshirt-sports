@@ -1,6 +1,6 @@
 import { GetServerSideProps } from 'next'
 import { sanityClient } from '@lib/sanity.server'
-import { allAuthors, allPosts } from '@lib/sanityGroqQueries'
+import { allAuthors, allPosts } from '@lib/queries'
 import type { Post } from '@lib/types/post'
 import type { AuthorTypes } from '@lib/types/author'
 

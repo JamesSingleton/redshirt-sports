@@ -4,7 +4,7 @@ import { Layout } from '@components/common'
 import { Card } from '@components/ui'
 import { CategoryHeader, EmptyState } from '@components/category'
 import { getClient } from '@lib/sanity.server'
-import { allFBSPosts } from '@lib/sanityGroqQueries'
+import { allFBSPosts } from '@lib/queries'
 import type { Post } from '@lib/types/post'
 
 interface fbsProps {

@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
 import { getClient } from '@lib/sanity.server'
-import { getAdvertisingPage } from '@lib/sanityGroqQueries'
+import { getAdvertisingPage } from '@lib/queries'
 import { PortableText } from '@lib/sanity'
 
 interface AdvertisingProps {
