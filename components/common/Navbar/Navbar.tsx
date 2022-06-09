@@ -14,7 +14,7 @@ import Logo from '../../../public/images/icons/RS_red.svg'
 const navigation = [
   { name: 'FCS', href: '/fcs' },
   { name: 'Meet the Team', href: '/authors' },
-  { name: 'About', href: '/about' },
+  { name: 'About', href: '/about-us' },
   { name: 'Contact Us', href: '/contact-us' },
 ]
 

@@ -6,6 +6,7 @@ import { usePlausible } from 'next-plausible'
 import { urlForImage } from '@lib/sanity'
 import { Post } from '@lib/types/post'
 import Badge from '../Badge'
+import BlurImage from '../BlurImage'
 
 interface CardProps {
   post: Post
@@ -34,7 +35,7 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
               data-nc-id="PostFeaturedMedia"
             >
               <div className="nc-NcImage absolute inset-0" data-nc-id="NcImage">
-                <Image
+                <BlurImage
                   src={urlForImage(post.mainImage).width(356).fit('min').url()!}
                   className="h-full w-full object-cover"
                   alt={post.mainImage.caption}
@@ -42,6 +43,7 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
                   height={214}
                   layout="responsive"
                   sizes="50vw"
+                  blurDataURL={post.mainImage.asset.metadata.lqip}
                 />
               </div>
               <div className="absolute inset-0"></div>
@@ -60,7 +62,7 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
             <div className="inline-flex flex-wrap items-center text-xs leading-none">
               <div className="relative flex items-center space-x-2">
                 <div className="relative inline-flex overflow-hidden rounded-full shadow-inner ring-1 ring-white dark:ring-neutral-900">
-                  <Image
+                  <BlurImage
                     src={
                       urlForImage(post.author.image)
                         .width(28)
@@ -72,6 +74,7 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
                     height={28}
                     width={28}
                     objectFit="cover"
+                    blurDataURL={post.mainImage.asset.metadata.lqip}
                   />
                 </div>
                 <span className="block font-medium text-slate-900 dark:text-slate-50">

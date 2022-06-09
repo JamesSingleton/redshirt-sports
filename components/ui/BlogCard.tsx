@@ -31,7 +31,7 @@ export default function BlogCard({ data }: BlogCardProps) {
             </div>
           )}
           <div className=" h-36 border-t border-slate-200 py-5 px-5">
-            <h3 className="font-cal text-xl tracking-wide text-slate-900">
+            <h3 className="font-cal text-xl tracking-wide text-slate-900 line-clamp-2">
               {data.title}
             </h3>
             <p className="text-md my-2 truncate italic text-slate-600">

@@ -1,14 +1,19 @@
 import { Layout } from '@components/common'
 import { totalFCSPosts, fcsPostsQuery } from '@lib/queries'
 import { getClient } from '@lib/sanity.server'
-import { Card } from '@components/ui'
+import BlogCard from '@components/ui/BlogCard'
 import { CategoryHeader } from '@components/category'
 
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { Post } from '@types'
+import { ParsedUrlQuery } from 'querystring'
 
 interface fcsProps {
   posts: Post[]
+}
+
+interface Params extends ParsedUrlQuery {
+  page: string
 }
 
 export default function FCSIndexPage({ posts }: fcsProps) {
@@ -21,16 +26,9 @@ export default function FCSIndexPage({ posts }: fcsProps) {
             subHeading="NCAA Division 1 Football Championship Subdivision"
           />
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid w-full grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
           {posts &&
-            posts.map((post) => (
-              <Card
-                key={post.title}
-                post={post}
-                location="FCS"
-                showExcerpt={true}
-              />
-            ))}
+            posts.map((post) => <BlogCard key={post.title} data={post} />)}
         </div>
       </div>
     </Layout>
@@ -53,9 +51,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 }
 
-export const getStaticProps: GetStaticProps = async ({ params: { page } }) => {
+export const getStaticProps: GetStaticProps = async (context) => {
+  const params = context.params as Params
+  const { page } = params
   const { posts } = await getClient().fetch(fcsPostsQuery, {
-    pageIndex: page - 1,
+    pageIndex: parseInt(page) - 1,
   })
 
   return {
