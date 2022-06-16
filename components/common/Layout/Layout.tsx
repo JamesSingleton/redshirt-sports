@@ -17,7 +17,7 @@ export default function Layout({ meta, children, subdomain }: LayoutProps) {
   return (
     <>
       <Navbar />
-      <main className="mt-20">{children}</main>
+      <>{children}</>
       <Footer />
     </>
   )

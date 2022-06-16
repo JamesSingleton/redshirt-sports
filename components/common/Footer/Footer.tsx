@@ -2,6 +2,7 @@ import { SVGProps } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePlausible } from 'next-plausible'
+import { HorizontalLogo } from '../Logo'
 
 const navigation = {
   football: [
@@ -45,13 +46,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8 xl:col-span-1">
-            <Image
-              className="h-10"
-              src="/images/icons/RS_red.svg"
-              alt="Redshirt Sports Logo"
-              width="74"
-              height="74"
-            />
+            <HorizontalLogo className="h-10" />
             <p className="text-base">Your go to source for all things FCS.</p>
             <div className="flex space-x-6">
               {navigation.social.map((item) => (

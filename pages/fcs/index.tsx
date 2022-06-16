@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 import { Layout } from '@components/common'
-import { Card } from '@components/ui'
+import { Card, Pagination } from '@components/ui'
 import { CategoryHeader, EmptyState } from '@components/category'
 import { getClient } from '@lib/sanity.server'
 import { allFCSPosts, fcsPostsQuery } from '@lib/queries'
@@ -34,13 +34,11 @@ const FCS = ({ posts }: fcsProps) => {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {posts &&
             posts.map((post) => (
-              <Card
-                key={post.title}
-                post={post}
-                location="FCS"
-                showExcerpt={true}
-              />
+              <Card key={post.title} post={post} location="FCS" showExcerpt={true} />
             ))}
+        </div>
+        <div className="mt-10">
+          <Pagination />
         </div>
       </div>
     </Layout>

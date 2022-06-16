@@ -1,218 +1,226 @@
-import { Fragment, useState, useEffect, useCallback } from 'react'
-import Image from 'next/image'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { Menu, Popover, Transition } from '@headlessui/react'
-import { SearchIcon } from '@heroicons/react/solid'
-import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
-import cn from 'clsx'
-import { usePlausible } from 'next-plausible'
+import Router from 'next/router'
+import { Dialog } from '@headlessui/react'
+import { DotsVerticalIcon, XIcon, SearchIcon } from '@heroicons/react/outline'
+import clsx from 'clsx'
 
-import { ThemeToggle, ThemeSelect } from '../ThemeToggle/ThemeToggle'
-import Logo from '../../../public/images/icons/RS_red.svg'
+import { SmallLogo, HorizontalLogo } from '../Logo'
+import { ThemeSelect, ThemeToggle } from '../ThemeToggle/ThemeToggle'
 
-const navigation = [
-  { name: 'FCS', href: '/fcs' },
-  { name: 'Meet the Team', href: '/authors' },
-  { name: 'About', href: '/about-us' },
-  { name: 'Contact Us', href: '/contact-us' },
-]
-
-const userNavigation = [
-  { name: 'Your Profile', href: '#' },
-  { name: 'Settings', href: '#' },
-  { name: 'Sign out', href: '#' },
-]
-
-const user = {
-  name: 'Whitney Francis',
-  email: 'whitney@example.com',
-  imageUrl:
-    'https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
+export function NavItems() {
+  return (
+    <>
+      <li>
+        <Link href="/fcs">
+          <a className="hover:text-sky-500 dark:hover:text-sky-400">FCS</a>
+        </Link>
+      </li>
+      <li>
+        <Link href="/authors">
+          <a className="hover:text-sky-500 dark:hover:text-sky-400">Meet the Team</a>
+        </Link>
+      </li>
+      <li>
+        <Link href="/about-us">
+          <a className="hover:text-sky-500 dark:hover:text-sky-400">About</a>
+        </Link>
+      </li>
+      <li>
+        <Link href="/contact-us">
+          <a className="hover:text-sky-500 dark:hover:text-sky-400">Contact Us</a>
+        </Link>
+      </li>
+    </>
+  )
 }
 
-const Navbar = () => {
-  const { asPath } = useRouter()
-  const plausible = usePlausible()
-  const [scrolled, setScrolled] = useState(false)
-
-  const onScroll = useCallback(() => {
-    setScrolled(window.scrollY > 20)
-  }, [])
+export const NavPopover = ({ display = 'md:hidden', className, ...props }) => {
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [onScroll])
+    if (!isOpen) return
+
+    function handleRouteChange() {
+      setIsOpen(false)
+    }
+
+    Router.events.on('routeChangeComplete', handleRouteChange)
+
+    return () => {
+      Router.events.off('routeChangeComplete', handleRouteChange)
+    }
+  }, [isOpen])
 
   return (
-    <header
-      className={`fixed w-full ${
-        scrolled ? 'drop-shadow-md' : ''
-      } ease top-0 left-0 right-0 z-30 h-16 bg-white transition-all duration-150`}
-    >
-      <div className="mx-auto max-w-none px-2 sm:px-4 lg:px-8">
-        <Popover className="flex h-16 justify-between">
-          <div className="flex px-2 lg:px-0">
-            <div className="flex w-auto flex-shrink-0 items-center">
-              <Link href="/" prefetch={false}>
+    <div className={clsx(className, display)} {...props}>
+      <button
+        type="button"
+        className="flex h-8 w-8 items-center justify-center text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300"
+        onClick={() => setIsOpen(true)}
+      >
+        <span className="sr-only">Navigation</span>
+        <DotsVerticalIcon className="h-6 w-6" />
+      </button>
+      <Dialog
+        as="div"
+        className={clsx('fixed inset-0 z-50', display)}
+        open={isOpen}
+        onClose={setIsOpen}
+      >
+        <Dialog.Overlay className="fixed inset-0 bg-black/20 backdrop-blur-sm dark:bg-slate-900/80" />
+        <div className="dark:highlight-white/5 fixed top-4 right-4 w-full max-w-xs rounded-lg bg-white p-6 text-base font-semibold text-slate-900 shadow-lg dark:bg-slate-800 dark:text-slate-400">
+          <button
+            type="button"
+            className="absolute top-5 right-5 flex h-8 w-8 items-center justify-center text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300"
+            onClick={() => setIsOpen(false)}
+          >
+            <span className="sr-only">Close navigation</span>
+            <XIcon className="h-6 w-6 overflow-visible" />
+          </button>
+          <ul className="space-y-6">
+            <NavItems />
+          </ul>
+          <div className="mt-6 border-t border-slate-200 pt-6 dark:border-slate-200/10">
+            <ThemeSelect />
+          </div>
+        </div>
+      </Dialog>
+    </div>
+  )
+}
+
+const Navbar = ({ hasNav = false, navIsOpen, onNavToggle, title, section }) => {
+  const [isOpaque, setIsOpaque] = useState(false)
+
+  useEffect(() => {
+    let offset = 50
+    function onScroll() {
+      if (!isOpaque && window.scrollY > offset) {
+        setIsOpaque(true)
+      } else if (isOpaque && window.scrollY <= offset) {
+        setIsOpaque(false)
+      }
+    }
+
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', onScroll, { passive: true })
+    }
+  }, [isOpaque])
+
+  return (
+    <>
+      <div
+        className={clsx(
+          'sticky top-0 z-40 w-full flex-none backdrop-blur transition-colors duration-500 dark:border-slate-50/[0.06] lg:z-50 lg:border-b lg:border-slate-900/10',
+          isOpaque
+            ? 'supports-backdrop-blur:bg-white/95 bg-white dark:bg-slate-900/75'
+            : 'supports-backdrop-blur:bg-white/60 bg-white/95 dark:bg-transparent'
+        )}
+      >
+        <div className="max-w-8xl mx-auto">
+          <div
+            className={clsx(
+              'border-b border-slate-900/10 py-4 dark:border-slate-300/10 lg:border-0 lg:px-8',
+              hasNav ? 'mx-4 lg:mx-0' : 'px-4'
+            )}
+          >
+            <div className="relative flex items-center">
+              <Link href="/">
                 <a
-                  onClick={() =>
-                    plausible('clickOnNavbar', {
-                      props: {
-                        item: 'Home',
-                      },
-                    })
-                  }
+                  className="mr-3 w-auto flex-none overflow-hidden"
+                  onContextMenu={(e) => {
+                    e.preventDefault()
+                    Router.push('/brand')
+                  }}
                 >
-                  <Image
-                    src="/images/icons/RS_red.svg"
-                    alt="Redshirt Sports Logo"
-                    width={64}
-                    height={64}
-                  />
+                  <span className="sr-only">Tailwind CSS home page</span>
+                  <SmallLogo className="h-8 w-auto" />
                 </a>
               </Link>
-            </div>
-            <nav
-              aria-label="Global"
-              className="hidden lg:ml-6 lg:flex lg:items-center lg:space-x-4"
-            >
-              {navigation.map(({ name, href }) => (
-                <Link key={name} href={href} prefetch={false}>
+              <div className="relative ml-auto hidden items-center lg:flex">
+                <nav className="text-sm font-semibold leading-6 text-slate-700 dark:text-slate-200">
+                  <ul className="flex space-x-8">
+                    <NavItems />
+                  </ul>
+                </nav>
+                <div className="ml-6 flex items-center border-l border-slate-200 pl-6 dark:border-slate-800">
+                  <ThemeToggle panelClassName="mt-8" />
                   <a
-                    onClick={() =>
-                      plausible('clickOnNavbar', {
-                        props: {
-                          item: name,
-                        },
-                      })
-                    }
-                    className="px-3 py-2 text-base font-medium text-slate-900"
+                    href="https://github.com/tailwindlabs/tailwindcss"
+                    className="ml-6 block text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
                   >
-                    {name}
+                    <span className="sr-only">Tailwind CSS on GitHub</span>
+                    <svg
+                      viewBox="0 0 16 16"
+                      className="h-5 w-5"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                    </svg>
                   </a>
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end">
-            <div className="w-full max-w-lg lg:max-w-xs">
-              <label htmlFor="search" className="sr-only">
-                Search
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <SearchIcon
-                    className="h-5 w-5 text-slate-900"
-                    aria-hidden="true"
-                  />
                 </div>
-                <input
-                  id="search"
-                  name="search"
-                  className="block w-full rounded-md border border-slate-900 bg-white py-2 pl-10 pr-3 leading-5 placeholder-slate-900 shadow-sm focus:border-blue-600 focus:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-600 sm:text-sm"
-                  placeholder="Search"
-                  type="search"
-                />
               </div>
+              <button className="-my-1 ml-auto flex h-8 w-8 items-center justify-center text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 lg:hidden">
+                <span className="sr-only">Search</span>
+                <SearchIcon className="h-6 w-6" />
+              </button>
+              <NavPopover className="-my-1 ml-2" display="lg:hidden" />
             </div>
           </div>
-          <div className="flex items-center lg:hidden">
-            {/* Mobile menu button */}
-            <Popover.Button className="inline-flex items-center justify-center rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
-              <span className="sr-only">Open main menu</span>
-              <MenuIcon className="block h-6 w-6" aria-hidden="true" />
-            </Popover.Button>
-          </div>
-          <Transition.Root as={Fragment}>
-            <div className="lg:hidden">
-              <Transition.Child
-                as={Fragment}
-                enter="duration-150 ease-out"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="duration-150 ease-in"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
+          {hasNav && (
+            <div className="flex items-center border-b border-slate-900/10 p-4 dark:border-slate-50/[0.06] lg:hidden">
+              <button
+                type="button"
+                onClick={() => onNavToggle(!navIsOpen)}
+                className="text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300"
               >
-                <Popover.Overlay
-                  className="fixed inset-0 z-20 bg-black bg-opacity-25"
-                  aria-hidden="true"
-                />
-              </Transition.Child>
-
-              <Transition.Child
-                as={Fragment}
-                enter="duration-150 ease-out"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="duration-150 ease-in"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Popover.Panel
-                  focus
-                  className="absolute top-0 right-0 z-30 w-full max-w-none origin-top transform p-2 transition"
-                >
-                  <div className="divide-y divide-gray-200 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-                    <div className="pt-3 pb-2">
-                      <div className="flex items-center justify-between px-4">
-                        <div>
-                          <Image
-                            src="/images/icons/RS_red.svg"
-                            alt="Redshirt Sports Logo"
-                            width={64}
-                            height={64}
-                          />
-                        </div>
-                        <div className="-mr-2">
-                          <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
-                            <span className="sr-only">Close menu</span>
-                            <XIcon className="h-6 w-6" aria-hidden="true" />
-                          </Popover.Button>
-                        </div>
-                      </div>
-                      <div className="mt-3 space-y-1 px-2">
-                        {navigation.map((item) => (
-                          <a
-                            key={item.name}
-                            href={item.href}
-                            className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
-                          >
-                            {item.name}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                    {/* <div className="px-5 pt-4 pb-2">
-                      <ThemeSelect />
-                    </div> */}
-                  </div>
-                </Popover.Panel>
-              </Transition.Child>
+                <span className="sr-only">Navigation</span>
+                <svg width="24" height="24">
+                  <path
+                    d="M5 6h14M5 12h14M5 18h14"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+              {title && (
+                <ol className="ml-4 flex min-w-0 whitespace-nowrap text-sm leading-6">
+                  {section && (
+                    <li className="flex items-center">
+                      {section}
+                      <svg
+                        width="3"
+                        height="6"
+                        aria-hidden="true"
+                        className="mx-3 overflow-visible text-slate-400"
+                      >
+                        <path
+                          d="M0 0L3 3L0 6"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </li>
+                  )}
+                  <li className="truncate font-semibold text-slate-900 dark:text-slate-200">
+                    {title}
+                  </li>
+                </ol>
+              )}
             </div>
-          </Transition.Root>
-          <div className="hidden lg:ml-4 lg:flex lg:items-center">
-            <a
-              href="https://twitter.com/_redshirtsports"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-900"
-            >
-              <span className="sr-only">Redshirt Sports Twitter Link</span>
-              <svg fill="currentColor" viewBox="0 0 24 24" className="h-6 w-6">
-                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-              </svg>
-            </a>
-
-            {/* <div className="relative ml-4 flex-shrink-0">
-              <ThemeToggle />
-            </div> */}
-          </div>
-        </Popover>
+          )}
+        </div>
       </div>
-    </header>
+    </>
   )
 }
 
