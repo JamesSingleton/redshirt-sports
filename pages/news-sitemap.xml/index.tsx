@@ -10,8 +10,6 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const baseUrl = 'https://www.redshirtsports.xyz'
   const posts = await sanityClient.fetch(allPosts)
 
-  posts.map((post) => console.log(post._id, post.title))
-
   const postsSitemap = posts.map(
     (post: Post) => `
       <loc>${baseUrl}/${post.slug}</loc>
