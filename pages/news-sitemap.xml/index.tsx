@@ -2,12 +2,15 @@ import { GetServerSideProps } from 'next'
 import { sanityClient } from '@lib/sanity.server'
 import { allPosts } from '@lib/sanityGroqQueries'
 import type { Post } from '@lib/types/post'
+import toPlainText from '@lib/toPlainText'
 
 const NewsSitemap = () => {}
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const baseUrl = 'https://www.redshirtsports.xyz'
   const posts = await sanityClient.fetch(allPosts)
+
+  posts.map((post) => console.log(post._id, post.title))
 
   const postsSitemap = posts.map(
     (post: Post) => `
@@ -19,8 +22,8 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         </news:publication>
         <news:genres>UserGenerated</news:genres>
         <news:publication_date>${post.publishedAt}</news:publication_date>
-        <news:title>${post.title}</news:title>
         <news:keywords>sports, college football</news:keywords>
+        <news:title>${post.title.replace('&', '&amp;')}</news:title>
       </news:news>
     `
   )
