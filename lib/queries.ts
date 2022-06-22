@@ -176,6 +176,7 @@ export const homePageQuery = groq`
       "slug": slug.current,
       excerpt,
       "author": author->{name, 'slug': slug.current, image},
+      "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 )
     },
     "featuredArticle": *[_type == "post" && featuredArticle == true ][0]{
       _id,
@@ -194,7 +195,7 @@ export const homePageQuery = groq`
       "slug": slug.current,
       featuredArticle,
     },
-    "latestPosts": *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..3] {
+    "latestPosts": *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..5] {
       _id,
       title,
       publishedAt,

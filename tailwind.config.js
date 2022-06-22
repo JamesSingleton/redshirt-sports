@@ -59,6 +59,9 @@ module.exports = {
       animation: {
         wiggle: 'wiggle 0.8s both',
       },
+      textDecorationThickness: {
+        3: '3px',
+      },
     },
   },
   plugins: [

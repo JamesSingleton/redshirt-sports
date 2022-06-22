@@ -23,7 +23,7 @@ class MyDocument extends Document {
             }}
           />
         </Head>
-        <body className="loading bg-white text-slate-600 antialiased dark:bg-slate-900 dark:text-slate-200">
+        <body className="loading bg-white text-slate-600 antialiased">
           <Main />
           <NextScript />
         </body>
