@@ -3,9 +3,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { parseISO, format } from 'date-fns'
 import { usePlausible } from 'next-plausible'
-import { Post } from '@lib/types/post'
 import { urlForImage } from '@lib/sanity'
 import { Badge } from '@components/ui'
+
+import type { Post } from '@types'
 
 interface LargeCardProps {
   post: Post
@@ -44,9 +45,7 @@ const LargeCard: FC<LargeCardProps> = ({ post }) => {
             <div className="space-y-3">
               {post.categories.map((category) => {
                 if (category === 'FCS' || category === 'FBS') {
-                  return (
-                    <Badge key={`${category}_${post.title}`}>{category}</Badge>
-                  )
+                  return <Badge key={`${category}_${post.title}`}>{category}</Badge>
                 }
               })}
               <h2 className="block text-lg font-semibold text-slate-900 transition-colors line-clamp-2 dark:text-slate-50 sm:text-2xl">
@@ -57,13 +56,7 @@ const LargeCard: FC<LargeCardProps> = ({ post }) => {
             <div className="relaative relative my-4 inline-flex items-center">
               <div className="relative mr-3 inline-flex overflow-hidden rounded-full shadow-inner">
                 <Image
-                  src={
-                    urlForImage(post.author.image)
-                      .width(40)
-                      .height(40)
-                      .fit('min')
-                      .url()!
-                  }
+                  src={urlForImage(post.author.image).width(40).height(40).fit('min').url()!}
                   className="absolute inset-0 h-full w-full object-cover"
                   alt={`Profile image of author ${post.author.name}`}
                   height={40}
@@ -75,9 +68,7 @@ const LargeCard: FC<LargeCardProps> = ({ post }) => {
                   {post.author.name}
                 </h2>
                 <span className="mt-1 flex items-center text-xs">
-                  <time dateTime={post.publishedAt}>
-                    {format(date, 'LLLL	d, yyyy')}
-                  </time>
+                  <time dateTime={post.publishedAt}>{format(date, 'LLLL	d, yyyy')}</time>
                 </span>
               </div>
             </div>

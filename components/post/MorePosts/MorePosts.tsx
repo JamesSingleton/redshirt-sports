@@ -1,6 +1,7 @@
 import { FC } from 'react'
-import type { Post } from '@lib/types/post'
 import { Card } from '@components/ui'
+
+import type { Post } from '@types'
 
 interface MorePostsProps {
   morePosts: Post[]
@@ -14,10 +15,7 @@ const MorePosts: FC<MorePostsProps> = ({ morePosts }) => {
     >
       <div className="container mx-auto px-4 xl:px-32">
         <div className="relative mb-10 flex max-w-2xl flex-col justify-between text-slate-900 dark:text-slate-50 sm:flex-row sm:items-end">
-          <h2
-            id="related-posts-heading"
-            className="text-3xl font-semibold md:text-4xl"
-          >
+          <h2 id="related-posts-heading" className="text-3xl font-semibold md:text-4xl">
             Related Posts
           </h2>
         </div>

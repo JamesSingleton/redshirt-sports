@@ -16,7 +16,7 @@ interface LayoutProps extends WithChildren {
 export default function Layout({ meta, children, subdomain }: LayoutProps) {
   return (
     <>
-      {/* <Navbar /> */}
+      <Navbar />
       <>{children}</>
       <Footer />
     </>

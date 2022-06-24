@@ -1,7 +1,8 @@
 import { FC } from 'react'
-import { Post } from '@lib/types/post'
 import LargeCard from './LargeCard'
 import { Card } from '@components/ui'
+
+import type { Post } from '@types'
 
 interface LatestArticlesProps {
   posts: Post[]
@@ -20,8 +21,7 @@ const LatestArticles: FC<LatestArticlesProps> = ({ posts }) => {
               Latest Articles
             </h2>
             <span className="mt-2 block text-base font-normal sm:text-xl md:mt-3">
-              Discover the latest articles written by the members of Redshirt
-              Sports
+              Discover the latest articles written by the members of Redshirt Sports
             </span>
           </div>
         </div>
@@ -29,11 +29,7 @@ const LatestArticles: FC<LatestArticlesProps> = ({ posts }) => {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <div className="grid gap-6">
           {firstTwoArticles.map((article) => (
-            <Card
-              key={article.title}
-              post={article}
-              location="Home Page Latest Articles (sm)"
-            />
+            <Card key={article.title} post={article} location="Home Page Latest Articles (sm)" />
           ))}
         </div>
         <div className="lg:col-span-2">
@@ -41,11 +37,7 @@ const LatestArticles: FC<LatestArticlesProps> = ({ posts }) => {
         </div>
         <div className="grid grid-cols-1 gap-6 md:col-span-3 md:grid-cols-2 xl:col-span-1 xl:grid-cols-1">
           {lastTwoArticles.map((article) => (
-            <Card
-              key={article.title}
-              post={article}
-              location="Home Page Latest Articles (sm)"
-            />
+            <Card key={article.title} post={article} location="Home Page Latest Articles (sm)" />
           ))}
         </div>
       </div>

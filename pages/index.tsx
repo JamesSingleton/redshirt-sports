@@ -26,7 +26,7 @@ export default function Home({ heroPost, latestPosts, featuredArticle }: HomePag
       <NextSeo canonical={SITE_URL} />
       <Layout>
         <main>
-          <section className="pt-12 sm:pt-16 lg:pt-20">
+          <section className="bg-slate-50 pt-12 sm:pt-16 lg:pt-20">
             <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:flex lg:max-w-screen-2xl lg:items-start lg:px-8">
               <article className="relative lg:sticky lg:top-8 lg:w-1/2">
                 <Link href={`/${heroPost.slug}`}>
@@ -152,6 +152,13 @@ export default function Home({ heroPost, latestPosts, featuredArticle }: HomePag
                   ))}
                 </div>
               </div>
+            </div>
+          </section>
+          <section className="w-full bg-slate-50 pb-14 pt-12 md:py-20 lg:pt-24">
+            <div className="mx-auto max-w-xl px-4 sm:max-w-3xl sm:px-6 md:px-8 lg:max-w-screen-2xl">
+              <h2 className="relative border-b border-slate-300 pb-2 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-[#DC2727]">
+                Trending topics
+              </h2>
             </div>
           </section>
         </main>

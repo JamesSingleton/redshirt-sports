@@ -5,7 +5,8 @@ import { Card, Pagination } from '@components/ui'
 import { CategoryHeader, EmptyState } from '@components/category'
 import { getClient } from '@lib/sanity.server'
 import { allFCSPosts, fcsPostsQuery } from '@lib/queries'
-import type { Post } from '@lib/types/post'
+
+import type { Post } from '@types'
 
 interface fcsProps {
   posts: Post[]

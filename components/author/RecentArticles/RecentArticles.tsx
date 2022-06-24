@@ -1,6 +1,7 @@
 import { FC } from 'react'
-import type { Post } from '@lib/types/post'
 import { Card } from '@components/ui'
+
+import type { Post } from '@types'
 
 interface RecentArticlesProps {
   posts: Post[]
@@ -23,11 +24,7 @@ const RecentArticles: FC<RecentArticlesProps> = ({ posts, authorName }) => {
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {posts.map((post) => (
-          <Card
-            post={post}
-            key={post.title}
-            location="Authors Latest Articles"
-          />
+          <Card post={post} key={post.title} location="Authors Latest Articles" />
         ))}
       </div>
     </div>

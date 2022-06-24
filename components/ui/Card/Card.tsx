@@ -4,9 +4,10 @@ import Image from 'next/image'
 import { parseISO, format } from 'date-fns'
 import { usePlausible } from 'next-plausible'
 import { urlForImage } from '@lib/sanity'
-import { Post } from '@lib/types/post'
 import Badge from '../Badge'
 import BlurImage from '../BlurImage'
+
+import type { Post } from '@types'
 
 interface CardProps {
   post: Post
@@ -52,9 +53,7 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
           <div className="absolute inset-x-3 top-3">
             {post.categories.map((category) => {
               if (category === 'FCS' || category === 'FBS') {
-                return (
-                  <Badge key={`${category}_${post.title}`}>{category}</Badge>
-                )
+                return <Badge key={`${category}_${post.title}`}>{category}</Badge>
               }
             })}
           </div>
@@ -63,13 +62,7 @@ const Card: FC<CardProps> = ({ post, location, showExcerpt }) => {
               <div className="relative flex items-center space-x-2">
                 <div className="relative inline-flex overflow-hidden rounded-full shadow-inner ring-1 ring-white dark:ring-neutral-900">
                   <BlurImage
-                    src={
-                      urlForImage(post.author.image)
-                        .width(28)
-                        .height(28)
-                        .fit('min')
-                        .url()!
-                    }
+                    src={urlForImage(post.author.image).width(28).height(28).fit('min').url()!}
                     alt={`Profile image of author ${post.author.name}`}
                     height={28}
                     width={28}

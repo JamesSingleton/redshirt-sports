@@ -1,4 +1,4 @@
-import type { Post } from './post'
+import type { Post } from '@types'
 
 export type AuthorImage = {
   url: string

@@ -5,7 +5,8 @@ import { Card } from '@components/ui'
 import { CategoryHeader, EmptyState } from '@components/category'
 import { getClient } from '@lib/sanity.server'
 import { allFBSPosts } from '@lib/queries'
-import type { Post } from '@lib/types/post'
+
+import type { Post } from '@types'
 
 interface fbsProps {
   fbsPosts: Post[]
@@ -34,12 +35,7 @@ const FBS = ({ fbsPosts }: fbsProps) => {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {fbsPosts &&
             fbsPosts.map((post) => (
-              <Card
-                key={post.title}
-                post={post}
-                location="FBS"
-                showExcerpt={true}
-              />
+              <Card key={post.title} post={post} location="FBS" showExcerpt={true} />
             ))}
         </div>
       </div>
