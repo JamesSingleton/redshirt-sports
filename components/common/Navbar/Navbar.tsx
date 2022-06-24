@@ -5,6 +5,7 @@ import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { SearchIcon } from '@heroicons/react/solid'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
+import { HorizontalLogo, SmallLogo } from '../Logo'
 
 const navigation = [
   { name: 'FCS', href: '/fcs' },
@@ -22,16 +23,16 @@ const Navbar = () => {
             <div className="flex h-16 justify-between">
               <div className="flex px-2 lg:px-0">
                 <div className="flex flex-shrink-0 items-center">
-                  <img
-                    className="block h-8 w-auto lg:hidden"
-                    src="/images/icons/RS_red.svg"
-                    alt="Workflow"
-                  />
-                  <img
-                    className="hidden h-8 w-auto lg:block"
-                    src="/images/icons/RS_red_horizontal.svg"
-                    alt="Workflow"
-                  />
+                  <Link href="/" prefetch={false}>
+                    <a className="block h-8 w-auto lg:hidden">
+                      <SmallLogo className="h-8 w-auto" />
+                    </a>
+                  </Link>
+                  <Link href="/" prefetch={false}>
+                    <a className="hidden h-8 w-auto lg:block">
+                      <HorizontalLogo className="h-8" />
+                    </a>
+                  </Link>
                 </div>
                 <div className="hidden lg:ml-6 lg:flex lg:space-x-8">
                   {navigation.map(({ name, href }) => (
