@@ -115,7 +115,18 @@ export const allPosts = groq`
   _id,
   'slug': slug.current,
   publishedAt,
-  title
+  title,
+  "mainImage": {
+    "caption": mainImage.caption,
+    "attribution": mainImage.attribution,
+    "asset": mainImage.asset->{ 
+      _id,
+      _type,
+      metadata,
+      url
+     }
+  },
+  "author": author->{name, 'slug': slug.current, image, bio, twitterHandle},
 }
 `
 
