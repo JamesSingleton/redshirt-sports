@@ -9,20 +9,20 @@ import type { Post } from '@types'
 import LatestStory from './LatestStory'
 
 interface HeroProps {
-  heroPost: Post
-  latestPosts: Post[]
+  mainArticle: Post
+  recentArticles: Post[]
 }
-const Hero: FC<HeroProps> = ({ heroPost, latestPosts }) => {
+const Hero: FC<HeroProps> = ({ mainArticle, recentArticles }) => {
   return (
     <section className="bg-slate-50 pt-12 sm:pt-16 lg:pt-20">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:flex lg:max-w-screen-2xl lg:items-start lg:px-8">
-        <LatestStory post={heroPost} />
+        <LatestStory post={mainArticle} />
         <div className="mt-12 sm:mt-16 lg:ml-12 lg:mt-0 lg:w-1/2 xl:ml-16">
           <h2 className="relative border-b border-slate-300 pb-2 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-[#DC2727]">
             Recent stories
           </h2>
           <div className="gird divide-y lg:grid-cols-2 lg:gap-5 xl:grid-cols-1">
-            {latestPosts.map((post) => (
+            {recentArticles.map((post) => (
               <article
                 className="py-8 md:flex lg:flex-col xl:flex-row xl:items-center"
                 key={post.title}
@@ -33,7 +33,7 @@ const Hero: FC<HeroProps> = ({ heroPost, latestPosts }) => {
                       <BlurImage
                         alt={post.mainImage.caption}
                         src={urlForImage(post.mainImage).url()}
-                        blurDataURL={heroPost.mainImage.asset.metadata.lqip ?? undefined}
+                        blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
                         placeholder="blur"
                         layout="fill"
                         objectFit="cover"
@@ -48,13 +48,11 @@ const Hero: FC<HeroProps> = ({ heroPost, latestPosts }) => {
                       {post.categories[0]}
                     </a>
                   </Link>
-                  <Link href={`/${post.title}`}>
-                    <a>
-                      <h3 className="mt-2 text-xl font-medium leading-normal tracking-normal decoration-2 transition duration-300 ease-in-out hover:underline">
-                        {post.title}
-                      </h3>
-                    </a>
-                  </Link>
+                  <h3 className="mt-2 text-xl font-medium leading-normal tracking-normal decoration-2 transition duration-300 ease-in-out hover:underline">
+                    <Link href={`/${post.slug}`}>
+                      <a>{post.title}</a>
+                    </Link>
+                  </h3>
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center justify-center">
                       <Link href={`/authors/${post.author.slug}`}>
@@ -77,7 +75,7 @@ const Hero: FC<HeroProps> = ({ heroPost, latestPosts }) => {
                           </a>
                         </Link>
                         <span aria-hidden="true"> &middot; </span>
-                        <Date dateString={heroPost.publishedAt} />
+                        <Date dateString={mainArticle.publishedAt} />
                       </div>
                     </div>
                   </div>

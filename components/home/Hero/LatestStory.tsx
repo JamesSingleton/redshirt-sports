@@ -24,6 +24,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             objectFit="cover"
             blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
             className="group-hover:scale-105 group-hover:duration-300"
+            priority={true}
           />
         </a>
       </Link>
@@ -45,13 +46,14 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
         </Link>
         <div className="mt-4 flex items-center sm:mt-8">
           <Link href={`/authors/${post.author.slug}`}>
-            <a className="relative">
+            <a className="h-10 w-10">
               <BlurImage
-                src={urlForImage(post.author.image).width(40).height(40).url()}
-                width={40}
-                height={40}
+                src={urlForImage(post.author.image).width(80).height(80).url()}
+                width={80}
+                height={80}
                 alt={post.author.name}
                 className="rounded-xl"
+                layout="responsive"
               />
             </a>
           </Link>

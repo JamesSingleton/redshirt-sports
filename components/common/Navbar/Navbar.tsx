@@ -18,7 +18,7 @@ const Navbar = () => {
     <Disclosure as="nav" className="shadow">
       {({ open }) => (
         <>
-          <div className="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
+          <div className="mx-auto max-w-screen-2xl px-2 sm:px-4 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex px-2 lg:px-0">
                 <div className="flex flex-shrink-0 items-center">
@@ -35,7 +35,7 @@ const Navbar = () => {
                 </div>
                 <div className="hidden lg:ml-6 lg:flex lg:space-x-8">
                   {navigation.map(({ name, href }) => (
-                    <Link href={`/${href}`} key={name}>
+                    <Link href={href} key={name}>
                       <a className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-lg font-medium text-slate-800 hover:border-slate-300 hover:text-slate-700">
                         {name}
                       </a>

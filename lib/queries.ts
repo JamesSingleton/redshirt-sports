@@ -169,7 +169,7 @@ export const allFBSPosts = groq`
 
 export const homePageQuery = groq`
   {
-    'heroPost': *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0] {
+    'mainArticle': *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0] {
       _id,
       title,
       publishedAt,
@@ -189,24 +189,7 @@ export const homePageQuery = groq`
       "author": author->{name, 'slug': slug.current, image},
       "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 )
     },
-    "featuredArticle": *[_type == "post" && featuredArticle == true ][0]{
-      _id,
-      title,
-      "mainImage": {
-        "caption": mainImage.caption,
-        "attribution": mainImage.attribution,
-        "asset": mainImage.asset->{ 
-          _id,
-          _type,
-          metadata,
-          url
-         }
-      },
-      "categories": categories[]->title,
-      "slug": slug.current,
-      featuredArticle,
-    },
-    "latestPosts": *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..5] {
+    "recentArticles": *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..5] {
       _id,
       title,
       publishedAt,
@@ -221,8 +204,9 @@ export const homePageQuery = groq`
          }
       },
       "categories": categories[]->title,
+      "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 ),
       "slug": slug.current,
-      "author": author->{name, 'slug': slug.current, image},
+      "author": author->{name, 'slug': slug.current, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
       excerpt,
     }
   }
