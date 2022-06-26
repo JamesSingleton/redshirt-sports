@@ -17,11 +17,32 @@ const postFields = `
   },
   "categories": categories[]->title,
   "slug": slug.current,
-  "author": author->{name, 'slug': slug.current, image, bio, twitterHandle},
+  "author": author->{name, 'slug': slug.current, bio, twitterHandle, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,
   body,
   featuredArticle,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 )
+`
+
+const litePostFields = `
+  _id,
+  title,
+  publishedAt,
+  "mainImage": {
+    "caption": mainImage.caption,
+    "attribution": mainImage.attribution,
+    "asset": mainImage.asset->{ 
+      _id,
+      _type,
+      metadata,
+      url
+      }
+  },
+  "categories": categories[]->title,
+  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 ),
+  "slug": slug.current,
+  "author": author->{name, 'slug': slug.current, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
+  excerpt,
 `
 
 const authorFields = `
@@ -47,26 +68,8 @@ const legalFields = `
 
 export const postQuery = groq`
   {
-    'post': *[_type == "post" && slug.current == $slug] | order(_updatedAt desc)[0] {
+    'post': *[_type == "post" && slug.current == $slug][0] {
       ${postFields}
-    },
-    "morePosts": *[_type == "post" && slug.current != $slug] | order(publishedAt desc, _updatedAt desc)[0...3] {
-      _id,
-      title,
-      publishedAt,
-      "mainImage": {
-        "caption": mainImage.caption,
-        "attribution": mainImage.attribution,
-        "asset": mainImage.asset->{ 
-          _id,
-          _type,
-          metadata,
-          url
-         }
-      },
-      categories,
-      'slug': slug.current,
-      "author": author->{name, 'slug': slug.current, image}
     }
   }
 `
@@ -170,44 +173,19 @@ export const allFBSPosts = groq`
 export const homePageQuery = groq`
   {
     'mainArticle': *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0] {
-      _id,
-      title,
-      publishedAt,
-      "mainImage": {
-        "caption": mainImage.caption,
-        "attribution": mainImage.attribution,
-        "asset": mainImage.asset->{ 
-          _id,
-          _type,
-          metadata,
-          url
-         }
-      },
-      "categories": categories[]->title,
-      "slug": slug.current,
-      excerpt,
-      "author": author->{name, 'slug': slug.current, image},
-      "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 )
+      ${litePostFields}
     },
-    "recentArticles": *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..5] {
-      _id,
-      title,
-      publishedAt,
-      "mainImage": {
-        "caption": mainImage.caption,
-        "attribution": mainImage.attribution,
-        "asset": mainImage.asset->{ 
-          _id,
-          _type,
-          metadata,
-          url
-         }
-      },
-      "categories": categories[]->title,
-      "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 ),
-      "slug": slug.current,
-      "author": author->{name, 'slug': slug.current, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
-      excerpt,
+    "recentArticles": *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..4] {
+      ${litePostFields}
+    },
+    "otherArticles": *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[5..10] {
+      ${litePostFields}
+    },
+    "featuredArticles": *[_type == "post" && featuredArticle == true] | order(publishedAt desc, _updatedAt desc)[0..3] {
+      ${litePostFields}
+    },
+    "mostReadArticles": *[_type == "post" && featuredArticle != true && slug.current in $topArticles] | order(publishedAt desc, _updatedAt desc)[0..4] {
+      ${litePostFields}
     }
   }
 `

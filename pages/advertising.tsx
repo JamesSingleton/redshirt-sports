@@ -43,7 +43,7 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
               aria-hidden="true"
               className="hidden sm:block lg:absolute lg:inset-y-0 lg:right-0 lg:w-screen"
             >
-              <div className="absolute inset-y-0 right-1/2 w-full rounded-r-3xl bg-[#DC2727] lg:right-72" />
+              <div className="absolute inset-y-0 right-1/2 w-full rounded-r-3xl bg-brand-500 lg:right-72" />
               <svg
                 className="absolute top-8 left-1/2 -ml-3 lg:-right-8 lg:left-auto lg:top-12"
                 width={404}
@@ -70,11 +70,7 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
                     />
                   </pattern>
                 </defs>
-                <rect
-                  width={404}
-                  height={392}
-                  fill="url(#02f20b47-fd69-4224-a62a-4c9de5c763f7)"
-                />
+                <rect width={404} height={392} fill="url(#02f20b47-fd69-4224-a62a-4c9de5c763f7)" />
               </svg>
             </div>
             <div className="relative mx-auto max-w-md px-4 sm:max-w-3xl sm:px-6 lg:max-w-none lg:px-0 lg:py-20">
@@ -109,10 +105,7 @@ const Advertising = ({ advertising }: AdvertisingProps) => {
             <div className="mt-10">
               <dl className="grid grid-cols-2 gap-x-4 gap-y-8">
                 {stats.map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="border-t-2 border-slate-100 pt-6"
-                  >
+                  <div key={stat.label} className="border-t-2 border-slate-100 pt-6">
                     <dt className="text-base font-medium">{stat.label}</dt>
                     <dd className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
                       {stat.value}

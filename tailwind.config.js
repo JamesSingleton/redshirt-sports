@@ -15,6 +15,18 @@ module.exports = {
     extend: {
       colors: {
         current: 'currentColor',
+        brand: {
+          50: '#FBE9E9',
+          100: '#F8D3D3',
+          200: '#F1A7A7',
+          300: '#EA7B7B',
+          400: '#E35454',
+          500: '#DC2727',
+          600: '#B41D1D',
+          700: '#841515',
+          800: '#580E0E',
+          900: '#2C0707',
+        },
       },
       width: {
         1536: '1536px',

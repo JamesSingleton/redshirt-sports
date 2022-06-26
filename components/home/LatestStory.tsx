@@ -36,7 +36,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
         </Link>
         <Link href={`/${post.slug}`}>
           <a className="mt-3 block">
-            <h1 className="text-3xl font-medium tracking-normal decoration-slate-800 decoration-3 transition duration-300 ease-in-out hover:underline md:tracking-tight lg:text-4xl lg:leading-tight">
+            <h1 className="text-3xl font-medium tracking-normal text-slate-900 decoration-slate-800 decoration-3 transition duration-300 ease-in-out hover:underline md:tracking-tight lg:text-4xl lg:leading-tight">
               {post.title}
             </h1>
             <div>
@@ -46,7 +46,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
         </Link>
         <div className="mt-4 flex items-center sm:mt-8">
           <Link href={`/authors/${post.author.slug}`}>
-            <a className="h-10 w-10">
+            <a className="h-10 w-10 overflow-hidden rounded-xl">
               <BlurImage
                 src={urlForImage(post.author.image).width(80).height(80).url()}
                 width={80}
@@ -54,6 +54,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
                 alt={post.author.name}
                 className="rounded-xl"
                 layout="responsive"
+                blurDataURL={post.author.image.asset.metadata.lqip ?? undefined}
               />
             </a>
           </Link>

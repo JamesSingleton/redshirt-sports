@@ -17,7 +17,7 @@ export default function Layout({ meta, children, subdomain }: LayoutProps) {
   return (
     <>
       <Navbar />
-      <>{children}</>
+      <main>{children}</main>
       <Footer />
     </>
   )

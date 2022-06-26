@@ -38,6 +38,8 @@ const navigation = {
 }
 
 const Footer = () => {
+  const plausible = usePlausible()
+
   return (
     <footer className="bg-white py-12 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
@@ -77,7 +79,16 @@ const Footer = () => {
           >
             {navigation.site.map(({ name, href }) => (
               <Link key={name} href={href}>
-                <a className="py-2 px-5 text-base text-slate-500 transition duration-300 ease-in-out">
+                <a
+                  onClick={() =>
+                    plausible('clickOnFooter', {
+                      props: {
+                        item: name,
+                      },
+                    })
+                  }
+                  className="py-2 px-5 text-base text-slate-500 transition duration-300 ease-in-out"
+                >
                   {name}
                 </a>
               </Link>
