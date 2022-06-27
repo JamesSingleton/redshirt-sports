@@ -4,7 +4,7 @@ import Link from 'next/link'
 import clsx from 'clsx'
 
 import { Layout } from '@components/common'
-import { sanityClient } from '@lib/sanity.server'
+import { sanityClient, getClient } from '@lib/sanity.server'
 import { postSlugsQuery, postQuery } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { BlurImage } from '@components/ui'
@@ -69,20 +69,18 @@ export default function Post({ post }: PostProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const posts = await sanityClient.fetch(postSlugsQuery)
+  const paths = await sanityClient.fetch(postSlugsQuery)
 
   return {
-    paths: posts.map((slug: string) => ({ params: { slug } })),
-    fallback: true,
+    paths: paths.map((slug: string) => ({ params: { slug } })),
+    fallback: 'blocking',
   }
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   if (!params) throw new Error('No path parameters found')
 
-  const { slug } = params
-  const { post } = await sanityClient.fetch(postQuery, { slug })
-  console.log(post.title)
+  const { post } = await getClient().fetch(postQuery, { slug: params?.slug })
 
   if (!post) {
     return {

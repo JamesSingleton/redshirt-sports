@@ -25,9 +25,9 @@ const securityHeaders = [
 ]
 
 const moduleExports = {
-  experimental: {
-    optimizeCss: true,
-  },
+  // experimental: {
+  //   optimizeCss: true,
+  // },
   productionBrowserSourceMaps: true,
   swcMinify: true,
   reactStrictMode: true,
@@ -82,6 +82,4 @@ const sentryWebpackPluginOptions = {
 }
 
 /** @type {import('next').NextConfig} */
-module.exports = withPlausibleProxy()(
-  withSentryConfig(moduleExports, sentryWebpackPluginOptions)
-)
+module.exports = withPlausibleProxy()(withSentryConfig(moduleExports, sentryWebpackPluginOptions))
