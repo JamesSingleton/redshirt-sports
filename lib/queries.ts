@@ -17,7 +17,7 @@ const postFields = `
   },
   "categories": categories[]->title,
   "slug": slug.current,
-  "author": author->{name, 'slug': slug.current, bio, twitterHandle, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
+  "author": author->{name, 'slug': slug.current, bio, role, twitterHandle, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,
   body,
   featuredArticle,
