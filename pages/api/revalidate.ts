@@ -22,8 +22,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     switch (type) {
       case 'post':
-        await res.unstable_revalidate(`/${slug}`)
-        await res.unstable_revalidate('/')
+        await res.revalidate(`/${slug}`)
+        await res.revalidate('/')
         return res.json({ message: `Revalidated "${type}" with slug "${slug}"` })
     }
 
