@@ -17,7 +17,7 @@ const postFields = `
   },
   "categories": categories[]->title,
   "slug": slug.current,
-  "author": author->{name, 'slug': slug.current, bio, role, twitterHandle, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
+  "author": author->{name, 'slug': slug.current, bio, role, twitterHandle, twitterURL, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,
   body,
   featuredArticle,
@@ -67,11 +67,16 @@ const legalFields = `
 `
 
 export const postQuery = groq`
-  {
-    'post': *[_type == "post" && slug.current == $slug][0] {
-      ${postFields}
-    }
+*[_type == "post" && slug.current == $slug]{
+  "currentPost": {
+    ${postFields}
+  },
+  "previousPost": *[_type == "post" && ^.publishedAt > publishedAt]|order(publishedAt desc)[0]{title,"slug": slug.current},
+  "nextPost": *[_type == "post" && ^.publishedAt < publishedAt]|order(publishedAt asc)[0]{title,"slug": slug.current},
+  "morePosts": *[_type == "post" && slug.current != $slug] | order(publishedAt desc, _updatedAt desc)[0...3] {
+    ${postFields}
   }
+}|order(publishedAt)[0]
 `
 
 export const postSlugsQuery = `

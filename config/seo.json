@@ -1,10 +1,10 @@
 {
-  "title": "College Football News, Standings, Rumors",
+  "title": "FCS Football News, Standings, Rumors",
   "titleTemplate": "%s - Redshirt Sports",
-  "description": "Get the latest college football news, stats, standings, and rumors from Redshirt Sports.",
+  "description": "Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more.",
   "openGraph": {
-    "title": "College Football News, Standings, Rumors - Redshirt Sports",
-    "description": "Get the latest college football news, stats, standings, and rumors from Redshirt Sports.",
+    "title": "FCS Football News, Standings, Rumors - Redshirt Sports",
+    "description": "Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more.",
     "type": "website",
     "locale": "en_US",
     "url": "https://www.redshirtsports.xyz",

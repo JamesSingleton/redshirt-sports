@@ -5,35 +5,14 @@ import { Layout } from '@components/common'
 const Custom404 = () => {
   const plausible = usePlausible()
   return (
-    <div className="min-h-screen bg-white px-4 py-16 sm:px-6 sm:py-24 md:grid md:place-items-center lg:px-8">
-      <div className="mx-auto max-w-max">
-        <div className="sm:flex">
-          <p className="text-4xl font-extrabold text-indigo-600 sm:text-5xl">
-            404
-          </p>
-          <div className="sm:ml-6">
-            <div className="sm:border-l sm:border-gray-200 sm:pl-6">
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
-                Page not found
-              </h1>
-              <p className="mt-1 text-base text-slate-500">
-                Please check the URL in the address bar and try again.
-              </p>
-            </div>
-            <div className="mt-10 flex space-x-3 sm:border-l sm:border-transparent sm:pl-6">
-              <Link href="/" prefetch={false}>
-                <a
-                  onClick={() => plausible('clickOn404BackHome')}
-                  className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-slate-50 shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  Go back home
-                </a>
-              </Link>
-            </div>
-          </div>
+    <section className="bg-slate-50">
+      <div className="mx-auto min-h-screen max-w-2xl py-12 px-4 sm:px-6 sm:pt-16 lg:flex lg:max-w-screen-2xl lg:items-center lg:px-12 xl:py-20">
+        <div className="flex flex-col justify-center lg:w-1/2 2xl:w-2/5">
+          <div className="max-w-lg"></div>
         </div>
+        <div className="mt-12 sm:mt-16 lg:ml-12 lg:mt-0 lg:w-1/2 2xl:ml-16 2xl:w-3/5"></div>
       </div>
-    </div>
+    </section>
   )
 }
 
