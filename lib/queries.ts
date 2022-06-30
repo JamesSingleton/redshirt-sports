@@ -195,6 +195,12 @@ export const homePageQuery = groq`
   }
 `
 
+export const recentArticlesQuery = groq`
+*[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[0..3] {
+  ${litePostFields}
+}
+`
+
 export const getAdvertisingPage = `
 *[_type == "legal" && slug.current == "advertising"][0] {
   ${legalFields}

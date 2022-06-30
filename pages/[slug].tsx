@@ -93,6 +93,7 @@ export default function Post({ currentPost, nextPost }: PostProps) {
                         currentPost.title
                       )}&url=https://www.redshirtsports.xyz/${currentPost.slug}`}
                       className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 transition duration-300 ease-in-out sm:h-12 sm:w-12"
+                      title="Share article on Twitter"
                     >
                       <svg
                         fill="currentColor"
@@ -111,6 +112,7 @@ export default function Post({ currentPost, nextPost }: PostProps) {
                         currentPost.slug
                       }&quote=${encodeURIComponent(currentPost.title)}`}
                       className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 transition duration-300 ease-in-out sm:h-12 sm:w-12"
+                      title="Share article on Facebook"
                     >
                       <svg
                         fill="currentColor"
@@ -161,6 +163,7 @@ export default function Post({ currentPost, nextPost }: PostProps) {
                     <ul className="mt-3 flex items-center">
                       <li>
                         <a href={currentPost.author.twitterURL} target="_blank" rel="noreferrer">
+                          <span className="sr-only">{`${currentPost.author}'s Twitter`}</span>
                           <svg
                             fill="currentColor"
                             aria-hidden="true"
@@ -195,11 +198,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   if (!params) throw new Error('No path parameters found')
 
-  const { currentPost, nextPost, previousPost, morePosts } = await getClient().fetch(postQuery, {
-    slug: params?.slug,
-  })
+  const { currentPost, nextPost, previousPost } =
+    (await getClient().fetch(postQuery, {
+      slug: params?.slug,
+    })) || {}
 
-  if (!currentPost) {
+  if (!currentPost || currentPost === null) {
     return {
       notFound: true,
       revalidate: 10,
@@ -207,7 +211,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
   console.log(previousPost)
   console.log(nextPost)
-  console.log(morePosts)
 
   return {
     props: {
