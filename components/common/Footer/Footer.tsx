@@ -75,7 +75,7 @@ const Footer = () => {
         <div className="mt-10 border-t border-slate-300/70 pt-10 md:flex md:items-center md:justify-between">
           <nav
             aria-label="Footer"
-            className="-my-2 flex flex-wrap items-center justify-center md:justify-start"
+            className="-my-2 flex flex-wrap items-center justify-center space-x-5 md:justify-start"
           >
             {navigation.site.map(({ name, href }) => (
               <Link key={name} href={href}>
@@ -87,7 +87,7 @@ const Footer = () => {
                       },
                     })
                   }
-                  className="py-2 px-5 text-base text-slate-500 transition duration-300 ease-in-out"
+                  className="py-2 text-base text-slate-500 transition duration-300 ease-in-out"
                 >
                   {name}
                 </a>
