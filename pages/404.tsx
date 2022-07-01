@@ -8,7 +8,7 @@ import { recentArticlesQuery } from '@lib/queries'
 import { getClient } from '@lib/sanity.server'
 
 import type { Post } from '@types'
-import { BlurImage } from '@components/ui'
+import { BlurImage, Date } from '@components/ui'
 import { urlForImage } from '@lib/sanity'
 
 interface Custom404Props {
@@ -88,6 +88,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                               width={24}
                               height={24}
                               alt={recentArticle.author.name}
+                              className="overflow-hidden rounded-full"
                             />
                           </a>
                         </Link>
@@ -98,6 +99,8 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                               {recentArticle.author.name}
                             </a>
                           </Link>
+                          <span aria-hidden="true">&nbsp;&middot;&nbsp;</span>
+                          <Date dateString={recentArticle.publishedAt} />
                         </div>
                       </div>
                     </div>
