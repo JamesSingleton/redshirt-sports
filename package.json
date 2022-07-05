@@ -12,6 +12,7 @@
     "postbuild": "if [ -f './.next/serverless/lib/build-rss.js' ]; then node ./.next/serverless/lib/build-rss.js; else node ./.next/server/lib/build-rss.js; fi"
   },
   "dependencies": {
+    "@badrap/bar-of-progress": "^0.2.1",
     "@headlessui/react": "^1.6.5",
     "@heroicons/react": "^1.0.6",
     "@portabletext/react": "^1.0.6",
