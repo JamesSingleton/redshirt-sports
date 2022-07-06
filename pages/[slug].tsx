@@ -1,5 +1,4 @@
-import { useRouter } from 'next/router'
-import { Fragment } from 'react'
+import Link from 'next/link'
 
 import { Layout } from '@components/common'
 import { sanityClient, getClient } from '@lib/sanity.server'
@@ -14,9 +13,10 @@ import type { Post } from '@types'
 interface PostProps {
   currentPost: Post
   nextPost: Post
+  previousPost: Post
 }
 
-export default function Post({ currentPost, nextPost }: PostProps) {
+export default function Post({ currentPost, nextPost, previousPost }: PostProps) {
   return (
     <Layout>
       <article className="bg-slate-50 pb-12 sm:pb-16 lg:pb-24">
@@ -32,6 +32,24 @@ export default function Post({ currentPost, nextPost }: PostProps) {
           />
         </div>
       </article>
+      <section className="mx-auto flex flex-col justify-center bg-slate-50 px-5 sm:flex-row sm:px-0">
+        {nextPost && (
+          <div className="flex flex-col">
+            <span>Next post</span>
+            <Link href={`/${nextPost.slug}`}>
+              <a>{nextPost.title}</a>
+            </Link>
+          </div>
+        )}
+        {previousPost && (
+          <div className="flex flex-col">
+            <span>Previous post</span>
+            <Link href={`/${previousPost.slug}`}>
+              <a>{previousPost.title}</a>
+            </Link>
+          </div>
+        )}
+      </section>
     </Layout>
   )
 }
@@ -64,6 +82,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       currentPost,
       nextPost,
+      previousPost,
     },
     revalidate: 3600,
   }
