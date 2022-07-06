@@ -26,7 +26,7 @@ const SocialMediaFollow = () => (
           </div>
           <div className="relative col-span-3 flex flex-col flex-wrap">
             <div className="flex w-full flex-1 flex-col justify-between px-5 md:px-0">
-              <div className="relative z-10 ml-3 text-base font-medium capitalize duration-300 ease-in-out">
+              <div className="ml-3 text-base font-medium capitalize duration-300 ease-in-out">
                 Twitter
               </div>
             </div>
@@ -60,7 +60,7 @@ const SocialMediaFollow = () => (
           </div>
           <div className="relative col-span-3 flex flex-col flex-wrap">
             <div className="flex w-full flex-1 flex-col justify-between px-5 md:px-0">
-              <div className="relative z-10 ml-3 text-base font-medium capitalize duration-300 ease-in-out">
+              <div className="ml-3 text-base font-medium capitalize duration-300 ease-in-out">
                 Facebook
               </div>
             </div>

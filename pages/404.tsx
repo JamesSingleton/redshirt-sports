@@ -53,7 +53,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                 >
                   <Link href={`/${recentArticle.slug}`}>
                     <a className="order-2 w-full sm:w-2/5 lg:order-1 lg:w-24 xl:w-1/3">
-                      <div className="aspect-h-9 aspect-w-9 relative z-10 overflow-hidden rounded-2xl lg:aspect-h-1 lg:aspect-w-1">
+                      <div className="aspect-h-9 aspect-w-9 overflow-hidden rounded-2xl lg:aspect-h-1 lg:aspect-w-1">
                         <BlurImage
                           alt={recentArticle.mainImage.caption}
                           src={urlForImage(recentArticle.mainImage).url()}

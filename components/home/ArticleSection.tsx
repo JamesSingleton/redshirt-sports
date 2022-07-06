@@ -18,7 +18,7 @@ const ArticleSection: FC<ArticleSectionProps> = ({ otherArticles }) => {
           key={post.title}
           className="group relative flex flex-col flex-wrap rounded-2xl transition duration-300 hover:shadow-xl"
         >
-          <div className="z-10 w-full overflow-hidden rounded-tl-2xl rounded-tr-2xl bg-slate-50">
+          <div className="w-full overflow-hidden rounded-tl-2xl rounded-tr-2xl bg-slate-50">
             <Link href={`/${post.slug}`}>
               <a>
                 <BlurImage
@@ -37,7 +37,7 @@ const ArticleSection: FC<ArticleSectionProps> = ({ otherArticles }) => {
           <div className="box-border flex w-full flex-1 flex-col justify-between rounded-bl-2xl rounded-br-2xl border-r-2 border-l-2 border-b-2 border-slate-100 bg-white p-6 transition duration-300 ease-in-out group-hover:border-transparent xl:p-7">
             <div>
               <Link href={`/${post.categories[0].toLowerCase()}`}>
-                <a className="relative z-10 text-sm font-medium uppercase tracking-widest text-brand-500 duration-300">
+                <a className="text-sm font-medium uppercase tracking-widest text-brand-500 duration-300">
                   {post.categories[0]}
                 </a>
               </Link>

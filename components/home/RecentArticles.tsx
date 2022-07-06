@@ -23,7 +23,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
           >
             <Link href={`/${post.slug}`}>
               <a className="order-2 w-full md:w-2/5 lg:order-1 lg:w-full xl:w-2/5">
-                <div className="group relative z-10 overflow-hidden rounded-2xl">
+                <div className="group overflow-hidden rounded-2xl">
                   <BlurImage
                     alt={post.mainImage.caption}
                     src={urlForImage(post.mainImage).url()}

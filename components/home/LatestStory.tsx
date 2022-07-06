@@ -15,7 +15,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
   return (
     <article className="relative lg:sticky lg:top-8 lg:w-1/2">
       <Link href={`/${post.slug}`}>
-        <a className="group aspect-h-9 aspect-w-16 relative z-10 block overflow-hidden rounded-2xl">
+        <a className="group aspect-h-9 aspect-w-16  block overflow-hidden rounded-2xl">
           <BlurImage
             src={urlForImage(post.mainImage).width(736).height(414).url()}
             layout="fill"

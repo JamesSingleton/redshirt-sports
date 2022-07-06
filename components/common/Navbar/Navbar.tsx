@@ -1,21 +1,24 @@
 import { Fragment } from 'react'
 import Link from 'next/link'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
+import { useRouter } from 'next/router'
+import { Transition, Popover } from '@headlessui/react'
 import { SearchIcon } from '@heroicons/react/solid'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
+
 import { HorizontalLogo, SmallLogo } from '../Logo'
 
 const navigation = [
   { name: 'FCS', href: '/fcs' },
   { name: 'Meet the Team', href: '/authors' },
-  { name: 'About', href: '/about' },
-  { name: 'Contact Us', href: '/contact-us' },
+  { name: 'About Us', href: '/about' },
+  { name: 'Contact Us', href: '/contact' },
 ]
 
 const Navbar = () => {
+  const router = useRouter()
   return (
-    <Disclosure as="nav" className="shadow">
+    <Popover as="header" className="shadow">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-screen-2xl px-2 sm:px-4 lg:px-8">
@@ -33,15 +36,22 @@ const Navbar = () => {
                     </a>
                   </Link>
                 </div>
-                <div className="hidden lg:ml-6 lg:flex lg:space-x-8">
+                <nav className="hidden lg:ml-6 lg:flex lg:space-x-8">
                   {navigation.map(({ name, href }) => (
                     <Link href={href} key={name}>
-                      <a className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-lg font-medium text-slate-800 hover:border-slate-300 hover:text-slate-700">
+                      <a
+                        className={clsx(
+                          'inline-flex items-center border-b-2 px-1 pt-1 text-lg font-medium',
+                          router.pathname === href
+                            ? 'border-brand-500 text-slate-900'
+                            : 'border-transparent text-slate-800 hover:border-slate-300 hover:text-slate-700'
+                        )}
+                      >
                         {name}
                       </a>
                     </Link>
                   ))}
-                </div>
+                </nav>
               </div>
               <div className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end">
                 <div className="w-full max-w-lg lg:max-w-xs">
@@ -55,7 +65,7 @@ const Navbar = () => {
                     <input
                       id="search"
                       name="search"
-                      className="block w-full rounded-md border border-slate-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-slate-500 focus:border-indigo-500 focus:placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                      className="block w-full rounded-md border border-slate-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-slate-500 focus:border-brand-500 focus:placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:text-sm"
                       placeholder="Search"
                       type="search"
                     />
@@ -63,55 +73,60 @@ const Navbar = () => {
                 </div>
               </div>
               <div className="flex items-center lg:hidden">
-                {/* Mobile menu button */}
-                <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-                  <span className="sr-only">Open main menu</span>
-                  {open ? (
-                    <XIcon className="block h-6 w-6" aria-hidden="true" />
-                  ) : (
-                    <MenuIcon className="block h-6 w-6" aria-hidden="true" />
-                  )}
-                </Disclosure.Button>
+                <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500">
+                  <span className="sr-only">Open menu</span>
+                  <MenuIcon className="h-6 w-6" aria-hidden="true" />
+                </Popover.Button>
               </div>
             </div>
           </div>
 
-          <Disclosure.Panel className="lg:hidden">
-            <div className="space-y-1 pt-2 pb-3">
-              {/* Current: "bg-indigo-50 border-indigo-500 text-indigo-700", Default: "border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-800" */}
-              <Disclosure.Button
-                as="a"
-                href="#"
-                className="block border-l-4 border-indigo-500 bg-indigo-50 py-2 pl-3 pr-4 text-base font-medium text-indigo-700"
-              >
-                Dashboard
-              </Disclosure.Button>
-              <Disclosure.Button
-                as="a"
-                href="#"
-                className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
-              >
-                Team
-              </Disclosure.Button>
-              <Disclosure.Button
-                as="a"
-                href="#"
-                className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
-              >
-                Projects
-              </Disclosure.Button>
-              <Disclosure.Button
-                as="a"
-                href="#"
-                className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
-              >
-                Calendar
-              </Disclosure.Button>
-            </div>
-          </Disclosure.Panel>
+          <Transition
+            as={Fragment}
+            enter="duration-200 ease-out"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="duration-100 ease-in"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          >
+            <Popover.Panel
+              focus
+              className="absolute inset-x-0 top-0 z-10 origin-top-right transform p-2 transition md:hidden"
+            >
+              <div className="divide-y-2 divide-slate-50 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                <div className="px-5 pt-5 pb-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <SmallLogo className="h-8 w-auto" />
+                    </div>
+                    <div className="-mr-2">
+                      <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500">
+                        <span className="sr-only">Close menu</span>
+                        <XIcon className="h-6 w-6" aria-hidden="true" />
+                      </Popover.Button>
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <nav className="grid gap-y-4">
+                      {navigation.map((item) => (
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          className="-m-3 flex items-center rounded-md p-3 text-slate-900 hover:bg-slate-50"
+                        >
+                          {item.name}
+                        </a>
+                      ))}
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </Popover.Panel>
+          </Transition>
         </>
       )}
-    </Disclosure>
+    </Popover>
   )
 }
 

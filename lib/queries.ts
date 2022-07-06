@@ -51,7 +51,14 @@ const authorFields = `
   name,
   'slug': slug.current,
   role,
-  image,
+  "image": {
+    "asset": image.asset->{ 
+      _id,
+      _type,
+      metadata,
+      url
+      }
+  },
   backgroundImage,
   bio,
   twitterURL,

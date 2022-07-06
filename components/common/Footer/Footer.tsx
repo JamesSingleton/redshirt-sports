@@ -8,8 +8,9 @@ const navigation = {
   site: [
     { name: 'FCS', href: '/fcs' },
     { name: 'Meet the Team', href: '/authors' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact Us', href: '/contact-us' },
+    { name: 'About Us', href: '/about' },
+    { name: 'Contact Us', href: '/contact' },
+    { name: 'Privacy Policy', href: '/privacy' },
   ],
   social: [
     {

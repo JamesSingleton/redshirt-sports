@@ -6,11 +6,13 @@ import { getClient, sanityClient } from '@lib/sanity.server'
 import { authorSlugsQuery, authorAndTheirPostsBySlug } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { RecentArticles } from '@components/author'
-import type { AuthorTypes } from '@lib/types/author'
 import { usePlausible } from 'next-plausible'
+import { BlurImage } from '@components/ui'
+
+import type { Author } from '@types'
 
 interface AuthorProps {
-  author: AuthorTypes
+  author: Author
 }
 
 const Author = ({ author }: AuthorProps) => {
@@ -66,76 +68,73 @@ const Author = ({ author }: AuthorProps) => {
         url={`https://www.redshirtsports.xyz/authors/${author.slug}`}
         sameAs={[author.twitterURL]}
       />
-      <div>
-        <div className="mx-auto w-screen px-2 xl:max-w-screen-2xl">
-          <div className="aspect-w-16 aspect-h-16 relative overflow-hidden rounded-md sm:aspect-h-9 lg:aspect-h-6">
-            <Image
-              className="h-full w-full object-cover"
-              alt={`${author.name} banner image`}
-              src={urlForImage(author.backgroundImage).fit('min').url()!}
-              layout="fill"
-              priority
-              objectFit="cover"
-            />
-          </div>
-          <div className="container relative mx-auto -mt-20 px-4 lg:-mt-48 xl:px-32">
-            <div className="flex flex-col rounded-md bg-white p-5 shadow-2xl dark:border dark:border-slate-700 dark:bg-slate-900 sm:flex-row sm:items-center lg:p-16">
-              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full shadow-2xl lg:h-36 lg:w-36">
-                <Image
-                  src={urlForImage(author.image).fit('min').url()!}
-                  className="absolute inset-0 h-full w-full object-cover"
-                  alt={`Profile image for Author ${author.name}`}
-                  width={80}
-                  height={80}
-                  layout="responsive"
-                  sizes="50vw"
-                />
+      <Layout>
+        <section className="bg-slate-50 py-12 sm:py-16 md:py-20 lg:py-24">
+          <div className="mx-auto max-w-xl px-6 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
+            <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
+              <div className="flex flex-col items-center md:flex-row">
+                <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl">
+                  <BlurImage
+                    src={urlForImage(author.image).url()}
+                    layout="responsive"
+                    width={96}
+                    height={96}
+                    alt={author.name}
+                    blurDataURL={author.image.asset.metadata.lqip}
+                    className="overflow-hidden rounded-xl"
+                    objectFit="cover"
+                  />
+                </div>
+                <div className="mt-6 text-center md:mt-0 md:ml-5 md:text-left">
+                  <span className="block text-xs uppercase tracking-widest text-brand-500">
+                    {author.role}
+                  </span>
+                  <h1 className="mt-1 text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-tight lg:leading-tight">
+                    {author.name}
+                  </h1>
+                </div>
               </div>
-              <div className="mt-5 space-y-4 sm:mt-0 sm:ml-8">
-                <h1 className="inline-block text-2xl font-semibold text-slate-900 dark:text-slate-50 sm:text-3xl md:text-4xl">
-                  {author.name}
-                </h1>
-                <PortableText value={author.bio} />
-                <div className="flex space-x-2.5 text-2xl text-slate-600 dark:text-slate-300">
-                  <a
-                    href={author.twitterURL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() =>
-                      plausible('clickOnAuthorsTwitter', {
-                        props: {
-                          author: author.name,
-                        },
-                      })
-                    }
-                  >
-                    <span className="sr-only">
-                      Twitter link for {author.name}
-                    </span>
-                    <svg
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                      className="h-6 w-6"
+              <div className="mt-6 md:mt-0">
+                <ul className="flex items-center">
+                  <li>
+                    <a
+                      href={author.twitterURL}
+                      target="_blank"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-transparent transition duration-300 ease-in-out sm:h-12 sm:w-12"
+                      rel="noreferrer noopener"
                     >
-                      <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                    </svg>
-                  </a>
+                      <svg
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="h-4 w-4 transform text-slate-700 transition ease-in-out"
+                      >
+                        <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                      </svg>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="mx-auto max-w-xl py-12 px-4 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
+          <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
+            <div className="col-span-2"></div>
+            <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
+              <div className="w-full rounded-2xl bg-slate-50 p-5 sm:p-8">
+                <h2 className="relative border-b border-slate-300 pb-3 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">{`About ${author.name}`}</h2>
+                <div className="pt-6 text-base leading-loose text-slate-600">
+                  <PortableText value={author.bio} />
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="container mx-auto px-4 xl:px-32">
-          {author.posts && author.posts?.length > 0 && (
-            <RecentArticles authorName={author.name} posts={author.posts} />
-          )}
-        </div>
-      </div>
+        </section>
+      </Layout>
     </>
   )
 }
-
-Author.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const author = await getClient().fetch(authorAndTheirPostsBySlug, {

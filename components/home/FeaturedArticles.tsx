@@ -21,7 +21,7 @@ const FeaturedArticles: FC<FeaturedArticlesProps> = ({ featuredArticles }) => {
         {featuredArticles.map((featuredArticle) => (
           <article key={featuredArticle._id} className="flex space-x-4 sm:space-x-6 lg:space-x-4">
             <Link href={`/${featuredArticle.slug}`}>
-              <a className="relative z-10 h-24 w-24 overflow-hidden rounded-2xl sm:h-28 sm:w-28 lg:h-20 lg:w-20 xl:h-24 xl:w-24">
+              <a className="h-24 w-24 overflow-hidden rounded-2xl sm:h-28 sm:w-28 lg:h-20 lg:w-20 xl:h-24 xl:w-24">
                 <BlurImage
                   alt={featuredArticle.mainImage.caption}
                   src={urlForImage(featuredArticle.mainImage).width(96).height(96).url()}
