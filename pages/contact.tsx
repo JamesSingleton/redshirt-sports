@@ -1,7 +1,6 @@
 import { NextSeo } from 'next-seo'
 
-import { Layout } from '@components/common'
-import { SocialMediaFollow } from '@components/home'
+import { Layout, SocialMediaFollow } from '@components/common'
 import { PageHeader } from '@components/ui'
 
 const contactDetails = [

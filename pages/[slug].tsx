@@ -32,7 +32,7 @@ export default function Post({ currentPost, nextPost, previousPost }: PostProps)
           />
         </div>
       </article>
-      <section className="mx-auto flex flex-col justify-center bg-slate-50 px-5 sm:flex-row sm:px-0">
+      {/* <section className="mx-auto flex flex-col justify-center bg-slate-50 px-5 sm:flex-row sm:px-0">
         {nextPost && (
           <div className="flex flex-col">
             <span>Next post</span>
@@ -49,7 +49,7 @@ export default function Post({ currentPost, nextPost, previousPost }: PostProps)
             </Link>
           </div>
         )}
-      </section>
+      </section> */}
     </Layout>
   )
 }

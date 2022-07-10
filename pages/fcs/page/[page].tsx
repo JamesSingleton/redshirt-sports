@@ -27,8 +27,7 @@ export default function FCSIndexPage({ posts }: fcsProps) {
           />
         </div>
         <div className="grid w-full grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
-          {posts &&
-            posts.map((post) => <BlogCard key={post.title} data={post} />)}
+          {posts && posts.map((post) => <BlogCard key={post.title} data={post} />)}
         </div>
       </div>
     </Layout>
@@ -54,7 +53,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async (context) => {
   const params = context.params as Params
   const { page } = params
-  const { posts } = await getClient().fetch(fcsPostsQuery, {
+  const { posts, pagination } = await getClient().fetch(fcsPostsQuery, {
     pageIndex: parseInt(page) - 1,
   })
 

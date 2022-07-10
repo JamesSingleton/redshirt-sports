@@ -10,6 +10,7 @@ const postFields = `
     "attribution": mainImage.attribution,
     "asset": mainImage.asset->{ 
       _id,
+      _ref,
       _type,
       metadata,
       url
@@ -30,7 +31,6 @@ const litePostFields = `
   publishedAt,
   "mainImage": {
     "caption": mainImage.caption,
-    "attribution": mainImage.attribution,
     "asset": mainImage.asset->{ 
       _id,
       _type,
@@ -165,11 +165,11 @@ const sliceWithParam = `[($pageIndex * 10)...($pageIndex + 1) * 10]`
 export const fcsPostsQuery = groq`
   {
     "posts": *[_type == "post" && 'FCS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc)[($pageIndex * ${ITEMS_PER_PAGE})...($pageIndex + 1) * ${ITEMS_PER_PAGE}]{
-      ${postFields}
+      ${litePostFields}
     },
     "pagination": {
       "totalPages": round(count(${allFCSPosts}._id) / ${ITEMS_PER_PAGE}),
-      "pageNumber": $pageIndex + 1
+      "currentPage": $pageIndex + 1
     }
   }
 `

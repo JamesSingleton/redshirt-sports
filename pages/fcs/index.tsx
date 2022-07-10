@@ -3,19 +3,22 @@ import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/solid'
 
-import { Layout } from '@components/common'
-import { Card, Pagination } from '@components/ui'
-import { CategoryHeader, EmptyState } from '@components/category'
+import { Layout, SocialMediaFollow } from '@components/common'
+import { HorizontalCard, Pagination } from '@components/ui'
 import { getClient } from '@lib/sanity.server'
-import { allFCSPosts, fcsPostsQuery } from '@lib/queries'
+import { fcsPostsQuery } from '@lib/queries'
 
 import type { Post } from '@types'
 
 interface fcsProps {
   posts: Post[]
+  pagination: {
+    totalPages: number
+    currentPage: number
+  }
 }
 
-const FCS = ({ posts }: fcsProps) => {
+const FCS = ({ posts, pagination }: fcsProps) => {
   return (
     <Layout>
       <NextSeo
@@ -76,6 +79,17 @@ const FCS = ({ posts }: fcsProps) => {
           </div>
         </div>
       </section>
+      <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
+        <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
+          <div className="col-span-2">
+            {posts && posts.map((post) => <HorizontalCard post={post} key={post._id} />)}
+            <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
+          </div>
+          <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
+            <SocialMediaFollow />
+          </div>
+        </div>
+      </section>
     </Layout>
   )
 }
@@ -83,13 +97,14 @@ const FCS = ({ posts }: fcsProps) => {
 FCS.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { posts } = await getClient().fetch(fcsPostsQuery, {
+  const { posts, pagination } = await getClient().fetch(fcsPostsQuery, {
     pageIndex: 0,
   })
 
   return {
     props: {
       posts,
+      pagination,
     },
   }
 }

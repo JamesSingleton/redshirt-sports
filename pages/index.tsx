@@ -1,13 +1,7 @@
 import { NextSeo } from 'next-seo'
 
-import Layout from '@components/common/Layout/Layout'
-import {
-  Hero,
-  FeaturedArticles,
-  SocialMediaFollow,
-  ArticleSection,
-  MostRead,
-} from '@components/home'
+import { Layout, SocialMediaFollow } from '@components/common'
+import { Hero, FeaturedArticles, ArticleSection, MostRead } from '@components/home'
 import { getClient } from '@lib/sanity.server'
 import { homePageQuery } from '@lib/queries'
 import { SITE_URL } from '@lib/constants'

@@ -34,7 +34,7 @@ const PostHeader = ({ post }: PostHeaderProps) => {
               {post.categories[0]}
             </a>
           </Link>
-          <h1 className="mt-3 text-4xl font-medium text-slate-900 transition duration-300 ease-in-out sm:my-5 sm:text-4xl sm:leading-tight md:tracking-tight lg:text-5xl">
+          <h1 className="mt-3 text-4xl font-medium text-slate-900 transition duration-300 ease-in-out sm:my-5 sm:text-4xl sm:leading-tight lg:text-5xl">
             {post.title}
           </h1>
           <p className="mt-4 text-base leading-loose text-slate-600">{post.excerpt}</p>
@@ -54,10 +54,10 @@ const PostHeader = ({ post }: PostHeaderProps) => {
                 </div>
               </a>
             </Link>
-            <div className="flex items-center text-sm lg:text-base">
+            <div className="not-prose flex items-center text-sm lg:text-base">
               <span className="hidden text-slate-500 sm:inline-block">By&nbsp;</span>
               <Link href={`/authors/${post.author.slug}`}>
-                <a className="font-medium text-slate-700">{post.author.name}</a>
+                <a className="font-medium text-slate-700 hover:underline">{post.author.name}</a>
               </Link>
               <CalendarIcon className="ml-4 h-5 w-5 text-slate-400" />
               <Date className="ml-1 text-slate-500" dateString={post.publishedAt} />
