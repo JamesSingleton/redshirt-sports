@@ -10,7 +10,6 @@ import { HorizontalLogo, SmallLogo } from '../Logo'
 
 const navigation = [
   { name: 'FCS', href: '/fcs' },
-  { name: 'Meet the Team', href: '/authors' },
   { name: 'About Us', href: '/about' },
   { name: 'Contact Us', href: '/contact' },
 ]

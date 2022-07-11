@@ -51,11 +51,6 @@ const Author = ({ author }: AuthorProps) => {
           },
           {
             position: 2,
-            name: 'Authors',
-            item: 'https://www.redshirtsports.xyz/authors',
-          },
-          {
-            position: 3,
             name: author.name,
             item: `https://www.redshirtsports.xyz/authors/${author.name}`,
           },

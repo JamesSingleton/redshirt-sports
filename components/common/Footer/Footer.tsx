@@ -7,7 +7,6 @@ import { HorizontalLogo } from '../Logo'
 const navigation = {
   site: [
     { name: 'FCS', href: '/fcs' },
-    { name: 'Meet the Team', href: '/authors' },
     { name: 'About Us', href: '/about' },
     { name: 'Contact Us', href: '/contact' },
     { name: 'Privacy Policy', href: '/privacy' },

@@ -37,7 +37,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         <priority>1</priority>
       </url>
       <url>
-        <loc>https://www.redshirtsports.xyz/authors</loc>
+        <loc>https://www.redshirtsports.xyz/about</loc>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
       </url>

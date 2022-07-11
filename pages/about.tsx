@@ -119,14 +119,19 @@ const About = ({ authors }: AboutProps) => {
             </div>
           </div>
         </section>
-        <section className="bg-brand-500 py-12 sm:py-20 lg:py-28">
-          <div className="mx-auto max-w-md py-16 px-4 text-center sm:max-w-2xl sm:py-24 sm:px-5 lg:px-8 lg:py-32">
+        <section className="bg-brand-700">
+          <div className="mx-auto max-w-2xl py-16 px-4 text-center sm:py-20 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
               Help make Redshirt Sports better!
             </h2>
+            <p className="mt-4 text-lg leading-6 text-brand-200">
+              Whether you are looking to submit a guest post, write a feature article, or trying to
+              get started writing content for the FCS, we are always looking for new writers to join
+              our team.
+            </p>
             <Link href="/contact" prefetch={false}>
-              <a className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white py-3 px-5 text-base font-medium text-brand-600 shadow-md hover:bg-brand-50 sm:w-auto">
-                Join our Team
+              <a className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-brand-600 hover:bg-brand-50 sm:w-auto">
+                Join our team
               </a>
             </Link>
           </div>
