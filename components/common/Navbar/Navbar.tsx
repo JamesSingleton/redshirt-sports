@@ -36,9 +36,13 @@ const Navbar = () => {
                     </a>
                   </Link>
                 </div>
-                <nav className="hidden lg:ml-6 lg:flex lg:space-x-8">
+                <nav
+                  className="hidden lg:ml-6 lg:flex lg:space-x-8"
+                  title="Main Navigation"
+                  aria-label="Main Navigation"
+                >
                   {navigation.map(({ name, href }) => (
-                    <Link href={href} key={name}>
+                    <Link href={href} key={name} prefetch={false}>
                       <a
                         className={clsx(
                           'inline-flex items-center border-b-2 px-1 pt-1 text-lg font-medium',
@@ -110,13 +114,11 @@ const Navbar = () => {
                   <div className="mt-6">
                     <nav className="grid gap-y-4">
                       {navigation.map((item) => (
-                        <a
-                          key={item.name}
-                          href={item.href}
-                          className="-m-3 flex items-center rounded-md p-3 text-slate-900 hover:bg-slate-50"
-                        >
-                          {item.name}
-                        </a>
+                        <Link key={item.name} href={item.href} prefetch={false}>
+                          <a className="-m-3 flex items-center rounded-md p-3 text-slate-900 hover:bg-slate-50">
+                            {item.name}
+                          </a>
+                        </Link>
                       ))}
                     </nav>
                   </div>

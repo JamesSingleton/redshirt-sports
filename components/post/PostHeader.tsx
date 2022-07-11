@@ -21,15 +21,16 @@ const PostHeader = ({ post }: PostHeaderProps) => {
             layout="fill"
             objectFit="cover"
             placeholder="blur"
-            priority
+            priority={true}
             blurDataURL={post?.mainImage.asset.metadata.lqip ?? undefined}
+            quality={60}
           />
         )}
       </div>
 
       <div className="px-5 lg:px-0">
-        <div className="prose mx-auto mb-8 border-b border-slate-300/70 pt-10 pb-8 text-lg sm:pt-16">
-          <Link href={`/${post.categories[0].toLowerCase()}`}>
+        <div className="mx-auto mb-8 max-w-prose border-b border-slate-300/70 pt-10 pb-8 text-lg sm:pt-16">
+          <Link href={`/${post.categories[0].toLowerCase()}`} prefetch={false}>
             <a className="relative text-sm font-medium uppercase tracking-widest text-brand-500 duration-300 ease-in-out">
               {post.categories[0]}
             </a>
@@ -39,7 +40,7 @@ const PostHeader = ({ post }: PostHeaderProps) => {
           </h1>
           <p className="mt-4 text-base leading-loose text-slate-600">{post.excerpt}</p>
           <div className="mt-6 flex items-center sm:mt-8">
-            <Link href={`/authors/${post.author.name}`}>
+            <Link href={`/authors/${post.author.slug}`}>
               <a className="mr-3 shrink-0">
                 <div className="relative h-8 w-8 overflow-hidden rounded-xl bg-slate-100 sm:h-9 sm:w-9">
                   <BlurImage
@@ -54,9 +55,9 @@ const PostHeader = ({ post }: PostHeaderProps) => {
                 </div>
               </a>
             </Link>
-            <div className="not-prose flex items-center text-sm lg:text-base">
+            <div className="flex items-center text-sm lg:text-base">
               <span className="hidden text-slate-500 sm:inline-block">By&nbsp;</span>
-              <Link href={`/authors/${post.author.slug}`}>
+              <Link href={`/authors/${post.author.slug}`} prefetch={false}>
                 <a className="font-medium text-slate-700 hover:underline">{post.author.name}</a>
               </Link>
               <CalendarIcon className="ml-4 h-5 w-5 text-slate-400" />

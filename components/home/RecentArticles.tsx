@@ -34,6 +34,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                     height={158}
                     sizes="50vw"
                     className="group-hover:scale-105 group-hover:duration-300"
+                    quality={60}
                   />
                 </div>
               </a>
@@ -59,6 +60,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                         width={24}
                         height={24}
                         objectFit="cover"
+                        layout="responsive"
                         className="rounded-lg"
                         blurDataURL={post.author.image.asset.metadata.lqip ?? undefined}
                       />

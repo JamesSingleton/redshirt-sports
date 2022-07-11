@@ -45,7 +45,7 @@ const FCS = ({ posts, pagination }: fcsProps) => {
               </div>
             </div>
             <div className="order-1 md:order-2">
-              <nav aria-label="breadcrumb" className="flex items-center text-sm">
+              <nav aria-label="breadcrumb" title="breadcrumb" className="flex items-center text-sm">
                 <ol role="list" className="flex items-center space-x-4">
                   <li>
                     <div>

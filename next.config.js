@@ -64,6 +64,20 @@ const moduleExports = {
 
     return config
   },
+  async redirects() {
+    return [
+      {
+        source: '/authors',
+        destination: '/about',
+        permanent: true,
+      },
+      {
+        source: '/advertising',
+        destination: '/contact',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 const sentryWebpackPluginOptions = {

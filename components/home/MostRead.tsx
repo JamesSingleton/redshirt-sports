@@ -41,7 +41,7 @@ const MostRead: FC<MostReadProps> = ({ mostReadArticles }) => {
                     </a>
                   </Link>
                 </div>
-                <div className="mt-2 flex items-center text-sm">
+                <div className="mt-2 flex h-12 items-center text-sm">
                   <span className="text-slate-500">By&nbsp;</span>
                   <Link href={`/authors/${mostReadArticle.author.slug}`}>
                     <a className="font-medium text-slate-900 hover:underline">

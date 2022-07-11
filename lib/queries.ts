@@ -117,11 +117,19 @@ export const authorAndTheirPostsBySlug = groq`
 
 export const allAuthors = groq`
   *[_type == 'author'] | order(_createdAt asc){
+    _id,
     name,
-    _updatedAt,
     'slug': slug.current,
     role,
-    image,
+    "image": {
+      "asset": image.asset->{ 
+        _id,
+        _type,
+        metadata,
+        url
+        }
+    },
+    twitterURL
   }
 `
 

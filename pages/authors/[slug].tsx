@@ -1,13 +1,12 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
-import Image from 'next/image'
 import { NextSeo, SocialProfileJsonLd, BreadcrumbJsonLd } from 'next-seo'
+
 import { Layout } from '@components/common'
 import { getClient, sanityClient } from '@lib/sanity.server'
 import { authorSlugsQuery, authorAndTheirPostsBySlug } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
-import { RecentArticles } from '@components/author'
 import { usePlausible } from 'next-plausible'
-import { BlurImage } from '@components/ui'
+import { BlurImage, HorizontalCard } from '@components/ui'
 
 import type { Author } from '@types'
 
@@ -21,7 +20,7 @@ const Author = ({ author }: AuthorProps) => {
   return (
     <>
       <NextSeo
-        title={`${author.name} Profile`}
+        title={`${author.role} ${author.name} Profile`}
         description={`Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`}
         canonical={`https://www.redshirtsports.xyz/authors/${author.slug}`}
         openGraph={{
@@ -103,6 +102,7 @@ const Author = ({ author }: AuthorProps) => {
                       className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-transparent transition duration-300 ease-in-out sm:h-12 sm:w-12"
                       rel="noreferrer noopener"
                     >
+                      <span className="sr-only">{`${author.name}'s Twitter`}</span>
                       <svg
                         fill="currentColor"
                         viewBox="0 0 24 24"
@@ -120,7 +120,16 @@ const Author = ({ author }: AuthorProps) => {
         </section>
         <section className="mx-auto max-w-xl py-12 px-4 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
-            <div className="col-span-2"></div>
+            <div className="col-span-2">
+              <h2 className="relative border-b border-slate-300 pb-3 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+                Recent Stories
+              </h2>
+              <div className="mt-6 pt-8 sm:mt-10 sm:pt-10">
+                {author.posts!.map((post) => (
+                  <HorizontalCard key={post._id} post={post} />
+                ))}
+              </div>
+            </div>
             <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
               <div className="w-full rounded-2xl bg-slate-50 p-5 sm:p-8">
                 <h2 className="relative border-b border-slate-300 pb-3 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">{`About ${author.name}`}</h2>

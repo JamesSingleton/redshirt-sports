@@ -18,13 +18,12 @@ const HorizontalCard = ({ post }: HorizontalCardProps) => {
         <Link href={`/${post.slug}`}>
           <a className="aspect-h-9 aspect-w-16 block overflow-hidden rounded-2xl md:aspect-h-1 md:aspect-w-1">
             <BlurImage
-              src={urlForImage(post.mainImage).width(360).height(202).url()}
+              src={urlForImage(post.mainImage).quality(40).url()}
               alt={post.mainImage.caption}
               layout="fill"
-              width={360}
-              height={202}
               blurDataURL={post.mainImage.asset.metadata.lqip}
               className="overflow-hidden rounded-2xl"
+              quality={40}
             />
           </a>
         </Link>

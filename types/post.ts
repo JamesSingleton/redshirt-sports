@@ -23,7 +23,7 @@ export type Author = {
   bio: string
   twitterURL: string
   twitterHandle: string
-  posts: Post[]
+  posts?: Post[]
 }
 
 export type Post = {

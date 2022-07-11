@@ -25,6 +25,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
             className="group-hover:scale-105 group-hover:duration-300"
             priority={true}
+            quality={60}
           />
         </a>
       </Link>

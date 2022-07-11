@@ -79,7 +79,7 @@ const Footer = () => {
             className="-my-2 flex flex-wrap items-center justify-center space-x-5 md:justify-start"
           >
             {navigation.site.map(({ name, href }) => (
-              <Link key={name} href={href}>
+              <Link key={name} href={href} prefetch={false}>
                 <a
                   onClick={() =>
                     plausible('clickOnFooter', {
