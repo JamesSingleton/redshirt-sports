@@ -83,7 +83,11 @@ const FCS = ({ posts, pagination }: fcsProps) => {
         <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           <div className="col-span-2">
             {posts && posts.map((post) => <HorizontalCard post={post} key={post._id} />)}
-            <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
+            <Pagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.totalPages}
+              basePath="/fcs"
+            />
           </div>
           <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
             <SocialMediaFollow />
