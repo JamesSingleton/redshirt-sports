@@ -1,10 +1,11 @@
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { GetStaticProps } from 'next'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/solid'
 
 import { Layout, SocialMediaFollow } from '@components/common'
-import { HorizontalCard, Pagination } from '@components/ui'
+import { HorizontalCard } from '@components/ui'
 import { getClient } from '@lib/sanity.server'
 import { fcsPostsQuery } from '@lib/queries'
 
@@ -82,12 +83,9 @@ const FCS = ({ posts, pagination }: fcsProps) => {
       <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
         <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           <div className="col-span-2">
-            {posts && posts.map((post) => <HorizontalCard post={post} key={post._id} />)}
-            <Pagination
-              currentPage={pagination.currentPage}
-              totalPages={pagination.totalPages}
-              basePath="/fcs"
-            />
+            {posts.map((post, key) => (
+              <HorizontalCard post={post} key={post._id} />
+            ))}
           </div>
           <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
             <SocialMediaFollow />

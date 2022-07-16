@@ -1,4 +1,5 @@
 import PlausibleProvider from 'next-plausible'
+import { LazyMotion, domAnimation, AnimatePresence } from 'framer-motion'
 import '@styles/globals.css'
 
 import { Head } from '@components/common'
@@ -9,7 +10,11 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <PlausibleProvider domain="redshirtsports.xyz" trackOutboundLinks={true}>
       <Head />
-      <Component {...pageProps} />
+      <LazyMotion features={domAnimation}>
+        <AnimatePresence exitBeforeEnter>
+          <Component {...pageProps} />
+        </AnimatePresence>
+      </LazyMotion>
     </PlausibleProvider>
   )
 }

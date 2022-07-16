@@ -172,7 +172,7 @@ const sliceWithParam = `[($pageIndex * 10)...($pageIndex + 1) * 10]`
 
 export const fcsPostsQuery = groq`
   {
-    "posts": *[_type == "post" && 'FCS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc)[($pageIndex * ${ITEMS_PER_PAGE})...($pageIndex + 1) * ${ITEMS_PER_PAGE}]{
+    "posts": *[_type == "post" && 'FCS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc){
       ${litePostFields}
     },
     "pagination": {

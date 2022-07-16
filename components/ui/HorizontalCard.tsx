@@ -1,5 +1,7 @@
+import { forwardRef } from 'react'
 import Link from 'next/link'
 import { CalendarIcon, ClockIcon } from '@heroicons/react/outline'
+import { usePlausible } from 'next-plausible'
 
 import { urlForImage } from '@lib/sanity'
 import BlurImage from './BlurImage'
@@ -11,9 +13,10 @@ interface HorizontalCardProps {
   post: Post
 }
 
-const HorizontalCard = ({ post }: HorizontalCardProps) => {
+const HorizontalCard = forwardRef<HTMLElement, HorizontalCardProps>(({ post }, ref) => {
+  const plausible = usePlausible()
   return (
-    <article className="md:grid md:grid-cols-4 md:gap-8">
+    <article ref={ref} className="md:grid md:grid-cols-4 md:gap-8">
       <div className="md:col-span-1">
         <Link href={`/${post.slug}`}>
           <a className="aspect-h-9 aspect-w-16 block overflow-hidden rounded-2xl md:aspect-h-1 md:aspect-w-1">
@@ -68,6 +71,8 @@ const HorizontalCard = ({ post }: HorizontalCardProps) => {
       </div>
     </article>
   )
-}
+})
+
+HorizontalCard.displayName = 'HorizontalCard'
 
 export default HorizontalCard
