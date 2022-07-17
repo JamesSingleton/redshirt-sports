@@ -1,11 +1,9 @@
-import Link from 'next/link'
 import { NextSeo, WebPageJsonLd, ArticleJsonLd, BreadcrumbJsonLd } from 'next-seo'
 
 import { Layout } from '@components/common'
 import { sanityClient, getClient } from '@lib/sanity.server'
 import { postSlugsQuery, postQuery } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
-import { BlurImage, Date } from '@components/ui'
 import { PostHeader, PostFooter } from '@components/post'
 
 import type { GetStaticPaths, GetStaticProps } from 'next'
@@ -34,9 +32,29 @@ export default function Post({ currentPost, nextPost, previousPost }: PostProps)
         openGraph={{
           title: currentPost.title,
           description: currentPost.excerpt,
+          type: 'article',
+          article: {
+            publishedTime: currentPost.publishedAt,
+            modifiedTime: currentPost._updatedAt,
+            section: categoryName,
+            authors: [`https://www.redshirtsports.xyz/authors/${currentPost.author.slug}`],
+          },
+          images: [
+            {
+              url: urlForImage(currentPost.mainImage).width(1200).height(630).url(),
+              width: 1200,
+              height: 630,
+              alt: currentPost.mainImage.caption,
+            },
+          ],
         }}
         twitter={{
           handle: currentPost.author.twitterHandle,
+        }}
+        robotsProps={{
+          maxSnippet: -1,
+          maxImagePreview: 'large',
+          maxVideoPreview: -1,
         }}
       />
       <WebPageJsonLd
@@ -51,7 +69,11 @@ export default function Post({ currentPost, nextPost, previousPost }: PostProps)
         authorName={[currentPost.author.name]}
         publisherName="Redshirt Sports"
         publisherLogo="https://www.redshirtsports.xyz/images/icons/RS_512.png"
-        images={[urlForImage(currentPost.mainImage).height(574).width(1020).url()!]}
+        images={[
+          urlForImage(currentPost.mainImage).width(1920).height(1080).fit('scale').url(),
+          urlForImage(currentPost.mainImage).width(640).height(480).url(),
+          urlForImage(currentPost.mainImage).width(1200).height(1200).fit('scale').url(),
+        ]}
         description={currentPost.excerpt}
       />
       <BreadcrumbJsonLd

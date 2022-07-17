@@ -18,6 +18,11 @@ const ContactUs = () => {
           url: 'https://www.redshirtsports.xyz/contact',
           title: 'Contact Us - Redshirt Sports',
         }}
+        robotsProps={{
+          maxSnippet: -1,
+          maxImagePreview: 'large',
+          maxVideoPreview: -1,
+        }}
       />
       <Layout>
         <PageHeader

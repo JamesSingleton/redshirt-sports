@@ -26,7 +26,14 @@ export default function Home({
 }: HomePageProps) {
   return (
     <>
-      <NextSeo canonical={SITE_URL} />
+      <NextSeo
+        canonical={SITE_URL}
+        robotsProps={{
+          maxSnippet: -1,
+          maxImagePreview: 'large',
+          maxVideoPreview: -1,
+        }}
+      />
       <Layout>
         <Hero mainArticle={mainArticle} recentArticles={recentArticles} />
         <section className="relative mx-auto max-w-7xl py-12 md:py-16 lg:py-20 lg:px-8">

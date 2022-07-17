@@ -24,6 +24,11 @@ const FBS = ({ fbsPosts }: fbsProps) => {
           description:
             'All Articles by Redshirt Sports on NCAA Division 1 Football Bowl Subdivision',
         }}
+        robotsProps={{
+          maxSnippet: -1,
+          maxImagePreview: 'large',
+          maxVideoPreview: -1,
+        }}
       />
       <div className="container mx-auto px-4 py-12 lg:py-24 xl:px-32">
         <div className="relative mb-4 flex flex-col">

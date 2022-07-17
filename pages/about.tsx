@@ -26,6 +26,11 @@ const About = ({ authors }: AboutProps) => {
           description: 'Learn about Redshirt Sports and the team that makes it possible!',
           url: 'https://www.redshirtsports.xyz/about',
         }}
+        robotsProps={{
+          maxSnippet: -1,
+          maxImagePreview: 'large',
+          maxVideoPreview: -1,
+        }}
       />
       <Layout>
         <PageHeader

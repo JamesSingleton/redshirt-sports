@@ -28,6 +28,11 @@ const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
           description:
             "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
         }}
+        robotsProps={{
+          maxSnippet: -1,
+          maxImagePreview: 'large',
+          maxVideoPreview: -1,
+        }}
       />
       <Layout>
         <PageHeader

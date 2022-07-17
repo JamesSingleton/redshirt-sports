@@ -31,6 +31,11 @@ const FCS = ({ posts, pagination }: fcsProps) => {
           description:
             'All Articles by Redshirt Sports on NCAA Division 1 Football Championship Subdivision',
         }}
+        robotsProps={{
+          maxSnippet: -1,
+          maxImagePreview: 'large',
+          maxVideoPreview: -1,
+        }}
       />
       <section className="bg-slate-50 py-12 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-xl px-4 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
