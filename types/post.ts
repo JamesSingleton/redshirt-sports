@@ -20,7 +20,7 @@ export type Author = {
   role: string
   image: Image
   backgroundImage: Image
-  bio: string
+  bio: any
   twitterURL: string
   twitterHandle: string
   posts?: Post[]
@@ -39,4 +39,5 @@ export type Post = {
   estimatedReadingTime: number
   author: Author
   mainImage: Image
+  wordCount: number
 }

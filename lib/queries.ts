@@ -22,7 +22,8 @@ const postFields = `
   excerpt,
   body,
   featuredArticle,
-  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 )
+  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 ),
+  "wordCount": length(pt::text(body))
 `
 
 const litePostFields = `
