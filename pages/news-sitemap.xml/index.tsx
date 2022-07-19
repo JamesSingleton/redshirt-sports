@@ -1,8 +1,9 @@
 import { GetServerSideProps } from 'next'
+
 import { sanityClient } from '@lib/sanity.server'
 import { allPosts } from '@lib/queries'
-import type { Post } from '@lib/types/post'
-import toPlainText from '@lib/toPlainText'
+
+import type { Post } from '@types'
 
 const NewsSitemap = () => {}
 

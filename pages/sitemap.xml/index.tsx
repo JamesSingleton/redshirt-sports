@@ -1,8 +1,9 @@
 import { GetServerSideProps } from 'next'
+
 import { sanityClient } from '@lib/sanity.server'
 import { allAuthors, allPosts } from '@lib/queries'
-import type { Post } from '@lib/types/post'
-import type { AuthorTypes } from '@lib/types/author'
+
+import type { Post, Author } from '@types'
 
 const Sitemap = () => {}
 
@@ -21,7 +22,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   )
 
   const authorsSitemap = authors.map(
-    (author: AuthorTypes) => `
+    (author: Author) => `
       <loc>${baseUrl}/authors/${author.slug}</loc>
       <changefreq>weekly</changefreq>
       <priority>0.7</priority>
@@ -52,7 +53,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         <priority>0.8</priority>
       </url>
       <url>
-        <loc>https://www.redshirtsports.xyz/advertising</loc>
+        <loc>https://www.redshirtsports.xyz/contact</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
       </url>
