@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import { NextSeo } from 'next-seo'
 
 import { Layout, SocialMediaFollow } from '@components/common'
@@ -5,6 +6,7 @@ import { Hero, FeaturedArticles, ArticleSection, MostRead } from '@components/ho
 import { getClient } from '@lib/sanity.server'
 import { homePageQuery } from '@lib/queries'
 import { SITE_URL } from '@lib/constants'
+import { Organization, WebSite } from '@lib/ldJson'
 
 import type { GetStaticProps } from 'next'
 import type { Post } from '@types'
@@ -24,8 +26,61 @@ export default function Home({
   featuredArticles,
   mostReadArticles,
 }: HomePageProps) {
+  const content = {
+    '@context': 'http://schema.org',
+    '@graph': [
+      Organization,
+      WebSite,
+      {
+        '@type': 'WebPage',
+        '@id': `${SITE_URL}/#webpage`,
+        url: SITE_URL,
+        name: 'Redshirt Sports',
+        isPartOf: {
+          '@id': `${SITE_URL}/#website`,
+        },
+        about: {
+          '@id': `${SITE_URL}/#organization`,
+        },
+        dateModified: mainArticle._updatedAt,
+        description:
+          'Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more.',
+        breadcrumb: {
+          '@id': `${SITE_URL}/#breadcrumb`,
+        },
+        inLanguage: 'en-US',
+        potentialAction: [
+          {
+            '@type': 'ReadAction',
+            target: [SITE_URL],
+          },
+        ],
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${SITE_URL}/#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: SITE_URL,
+          },
+        ],
+      },
+    ],
+  }
   return (
     <>
+      <Head>
+        <script
+          id="home-ld-json"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(content),
+          }}
+        />
+      </Head>
       <NextSeo
         canonical={SITE_URL}
         robotsProps={{

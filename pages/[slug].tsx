@@ -1,13 +1,12 @@
-import Script from 'next/script'
+import Head from 'next/head'
 import { NextSeo } from 'next-seo'
-import { toPlainText } from '@portabletext/react'
 
 import { Layout } from '@components/common'
 import { sanityClient, getClient } from '@lib/sanity.server'
 import { postSlugsQuery, postQuery } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { PostHeader, PostFooter } from '@components/post'
-import { Organization, WebSite } from '@lib/ldJson'
+import { createPostLDJson } from '@lib/createLDJson'
 
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { Post } from '@types'
@@ -26,124 +25,18 @@ export default function Post({ currentPost, nextPost, previousPost }: PostProps)
       categoryName = category
     }
   })
-  const content = {
-    '@context': 'http://schema.org',
-    '@graph': [
-      Organization,
-      WebSite,
-      {
-        '@type': 'ImageObject',
-        '@id': `https://www.redshirtsports.xyz/${currentPost.slug}/#primaryimage`,
-        inLanguage: 'en-US',
-        url: urlForImage(currentPost.mainImage).width(1200).height(676).fit('scale').url(),
-        width: 1200,
-        height: 676,
-        caption: currentPost.mainImage.caption,
-      },
-      {
-        '@type': 'WebPage',
-        '@id': `https://www.redshirtsports.xyz/${currentPost.slug}/#webpage`,
-        url: `https://www.redshirtsports.xyz/${currentPost.slug}`,
-        name: currentPost.title,
-        isPartOf: {
-          '@id': 'https://www.redshirtsports.xyz/#website',
-        },
-        primaryImageOfPage: {
-          '@id': `https://www.redshirtsports.xyz/${currentPost.slug}/#primaryimage`,
-        },
-        datePublished: currentPost.publishedAt,
-        dateModified: currentPost._updatedAt,
-        description: currentPost.excerpt,
-        breadcrumb: {
-          '@id': `https://www.redshirtsports.xyz/${currentPost.slug}/#breadcrumb`,
-        },
-        inLanguage: 'en-US',
-        potentialAction: [
-          {
-            '@type': 'ReadAction',
-            target: `https://www.redshirtsports.xyz/${currentPost.slug}`,
-          },
-        ],
-      },
-      {
-        '@type': 'BreadcrumbList',
-        '@id': `https://www.redshirtsports.xyz/${currentPost.slug}/#breadcrumb`,
-        name: 'Article Breadcrumbs',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Home',
-            item: 'https://www.redshirtsports.xyz',
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: categoryName,
-            item: `https://www.redshirtsports.xyz/${categoryName.toLowerCase()}`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: currentPost.title,
-            item: `https://www.redshirtsports.xyz/${currentPost.slug}`,
-          },
-        ],
-      },
-      {
-        '@type': 'Article',
-        '@id': `https://www.redshirtsports.xyz/${currentPost.slug}/#article`,
-        isPartOf: {
-          '@id': `https://www.redshirtsports.xyz/${currentPost.slug}/#webpage`,
-        },
-        author: {
-          '@id': `https://www.redshirtsports.xyz/authors/${currentPost.author.slug}`,
-        },
-        headline: currentPost.title,
-        datePublished: currentPost.publishedAt,
-        dateModified: currentPost._updatedAt,
-        mainEntityOfPage: {
-          '@id': `https://www.redshirtsports.xyz/${currentPost.slug}/#webpage`,
-        },
-        wordCount: currentPost.wordCount,
-        publisher: {
-          '@id': 'https://www.redshirtsports.xyz/#organization',
-        },
-        image: [
-          urlForImage(currentPost.mainImage).width(1920).height(1080).fit('scale').url(),
-          urlForImage(currentPost.mainImage).width(640).height(480).url(),
-          urlForImage(currentPost.mainImage).width(1200).height(1200).fit('scale').url(),
-        ],
-        thumbnailUrl: urlForImage(currentPost.mainImage).url(),
-        articleSection: [categoryName],
-        inLanguage: 'en-US',
-      },
-      {
-        '@type': 'Person',
-        '@id': `https://www.redshirtsports.xyz/authors/${currentPost.author.slug}`,
-        name: currentPost.author.name,
-        url: `https://www.redshirtsports.xyz/authors/${currentPost.author.slug}`,
-        description: toPlainText(currentPost.author.bio),
-        image: {
-          '@type': 'ImageObject',
-          inLanguage: 'en-US',
-          url: urlForImage(currentPost.author.image).url(),
-          contentUrl: urlForImage(currentPost.author.image).url(),
-          caption: currentPost.author.name,
-        },
-        sameAs: ['https://www.redshirtsports.xyz', currentPost.author.twitterURL],
-      },
-    ],
-  }
+  const content = createPostLDJson({ post: currentPost, categoryName })
   return (
     <>
-      <Script
-        id="app-ld-json"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(content, null, '\t'),
-        }}
-      />
+      <Head>
+        <script
+          id="app-ld-json"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(content),
+          }}
+        />
+      </Head>
       <NextSeo
         title={currentPost.title}
         description={currentPost.excerpt}

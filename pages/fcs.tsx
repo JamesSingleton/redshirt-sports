@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState, useRef } from 'react'
 import { GetStaticProps } from 'next'
+import Head from 'next/head'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/solid'
