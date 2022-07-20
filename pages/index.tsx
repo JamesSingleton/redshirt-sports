@@ -59,6 +59,7 @@ export default function Home({
       {
         '@type': 'BreadcrumbList',
         '@id': `${SITE_URL}/#breadcrumb`,
+        name: 'Home Breadcrumbs',
         itemListElement: [
           {
             '@type': 'ListItem',

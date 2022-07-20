@@ -1,10 +1,13 @@
 import { GetStaticProps } from 'next'
+import Head from 'next/head'
 import { NextSeo } from 'next-seo'
+
 import { Layout } from '@components/common'
 import { Card } from '@components/ui'
-import { CategoryHeader, EmptyState } from '@components/category'
+import { CategoryHeader } from '@components/category'
 import { getClient } from '@lib/sanity.server'
 import { allFBSPosts } from '@lib/queries'
+import { Organization, WebSite } from '@lib/ldJson'
 
 import type { Post } from '@types'
 
@@ -13,8 +16,67 @@ interface fbsProps {
 }
 
 const FBS = ({ fbsPosts }: fbsProps) => {
+  const ldJsonContent = {
+    '@context': 'http://schema.org',
+    '@graph': [
+      Organization,
+      WebSite,
+      {
+        '@type': 'CollectionPage',
+        '@id': 'https://www.redshirtsports.xyz/fbs/#webpage',
+        url: 'https://www.redshirtsports.xyz/fbs',
+        name: 'FBS Football - Redshirt Sports',
+        isPartOf: {
+          '@id': 'https://www.redshirtsports.xyz/#website',
+        },
+        description:
+          'All Articles by Redshirt Sports on NCAA Division 1 Football Bowl Subdivision - Redshirt Sports',
+        breadcrumb: {
+          '@id': 'https://www.redshirtsports.xyz/fbs/#breadcrumb',
+        },
+        inLanguage: 'en-US',
+        potentialAction: [
+          {
+            '@type': 'ReadAction',
+            target: ['https://www.redshirtsports.xyz/fbs'],
+          },
+        ],
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': 'https://www.redshirtsports.xyz/fbs/#breadcrumb',
+        name: 'FBS Breadcrumbs',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            item: {
+              '@id': 'https://www.redshirtsports.xyz',
+              name: 'Home',
+            },
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            item: {
+              name: 'FBS',
+            },
+          },
+        ],
+      },
+    ],
+  }
   return (
     <>
+      <Head>
+        <script
+          id="fbs-ld-json"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(ldJsonContent),
+          }}
+        />
+      </Head>
       <NextSeo
         title="FBS Football"
         description="All Articles by Redshirt Sports on NCAA Division 1 Football Bowl Subdivision"

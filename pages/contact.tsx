@@ -1,7 +1,9 @@
+import Head from 'next/head'
 import { NextSeo } from 'next-seo'
 
 import { Layout, SocialMediaFollow } from '@components/common'
 import { PageHeader } from '@components/ui'
+import { Organization, WebSite } from '@lib/ldJson'
 
 const contactDetails = [
   { name: 'Collaborate', email: 'editors@redshirtsports.xyz' },
@@ -9,8 +11,64 @@ const contactDetails = [
 ]
 
 const ContactUs = () => {
+  const ldJsonContent = {
+    '@context': 'http://schema.org',
+    '@graph': [
+      Organization,
+      WebSite,
+      {
+        '@type': 'ContactPage',
+        '@id': 'https://www.redshirtsports.xyz/contact/#contactpage',
+        url: 'https://www.redshirtsports.xyz/contact',
+        name: 'Contact Us - Redshirt Sports',
+        isPartOf: {
+          '@id': 'https://www.redshirtsports.xyz/#website',
+        },
+        breadcrumb: { '@id': 'https://www.redshirtsports.xyz/contact/#breadcrumb' },
+        inLanguage: 'en-US',
+        potentialAction: [
+          {
+            '@type': 'ReadAction',
+            target: ['https://www.redshirtsports.xyz/contact'],
+          },
+        ],
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': 'https://www.redshirtsports.xyz/contact/#breadcrumb',
+        name: 'Contact Us Breadcrumbs',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            item: {
+              '@id': 'https://www.redshirtsports.xyz',
+              name: 'Home',
+            },
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            item: {
+              name: 'Contact Us',
+            },
+          },
+        ],
+      },
+    ],
+  }
+
   return (
     <>
+      <Head>
+        <script
+          id="contact-ld-json"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(ldJsonContent),
+          }}
+        />
+      </Head>
       <NextSeo
         title="Contact Us"
         canonical="https://www.redshirtsports.xyz/contact"

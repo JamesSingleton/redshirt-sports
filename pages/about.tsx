@@ -1,13 +1,14 @@
 import { GetStaticProps } from 'next'
+import Head from 'next/head'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
-import { ArrowRightIcon } from '@heroicons/react/outline'
 
 import { Layout } from '@components/common'
 import { BlurImage, PageHeader } from '@components/ui'
 import { getClient } from '@lib/sanity.server'
 import { allAuthors } from '@lib/queries'
 import { urlForImage } from '@lib/sanity'
+import { Organization, WebSite } from '@lib/ldJson'
 
 import type { Author } from '@types'
 
@@ -16,8 +17,65 @@ interface AboutProps {
 }
 
 const About = ({ authors }: AboutProps) => {
+  const ldJsonContent = {
+    '@context': 'http://schema.org',
+    '@graph': [
+      Organization,
+      WebSite,
+      {
+        '@type': 'AboutPage',
+        '@id': 'https://www.redshirtsports.xyz/about/#aboutpage',
+        url: 'https://www.redshirtsports.xyz/about',
+        name: 'About Us - Redshirt Sports',
+        isPartOf: {
+          '@id': 'https://www.redshirtsports.xyz/#website',
+        },
+        breadcrumb: {
+          '@id': 'https://www.redshirtsports.xyz/about/#breadcrumb',
+        },
+        inLanguage: 'en-US',
+        potentialAction: [
+          {
+            '@type': 'ReadAction',
+            target: ['https://www.redshirtsports.xyz/about'],
+          },
+        ],
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': 'https://www.redshirtsports.xyz/about/#breadcrumb',
+        name: 'About Breadcrumbs',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            item: {
+              '@id': 'https://www.redshirtsports.xyz',
+              name: 'Home',
+            },
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            item: {
+              name: 'About Redshirt Sports',
+            },
+          },
+        ],
+      },
+    ],
+  }
   return (
     <>
+      <Head>
+        <script
+          id="about-ld-json"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(ldJsonContent),
+          }}
+        />
+      </Head>
       <NextSeo
         title="About"
         description="Learn about Redshirt Sports and the team that makes it possible!"
