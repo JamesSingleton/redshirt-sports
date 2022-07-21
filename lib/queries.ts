@@ -119,6 +119,7 @@ export const authorAndTheirPostsBySlug = groq`
 export const allAuthors = groq`
   *[_type == 'author'] | order(_createdAt asc){
     _id,
+    _updatedAt,
     name,
     'slug': slug.current,
     role,
@@ -139,6 +140,7 @@ export const allPosts = groq`
   _id,
   'slug': slug.current,
   publishedAt,
+  _updatedAt,
   title,
   "mainImage": {
     "caption": mainImage.caption,
@@ -226,5 +228,11 @@ export const getAdvertisingPage = `
 export const getPrivacyPolicyPage = `
 *[_type == "legal" && slug.current == "privacy-policy"][0] {
   ${legalFields}
+}
+`
+
+export const searchQuery = groq`
+*[_type == 'post' && title match $searchTerm] | order(publishedAt desc, _updatedAt desc){
+  ${litePostFields}
 }
 `

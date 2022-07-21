@@ -38,7 +38,9 @@ const HorizontalCard = forwardRef<HTMLElement, HorizontalCardProps>(({ post }, r
               <h2 className="text-xl font-medium leading-tight text-slate-900 decoration-2 group-hover:underline sm:text-2xl lg:text-xl xl:text-2xl">
                 {post.title}
               </h2>
-              <p className="mt-3 block text-base leading-relaxed text-slate-500">{post.excerpt}</p>
+              <p className="mt-3 block text-base leading-relaxed text-slate-500 line-clamp-2">
+                {post.excerpt}
+              </p>
             </a>
           </Link>
           <footer className="mt-5 flex items-center sm:mt-7">
