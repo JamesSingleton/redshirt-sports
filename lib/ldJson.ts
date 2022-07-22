@@ -29,5 +29,12 @@ export const WebSite = {
   publisher: {
     '@id': 'https://www.redshirtsports.xyz/#organization',
   },
+  potentialAction: [
+    {
+      '@type': 'SearchAction',
+      target: 'https://www.redshirtsports.xyz/search?query={search_term_string}',
+      'query-input': 'required query=search_term_string',
+    },
+  ],
   inLanguage: 'en-US',
 }

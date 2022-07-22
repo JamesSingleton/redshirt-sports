@@ -1,5 +1,6 @@
 import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
+
 import { Layout, SocialMediaFollow } from '@components/common'
 import { getClient } from '@lib/sanity.server'
 import { getPrivacyPolicyPage } from '@lib/queries'

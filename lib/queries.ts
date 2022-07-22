@@ -232,7 +232,7 @@ export const getPrivacyPolicyPage = `
 `
 
 export const searchQuery = groq`
-*[_type == 'post' && title match $searchTerm] | order(publishedAt desc, _updatedAt desc){
+*[_type == 'post' && title match "*" + $searchTerm + "*"] | order(publishedAt desc, _updatedAt desc)[0..10]{
   ${litePostFields}
 }
 `
