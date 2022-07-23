@@ -2,7 +2,7 @@ import { GetStaticProps, GetStaticPaths } from 'next'
 import { NextSeo, SocialProfileJsonLd, BreadcrumbJsonLd } from 'next-seo'
 
 import { Layout } from '@components/common'
-import { getClient, sanityClient } from '@lib/sanity.server'
+import { sanityClient } from '@lib/sanity.server'
 import { authorSlugsQuery, authorAndTheirPostsBySlug } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { usePlausible } from 'next-plausible'
@@ -141,7 +141,7 @@ const Author = ({ author }: AuthorProps) => {
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const author = await getClient().fetch(authorAndTheirPostsBySlug, {
+  const author = await sanityClient.fetch(authorAndTheirPostsBySlug, {
     slug: params?.slug,
   })
 

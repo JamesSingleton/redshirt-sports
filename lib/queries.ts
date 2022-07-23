@@ -156,6 +156,29 @@ export const allPosts = groq`
 }
 `
 
+export const allPostsForRssFeed = groq`
+*[_type == 'post']{
+  _id,
+  'slug': slug.current,
+  publishedAt,
+  _updatedAt,
+  title,
+  excerpt,
+  "mainImage": {
+    "caption": mainImage.caption,
+    "attribution": mainImage.attribution,
+    "asset": mainImage.asset->{ 
+      _id,
+      _type,
+      metadata,
+      url
+     }
+  },
+  "author": author->{name, 'slug': slug.current},
+  body
+}
+`
+
 export const allFCSPosts = groq`
 *[_type == "post" && 'FCS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc){
   _id,
@@ -189,7 +212,7 @@ export const totalFCSPosts = groq`count(*[_type == "post" && 'FCS' in categories
 
 export const allFBSPosts = groq`
 *[_type == "post" && 'FBS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc){
-    ${postFields}
+    ${litePostFields}
   }
 `
 

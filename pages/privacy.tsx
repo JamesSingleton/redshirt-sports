@@ -2,7 +2,7 @@ import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 
 import { Layout, SocialMediaFollow } from '@components/common'
-import { getClient } from '@lib/sanity.server'
+import { sanityClient } from '@lib/sanity.server'
 import { getPrivacyPolicyPage } from '@lib/queries'
 import { PortableText } from '@lib/sanity'
 import { Date, PageHeader } from '@components/ui'
@@ -62,7 +62,7 @@ const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const privacyPolicy = await getClient().fetch(getPrivacyPolicyPage)
+  const privacyPolicy = await sanityClient.fetch(getPrivacyPolicyPage)
 
   if (!privacyPolicy) {
     return {

@@ -5,7 +5,7 @@ import { ArrowRightIcon } from '@heroicons/react/outline'
 
 import { Layout } from '@components/common'
 import { recentArticlesQuery } from '@lib/queries'
-import { getClient } from '@lib/sanity.server'
+import { sanityClient } from '@lib/sanity.server'
 
 import type { Post } from '@types'
 import { BlurImage, Date } from '@components/ui'
@@ -116,7 +116,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const recentArticles = await getClient().fetch(recentArticlesQuery)
+  const recentArticles = await sanityClient.fetch(recentArticlesQuery)
 
   return {
     props: {

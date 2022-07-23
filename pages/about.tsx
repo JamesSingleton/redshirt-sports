@@ -5,7 +5,7 @@ import { NextSeo } from 'next-seo'
 
 import { Layout } from '@components/common'
 import { BlurImage, PageHeader } from '@components/ui'
-import { getClient } from '@lib/sanity.server'
+import { sanityClient } from '@lib/sanity.server'
 import { allAuthors } from '@lib/queries'
 import { urlForImage } from '@lib/sanity'
 import { Organization, WebSite } from '@lib/ldJson'
@@ -205,7 +205,7 @@ const About = ({ authors }: AboutProps) => {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const authors = await getClient().fetch(allAuthors)
+  const authors = await sanityClient.fetch(allAuthors)
 
   return {
     props: {

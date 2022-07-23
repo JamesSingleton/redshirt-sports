@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { NextSeo } from 'next-seo'
 
 import { Layout } from '@components/common'
-import { sanityClient, getClient } from '@lib/sanity.server'
+import { sanityClient } from '@lib/sanity.server'
 import { postSlugsQuery, postQuery } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { PostHeader, PostFooter } from '@components/post'
@@ -119,7 +119,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   if (!params) throw new Error('No path parameters found')
 
   const { currentPost, nextPost, previousPost } =
-    (await getClient().fetch(postQuery, {
+    (await sanityClient.fetch(postQuery, {
       slug: params?.slug,
     })) || {}
 

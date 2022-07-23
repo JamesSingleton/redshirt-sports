@@ -3,7 +3,7 @@ import { NextSeo } from 'next-seo'
 
 import { Layout, SocialMediaFollow } from '@components/common'
 import { Hero, FeaturedArticles, ArticleSection, MostRead } from '@components/home'
-import { getClient } from '@lib/sanity.server'
+import { sanityClient } from '@lib/sanity.server'
 import { homePageQuery } from '@lib/queries'
 import { SITE_URL } from '@lib/constants'
 import { Organization, WebSite } from '@lib/ldJson'
@@ -126,7 +126,7 @@ export const getStaticProps: GetStaticProps = async () => {
     )
 
   const { mainArticle, recentArticles, otherArticles, featuredArticles, mostReadArticles } =
-    await getClient().fetch(homePageQuery, {
+    await sanityClient.fetch(homePageQuery, {
       topArticles: topArticles,
     })
 

@@ -6,7 +6,7 @@ import { ChevronRightIcon, HomeIcon } from '@heroicons/react/solid'
 
 import { Layout, SocialMediaFollow } from '@components/common'
 import { HorizontalCard } from '@components/ui'
-import { getClient } from '@lib/sanity.server'
+import { sanityClient } from '@lib/sanity.server'
 import { fcsPostsQuery } from '@lib/queries'
 import { Organization, WebSite } from '@lib/ldJson'
 
@@ -170,7 +170,7 @@ const FCS = ({ posts, pagination }: fcsProps) => {
 FCS.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { posts, pagination } = await getClient().fetch(fcsPostsQuery, {
+  const { posts, pagination } = await sanityClient.fetch(fcsPostsQuery, {
     pageIndex: 0,
   })
 

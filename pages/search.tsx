@@ -5,7 +5,7 @@ import { NextSeo } from 'next-seo'
 
 import { Layout, SocialMediaFollow } from '@components/common'
 import { PageHeader, HorizontalCard } from '@components/ui'
-import { getClient } from '@lib/sanity.server'
+import { sanityClient } from '@lib/sanity.server'
 import { searchQuery } from '@lib/queries'
 import { Organization, WebSite } from '@lib/ldJson'
 
@@ -75,7 +75,7 @@ const Search = ({ posts }: SearchProps) => {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const posts = await getClient().fetch(searchQuery, {
+  const posts = await sanityClient.fetch(searchQuery, {
     searchTerm: context.query.query,
   })
 
