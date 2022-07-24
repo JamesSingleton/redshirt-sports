@@ -147,7 +147,7 @@ const About = ({ authors }: AboutProps) => {
                       </div>
                       <div className="mt-6 leading-6">
                         <h3 className="text-xl font-medium text-slate-900">
-                          <Link href={`/authors/${author.slug}`}>
+                          <Link href={`/authors/${author.slug}`} prefetch={false}>
                             <a>
                               <span aria-hidden="true" className="absolute inset-0" />
                               {author.name}

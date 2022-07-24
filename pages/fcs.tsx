@@ -5,7 +5,7 @@ import { NextSeo } from 'next-seo'
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/solid'
 
 import { Layout, SocialMediaFollow } from '@components/common'
-import { HorizontalCard } from '@components/ui'
+import { HorizontalCard, Pagination } from '@components/ui'
 import { sanityClient } from '@lib/sanity.server'
 import { fcsPostsQuery } from '@lib/queries'
 import { Organization, WebSite } from '@lib/ldJson'
@@ -120,7 +120,7 @@ const FCS = ({ posts, pagination }: fcsProps) => {
                   <ol role="list" className="flex items-center space-x-4">
                     <li>
                       <div>
-                        <Link href="/">
+                        <Link href="/" prefetch={false}>
                           <a className="text-slate-400 hover:text-slate-500">
                             <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
                             <span className="sr-only">Home</span>
@@ -134,7 +134,7 @@ const FCS = ({ posts, pagination }: fcsProps) => {
                           className="h-5 w-5 flex-shrink-0 text-slate-400"
                           aria-hidden="true"
                         />
-                        <Link href="/fcs">
+                        <Link href="/fcs" prefetch={false}>
                           <a
                             className="ml-4 text-sm font-medium text-slate-500 hover:text-slate-700"
                             aria-current="page"
@@ -156,6 +156,10 @@ const FCS = ({ posts, pagination }: fcsProps) => {
               {posts.map((post, key) => (
                 <HorizontalCard post={post} key={post._id} />
               ))}
+              <Pagination
+                pageNumber={pagination.currentPage}
+                totalPageCount={pagination.totalPages}
+              />
             </div>
             <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
               <SocialMediaFollow />

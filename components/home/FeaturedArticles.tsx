@@ -21,7 +21,7 @@ const FeaturedArticles: FC<FeaturedArticlesProps> = ({ featuredArticles }) => {
       <div className="pt-6">
         {featuredArticles.map((featuredArticle) => (
           <article key={featuredArticle._id} className="flex space-x-4 sm:space-x-6 lg:space-x-4">
-            <Link href={`/${featuredArticle.slug}`}>
+            <Link href={`/${featuredArticle.slug}`} prefetch={false}>
               <a
                 onClick={() =>
                   plausible('clickOnFeaturedArticle', {
@@ -47,7 +47,7 @@ const FeaturedArticles: FC<FeaturedArticlesProps> = ({ featuredArticles }) => {
             <div className="w-2/3">
               <div className="flex h-full w-full flex-1 flex-col justify-center">
                 <div>
-                  <Link href={`/${featuredArticle.slug}`}>
+                  <Link href={`/${featuredArticle.slug}`} prefetch={false}>
                     <a
                       onClick={() =>
                         plausible('clickOnFeaturedArticle', {
@@ -65,7 +65,7 @@ const FeaturedArticles: FC<FeaturedArticlesProps> = ({ featuredArticles }) => {
                 </div>
                 <div className="mt-2 flex items-center text-sm">
                   <span className="text-slate-500">By&nbsp;</span>
-                  <Link href={`/authors/${featuredArticle.author.slug}`}>
+                  <Link href={`/authors/${featuredArticle.author.slug}`} prefetch={false}>
                     <a
                       onClick={() =>
                         plausible('clickOnFeaturedArticle', {

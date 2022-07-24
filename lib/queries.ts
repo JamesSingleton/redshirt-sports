@@ -74,6 +74,10 @@ const legalFields = `
   body
 `
 
+export const getCategories = groq`*[_type == "category"]{
+  title
+}`
+
 export const postQuery = groq`
 *[_type == "post" && slug.current == $slug]{
   "currentPost": {
@@ -91,20 +95,8 @@ export const postSlugsQuery = `
 *[_type == "post" && defined(slug.current)][].slug.current
 `
 
-export const postBySlugQuery = `
-*[_type == "post" && slug.current == $slug][0] {
-  ${postFields}
-}
-`
-
 export const authorSlugsQuery = groq`
 *[_type == 'author' && defined(slug.current)][].slug.current
-`
-
-export const authorBySlugQuery = groq`
-  *[_type == 'author' && slug.current == $slug][0] {
-    ${authorFields}
-  }
 `
 
 export const authorAndTheirPostsBySlug = groq`
@@ -179,36 +171,35 @@ export const allPostsForRssFeed = groq`
 }
 `
 
-export const allFCSPosts = groq`
-*[_type == "post" && 'FCS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc){
-  _id,
-  publishedAt,
-  title,
-  mainImage,
-  "categories": categories[]->title,
-  "slug": slug.current,
-  "author": author->{name, 'slug': slug.current, image, bio, twitterHandle},
-  excerpt,
-  }
-`
-
+// === SLICING THE COLLECTION ===
 const ITEMS_PER_PAGE = 10
+
+// Notice the difference between the GROQ variable ($pageIndex)
+// and the javascript constant (${ITEMS_PER_PAGE})
 const slice = `[($pageIndex * ${ITEMS_PER_PAGE})...($pageIndex + 1) * ${ITEMS_PER_PAGE}]`
+
+// ITEMS_PER_PAGE is fixed/constant, so we could inject it in the query directly
 const sliceWithParam = `[($pageIndex * 10)...($pageIndex + 1) * 10]`
+
+export const FCS_COLLECTION_FRAGMENT = /* groq */ `
+*[
+  _type == "post" &&
+  'FCS' in categories[]->title &&
+  defined(slug.current)
+]
+`
 
 export const fcsPostsQuery = groq`
   {
-    "posts": *[_type == "post" && 'FCS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc){
+    "posts": *[_type == "post" && 'FCS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc)[0...${ITEMS_PER_PAGE}]{
       ${litePostFields}
     },
     "pagination": {
-      "totalPages": round(count(${allFCSPosts}._id) / ${ITEMS_PER_PAGE}),
+      "totalPages": round(count(${FCS_COLLECTION_FRAGMENT}._id) / ${ITEMS_PER_PAGE}),
       "currentPage": $pageIndex + 1
     }
   }
 `
-
-export const totalFCSPosts = groq`count(*[_type == "post" && 'FCS' in categories[]->title ])`
 
 export const allFBSPosts = groq`
 *[_type == "post" && 'FBS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc){

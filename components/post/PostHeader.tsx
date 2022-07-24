@@ -40,7 +40,7 @@ const PostHeader = ({ post }: PostHeaderProps) => {
           </h1>
           <p className="mt-4 text-base leading-loose text-slate-600">{post.excerpt}</p>
           <div className="mt-6 flex items-center sm:mt-8">
-            <Link href={`/authors/${post.author.slug}`}>
+            <Link href={`/authors/${post.author.slug}`} prefetch={false}>
               <a className="mr-3 shrink-0">
                 <div className="relative h-8 w-8 overflow-hidden rounded-xl bg-slate-100 sm:h-9 sm:w-9">
                   <BlurImage

@@ -16,7 +16,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
   const plausible = usePlausible()
   return (
     <article className="relative lg:sticky lg:top-8 lg:w-1/2">
-      <Link href={`/${post.slug}`}>
+      <Link href={`/${post.slug}`} prefetch={false}>
         <a
           onClick={() =>
             plausible('clickOnHeroImage', {
@@ -41,7 +41,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
         </a>
       </Link>
       <div className="mt-6 md:align-middle">
-        <Link href={`/${post.categories[0].toLowerCase()}`}>
+        <Link href={`/${post.categories[0].toLowerCase()}`} prefetch={false}>
           <a
             onClick={() =>
               plausible('clickOnHeroImage', {
@@ -55,7 +55,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             {post.categories[0]}
           </a>
         </Link>
-        <Link href={`/${post.slug}`}>
+        <Link href={`/${post.slug}`} prefetch={false}>
           <a
             onClick={() =>
               plausible('clickOnHeroImage', {
@@ -75,7 +75,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
           </a>
         </Link>
         <div className="mt-4 flex items-center sm:mt-8">
-          <Link href={`/authors/${post.author.slug}`}>
+          <Link href={`/authors/${post.author.slug}`} prefetch={false}>
             <a
               onClick={() =>
                 plausible('clickOnHeroImage', {
@@ -98,7 +98,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             </a>
           </Link>
           <div className="ml-3">
-            <Link href={`/authors/${post.author.slug}`}>
+            <Link href={`/authors/${post.author.slug}`} prefetch={false}>
               <a
                 onClick={() =>
                   plausible('clickOnHeroImage', {

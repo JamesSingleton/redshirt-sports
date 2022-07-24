@@ -33,7 +33,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                 Sorry, the page you are looking for does not exist. Try going back or visiting a
                 different link.
               </p>
-              <Link href="/">
+              <Link href="/" prefetch={false}>
                 <a className="group mt-4 flex items-center text-brand-500 transition duration-300 hover:text-brand-600 sm:mt-5">
                   Go back home
                   <ArrowRightIcon className="ml-2 h-5 w-5 transition duration-300 ease-in-out group-hover:translate-x-1 group-hover:transform" />
@@ -51,7 +51,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                   key={recentArticle._id}
                   className="py-8 sm:flex lg:items-center lg:py-6 xl:py-8"
                 >
-                  <Link href={`/${recentArticle.slug}`}>
+                  <Link href={`/${recentArticle.slug}`} prefetch={false}>
                     <a className="order-2 w-full sm:w-2/5 lg:order-1 lg:w-24 xl:w-1/3">
                       <div className="aspect-h-9 aspect-w-9 overflow-hidden rounded-2xl lg:aspect-h-1 lg:aspect-w-1">
                         <BlurImage
@@ -66,12 +66,12 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                     </a>
                   </Link>
                   <div className="order-1 mt-5 w-full px-2 sm:mr-4 sm:mt-0 sm:max-w-sm sm:px-0 lg:order-2 lg:mr-0 lg:ml-4 lg:flex-1">
-                    <Link href={`/${recentArticle.categories[0].toLowerCase()}`}>
+                    <Link href={`/${recentArticle.categories[0].toLowerCase()}`} prefetch={false}>
                       <a className="text-sm font-medium uppercase tracking-widest text-brand-500">
                         {recentArticle.categories[0]}
                       </a>
                     </Link>
-                    <Link href={`/${recentArticle.slug}`}>
+                    <Link href={`/${recentArticle.slug}`} prefetch={false}>
                       <a>
                         <h3 className="mt-2 text-lg font-medium tracking-normal text-slate-900 decoration-slate-800 decoration-2 transition duration-300 ease-in-out hover:underline lg:text-base xl:text-lg xl:leading-normal">
                           {recentArticle.title}
@@ -80,7 +80,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                     </Link>
                     <div className="mt-4 flex items-center justify-between lg:mt-3">
                       <div className="flex items-end justify-center">
-                        <Link href={`/authors/${recentArticle.author.slug}`}>
+                        <Link href={`/authors/${recentArticle.author.slug}`} prefetch={false}>
                           <a className="relative mr-3 h-6 w-6 rounded-lg lg:hidden">
                             <BlurImage
                               src={urlForImage(recentArticle.author.image).url()}
@@ -94,7 +94,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                         </Link>
                         <div className="text-sm">
                           <span className="text-slate-500">By&nbsp;</span>
-                          <Link href={`/authors/${recentArticle.author.slug}`}>
+                          <Link href={`/authors/${recentArticle.author.slug}`} prefetch={false}>
                             <a className="font-medium text-slate-600 hover:underline">
                               {recentArticle.author.name}
                             </a>

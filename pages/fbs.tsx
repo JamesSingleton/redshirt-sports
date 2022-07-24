@@ -116,7 +116,7 @@ const FBS = ({ fbsPosts }: fbsProps) => {
                   <ol role="list" className="flex items-center space-x-4">
                     <li>
                       <div>
-                        <Link href="/">
+                        <Link href="/" prefetch={false}>
                           <a className="text-slate-400 hover:text-slate-500">
                             <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
                             <span className="sr-only">Home</span>
@@ -130,7 +130,7 @@ const FBS = ({ fbsPosts }: fbsProps) => {
                           className="h-5 w-5 flex-shrink-0 text-slate-400"
                           aria-hidden="true"
                         />
-                        <Link href="/fbs">
+                        <Link href="/fbs" prefetch={false}>
                           <a
                             className="ml-4 text-sm font-medium text-slate-500 hover:text-slate-700"
                             aria-current="page"

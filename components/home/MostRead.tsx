@@ -22,7 +22,7 @@ const MostRead: FC<MostReadProps> = ({ mostReadArticles }) => {
       <div className="space-y-6 pt-6 sm:space-y-5 lg:space-y-6 xl:space-y-5">
         {mostReadArticles.map((mostReadArticle) => (
           <article key={mostReadArticle._id} className="flex space-x-4 sm:space-x-6 lg:space-x-4">
-            <Link href={`/${mostReadArticle.slug}`}>
+            <Link href={`/${mostReadArticle.slug}`} prefetch={false}>
               <a
                 onClick={() =>
                   plausible('clickOnPopularPost', {
@@ -48,7 +48,7 @@ const MostRead: FC<MostReadProps> = ({ mostReadArticles }) => {
             <div className="w-2/3">
               <div className="flex h-full w-full flex-1 flex-col justify-center">
                 <div>
-                  <Link href={`/${mostReadArticle.slug}`}>
+                  <Link href={`/${mostReadArticle.slug}`} prefetch={false}>
                     <a
                       onClick={() =>
                         plausible('clickOnPopularPost', {
@@ -66,7 +66,7 @@ const MostRead: FC<MostReadProps> = ({ mostReadArticles }) => {
                 </div>
                 <div className="mt-2 flex h-12 items-center text-sm">
                   <span className="text-slate-500">By&nbsp;</span>
-                  <Link href={`/authors/${mostReadArticle.author.slug}`}>
+                  <Link href={`/authors/${mostReadArticle.author.slug}`} prefetch={false}>
                     <a
                       onClick={() =>
                         plausible('clickOnPopularPost', {

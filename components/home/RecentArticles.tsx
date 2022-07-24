@@ -21,7 +21,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
             className="py-8 md:flex lg:flex-col xl:flex-row xl:items-center"
             key={post.title}
           >
-            <Link href={`/${post.slug}`}>
+            <Link href={`/${post.slug}`} prefetch={false}>
               <a className="order-2 w-full md:w-2/5 lg:order-1 lg:w-full xl:w-2/5">
                 <div className="group overflow-hidden rounded-2xl">
                   <BlurImage
@@ -40,19 +40,19 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
               </a>
             </Link>
             <div className="order-1 mt-5 w-full px-2 md:mt-0 md:max-w-sm md:pl-0 md:pr-5 lg:order-2 lg:mt-4 xl:ml-5 xl:mt-0 xl:flex-1">
-              <Link href={`/${post.categories[0].toLowerCase()}`}>
+              <Link href={`/${post.categories[0].toLowerCase()}`} prefetch={false}>
                 <a className="text-xs font-medium uppercase tracking-widest text-[#DC2727] duration-300 ease-in-out">
                   {post.categories[0]}
                 </a>
               </Link>
               <h3 className="mt-2 text-xl font-medium leading-normal tracking-normal decoration-2 transition duration-300 ease-in-out hover:underline">
-                <Link href={`/${post.slug}`}>
+                <Link href={`/${post.slug}`} prefetch={false}>
                   <a>{post.title}</a>
                 </Link>
               </h3>
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center justify-center">
-                  <Link href={`/authors/${post.author.slug}`}>
+                  <Link href={`/authors/${post.author.slug}`} prefetch={false}>
                     <a className="relative mr-3 h-6 w-6 overflow-hidden rounded-lg">
                       <BlurImage
                         alt={post.author.name}
@@ -68,7 +68,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                   </Link>
                   <div className="text-sm">
                     <span className="text-slate-500">By </span>
-                    <Link href={`/authors/${post.author.slug}`}>
+                    <Link href={`/authors/${post.author.slug}`} prefetch={false}>
                       <a className="font-medium text-slate-700 decoration-inherit">
                         {post.author.name}
                       </a>
