@@ -18,7 +18,7 @@ const postFields = `
   },
   "categories": categories[]->title,
   "slug": slug.current,
-  "author": author->{name, 'slug': slug.current, bio, role, twitterHandle, twitterURL, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
+  "author": author->{name, 'slug': slug.current, bio, role, socialMedia, twitterHandle, twitterURL, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,
   body,
   featuredArticle,
@@ -64,6 +64,7 @@ const authorFields = `
   bio,
   twitterURL,
   twitterHandle,
+  socialMedia,
 `
 
 const legalFields = `

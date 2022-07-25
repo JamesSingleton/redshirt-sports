@@ -73,7 +73,7 @@ export default function Post({ currentPost, nextPost, previousPost }: PostProps)
         <article className="bg-slate-50 pb-12 sm:pb-16 lg:pb-24">
           <PostHeader post={currentPost} />
           <div className="px-5 lg:px-0">
-            <div className="prose mx-auto sm:prose-lg">
+            <div className="prose-md prose m-auto w-11/12 sm:prose-lg sm:w-3/4">
               <PortableText value={currentPost?.body} />
             </div>
             <PostFooter

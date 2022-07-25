@@ -24,6 +24,13 @@ export type Author = {
   twitterURL: string
   twitterHandle: string
   posts?: Post[]
+  socialMedia?: [
+    {
+      _key: string
+      name: string
+      url: string
+    }
+  ]
 }
 
 export type Post = {

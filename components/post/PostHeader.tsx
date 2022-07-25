@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { CalendarIcon, ClockIcon } from '@heroicons/react/outline'
+import { CalendarIcon, ClockIcon, CameraIcon } from '@heroicons/react/outline'
 
 import { urlForImage } from '@lib/sanity'
 import { BlurImage, Date } from '@components/ui'
@@ -13,7 +13,7 @@ interface PostHeaderProps {
 const PostHeader = ({ post }: PostHeaderProps) => {
   return (
     <header className="pt-10 sm:pt-16">
-      <div className="lg:2/3 relative m-auto h-80 w-full max-w-screen-lg overflow-hidden md:h-150 md:w-5/6 md:rounded-2xl">
+      <div className="relative m-auto mb-10 h-80 w-full max-w-screen-lg overflow-hidden md:mb-20 md:h-150 md:w-5/6 md:rounded-2xl lg:w-2/3">
         {post.mainImage && (
           <BlurImage
             alt={post?.mainImage.caption}
@@ -26,6 +26,10 @@ const PostHeader = ({ post }: PostHeaderProps) => {
             quality={60}
           />
         )}
+        <div className="mt-3 flex text-sm">
+          <CameraIcon className="h-5 w-5 flex-none" aria-hidden="true" />
+          <span className="ml-2">{`Source: ${post.mainImage.attribution}`}</span>
+        </div>
       </div>
 
       <div className="px-5 lg:px-0">
