@@ -110,7 +110,7 @@ export default function Home({
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const topArticles = await fetch(
+  const response = await fetch(
     'https://plausible.io/api/v1/stats/breakdown?site_id=redshirtsports.xyz&period=6mo&property=event:page&limit=5',
     {
       headers: {
@@ -118,7 +118,9 @@ export const getStaticProps: GetStaticProps = async () => {
       },
     }
   )
-    .then(async (res) => res.json())
+
+  const topArticles = await response
+    .json()
     .then((res) =>
       res.results
         .filter((result: { page: string }) => result.page !== '/')
