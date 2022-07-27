@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 
 import { Layout } from '@components/common'
@@ -7,17 +8,17 @@ import { postSlugsQuery, postQuery } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { PostHeader, PostFooter } from '@components/post'
 import { createPostLDJson } from '@lib/createLDJson'
+import { VerticalArticleCard } from '@components/ui'
 
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { Post } from '@types'
 
 interface PostProps {
   currentPost: Post
-  nextPost: Post
-  previousPost: Post
+  morePosts: Post[]
 }
 
-export default function Post({ currentPost, nextPost, previousPost }: PostProps) {
+export default function Post({ currentPost, morePosts }: PostProps) {
   let categoryName = 'FCS'
 
   currentPost.categories.map((category) => {
@@ -83,24 +84,18 @@ export default function Post({ currentPost, nextPost, previousPost }: PostProps)
             />
           </div>
         </article>
-        {/* <section className="mx-auto flex flex-col justify-center bg-slate-50 px-5 sm:flex-row sm:px-0">
-        {nextPost && (
-          <div className="flex flex-col">
-            <span>Next post</span>
-            <Link href={`/${nextPost.slug}`}>
-              <a>{nextPost.title}</a>
-            </Link>
+        <section className="w-full pb-14 pt-12 sm:py-20 lg:pt-24">
+          <div className="mx-auto max-w-xl px-4 sm:max-w-3xl sm:px-6 md:px-8 lg:max-w-screen-2xl">
+            <h2 className="relative border-b border-slate-300 pb-2 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+              Related Articles
+            </h2>
+            <div className="mt-8 grid max-w-xl gap-6 sm:mt-9 sm:px-6 md:max-w-3xl md:grid-cols-3 md:px-8 lg:max-w-none lg:px-0">
+              {morePosts.map((post) => (
+                <VerticalArticleCard key={post._id} article={post} />
+              ))}
+            </div>
           </div>
-        )}
-        {previousPost && (
-          <div className="flex flex-col">
-            <span>Previous post</span>
-            <Link href={`/${previousPost.slug}`}>
-              <a>{previousPost.title}</a>
-            </Link>
-          </div>
-        )}
-      </section> */}
+        </section>
       </Layout>
     </>
   )
@@ -118,7 +113,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   if (!params) throw new Error('No path parameters found')
 
-  const { currentPost, nextPost, previousPost } =
+  const { currentPost, morePosts } =
     (await sanityClient.fetch(postQuery, {
       slug: params?.slug,
     })) || {}
@@ -133,8 +128,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       currentPost,
-      nextPost,
-      previousPost,
+      morePosts,
     },
     revalidate: 3600,
   }
