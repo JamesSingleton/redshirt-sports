@@ -22,9 +22,8 @@ export type Author = {
   backgroundImage: Image
   bio: any
   twitterURL: string
-  twitterHandle: string
   posts?: Post[]
-  socialMedia?: [
+  socialMedia: [
     {
       _key: string
       name: string

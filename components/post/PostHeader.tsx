@@ -49,7 +49,7 @@ const PostHeader = ({ post }: PostHeaderProps) => {
                 <div className="relative h-8 w-8 overflow-hidden rounded-xl bg-slate-100 sm:h-9 sm:w-9">
                   <BlurImage
                     alt={post.author.name}
-                    src={urlForImage(post.author.image).width(40).height(40).url()}
+                    src={urlForImage(post.author.image).width(72).height(72).url()}
                     blurDataURL={post.author.image.asset.metadata.lqip ?? undefined}
                     width={36}
                     height={36}

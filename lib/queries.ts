@@ -18,7 +18,7 @@ const postFields = `
   },
   "categories": categories[]->title,
   "slug": slug.current,
-  "author": author->{name, 'slug': slug.current, bio, role, socialMedia, twitterHandle, twitterURL, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
+  "author": author->{name, 'slug': slug.current, bio, role, socialMedia, twitterURL, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,
   body,
   featuredArticle,
@@ -63,7 +63,6 @@ const authorFields = `
   backgroundImage,
   bio,
   twitterURL,
-  twitterHandle,
   socialMedia,
 `
 
@@ -122,7 +121,7 @@ export const allAuthors = groq`
         url
         }
     },
-    twitterURL
+    socialMedia
   }
 `
 
@@ -143,7 +142,7 @@ export const allPosts = groq`
       url
      }
   },
-  "author": author->{name, 'slug': slug.current, image, bio, twitterHandle},
+  "author": author->{name, 'slug': slug.current, image, bio},
 }
 `
 
