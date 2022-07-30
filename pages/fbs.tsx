@@ -80,12 +80,12 @@ const FBS = ({ fbsPosts }: fbsProps) => {
       </Head>
       <NextSeo
         title="FBS Football"
-        description="All Articles by Redshirt Sports on NCAA Division 1 Football Bowl Subdivision"
+        description="Check out all the coverage on NCAA Division 1 Football Bowl Subdivision written by the team here at Redshirt Sports!"
         canonical="https://www.redshirtsports.xyz/fbs"
         openGraph={{
           title: 'FBS Football - Redshirt Sports',
           description:
-            'All Articles by Redshirt Sports on NCAA Division 1 Football Bowl Subdivision',
+            'Check out all the coverage on NCAA Division 1 Football Bowl Subdivision written by the team here at Redshirt Sports!',
         }}
         robotsProps={{
           maxSnippet: -1,

@@ -84,12 +84,12 @@ const FCS = ({ posts, pagination }: fcsProps) => {
       </Head>
       <NextSeo
         title="FCS Football"
-        description="All Articles by Redshirt Sports on NCAA Division 1 Football Championship Subdivision"
+        description="Check out all the coverage on NCAA Division 1 Football Championship Subdivision written by the team here at Redshirt Sports!"
         canonical="https://www.redshirtsports.xyz/fcs"
         openGraph={{
           title: 'FCS Football - Redshirt Sports',
           description:
-            'All Articles by Redshirt Sports on NCAA Division 1 Football Championship Subdivision',
+            'Check out all the coverage on NCAA Division 1 Football Championship Subdivision written by the team here at Redshirt Sports!',
         }}
         robotsProps={{
           maxSnippet: -1,

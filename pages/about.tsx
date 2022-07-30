@@ -79,10 +79,11 @@ const About = ({ authors }: AboutProps) => {
       </Head>
       <NextSeo
         title="About"
-        description="Learn about Redshirt Sports and the team that makes it possible!"
+        description="Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!"
         openGraph={{
           title: 'About - Redshirt Sports',
-          description: 'Learn about Redshirt Sports and the team that makes it possible!',
+          description:
+            'Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!',
           url: 'https://www.redshirtsports.xyz/about',
         }}
         robotsProps={{

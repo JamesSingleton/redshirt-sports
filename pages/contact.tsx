@@ -72,9 +72,12 @@ const ContactUs = () => {
       <NextSeo
         title="Contact Us"
         canonical="https://www.redshirtsports.xyz/contact"
+        description="Want to collaborate on a story or advertise with Redshirt Sports? Contact us via editors@redshirtsports.xyz or advertising@redshirtsports.xyz."
         openGraph={{
           url: 'https://www.redshirtsports.xyz/contact',
           title: 'Contact Us - Redshirt Sports',
+          description:
+            'Want to collaborate on a story or advertise with Redshirt Sports? Contact us via editors@redshirtsports.xyz or advertising@redshirtsports.xyz.',
         }}
         robotsProps={{
           maxSnippet: -1,
