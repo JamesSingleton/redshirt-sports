@@ -84,7 +84,7 @@ const Author = ({ author }: AuthorProps) => {
                   <span className="block text-xs uppercase tracking-widest text-brand-500">
                     {author.role}
                   </span>
-                  <h1 className="mt-1 text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-tight lg:leading-tight">
+                  <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-tight lg:leading-tight">
                     {author.name}
                   </h1>
                 </div>
@@ -124,7 +124,7 @@ const Author = ({ author }: AuthorProps) => {
         <section className="mx-auto max-w-xl py-12 px-4 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
             <div className="col-span-2">
-              <h2 className="relative border-b border-slate-300 pb-3 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+              <h2 className="relative border-b border-slate-300 pb-3 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
                 Recent Stories
               </h2>
               <div className="mt-6 pt-8 sm:mt-10 sm:pt-10">
@@ -135,7 +135,7 @@ const Author = ({ author }: AuthorProps) => {
             </div>
             <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
               <div className="w-full rounded-2xl bg-slate-50 p-5 sm:p-8">
-                <h2 className="relative border-b border-slate-300 pb-3 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">{`About ${author.name}`}</h2>
+                <h2 className="relative border-b border-slate-300 pb-3 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">{`About ${author.name}`}</h2>
                 <div className="pt-6 text-base leading-loose text-slate-600">
                   <PortableText value={author.bio} />
                 </div>

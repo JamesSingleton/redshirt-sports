@@ -16,6 +16,7 @@ const postFields = `
       url
      }
   },
+  category,
   "categories": categories[]->title,
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, bio, role, socialMedia, twitterURL, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
@@ -39,6 +40,7 @@ const litePostFields = `
       url
       }
   },
+  category,
   "categories": categories[]->title,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 ),
   "slug": slug.current,

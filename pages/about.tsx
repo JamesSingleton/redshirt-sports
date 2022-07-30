@@ -117,7 +117,7 @@ const About = ({ authors }: AboutProps) => {
         <section className="bg-slate-50 py-12 sm:py-20 lg:py-28">
           <div className="mx-auto max-w-xl px-4 sm:max-w-3xl sm:px-6 md:px-8 lg:max-w-7xl">
             <div className="mx-auto max-w-3xl text-center">
-              <h2 className="text-base font-medium uppercase tracking-widest text-brand-500">
+              <h2 className="font-cal text-base font-medium uppercase tracking-widest text-brand-500">
                 Our Writers
               </h2>
               <p className="mt-2 text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
@@ -147,7 +147,7 @@ const About = ({ authors }: AboutProps) => {
                         />
                       </div>
                       <div className="mt-6 leading-6">
-                        <h3 className="text-xl font-medium text-slate-900">
+                        <h3 className="font-cal text-xl font-medium text-slate-900">
                           <Link href={`/authors/${author.slug}`} prefetch={false}>
                             <a>
                               <span aria-hidden="true" className="absolute inset-0" />
@@ -187,7 +187,7 @@ const About = ({ authors }: AboutProps) => {
         </section>
         <section className="bg-brand-700">
           <div className="mx-auto max-w-2xl py-16 px-4 text-center sm:py-20 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
+            <h2 className="font-cal text-3xl font-extrabold text-white sm:text-4xl">
               Help make Redshirt Sports better!
             </h2>
             <p className="mt-4 text-lg leading-6 text-brand-200">

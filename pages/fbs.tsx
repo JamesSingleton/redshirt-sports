@@ -102,7 +102,7 @@ const FBS = ({ fbsPosts }: fbsProps) => {
                   <span className="block text-xs uppercase tracking-widest text-brand-500">
                     Recent in
                   </span>
-                  <h1 className="mt-1 text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
+                  <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
                     FBS Football
                   </h1>
                 </div>

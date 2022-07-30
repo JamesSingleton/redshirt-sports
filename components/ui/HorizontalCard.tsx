@@ -33,7 +33,7 @@ const HorizontalCard = forwardRef<HTMLElement, HorizontalCardProps>(({ post }, r
           </div>
           <div className="group relative mt-6 flex flex-col flex-wrap md:col-span-3 md:mt-0">
             <div className="mb-8 box-border flex w-full flex-1 flex-col justify-between border-b-2 border-b-slate-100 px-6 pb-8 md:px-0">
-              <h2 className="text-xl font-medium leading-tight text-slate-900 decoration-2 sm:text-2xl lg:text-xl xl:text-2xl">
+              <h2 className="font-cal text-xl font-medium leading-tight text-slate-900 decoration-2 sm:text-2xl lg:text-xl xl:text-2xl">
                 {post.title}
               </h2>
               <p className="mt-3 block text-base leading-relaxed text-slate-500 line-clamp-2">

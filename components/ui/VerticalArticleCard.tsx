@@ -12,64 +12,61 @@ interface VerticalArticleCardProps {
 
 const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
   return (
-    <article
-      key={article.title}
-      className="group relative flex flex-col flex-wrap rounded-2xl transition duration-300 hover:shadow-xl"
-    >
-      <Link href={`/${article.slug}`} prefetch={false}>
-        <a>
-          <div className="w-full overflow-hidden rounded-tl-2xl rounded-tr-2xl bg-slate-50">
+    <Link href={`/${article.slug}`} prefetch={false}>
+      <a className="flex">
+        <article className="flex flex-col overflow-hidden rounded-2xl shadow-xl">
+          <div className="h-48 w-full flex-shrink-0">
             <BlurImage
-              src={urlForImage(article.mainImage).width(776).height(388).url()}
+              className="h-48 w-full object-cover"
+              src={urlForImage(article.mainImage).width(388).height(192).url()}
               alt={article.mainImage.caption}
               blurDataURL={article.mainImage.asset.metadata.lqip ?? undefined}
-              width={776}
-              height={388}
               layout="responsive"
+              objectFit="cover"
+              placeholder="blur"
+              width={388}
+              height={192}
               sizes="50vw"
-              className="group-hover:scale-105 group-hover:duration-300"
             />
           </div>
-          <div className="box-border flex w-full flex-1 flex-col justify-between rounded-bl-2xl rounded-br-2xl border-r-2 border-l-2 border-b-2 border-slate-100 bg-white p-6 transition duration-300 ease-in-out group-hover:border-transparent xl:p-7">
-            <div>
-              <span className="text-sm font-medium uppercase tracking-widest text-brand-500 duration-300">
+          <div className="flex flex-1 flex-col justify-between bg-white p-6">
+            <div className="flex-1">
+              <p className="text-sm font-medium uppercase text-brand-600">
                 {article.categories[0]}
-              </span>
-              <h3 className="mt-3 text-xl font-medium leading-tight text-slate-900 transition duration-300 ease-in-out sm:text-2xl lg:text-xl xl:text-2xl">
-                {article.title}
-              </h3>
-              <p className="mt-4 block text-base leading-relaxed text-slate-500 line-clamp-2">
-                {article.excerpt}
               </p>
+              <div className="mt-2">
+                <h3 className="font-cal text-xl font-semibold text-gray-900">{article.title}</h3>
+                <p className="mt-3 text-base text-gray-500">{article.excerpt}</p>
+              </div>
             </div>
-            <div className="mt-5 flex items-center sm:mt-6">
-              <div className="relative h-10 w-10 overflow-hidden rounded-xl">
-                <BlurImage
-                  alt={article.author.name}
-                  src={urlForImage(article.author.image).width(80).height(80).url()}
-                  blurDataURL={article.author.image.asset.metadata.lqip ?? undefined}
-                  width={80}
-                  height={80}
-                  layout="responsive"
-                  sizes="50vw"
-                  className="rounded-xl"
-                />
+            <div className="mt-6 flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-10 w-10">
+                  <span className="sr-only">{article.author.name}</span>
+                  <BlurImage
+                    className="rounded-full"
+                    src={urlForImage(article.author.image).width(80).height(80).url()}
+                    alt={`${article.author.name}'s avatar`}
+                    width={80}
+                    height={80}
+                    layout="responsive"
+                    sizes="50vw"
+                  />
+                </div>
               </div>
               <div className="ml-3">
-                <span className="relative text-sm font-medium text-slate-700">
-                  {article.author.name}
-                </span>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm font-medium text-gray-900">{article.author.name}</p>
+                <div className="flex space-x-1 text-sm text-gray-500">
                   <Date dateString={article.publishedAt} />
-                  <span aria-hidden="true"> &middot; </span>
-                  <span>{`${article.estimatedReadingTime} min read`}</span>
-                </p>
+                  <span aria-hidden="true">&middot;</span>
+                  <span>{article.estimatedReadingTime} min read</span>
+                </div>
               </div>
             </div>
           </div>
-        </a>
-      </Link>
-    </article>
+        </article>
+      </a>
+    </Link>
   )
 }
 

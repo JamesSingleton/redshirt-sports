@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { BlurImage, Date } from '@components/ui'
+import { BlurImage, Date, MinimalHorizontalCard } from '@components/ui'
 import { urlForImage } from '@lib/sanity'
 
 import type { Post } from '@types'
@@ -12,7 +12,7 @@ interface RecentArticlesProps {
 const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
   return (
     <div className="mt-12 sm:mt-16 lg:ml-12 lg:mt-0 lg:w-1/2 xl:ml-16">
-      <h2 className="relative border-b border-slate-300 pb-2 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+      <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
         Recent stories
       </h2>
       <div className="grid divide-y lg:grid-cols-2 lg:gap-5 xl:grid-cols-1">
@@ -40,12 +40,12 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                   <span className="text-xs font-medium uppercase tracking-widest text-[#DC2727] duration-300 ease-in-out">
                     {post.categories[0]}
                   </span>
-                  <h3 className="mt-2 text-xl font-medium leading-normal tracking-normal decoration-2 transition duration-300 ease-in-out hover:underline">
+                  <h3 className="mt-2 font-cal text-xl font-medium leading-normal tracking-normal decoration-2 transition duration-300 ease-in-out hover:underline">
                     {post.title}
                   </h3>
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center justify-center">
-                      <div className="relative mr-3 h-6 w-6 overflow-hidden rounded-lg">
+                      <div className="relative mr-3 h-6 w-6 overflow-hidden rounded-full">
                         <BlurImage
                           alt={post.author.name}
                           src={urlForImage(post.author.image).url()}

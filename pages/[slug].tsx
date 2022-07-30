@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 
 import { Layout } from '@components/common'
@@ -8,7 +7,7 @@ import { postSlugsQuery, postQuery } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { PostHeader, PostFooter } from '@components/post'
 import { createPostLDJson } from '@lib/createLDJson'
-import { VerticalArticleCard, Date } from '@components/ui'
+import { VerticalArticleCard } from '@components/ui'
 
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { Post } from '@types'
@@ -83,60 +82,12 @@ export default function Post({ currentPost, morePosts }: PostProps) {
         </article>
         <section className="mx-auto w-full max-w-7xl pb-14 pt-12 sm:py-20 lg:pt-24">
           <div className="mx-auto max-w-xl px-4 sm:max-w-3xl sm:px-6 md:px-8 lg:max-w-screen-2xl">
-            <h2 className="relative border-b border-slate-300 pb-2 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+            <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
               Related Articles
             </h2>
             <div className="mx-auto mt-12 grid max-w-lg gap-5 lg:max-w-none lg:grid-cols-3">
               {morePosts.map((post) => (
-                <div
-                  key={post.title}
-                  className="flex flex-col overflow-hidden rounded-lg shadow-lg"
-                >
-                  <div className="flex-shrink-0">
-                    <img
-                      className="h-48 w-full object-cover"
-                      src={urlForImage(post.mainImage).url()}
-                      alt=""
-                    />
-                  </div>
-                  <div className="flex flex-1 flex-col justify-between bg-white p-6">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-indigo-600">
-                        <a href={post.categories[0].toLowerCase()} className="hover:underline">
-                          {post.categories[0]}
-                        </a>
-                      </p>
-                      <a href={post.slug} className="mt-2 block">
-                        <p className="text-xl font-semibold text-gray-900">{post.title}</p>
-                        <p className="mt-3 text-base text-gray-500">{post.excerpt}</p>
-                      </a>
-                    </div>
-                    <div className="mt-6 flex items-center">
-                      <div className="flex-shrink-0">
-                        <a href={post.author.slug}>
-                          <span className="sr-only">{post.author.name}</span>
-                          <img
-                            className="h-10 w-10 rounded-full"
-                            src={urlForImage(post.author.image).url()}
-                            alt=""
-                          />
-                        </a>
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900">
-                          <a href={post.author.slug} className="hover:underline">
-                            {post.author.name}
-                          </a>
-                        </p>
-                        <div className="flex space-x-1 text-sm text-gray-500">
-                          <Date dateString={post.publishedAt} />
-                          <span aria-hidden="true">&middot;</span>
-                          <span>{post.estimatedReadingTime} min read</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <VerticalArticleCard key={post._id} article={post} />
               ))}
             </div>
           </div>

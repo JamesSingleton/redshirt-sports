@@ -26,7 +26,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
               <span className="relative block text-sm uppercase tracking-widest text-brand-500">
                 Error 404
               </span>
-              <h1 className="mt-3 text-4xl font-medium tracking-normal text-slate-900 md:text-5xl md:tracking-tight lg:leading-tight">
+              <h1 className="mt-3 font-cal text-4xl font-medium tracking-normal text-slate-900 md:text-5xl md:tracking-tight lg:leading-tight">
                 Page not found
               </h1>
               <p className="mt-4 text-base leading-loose text-slate-600">
@@ -42,7 +42,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
             </div>
           </div>
           <div className="mt-12 sm:mt-16 lg:ml-12 lg:mt-0 lg:w-1/2 2xl:ml-16 2xl:w-3/5">
-            <h2 className="relative border-b border-slate-300 pb-2 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+            <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
               Recent stories
             </h2>
             <div className="grid lg:gap-6 2xl:grid-cols-2">
@@ -73,7 +73,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                     </Link>
                     <Link href={`/${recentArticle.slug}`} prefetch={false}>
                       <a>
-                        <h3 className="mt-2 text-lg font-medium tracking-normal text-slate-900 decoration-slate-800 decoration-2 transition duration-300 ease-in-out hover:underline lg:text-base xl:text-lg xl:leading-normal">
+                        <h3 className="mt-2 font-cal text-lg font-medium tracking-normal text-slate-900 decoration-slate-800 decoration-2 transition duration-300 ease-in-out hover:underline lg:text-base xl:text-lg xl:leading-normal">
                           {recentArticle.title}
                         </h3>
                       </a>

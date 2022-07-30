@@ -2,7 +2,7 @@ import { ArrowRightIcon } from '@heroicons/react/outline'
 
 const SocialMediaFollow = () => (
   <div className="w-full rounded-2xl bg-slate-50 p-5 sm:p-8">
-    <h2 className="relative border-b border-slate-300 pb-2 text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+    <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
       Follow Us
     </h2>
     <div className="space-y-4 overflow-hidden pt-5">

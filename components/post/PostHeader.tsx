@@ -13,7 +13,7 @@ interface PostHeaderProps {
 const PostHeader = ({ post }: PostHeaderProps) => {
   return (
     <header className="pt-10 sm:pt-16">
-      <div className="relative m-auto mb-10 h-80 w-full max-w-screen-lg overflow-hidden md:mb-20 md:h-150 md:w-5/6 md:rounded-2xl lg:w-2/3">
+      <div className="relative m-auto h-80 w-full max-w-screen-lg overflow-hidden md:h-150 md:w-5/6 md:rounded-2xl lg:w-2/3">
         {post.mainImage && (
           <BlurImage
             alt={post?.mainImage.caption}
@@ -39,7 +39,7 @@ const PostHeader = ({ post }: PostHeaderProps) => {
               {post.categories[0]}
             </a>
           </Link>
-          <h1 className="mt-3 text-4xl font-medium text-slate-900 transition duration-300 ease-in-out sm:my-5 sm:text-4xl sm:leading-tight lg:text-5xl">
+          <h1 className="mt-3 font-cal text-4xl font-medium text-slate-900 transition duration-300 ease-in-out sm:my-5 sm:text-4xl sm:leading-tight lg:text-5xl">
             {post.title}
           </h1>
           <p className="mt-4 text-base leading-loose text-slate-600">{post.excerpt}</p>
