@@ -7,10 +7,9 @@ import type { Post } from '@types'
 
 interface CreatePostLDJson {
   post: Post
-  categoryName: string
 }
 
-export const createPostLDJson = ({ post, categoryName }: CreatePostLDJson) => ({
+export const createPostLDJson = ({ post }: CreatePostLDJson) => ({
   '@context': 'http://schema.org',
   '@graph': [
     Organization,
@@ -63,8 +62,8 @@ export const createPostLDJson = ({ post, categoryName }: CreatePostLDJson) => ({
         {
           '@type': 'ListItem',
           position: 2,
-          name: categoryName,
-          item: `https://www.redshirtsports.xyz/${categoryName.toLowerCase()}`,
+          name: post.category,
+          item: `https://www.redshirtsports.xyz/${post.category.toLowerCase()}`,
         },
         {
           '@type': 'ListItem',
@@ -99,7 +98,7 @@ export const createPostLDJson = ({ post, categoryName }: CreatePostLDJson) => ({
         urlForImage(post.mainImage).width(1200).height(1200).fit('scale').url(),
       ],
       thumbnailUrl: urlForImage(post.mainImage).url(),
-      articleSection: [categoryName],
+      articleSection: [post.category],
       inLanguage: 'en-US',
     },
     {

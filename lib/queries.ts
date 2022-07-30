@@ -17,7 +17,6 @@ const postFields = `
      }
   },
   category,
-  "categories": categories[]->title,
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, bio, role, socialMedia, twitterURL, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,
@@ -41,7 +40,6 @@ const litePostFields = `
       }
   },
   category,
-  "categories": categories[]->title,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 ),
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
@@ -183,15 +181,14 @@ const sliceWithParam = `[($pageIndex * 10)...($pageIndex + 1) * 10]`
 
 export const FCS_COLLECTION_FRAGMENT = /* groq */ `
 *[
-  _type == "post" &&
-  'FCS' in categories[]->title &&
+  _type == "post" && category == 'FCS' &&
   defined(slug.current)
 ]
 `
 
 export const fcsPostsQuery = groq`
   {
-    "posts": *[_type == "post" && 'FCS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc)[0...${ITEMS_PER_PAGE}]{
+    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc, _updatedAt desc)[0...${ITEMS_PER_PAGE}]{
       ${litePostFields}
     },
     "pagination": {
@@ -202,7 +199,7 @@ export const fcsPostsQuery = groq`
 `
 
 export const allFBSPosts = groq`
-*[_type == "post" && 'FBS' in categories[]->title ] | order(publishedAt desc, _updatedAt desc){
+*[_type == "post" && category == 'FBS' ] | order(publishedAt desc, _updatedAt desc){
     ${litePostFields}
   }
 `

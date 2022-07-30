@@ -66,9 +66,9 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                     </a>
                   </Link>
                   <div className="order-1 mt-5 w-full px-2 sm:mr-4 sm:mt-0 sm:max-w-sm sm:px-0 lg:order-2 lg:mr-0 lg:ml-4 lg:flex-1">
-                    <Link href={`/${recentArticle.categories[0].toLowerCase()}`} prefetch={false}>
+                    <Link href={`/${recentArticle.category.toLowerCase()}`} prefetch={false}>
                       <a className="text-sm font-medium uppercase tracking-widest text-brand-500">
-                        {recentArticle.categories[0]}
+                        {recentArticle.category}
                       </a>
                     </Link>
                     <Link href={`/${recentArticle.slug}`} prefetch={false}>

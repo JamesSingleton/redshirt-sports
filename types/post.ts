@@ -38,8 +38,7 @@ export type Post = {
   publishedAt: string
   slug: string
   title: string
-  category?: string
-  categories: string[]
+  category: string
   featuredArticle: boolean
   excerpt: string
   body: string

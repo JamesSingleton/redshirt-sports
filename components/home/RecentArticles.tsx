@@ -38,7 +38,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                 </div>
                 <div className="order-1 mt-5 w-full px-2 md:mt-0 md:max-w-sm md:pl-0 md:pr-5 lg:order-2 lg:mt-4 xl:ml-5 xl:mt-0 xl:flex-1">
                   <span className="text-xs font-medium uppercase tracking-widest text-[#DC2727] duration-300 ease-in-out">
-                    {post.categories[0]}
+                    {post.category}
                   </span>
                   <h3 className="mt-2 font-cal text-xl font-medium leading-normal tracking-normal decoration-2 transition duration-300 ease-in-out hover:underline">
                     {post.title}

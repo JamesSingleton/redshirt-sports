@@ -41,7 +41,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
         </a>
       </Link>
       <div className="mt-6 md:align-middle">
-        <Link href={`/${post.categories[0].toLowerCase()}`} prefetch={false}>
+        <Link href={`/${post.category.toLowerCase()}`} prefetch={false}>
           <a
             onClick={() =>
               plausible('clickOnHeroImage', {
@@ -52,7 +52,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             }
             className="text-sm font-medium uppercase tracking-widest duration-300 ease-in-out"
           >
-            {post.categories[0]}
+            {post.category}
           </a>
         </Link>
         <Link href={`/${post.slug}`} prefetch={false}>

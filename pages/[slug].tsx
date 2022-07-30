@@ -18,14 +18,7 @@ interface PostProps {
 }
 
 export default function Post({ currentPost, morePosts }: PostProps) {
-  let categoryName = 'FCS'
-
-  currentPost.categories.map((category) => {
-    if (category === 'FBS') {
-      categoryName = category
-    }
-  })
-  const content = createPostLDJson({ post: currentPost, categoryName })
+  const content = createPostLDJson({ post: currentPost })
   return (
     <>
       <Head>
@@ -48,7 +41,7 @@ export default function Post({ currentPost, morePosts }: PostProps) {
           article: {
             publishedTime: currentPost.publishedAt,
             modifiedTime: currentPost._updatedAt,
-            section: categoryName,
+            section: currentPost.category,
             authors: [`https://www.redshirtsports.xyz/authors/${currentPost.author.slug}`],
           },
           images: [

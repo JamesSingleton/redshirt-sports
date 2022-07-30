@@ -13,14 +13,7 @@ const MinimalHorizontalCard = ({
   article: Post
   analyticsGoal: string
 }) => {
-  let categoryName = 'FCS'
   const plausible = usePlausible()
-
-  article.categories.map((category) => {
-    if (category === 'FBS') {
-      categoryName = category
-    }
-  })
 
   return (
     <article>
