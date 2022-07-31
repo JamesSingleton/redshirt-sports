@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { Popover } from '@headlessui/react'
 import { MenuIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
+import { useMediaQuery } from 'react-responsive'
 
 import { HorizontalLogo, SmallLogo } from '../Logo'
 import SearchBar from './SearchBar'
@@ -13,6 +14,7 @@ const MobileNav = dynamic(() => import('./MobileNav'))
 
 const Navbar = () => {
   const router = useRouter()
+  const isTabletOrMobile = useMediaQuery({ maxWidth: 1023 })
 
   return (
     <Popover as="header" className="shadow">
@@ -64,7 +66,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          <MobileNav />
+          {isTabletOrMobile && <MobileNav />}
         </>
       )}
     </Popover>

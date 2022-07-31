@@ -22,7 +22,7 @@ const postFields = `
   excerpt,
   body,
   featuredArticle,
-  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 ),
+  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
   "wordCount": length(pt::text(body))
 `
 
@@ -40,7 +40,7 @@ const litePostFields = `
       }
   },
   category,
-  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 170 ),
+  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,

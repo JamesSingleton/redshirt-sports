@@ -66,7 +66,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             }
             className="mt-3 block"
           >
-            <h1 className="font-cal text-3xl font-medium tracking-normal text-slate-900 decoration-slate-800 decoration-3 transition duration-300 ease-in-out hover:underline md:tracking-tight lg:text-4xl lg:leading-tight">
+            <h1 className="font-cal text-3xl font-medium tracking-normal text-slate-900 transition duration-300 ease-in-out md:tracking-tight lg:text-4xl lg:leading-tight">
               {post.title}
             </h1>
             <div>
