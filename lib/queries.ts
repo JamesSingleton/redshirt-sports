@@ -172,12 +172,8 @@ export const allPostsForRssFeed = groq`
 // === SLICING THE COLLECTION ===
 const ITEMS_PER_PAGE = 10
 
-// Notice the difference between the GROQ variable ($pageIndex)
-// and the javascript constant (${ITEMS_PER_PAGE})
-const slice = `[($pageIndex * ${ITEMS_PER_PAGE})...($pageIndex + 1) * ${ITEMS_PER_PAGE}]`
-
 // ITEMS_PER_PAGE is fixed/constant, so we could inject it in the query directly
-const sliceWithParam = `[($pageIndex * 10)...($pageIndex + 1) * 10]`
+const slice = `[($pageIndex * 10)...($pageIndex + 1) * 10]`
 
 export const FCS_COLLECTION_FRAGMENT = /* groq */ `
 *[
@@ -188,11 +184,11 @@ export const FCS_COLLECTION_FRAGMENT = /* groq */ `
 
 export const fcsPostsQuery = groq`
   {
-    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc, _updatedAt desc)[0...${ITEMS_PER_PAGE}]{
+    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc, _updatedAt desc)${slice}{
       ${litePostFields}
     },
     "pagination": {
-      "totalPages": round(count(${FCS_COLLECTION_FRAGMENT}._id) / ${ITEMS_PER_PAGE}),
+      "totalPosts": count(${FCS_COLLECTION_FRAGMENT}._id),
       "currentPage": $pageIndex + 1
     }
   }

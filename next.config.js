@@ -34,7 +34,7 @@ const moduleExports = {
     domains: ['cdn.sanity.io', 'images.unsplash.com'],
   },
   compiler: {
-    removeConsole: true,
+    removeConsole: process.env.NODE_ENV === 'production' ? true : false,
   },
   async headers() {
     return [

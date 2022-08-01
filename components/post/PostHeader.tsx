@@ -12,7 +12,7 @@ interface PostHeaderProps {
 
 const PostHeader = ({ post }: PostHeaderProps) => {
   return (
-    <header className="pt-10 sm:pt-16 md:px-10">
+    <header className="pt-10 sm:px-10 sm:pt-16">
       <div className="mx-auto max-w-screen-lg">
         <div className="relative h-80 w-full overflow-hidden md:h-150 md:rounded-2xl">
           <BlurImage
@@ -26,7 +26,7 @@ const PostHeader = ({ post }: PostHeaderProps) => {
             quality={60}
           />
         </div>
-        <div className="mt-3 flex text-sm">
+        <div className="ml-3 mt-3 flex text-sm sm:ml-0">
           <CameraIcon className="h-5 w-5 flex-none" aria-hidden="true" />
           <span className="ml-2">{`Source: ${post.mainImage.attribution}`}</span>
         </div>
