@@ -43,7 +43,6 @@
     "react-responsive": "^9.0.0-beta.10",
     "sharp": "^0.30.7",
     "sitemap": "^7.1.1",
-    "swr": "^1.3.0",
     "vhtml": "^2.2.0"
   },
   "devDependencies": {
