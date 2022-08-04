@@ -57,11 +57,17 @@ const Search = ({ posts }: SearchProps) => {
           heading="Search Results"
           subheading={`${searchResultsLength} results for "${query}"`}
         />
-        <section className="mx-auto max-w-7xl py-12 md:py-16 lg:py-20 lg:px-8">
+        <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
             <div className="col-span-2">
               {posts.length > 0 &&
-                posts.map((post, key) => <HorizontalCard post={post} key={post._id} />)}
+                posts.map((post, key) => (
+                  <HorizontalCard
+                    post={post}
+                    key={post._id}
+                    articleLocation="Search Results Page"
+                  />
+                ))}
               {!posts.length && (
                 <div className="text-center">
                   <svg

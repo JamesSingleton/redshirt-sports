@@ -1,4 +1,3 @@
-import { forwardRef } from 'react'
 import Link from 'next/link'
 import { CalendarIcon, ClockIcon } from '@heroicons/react/outline'
 import { usePlausible } from 'next-plausible'
@@ -11,14 +10,24 @@ import Date from './Date'
 
 interface HorizontalCardProps {
   post: Post
+  articleLocation: string
 }
 
-const HorizontalCard = forwardRef<HTMLElement, HorizontalCardProps>(({ post }, ref) => {
+const HorizontalCard = ({ post, articleLocation }: HorizontalCardProps) => {
   const plausible = usePlausible()
   return (
-    <article ref={ref}>
+    <article>
       <Link href={`/${post.slug}`} prefetch={false}>
-        <a className="hover:scale-105 hover:duration-300 md:grid md:grid-cols-4 md:gap-8">
+        <a
+          onClick={() =>
+            plausible('clickOnArticle', {
+              props: {
+                articleLocation,
+              },
+            })
+          }
+          className="hover:scale-105 hover:duration-300 md:grid md:grid-cols-4 md:gap-8"
+        >
           <div className="md:col-span-1">
             <div className="aspect-h-9 aspect-w-16 block overflow-hidden rounded-2xl md:aspect-h-1 md:aspect-w-1">
               <BlurImage
@@ -67,7 +76,7 @@ const HorizontalCard = forwardRef<HTMLElement, HorizontalCardProps>(({ post }, r
       </Link>
     </article>
   )
-})
+}
 
 HorizontalCard.displayName = 'HorizontalCard'
 

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { CalendarIcon, ClockIcon, CameraIcon } from '@heroicons/react/outline'
+import { usePlausible } from 'next-plausible'
 
 import { urlForImage } from '@lib/sanity'
 import { BlurImage, Date } from '@components/ui'
@@ -11,6 +12,8 @@ interface PostHeaderProps {
 }
 
 const PostHeader = ({ post }: PostHeaderProps) => {
+  const plausible = usePlausible()
+
   return (
     <header className="pt-10 sm:px-10 sm:pt-16">
       <div className="mx-auto max-w-screen-lg">
@@ -35,7 +38,16 @@ const PostHeader = ({ post }: PostHeaderProps) => {
       <div className="px-5 lg:px-0">
         <div className="mx-auto mb-8 max-w-prose border-b border-slate-300/70 pt-10 pb-8 text-lg sm:pt-16">
           <Link href={`/${post.category.toLowerCase()}`} prefetch={false}>
-            <a className="relative text-sm font-medium uppercase tracking-widest text-brand-500 duration-300 ease-in-out">
+            <a
+              onClick={() =>
+                plausible('clickOnArticleCategory', {
+                  props: {
+                    item: post.category,
+                  },
+                })
+              }
+              className="relative text-sm font-medium uppercase tracking-widest text-brand-500 duration-300 ease-in-out"
+            >
               {post.category}
             </a>
           </Link>
@@ -45,7 +57,7 @@ const PostHeader = ({ post }: PostHeaderProps) => {
           <p className="mt-4 text-base leading-loose text-slate-600">{post.excerpt}</p>
           <div className="mt-6 flex items-center sm:mt-8">
             <Link href={`/authors/${post.author.slug}`} prefetch={false}>
-              <a className="mr-3 shrink-0">
+              <a onClick={() => plausible('clickOnAuthor')} className="mr-3 shrink-0">
                 <div className="relative h-8 w-8 overflow-hidden rounded-xl bg-slate-100 sm:h-9 sm:w-9">
                   <BlurImage
                     alt={post.author.name}
@@ -62,7 +74,12 @@ const PostHeader = ({ post }: PostHeaderProps) => {
             <div className="flex items-center text-sm lg:text-base">
               <span className="hidden text-slate-500 sm:inline-block">By&nbsp;</span>
               <Link href={`/authors/${post.author.slug}`} prefetch={false}>
-                <a className="font-medium text-slate-700 hover:underline">{post.author.name}</a>
+                <a
+                  onClick={() => plausible('clickOnAuthor')}
+                  className="font-medium text-slate-700 hover:underline"
+                >
+                  {post.author.name}
+                </a>
               </Link>
               <CalendarIcon className="ml-4 h-5 w-5 text-slate-400" />
               <Date className="ml-1 text-slate-500" dateString={post.publishedAt} />

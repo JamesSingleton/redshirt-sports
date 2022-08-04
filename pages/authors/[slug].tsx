@@ -96,6 +96,13 @@ const Author = ({ author }: AuthorProps) => {
                       <li key={social._key}>
                         <a
                           href={social.url}
+                          onClick={() =>
+                            plausible('clickOnAuthorSocialMedia', {
+                              props: {
+                                item: social.name,
+                              },
+                            })
+                          }
                           target="_blank"
                           className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-transparent transition duration-300 ease-in-out sm:h-12 sm:w-12"
                           rel="noreferrer noopener"
@@ -129,7 +136,11 @@ const Author = ({ author }: AuthorProps) => {
               </h2>
               <div className="mt-6 pt-8 sm:mt-10 sm:pt-10">
                 {author.posts!.map((post) => (
-                  <HorizontalCard key={post._id} post={post} />
+                  <HorizontalCard
+                    key={post._id}
+                    post={post}
+                    articleLocation={`${author.name}'s profile page`}
+                  />
                 ))}
               </div>
             </div>

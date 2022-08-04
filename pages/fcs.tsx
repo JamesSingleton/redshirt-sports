@@ -4,25 +4,29 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/solid'
+import { groq } from 'next-sanity'
+import { usePlausible } from 'next-plausible'
 
 import { Layout, SocialMediaFollow } from '@components/common'
 import { HorizontalCard } from '@components/ui'
 import { sanityClient } from '@lib/sanity.server'
-import { fcsPostsQuery } from '@lib/queries'
+import { fcsPostsQuery, fetchNextCategoryPage, fetchPreviousCategoryPage } from '@lib/queries'
 import { Organization, WebSite } from '@lib/ldJson'
 
 import type { Post } from '@types'
 
 interface fcsProps {
   posts: Post[]
-  pagination: {
-    totalPosts: number
-    currentPage: number
-  }
+  totalPosts: number
 }
 
-const FCS = ({ posts, pagination }: fcsProps) => {
-  const [pageIndex, setPageIndex] = useState(0)
+const FCS = ({ posts, totalPosts }: fcsProps) => {
+  const plausible = usePlausible()
+  const [articles, setArticles] = useState(posts)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [lastId, setLastId] = useState(posts[posts.length - 1]._id)
+  const [lastPublishedAt, setLastPublishedAt] = useState(posts[posts.length - 1].publishedAt)
+
   const ldJsonContent = {
     '@context': 'http://schema.org',
     '@graph': [
@@ -74,6 +78,40 @@ const FCS = ({ posts, pagination }: fcsProps) => {
     ],
   }
 
+  // const fetchPreviousPage = async () => {
+  //   const posts = await sanityClient.fetch(fetchPreviousCategoryPage, {
+  //     category: 'FCS',
+  //     lastPublishedAt,
+  //     lastId,
+  //   })
+
+  //   if (posts.length > 0) {
+  //     setLastId(posts[posts.length - 1]._id)
+  //     setLastPublishedAt(posts[posts.length - 1].publishedAt)
+  //     setArticles(posts)
+  //     setCurrentPage(currentPage - 1)
+  //   } else {
+  //     setLastId(null)
+  //   }
+  // }
+
+  // const fetchNextPage = async () => {
+  //   const posts = await sanityClient.fetch(fetchNextCategoryPage, {
+  //     category: 'FCS',
+  //     lastPublishedAt,
+  //     lastId,
+  //   })
+
+  //   if (posts.length > 0) {
+  //     setLastId(posts[posts.length - 1]._id)
+  //     setLastPublishedAt(posts[posts.length - 1].publishedAt)
+  //     setArticles(posts)
+  //     setCurrentPage(currentPage + 1)
+  //   } else {
+  //     setLastId(null)
+  //   }
+  // }
+
   return (
     <>
       <Head>
@@ -124,7 +162,16 @@ const FCS = ({ posts, pagination }: fcsProps) => {
                     <li>
                       <div>
                         <Link href="/" prefetch={false}>
-                          <a className="text-slate-400 hover:text-slate-500">
+                          <a
+                            onClick={() =>
+                              plausible('clickOnBreadCrumb', {
+                                props: {
+                                  location: 'Home',
+                                },
+                              })
+                            }
+                            className="text-slate-400 hover:text-slate-500"
+                          >
                             <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
                             <span className="sr-only">Home</span>
                           </a>
@@ -139,6 +186,13 @@ const FCS = ({ posts, pagination }: fcsProps) => {
                         />
                         <Link href="/fcs" prefetch={false}>
                           <a
+                            onClick={() =>
+                              plausible('clickOnBreadCrumb', {
+                                props: {
+                                  location: 'FCS',
+                                },
+                              })
+                            }
                             className="ml-4 text-sm font-medium text-slate-500 hover:text-slate-700"
                             aria-current="page"
                           >
@@ -156,10 +210,10 @@ const FCS = ({ posts, pagination }: fcsProps) => {
         <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
             <div className="col-span-2">
-              {posts.map((post) => (
-                <HorizontalCard post={post} key={post._id} />
+              {articles.map((post) => (
+                <HorizontalCard post={post} key={post._id} articleLocation="FCS Page" />
               ))}
-              <nav
+              {/* <nav
                 className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6"
                 aria-label="Pagination"
               >
@@ -167,22 +221,28 @@ const FCS = ({ posts, pagination }: fcsProps) => {
                   <p className="text-sm text-gray-700">
                     Showing <span className="font-medium">1</span> to{' '}
                     <span className="font-medium">10</span> of{' '}
-                    <span className="font-medium">{pagination.totalPosts}</span> results
+                    <span className="font-medium">{totalPosts}</span> results
                   </p>
                 </div>
                 <div className="flex flex-1 justify-between sm:justify-end">
-                  <Link href={`/fcs?page=${pageIndex - 1}`}>
-                    <a className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  <Link href={`/fcs?page=${currentPage - 1}`}>
+                    <a
+                      onClick={() => fetchPreviousPage()}
+                      className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
                       Previous
                     </a>
                   </Link>
-                  <Link href={`/fcs?page=${pageIndex + 1}`}>
-                    <a className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  <Link href={`/fcs?page=${currentPage + 1}`}>
+                    <a
+                      onClick={() => fetchNextPage()}
+                      className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
                       Next
                     </a>
                   </Link>
                 </div>
-              </nav>
+              </nav> */}
             </div>
             <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
               <SocialMediaFollow />
@@ -197,14 +257,12 @@ const FCS = ({ posts, pagination }: fcsProps) => {
 FCS.Layout = Layout
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { posts, pagination } = await sanityClient.fetch(fcsPostsQuery, {
-    pageIndex: 0,
-  })
+  const { posts, totalPosts } = await sanityClient.fetch(fcsPostsQuery)
 
   return {
     props: {
       posts,
-      pagination,
+      totalPosts,
     },
   }
 }

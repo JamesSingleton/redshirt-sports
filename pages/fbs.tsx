@@ -3,6 +3,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/solid'
+import { usePlausible } from 'next-plausible'
 
 import { Layout, SocialMediaFollow } from '@components/common'
 import { HorizontalCard } from '@components/ui'
@@ -17,6 +18,7 @@ interface fbsProps {
 }
 
 const FBS = ({ fbsPosts }: fbsProps) => {
+  const plausible = usePlausible()
   const ldJsonContent = {
     '@context': 'http://schema.org',
     '@graph': [
@@ -117,7 +119,16 @@ const FBS = ({ fbsPosts }: fbsProps) => {
                     <li>
                       <div>
                         <Link href="/" prefetch={false}>
-                          <a className="text-slate-400 hover:text-slate-500">
+                          <a
+                            onClick={() =>
+                              plausible('clickOnBreadCrumb', {
+                                props: {
+                                  location: 'Home',
+                                },
+                              })
+                            }
+                            className="text-slate-400 hover:text-slate-500"
+                          >
                             <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
                             <span className="sr-only">Home</span>
                           </a>
@@ -132,6 +143,13 @@ const FBS = ({ fbsPosts }: fbsProps) => {
                         />
                         <Link href="/fbs" prefetch={false}>
                           <a
+                            onClick={() =>
+                              plausible('clickOnBreadCrumb', {
+                                props: {
+                                  location: 'FBS',
+                                },
+                              })
+                            }
                             className="ml-4 text-sm font-medium text-slate-500 hover:text-slate-700"
                             aria-current="page"
                           >
@@ -150,7 +168,7 @@ const FBS = ({ fbsPosts }: fbsProps) => {
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
             <div className="col-span-2">
               {fbsPosts.map((post, key) => (
-                <HorizontalCard post={post} key={post._id} />
+                <HorizontalCard post={post} key={post._id} articleLocation="FBS Page" />
               ))}
             </div>
             <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">

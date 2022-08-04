@@ -5,6 +5,7 @@ import { Popover } from '@headlessui/react'
 import { MenuIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import { useMediaQuery } from 'react-responsive'
+import { usePlausible } from 'next-plausible'
 
 import { HorizontalLogo, SmallLogo } from '../Logo'
 import SearchBar from './SearchBar'
@@ -14,6 +15,7 @@ const MobileNav = dynamic(() => import('./MobileNav'))
 
 const Navbar = () => {
   const router = useRouter()
+  const plausible = usePlausible()
   const isTabletOrMobile = useMediaQuery({ maxWidth: 1023 })
 
   return (
@@ -25,12 +27,30 @@ const Navbar = () => {
               <div className="flex px-2 lg:px-0">
                 <div className="flex flex-shrink-0 items-center">
                   <Link href="/" prefetch={false}>
-                    <a className="block h-8 w-auto lg:hidden">
+                    <a
+                      onClick={() =>
+                        plausible('clickOnNavbar', {
+                          props: {
+                            item: 'Home',
+                          },
+                        })
+                      }
+                      className="block h-8 w-auto lg:hidden"
+                    >
                       <SmallLogo className="h-8 w-auto" />
                     </a>
                   </Link>
                   <Link href="/" prefetch={false}>
-                    <a className="hidden h-8 w-auto lg:block">
+                    <a
+                      onClick={() =>
+                        plausible('clickOnNavbar', {
+                          props: {
+                            item: 'Home',
+                          },
+                        })
+                      }
+                      className="hidden h-8 w-auto lg:block"
+                    >
                       <HorizontalLogo className="h-8" />
                     </a>
                   </Link>
@@ -43,6 +63,13 @@ const Navbar = () => {
                   {NAVIGATION_ITEMS.map(({ name, href }) => (
                     <Link href={href} key={name} prefetch={false}>
                       <a
+                        onClick={() =>
+                          plausible('clickOnNavbar', {
+                            props: {
+                              item: name,
+                            },
+                          })
+                        }
                         className={clsx(
                           'inline-flex items-center border-b-2 px-1 pt-1 text-lg font-medium',
                           router.pathname === href

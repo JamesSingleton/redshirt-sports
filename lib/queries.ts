@@ -169,12 +169,6 @@ export const allPostsForRssFeed = groq`
 }
 `
 
-// === SLICING THE COLLECTION ===
-const ITEMS_PER_PAGE = 10
-
-// ITEMS_PER_PAGE is fixed/constant, so we could inject it in the query directly
-const slice = `[($pageIndex * 10)...($pageIndex + 1) * 10]`
-
 export const FCS_COLLECTION_FRAGMENT = /* groq */ `
 *[
   _type == "post" && category == 'FCS' &&
@@ -184,15 +178,24 @@ export const FCS_COLLECTION_FRAGMENT = /* groq */ `
 
 export const fcsPostsQuery = groq`
   {
-    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc, _updatedAt desc)${slice}{
+    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc)[0...10]{
       ${litePostFields}
     },
-    "pagination": {
-      "totalPosts": count(${FCS_COLLECTION_FRAGMENT}._id),
-      "currentPage": $pageIndex + 1
-    }
+    "totalPosts": count(${FCS_COLLECTION_FRAGMENT}._id)
   }
 `
+
+export const fetchNextCategoryPage = groq`
+  *[_type == "post" && category == $category && (publishedAt < $lastPublishedAt || (publishedAt == $lastPublishedAt && _id < $lastId))] | order(publishedAt desc) [0...10] {
+    ${litePostFields}
+  }
+`
+
+export const fetchPreviousCategoryPage = groq`
+  *[_type == "post" && category == $category && (publishedAt > $lastPublishedAt
+  || (publishedAt == $lastPublishedAt && _id > $lastId))] | order(publishedAt desc) [0...10] {
+  ${litePostFields}
+}`
 
 export const allFBSPosts = groq`
 *[_type == "post" && category == 'FBS' ] | order(publishedAt desc, _updatedAt desc){

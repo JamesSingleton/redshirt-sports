@@ -46,7 +46,16 @@ const Footer = () => {
         <div className="sm:flex sm:items-center sm:justify-between">
           <div className="flex items-center justify-center">
             <Link href="/" prefetch={false}>
-              <a className="block h-10">
+              <a
+                onClick={() =>
+                  plausible('clickOnFooter', {
+                    props: {
+                      item: 'Home',
+                    },
+                  })
+                }
+                className="block h-10"
+              >
                 <HorizontalLogo className="h-10" />
               </a>
             </Link>
@@ -57,6 +66,13 @@ const Footer = () => {
                 <li key={name}>
                   <a
                     href={href}
+                    onClick={() =>
+                      plausible('clickOnFooter', {
+                        props: {
+                          item: name,
+                        },
+                      })
+                    }
                     target="_blank"
                     rel="noreferrer"
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-transparent transition duration-300 ease-in-out sm:h-12 sm:w-12"

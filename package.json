@@ -33,7 +33,7 @@
     "date-fns": "^2.29.1",
     "feed": "^4.2.2",
     "htm": "^3.1.1",
-    "next": "^12.2.4-canary.9",
+    "next": "^12.2.4-canary.11",
     "next-plausible": "^3.2.0",
     "next-sanity": "^0.6.0",
     "next-seo": "^5.5.0",

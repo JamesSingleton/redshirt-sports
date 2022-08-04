@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { usePlausible } from 'next-plausible'
 
 import { BlurImage } from '@components/ui'
 import { urlForImage, PortableText } from '@lib/sanity'
@@ -13,6 +14,8 @@ interface PostFooterProps {
 }
 
 const PostFooter = ({ title, slug, author }: PostFooterProps) => {
+  const plausible = usePlausible()
+
   return (
     <footer className="mx-auto mt-12 max-w-prose divide-y text-lg sm:mt-14">
       <div className="py-8 sm:py-10">
@@ -21,6 +24,13 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
           <ul className="flex items-center space-x-3">
             <li>
               <a
+                onClick={() =>
+                  plausible('ShareArticle', {
+                    props: {
+                      item: 'Facebook',
+                    },
+                  })
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
@@ -29,6 +39,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 transition duration-300 ease-in-out sm:h-12 sm:w-12"
                 title="Share article on Twitter"
               >
+                <span className="sr-only">Share article on Twitter</span>
                 <svg
                   fill="currentColor"
                   viewBox="0 0 24 24"
@@ -40,6 +51,13 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
             </li>
             <li>
               <a
+                onClick={() =>
+                  plausible('ShareArticle', {
+                    props: {
+                      item: 'Facebook',
+                    },
+                  })
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 href={`https://www.facebook.com/sharer.php?u=https://www.redshirtsports.xyz/${slug}&quote=${encodeURIComponent(
@@ -48,6 +66,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 transition duration-300 ease-in-out sm:h-12 sm:w-12"
                 title="Share article on Facebook"
               >
+                <span className="sr-only">Share article on Facebook</span>
                 <svg
                   fill="currentColor"
                   viewBox="0 0 24 24"
@@ -68,28 +87,35 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-col sm:flex-row">
             <div className="shrink-0">
-              <div className="relative h-20 w-20 overflow-hidden rounded-2xl bg-slate-100 sm:h-24 sm:w-24">
-                <BlurImage
-                  alt={author.name}
-                  src={urlForImage(author.image).width(100).height(100).url()}
-                  blurDataURL={author.image.asset.metadata.lqip ?? undefined}
-                  layout="responsive"
-                  className="rounded-2xl"
-                  width={96}
-                  height={96}
-                />
-              </div>
+              <Link href={`/authors/${author.slug}`} prefetch={false}>
+                <a
+                  onClick={() => plausible('clickOnAuthor')}
+                  className="relative block h-20 w-20 overflow-hidden rounded-2xl bg-slate-100 sm:h-24 sm:w-24"
+                >
+                  <BlurImage
+                    alt={author.name}
+                    src={urlForImage(author.image).width(100).height(100).url()}
+                    blurDataURL={author.image.asset.metadata.lqip ?? undefined}
+                    layout="responsive"
+                    className="rounded-2xl"
+                    width={96}
+                    height={96}
+                  />
+                </a>
+              </Link>
             </div>
             <div className="mt-5 text-left sm:ml-6 sm:mt-0">
               <div className="flex items-center justify-between">
-                <div className="flex-col">
-                  <span className="block text-sm uppercase tracking-widest text-brand-500">
-                    {author.role}
-                  </span>
-                  <span className="mt-1 text-xl font-medium tracking-normal text-slate-900 md:tracking-tight lg:leading-tight">
-                    {author.name}
-                  </span>
-                </div>
+                <Link href={`/authors/${author.slug}`} prefetch={false}>
+                  <a onClick={() => plausible('clickOnAuthor')} className="flex-col">
+                    <span className="block text-sm uppercase tracking-widest text-brand-500">
+                      {author.role}
+                    </span>
+                    <span className="mt-1 text-xl font-medium tracking-normal text-slate-900 md:tracking-tight lg:leading-tight">
+                      {author.name}
+                    </span>
+                  </a>
+                </Link>
               </div>
               <div className="mt-3 text-base leading-loose text-slate-500 line-clamp-3">
                 <PortableText value={author.bio} />
@@ -98,7 +124,18 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                 {author.socialMedia &&
                   author.socialMedia.map((social) => (
                     <li key={social._key}>
-                      <a href={social.url} target="_blank" rel="noreferrer">
+                      <a
+                        onClick={() =>
+                          plausible('clickOnAuthorSocialMedia', {
+                            props: {
+                              item: social.name,
+                            },
+                          })
+                        }
+                        href={social.url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                      >
                         <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
                         {social.name === 'Twitter' ? (
                           <Twitter className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
