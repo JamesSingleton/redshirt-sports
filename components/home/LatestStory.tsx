@@ -20,10 +20,10 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
         <a onClick={() => plausible('clickOnHeroArticle')}>
           <div className="group block overflow-hidden rounded-2xl">
             <BlurImage
-              src={urlForImage(post.mainImage).width(736).height(414).url()}
+              src={urlForImage(post.mainImage).width(704).height(396).quality(50).url()}
               layout="responsive"
-              width={736}
-              height={414}
+              width={704}
+              height={396}
               sizes="50vw"
               alt={post.mainImage.caption}
               placeholder="blur"
@@ -31,7 +31,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
               blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
               className="group-hover:scale-105 group-hover:duration-300"
               priority={true}
-              quality={60}
+              quality={50}
             />
           </div>
           <div className="mt-6 md:align-middle">
