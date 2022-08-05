@@ -36,7 +36,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                   <div className="group overflow-hidden rounded-2xl">
                     <BlurImage
                       alt={post.mainImage.caption}
-                      src={urlForImage(post.mainImage).width(564).height(316).url()}
+                      src={urlForImage(post.mainImage).quality(40).url()}
                       blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
                       placeholder="blur"
                       layout="responsive"
@@ -44,7 +44,8 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                       height={158}
                       sizes="50vw"
                       className="group-hover:scale-105 group-hover:duration-300"
-                      quality={60}
+                      quality={40}
+                      objectFit="cover"
                     />
                   </div>
                 </div>
@@ -60,13 +61,18 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                       <div className="relative mr-3 h-6 w-6 overflow-hidden rounded-full">
                         <BlurImage
                           alt={post.author.name}
-                          src={urlForImage(post.author.image).url()}
-                          width={24}
-                          height={24}
+                          src={urlForImage(post.author.image)
+                            .width(48)
+                            .height(48)
+                            .quality(40)
+                            .url()}
+                          width={48}
+                          height={48}
                           objectFit="cover"
                           layout="responsive"
-                          className="rounded-lg"
+                          className="rounded-full"
                           blurDataURL={post.author.image.asset.metadata.lqip ?? undefined}
+                          quality={40}
                         />
                       </div>
                       <div className="text-sm">

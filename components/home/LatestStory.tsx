@@ -49,13 +49,14 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             <div className="mt-4 flex items-center sm:mt-8">
               <div className="h-10 w-10 overflow-hidden rounded-full">
                 <BlurImage
-                  src={urlForImage(post.author.image).width(80).height(80).url()}
+                  src={urlForImage(post.author.image).width(80).height(80).quality(50).url()}
                   width={80}
                   height={80}
                   alt={post.author.name}
                   className="rounded-xl"
                   layout="responsive"
                   blurDataURL={post.author.image.asset.metadata.lqip ?? undefined}
+                  quality={50}
                 />
               </div>
               <div className="ml-3">
