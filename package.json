@@ -27,7 +27,6 @@
     "@tailwindcss/forms": "^0.5.2",
     "@tailwindcss/line-clamp": "^0.4.0",
     "@tailwindcss/typography": "^0.5.4",
-    "@vercel/og": "^0.0.10",
     "classnames": "^2.3.1",
     "clsx": "^1.2.1",
     "date-fns": "^2.29.1",
