@@ -23,7 +23,7 @@ export default function Post({ currentPost, morePosts }: PostProps) {
     <>
       <Head>
         <script
-          id="app-ld-json"
+          id={`${currentPost.title}-ld-json`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(content),
