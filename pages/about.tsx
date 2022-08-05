@@ -2,6 +2,7 @@ import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
+import { usePlausible } from 'next-plausible'
 
 import { Layout } from '@components/common'
 import { BlurImage, PageHeader } from '@components/ui'
@@ -18,6 +19,7 @@ interface AboutProps {
 }
 
 const About = ({ authors }: AboutProps) => {
+  const plausible = usePlausible()
   const ldJsonContent = {
     '@context': 'http://schema.org',
     '@graph': [
@@ -150,7 +152,7 @@ const About = ({ authors }: AboutProps) => {
                       <div className="mt-6 leading-6">
                         <h3 className="font-cal text-xl font-medium text-slate-900">
                           <Link href={`/authors/${author.slug}`} prefetch={false}>
-                            <a>
+                            <a onClick={() => plausible('clickOnAuthor')}>
                               <span aria-hidden="true" className="absolute inset-0" />
                               {author.name}
                             </a>
@@ -161,7 +163,12 @@ const About = ({ authors }: AboutProps) => {
                       <ul className="mt-6 flex items-center justify-center space-x-3">
                         {author.socialMedia?.map((social) => (
                           <li key={social._key}>
-                            <a href={social.url} target="_blank" rel="noreferrer">
+                            <a
+                              onClick={() => plausible('clickOnAuthorSocialMedia')}
+                              href={social.url}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
                               <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
                               {social.name === 'Twitter' ? (
                                 <Twitter className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
@@ -197,7 +204,10 @@ const About = ({ authors }: AboutProps) => {
               our team.
             </p>
             <Link href="/contact" prefetch={false}>
-              <a className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-brand-600 hover:bg-brand-50 sm:w-auto">
+              <a
+                onClick={() => plausible('Join Our Team')}
+                className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-brand-600 hover:bg-brand-50 sm:w-auto"
+              >
                 Join our team
               </a>
             </Link>

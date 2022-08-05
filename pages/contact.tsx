@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import { NextSeo } from 'next-seo'
+import { usePlausible } from 'next-plausible'
 
 import { Layout, SocialMediaFollow } from '@components/common'
 import { PageHeader } from '@components/ui'
@@ -11,6 +12,8 @@ const contactDetails = [
 ]
 
 const ContactUs = () => {
+  const plausible = usePlausible()
+
   const ldJsonContent = {
     '@context': 'http://schema.org',
     '@graph': [
@@ -105,7 +108,18 @@ const ContactUs = () => {
                         <div>
                           <dt className="sr-only">Email</dt>
                           <dd className="prose hover:prose-a:text-brand-500">
-                            <a href={`mailto:${item.email}`}>{item.email}</a>
+                            <a
+                              onClick={() =>
+                                plausible('Email Us', {
+                                  props: {
+                                    email: item.email,
+                                  },
+                                })
+                              }
+                              href={`mailto:${item.email}`}
+                            >
+                              {item.email}
+                            </a>
                           </dd>
                         </div>
                       </dl>
@@ -115,7 +129,18 @@ const ContactUs = () => {
                 <p className="prose mt-10 text-lg text-slate-500 hover:prose-a:text-brand-500 sm:mt-12">
                   If your reason for contacting us does not fall in any of the categories above,
                   please email us at{' '}
-                  <a href="mailto:contact@redshirtsports.xyz">contact@redshirtsports.xyz</a>
+                  <a
+                    onClick={() =>
+                      plausible('Email Us', {
+                        props: {
+                          email: 'contact@redshirtsports.xyz',
+                        },
+                      })
+                    }
+                    href="mailto:contact@redshirtsports.xyz"
+                  >
+                    contact@redshirtsports.xyz
+                  </a>
                 </p>
               </div>
             </div>
