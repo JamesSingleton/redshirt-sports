@@ -1,8 +1,9 @@
 import { SVGProps } from 'react'
 import Link from 'next/link'
+import Image from 'next/future/image'
 import { usePlausible } from 'next-plausible'
 
-import { HorizontalLogo } from '../Logo'
+import RSRedHorizontalLogo from '@public/images/icons/RS_red_horizontal.svg'
 
 const navigation = {
   site: [
@@ -54,9 +55,13 @@ const Footer = () => {
                     },
                   })
                 }
-                className="block h-10"
+                className="block"
               >
-                <HorizontalLogo className="h-10" />
+                <Image
+                  src={RSRedHorizontalLogo}
+                  alt="Redshirt Sports Horizontal Logo"
+                  className="h-10 w-auto"
+                />
               </a>
             </Link>
           </div>

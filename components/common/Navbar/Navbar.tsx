@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import Image from 'next/future/image'
 import { useRouter } from 'next/router'
 import { Popover } from '@headlessui/react'
 import { MenuIcon } from '@heroicons/react/outline'
@@ -7,9 +8,10 @@ import clsx from 'clsx'
 import { useMediaQuery } from 'react-responsive'
 import { usePlausible } from 'next-plausible'
 
-import { HorizontalLogo, SmallLogo } from '../Logo'
 import SearchBar from './SearchBar'
 import { NAVIGATION_ITEMS } from '@lib/constants'
+import RSRedLogo from '@public/images/icons/RS_red.svg'
+import RSRedHorizontalLogo from '@public/images/icons/RS_red_horizontal.svg'
 
 const MobileNav = dynamic(() => import('./MobileNav'))
 
@@ -35,9 +37,9 @@ const Navbar = () => {
                           },
                         })
                       }
-                      className="block h-8 w-auto lg:hidden"
+                      className="block lg:hidden"
                     >
-                      <SmallLogo className="h-8 w-auto" />
+                      <Image src={RSRedLogo} alt="Redshirt Sports Logo" className="h-8 w-auto" />
                     </a>
                   </Link>
                   <Link href="/" prefetch={false}>
@@ -49,9 +51,13 @@ const Navbar = () => {
                           },
                         })
                       }
-                      className="hidden h-8 w-auto lg:block"
+                      className="hidden lg:block"
                     >
-                      <HorizontalLogo className="h-8" />
+                      <Image
+                        src={RSRedHorizontalLogo}
+                        alt="Redshirt Sports Horizontal Logo"
+                        className="h-8 w-auto"
+                      />
                     </a>
                   </Link>
                 </div>

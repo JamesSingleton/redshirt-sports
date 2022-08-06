@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/future/image'
 import { usePlausible } from 'next-plausible'
 
 import { BlurImage, Date, MinimalHorizontalCard } from '@components/ui'
@@ -33,19 +34,17 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                 className="group md:flex lg:flex-col xl:flex-row xl:items-center"
               >
                 <div className="order-2 w-full md:w-2/5 lg:order-1 lg:w-full xl:w-2/5">
-                  <div className="group overflow-hidden rounded-2xl">
-                    <BlurImage
-                      alt={post.mainImage.caption}
+                  <div className="aspect-w-16 aspect-h-9">
+                    <Image
                       src={urlForImage(post.mainImage).quality(40).url()}
-                      blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
-                      placeholder="blur"
-                      layout="responsive"
-                      width={282}
-                      height={158}
+                      alt={post.mainImage.caption}
+                      width={358}
+                      height={201}
                       sizes="50vw"
-                      className="group-hover:scale-105 group-hover:duration-300"
+                      placeholder="blur"
+                      blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
+                      className="overflow-hidden rounded-2xl object-cover"
                       quality={40}
-                      objectFit="cover"
                     />
                   </div>
                 </div>
@@ -58,23 +57,17 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                   </h3>
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center justify-center">
-                      <div className="relative mr-3 h-6 w-6 overflow-hidden rounded-full">
-                        <BlurImage
-                          alt={post.author.name}
-                          src={urlForImage(post.author.image)
-                            .width(48)
-                            .height(48)
-                            .quality(40)
-                            .url()}
-                          width={48}
-                          height={48}
-                          objectFit="cover"
-                          layout="responsive"
-                          className="rounded-full"
-                          blurDataURL={post.author.image.asset.metadata.lqip ?? undefined}
-                          quality={40}
-                        />
-                      </div>
+                      <Image
+                        alt={`${post.author.name}'s avatar`}
+                        src={urlForImage(post.author.image).width(48).height(48).quality(40).url()}
+                        width={48}
+                        height={48}
+                        sizes="50vw"
+                        className="mr-3 h-6 w-6 overflow-hidden rounded-full"
+                        placeholder="blur"
+                        blurDataURL={post.author.image.asset.metadata.lqip ?? undefined}
+                        quality={40}
+                      />
                       <div className="text-sm">
                         <span className="text-slate-500">By </span>
                         <span className="font-medium text-slate-700 decoration-inherit">

@@ -26,6 +26,11 @@ const securityHeaders = [
 ]
 
 const moduleExports = {
+  experimental: {
+    images: {
+      allowFutureImage: true,
+    },
+  },
   productionBrowserSourceMaps: true,
   swcMinify: true,
   reactStrictMode: true,
