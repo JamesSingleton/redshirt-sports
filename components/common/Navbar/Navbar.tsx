@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import { Popover } from '@headlessui/react'
 import MenuIcon from '@heroicons/react/outline/MenuIcon'
 import clsx from 'clsx'
-import { useMediaQuery } from 'react-responsive'
 import { usePlausible } from 'next-plausible'
 
 import SearchBar from './SearchBar'
@@ -18,7 +17,6 @@ const MobileNav = dynamic(() => import('./MobileNav'))
 const Navbar = () => {
   const router = useRouter()
   const plausible = usePlausible()
-  const isTabletOrMobile = useMediaQuery({ maxWidth: 1023 })
 
   return (
     <Popover as="header" className="shadow">
@@ -105,7 +103,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {isTabletOrMobile && <MobileNav />}
+          {open && <MobileNav />}
         </>
       )}
     </Popover>

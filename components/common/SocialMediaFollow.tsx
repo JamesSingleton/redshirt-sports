@@ -14,7 +14,7 @@ const SocialMediaFollow = () => {
           onClick={() => plausible('clickOnSocialMedia', { props: { socialMedia: 'Twitter' } })}
           target="_blank"
           href="https://twitter.com/_redshirtsports"
-          rel="noreferrer"
+          rel="noreferrer noopener"
           className="items-centers flex w-full justify-between"
         >
           <div className="flex items-center">

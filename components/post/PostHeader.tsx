@@ -4,7 +4,6 @@ import CalendarIcon from '@heroicons/react/outline/CalendarIcon'
 import ClockIcon from '@heroicons/react/outline/ClockIcon'
 import CameraIcon from '@heroicons/react/outline/CameraIcon'
 import { usePlausible } from 'next-plausible'
-import { useMediaQuery } from 'react-responsive'
 
 import { urlForImage } from '@lib/sanity'
 import { Date } from '@components/ui'
@@ -17,7 +16,6 @@ interface PostHeaderProps {
 
 const PostHeader = ({ post }: PostHeaderProps) => {
   const plausible = usePlausible()
-  const isMobile = useMediaQuery({ maxWidth: 767 })
 
   return (
     <header className="sm:px-10 sm:pt-10">
@@ -28,8 +26,6 @@ const PostHeader = ({ post }: PostHeaderProps) => {
           width={16}
           height={9}
           sizes="50vw"
-          placeholder="blur"
-          blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
           priority
           quality={40}
           className="h-80 w-full overflow-hidden object-cover md:h-150 md:rounded-2xl"
