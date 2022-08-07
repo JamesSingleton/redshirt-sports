@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { CalendarIcon, ClockIcon } from '@heroicons/react/outline'
+import CalendarIcon from '@heroicons/react/outline/CalendarIcon'
+import ClockIcon from '@heroicons/react/outline/ClockIcon'
 import { usePlausible } from 'next-plausible'
 
 import { urlForImage } from '@lib/sanity'

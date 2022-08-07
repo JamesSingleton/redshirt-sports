@@ -13,9 +13,9 @@ interface VerticalArticleCardProps {
 
 const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl shadow-xl">
-      <Link href={`/${article.slug}`} prefetch={false}>
-        <a>
+    <Link href={`/${article.slug}`} prefetch={false}>
+      <a className="flex">
+        <article className="flex flex-col overflow-hidden rounded-2xl shadow-xl">
           <Image
             src={urlForImage(article.mainImage).quality(40).url()}
             alt={article.mainImage.caption}
@@ -62,9 +62,9 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
               </div>
             </div>
           </div>
-        </a>
-      </Link>
-    </article>
+        </article>
+      </a>
+    </Link>
   )
 }
 

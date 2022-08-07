@@ -50,8 +50,6 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
                 alt={`${post.author.name}'s avatar`}
                 width={80}
                 height={80}
-                placeholder="blur"
-                blurDataURL={post.author.image.asset.metadata.lqip ?? undefined}
                 quality={50}
                 sizes="50vw"
                 className="h-10 w-10 overflow-hidden rounded-full"

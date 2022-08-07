@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/future/image'
 import { useRouter } from 'next/router'
 import { Popover } from '@headlessui/react'
-import { MenuIcon } from '@heroicons/react/outline'
+import MenuIcon from '@heroicons/react/outline/MenuIcon'
 import clsx from 'clsx'
 import { useMediaQuery } from 'react-responsive'
 import { usePlausible } from 'next-plausible'
@@ -39,7 +39,12 @@ const Navbar = () => {
                       }
                       className="block lg:hidden"
                     >
-                      <Image src={RSRedLogo} alt="Redshirt Sports Logo" className="h-8 w-auto" />
+                      <Image
+                        src={RSRedLogo}
+                        alt="Redshirt Sports Logo"
+                        className="h-8 w-auto"
+                        priority={true}
+                      />
                     </a>
                   </Link>
                   <Link href="/" prefetch={false}>
@@ -57,6 +62,7 @@ const Navbar = () => {
                         src={RSRedHorizontalLogo}
                         alt="Redshirt Sports Horizontal Logo"
                         className="h-8 w-auto"
+                        priority={true}
                       />
                     </a>
                   </Link>

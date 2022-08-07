@@ -63,7 +63,7 @@ export default function Post({ currentPost, morePosts }: PostProps) {
         <article className="bg-slate-50 pb-12 sm:pb-16 lg:pb-24">
           <PostHeader post={currentPost} />
           <div className="px-5 lg:px-0">
-            <div className="prose-md prose m-auto w-11/12 sm:prose-lg sm:w-3/4">
+            <div className="prose-md prose m-auto w-11/12 prose-a:text-blue-600 hover:prose-a:text-blue-500 sm:prose-lg sm:w-3/4">
               <PortableText value={currentPost?.body} />
             </div>
             <PostFooter

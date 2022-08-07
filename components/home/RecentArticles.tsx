@@ -64,8 +64,6 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                         height={48}
                         sizes="50vw"
                         className="mr-3 h-6 w-6 overflow-hidden rounded-full"
-                        placeholder="blur"
-                        blurDataURL={post.author.image.asset.metadata.lqip ?? undefined}
                         quality={40}
                       />
                       <div className="text-sm">

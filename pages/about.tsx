@@ -1,11 +1,12 @@
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
+import Image from 'next/future/image'
 import { NextSeo } from 'next-seo'
 import { usePlausible } from 'next-plausible'
 
 import { Layout } from '@components/common'
-import { BlurImage, PageHeader } from '@components/ui'
+import { PageHeader } from '@components/ui'
 import { sanityClient } from '@lib/sanity.server'
 import { allAuthors } from '@lib/queries'
 import { urlForImage } from '@lib/sanity'
@@ -138,17 +139,17 @@ const About = ({ authors }: AboutProps) => {
                     className="relative rounded-3xl border border-slate-300/70 bg-transparent py-10 px-6 text-center transition duration-300 ease-in-out hover:border-slate-300/30 hover:shadow-lg sm:px-10"
                   >
                     <div>
-                      <div className="relative mx-auto h-40 w-40 overflow-hidden rounded-full xl:h-44 xl:w-44">
-                        <BlurImage
-                          src={urlForImage(author.image).url()}
-                          alt={author.name}
-                          width={176}
-                          height={176}
-                          className="rounded-full"
-                          blurDataURL={author.image.asset.metadata.lqip ?? undefined}
-                          objectFit="cover"
-                        />
-                      </div>
+                      <Image
+                        src={urlForImage(author.image).quality(50).url()}
+                        alt={`${author.name}'s profile picture`}
+                        width={176}
+                        height={176}
+                        placeholder="blur"
+                        blurDataURL={author.image.asset.metadata.lqip ?? undefined}
+                        quality={50}
+                        sizes="50vw"
+                        className="mx-auto h-40 w-40 overflow-hidden rounded-full object-cover xl:h-44 xl:w-44"
+                      />
                       <div className="mt-6 leading-6">
                         <h3 className="font-cal text-xl font-medium text-slate-900">
                           <Link href={`/authors/${author.slug}`} prefetch={false}>

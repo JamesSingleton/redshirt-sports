@@ -1,15 +1,16 @@
 import { GetStaticProps } from 'next'
 import Link from 'next/link'
+import Image from 'next/future/image'
 import { usePlausible } from 'next-plausible'
 import { NextSeo } from 'next-seo'
-import { ArrowRightIcon } from '@heroicons/react/outline'
+import ArrowRightIcon from '@heroicons/react/outline/ArrowRightIcon'
 
 import { Layout } from '@components/common'
 import { recentArticlesQuery } from '@lib/queries'
 import { sanityClient } from '@lib/sanity.server'
 
 import type { Post } from '@types'
-import { BlurImage, Date } from '@components/ui'
+import { Date } from '@components/ui'
 import { urlForImage } from '@lib/sanity'
 
 interface Custom404Props {
@@ -51,7 +52,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
               <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
                 Recent stories
               </h2>
-              <div className="grid lg:gap-6 2xl:grid-cols-2">
+              <div className="grid pt-12 lg:gap-6 2xl:grid-cols-2">
                 {recentArticles.map((recentArticle) => (
                   <article key={recentArticle._id}>
                     <Link href={`/${recentArticle.slug}`} prefetch={false}>
@@ -60,14 +61,17 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                         className="py-8 sm:flex lg:items-center lg:py-6 xl:py-8"
                       >
                         <div className="order-2 w-full sm:w-2/5 lg:order-1 lg:w-24 xl:w-1/3">
-                          <div className="aspect-h-9 aspect-w-9 overflow-hidden rounded-2xl lg:aspect-h-1 lg:aspect-w-1">
-                            <BlurImage
+                          <div className="aspect-h-9 aspect-w-9 lg:aspect-h-1 lg:aspect-w-1">
+                            <Image
+                              src={urlForImage(recentArticle.mainImage).quality(40).url()}
                               alt={recentArticle.mainImage.caption}
-                              src={urlForImage(recentArticle.mainImage).url()}
-                              className="overflow-hidden rounded-2xl"
-                              layout="fill"
-                              objectFit="cover"
+                              width={134}
+                              height={134}
+                              sizes="50vw"
+                              placeholder="blur"
                               blurDataURL={recentArticle.mainImage.asset.metadata.lqip ?? undefined}
+                              quality={40}
+                              className="overflow-hidden rounded-2xl object-cover"
                             />
                           </div>
                         </div>
@@ -80,16 +84,19 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                           </h3>
                           <div className="mt-4 flex items-center justify-between lg:mt-3">
                             <div className="flex items-end justify-center">
-                              <div className="relative mr-3 h-6 w-6 rounded-lg lg:hidden">
-                                <BlurImage
-                                  src={urlForImage(recentArticle.author.image).url()}
-                                  layout="responsive"
-                                  width={24}
-                                  height={24}
-                                  alt={recentArticle.author.name}
-                                  className="overflow-hidden rounded-full"
-                                />
-                              </div>
+                              <Image
+                                src={urlForImage(recentArticle.author.image).quality(50).url()}
+                                alt={`${recentArticle.author.name}'s avatar`}
+                                width={24}
+                                height={24}
+                                sizes="50vw"
+                                quality={50}
+                                placeholder="blur"
+                                blurDataURL={
+                                  recentArticle.author.image.asset.metadata.lqip ?? undefined
+                                }
+                                className="mr-3 h-6 w-6 overflow-hidden rounded-full object-cover lg:hidden"
+                              />
                               <div className="text-sm">
                                 <span className="text-slate-500">By&nbsp;</span>
                                 <span className="font-medium text-slate-600 hover:underline">

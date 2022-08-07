@@ -1,4 +1,4 @@
-import { SearchIcon } from '@heroicons/react/solid'
+import SearchIcon from '@heroicons/react/solid/SearchIcon'
 
 const SearchBar = () => {
   return (

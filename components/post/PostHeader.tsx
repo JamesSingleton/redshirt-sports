@@ -1,9 +1,13 @@
 import Link from 'next/link'
-import { CalendarIcon, ClockIcon, CameraIcon } from '@heroicons/react/outline'
+import Image from 'next/future/image'
+import CalendarIcon from '@heroicons/react/outline/CalendarIcon'
+import ClockIcon from '@heroicons/react/outline/ClockIcon'
+import CameraIcon from '@heroicons/react/outline/CameraIcon'
 import { usePlausible } from 'next-plausible'
+import { useMediaQuery } from 'react-responsive'
 
 import { urlForImage } from '@lib/sanity'
-import { BlurImage, Date } from '@components/ui'
+import { Date } from '@components/ui'
 
 import type { Post } from '@types'
 
@@ -13,23 +17,24 @@ interface PostHeaderProps {
 
 const PostHeader = ({ post }: PostHeaderProps) => {
   const plausible = usePlausible()
+  const isMobile = useMediaQuery({ maxWidth: 767 })
 
   return (
-    <header className="pt-10 sm:px-10 sm:pt-16">
+    <header className="sm:px-10 sm:pt-10">
       <div className="mx-auto max-w-screen-lg">
-        <div className="relative h-80 w-full overflow-hidden md:h-150 md:rounded-2xl">
-          <BlurImage
-            alt={post.mainImage.caption}
-            src={urlForImage(post.mainImage).width(1024).height(600).url()}
-            layout="fill"
-            objectFit="cover"
-            placeholder="blur"
-            priority={true}
-            blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
-            quality={60}
-          />
-        </div>
-        <div className="ml-3 mt-3 flex text-sm sm:ml-0">
+        <Image
+          src={urlForImage(post.mainImage).quality(40).url()}
+          alt={post.mainImage.caption}
+          width={16}
+          height={9}
+          sizes="50vw"
+          placeholder="blur"
+          blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
+          priority
+          quality={40}
+          className="h-80 w-full overflow-hidden object-cover md:h-150 md:rounded-2xl"
+        />
+        <div className="flex pt-3 pl-5 text-sm lg:pl-0">
           <CameraIcon className="h-5 w-5 flex-none" aria-hidden="true" />
           <span className="ml-2">{`Source: ${post.mainImage.attribution}`}</span>
         </div>
@@ -58,17 +63,16 @@ const PostHeader = ({ post }: PostHeaderProps) => {
           <div className="mt-6 flex items-center sm:mt-8">
             <Link href={`/authors/${post.author.slug}`} prefetch={false}>
               <a onClick={() => plausible('clickOnAuthor')} className="mr-3 shrink-0">
-                <div className="relative h-8 w-8 overflow-hidden rounded-xl bg-slate-100 sm:h-9 sm:w-9">
-                  <BlurImage
-                    alt={post.author.name}
-                    src={urlForImage(post.author.image).width(72).height(72).url()}
-                    blurDataURL={post.author.image.asset.metadata.lqip ?? undefined}
-                    width={36}
-                    height={36}
-                    layout="responsive"
-                    className="rounded-xl"
-                  />
-                </div>
+                <Image
+                  alt={post.author.name}
+                  src={urlForImage(post.author.image).width(72).height(72).quality(60).url()}
+                  width={36}
+                  height={36}
+                  sizes="50vw"
+                  quality={60}
+                  priority
+                  className="h-8 w-8 overflow-hidden rounded-full sm:h-9 sm:w-9"
+                />
               </a>
             </Link>
             <div className="flex items-center text-sm lg:text-base">
