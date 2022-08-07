@@ -46,8 +46,6 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
                     height={80}
                     sizes="50vw"
                     quality={50}
-                    placeholder="blur"
-                    blurDataURL={article.author.image.asset.metadata.lqip ?? undefined}
                     className="h-10 w-10 rounded-full object-cover"
                   />
                 </div>
