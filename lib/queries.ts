@@ -146,6 +146,29 @@ export const allPosts = groq`
 }
 `
 
+export const getAllPostsForSitemap = groq`
+*[_type == 'post' && defined(slug.current)]{
+  _updatedAt,
+  "slug": slug.current,
+}
+`
+
+export const getAllPostsForNewsSitemap = groq`
+*[_type == 'post' && defined(slug.current)]{
+  publishedAt,
+  title,
+  category,
+  "slug": slug.current,
+}
+`
+
+export const getAllAuthorsForSitemap = groq`
+*[_type == 'author' && defined(slug.current)]{
+  _updatedAt,
+  "slug": slug.current,
+}
+`
+
 export const allPostsForRssFeed = groq`
 *[_type == 'post']{
   _id,

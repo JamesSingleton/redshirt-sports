@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next'
 
 import { sanityClient } from '@lib/sanity.server'
-import { allAuthors, allPosts } from '@lib/queries'
+import { getAllAuthorsForSitemap, getAllPostsForSitemap } from '@lib/queries'
 
 import type { Post, Author } from '@types'
 
@@ -9,8 +9,8 @@ const Sitemap = () => {}
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const baseUrl = 'https://www.redshirtsports.xyz'
-  const posts = await sanityClient.fetch(allPosts)
-  const authors = await sanityClient.fetch(allAuthors)
+  const posts = await sanityClient.fetch(getAllPostsForSitemap)
+  const authors = await sanityClient.fetch(getAllAuthorsForSitemap)
 
   const postsSitemap = posts.map(
     (post: Post) => `

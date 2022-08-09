@@ -91,10 +91,6 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                                 height={24}
                                 sizes="50vw"
                                 quality={50}
-                                placeholder="blur"
-                                blurDataURL={
-                                  recentArticle.author.image.asset.metadata.lqip ?? undefined
-                                }
                                 className="mr-3 h-6 w-6 overflow-hidden rounded-full object-cover lg:hidden"
                               />
                               <div className="text-sm">
