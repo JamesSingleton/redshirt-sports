@@ -168,7 +168,7 @@ const FBS = ({ fbsPosts }: fbsProps) => {
         <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
             <div className="col-span-2">
-              {fbsPosts.map((post, key) => (
+              {fbsPosts.map((post) => (
                 <HorizontalCard post={post} key={post._id} articleLocation="FBS Page" />
               ))}
             </div>

@@ -1,4 +1,5 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
+import Image from 'next/future/image'
 import { NextSeo, SocialProfileJsonLd, BreadcrumbJsonLd } from 'next-seo'
 import { usePlausible } from 'next-plausible'
 
@@ -6,7 +7,7 @@ import { Layout } from '@components/common'
 import { sanityClient } from '@lib/sanity.server'
 import { authorSlugsQuery, authorAndTheirPostsBySlug } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
-import { BlurImage, HorizontalCard } from '@components/ui'
+import { HorizontalCard } from '@components/ui'
 import { Instagram, Twitter, Facebook, Website } from '@components/common/icons'
 
 import type { Author } from '@types'
@@ -68,18 +69,13 @@ const Author = ({ author }: AuthorProps) => {
           <div className="mx-auto max-w-xl px-6 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
             <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
               <div className="flex flex-col items-center md:flex-row">
-                <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl">
-                  <BlurImage
-                    src={urlForImage(author.image).url()}
-                    layout="responsive"
-                    width={96}
-                    height={96}
-                    alt={author.name}
-                    blurDataURL={author.image.asset.metadata.lqip}
-                    className="overflow-hidden rounded-xl"
-                    objectFit="cover"
-                  />
-                </div>
+                <Image
+                  src={urlForImage(author.image).url()}
+                  alt={`${author.name} profile picture`}
+                  width={96}
+                  height={96}
+                  className="h-24 w-24 shrink-0 overflow-hidden rounded-xl object-cover"
+                />
                 <div className="mt-6 text-center md:mt-0 md:ml-5 md:text-left">
                   <span className="block text-xs uppercase tracking-widest text-brand-500">
                     {author.role}

@@ -62,7 +62,6 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                         src={urlForImage(post.author.image).width(48).height(48).quality(40).url()}
                         width={48}
                         height={48}
-                        sizes="50vw"
                         className="mr-3 h-6 w-6 overflow-hidden rounded-full"
                         quality={40}
                       />

@@ -1,10 +1,10 @@
 import Link from 'next/link'
+import Image from 'next/future/image'
 import CalendarIcon from '@heroicons/react/outline/CalendarIcon'
 import ClockIcon from '@heroicons/react/outline/ClockIcon'
 import { usePlausible } from 'next-plausible'
 
 import { urlForImage } from '@lib/sanity'
-import BlurImage from './BlurImage'
 
 import type { Post } from '@types'
 import Date from './Date'
@@ -30,14 +30,14 @@ const HorizontalCard = ({ post, articleLocation }: HorizontalCardProps) => {
           className="hover:scale-105 hover:duration-300 md:grid md:grid-cols-4 md:gap-8"
         >
           <div className="md:col-span-1">
-            <div className="aspect-h-9 aspect-w-16 block overflow-hidden rounded-2xl md:aspect-h-1 md:aspect-w-1">
-              <BlurImage
-                src={urlForImage(post.mainImage).quality(40).url()}
+            <div className="aspect-h-9 aspect-w-16 md:aspect-h-1 md:aspect-w-1">
+              <Image
+                src={urlForImage(post.mainImage).width(640).height(480).quality(40).url()}
                 alt={post.mainImage.caption}
-                layout="fill"
-                blurDataURL={post.mainImage.asset.metadata.lqip}
-                className="overflow-hidden rounded-2xl"
+                className="overflow-hidden rounded-2xl object-cover"
                 quality={40}
+                width={640}
+                height={480}
               />
             </div>
           </div>
@@ -50,16 +50,13 @@ const HorizontalCard = ({ post, articleLocation }: HorizontalCardProps) => {
                 {post.excerpt}
               </p>
               <footer className="mt-5 flex items-center sm:mt-7">
-                <div className="relative mr-3 h-7 w-7 overflow-hidden rounded-lg lg:h-8 lg:w-8">
-                  <BlurImage
-                    src={urlForImage(post.author.image).width(64).height(64).url()}
-                    alt={post.author.name}
-                    blurDataURL={post.author.image.asset.metadata.lqip}
-                    width={64}
-                    height={64}
-                    className="overflow-hidden rounded-lg"
-                  />
-                </div>
+                <Image
+                  src={urlForImage(post.author.image).width(64).height(64).url()}
+                  alt={`${post.author.name}'s profile picture`}
+                  width={32}
+                  height={32}
+                  className="mr-3 h-7 w-7 overflow-hidden rounded-full object-cover lg:h-8 lg:w-8"
+                />
                 <div className="flex items-center text-base">
                   <span className="hidden text-slate-500 sm:inline-block">By&nbsp;</span>
                   <span className="font-medium text-slate-700">{post.author.name}</span>

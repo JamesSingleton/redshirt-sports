@@ -136,7 +136,7 @@ const About = ({ authors }: AboutProps) => {
                 {authors.map((author) => (
                   <li
                     key={author._id}
-                    className="relative rounded-3xl border border-slate-300/70 bg-transparent py-10 px-6 text-center transition duration-300 ease-in-out hover:border-slate-300/30 hover:shadow-lg sm:px-10"
+                    className="relative rounded-3xl border border-slate-300/70 bg-white py-10 px-6 text-center transition duration-300 ease-in-out hover:border-slate-300/30 hover:shadow-lg sm:px-10"
                   >
                     <div>
                       <Image

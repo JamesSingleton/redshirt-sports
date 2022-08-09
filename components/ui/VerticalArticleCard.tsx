@@ -14,7 +14,7 @@ interface VerticalArticleCardProps {
 const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
   return (
     <Link href={`/${article.slug}`} prefetch={false}>
-      <a className="flex">
+      <a className="flex transition duration-300 ease-in-out hover:scale-105">
         <article className="flex flex-col overflow-hidden rounded-2xl shadow-xl">
           <Image
             src={urlForImage(article.mainImage).quality(40).url()}
