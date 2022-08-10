@@ -1,7 +1,6 @@
 import Head from 'next/head'
-import { NextSeo } from 'next-seo'
 
-import { Layout, SocialMediaFollow } from '@components/common'
+import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { Hero, FeaturedArticles, ArticleSection, MostRead } from '@components/home'
 import { sanityClient } from '@lib/sanity.server'
 import { homePageQuery } from '@lib/queries'
@@ -82,14 +81,9 @@ export default function Home({
           }}
         />
       </Head>
-      <NextSeo
-        canonical={SITE_URL}
-        robotsProps={{
-          maxSnippet: -1,
-          maxImagePreview: 'large',
-          maxVideoPreview: -1,
-        }}
-      />
+      <SEO>
+        <link rel="canonical" href={SITE_URL} />
+      </SEO>
       <Layout>
         <Hero mainArticle={mainArticle} recentArticles={recentArticles} />
         <section className="relative mx-auto max-w-7xl py-12 md:py-16 lg:py-20 lg:px-8">

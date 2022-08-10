@@ -1,5 +1,6 @@
-import PlausibleProvider from 'next-plausible'
 import '@styles/globals.css'
+
+import PlausibleProvider from 'next-plausible'
 
 import { Head } from '@components/common'
 
