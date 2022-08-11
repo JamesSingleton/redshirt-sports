@@ -25,7 +25,7 @@ const Author = ({ author }: AuthorProps) => {
     <>
       <Head>
         <script
-          id={`${author.name.toLowerCase().replaceAll(' ', '-')}-ld-json`}
+          id={`${author.name.toLowerCase().replace(/\s+/g, '-')}-ld-json`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(content),
