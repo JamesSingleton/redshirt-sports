@@ -1,12 +1,11 @@
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
-import { NextSeo } from 'next-seo'
 import ChevronRightIcon from '@heroicons/react/solid/ChevronRightIcon'
 import HomeIcon from '@heroicons/react/solid/HomeIcon'
 import { usePlausible } from 'next-plausible'
 
-import { Layout, SocialMediaFollow } from '@components/common'
+import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { HorizontalCard } from '@components/ui'
 import { sanityClient } from '@lib/sanity.server'
 import { allFBSPosts } from '@lib/queries'
@@ -81,7 +80,7 @@ const FBS = ({ fbsPosts }: fbsProps) => {
           }}
         />
       </Head>
-      <NextSeo
+      <SEO
         title="FBS Football"
         description="Check out all the coverage on NCAA Division 1 Football Bowl Subdivision written by the team here at Redshirt Sports!"
         canonical="https://www.redshirtsports.xyz/fbs"
@@ -89,11 +88,7 @@ const FBS = ({ fbsPosts }: fbsProps) => {
           title: 'FBS Football - Redshirt Sports',
           description:
             'Check out all the coverage on NCAA Division 1 Football Bowl Subdivision written by the team here at Redshirt Sports!',
-        }}
-        robotsProps={{
-          maxSnippet: -1,
-          maxImagePreview: 'large',
-          maxVideoPreview: -1,
+          url: 'https://www.redshirtsports.xyz/fbs',
         }}
       />
       <Layout>

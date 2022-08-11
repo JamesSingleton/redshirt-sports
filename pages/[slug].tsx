@@ -1,7 +1,6 @@
 import Head from 'next/head'
-import { NextSeo } from 'next-seo'
 
-import { Layout } from '@components/common'
+import { Layout, SEO } from '@components/common'
 import { sanityClient } from '@lib/sanity.server'
 import { postSlugsQuery, postQuery } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
@@ -18,7 +17,7 @@ interface PostProps {
 }
 
 export default function Post({ currentPost, morePosts }: PostProps) {
-  const content = createPostLDJson({ post: currentPost })
+  const content = createPostLDJson(currentPost)
   return (
     <>
       <Head>
@@ -30,7 +29,7 @@ export default function Post({ currentPost, morePosts }: PostProps) {
           }}
         />
       </Head>
-      <NextSeo
+      <SEO
         title={currentPost.title}
         description={currentPost.excerpt}
         canonical={`https://www.redshirtsports.xyz/${currentPost.slug}`}
@@ -47,16 +46,11 @@ export default function Post({ currentPost, morePosts }: PostProps) {
           images: [
             {
               url: urlForImage(currentPost.mainImage).width(1200).height(630).url(),
-              width: 1200,
-              height: 630,
+              width: '1200',
+              height: '630',
               alt: currentPost.mainImage.caption,
             },
           ],
-        }}
-        robotsProps={{
-          maxSnippet: -1,
-          maxImagePreview: 'large',
-          maxVideoPreview: -1,
         }}
       />
       <Layout>

@@ -3,13 +3,9 @@ import { toPlainText } from '@portabletext/react'
 import { urlForImage } from './sanity'
 import { Organization, WebSite } from '@lib/ldJson'
 
-import type { Post } from '@types'
+import type { Post, Author } from '@types'
 
-interface CreatePostLDJson {
-  post: Post
-}
-
-export const createPostLDJson = ({ post }: CreatePostLDJson) => ({
+export const createPostLDJson = (post: Post) => ({
   '@context': 'http://schema.org',
   '@graph': [
     Organization,
@@ -115,6 +111,82 @@ export const createPostLDJson = ({ post }: CreatePostLDJson) => ({
         caption: post.author.name,
       },
       sameAs: ['https://www.redshirtsports.xyz', post.author.twitterURL],
+    },
+  ],
+})
+
+export const createAuthorLDJson = (author: Author) => ({
+  '@context': 'http://schema.org',
+  '@graph': [
+    Organization,
+    WebSite,
+    {
+      '@type': 'ImageObject',
+      '@id': `https://www.redshirtsports.xyz/authors/${author.slug}/#primaryimage`,
+      inLanguage: 'en-US',
+      url: urlForImage(author.image).width(1200).height(676).fit('scale').url(),
+      width: 1200,
+      height: 676,
+      caption: `${author.name}'s profile image`,
+    },
+    {
+      '@type': 'ProfilePage',
+      '@id': `https://www.redshirtsports.xyz/authors/${author.slug}`,
+      url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+      name: `${author.name}, ${author.role} at Redshirt Sports`,
+      isPartOf: {
+        '@id': 'https://www.redshirtsports.xyz/#website',
+      },
+      primaryImageOfPage: {
+        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}/#primaryimage`,
+      },
+      breadcrumb: {
+        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}/#breadcrumb`,
+      },
+      inLanguage: 'en-US',
+      potentialAction: [
+        {
+          '@type': 'ReadAction',
+          target: [`https://www.redshirtsports.xyz/authors/${author.slug}`],
+        },
+      ],
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `https://www.redshirtsports.xyz/authors/${author.slug}/#breadcrumb`,
+      name: 'Author Breadcrumbs',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://www.redshirtsports.xyz',
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: `${author.name}, ${author.role} profile page`,
+          item: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+        },
+      ],
+    },
+    {
+      '@type': 'Person',
+      '@id': `https://www.redshirtsports.xyz/authors/${author.slug}`,
+      name: author.name,
+      url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+      description: toPlainText(author.bio),
+      image: {
+        '@type': 'ImageObject',
+        inLanguage: 'en-US',
+        url: urlForImage(author.image).url(),
+        contentUrl: urlForImage(author.image).url(),
+        caption: author.name,
+      },
+      sameAs: ['https://www.redshirtsports.xyz', author.twitterURL],
+      mainEntityOfPage: {
+        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}`,
+      },
     },
   ],
 })

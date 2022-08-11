@@ -1,17 +1,14 @@
-import { useState } from 'react'
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
-import { NextSeo } from 'next-seo'
 import ChevronRightIcon from '@heroicons/react/solid/ChevronRightIcon'
 import HomeIcon from '@heroicons/react/solid/HomeIcon'
-import { groq } from 'next-sanity'
 import { usePlausible } from 'next-plausible'
 
-import { Layout, SocialMediaFollow } from '@components/common'
+import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { HorizontalCard } from '@components/ui'
 import { sanityClient } from '@lib/sanity.server'
-import { fcsPostsQuery, fetchNextCategoryPage, fetchPreviousCategoryPage } from '@lib/queries'
+import { fcsPostsQuery } from '@lib/queries'
 import { Organization, WebSite } from '@lib/ldJson'
 
 import type { Post } from '@types'
@@ -23,10 +20,6 @@ interface fcsProps {
 
 const FCS = ({ posts, totalPosts }: fcsProps) => {
   const plausible = usePlausible()
-  const [articles, setArticles] = useState(posts)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [lastId, setLastId] = useState(posts[posts.length - 1]._id)
-  const [lastPublishedAt, setLastPublishedAt] = useState(posts[posts.length - 1].publishedAt)
 
   const ldJsonContent = {
     '@context': 'http://schema.org',
@@ -79,40 +72,6 @@ const FCS = ({ posts, totalPosts }: fcsProps) => {
     ],
   }
 
-  // const fetchPreviousPage = async () => {
-  //   const posts = await sanityClient.fetch(fetchPreviousCategoryPage, {
-  //     category: 'FCS',
-  //     lastPublishedAt,
-  //     lastId,
-  //   })
-
-  //   if (posts.length > 0) {
-  //     setLastId(posts[posts.length - 1]._id)
-  //     setLastPublishedAt(posts[posts.length - 1].publishedAt)
-  //     setArticles(posts)
-  //     setCurrentPage(currentPage - 1)
-  //   } else {
-  //     setLastId(null)
-  //   }
-  // }
-
-  // const fetchNextPage = async () => {
-  //   const posts = await sanityClient.fetch(fetchNextCategoryPage, {
-  //     category: 'FCS',
-  //     lastPublishedAt,
-  //     lastId,
-  //   })
-
-  //   if (posts.length > 0) {
-  //     setLastId(posts[posts.length - 1]._id)
-  //     setLastPublishedAt(posts[posts.length - 1].publishedAt)
-  //     setArticles(posts)
-  //     setCurrentPage(currentPage + 1)
-  //   } else {
-  //     setLastId(null)
-  //   }
-  // }
-
   return (
     <>
       <Head>
@@ -124,19 +83,15 @@ const FCS = ({ posts, totalPosts }: fcsProps) => {
           }}
         />
       </Head>
-      <NextSeo
+      <SEO
         title="FCS Football"
         description="Check out all the coverage on NCAA Division 1 Football Championship Subdivision written by the team here at Redshirt Sports!"
         canonical="https://www.redshirtsports.xyz/fcs"
         openGraph={{
-          title: 'FCS Football - Redshirt Sports',
+          title: 'FCS Football | Redshirt Sports',
           description:
             'Check out all the coverage on NCAA Division 1 Football Championship Subdivision written by the team here at Redshirt Sports!',
-        }}
-        robotsProps={{
-          maxSnippet: -1,
-          maxImagePreview: 'large',
-          maxVideoPreview: -1,
+          url: 'https://www.redshirtsports.xyz/fcs',
         }}
       />
       <Layout>
@@ -211,39 +166,9 @@ const FCS = ({ posts, totalPosts }: fcsProps) => {
         <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
             <div className="col-span-2">
-              {articles.map((post) => (
+              {posts.map((post) => (
                 <HorizontalCard post={post} key={post._id} articleLocation="FCS Page" />
               ))}
-              {/* <nav
-                className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6"
-                aria-label="Pagination"
-              >
-                <div className="hidden sm:block">
-                  <p className="text-sm text-gray-700">
-                    Showing <span className="font-medium">1</span> to{' '}
-                    <span className="font-medium">10</span> of{' '}
-                    <span className="font-medium">{totalPosts}</span> results
-                  </p>
-                </div>
-                <div className="flex flex-1 justify-between sm:justify-end">
-                  <Link href={`/fcs?page=${currentPage - 1}`}>
-                    <a
-                      onClick={() => fetchPreviousPage()}
-                      className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Previous
-                    </a>
-                  </Link>
-                  <Link href={`/fcs?page=${currentPage + 1}`}>
-                    <a
-                      onClick={() => fetchNextPage()}
-                      className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Next
-                    </a>
-                  </Link>
-                </div>
-              </nav> */}
             </div>
             <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
               <SocialMediaFollow />

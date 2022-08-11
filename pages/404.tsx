@@ -2,10 +2,9 @@ import { GetStaticProps } from 'next'
 import Link from 'next/link'
 import Image from 'next/future/image'
 import { usePlausible } from 'next-plausible'
-import { NextSeo } from 'next-seo'
 import ArrowRightIcon from '@heroicons/react/outline/ArrowRightIcon'
 
-import { Layout } from '@components/common'
+import { Layout, SEO } from '@components/common'
 import { recentArticlesQuery } from '@lib/queries'
 import { sanityClient } from '@lib/sanity.server'
 
@@ -21,7 +20,15 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
   const plausible = usePlausible()
   return (
     <>
-      <NextSeo title="The page you are looking for could not be found" />
+      <SEO
+        title="The page you are looking for could not be found"
+        description="Sorry, the page you are looking for does not exist. Try going back or visiting a different link."
+        openGraph={{
+          title: 'The page you are looking for could not be found | Redshirt Sports',
+          description:
+            'Sorry, the page you are looking for does not exist. Try going back or visiting a different link.',
+        }}
+      />
       <Layout>
         <section className="bg-slate-50">
           <div className="mx-auto min-h-screen max-w-2xl py-12 px-4 sm:px-6 sm:pt-16 lg:flex lg:max-w-screen-2xl lg:items-center lg:px-12 xl:py-20">

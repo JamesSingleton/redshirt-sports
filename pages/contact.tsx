@@ -1,8 +1,7 @@
 import Head from 'next/head'
-import { NextSeo } from 'next-seo'
 import { usePlausible } from 'next-plausible'
 
-import { Layout, SocialMediaFollow } from '@components/common'
+import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { PageHeader } from '@components/ui'
 import { Organization, WebSite } from '@lib/ldJson'
 
@@ -72,22 +71,18 @@ const ContactUs = () => {
           }}
         />
       </Head>
-      <NextSeo
+      <SEO
         title="Contact Us"
-        canonical="https://www.redshirtsports.xyz/contact"
         description="Want to collaborate on a story or advertise with Redshirt Sports? Contact us via editors@redshirtsports.xyz or advertising@redshirtsports.xyz."
         openGraph={{
           url: 'https://www.redshirtsports.xyz/contact',
-          title: 'Contact Us - Redshirt Sports',
+          title: 'Contact Us | Redshirt Sports',
           description:
             'Want to collaborate on a story or advertise with Redshirt Sports? Contact us via editors@redshirtsports.xyz or advertising@redshirtsports.xyz.',
         }}
-        robotsProps={{
-          maxSnippet: -1,
-          maxImagePreview: 'large',
-          maxVideoPreview: -1,
-        }}
-      />
+      >
+        <link rel="canonical" href="https://www.redshirtsports.xyz/contact" />
+      </SEO>
       <Layout>
         <PageHeader
           heading="Contact Redshirt Sports"

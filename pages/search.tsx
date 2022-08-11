@@ -1,9 +1,8 @@
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { NextSeo } from 'next-seo'
 
-import { Layout, SocialMediaFollow } from '@components/common'
+import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { PageHeader, HorizontalCard } from '@components/ui'
 import { sanityClient } from '@lib/sanity.server'
 import { searchQuery } from '@lib/queries'
@@ -46,10 +45,10 @@ const Search = ({ posts }: SearchProps) => {
           }}
         />
       </Head>
-      <NextSeo
+      <SEO
         title={`You searched for ${query}`}
         openGraph={{
-          title: `You searched for ${query} - Redshirt Sports`,
+          title: `You searched for ${query} | Redshirt Sports`,
         }}
       />
       <Layout>

@@ -1,14 +1,15 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
+import Head from 'next/head'
 import Image from 'next/future/image'
-import { NextSeo, SocialProfileJsonLd, BreadcrumbJsonLd } from 'next-seo'
 import { usePlausible } from 'next-plausible'
 
-import { Layout } from '@components/common'
+import { Layout, SEO } from '@components/common'
 import { sanityClient } from '@lib/sanity.server'
 import { authorSlugsQuery, authorAndTheirPostsBySlug } from '@lib/queries'
 import { urlForImage, PortableText } from '@lib/sanity'
 import { HorizontalCard } from '@components/ui'
 import { Instagram, Twitter, Facebook, Website } from '@components/common/icons'
+import { createAuthorLDJson } from '@lib/createLDJson'
 
 import type { Author } from '@types'
 
@@ -19,51 +20,42 @@ interface AuthorProps {
 const Author = ({ author }: AuthorProps) => {
   const plausible = usePlausible()
   const [firstName, lastName] = author.name.split(' ')
+  const content = createAuthorLDJson(author)
   return (
     <>
-      <NextSeo
-        title={`${author.role} ${author.name} Profile`}
+      <Head>
+        <script
+          id={`${author.name.toLowerCase().replaceAll(' ', '-')}-ld-json`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(content),
+          }}
+        />
+      </Head>
+      <SEO
+        title={`${author.role} ${author.name}`}
         description={`Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`}
         canonical={`https://www.redshirtsports.xyz/authors/${author.slug}`}
         openGraph={{
-          title: `${author.name} Profile - Redshirt Sports`,
+          title: `${author.role} ${author.name} | Redshirt Sports`,
           description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,
-          images: [
-            {
-              url: urlForImage(author.image).width(600).height(600).url()!,
-              width: 600,
-              height: 600,
-              alt: author.name,
-              type: 'image/jpeg',
-            },
-          ],
+          url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
           type: 'profile',
           profile: {
             firstName,
             lastName,
           },
+          images: [
+            {
+              url: urlForImage(author.image).width(600).height(600).url()!,
+              width: '600',
+              height: '600',
+              alt: `${author.name}'s profile picture`,
+            },
+          ],
         }}
       />
-      <BreadcrumbJsonLd
-        itemListElements={[
-          {
-            position: 1,
-            name: 'Home',
-            item: 'https://www.redshirtsports.xyz',
-          },
-          {
-            position: 2,
-            name: author.name,
-            item: `https://www.redshirtsports.xyz/authors/${author.name}`,
-          },
-        ]}
-      />
-      <SocialProfileJsonLd
-        type="Person"
-        name={author.name}
-        url={`https://www.redshirtsports.xyz/authors/${author.slug}`}
-        sameAs={[author.twitterURL]}
-      />
+
       <Layout>
         <section className="bg-slate-50 py-12 sm:py-16 md:py-20 lg:py-24">
           <div className="mx-auto max-w-xl px-6 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">

@@ -2,10 +2,9 @@ import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/future/image'
-import { NextSeo } from 'next-seo'
 import { usePlausible } from 'next-plausible'
 
-import { Layout } from '@components/common'
+import { Layout, SEO } from '@components/common'
 import { PageHeader } from '@components/ui'
 import { sanityClient } from '@lib/sanity.server'
 import { allAuthors } from '@lib/queries'
@@ -80,21 +79,18 @@ const About = ({ authors }: AboutProps) => {
           }}
         />
       </Head>
-      <NextSeo
-        title="About"
+      <SEO
+        title="About Us"
         description="Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!"
         openGraph={{
-          title: 'About - Redshirt Sports',
+          url: 'https://www.redshirtsports.xyz/about',
+          title: 'About Us | Redshirt Sports',
           description:
             'Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!',
-          url: 'https://www.redshirtsports.xyz/about',
         }}
-        robotsProps={{
-          maxSnippet: -1,
-          maxImagePreview: 'large',
-          maxVideoPreview: -1,
-        }}
-      />
+      >
+        <link rel="canonical" href="https://www.redshirtsports.xyz/about" />
+      </SEO>
       <Layout>
         <PageHeader
           heading="About Redshirt Sports"

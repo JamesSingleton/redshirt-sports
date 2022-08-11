@@ -1,7 +1,6 @@
 import { GetStaticProps } from 'next'
-import { NextSeo } from 'next-seo'
 
-import { Layout, SocialMediaFollow } from '@components/common'
+import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { sanityClient } from '@lib/sanity.server'
 import { getPrivacyPolicyPage } from '@lib/queries'
 import { PortableText } from '@lib/sanity'
@@ -20,20 +19,16 @@ interface privacyPolicyProps {
 const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
   return (
     <>
-      <NextSeo
-        title="Privacy"
+      <SEO
+        title="Privacy Policy"
         description="Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period."
-        canonical="https://www.redshirtsports.xyz/privacy"
         openGraph={{
-          title: 'Privacy - Redshirt Sports',
+          url: 'https://www.redshirtsports.xyz/privacy',
+          title: 'Privacy Policy | Redshirt Sports',
           description:
             "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
         }}
-        robotsProps={{
-          maxSnippet: -1,
-          maxImagePreview: 'large',
-          maxVideoPreview: -1,
-        }}
+        canonical="https://www.redshirtsports.xyz/privacy"
       />
       <Layout>
         <PageHeader

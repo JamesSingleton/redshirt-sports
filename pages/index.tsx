@@ -81,9 +81,7 @@ export default function Home({
           }}
         />
       </Head>
-      <SEO>
-        <link rel="canonical" href={SITE_URL} />
-      </SEO>
+      <SEO canonical="https://www.redshirtsports.xyz" />
       <Layout>
         <Hero mainArticle={mainArticle} recentArticles={recentArticles} />
         <section className="relative mx-auto max-w-7xl py-12 md:py-16 lg:py-20 lg:px-8">

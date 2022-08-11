@@ -2,8 +2,7 @@ import { FC, Fragment, ReactNode } from 'react'
 import Head from 'next/head'
 import config from '@config/seo.json'
 
-const websiteUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-const websiteBaseUrl = websiteUrl ? `https://${websiteUrl}` : null
+const websiteBaseUrl = 'https://www.redshirtsports.xyz'
 
 interface OgImage {
   url?: string
@@ -12,10 +11,19 @@ interface OgImage {
   alt?: string
 }
 
+interface OgArticle {
+  publishedTime?: string
+  modifiedTime?: string
+  section?: string
+  authors?: string[]
+  tags?: string[]
+}
+
 interface Props {
   title?: string
   description?: string
   robots?: string
+  canonical?: string
   openGraph?: {
     title?: string
     type?: string
@@ -24,6 +32,11 @@ interface Props {
     site_name?: string
     url?: string
     images?: OgImage[]
+    article?: OgArticle
+    profile?: {
+      firstName?: string
+      lastName?: string
+    }
   }
   children?: ReactNode
 }
@@ -41,7 +54,7 @@ const ogImage = ({ url, width, height, alt }: OgImage, index: number) => {
   )
 }
 
-const SEO: FC<Props> = ({ title, description, openGraph, robots, children }) => {
+const SEO: FC<Props> = ({ title, description, canonical, openGraph, robots, children }) => {
   /**
    * @see https://nextjs.org/docs/api-reference/next/head
    *
@@ -80,12 +93,60 @@ const SEO: FC<Props> = ({ title, description, openGraph, robots, children }) => 
         content={openGraph?.site_name ?? config.openGraph.site_name}
       />
       <meta key="og:url" property="og:url" content={openGraph?.url ?? config.openGraph.url} />
-      {openGraph?.locale && (
-        <meta key="og:locale" property="og:locale" content={openGraph.locale} />
-      )}
+      <meta
+        key="og:locale"
+        property="og:locale"
+        content={openGraph?.locale ?? config.openGraph.locale}
+      />
       {openGraph?.images?.length
         ? openGraph.images.map((img, index) => ogImage(img, index))
         : ogImage(config.openGraph.images[0], 0)}
+
+      {openGraph?.article && (
+        <Fragment key="og:article">
+          <meta
+            key="og:article:published_time"
+            property="og:article:published_time"
+            content={openGraph.article.publishedTime}
+          />
+          <meta
+            key="og:article:modified_time"
+            property="og:article:modified_time"
+            content={openGraph.article.modifiedTime}
+          />
+          <meta
+            key="og:article:section"
+            property="og:article:section"
+            content={openGraph.article.section}
+          />
+          {openGraph.article.authors?.length &&
+            openGraph.article.authors.map((author, index) => (
+              <meta
+                key={`og:article:author:${index}`}
+                property="og:article:author"
+                content={author}
+              />
+            ))}
+          {openGraph.article.tags?.length &&
+            openGraph.article.tags.map((tag, index) => (
+              <meta key={`og:article:tag:${index}`} property="og:article:tag" content={tag} />
+            ))}
+        </Fragment>
+      )}
+      {openGraph?.profile && (
+        <Fragment key="og:profile">
+          <meta
+            key="og:profile:first_name"
+            property="og:profile:first_name"
+            content={openGraph.profile.firstName}
+          />
+          <meta
+            key="og:profile:last_name"
+            property="og:profile:last_name"
+            content={openGraph.profile.lastName}
+          />
+        </Fragment>
+      )}
       {config.twitter.cardType && (
         <meta key="twitter:card" name="twitter:card" content={config.twitter.cardType} />
       )}
@@ -99,16 +160,17 @@ const SEO: FC<Props> = ({ title, description, openGraph, robots, children }) => 
         key="robots"
         name="robots"
         content={
-          robots ?? 'index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1'
+          robots ?? 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
         }
       />
       <meta
         key="googlebot"
         name="googlebot"
         content={
-          robots ?? 'index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1'
+          robots ?? 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
         }
       />
+      <link key="canonical" rel="canonical" href={canonical} />
       {children}
     </Head>
   )
