@@ -32,8 +32,11 @@ export const WebSite = {
   potentialAction: [
     {
       '@type': 'SearchAction',
-      target: 'https://www.redshirtsports.xyz/search?query={search_term_string}',
-      'query-input': 'required name=search_term_string',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://www.redshirtsports.xyz/search?query={search-term}',
+      },
+      'query-input': 'required name=search-term',
     },
   ],
   inLanguage: 'en-US',
