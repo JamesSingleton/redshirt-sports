@@ -96,15 +96,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   if (!params) throw new Error('No path parameters found')
 
-  const { currentPost, morePosts } =
-    (await sanityClient.fetch(postQuery, {
-      slug: params?.slug,
-    })) || {}
+  const { currentPost, morePosts } = await sanityClient.fetch(postQuery, {
+    slug: params?.slug,
+  })
 
   if (!currentPost || currentPost === null) {
     return {
       notFound: true,
-      revalidate: 10,
     }
   }
 
@@ -113,6 +111,5 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       currentPost,
       morePosts,
     },
-    revalidate: 3600,
   }
 }

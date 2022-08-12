@@ -13,17 +13,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (!isValidRequest(req, secret!)) {
     res.status(401).json({ message: 'Invalid signature' })
+    return
   }
 
   try {
     const {
-      body: { type, slug },
+      body: { type, slug, authorSlug },
     } = req
 
     switch (type) {
       case 'post':
         await res.revalidate(`/${slug}`)
         await res.revalidate('/')
+        await res.revalidate(`/authors/${authorSlug}`)
         return res.json({ message: `Revalidated "${type}" with slug "${slug}"` })
     }
 
