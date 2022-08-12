@@ -1,4 +1,4 @@
-import { isValidRequest, SIGNATURE_HEADER_NAME, isValidSignature } from '@sanity/webhook'
+import { SIGNATURE_HEADER_NAME, isValidSignature } from '@sanity/webhook'
 import { withSentry } from '@sentry/nextjs'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -33,9 +33,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   try {
-    const {
-      body: { type, slug, authorSlug },
-    } = req
+    const jsonBody = JSON.parse(body)
+    const { type, slug, authorSlug } = jsonBody
 
     switch (type) {
       case 'post':
