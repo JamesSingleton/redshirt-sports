@@ -201,7 +201,7 @@ export const FCS_COLLECTION_FRAGMENT = /* groq */ `
 
 export const fcsPostsQuery = groq`
   {
-    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc)[0...10]{
+    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc){
       ${litePostFields}
     },
     "totalPosts": count(${FCS_COLLECTION_FRAGMENT}._id)
