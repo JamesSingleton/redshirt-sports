@@ -1,3 +1,6 @@
-export { default as Hero } from './Hero'
-export { default as Podcasts } from './Podcasts'
-export { default as LatestArticles } from './LatestArticles'
+import Hero from './Hero'
+import FeaturedArticles from './FeaturedArticles'
+import ArticleSection from './ArticleSection'
+import MostRead from './MostRead'
+
+export { Hero, FeaturedArticles, ArticleSection, MostRead }

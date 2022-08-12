@@ -1,10 +1,10 @@
 {
-  "title": "College Football News, Standings, Rumors",
-  "titleTemplate": "%s - Redshirt Sports",
-  "description": "Get the latest college football news, stats, standings, and rumors from Redshirt Sports.",
+  "title": "FCS Football News, Standings, Rumors | Redshirt Sports",
+  "titleTemplate": "%s | Redshirt Sports",
+  "description": "Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more.",
   "openGraph": {
-    "title": "College Football News, Standings, Rumors - Redshirt Sports",
-    "description": "Get the latest college football news, stats, standings, and rumors from Redshirt Sports.",
+    "title": "FCS Football News, Standings, Rumors | Redshirt Sports",
+    "description": "Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more.",
     "type": "website",
     "locale": "en_US",
     "url": "https://www.redshirtsports.xyz",
@@ -12,8 +12,8 @@
     "images": [
       {
         "url": "https://www.redshirtsports.xyz/images/icons/RS_horizontal_513x512.png",
-        "width": 513,
-        "height": 512,
+        "width": "513",
+        "height": "512",
         "alt": "Redshirt Sports Logo"
       }
     ]
@@ -22,48 +22,5 @@
     "handle": "@_redshirtsports",
     "site": "@_redshirtsports",
     "cardType": "summary_large_image"
-  },
-  "additionalLinkTags": [
-    {
-      "rel": "manifest",
-      "href": "/manifest.webmanifest"
-    },
-    {
-      "rel": "alternate",
-      "type": "application/rss+xml",
-      "title": "RSS 2.0",
-      "href": "/feeds/feed.xml"
-    },
-    {
-      "rel": "alternate",
-      "type": "application/atom+xml",
-      "title": "Atom 1.0",
-      "href": "/feeds/atom.xml"
-    },
-    {
-      "rel": "alternate",
-      "type": "application/json",
-      "title": "JSON Feed",
-      "href": "/feeds/feed.json"
-    },
-    {
-      "rel": "icon",
-      "href": "https://www.redshirtsports.xyz/favicon.ico"
-    },
-    {
-      "rel": "apple-touch-icon",
-      "href": "https://www.redshirtsports.xyz/images/icons/RS_192.png",
-      "sizes": "192x192"
-    }
-  ],
-  "additionalMetaTags": [
-    {
-      "name": "viewport",
-      "content": "width=device-width, initial-scale=1"
-    },
-    {
-      "name": "theme-color",
-      "content": "#DC2727"
-    }
-  ]
+  }
 }

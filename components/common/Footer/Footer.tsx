@@ -1,177 +1,121 @@
 import { SVGProps } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import Image from 'next/future/image'
 import { usePlausible } from 'next-plausible'
 
+import RSRedHorizontalLogo from '@public/images/icons/RS_red_horizontal.svg'
+
 const navigation = {
-  football: [
+  site: [
     { name: 'FCS', href: '/fcs' },
-    { name: 'FBS', href: '/fbs' },
+    { name: 'About Us', href: '/about' },
+    { name: 'Contact Us', href: '/contact' },
+    { name: 'Privacy Policy', href: '/privacy' },
   ],
-  media: [
-    {
-      name: 'Podcast',
-      href: 'https://podcasts.apple.com/us/podcast/fcs-nation/id1436799349?mt=2&ls=1',
-    },
-  ],
-  company: [
-    { name: 'Meet the Team', href: '/authors' },
-    { name: 'Advertising', href: '/advertising' },
-  ],
-  legal: [{ name: 'Privacy', href: '/privacy' }],
   social: [
     {
       name: 'Twitter',
       href: 'https://twitter.com/_redshirtsports',
-      icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+      Icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
         <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
           <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Facebook',
+      href: 'https://www.facebook.com/Redshirt-Sports-103392312412641',
+      Icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+        <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
+          <path
+            fillRule="evenodd"
+            d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
+            clipRule="evenodd"
+          />
         </svg>
       ),
     },
   ],
 }
 
-export default function Footer() {
+const Footer = () => {
   const plausible = usePlausible()
+
   return (
-    <footer
-      className="border-t border-neutral-200 bg-white dark:border-neutral-700 dark:bg-slate-900"
-      aria-labelledby="footer-heading"
-    >
-      <h2 id="footer-heading" className="sr-only">
-        Footer
-      </h2>
-      <div className="mx-auto max-w-7xl py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
-        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          <div className="space-y-8 xl:col-span-1">
-            <Image
-              className="h-10"
-              src="/images/icons/RS_red.svg"
-              alt="Redshirt Sports Logo"
-              width="74"
-              height="74"
-            />
-            <p className="text-base">Your go to source for all things FCS.</p>
-            <div className="flex space-x-6">
-              {navigation.social.map((item) => (
-                <a key={item.name} href={item.href}>
-                  <span className="sr-only">{item.name}</span>
-                  <item.icon className="h-6 w-6" aria-hidden="true" />
-                </a>
-              ))}
-            </div>
+    <footer className="bg-white py-12 sm:py-20 lg:py-24">
+      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+        <div className="sm:flex sm:items-center sm:justify-between">
+          <div className="flex items-center justify-center">
+            <Link href="/" prefetch={false}>
+              <a
+                onClick={() =>
+                  plausible('clickOnFooter', {
+                    props: {
+                      item: 'Home',
+                    },
+                  })
+                }
+                className="block"
+              >
+                <Image
+                  src={RSRedHorizontalLogo}
+                  alt="Redshirt Sports Horizontal Logo"
+                  className="h-10 w-auto"
+                />
+              </a>
+            </Link>
           </div>
-          <div className="mt-12 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
-                  Football
-                </h3>
-                <ul className="mt-4 space-y-4">
-                  {navigation.football.map((item) => (
-                    <li key={item.name}>
-                      <Link href={item.href} prefetch={false}>
-                        <a
-                          onClick={() =>
-                            plausible('clickOnFooter', {
-                              props: {
-                                item: item.name,
-                              },
-                            })
-                          }
-                          className="text-base text-slate-700 hover:border-slate-400 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-300"
-                        >
-                          {item.name}
-                        </a>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
-                  Media
-                </h3>
-                <ul className="mt-4 space-y-4">
-                  {navigation.media.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        onClick={() =>
-                          plausible('clickOnFooter', {
-                            props: {
-                              item: item.name,
-                            },
-                          })
-                        }
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-base text-slate-700 hover:border-slate-400 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-300"
-                      >
-                        {item.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
-                  Company
-                </h3>
-                <ul className="mt-4 space-y-4">
-                  {navigation.company.map((item) => (
-                    <li key={item.name}>
-                      <Link href={item.href} prefetch={false}>
-                        <a
-                          onClick={() =>
-                            plausible('clickOnFooter', {
-                              props: {
-                                item: item.name,
-                              },
-                            })
-                          }
-                          className="text-base text-slate-700 hover:border-slate-400 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-300"
-                        >
-                          {item.name}
-                        </a>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
-                  Legal
-                </h3>
-                <ul className="mt-4 space-y-4">
-                  {navigation.legal.map((item) => (
-                    <li key={item.name}>
-                      <Link href={item.href} prefetch={false}>
-                        <a
-                          onClick={() =>
-                            plausible('clickOnFooter', {
-                              props: {
-                                item: item.name,
-                              },
-                            })
-                          }
-                          className="text-base text-slate-700 hover:border-slate-400 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-300"
-                        >
-                          {item.name}
-                        </a>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+          <div className="mt-6 flex items-center justify-center sm:mt-0">
+            <ul className="flex items-center space-x-3 sm:ml-4">
+              {navigation.social.map(({ name, href, Icon }) => (
+                <li key={name}>
+                  <a
+                    href={href}
+                    onClick={() =>
+                      plausible('clickOnFooter', {
+                        props: {
+                          item: name,
+                        },
+                      })
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-transparent transition duration-300 ease-in-out sm:h-12 sm:w-12"
+                  >
+                    <span className="sr-only">{name}</span>
+                    <Icon
+                      aria-hidden="true"
+                      className="h-4 w-4 transform text-slate-700 transition ease-in-out"
+                    />
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-        <div className="mt-12 border-t border-slate-200 pt-8">
-          <p className="text-base text-slate-900 dark:text-slate-200 xl:text-center">
+        <div className="mt-10 border-t border-slate-300/70 pt-10 md:flex md:items-center md:justify-between">
+          <nav
+            aria-label="Footer"
+            className="-my-2 flex flex-wrap items-center justify-center space-x-5 md:justify-start"
+          >
+            {navigation.site.map(({ name, href }) => (
+              <Link key={name} href={href} prefetch={false}>
+                <a
+                  onClick={() =>
+                    plausible('clickOnFooter', {
+                      props: {
+                        item: name,
+                      },
+                    })
+                  }
+                  className="py-2 text-base text-slate-500 transition duration-300 ease-in-out"
+                >
+                  {name}
+                </a>
+              </Link>
+            ))}
+          </nav>
+          <p className="ml-0 mt-8 flex shrink-0 items-center justify-center text-base text-slate-500 md:ml-6 md:mt-0">
             &copy;
             {`${new Date().getFullYear()} Redshirt Sports. All rights reserved.`}
           </p>
@@ -180,3 +124,5 @@ export default function Footer() {
     </footer>
   )
 }
+
+export default Footer

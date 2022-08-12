@@ -1,33 +1,24 @@
-import React, { FC } from 'react'
-import { LogoJsonLd, OrganizationJsonLd } from 'next-seo'
-import { Navbar, Footer } from '@components/common'
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
 
-type LayoutProps = {
-  children: React.ReactNode
+import Navbar from '../Navbar'
+import Footer from '../Footer'
+
+import { WithChildren, Meta } from '@types'
+
+interface LayoutProps extends WithChildren {
+  meta?: Meta
+  siteId?: string
+  subdomain?: string
 }
 
-const Layout: FC<LayoutProps> = ({ children }) => {
+export default function Layout({ meta, children, subdomain }: LayoutProps) {
   return (
     <>
-      <OrganizationJsonLd
-        organizationType="NewsMediaOrganization"
-        id="https://www.redshirtsports.xyz"
-        logo="https://www.redshirtsports.xyz/images/icons/RS_horizontal_513x512.png"
-        url="https://www.redshirtsports.xyz"
-        name="Redshirt Sports"
-        sameAs={['https://twitter.com/_redshirtsports']}
-      />
-      <LogoJsonLd
-        logo="https://www.redshirtsports.xyz/images/icons/RS_horizontal_513x512.png"
-        url="https://www.redshirtsports.xyz"
-      />
-      <div className="relative mx-auto h-full overflow-hidden transition-colors duration-150">
-        <Navbar />
-        <main className="fit">{children}</main>
-        <Footer />
-      </div>
+      <Navbar />
+      <main>{children}</main>
+      <Footer />
     </>
   )
 }
-
-export default Layout

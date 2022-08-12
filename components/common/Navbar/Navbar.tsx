@@ -1,59 +1,76 @@
-import { FC } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import Image from 'next/image'
+import Image from 'next/future/image'
 import { useRouter } from 'next/router'
-import cn from 'classnames'
 import { Popover } from '@headlessui/react'
-import { MenuIcon } from '@heroicons/react/outline'
+import MenuIcon from '@heroicons/react/outline/MenuIcon'
+import clsx from 'clsx'
 import { usePlausible } from 'next-plausible'
-import { ThemeToggle } from '../ThemeToggle/ThemeToggle'
+
+import SearchBar from './SearchBar'
+import { NAVIGATION_ITEMS } from '@lib/constants'
+import RSRedLogo from '@public/images/icons/RS_red.svg'
+import RSRedHorizontalLogo from '@public/images/icons/RS_red_horizontal.svg'
 
 const MobileNav = dynamic(() => import('./MobileNav'))
 
-const navigation = [
-  { name: 'FBS', href: '/fbs' },
-  { name: 'FCS', href: '/fcs' },
-  { name: 'Meet the Team', href: '/authors' },
-]
-
-const Navbar: FC = () => {
-  const { asPath } = useRouter()
+const Navbar = () => {
+  const router = useRouter()
   const plausible = usePlausible()
 
   return (
-    <Popover
-      as="header"
-      className="mx-auto bg-white dark:border-slate-50/[0.06]  dark:bg-slate-900 lg:border-b lg:border-slate-900/10"
-    >
+    <Popover as="header" className="shadow">
       {({ open }) => (
         <>
-          <div className="relative">
-            <div className="flex items-center justify-between px-4 sm:px-6 md:justify-start md:space-x-10">
-              <div>
-                <Link href="/" prefetch={false}>
-                  <a
-                    onClick={() =>
-                      plausible('clickOnNavbar', {
-                        props: {
-                          item: 'Home',
-                        },
-                      })
-                    }
-                  >
-                    <span className="sr-only">Redshirt Sports</span>
-                    <Image
-                      src="/images/icons/RS_red.svg"
-                      alt="Redshirt Sports Logo"
-                      width={74}
-                      height={74}
-                    />
-                  </a>
-                </Link>
-              </div>
-              <div className="hidden md:flex md:flex-1 md:items-center md:justify-between">
-                <nav className="flex space-x-10">
-                  {navigation.map(({ name, href }) => (
+          <div className="mx-auto max-w-screen-2xl px-2 sm:px-4 lg:px-8">
+            <div className="flex h-16 justify-between">
+              <div className="flex px-2 lg:px-0">
+                <div className="flex flex-shrink-0 items-center">
+                  <Link href="/" prefetch={false}>
+                    <a
+                      onClick={() =>
+                        plausible('clickOnNavbar', {
+                          props: {
+                            item: 'Home',
+                          },
+                        })
+                      }
+                      className="block lg:hidden"
+                    >
+                      <Image
+                        src={RSRedLogo}
+                        alt="Redshirt Sports Logo"
+                        className="h-8 w-auto"
+                        priority={true}
+                      />
+                    </a>
+                  </Link>
+                  <Link href="/" prefetch={false}>
+                    <a
+                      onClick={() =>
+                        plausible('clickOnNavbar', {
+                          props: {
+                            item: 'Home',
+                          },
+                        })
+                      }
+                      className="hidden lg:block"
+                    >
+                      <Image
+                        src={RSRedHorizontalLogo}
+                        alt="Redshirt Sports Horizontal Logo"
+                        className="h-8 w-auto"
+                        priority={true}
+                      />
+                    </a>
+                  </Link>
+                </div>
+                <nav
+                  className="hidden lg:ml-6 lg:flex lg:space-x-8"
+                  title="Main Navigation"
+                  aria-label="Main Navigation"
+                >
+                  {NAVIGATION_ITEMS.map(({ name, href }) => (
                     <Link href={href} key={name} prefetch={false}>
                       <a
                         onClick={() =>
@@ -63,11 +80,11 @@ const Navbar: FC = () => {
                             },
                           })
                         }
-                        className={cn(
-                          asPath === href
-                            ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-50'
-                            : 'text-slate-900 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-50 dark:hover:bg-slate-800',
-                          'block rounded-md py-2 px-3 text-base font-medium'
+                        className={clsx(
+                          'inline-flex items-center border-b-2 px-1 pt-1 text-lg font-medium',
+                          router.pathname === href
+                            ? 'border-brand-500 text-slate-900'
+                            : 'border-transparent text-slate-800 hover:border-slate-300 hover:text-slate-700'
                         )}
                       >
                         {name}
@@ -75,36 +92,18 @@ const Navbar: FC = () => {
                     </Link>
                   ))}
                 </nav>
-                <div className="flex items-center md:ml-12">
-                  <ThemeToggle />
-                  <a
-                    href="https://twitter.com/_redshirtsports"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-8"
-                  >
-                    <span className="sr-only">
-                      Redshirt Sports Twitter Link
-                    </span>
-                    <svg
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                      className="h-6 w-6"
-                    >
-                      <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                    </svg>
-                  </a>
-                </div>
               </div>
-              <div className="md:hidden">
-                <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:bg-slate-800">
+              <SearchBar />
+              <div className="flex items-center lg:hidden">
+                <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500">
                   <span className="sr-only">Open menu</span>
                   <MenuIcon className="h-6 w-6" aria-hidden="true" />
                 </Popover.Button>
               </div>
             </div>
           </div>
-          {open && <MobileNav navigation={navigation} />}
+
+          {open && <MobileNav />}
         </>
       )}
     </Popover>

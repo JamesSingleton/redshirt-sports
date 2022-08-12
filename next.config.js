@@ -1,5 +1,6 @@
 const { withPlausibleProxy } = require('next-plausible')
 const { withSentryConfig } = require('@sentry/nextjs')
+const withBundleAnalyzer = require('@next/bundle-analyzer')
 
 const securityHeaders = [
   {
@@ -26,14 +27,19 @@ const securityHeaders = [
 
 const moduleExports = {
   experimental: {
-    optimizeCss: true,
+    images: {
+      allowFutureImage: true,
+    },
   },
   productionBrowserSourceMaps: true,
   swcMinify: true,
   reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
-    domains: ['cdn.sanity.io', 'images.unsplash.com'],
+    domains: ['cdn.sanity.io'],
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? true : false,
   },
   async headers() {
     return [
@@ -67,9 +73,23 @@ const moduleExports = {
 
     return config
   },
+  async redirects() {
+    return [
+      {
+        source: '/authors',
+        destination: '/about',
+        permanent: true,
+      },
+      {
+        source: '/advertising',
+        destination: '/contact',
+        permanent: true,
+      },
+    ]
+  },
 }
 
-const sentryWebpackPluginOptions = {
+const SentryWebpackPluginOptions = {
   // Additional config options for the Sentry Webpack plugin. Keep in mind that
   // the following options are set automatically, and overriding them is not
   // recommended:
@@ -83,5 +103,8 @@ const sentryWebpackPluginOptions = {
 
 /** @type {import('next').NextConfig} */
 module.exports = withPlausibleProxy()(
-  withSentryConfig(moduleExports, sentryWebpackPluginOptions)
+  withSentryConfig(
+    withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })(moduleExports),
+    SentryWebpackPluginOptions
+  )
 )
