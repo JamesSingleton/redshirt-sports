@@ -20,7 +20,15 @@ const postFields = `
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, bio, role, socialMedia, twitterURL, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,
-  body,
+  body[]{
+    ...,
+    markDefs[]{
+      ...,
+      _type == "internalLink" => {
+        "slug": @.reference->slug
+      }
+    }
+  },
   featuredArticle,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
   "wordCount": length(pt::text(body))
