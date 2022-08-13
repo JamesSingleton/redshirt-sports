@@ -3,7 +3,7 @@ import { GetStaticProps } from 'next'
 import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { sanityClient } from '@lib/sanity.server'
 import { getPrivacyPolicyPage } from '@lib/queries'
-import { PortableText } from '@lib/sanity'
+import { PortableTextComponent } from '@lib/sanity'
 import { Date, PageHeader } from '@components/ui'
 
 interface privacyPolicyProps {
@@ -43,7 +43,7 @@ const Privacy = ({ privacyPolicy }: privacyPolicyProps) => {
           <div className="w-full lg:flex">
             <div className="lg:w-2/3">
               <div className="prose prose-lg prose-indigo mx-auto px-5 sm:px-6 md:px-8 lg:mx-0 lg:px-0">
-                <PortableText value={privacyPolicy.body} />
+                <PortableTextComponent value={privacyPolicy.body} />
               </div>
             </div>
             <div className="mx-auto mt-12 w-full max-w-xl space-x-8 space-x-reverse px-4 sm:mt-16 sm:px-6 md:max-w-2xl md:px-8 lg:mt-0 lg:w-1/3 lg:max-w-none lg:px-0">

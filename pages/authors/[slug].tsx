@@ -6,7 +6,7 @@ import { usePlausible } from 'next-plausible'
 import { Layout, SEO } from '@components/common'
 import { sanityClient } from '@lib/sanity.server'
 import { authorSlugsQuery, authorAndTheirPostsBySlug } from '@lib/queries'
-import { urlForImage, PortableText } from '@lib/sanity'
+import { urlForImage, PortableTextComponent } from '@lib/sanity'
 import { HorizontalCard } from '@components/ui'
 import { Instagram, Twitter, Facebook, Website } from '@components/common/icons'
 import { createAuthorLDJson } from '@lib/createLDJson'
@@ -136,7 +136,7 @@ const Author = ({ author }: AuthorProps) => {
               <div className="w-full rounded-2xl bg-slate-50 p-5 sm:p-8">
                 <h2 className="relative border-b border-slate-300 pb-3 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">{`About ${author.name}`}</h2>
                 <div className="pt-6 text-base leading-loose text-slate-600">
-                  <PortableText value={author.bio} />
+                  <PortableTextComponent value={author.bio} />
                 </div>
               </div>
             </div>

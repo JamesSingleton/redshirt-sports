@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { usePlausible } from 'next-plausible'
 
 import { BlurImage } from '@components/ui'
-import { urlForImage, PortableText } from '@lib/sanity'
+import { urlForImage, PortableTextComponent } from '@lib/sanity'
 import { Instagram, Twitter, Facebook, Website } from '@components/common/icons'
 
 import { Author } from '@types'
@@ -118,7 +118,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                 </Link>
               </div>
               <div className="mt-3 text-base leading-loose text-slate-500 line-clamp-3">
-                <PortableText value={author.bio} />
+                <PortableTextComponent value={author.bio} />
               </div>
               <ul className="mt-3 flex items-center space-x-3">
                 {author.socialMedia &&

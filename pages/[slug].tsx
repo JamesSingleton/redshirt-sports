@@ -3,7 +3,7 @@ import Head from 'next/head'
 import { Layout, SEO } from '@components/common'
 import { sanityClient } from '@lib/sanity.server'
 import { postSlugsQuery, postQuery } from '@lib/queries'
-import { urlForImage, PortableText } from '@lib/sanity'
+import { urlForImage, PortableTextComponent } from '@lib/sanity'
 import { PostHeader, PostFooter } from '@components/post'
 import { createPostLDJson } from '@lib/createLDJson'
 import { VerticalArticleCard } from '@components/ui'
@@ -59,7 +59,7 @@ export default function Post({ currentPost, morePosts }: PostProps) {
           <PostHeader post={currentPost} />
           <div className="px-5 lg:px-0">
             <div className="prose-md prose m-auto w-11/12 prose-a:text-blue-600 hover:prose-a:text-blue-500 sm:prose-lg sm:w-3/4">
-              <PortableText value={currentPost?.body} />
+              <PortableTextComponent value={currentPost?.body} />
             </div>
             <PostFooter
               author={currentPost.author}
