@@ -34,6 +34,7 @@ export default function Post({ currentPost, morePosts }: PostProps) {
         description={currentPost.excerpt}
         canonical={`https://www.redshirtsports.xyz/${currentPost.slug}`}
         openGraph={{
+          url: `https://www.redshirtsports.xyz/${currentPost.slug}`,
           title: currentPost.title,
           description: currentPost.excerpt,
           type: 'article',
