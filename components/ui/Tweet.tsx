@@ -300,9 +300,9 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
           {format(createdAt, 'h:mm a - MMM d, y')}
         </time>
       </a>
-      <div className="mt-2 flex space-x-2 border-t border-gray-300 pt-1 text-base text-gray-700 md:space-x-6">
+      <div className="mt-2 flex space-x-1 border-t border-gray-300 pt-1 text-base text-gray-700 md:space-x-6">
         <a
-          className="group flex items-center space-x-1 !text-gray-500 !no-underline transition"
+          className="group flex items-center -space-x-0.5 !text-gray-500 !no-underline transition"
           href={likeUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -316,11 +316,11 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
             </svg>
           </div>
           <span className="group-hover:!text-red-600 group-hover:!underline">
-            {new Number(public_metrics.like_count).toLocaleString()}
+            {Intl.NumberFormat('en', { notation: 'compact' }).format(public_metrics.like_count)}
           </span>
         </a>
         <a
-          className="group mr-4 flex items-center space-x-1 !text-gray-500 !no-underline transition"
+          className="group mr-4 flex items-center -space-x-0.5 !text-gray-500 !no-underline transition"
           href={retweetUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -334,11 +334,11 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
             </svg>
           </div>
           <span className="group-hover:!text-purple-600 group-hover:!underline">
-            {new Number(public_metrics.retweet_count).toLocaleString()}
+            {Intl.NumberFormat('en', { notation: 'compact' }).format(public_metrics.retweet_count)}
           </span>
         </a>
         <a
-          className="group mr-4 flex items-center space-x-1 !text-gray-500 !no-underline transition"
+          className="group mr-4 flex items-center -space-x-0.5 !text-gray-500 !no-underline transition"
           href={replyUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -352,11 +352,11 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
             </svg>
           </div>
           <span className="group-hover:!text-[#1da1f2] group-hover:!underline">
-            {new Number(public_metrics.reply_count).toLocaleString()}
+            {Intl.NumberFormat('en', { notation: 'compact' }).format(public_metrics.reply_count)}
           </span>
         </a>
         <button
-          className="group mr-4 flex items-center space-x-1 !text-gray-500 !no-underline transition"
+          className="group mr-4 flex items-center -space-x-0.5 !text-gray-500 !no-underline transition"
           onClick={() => {
             navigator.clipboard.writeText(tweetUrl)
             setCopied(true)
