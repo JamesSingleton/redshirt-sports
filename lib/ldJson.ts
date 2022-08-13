@@ -29,15 +29,5 @@ export const WebSite = {
   publisher: {
     '@id': 'https://www.redshirtsports.xyz/#organization',
   },
-  potentialAction: [
-    {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: 'https://www.redshirtsports.xyz/search?query={search-term}',
-      },
-      'query-input': 'required name=search-term',
-    },
-  ],
   inLanguage: 'en-US',
 }
