@@ -6,7 +6,8 @@ import { postSlugsQuery, postQuery } from '@lib/queries'
 import { urlForImage, PortableTextComponent } from '@lib/sanity'
 import { PostHeader, PostFooter } from '@components/post'
 import { createPostLDJson } from '@lib/createLDJson'
-import { VerticalArticleCard } from '@components/ui'
+import { VerticalArticleCard, Tweet } from '@components/ui'
+import { getTweets } from '@lib/twitter'
 
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { Post } from '@types'
@@ -59,7 +60,7 @@ export default function Post({ currentPost, morePosts }: PostProps) {
           <PostHeader post={currentPost} />
           <div className="px-5 lg:px-0">
             <div className="prose-md prose m-auto w-11/12 prose-a:text-blue-600 hover:prose-a:text-blue-500 sm:prose-lg sm:w-3/4">
-              <PortableTextComponent value={currentPost?.body} />
+              <PortableTextComponent value={currentPost.body} />
             </div>
             <PostFooter
               author={currentPost.author}
@@ -107,6 +108,22 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       notFound: true,
     }
   }
+
+  const enriched = []
+
+  for (const block of currentPost.body) {
+    if (block._type === 'twitter') {
+      const tweetData = await getTweets(block.id)
+      enriched.push({
+        ...block,
+        metadata: tweetData,
+      })
+      continue
+    }
+    enriched.push(block)
+  }
+
+  currentPost.body = enriched
 
   return {
     props: {

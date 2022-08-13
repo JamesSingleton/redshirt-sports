@@ -36,7 +36,7 @@ const moduleExports = {
   reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
-    domains: ['cdn.sanity.io'],
+    domains: ['cdn.sanity.io', 'pbs.twimg.com'],
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? true : false,
