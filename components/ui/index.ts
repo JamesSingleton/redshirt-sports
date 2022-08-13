@@ -6,6 +6,7 @@ import PageHeader from './PageHeader'
 import HorizontalCard from './HorizontalCard'
 import VerticalArticleCard from './VerticalArticleCard'
 import MinimalHorizontalCard from './MinimalHorizontalCard'
+import Tweet from './Tweet'
 
 export {
   Container,
@@ -16,4 +17,5 @@ export {
   HorizontalCard,
   VerticalArticleCard,
   MinimalHorizontalCard,
+  Tweet,
 }
