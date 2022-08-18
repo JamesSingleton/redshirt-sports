@@ -35,30 +35,10 @@ const Navbar = () => {
                           },
                         })
                       }
-                      className="block lg:hidden"
                     >
                       <Image
                         src={RSRedLogo}
                         alt="Redshirt Sports Logo"
-                        className="h-8 w-auto"
-                        priority={true}
-                      />
-                    </a>
-                  </Link>
-                  <Link href="/" prefetch={false}>
-                    <a
-                      onClick={() =>
-                        plausible('clickOnNavbar', {
-                          props: {
-                            item: 'Home',
-                          },
-                        })
-                      }
-                      className="hidden lg:block"
-                    >
-                      <Image
-                        src={RSRedHorizontalLogo}
-                        alt="Redshirt Sports Horizontal Logo"
                         className="h-8 w-auto"
                         priority={true}
                       />
