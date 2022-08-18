@@ -19,7 +19,6 @@ export type Author = {
   slug: string
   role: string
   image: Image
-  backgroundImage: Image
   bio: any
   twitterURL: string
   posts?: Post[]

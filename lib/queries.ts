@@ -68,7 +68,6 @@ const authorFields = `
       url
       }
   },
-  backgroundImage,
   bio,
   twitterURL,
   socialMedia,
