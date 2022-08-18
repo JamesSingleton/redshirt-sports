@@ -20,7 +20,6 @@ export type Author = {
   role: string
   image: Image
   bio: any
-  twitterURL: string
   posts?: Post[]
   socialMedia: [
     {

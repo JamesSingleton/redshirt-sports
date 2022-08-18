@@ -110,7 +110,7 @@ export const createPostLDJson = (post: Post) => ({
         contentUrl: urlForImage(post.author.image).url(),
         caption: post.author.name,
       },
-      sameAs: ['https://www.redshirtsports.xyz', post.author.twitterURL],
+      sameAs: ['https://www.redshirtsports.xyz', post.author.socialMedia.map(({ url }) => url)],
     },
   ],
 })
@@ -183,7 +183,7 @@ export const createAuthorLDJson = (author: Author) => ({
         contentUrl: urlForImage(author.image).url(),
         caption: author.name,
       },
-      sameAs: ['https://www.redshirtsports.xyz', author.twitterURL],
+      sameAs: ['https://www.redshirtsports.xyz', author.socialMedia.map(({ url }) => url)],
       mainEntityOfPage: {
         '@id': `https://www.redshirtsports.xyz/authors/${author.slug}`,
       },
