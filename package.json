@@ -79,7 +79,9 @@
       "lib",
       "pages"
     ],
-    "exclude": [],
+    "exclude": [
+      "lib/build-rss.js"
+    ],
     "entrypoints": [
       "pages"
     ]
