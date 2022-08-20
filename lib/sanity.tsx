@@ -9,6 +9,7 @@ import { Tweet } from '@components/ui'
 
 export const imageBuilder = createImageUrlBuilder(sanityConfig as any)
 export const urlForImage = (source: any) => imageBuilder.image(source).auto('format').fit('min')
+export const urlForRSSImage = (source: any) => imageBuilder.image(source)
 
 const ImageComponent = ({ value, isInline }: { value: any; isInline: any }) => {
   const { width, height } = getImageDimensions(value)
@@ -24,7 +25,7 @@ const ImageComponent = ({ value, isInline }: { value: any; isInline: any }) => {
   )
 }
 
-const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
+export const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   return (
     <Link href={`/${value?.slug.current}`} prefetch={false}>
       <a>{children}</a>
@@ -32,7 +33,7 @@ const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   )
 }
 
-const TwitterComponent = ({ value }: { value: any }) => {
+export const TwitterComponent = ({ value }: { value: any }) => {
   return <Tweet id={value.id} metadata={JSON.stringify(value.metadata)} />
 }
 const myPortableTextComponents = {

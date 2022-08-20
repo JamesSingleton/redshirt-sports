@@ -17,7 +17,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
   return (
     <div className="mt-12 sm:mt-16 lg:ml-12 lg:mt-0 lg:w-1/2 xl:ml-16">
       <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
-        Recent stories
+        Recent Articles
       </h2>
       <div className="grid divide-y lg:grid-cols-2 lg:gap-5 xl:grid-cols-1">
         {recentArticles.map((post) => (

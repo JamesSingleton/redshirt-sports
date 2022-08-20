@@ -194,7 +194,15 @@ export const allPostsForRssFeed = groq`
      }
   },
   "author": author->{name, 'slug': slug.current},
-  body
+  body[]{
+    ...,
+    markDefs[]{
+      ...,
+      _type == "internalLink" => {
+        "slug": @.reference->slug
+      }
+    }
+  },
 }
 `
 
