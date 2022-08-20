@@ -1,4 +1,3 @@
-const { withPlausibleProxy } = require('next-plausible')
 const { withSentryConfig } = require('@sentry/nextjs')
 const withBundleAnalyzer = require('@next/bundle-analyzer')
 
@@ -102,9 +101,7 @@ const SentryWebpackPluginOptions = {
 }
 
 /** @type {import('next').NextConfig} */
-module.exports = withPlausibleProxy()(
-  withSentryConfig(
-    withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })(moduleExports),
-    SentryWebpackPluginOptions
-  )
+module.exports = withSentryConfig(
+  withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })(moduleExports),
+  SentryWebpackPluginOptions
 )
