@@ -215,11 +215,20 @@ export const FCS_COLLECTION_FRAGMENT = /* groq */ `
 
 export const fcsPostsQuery = groq`
   {
-    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc){
+    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc)[0...10]{
       ${litePostFields}
     },
     "totalPosts": count(${FCS_COLLECTION_FRAGMENT}._id)
   }
+`
+
+export const testFetchNextPage = groq`
+*[_type == "post" && category == 'FCS' && (
+  publishedAt < $lastPublishedAt
+  || (publishedAt == $lastPublishedAt && _id > $lastId)
+)] | order(publishedAt desc) [0...10] {
+  ${litePostFields}
+}
 `
 
 export const fetchNextCategoryPage = groq`

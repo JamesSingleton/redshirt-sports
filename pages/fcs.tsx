@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -8,7 +9,7 @@ import { usePlausible } from 'next-plausible'
 import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { HorizontalCard } from '@components/ui'
 import { sanityClient } from '@lib/sanity.server'
-import { fcsPostsQuery } from '@lib/queries'
+import { fcsPostsQuery, testFetchNextPage } from '@lib/queries'
 import { Organization, WebSite } from '@lib/ldJson'
 
 import type { Post } from '@types'
@@ -19,6 +20,10 @@ interface fcsProps {
 }
 
 const FCS = ({ posts, totalPosts }: fcsProps) => {
+  const [pageIndex, setPageIndex] = useState(1)
+  const [articles, setArticles] = useState<Post[]>(posts)
+  const [lastId, setLastId] = useState(posts[posts.length - 1]._id)
+  const [lastPublishedAt, setLastPublishedAt] = useState(posts[posts.length - 1].publishedAt)
   const plausible = usePlausible()
 
   const ldJsonContent = {
@@ -70,6 +75,22 @@ const FCS = ({ posts, totalPosts }: fcsProps) => {
         ],
       },
     ],
+  }
+
+  const fetchNextPage = async () => {
+    if (lastId === null) {
+      return []
+    }
+
+    const nextPosts = await sanityClient.fetch(testFetchNextPage, { lastId, lastPublishedAt })
+
+    if (nextPosts.length > 0) {
+      setLastId(nextPosts[nextPosts.length - 1]._id)
+      setLastPublishedAt(nextPosts[nextPosts.length - 1].publishedAt)
+      setArticles([...articles, ...nextPosts])
+    } else {
+      setLastId(null)
+    }
   }
 
   return (
@@ -166,9 +187,21 @@ const FCS = ({ posts, totalPosts }: fcsProps) => {
         <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
             <div className="col-span-2">
-              {posts.map((post) => (
+              {articles.map((post) => (
                 <HorizontalCard post={post} key={post._id} articleLocation="FCS Page" />
               ))}
+
+              {lastId !== null && (
+                <div className="flex items-center justify-center pt-4">
+                  <button
+                    onClick={() => fetchNextPage()}
+                    type="button"
+                    className="inline-flex items-center rounded-md border border-transparent bg-brand-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                  >
+                    Load More
+                  </button>
+                </div>
+              )}
             </div>
             <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
               <SocialMediaFollow />
