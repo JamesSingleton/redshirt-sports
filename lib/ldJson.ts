@@ -23,7 +23,7 @@ export const WebSite = {
   '@type': 'WebSite',
   '@id': 'https://www.redshirtsports.xyz/#website',
   name: 'Redshirt Sports',
-  url: 'https://www.redshirtsports.xyz/',
+  url: 'https://www.redshirtsports.xyz',
   description:
     'Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more.',
   publisher: {

@@ -11,4 +11,3 @@ Host: https://www.redshirtsports.xyz
 
 # Sitemaps
 Sitemap: https://www.redshirtsports.xyz/sitemap.xml
-Sitemap: https://www.redshirtsports.xyz/news-sitemap.xml
