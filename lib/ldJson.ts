@@ -4,16 +4,7 @@ export const Organization = {
   name: 'Redshirt Sports',
   url: 'https://www.redshirtsports.xyz',
   sameAs: ['https://www.facebook.com/RedshirtSportsNews', 'https://twitter.com/_redshirtsports'],
-  logo: {
-    '@type': 'ImageObject',
-    '@id': 'https://www.redshirtsports.xyz/#logo',
-    inLanguage: 'en-US',
-    url: 'https://www.redshirtsports.xyz/images/icons/RS_512.png',
-    contentUrl: 'https://www.redshirtsports.xyz/images/icons/RS_512.png',
-    width: 512,
-    height: 512,
-    caption: 'Redshirt Sports',
-  },
+  logo: 'https://www.redshirtsports.xyz/images/icons/RS_512.png',
   image: {
     '@id': 'https://www.redshirtsports.xyz/#logo',
   },
