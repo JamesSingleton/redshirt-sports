@@ -19,14 +19,11 @@ interface fcsProps {
   posts: Post[]
   totalPosts: number
   totalPages: number
+  currentPage: string
 }
 
-const FCS = ({ posts, totalPosts, totalPages }: fcsProps) => {
-  const [pageNumber, setPageNumber] = useState<string>('1')
-  const [articles, setArticles] = useState<Post[]>(posts)
+const FCS = ({ posts, totalPosts, totalPages, currentPage }: fcsProps) => {
   const plausible = usePlausible()
-  const router = useRouter()
-  const { page } = router.query
 
   const ldJsonContent = {
     '@context': 'http://schema.org',
@@ -79,25 +76,6 @@ const FCS = ({ posts, totalPosts, totalPages }: fcsProps) => {
     ],
   }
 
-  useEffect(() => {
-    if (page) {
-      setPageNumber(page.toString())
-      const fetchArticles = async () => {
-        const { posts } = await sanityClient.fetch(fcsPostsQuery, {
-          pageIndex: parseInt(page.toString(), 10),
-        })
-        setArticles(posts)
-      }
-      fetchArticles()
-    } else {
-      setPageNumber('1')
-      setArticles(posts)
-    }
-  }, [page, posts])
-
-  const prevPageUrl = pageNumber === '2' ? '/fcs' : `/fcs?page=${parseInt(pageNumber, 10) - 1}`
-  const nextPageUrl = `/fcs?page=${parseInt(pageNumber, 10) + 1}`
-
   return (
     <>
       <Head>
@@ -108,10 +86,7 @@ const FCS = ({ posts, totalPosts, totalPages }: fcsProps) => {
             __html: JSON.stringify(ldJsonContent),
           }}
         />
-        {pageNumber !== '1' && (
-          <link rel="prev" href={`https://www.redshirtsports.xyz${prevPageUrl}`} />
-        )}
-        <link rel="next" href={`https://www.redshirtsports.xyz${nextPageUrl}`} />
+        <link rel="next" href={`https://www.redshirtsports.xyz/fcs/page/2`} />
       </Head>
       <SEO
         title="FCS Football News, Rumors, and More"
@@ -197,10 +172,10 @@ const FCS = ({ posts, totalPosts, totalPages }: fcsProps) => {
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
             <div className="col-span-2">
               <ArticleList
-                articles={articles}
+                articles={posts}
                 totalPages={totalPages}
                 totalPosts={totalPosts}
-                currentPage={pageNumber}
+                currentPage={currentPage}
               />
             </div>
             <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
@@ -219,13 +194,12 @@ export const getStaticProps: GetStaticProps = async () => {
   })
   const totalPages = Math.ceil(totalPosts / 10)
 
-  console.log(typeof totalPages)
-
   return {
     props: {
       posts,
       totalPosts,
       totalPages,
+      currentPage: '1',
     },
   }
 }
