@@ -213,35 +213,21 @@ export const FCS_COLLECTION_FRAGMENT = /* groq */ `
 ]
 `
 
+export const fetchTotalPosts = groq`
+  count(*[
+    _type == "post" && category == $category &&
+    defined(slug.current)
+  ]._id)
+`
+
 export const fcsPostsQuery = groq`
   {
-    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc)[0...10]{
+    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
       ${litePostFields}
     },
     "totalPosts": count(${FCS_COLLECTION_FRAGMENT}._id)
   }
 `
-
-export const testFetchNextPage = groq`
-*[_type == "post" && category == 'FCS' && (
-  publishedAt < $lastPublishedAt
-  || (publishedAt == $lastPublishedAt && _id > $lastId)
-)] | order(publishedAt desc) [0...10] {
-  ${litePostFields}
-}
-`
-
-export const fetchNextCategoryPage = groq`
-  *[_type == "post" && category == $category && (publishedAt < $lastPublishedAt || (publishedAt == $lastPublishedAt && _id < $lastId))] | order(publishedAt desc) [0...10] {
-    ${litePostFields}
-  }
-`
-
-export const fetchPreviousCategoryPage = groq`
-  *[_type == "post" && category == $category && (publishedAt > $lastPublishedAt
-  || (publishedAt == $lastPublishedAt && _id > $lastId))] | order(publishedAt desc) [0...10] {
-  ${litePostFields}
-}`
 
 export const allFBSPosts = groq`
 *[_type == "post" && category == 'FBS' ] | order(publishedAt desc, _updatedAt desc){

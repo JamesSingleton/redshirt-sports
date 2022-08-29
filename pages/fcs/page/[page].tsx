@@ -1,118 +1,53 @@
-import { useState } from 'react'
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
+import { usePlausible } from 'next-plausible'
 import ChevronRightIcon from '@heroicons/react/solid/ChevronRightIcon'
 import HomeIcon from '@heroicons/react/solid/HomeIcon'
-import { usePlausible } from 'next-plausible'
 
-import { Layout, SocialMediaFollow, SEO } from '@components/common'
-import { HorizontalCard } from '@components/ui'
+import { Layout, SEO, SocialMediaFollow } from '@components/common'
+import { ArticleList } from '@components/ui'
 import { sanityClient } from '@lib/sanity.server'
-import { fcsPostsQuery, testFetchNextPage } from '@lib/queries'
-import { Organization, WebSite } from '@lib/ldJson'
+import { fetchTotalPosts, fcsPostsQuery } from '@lib/queries'
 
 import type { Post } from '@types'
+import type { ParsedUrlQuery } from 'querystring'
 
-interface fcsProps {
+interface PaginatedCategoryPageProps {
   posts: Post[]
+  currentPage: string
+  totalPages: number
   totalPosts: number
 }
 
-const FCS = ({ posts, totalPosts }: fcsProps) => {
-  const [pageIndex, setPageIndex] = useState(1)
-  const [articles, setArticles] = useState<Post[]>(posts)
-  const [lastId, setLastId] = useState(posts[posts.length - 1]._id)
-  const [lastPublishedAt, setLastPublishedAt] = useState(posts[posts.length - 1].publishedAt)
+interface Params extends ParsedUrlQuery {
+  page: string
+}
+
+export default function PaginatedCategoryPage({
+  posts,
+  currentPage,
+  totalPages,
+  totalPosts,
+}: PaginatedCategoryPageProps) {
   const plausible = usePlausible()
-
-  const ldJsonContent = {
-    '@context': 'http://schema.org',
-    '@graph': [
-      Organization,
-      WebSite,
-      {
-        '@type': 'CollectionPage',
-        '@id': 'https://www.redshirtsports.xyz/fcs/#webpage',
-        url: 'https://www.redshirtsports.xyz/fcs',
-        name: 'FCS Football - Redshirt Sports',
-        isPartOf: {
-          '@id': 'https://www.redshirtsports.xyz/#website',
-        },
-        description:
-          'Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more.',
-        breadcrumb: {
-          '@id': 'https://www.redshirtsports.xyz/fcs/#breadcrumb',
-        },
-        inLanguage: 'en-US',
-        potentialAction: [
-          {
-            '@type': 'ReadAction',
-            target: ['https://www.redshirtsports.xyz/fcs'],
-          },
-        ],
-      },
-      {
-        '@type': 'BreadcrumbList',
-        '@id': 'https://www.redshirtsports.xyz/fcs/#breadcrumb',
-        name: 'FCS Breadcrumbs',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            item: {
-              '@id': 'https://www.redshirtsports.xyz',
-              name: 'Home',
-            },
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            item: {
-              name: 'FCS',
-            },
-          },
-        ],
-      },
-    ],
-  }
-
-  const fetchNextPage = async () => {
-    if (lastId === null) {
-      return []
-    }
-
-    const nextPosts = await sanityClient.fetch(testFetchNextPage, { lastId, lastPublishedAt })
-
-    if (nextPosts.length > 0) {
-      setLastId(nextPosts[nextPosts.length - 1]._id)
-      setLastPublishedAt(nextPosts[nextPosts.length - 1].publishedAt)
-      setArticles([...articles, ...nextPosts])
-    } else {
-      setLastId(null)
-    }
-  }
-
+  const prevPageUrl = currentPage === '2' ? '/fcs' : `/fcs/page/${parseInt(currentPage, 10) - 1}`
+  const nextPageUrl = `/fcs/page/${parseInt(currentPage, 10) + 1}`
   return (
     <>
       <Head>
-        <script
-          id="fcs-ld-json"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(ldJsonContent),
-          }}
-        />
+        <link rel="prev" href={`https://www.redshirtsports.xyz${prevPageUrl}`} />
+        <link rel="next" href={`https://www.redshirtsports.xyz${nextPageUrl}`} />
       </Head>
       <SEO
-        title="FCS Football"
+        title={`Page ${currentPage} of FCS Football News, Rumors, and More`}
         description="Check out all the coverage on NCAA Division 1 Football Championship Subdivision written by the team here at Redshirt Sports!"
-        canonical="https://www.redshirtsports.xyz/fcs"
+        canonical={`https://www.redshirtsports.xyz/fcs/page/${parseInt(currentPage, 10)}`}
         openGraph={{
-          title: 'FCS Football | Redshirt Sports',
+          title: `Page ${currentPage} of FCS Football News, Rumors, and More | Redshirt Sports`,
           description:
             'Check out all the coverage on NCAA Division 1 Football Championship Subdivision written by the team here at Redshirt Sports!',
-          url: 'https://www.redshirtsports.xyz/fcs',
+          url: `https://www.redshirtsports.xyz/fcs/page/${parseInt(currentPage, 10)}`,
         }}
       />
       <Layout>
@@ -125,7 +60,7 @@ const FCS = ({ posts, totalPosts }: fcsProps) => {
                     Football Championship Subdivision
                   </span>
                   <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
-                    Latest FCS Stories
+                    Latest FCS News
                   </h1>
                 </div>
               </div>
@@ -187,21 +122,12 @@ const FCS = ({ posts, totalPosts }: fcsProps) => {
         <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
             <div className="col-span-2">
-              {articles.map((post) => (
-                <HorizontalCard post={post} key={post._id} articleLocation="FCS Page" />
-              ))}
-
-              {lastId !== null && (
-                <div className="flex items-center justify-center pt-4">
-                  <button
-                    onClick={() => fetchNextPage()}
-                    type="button"
-                    className="inline-flex items-center rounded-md border border-transparent bg-brand-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
-                  >
-                    Load More
-                  </button>
-                </div>
-              )}
+              <ArticleList
+                articles={posts}
+                totalPages={totalPages}
+                totalPosts={totalPosts}
+                currentPage={currentPage}
+              />
             </div>
             <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
               <SocialMediaFollow />
@@ -213,17 +139,41 @@ const FCS = ({ posts, totalPosts }: fcsProps) => {
   )
 }
 
-FCS.Layout = Layout
+export async function getStaticPaths() {
+  const totalPosts = await sanityClient.fetch(fetchTotalPosts, {
+    category: 'FCS',
+  })
+  const totalPages = Math.ceil(totalPosts / 10)
 
-export const getStaticProps: GetStaticProps = async () => {
-  const { posts, totalPosts } = await sanityClient.fetch(fcsPostsQuery)
+  const paths = []
+
+  /**
+   * Start from page 2, so we don't replicate /blog
+   * which is page 1
+   */
+  for (let page = 2; page <= totalPages; page++) {
+    paths.push({ params: { page: page.toString() } })
+  }
+
+  return {
+    paths,
+    fallback: false,
+  }
+}
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const { page } = params as Params
+  const { posts, totalPosts } = await sanityClient.fetch(fcsPostsQuery, {
+    pageIndex: parseInt(page, 10),
+  })
+  const totalPages = Math.ceil(totalPosts / 10)
 
   return {
     props: {
       posts,
+      currentPage: page,
+      totalPages,
       totalPosts,
     },
   }
 }
-
-export default FCS
