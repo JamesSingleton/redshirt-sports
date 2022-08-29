@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react'
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import ChevronRightIcon from '@heroicons/react/solid/ChevronRightIcon'
 import HomeIcon from '@heroicons/react/solid/HomeIcon'
 import { usePlausible } from 'next-plausible'
@@ -17,11 +19,14 @@ interface fcsProps {
   posts: Post[]
   totalPosts: number
   totalPages: number
-  currentPage: string
 }
 
-const FCS = ({ posts, totalPosts, totalPages, currentPage }: fcsProps) => {
+const FCS = ({ posts, totalPosts, totalPages }: fcsProps) => {
+  const [pageNumber, setPageNumber] = useState<string>('1')
+  const [articles, setArticles] = useState<Post[]>(posts)
   const plausible = usePlausible()
+  const router = useRouter()
+  const { page } = router.query
 
   const ldJsonContent = {
     '@context': 'http://schema.org',
@@ -74,6 +79,25 @@ const FCS = ({ posts, totalPosts, totalPages, currentPage }: fcsProps) => {
     ],
   }
 
+  useEffect(() => {
+    if (page) {
+      setPageNumber(page.toString())
+      const fetchArticles = async () => {
+        const { posts } = await sanityClient.fetch(fcsPostsQuery, {
+          pageIndex: parseInt(page.toString(), 10),
+        })
+        setArticles(posts)
+      }
+      fetchArticles()
+    } else {
+      setPageNumber('1')
+      setArticles(posts)
+    }
+  }, [page, posts])
+
+  const prevPageUrl = pageNumber === '2' ? '/fcs' : `/fcs?page=${parseInt(pageNumber, 10) - 1}`
+  const nextPageUrl = `/fcs?page=${parseInt(pageNumber, 10) + 1}`
+
   return (
     <>
       <Head>
@@ -84,7 +108,10 @@ const FCS = ({ posts, totalPosts, totalPages, currentPage }: fcsProps) => {
             __html: JSON.stringify(ldJsonContent),
           }}
         />
-        <link rel="next" href={`https://www.redshirtsports.xyz/fcs/page/2`} />
+        {pageNumber !== '1' && (
+          <link rel="prev" href={`https://www.redshirtsports.xyz${prevPageUrl}`} />
+        )}
+        <link rel="next" href={`https://www.redshirtsports.xyz${nextPageUrl}`} />
       </Head>
       <SEO
         title="FCS Football News, Rumors, and More"
@@ -106,7 +133,7 @@ const FCS = ({ posts, totalPosts, totalPages, currentPage }: fcsProps) => {
                   <span className="block text-xs uppercase tracking-widest text-brand-500">
                     Football Championship Subdivision
                   </span>
-                  <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
+                  <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-wide lg:text-5xl lg:leading-tight">
                     Latest FCS News
                   </h1>
                 </div>
@@ -170,10 +197,10 @@ const FCS = ({ posts, totalPosts, totalPages, currentPage }: fcsProps) => {
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
             <div className="col-span-2">
               <ArticleList
-                articles={posts}
+                articles={articles}
                 totalPages={totalPages}
                 totalPosts={totalPosts}
-                currentPage={currentPage}
+                currentPage={pageNumber}
               />
             </div>
             <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
@@ -199,7 +226,6 @@ export const getStaticProps: GetStaticProps = async () => {
       posts,
       totalPosts,
       totalPages,
-      currentPage: '1',
     },
   }
 }

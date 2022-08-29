@@ -12,8 +12,8 @@ export default function Pagination({
   nextDisabled: boolean
   totalPosts: number
 }) {
-  const prevPageUrl = currentPage === '2' ? '/fcs' : `/fcs/page/${parseInt(currentPage, 10) - 1}`
-  const nextPageUrl = `/fcs/page/${parseInt(currentPage, 10) + 1}`
+  const prevPageUrl = currentPage === '2' ? '/fcs' : `/fcs?page=${parseInt(currentPage, 10) - 1}`
+  const nextPageUrl = `/fcs?page=${parseInt(currentPage, 10) + 1}`
 
   const from = (parseInt(currentPage, 10) - 1) * 10 + 1
   const to =
@@ -38,7 +38,7 @@ export default function Pagination({
             Previous
           </span>
         ) : (
-          <Link href={prevPageUrl} prefetch={false}>
+          <Link href={prevPageUrl}>
             <a
               onClick={() =>
                 plausible('clickOnPagination', {
@@ -58,7 +58,7 @@ export default function Pagination({
             Next
           </span>
         ) : (
-          <Link href={nextPageUrl} prefetch={false}>
+          <Link href={nextPageUrl}>
             <a
               onClick={() =>
                 plausible('clickOnPagination', {
