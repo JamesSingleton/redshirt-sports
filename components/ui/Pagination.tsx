@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { usePlausible } from 'next-plausible'
 
 export default function Pagination({
   currentPage,
@@ -17,6 +18,8 @@ export default function Pagination({
   const from = (parseInt(currentPage, 10) - 1) * 10 + 1
   const to =
     parseInt(currentPage, 10) * 10 > totalPosts ? totalPosts : parseInt(currentPage, 10) * 10
+
+  const plausible = usePlausible()
   return (
     <nav
       className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6"
@@ -36,7 +39,16 @@ export default function Pagination({
           </span>
         ) : (
           <Link href={prevPageUrl} prefetch={false}>
-            <a className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <a
+              onClick={() =>
+                plausible('clickOnPagination', {
+                  props: {
+                    direction: 'previous',
+                  },
+                })
+              }
+              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
               Previous
             </a>
           </Link>
@@ -47,7 +59,16 @@ export default function Pagination({
           </span>
         ) : (
           <Link href={nextPageUrl} prefetch={false}>
-            <a className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <a
+              onClick={() =>
+                plausible('clickOnPagination', {
+                  props: {
+                    direction: 'next',
+                  },
+                })
+              }
+              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
               Next
             </a>
           </Link>
