@@ -31,8 +31,8 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
             <div className="flex-1">
               <p className="text-sm font-medium uppercase text-brand-600">{article.category}</p>
               <div className="mt-2">
-                <h3 className="font-cal text-xl font-semibold text-gray-900">{article.title}</h3>
-                <p className="mt-3 text-base text-gray-500">{article.excerpt}</p>
+                <h3 className="font-cal text-xl font-semibold text-slate-900">{article.title}</h3>
+                <p className="mt-3 text-base text-slate-500">{article.excerpt}</p>
               </div>
             </div>
             <div className="mt-6 flex items-center">
@@ -51,8 +51,8 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
                 </div>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">{article.author.name}</p>
-                <div className="flex space-x-1 text-sm text-gray-500">
+                <p className="text-sm font-medium text-slate-900">{article.author.name}</p>
+                <div className="flex space-x-1 text-sm text-slate-500">
                   <Date dateString={article.publishedAt} />
                   <span aria-hidden="true">&middot;</span>
                   <span>{article.estimatedReadingTime} min read</span>
