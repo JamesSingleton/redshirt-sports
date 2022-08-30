@@ -95,7 +95,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
 
   return (
     <div
-      className={`${className} tweet my-4 w-full rounded-lg border border-gray-300 bg-white px-8 pt-6 pb-2`}
+      className={`${className} tweet my-4 w-full rounded-lg border border-slate-300 bg-white px-8 pt-6 pb-2`}
     >
       <div className="flex items-center">
         <a
@@ -113,7 +113,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
           className="author ml-4 flex flex-col !no-underline"
         >
           <span
-            className="mt-1 flex items-center font-bold leading-5 text-gray-900"
+            className="mt-1 flex items-center font-bold leading-5 text-slate-900"
             title={author.name}
           >
             {author.name}
@@ -129,7 +129,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
               </svg>
             ) : null}
           </span>
-          <span className="text-base !text-gray-500" title={`@${author.username}`}>
+          <span className="text-base !text-slate-500" title={`@${author.username}`}>
             @{author.username}
           </span>
         </a>
@@ -149,7 +149,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
         </a>
       </div>
       {repliedTo && repliedTo.username && (
-        <div className="mt-5 text-base text-gray-500">
+        <div className="mt-5 text-base text-slate-500">
           Replying to{' '}
           <a
             className="!text-[#1da1f2] !no-underline"
@@ -162,7 +162,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
         </div>
       )}
       <div
-        className="mt-4 mb-2 whitespace-pre-wrap text-lg leading-normal text-gray-700"
+        className="mt-4 mb-2 whitespace-pre-wrap text-lg leading-normal text-slate-700"
         dangerouslySetInnerHTML={{ __html: formattedText }}
       />
       {media && media.length ? (
@@ -213,7 +213,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
       ) : null}
       {url_meta?.images ? (
         <a className="!no-underline" href={url_meta.unwound_url} rel="noreferrer" target="_blank">
-          <div className="mb-5 overflow-hidden rounded-2xl border border-gray-200 drop-shadow-sm">
+          <div className="mb-5 overflow-hidden rounded-2xl border border-slate-200 drop-shadow-sm">
             <BlurImage
               key={url_meta.unwound_url}
               alt={url_meta.title}
@@ -249,7 +249,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
                     </div>
                   </a>
                 ))}
-                <div className="mt-4 text-base text-gray-500">
+                <div className="mt-4 text-base text-slate-500">
                   {poll.total_votes} votes · {getRemainingTime(poll.end_datetime)} left
                 </div>
               </div>
@@ -269,7 +269,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
                         .replace('.0', '')}%`}</p>
                       <div
                         className={classNames(
-                          option.position == 1 ? 'bg-[#1da1f2] font-bold' : 'bg-gray-300',
+                          option.position == 1 ? 'bg-[#1da1f2] font-bold' : 'bg-slate-300',
                           'absolute top-0 left-0 h-full w-full rounded-md'
                         )}
                         style={{
@@ -279,7 +279,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
                     </div>
                   </>
                 ))}
-                <div className="mt-4 text-base text-gray-500">
+                <div className="mt-4 text-base text-slate-500">
                   {poll.total_votes} votes · Final results
                 </div>
               </div>
@@ -291,7 +291,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
         <Tweet id={quoteTweet.id} metadata={JSON.stringify(quoteTweet)} />
       )}
       <a
-        className="mt-3 mb-4 block text-base !text-gray-500 !no-underline hover:!underline"
+        className="mt-3 mb-4 block text-base !text-slate-500 !no-underline hover:!underline"
         href={tweetUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -300,9 +300,9 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
           {format(createdAt, 'h:mm a - MMM d, y')}
         </time>
       </a>
-      <div className="mt-2 flex space-x-1 border-t border-gray-300 pt-1 text-base text-gray-700 md:space-x-6">
+      <div className="mt-2 flex space-x-1 border-t border-slate-300 pt-1 text-base text-slate-700 md:space-x-6">
         <a
-          className="group flex items-center -space-x-0.5 !text-gray-500 !no-underline transition"
+          className="group flex items-center -space-x-0.5 !text-slate-500 !no-underline transition"
           href={likeUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -320,7 +320,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
           </span>
         </a>
         <a
-          className="group mr-4 flex items-center -space-x-0.5 !text-gray-500 !no-underline transition"
+          className="group mr-4 flex items-center -space-x-0.5 !text-slate-500 !no-underline transition"
           href={retweetUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -338,7 +338,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
           </span>
         </a>
         <a
-          className="group mr-4 flex items-center -space-x-0.5 !text-gray-500 !no-underline transition"
+          className="group mr-4 flex items-center -space-x-0.5 !text-slate-500 !no-underline transition"
           href={replyUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -356,7 +356,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
           </span>
         </a>
         <button
-          className="group mr-4 flex items-center -space-x-0.5 !text-gray-500 !no-underline transition"
+          className="group mr-4 flex items-center -space-x-0.5 !text-slate-500 !no-underline transition"
           onClick={() => {
             navigator.clipboard.writeText(tweetUrl)
             setCopied(true)

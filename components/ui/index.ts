@@ -8,6 +8,8 @@ import VerticalArticleCard from './VerticalArticleCard'
 import MinimalHorizontalCard from './MinimalHorizontalCard'
 import Tweet from './Tweet'
 import ArticleList from './ArticleList'
+import Breadcrumbs from './Breadcrumbs'
+import CategoryHeader from './CategoryHeader'
 
 export {
   Container,
@@ -20,4 +22,6 @@ export {
   MinimalHorizontalCard,
   Tweet,
   ArticleList,
+  Breadcrumbs,
+  CategoryHeader,
 }

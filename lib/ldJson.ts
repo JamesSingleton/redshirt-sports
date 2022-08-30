@@ -5,9 +5,7 @@ export const Organization = {
   url: 'https://www.redshirtsports.xyz',
   sameAs: ['https://www.facebook.com/RedshirtSportsNews', 'https://twitter.com/_redshirtsports'],
   logo: 'https://www.redshirtsports.xyz/images/icons/RS_512.png',
-  image: {
-    '@id': 'https://www.redshirtsports.xyz/#logo',
-  },
+  image: 'https://www.redshirtsports.xyz/images/icons/RS_512.png',
 }
 
 export const WebSite = {

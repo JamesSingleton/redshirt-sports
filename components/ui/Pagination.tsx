@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { usePlausible } from 'next-plausible'
+import clsx from 'clsx'
 
 export default function Pagination({
   currentPage,
@@ -22,11 +23,11 @@ export default function Pagination({
   const plausible = usePlausible()
   return (
     <nav
-      className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6"
+      className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6"
       aria-label="Pagination"
     >
       <div className="hidden sm:block">
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-slate-700">
           Showing <span className="font-medium">{from}</span> to{' '}
           <span className="font-medium">{to}</span> of{' '}
           <span className="font-medium">{totalPosts}</span> results
@@ -34,7 +35,7 @@ export default function Pagination({
       </div>
       <div className="flex flex-1 justify-between sm:justify-end">
         {prevDisabled ? (
-          <span className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <span className="relative inline-flex cursor-not-allowed items-center rounded-md border border-slate-300 bg-slate-300 px-4 py-2 text-sm font-medium text-slate-400 focus:outline-none">
             Previous
           </span>
         ) : (
@@ -47,14 +48,15 @@ export default function Pagination({
                   },
                 })
               }
-              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              aria-label="Previous Page"
+              className="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
               Previous
             </a>
           </Link>
         )}
         {nextDisabled ? (
-          <span className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <span className="relative ml-3 inline-flex cursor-not-allowed items-center rounded-md border border-slate-300 bg-slate-300 px-4 py-2 text-sm font-medium text-slate-400 focus:outline-none">
             Next
           </span>
         ) : (
@@ -67,7 +69,8 @@ export default function Pagination({
                   },
                 })
               }
-              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              aria-label="Next Page"
+              className="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
               Next
             </a>
