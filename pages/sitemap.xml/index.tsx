@@ -35,17 +35,17 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       <url>
         <loc>https://www.redshirtsports.xyz</loc>
         <changefreq>daily</changefreq>
-        <priority>1</priority>
+        <priority>1.0</priority>
       </url>
       <url>
         <loc>https://www.redshirtsports.xyz/about</loc>
-        <changefreq>daily</changefreq>
-        <priority>0.8</priority>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
       </url>
       <url>
         <loc>https://www.redshirtsports.xyz/fbs</loc>
-        <changefreq>daily</changefreq>
-        <priority>0.8</priority>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
       </url>
       <url>
         <loc>https://www.redshirtsports.xyz/fcs</loc>
