@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { usePlausible } from 'next-plausible'
-import ChevronRightIcon from '@heroicons/react/solid/ChevronRightIcon'
-import HomeIcon from '@heroicons/react/solid/HomeIcon'
+import ChevronRightIcon from '@heroicons/react/24/solid/ChevronRightIcon'
+import HomeIcon from '@heroicons/react/24/solid/HomeIcon'
 
 interface BreadCrumbsProps {
   breadCrumbPages: {

@@ -1,4 +1,4 @@
-import SearchIcon from '@heroicons/react/solid/SearchIcon'
+import MagnifyingGlassIcon from '@heroicons/react/24/solid/MagnifyingGlassIcon'
 
 const SearchBar = () => {
   return (
@@ -13,7 +13,7 @@ const SearchBar = () => {
         </label>
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <SearchIcon className="h-5 w-5 text-slate-400" aria-hidden="true" />
+            <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" aria-hidden="true" />
           </div>
           <input
             id="search"

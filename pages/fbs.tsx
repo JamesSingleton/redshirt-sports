@@ -1,8 +1,8 @@
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
-import ChevronRightIcon from '@heroicons/react/solid/ChevronRightIcon'
-import HomeIcon from '@heroicons/react/solid/HomeIcon'
+import ChevronRightIcon from '@heroicons/react/24/solid/ChevronRightIcon'
+import HomeIcon from '@heroicons/react/24/solid/HomeIcon'
 import { usePlausible } from 'next-plausible'
 
 import { Layout, SocialMediaFollow, SEO } from '@components/common'

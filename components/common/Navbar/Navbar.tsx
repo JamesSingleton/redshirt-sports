@@ -3,14 +3,13 @@ import Link from 'next/link'
 import Image from 'next/future/image'
 import { useRouter } from 'next/router'
 import { Popover } from '@headlessui/react'
-import MenuIcon from '@heroicons/react/outline/MenuIcon'
+import Bars3Icon from '@heroicons/react/24/outline/Bars3Icon'
 import clsx from 'clsx'
 import { usePlausible } from 'next-plausible'
 
 import SearchBar from './SearchBar'
 import { NAVIGATION_ITEMS } from '@lib/constants'
 import RSRedLogo from '@public/images/icons/RS_red.svg'
-import RSRedHorizontalLogo from '@public/images/icons/RS_red_horizontal.svg'
 
 const MobileNav = dynamic(() => import('./MobileNav'))
 
@@ -77,7 +76,7 @@ const Navbar = () => {
               <div className="flex items-center lg:hidden">
                 <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500">
                   <span className="sr-only">Open menu</span>
-                  <MenuIcon className="h-6 w-6" aria-hidden="true" />
+                  <Bars3Icon className="h-6 w-6" aria-hidden="true" />
                 </Popover.Button>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import ArrowRightIcon from '@heroicons/react/outline/ArrowRightIcon'
+import ArrowRightIcon from '@heroicons/react/24/outline/ArrowRightIcon'
 import { usePlausible } from 'next-plausible'
 
 const SocialMediaFollow = () => {

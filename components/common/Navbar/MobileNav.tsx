@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import Link from 'next/link'
 import Image from 'next/future/image'
 import { Transition, Popover } from '@headlessui/react'
-import XIcon from '@heroicons/react/outline/XIcon'
+import XIcon from '@heroicons/react/24/outline/XMarkIcon'
 import { usePlausible } from 'next-plausible'
 
 import { NAVIGATION_ITEMS } from '@lib/constants'

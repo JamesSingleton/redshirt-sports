@@ -2,7 +2,7 @@ import { GetStaticProps } from 'next'
 import Link from 'next/link'
 import Image from 'next/future/image'
 import { usePlausible } from 'next-plausible'
-import ArrowRightIcon from '@heroicons/react/outline/ArrowRightIcon'
+import ArrowRightIcon from '@heroicons/react/24/outline/ArrowRightIcon'
 
 import { Layout, SEO } from '@components/common'
 import { recentArticlesQuery } from '@lib/queries'
