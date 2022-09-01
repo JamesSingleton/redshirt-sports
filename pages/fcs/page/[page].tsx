@@ -85,14 +85,16 @@ export default function PaginatedCategoryPage({
     <>
       <Head>
         <script
-          id="fcs-ld-json"
+          id={`fcs-page-${parseInt(currentPage, 10)}-ld-json`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(ldJsonContent),
           }}
         />
         <link rel="prev" href={`https://www.redshirtsports.xyz${prevPageUrl}`} />
-        <link rel="next" href={`https://www.redshirtsports.xyz${nextPageUrl}`} />
+        {parseInt(currentPage, 10) < totalPages && (
+          <link rel="next" href={`https://www.redshirtsports.xyz${nextPageUrl}`} />
+        )}
       </Head>
       <SEO
         title={`FCS Football News, Rumors, and More - Page ${currentPage}`}
