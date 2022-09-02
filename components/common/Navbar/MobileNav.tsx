@@ -1,12 +1,11 @@
 import { Fragment } from 'react'
 import Link from 'next/link'
-import Image from 'next/future/image'
 import { Transition, Popover } from '@headlessui/react'
 import XIcon from '@heroicons/react/24/outline/XMarkIcon'
 import { usePlausible } from 'next-plausible'
 
 import { NAVIGATION_ITEMS } from '@lib/constants'
-import RSRedLogo from '../../../public/images/icons/RS_red.svg'
+import Logo from '../SmallLogo'
 
 const MobileNav = () => {
   const plausible = usePlausible()
@@ -28,7 +27,7 @@ const MobileNav = () => {
           <div className="px-5 pt-5 pb-6">
             <div className="flex items-center justify-between">
               <div>
-                <Image className="h-8 w-auto" src={RSRedLogo} alt="Redshirt Sports Logo" />
+                <Logo className="h-8 w-auto" />
               </div>
               <div className="-mr-2">
                 <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500">

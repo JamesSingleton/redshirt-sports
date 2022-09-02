@@ -4,6 +4,7 @@ import Image from 'next/future/image'
 import { usePlausible } from 'next-plausible'
 
 import RSRedHorizontalLogo from '@public/images/icons/RS_red_horizontal.svg'
+import { LargeLogo } from '@components/common'
 
 const navigation = {
   site: [
@@ -56,12 +57,9 @@ const Footer = () => {
                   })
                 }
                 className="block"
+                aria-label="Redshirt Sports Horizontal Logo, click to go to the homepage"
               >
-                <Image
-                  src={RSRedHorizontalLogo}
-                  alt="Redshirt Sports Horizontal Logo"
-                  className="h-10 w-auto"
-                />
+                <LargeLogo className="h-10 w-auto" />
               </a>
             </Link>
           </div>
