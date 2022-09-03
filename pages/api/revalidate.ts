@@ -34,13 +34,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     const jsonBody = JSON.parse(body)
-    const { type, slug, authorSlug } = jsonBody
+    const { type, slug, authorSlug, category } = jsonBody
 
     switch (type) {
       case 'post':
         await res.revalidate(`/${slug}`)
         await res.revalidate('/')
         await res.revalidate(`/authors/${authorSlug}`)
+        await res.revalidate(`/${category.toLowerCase()}`)
         return res.json({ success: true, message: `Revalidated "${type}" with slug "${slug}"` })
     }
 
