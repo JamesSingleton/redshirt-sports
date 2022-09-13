@@ -1,5 +1,5 @@
 import React, { FC, ComponentType, HTMLAttributes } from 'react'
-import cn from 'classnames'
+import clsx from 'clsx'
 
 interface ContainerProps {
   className?: string
@@ -8,13 +8,8 @@ interface ContainerProps {
   clean?: boolean
 }
 
-const Container: FC<ContainerProps> = ({
-  children,
-  className,
-  el = 'div',
-  clean,
-}) => {
-  const rootClassName = cn(className, {
+const Container: FC<ContainerProps> = ({ children, className, el = 'div', clean }) => {
+  const rootClassName = clsx(className, {
     'mx-auto py-12 px-4 max-w-7xl sm:px-6 lg:px-8 lg:py-24': !clean,
   })
 
