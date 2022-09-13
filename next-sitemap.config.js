@@ -13,7 +13,7 @@ function isServerSidePath(path) {
 
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.VERCEL_URL || 'https://www.redshirtsports.xyz',
+  siteUrl: 'https://www.redshirtsports.xyz',
   generateRobotsTxt: true,
   exclude: ['/fcs/page/*', '/fbs/page/*', '/search', '/sitemaps/*'],
   transform: (config, path) => {
@@ -67,8 +67,7 @@ module.exports = {
       },
     ],
     additionalSitemaps: sitemaps.map(
-      (sitemap) =>
-        `${process.env.VERCEL_URL || 'https://www.redshirtsports.xyz'}/sitemaps/${sitemap}`
+      (sitemap) => `https://www.redshirtsports.xyz/sitemaps/${sitemap}`
     ),
     includeNonIndexSitemaps: true,
   },
