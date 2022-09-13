@@ -11,6 +11,13 @@ export type Image = {
   }
 }
 
+export type Category = {
+  _id: string
+  _updatedAt: string
+  title: string
+  slug: string
+}
+
 export type Author = {
   _id: string
   _updatedAt: string

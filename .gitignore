@@ -12,6 +12,8 @@
 /.next/
 /out/
 /public/feeds/
+/public/*.xml
+/public/*.txt
 
 # production
 /build

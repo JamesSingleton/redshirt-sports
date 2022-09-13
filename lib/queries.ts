@@ -81,7 +81,10 @@ const legalFields = `
 `
 
 export const getCategories = groq`*[_type == "category"]{
-  title
+  _id,
+  title,
+  _updatedAt,
+  "slug": slug.current
 }`
 
 export const postQuery = groq`
