@@ -43,6 +43,15 @@ const myPortableTextComponents = {
   },
   marks: {
     internalLink: InternalLink,
+    link: ({ value, children }: PortableTextMarkComponentProps) => {
+      return value?.blank ? (
+        <a href={value.href} target="_blank" rel="noopener noreferrer">
+          {children}
+        </a>
+      ) : (
+        <a href={value?.href}>{children}</a>
+      )
+    },
   },
 }
 
