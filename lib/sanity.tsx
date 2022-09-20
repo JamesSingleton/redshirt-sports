@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from 'next/future/image'
 import Link from 'next/link'
 
 import createImageUrlBuilder from '@sanity/image-url'
@@ -16,11 +16,9 @@ const ImageComponent = ({ value, isInline }: { value: any; isInline: any }) => {
   return (
     <Image
       src={urlForImage(value).fit('min').auto('format').url()}
-      alt={value.alt || ' '}
+      alt={value.caption || ' '}
       width={width}
       height={height}
-      layout="responsive"
-      sizes="50vw"
     />
   )
 }
