@@ -8,13 +8,14 @@ const postFields = `
   "mainImage": {
     "caption": mainImage.caption,
     "attribution": mainImage.attribution,
-    "asset": mainImage.asset->{ 
+    "crop": mainImage.crop,
+    "hotspot": mainImage.hotspot,
+    "asset": mainImage.asset->{
       _id,
-      _ref,
       _type,
-      metadata,
-      url
-     }
+      url,
+      metadata
+    }
   },
   category,
   "slug": slug.current,

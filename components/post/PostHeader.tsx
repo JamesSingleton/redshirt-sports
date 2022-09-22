@@ -21,14 +21,13 @@ const PostHeader = ({ post }: PostHeaderProps) => {
     <header className="sm:px-10 sm:pt-10">
       <div className="mx-auto max-w-screen-lg">
         <Image
-          src={urlForImage(post.mainImage).quality(50).url()}
+          src={urlForImage(post.mainImage).width(1024).height(600).url()}
           alt={post.mainImage.caption}
           width={16}
           height={9}
           sizes="50vw"
           priority
-          quality={50}
-          className="h-80 w-full overflow-hidden object-cover md:h-150 md:rounded-2xl"
+          className="h-auto w-full overflow-hidden object-cover md:h-150 md:rounded-2xl"
         />
         <div className="flex pt-3 pl-5 text-sm lg:pl-0">
           <CameraIcon className="h-5 w-5 flex-none" aria-hidden="true" />

@@ -17,7 +17,7 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
       <a className="flex transition duration-300 ease-in-out hover:scale-105">
         <article className="flex flex-col overflow-hidden rounded-2xl shadow-xl">
           <Image
-            src={urlForImage(article.mainImage).quality(40).url()}
+            src={urlForImage(article.mainImage).width(400).height(200).quality(40).url()}
             alt={article.mainImage.caption}
             width={388}
             height={192}
