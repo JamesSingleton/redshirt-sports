@@ -3,7 +3,15 @@ import { usePlausible } from 'next-plausible'
 
 import { BlurImage } from '@components/ui'
 import { urlForImage, PortableTextComponent } from '@lib/sanity'
-import { Instagram, Twitter, Facebook, Website } from '@components/common/icons'
+import {
+  Instagram,
+  Twitter,
+  Facebook,
+  Website,
+  SpotifyIcon,
+  ApplePodcastIcon,
+  OvercastIcon,
+} from '@components/common/icons'
 
 import { Author } from '@types'
 
@@ -135,19 +143,29 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                         href={social.url}
                         target="_blank"
                         rel="noreferrer noopener"
+                        className="group"
                       >
                         <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
                         {social.name === 'Twitter' ? (
-                          <Twitter className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                          <Twitter className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Facebook' ? (
-                          <Facebook className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                          <Facebook className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Instagram' ? (
-                          <Instagram className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                          <Instagram className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Website' ? (
-                          <Website className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                          <Website className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                        ) : null}
+                        {social.name === 'Spotify Podcast' ? (
+                          <SpotifyIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                        ) : null}
+                        {social.name === 'Apple Podcast' ? (
+                          <ApplePodcastIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                        ) : null}
+                        {social.name === 'Overcast Podcast' ? (
+                          <OvercastIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                       </a>
                     </li>
