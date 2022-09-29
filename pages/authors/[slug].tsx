@@ -8,7 +8,15 @@ import { sanityClient } from '@lib/sanity.server'
 import { authorSlugsQuery, authorAndTheirPostsBySlug } from '@lib/queries'
 import { urlForImage, PortableTextComponent } from '@lib/sanity'
 import { HorizontalCard } from '@components/ui'
-import { Instagram, Twitter, Facebook, Website } from '@components/common/icons'
+import {
+  Instagram,
+  Twitter,
+  Facebook,
+  Website,
+  SpotifyIcon,
+  ApplePodcastIcon,
+  OvercastIcon,
+} from '@components/common/icons'
 import { createAuthorLDJson } from '@lib/createLDJson'
 
 import type { Author } from '@types'
@@ -92,21 +100,30 @@ const Author = ({ author }: AuthorProps) => {
                             })
                           }
                           target="_blank"
-                          className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-transparent transition duration-300 ease-in-out sm:h-12 sm:w-12"
+                          className="group flex"
                           rel="noreferrer noopener"
                         >
                           <span className="sr-only">{`${author.name}'s ${social.name} profile`}</span>
                           {social.name === 'Twitter' ? (
-                            <Twitter className="h-5 w-5 text-slate-700 transition duration-300 ease-in-out" />
+                            <Twitter className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                           ) : null}
                           {social.name === 'Facebook' ? (
-                            <Facebook className="h-5 w-5 text-slate-700 transition duration-300 ease-in-out" />
+                            <Facebook className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                           ) : null}
                           {social.name === 'Instagram' ? (
-                            <Instagram className="h-5 w-5 text-slate-700 transition duration-300 ease-in-out" />
+                            <Instagram className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                           ) : null}
                           {social.name === 'Website' ? (
-                            <Website className="h-5 w-5 text-slate-700 transition duration-300 ease-in-out" />
+                            <Website className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          ) : null}
+                          {social.name === 'Spotify Podcast' ? (
+                            <SpotifyIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          ) : null}
+                          {social.name === 'Apple Podcast' ? (
+                            <ApplePodcastIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          ) : null}
+                          {social.name === 'Overcast Podcast' ? (
+                            <OvercastIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                           ) : null}
                         </a>
                       </li>
