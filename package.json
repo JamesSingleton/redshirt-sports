@@ -13,7 +13,7 @@
     "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.2",
+    "@headlessui/react": "^1.7.3",
     "@heroicons/react": "^2.0.11",
     "@next/bundle-analyzer": "^12.3.1",
     "@portabletext/react": "^1.0.6",
@@ -21,8 +21,8 @@
     "@sanity/asset-utils": "^1.3.0",
     "@sanity/image-url": "^1.0.1",
     "@sanity/webhook": "^2.0.0",
-    "@sentry/nextjs": "^7.13.0",
-    "@sentry/tracing": "^7.13.0",
+    "@sentry/nextjs": "^7.14.0",
+    "@sentry/tracing": "^7.14.0",
     "clsx": "^1.2.1",
     "date-fns": "^2.29.3",
     "feed": "^4.2.2",
@@ -30,11 +30,11 @@
     "next": "^12.3.1",
     "next-plausible": "^3.6.3",
     "next-sanity": "^0.8.4",
-    "next-sitemap": "^3.1.22",
+    "next-sitemap": "^3.1.23",
     "querystring": "^0.2.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "sharp": "^0.31.0",
+    "sharp": "^0.31.1",
     "vhtml": "^2.2.0"
   },
   "devDependencies": {
@@ -49,14 +49,14 @@
     "eslint": "^8.24.0",
     "eslint-config-next": "^12.3.1",
     "eslint-config-prettier": "^8.5.0",
-    "postcss": "^8.4.16",
+    "postcss": "^8.4.17",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-nesting": "^10.2.0",
     "postcss-preset-env": "^7.8.2",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.13",
     "tailwindcss": "^3.1.8",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.4"
   },
   "next-unused": {
     "alias": {
