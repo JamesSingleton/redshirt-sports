@@ -6,5 +6,6 @@ import SEO from './SEO'
 import Head from './Head'
 import Logo from './SmallLogo'
 import LargeLogo from './LargeLogo'
+import { RectangularAd } from './AdUnits'
 
-export { SocialMediaFollow, SEO, Head, Logo, LargeLogo }
+export { SocialMediaFollow, SEO, Head, Logo, LargeLogo, RectangularAd }
