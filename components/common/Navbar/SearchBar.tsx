@@ -1,6 +1,10 @@
 import MagnifyingGlassIcon from '@heroicons/react/24/solid/MagnifyingGlassIcon'
+import { usePlausible } from 'next-plausible'
 
 const SearchBar = () => {
+  const plausible = usePlausible()
+  const input = document.getElementById('search') as HTMLInputElement
+
   return (
     <form
       className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end"
@@ -21,6 +25,13 @@ const SearchBar = () => {
             className="block w-full rounded-md border border-slate-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-slate-500 focus:border-brand-500 focus:placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:text-sm"
             placeholder="Search"
             type="search"
+            onChange={() =>
+              plausible('Search', {
+                props: {
+                  query: input.value ?? 'empty',
+                },
+              })
+            }
           />
         </div>
       </div>
