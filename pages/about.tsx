@@ -161,7 +161,14 @@ const About = ({ authors }: AboutProps) => {
                         {author.socialMedia?.map((social) => (
                           <li key={social._key}>
                             <a
-                              onClick={() => plausible('clickOnAuthorSocialMedia')}
+                              onClick={() =>
+                                plausible('clickOnAuthorSocialMedia', {
+                                  props: {
+                                    item: social.name,
+                                    url: social.url,
+                                  },
+                                })
+                              }
                               href={social.url}
                               target="_blank"
                               rel="noreferrer"

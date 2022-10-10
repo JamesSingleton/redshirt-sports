@@ -96,6 +96,7 @@ const Author = ({ author }: AuthorProps) => {
                             plausible('clickOnAuthorSocialMedia', {
                               props: {
                                 item: social.name,
+                                url: social.url,
                               },
                             })
                           }

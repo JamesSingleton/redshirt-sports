@@ -137,6 +137,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                           plausible('clickOnAuthorSocialMedia', {
                             props: {
                               item: social.name,
+                              url: social.url,
                             },
                           })
                         }
