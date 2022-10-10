@@ -1,15 +1,23 @@
+import { useRef } from 'react'
 import MagnifyingGlassIcon from '@heroicons/react/24/solid/MagnifyingGlassIcon'
 import { usePlausible } from 'next-plausible'
 
 const SearchBar = () => {
+  const inputRef = useRef<HTMLInputElement>(null)
   const plausible = usePlausible()
-  const input = document.getElementById('search') as HTMLInputElement
+
+  const searchArticles = () => {
+    if (inputRef.current !== null && inputRef.current.value.length > 0) {
+      plausible('Search', { props: { query: inputRef.current.value } })
+    }
+  }
 
   return (
     <form
       className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end"
       action="/search"
       role="search"
+      onSubmit={() => searchArticles()}
     >
       <div className="w-full max-w-lg lg:max-w-xs">
         <label htmlFor="search" className="sr-only">
@@ -20,18 +28,12 @@ const SearchBar = () => {
             <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" aria-hidden="true" />
           </div>
           <input
+            ref={inputRef}
             id="search"
             name="query"
             className="block w-full rounded-md border border-slate-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-slate-500 focus:border-brand-500 focus:placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:text-sm"
             placeholder="Search"
             type="search"
-            onChange={() =>
-              plausible('Search', {
-                props: {
-                  query: input.value ?? 'empty',
-                },
-              })
-            }
           />
         </div>
       </div>
