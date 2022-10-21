@@ -20,14 +20,12 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
         <a onClick={() => plausible('clickOnHeroArticle')}>
           <div className="aspect-w-16 aspect-h-9 ">
             <Image
-              src={urlForImage(post.mainImage).width(704).height(396).quality(40).url()}
+              src={urlForImage(post.mainImage).width(704).height(396).url()}
               alt={post.mainImage.caption}
               className="overflow-hidden rounded-2xl object-cover"
               width={704}
               height={396}
               priority={true}
-              quality={40}
-              // sizes="50vw"
               placeholder="blur"
               blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
             />
