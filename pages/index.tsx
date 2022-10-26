@@ -1,7 +1,6 @@
 import Head from 'next/head'
-import Script from 'next/script'
 
-import { Layout, SocialMediaFollow, SEO, RectangularAd } from '@components/common'
+import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { Hero, FeaturedArticles, ArticleSection, MostRead } from '@components/home'
 import { sanityClient } from '@lib/sanity.server'
 import { homePageQuery } from '@lib/queries'
@@ -73,15 +72,6 @@ export default function Home({
   }
   return (
     <>
-      <Script
-        id="Adsense"
-        onError={(e) => {
-          console.error('Script failed to load', e)
-        }}
-        strategy="afterInteractive"
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT}`}
-        crossOrigin="anonymous"
-      />
       <Head>
         <script
           id="home-ld-json"
@@ -97,7 +87,6 @@ export default function Home({
         <section className="relative mx-auto max-w-7xl py-12 md:py-16 lg:py-20 lg:px-8">
           <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8">
             <div className="col-span-2">
-              <RectangularAd client={process.env.NEXT_PUBLIC_ADSENSE_ID!} slot="9178230911" />
               <ArticleSection otherArticles={otherArticles} />
             </div>
             <div className="mx-auto mt-12 w-full max-w-xl space-y-8 px-4 sm:mt-16 sm:px-6 md:max-w-3xl md:px-8 lg:col-span-1 lg:mt-0 lg:max-w-none lg:px-0">
