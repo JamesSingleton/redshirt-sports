@@ -81,11 +81,12 @@ const legalFields = `
   body
 `
 
-export const getCategories = groq`*[_type == "category"]{
+export const getCategories = groq`*[_type == "category" && count(*[_type == 'post' && references(^._id)]) > 0]{
   _id,
   title,
   _updatedAt,
-  "slug": slug.current
+  "slug": slug.current,
+  description
 }`
 
 export const postQuery = groq`

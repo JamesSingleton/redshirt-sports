@@ -1,19 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
+import { Navbar, Footer } from '@components/common'
 
-import Navbar from '../Navbar'
-import Footer from '../Footer'
+import { WithChildren } from '@types'
 
-import { WithChildren, Meta } from '@types'
-
-interface LayoutProps extends WithChildren {
-  meta?: Meta
-  siteId?: string
-  subdomain?: string
-}
-
-export default function Layout({ meta, children, subdomain }: LayoutProps) {
+export default function Layout({ children }: WithChildren) {
   return (
     <>
       <Navbar />
