@@ -52,7 +52,7 @@ const Breadcrumbs = ({ breadCrumbPages }: BreadCrumbsProps) => {
                       },
                     })
                   }
-                  className="ml-4 text-sm font-medium uppercase text-slate-500 hover:text-slate-700"
+                  className="ml-4 text-sm font-medium text-slate-500 hover:text-slate-700"
                   aria-current={page.href === asPath ? 'page' : undefined}
                 >
                   {page.name}

@@ -94,7 +94,7 @@ const FCS = ({ posts, totalPosts, totalPages, currentPage }: fcsProps) => {
       />
       <Layout>
         <CategoryHeader
-          title="Latest FCS News"
+          title="Latest FCS Football News"
           aboveTitle="Football Championship Subdivision"
           breadCrumbPages={breadCrumbPages}
         />
