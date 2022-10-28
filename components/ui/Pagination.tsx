@@ -39,20 +39,20 @@ export default function Pagination({
             Previous
           </span>
         ) : (
-          <Link href={prevPageUrl} prefetch={false}>
-            <a
-              onClick={() =>
-                plausible('clickOnPagination', {
-                  props: {
-                    direction: 'previous',
-                  },
-                })
-              }
-              aria-label="Previous Page"
-              className="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Previous
-            </a>
+          <Link
+            href={prevPageUrl}
+            prefetch={false}
+            onClick={() =>
+              plausible('clickOnPagination', {
+                props: {
+                  direction: 'previous',
+                },
+              })
+            }
+            aria-label="Previous Page"
+            className="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Previous
           </Link>
         )}
         {nextDisabled ? (
@@ -60,20 +60,20 @@ export default function Pagination({
             Next
           </span>
         ) : (
-          <Link href={nextPageUrl} prefetch={false}>
-            <a
-              onClick={() =>
-                plausible('clickOnPagination', {
-                  props: {
-                    direction: 'next',
-                  },
-                })
-              }
-              aria-label="Next Page"
-              className="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Next
-            </a>
+          <Link
+            href={nextPageUrl}
+            prefetch={false}
+            onClick={() =>
+              plausible('clickOnPagination', {
+                props: {
+                  direction: 'next',
+                },
+              })
+            }
+            aria-label="Next Page"
+            className="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Next
           </Link>
         )}
       </div>

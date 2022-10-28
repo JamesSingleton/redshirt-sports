@@ -148,11 +148,13 @@ const About = ({ authors }: AboutProps) => {
                       />
                       <div className="mt-6 leading-6">
                         <h3 className="font-cal text-xl font-medium text-slate-900">
-                          <Link href={`/authors/${author.slug}`} prefetch={false}>
-                            <a onClick={() => plausible('clickOnAuthor')}>
-                              <span aria-hidden="true" className="absolute inset-0" />
-                              {author.name}
-                            </a>
+                          <Link
+                            href={`/authors/${author.slug}`}
+                            prefetch={false}
+                            onClick={() => plausible('clickOnAuthor')}
+                          >
+                            <span aria-hidden="true" className="absolute inset-0" />
+                            {author.name}
                           </Link>
                         </h3>
                         <span className="mt-1 text-base text-brand-500">{author.role}</span>
@@ -207,13 +209,13 @@ const About = ({ authors }: AboutProps) => {
               get started writing content for the FCS, we are always looking for new writers to join
               our team.
             </p>
-            <Link href="/contact" prefetch={false}>
-              <a
-                onClick={() => plausible('Join Our Team')}
-                className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-brand-600 hover:bg-brand-50 sm:w-auto"
-              >
-                Join our team
-              </a>
+            <Link
+              href="/contact"
+              prefetch={false}
+              onClick={() => plausible('Join Our Team')}
+              className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-brand-600 hover:bg-brand-50 sm:w-auto"
+            >
+              Join our team
             </Link>
           </div>
         </section>
