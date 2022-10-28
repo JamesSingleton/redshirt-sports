@@ -85,11 +85,12 @@ export const getCategories = groq`*[_type == "category" && count(*[_type == 'pos
   _id,
   title,
   _updatedAt,
+  "parentSlug": parent->slug.current,
   "slug": slug.current,
   description
 }`
 
-export const getSubCategories = groq`*[_type == "category" && defined(parent->slug.current) && slug.current == parent->slug.current + "/" + $slug && count(*[_type == 'post' && references(^._id)]) > 0][0]{
+export const getSubCategories = groq`*[_type == "category" && defined(parent->slug.current) && slug.current == $slug && count(*[_type == 'post' && references(^._id)]) > 0][0]{
   _id,
   title,
   _updatedAt,
