@@ -24,19 +24,19 @@ const Navbar = () => {
             <div className="flex h-16 justify-between">
               <div className="flex px-2 lg:px-0">
                 <div className="flex flex-shrink-0 items-center">
-                  <Link href="/" prefetch={false}>
-                    <a
-                      onClick={() =>
-                        plausible('clickOnNavbar', {
-                          props: {
-                            item: 'Home',
-                          },
-                        })
-                      }
-                      aria-label="Redshirt Sports Small Logo, click to go to the homepage"
-                    >
-                      <Logo className="h-8 w-auto" />
-                    </a>
+                  <Link
+                    href="/"
+                    prefetch={false}
+                    onClick={() =>
+                      plausible('clickOnNavbar', {
+                        props: {
+                          item: 'Home',
+                        },
+                      })
+                    }
+                    aria-label="Redshirt Sports Small Logo, click to go to the homepage"
+                  >
+                    <Logo className="h-8 w-auto" />
                   </Link>
                 </div>
                 <nav
@@ -45,24 +45,25 @@ const Navbar = () => {
                   aria-label="Main Navigation"
                 >
                   {NAVIGATION_ITEMS.map(({ name, href }) => (
-                    <Link href={href} key={name} prefetch={false}>
-                      <a
-                        onClick={() =>
-                          plausible('clickOnNavbar', {
-                            props: {
-                              item: name,
-                            },
-                          })
-                        }
-                        className={clsx(
-                          'inline-flex items-center border-b-2 px-1 pt-1 text-lg font-medium',
-                          router.pathname === href
-                            ? 'border-brand-500 text-slate-900'
-                            : 'border-transparent text-slate-800 hover:border-slate-300 hover:text-slate-700'
-                        )}
-                      >
-                        {name}
-                      </a>
+                    <Link
+                      href={href}
+                      key={name}
+                      prefetch={false}
+                      onClick={() =>
+                        plausible('clickOnNavbar', {
+                          props: {
+                            item: name,
+                          },
+                        })
+                      }
+                      className={clsx(
+                        'inline-flex items-center border-b-2 px-1 pt-1 text-lg font-medium',
+                        router.pathname === href
+                          ? 'border-brand-500 text-slate-900'
+                          : 'border-transparent text-slate-800 hover:border-slate-300 hover:text-slate-700'
+                      )}
+                    >
+                      {name}
                     </Link>
                   ))}
                 </nav>

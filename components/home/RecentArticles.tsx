@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/future/image'
+import Image from 'next/image'
 import { usePlausible } from 'next-plausible'
 
 import { BlurImage, Date, MinimalHorizontalCard } from '@components/ui'
@@ -22,61 +22,61 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
       <div className="grid divide-y lg:grid-cols-2 lg:gap-5 xl:grid-cols-1">
         {recentArticles.map((post) => (
           <article key={post.title} className="py-8">
-            <Link href={`/${post.slug}`} prefetch={false}>
-              <a
-                onClick={() =>
-                  plausible('clickOnRecentArticle', {
-                    props: {
-                      title: post.title,
-                    },
-                  })
-                }
-                className="group md:flex lg:flex-col xl:flex-row xl:items-center"
-              >
-                <div className="order-2 w-full md:w-2/5 lg:order-1 lg:w-full xl:w-2/5">
-                  <div className="aspect-w-16 aspect-h-9">
+            <Link
+              href={`/${post.slug}`}
+              prefetch={false}
+              onClick={() =>
+                plausible('clickOnRecentArticle', {
+                  props: {
+                    title: post.title,
+                  },
+                })
+              }
+              className="group md:flex lg:flex-col xl:flex-row xl:items-center"
+            >
+              <div className="order-2 w-full md:w-2/5 lg:order-1 lg:w-full xl:w-2/5">
+                <div className="aspect-w-16 aspect-h-9">
+                  <Image
+                    src={urlForImage(post.mainImage).quality(40).url()}
+                    alt={post.mainImage.caption}
+                    width={358}
+                    height={201}
+                    sizes="50vw"
+                    placeholder="blur"
+                    blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
+                    className="overflow-hidden rounded-2xl object-cover"
+                    quality={40}
+                  />
+                </div>
+              </div>
+              <div className="order-1 mt-5 w-full px-2 md:mt-0 md:max-w-sm md:pl-0 md:pr-5 lg:order-2 lg:mt-4 xl:ml-5 xl:mt-0 xl:flex-1">
+                <span className="text-xs font-medium uppercase tracking-widest text-brand-500 duration-300 ease-in-out">
+                  {post.category}
+                </span>
+                <h3 className="=transition mt-2 font-cal text-xl font-medium leading-normal tracking-normal duration-300 ease-in-out">
+                  {post.title}
+                </h3>
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex items-center justify-center">
                     <Image
-                      src={urlForImage(post.mainImage).quality(40).url()}
-                      alt={post.mainImage.caption}
-                      width={358}
-                      height={201}
-                      sizes="50vw"
-                      placeholder="blur"
-                      blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
-                      className="overflow-hidden rounded-2xl object-cover"
+                      alt={`${post.author.name}'s avatar`}
+                      src={urlForImage(post.author.image).width(48).height(48).quality(40).url()}
+                      width={48}
+                      height={48}
+                      className="mr-3 h-6 w-6 overflow-hidden rounded-full"
                       quality={40}
                     />
-                  </div>
-                </div>
-                <div className="order-1 mt-5 w-full px-2 md:mt-0 md:max-w-sm md:pl-0 md:pr-5 lg:order-2 lg:mt-4 xl:ml-5 xl:mt-0 xl:flex-1">
-                  <span className="text-xs font-medium uppercase tracking-widest text-brand-500 duration-300 ease-in-out">
-                    {post.category}
-                  </span>
-                  <h3 className="=transition mt-2 font-cal text-xl font-medium leading-normal tracking-normal duration-300 ease-in-out">
-                    {post.title}
-                  </h3>
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center justify-center">
-                      <Image
-                        alt={`${post.author.name}'s avatar`}
-                        src={urlForImage(post.author.image).width(48).height(48).quality(40).url()}
-                        width={48}
-                        height={48}
-                        className="mr-3 h-6 w-6 overflow-hidden rounded-full"
-                        quality={40}
-                      />
-                      <div className="text-sm">
-                        <span className="text-slate-500">By </span>
-                        <span className="font-medium text-slate-700 decoration-inherit">
-                          {post.author.name}
-                        </span>
-                        <span aria-hidden="true"> &middot; </span>
-                        <Date dateString={post.publishedAt} />
-                      </div>
+                    <div className="text-sm">
+                      <span className="text-slate-500">By </span>
+                      <span className="font-medium text-slate-700 decoration-inherit">
+                        {post.author.name}
+                      </span>
+                      <span aria-hidden="true"> &middot; </span>
+                      <Date dateString={post.publishedAt} />
                     </div>
                   </div>
                 </div>
-              </a>
+              </div>
             </Link>
           </article>
         ))}

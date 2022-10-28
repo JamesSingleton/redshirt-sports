@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
-import Image from 'next/future/image'
+import Image from 'next/image'
 import { usePlausible } from 'next-plausible'
 
 import { Layout, SEO } from '@components/common'
@@ -97,7 +97,7 @@ const About = ({ authors }: AboutProps) => {
           subheading="The new kid on the block when it comes to reporting on the FCS"
         />
         <section className="py-12 sm:py-20 lg:pt-24">
-          <div className="prose prose-xl mx-auto px-5 sm:px-6 lg:max-w-7xl lg:px-8">
+          <div className="prose-xl prose mx-auto px-5 sm:px-6 lg:max-w-7xl lg:px-8">
             <p>
               Redshirt Sports launched at the end of the 2021 season in order to provide another
               platform for FCS content. We are dedicated to the FCS and the community, and we hope
@@ -148,11 +148,13 @@ const About = ({ authors }: AboutProps) => {
                       />
                       <div className="mt-6 leading-6">
                         <h3 className="font-cal text-xl font-medium text-slate-900">
-                          <Link href={`/authors/${author.slug}`} prefetch={false}>
-                            <a onClick={() => plausible('clickOnAuthor')}>
-                              <span aria-hidden="true" className="absolute inset-0" />
-                              {author.name}
-                            </a>
+                          <Link
+                            href={`/authors/${author.slug}`}
+                            prefetch={false}
+                            onClick={() => plausible('clickOnAuthor')}
+                          >
+                            <span aria-hidden="true" className="absolute inset-0" />
+                            {author.name}
                           </Link>
                         </h3>
                         <span className="mt-1 text-base text-brand-500">{author.role}</span>
@@ -207,13 +209,13 @@ const About = ({ authors }: AboutProps) => {
               get started writing content for the FCS, we are always looking for new writers to join
               our team.
             </p>
-            <Link href="/contact" prefetch={false}>
-              <a
-                onClick={() => plausible('Join Our Team')}
-                className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-brand-600 hover:bg-brand-50 sm:w-auto"
-              >
-                Join our team
-              </a>
+            <Link
+              href="/contact"
+              prefetch={false}
+              onClick={() => plausible('Join Our Team')}
+              className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-brand-600 hover:bg-brand-50 sm:w-auto"
+            >
+              Join our team
             </Link>
           </div>
         </section>

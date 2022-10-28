@@ -95,34 +95,36 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-col sm:flex-row">
             <div className="shrink-0">
-              <Link href={`/authors/${author.slug}`} prefetch={false}>
-                <a
-                  onClick={() => plausible('clickOnAuthor')}
-                  className="relative block h-20 w-20 overflow-hidden rounded-2xl bg-slate-100 sm:h-24 sm:w-24"
-                >
-                  <BlurImage
-                    alt={author.name}
-                    src={urlForImage(author.image).width(100).height(100).url()}
-                    blurDataURL={author.image.asset.metadata.lqip ?? undefined}
-                    layout="responsive"
-                    className="rounded-2xl"
-                    width={96}
-                    height={96}
-                  />
-                </a>
+              <Link
+                href={`/authors/${author.slug}`}
+                prefetch={false}
+                onClick={() => plausible('clickOnAuthor')}
+                className="relative block h-20 w-20 overflow-hidden rounded-2xl bg-slate-100 sm:h-24 sm:w-24"
+              >
+                <BlurImage
+                  alt={author.name}
+                  src={urlForImage(author.image).width(100).height(100).url()}
+                  blurDataURL={author.image.asset.metadata.lqip ?? undefined}
+                  className="rounded-2xl"
+                  width={96}
+                  height={96}
+                />
               </Link>
             </div>
             <div className="mt-5 text-left sm:ml-6 sm:mt-0">
               <div className="flex items-center justify-between">
-                <Link href={`/authors/${author.slug}`} prefetch={false}>
-                  <a onClick={() => plausible('clickOnAuthor')} className="flex-col">
-                    <span className="block text-sm uppercase tracking-widest text-brand-500">
-                      {author.role}
-                    </span>
-                    <span className="mt-1 text-xl font-medium tracking-normal text-slate-900 md:tracking-tight lg:leading-tight">
-                      {author.name}
-                    </span>
-                  </a>
+                <Link
+                  href={`/authors/${author.slug}`}
+                  prefetch={false}
+                  onClick={() => plausible('clickOnAuthor')}
+                  className="flex-col"
+                >
+                  <span className="block text-sm uppercase tracking-widest text-brand-500">
+                    {author.role}
+                  </span>
+                  <span className="mt-1 text-xl font-medium tracking-normal text-slate-900 md:tracking-tight lg:leading-tight">
+                    {author.name}
+                  </span>
                 </Link>
               </div>
               <div className="mt-3 text-base leading-loose text-slate-500 line-clamp-3">

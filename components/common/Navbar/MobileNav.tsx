@@ -39,19 +39,20 @@ const MobileNav = () => {
             <div className="mt-6">
               <nav className="grid gap-y-4">
                 {NAVIGATION_ITEMS.map((item) => (
-                  <Link key={item.name} href={item.href} prefetch={false}>
-                    <a
-                      onClick={() => {
-                        plausible('clickOnMobileNavbar', {
-                          props: {
-                            item: item.name,
-                          },
-                        })
-                      }}
-                      className="-m-3 flex items-center rounded-md p-3 text-slate-900 hover:bg-slate-50"
-                    >
-                      {item.name}
-                    </a>
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    prefetch={false}
+                    onClick={() => {
+                      plausible('clickOnMobileNavbar', {
+                        props: {
+                          item: item.name,
+                        },
+                      })
+                    }}
+                    className="-m-3 flex items-center rounded-md p-3 text-slate-900 hover:bg-slate-50"
+                  >
+                    {item.name}
                   </Link>
                 ))}
               </nav>

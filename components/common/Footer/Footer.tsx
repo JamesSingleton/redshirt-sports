@@ -1,6 +1,6 @@
 import { SVGProps } from 'react'
 import Link from 'next/link'
-import Image from 'next/future/image'
+import Image from 'next/image'
 import { usePlausible } from 'next-plausible'
 
 import RSRedHorizontalLogo from '@public/images/icons/RS_red_horizontal.svg'
@@ -47,20 +47,20 @@ const Footer = () => {
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <div className="flex items-center justify-center">
-            <Link href="/" prefetch={false}>
-              <a
-                onClick={() =>
-                  plausible('clickOnFooter', {
-                    props: {
-                      item: 'Home',
-                    },
-                  })
-                }
-                className="block"
-                aria-label="Redshirt Sports Horizontal Logo, click to go to the homepage"
-              >
-                <LargeLogo className="h-10 w-auto" />
-              </a>
+            <Link
+              href="/"
+              prefetch={false}
+              onClick={() =>
+                plausible('clickOnFooter', {
+                  props: {
+                    item: 'Home',
+                  },
+                })
+              }
+              className="block"
+              aria-label="Redshirt Sports Horizontal Logo, click to go to the homepage"
+            >
+              <LargeLogo className="h-10 w-auto" />
             </Link>
           </div>
           <div className="mt-6 flex items-center justify-center sm:mt-0">
@@ -97,19 +97,20 @@ const Footer = () => {
             className="-my-2 flex flex-wrap items-center justify-center space-x-5 md:justify-start"
           >
             {navigation.site.map(({ name, href }) => (
-              <Link key={name} href={href} prefetch={false}>
-                <a
-                  onClick={() =>
-                    plausible('clickOnFooter', {
-                      props: {
-                        item: name,
-                      },
-                    })
-                  }
-                  className="py-2 text-base text-slate-500 transition duration-300 ease-in-out"
-                >
-                  {name}
-                </a>
+              <Link
+                key={name}
+                href={href}
+                prefetch={false}
+                onClick={() =>
+                  plausible('clickOnFooter', {
+                    props: {
+                      item: name,
+                    },
+                  })
+                }
+                className="py-2 text-base text-slate-500 transition duration-300 ease-in-out"
+              >
+                {name}
               </Link>
             ))}
           </nav>
