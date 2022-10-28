@@ -16,6 +16,9 @@ export type Category = {
   _updatedAt: string
   title: string
   slug: string
+  parentSlug?: string
+  parentTitle?: string
+  description: string
 }
 
 export type Author = {

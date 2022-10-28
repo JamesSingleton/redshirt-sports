@@ -85,9 +85,25 @@ export const getCategories = groq`*[_type == "category" && count(*[_type == 'pos
   _id,
   title,
   _updatedAt,
+  "parentSlug": parent->slug.current,
   "slug": slug.current,
   description
 }`
+
+export const getSubCategories = groq`*[_type == "category" && defined(parent->slug.current) && slug.current == $slug && count(*[_type == 'post' && references(^._id)]) > 0][0]{
+  _id,
+  title,
+  _updatedAt,
+  "parentSlug": parent->slug.current,
+  "parentTitle": parent->title,
+  "slug": slug.current,
+  description,
+  "posts": *[_type == 'post' && references(^._id)] | order(publishedAt desc) {
+    ${litePostFields}
+  }
+}`
+
+export const subCategorySlugs = groq`*[_type == "category" && defined(parent->slug.current) && count(*[_type == 'post' && references(^._id)]) > 0][].slug.current`
 
 export const postQuery = groq`
 *[_type == "post" && slug.current == $slug]{

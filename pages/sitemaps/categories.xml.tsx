@@ -11,10 +11,13 @@ export default function CategoriesSitemap() {}
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const categories = await sanityClient.fetch<Category[]>(getCategories)
 
-  const categoryFields = categories.map((category) => ({
-    loc: `https://www.redshirtsports.xyz/${category.slug}`,
-    lastmod: category._updatedAt,
-  }))
+  const categoryFields = categories.map(({ slug, parentSlug, _updatedAt }) => {
+    const url: string = parentSlug !== null ? `/${parentSlug}/${slug}` : `/${slug}`
+    return {
+      loc: `https://www.redshirtsports.xyz${url}`,
+      lastmod: _updatedAt,
+    }
+  })
 
   const sitemap = [...categoryFields]
 
