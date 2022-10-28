@@ -1,6 +1,6 @@
 import { SVGProps } from 'react'
 import Link from 'next/link'
-import Image from 'next/future/image'
+import Image from 'next/image'
 import { usePlausible } from 'next-plausible'
 
 import RSRedHorizontalLogo from '@public/images/icons/RS_red_horizontal.svg'

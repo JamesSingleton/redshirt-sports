@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import Link from 'next/link'
-import Image from 'next/future/image'
+import Image from 'next/image'
 
 import { Date, BlurImage } from '@components/ui'
 import { urlForImage } from '@lib/sanity'

@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
-import Image from 'next/future/image'
+import Image from 'next/image'
 import { usePlausible } from 'next-plausible'
 
 import { Layout, SEO } from '@components/common'
@@ -97,7 +97,7 @@ const About = ({ authors }: AboutProps) => {
           subheading="The new kid on the block when it comes to reporting on the FCS"
         />
         <section className="py-12 sm:py-20 lg:pt-24">
-          <div className="prose prose-xl mx-auto px-5 sm:px-6 lg:max-w-7xl lg:px-8">
+          <div className="prose-xl prose mx-auto px-5 sm:px-6 lg:max-w-7xl lg:px-8">
             <p>
               Redshirt Sports launched at the end of the 2021 season in order to provide another
               platform for FCS content. We are dedicated to the FCS and the community, and we hope

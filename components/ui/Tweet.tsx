@@ -219,9 +219,8 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
               alt={url_meta.title}
               width={2048}
               height={1000}
-              objectFit="cover"
               src={url_meta.images[0].url}
-              className="transition-all duration-150 ease-in-out hover:brightness-90"
+              className="object-cover transition-all duration-150 ease-in-out hover:brightness-90"
             />
             <div className="w-full bg-white px-8 py-2">
               <p className="!m-0">{url_meta.title}</p>

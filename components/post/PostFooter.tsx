@@ -104,7 +104,6 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                     alt={author.name}
                     src={urlForImage(author.image).width(100).height(100).url()}
                     blurDataURL={author.image.asset.metadata.lqip ?? undefined}
-                    layout="responsive"
                     className="rounded-2xl"
                     width={96}
                     height={96}
