@@ -33,7 +33,15 @@ export default function SubCategory({
   ]
   return (
     <>
-      <SEO title={`${title} Football`} description={description} />
+      <SEO
+        title={`${title} Football`}
+        description={description}
+        openGraph={{
+          title: `${title} Football | Redshirt Sports`,
+          description,
+          url: `https://www.redshirtsports.xyz/${parentSlug}/${slug}`,
+        }}
+      />
       <Layout>
         <CategoryHeader
           title={`Latest ${title} Football News`}
