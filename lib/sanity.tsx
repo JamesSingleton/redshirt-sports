@@ -24,8 +24,14 @@ const ImageComponent = ({ value, isInline }: { value: any; isInline: any }) => {
 }
 
 export const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
+  let linkHref = `/${value?.slug.current}`
+
+  if (value?.parentSlug) {
+    linkHref = `/${value.parentSlug}/${value.slug.current}`
+  }
+
   return (
-    <Link href={`/${value?.slug.current}`} prefetch={false}>
+    <Link href={linkHref} prefetch={false}>
       {children}
     </Link>
   )
