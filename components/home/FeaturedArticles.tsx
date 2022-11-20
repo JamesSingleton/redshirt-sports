@@ -13,7 +13,7 @@ const FeaturedArticles: FC<FeaturedArticlesProps> = ({ featuredArticles }) => (
     <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
       Featured
     </h2>
-    <div className="pt-6">
+    <div className="space-y-6 pt-6 sm:space-y-5 lg:space-y-6 xl:space-y-5">
       {featuredArticles.map((featuredArticle) => (
         <MinimalHorizontalCard
           key={featuredArticle._id}
