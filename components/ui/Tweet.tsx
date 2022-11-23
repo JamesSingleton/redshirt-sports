@@ -295,11 +295,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        <time
-          title={`Time Posted: ${createdAt.toUTCString()}`}
-          dateTime={createdAt.toISOString()}
-          suppressHydrationWarning
-        >
+        <time title={`Time Posted: ${createdAt.toUTCString()}`} dateTime={createdAt.toISOString()}>
           {format(createdAt, 'h:mm a - MMM d, y')}
         </time>
       </a>
