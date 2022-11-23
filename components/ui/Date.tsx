@@ -10,7 +10,7 @@ export default function Date({ dateString, className }: DateProps) {
   const date = parseISO(dateString)
 
   return (
-    <time dateTime={dateString} className={className}>
+    <time dateTime={dateString} className={className} suppressHydrationWarning>
       {format(date, 'LLL d, yyyy')}
     </time>
   )
