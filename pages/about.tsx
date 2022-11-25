@@ -3,6 +3,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePlausible } from 'next-plausible'
+import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
 import { Layout, SEO } from '@components/common'
 import { PageHeader } from '@components/ui'
@@ -97,7 +98,7 @@ const About = ({ authors }: AboutProps) => {
           subheading="The new kid on the block when it comes to reporting on the FCS"
         />
         <section className="py-12 sm:py-20 lg:pt-24">
-          <div className="prose-xl prose mx-auto px-5 sm:px-6 lg:max-w-7xl lg:px-8">
+          <div className="prose prose-xl mx-auto px-5 sm:px-6 lg:max-w-7xl lg:px-8">
             <p>
               Redshirt Sports launched at the end of the 2021 season in order to provide another
               platform for FCS content. We are dedicated to the FCS and the community, and we hope
@@ -176,6 +177,9 @@ const About = ({ authors }: AboutProps) => {
                               rel="noreferrer"
                             >
                               <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
+                              {social.name === 'Email' ? (
+                                <EnvelopeOpenIcon className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                              ) : null}
                               {social.name === 'Twitter' ? (
                                 <Twitter className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
                               ) : null}
@@ -186,7 +190,7 @@ const About = ({ authors }: AboutProps) => {
                                 <Instagram className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
                               ) : null}
                               {social.name === 'Website' ? (
-                                <Website className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                                <GlobeAltIcon className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
                               ) : null}
                             </a>
                           </li>

@@ -2,6 +2,7 @@ import { GetStaticProps, GetStaticPaths } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import { usePlausible } from 'next-plausible'
+import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
 import { Layout, SEO } from '@components/common'
 import { sanityClient } from '@lib/sanity.server'
@@ -12,7 +13,6 @@ import {
   Instagram,
   Twitter,
   Facebook,
-  Website,
   SpotifyIcon,
   ApplePodcastIcon,
   OvercastIcon,
@@ -105,6 +105,9 @@ const Author = ({ author }: AuthorProps) => {
                           rel="noreferrer noopener"
                         >
                           <span className="sr-only">{`${author.name}'s ${social.name} profile`}</span>
+                          {social.name === 'Email' ? (
+                            <EnvelopeOpenIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          ) : null}
                           {social.name === 'Twitter' ? (
                             <Twitter className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                           ) : null}
@@ -115,7 +118,7 @@ const Author = ({ author }: AuthorProps) => {
                             <Instagram className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                           ) : null}
                           {social.name === 'Website' ? (
-                            <Website className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                            <GlobeAltIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                           ) : null}
                           {social.name === 'Spotify Podcast' ? (
                             <SpotifyIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />

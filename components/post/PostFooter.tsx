@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { usePlausible } from 'next-plausible'
+import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
 import { BlurImage } from '@components/ui'
 import { urlForImage, PortableTextComponent } from '@lib/sanity'
@@ -7,7 +8,6 @@ import {
   Instagram,
   Twitter,
   Facebook,
-  Website,
   SpotifyIcon,
   ApplePodcastIcon,
   OvercastIcon,
@@ -149,6 +149,9 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                         className="group"
                       >
                         <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
+                        {social.name === 'Email' ? (
+                          <EnvelopeOpenIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                        ) : null}
                         {social.name === 'Twitter' ? (
                           <Twitter className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
@@ -159,7 +162,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                           <Instagram className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Website' ? (
-                          <Website className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <GlobeAltIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Spotify Podcast' ? (
                           <SpotifyIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
