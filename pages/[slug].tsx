@@ -1,6 +1,4 @@
-import { useCallback, useEffect } from 'react'
 import Head from 'next/head'
-import { usePlausible } from 'next-plausible'
 
 import { Layout, SEO } from '@components/common'
 import { sanityClient } from '@lib/sanity.server'
@@ -21,33 +19,7 @@ interface PostProps {
 
 export default function Post({ currentPost, morePosts }: PostProps) {
   const content = createPostLDJson(currentPost)
-  const plausible = usePlausible()
 
-  const onScroll = useCallback(
-    (headings: any[], observer: { unobserve: (arg0: any) => void }) => {
-      const activeHeading = headings.find((heading) => heading.isIntersecting)
-
-      if (activeHeading) {
-        observer.unobserve(activeHeading.target)
-        plausible('Reading Progress', {
-          props: {
-            section: `${activeHeading.target.tagName} ${activeHeading.target.textContent}`,
-          },
-        })
-      }
-    },
-    [plausible]
-  )
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(onScroll, {
-      rootMargin: '0px 0px -40% 0px',
-    })
-
-    const headingElements = Array.from(document.querySelectorAll('h1, h2, h3, h4'))
-    headingElements.forEach((element) => observer.observe(element))
-    return () => observer.disconnect()
-  }, [onScroll])
   return (
     <>
       <Head>
@@ -88,7 +60,7 @@ export default function Post({ currentPost, morePosts }: PostProps) {
         <article className="bg-slate-50 pb-12 sm:pb-16 lg:pb-24">
           <PostHeader post={currentPost} />
           <div className="px-5 lg:px-0">
-            <div className="prose-md prose m-auto w-11/12 prose-a:text-blue-600 hover:prose-a:text-blue-500 sm:prose-lg sm:w-3/4">
+            <div className="prose-md prose m-auto w-11/12 prose-a:text-blue-600 hover:prose-a:text-blue-500 sm:w-3/4 sm:prose-lg">
               <PortableTextComponent value={currentPost.body} />
             </div>
             <PostFooter
