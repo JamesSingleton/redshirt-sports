@@ -22,7 +22,6 @@
     "@sanity/image-url": "^1.0.1",
     "@sanity/webhook": "^2.0.0",
     "@sentry/nextjs": "^7.25.0",
-    "@sentry/tracing": "^7.25.0",
     "clsx": "^1.2.1",
     "date-fns": "^2.29.3",
     "feed": "^4.2.2",

@@ -54,7 +54,7 @@ const moduleExports = {
       },
     ]
   },
-  webpack(config, { dev, isServer, nextRuntime }) {
+  webpack(config, { dev, isServer, nextRuntime, webpack }) {
     if (!dev && isServer && nextRuntime === 'nodejs') {
       let originalEntry = config.entry
 
@@ -64,6 +64,11 @@ const moduleExports = {
         return entries
       }
     }
+
+    new webpack.DefinePlugin({
+      __SENTRY_DEBUG__: false,
+      __SENTRY_TRACING__: false,
+    })
 
     return config
   },
