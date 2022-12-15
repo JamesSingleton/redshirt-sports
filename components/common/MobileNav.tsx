@@ -5,7 +5,7 @@ import XIcon from '@heroicons/react/24/outline/XMarkIcon'
 import { usePlausible } from 'next-plausible'
 
 import { NAVIGATION_ITEMS } from '@lib/constants'
-import Logo from '../SmallLogo'
+import Logo from './SmallLogo'
 
 const MobileNav = () => {
   const plausible = usePlausible()

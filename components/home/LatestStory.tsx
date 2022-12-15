@@ -1,10 +1,9 @@
 import { FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePlausible } from 'next-plausible'
 
 import Date from '@components/ui/Date'
-import { urlForImage } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity.image'
 
 import type { Post } from '@types'
 
@@ -13,10 +12,9 @@ interface LatestStoryProps {
 }
 
 const LatestStory: FC<LatestStoryProps> = ({ post }) => {
-  const plausible = usePlausible()
   return (
     <article className="relative lg:sticky lg:top-8 lg:w-1/2">
-      <Link href={`/${post.slug}`} prefetch={false} onClick={() => plausible('clickOnHeroArticle')}>
+      <Link href={`/${post.slug}`} prefetch={false}>
         <div className="aspect-w-16 aspect-h-9 ">
           <Image
             src={urlForImage(post.mainImage).width(704).height(396).url()}
@@ -30,11 +28,11 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
           />
         </div>
         <div className="mt-6 md:align-middle">
-          <span className="text-sm font-medium uppercase tracking-widest duration-300 ease-in-out">
+          <span className="font-archivoNarrow text-sm font-medium uppercase tracking-widest duration-300 ease-in-out">
             {post.category}
           </span>
           <div className="mt-3 block">
-            <h1 className="font-cal text-3xl font-medium tracking-normal text-slate-900 transition duration-300 ease-in-out md:tracking-tight lg:text-4xl lg:leading-tight">
+            <h1 className="font-sans text-3xl font-bold tracking-normal text-slate-900 transition duration-300 ease-in-out md:tracking-tight lg:text-4xl lg:leading-tight">
               {post.title}
             </h1>
             <div>

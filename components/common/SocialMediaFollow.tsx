@@ -1,17 +1,13 @@
 import ArrowRightIcon from '@heroicons/react/24/outline/ArrowRightIcon'
-import { usePlausible } from 'next-plausible'
 
 const SocialMediaFollow = () => {
-  const plausible = usePlausible()
-
   return (
     <div className="w-full rounded-2xl bg-slate-50 p-5 sm:p-8">
-      <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+      <h2 className="relative border-b border-slate-300 pb-2 font-archivo text-2xl font-semibold text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
         Follow Us
       </h2>
       <div className="space-y-4 overflow-hidden pt-5">
         <a
-          onClick={() => plausible('clickOnSocialMedia', { props: { socialMedia: 'Twitter' } })}
           target="_blank"
           href="https://twitter.com/_redshirtsports"
           rel="noreferrer noopener"
@@ -42,7 +38,6 @@ const SocialMediaFollow = () => {
           </div>
         </a>
         <a
-          onClick={() => plausible('clickOnSocialMedia', { props: { socialMedia: 'Facebook' } })}
           target="_blank"
           href="https://www.facebook.com/Redshirt-Sports-103392312412641"
           rel="noreferrer"

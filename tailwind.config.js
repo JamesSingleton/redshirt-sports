@@ -3,15 +3,13 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+    './app/**/*.{js,ts,jsx,tsx}',
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
     './lib/**/*.{js,ts,jsx,tsx}',
   ],
   darkMode: 'class',
   theme: {
-    fontFamily: {
-      cal: ['Cal Sans', 'Inter var', 'sans-serif'],
-    },
     extend: {
       colors: {
         current: 'currentColor',
@@ -35,20 +33,22 @@ module.exports = {
         150: '37.5rem',
       },
       fontFamily: {
-        sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+        sans: ['var(--font-inter)', ...defaultTheme.fontFamily.sans],
         mono: ['Consolas', ...defaultTheme.fontFamily.mono],
+        archivo: ['var(--font-archivo)', ...defaultTheme.fontFamily.sans],
+        archivoNarrow: ['var(--font-archivo-narrow)', ...defaultTheme.fontFamily.sans],
       },
       typography: {
         DEFAULT: {
           css: {
             h1: {
-              fontFamily: 'Cal Sans',
+              fontFamily: 'var(--font-inter)',
             },
             h2: {
-              fontFamily: 'Cal Sans',
+              fontFamily: 'var(--font-inter)',
             },
             h3: {
-              fontFamily: 'Cal Sans',
+              fontFamily: 'var(--font-inter)',
             },
             'blockquote p:first-of-type::before': { content: 'none' },
             'blockquote p:first-of-type::after': { content: 'none' },

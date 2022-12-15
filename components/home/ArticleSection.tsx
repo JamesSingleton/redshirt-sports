@@ -1,8 +1,6 @@
 import { FC } from 'react'
-import Link from 'next/link'
 
-import { VerticalArticleCard } from '@components/ui'
-import { urlForImage } from '@lib/sanity'
+import VerticalArticleCard from '@components/ui/VerticalArticleCard'
 
 import type { Post } from '@types'
 

@@ -1,10 +1,9 @@
-export { default as Footer } from './Footer'
-export { default as Layout } from './Layout'
-export { default as Navbar } from './Navbar'
 import SocialMediaFollow from './SocialMediaFollow'
 import SEO from './SEO'
 import Head from './Head'
 import Logo from './SmallLogo'
 import LargeLogo from './LargeLogo'
+import Footer from './Footer'
+import Navbar from './Navbar'
 
-export { SocialMediaFollow, SEO, Head, Logo, LargeLogo }
+export { SocialMediaFollow, SEO, Head, Logo, LargeLogo, Footer, Navbar }

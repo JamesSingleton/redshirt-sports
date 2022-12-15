@@ -1,9 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePlausible } from 'next-plausible'
 
-import { BlurImage } from '@components/ui'
-import { urlForImage } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity.image'
 
 import type { Post } from '@types'
 
@@ -14,20 +12,11 @@ const MinimalHorizontalCard = ({
   article: Post
   analyticsGoal: string
 }) => {
-  const plausible = usePlausible()
-
   return (
     <article>
       <Link
         href={`/${article.slug}`}
         prefetch={false}
-        onClick={() =>
-          plausible(analyticsGoal, {
-            props: {
-              title: article.title,
-            },
-          })
-        }
         className="flex space-x-4 sm:space-x-6 lg:space-x-4"
       >
         <div className="h-24 w-24 sm:h-28 sm:w-28 lg:h-20 lg:w-20 xl:h-24 xl:w-24">

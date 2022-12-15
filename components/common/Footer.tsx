@@ -1,9 +1,6 @@
 import { SVGProps } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import { usePlausible } from 'next-plausible'
 
-import RSRedHorizontalLogo from '@public/images/icons/RS_red_horizontal.svg'
 import { LargeLogo } from '@components/common'
 
 const navigation = {
@@ -40,8 +37,6 @@ const navigation = {
 }
 
 const Footer = () => {
-  const plausible = usePlausible()
-
   return (
     <footer className="bg-white py-12 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
@@ -50,13 +45,6 @@ const Footer = () => {
             <Link
               href="/"
               prefetch={false}
-              onClick={() =>
-                plausible('clickOnFooter', {
-                  props: {
-                    item: 'Home',
-                  },
-                })
-              }
               className="block"
               aria-label="Redshirt Sports Horizontal Logo, click to go to the homepage"
             >
@@ -69,13 +57,6 @@ const Footer = () => {
                 <li key={name}>
                   <a
                     href={href}
-                    onClick={() =>
-                      plausible('clickOnFooter', {
-                        props: {
-                          item: name,
-                        },
-                      })
-                    }
                     target="_blank"
                     rel="noreferrer"
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-transparent transition duration-300 ease-in-out sm:h-12 sm:w-12"
@@ -101,13 +82,6 @@ const Footer = () => {
                 key={name}
                 href={href}
                 prefetch={false}
-                onClick={() =>
-                  plausible('clickOnFooter', {
-                    props: {
-                      item: name,
-                    },
-                  })
-                }
                 className="py-2 text-base text-slate-500 transition duration-300 ease-in-out"
               >
                 {name}

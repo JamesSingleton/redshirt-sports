@@ -2,8 +2,8 @@ import { FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-import { Date, BlurImage } from '@components/ui'
-import { urlForImage } from '@lib/sanity'
+import Date from '@components/ui/Date'
+import { urlForImage } from '@lib/sanity.image'
 
 import type { Post } from '@types'
 

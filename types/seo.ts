@@ -5,3 +5,11 @@ export interface Meta {
   ogUrl?: string
   title?: string
 }
+
+export interface Settings {
+  title?: string
+  description?: string
+  ogImage?: {
+    title?: string
+  }
+}

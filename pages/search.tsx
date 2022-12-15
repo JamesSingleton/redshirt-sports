@@ -1,6 +1,6 @@
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
+import { useSearchParams } from 'next/navigation'
 
 import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { PageHeader, HorizontalCard } from '@components/ui'
@@ -15,9 +15,7 @@ interface SearchProps {
 }
 
 const Search = ({ posts }: SearchProps) => {
-  const {
-    query: { query },
-  } = useRouter()
+  const query = useSearchParams().get('query')
   const searchResultsLength = posts.length
   const ldJsonContent = {
     '@context': 'http://schema.org',
