@@ -1,5 +1,5 @@
 import { SIGNATURE_HEADER_NAME, isValidSignature } from '@sanity/webhook'
-import { withSentry } from '@sentry/nextjs'
+import * as Sentry from '@sentry/nextjs'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 
@@ -47,8 +47,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     return res.json({ message: 'No managed type' })
   } catch (err) {
+    Sentry.captureException(err)
     return res.status(500).send({ success: false, message: 'Error revalidating' })
   }
 }
 
-export default withSentry(handler)
+export default handler

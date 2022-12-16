@@ -1,12 +1,15 @@
-import Meta from '@components/common/Meta'
+import DefaultMetaTags from '@components/common/DefaultMetaTags'
 import MetaDescription from '@components/common/MetaDescription'
+import seoConfig from '@config/seo.json'
 
 export default function Head() {
   return (
     <>
       <title>FCS Football News, Standings, Rumors | Redshirt Sports</title>
-      <Meta />
-      <MetaDescription value="Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more." />
+      <DefaultMetaTags />
+      <MetaDescription value={seoConfig.description} />
+      <meta property="og:title" content="FCS Football News, Standings, Rumors | Redshirt Sports" />
+      <meta property="og:type" content="website" />
     </>
   )
 }

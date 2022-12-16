@@ -228,7 +228,7 @@ export const allPostsForRssFeed = groq`
 }
 `
 
-export const FCS_COLLECTION_FRAGMENT = /* groq */ `
+export const FCS_COLLECTION_FRAGMENT = groq`
 *[
   _type == "post" && category == 'FCS' &&
   defined(slug.current)

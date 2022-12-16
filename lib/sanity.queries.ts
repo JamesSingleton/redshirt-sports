@@ -125,3 +125,18 @@ export const searchQuery = groq`
   ${litePostFields}
 }
 `
+export const FCS_COLLECTION_FRAGMENT = groq`
+*[
+  _type == "post" && category == 'FCS' &&
+  defined(slug.current)
+]
+`
+
+export const fcsPostsQuery = groq`
+  {
+    "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+      ${litePostFields}
+    },
+    "totalPosts": count(${FCS_COLLECTION_FRAGMENT}._id)
+  }
+`

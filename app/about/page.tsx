@@ -11,7 +11,7 @@ export default async function AboutPage() {
   const authors = await getAllAuthors()
 
   return (
-    <>
+    <main>
       <PageHeader
         heading="About Redshirt Sports"
         subheading="The new kid on the block when it comes to reporting on the FCS"
@@ -124,6 +124,6 @@ export default async function AboutPage() {
           </Link>
         </div>
       </section>
-    </>
+    </main>
   )
 }

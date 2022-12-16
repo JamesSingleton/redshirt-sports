@@ -18,16 +18,16 @@ export default async function og(req: NextRequest, res: NextResponse) {
 
   let title = searchParams.get('title')
 
-  if (!title) {
-    const client = createClient({
-      projectId,
-      dataset,
-      apiVersion,
-      useCdn: false,
-    })
-    const settings = (await client.fetch<Settings>(settingsQuery)) || {}
-    title = settings?.ogImage?.title
-  }
+  // if (!title) {
+  //   const client = createClient({
+  //     projectId,
+  //     dataset,
+  //     apiVersion,
+  //     useCdn: false,
+  //   })
+  //   const settings = (await client.fetch<Settings>(settingsQuery)) || {}
+  //   title = settings?.ogImage?.title
+  // }
 
   return new ImageResponse(<OpenGraphImage title={title || 'Redshirt Sports'} />, {
     width,

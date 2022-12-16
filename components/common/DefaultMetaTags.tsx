@@ -1,4 +1,4 @@
-export default function Meta() {
+export default function DefaultMetaTags() {
   return (
     <>
       <meta name="viewport" content="width=device-width,initial-scale=1.0" />
@@ -29,6 +29,8 @@ export default function Meta() {
         href="/feeds/feed.json"
       />
       <link rel="apple-touch-icon" href="/images/icons/RS_192.png" key="apple-touch-icon" />
+      <meta property="og:locale" content="en_US" />
+      <meta charSet="utf-8" />
     </>
   )
 }

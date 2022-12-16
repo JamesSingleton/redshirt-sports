@@ -66,11 +66,6 @@ const moduleExports = {
       }
     }
 
-    new webpack.DefinePlugin({
-      __SENTRY_DEBUG__: false,
-      __SENTRY_TRACING__: false,
-    })
-
     return config
   },
   async redirects() {

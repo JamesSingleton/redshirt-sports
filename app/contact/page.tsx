@@ -8,7 +8,7 @@ const contactDetails = [
 
 export default function ContactPage() {
   return (
-    <>
+    <main>
       <PageHeader
         heading="Contact Redshirt Sports"
         subheading="Want to get in touch? We'd love to hear from you. Here is how you can reach us."
@@ -47,6 +47,6 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-    </>
+    </main>
   )
 }

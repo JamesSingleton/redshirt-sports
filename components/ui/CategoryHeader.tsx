@@ -15,10 +15,10 @@ const CategoryHeader = ({ title, aboveTitle, breadCrumbPages }: CategoryHeaderPr
       <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
         <div className="order-2 mt-8 flex flex-col items-center md:order-1 md:mt-0 md:flex-row">
           <div className="mt-6 text-center md:mt-0 md:text-left">
-            <span className="block text-xs uppercase tracking-widest text-brand-500">
+            <span className="block font-archivoNarrow text-xs uppercase tracking-widest text-brand-500">
               {aboveTitle}
             </span>
-            <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
+            <h1 className="mt-1 font-sans text-3xl font-black tracking-normal text-slate-900 sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
               {title}
             </h1>
           </div>

@@ -1,4 +1,4 @@
-import { Layout, SEO, SocialMediaFollow } from '@components/common'
+import { SEO, SocialMediaFollow } from '@components/common'
 import { CategoryHeader, HorizontalCard } from '@components/ui'
 import { getSubCategories, subCategorySlugs } from '@lib/queries'
 import { sanityClient } from '@lib/sanity.server'
@@ -42,26 +42,21 @@ export default function SubCategory({
           url: `https://www.redshirtsports.xyz/${parentSlug}/${slug}`,
         }}
       />
-      <Layout>
-        <CategoryHeader
-          title={`Latest ${title} Football News`}
-          aboveTitle="Football Championship Subdivision"
-          breadCrumbPages={breadCrumbPages}
-        />
-        <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
-          <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
-            <div className="col-span-2">
-              {posts &&
-                posts.map((post) => (
-                  <HorizontalCard key={post._id} post={post} articleLocation={`${title} Page`} />
-                ))}
-            </div>
-            <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
-              <SocialMediaFollow />
-            </div>
+      <CategoryHeader
+        title={`Latest ${title} Football News`}
+        aboveTitle="Football Championship Subdivision"
+        breadCrumbPages={breadCrumbPages}
+      />
+      <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
+        <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
+          <div className="col-span-2">
+            {posts && posts.map((post) => <HorizontalCard key={post._id} post={post} />)}
           </div>
-        </section>
-      </Layout>
+          <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
+            <SocialMediaFollow />
+          </div>
+        </div>
+      </section>
     </>
   )
 }

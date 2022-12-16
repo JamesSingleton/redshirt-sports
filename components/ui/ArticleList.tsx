@@ -21,7 +21,7 @@ export default function ArticleList({
   return (
     <>
       {articles.map((post) => (
-        <HorizontalCard post={post} key={post._id} articleLocation="FCS Page" />
+        <HorizontalCard post={post} key={post._id} />
       ))}
       <Pagination
         totalPosts={totalPosts}

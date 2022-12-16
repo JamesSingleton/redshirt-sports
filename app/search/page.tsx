@@ -5,10 +5,10 @@ import { getSearchResults } from '@lib/sanity.client'
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined }
+  searchParams?: { [key: string]: string }
 }) {
   const query = searchParams?.query
-  const searchResults = await getSearchResults(query)
+  const searchResults = await getSearchResults(query!)
   return (
     <>
       <PageHeader
@@ -19,9 +19,33 @@ export default async function SearchPage({
         <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           <div className="col-span-2">
             {searchResults.length > 0 &&
-              searchResults.map((post, key) => (
-                <HorizontalCard post={post} key={post._id} articleLocation="Search Results Page" />
-              ))}
+              searchResults.map((post) => <HorizontalCard post={post} key={post._id} />)}
+            {!searchResults.length && (
+              <div className="text-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mx-auto h-20 w-20 text-slate-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    vectorEffect="non-scaling-stroke"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"
+                  />
+                </svg>
+                <h3 className="font-cal mt-2 text-xl font-medium text-slate-900">No Results</h3>
+                <p className="mt-1 text-base text-slate-500">
+                  {`We couldn't find a match for "${query}".`}
+                </p>
+              </div>
+            )}
+          </div>
+          <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
+            <SocialMediaFollow />
           </div>
         </div>
       </section>

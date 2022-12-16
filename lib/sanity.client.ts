@@ -12,6 +12,7 @@ import {
   allAuthorsQuery,
   privacyPolicyQuery,
   searchQuery,
+  fcsPostsQuery,
 } from './sanity.queries'
 
 import type { Author, Post, Settings, PrivacyPolicy } from '@types'
@@ -96,4 +97,13 @@ export async function getSearchResults(query: string): Promise<Post[]> {
     return (await client.fetch(searchQuery, { query })) || []
   }
   return []
+}
+
+export async function getFCSIndex(
+  pageIndex: number
+): Promise<{ posts: Post[]; totalPosts: number }> {
+  if (client) {
+    return await client.fetch(fcsPostsQuery, { pageIndex })
+  }
+  return { posts: [], totalPosts: 0 }
 }
