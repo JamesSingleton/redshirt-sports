@@ -2,7 +2,7 @@
 import Container from './BlogContainer'
 
 export default function Alert({ preview, loading }: { preview?: boolean; loading?: boolean }) {
-  if (!preview) return
+  if (!preview) return null
 
   return (
     <div className="border-accent-7 bg-accent-7 border-b text-white">

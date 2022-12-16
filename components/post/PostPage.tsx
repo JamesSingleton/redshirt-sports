@@ -23,7 +23,7 @@ export default function PostPage(props: {
   }
 
   return (
-    <Layout preview={preview} loading={loading}>
+    <Layout preview={preview!} loading={loading}>
       <article className="bg-slate-50 pb-12 sm:pb-16 lg:pb-24">
         <PostHeader post={post} />
         <div className="px-5 lg:px-0">

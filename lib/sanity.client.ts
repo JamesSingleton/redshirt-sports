@@ -92,7 +92,7 @@ export async function getPrivacyPolicy(): Promise<PrivacyPolicy> {
   return {} as any
 }
 
-export async function getSearchResults(query: string): Promise<Post[]> {
+export async function getSearchResults(query: string | string[] | undefined): Promise<Post[]> {
   if (client) {
     return (await client.fetch(searchQuery, { query })) || []
   }

@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation'
+
 import { SocialMediaFollow } from '@components/common'
 import { PageHeader, HorizontalCard } from '@components/ui'
 import { getSearchResults } from '@lib/sanity.client'
@@ -5,9 +7,12 @@ import { getSearchResults } from '@lib/sanity.client'
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string }
+  searchParams?: { [key: string]: string | string[] | undefined }
 }) {
   const query = searchParams?.query
+  if (!query) {
+    return notFound()
+  }
   const searchResults = await getSearchResults(query!)
   return (
     <>
