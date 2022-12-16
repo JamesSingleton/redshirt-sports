@@ -82,6 +82,9 @@ const moduleExports = {
       },
     ]
   },
+  sentry: {
+    excludeServerRoutes: ['/api/og'],
+  },
 }
 
 const SentryWebpackPluginOptions = {
