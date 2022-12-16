@@ -1,95 +1,17 @@
-import { GetStaticProps } from 'next'
-import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
 import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
-import { SEO } from '@components/common'
 import { PageHeader } from '@components/ui'
-import { sanityClient } from '@lib/sanity.server'
-import { allAuthors } from '@lib/queries'
-import { urlForImage } from '@lib/sanity'
-import { Organization, WebSite } from '@lib/ldJson'
+import { getAllAuthors } from '@lib/sanity.client'
 import { Instagram, Twitter, Facebook, Website } from '@components/common/icons'
+import { urlForImage } from '@lib/sanity.image'
 
-import type { Author } from '@types'
+export default async function AboutPage() {
+  const authors = await getAllAuthors()
 
-interface AboutProps {
-  authors: Author[]
-}
-
-const About = ({ authors }: AboutProps) => {
-  const ldJsonContent = {
-    '@context': 'http://schema.org',
-    '@graph': [
-      Organization,
-      WebSite,
-      {
-        '@type': 'AboutPage',
-        '@id': 'https://www.redshirtsports.xyz/about/#aboutpage',
-        url: 'https://www.redshirtsports.xyz/about',
-        name: 'About Us - Redshirt Sports',
-        isPartOf: {
-          '@id': 'https://www.redshirtsports.xyz/#website',
-        },
-        breadcrumb: {
-          '@id': 'https://www.redshirtsports.xyz/about/#breadcrumb',
-        },
-        inLanguage: 'en-US',
-        potentialAction: [
-          {
-            '@type': 'ReadAction',
-            target: ['https://www.redshirtsports.xyz/about'],
-          },
-        ],
-      },
-      {
-        '@type': 'BreadcrumbList',
-        '@id': 'https://www.redshirtsports.xyz/about/#breadcrumb',
-        name: 'About Breadcrumbs',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            item: {
-              '@id': 'https://www.redshirtsports.xyz',
-              name: 'Home',
-            },
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            item: {
-              name: 'About Redshirt Sports',
-            },
-          },
-        ],
-      },
-    ],
-  }
   return (
     <>
-      <Head>
-        <script
-          id="about-ld-json"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(ldJsonContent),
-          }}
-        />
-      </Head>
-      <SEO
-        title="About Us"
-        description="Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!"
-        openGraph={{
-          url: 'https://www.redshirtsports.xyz/about',
-          title: 'About Us | Redshirt Sports',
-          description:
-            'Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!',
-        }}
-      >
-        <link rel="canonical" href="https://www.redshirtsports.xyz/about" />
-      </SEO>
       <PageHeader
         heading="About Redshirt Sports"
         subheading="The new kid on the block when it comes to reporting on the FCS"
@@ -114,7 +36,7 @@ const About = ({ authors }: AboutProps) => {
       <section className="bg-slate-50 py-12 sm:py-20 lg:py-28">
         <div className="mx-auto max-w-xl px-4 sm:max-w-3xl sm:px-6 md:px-8 lg:max-w-7xl">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="font-cal text-base font-medium uppercase tracking-widest text-brand-500">
+            <h2 className="font-archvio text-base font-medium uppercase tracking-widest text-brand-500">
               Our Writers
             </h2>
             <p className="mt-2 text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
@@ -144,7 +66,7 @@ const About = ({ authors }: AboutProps) => {
                       className="mx-auto h-40 w-40 overflow-hidden rounded-full object-cover xl:h-44 xl:w-44"
                     />
                     <div className="mt-6 leading-6">
-                      <h3 className="font-cal text-xl font-medium text-slate-900">
+                      <h3 className="font-archivo text-xl font-medium text-slate-900">
                         <Link href={`/authors/${author.slug}`} prefetch={false}>
                           <span aria-hidden="true" className="absolute inset-0" />
                           {author.name}
@@ -185,7 +107,7 @@ const About = ({ authors }: AboutProps) => {
       </section>
       <section className="bg-brand-700">
         <div className="mx-auto max-w-2xl py-16 px-4 text-center sm:py-20 sm:px-6 lg:px-8">
-          <h2 className="font-cal text-3xl font-extrabold text-white sm:text-4xl">
+          <h2 className="font-archivo text-3xl font-extrabold text-white sm:text-4xl">
             Help make Redshirt Sports better!
           </h2>
           <p className="mt-4 text-lg leading-6 text-brand-200">
@@ -205,15 +127,3 @@ const About = ({ authors }: AboutProps) => {
     </>
   )
 }
-
-export const getStaticProps: GetStaticProps = async () => {
-  const authors = await sanityClient.fetch(allAuthors)
-
-  return {
-    props: {
-      authors,
-    },
-  }
-}
-
-export default About

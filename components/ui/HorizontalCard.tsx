@@ -2,7 +2,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import CalendarIcon from '@heroicons/react/24/outline/CalendarIcon'
 import ClockIcon from '@heroicons/react/24/outline/ClockIcon'
-import { usePlausible } from 'next-plausible'
 
 import { urlForImage } from '@lib/sanity'
 
@@ -11,23 +10,14 @@ import Date from './Date'
 
 interface HorizontalCardProps {
   post: Post
-  articleLocation: string
 }
 
-const HorizontalCard = ({ post, articleLocation }: HorizontalCardProps) => {
-  const plausible = usePlausible()
+const HorizontalCard = ({ post }: HorizontalCardProps) => {
   return (
     <article>
       <Link
         href={`/${post.slug}`}
         prefetch={false}
-        onClick={() =>
-          plausible('clickOnArticle', {
-            props: {
-              articleLocation,
-            },
-          })
-        }
         className="hover:scale-105 hover:duration-300 md:grid md:grid-cols-4 md:gap-8"
       >
         <div className="md:col-span-1">

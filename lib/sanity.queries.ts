@@ -95,3 +95,33 @@ export const postAndMoreStoriesQuery = groq`
   }
 }|order(publishedAt)[0]
 `
+
+export const allAuthorsQuery = groq`
+*[_type == "author"] | order(_createdAt asc) {
+  _id,
+  _updatedAt,
+  name,
+  'slug': slug.current,
+  role,
+  "image": {
+    "asset": image.asset->{_id, _type, metadata, url}
+  },
+  socialMedia,
+}
+`
+
+export const privacyPolicyQuery = `
+*[_type == "legal" && slug.current == "privacy-policy"][0] {
+  _id,
+  _updatedAt,
+  title,
+  slug,
+  body
+}
+`
+
+export const searchQuery = groq`
+*[_type == 'post' && title match "*" + $query + "*"] | order(publishedAt desc, _updatedAt desc)[0..10]{
+  ${litePostFields}
+}
+`

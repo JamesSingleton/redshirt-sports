@@ -9,9 +9,12 @@ import {
   settingsQuery,
   homePageQuery,
   postAndMoreStoriesQuery,
+  allAuthorsQuery,
+  privacyPolicyQuery,
+  searchQuery,
 } from './sanity.queries'
 
-import type { Post, Settings } from '@types'
+import type { Author, Post, Settings, PrivacyPolicy } from '@types'
 
 const client = projectId ? createClient({ projectId, dataset, apiVersion, useCdn }) : null
 
@@ -72,4 +75,25 @@ export async function getPostAndMoreStories(
     return await client.fetch(postAndMoreStoriesQuery, { slug })
   }
   return { post: {} as any, morePosts: [] }
+}
+
+export async function getAllAuthors(): Promise<Author[]> {
+  if (client) {
+    return (await client.fetch(allAuthorsQuery)) || []
+  }
+  return []
+}
+
+export async function getPrivacyPolicy(): Promise<PrivacyPolicy> {
+  if (client) {
+    return (await client.fetch(privacyPolicyQuery)) || {}
+  }
+  return {} as any
+}
+
+export async function getSearchResults(query: string): Promise<Post[]> {
+  if (client) {
+    return (await client.fetch(searchQuery, { query })) || []
+  }
+  return []
 }

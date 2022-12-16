@@ -282,21 +282,3 @@ export const recentArticlesQuery = groq`
   ${litePostFields}
 }
 `
-
-export const getAdvertisingPage = `
-*[_type == "legal" && slug.current == "advertising"][0] {
-  ${legalFields}
-}
-`
-
-export const getPrivacyPolicyPage = `
-*[_type == "legal" && slug.current == "privacy-policy"][0] {
-  ${legalFields}
-}
-`
-
-export const searchQuery = groq`
-*[_type == 'post' && title match "*" + $searchTerm + "*"] | order(publishedAt desc, _updatedAt desc)[0..10]{
-  ${litePostFields}
-}
-`
