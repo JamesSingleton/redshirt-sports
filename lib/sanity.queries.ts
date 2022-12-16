@@ -68,6 +68,21 @@ export const postSlugsQuery = groq`
 *[_type == "post" && defined(slug.current)][].slug.current
 `
 
+export const postMetaDataInfoBySlugQuery = groq`
+*[_type == "post" && slug.current == $slug][0] {
+  _id,
+  title,
+  _updatedAt,
+  publishedAt,
+  mainImage,
+  "slug": slug.current,
+  category,
+  excerpt,
+  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
+  "author": author->{name, 'slug': slug.current, socialMedia}
+}
+`
+
 export const homePageQuery = groq`
 {
   'mainArticle': *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0] {

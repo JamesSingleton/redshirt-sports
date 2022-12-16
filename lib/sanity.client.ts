@@ -13,6 +13,7 @@ import {
   privacyPolicyQuery,
   searchQuery,
   fcsPostsQuery,
+  postMetaDataInfoBySlugQuery,
 } from './sanity.queries'
 
 import type { Author, Post, Settings, PrivacyPolicy } from '@types'
@@ -38,6 +39,24 @@ export async function getAllPostsSlugs(): Promise<Pick<Post, 'slug'>[]> {
 export async function getPostBySlug(slug: string): Promise<Post> {
   if (client) {
     return (await client.fetch(postBySlugQuery, { slug })) || ({} as any)
+  }
+  return {} as any
+}
+
+export async function getPostMetaDataInfoBySlug(slug: string): Promise<{
+  _id: string
+  title: string
+  _updatedAt: string
+  publishedAt: string
+  slug: string
+  mainImage: any
+  category: string
+  excerpt: string
+  estimatedReadingTime: number
+  author: any
+}> {
+  if (client) {
+    return await client.fetch(postMetaDataInfoBySlugQuery, { slug })
   }
   return {} as any
 }

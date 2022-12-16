@@ -30,7 +30,18 @@ export default function DefaultMetaTags() {
       />
       <link rel="apple-touch-icon" href="/images/icons/RS_192.png" key="apple-touch-icon" />
       <meta property="og:locale" content="en_US" />
-      <meta charSet="utf-8" />
+      <meta charSet="UTF-8" />
+      <meta name="twitter:site" content="@_redshirtsports" />
+      <meta
+        key="robots"
+        name="robots"
+        content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+      />
+      <meta
+        key="googlebot"
+        name="googlebot"
+        content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+      />
     </>
   )
 }
