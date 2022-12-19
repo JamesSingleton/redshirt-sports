@@ -14,6 +14,9 @@ import {
   searchQuery,
   fcsPostsQuery,
   postMetaDataInfoBySlugQuery,
+  authorMetaDataInfoBySlugQuery,
+  authorSlugsQuery,
+  authorAndPostsQuery,
 } from './sanity.queries'
 
 import type { Author, Post, Settings, PrivacyPolicy } from '@types'
@@ -125,4 +128,34 @@ export async function getFCSIndex(
     return await client.fetch(fcsPostsQuery, { pageIndex })
   }
   return { posts: [], totalPosts: 0 }
+}
+
+export async function getAllAuthorsSlugs(): Promise<Pick<Author, 'slug'>[]> {
+  if (client) {
+    const slugs = (await client.fetch<string[]>(authorSlugsQuery)) || []
+    return slugs.map((slug) => ({ slug }))
+  }
+  return []
+}
+
+export async function getAuthorBySlug(slug: string): Promise<Author> {
+  if (client) {
+    return (await client.fetch(authorAndPostsQuery, { slug })) || {}
+  }
+  return {} as any
+}
+
+export async function getAuthorMetaDataInfoBySlug(slug: string): Promise<{
+  _id: string
+  name: string
+  slug: string
+  image: any
+  role: string
+  bio: string
+  _updatedAt: string
+}> {
+  if (client) {
+    return await client.fetch(authorMetaDataInfoBySlugQuery, { slug })
+  }
+  return {} as any
 }

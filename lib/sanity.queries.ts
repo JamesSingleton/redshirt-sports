@@ -56,6 +56,24 @@ const litePostFields = `
   excerpt,
 `
 
+const authorFields = `
+  _id,
+  _updatedAt,
+  name,
+  'slug': slug.current,
+  role,
+  "image": {
+    "asset": image.asset->{ 
+      _id,
+      _type,
+      metadata,
+      url
+      }
+  },
+  bio,
+  socialMedia,
+`
+
 export const settingsQuery = groq`*[_type == "settings"][0]`
 
 export const postBySlugQuery = groq`
@@ -66,6 +84,10 @@ export const postBySlugQuery = groq`
 
 export const postSlugsQuery = groq`
 *[_type == "post" && defined(slug.current)][].slug.current
+`
+
+export const authorSlugsQuery = groq`
+*[_type == "author" && defined(slug.current)][].slug.current
 `
 
 export const postMetaDataInfoBySlugQuery = groq`
@@ -80,6 +102,19 @@ export const postMetaDataInfoBySlugQuery = groq`
   excerpt,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
   "author": author->{name, 'slug': slug.current, socialMedia}
+}
+`
+
+export const authorMetaDataInfoBySlugQuery = groq`
+*[_type == "author" && slug.current == $slug][0] {
+  _id,
+  name,
+  'slug': slug.current,
+  role,
+  "image": {
+    "asset": image.asset->{_id, _type, metadata, url}
+  },
+  bio,
 }
 `
 
@@ -122,6 +157,15 @@ export const allAuthorsQuery = groq`
     "asset": image.asset->{_id, _type, metadata, url}
   },
   socialMedia,
+}
+`
+
+export const authorAndPostsQuery = groq`
+*[_type == "author" && slug.current == $slug][0] {
+  ${authorFields}
+  "posts": *[_type == "post" && references(^._id) ] | order(publishedAt desc, _updatedAt desc)[0...4]{
+    ${postFields}
+  }
 }
 `
 
