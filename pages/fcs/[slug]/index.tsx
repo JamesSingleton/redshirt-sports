@@ -1,4 +1,5 @@
-import { SEO, SocialMediaFollow } from '@components/common'
+import { SocialMediaFollow } from '@components/common'
+import SEO from '@components/common/SEO'
 import { CategoryHeader, HorizontalCard } from '@components/ui'
 import { getSubCategories, subCategorySlugs } from '@lib/queries'
 import { sanityClient } from '@lib/sanity.server'

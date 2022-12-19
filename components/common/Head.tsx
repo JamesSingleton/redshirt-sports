@@ -1,4 +1,4 @@
-import { SEO } from '@components/common'
+import SEO from './SEO'
 
 const Head = () => (
   <SEO>

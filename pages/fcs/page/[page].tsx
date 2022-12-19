@@ -1,7 +1,8 @@
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 
-import { SEO, SocialMediaFollow } from '@components/common'
+import { SocialMediaFollow } from '@components/common'
+import SEO from '@components/common/SEO'
 import { ArticleList, CategoryHeader } from '@components/ui'
 import { sanityClient } from '@lib/sanity.server'
 import { fetchTotalPosts, fcsPostsQuery } from '@lib/queries'
