@@ -1,6 +1,6 @@
 import { toPlainText } from '@portabletext/react'
 
-import { urlForImage } from './sanity'
+import { urlForImage } from './sanity.image'
 import { Organization, WebSite } from '@lib/ldJson'
 
 import type { Post, Author } from '@types'

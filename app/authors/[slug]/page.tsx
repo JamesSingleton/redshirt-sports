@@ -21,7 +21,7 @@ export async function generateStaticParams() {
 export default async function Page({ params }: { params: { slug: string } }) {
   const author = await getAuthorBySlug(params.slug)
   return (
-    <main>
+    <>
       <section className="bg-slate-50 py-12 sm:py-16 md:py-20 lg:py-20">
         <div className="mx-auto max-w-xl px-6 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
           <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
@@ -120,6 +120,6 @@ export default async function Page({ params }: { params: { slug: string } }) {
           </div>
         </div>
       </section>
-    </main>
+    </>
   )
 }
