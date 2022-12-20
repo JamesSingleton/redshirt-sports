@@ -6,7 +6,7 @@ import { PortableTextComponent } from '@lib/sanity.text'
 export default async function PrivacyPage() {
   const privacyPolicy = await getPrivacyPolicy()
   return (
-    <main>
+    <>
       <PageHeader
         heading="Privacy Policy"
         subheading={
@@ -27,6 +27,6 @@ export default async function PrivacyPage() {
           </div>
         </div>
       </section>
-    </main>
+    </>
   )
 }

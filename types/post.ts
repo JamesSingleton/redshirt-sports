@@ -40,6 +40,22 @@ export type Author = {
   ]
 }
 
+export type AuthorMetaDataInfo = {
+  _id: string
+  name: string
+  slug: string
+  image: Image
+  role: string
+  bio: any
+  socialMedia: [
+    {
+      _key: string
+      name: string
+      url: string
+    }
+  ]
+}
+
 export type Post = {
   _id: string
   _updatedAt: string

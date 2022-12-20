@@ -19,7 +19,7 @@ import {
   authorAndPostsQuery,
 } from './sanity.queries'
 
-import type { Author, Post, Settings, PrivacyPolicy } from '@types'
+import type { Author, Post, Settings, PrivacyPolicy, AuthorMetaDataInfo } from '@types'
 
 const client = projectId ? createClient({ projectId, dataset, apiVersion, useCdn }) : null
 
@@ -145,15 +145,7 @@ export async function getAuthorBySlug(slug: string): Promise<Author> {
   return {} as any
 }
 
-export async function getAuthorMetaDataInfoBySlug(slug: string): Promise<{
-  _id: string
-  name: string
-  slug: string
-  image: any
-  role: string
-  bio: string
-  _updatedAt: string
-}> {
+export async function getAuthorMetaDataInfoBySlug(slug: string): Promise<AuthorMetaDataInfo> {
   if (client) {
     return await client.fetch(authorMetaDataInfoBySlugQuery, { slug })
   }

@@ -115,6 +115,7 @@ export const authorMetaDataInfoBySlugQuery = groq`
     "asset": image.asset->{_id, _type, metadata, url}
   },
   bio,
+  socialMedia,
 }
 `
 

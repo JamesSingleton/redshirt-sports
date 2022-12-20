@@ -3,7 +3,7 @@ import { toPlainText } from '@portabletext/react'
 import { urlForImage } from './sanity.image'
 import { Organization, WebSite } from '@lib/ldJson'
 
-import type { Post, Author } from '@types'
+import type { Post, AuthorMetaDataInfo } from '@types'
 
 export const createPostLDJson = (post: Post) => ({
   '@context': 'http://schema.org',
@@ -115,7 +115,7 @@ export const createPostLDJson = (post: Post) => ({
   ],
 })
 
-export const createAuthorLDJson = (author: Author) => ({
+export const createAuthorLDJson = (author: AuthorMetaDataInfo) => ({
   '@context': 'http://schema.org',
   '@graph': [
     Organization,

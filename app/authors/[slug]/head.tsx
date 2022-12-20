@@ -1,9 +1,13 @@
+import Script from 'next/script'
+
 import DefaultMetaTags from '@components/common/DefaultMetaTags'
 import { getAuthorMetaDataInfoBySlug } from '@lib/sanity.client'
 import MetaDescription from '@components/common/MetaDescription'
+import { createAuthorLDJson } from '@lib/createLDJson'
 
 export default async function Head({ params }: { params: { slug: string } }) {
   const author = await getAuthorMetaDataInfoBySlug(params.slug)
+  const content = createAuthorLDJson(author)
   const [firstName, lastName] = author.name.split(' ')
   return (
     <>
@@ -18,6 +22,11 @@ export default async function Head({ params }: { params: { slug: string } }) {
       <meta property="og:type" content="profile" />
       <meta property="profile:first_name" content={firstName} />
       <meta property="profile:last_name" content={lastName} />
+      <Script
+        id={`author-ld-json-${author.slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(content) }}
+      />
     </>
   )
 }
