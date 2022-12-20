@@ -17,6 +17,7 @@ import {
   authorMetaDataInfoBySlugQuery,
   authorSlugsQuery,
   authorAndPostsQuery,
+  totalPostsQuery,
 } from './sanity.queries'
 
 import type { Author, Post, Settings, PrivacyPolicy, AuthorMetaDataInfo } from '@types'
@@ -150,4 +151,13 @@ export async function getAuthorMetaDataInfoBySlug(slug: string): Promise<AuthorM
     return await client.fetch(authorMetaDataInfoBySlugQuery, { slug })
   }
   return {} as any
+}
+
+export async function getTotalPosts(category: string): Promise<number> {
+  if (client) {
+    return await client.fetch(totalPostsQuery, {
+      category,
+    })
+  }
+  return 0
 }

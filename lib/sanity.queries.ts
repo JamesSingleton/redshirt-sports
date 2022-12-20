@@ -200,3 +200,10 @@ export const fcsPostsQuery = groq`
     "totalPosts": count(${FCS_COLLECTION_FRAGMENT}._id)
   }
 `
+
+export const totalPostsQuery = groq`
+  count(*[
+    _type == "post" && category == $category &&
+    defined(slug.current)
+  ]._id)
+`

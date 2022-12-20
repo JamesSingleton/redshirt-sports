@@ -235,13 +235,6 @@ export const FCS_COLLECTION_FRAGMENT = groq`
 ]
 `
 
-export const fetchTotalPosts = groq`
-  count(*[
-    _type == "post" && category == $category &&
-    defined(slug.current)
-  ]._id)
-`
-
 export const fcsPostsQuery = groq`
   {
     "posts": *[_type == "post" && category == 'FCS' ] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
