@@ -3,7 +3,7 @@ import Image from 'next/image'
 import CalendarIcon from '@heroicons/react/24/outline/CalendarIcon'
 import ClockIcon from '@heroicons/react/24/outline/ClockIcon'
 
-import { urlForImage } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity.image'
 
 import type { Post } from '@types'
 import Date from './Date'

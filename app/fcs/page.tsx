@@ -1,6 +1,6 @@
 import { SocialMediaFollow } from '@components/common'
 import { CategoryHeader, ArticleList } from '@components/ui'
-import { getFCSIndex } from '@lib/sanity.client'
+import { getFCSPosts } from '@lib/sanity.client'
 
 const breadCrumbPages = [
   {
@@ -10,7 +10,7 @@ const breadCrumbPages = [
 ]
 
 export default async function Page() {
-  const fcsIndex = await getFCSIndex(1)
+  const fcsIndex = await getFCSPosts(1)
   const { posts, totalPosts } = fcsIndex
   const totalPages = Math.ceil(totalPosts / 10)
 

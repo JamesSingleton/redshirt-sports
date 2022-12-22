@@ -122,7 +122,7 @@ export async function getSearchResults(query: string | string[] | undefined): Pr
   return []
 }
 
-export async function getFCSIndex(
+export async function getFCSPosts(
   pageIndex: number
 ): Promise<{ posts: Post[]; totalPosts: number }> {
   if (client) {

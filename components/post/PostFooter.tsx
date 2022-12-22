@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
 import { BlurImage } from '@components/ui'
-import { urlForImage, PortableTextComponent } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity.image'
+import { PortableTextComponent } from '@lib/sanity.text'
 import {
   Instagram,
   Twitter,
@@ -119,28 +120,28 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                       >
                         <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
                         {social.name === 'Email' ? (
-                          <EnvelopeOpenIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <EnvelopeOpenIcon className="h-6 w-6 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Twitter' ? (
-                          <Twitter className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <Twitter className="h-6 w-6 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Facebook' ? (
-                          <Facebook className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <Facebook className="h-6 w-6 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Instagram' ? (
-                          <Instagram className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <Instagram className="h-6 w-6 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Website' ? (
-                          <GlobeAltIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <GlobeAltIcon className="h-6 w-6 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Spotify Podcast' ? (
-                          <SpotifyIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <SpotifyIcon className="h-6 w-6 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Apple Podcast' ? (
-                          <ApplePodcastIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <ApplePodcastIcon className="h-6 w-6 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                         {social.name === 'Overcast Podcast' ? (
-                          <OvercastIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <OvercastIcon className="h-6 w-6 fill-slate-400 group-hover:fill-slate-600" />
                         ) : null}
                       </a>
                     </li>

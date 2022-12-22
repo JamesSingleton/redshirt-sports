@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
-import { PortableText } from '@portabletext/react'
 
+import { PortableTextComponent } from '@lib/sanity.text'
 import Layout from './PostLayout'
 import PostHeader from './PostHeader'
 
@@ -28,7 +28,7 @@ export default function PostPage(props: {
         <PostHeader post={post} />
         <div className="px-5 lg:px-0">
           <div className="prose-md prose m-auto w-11/12 prose-a:text-blue-600 hover:prose-a:text-blue-500 sm:w-3/4 sm:prose-lg">
-            <PortableText value={post.body} />
+            <PortableTextComponent value={post.body} />
           </div>
           <PostFooter author={post.author} title={post.title} slug={post.slug} />
         </div>
