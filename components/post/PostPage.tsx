@@ -11,11 +11,11 @@ import PostFooter from './PostFooter'
 export default function PostPage(props: {
   preview?: boolean
   loading?: boolean
-  data: { post: Post; morePosts: Post[] }
+  post: Post
+  morePosts: Post[]
   settings: Settings
 }) {
-  const { preview, loading, data, settings } = props
-  const { post = {} as any, morePosts = [] } = data || {}
+  const { preview, loading, post, morePosts, settings } = props
   const slug = post?.slug
 
   if (!slug && !preview) {

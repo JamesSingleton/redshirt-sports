@@ -65,7 +65,7 @@ export type Post = {
   category: string
   featuredArticle: boolean
   excerpt: string
-  body: string
+  body: any
   estimatedReadingTime: number
   author: Author
   mainImage: Image
