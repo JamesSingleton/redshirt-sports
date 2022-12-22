@@ -15,7 +15,7 @@ export default async function Page() {
   const totalPages = Math.ceil(totalPosts / 10)
 
   return (
-    <main>
+    <>
       <CategoryHeader
         title="Latest FCS Football News"
         aboveTitle="Football Championship Subdivision"
@@ -36,6 +36,6 @@ export default async function Page() {
           </div>
         </div>
       </section>
-    </main>
+    </>
   )
 }
