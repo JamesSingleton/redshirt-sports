@@ -14,13 +14,14 @@ export async function generateStaticParams() {
   return paths
 }
 
+const category = 'fcs'
+
 const breadCrumbPages = [
   {
-    name: 'FCS',
-    href: '/fcs',
+    name: category.toUpperCase(),
+    href: `/${category}`,
   },
 ]
-
 export default async function Page({ params }: { params: { page: string } }) {
   const { page } = params
 
@@ -42,6 +43,7 @@ export default async function Page({ params }: { params: { page: string } }) {
               totalPages={totalPages}
               totalPosts={totalPosts}
               currentPage={page}
+              path={category}
             />
           </div>
           <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">

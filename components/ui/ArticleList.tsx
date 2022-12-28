@@ -7,6 +7,7 @@ interface ArticleListProps {
   currentPage: string
   totalPages: number
   totalPosts: number
+  path: string
 }
 
 export default function ArticleList({
@@ -14,6 +15,7 @@ export default function ArticleList({
   currentPage,
   totalPages,
   totalPosts,
+  path,
 }: ArticleListProps) {
   const nextDisabled = parseInt(currentPage, 10) === totalPages
   const prevDisabled = parseInt(currentPage, 10) === 1
@@ -28,6 +30,7 @@ export default function ArticleList({
         currentPage={currentPage}
         nextDisabled={nextDisabled}
         prevDisabled={prevDisabled}
+        path={path}
       />
     </>
   )

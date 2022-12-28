@@ -18,6 +18,7 @@ import {
   authorSlugsQuery,
   authorAndPostsQuery,
   totalPostsQuery,
+  subDivisionPostsQuery,
 } from './sanity.queries'
 
 import type { Author, Post, Settings, PrivacyPolicy, AuthorMetaDataInfo } from '@types'
@@ -127,6 +128,19 @@ export async function getFCSPosts(
 ): Promise<{ posts: Post[]; totalPosts: number }> {
   if (client) {
     return await client.fetch(fcsPostsQuery, { pageIndex })
+  }
+  return { posts: [], totalPosts: 0 }
+}
+
+export async function getSubdivisionPosts(
+  category: string,
+  pageIndex: number
+): Promise<{ posts: Post[]; totalPosts: number }> {
+  if (client) {
+    return await client.fetch(subDivisionPostsQuery, {
+      category: category.toUpperCase(),
+      pageIndex,
+    })
   }
   return { posts: [], totalPosts: 0 }
 }

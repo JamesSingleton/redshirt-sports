@@ -5,3 +5,11 @@ export const NAVIGATION_ITEMS = [
   { name: 'About Us', href: '/about' },
   { name: 'Contact Us', href: '/contact' },
 ]
+
+export const FBS = 'fbs'
+export const FCS = 'fcs'
+
+export const SUBDIVISIONS = {
+  fbs: 'fbs',
+  fcs: 'fcs',
+}

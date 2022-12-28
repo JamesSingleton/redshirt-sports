@@ -1,16 +1,18 @@
 import { SocialMediaFollow } from '@components/common'
 import { CategoryHeader, ArticleList } from '@components/ui'
-import { getFCSPosts } from '@lib/sanity.client'
+import { getSubdivisionPosts } from '@lib/sanity.client'
+
+const category = 'fcs'
 
 const breadCrumbPages = [
   {
-    name: 'FCS',
-    href: '/fcs',
+    name: category.toUpperCase(),
+    href: `/${category}`,
   },
 ]
 
 export default async function Page() {
-  const fcsIndex = await getFCSPosts(1)
+  const fcsIndex = await getSubdivisionPosts(category, 1)
   const { posts, totalPosts } = fcsIndex
   const totalPages = Math.ceil(totalPosts / 10)
 
@@ -29,6 +31,7 @@ export default async function Page() {
               totalPages={totalPages}
               totalPosts={totalPosts}
               currentPage="1"
+              path={category}
             />
           </div>
           <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">

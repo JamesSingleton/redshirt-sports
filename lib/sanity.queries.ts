@@ -201,6 +201,15 @@ export const fcsPostsQuery = groq`
   }
 `
 
+export const subDivisionPostsQuery = groq`
+  {
+    "posts": *[_type == "post" && category == $category ] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+      ${litePostFields}
+    },
+    "totalPosts": count(*[_type == "post" && category == $category && defined(slug.current) ]._id)
+  }
+`
+
 export const totalPostsQuery = groq`
   count(*[
     _type == "post" && category == $category &&
