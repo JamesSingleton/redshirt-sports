@@ -1,6 +1,7 @@
 import MetaDescription from '@components/common/MetaDescription'
 import { getPostMetaDataInfoBySlug } from '@lib/sanity.client'
 import { urlForImage } from '@lib/sanity.image'
+import { SITE_URL } from '@lib/constants'
 
 export default async function Head({ params }: { params: { slug: string } }) {
   const metaData = await getPostMetaDataInfoBySlug(params.slug)
@@ -18,7 +19,9 @@ export default async function Head({ params }: { params: { slug: string } }) {
       {/* meta tag for og image */}
       <meta
         property="og:image"
-        content={urlForImage(metaData?.mainImage).width(1200).height(630).url()}
+        content={`${SITE_URL}/api/article-og?${new URLSearchParams({
+          slug: params.slug,
+        })}`}
       />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />

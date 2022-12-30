@@ -16,7 +16,7 @@ export default function Head() {
         site_name: 'Redshirt Sports',
         images: [
           {
-            url: `${SITE_URL}/api/categoryOG?${new URLSearchParams({
+            url: `${SITE_URL}/api/category-og?${new URLSearchParams({
               title: 'Latest FBS Football News',
             })}`,
             width: 1200,
