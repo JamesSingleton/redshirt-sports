@@ -1,4 +1,3 @@
-import DefaultMetaTags from '@components/common/DefaultMetaTags'
 import MetaDescription from '@components/common/MetaDescription'
 import { getPostMetaDataInfoBySlug } from '@lib/sanity.client'
 import { urlForImage } from '@lib/sanity.image'
@@ -15,7 +14,6 @@ export default async function Head({ params }: { params: { slug: string } }) {
     <>
       <title>{`${metaData?.title} | Redshirt Sports`}</title>
       <MetaDescription value={metaData?.excerpt} />
-      <DefaultMetaTags />
       <meta property="og:title" content={`${metaData?.title} | Redshirt Sports`} />
       {/* meta tag for og image */}
       <meta

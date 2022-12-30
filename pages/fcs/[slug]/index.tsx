@@ -1,5 +1,4 @@
 import { SocialMediaFollow } from '@components/common'
-import SEO from '@components/common/SEO'
 import { CategoryHeader, HorizontalCard } from '@components/ui'
 import { getSubCategories, subCategorySlugs } from '@lib/queries'
 import { sanityClient } from '@lib/sanity.server'
@@ -34,15 +33,6 @@ export default function SubCategory({
   ]
   return (
     <>
-      <SEO
-        title={`${title} Football`}
-        description={description}
-        openGraph={{
-          title: `${title} Football | Redshirt Sports`,
-          description,
-          url: `https://www.redshirtsports.xyz/${parentSlug}/${slug}`,
-        }}
-      />
       <CategoryHeader
         title={`Latest ${title} Football News`}
         aboveTitle="Football Championship Subdivision"

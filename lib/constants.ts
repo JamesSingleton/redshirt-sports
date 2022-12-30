@@ -1,7 +1,8 @@
-export const SITE_URL = 'https://www.redshirtsports.xyz'
+export const SITE_URL = `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : ''}`
 
 export const NAVIGATION_ITEMS = [
   { name: 'FCS', href: '/fcs' },
+  { name: 'FBS', href: '/fbs' },
   { name: 'About Us', href: '/about' },
   { name: 'Contact Us', href: '/contact' },
 ]

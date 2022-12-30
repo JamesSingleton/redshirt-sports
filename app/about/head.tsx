@@ -1,8 +1,10 @@
 import Script from 'next/script'
+import { NextSeo, NextSeoProps } from 'next-seo'
 
 import MetaDescription from '@components/common/MetaDescription'
-import DefaultMetaTags from '@components/common/DefaultMetaTags'
 import { Organization, WebSite } from '@lib/ldJson'
+import { NEXT_SEO_DEFAULT } from '@config/next-seo.config'
+import { SITE_URL } from '@lib/constants'
 
 const ldJsonContent = {
   '@context': 'http://schema.org',
@@ -53,15 +55,22 @@ const ldJsonContent = {
   ],
 }
 
+const updateMeta: NextSeoProps = {
+  ...NEXT_SEO_DEFAULT,
+  title: 'About Us',
+  description:
+    'Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!',
+  canonical: `${SITE_URL}/about`,
+  openGraph: {
+    ...NEXT_SEO_DEFAULT.openGraph,
+    url: `${SITE_URL}/about`,
+  },
+}
+
 export default function Head() {
   return (
     <>
-      <title>About Us | Redshirt Sports</title>
-      <meta property="og:title" content="About Us | Redshirt Sports" />
-      <DefaultMetaTags />
-      <MetaDescription value="Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!" />
-      <link rel="canonical" href="https://redshirtsports.com/about" />
-      <meta property="og:url" content="https://redshirtsports.com/about" />
+      <NextSeo {...updateMeta} useAppDir={true} />
       <Script
         id="about-ld-json"
         type="application/ld+json"

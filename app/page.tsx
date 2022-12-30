@@ -1,14 +1,23 @@
+import { OrganizationJsonLd } from 'next-seo'
+
 import { getHomePage } from '@lib/sanity.client'
 import Hero from '@components/home/Hero'
 import ArticleSection from '@components/home/ArticleSection'
 import FeaturedArticles from '@components/home/FeaturedArticles'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
+import { SITE_URL } from '@lib/constants'
 
 export default async function IndexRoute() {
   const [posts] = await Promise.all([getHomePage()])
 
   return (
     <main>
+      <OrganizationJsonLd
+        useAppDir={true}
+        type="NewsMediaOrganization"
+        name="Redshirt Sports"
+        url={SITE_URL}
+      />
       <Hero mainArticle={posts.mainArticle} recentArticles={posts.recentArticles} />
       <section className="relative mx-auto max-w-7xl py-12 md:py-16 lg:py-20 lg:px-8">
         <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8">
