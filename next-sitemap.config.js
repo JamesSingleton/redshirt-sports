@@ -61,10 +61,6 @@ module.exports = {
         userAgent: '*',
         allow: '/',
       },
-      {
-        userAgent: '*',
-        disallow: '/api',
-      },
     ],
     additionalSitemaps: sitemaps.map(
       (sitemap) => `https://www.redshirtsports.xyz/sitemaps/${sitemap}`
