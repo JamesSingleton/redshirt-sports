@@ -45,10 +45,10 @@ export default async function og(req: NextRequest, res: NextResponse) {
         <div tw="flex items-start justify-start h-full">
           <div tw="flex w-2/5 flex-col justify-between h-full pl-4 py-4 bg-gray-50">
             <div tw="flex flex-col">
-              <p tw="text-xl font-bold mb-0 text-red-500">redshirtsports.xyz</p>
-              <h1 tw="text-3xl font-black text-left">{title}</h1>
+              <p tw="text-2xl font-bold mb-0 text-red-500">redshirtsports.xyz</p>
+              <h1 tw="text-5xl font-black text-left">{title}</h1>
             </div>
-            <p tw="text-2xl font-bold">{`By ${author}`}</p>
+            <p tw="text-3xl font-bold">{`By ${author}`}</p>
           </div>
           <div tw="flex w-3/5 h-full">
             <img
