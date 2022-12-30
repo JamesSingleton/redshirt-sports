@@ -11,11 +11,13 @@ export default function Head() {
       openGraph={{
         type: 'website',
         locale: 'en_US',
-        url: 'https://redshirtsports.xyz/fcs',
+        url: `${SITE_URL}/fcs`,
         site_name: 'Redshirt Sports',
         images: [
           {
-            url: 'https://redshirtsports.xyz/images/og/fcs.png',
+            url: `${SITE_URL}/api/categoryOG?${new URLSearchParams({
+              title: 'Latest FCS Football News',
+            })}`,
             width: 1200,
             height: 630,
             alt: 'FCS Football News, Rumors, and More',

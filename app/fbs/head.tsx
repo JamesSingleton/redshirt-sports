@@ -1,16 +1,36 @@
-import DefaultMetaTags from '@components/common/DefaultMetaTags'
-import MetaDescription from '@components/common/MetaDescription'
+import { NextSeo } from 'next-seo'
+
+import { SITE_URL } from '@lib/constants'
 
 export default function Head() {
   return (
-    <>
-      <title>FBS Football News, Standings, Rumors | Redshirt Sports</title>
-      <DefaultMetaTags />
-      <MetaDescription value="Check out all the coverage on NCAA Division 1 Football Bowl Subdivision written by the team here at Redshirt Sports!" />
-      <meta property="og:title" content="FBS Football News, Standings, Rumors | Redshirt Sports" />
-      <meta property="og:type" content="website" />
-      <meta property="og:url" content="https://redshirtsports.com/fbs" />
-      <link rel="canonical" href="https://redshirtsports.com/fbs" />
-    </>
+    <NextSeo
+      useAppDir={true}
+      title="FBS Football News, Standings, Rumors"
+      description="Check out all the coverage on NCAA Division 1 Football Bowl Subdivision written by the team here at Redshirt Sports!"
+      canonical={`${SITE_URL}/fbs`}
+      openGraph={{
+        type: 'website',
+        locale: 'en_US',
+        url: `${SITE_URL}/fbs`,
+        site_name: 'Redshirt Sports',
+        images: [
+          {
+            url: `${SITE_URL}/api/categoryOG?${new URLSearchParams({
+              title: 'Latest FBS Football News',
+            })}`,
+            width: 1200,
+            height: 630,
+            alt: 'FBS Football News, Standings, Rumors',
+          },
+        ],
+      }}
+      additionalLinkTags={[
+        {
+          rel: 'next',
+          href: `${SITE_URL}/fbs/page/2`,
+        },
+      ]}
+    />
   )
 }

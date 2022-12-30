@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <head>
           <meta charSet="UTF-8" />
           <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-          <NextSeo useAppDir={true} {...NEXT_SEO_DEFAULT} />
+          <NextSeo useAppDir={true} titleTemplate="%s | Redshirt Sports" />
         </head>
         <body className="bg-white text-slate-600 antialiased">
           <Navbar />
