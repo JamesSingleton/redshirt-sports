@@ -34,6 +34,7 @@ export default async function Head({ params }: { params: { slug: string } }) {
       <meta name="twitter:data2" content={readingTime} />
       <meta property="article:published_time" content={metaData?.publishedAt} />
       <meta property="article:modified_time" content={metaData?._updatedAt} />
+      <meta name="twitter:card" content="summary_large_image"></meta>
       <meta
         property="article:author"
         content={`${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : ''}/authors/${

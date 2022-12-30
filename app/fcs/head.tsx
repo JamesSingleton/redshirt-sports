@@ -31,6 +31,11 @@ export default function Head() {
           href: `${SITE_URL}/fcs/page/2`,
         },
       ]}
+      twitter={{
+        handle: '@RedshirtSports',
+        site: '@RedshirtSports',
+        cardType: 'summary_large_image',
+      }}
     />
   )
 }
