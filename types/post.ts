@@ -19,6 +19,7 @@ export type Category = {
   parentSlug?: string
   parentTitle?: string
   description: string
+  posts?: Post[]
 }
 
 export type Author = {

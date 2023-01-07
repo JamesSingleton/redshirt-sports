@@ -76,49 +76,7 @@ const authorFields = `
 
 export const settingsQuery = groq`*[_type == "settings"][0]`
 
-export const postBySlugQuery = groq`
-*[_type == "post" && slug.current == $slug][0] {
-  ${postFields}
-}
-`
-
-export const postSlugsQuery = groq`
-*[_type == "post" && defined(slug.current)][].slug.current
-`
-
-export const authorSlugsQuery = groq`
-*[_type == "author" && defined(slug.current)][].slug.current
-`
-
-export const postMetaDataInfoBySlugQuery = groq`
-*[_type == "post" && slug.current == $slug][0] {
-  _id,
-  title,
-  _updatedAt,
-  publishedAt,
-  mainImage,
-  "slug": slug.current,
-  category,
-  excerpt,
-  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
-  "author": author->{name, 'slug': slug.current, socialMedia}
-}
-`
-
-export const authorMetaDataInfoBySlugQuery = groq`
-*[_type == "author" && slug.current == $slug][0] {
-  _id,
-  name,
-  'slug': slug.current,
-  role,
-  "image": {
-    "asset": image.asset->{_id, _type, metadata, url}
-  },
-  bio,
-  socialMedia,
-}
-`
-
+// Home Page Queries
 export const homePageQuery = groq`
 {
   'mainArticle': *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0] {
@@ -136,6 +94,33 @@ export const homePageQuery = groq`
 }
 `
 
+// Post Queries
+
+export const postBySlugQuery = groq`
+*[_type == "post" && slug.current == $slug][0] {
+  ${postFields}
+}
+`
+
+export const postSlugsQuery = groq`
+*[_type == "post" && defined(slug.current)][].slug.current
+`
+
+export const postMetaDataInfoBySlugQuery = groq`
+*[_type == "post" && slug.current == $slug][0] {
+  _id,
+  title,
+  _updatedAt,
+  publishedAt,
+  mainImage,
+  "slug": slug.current,
+  category,
+  excerpt,
+  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
+  "author": author->{name, 'slug': slug.current, socialMedia}
+}
+`
+
 export const postAndMoreStoriesQuery = groq`
 *[_type == "post" && slug.current == $slug]{
   "post": {
@@ -145,6 +130,25 @@ export const postAndMoreStoriesQuery = groq`
     ${postFields}
   }
 }|order(publishedAt)[0]
+`
+
+// Author Queries
+export const authorSlugsQuery = groq`
+*[_type == "author" && defined(slug.current)][].slug.current
+`
+
+export const authorMetaDataInfoBySlugQuery = groq`
+*[_type == "author" && slug.current == $slug][0] {
+  _id,
+  name,
+  'slug': slug.current,
+  role,
+  "image": {
+    "asset": image.asset->{_id, _type, metadata, url}
+  },
+  bio,
+  socialMedia,
+}
 `
 
 export const allAuthorsQuery = groq`
@@ -170,21 +174,7 @@ export const authorAndPostsQuery = groq`
 }
 `
 
-export const privacyPolicyQuery = `
-*[_type == "legal" && slug.current == "privacy-policy"][0] {
-  _id,
-  _updatedAt,
-  title,
-  slug,
-  body
-}
-`
-
-export const searchQuery = groq`
-*[_type == 'post' && title match "*" + $query + "*"] | order(publishedAt desc, _updatedAt desc)[0..10]{
-  ${litePostFields}
-}
-`
+// Category Queries
 export const FCS_COLLECTION_FRAGMENT = groq`
 *[
   _type == "post" && category == 'FCS' &&
@@ -201,12 +191,21 @@ export const fcsPostsQuery = groq`
   }
 `
 
-export const subDivisionPostsQuery = groq`
+export const subdividionPostsQuery = groq`
+{
+  "posts": *[_type == "post" && category == $category] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+    ${litePostFields}
+  },
+  "totalPosts": count(*[_type == "post" && category == $category && defined(slug.current) ]._id)
+}
+`
+
+export const conferencePostsQuery = groq`
   {
-    "posts": *[_type == "post" && category == $category ] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+    "posts": *[_type == "post" && subcategory -> slug.current == $category] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
       ${litePostFields}
     },
-    "totalPosts": count(*[_type == "post" && category == $category && defined(slug.current) ]._id)
+    "totalPosts": count(*[_type == "post" && subcategory -> slug.current == $category && defined(slug.current) ]._id)
   }
 `
 
@@ -215,4 +214,94 @@ export const totalPostsQuery = groq`
     _type == "post" && category == $category &&
     defined(slug.current)
   ]._id)
+`
+
+export const subCategorySlugsQuery = groq`
+*[_type == "category" && defined(parent->slug.current) && count(*[_type == 'post' && references(^._id)]) > 0][].slug.current
+`
+
+export const subCategoryPostsQuery = groq`
+*[_type == "category" && defined(parent->slug.current) && slug.current == $slug && count(*[_type == 'post' && references(^._id)]) > 0][0]{
+  _id,
+  title,
+  _updatedAt,
+  "parentSlug": parent->slug.current,
+  "parentTitle": parent->title,
+  "slug": slug.current,
+  description,
+}
+`
+
+export const getCategories = groq`*[_type == "category" && count(*[_type == 'post' && references(^._id)]) > 0]{
+  _id,
+  title,
+  _updatedAt,
+  "parentSlug": parent->slug.current,
+  "slug": slug.current,
+  description
+}`
+
+// Misc Queries
+
+export const privacyPolicyQuery = `
+*[_type == "legal" && slug.current == "privacy-policy"][0] {
+  _id,
+  _updatedAt,
+  title,
+  slug,
+  body
+}
+`
+
+export const searchQuery = groq`
+*[_type == 'post' && title match "*" + $query + "*"] | order(publishedAt desc, _updatedAt desc)[0..10]{
+  ${litePostFields}
+}
+`
+
+// Sitemap and RSS Feed Queries
+
+export const allPostsForRssFeed = groq`
+*[_type == 'post']{
+  _id,
+  'slug': slug.current,
+  publishedAt,
+  _updatedAt,
+  title,
+  excerpt,
+  "mainImage": {
+    "caption": mainImage.caption,
+    "attribution": mainImage.attribution,
+    "asset": mainImage.asset->{ 
+      _id,
+      _type,
+      metadata,
+      url
+     }
+  },
+  "author": author->{name, 'slug': slug.current},
+  body[]{
+    ...,
+    markDefs[]{
+      ...,
+      _type == "internalLink" => {
+        "slug": @.reference->slug
+      }
+    }
+  },
+}
+`
+
+export const getAllAuthorsForSitemap = groq`
+*[_type == 'author' && defined(slug.current)]{
+  _updatedAt,
+  "slug": slug.current,
+}
+`
+
+export const getAllPostsForSitemap = groq`
+*[_type == 'post' && defined(slug.current)]{
+  _updatedAt,
+  "slug": slug.current,
+}
 `

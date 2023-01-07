@@ -2,7 +2,7 @@ import { GetServerSideProps } from 'next'
 import { getServerSideSitemap } from 'next-sitemap'
 
 import { sanityClient } from '@lib/sanity.server'
-import { getAllAuthorsForSitemap } from '@lib/queries'
+import { getAllAuthorsForSitemap } from '@lib/sanity.queries'
 
 import type { Author } from '@types'
 

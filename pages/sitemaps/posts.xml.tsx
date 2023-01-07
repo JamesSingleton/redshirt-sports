@@ -2,7 +2,7 @@ import { GetServerSideProps } from 'next'
 import { getServerSideSitemap } from 'next-sitemap'
 
 import { sanityClient } from '@lib/sanity.server'
-import { getAllPostsForSitemap } from '@lib/queries'
+import { getAllPostsForSitemap } from '@lib/sanity.queries'
 
 import type { Post } from '@types'
 

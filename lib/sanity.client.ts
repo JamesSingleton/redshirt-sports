@@ -18,10 +18,13 @@ import {
   authorSlugsQuery,
   authorAndPostsQuery,
   totalPostsQuery,
-  subDivisionPostsQuery,
+  conferencePostsQuery,
+  subCategorySlugsQuery,
+  subCategoryPostsQuery,
+  subdividionPostsQuery,
 } from './sanity.queries'
 
-import type { Author, Post, Settings, PrivacyPolicy, AuthorMetaDataInfo } from '@types'
+import type { Author, Post, Settings, PrivacyPolicy, AuthorMetaDataInfo, Category } from '@types'
 
 const client = projectId ? createClient({ projectId, dataset, apiVersion, useCdn }) : null
 
@@ -46,6 +49,14 @@ export async function getPostBySlug(slug: string): Promise<Post> {
     return (await client.fetch(postBySlugQuery, { slug })) || ({} as any)
   }
   return {} as any
+}
+
+export async function getAllSubCategorySlugs(): Promise<Pick<Category, 'slug'>[]> {
+  if (client) {
+    const slugs = (await client.fetch<string[]>(subCategorySlugsQuery)) || []
+    return slugs.map((slug) => ({ slug }))
+  }
+  return []
 }
 
 export async function getPostMetaDataInfoBySlug(slug: string): Promise<{
@@ -137,8 +148,18 @@ export async function getSubdivisionPosts(
   pageIndex: number
 ): Promise<{ posts: Post[]; totalPosts: number }> {
   if (client) {
-    return await client.fetch(subDivisionPostsQuery, {
-      category: category.toUpperCase(),
+    return await client.fetch(subdividionPostsQuery, { category, pageIndex })
+  }
+  return { posts: [], totalPosts: 0 }
+}
+
+export async function getConferencePosts(
+  category: string,
+  pageIndex: number
+): Promise<{ posts: Post[]; totalPosts: number }> {
+  if (client) {
+    return await client.fetch(conferencePostsQuery, {
+      category,
       pageIndex,
     })
   }
@@ -174,4 +195,13 @@ export async function getTotalPosts(category: string): Promise<number> {
     })
   }
   return 0
+}
+
+export async function getSubCategoryInfoBySlug(slug: string): Promise<Category> {
+  if (client) {
+    return await client.fetch(subCategoryPostsQuery, {
+      slug,
+    })
+  }
+  return {} as any
 }

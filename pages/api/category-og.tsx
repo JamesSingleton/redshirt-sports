@@ -49,6 +49,7 @@ export default async function og(req: NextRequest, res: NextResponse) {
             style={{
               marginLeft: 8,
               fontSize: 20,
+              top: 3,
             }}
           >
             redshirtsports.xyz

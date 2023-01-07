@@ -11,7 +11,8 @@ const breadCrumbPages = [
 ]
 
 export default async function Page() {
-  const fbsIndexPosts = await getSubdivisionPosts(FBS, 1)
+  const fbsIndexPosts = await getSubdivisionPosts(FBS.toUpperCase(), 1)
+
   const { posts, totalPosts } = fbsIndexPosts
 
   const totalPages = Math.ceil(totalPosts / 10)

@@ -1,11 +1,11 @@
 import { CategoryHeader, ArticleList } from '@components/ui'
 import { SocialMediaFollow } from '@components/common'
-import { getSubdivisionPosts } from '@lib/sanity.client'
+import { getConferencePosts } from '@lib/sanity.client'
 import { SUBDIVISIONS } from '@lib/constants'
 
 export default async function FbsPage({ params }: { params: { page: string } }) {
   const { page } = params
-  const { posts, totalPosts } = await getSubdivisionPosts(SUBDIVISIONS.fbs, parseInt(page, 10))
+  const { posts, totalPosts } = await getConferencePosts(SUBDIVISIONS.fbs, parseInt(page, 10))
   const totalPages = Math.ceil(totalPosts / 10)
 
   return (

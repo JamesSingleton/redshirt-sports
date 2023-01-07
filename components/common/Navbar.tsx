@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useSelectedLayoutSegment } from 'next/navigation'
 import { Popover } from '@headlessui/react'
 import Bars3Icon from '@heroicons/react/24/outline/Bars3Icon'
 import clsx from 'clsx'
@@ -14,7 +14,7 @@ import { NAVIGATION_ITEMS } from '@lib/constants'
 const MobileNav = dynamic(() => import('./MobileNav'))
 
 const Navbar = () => {
-  const pathname = usePathname()
+  const segment = useSelectedLayoutSegment()
 
   return (
     <Popover as="header" className="shadow">
@@ -44,7 +44,7 @@ const Navbar = () => {
                       prefetch={false}
                       className={clsx(
                         'inline-flex items-center border-b-2 px-1 pt-1 text-lg font-medium',
-                        pathname === href
+                        href === `/${segment}`
                           ? 'border-brand-500 text-slate-900'
                           : 'border-transparent text-slate-800 hover:border-slate-300 hover:text-slate-700'
                       )}

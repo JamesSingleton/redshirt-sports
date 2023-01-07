@@ -1,24 +1,31 @@
 import { SocialMediaFollow } from '@components/common'
 import { CategoryHeader, ArticleList } from '@components/ui'
-import { getSubdivisionPosts } from '@lib/sanity.client'
-import { FCS } from '@lib/constants'
+import { getConferencePosts, getSubCategoryInfoBySlug } from '@lib/sanity.client'
 
-const breadCrumbPages = [
-  {
-    name: FCS.toUpperCase(),
-    href: `/${FCS}`,
-  },
-]
-
-export default async function Page() {
-  const fcsIndex = await getSubdivisionPosts(FCS.toUpperCase(), 1)
-  const { posts, totalPosts } = fcsIndex
+export default async function Page({ params }: { params: any }) {
+  const { slug, page } = params
+  const { posts, totalPosts } = await getConferencePosts(slug, parseInt(page, 10))
+  const data = await getSubCategoryInfoBySlug(slug)
   const totalPages = Math.ceil(totalPosts / 10)
+
+  const { parentSlug, parentTitle, title } = data
+  const path = `${parentSlug}/${slug}`
+
+  const breadCrumbPages = [
+    {
+      name: parentTitle!,
+      href: `/${parentSlug!}`,
+    },
+    {
+      name: title!,
+      href: `/${parentSlug!}/${slug}`,
+    },
+  ]
 
   return (
     <>
       <CategoryHeader
-        title="Latest FCS Football News"
+        title={`Latest ${title} Football News`}
         aboveTitle="Football Championship Subdivision"
         breadCrumbPages={breadCrumbPages}
       />
@@ -29,8 +36,8 @@ export default async function Page() {
               articles={posts}
               totalPages={totalPages}
               totalPosts={totalPosts}
-              currentPage="1"
-              path={FCS}
+              currentPage={page}
+              path={path}
             />
           </div>
           <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
