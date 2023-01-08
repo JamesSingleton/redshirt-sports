@@ -41,7 +41,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
               </div>
               <div className="order-1 mt-5 w-full px-2 md:mt-0 md:max-w-sm md:pl-0 md:pr-5 lg:order-2 lg:mt-4 xl:ml-5 xl:mt-0 xl:flex-1">
                 <span className="font-archivoNarrow text-xs font-medium uppercase tracking-widest text-brand-500 duration-300 ease-in-out">
-                  {post.category}
+                  {post.subcategory ? post.subcategory.title : post.category}
                 </span>
                 <h3 className="=transition font-inter mt-2 text-xl font-medium leading-normal tracking-normal duration-300 ease-in-out">
                   {post.title}

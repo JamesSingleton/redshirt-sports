@@ -64,6 +64,14 @@ export type Post = {
   slug: string
   title: string
   category: string
+  subcategory: {
+    _id: string
+    _type: string
+    title: string
+    slug: string
+    parentSlug: string
+    parentTitle: string
+  }
   featuredArticle: boolean
   excerpt: string
   body: any

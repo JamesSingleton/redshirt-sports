@@ -18,6 +18,14 @@ const postFields = `
     }
   },
   category,
+  "subcategory": subcategory->{
+    _id,
+    _type,
+    title,
+    'slug': slug.current,
+    "parentSlug": parent->slug.current,
+    "parentTitle": parent->title,
+  },
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, bio, role, socialMedia, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,

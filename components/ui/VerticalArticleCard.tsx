@@ -32,7 +32,9 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
         />
         <div className="flex flex-1 flex-col justify-between bg-white p-6">
           <div className="flex-1">
-            <p className="text-sm font-medium uppercase text-brand-600">{article.category}</p>
+            <p className="text-sm font-medium uppercase text-brand-600">
+              {article.subcategory ? article.subcategory.title : article.category}
+            </p>
             <div className="mt-2">
               <h3 className="font-cal text-xl font-semibold text-slate-900">{article.title}</h3>
               <p className="mt-3 text-base text-slate-500">{article.excerpt}</p>

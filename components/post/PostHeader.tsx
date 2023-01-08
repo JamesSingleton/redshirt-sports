@@ -34,13 +34,23 @@ const PostHeader = ({ post }: PostHeaderProps) => {
 
       <div className="px-5 lg:px-0">
         <div className="mx-auto mb-8 max-w-prose border-b border-slate-300/70 pt-10 pb-8 text-lg sm:pt-16">
-          <Link
-            href={`/${post.category.toLowerCase()}`}
-            prefetch={false}
-            className="relative font-archivoNarrow text-sm font-medium uppercase tracking-widest text-brand-500 duration-300 ease-in-out"
-          >
-            {post.category}
-          </Link>
+          {post.subcategory ? (
+            <Link
+              href={`/${post.subcategory.parentSlug}/${post.subcategory.slug}`}
+              prefetch={false}
+              className="relative font-archivoNarrow text-sm font-medium uppercase tracking-widest text-brand-500 duration-300 ease-in-out"
+            >
+              {post.subcategory.title}
+            </Link>
+          ) : (
+            <Link
+              href={`/${post.category.toLowerCase()}`}
+              prefetch={false}
+              className="relative font-archivoNarrow text-sm font-medium uppercase tracking-widest text-brand-500 duration-300 ease-in-out"
+            >
+              {post.category}
+            </Link>
+          )}
           <h1 className="mt-3 font-sans text-4xl font-medium text-slate-900 transition duration-300 ease-in-out sm:my-5 sm:text-4xl sm:leading-tight lg:text-5xl">
             {post.title}
           </h1>
