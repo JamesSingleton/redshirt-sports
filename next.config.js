@@ -83,7 +83,7 @@ const moduleExports = {
     ]
   },
   sentry: {
-    excludeServerRoutes: ['/api/og'],
+    excludeServerRoutes: ['/api/og', '/api/article-og', '/api/category-og'],
   },
 }
 

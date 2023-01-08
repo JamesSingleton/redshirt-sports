@@ -10,8 +10,8 @@ import type { PageConfig } from 'next/types'
 export const config: PageConfig = { runtime: 'experimental-edge' }
 
 export default async function og(req: NextRequest, res: NextResponse) {
-  const font = fetch(new URL('public/fonts/IndustryInc-Base.ttf', import.meta.url)).then((res) =>
-    res.arrayBuffer()
+  const font = fetch(new URL('../../public/fonts/IndustryInc-Base.ttf', import.meta.url)).then(
+    (res) => res.arrayBuffer()
   )
 
   const { searchParams } = new URL(req.url)
