@@ -1,7 +1,6 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
-import { usePlausible } from 'next-plausible'
 import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
 import { Layout, SEO } from '@components/common'
@@ -26,7 +25,6 @@ interface AuthorProps {
 }
 
 const Author = ({ author }: AuthorProps) => {
-  const plausible = usePlausible()
   const [firstName, lastName] = author.name.split(' ')
   const content = createAuthorLDJson(author)
   return (
@@ -92,14 +90,6 @@ const Author = ({ author }: AuthorProps) => {
                       <li key={social._key}>
                         <a
                           href={social.url}
-                          onClick={() =>
-                            plausible('clickOnAuthorSocialMedia', {
-                              props: {
-                                item: social.name,
-                                url: social.url,
-                              },
-                            })
-                          }
                           target="_blank"
                           className="group flex"
                           rel="noreferrer noopener"

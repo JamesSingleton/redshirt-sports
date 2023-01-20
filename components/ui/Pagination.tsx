@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { usePlausible } from 'next-plausible'
-import clsx from 'clsx'
 
 export default function Pagination({
   currentPage,
@@ -20,7 +18,6 @@ export default function Pagination({
   const to =
     parseInt(currentPage, 10) * 10 > totalPosts ? totalPosts : parseInt(currentPage, 10) * 10
 
-  const plausible = usePlausible()
   return (
     <nav
       className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6"
@@ -42,13 +39,6 @@ export default function Pagination({
           <Link
             href={prevPageUrl}
             prefetch={false}
-            onClick={() =>
-              plausible('clickOnPagination', {
-                props: {
-                  direction: 'previous',
-                },
-              })
-            }
             aria-label="Previous Page"
             className="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
@@ -63,13 +53,6 @@ export default function Pagination({
           <Link
             href={nextPageUrl}
             prefetch={false}
-            onClick={() =>
-              plausible('clickOnPagination', {
-                props: {
-                  direction: 'next',
-                },
-              })
-            }
             aria-label="Next Page"
             className="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >

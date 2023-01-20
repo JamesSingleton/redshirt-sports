@@ -3,7 +3,6 @@ import Image from 'next/image'
 import CalendarIcon from '@heroicons/react/24/outline/CalendarIcon'
 import ClockIcon from '@heroicons/react/24/outline/ClockIcon'
 import CameraIcon from '@heroicons/react/24/outline/CameraIcon'
-import { usePlausible } from 'next-plausible'
 
 import { urlForImage } from '@lib/sanity'
 import { Date } from '@components/ui'
@@ -15,8 +14,6 @@ interface PostHeaderProps {
 }
 
 const PostHeader = ({ post }: PostHeaderProps) => {
-  const plausible = usePlausible()
-
   return (
     <header className="sm:px-10 sm:pt-10">
       <div className="mx-auto max-w-screen-lg">
@@ -40,13 +37,6 @@ const PostHeader = ({ post }: PostHeaderProps) => {
           <Link
             href={`/${post.category.toLowerCase()}`}
             prefetch={false}
-            onClick={() =>
-              plausible('clickOnArticleCategory', {
-                props: {
-                  item: post.category,
-                },
-              })
-            }
             className="relative text-sm font-medium uppercase tracking-widest text-brand-500 duration-300 ease-in-out"
           >
             {post.category}
@@ -56,12 +46,7 @@ const PostHeader = ({ post }: PostHeaderProps) => {
           </h1>
           <p className="mt-4 text-base leading-loose text-slate-600">{post.excerpt}</p>
           <div className="mt-6 flex items-center sm:mt-8">
-            <Link
-              href={`/authors/${post.author.slug}`}
-              prefetch={false}
-              onClick={() => plausible('clickOnAuthor')}
-              className="mr-3 shrink-0"
-            >
+            <Link href={`/authors/${post.author.slug}`} prefetch={false} className="mr-3 shrink-0">
               <Image
                 alt={post.author.name}
                 src={urlForImage(post.author.image).width(72).height(72).quality(60).url()}
@@ -78,7 +63,6 @@ const PostHeader = ({ post }: PostHeaderProps) => {
               <Link
                 href={`/authors/${post.author.slug}`}
                 prefetch={false}
-                onClick={() => plausible('clickOnAuthor')}
                 className="font-medium text-slate-700 hover:underline"
               >
                 {post.author.name}

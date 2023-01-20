@@ -271,9 +271,6 @@ export const homePageQuery = groq`
     "featuredArticles": *[_type == "post" && featuredArticle == true] | order(publishedAt desc, _updatedAt desc)[0..3] {
       ${litePostFields}
     },
-    "mostReadArticles": *[_type == "post" && featuredArticle != true && slug.current in $topArticles] | order(publishedAt desc, _updatedAt desc)[0..4] {
-      ${litePostFields}
-    }
   }
 `
 
@@ -296,7 +293,7 @@ export const getPrivacyPolicyPage = `
 `
 
 export const searchQuery = groq`
-*[_type == 'post' && title match "*" + $searchTerm + "*"] | order(publishedAt desc, _updatedAt desc)[0..10]{
+*[_type == 'post' && (title match "*" + $searchTerm + "*" || pt::text(body) match "*" + $searchTerm + "*")] | order(publishedAt desc, _updatedAt desc)[0..10]{
   ${litePostFields}
 }
 `

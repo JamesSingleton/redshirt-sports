@@ -1,7 +1,6 @@
 import { GetStaticProps } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePlausible } from 'next-plausible'
 import ArrowRightIcon from '@heroicons/react/24/outline/ArrowRightIcon'
 
 import { Layout, SEO } from '@components/common'
@@ -17,7 +16,6 @@ interface Custom404Props {
 }
 
 const Custom404 = ({ recentArticles }: Custom404Props) => {
-  const plausible = usePlausible()
   return (
     <>
       <SEO
@@ -47,7 +45,6 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                 <Link
                   href="/"
                   prefetch={false}
-                  onClick={() => plausible('clickOn404BackHome')}
                   className="group mt-4 flex items-center text-brand-500 transition duration-300 hover:text-brand-600 sm:mt-5"
                 >
                   Go back home
@@ -65,7 +62,6 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                     <Link
                       href={`/${recentArticle.slug}`}
                       prefetch={false}
-                      onClick={() => plausible('clickOn404Article')}
                       className="py-8 sm:flex lg:items-center lg:py-6 xl:py-8"
                     >
                       <div className="order-2 w-full sm:w-2/5 lg:order-1 lg:w-24 xl:w-1/3">

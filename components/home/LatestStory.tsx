@@ -1,7 +1,6 @@
 import { FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePlausible } from 'next-plausible'
 
 import Date from '@components/ui/Date'
 import { urlForImage } from '@lib/sanity'
@@ -13,10 +12,9 @@ interface LatestStoryProps {
 }
 
 const LatestStory: FC<LatestStoryProps> = ({ post }) => {
-  const plausible = usePlausible()
   return (
     <article className="relative lg:sticky lg:top-8 lg:w-1/2">
-      <Link href={`/${post.slug}`} prefetch={false} onClick={() => plausible('clickOnHeroArticle')}>
+      <Link href={`/${post.slug}`} prefetch={false}>
         <div className="aspect-w-16 aspect-h-9 ">
           <Image
             src={urlForImage(post.mainImage).width(704).height(396).url()}

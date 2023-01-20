@@ -4,7 +4,6 @@ import { useRouter } from 'next/router'
 import { Popover } from '@headlessui/react'
 import Bars3Icon from '@heroicons/react/24/outline/Bars3Icon'
 import clsx from 'clsx'
-import { usePlausible } from 'next-plausible'
 
 import SearchBar from './SearchBar'
 import Logo from '../SmallLogo'
@@ -14,7 +13,6 @@ const MobileNav = dynamic(() => import('./MobileNav'))
 
 const Navbar = () => {
   const router = useRouter()
-  const plausible = usePlausible()
 
   return (
     <Popover as="header" className="shadow">
@@ -27,13 +25,6 @@ const Navbar = () => {
                   <Link
                     href="/"
                     prefetch={false}
-                    onClick={() =>
-                      plausible('clickOnNavbar', {
-                        props: {
-                          item: 'Home',
-                        },
-                      })
-                    }
                     aria-label="Redshirt Sports Small Logo, click to go to the homepage"
                   >
                     <Logo className="h-8 w-auto" />
@@ -49,13 +40,6 @@ const Navbar = () => {
                       href={href}
                       key={name}
                       prefetch={false}
-                      onClick={() =>
-                        plausible('clickOnNavbar', {
-                          props: {
-                            item: name,
-                          },
-                        })
-                      }
                       className={clsx(
                         'inline-flex items-center border-b-2 px-1 pt-1 text-lg font-medium',
                         router.pathname === href

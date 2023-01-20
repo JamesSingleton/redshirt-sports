@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { usePlausible } from 'next-plausible'
 import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
 import { BlurImage } from '@components/ui'
@@ -22,8 +21,6 @@ interface PostFooterProps {
 }
 
 const PostFooter = ({ title, slug, author }: PostFooterProps) => {
-  const plausible = usePlausible()
-
   return (
     <footer className="mx-auto mt-12 max-w-prose divide-y text-lg sm:mt-14">
       <div className="py-8 sm:py-10">
@@ -32,13 +29,6 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
           <ul className="flex items-center space-x-3">
             <li>
               <a
-                onClick={() =>
-                  plausible('ShareArticle', {
-                    props: {
-                      item: 'Facebook',
-                    },
-                  })
-                }
                 target="_blank"
                 rel="noopener noreferrer"
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
@@ -59,13 +49,6 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
             </li>
             <li>
               <a
-                onClick={() =>
-                  plausible('ShareArticle', {
-                    props: {
-                      item: 'Facebook',
-                    },
-                  })
-                }
                 target="_blank"
                 rel="noopener noreferrer"
                 href={`https://www.facebook.com/sharer.php?u=https://www.redshirtsports.xyz/${slug}&quote=${encodeURIComponent(
@@ -98,7 +81,6 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
               <Link
                 href={`/authors/${author.slug}`}
                 prefetch={false}
-                onClick={() => plausible('clickOnAuthor')}
                 className="relative block h-20 w-20 overflow-hidden rounded-2xl bg-slate-100 sm:h-24 sm:w-24"
               >
                 <BlurImage
@@ -113,12 +95,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
             </div>
             <div className="mt-5 text-left sm:ml-6 sm:mt-0">
               <div className="flex items-center justify-between">
-                <Link
-                  href={`/authors/${author.slug}`}
-                  prefetch={false}
-                  onClick={() => plausible('clickOnAuthor')}
-                  className="flex-col"
-                >
+                <Link href={`/authors/${author.slug}`} prefetch={false} className="flex-col">
                   <span className="block text-sm uppercase tracking-widest text-brand-500">
                     {author.role}
                   </span>
@@ -135,14 +112,6 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                   author.socialMedia.map((social) => (
                     <li key={social._key}>
                       <a
-                        onClick={() =>
-                          plausible('clickOnAuthorSocialMedia', {
-                            props: {
-                              item: social.name,
-                              url: social.url,
-                            },
-                          })
-                        }
                         href={social.url}
                         target="_blank"
                         rel="noreferrer noopener"

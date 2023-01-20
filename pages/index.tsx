@@ -1,7 +1,7 @@
 import Head from 'next/head'
 
 import { Layout, SocialMediaFollow, SEO } from '@components/common'
-import { Hero, FeaturedArticles, ArticleSection, MostRead } from '@components/home'
+import { Hero, FeaturedArticles, ArticleSection } from '@components/home'
 import { sanityClient } from '@lib/sanity.server'
 import { homePageQuery } from '@lib/queries'
 import { SITE_URL } from '@lib/constants'
@@ -15,7 +15,6 @@ interface HomePageProps {
   recentArticles: Post[]
   otherArticles: Post[]
   featuredArticles: Post[]
-  mostReadArticles: Post[]
 }
 
 export default function Home({
@@ -23,7 +22,6 @@ export default function Home({
   recentArticles,
   otherArticles,
   featuredArticles,
-  mostReadArticles,
 }: HomePageProps) {
   const content = {
     '@context': 'http://schema.org',
@@ -92,7 +90,6 @@ export default function Home({
             <div className="mx-auto mt-12 w-full max-w-xl space-y-8 px-4 sm:mt-16 sm:px-6 md:max-w-3xl md:px-8 lg:col-span-1 lg:mt-0 lg:max-w-none lg:px-0">
               <FeaturedArticles featuredArticles={featuredArticles} />
               <SocialMediaFollow />
-              <MostRead mostReadArticles={mostReadArticles} />
             </div>
           </div>
         </section>
@@ -102,27 +99,8 @@ export default function Home({
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const response = await fetch(
-    'https://plausible.io/api/v1/stats/breakdown?site_id=redshirtsports.xyz&period=6mo&property=event:page&limit=5',
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.PLAUSIBLE_API_TOKEN}`,
-      },
-    }
-  )
-
-  const topArticles = await response
-    .json()
-    .then((res) =>
-      res.results
-        .filter((result: { page: string }) => result.page !== '/')
-        .map((result: { page: string }) => result.page.replace('/', ''))
-    )
-
   const { mainArticle, recentArticles, otherArticles, featuredArticles, mostReadArticles } =
-    await sanityClient.fetch(homePageQuery, {
-      topArticles: topArticles,
-    })
+    await sanityClient.fetch(homePageQuery)
 
   return {
     props: {
@@ -130,7 +108,6 @@ export const getStaticProps: GetStaticProps = async () => {
       recentArticles,
       otherArticles,
       featuredArticles,
-      mostReadArticles,
     },
   }
 }

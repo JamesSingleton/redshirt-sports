@@ -3,7 +3,6 @@ import Head from 'next/head'
 import Link from 'next/link'
 import ChevronRightIcon from '@heroicons/react/24/solid/ChevronRightIcon'
 import HomeIcon from '@heroicons/react/24/solid/HomeIcon'
-import { usePlausible } from 'next-plausible'
 
 import { Layout, SocialMediaFollow, SEO } from '@components/common'
 import { HorizontalCard } from '@components/ui'
@@ -18,7 +17,6 @@ interface fbsProps {
 }
 
 const FBS = ({ fbsPosts }: fbsProps) => {
-  const plausible = usePlausible()
   const ldJsonContent = {
     '@context': 'http://schema.org',
     '@graph': [
@@ -117,13 +115,6 @@ const FBS = ({ fbsPosts }: fbsProps) => {
                         <Link
                           href="/"
                           prefetch={false}
-                          onClick={() =>
-                            plausible('clickOnBreadCrumb', {
-                              props: {
-                                location: 'Home',
-                              },
-                            })
-                          }
                           className="text-slate-400 hover:text-slate-500"
                         >
                           <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
@@ -140,13 +131,6 @@ const FBS = ({ fbsPosts }: fbsProps) => {
                         <Link
                           href="/fbs"
                           prefetch={false}
-                          onClick={() =>
-                            plausible('clickOnBreadCrumb', {
-                              props: {
-                                location: 'FBS',
-                              },
-                            })
-                          }
                           className="ml-4 text-sm font-medium text-slate-500 hover:text-slate-700"
                           aria-current="page"
                         >

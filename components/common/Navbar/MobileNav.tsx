@@ -2,13 +2,11 @@ import { Fragment } from 'react'
 import Link from 'next/link'
 import { Transition, Popover } from '@headlessui/react'
 import XIcon from '@heroicons/react/24/outline/XMarkIcon'
-import { usePlausible } from 'next-plausible'
 
 import { NAVIGATION_ITEMS } from '@lib/constants'
 import Logo from '../SmallLogo'
 
 const MobileNav = () => {
-  const plausible = usePlausible()
   return (
     <Transition
       as={Fragment}
@@ -43,13 +41,6 @@ const MobileNav = () => {
                     key={item.name}
                     href={item.href}
                     prefetch={false}
-                    onClick={() => {
-                      plausible('clickOnMobileNavbar', {
-                        props: {
-                          item: item.name,
-                        },
-                      })
-                    }}
                     className="-m-3 flex items-center rounded-md p-3 text-slate-900 hover:bg-slate-50"
                   >
                     {item.name}

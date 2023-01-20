@@ -2,7 +2,6 @@ import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePlausible } from 'next-plausible'
 import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
 import { Layout, SEO } from '@components/common'
@@ -11,7 +10,7 @@ import { sanityClient } from '@lib/sanity.server'
 import { allAuthors } from '@lib/queries'
 import { urlForImage } from '@lib/sanity'
 import { Organization, WebSite } from '@lib/ldJson'
-import { Instagram, Twitter, Facebook, Website } from '@components/common/icons'
+import { Instagram, Twitter, Facebook } from '@components/common/icons'
 
 import type { Author } from '@types'
 
@@ -20,7 +19,6 @@ interface AboutProps {
 }
 
 const About = ({ authors }: AboutProps) => {
-  const plausible = usePlausible()
   const ldJsonContent = {
     '@context': 'http://schema.org',
     '@graph': [
@@ -149,11 +147,7 @@ const About = ({ authors }: AboutProps) => {
                       />
                       <div className="mt-6 leading-6">
                         <h3 className="font-cal text-xl font-medium text-slate-900">
-                          <Link
-                            href={`/authors/${author.slug}`}
-                            prefetch={false}
-                            onClick={() => plausible('clickOnAuthor')}
-                          >
+                          <Link href={`/authors/${author.slug}`} prefetch={false}>
                             <span aria-hidden="true" className="absolute inset-0" />
                             {author.name}
                           </Link>
@@ -163,19 +157,7 @@ const About = ({ authors }: AboutProps) => {
                       <ul className="mt-6 flex items-center justify-center space-x-3">
                         {author.socialMedia?.map((social) => (
                           <li key={social._key}>
-                            <a
-                              onClick={() =>
-                                plausible('clickOnAuthorSocialMedia', {
-                                  props: {
-                                    item: social.name,
-                                    url: social.url,
-                                  },
-                                })
-                              }
-                              href={social.url}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
+                            <a href={social.url} target="_blank" rel="noreferrer">
                               <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
                               {social.name === 'Email' ? (
                                 <EnvelopeOpenIcon className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
@@ -216,7 +198,6 @@ const About = ({ authors }: AboutProps) => {
             <Link
               href="/contact"
               prefetch={false}
-              onClick={() => plausible('Join Our Team')}
               className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-brand-600 hover:bg-brand-50 sm:w-auto"
             >
               Join our team
