@@ -98,13 +98,14 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
       className={`${className} tweet my-4 w-full rounded-lg border border-slate-300 bg-white px-8 pt-6 pb-2`}
     >
       <div className="flex items-center">
-        <a
-          className="flex h-12 w-12 overflow-hidden rounded-full"
-          href={authorUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <BlurImage alt={author.username} height={48} width={48} src={author.profile_image_url} />
+        <a href={authorUrl} target="_blank" rel="noopener noreferrer">
+          <BlurImage
+            alt={author.username}
+            className="flex h-12 w-12 overflow-hidden rounded-full"
+            height={48}
+            width={48}
+            src={author.profile_image_url}
+          />
         </a>
         <a
           href={authorUrl}
