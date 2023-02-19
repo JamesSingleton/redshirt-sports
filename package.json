@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.11",
-    "@heroicons/react": "^2.0.15",
+    "@heroicons/react": "^2.0.16",
     "@next/bundle-analyzer": "^13.1.6",
     "@portabletext/react": "^2.0.1",
     "@portabletext/to-html": "^1.0.4",
@@ -41,7 +41,7 @@
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/line-clamp": "^0.4.2",
     "@tailwindcss/typography": "^0.5.9",
-    "@types/node": "^18.13.0",
+    "@types/node": "^18.14.0",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "autoprefixer": "^10.4.13",
