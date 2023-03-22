@@ -107,6 +107,9 @@ const moduleExports = {
       },
     ]
   },
+  sentry: {
+    hideSourceMaps: true,
+  },
 }
 
 const SentryWebpackPluginOptions = {
