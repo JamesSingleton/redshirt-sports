@@ -14,8 +14,8 @@ interface LatestStoryProps {
 const LatestStory: FC<LatestStoryProps> = ({ post }) => {
   return (
     <article className="relative lg:sticky lg:top-8 lg:w-1/2">
-      <Link href={`/${post.slug}`} prefetch={false}>
-        <div className="aspect-w-16 aspect-h-9 ">
+      <div>
+        <Link href={`/${post.slug}`} prefetch={false} className="aspect-w-16 aspect-h-9 block ">
           <Image
             src={urlForImage(post.mainImage).width(704).height(396).url()}
             alt={post.mainImage.caption}
@@ -26,14 +26,24 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             placeholder="blur"
             blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
           />
-        </div>
+        </Link>
         <div className="mt-6 md:align-middle">
-          <span className="text-sm font-medium uppercase tracking-widest duration-300 ease-in-out">
-            {post.category}
-          </span>
+          <Link
+            href={
+              post.subcategory !== null
+                ? `/${post.subcategory.parentSlug}/${post.subcategory.slug}`
+                : `/${post.category.toLowerCase()}`
+            }
+            prefetch={false}
+            className="rounded-sm bg-brand-500 p-1 text-xs font-medium uppercase tracking-widest text-white duration-300 ease-in-out hover:bg-brand-300"
+          >
+            {post.subcategory !== null ? post.subcategory.title : post.category}
+          </Link>
           <div className="mt-3 block">
             <h1 className="font-cal text-3xl font-medium tracking-normal text-slate-900 transition duration-300 ease-in-out md:tracking-tight lg:text-4xl lg:leading-tight">
-              {post.title}
+              <Link href={`/${post.slug}`} prefetch={false}>
+                {post.title}
+              </Link>
             </h1>
             <div>
               <p className="mt-4 text-base leading-8">{post.excerpt}</p>
@@ -50,7 +60,13 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
               className="h-10 w-10 overflow-hidden rounded-full"
             />
             <div className="ml-3">
-              <span className="text-sm font-medium">{post.author.name}</span>
+              <Link
+                href={`/authors/${post.author.slug}`}
+                prefetch={false}
+                className="text-sm font-medium"
+              >
+                {post.author.name}
+              </Link>
               <p className="text-xs">
                 <Date dateString={post.publishedAt} />
                 <span aria-hidden="true"> &middot; </span>
@@ -59,7 +75,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             </div>
           </div>
         </div>
-      </Link>
+      </div>
     </article>
   )
 }

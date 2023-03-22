@@ -18,6 +18,8 @@ const postFields = `
     }
   },
   category,
+  "subcategory": subcategory->{title, 'slug': slug.current, "parentSlug": parent->slug.current,
+  "parentTitle": parent->title,},
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, bio, role, socialMedia, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,
@@ -50,6 +52,8 @@ const litePostFields = `
       }
   },
   category,
+  "subcategory": subcategory->{title, 'slug': slug.current, "parentSlug": parent->slug.current,
+  "parentTitle": parent->title,},
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
