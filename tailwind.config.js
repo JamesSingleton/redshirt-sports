@@ -9,9 +9,6 @@ module.exports = {
   ],
   darkMode: 'class',
   theme: {
-    fontFamily: {
-      cal: ['Cal Sans', 'Inter var', 'sans-serif'],
-    },
     extend: {
       colors: {
         current: 'currentColor',
@@ -35,7 +32,9 @@ module.exports = {
         150: '37.5rem',
       },
       fontFamily: {
-        sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+        default: ['var(--font-inter)', ...defaultTheme.fontFamily.sans],
+        cal: ['var(--font-cal)', ...defaultTheme.fontFamily.sans],
+        title: ['var(--font-title)', ...defaultTheme.fontFamily.sans],
         mono: ['Consolas', ...defaultTheme.fontFamily.mono],
       },
       typography: {

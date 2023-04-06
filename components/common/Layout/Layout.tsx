@@ -1,12 +1,12 @@
 import { Navbar, Footer } from '@components/common'
 
-import { WithChildren } from '@types'
+import { WithChildren, WithClassName } from '@types'
 
-export default function Layout({ children }: WithChildren) {
+export default function Layout({ children, className }: WithChildren & WithClassName) {
   return (
     <>
       <Navbar />
-      <main>{children}</main>
+      <main className={className}>{children}</main>
       <Footer />
     </>
   )
