@@ -1,15 +1,4 @@
-export type Image = {
-  caption: string
-  attribution: string
-  asset: {
-    _id: string
-    _type: string
-    url: string
-    metadata: {
-      lqip: string
-    }
-  }
-}
+import type { Image, ImageAsset } from 'sanity'
 
 export type Category = {
   _id: string
@@ -28,7 +17,7 @@ export type Author = {
   name: string
   slug: string
   role: string
-  image: Image
+  image: Image & ImageAsset
   bio: any
   posts?: Post[]
   socialMedia: [

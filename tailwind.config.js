@@ -3,6 +3,7 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+    './app/**/*.{js,ts,jsx,tsx}',
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
     './lib/**/*.{js,ts,jsx,tsx}',
@@ -40,14 +41,15 @@ module.exports = {
       typography: {
         DEFAULT: {
           css: {
+            // use next/font variable to override h1
             h1: {
-              fontFamily: 'Cal Sans',
+              fontFamily: 'var(--font-cal)',
             },
             h2: {
-              fontFamily: 'Cal Sans',
+              fontFamily: 'var(--font-cal)',
             },
             h3: {
-              fontFamily: 'Cal Sans',
+              fontFamily: 'var(--font-cal)',
             },
             'blockquote p:first-of-type::before': { content: 'none' },
             'blockquote p:first-of-type::after': { content: 'none' },

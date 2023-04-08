@@ -39,7 +39,7 @@ const navigation = {
 const Footer = () => {
   return (
     <footer className="bg-white py-12 sm:py-20 lg:py-24">
-      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-screen-2xl lg:px-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <div className="flex items-center justify-center">
             <Link

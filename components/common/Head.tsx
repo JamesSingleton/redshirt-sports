@@ -2,7 +2,6 @@ import { SEO } from '@components/common'
 
 const Head = () => (
   <SEO>
-    <meta key="viewport" name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="manifest" href="/site.webmanifest" key="site-manifest" />
     <meta key="theme-color" name="theme-color" content="#DC2727" />
     <link
