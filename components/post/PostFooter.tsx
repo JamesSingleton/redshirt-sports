@@ -1,7 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
-import { BlurImage } from '@components/ui'
 import { urlForImage, PortableTextComponent } from '@lib/sanity'
 import {
   Instagram,
@@ -83,7 +83,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                 prefetch={false}
                 className="relative block h-20 w-20 overflow-hidden rounded-2xl bg-slate-100 sm:h-24 sm:w-24"
               >
-                <BlurImage
+                <Image
                   alt={author.name}
                   src={urlForImage(author.image).width(100).height(100).url()}
                   blurDataURL={author.image.asset.metadata.lqip ?? undefined}
@@ -104,7 +104,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                   </span>
                 </Link>
               </div>
-              <div className="mt-3 text-base leading-loose text-slate-500 line-clamp-3">
+              <div className="mt-3 line-clamp-3 text-base leading-loose text-slate-500">
                 <PortableTextComponent value={author.bio} />
               </div>
               <ul className="mt-3 flex items-center space-x-3">

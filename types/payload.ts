@@ -1,6 +1,7 @@
-import { PortableTextBlock, Image } from 'sanity'
+import { PortableTextBlock } from 'sanity'
 
 import { Author } from './post'
+import { MainImage } from './common'
 
 export interface AboutPagePayload {
   authors: Author[]
@@ -19,7 +20,7 @@ export interface PostPayload {
   _updatedAt: string
   title: string
   publishedAt: string
-  mainImage: Image
+  mainImage: MainImage
   category: string
   subcategory: {
     title: string

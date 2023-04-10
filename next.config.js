@@ -54,7 +54,11 @@ const moduleExports = {
   reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
-    domains: ['cdn.sanity.io', 'pbs.twimg.com'],
+    domains: ['cdn.sanity.io'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'pbs.twimg.com' },
+      { protocol: 'https', hostname: 'abs.twimg.com' },
+    ],
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? true : false,

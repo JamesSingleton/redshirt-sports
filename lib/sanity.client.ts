@@ -3,11 +3,48 @@ import 'server-only'
 import { createClient } from 'next-sanity'
 
 import { apiVersion, dataset, projectId, useCdn } from '@lib/sanity.api'
-import { allAuthors, privacyPolicy, postsBySlugQuery } from '@lib/sanity.queries'
+import {
+  allAuthors,
+  privacyPolicy,
+  postsBySlugQuery,
+  morePostsBySlugQuery,
+  heroArticleQuery,
+  recentArticlesQuery,
+  featuredArticlesQuery,
+  otherArticlesQuery,
+} from '@lib/sanity.queries'
 import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload } from '@types'
 
 const sanityClient = (token?: string) => {
-  return projectId ? createClient({ projectId, dataset, apiVersion, token, useCdn }) : null
+  return createClient({ projectId, dataset, apiVersion, token, useCdn })
+}
+
+export async function getHeroPost({ token }: { token?: string }): Promise<PostPayload | undefined> {
+  return await sanityClient(token)?.fetch(heroArticleQuery)
+}
+
+export async function getRecentArticles({
+  token,
+}: {
+  token?: string
+}): Promise<PostPayload[] | undefined> {
+  return await sanityClient(token)?.fetch(recentArticlesQuery)
+}
+
+export async function getFeaturedArticles({
+  token,
+}: {
+  token?: string
+}): Promise<PostPayload[] | undefined> {
+  return await sanityClient(token)?.fetch(featuredArticlesQuery)
+}
+
+export async function getOtherArticles({
+  token,
+}: {
+  token?: string
+}): Promise<PostPayload[] | undefined> {
+  return await sanityClient(token)?.fetch(otherArticlesQuery)
 }
 
 export async function getAboutPageAuthors({
@@ -26,12 +63,22 @@ export async function getPrivacyPolicyPage({
   return await sanityClient(token)?.fetch(privacyPolicy)
 }
 
-export async function getPageBySlug({
+export async function getPostBySlug({
   slug,
   token,
 }: {
   slug: string
   token?: string
-}): Promise<PostPayload | undefined> {
+}): Promise<PostPayload> {
   return await sanityClient(token)?.fetch(postsBySlugQuery, { slug })
+}
+
+export async function getMorePostsBySlug({
+  slug,
+  token,
+}: {
+  slug: string
+  token?: string
+}): Promise<PostPayload[] | undefined> {
+  return await sanityClient(token)?.fetch(morePostsBySlugQuery, { slug })
 }

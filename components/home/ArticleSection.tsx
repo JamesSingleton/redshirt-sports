@@ -1,19 +1,13 @@
-import { FC } from 'react'
-import Link from 'next/link'
+import VerticalArticleCard from '@components/ui/VerticalArticleCard'
+import { getOtherArticles } from '@lib/sanity.client'
+import { getPreviewToken } from '@lib/sanity.server.preview'
 
-import { VerticalArticleCard } from '@components/ui'
-import { urlForImage } from '@lib/sanity'
-
-import type { Post } from '@types'
-
-interface ArticleSectionProps {
-  otherArticles: Post[]
-}
-
-const ArticleSection: FC<ArticleSectionProps> = ({ otherArticles }) => {
+const ArticleSection = async () => {
+  const token = getPreviewToken()
+  const otherArticles = await getOtherArticles({ token })
   return (
     <div className="mx-auto grid max-w-xl gap-6 px-4 sm:px-6 md:max-w-3xl md:grid-cols-2 md:px-8 lg:max-w-none lg:px-0">
-      {otherArticles.map((post) => (
+      {otherArticles!.map((post) => (
         <VerticalArticleCard article={post} key={post._id} />
       ))}
     </div>

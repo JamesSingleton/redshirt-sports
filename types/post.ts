@@ -1,4 +1,6 @@
-import type { Image, ImageAsset } from 'sanity'
+import type { PortableTextBlock } from 'sanity'
+
+import type { MainImage } from './common'
 
 export type Category = {
   _id: string
@@ -17,7 +19,7 @@ export type Author = {
   name: string
   slug: string
   role: string
-  image: Image & ImageAsset
+  image: MainImage
   bio: any
   posts?: Post[]
   socialMedia: [
@@ -44,9 +46,9 @@ export type Post = {
   }
   featuredArticle: boolean
   excerpt: string
-  body: string
+  body?: PortableTextBlock[]
   estimatedReadingTime: number
   author: Author
-  mainImage: Image
+  mainImage: MainImage
   wordCount: number
 }

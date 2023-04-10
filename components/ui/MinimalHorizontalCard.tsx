@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
-import { urlForImage } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity.image'
 
 import type { Post } from '@types'
 
@@ -20,7 +20,7 @@ const MinimalHorizontalCard = ({
         className="flex space-x-4 sm:space-x-6 lg:space-x-4"
       >
         <div className="h-24 w-24 sm:h-28 sm:w-28 lg:h-20 lg:w-20 xl:h-24 xl:w-24">
-          <div className="aspect-w-1 aspect-h-1">
+          <div className="aspect-h-1 aspect-w-1">
             <Image
               alt={article.mainImage.caption}
               src={urlForImage(article.mainImage).quality(50).url()}
@@ -35,7 +35,7 @@ const MinimalHorizontalCard = ({
         </div>
         <div className="w-2/3">
           <div className="flex h-full w-full flex-1 flex-col justify-center">
-            <h3 className="font-cal text-lg font-medium leading-snug tracking-normal text-slate-900 transition duration-300 ease-in-out line-clamp-2">
+            <h3 className="line-clamp-2 font-cal text-lg font-medium leading-snug tracking-normal text-slate-900 transition duration-300 ease-in-out">
               {article.title}
             </h3>
             <div className="mt-2 flex items-center text-sm">

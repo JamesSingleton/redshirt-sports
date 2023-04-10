@@ -8,67 +8,67 @@
  *    type: 'blockContent'
  *  }
  */
-import React from "react";
+import React from 'react'
 export default {
-  title: "Block Content",
-  name: "blockContent",
-  type: "array",
+  title: 'Block Content',
+  name: 'blockContent',
+  type: 'array',
   of: [
     {
-      title: "Block",
-      type: "block",
+      title: 'Block',
+      type: 'block',
       // Styles let you set what your user can mark up blocks with. These
       // correspond with HTML tags, but you can set any title or value
       // you want and decide how you want to deal with it where you want to
       // use your content.
       styles: [
-        { title: "Normal", value: "normal" },
-        { title: "H1", value: "h1" },
-        { title: "H2", value: "h2" },
-        { title: "H3", value: "h3" },
-        { title: "H4", value: "h4" },
-        { title: "Quote", value: "blockquote" },
+        { title: 'Normal', value: 'normal' },
+        { title: 'H1', value: 'h1' },
+        { title: 'H2', value: 'h2' },
+        { title: 'H3', value: 'h3' },
+        { title: 'H4', value: 'h4' },
+        { title: 'Quote', value: 'blockquote' },
       ],
-      lists: [{ title: "Bullet", value: "bullet" }],
+      lists: [{ title: 'Bullet', value: 'bullet' }],
       // Marks let you mark up inline text in the block editor.
       marks: {
         // Decorators usually describe a single property – e.g. a typographic
         // preference or highlighting by editors.
         decorators: [
-          { title: "Strong", value: "strong" },
-          { title: "Emphasis", value: "em" },
+          { title: 'Strong', value: 'strong' },
+          { title: 'Emphasis', value: 'em' },
         ],
         // Annotations can be any object structure – e.g. a link or a footnote.
         annotations: [
           {
-            title: "URL",
-            name: "link",
-            type: "object",
+            title: 'URL',
+            name: 'link',
+            type: 'object',
             fields: [
               {
-                title: "URL",
-                name: "href",
-                type: "url",
+                title: 'URL',
+                name: 'href',
+                type: 'url',
                 description:
-                  "Only use this if you are linking to a website outside of Redshirt Sports. If you are linking to a Redshirt Sports page, use the internal link option.",
+                  'Only use this if you are linking to a website outside of Redshirt Sports. If you are linking to a Redshirt Sports page, use the internal link option.',
                 validation: (Rule) =>
                   Rule.uri({
-                    scheme: ["http", "https", "mailto", "tel"],
+                    scheme: ['http', 'https', 'mailto', 'tel'],
                   }),
               },
               {
-                title: "Open in new tab",
-                name: "blank",
-                description: "Read https://css-tricks.com/use-target_blank/",
-                type: "boolean",
+                title: 'Open in new tab',
+                name: 'blank',
+                description: 'Read https://css-tricks.com/use-target_blank/',
+                type: 'boolean',
                 initialValue: true,
               },
             ],
           },
           {
-            name: "internalLink",
-            title: "Internal Link",
-            type: "object",
+            name: 'internalLink',
+            title: 'Internal Link',
+            type: 'object',
             icon: () => (
               <svg
                 width="16px"
@@ -76,18 +76,8 @@ export default {
                 version="1.1"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <g
-                  id="Page-1"
-                  stroke="none"
-                  strokeWidth="1"
-                  fill="none"
-                  fillRule="evenodd"
-                >
-                  <g
-                    id="sanity-logo-s-(1)"
-                    fill="currentColor"
-                    fillRule="nonzero"
-                  >
+                <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                  <g id="sanity-logo-s-(1)" fill="currentColor" fillRule="nonzero">
                     <path
                       d="M343.36,744.64 C251.78,744.64 187.08,704.35 159.98,630.86 L0.46,630.86 C34.6,780.14 162,868.65 344.77,868.65 C453.44,868.65 546.21,830.93 600.45,764.96 C598.22,697.56 576,647.43 529,609.34 C513.78,693.66 445.35,744.64 343.36,744.64 Z"
                       id="Path"
@@ -106,10 +96,10 @@ export default {
             ),
             fields: [
               {
-                title: "Reference",
-                name: "reference",
-                type: "reference",
-                to: [{ type: "post" }, { type: "category" }],
+                title: 'Reference',
+                name: 'reference',
+                type: 'reference',
+                to: [{ type: 'post' }, { type: 'category' }],
               },
             ],
           },
@@ -120,28 +110,28 @@ export default {
     // primitive types such as 'string' and 'number' in the same array
     // as a block type.
     {
-      type: "image",
-      options: { hotspot: true, metaData: ["blurhash", "lqip"] },
+      type: 'image',
+      options: { hotspot: true, metaData: ['blurhash', 'lqip'] },
       fields: [
         {
-          name: "caption",
-          type: "string",
-          title: "Caption",
+          name: 'caption',
+          type: 'string',
+          title: 'Caption',
           description:
-            "Just a brief description of the image as this will be used for alt text for accessibility.",
+            'Just a brief description of the image as this will be used for alt text for accessibility.',
           validation: (Rule) => Rule.required(),
         },
         {
-          name: "attribution",
-          type: "string",
-          title: "Attribution",
-          description: "Where did the photo come from?",
+          name: 'attribution',
+          type: 'string',
+          title: 'Attribution',
+          description: 'Where did the photo come from?',
           // validation: (Rule) => Rule.required(),
         },
       ],
     },
     {
-      type: "twitter",
+      type: 'twitter',
     },
   ],
-};
+}

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 import Date from '@components/ui/Date'
-import { urlForImage } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity.image'
 
 import type { Post } from '@types'
 
@@ -15,7 +15,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
   return (
     <article className="relative lg:sticky lg:top-8 lg:w-1/2">
       <div>
-        <Link href={`/${post.slug}`} prefetch={false} className="aspect-w-16 aspect-h-9 block ">
+        <Link href={`/${post.slug}`} prefetch={false} className="aspect-h-9 aspect-w-16 block ">
           <Image
             src={urlForImage(post.mainImage).width(704).height(396).url()}
             alt={post.mainImage.caption}

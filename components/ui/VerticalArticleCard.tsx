@@ -2,8 +2,8 @@ import { FC } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-import { Date, BlurImage } from '@components/ui'
-import { urlForImage } from '@lib/sanity'
+import Date from '@components/ui/Date'
+import { urlForImage } from '@lib/sanity.image'
 
 import type { Post } from '@types'
 
@@ -20,15 +20,17 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
     >
       <article className="flex flex-col overflow-hidden rounded-2xl shadow-xl">
         <Image
-          src={urlForImage(article.mainImage).width(400).height(200).quality(40).url()}
+          src={urlForImage(article.mainImage).url()}
           alt={article.mainImage.caption}
-          width={388}
-          height={192}
-          quality={40}
+          width={415}
+          height={235}
+          quality={50}
           sizes="50vw"
-          placeholder="blur"
-          blurDataURL={article.mainImage.asset.metadata.lqip ?? undefined}
-          className="h-48 w-full flex-shrink-0 object-cover"
+          className="object-cover"
+          style={{
+            width: 'auto',
+            height: '235px',
+          }}
         />
         <div className="flex flex-1 flex-col justify-between bg-white p-6">
           <div className="flex-1">
@@ -43,7 +45,7 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
               <div className="h-10 w-10">
                 <span className="sr-only">{article.author.name}</span>
                 <Image
-                  src={urlForImage(article.author.image).quality(40).url()}
+                  src={urlForImage(article.author.image)!.url()}
                   alt={`${article.author.name}'s avatar`}
                   width={80}
                   height={80}

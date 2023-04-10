@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
-import { BlurImage, Date } from '@components/ui'
-import { urlForImage } from '@lib/sanity'
+import Date from '@components/ui/Date'
+import { urlForImage } from '@lib/sanity.image'
 
 import type { Post } from '@types'
 
@@ -13,7 +13,7 @@ interface RecentArticlesProps {
 const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
   return (
     <div className="mt-12 sm:mt-16 lg:ml-12 lg:mt-0 lg:w-1/2 xl:ml-16">
-      <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+      <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">
         Recent Articles
       </h2>
       <div className="grid divide-y lg:grid-cols-2 lg:gap-5 xl:grid-cols-1">
@@ -24,7 +24,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                 <Link
                   href={`/${post.slug}`}
                   prefetch={false}
-                  className="aspect-w-16 aspect-h-9 block"
+                  className="aspect-h-9 aspect-w-16 block"
                 >
                   <Image
                     src={urlForImage(post.mainImage).quality(40).url()}
