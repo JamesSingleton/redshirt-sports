@@ -1,58 +1,60 @@
-export default {
-  title: "Player Position",
-  name: "position",
-  type: "string",
-  description: "The position of the player",
+import { defineField } from 'sanity'
+
+export default defineField({
+  title: 'Player Position',
+  name: 'position',
+  type: 'string',
+  description: 'The position of the player',
   options: {
     list: [
       {
-        value: "ATH",
-        title: "Athlete",
+        value: 'ATH',
+        title: 'Athlete',
       },
       {
-        value: "QB",
-        title: "Quarterback",
+        value: 'QB',
+        title: 'Quarterback',
       },
       {
-        value: "RB",
-        title: "Running Back",
+        value: 'RB',
+        title: 'Running Back',
       },
       {
-        value: "WR",
-        title: "Wide Receiver",
+        value: 'WR',
+        title: 'Wide Receiver',
       },
       {
-        value: "TE",
-        title: "Tight End",
+        value: 'TE',
+        title: 'Tight End',
       },
       {
-        value: "OL",
-        title: "Offensive Line",
+        value: 'OL',
+        title: 'Offensive Line',
       },
       {
-        value: "DL",
-        title: "Defensive Line",
+        value: 'DL',
+        title: 'Defensive Line',
       },
       {
-        value: "LB",
-        title: "Linebacker",
+        value: 'LB',
+        title: 'Linebacker',
       },
       {
-        value: "DB",
-        title: "Defensive Back",
+        value: 'DB',
+        title: 'Defensive Back',
       },
       {
-        value: "LS",
-        title: "Long Snapper",
+        value: 'LS',
+        title: 'Long Snapper',
       },
       {
-        value: "K",
-        title: "Kicker",
+        value: 'K',
+        title: 'Kicker',
       },
       {
-        value: "P",
-        title: "Punter",
+        value: 'P',
+        title: 'Punter',
       },
     ],
   },
-};
+})

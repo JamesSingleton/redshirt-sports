@@ -1,15 +1,6 @@
-/**
- * This is the schema definition for the rich text fields used for
- * for this blog studio. When you import it in schemas.js it can be
- * reused in other parts of the studio with:
- *  {
- *    name: 'someName',
- *    title: 'Some title',
- *    type: 'blockContent'
- *  }
- */
-import React from 'react'
-export default {
+import { defineArrayMember, defineField } from 'sanity'
+
+export default defineField({
   title: 'Block Content',
   name: 'blockContent',
   type: 'array',
@@ -17,10 +8,6 @@ export default {
     {
       title: 'Block',
       type: 'block',
-      // Styles let you set what your user can mark up blocks with. These
-      // correspond with HTML tags, but you can set any title or value
-      // you want and decide how you want to deal with it where you want to
-      // use your content.
       styles: [
         { title: 'Normal', value: 'normal' },
         { title: 'H1', value: 'h1' },
@@ -51,8 +38,8 @@ export default {
                 type: 'url',
                 description:
                   'Only use this if you are linking to a website outside of Redshirt Sports. If you are linking to a Redshirt Sports page, use the internal link option.',
-                validation: (Rule) =>
-                  Rule.uri({
+                validation: (rule) =>
+                  rule.uri({
                     scheme: ['http', 'https', 'mailto', 'tel'],
                   }),
               },
@@ -119,7 +106,7 @@ export default {
           title: 'Caption',
           description:
             'Just a brief description of the image as this will be used for alt text for accessibility.',
-          validation: (Rule) => Rule.required(),
+          validation: (rule) => rule.required(),
         },
         {
           name: 'attribution',
@@ -134,4 +121,4 @@ export default {
       type: 'twitter',
     },
   ],
-}
+})

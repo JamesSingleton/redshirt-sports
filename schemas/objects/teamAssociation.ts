@@ -1,11 +1,12 @@
-import { fields } from "sanity-pills";
+import { defineField } from 'sanity'
+import { fields } from 'sanity-pills'
 
-import { yearsList } from "../documents/player";
+import { yearsList } from '../documents/player'
 
-export default {
-  name: "teamAssociation",
-  title: "Team Association",
-  type: "object",
+export default defineField({
+  name: 'teamAssociation',
+  title: 'Team Association',
+  type: 'object',
   fields: fields({
     year: {
       options: {
@@ -13,8 +14,8 @@ export default {
       },
     },
     team: {
-      type: "reference",
-      to: [{ type: "school" }],
+      type: 'reference',
+      to: [{ type: 'school' }],
     },
   }),
-};
+})
