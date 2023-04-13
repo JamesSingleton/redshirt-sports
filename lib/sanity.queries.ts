@@ -125,3 +125,13 @@ export const otherArticlesQuery = groq`
   ${litePostFields}
 }
 `
+
+export const categoryBySlugQuery = groq`
+*[_type == "category" && slug.current == $slug][0]{
+  _id,
+  title,
+  pageHeader,
+  subTitle,
+  slug,
+  description,
+}`

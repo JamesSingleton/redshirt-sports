@@ -14,6 +14,18 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'pageHeader',
+      title: 'Page Header',
+      type: 'string',
+      description: 'The header displayed on the page for the category',
+    }),
+    defineField({
+      name: 'subTitle',
+      title: 'Sub Title',
+      type: 'string',
+      description: 'The sub title displayed on the page for the category',
+    }),
+    defineField({
       name: 'parent',
       title: 'Parent',
       type: 'reference',

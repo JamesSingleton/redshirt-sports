@@ -12,6 +12,7 @@ import {
   recentArticlesQuery,
   featuredArticlesQuery,
   otherArticlesQuery,
+  categoryBySlugQuery,
 } from '@lib/sanity.queries'
 import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload } from '@types'
 
@@ -81,4 +82,14 @@ export async function getMorePostsBySlug({
   token?: string
 }): Promise<PostPayload[] | undefined> {
   return await sanityClient(token)?.fetch(morePostsBySlugQuery, { slug })
+}
+
+export async function getCategoryBySlug({
+  slug,
+  token,
+}: {
+  slug: string
+  token?: string
+}): Promise<any> {
+  return await sanityClient(token)?.fetch(categoryBySlugQuery, { slug })
 }

@@ -18,7 +18,7 @@ export const defaultDocumentNodeResolver = (S) => {
   ])
 }
 
-export default async (S, context) => {
+export const deskStructure = async (S, context) => {
   const { getClient, currentUser } = context
 
   const client = getClient({ apiVersion: '2023-01-01' })
@@ -39,9 +39,8 @@ export default async (S, context) => {
             S.documentList('post')
               .schemaType('post')
               .title(`${category.title} Articles`)
-              .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
               .menuItems(S.documentTypeList('post').getMenuItems())
-              .filter(`_type == "post" && division->_id == "${category._id}"`)
+              .filter(`_type == "post" && parentCategory->_id == "${category._id}"`)
               .canHandleIntent(S.documentTypeList('post').getCanHandleIntent())
               .initialValueTemplates([
                 S.initialValueTemplateItem('post-child', {

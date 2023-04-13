@@ -22,7 +22,8 @@ import position from '@schemas/objects/playerPosition'
 import teamAssociation from '@schemas/objects/teamAssociation'
 import blockContent from '@schemas/blockContent'
 import { apiVersion, previewSecretId } from '@lib/sanity.api'
-import deskStructure, { defaultDocumentNodeResolver } from '@plugins/deskStructure'
+import { defaultDocumentNodeResolver, deskStructure } from '@plugins/deskStructure'
+import { previewDocumentNode } from '@plugins/previewPane'
 
 export const PREVIEWABLE_DOCUMENT_TYPES: string[] = [
   post.name,
@@ -107,7 +108,7 @@ export default defineConfig({
   plugins: [
     deskTool({
       structure: deskStructure,
-      defaultDocumentNode: defaultDocumentNodeResolver,
+      defaultDocumentNode: previewDocumentNode({ apiVersion, previewSecretId }),
     }),
     productionUrl({
       apiVersion,
