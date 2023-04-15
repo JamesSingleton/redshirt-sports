@@ -73,7 +73,7 @@ const Author = ({ author }: AuthorProps) => {
                 height={96}
                 className="h-24 w-24 shrink-0 overflow-hidden rounded-xl object-cover"
               />
-              <div className="mt-6 text-center md:mt-0 md:ml-5 md:text-left">
+              <div className="mt-6 text-center md:ml-5 md:mt-0 md:text-left">
                 <span className="block text-xs uppercase tracking-widest text-brand-500">
                   {author.role}
                 </span>
@@ -126,21 +126,15 @@ const Author = ({ author }: AuthorProps) => {
           </div>
         </div>
       </section>
-      <section className="mx-auto max-w-xl py-12 px-4 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
+      <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
         <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           <div className="col-span-2">
-            <h2 className="relative border-b border-slate-300 pb-3 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+            <h2 className="relative border-b border-slate-300 pb-3 font-cal text-2xl font-medium text-slate-900 before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">
               Recent Articles
             </h2>
             <div className="mt-6 pt-8 sm:mt-10 sm:pt-10">
               {author.posts!.length > 0 ? (
-                author.posts!.map((post) => (
-                  <HorizontalCard
-                    key={post._id}
-                    post={post}
-                    articleLocation={`${author.name}'s profile page`}
-                  />
-                ))
+                author.posts!.map((post) => <HorizontalCard key={post._id} {...post} />)
               ) : (
                 <div className="flex flex-col items-center justify-center">
                   <Image
@@ -158,7 +152,7 @@ const Author = ({ author }: AuthorProps) => {
           </div>
           <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
             <div className="w-full rounded-2xl bg-slate-50 p-5 sm:p-8">
-              <h2 className="relative border-b border-slate-300 pb-3 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">{`About ${author.name}`}</h2>
+              <h2 className="relative border-b border-slate-300 pb-3 font-cal text-2xl font-medium text-slate-900 before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">{`About ${author.name}`}</h2>
               <div className="pt-6 text-base leading-loose text-slate-600">
                 <PortableTextComponent value={author.bio} />
               </div>

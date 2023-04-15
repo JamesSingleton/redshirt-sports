@@ -4,7 +4,7 @@ import type { Post } from '@types'
 
 interface ArticleListProps {
   articles: Post[]
-  currentPage: string
+  currentPage: number
   totalPages: number
   totalPosts: number
 }
@@ -15,13 +15,13 @@ export default function ArticleList({
   totalPages,
   totalPosts,
 }: ArticleListProps) {
-  const nextDisabled = parseInt(currentPage, 10) === totalPages
-  const prevDisabled = parseInt(currentPage, 10) === 1
+  const nextDisabled = currentPage === totalPages
+  const prevDisabled = currentPage === 1
 
   return (
     <>
       {articles.map((post) => (
-        <HorizontalCard post={post} key={post._id} articleLocation="FCS Page" />
+        <HorizontalCard {...post} key={post._id} />
       ))}
       <Pagination
         totalPosts={totalPosts}

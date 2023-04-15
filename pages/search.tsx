@@ -59,9 +59,7 @@ const Search = ({ posts }: SearchProps) => {
         <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           <div className="col-span-2">
             {posts.length > 0 &&
-              posts.map((post, key) => (
-                <HorizontalCard post={post} key={post._id} articleLocation="Search Results Page" />
-              ))}
+              posts.map((post, key) => <HorizontalCard key={post._id} {...post} />)}
             {!posts.length && (
               <div className="text-center">
                 <svg
