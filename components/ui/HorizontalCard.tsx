@@ -8,12 +8,7 @@ import { urlForImage } from '@lib/sanity.image'
 import type { Post } from '@types'
 import Date from './Date'
 
-interface HorizontalCardProps {
-  post: Post
-  articleLocation?: string
-}
-
-const HorizontalCard = ({ post, articleLocation }: HorizontalCardProps) => {
+const HorizontalCard = (post: Post) => {
   return (
     <article>
       <Link

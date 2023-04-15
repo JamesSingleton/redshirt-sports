@@ -1,6 +1,4 @@
 export function resolveHref(documentType?: string, slug?: string): string | undefined {
-  console.log('documentType', documentType)
-  console.log('slug', slug)
   switch (documentType) {
     case 'home':
       return '/'

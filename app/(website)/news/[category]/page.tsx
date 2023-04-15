@@ -2,8 +2,10 @@ import { getCategoryBySlug } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
 import HorizontalCard from '@components/ui/HorizontalCard'
+import Pagination from '@components/ui/Pagination'
 
 import type { Metadata } from 'next'
+import { Post } from '@types'
 
 export async function generateMetadata({
   params,
@@ -31,6 +33,9 @@ export default async function Page({
   const token = getPreviewToken()
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
   const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
+  const totalPages = Math.ceil(category?.totalPosts / 10)
+  const nextDisabled = pageIndex === totalPages
+  const prevDisabled = pageIndex === 1
 
   return (
     <>
@@ -56,9 +61,15 @@ export default async function Page({
       <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
         <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           <div className="col-span-2">
-            {category.posts.map((post: any) => (
-              <HorizontalCard post={post} key={post._id} />
+            {category.posts.map((post: Post) => (
+              <HorizontalCard {...post} key={post._id} />
             ))}
+            <Pagination
+              currentPage={pageIndex}
+              totalPosts={category.totalPosts}
+              nextDisabled={nextDisabled}
+              prevDisabled={prevDisabled}
+            />
           </div>
           <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
             <SocialMediaFollow />

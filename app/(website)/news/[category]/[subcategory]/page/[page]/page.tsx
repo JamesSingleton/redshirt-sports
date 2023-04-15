@@ -5,7 +5,6 @@ export default async function Page({
   params: { page: string }
   searchParams: { [key: string]: string }
 }) {
-  console.log(params)
   return (
     <>
       <h1>{`Hello From ${params.page}`}</h1>

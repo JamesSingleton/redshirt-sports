@@ -5,7 +5,6 @@ export default async function Page({
   params: { subcategory: string }
   searchParams: { [key: string]: string }
 }) {
-  console.log(params)
   return (
     <>
       <h1>{`Hello From ${params.subcategory}`}</h1>

@@ -31,7 +31,6 @@ export function PreviewPane(
   let slug = (displayed?.slug as any)?.current
 
   const href = resolveHref(documentType, slug)
-  console.log('href', href)
 
   if (!href) {
     return (
