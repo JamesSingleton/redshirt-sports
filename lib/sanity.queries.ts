@@ -134,4 +134,8 @@ export const categoryBySlugQuery = groq`
   subTitle,
   slug,
   description,
+  "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+    ${litePostFields}
+  },
+  "totalPosts": count(*[_type == "post" && references(^._id)])
 }`

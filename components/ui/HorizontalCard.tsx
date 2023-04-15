@@ -3,14 +3,14 @@ import Image from 'next/image'
 import CalendarIcon from '@heroicons/react/24/outline/CalendarIcon'
 import ClockIcon from '@heroicons/react/24/outline/ClockIcon'
 
-import { urlForImage } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity.image'
 
 import type { Post } from '@types'
 import Date from './Date'
 
 interface HorizontalCardProps {
   post: Post
-  articleLocation: string
+  articleLocation?: string
 }
 
 const HorizontalCard = ({ post, articleLocation }: HorizontalCardProps) => {
@@ -38,7 +38,7 @@ const HorizontalCard = ({ post, articleLocation }: HorizontalCardProps) => {
             <h2 className="font-cal text-xl font-medium leading-tight text-slate-900 decoration-2 sm:text-2xl lg:text-xl xl:text-2xl">
               {post.title}
             </h2>
-            <p className="mt-3 block text-base leading-relaxed text-slate-500 line-clamp-2">
+            <p className="mt-3 line-clamp-2 block text-base leading-relaxed text-slate-500">
               {post.excerpt}
             </p>
             <footer className="mt-5 flex items-center sm:mt-7">

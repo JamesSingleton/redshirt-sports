@@ -1,15 +1,20 @@
 import { getCategoryBySlug } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
+import SocialMediaFollow from '@components/common/SocialMediaFollow'
+import HorizontalCard from '@components/ui/HorizontalCard'
 
 import type { Metadata } from 'next'
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: { category: string }
+  searchParams: { [key: string]: string }
 }): Promise<Metadata> {
   const token = getPreviewToken()
-  const category = await getCategoryBySlug({ slug: params.category, token })
+  const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
+  const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
   return {
     title: `${category?.pageHeader}, Rumors, and More`,
     description: category?.description,
@@ -24,7 +29,8 @@ export default async function Page({
   searchParams: { [key: string]: string }
 }) {
   const token = getPreviewToken()
-  const category = await getCategoryBySlug({ slug: params.category, token })
+  const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
+  const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
 
   return (
     <>
@@ -47,11 +53,18 @@ export default async function Page({
           </div>
         </div>
       </section>
-      {Object.keys(searchParams).map((key) => (
-        <p key={key}>
-          {key}: {searchParams[key]}
-        </p>
-      ))}
+      <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
+        <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
+          <div className="col-span-2">
+            {category.posts.map((post: any) => (
+              <HorizontalCard post={post} key={post._id} />
+            ))}
+          </div>
+          <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
+            <SocialMediaFollow />
+          </div>
+        </div>
+      </section>
     </>
   )
 }
