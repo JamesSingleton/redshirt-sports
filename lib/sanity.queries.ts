@@ -20,6 +20,24 @@ const legalFields = `
   body
 `
 
+const authorFields = `
+  _id,
+  _updatedAt,
+  name,
+  'slug': slug.current,
+  role,
+  "image": {
+    "asset": image.asset->{ 
+      _id,
+      _type,
+      metadata,
+      url
+      }
+  },
+  bio,
+  socialMedia,
+`
+
 export const privacyPolicy = groq`
 *[_type == "legal" && slug.current == "privacy-policy"][0] {
   ${legalFields}
@@ -139,3 +157,12 @@ export const categoryBySlugQuery = groq`
   },
   "totalPosts": count(*[_type == "post" && references(^._id)])
 }`
+
+export const authors = groq`
+  *[_type == 'author' && slug.current == $slug][0]{
+    ${authorFields}
+    "posts": *[_type == 'post' && references(^._id)] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+      ${litePostFields}
+    }
+  }
+`

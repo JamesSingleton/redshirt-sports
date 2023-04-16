@@ -13,8 +13,9 @@ import {
   featuredArticlesQuery,
   otherArticlesQuery,
   categoryBySlugQuery,
+  authors,
 } from '@lib/sanity.queries'
-import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload } from '@types'
+import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload, Author } from '@types'
 
 const sanityClient = (token?: string) => {
   return createClient({ projectId, dataset, apiVersion, token, useCdn })
@@ -94,4 +95,19 @@ export async function getCategoryBySlug({
   token?: string
 }): Promise<any> {
   return await sanityClient(token)?.fetch(categoryBySlugQuery, { slug, pageIndex })
+}
+
+export async function getAuthorsBySlug({
+  slug,
+  pageIndex,
+  token,
+}: {
+  slug: string
+  pageIndex: number
+  token?: string
+}): Promise<Author> {
+  return await sanityClient(token)?.fetch(authors, {
+    slug,
+    pageIndex,
+  })
 }
