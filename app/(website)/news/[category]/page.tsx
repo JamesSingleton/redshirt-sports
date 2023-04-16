@@ -69,6 +69,7 @@ export default async function Page({
               totalPosts={category.totalPosts}
               nextDisabled={nextDisabled}
               prevDisabled={prevDisabled}
+              slug={params.category}
             />
           </div>
           <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">

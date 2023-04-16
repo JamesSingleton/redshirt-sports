@@ -5,14 +5,16 @@ export default function Pagination({
   prevDisabled,
   nextDisabled,
   totalPosts,
+  slug,
 }: {
   currentPage: number
   prevDisabled: boolean
   nextDisabled: boolean
   totalPosts: number
+  slug: string
 }) {
-  const prevPageUrl = currentPage === 2 ? '/news/fcs' : `/news/fcs?page=${currentPage - 1}`
-  const nextPageUrl = `/news/fcs?page=${currentPage + 1}`
+  const prevPageUrl = currentPage === 2 ? `/news/${slug}` : `/news/${slug}?page=${currentPage - 1}`
+  const nextPageUrl = `/news/${slug}?page=${currentPage + 1}`
 
   const from = (currentPage - 1) * 10 + 1
   const to = currentPage * 10 > totalPosts ? totalPosts : currentPage * 10
