@@ -166,3 +166,33 @@ export const authors = groq`
     }
   }
 `
+export const postsForRssFeed = groq`
+*[_type == 'post']{
+  _id,
+  'slug': slug.current,
+  publishedAt,
+  _updatedAt,
+  title,
+  excerpt,
+  "mainImage": {
+    "caption": mainImage.caption,
+    "attribution": mainImage.attribution,
+    "asset": mainImage.asset->{ 
+      _id,
+      _type,
+      metadata,
+      url
+     }
+  },
+  "author": author->{name, 'slug': slug.current},
+  body[]{
+    ...,
+    markDefs[]{
+      ...,
+      _type == "internalLink" => {
+        "slug": @.reference->slug
+      }
+    }
+  },
+}
+`

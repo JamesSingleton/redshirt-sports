@@ -12,7 +12,7 @@ const PageHeader = ({ heading, subheading }: PageHeaderProps) => (
         <h1 className="font-cal text-4xl font-medium tracking-normal text-slate-900 md:tracking-tight lg:text-5xl lg:leading-tight">
           {heading}
         </h1>
-        <p className="my-3 text-lg text-slate-500">{subheading}</p>
+        {subheading && <p className="my-3 text-lg text-slate-500">{subheading}</p>}
       </div>
     </div>
   </section>

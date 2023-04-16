@@ -14,6 +14,7 @@ import {
   otherArticlesQuery,
   categoryBySlugQuery,
   authors,
+  postsForRssFeed,
 } from '@lib/sanity.queries'
 import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload, Author } from '@types'
 
@@ -110,4 +111,8 @@ export async function getAuthorsBySlug({
     slug,
     pageIndex,
   })
+}
+
+export async function getPostsForRssFeed({ token }: { token: string }): Promise<any> {
+  return await sanityClient(token)?.fetch(postsForRssFeed)
 }
