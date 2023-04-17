@@ -9,7 +9,6 @@
     "lint": "next lint",
     "prettier-fix": "prettier --write .",
     "find:unused": "npx next-unused",
-    "postbuild": "next-sitemap && if [ -f './.next/serverless/lib/build-rss.js' ]; then node ./.next/serverless/lib/build-rss.js; else node ./.next/server/lib/build-rss.js; fi",
     "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
@@ -58,7 +57,7 @@
     "eslint": "^8.38.0",
     "eslint-config-next": "^13.3.0",
     "eslint-config-prettier": "^8.8.0",
-    "postcss": "^8.4.21",
+    "postcss": "^8.4.22",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-nesting": "^11.2.2",
     "postcss-preset-env": "^8.3.1",

@@ -83,15 +83,15 @@ const moduleExports = {
     ]
   },
   webpack(config, { dev, isServer, nextRuntime, webpack }) {
-    if (!dev && isServer && nextRuntime === 'nodejs') {
-      let originalEntry = config.entry
+    // if (!dev && isServer && nextRuntime === 'nodejs') {
+    //   let originalEntry = config.entry
 
-      config.entry = async () => {
-        let entries = { ...(await originalEntry()) }
-        entries['lib/build-rss'] = './lib/build-rss.js'
-        return entries
-      }
-    }
+    //   config.entry = async () => {
+    //     let entries = { ...(await originalEntry()) }
+    //     entries['lib/build-rss'] = './lib/build-rss.js'
+    //     return entries
+    //   }
+    // }
 
     new webpack.DefinePlugin({
       __SENTRY_DEBUG__: false,
