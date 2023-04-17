@@ -94,12 +94,15 @@ const litePostFields = `
   publishedAt,
   "mainImage": {
     "caption": mainImage.caption,
-    "asset": mainImage.asset->{ 
+    "attribution": mainImage.attribution,
+    "crop": mainImage.crop,
+    "hotspot": mainImage.hotspot,
+    "asset": mainImage.asset->{
       _id,
       _type,
-      metadata,
-      url
-      }
+      url,
+      metadata
+    },
   },
   category,
   "subcategory": subcategory->{title, 'slug': slug.current, "parentSlug": parent->slug.current,
