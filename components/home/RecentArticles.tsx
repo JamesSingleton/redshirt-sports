@@ -43,8 +43,8 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                 <Link
                   href={
                     post.subcategory !== null
-                      ? `/${post.subcategory.parentSlug}/${post.subcategory.slug}`
-                      : `/${post.category.toLowerCase()}`
+                      ? `/news/${post.subcategory.parentSlug}/${post.subcategory.slug}`
+                      : `/news/${post.category.toLowerCase()}`
                   }
                   className="rounded-sm bg-brand-500 p-1 text-xs font-medium uppercase tracking-widest text-white duration-300 ease-in-out hover:bg-brand-300"
                 >

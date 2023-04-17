@@ -26,19 +26,19 @@ const PostHeader = ({ post }: PostHeaderProps) => {
           priority
           className="h-auto w-full overflow-hidden object-cover md:h-150 md:rounded-2xl"
         />
-        <div className="flex pt-3 pl-5 text-sm lg:pl-0">
+        <div className="flex pl-5 pt-3 text-sm lg:pl-0">
           <CameraIcon className="h-5 w-5 flex-none" aria-hidden="true" />
           <span className="ml-2">{`Source: ${post.mainImage.attribution}`}</span>
         </div>
       </div>
 
       <div className="px-5 lg:px-0">
-        <div className="mx-auto mb-8 max-w-prose border-b border-slate-300/70 pt-10 pb-8 text-lg sm:pt-16">
+        <div className="mx-auto mb-8 max-w-prose border-b border-slate-300/70 pb-8 pt-10 text-lg sm:pt-16">
           <Link
             href={
               post.subcategory !== null
-                ? `/${post.subcategory.parentSlug}/${post.subcategory.slug}`
-                : `/${post.category.toLowerCase()}`
+                ? `/news/${post.subcategory.parentSlug}/${post.subcategory.slug}`
+                : `/news/${post.category.toLowerCase()}`
             }
             className="rounded-sm bg-brand-500 p-1 text-xs font-medium uppercase tracking-widest text-white duration-300 ease-in-out hover:bg-brand-300"
           >

@@ -31,8 +31,8 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
           <Link
             href={
               post.subcategory !== null
-                ? `/${post.subcategory.parentSlug}/${post.subcategory.slug}`
-                : `/${post.category.toLowerCase()}`
+                ? `/news/${post.subcategory.parentSlug}/${post.subcategory.slug}`
+                : `/news/${post.category.toLowerCase()}`
             }
             prefetch={false}
             className="rounded-sm bg-brand-500 p-1 text-xs font-medium uppercase tracking-widest text-white duration-300 ease-in-out hover:bg-brand-300"
