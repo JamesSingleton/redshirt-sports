@@ -48,6 +48,10 @@ export async function generateMetadata({
         },
       ],
     },
+    twitter: {
+      title: `${author.role} ${author.name}`,
+      description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,
+    },
   }
 }
 
