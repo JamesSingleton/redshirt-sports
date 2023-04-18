@@ -11,16 +11,38 @@ import VerticalArticleCard from '@components/ui/VerticalArticleCard'
 import { urlForImage } from '@lib/sanity.image'
 import Date from '@components/ui/Date'
 
+import type { Metadata } from 'next'
+
 export async function generateMetadata({
   params,
   searchParams,
 }: {
   params: { slug: string }
   searchParams: URLSearchParams
-}) {
+}): Promise<Metadata> {
+  const { slug } = params
+  const token = getPreviewToken()
+  const post = await getPostBySlug({ token, slug })
   return {
+    title: post?.title,
+    description: post?.excerpt,
     openGraph: {
       type: 'article',
+      title: post?.title,
+      description: post?.excerpt,
+      url: `https://www.redshirtsports.xyz/${post?.slug}`,
+      publishedTime: post?.publishedAt,
+      modifiedTime: post?._updatedAt,
+      authors: [post?.author.name],
+      section: post?.category,
+      images: [
+        {
+          url: urlForImage(post?.mainImage).width(1200).height(630).url(),
+          width: 1200,
+          height: 630,
+          alt: post?.mainImage.caption,
+        },
+      ],
     },
   }
 }

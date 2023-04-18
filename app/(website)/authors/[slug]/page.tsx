@@ -16,6 +16,41 @@ import { CustomPortableText } from '@components/ui/CustomPortableText'
 import { urlForImage } from '@lib/sanity.image'
 import Pagination from '@components/ui/Pagination'
 
+import type { Metadata } from 'next'
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: { slug: string }
+  searchParams: { [key: string]: string }
+}): Promise<Metadata> {
+  const { slug } = params
+  const token = getPreviewToken()
+  const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
+  const author = await getAuthorsBySlug({ slug, pageIndex, token })
+  return {
+    title: `${author.role} ${author.name}`,
+    description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,
+    openGraph: {
+      type: 'profile',
+      title: `${author.role} ${author.name}`,
+      description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,
+      url: `https://www.redshirtsports.xyz/authors/${author?.slug}`,
+      firstName: author?.name.split(' ')[0],
+      lastName: author?.name.split(' ')[1],
+      images: [
+        {
+          url: urlForImage(author?.image).width(1200).height(630).url(),
+          width: 1200,
+          height: 630,
+          alt: author?.name,
+        },
+      ],
+    },
+  }
+}
+
 export default async function Page({
   params,
   searchParams,
