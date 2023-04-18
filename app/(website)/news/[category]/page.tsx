@@ -14,8 +14,9 @@ export async function generateMetadata({
   params: { category: string }
   searchParams: { [key: string]: string }
 }): Promise<Metadata> {
+  const { page } = searchParams
   const token = getPreviewToken()
-  const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
+  const pageIndex = page ? parseInt(page) : 1
   const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
   return {
     title: `${category?.pageHeader}, Rumors, and More`,
@@ -37,8 +38,9 @@ export default async function Page({
   params: { category: string }
   searchParams: { [key: string]: string }
 }) {
+  const { page } = searchParams
   const token = getPreviewToken()
-  const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
+  const pageIndex = page ? parseInt(page) : 1
   const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
   const totalPages = Math.ceil(category?.totalPosts / 10)
   const nextDisabled = pageIndex === totalPages
