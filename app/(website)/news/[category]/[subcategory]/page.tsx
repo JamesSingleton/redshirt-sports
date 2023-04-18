@@ -1,5 +1,15 @@
 import Pagination from '@components/ui/Pagination'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
+import { getSubcategorySlugs } from '@lib/sanity.client'
+
+export async function generateStaticParams() {
+  const categories = await getSubcategorySlugs()
+
+  return categories.map((category: { slug: string; parentSlug: string }) => ({
+    category: category.parentSlug,
+    subcategory: category.slug,
+  }))
+}
 
 export default async function Page({
   params,

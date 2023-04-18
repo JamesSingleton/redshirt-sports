@@ -23,8 +23,8 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             width={704}
             height={396}
             priority={true}
-            placeholder="blur"
-            blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
+            // placeholder="blur"
+            // blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
           />
         </Link>
         <div className="mt-6 md:align-middle">

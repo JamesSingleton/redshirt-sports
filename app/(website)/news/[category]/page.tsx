@@ -1,4 +1,4 @@
-import { getCategoryBySlug } from '@lib/sanity.client'
+import { getCategoryBySlug, getParentCategorySlugs } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
 import HorizontalCard from '@components/ui/HorizontalCard'
@@ -21,6 +21,13 @@ export async function generateMetadata({
     title: `${category?.pageHeader}, Rumors, and More`,
     description: category?.description,
   }
+}
+
+export async function generateStaticParams() {
+  const categories = await getParentCategorySlugs()
+  return categories.map((category: { slug: string }) => ({
+    category: category.slug,
+  }))
 }
 
 export default async function Page({

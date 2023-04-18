@@ -32,8 +32,8 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                     width={358}
                     height={201}
                     sizes="50vw"
-                    placeholder="blur"
-                    blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
+                    // placeholder="blur"
+                    // blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
                     className="overflow-hidden rounded-2xl object-cover"
                     quality={40}
                   />

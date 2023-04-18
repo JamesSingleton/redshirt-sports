@@ -15,6 +15,8 @@ import {
   categoryBySlugQuery,
   authors,
   postsForRssFeed,
+  subCategorySlugQuery,
+  parentCategorySlugQuery,
 } from '@lib/sanity.queries'
 import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload, Author } from '@types'
 
@@ -115,4 +117,12 @@ export async function getAuthorsBySlug({
 
 export async function getPostsForRssFeed({ token }: { token: string }): Promise<any> {
   return await sanityClient(token)?.fetch(postsForRssFeed)
+}
+
+export async function getSubcategorySlugs(): Promise<any> {
+  return await sanityClient()?.fetch(subCategorySlugQuery)
+}
+
+export async function getParentCategorySlugs(): Promise<any> {
+  return await sanityClient()?.fetch(parentCategorySlugQuery)
 }

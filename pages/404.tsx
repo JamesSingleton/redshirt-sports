@@ -28,7 +28,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
         }}
       />
       <section className="bg-slate-50">
-        <div className="mx-auto min-h-screen max-w-2xl py-12 px-4 sm:px-6 sm:pt-16 lg:flex lg:max-w-screen-2xl lg:items-center lg:px-12 xl:py-20">
+        <div className="mx-auto min-h-screen max-w-2xl px-4 py-12 sm:px-6 sm:pt-16 lg:flex lg:max-w-screen-2xl lg:items-center lg:px-12 xl:py-20">
           <div className="flex flex-col justify-center lg:w-1/2 2xl:w-2/5">
             <div className="max-w-lg">
               <span className="relative block text-sm uppercase tracking-widest text-brand-500">
@@ -52,7 +52,7 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
             </div>
           </div>
           <div className="mt-12 sm:mt-16 lg:ml-12 lg:mt-0 lg:w-1/2 2xl:ml-16 2xl:w-3/5">
-            <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+            <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">
               Recent Articles
             </h2>
             <div className="grid pt-12 lg:gap-6 2xl:grid-cols-2">
@@ -71,14 +71,14 @@ const Custom404 = ({ recentArticles }: Custom404Props) => {
                           width={134}
                           height={134}
                           sizes="50vw"
-                          placeholder="blur"
-                          blurDataURL={recentArticle.mainImage.asset.metadata.lqip ?? undefined}
+                          // placeholder="blur"
+                          // blurDataURL={recentArticle.mainImage.asset.metadata.lqip ?? undefined}
                           quality={40}
                           className="overflow-hidden rounded-2xl object-cover"
                         />
                       </div>
                     </div>
-                    <div className="order-1 mt-5 w-full px-2 sm:mr-4 sm:mt-0 sm:max-w-sm sm:px-0 lg:order-2 lg:mr-0 lg:ml-4 lg:flex-1">
+                    <div className="order-1 mt-5 w-full px-2 sm:mr-4 sm:mt-0 sm:max-w-sm sm:px-0 lg:order-2 lg:ml-4 lg:mr-0 lg:flex-1">
                       <span className="text-sm font-medium uppercase tracking-widest text-brand-500">
                         {recentArticle.category}
                       </span>

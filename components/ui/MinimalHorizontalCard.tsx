@@ -26,8 +26,8 @@ const MinimalHorizontalCard = ({
               src={urlForImage(article.mainImage).quality(50).url()}
               width={96}
               height={96}
-              placeholder="blur"
-              blurDataURL={article.mainImage.asset.metadata.lqip ?? undefined}
+              // placeholder="blur"
+              // blurDataURL={article.mainImage.asset.metadata.lqip ?? undefined}
               quality={50}
               className="overflow-hidden rounded-2xl object-cover"
             />

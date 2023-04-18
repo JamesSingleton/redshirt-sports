@@ -199,3 +199,16 @@ export const postsForRssFeed = groq`
   },
 }
 `
+
+// return slug of parent categories
+export const parentCategorySlugQuery = groq`
+*[_type == "category" && defined(slug.current) && !defined(parent)]{
+  'slug': slug.current
+}`
+
+// return slug of subcategories
+export const subCategorySlugQuery = groq`
+*[_type == "category" && defined(slug.current) && defined(parent)]{
+  'slug': slug.current,
+  'parentSlug': parent->slug.current
+}`

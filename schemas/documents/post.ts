@@ -60,7 +60,13 @@ export default defineType({
         'Please provide an image for the article. Use something like https://squoosh.app or https://tinypng.com to compress the image first.',
       options: {
         hotspot: true,
-        metadata: ['location', 'palette'],
+        metadata: [
+          'blurhash', // Default: included
+          'lqip', // Default: included
+          'palette', // Default: included
+          'exif', // Default: not included
+          'location', // Default: not included
+        ],
       },
       validation: (rule) => rule.required(),
       fields: [
