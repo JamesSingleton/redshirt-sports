@@ -13,6 +13,8 @@ import { getAuthorsBySlug } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import HorizontalCard from '@components/ui/HorizontalCard'
 import { CustomPortableText } from '@components/ui/CustomPortableText'
+import { urlForImage } from '@lib/sanity.image'
+import Pagination from '@components/ui/Pagination'
 
 export default async function Page({
   params,
@@ -25,6 +27,9 @@ export default async function Page({
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
   const token = getPreviewToken()
   const author = await getAuthorsBySlug({ slug, pageIndex, token })
+  const totalPages = Math.ceil(author?.totalPosts / 10)
+  const nextDisabled = pageIndex === totalPages
+  const prevDisabled = pageIndex === 1
 
   return (
     <>
@@ -33,7 +38,7 @@ export default async function Page({
           <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
             <div className="flex flex-col items-center md:flex-row">
               <Image
-                src="/images/empty-state.png"
+                src={urlForImage(author?.image).url()}
                 alt={`${author.name} profile picture`}
                 width={96}
                 height={96}
@@ -100,7 +105,11 @@ export default async function Page({
             </h2>
             <div className="mt-6 pt-8 sm:mt-10 sm:pt-10">
               {author.posts && author.posts.length > 0 ? (
-                author.posts!.map((post) => <HorizontalCard key={post._id} {...post} />)
+                author.posts!.map((post) => (
+                  <>
+                    <HorizontalCard key={post._id} {...post} />
+                  </>
+                ))
               ) : (
                 <div className="flex flex-col items-center justify-center">
                   <Image
@@ -114,6 +123,13 @@ export default async function Page({
                   <p className="font-cal text-2xl text-slate-600">No articles yet.</p>
                 </div>
               )}
+              <Pagination
+                currentPage={pageIndex}
+                totalPosts={author.totalPosts}
+                nextDisabled={nextDisabled}
+                prevDisabled={prevDisabled}
+                slug={`/authors/${author.slug}`}
+              />
             </div>
           </div>
           <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">

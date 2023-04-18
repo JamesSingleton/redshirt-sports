@@ -34,7 +34,7 @@ export default async function Page({
               totalPosts={totalPosts}
               nextDisabled={nextDisabled}
               prevDisabled={prevDisabled}
-              slug={`${params.category}/${params.subcategory}`}
+              slug={`/news/${params.category}/${params.subcategory}`}
             />
           </div>
           <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">

@@ -4,7 +4,7 @@ import CalendarIcon from '@heroicons/react/24/outline/CalendarIcon'
 import ClockIcon from '@heroicons/react/24/outline/ClockIcon'
 import CameraIcon from '@heroicons/react/24/outline/CameraIcon'
 
-import { urlForImage } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity.image'
 import { Date } from '@components/ui'
 
 import type { Post } from '@types'

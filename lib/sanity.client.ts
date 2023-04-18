@@ -17,6 +17,8 @@ import {
   postsForRssFeed,
   subCategorySlugQuery,
   parentCategorySlugQuery,
+  postInfoForSitemap,
+  postSlugsQuery,
 } from '@lib/sanity.queries'
 import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload, Author } from '@types'
 
@@ -125,4 +127,12 @@ export async function getSubcategorySlugs(): Promise<any> {
 
 export async function getParentCategorySlugs(): Promise<any> {
   return await sanityClient()?.fetch(parentCategorySlugQuery)
+}
+
+export async function getPostsForSitemap(): Promise<any> {
+  return await sanityClient()?.fetch(postInfoForSitemap)
+}
+
+export async function getPostSlugs(): Promise<any> {
+  return await sanityClient()?.fetch(postSlugsQuery)
 }

@@ -166,7 +166,8 @@ export const authors = groq`
     ${authorFields}
     "posts": *[_type == 'post' && references(^._id)] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
       ${litePostFields}
-    }
+    },
+    "totalPosts": count(*[_type == 'post' && references(^._id)])
   }
 `
 export const postsForRssFeed = groq`
@@ -200,15 +201,24 @@ export const postsForRssFeed = groq`
 }
 `
 
-// return slug of parent categories
 export const parentCategorySlugQuery = groq`
 *[_type == "category" && defined(slug.current) && !defined(parent)]{
   'slug': slug.current
 }`
 
-// return slug of subcategories
 export const subCategorySlugQuery = groq`
 *[_type == "category" && defined(slug.current) && defined(parent)]{
   'slug': slug.current,
   'parentSlug': parent->slug.current
 }`
+
+export const postInfoForSitemap = groq`
+*[_type == 'post' && defined(slug.current)]{
+  _updatedAt,
+  "slug": slug.current,
+}
+`
+
+export const postSlugsQuery = `
+*[_type == "post" && defined(slug.current)][].slug.current
+`

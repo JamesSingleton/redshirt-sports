@@ -2,7 +2,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
-import { urlForImage, PortableTextComponent } from '@lib/sanity'
+import { urlForImage } from '@lib/sanity.image'
+import { CustomPortableText } from '@components/ui/CustomPortableText'
 import {
   Instagram,
   Twitter,
@@ -105,7 +106,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                 </Link>
               </div>
               <div className="mt-3 line-clamp-3 text-base leading-loose text-slate-500">
-                <PortableTextComponent value={author.bio} />
+                <CustomPortableText value={author.bio} />
               </div>
               <ul className="mt-3 flex items-center space-x-3">
                 {author.socialMedia &&

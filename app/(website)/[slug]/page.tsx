@@ -4,7 +4,7 @@ import CalendarIcon from '@heroicons/react/24/outline/CalendarIcon'
 import ClockIcon from '@heroicons/react/24/outline/ClockIcon'
 import CameraIcon from '@heroicons/react/24/outline/CameraIcon'
 
-import { getPostBySlug, getMorePostsBySlug } from '@lib/sanity.client'
+import { getPostBySlug, getMorePostsBySlug, getPostSlugs } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import { CustomPortableText } from '@components/ui/CustomPortableText'
 import VerticalArticleCard from '@components/ui/VerticalArticleCard'
@@ -23,6 +23,11 @@ export async function generateMetadata({
       type: 'article',
     },
   }
+}
+
+export async function generateStaticParams() {
+  const slugs = await getPostSlugs()
+  return slugs.map((slug: string) => ({ slug }))
 }
 
 export default async function Page({ params }: { params: { slug: string } }) {

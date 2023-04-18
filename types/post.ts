@@ -29,6 +29,7 @@ export type Author = {
       url: string
     }
   ]
+  totalPosts: number
 }
 
 export type Post = {
