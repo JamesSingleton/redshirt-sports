@@ -59,7 +59,7 @@ export async function getAboutPageAuthors({
   token,
 }: {
   token?: string
-}): Promise<AboutPagePayload | undefined> {
+}): Promise<Author[] | undefined> {
   return await sanityClient(token)?.fetch(allAuthors)
 }
 

@@ -32,7 +32,7 @@ export const metadata = {
 
 export default async function Page() {
   const token = getPreviewToken()
-  const authors = ((await getAboutPageAuthors({ token })) || []) as Author[]
+  const authors = await getAboutPageAuthors({ token })
 
   return (
     <>
@@ -72,7 +72,7 @@ export default async function Page() {
           </div>
           <div className="mx-auto mt-12 max-w-7xl sm:mt-16">
             <ul className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
-              {authors.map((author) => (
+              {authors?.map((author) => (
                 <li
                   key={author._id}
                   className="relative rounded-3xl border border-slate-300/70 bg-white px-6 py-10 text-center transition duration-300 ease-in-out hover:border-slate-300/30 hover:shadow-lg sm:px-10"

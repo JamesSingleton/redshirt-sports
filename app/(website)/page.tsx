@@ -1,8 +1,5 @@
-import type { Metadata } from 'next'
-import { SocialMediaFollow } from '@components/common'
-import Hero from '@components/home/Hero'
-import FeaturedArticles from '@components/home/FeaturedArticles'
-import { ArticleSection } from '@components/home'
+import { SocialMediaFollow, AuthorsCard } from '@components/common'
+import { ArticleSection, FeaturedArticles, Hero } from '@components/home'
 
 export default function Page() {
   return (
@@ -19,6 +16,8 @@ export default function Page() {
             {/* @ts-expect-error Server Component */}
             <FeaturedArticles />
             <SocialMediaFollow />
+            {/* @ts-expect-error Server Component */}
+            <AuthorsCard />
           </div>
         </div>
       </section>
