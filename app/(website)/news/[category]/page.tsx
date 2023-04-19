@@ -4,19 +4,21 @@ import SocialMediaFollow from '@components/common/SocialMediaFollow'
 import HorizontalCard from '@components/ui/HorizontalCard'
 import Pagination from '@components/ui/Pagination'
 
-import type { Metadata } from 'next'
-import { Post } from '@types'
+import type { Metadata, ResolvingMetadata } from 'next'
+import type { Post } from '@types'
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
+type Props = {
   params: { category: string }
-  searchParams: { [key: string]: string }
-}): Promise<Metadata> {
-  const { page } = searchParams
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent?: ResolvingMetadata
+): Promise<Metadata> {
+  const page = searchParams.page
   const token = getPreviewToken()
-  const pageIndex = page ? parseInt(page) : 1
+  const pageIndex = page ? parseInt(page.toString()) : 1
   const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
   return {
     title: `${category?.pageHeader}, Rumors, and More`,

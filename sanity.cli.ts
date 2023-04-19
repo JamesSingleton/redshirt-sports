@@ -8,8 +8,8 @@ export default defineCliConfig({
     dataset: 'production', // replace value with your own
   },
   vite: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
+    config.resolve!.alias = {
+      ...config.resolve!.alias,
       // Add your own aliases here
       // Example: "react": "preact/compat"
       '@plugins': path.resolve(__dirname, './plugins'),
