@@ -161,6 +161,23 @@ export const categoryBySlugQuery = groq`
   "totalPosts": count(*[_type == "post" && references(^._id)])
 }`
 
+export const subcategoryBySlugQuery = groq`
+*[_type == "category" && defined(parent->slug.current) && slug.current == $slug && count(*[_type == 'post' && references(^._id)]) > 0][0]{
+  _id,
+  title,
+  pageHeader,
+  subTitle,
+  _updatedAt,
+  "parentSlug": parent->slug.current,
+  "parentTitle": parent->title,
+  "slug": slug.current,
+  description,
+  "posts": *[_type == 'post' && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+    ${litePostFields}
+  },
+  "totalPosts": count(*[_type == "post" && references(^._id)])
+}`
+
 export const authors = groq`
   *[_type == 'author' && slug.current == $slug][0]{
     ${authorFields}

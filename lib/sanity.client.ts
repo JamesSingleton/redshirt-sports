@@ -19,6 +19,7 @@ import {
   parentCategorySlugQuery,
   postInfoForSitemap,
   postSlugsQuery,
+  subcategoryBySlugQuery,
 } from '@lib/sanity.queries'
 import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload, Author } from '@types'
 
@@ -100,6 +101,18 @@ export async function getCategoryBySlug({
   token?: string
 }): Promise<any> {
   return await sanityClient(token)?.fetch(categoryBySlugQuery, { slug, pageIndex })
+}
+
+export async function getSubcategoryBySlug({
+  slug,
+  pageIndex,
+  token,
+}: {
+  slug: string
+  pageIndex: number
+  token?: string
+}): Promise<any> {
+  return await sanityClient(token)?.fetch(subcategoryBySlugQuery, { slug, pageIndex })
 }
 
 export async function getAuthorsBySlug({

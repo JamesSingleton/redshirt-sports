@@ -1,6 +1,10 @@
 import Pagination from '@components/ui/Pagination'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
-import { getSubcategorySlugs } from '@lib/sanity.client'
+import { getSubcategorySlugs, getSubcategoryBySlug } from '@lib/sanity.client'
+import { getPreviewToken } from '@lib/sanity.server.preview'
+import HorizontalCard from '@components/ui/HorizontalCard'
+
+import type { Post } from '@types'
 
 export async function generateStaticParams() {
   const categories = await getSubcategorySlugs()
@@ -18,20 +22,42 @@ export default async function Page({
   params: { category: string; subcategory: string }
   searchParams: { [key: string]: string }
 }) {
+  const token = getPreviewToken()
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
-  // const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
-  const totalPosts = 110
-  const totalPages = Math.ceil(totalPosts / 10)
+  const subcategory = await getSubcategoryBySlug({ slug: params.subcategory, pageIndex, token })
+  const totalPages = Math.ceil(subcategory.totalPosts / 10)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
   return (
     <>
+      <section className="bg-slate-50 py-12 sm:py-20 lg:py-24">
+        <div className="mx-auto max-w-xl px-4 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
+          <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
+            <div className="order-2 mt-8 flex flex-col items-center md:order-1 md:mt-0 md:flex-row">
+              <div className="mt-6 text-center md:mt-0 md:text-left">
+                {subcategory?.pageHeader && (
+                  <span className="block text-xs uppercase tracking-widest text-brand-500">
+                    {subcategory?.subTitle}
+                  </span>
+                )}
+                <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
+                  {subcategory?.pageHeader}
+                </h1>
+              </div>
+            </div>
+            <div className="order-1 md:order-2">Breadcrumbs Here</div>
+          </div>
+        </div>
+      </section>
       <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
         <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           <div className="col-span-2">
+            {subcategory.posts.map((post: Post) => (
+              <HorizontalCard {...post} key={post._id} />
+            ))}
             <Pagination
               currentPage={pageIndex}
-              totalPosts={totalPosts}
+              totalPosts={subcategory.totalPosts}
               nextDisabled={nextDisabled}
               prevDisabled={prevDisabled}
               slug={`/news/${params.category}/${params.subcategory}`}
