@@ -13,7 +13,7 @@
 /out/
 /public/feeds/
 /public/*.xml
-/public/*.txt
+/public/robots.txt
 
 # production
 /build
