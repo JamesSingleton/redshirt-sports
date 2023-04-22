@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import CalendarIcon from '@heroicons/react/24/outline/CalendarIcon'
 import ClockIcon from '@heroicons/react/24/outline/ClockIcon'
 import CameraIcon from '@heroicons/react/24/outline/CameraIcon'
@@ -60,12 +61,15 @@ export default async function Page({ params }: { params: { slug: string } }) {
   const { slug } = params
   const token = getPreviewToken()
   const post = await getPostBySlug({ token, slug })
+  if (!post) {
+    return notFound()
+  }
 
   const morePosts = await getMorePostsBySlug({ token, slug })
 
   return (
     <>
-      <article className="lg:pb-25 bg-slate-50 pb-12 sm:pb-16">
+      <article className="lg:pb-25 pb-12 sm:pb-16">
         <header className="sm:px-10 sm:pt-10">
           <div className="mx-auto max-w-screen-lg">
             <Image
@@ -94,10 +98,12 @@ export default async function Page({ params }: { params: { slug: string } }) {
               >
                 {post?.subcategory !== null ? post?.subcategory.title : post.category}
               </Link>
-              <h1 className="mt-3 font-cal text-4xl font-medium text-slate-900 transition duration-300 ease-in-out sm:my-5 sm:text-4xl sm:leading-tight lg:text-5xl">
+              <h1 className="mt-3 font-cal text-4xl font-medium transition duration-300 ease-in-out sm:my-5 sm:text-4xl sm:leading-tight lg:text-5xl">
                 {post?.title}
               </h1>
-              <p className="mt-4 text-base leading-loose text-slate-600">{post?.excerpt}</p>
+              <p className="mt-4 text-base leading-loose text-slate-500 dark:text-slate-400">
+                {post?.excerpt}
+              </p>
               <div className="mt-6 flex items-center sm:mt-8">
                 <Link
                   href={`/authors/${post.author.slug}`}

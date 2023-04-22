@@ -48,7 +48,7 @@ export default function IndexLayout({ children }: { children: React.ReactNode })
   return (
     <PlausibleProvider domain="redshirtsports.xyz">
       <Navbar />
-      <main className="loading bg-white text-slate-600 antialiased">{children}</main>
+      <main className="loading antialiased">{children}</main>
       <Footer />
     </PlausibleProvider>
   )

@@ -35,12 +35,12 @@ const MinimalHorizontalCard = ({
         </div>
         <div className="w-2/3">
           <div className="flex h-full w-full flex-1 flex-col justify-center">
-            <h3 className="line-clamp-2 font-cal text-lg font-medium leading-snug tracking-normal text-slate-900 transition duration-300 ease-in-out">
+            <h3 className="line-clamp-2 font-cal text-lg font-medium leading-snug tracking-normal transition duration-300 ease-in-out">
               {article.title}
             </h3>
             <div className="mt-2 flex items-center text-sm">
-              <span className="text-slate-500">By&nbsp;</span>
-              <span className="font-medium text-slate-900">{article.author.name}</span>
+              <span className="dark:text-zinc0499 text-zinc-500">By&nbsp;</span>
+              <span className="font-medium">{article.author.name}</span>
             </div>
           </div>
         </div>

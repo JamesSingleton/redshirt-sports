@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { notFound } from 'next/navigation'
 import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
 import {
@@ -66,6 +67,9 @@ export default async function Page({
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
   const token = getPreviewToken()
   const author = await getAuthorsBySlug({ slug, pageIndex, token })
+  if (!author) {
+    return notFound()
+  }
   const totalPages = Math.ceil(author?.totalPosts / 10)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1

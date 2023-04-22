@@ -13,7 +13,7 @@ interface RecentArticlesProps {
 const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
   return (
     <div className="mt-12 sm:mt-16 lg:ml-12 lg:mt-0 lg:w-1/2 xl:ml-16">
-      <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">
+      <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">
         Recent Articles
       </h2>
       <div className="grid divide-y lg:grid-cols-2 lg:gap-5 xl:grid-cols-1">
@@ -64,11 +64,11 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                       quality={40}
                     />
                     <div className="text-sm">
-                      <span className="text-slate-500">By </span>
+                      <span className="text-slate-500 dark:text-slate-100">By </span>
                       <Link
                         href={`/authors/${post.author.slug}`}
                         prefetch={false}
-                        className="font-medium text-slate-700 decoration-inherit"
+                        className="font-medium text-slate-700 decoration-inherit dark:text-slate-200"
                       >
                         {post.author.name}
                       </Link>

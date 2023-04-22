@@ -10,12 +10,13 @@ import clsx from 'clsx'
 import SearchBar from './SearchBar'
 import Logo from '../SmallLogo'
 import { NAVIGATION_ITEMS } from '@lib/constants'
+import { Search } from './Search'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <header className="bg-white">
+    <header>
       <nav
         className="mx-auto flex max-w-screen-2xl items-center justify-between p-6 lg:px-8"
         aria-label="Global"
@@ -88,7 +89,8 @@ export default function Navbar() {
           </button>
         </div>
         <div className="hidden lg:flex">
-          <SearchBar />
+          {/* <SearchBar /> */}
+          <Search />
         </div>
       </nav>
       <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>

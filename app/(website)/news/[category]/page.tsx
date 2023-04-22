@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation'
+
 import { getCategoryBySlug, getParentCategorySlugs } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
@@ -42,13 +44,17 @@ export default async function Page({
   const token = getPreviewToken()
   const pageIndex = page ? parseInt(page) : 1
   const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
+
+  if (!category.posts.length) {
+    return notFound()
+  }
   const totalPages = Math.ceil(category?.totalPosts / 10)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
 
   return (
     <>
-      <section className="bg-slate-50 py-12 sm:py-20 lg:py-24">
+      <section className="bg-slate-100 py-12 dark:bg-slate-800 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-xl px-4 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
           <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
             <div className="order-2 mt-8 flex flex-col items-center md:order-1 md:mt-0 md:flex-row">
@@ -58,7 +64,7 @@ export default async function Page({
                     {category?.subTitle}
                   </span>
                 )}
-                <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
+                <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
                   {category?.pageHeader}
                 </h1>
               </div>

@@ -30,10 +30,10 @@ const HorizontalCard = (post: Post) => {
         </div>
         <div className="group relative mt-6 flex flex-col flex-wrap md:col-span-3 md:mt-0">
           <div className="mb-8 box-border flex w-full flex-1 flex-col justify-between border-b-2 border-b-slate-100 px-4 pb-8 md:px-0">
-            <h2 className="font-cal text-xl font-medium leading-tight text-slate-900 decoration-2 sm:text-2xl lg:text-xl xl:text-2xl">
+            <h2 className="font-cal text-xl font-medium leading-tight text-slate-900 decoration-2 dark:text-slate-100 sm:text-2xl lg:text-xl xl:text-2xl">
               {post.title}
             </h2>
-            <p className="mt-3 line-clamp-2 block text-base leading-relaxed text-slate-500">
+            <p className="mt-3 line-clamp-2 block text-base leading-relaxed text-slate-500 dark:text-slate-400">
               {post.excerpt}
             </p>
             <footer className="mt-5 flex items-center sm:mt-7">
@@ -46,7 +46,9 @@ const HorizontalCard = (post: Post) => {
               />
               <div className="flex items-center text-base">
                 <span className="hidden text-slate-500 sm:inline-block">By&nbsp;</span>
-                <span className="font-medium text-slate-700">{post.author.name}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+                  {post.author.name}
+                </span>
                 <CalendarIcon className="ml-3 h-5 w-5 text-slate-400" />
                 <Date dateString={post.publishedAt} className="ml-1 text-slate-500" />
                 <span className="hidden items-center sm:flex">

@@ -7,6 +7,9 @@ import {
 } from '@portabletext/react'
 import { PortableTextBlock } from 'sanity'
 import { Tweet } from 'react-tweet'
+import { getImageDimensions } from '@sanity/asset-utils'
+
+import { urlForImage } from '@lib/sanity.image'
 
 import type { TweetComponents } from 'react-tweet'
 
@@ -27,6 +30,18 @@ const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
 const TweetComponents: TweetComponents = {
   AvatarImg: (props) => <Image {...props} alt={props.alt} />,
   MediaImg: (props) => <Image {...props} alt={props.alt} fill unoptimized />,
+}
+
+const ImageComponent = ({ value, isInline }: { value: any; isInline: any }) => {
+  const { width, height } = getImageDimensions(value)
+  return (
+    <Image
+      src={urlForImage(value).fit('min').auto('format').url()}
+      alt={value.caption || ' '}
+      width={width}
+      height={height}
+    />
+  )
 }
 
 export function CustomPortableText({
@@ -68,6 +83,7 @@ export function CustomPortableText({
           </div>
         )
       },
+      image: ImageComponent,
     },
   }
 

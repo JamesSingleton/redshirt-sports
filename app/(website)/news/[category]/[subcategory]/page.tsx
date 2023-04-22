@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation'
+
 import Pagination from '@components/ui/Pagination'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
 import { getSubcategorySlugs, getSubcategoryBySlug } from '@lib/sanity.client'
@@ -25,6 +27,9 @@ export default async function Page({
   const token = getPreviewToken()
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
   const subcategory = await getSubcategoryBySlug({ slug: params.subcategory, pageIndex, token })
+  if (!subcategory.posts.length) {
+    return notFound()
+  }
   const totalPages = Math.ceil(subcategory.totalPosts / 10)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1

@@ -15,7 +15,6 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
   return (
     <Link
       href={`/${article.slug}`}
-      prefetch={false}
       className="flex transition duration-300 ease-in-out hover:scale-105"
     >
       <article className="flex flex-col overflow-hidden rounded-2xl shadow-xl">
@@ -32,12 +31,14 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
             height: '235px',
           }}
         />
-        <div className="flex flex-1 flex-col justify-between bg-white p-6">
+        <div className="flex flex-1 flex-col justify-between bg-white p-6 dark:bg-zinc-800">
           <div className="flex-1">
-            <p className="text-sm font-medium uppercase text-brand-600">{article.category}</p>
+            <span className="rounded-sm bg-brand-500 p-1 text-xs font-medium uppercase tracking-widest text-white duration-300 ease-in-out hover:bg-brand-300">
+              {article.category}
+            </span>
             <div className="mt-2">
-              <h3 className="font-cal text-xl font-semibold text-slate-900">{article.title}</h3>
-              <p className="mt-3 text-base text-slate-500">{article.excerpt}</p>
+              <h3 className="font-cal text-xl font-semibold">{article.title}</h3>
+              <p className="mt-3 text-base text-zinc-500 dark:text-zinc-400">{article.excerpt}</p>
             </div>
           </div>
           <div className="mt-6 flex items-center">
@@ -56,8 +57,8 @@ const VerticalArticleCard: FC<VerticalArticleCardProps> = ({ article }) => {
               </div>
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-slate-900">{article.author.name}</p>
-              <div className="flex space-x-1 text-sm text-slate-500">
+              <p className="text-sm font-medium">{article.author.name}</p>
+              <div className="flex space-x-1 text-sm text-zinc-500 dark:text-zinc-400">
                 <Date dateString={article.publishedAt} />
                 <span aria-hidden="true">&middot;</span>
                 <span>{article.estimatedReadingTime} min read</span>

@@ -40,7 +40,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             {post.subcategory !== null ? post.subcategory.title : post.category}
           </Link>
           <div className="mt-3 block">
-            <h1 className="font-cal text-3xl font-medium tracking-normal text-slate-900 transition duration-300 ease-in-out md:tracking-tight lg:text-4xl lg:leading-tight">
+            <h1 className="font-cal text-3xl font-medium tracking-normal transition duration-300 ease-in-out md:tracking-tight lg:text-4xl lg:leading-tight">
               <Link href={`/${post.slug}`} prefetch={false}>
                 {post.title}
               </Link>

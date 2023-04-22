@@ -38,7 +38,7 @@ const navigation = {
 
 const Footer = () => {
   return (
-    <footer className="bg-white py-12 sm:py-20 lg:py-24">
+    <footer className="py-12 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-screen-2xl lg:px-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <div className="flex items-center justify-center">
@@ -64,7 +64,7 @@ const Footer = () => {
                     <span className="sr-only">{name}</span>
                     <Icon
                       aria-hidden="true"
-                      className="h-4 w-4 transform text-slate-700 transition ease-in-out"
+                      className="h-4 w-4 transform text-slate-700 transition ease-in-out dark:text-slate-200"
                     />
                   </a>
                 </li>
@@ -82,13 +82,13 @@ const Footer = () => {
                 key={name}
                 href={href}
                 prefetch={false}
-                className="py-2 text-base text-slate-500 transition duration-300 ease-in-out"
+                className="py-2 text-base text-slate-500 transition duration-300 ease-in-out dark:text-slate-400"
               >
                 {name}
               </Link>
             ))}
           </nav>
-          <p className="ml-0 mt-8 flex shrink-0 items-center justify-center text-base text-slate-500 md:ml-6 md:mt-0">
+          <p className="ml-0 mt-8 flex shrink-0 items-center justify-center text-base text-slate-500 dark:text-slate-400 md:ml-6 md:mt-0">
             &copy;
             {`${new Date().getFullYear()} Redshirt Sports. All rights reserved.`}
           </p>

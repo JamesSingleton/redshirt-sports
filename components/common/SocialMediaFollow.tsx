@@ -2,8 +2,8 @@ import ArrowRightIcon from '@heroicons/react/24/outline/ArrowRightIcon'
 
 const SocialMediaFollow = () => {
   return (
-    <div className="w-full rounded-2xl bg-slate-50 p-5 sm:p-8">
-      <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:left-0 before:-bottom-[1px] before:h-px before:w-24 before:bg-brand-500">
+    <div className="w-full rounded-2xl bg-zinc-100 p-5 dark:bg-zinc-800 sm:p-8">
+      <h2 className="relative border-b border-zinc-300 pb-2 font-cal text-2xl font-medium text-zinc-900 before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500 dark:text-zinc-100">
         Follow Us
       </h2>
       <div className="space-y-4 overflow-hidden pt-5">
@@ -14,7 +14,7 @@ const SocialMediaFollow = () => {
           className="items-centers flex w-full justify-between"
         >
           <div className="flex items-center">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-transparent transition ease-in-out">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-zinc-300 bg-transparent transition ease-in-out">
               <span className="sr-only">Twitter</span>
               <svg
                 className="h-4 w-4 transition duration-300 ease-in-out"
@@ -44,7 +44,7 @@ const SocialMediaFollow = () => {
           className="items-centers flex w-full justify-between"
         >
           <div className="flex items-center">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-transparent transition ease-in-out">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-zinc-300 bg-transparent transition ease-in-out">
               <span className="sr-only">Facebook</span>
               <svg
                 className="h-4 w-4 transition duration-300 ease-in-out"
