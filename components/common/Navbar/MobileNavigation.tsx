@@ -40,7 +40,7 @@ export function MobileNavigation({ categories }: { categories: any[] }) {
         aria-label="Toggle navigation"
         onClick={toggle}
       >
-        <ToggleIcon className=" stroke-zinc-900 dark:stroke-white" />
+        <ToggleIcon className="h-6 w-6 stroke-zinc-900 dark:stroke-white" />
       </button>
       {!isInsideMobileNavigation && (
         <Transition.Root show={isOpen} as={Fragment}>
