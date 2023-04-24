@@ -13,7 +13,6 @@ const HorizontalCard = (post: Post) => {
     <article>
       <Link
         href={`/${post.slug}`}
-        prefetch={false}
         className="hover:scale-105 hover:duration-300 md:grid md:grid-cols-4 md:gap-8"
       >
         <div className="md:col-span-1">
@@ -29,11 +28,11 @@ const HorizontalCard = (post: Post) => {
           </div>
         </div>
         <div className="group relative mt-6 flex flex-col flex-wrap md:col-span-3 md:mt-0">
-          <div className="mb-8 box-border flex w-full flex-1 flex-col justify-between border-b-2 border-b-slate-100 px-4 pb-8 md:px-0">
-            <h2 className="font-cal text-xl font-medium leading-tight text-slate-900 decoration-2 dark:text-slate-100 sm:text-2xl lg:text-xl xl:text-2xl">
+          <div className="mb-8 box-border flex w-full flex-1 flex-col justify-between border-b-2 border-b-zinc-100 px-4 pb-8 md:px-0">
+            <h2 className="font-cal text-xl font-medium leading-tight text-zinc-900 decoration-2 dark:text-zinc-100 sm:text-2xl lg:text-xl xl:text-2xl">
               {post.title}
             </h2>
-            <p className="mt-3 line-clamp-2 block text-base leading-relaxed text-slate-500 dark:text-slate-400">
+            <p className="mt-3 line-clamp-2 block text-base leading-relaxed text-zinc-500 dark:text-zinc-400">
               {post.excerpt}
             </p>
             <footer className="mt-5 flex items-center sm:mt-7">
@@ -45,15 +44,20 @@ const HorizontalCard = (post: Post) => {
                 className="mr-3 h-7 w-7 overflow-hidden rounded-full object-cover lg:h-8 lg:w-8"
               />
               <div className="flex items-center text-base">
-                <span className="hidden text-slate-500 sm:inline-block">By&nbsp;</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300">
+                <span className="hidden text-zinc-500 dark:text-zinc-400 sm:inline-block">
+                  By&nbsp;
+                </span>
+                <span className="font-medium text-zinc-700 dark:text-zinc-300">
                   {post.author.name}
                 </span>
-                <CalendarIcon className="ml-3 h-5 w-5 text-slate-400" />
-                <Date dateString={post.publishedAt} className="ml-1 text-slate-500" />
+                <CalendarIcon className="ml-3 h-5 w-5 text-zinc-400" />
+                <Date
+                  dateString={post.publishedAt}
+                  className="ml-1 text-zinc-500 dark:text-zinc-400"
+                />
                 <span className="hidden items-center sm:flex">
-                  <ClockIcon className="ml-3 h-5 w-5 text-slate-400" />
-                  <span className="ml-1 text-slate-500">{`${post.estimatedReadingTime} min read`}</span>
+                  <ClockIcon className="ml-3 h-5 w-5 text-zinc-400" />
+                  <span className="ml-1 text-zinc-500 dark:text-zinc-400">{`${post.estimatedReadingTime} min read`}</span>
                 </span>
               </div>
             </footer>

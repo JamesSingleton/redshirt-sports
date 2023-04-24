@@ -8,7 +8,7 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx}',
     './lib/**/*.{js,ts,jsx,tsx}',
   ],
-  darkMode: 'media',
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -74,6 +74,15 @@ module.exports = {
       },
       textDecorationThickness: {
         3: '3px',
+      },
+      boxShadow: {
+        glow: '0 0 4px rgb(0 0 0 / 0.1)',
+      },
+      opacity: {
+        1: '0.01',
+        2.5: '0.025',
+        7.5: '0.075',
+        15: '0.15',
       },
     },
   },

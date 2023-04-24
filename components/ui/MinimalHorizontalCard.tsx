@@ -14,11 +14,7 @@ const MinimalHorizontalCard = ({
 }) => {
   return (
     <article>
-      <Link
-        href={`/${article.slug}`}
-        prefetch={false}
-        className="flex space-x-4 sm:space-x-6 lg:space-x-4"
-      >
+      <Link href={`/${article.slug}`} className="flex space-x-4 sm:space-x-6 lg:space-x-4">
         <div className="h-24 w-24 sm:h-28 sm:w-28 lg:h-20 lg:w-20 xl:h-24 xl:w-24">
           <div className="aspect-h-1 aspect-w-1">
             <Image
@@ -39,7 +35,7 @@ const MinimalHorizontalCard = ({
               {article.title}
             </h3>
             <div className="mt-2 flex items-center text-sm">
-              <span className="dark:text-zinc0499 text-zinc-500">By&nbsp;</span>
+              <span className="text-zinc-500 dark:text-zinc-400">By&nbsp;</span>
               <span className="font-medium">{article.author.name}</span>
             </div>
           </div>

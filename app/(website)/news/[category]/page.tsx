@@ -3,8 +3,10 @@ import { notFound } from 'next/navigation'
 import { getCategoryBySlug, getParentCategorySlugs } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
+import AuthorsCard from '@components/common/AuthorsCard'
 import HorizontalCard from '@components/ui/HorizontalCard'
 import Pagination from '@components/ui/Pagination'
+import Breadcrumbs from '@components/ui/Breadcrumbs'
 
 import type { Metadata } from 'next'
 import type { Post } from '@types'
@@ -52,15 +54,22 @@ export default async function Page({
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
 
+  const breadCrumbPages = [
+    {
+      name: category?.title,
+      href: `/news/${category?.slug}`,
+    },
+  ]
+
   return (
     <>
-      <section className="bg-slate-100 py-12 dark:bg-slate-800 sm:py-20 lg:py-24">
+      <section className="bg-zinc-100 py-12 dark:bg-zinc-800 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-xl px-4 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
           <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
             <div className="order-2 mt-8 flex flex-col items-center md:order-1 md:mt-0 md:flex-row">
               <div className="mt-6 text-center md:mt-0 md:text-left">
                 {category?.pageHeader && (
-                  <span className="block text-xs uppercase tracking-widest text-brand-500">
+                  <span className="block text-xs uppercase tracking-widest text-brand-500 dark:text-brand-300">
                     {category?.subTitle}
                   </span>
                 )}
@@ -69,7 +78,9 @@ export default async function Page({
                 </h1>
               </div>
             </div>
-            <div className="order-1 md:order-2">Breadcrumbs Here</div>
+            <div className="order-1 md:order-2">
+              <Breadcrumbs breadCrumbPages={breadCrumbPages} />
+            </div>
           </div>
         </div>
       </section>
@@ -87,8 +98,10 @@ export default async function Page({
               slug={`news/${params.category}`}
             />
           </div>
-          <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
+          <div className="mx-auto mt-12 w-full max-w-xl space-y-8 px-4 sm:mt-16 sm:px-6 md:max-w-3xl md:px-8 lg:col-span-1 lg:mt-0 lg:max-w-none lg:px-0">
             <SocialMediaFollow />
+            {/* @ts-expect-error Server Component */}
+            <AuthorsCard />
           </div>
         </div>
       </section>

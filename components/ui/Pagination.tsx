@@ -21,11 +21,11 @@ export default function Pagination({
 
   return (
     <nav
-      className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6"
+      className="flex items-center justify-between border-t border-zinc-200 px-4 py-3 sm:px-6"
       aria-label="Pagination"
     >
       <div className="hidden sm:block">
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-zinc-700 dark:text-zinc-200">
           Showing <span className="font-medium">{from}</span> to{' '}
           <span className="font-medium">{to}</span> of{' '}
           <span className="font-medium">{totalPosts}</span> results
@@ -33,29 +33,27 @@ export default function Pagination({
       </div>
       <div className="flex flex-1 justify-between sm:justify-end">
         {prevDisabled ? (
-          <span className="relative inline-flex cursor-not-allowed items-center rounded-md border border-slate-300 bg-slate-300 px-4 py-2 text-sm font-medium text-slate-400 focus:outline-none">
+          <span className="relative inline-flex cursor-not-allowed items-center rounded-md border border-zinc-300 bg-zinc-300 px-4 py-2 text-sm font-medium text-zinc-400 focus:outline-none">
             Previous
           </span>
         ) : (
           <Link
             href={prevPageUrl}
-            prefetch={false}
             aria-label="Previous Page"
-            className="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="relative inline-flex items-center rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
           >
             Previous
           </Link>
         )}
         {nextDisabled ? (
-          <span className="relative ml-3 inline-flex cursor-not-allowed items-center rounded-md border border-slate-300 bg-slate-300 px-4 py-2 text-sm font-medium text-slate-400 focus:outline-none">
+          <span className="relative ml-3 inline-flex cursor-not-allowed items-center rounded-md border border-zinc-300 bg-zinc-300 px-4 py-2 text-sm font-medium text-zinc-400 focus:outline-none">
             Next
           </span>
         ) : (
           <Link
             href={nextPageUrl}
-            prefetch={false}
             aria-label="Next Page"
-            className="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="relative ml-3 inline-flex items-center rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
           >
             Next
           </Link>

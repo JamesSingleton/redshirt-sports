@@ -24,6 +24,9 @@ export async function generateMetadata({
   const { slug } = params
   const token = getPreviewToken()
   const post = await getPostBySlug({ token, slug })
+  if (!post) {
+    return notFound()
+  }
   return {
     title: post?.title,
     description: post?.excerpt,
@@ -61,6 +64,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
   const { slug } = params
   const token = getPreviewToken()
   const post = await getPostBySlug({ token, slug })
+
   if (!post) {
     return notFound()
   }
@@ -87,7 +91,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
             </div>
           </div>
           <div className="px-5 lg:px-0">
-            <div className="mx-auto mb-8 max-w-prose border-b border-slate-300/70 pb-8 pt-10 text-lg sm:pt-16">
+            <div className="mx-auto mb-8 max-w-prose border-b border-zinc-300/70 pb-8 pt-10 text-lg sm:pt-16">
               <Link
                 href={
                   post?.subcategory !== null
@@ -101,15 +105,11 @@ export default async function Page({ params }: { params: { slug: string } }) {
               <h1 className="mt-3 font-cal text-4xl font-medium transition duration-300 ease-in-out sm:my-5 sm:text-4xl sm:leading-tight lg:text-5xl">
                 {post?.title}
               </h1>
-              <p className="mt-4 text-base leading-loose text-slate-500 dark:text-slate-400">
+              <p className="mt-4 text-base leading-loose text-zinc-500 dark:text-zinc-400">
                 {post?.excerpt}
               </p>
               <div className="mt-6 flex items-center sm:mt-8">
-                <Link
-                  href={`/authors/${post.author.slug}`}
-                  prefetch={false}
-                  className="mr-3 shrink-0"
-                >
+                <Link href={`/authors/${post.author.slug}`} className="mr-3 shrink-0">
                   <Image
                     alt={post.author.name}
                     src={urlForImage(post.author.image).width(72).height(72).quality(60).url()}
@@ -122,19 +122,23 @@ export default async function Page({ params }: { params: { slug: string } }) {
                   />
                 </Link>
                 <div className="flex items-center text-sm lg:text-base">
-                  <span className="hidden text-slate-500 sm:inline-block">By&nbsp;</span>
+                  <span className="hidden text-zinc-500 dark:text-zinc-400 sm:inline-block">
+                    By&nbsp;
+                  </span>
                   <Link
                     href={`/authors/${post.author.slug}`}
-                    prefetch={false}
-                    className="font-medium text-slate-700 hover:underline"
+                    className="font-medium text-zinc-700 hover:underline dark:text-zinc-200"
                   >
                     {post.author.name}
                   </Link>
-                  <CalendarIcon className="ml-4 h-5 w-5 text-slate-400" />
-                  <Date className="ml-1 text-slate-500" dateString={post.publishedAt} />
+                  <CalendarIcon className="ml-4 h-5 w-5 text-zinc-400" />
+                  <Date
+                    className="ml-1 text-zinc-500 dark:text-zinc-400"
+                    dateString={post.publishedAt}
+                  />
                   <span className="hidden items-center sm:flex">
-                    <ClockIcon className="ml-3 h-5 w-5 text-slate-400" />
-                    <span className="ml-1 text-slate-500">{`${post.estimatedReadingTime} min read`}</span>
+                    <ClockIcon className="ml-3 h-5 w-5 text-zinc-400" />
+                    <span className="ml-1 text-zinc-500 dark:text-zinc-400">{`${post.estimatedReadingTime} min read`}</span>
                   </span>
                 </div>
               </div>
@@ -142,14 +146,14 @@ export default async function Page({ params }: { params: { slug: string } }) {
           </div>
         </header>
         <div className="px-5 lg:px-0">
-          <div className="prose m-auto w-11/12 dark:prose-invert sm:prose-lg prose-a:text-blue-600 hover:prose-a:text-blue-500 sm:w-3/4">
+          <div className="prose m-auto w-11/12 dark:prose-invert sm:prose-lg sm:w-3/4">
             <CustomPortableText value={post?.body!} />
           </div>
         </div>
       </article>
       <section className="mx-auto w-full max-w-7xl pb-14 pt-12 sm:py-20 lg:pt-24">
         <div className="mx-auto max-w-xl px-4 sm:max-w-3xl sm:px-6 md:px-8 lg:max-w-screen-2xl">
-          <h2 className="relative border-b border-slate-300 pb-2 font-cal text-2xl font-medium text-slate-900 before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">
+          <h2 className="relative border-b border-zinc-300 pb-2 font-cal text-2xl font-medium before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">
             Related Articles
           </h2>
         </div>

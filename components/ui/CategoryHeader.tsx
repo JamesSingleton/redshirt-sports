@@ -10,7 +10,7 @@ interface CategoryHeaderProps {
 }
 
 const CategoryHeader = ({ title, aboveTitle, breadCrumbPages }: CategoryHeaderProps) => (
-  <section className="bg-slate-50 py-12 sm:py-20 lg:py-24">
+  <section className="bg-zinc-50 py-12 sm:py-20 lg:py-24">
     <div className="mx-auto max-w-xl px-4 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
       <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
         <div className="order-2 mt-8 flex flex-col items-center md:order-1 md:mt-0 md:flex-row">
@@ -18,7 +18,7 @@ const CategoryHeader = ({ title, aboveTitle, breadCrumbPages }: CategoryHeaderPr
             <span className="block text-xs uppercase tracking-widest text-brand-500">
               {aboveTitle}
             </span>
-            <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
+            <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal text-zinc-900 sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
               {title}
             </h1>
           </div>

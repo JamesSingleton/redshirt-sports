@@ -7,7 +7,14 @@ export const allAuthors = groq`
   name,
   'slug': slug.current,
   role,
-  image,
+  "image": {
+    "asset": image.asset->{ 
+      _id,
+      _type,
+      metadata,
+      url
+      }
+  },
   socialMedia
 }
 `
@@ -153,7 +160,7 @@ export const categoryBySlugQuery = groq`
   title,
   pageHeader,
   subTitle,
-  slug,
+  "slug": slug.current,
   description,
   "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
     ${litePostFields}
@@ -239,3 +246,16 @@ export const postInfoForSitemap = groq`
 export const postSlugsQuery = `
 *[_type == "post" && defined(slug.current)][].slug.current
 `
+
+export const categoriesQuery = groq`
+*[_type == "category" && defined(slug.current) && !defined(parent) && count(*[_type == 'post' && references(^._id)]) > 0]| order(_createdAt asc){
+  _id,
+  title,
+  "slug": slug.current,
+  "subcategories": *[_type == "category" && defined(slug.current) && defined(parent) && parent->slug.current == ^.slug.current] | order(title asc){
+    _id,
+    title,
+    "slug": slug.current,
+    "parentSlug": parent->slug.current,
+  }
+}`

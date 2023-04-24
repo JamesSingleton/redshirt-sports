@@ -26,7 +26,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
     <footer className="mx-auto mt-12 max-w-prose divide-y text-lg sm:mt-14">
       <div className="py-8 sm:py-10">
         <div className="flex items-center justify-between">
-          <span className="text-lg font-medium text-slate-900">Share</span>
+          <span className="text-lg font-medium text-zinc-900">Share</span>
           <ul className="flex items-center space-x-3">
             <li>
               <a
@@ -35,14 +35,14 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
                   title
                 )}&url=https://www.redshirtsports.xyz/${slug}`}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 transition duration-300 ease-in-out sm:h-12 sm:w-12"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-300 transition duration-300 ease-in-out sm:h-12 sm:w-12"
                 title="Share article on Twitter"
               >
                 <span className="sr-only">Share article on Twitter</span>
                 <svg
                   fill="currentColor"
                   viewBox="0 0 24 24"
-                  className="h-4 w-4 transform text-slate-700 transition duration-300 ease-in-out"
+                  className="h-4 w-4 transform text-zinc-700 transition duration-300 ease-in-out"
                 >
                   <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
                 </svg>
@@ -55,14 +55,14 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                 href={`https://www.facebook.com/sharer.php?u=https://www.redshirtsports.xyz/${slug}&quote=${encodeURIComponent(
                   title
                 )}`}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 transition duration-300 ease-in-out sm:h-12 sm:w-12"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-300 transition duration-300 ease-in-out sm:h-12 sm:w-12"
                 title="Share article on Facebook"
               >
                 <span className="sr-only">Share article on Facebook</span>
                 <svg
                   fill="currentColor"
                   viewBox="0 0 24 24"
-                  className="h-4 w-4 transform text-slate-700 transition duration-300 ease-in-out"
+                  className="h-4 w-4 transform text-zinc-700 transition duration-300 ease-in-out"
                 >
                   <path
                     fillRule="evenodd"
@@ -81,8 +81,7 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
             <div className="shrink-0">
               <Link
                 href={`/authors/${author.slug}`}
-                prefetch={false}
-                className="relative block h-20 w-20 overflow-hidden rounded-2xl bg-slate-100 sm:h-24 sm:w-24"
+                className="relative block h-20 w-20 overflow-hidden rounded-2xl bg-zinc-100 sm:h-24 sm:w-24"
               >
                 <Image
                   alt={author.name}
@@ -96,16 +95,16 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
             </div>
             <div className="mt-5 text-left sm:ml-6 sm:mt-0">
               <div className="flex items-center justify-between">
-                <Link href={`/authors/${author.slug}`} prefetch={false} className="flex-col">
+                <Link href={`/authors/${author.slug}`} className="flex-col">
                   <span className="block text-sm uppercase tracking-widest text-brand-500">
                     {author.role}
                   </span>
-                  <span className="mt-1 text-xl font-medium tracking-normal text-slate-900 md:tracking-tight lg:leading-tight">
+                  <span className="mt-1 text-xl font-medium tracking-normal text-zinc-900 md:tracking-tight lg:leading-tight">
                     {author.name}
                   </span>
                 </Link>
               </div>
-              <div className="mt-3 line-clamp-3 text-base leading-loose text-slate-500">
+              <div className="mt-3 line-clamp-3 text-base leading-loose text-zinc-500">
                 <CustomPortableText value={author.bio} />
               </div>
               <ul className="mt-3 flex items-center space-x-3">
@@ -120,28 +119,28 @@ const PostFooter = ({ title, slug, author }: PostFooterProps) => {
                       >
                         <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
                         {social.name === 'Email' ? (
-                          <EnvelopeOpenIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <EnvelopeOpenIcon className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
                         ) : null}
                         {social.name === 'Twitter' ? (
-                          <Twitter className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <Twitter className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
                         ) : null}
                         {social.name === 'Facebook' ? (
-                          <Facebook className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <Facebook className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
                         ) : null}
                         {social.name === 'Instagram' ? (
-                          <Instagram className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <Instagram className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
                         ) : null}
                         {social.name === 'Website' ? (
-                          <GlobeAltIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <GlobeAltIcon className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
                         ) : null}
                         {social.name === 'Spotify Podcast' ? (
-                          <SpotifyIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <SpotifyIcon className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
                         ) : null}
                         {social.name === 'Apple Podcast' ? (
-                          <ApplePodcastIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <ApplePodcastIcon className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
                         ) : null}
                         {social.name === 'Overcast Podcast' ? (
-                          <OvercastIcon className="h-8 w-8 fill-slate-400 group-hover:fill-slate-600" />
+                          <OvercastIcon className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
                         ) : null}
                       </a>
                     </li>

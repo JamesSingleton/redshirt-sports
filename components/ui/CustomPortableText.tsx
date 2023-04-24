@@ -21,7 +21,7 @@ const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   }
 
   return (
-    <Link href={linkHref} prefetch={false} className="underline transition hover:opacity-50">
+    <Link href={linkHref} className="underline transition hover:opacity-50">
       {children}
     </Link>
   )

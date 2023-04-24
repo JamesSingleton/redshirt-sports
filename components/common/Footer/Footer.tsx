@@ -44,7 +44,6 @@ const Footer = () => {
           <div className="flex items-center justify-center">
             <Link
               href="/"
-              prefetch={false}
               className="block"
               aria-label="Redshirt Sports Horizontal Logo, click to go to the homepage"
             >
@@ -59,12 +58,12 @@ const Footer = () => {
                     href={href}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-transparent transition duration-300 ease-in-out sm:h-12 sm:w-12"
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-300 bg-transparent transition duration-300 ease-in-out sm:h-12 sm:w-12"
                   >
                     <span className="sr-only">{name}</span>
                     <Icon
                       aria-hidden="true"
-                      className="h-4 w-4 transform text-slate-700 transition ease-in-out dark:text-slate-200"
+                      className="h-4 w-4 transform text-zinc-700 transition ease-in-out dark:text-zinc-200"
                     />
                   </a>
                 </li>
@@ -72,7 +71,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="mt-10 border-t border-slate-300/70 pt-10 md:flex md:items-center md:justify-between">
+        <div className="mt-10 border-t border-zinc-300/70 pt-10 md:flex md:items-center md:justify-between">
           <nav
             aria-label="Footer"
             className="-my-2 flex flex-wrap items-center justify-center space-x-5 md:justify-start"
@@ -81,14 +80,13 @@ const Footer = () => {
               <Link
                 key={name}
                 href={href}
-                prefetch={false}
-                className="py-2 text-base text-slate-500 transition duration-300 ease-in-out dark:text-slate-400"
+                className="py-2 text-base text-zinc-500 transition duration-300 ease-in-out dark:text-zinc-400"
               >
                 {name}
               </Link>
             ))}
           </nav>
-          <p className="ml-0 mt-8 flex shrink-0 items-center justify-center text-base text-slate-500 dark:text-slate-400 md:ml-6 md:mt-0">
+          <p className="ml-0 mt-8 flex shrink-0 items-center justify-center text-base text-zinc-500 dark:text-zinc-400 md:ml-6 md:mt-0">
             &copy;
             {`${new Date().getFullYear()} Redshirt Sports. All rights reserved.`}
           </p>

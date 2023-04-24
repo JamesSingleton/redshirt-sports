@@ -15,7 +15,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
   return (
     <article className="relative lg:sticky lg:top-8 lg:w-1/2">
       <div>
-        <Link href={`/${post.slug}`} prefetch={false} className="aspect-h-9 aspect-w-16 block ">
+        <Link href={`/${post.slug}`} className="aspect-h-9 aspect-w-16 block ">
           <Image
             src={urlForImage(post.mainImage).width(704).height(396).url()}
             alt={post.mainImage.caption}
@@ -34,16 +34,13 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
                 ? `/news/${post.subcategory.parentSlug}/${post.subcategory.slug}`
                 : `/news/${post.category.toLowerCase()}`
             }
-            prefetch={false}
             className="rounded-sm bg-brand-500 p-1 text-xs font-medium uppercase tracking-widest text-white duration-300 ease-in-out hover:bg-brand-300"
           >
             {post.subcategory !== null ? post.subcategory.title : post.category}
           </Link>
           <div className="mt-3 block">
             <h1 className="font-cal text-3xl font-medium tracking-normal transition duration-300 ease-in-out md:tracking-tight lg:text-4xl lg:leading-tight">
-              <Link href={`/${post.slug}`} prefetch={false}>
-                {post.title}
-              </Link>
+              <Link href={`/${post.slug}`}>{post.title}</Link>
             </h1>
             <div>
               <p className="mt-4 text-base leading-8">{post.excerpt}</p>
@@ -60,11 +57,7 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
               className="h-10 w-10 overflow-hidden rounded-full"
             />
             <div className="ml-3">
-              <Link
-                href={`/authors/${post.author.slug}`}
-                prefetch={false}
-                className="text-sm font-medium"
-              >
+              <Link href={`/authors/${post.author.slug}`} className="text-sm font-medium">
                 {post.author.name}
               </Link>
               <p className="text-xs">

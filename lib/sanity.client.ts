@@ -20,6 +20,7 @@ import {
   postInfoForSitemap,
   postSlugsQuery,
   subcategoryBySlugQuery,
+  categoriesQuery,
 } from '@lib/sanity.queries'
 import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload, Author } from '@types'
 
@@ -148,4 +149,8 @@ export async function getPostsForSitemap(): Promise<any> {
 
 export async function getPostSlugs(): Promise<any> {
   return await sanityClient()?.fetch(postSlugsQuery)
+}
+
+export async function getCategories(): Promise<any> {
+  return await sanityClient()?.fetch(categoriesQuery)
 }

@@ -41,7 +41,7 @@ export default async function Page() {
         subheading="The new kid on the block when it comes to reporting on the FCS"
       />
       <section className="py-12 sm:py-20 lg:pt-24">
-        <div className="prose prose-xl mx-auto px-5 sm:px-6 lg:max-w-7xl lg:px-8">
+        <div className="prose prose-xl mx-auto px-5 dark:prose-invert sm:px-6 lg:max-w-7xl lg:px-8">
           <p>
             Redshirt Sports launched at the end of the 2021 season in order to provide another
             platform for FCS content. We are dedicated to the FCS and the community, and we hope you
@@ -57,16 +57,16 @@ export default async function Page() {
           </p>
         </div>
       </section>
-      <section className="bg-slate-50 py-12 sm:py-20 lg:py-28">
+      <section className="bg-zinc-100 py-12 dark:bg-zinc-800 sm:py-20 lg:py-28">
         <div className="mx-auto max-w-xl px-4 sm:max-w-3xl sm:px-6 md:px-8 lg:max-w-7xl">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="font-cal text-base font-medium uppercase tracking-widest text-brand-500">
+            <h2 className="font-cal text-base font-medium uppercase tracking-widest text-brand-500 dark:text-brand-300">
               Our Writers
             </h2>
-            <p className="mt-2 text-3xl font-medium tracking-normal text-slate-900 sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
+            <p className="mt-2 text-3xl font-medium tracking-normal sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
               Redshirt Sports is dedicated to college football with an emphasis on the FCS.
             </p>
-            <p className="mt-4 text-base leading-relaxed text-slate-500">
+            <p className="mt-4 text-base leading-relaxed text-zinc-500 dark:text-zinc-400">
               The only way to create such coverage is with great people who truly enjoy their job.
             </p>
           </div>
@@ -75,7 +75,7 @@ export default async function Page() {
               {authors?.map((author) => (
                 <li
                   key={author._id}
-                  className="relative rounded-3xl border border-slate-300/70 bg-white px-6 py-10 text-center transition duration-300 ease-in-out hover:border-slate-300/30 hover:shadow-lg sm:px-10"
+                  className="relative rounded-3xl border border-zinc-300/70 bg-white px-6 py-10 text-center transition duration-300 ease-in-out hover:border-zinc-300/30 hover:shadow-lg dark:bg-zinc-900 sm:px-10"
                 >
                   <div>
                     <Image
@@ -83,20 +83,22 @@ export default async function Page() {
                       alt={`${author.name}'s profile picture`}
                       width={176}
                       height={176}
-                      // placeholder="blur"
-                      // blurDataURL={author.image.asset.metadata.lqip ?? undefined}
+                      placeholder="blur"
+                      blurDataURL={author.image.asset.metadata.lqip ?? undefined}
                       quality={50}
                       sizes="50vw"
                       className="mx-auto h-40 w-40 overflow-hidden rounded-full object-cover xl:h-44 xl:w-44"
                     />
                     <div className="mt-6 leading-6">
-                      <h3 className="font-cal text-xl font-medium text-slate-900">
-                        <Link href={`/authors/${author.slug}`} prefetch={false}>
+                      <h3 className="font-cal text-xl font-medium">
+                        <Link href={`/authors/${author.slug}`}>
                           <span aria-hidden="true" className="absolute inset-0" />
                           {author.name}
                         </Link>
                       </h3>
-                      <span className="mt-1 text-base text-brand-500">{author.role}</span>
+                      <span className="mt-1 text-base text-brand-500 dark:text-brand-300">
+                        {author.role}
+                      </span>
                     </div>
                     <ul className="mt-6 flex items-center justify-center space-x-3">
                       {author.socialMedia?.map((social) => (
@@ -104,19 +106,19 @@ export default async function Page() {
                           <a href={social.url} target="_blank" rel="noreferrer">
                             <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
                             {social.name === 'Email' ? (
-                              <EnvelopeOpenIcon className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                              <EnvelopeOpenIcon className="h-5 w-5 text-zinc-400 transition duration-300 ease-in-out" />
                             ) : null}
                             {social.name === 'Twitter' ? (
-                              <Twitter className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                              <Twitter className="h-5 w-5 text-zinc-400 transition duration-300 ease-in-out" />
                             ) : null}
                             {social.name === 'Facebook' ? (
-                              <Facebook className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                              <Facebook className="h-5 w-5 text-zinc-400 transition duration-300 ease-in-out" />
                             ) : null}
                             {social.name === 'Instagram' ? (
-                              <Instagram className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                              <Instagram className="h-5 w-5 text-zinc-400 transition duration-300 ease-in-out" />
                             ) : null}
                             {social.name === 'Website' ? (
-                              <GlobeAltIcon className="h-5 w-5 text-slate-400 transition duration-300 ease-in-out" />
+                              <GlobeAltIcon className="h-5 w-5 text-zinc-400 transition duration-300 ease-in-out" />
                             ) : null}
                           </a>
                         </li>
@@ -141,7 +143,6 @@ export default async function Page() {
           </p>
           <Link
             href="/contact"
-            prefetch={false}
             className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-brand-600 hover:bg-brand-50 sm:w-auto"
           >
             Join our team

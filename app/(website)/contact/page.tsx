@@ -32,17 +32,17 @@ export default function Page() {
         <div className="w-full lg:flex lg:items-start">
           <div className="lg:w-2/3">
             <div className="mx-auto max-w-xl px-5 sm:px-8 md:max-w-2xl lg:max-w-none lg:px-0 lg:pr-24 xl:pr-48">
-              <h2 className="relative border-b border-b-slate-300/70 pb-2 font-cal text-2xl font-medium text-slate-900  before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">
+              <h2 className="relative border-b border-b-zinc-300/70 pb-2 font-cal text-2xl font-medium before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">
                 Get in touch
               </h2>
               <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:col-span-2">
                 {contactDetails.map((item) => (
                   <div key={item.name}>
-                    <h3 className="font-cal text-lg font-medium text-slate-900">{item.name}</h3>
-                    <dl className="mt-2 text-base text-slate-500">
+                    <h3 className="font-cal text-lg font-medium">{item.name}</h3>
+                    <dl className="mt-2 text-base text-zinc-500 dark:text-zinc-400">
                       <div>
                         <dt className="sr-only">Email</dt>
-                        <dd className="prose hover:prose-a:text-brand-500">
+                        <dd className="prose dark:prose-invert hover:prose-a:text-brand-500">
                           <a href={`mailto:${item.email}`}>{item.email}</a>
                         </dd>
                       </div>
@@ -50,7 +50,7 @@ export default function Page() {
                   </div>
                 ))}
               </div>
-              <p className="prose mt-10 text-lg text-slate-500 hover:prose-a:text-brand-500 sm:mt-12">
+              <p className="prose mt-10 text-lg text-zinc-500 dark:prose-invert hover:prose-a:text-brand-500 dark:text-zinc-400 sm:mt-12">
                 If your reason for contacting us does not fall in any of the categories above,
                 please email us at{' '}
                 <a href="mailto:contact@redshirtsports.xyz">contact@redshirtsports.xyz</a>

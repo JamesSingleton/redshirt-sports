@@ -1,7 +1,8 @@
 import PlausibleProvider from 'next-plausible'
 
-import Navbar from '@components/common/Navbar/Navbar'
+import { Header } from '@components/common/Navbar/Navbar'
 import Footer from '@components/common/Footer/Footer'
+import { getCategories } from '@lib/sanity.client'
 
 export const metadata = {
   metadataBase: new URL('https://www.redshirtsports.xyz'),
@@ -44,11 +45,13 @@ export const metadata = {
   themeColor: '#DC2727',
 }
 
-export default function IndexLayout({ children }: { children: React.ReactNode }) {
+export default async function IndexLayout({ children }: { children: React.ReactNode }) {
+  const categories = await getCategories()
+
   return (
     <PlausibleProvider domain="redshirtsports.xyz">
-      <Navbar />
-      <main className="loading antialiased">{children}</main>
+      <Header categories={categories} />
+      <main className="loading mt-12 antialiased">{children}</main>
       <Footer />
     </PlausibleProvider>
   )
