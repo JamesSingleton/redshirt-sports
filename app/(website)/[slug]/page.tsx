@@ -39,14 +39,6 @@ export async function generateMetadata({
       modifiedTime: post?._updatedAt,
       authors: [post?.author.name],
       section: post?.category,
-      images: [
-        {
-          url: urlForImage(post?.mainImage).width(1200).height(630).url(),
-          width: 1200,
-          height: 630,
-          alt: post?.mainImage.caption,
-        },
-      ],
     },
     twitter: {
       title: post?.title,

@@ -14,6 +14,13 @@ export const metadata = {
     description:
       "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
     url: '/privacy',
+    images: [
+      {
+        url: '/api/og?title=Privacy Policy',
+        width: '1200',
+        height: '630',
+      },
+    ],
   },
   alternates: {
     canonical: '/privacy',

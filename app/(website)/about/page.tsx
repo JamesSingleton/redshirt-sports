@@ -19,6 +19,13 @@ export const metadata = {
     description:
       'Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!',
     url: '/about',
+    images: [
+      {
+        url: '/api/og?title=About Us',
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
   twitter: {
     title: 'About Us',

@@ -1,20 +1,20 @@
-import { ImageResponse } from 'next/server'
+import { ImageResponse, NextRequest } from 'next/server'
 
 export const runtime = 'edge'
-export const alt = 'About Redshirt Sports'
-export const size = {
-  width: 1200,
-  height: 630,
-}
-export const contentType = 'image/png'
 
-const industryIncBase = fetch(new URL('../../IndustryInc-Base.ttf', import.meta.url)).then((res) =>
+const industryBase = fetch(new URL('./IndustryInc-Base.ttf', import.meta.url)).then((res) =>
   res.arrayBuffer()
 )
 
-export default async function og() {
+export async function GET(req: NextRequest): Promise<Response | ImageResponse> {
   try {
-    const fontData = await industryIncBase
+    const industryFont = await industryBase
+
+    const { searchParams } = new URL(req.url)
+
+    const title = searchParams.has('title')
+      ? searchParams.get('title')?.slice(0, 100)
+      : process.env.SITE_NAME
 
     return new ImageResponse(
       (
@@ -40,7 +40,7 @@ export default async function og() {
             </g>
           </svg>
 
-          <div tw="mt-12 text-6xl text-white font-bold">About Redshirt Sports</div>
+          <div tw="mt-12 text-6xl text-white font-bold">{title}</div>
         </div>
       ),
       {
@@ -49,9 +49,9 @@ export default async function og() {
         fonts: [
           {
             name: 'IndustryInc',
-            data: fontData,
+            data: industryFont,
             style: 'normal',
-            weight: 500,
+            weight: 400,
           },
         ],
       }

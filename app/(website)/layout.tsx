@@ -24,9 +24,9 @@ export const metadata = {
     siteName: 'Redshirt Sports',
     images: [
       {
-        url: '/images/icons/RS_horizontal_513x512.png',
-        width: '513',
-        height: '512',
+        url: '/api/og?title=Redshirt Sports',
+        width: '1200',
+        height: '630',
         alt: 'Redshirt Sports Logo',
       },
     ],

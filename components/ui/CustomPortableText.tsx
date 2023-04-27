@@ -6,12 +6,12 @@ import {
   PortableTextMarkComponentProps,
 } from '@portabletext/react'
 import { PortableTextBlock } from 'sanity'
-import { Tweet } from 'react-tweet'
+// import { Tweet } from 'react-tweet'
 import { getImageDimensions } from '@sanity/asset-utils'
 
 import { urlForImage } from '@lib/sanity.image'
 
-import type { TweetComponents } from 'react-tweet'
+// import type { TweetComponents } from 'react-tweet'
 
 const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   let linkHref = `/${value?.slug.current}`
@@ -27,10 +27,10 @@ const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   )
 }
 
-const TweetComponents: TweetComponents = {
-  AvatarImg: (props) => <Image {...props} alt={props.alt} />,
-  MediaImg: (props) => <Image {...props} alt={props.alt} fill unoptimized />,
-}
+// const TweetComponents: TweetComponents = {
+//   AvatarImg: (props) => <Image {...props} alt={props.alt} />,
+//   MediaImg: (props) => <Image {...props} alt={props.alt} fill unoptimized />,
+// }
 
 const ImageComponent = ({ value, isInline }: { value: any; isInline: any }) => {
   const { width, height } = getImageDimensions(value)
@@ -76,13 +76,13 @@ export function CustomPortableText({
       },
     },
     types: {
-      twitter: ({ value }) => {
-        return (
-          <div className="not-prose flex items-center justify-center">
-            <Tweet id={value.id} components={TweetComponents} />
-          </div>
-        )
-      },
+      // twitter: ({ value }) => {
+      //   return (
+      //     <div className="not-prose flex items-center justify-center">
+      //       <Tweet id={value.id} components={TweetComponents} />
+      //     </div>
+      //   )
+      // },
       image: ImageComponent,
     },
   }

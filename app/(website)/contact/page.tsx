@@ -10,6 +10,13 @@ export const metadata = {
     description:
       'Want to collaborate on a story or advertise with Redshirt Sports? Contact us via editors@redshirtsports.xyz or advertising@redshirtsports.xyz.',
     url: '/contact',
+    images: [
+      {
+        url: '/api/og?title=Contact Us',
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
   alternates: {
     canonical: '/contact',
