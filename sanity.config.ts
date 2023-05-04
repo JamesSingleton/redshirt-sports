@@ -108,7 +108,7 @@ export default defineConfig({
   plugins: [
     deskTool({
       structure: deskStructure,
-      defaultDocumentNode: previewDocumentNode({ apiVersion, previewSecretId }),
+      defaultDocumentNode: defaultDocumentNodeResolver,
     }),
     productionUrl({
       apiVersion,
