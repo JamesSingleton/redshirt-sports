@@ -22,6 +22,11 @@ export async function generateMetadata({
   const token = getPreviewToken()
   const pageIndex = page !== undefined ? parseInt(page) : 1
   const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
+
+  if (!category) {
+    return {}
+  }
+
   return {
     title: `${category?.pageHeader}, Rumors, and More`,
     description: category?.description,

@@ -30,6 +30,11 @@ export async function generateMetadata({
   const token = getPreviewToken()
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
   const author = await getAuthorsBySlug({ slug, pageIndex, token })
+
+  if (!author) {
+    return {}
+  }
+
   return {
     title: `${author.role} ${author.name}`,
     description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,

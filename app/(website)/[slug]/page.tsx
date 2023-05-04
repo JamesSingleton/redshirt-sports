@@ -25,7 +25,7 @@ export async function generateMetadata({
   const token = getPreviewToken()
   const post = await getPostBySlug({ token, slug })
   if (!post) {
-    return notFound()
+    return {}
   }
   return {
     title: post?.title,
