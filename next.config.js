@@ -46,9 +46,6 @@ const securityHeaders = [
 ]
 
 const moduleExports = {
-  experimental: {
-    appDir: true,
-  },
   productionBrowserSourceMaps: true,
   swcMinify: true,
   reactStrictMode: true,
