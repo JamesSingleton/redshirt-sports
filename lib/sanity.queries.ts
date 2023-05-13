@@ -223,13 +223,6 @@ export const subCategorySlugQuery = groq`
   'parentSlug': parent->slug.current
 }`
 
-export const postInfoForSitemap = groq`
-*[_type == 'post' && defined(slug.current)]{
-  _updatedAt,
-  "slug": slug.current,
-}
-`
-
 export const postSlugsQuery = `
 *[_type == "post" && defined(slug.current)][].slug.current
 `
@@ -246,3 +239,30 @@ export const categoriesQuery = groq`
     "parentSlug": parent->slug.current,
   }
 }`
+
+// query to get all posts, authors, categories, and subcategories for sitemap
+export const sitemapQuery = groq`
+{
+  "posts": *[_type == 'post' && defined(slug.current)]{
+    _id,
+    _updatedAt,
+    "slug": slug.current,
+  },
+  "authors": *[_type == 'author' && defined(slug.current) && archived == false]{
+    _id,
+    _updatedAt,
+    "slug": slug.current,
+  },
+  "categories": *[_type == "category" && defined(slug.current) && !defined(parent) && count(*[_type == 'post' && references(^._id)]) > 0]{
+    _id,
+    _updatedAt,
+    "slug": slug.current
+  },
+  "subcategories": *[_type == "category" && defined(slug.current) && defined(parent)]{
+    _id,
+    _updatedAt,
+    "slug": slug.current,
+    "parentSlug": parent->slug.current,
+  }
+}
+`

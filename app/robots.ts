@@ -1,3 +1,5 @@
+import { baseUrl } from '@lib/constants'
+
 import type { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
@@ -14,6 +16,6 @@ export default function robots(): MetadataRoute.Robots {
       'https://www.redshirtsports.xyz/sitemaps/authors.xml',
       'https://www.redshirtsports.xyz/sitemaps/posts.xml',
     ],
-    host: 'https://www.redshirtsports.xyz',
+    host: baseUrl,
   }
 }
