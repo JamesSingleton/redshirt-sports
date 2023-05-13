@@ -1,12 +1,12 @@
 import { notFound } from 'next/navigation'
 
 import { getCategoryBySlug, getParentCategorySlugs } from '@lib/sanity.client'
-import { getPreviewToken } from '@lib/sanity.server.preview'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
 import AuthorsCard from '@components/common/AuthorsCard'
 import HorizontalCard from '@components/ui/HorizontalCard'
 import Pagination from '@components/ui/Pagination'
 import Breadcrumbs from '@components/ui/Breadcrumbs'
+import { baseUrl } from '@lib/constants'
 
 import type { Metadata } from 'next'
 import type { Post } from '@types'
@@ -19,26 +19,56 @@ export async function generateMetadata({
   searchParams: { [key: string]: string }
 }): Promise<Metadata> {
   const { page } = searchParams
-  const token = getPreviewToken()
   const pageIndex = page !== undefined ? parseInt(page) : 1
-  const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
+  const category = await getCategoryBySlug({ slug: params.category, pageIndex })
 
   if (!category) {
     return {}
   }
 
+  let title = `${category?.pageHeader}, Rumors, and More`
+  let canonical = `${baseUrl}/news/${category?.slug}`
+  if (pageIndex > 1) {
+    title = `${category?.pageHeader}, Rumors, and More - Page ${pageIndex}`
+    canonical = `${baseUrl}/news/${category?.slug}?page=${pageIndex}`
+  }
+
   return {
-    title: `${category?.pageHeader}, Rumors, and More`,
+    title,
     description: category?.description,
+    openGraph: {
+      title,
+      description: category?.description,
+      url: canonical,
+      siteName: 'Redshirt Sports',
+      locale: 'en_US',
+      type: 'website',
+      images: [
+        {
+          url: '/api/og?title=Redshirt Sports FCS News',
+          width: '1200',
+          height: '630',
+          alt: 'Redshirt Sports Logo',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: category?.description,
+    },
+    alternates: {
+      canonical,
+    },
   }
 }
 
-export async function generateStaticParams() {
-  const categories = await getParentCategorySlugs()
-  return categories.map((category: { slug: string }) => ({
-    category: category.slug,
-  }))
-}
+// export async function generateStaticParams() {
+//   const categories = await getParentCategorySlugs()
+//   return categories.map((category: { slug: string }) => ({
+//     category: category.slug,
+//   }))
+// }
 
 export default async function Page({
   params,
@@ -48,9 +78,8 @@ export default async function Page({
   searchParams: { [key: string]: string }
 }) {
   const { page } = searchParams
-  const token = getPreviewToken()
   const pageIndex = page !== undefined ? parseInt(page) : 1
-  const category = await getCategoryBySlug({ slug: params.category, pageIndex, token })
+  const category = await getCategoryBySlug({ slug: params.category, pageIndex })
 
   if (!category.posts.length) {
     return notFound()

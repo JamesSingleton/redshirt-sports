@@ -95,25 +95,21 @@ export async function getMorePostsBySlug({
 export async function getCategoryBySlug({
   slug,
   pageIndex,
-  token,
 }: {
   slug: string
   pageIndex: number
-  token?: string
 }): Promise<any> {
-  return await sanityClient(token)?.fetch(categoryBySlugQuery, { slug, pageIndex })
+  return await sanityClient()?.fetch(categoryBySlugQuery, { slug, pageIndex })
 }
 
 export async function getSubcategoryBySlug({
   slug,
   pageIndex,
-  token,
 }: {
   slug: string
   pageIndex: number
-  token?: string
 }): Promise<any> {
-  return await sanityClient(token)?.fetch(subcategoryBySlugQuery, { slug, pageIndex })
+  return await sanityClient()?.fetch(subcategoryBySlugQuery, { slug, pageIndex })
 }
 
 export async function getAuthorsBySlug({

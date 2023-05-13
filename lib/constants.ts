@@ -1,5 +1,9 @@
 export const SITE_URL = 'https://www.redshirtsports.xyz'
 
+export const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+  : 'http://localhost:3000'
+
 export const NAVIGATION_ITEMS = [
   {
     name: 'FCS',

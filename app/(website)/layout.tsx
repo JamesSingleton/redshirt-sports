@@ -3,9 +3,10 @@ import PlausibleProvider from 'next-plausible'
 import { Header } from '@components/common/Navbar/Navbar'
 import Footer from '@components/common/Footer/Footer'
 import { getCategories } from '@lib/sanity.client'
+import { baseUrl } from '@lib/constants'
 
 export const metadata = {
-  metadataBase: new URL('https://www.redshirtsports.xyz'),
+  metadataBase: new URL(baseUrl),
   title: {
     template: '%s | Redshirt Sports',
     default: 'FCS Football News, Standings, Rumors | Redshirt Sports',
@@ -20,7 +21,7 @@ export const metadata = {
     description:
       'Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more.',
     locale: 'en_US',
-    url: 'https://www.redshirtsports.xyz',
+    url: baseUrl,
     siteName: 'Redshirt Sports',
     images: [
       {

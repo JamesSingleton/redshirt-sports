@@ -40,7 +40,7 @@ export async function GET(req: NextRequest): Promise<Response | ImageResponse> {
             </g>
           </svg>
 
-          <div tw="mt-12 text-6xl text-white font-bold">{title}</div>
+          <div tw="mt-12 text-6xl text-white font-bold text-center">{title}</div>
         </div>
       ),
       {

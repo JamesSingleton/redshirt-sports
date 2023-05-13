@@ -6,17 +6,71 @@ import { getSubcategorySlugs, getSubcategoryBySlug } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import HorizontalCard from '@components/ui/HorizontalCard'
 import Breadcrumbs from '@components/ui/Breadcrumbs'
+import { baseUrl } from '@lib/constants'
 
+import type { Metadata } from 'next'
 import type { Post } from '@types'
 
-export async function generateStaticParams() {
-  const categories = await getSubcategorySlugs()
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: { [key: string]: string }
+  searchParams: { [key: string]: string }
+}): Promise<Metadata> {
+  const { page } = searchParams
+  const pageIndex = page !== undefined ? parseInt(page) : 1
+  const subcategory = await getSubcategoryBySlug({ slug: params.subcategory, pageIndex })
 
-  return categories.map((category: { slug: string; parentSlug: string }) => ({
-    category: category.parentSlug,
-    subcategory: category.slug,
-  }))
+  if (!subcategory) {
+    return {}
+  }
+
+  let title = `${subcategory?.pageHeader}, Rumors, and More`
+  let canonical = `${baseUrl}/news/${subcategory.parentSlug}/${subcategory?.slug}`
+  if (pageIndex > 1) {
+    title = `${subcategory?.pageHeader}, Rumors, and More - Page ${pageIndex}`
+    canonical = `${baseUrl}/news/${subcategory.parentSlug}/${subcategory.slug}?page=${pageIndex}`
+  }
+
+  return {
+    title,
+    description: subcategory?.description,
+    openGraph: {
+      title,
+      description: subcategory?.description,
+      url: canonical,
+      siteName: 'Redshirt Sports',
+      locale: 'en_US',
+      type: 'website',
+      images: [
+        {
+          url: `/api/og?title=Redshirt Sports ${subcategory.subTitle} News`,
+          width: '1200',
+          height: '630',
+          alt: 'Redshirt Sports Logo',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: subcategory?.description,
+    },
+    alternates: {
+      canonical,
+    },
+  }
 }
+
+// export async function generateStaticParams() {
+//   const categories = await getSubcategorySlugs()
+
+//   return categories.map((category: { slug: string; parentSlug: string }) => ({
+//     category: category.parentSlug,
+//     subcategory: category.slug,
+//   }))
+// }
 
 export default async function Page({
   params,
@@ -25,9 +79,8 @@ export default async function Page({
   params: { category: string; subcategory: string }
   searchParams: { [key: string]: string }
 }) {
-  const token = getPreviewToken()
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
-  const subcategory = await getSubcategoryBySlug({ slug: params.subcategory, pageIndex, token })
+  const subcategory = await getSubcategoryBySlug({ slug: params.subcategory, pageIndex })
   if (!subcategory.posts.length) {
     return notFound()
   }
