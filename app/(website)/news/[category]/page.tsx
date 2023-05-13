@@ -124,13 +124,15 @@ export default async function Page({
             {category.posts.map((post: Post) => (
               <HorizontalCard {...post} key={post._id} />
             ))}
-            <Pagination
-              currentPage={pageIndex}
-              totalPosts={category.totalPosts}
-              nextDisabled={nextDisabled}
-              prevDisabled={prevDisabled}
-              slug={`news/${params.category}`}
-            />
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={pageIndex}
+                totalPosts={category.totalPosts}
+                nextDisabled={nextDisabled}
+                prevDisabled={prevDisabled}
+                slug={`news/${params.category}`}
+              />
+            )}
           </div>
           <div className="mx-auto mt-12 w-full max-w-xl space-y-8 px-4 sm:mt-16 sm:px-6 md:max-w-3xl md:px-8 lg:col-span-1 lg:mt-0 lg:max-w-none lg:px-0">
             <SocialMediaFollow />

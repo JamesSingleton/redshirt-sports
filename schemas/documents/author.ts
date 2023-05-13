@@ -24,6 +24,13 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'archived',
+      title: 'Archived',
+      type: 'boolean',
+      description: 'This will hide the author from the site',
+      initialValue: false,
+    }),
+    defineField({
       title: 'Role',
       name: 'role',
       type: 'string',

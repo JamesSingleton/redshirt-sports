@@ -1,24 +1,5 @@
 import { groq } from 'next-sanity'
 
-export const allAuthors = groq`
-*[_type == 'author'] | order(_createdAt asc){
-  _id,
-  _updatedAt,
-  name,
-  'slug': slug.current,
-  role,
-  "image": {
-    "asset": image.asset->{ 
-      _id,
-      _type,
-      metadata,
-      url
-      }
-  },
-  socialMedia
-}
-`
-
 const legalFields = `
   _id,
   _updatedAt,
@@ -43,6 +24,12 @@ const authorFields = `
   },
   bio,
   socialMedia,
+`
+
+export const allAuthors = groq`
+*[_type == 'author' && archived == false] | order(_createdAt asc){
+  ${authorFields}
+}
 `
 
 export const privacyPolicy = groq`
@@ -186,7 +173,7 @@ export const subcategoryBySlugQuery = groq`
 }`
 
 export const authors = groq`
-  *[_type == 'author' && slug.current == $slug][0]{
+  *[_type == 'author' && slug.current == $slug && archived == false][0]{
     ${authorFields}
     "posts": *[_type == 'post' && references(^._id)] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
       ${litePostFields}
