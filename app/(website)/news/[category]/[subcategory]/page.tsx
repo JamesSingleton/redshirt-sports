@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation'
 
 import Pagination from '@components/ui/Pagination'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
-import { getSubcategorySlugs, getSubcategoryBySlug } from '@lib/sanity.client'
-import { getPreviewToken } from '@lib/sanity.server.preview'
+import { getSubcategoryBySlug } from '@lib/sanity.client'
 import HorizontalCard from '@components/ui/HorizontalCard'
 import Breadcrumbs from '@components/ui/Breadcrumbs'
 import { baseUrl } from '@lib/constants'
@@ -20,6 +19,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
+
   const subcategory = await getSubcategoryBySlug({ slug: params.subcategory, pageIndex })
 
   if (!subcategory) {
@@ -62,15 +62,6 @@ export async function generateMetadata({
     },
   }
 }
-
-// export async function generateStaticParams() {
-//   const categories = await getSubcategorySlugs()
-
-//   return categories.map((category: { slug: string; parentSlug: string }) => ({
-//     category: category.parentSlug,
-//     subcategory: category.slug,
-//   }))
-// }
 
 export default async function Page({
   params,

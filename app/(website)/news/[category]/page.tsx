@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 
-import { getCategoryBySlug, getParentCategorySlugs } from '@lib/sanity.client'
+import { getCategoryBySlug } from '@lib/sanity.client'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
 import AuthorsCard from '@components/common/AuthorsCard'
 import HorizontalCard from '@components/ui/HorizontalCard'
@@ -62,13 +62,6 @@ export async function generateMetadata({
     },
   }
 }
-
-// export async function generateStaticParams() {
-//   const categories = await getParentCategorySlugs()
-//   return categories.map((category: { slug: string }) => ({
-//     category: category.slug,
-//   }))
-// }
 
 export default async function Page({
   params,
