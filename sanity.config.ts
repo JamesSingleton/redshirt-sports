@@ -14,6 +14,7 @@ import category from '@schemas/documents/category'
 import legal from '@schemas/documents/legal'
 import school from '@schemas/documents/school'
 import player from '@schemas/documents/player'
+import transferPortal from '@schemas/documents/transferPortal'
 import mainImage from '@schemas/objects/mainImage'
 import socialMedia from '@schemas/objects/socialMedia'
 import twitter from '@schemas/objects/twitter'
@@ -48,6 +49,7 @@ export default defineConfig({
       legal,
       school,
       player,
+      transferPortal,
       // Objects
       mainImage,
       socialMedia,

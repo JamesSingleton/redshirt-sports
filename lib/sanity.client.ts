@@ -21,6 +21,7 @@ import {
   subcategoryBySlugQuery,
   categoriesQuery,
   sitemapQuery,
+  transferPortalPlayers,
 } from '@lib/sanity.queries'
 import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload, Author } from '@types'
 
@@ -149,4 +150,8 @@ export async function getCategories(): Promise<any> {
 
 export async function getSitemap(): Promise<any> {
   return await sanityClient()?.fetch(sitemapQuery)
+}
+
+export async function getTransferPortalPlayers(): Promise<any> {
+  return await sanityClient()?.fetch(transferPortalPlayers)
 }

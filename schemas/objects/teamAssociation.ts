@@ -1,7 +1,7 @@
 import { defineField } from 'sanity'
 import { fields } from 'sanity-pills'
 
-import { yearsList } from '../documents/player'
+import { yearsList } from '../utils'
 
 export default defineField({
   name: 'teamAssociation',

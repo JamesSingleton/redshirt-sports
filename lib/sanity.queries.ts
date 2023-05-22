@@ -266,3 +266,18 @@ export const sitemapQuery = groq`
   }
 }
 `
+
+export const transferPortalPlayers = groq`
+  *[_type == 'transferPortal']{
+    ...,
+    "player": player->{
+      ...
+    },
+    "transferringFrom": transferringFrom->{
+      ...
+    },
+    "transferringTo": transferringTo->{
+      ...
+    },
+  }
+`

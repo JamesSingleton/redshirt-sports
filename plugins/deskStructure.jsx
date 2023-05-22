@@ -60,6 +60,8 @@ export const deskStructure = async (S, context) => {
       }),
     // Categories
     parentChild(S, context),
+    S.documentTypeListItem('player').title('Player Profiles'),
+    S.documentTypeListItem('transferPortal').title('Transfer Portal Players'),
 
     // Players
     // S.documentTypeListItem("player").title("Players"),
