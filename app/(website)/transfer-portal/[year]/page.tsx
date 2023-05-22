@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { ArrowRightIcon } from '@heroicons/react/24/solid'
 
 import { urlForImage } from '@lib/sanity.image'
 import { getTransferPortalPlayers } from '@lib/sanity.client'
@@ -6,7 +7,7 @@ import { getTransferPortalPlayers } from '@lib/sanity.client'
 export default async function Page({ params }: { params: { year: string } }) {
   const { year } = params
   const transferPortalEntries = await getTransferPortalPlayers()
-  console.log(transferPortalEntries)
+
   return (
     <section>
       <div className="bg-zinc-100 py-12 dark:bg-zinc-800 sm:py-20 lg:py-24">
@@ -30,10 +31,18 @@ export default async function Page({ params }: { params: { year: string } }) {
         </div>
       </div>
       <div className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
-        <ul role="list" className="space-y-3">
+        <ul role="list" className="divide-y divide-zinc-200">
           {transferPortalEntries.map((transferPortalEntry: any) => (
-            <li key={transferPortalEntry._id}>
-              <div className="grid">
+            <li
+              key={transferPortalEntry._id}
+              className="grid grid-cols-5 items-center gap-x-6 py-5"
+            >
+              <div className="flex items-center">
+                <span className="inline-flex items-center rounded-md bg-pink-50 px-2 py-1 text-base font-medium text-pink-700 ring-1 ring-inset ring-pink-700/10">
+                  {transferPortalEntry.transferStatus}
+                </span>
+              </div>
+              <div className="flex flex-row justify-center gap-4">
                 <Image
                   src={urlForImage(transferPortalEntry.player.image).url() || ''}
                   alt={transferPortalEntry.player.name}
@@ -41,7 +50,7 @@ export default async function Page({ params }: { params: { year: string } }) {
                   height={90}
                   className="rounded-md object-contain"
                 />
-                <div className="flex flex-col justify-center">
+                <div>
                   <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
                     {transferPortalEntry.player.name}
                   </h3>
@@ -49,6 +58,23 @@ export default async function Page({ params }: { params: { year: string } }) {
                     {transferPortalEntry.player.position}
                   </p>
                 </div>
+              </div>
+              <div className="grid grid-cols-3">
+                <Image
+                  src={urlForImage(transferPortalEntry.transferringFrom.image).url() || ''}
+                  alt={transferPortalEntry.transferringFrom.name}
+                  width={30}
+                  height={30}
+                />
+                <ArrowRightIcon className="h-8 w-8" />
+                <Image
+                  src={
+                    urlForImage(transferPortalEntry.transferringTo.image).format('webp').url() || ''
+                  }
+                  alt={transferPortalEntry.transferringTo.name}
+                  width={50}
+                  height={50}
+                />
               </div>
             </li>
           ))}
