@@ -7,7 +7,6 @@ import {
   projectUsersWidget,
   sanityTutorialsWidget,
 } from '@sanity/dashboard'
-import { productionUrl } from '@plugins/productionUrl'
 import post from '@schemas/documents/post'
 import author from '@schemas/documents/author'
 import category from '@schemas/documents/category'
@@ -110,11 +109,6 @@ export default defineConfig({
     deskTool({
       structure: deskStructure,
       defaultDocumentNode: defaultDocumentNodeResolver,
-    }),
-    productionUrl({
-      apiVersion,
-      previewSecretId,
-      types: PREVIEWABLE_DOCUMENT_TYPES,
     }),
     visionTool({
       defaultApiVersion: apiVersion,
