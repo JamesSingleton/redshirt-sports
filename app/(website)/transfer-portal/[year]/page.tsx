@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { ArrowRightIcon } from '@heroicons/react/24/solid'
+import { ArrowLongRightIcon } from '@heroicons/react/24/solid'
 
 import { urlForImage } from '@lib/sanity.image'
 import { getTransferPortalPlayers } from '@lib/sanity.client'
@@ -54,9 +54,31 @@ export default async function Page({ params }: { params: { year: string } }) {
                   <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
                     {transferPortalEntry.player.name}
                   </h3>
-                  <p className="text-sm text-zinc-700 dark:text-zinc-200">
-                    {transferPortalEntry.player.position}
-                  </p>
+                  <div className="flex gap-1">
+                    <span className="text-xs">{transferPortalEntry.player.position}</span>
+                    <svg
+                      className="h-5 w-5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      aria-hidden="true"
+                    >
+                      <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
+                    </svg>
+                    <span className="text-xs">{`${transferPortalEntry.player.height.feet}-${transferPortalEntry.player.height.inches}`}</span>
+                    <svg
+                      className="h-5 w-5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      aria-hidden="true"
+                    >
+                      <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
+                    </svg>
+                    <span className="text-xs">{transferPortalEntry.player.weight}</span>
+                  </div>
+                  <div className="flex flex-wrap">
+                    <span>{transferPortalEntry.player.highSchool}</span>
+                    <span>{`${transferPortalEntry.player.homeTown.city}, ${transferPortalEntry.player.homeTown.state}`}</span>
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-3">
@@ -66,7 +88,7 @@ export default async function Page({ params }: { params: { year: string } }) {
                   width={30}
                   height={30}
                 />
-                <ArrowRightIcon className="h-8 w-8" />
+                <ArrowLongRightIcon className="h-8 w-8" />
                 <Image
                   src={
                     urlForImage(transferPortalEntry.transferringTo.image).format('webp').url() || ''
