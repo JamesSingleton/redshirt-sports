@@ -1,5 +1,9 @@
 import Image from 'next/image'
-import { ArrowLongRightIcon } from '@heroicons/react/24/solid'
+import {
+  ArrowLongRightIcon,
+  CheckCircleIcon,
+  ArrowDownOnSquareIcon,
+} from '@heroicons/react/24/solid'
 
 import { urlForImage } from '@lib/sanity.image'
 import { getTransferPortalPlayers } from '@lib/sanity.client'
@@ -38,7 +42,20 @@ export default async function Page({ params }: { params: { year: string } }) {
               className="grid grid-cols-5 items-center gap-x-6 py-5"
             >
               <div className="flex items-center">
-                <span className="inline-flex items-center rounded-md bg-pink-50 px-2 py-1 text-base font-medium text-pink-700 ring-1 ring-inset ring-pink-700/10">
+                <span className="inline-flex items-center gap-x-1.5 rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-600">
+                  {/* render different icon depending on transferPortalEntry.transferStatus. The statuses are entered, committed, signed and withdrawn */}
+                  {transferPortalEntry.transferStatus === 'Entered' && (
+                    <ArrowDownOnSquareIcon className="h-4 w-4 rotate-90" />
+                  )}
+                  {transferPortalEntry.transferStatus === 'Committed' && (
+                    <ArrowDownOnSquareIcon className="h-4 w-4 rotate-90" />
+                  )}
+                  {transferPortalEntry.transferStatus === 'Signed' && (
+                    <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                  )}
+                  {transferPortalEntry.transferStatus === 'Withdrawn' && (
+                    <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                  )}
                   {transferPortalEntry.transferStatus}
                 </span>
               </div>

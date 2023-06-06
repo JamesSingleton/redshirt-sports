@@ -21,7 +21,7 @@ export default defineType({
       type: 'string',
       description: 'Is the player entered into the transfer portal, committed or withdrawn?',
       options: {
-        list: ['Entered', 'Committed', 'Withdrawn'],
+        list: ['Entered', 'Committed', 'Signed', 'Withdrawn'],
       },
       initialValue: 'Entered',
       validation: (rule) => rule.required(),
