@@ -44,6 +44,18 @@ export const metadata = {
     card: 'summary_large_image',
   },
   themeColor: '#DC2727',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  publisher: 'Redshirt Sports',
 }
 
 export default async function IndexLayout({ children }: { children: React.ReactNode }) {

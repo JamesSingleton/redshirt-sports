@@ -35,12 +35,16 @@ const TweetComponents: TweetComponents = {
 const ImageComponent = ({ value, isInline }: { value: any; isInline: any }) => {
   const { width, height } = getImageDimensions(value)
   return (
-    <Image
-      src={urlForImage(value).fit('min').auto('format').url()}
-      alt={value.caption || ' '}
-      width={width}
-      height={height}
-    />
+    <figure className="my-2 flex flex-col self-center rounded-lg shadow-md">
+      <Image
+        src={urlForImage(value).fit('min').auto('format').url()}
+        alt={value.caption || ''}
+        width={720}
+        height={379}
+        className="rounded-lg object-cover"
+        title={value.caption || ''}
+      />
+    </figure>
   )
 }
 

@@ -22,6 +22,10 @@ export interface PostPayload {
   publishedAt: string
   mainImage: MainImage
   category: string
+  parentCategory: {
+    title: string
+    slug: string
+  }
   subcategory: {
     title: string
     slug: string
@@ -31,7 +35,7 @@ export interface PostPayload {
   slug: string
   author: Author
   excerpt: string
-  body?: PortableTextBlock[]
+  body: PortableTextBlock[]
   featuredArticle: boolean
   estimatedReadingTime: number
   wordCount: number

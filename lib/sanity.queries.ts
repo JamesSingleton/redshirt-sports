@@ -62,6 +62,7 @@ const postFields = `
     }
   },
   category,
+  "parentCategory": parentCategory->{title, 'slug': slug.current},
   "subcategory": subcategory->{title, 'slug': slug.current, "parentSlug": parent->slug.current,
   "parentTitle": parent->title,},
   "slug": slug.current,
@@ -79,8 +80,7 @@ const postFields = `
   },
   featuredArticle,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
-  "wordCount": length(pt::text(body)),
-  "headings": body[length(style) == 2 && string::startsWith(style, "h")]
+  "wordCount": length(pt::text(body))
 `
 
 const litePostFields = `
