@@ -129,7 +129,6 @@ export default async function Page({
           </div>
           <div className="mx-auto mt-12 w-full max-w-xl space-y-8 px-4 sm:mt-16 sm:px-6 md:max-w-3xl md:px-8 lg:col-span-1 lg:mt-0 lg:max-w-none lg:px-0">
             <SocialMediaFollow />
-            {/* @ts-expect-error Server Component */}
             <AuthorsCard />
           </div>
         </div>

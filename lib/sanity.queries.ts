@@ -79,7 +79,8 @@ const postFields = `
   },
   featuredArticle,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
-  "wordCount": length(pt::text(body))
+  "wordCount": length(pt::text(body)),
+  "headings": body[length(style) == 2 && string::startsWith(style, "h")]
 `
 
 const litePostFields = `
