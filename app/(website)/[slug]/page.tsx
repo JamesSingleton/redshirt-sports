@@ -3,11 +3,10 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { HomeIcon, LinkIcon } from '@heroicons/react/24/solid'
 import { ChevronRightIcon } from '@heroicons/react/20/solid'
-import { parseISO, format } from 'date-fns'
 
 import { getPostBySlug, getMorePostsBySlug, getPostSlugs } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
-import { Date } from '@components/ui'
+import { Date, ArticleCard, ReadingProgress } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
 import { CustomPortableText } from '@components/ui/CustomPortableText'
 
@@ -83,6 +82,7 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <>
+      <ReadingProgress />
       <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="md:max-w-3xl xl:max-w-5xl">
@@ -311,43 +311,16 @@ export default async function Page({ params }: PageProps) {
           </div>
           <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-3 lg:mt-12 xl:gap-16">
             {morePosts?.map((morePost) => (
-              <div key={morePost._id}>
-                <Link
-                  href={`/${morePost.slug}`}
-                  className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-2xl shadow-md"
-                >
-                  <Image
-                    src={urlForImage(morePost.mainImage).url()}
-                    alt={morePost.mainImage.caption}
-                    className="h-full w-full object-cover"
-                    width={363}
-                    height={181}
-                    title={morePost.mainImage.caption}
-                  />
-                </Link>
-                <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link href={`/news/${morePost.parentCategory.slug}`} className="inline-block">
-                      <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
-                        {morePost.parentCategory.title}
-                      </span>
-                    </Link>
-                    <Link
-                      href={`/news/${morePost.subcategory.parentSlug}/${morePost.subcategory.slug}`}
-                      className="inline-block"
-                    >
-                      <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
-                        {morePost.subcategory.title}
-                      </span>
-                    </Link>
-                  </div>
-                  <span className="text-sm">•</span>
-                  <Date dateString={morePost.publishedAt} />
-                </div>
-                <Link href={`/${morePost.slug}`} className="mt-4 block">
-                  <h3 className="text-xl font-semibold tracking-tight">{morePost.title}</h3>
-                </Link>
-              </div>
+              <ArticleCard
+                key={morePost._id}
+                title={morePost.title}
+                excerpt={morePost.excerpt}
+                date={morePost.publishedAt}
+                image={morePost.mainImage}
+                slug={morePost.slug}
+                parentCategory={morePost.parentCategory}
+                subcategory={morePost.subcategory}
+              />
             ))}
           </div>
         </div>

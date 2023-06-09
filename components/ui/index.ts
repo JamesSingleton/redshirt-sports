@@ -7,6 +7,8 @@ import VerticalArticleCard from './VerticalArticleCard'
 import MinimalHorizontalCard from './MinimalHorizontalCard'
 import Breadcrumbs from './Breadcrumbs'
 import CategoryHeader from './CategoryHeader'
+import ArticleCard from './ArticleCard'
+import ReadingProgress from './ReadingProgress'
 
 export {
   Container,
@@ -18,4 +20,6 @@ export {
   MinimalHorizontalCard,
   Breadcrumbs,
   CategoryHeader,
+  ArticleCard,
+  ReadingProgress,
 }
