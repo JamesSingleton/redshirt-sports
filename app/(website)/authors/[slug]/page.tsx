@@ -1,6 +1,8 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
+import { EnvelopeOpenIcon, GlobeAltIcon, HomeIcon } from '@heroicons/react/24/solid'
+import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/20/solid'
 
 import {
   Instagram,
@@ -10,12 +12,14 @@ import {
   ApplePodcastIcon,
   OvercastIcon,
 } from '@components/common/icons'
-import { getAuthorsBySlug } from '@lib/sanity.client'
+import {
+  getAuthorsBySlug,
+  getAuthorsPosts,
+  getConferencesAuthorHasWrittenFor,
+} from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
-import HorizontalCard from '@components/ui/HorizontalCard'
-import { CustomPortableText } from '@components/ui/CustomPortableText'
+import { ArticleCard, Pagination, CustomPortableText } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
-import Pagination from '@components/ui/Pagination'
 
 import type { Metadata } from 'next'
 
@@ -29,7 +33,7 @@ export async function generateMetadata({
   const { slug } = params
   const token = getPreviewToken()
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
-  const author = await getAuthorsBySlug({ slug, pageIndex, token })
+  const author = await getAuthorsBySlug({ slug, token })
 
   if (!author) {
     return {}
@@ -71,119 +75,173 @@ export default async function Page({
   const { slug } = params
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
   const token = getPreviewToken()
-  const author = await getAuthorsBySlug({ slug, pageIndex, token })
+  const author = await getAuthorsBySlug({ slug, token })
   if (!author) {
     return notFound()
   }
-  const totalPages = Math.ceil(author?.totalPosts / 10)
+
+  const authorPosts = await getAuthorsPosts({ slug, pageIndex })
+  const totalPages = Math.ceil(authorPosts.totalPosts / 10)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
 
   return (
     <>
-      <section className="bg-zinc-100 py-12 dark:bg-zinc-800 sm:py-16 md:py-20 lg:py-24">
-        <div className="mx-auto max-w-xl px-6 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
-          <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
-            <div className="flex flex-col items-center md:flex-row">
+      <section className="pt-12 sm:pt-16 lg:pt-20 xl:pt-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="md:max-w-3xl xl:max-w-5xl">
+            <nav className="flex" aria-label="Breadcrumbs">
+              <ol className="flex flex-wrap items-center gap-2">
+                <li>
+                  <div>
+                    <Link href="/" className="text-zinc-400 hover:text-zinc-500">
+                      <span className="sr-only">Home</span>
+                      <HomeIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                    </Link>
+                  </div>
+                </li>
+                <li>
+                  <div className="flex items-center">
+                    <ChevronRightIcon
+                      className="h-5 w-5 flex-shrink-0 text-zinc-400"
+                      aria-hidden="true"
+                    />
+                    <Link
+                      href="/about"
+                      className="ml-2 text-sm font-medium text-zinc-400 hover:text-zinc-500"
+                    >
+                      Authors
+                    </Link>
+                  </div>
+                </li>
+                <li>
+                  <div className="flex items-center">
+                    <ChevronRightIcon
+                      className="h-5 w-5 flex-shrink-0 text-zinc-400"
+                      aria-hidden="true"
+                    />
+                    <Link
+                      href={`/authors/${author.slug}`}
+                      className="ml-2 w-48 truncate text-sm font-medium text-brand-500 dark:text-brand-300 sm:w-64"
+                    >
+                      {author.name}
+                    </Link>
+                  </div>
+                </li>
+              </ol>
+            </nav>
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <Image
-                src={urlForImage(author?.image).url()}
-                alt={`${author.name} profile picture`}
-                width={96}
-                height={96}
-                className="h-24 w-24 shrink-0 overflow-hidden rounded-xl object-cover"
+                src={urlForImage(author.image).url()}
+                alt={author.name}
+                width={80}
+                height={80}
+                className="h-20 w-20 shrink-0 rounded-full object-cover"
               />
-              <div className="mt-6 text-center md:ml-5 md:mt-0 md:text-left">
-                <span className="block text-xs uppercase tracking-widest text-brand-500 dark:text-brand-300">
+              <div>
+                <span className="block text-base font-semibold text-brand-500 dark:text-brand-300">
                   {author.role}
                 </span>
-                <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal sm:text-4xl md:tracking-tight lg:leading-tight">
+                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
                   {author.name}
                 </h1>
               </div>
             </div>
-            <div className="mt-6 md:mt-0">
-              <ul className="flex items-center space-x-3">
-                {author.socialMedia &&
-                  author.socialMedia.map((social) => (
-                    <li key={social._key}>
-                      <a
-                        href={social.url}
-                        target="_blank"
-                        className="group flex"
-                        rel="noreferrer noopener"
-                      >
-                        <span className="sr-only">{`${author.name}'s ${social.name} profile`}</span>
-                        {social.name === 'Email' ? (
-                          <EnvelopeOpenIcon className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
-                        ) : null}
-                        {social.name === 'Twitter' ? (
-                          <Twitter className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
-                        ) : null}
-                        {social.name === 'Facebook' ? (
-                          <Facebook className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
-                        ) : null}
-                        {social.name === 'Instagram' ? (
-                          <Instagram className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
-                        ) : null}
-                        {social.name === 'Website' ? (
-                          <GlobeAltIcon className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
-                        ) : null}
-                        {social.name === 'Spotify Podcast' ? (
-                          <SpotifyIcon className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
-                        ) : null}
-                        {social.name === 'Apple Podcast' ? (
-                          <ApplePodcastIcon className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
-                        ) : null}
-                        {social.name === 'Overcast Podcast' ? (
-                          <OvercastIcon className="h-8 w-8 fill-zinc-400 group-hover:fill-zinc-600" />
-                        ) : null}
-                      </a>
-                    </li>
-                  ))}
+            <CustomPortableText
+              value={author.bio}
+              paragraphClasses="mt-4 text-lg font-normal lg:text-xl"
+            />
+            {author.socialMedia && (
+              <ul className="mt-6 flex flex-wrap items-center space-x-3">
+                {author.socialMedia.map((social) => (
+                  <li key={social._key}>
+                    <a
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener"
+                      className="inline-flex h-10 w-10 items-center rounded-full text-zinc-400 transition-all duration-200"
+                    >
+                      <span className="sr-only">{social.name}</span>
+                      {social.name === 'Email' ? <EnvelopeOpenIcon className="h-6 w-6" /> : null}
+                      {social.name === 'Twitter' ? <Twitter className="h-6 w-6" /> : null}
+                      {social.name === 'Facebook' ? <Facebook className="h-6 w-6" /> : null}
+                      {social.name === 'Instagram' ? <Instagram className="h-6 w-6" /> : null}
+                      {social.name === 'Website' ? <GlobeAltIcon className="h-6 w-6" /> : null}
+                      {social.name === 'Spotify Podcast' ? (
+                        <SpotifyIcon className="h-6 w-6" />
+                      ) : null}
+                      {social.name === 'Apple Podcast' ? (
+                        <ApplePodcastIcon className="h-6 w-6" />
+                      ) : null}
+                      {social.name === 'Overcast Podcast' ? (
+                        <OvercastIcon className="h-6 w-6" />
+                      ) : null}
+                    </a>
+                  </li>
+                ))}
               </ul>
-            </div>
+            )}
           </div>
         </div>
       </section>
-      <section className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
-        <div className="w-full lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
-          <div className="col-span-2">
-            <h2 className="relative border-b border-zinc-300 pb-3 font-cal text-2xl font-medium text-zinc-900 before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">
-              {`Articles Written by ${author.name}`}
-            </h2>
-            <div className="mt-6 pt-8 sm:mt-10 sm:pt-10">
-              {author.posts && author.posts.length > 0 ? (
-                author.posts!.map((post) => <HorizontalCard key={post._id} {...post} />)
-              ) : (
-                <div className="flex flex-col items-center justify-center">
-                  <Image
-                    src="/images/empty-state.png"
-                    alt="No Posts"
-                    width={613}
-                    height={420}
-                    placeholder="blur"
-                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAA6ZJREFUWEe1VwFuGzEMk2///+8uydmDSFGWfdduKLAUQYqsiyiKpJQ2xhj2t4f/RR82RreO18FX/xlm+oDWzKw1a63Z4c+Dz3YcX1ZoPwLQh/VBIF48O2he/78BiO57R3ECMIDAw7s3L27WvGswcCQT+IeHx78x4HR7Ye9cIygM5Oc+MnBgDD8HkDPvNgJAHz27XwRUAfj8G4tTBxDIjYPvGfAuUfSJfo7AH/4SE5gaQOE5Av/9iYWvAWzFvWvQXwVYDQTxFRF68dTCBLODeAYQImPnon7VgBxQOYUDQL1e5wj4njNCq2ocNwD4YPicxSm8+bsYcP7r/GW/BFE0IFBiBH8D0zQrADhTCKzM3YtfVQMhSrIf03fq/adSro4XRmhPPsO93av5R8lWpTgLx/Ny788k9No1ATOAQnjoOoTITFiL+3sg4epXhiE9ziIofrE4fycAx0uwMX11X4pA/bJfWHGCCOojvdr780EvSrU6dy98BYj5PgEU82X2q4gAZBo+da8RvN7vGwBR78UnEyHGGJX4l6Co8Ek7KQ8rSgfwqawaGjhfr0UDolydJ4gtimU/iK/ZLXS0BaclqQFuS7oQ//d8nWAUqzWiFtRj7hdGMEeh+U8DEkB0rgWkFIxVLBC5rmVBx/H7PJMBbLlQPQqX4hqLRFgZyC4lvtwBcwQ1J9h9iHEBgJjdCl8XnQAxcg0jhAY/5L7/vahccCzJmP6XBR3IIwOl8w8KcxRax0rBnwEIIYqB83whVNnYzACOYNeAr+Gwoe6Q5QKanSuEMoA2K4YKXYTFBQqgEGHqwIFEQtYg0gqGBm4CLIvoONYIzihu1pADxQV7BogJ2pNOSRZ4hH3jgpIDhQFYMc44JmHcdtqCsl3aT4GkpRRC1DGIHCjXD0Wo4gyouqaVAXi9PheDdVnDg/MP9e9xXBnQIYoUbKH64oJcSCUN5/lu1rrzGgCYA3sWEIgvJn/d7wGMwEdRL+ESRIslyyrObYhVuIyAAOoikhjzQsptyHsg7agVjHEcdvyqdyHZURbkDsldHCBuDJTusZ5xK8ZVHBtJQty3Ye1+2Q2xkKDD5ZuRg4gRLG74diXrC0lxQ45gzYX9MLkD8He6zSNEEby7YLOibDVvv1p4i+UaSDcG4sxzFpaLSJfRPoJylueyKafYPgJ9T6g74fEsH85CLbpdRvp2LPekosNqa+FtDPE3ukqfvxdoDBuIeq4td2Gc+uxsjeB0Q1nRPEx4lPwBA2anSbfNT08AAAAASUVORK5CYII="
-                  />
-                  <p className="font-cal text-2xl">No articles yet.</p>
-                </div>
-              )}
-              <Pagination
-                currentPage={pageIndex}
-                totalPosts={author.totalPosts}
-                nextDisabled={nextDisabled}
-                prevDisabled={prevDisabled}
-                slug={`/authors/${author.slug}`}
+      <section className="py-12 sm:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-center gap-1">
+            <button
+              type="button"
+              className="inline-block rounded-full border border-brand-50 bg-brand-50 px-4 py-2 text-base font-semibold text-brand-500 transition-all duration-200"
+            >
+              All Articles
+            </button>
+            <button
+              type="button"
+              className="inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-900"
+            >
+              FBS Independent
+            </button>
+            <button
+              type="button"
+              className="inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-900"
+            >
+              Big 10
+            </button>
+            <button
+              type="button"
+              className="inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-900"
+            >
+              AAC
+            </button>
+            <button
+              type="button"
+              className="inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-900"
+            >
+              Sun Belt
+            </button>
+          </div>
+          <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
+            {authorPosts.posts.map((post) => (
+              <ArticleCard
+                key={post._id}
+                title={post.title}
+                slug={post.slug}
+                image={post.mainImage}
+                excerpt={post.excerpt}
+                parentCategory={post.parentCategory}
+                subcategory={post.subcategory}
+                date={post.publishedAt}
               />
-            </div>
+            ))}
           </div>
-          <div className="mt-12 w-full sm:mt-16 lg:col-span-1 lg:mt-0">
-            <div className="w-full rounded-2xl bg-zinc-100 p-5 dark:bg-zinc-800 sm:p-8">
-              <h2 className="relative border-b border-zinc-300 pb-3 font-cal text-2xl font-medium before:absolute before:-bottom-[1px] before:left-0 before:h-px before:w-24 before:bg-brand-500">{`About ${author.name}`}</h2>
-              <div className="prose pt-6 text-base leading-loose dark:prose-invert">
-                <CustomPortableText value={author.bio} />
-              </div>
-            </div>
-          </div>
+
+          {totalPages > 1 ? (
+            <Pagination
+              currentPage={pageIndex}
+              prevDisabled={prevDisabled}
+              nextDisabled={nextDisabled}
+              totalPosts={authorPosts.totalPosts}
+              slug={`/authors/${author.slug}`}
+            />
+          ) : null}
         </div>
       </section>
     </>

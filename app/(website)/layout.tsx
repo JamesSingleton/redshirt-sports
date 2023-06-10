@@ -64,7 +64,7 @@ export default async function IndexLayout({ children }: { children: React.ReactN
   return (
     <PlausibleProvider domain="redshirtsports.xyz">
       <Header categories={categories} />
-      <main className="loading mt-12 antialiased">{children}</main>
+      <main className="flex-grow">{children}</main>
       <Footer />
     </PlausibleProvider>
   )

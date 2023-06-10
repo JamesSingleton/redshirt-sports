@@ -21,7 +21,7 @@ export default function Pagination({
 
   return (
     <nav
-      className="flex items-center justify-between border-t border-zinc-200 px-4 py-3 sm:px-6"
+      className="mt-12 flex items-center justify-between border-t border-zinc-200 py-3"
       aria-label="Pagination"
     >
       <div className="hidden sm:block">

@@ -9,6 +9,7 @@ import Breadcrumbs from './Breadcrumbs'
 import CategoryHeader from './CategoryHeader'
 import ArticleCard from './ArticleCard'
 import ReadingProgress from './ReadingProgress'
+import { CustomPortableText } from './CustomPortableText'
 
 export {
   Container,
@@ -22,4 +23,5 @@ export {
   CategoryHeader,
   ArticleCard,
   ReadingProgress,
+  CustomPortableText,
 }

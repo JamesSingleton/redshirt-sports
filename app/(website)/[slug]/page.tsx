@@ -18,6 +18,11 @@ interface PageProps {
   }
 }
 
+export async function generateStaticParams() {
+  const slugs = await getPostSlugs()
+  return slugs.map((slug: string) => ({ slug }))
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = params
   const token = getPreviewToken()
@@ -65,7 +70,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       'twitter:label1': 'Reading time',
       'twitter:data1': `${post.estimatedReadingTime} min read`,
     },
-    keywords: [post.parentCategory.title, post.subcategory.title],
+    keywords: [post.parentCategory.title, post.subcategory ? post.subcategory.title : ''],
   }
 }
 
@@ -132,19 +137,21 @@ export default async function Page({ params }: PageProps) {
             <p className="mt-4 text-lg font-normal lg:text-xl">{post.excerpt}</p>
             <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-10">
               <div className="flex flex-wrap items-center gap-2">
-                <Link href={`/news/${post.subcategory.parentSlug}`} className="inline-block">
+                <Link href={`/news/${post.parentCategory.slug}`} className="inline-block">
                   <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
-                    {post.subcategory.parentTitle}
+                    {post.parentCategory.title}
                   </span>
                 </Link>
-                <Link
-                  href={`/news/${post.subcategory.parentSlug}/${post.subcategory.slug}`}
-                  className="inline-block"
-                >
-                  <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
-                    {post.subcategory.title}
-                  </span>
-                </Link>
+                {post.subcategory && (
+                  <Link
+                    href={`/news/${post.subcategory.parentSlug}/${post.subcategory.slug}`}
+                    className="inline-block"
+                  >
+                    <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
+                      {post.subcategory.title}
+                    </span>
+                  </Link>
+                )}
               </div>
               <span className="text-sm">•</span>
               <Date dateString={post.publishedAt} className="text-sm" />

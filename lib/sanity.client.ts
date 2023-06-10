@@ -22,8 +22,17 @@ import {
   categoriesQuery,
   sitemapQuery,
   transferPortalPlayers,
+  latestDivisionArticlesQuery,
+  conferencesAuthorHasWrittenFor,
+  authorsPosts,
 } from '@lib/sanity.queries'
-import { AboutPagePayload, PrivacyPolicyPagePayload, PostPayload, Author } from '@types'
+import {
+  AboutPagePayload,
+  PrivacyPolicyPagePayload,
+  PostPayload,
+  Author,
+  AuthorPosts,
+} from '@types'
 
 const sanityClient = (token?: string) => {
   return createClient({ projectId, dataset, apiVersion, token, useCdn })
@@ -115,14 +124,24 @@ export async function getSubcategoryBySlug({
 
 export async function getAuthorsBySlug({
   slug,
-  pageIndex,
   token,
 }: {
   slug: string
-  pageIndex: number
   token?: string
 }): Promise<Author> {
   return await sanityClient(token)?.fetch(authors, {
+    slug,
+  })
+}
+
+export async function getAuthorsPosts({
+  slug,
+  pageIndex,
+}: {
+  slug: string
+  pageIndex: number
+}): Promise<AuthorPosts> {
+  return await sanityClient().fetch(authorsPosts, {
     slug,
     pageIndex,
   })
@@ -154,4 +173,12 @@ export async function getSitemap(): Promise<any> {
 
 export async function getTransferPortalPlayers(): Promise<any> {
   return await sanityClient()?.fetch(transferPortalPlayers)
+}
+
+export async function getLatestDivisionArticles({ division }: { division: string }): Promise<any> {
+  return await sanityClient()?.fetch(latestDivisionArticlesQuery, { division })
+}
+
+export async function getConferencesAuthorHasWrittenFor({ slug }: { slug: string }): Promise<any> {
+  return await sanityClient().fetch(conferencesAuthorHasWrittenFor, { slug })
 }

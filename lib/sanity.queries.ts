@@ -100,6 +100,7 @@ const litePostFields = `
     },
   },
   category,
+  "parentCategory": parentCategory->{title, 'slug': slug.current},
   "subcategory": subcategory->{title, 'slug': slug.current, "parentSlug": parent->slug.current,
   "parentTitle": parent->title,},
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
@@ -112,6 +113,20 @@ export const postsBySlugQuery = groq`
 *[_type == "post" && slug.current == $slug]{
   ${postFields}
 }[0]
+`
+
+export const latestDivisionArticlesQuery = groq`
+*[_type == "post" && parentCategory->title == $division] | order(publishedAt desc)[0...3] {
+  _id,
+  title,
+  slug,
+  publishedAt,
+  excerpt,
+  mainImage,
+  "parentCategory": parentCategory->{title, 'slug': slug.current},
+  "subcategory": subcategory->{title, 'slug': slug.current, "parentSlug": parent->slug.current,
+  "parentTitle": parent->title,},
+}
 `
 
 export const morePostsBySlugQuery = groq`
@@ -176,12 +191,37 @@ export const subcategoryBySlugQuery = groq`
 export const authors = groq`
   *[_type == 'author' && slug.current == $slug && archived == false][0]{
     ${authorFields}
-    "posts": *[_type == 'post' && references(^._id)] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
-      ${litePostFields}
-    },
-    "totalPosts": count(*[_type == 'post' && references(^._id)])
   }
 `
+
+export const authorsPosts = groq`
+*[_type == 'author' && slug.current == $slug && archived == false][0]{
+  "posts": *[_type == 'post' && references(^._id)] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+    ${litePostFields}
+  },
+  "totalPosts": count(*[_type == 'post' && references(^._id)])
+}
+`
+
+// return an array of strings that represent the slugs of the categories that the author has written for
+export const conferencesAuthorHasWrittenFor = groq`
+  *[_type == 'author' && slug.current == $slug && archived == false][0]{
+    "conferences": *[_type == 'post' && references(^._id)][]{
+      title,
+      "parent": parentCategory->{
+        "slug": slug.current,
+        title,
+        image
+      },
+      "sub": subcategory->{
+        "slug": slug.current,
+        title,
+        image
+      }
+    }
+  }
+`
+
 export const postsForRssFeed = groq`
 *[_type == 'post']{
   _id,

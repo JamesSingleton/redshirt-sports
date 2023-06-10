@@ -21,7 +21,6 @@ export type Author = {
   role: string
   image: MainImage
   bio: any
-  posts?: Post[]
   socialMedia: [
     {
       _key: string
@@ -29,6 +28,10 @@ export type Author = {
       url: string
     }
   ]
+}
+
+export type AuthorPosts = {
+  posts: Post[]
   totalPosts: number
 }
 
@@ -39,6 +42,10 @@ export type Post = {
   slug: string
   title: string
   category: string
+  parentCategory: {
+    title: string
+    slug: string
+  }
   subcategory: {
     title: string
     slug: string

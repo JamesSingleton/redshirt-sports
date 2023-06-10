@@ -52,14 +52,16 @@ const ArticleCard = ({
               {parentCategory.title}
             </span>
           </Link>
-          <Link
-            href={`/news/${subcategory.parentSlug}/${subcategory.slug}`}
-            className="inline-block"
-          >
-            <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
-              {subcategory.title}
-            </span>
-          </Link>
+          {subcategory && (
+            <Link
+              href={`/news/${subcategory.parentSlug}/${subcategory.slug}`}
+              className="inline-block"
+            >
+              <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
+                {subcategory.title}
+              </span>
+            </Link>
+          )}
         </div>
         <span className="text-sm">•</span>
         <Date dateString={date} />
