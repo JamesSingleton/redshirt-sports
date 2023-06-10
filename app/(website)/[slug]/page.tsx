@@ -166,7 +166,7 @@ export default async function Page({ params }: PageProps) {
               <div className="lg:sticky lg:left-0 lg:top-24 lg:mt-12 lg:self-start">
                 <div className="flex flex-row lg:flex-col">
                   <Link
-                    href={`/authors/${post.author.name}`}
+                    href={`/authors/${post.author.slug}`}
                     className="mb-4 block h-24 w-24 overflow-hidden rounded-full"
                   >
                     <Image
@@ -179,7 +179,7 @@ export default async function Page({ params }: PageProps) {
                     />
                   </Link>
                   <div className="ml-4 lg:ml-0">
-                    <Link href={`/authors/${post.author.name}`} className="mt-5 text-xl font-bold">
+                    <Link href={`/authors/${post.author.slug}`} className="mt-5 text-xl font-bold">
                       {post.author.name}
                     </Link>
                     <p className="mt-4 text-base font-normal">{post.author.role}</p>
