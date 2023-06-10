@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EnvelopeOpenIcon, GlobeAltIcon, HomeIcon } from '@heroicons/react/24/solid'
-import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/20/solid'
+import { ChevronRightIcon } from '@heroicons/react/20/solid'
 
 import {
   Instagram,
@@ -12,27 +12,25 @@ import {
   ApplePodcastIcon,
   OvercastIcon,
 } from '@components/common/icons'
-import {
-  getAuthorsBySlug,
-  getAuthorsPosts,
-  getConferencesAuthorHasWrittenFor,
-} from '@lib/sanity.client'
+import { getAuthorSlugs, getAuthorsBySlug, getAuthorsPosts } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import { ArticleCard, Pagination, CustomPortableText } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
 
 import type { Metadata } from 'next'
 
+export async function generateStaticParams() {
+  const slugs = await getAuthorSlugs()
+  return slugs.map((slug) => ({ slug }))
+}
+
 export async function generateMetadata({
   params,
-  searchParams,
 }: {
   params: { slug: string }
-  searchParams: { [key: string]: string }
 }): Promise<Metadata> {
   const { slug } = params
   const token = getPreviewToken()
-  const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
   const author = await getAuthorsBySlug({ slug, token })
 
   if (!author) {

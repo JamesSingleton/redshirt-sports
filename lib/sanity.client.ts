@@ -25,6 +25,7 @@ import {
   latestDivisionArticlesQuery,
   conferencesAuthorHasWrittenFor,
   authorsPosts,
+  authorSlugsQuery,
 } from '@lib/sanity.queries'
 import {
   AboutPagePayload,
@@ -159,8 +160,12 @@ export async function getParentCategorySlugs(): Promise<any> {
   return await sanityClient()?.fetch(parentCategorySlugQuery)
 }
 
-export async function getPostSlugs(): Promise<any> {
+export async function getPostSlugs(): Promise<string[]> {
   return await sanityClient()?.fetch(postSlugsQuery)
+}
+
+export async function getAuthorSlugs(): Promise<string[]> {
+  return await sanityClient().fetch(authorSlugsQuery)
 }
 
 export async function getCategories(): Promise<any> {

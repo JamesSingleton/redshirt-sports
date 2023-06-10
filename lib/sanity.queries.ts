@@ -268,6 +268,9 @@ export const postSlugsQuery = `
 *[_type == "post" && defined(slug.current)][].slug.current
 `
 
+export const authorSlugsQuery = groq`
+*[_type == "author" && defined(slug.current) && archived == false][].slug.current`
+
 export const categoriesQuery = groq`
 *[_type == "category" && defined(slug.current) && !defined(parent) && count(*[_type == 'post' && references(^._id)]) > 0]| order(_createdAt asc){
   _id,
