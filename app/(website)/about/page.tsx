@@ -86,14 +86,10 @@ export default async function Page() {
                 >
                   <div>
                     <Image
-                      src={urlForImage(author.image)?.quality(50).url()!}
+                      src={urlForImage(author.image).width(176).height(176).url()}
                       alt={`${author.name}'s profile picture`}
                       width={176}
                       height={176}
-                      placeholder="blur"
-                      blurDataURL={author.image.asset.metadata.lqip ?? undefined}
-                      quality={50}
-                      sizes="50vw"
                       className="mx-auto h-40 w-40 overflow-hidden rounded-full object-cover xl:h-44 xl:w-44"
                     />
                     <div className="mt-6 leading-6">

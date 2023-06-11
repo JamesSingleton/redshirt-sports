@@ -10,10 +10,6 @@ const imageBuilder = createImageUrlBuilder({
 })
 
 export const urlForImage = (source: MainImage) => {
-  // if (!source?.asset?._ref) {
-  //   return undefined
-  // }
-
   return imageBuilder?.image(source).auto('format').fit('max')
 }
 

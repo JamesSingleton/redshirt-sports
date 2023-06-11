@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -12,17 +13,17 @@ import {
   ApplePodcastIcon,
   OvercastIcon,
 } from '@components/common/icons'
-import { getAuthorSlugs, getAuthorsBySlug, getAuthorsPosts } from '@lib/sanity.client'
+import {
+  getConferencesAuthorHasWrittenFor,
+  getAuthorsBySlug,
+  getAuthorsPosts,
+} from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import { ArticleCard, Pagination, CustomPortableText } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
+import ConferencesWrittenFor from './ConferencesWrittenFor'
 
 import type { Metadata } from 'next'
-
-export async function generateStaticParams() {
-  const slugs = await getAuthorSlugs()
-  return slugs.map((slug) => ({ slug }))
-}
 
 export async function generateMetadata({
   params,
@@ -72,13 +73,17 @@ export default async function Page({
 }) {
   const { slug } = params
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
+  const conference = searchParams.conference ?? null
   const token = getPreviewToken()
   const author = await getAuthorsBySlug({ slug, token })
   if (!author) {
     return notFound()
   }
 
-  const authorPosts = await getAuthorsPosts({ slug, pageIndex })
+  const authorId = author._id
+  const conferencesWrittenFor = await getConferencesAuthorHasWrittenFor({ authorId })
+
+  const authorPosts = await getAuthorsPosts({ authorId, pageIndex, conference })
   const totalPages = Math.ceil(authorPosts.totalPosts / 10)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
@@ -130,10 +135,11 @@ export default async function Page({
             </nav>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <Image
-                src={urlForImage(author.image).url()}
+                src={urlForImage(author.image).width(80).height(80).quality(100).url()}
                 alt={author.name}
                 width={80}
                 height={80}
+                quality={100}
                 className="h-20 w-20 shrink-0 rounded-full object-cover"
               />
               <div>
@@ -184,38 +190,9 @@ export default async function Page({
       </section>
       <section className="py-12 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center gap-1">
-            <button
-              type="button"
-              className="inline-block rounded-full border border-brand-50 bg-brand-50 px-4 py-2 text-base font-semibold text-brand-500 transition-all duration-200"
-            >
-              All Articles
-            </button>
-            <button
-              type="button"
-              className="inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-900"
-            >
-              FBS Independent
-            </button>
-            <button
-              type="button"
-              className="inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-900"
-            >
-              Big 10
-            </button>
-            <button
-              type="button"
-              className="inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-900"
-            >
-              AAC
-            </button>
-            <button
-              type="button"
-              className="inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-900"
-            >
-              Sun Belt
-            </button>
-          </div>
+          <Suspense fallback={<div>Loading...</div>}>
+            <ConferencesWrittenFor conferences={conferencesWrittenFor.subcategories} slug={slug} />
+          </Suspense>
           <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
             {authorPosts.posts.map((post) => (
               <ArticleCard

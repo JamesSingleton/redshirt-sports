@@ -19,3 +19,14 @@ export type MainImage<T = {}> = T & {
   crop: ImageCrop
   hotspot: ImageHotspot
 }
+
+export type Conference = {
+  _id: string
+  title: string
+  pageHeader?: string
+  subtitle?: string
+  slug: string
+  description: string
+  image?: MainImage
+  parent: Conference
+}

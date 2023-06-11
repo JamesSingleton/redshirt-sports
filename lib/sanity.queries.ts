@@ -14,14 +14,7 @@ const authorFields = `
   name,
   'slug': slug.current,
   role,
-  "image": {
-    "asset": image.asset->{ 
-      _id,
-      _type,
-      metadata,
-      url
-      }
-  },
+  image,
   bio,
   socialMedia,
 `
@@ -195,31 +188,23 @@ export const authors = groq`
 `
 
 export const authorsPosts = groq`
-*[_type == 'author' && slug.current == $slug && archived == false][0]{
-  "posts": *[_type == 'post' && references(^._id)] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+*[_id == $authorId][0]{
+  "posts": *[_type == 'post' && references(^._id) && subcategory->title == $conference] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
     ${litePostFields}
   },
-  "totalPosts": count(*[_type == 'post' && references(^._id)])
+  "totalPosts": count(*[_type == 'post' && references(^._id) && subcategory->title == $conference])
 }
 `
 
 // return an array of strings that represent the slugs of the categories that the author has written for
 export const conferencesAuthorHasWrittenFor = groq`
-  *[_type == 'author' && slug.current == $slug && archived == false][0]{
-    "conferences": *[_type == 'post' && references(^._id)][]{
-      title,
-      "parent": parentCategory->{
-        "slug": slug.current,
-        title,
-        image
-      },
-      "sub": subcategory->{
-        "slug": slug.current,
-        title,
-        image
-      }
-    }
+*[_id == $authorId][0] {
+  "subcategories": array::unique(*[_id in *[_type == "post" && references(^.^._id)].subcategory._ref])[] {
+    "path": "/news/" + parent->.slug.current + "/" + slug.current,
+    title,
+    image
   }
+}
 `
 
 export const postsForRssFeed = groq`

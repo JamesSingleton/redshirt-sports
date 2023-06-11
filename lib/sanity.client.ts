@@ -136,15 +136,18 @@ export async function getAuthorsBySlug({
 }
 
 export async function getAuthorsPosts({
-  slug,
+  authorId,
   pageIndex,
+  conference,
 }: {
-  slug: string
+  authorId: string
   pageIndex: number
+  conference: string
 }): Promise<AuthorPosts> {
   return await sanityClient().fetch(authorsPosts, {
-    slug,
+    authorId,
     pageIndex,
+    conference,
   })
 }
 
@@ -184,6 +187,10 @@ export async function getLatestDivisionArticles({ division }: { division: string
   return await sanityClient()?.fetch(latestDivisionArticlesQuery, { division })
 }
 
-export async function getConferencesAuthorHasWrittenFor({ slug }: { slug: string }): Promise<any> {
-  return await sanityClient().fetch(conferencesAuthorHasWrittenFor, { slug })
+export async function getConferencesAuthorHasWrittenFor({
+  authorId,
+}: {
+  authorId: string
+}): Promise<any> {
+  return await sanityClient().fetch(conferencesAuthorHasWrittenFor, { authorId })
 }
