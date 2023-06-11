@@ -23,10 +23,10 @@ const ConferencesWrittenFor = ({
       >
         All Articles
       </Link>
-      {conferences?.map((conference: any) => (
+      {conferences?.map((conference) => (
         <Link
           prefetch={false}
-          key={conference.title}
+          key={conference._id}
           href={{
             pathname: `/authors/${slug}`,
             query: {

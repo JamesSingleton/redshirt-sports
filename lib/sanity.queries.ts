@@ -189,10 +189,16 @@ export const authors = groq`
 
 export const authorsPosts = groq`
 *[_id == $authorId][0]{
-  "posts": *[_type == 'post' && references(^._id) && subcategory->title == $conference] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+  "posts": *[_type == 'post' && references(^._id) && select(
+    $conference == null => true,
+    subcategory->title == $conference
+  )] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
     ${litePostFields}
   },
-  "totalPosts": count(*[_type == 'post' && references(^._id) && subcategory->title == $conference])
+  "totalPosts": count(*[_type == 'post' && references(^._id) && select(
+    $conference == null => true,
+    subcategory->title == $conference
+  )])
 }
 `
 
@@ -200,9 +206,9 @@ export const authorsPosts = groq`
 export const conferencesAuthorHasWrittenFor = groq`
 *[_id == $authorId][0] {
   "subcategories": array::unique(*[_id in *[_type == "post" && references(^.^._id)].subcategory._ref])[] {
+    _id,
     "path": "/news/" + parent->.slug.current + "/" + slug.current,
     title,
-    image
   }
 }
 `
