@@ -22,6 +22,7 @@ import { getPreviewToken } from '@lib/sanity.server.preview'
 import { ArticleCard, Pagination, CustomPortableText } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
+import ImageComponent from '@components/ui/ImageComponent'
 
 import type { Metadata } from 'next'
 
@@ -134,13 +135,12 @@ export default async function Page({
               </ol>
             </nav>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-              <Image
-                src={urlForImage(author.image).width(80).height(80).quality(100).url()}
+              <ImageComponent
+                image={author.image}
                 alt={author.name}
+                className="h-20 w-20 shrink-0 rounded-full object-cover"
                 width={80}
                 height={80}
-                quality={100}
-                className="h-20 w-20 shrink-0 rounded-full object-cover"
               />
               <div>
                 <span className="block text-base font-semibold text-brand-500 dark:text-brand-300">

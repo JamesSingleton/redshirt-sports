@@ -5,6 +5,7 @@ import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 import { Instagram, Twitter, Facebook } from '@components/common/icons'
 import { getAboutPageAuthors } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
+import { ImageComponent } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
 
 export const metadata = {
@@ -110,12 +111,12 @@ export default async function Page() {
                   className="relative rounded-3xl border border-zinc-300/70 bg-white px-6 py-10 text-center transition duration-300 ease-in-out hover:border-zinc-300/30 hover:shadow-lg dark:bg-zinc-900 sm:px-10"
                 >
                   <div>
-                    <Image
-                      src={urlForImage(author.image).width(176).height(176).url()}
+                    <ImageComponent
+                      image={author.image}
                       alt={`${author.name}'s profile picture`}
+                      className="mx-auto h-40 w-40 overflow-hidden rounded-full object-cover xl:h-44 xl:w-44"
                       width={176}
                       height={176}
-                      className="mx-auto h-40 w-40 overflow-hidden rounded-full object-cover xl:h-44 xl:w-44"
                     />
                     <div className="mt-6 leading-6">
                       <h3 className="font-cal text-xl font-medium">

@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import { Date } from '@components/ui'
+import ImageComponent from './ImageComponent'
 import { urlForImage } from '@lib/sanity.image'
 
 type ArticleCardProps = {
@@ -36,13 +37,12 @@ const ArticleCard = ({
         href={`/${slug}`}
         className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-2xl shadow-md"
       >
-        <Image
-          src={urlForImage(image).url()}
+        <ImageComponent
+          image={image}
           alt={image.caption}
           className="h-full w-full object-cover"
           width={363}
           height={181}
-          title={image.caption}
         />
       </Link>
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -67,7 +67,7 @@ const ArticleCard = ({
         <Date dateString={date} />
       </div>
       <Link href={`/${slug}`} className="mt-4 block">
-        <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
+        <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
       </Link>
     </div>
   )
