@@ -81,11 +81,11 @@ export default async function Page({
 
   const breadCrumbPages = [
     {
-      name: subcategory?.parentTitle,
+      title: subcategory?.parentTitle,
       href: `/news/${subcategory?.parentSlug}`,
     },
     {
-      name: subcategory?.title,
+      title: subcategory?.title,
       href: `/news/${subcategory?.parentSlug}/${subcategory?.slug}`,
     },
   ]
