@@ -123,7 +123,7 @@ export default async function Page({
                 totalPosts={category.totalPosts}
                 nextDisabled={nextDisabled}
                 prevDisabled={prevDisabled}
-                slug={`news/${params.category}`}
+                slug={`/news/${params.category}`}
               />
             )}
           </div>

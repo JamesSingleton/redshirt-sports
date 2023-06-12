@@ -32,11 +32,7 @@ export default function Pagination({
         </p>
       </div>
       <div className="flex flex-1 justify-between sm:justify-end">
-        {prevDisabled ? (
-          <span className="relative inline-flex cursor-not-allowed items-center rounded-md border border-zinc-300 bg-zinc-300 px-4 py-2 text-sm font-medium text-zinc-400 focus:outline-none">
-            Previous
-          </span>
-        ) : (
+        {prevDisabled ? null : (
           <Link
             href={prevPageUrl}
             aria-label="Previous Page"
@@ -45,11 +41,7 @@ export default function Pagination({
             Previous
           </Link>
         )}
-        {nextDisabled ? (
-          <span className="relative ml-3 inline-flex cursor-not-allowed items-center rounded-md border border-zinc-300 bg-zinc-300 px-4 py-2 text-sm font-medium text-zinc-400 focus:outline-none">
-            Next
-          </span>
-        ) : (
+        {nextDisabled ? null : (
           <Link
             href={nextPageUrl}
             aria-label="Next Page"
