@@ -20,7 +20,12 @@ const authorFields = `
 `
 
 export const allAuthors = groq`
-*[_type == 'author' && archived == false] | order(_createdAt asc){
+*[_type == 'author' && archived == false] | score(
+  boost(role == 'Staff Writer', 4),
+  boost(role == 'Content Writer', 3),
+  boost(role == 'Contributor', 2),
+  boost(role == 'Freelancer', 1),
+) | order(_score desc, name asc){
   ${authorFields}
 }
 `
