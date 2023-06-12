@@ -6,7 +6,6 @@ import HorizontalCard from './HorizontalCard'
 import VerticalArticleCard from './VerticalArticleCard'
 import MinimalHorizontalCard from './MinimalHorizontalCard'
 import Breadcrumbs from './Breadcrumbs'
-import CategoryHeader from './CategoryHeader'
 import ArticleCard from './ArticleCard'
 import ReadingProgress from './ReadingProgress'
 import { CustomPortableText } from './CustomPortableText'
@@ -20,7 +19,6 @@ export {
   VerticalArticleCard,
   MinimalHorizontalCard,
   Breadcrumbs,
-  CategoryHeader,
   ArticleCard,
   ReadingProgress,
   CustomPortableText,
