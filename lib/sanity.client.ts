@@ -27,13 +27,7 @@ import {
   authorsPosts,
   authorSlugsQuery,
 } from '@lib/sanity.queries'
-import {
-  AboutPagePayload,
-  PrivacyPolicyPagePayload,
-  PostPayload,
-  Author,
-  AuthorPosts,
-} from '@types'
+import { CategoryPayload, PrivacyPolicyPagePayload, PostPayload, Author, AuthorPosts } from '@types'
 
 const sanityClient = (token?: string) => {
   return createClient({ projectId, dataset, apiVersion, token, useCdn })
@@ -109,7 +103,7 @@ export async function getCategoryBySlug({
 }: {
   slug: string
   pageIndex: number
-}): Promise<any> {
+}): Promise<CategoryPayload> {
   return await sanityClient()?.fetch(categoryBySlugQuery, { slug, pageIndex })
 }
 

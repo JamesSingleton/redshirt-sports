@@ -6,13 +6,12 @@ import { ChevronRightIcon } from '@heroicons/react/20/solid'
 
 import { getPostBySlug, getMorePostsBySlug, getPostSlugs } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
-import { Date, ArticleCard, ReadingProgress } from '@components/ui'
+import { Date, ArticleCard, ReadingProgress, Breadcrumbs } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
 import { CustomPortableText } from '@components/ui/CustomPortableText'
+import Author from './Author'
 
 import type { Metadata } from 'next'
-import BreadCrumbs from './Breadcrumbs'
-import Author from './Author'
 
 interface PageProps {
   params: {
@@ -104,7 +103,7 @@ export default async function Page({ params }: PageProps) {
       <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="md:max-w-3xl xl:max-w-5xl">
-            <BreadCrumbs breadCrumbPages={breadcrumbs} />
+            <Breadcrumbs breadCrumbPages={breadcrumbs} />
             <h1 className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
               {post.title}
             </h1>

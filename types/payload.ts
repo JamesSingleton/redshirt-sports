@@ -1,6 +1,6 @@
 import { PortableTextBlock } from 'sanity'
 
-import { Author } from './post'
+import { Author, Post } from './post'
 import { MainImage } from './common'
 
 export interface AboutPagePayload {
@@ -39,4 +39,16 @@ export interface PostPayload {
   featuredArticle: boolean
   estimatedReadingTime: number
   wordCount: number
+}
+
+export interface CategoryPayload {
+  _id: string
+  _updatedAt: string
+  title: string
+  pageHeader: string
+  subTitle: string
+  slug: string
+  description: string
+  posts: Post[]
+  totalPosts: number
 }

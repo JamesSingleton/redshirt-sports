@@ -2,35 +2,32 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
-import PageHeader from '@components/ui/PageHeader'
 import { Instagram, Twitter, Facebook } from '@components/common/icons'
 import { getAboutPageAuthors } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import { urlForImage } from '@lib/sanity.image'
 
-import type { Author } from '@types'
-
 export const metadata = {
-  title: 'About Us',
+  title: 'About Redshirt Sports: College Football Excellence & Passion',
   description:
-    'Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!',
+    'Discover Redshirt Sports, a team passionate about college football. Join us for the latest news, insights, and analysis as we celebrate the spirit of the game and collegiate excellence.',
   openGraph: {
-    title: 'About Us',
+    title: 'About Redshirt Sports: College Football Excellence & Passion',
     description:
-      'Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!',
+      'Discover Redshirt Sports, a team passionate about college football. Join us for the latest news, insights, and analysis as we celebrate the spirit of the game and collegiate excellence.',
     url: '/about',
     images: [
       {
-        url: '/api/og?title=About Us',
+        url: '/api/og?title=About Redshirt Sports: College Football Excellence & Passion',
         width: 1200,
         height: 630,
       },
     ],
   },
   twitter: {
-    title: 'About Us',
+    title: 'About Redshirt Sports: College Football Excellence & Passion',
     description:
-      'Launched in 2021, Redshirt Sports aims to be your go to source for all things FCS football. Learn about who we are the team that makes it all possible!',
+      'Discover Redshirt Sports, a team passionate about college football. Join us for the latest news, insights, and analysis as we celebrate the spirit of the game and collegiate excellence.',
   },
   alternates: {
     canonical: '/about',
@@ -43,38 +40,66 @@ export default async function Page() {
 
   return (
     <>
-      <PageHeader
-        heading="About Redshirt Sports"
-        subheading="The new kid on the block when it comes to reporting on the FCS"
-      />
-      <section className="py-12 sm:py-20 lg:pt-24">
+      <section className="pt-12 sm:pt-16 lg:pt-20 xl:pt-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="md:max-w-3xl xl:max-w-5xl">
+            <h1 className="text-secondary-900 mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
+              Discover the Team Behind Redshirt Sports: Unveiling Our Passion for College Football
+            </h1>
+            <p className="text-secondary-600 mt-4 text-lg font-normal lg:text-xl">
+              Meet the Dedicated Team Driving Redshirt Sports&apos; College Football Journey
+            </p>
+          </div>
+        </div>
+      </section>
+      <section className="py-12 sm:py-16 lg:py-20">
         <div className="prose prose-xl mx-auto px-5 dark:prose-invert sm:px-6 lg:max-w-7xl lg:px-8">
           <p>
-            Redshirt Sports launched at the end of the 2021 season in order to provide another
-            platform for FCS content. We are dedicated to the FCS and the community, and we hope you
-            enjoy the content that we provide. During the off season we try to keep track of the
-            latest news when it comes to transfers to and from the FCS. With the help of the team
-            and members of the FCS community, we have been able to keep on top of it thus far.
+            At Redshirt Sports, our passion for college football extends beyond the FCS. We are
+            thrilled to announce that we will also be providing comprehensive coverage of FBS, D2,
+            and D3 football. Our commitment to delivering high-quality content and staying at the
+            forefront of the latest developments in the college football landscape drives us to
+            expand our scope and bring you the most engaging stories from across all divisions.
           </p>
           <p>
-            We look forward to building relationships with coaches and players around the FCS in
-            order to bring you the best content possible. The goal for Redshirt Sports is to become
-            one of the go to sources for your FCS Top 25 rankings along with preseason and
-            postseason All-American teams.
+            Whether you&apos;re a fan of the thrilling FBS action, the fierce competition of D2, or
+            the dedication and talent on display in D3, Redshirt Sports is your go-to source for
+            in-depth analysis, breaking news, and captivating stories. We believe that every level
+            of college football deserves recognition and attention, and we are excited to share the
+            excitement and passion that permeates the FBS, D2, and D3 football communities.
+          </p>
+          <p>
+            In addition to our comprehensive coverage of the games, we will also keep you up to date
+            on the latest happenings in the transfer portal and provide valuable insights into the
+            recruiting process. Our team of will analyze transfers, evaluate the impact of new
+            recruits, and offer predictions and rankings to enhance your understanding of the
+            college football landscape.
+          </p>
+          <p>
+            From the top-tier programs in FBS to the talent emerging in D2 and D3, Redshirt Sports
+            aims to be your ultimate companion for all things college football. We will bring you
+            highlights, player spotlights, and captivating stories from across all divisions,
+            ensuring that you stay connected to the passion and dedication displayed at every level.
+          </p>
+          <p>
+            Stay tuned for our extensive coverage of FBS, FCS, D2, and D3 football, where we will
+            bring you the most compelling content, captivating stories, and expert analysis to
+            satisfy your college football cravings. Redshirt Sports is committed to providing you
+            with an unforgettable experience across all divisions, ensuring that no matter which
+            level you&apos;re most passionate about, you&apos;ll find a home with us. Join us as we
+            embark on an incredible journey through the diverse and captivating world of college
+            football.
           </p>
         </div>
       </section>
       <section className="bg-zinc-100 py-12 dark:bg-zinc-800 sm:py-20 lg:py-28">
         <div className="mx-auto max-w-xl px-4 sm:max-w-3xl sm:px-6 md:px-8 lg:max-w-7xl">
-          <div className="mx-auto max-w-3xl text-center">
+          <div className="mx-auto text-center md:max-w-3xl xl:max-w-5xl">
             <h2 className="font-cal text-base font-medium uppercase tracking-widest text-brand-500 dark:text-brand-300">
               Our Writers
             </h2>
             <p className="mt-2 text-3xl font-medium tracking-normal sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
-              Redshirt Sports is dedicated to college football with an emphasis on the FCS.
-            </p>
-            <p className="mt-4 text-base leading-relaxed text-zinc-500 dark:text-zinc-400">
-              The only way to create such coverage is with great people who truly enjoy their job.
+              Meet the Dedicated Team Driving Redshirt Sports&apos; College Football Journey
             </p>
           </div>
           <div className="mx-auto mt-12 max-w-7xl sm:mt-16">
@@ -134,22 +159,37 @@ export default async function Page() {
           </div>
         </div>
       </section>
-      <section className="bg-brand-700">
-        <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
-          <h2 className="font-cal text-3xl font-extrabold text-white sm:text-4xl">
-            Help make Redshirt Sports better!
+      <section className="py-12 sm:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-center font-cal text-3xl font-extrabold sm:text-4xl">
+            Join Our Community and Contribute
           </h2>
-          <p className="mt-4 text-lg leading-6 text-brand-200">
-            Whether you are looking to submit a guest post, write a feature article, or trying to
-            get started writing content for the FCS, we are always looking for new writers to join
-            our team.
-          </p>
-          <Link
-            href="/contact"
-            className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-brand-600 hover:bg-brand-50 sm:w-auto"
-          >
-            Join our team
-          </Link>
+          <div className="prose prose-xl mx-auto mt-12 px-5 dark:prose-invert sm:px-6 lg:max-w-7xl lg:px-8">
+            <p>
+              We believe in the power of a strong community. Redshirt Sports is not just a website
+              but a platform that brings college football enthusiasts together. We invite you to
+              become a part of our community and contribute to the growth of our website.
+            </p>
+            <p>
+              Are you passionate about college football? Do you have a unique perspective, insider
+              knowledge, or a knack for storytelling? We welcome your contributions, whether
+              it&apos;s through articles, opinion pieces, game recaps, player profiles, or any other
+              creative content.
+            </p>
+            <p>
+              By contributing to Redshirt Sports, you can showcase your expertise, share your love
+              for the game, and make a meaningful impact on the college football community.
+            </p>
+            <p>
+              To get started, please visit our <Link href="/contact">contact page</Link> and email
+              us with your name, and a brief description of your interests or areas of expertise.
+              Our team will review your submission and get in touch with you shortly.
+            </p>
+            <p>
+              Join us today and become a valued contributor to Redshirt Sports. Together, let&apos;s
+              celebrate the love and excitement of college football!
+            </p>
+          </div>
         </div>
       </section>
     </>
