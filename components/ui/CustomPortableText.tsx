@@ -7,9 +7,8 @@ import {
 } from '@portabletext/react'
 import { PortableTextBlock } from 'sanity'
 import { Tweet } from 'react-tweet'
-import { getImageDimensions } from '@sanity/asset-utils'
 
-import { urlForImage } from '@lib/sanity.image'
+import ImageComponent from './ImageComponent'
 
 import type { TweetComponents } from 'react-tweet'
 
@@ -32,18 +31,10 @@ const TweetComponents: TweetComponents = {
   MediaImg: (props) => <Image {...props} alt={props.alt} fill unoptimized />,
 }
 
-const ImageComponent = ({ value, isInline }: { value: any; isInline: any }) => {
-  const { width, height } = getImageDimensions(value)
+const ImageEmbed = ({ value }: { value: any }) => {
   return (
     <figure className="my-2 flex flex-col self-center rounded-lg shadow-md">
-      <Image
-        src={urlForImage(value).fit('min').auto('format').url()}
-        alt={value.caption || ''}
-        width={720}
-        height={379}
-        className="rounded-lg object-cover"
-        title={value.caption || ''}
-      />
+      <ImageComponent image={value} className="rounded-lg" width={720} height={379} />
     </figure>
   )
 }
@@ -87,7 +78,7 @@ export function CustomPortableText({
           </div>
         )
       },
-      image: ImageComponent,
+      image: ImageEmbed,
     },
   }
 

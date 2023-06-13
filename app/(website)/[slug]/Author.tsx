@@ -1,8 +1,6 @@
 import Link from 'next/link'
-import Image from 'next/image'
-import { EnvelopeOpenIcon, GlobeAltIcon, HomeIcon } from '@heroicons/react/24/solid'
+import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
-import { urlForImage } from '@lib/sanity.image'
 import {
   Instagram,
   Twitter,
@@ -11,6 +9,7 @@ import {
   ApplePodcastIcon,
   OvercastIcon,
 } from '@components/common/icons'
+import { ImageComponent } from '@components/ui'
 
 import type { Author } from '@types'
 
@@ -22,13 +21,12 @@ const Author = (author: Author) => {
           href={`/authors/${author.slug}`}
           className="mb-4 block h-24 w-24 overflow-hidden rounded-full"
         >
-          <Image
-            src={urlForImage(author.image).url()}
+          <ImageComponent
+            image={author.image}
             alt={author.name}
+            className="h-full w-full object-cover"
             width={96}
             height={96}
-            className="h-full w-full object-cover"
-            title={author.name}
           />
         </Link>
         <div className="ml-4 lg:ml-0">

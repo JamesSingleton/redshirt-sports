@@ -1,8 +1,6 @@
 import Link from 'next/link'
-import Image from 'next/image'
 
-import Date from '@components/ui/Date'
-import { urlForImage } from '@lib/sanity.image'
+import { Date, ImageComponent } from '@components/ui'
 
 import type { Post } from '@types'
 
@@ -22,16 +20,11 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
             <div className="group md:flex lg:flex-col xl:flex-row xl:items-center">
               <div className="order-2 w-full md:w-2/5 lg:order-1 lg:w-full xl:w-2/5">
                 <Link href={`/${post.slug}`} className="aspect-h-9 aspect-w-16 block">
-                  <Image
-                    src={urlForImage(post.mainImage).quality(40).url()}
-                    alt={post.mainImage.caption}
+                  <ImageComponent
+                    image={post.mainImage}
+                    className="overflow-hidden rounded-2xl object-cover"
                     width={358}
                     height={201}
-                    sizes="50vw"
-                    // placeholder="blur"
-                    // blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
-                    className="overflow-hidden rounded-2xl object-cover"
-                    quality={40}
                   />
                 </Link>
               </div>
@@ -51,13 +44,12 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                 </h3>
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex items-center justify-center">
-                    <Image
-                      alt={`${post.author.name}'s avatar`}
-                      src={urlForImage(post.author.image).width(48).height(48).quality(40).url()}
+                    <ImageComponent
+                      image={post.author.image}
+                      className="mr-3 h-6 w-6 overflow-hidden rounded-full"
                       width={48}
                       height={48}
-                      className="mr-3 h-6 w-6 overflow-hidden rounded-full"
-                      quality={40}
+                      alt={`${post.author.name}'s avatar`}
                     />
                     <div className="text-sm">
                       <span className="text-zinc-500 dark:text-zinc-100">By </span>
@@ -68,7 +60,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                         {post.author.name}
                       </Link>
                       <span aria-hidden="true"> &middot; </span>
-                      <Date dateString={post.publishedAt} />
+                      <Date dateString={post.publishedAt} />I
                     </div>
                   </div>
                 </div>

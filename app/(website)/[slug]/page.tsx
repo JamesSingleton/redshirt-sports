@@ -1,12 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { HomeIcon, LinkIcon } from '@heroicons/react/24/solid'
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
+import { LinkIcon } from '@heroicons/react/24/solid'
 
 import { getPostBySlug, getMorePostsBySlug, getPostSlugs } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
-import { Date, ArticleCard, ReadingProgress, Breadcrumbs } from '@components/ui'
+import { Date, ArticleCard, ReadingProgress, Breadcrumbs, ImageComponent } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
 import { CustomPortableText } from '@components/ui/CustomPortableText'
 import Author from './Author'
@@ -140,13 +139,11 @@ export default async function Page({ params }: PageProps) {
             </div>
             <div className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <article className="lg:max-w-none">
-                <Image
-                  src={urlForImage(post.mainImage).url()}
-                  alt={post.mainImage.caption}
+                <ImageComponent
+                  image={post.mainImage}
                   className="mb-12 rounded-2xl shadow-md"
                   width={864}
                   height={576}
-                  title={post.mainImage.caption}
                 />
                 <div className="prose prose-zinc mx-auto mt-8 dark:prose-invert lg:prose-lg">
                   <CustomPortableText value={post.body} />

@@ -29,6 +29,7 @@ const ImageComponent = ({
       dataset={dataset}
       projectId={projectId}
       hotspot={image.hotspot}
+      title={alt ?? image.caption}
     />
   )
 }
