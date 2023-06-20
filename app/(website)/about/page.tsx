@@ -99,22 +99,19 @@ export default async function Page() {
           </p>
         </div>
       </section>
-      <section className="bg-zinc-100 py-12 dark:bg-zinc-800 sm:py-20 lg:py-28">
+      <section className="bg-zinc-100 py-12 dark:bg-secondary sm:py-20 lg:py-28">
         <div className="mx-auto max-w-xl px-4 sm:max-w-3xl sm:px-6 md:px-8 lg:max-w-7xl">
           <div className="mx-auto text-center md:max-w-3xl xl:max-w-5xl">
-            <h2 className="font-cal text-base font-medium uppercase tracking-widest text-brand-500 dark:text-brand-300">
-              Our Writers
-            </h2>
-            <p className="mt-2 text-3xl font-medium tracking-normal sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
+            <h2 className="text-3xl font-medium tracking-normal sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
               Meet the Dedicated Team Driving Redshirt Sports&apos; College Football Journey
-            </p>
+            </h2>
           </div>
           <div className="mx-auto mt-12 max-w-7xl sm:mt-16">
             <ul className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
               {authors?.map((author) => (
                 <li
                   key={author._id}
-                  className="relative rounded-3xl border border-zinc-300/70 bg-white px-6 py-10 text-center transition duration-300 ease-in-out hover:border-zinc-300/30 hover:shadow-lg dark:bg-zinc-900 sm:px-10"
+                  className="relative rounded-3xl border bg-card px-6 py-10 text-center text-card-foreground transition duration-300 ease-in-out hover:border-zinc-300/30 hover:shadow-lg sm:px-10"
                 >
                   <div>
                     <ImageComponent
@@ -131,9 +128,7 @@ export default async function Page() {
                           {author.name}
                         </Link>
                       </h3>
-                      <span className="mt-1 text-base text-brand-500 dark:text-brand-300">
-                        {author.role}
-                      </span>
+                      <span className="mt-1 text-base text-muted-foreground">{author.role}</span>
                     </div>
                     <ul className="mt-6 flex items-center justify-center space-x-3">
                       {author.socialMedia?.map((social) => (
