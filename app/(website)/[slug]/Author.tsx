@@ -1,14 +1,7 @@
 import Link from 'next/link'
-import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
+import { Mail, Globe, Instagram, Twitter, Facebook } from 'lucide-react'
 
-import {
-  Instagram,
-  Twitter,
-  Facebook,
-  SpotifyIcon,
-  ApplePodcastIcon,
-  OvercastIcon,
-} from '@components/common/icons'
+import { SpotifyIcon, ApplePodcastIcon, OvercastIcon } from '@components/common/icons'
 import { ImageComponent } from '@components/ui'
 
 import type { Author } from '@types'
@@ -48,11 +41,11 @@ const Author = (author: Author) => {
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 transition-all duration-200"
               >
                 <span className="sr-only">{`Follow ${author.name} on ${social.name}`}</span>
-                {social.name === 'Email' ? <EnvelopeOpenIcon className="h-6 w-6" /> : null}
+                {social.name === 'Email' ? <Mail className="h-6 w-6" /> : null}
                 {social.name === 'Twitter' ? <Twitter className="h-6 w-6" /> : null}
                 {social.name === 'Facebook' ? <Facebook className="h-6 w-6" /> : null}
                 {social.name === 'Instagram' ? <Instagram className="h-6 w-6" /> : null}
-                {social.name === 'Website' ? <GlobeAltIcon className="h-6 w-6" /> : null}
+                {social.name === 'Website' ? <Globe className="h-6 w-6" /> : null}
                 {social.name === 'Spotify Podcast' ? <SpotifyIcon className="h-6 w-6" /> : null}
                 {social.name === 'Apple Podcast' ? <ApplePodcastIcon className="h-6 w-6" /> : null}
                 {social.name === 'Overcast Podcast' ? <OvercastIcon className="h-6 w-6" /> : null}

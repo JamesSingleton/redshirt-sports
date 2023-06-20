@@ -1,24 +1,16 @@
 import { Suspense } from 'react'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { EnvelopeOpenIcon, GlobeAltIcon, HomeIcon } from '@heroicons/react/24/solid'
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
+import { Globe, Mail, Instagram, Twitter, Facebook } from 'lucide-react'
+import { Person, WithContext } from 'schema-dts'
 
-import {
-  Instagram,
-  Twitter,
-  Facebook,
-  SpotifyIcon,
-  ApplePodcastIcon,
-  OvercastIcon,
-} from '@components/common/icons'
+import { SpotifyIcon, ApplePodcastIcon, OvercastIcon } from '@components/common/icons'
 import {
   getConferencesAuthorHasWrittenFor,
   getAuthorsBySlug,
   getAuthorsPosts,
 } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
-import { ArticleCard, Pagination, CustomPortableText } from '@components/ui'
+import { ArticleCard, Pagination, CustomPortableText, Breadcrumbs } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
 import ImageComponent from '@components/ui/ImageComponent'
@@ -82,57 +74,42 @@ export default async function Page({
 
   const authorId = author._id
   const conferencesWrittenFor = await getConferencesAuthorHasWrittenFor({ authorId })
+  const breadcrumbs = [
+    {
+      title: 'Authors',
+      href: '/about',
+    },
+    {
+      title: author.name,
+      href: `/authors/${author.slug}`,
+    },
+  ]
 
   const authorPosts = await getAuthorsPosts({ authorId, pageIndex, conference })
   const totalPages = Math.ceil(authorPosts.totalPosts / 10)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
 
+  const jsonLd: WithContext<Person> = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: author.name,
+    image: urlForImage(author.image).width(1200).height(630).url(),
+    jobTitle: author.role,
+    url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+    sameAs: author.socialMedia.map((social) => social.url),
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <section className="pt-12 sm:pt-16 lg:pt-20 xl:pt-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="md:max-w-3xl xl:max-w-5xl">
-            <nav className="flex" aria-label="Breadcrumbs">
-              <ol className="flex flex-wrap items-center gap-2">
-                <li>
-                  <div>
-                    <Link href="/" className="text-zinc-400 hover:text-zinc-500">
-                      <span className="sr-only">Home</span>
-                      <HomeIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                    </Link>
-                  </div>
-                </li>
-                <li>
-                  <div className="flex items-center">
-                    <ChevronRightIcon
-                      className="h-5 w-5 flex-shrink-0 text-zinc-400"
-                      aria-hidden="true"
-                    />
-                    <Link
-                      href="/about"
-                      className="ml-2 text-sm font-medium text-zinc-400 hover:text-zinc-500"
-                    >
-                      Authors
-                    </Link>
-                  </div>
-                </li>
-                <li>
-                  <div className="flex items-center">
-                    <ChevronRightIcon
-                      className="h-5 w-5 flex-shrink-0 text-zinc-400"
-                      aria-hidden="true"
-                    />
-                    <Link
-                      href={`/authors/${author.slug}`}
-                      className="ml-2 w-48 truncate text-sm font-medium text-brand-500 dark:text-brand-300 sm:w-64"
-                    >
-                      {author.name}
-                    </Link>
-                  </div>
-                </li>
-              </ol>
-            </nav>
+            <Breadcrumbs breadCrumbPages={breadcrumbs} />
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <ImageComponent
                 image={author.image}
@@ -142,7 +119,7 @@ export default async function Page({
                 height={80}
               />
               <div>
-                <span className="block text-base font-semibold text-brand-500 dark:text-brand-300">
+                <span className="block text-base font-semibold text-brand-500 dark:text-brand-400">
                   {author.role}
                 </span>
                 <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
@@ -165,11 +142,11 @@ export default async function Page({
                       className="inline-flex h-10 w-10 items-center rounded-full text-zinc-400 transition-all duration-200"
                     >
                       <span className="sr-only">{social.name}</span>
-                      {social.name === 'Email' ? <EnvelopeOpenIcon className="h-6 w-6" /> : null}
+                      {social.name === 'Email' ? <Mail className="h-6 w-6" /> : null}
                       {social.name === 'Twitter' ? <Twitter className="h-6 w-6" /> : null}
                       {social.name === 'Facebook' ? <Facebook className="h-6 w-6" /> : null}
                       {social.name === 'Instagram' ? <Instagram className="h-6 w-6" /> : null}
-                      {social.name === 'Website' ? <GlobeAltIcon className="h-6 w-6" /> : null}
+                      {social.name === 'Website' ? <Globe className="h-6 w-6" /> : null}
                       {social.name === 'Spotify Podcast' ? (
                         <SpotifyIcon className="h-6 w-6" />
                       ) : null}

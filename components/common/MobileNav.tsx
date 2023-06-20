@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@components/ui/Sheet'
 import { Button } from '@components/ui/Button'
 import { ScrollArea } from '@components/ui/ScrollArea'
 import { STATIC_NAV_ITEMS } from '@lib/constants'
-import RedRSLogo from '@components/common/SmallLogo'
+import LargeLogo from './LargeLogo'
 
 export function MobileNav(props: any) {
   const [open, setOpen] = useState(false)
@@ -30,8 +30,8 @@ export function MobileNav(props: any) {
       </SheetTrigger>
       <SheetContent size="xl" position="left" className="pr-0">
         <MobileLink href="/" className="flex items-center" onOpenChange={setOpen}>
-          <RedRSLogo className="mr-2 h-8 w-8" />
-          <span className="font-bold">Redshirt Sports</span>
+          <LargeLogo className="h-10 w-auto" />
+          <span className="sr-only">Redshirt Sports</span>
         </MobileLink>
         <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
           <div className="flex flex-col space-y-2">

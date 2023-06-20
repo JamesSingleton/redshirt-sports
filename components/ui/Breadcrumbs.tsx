@@ -1,6 +1,5 @@
 import Link from 'next/link'
-import { HomeIcon } from '@heroicons/react/24/solid'
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
+import { ChevronRight, HomeIcon } from 'lucide-react'
 import clsx from 'clsx'
 
 type BreadCrumbPages = {
@@ -14,7 +13,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
   return (
     <nav aria-label="breadcrumb" title="breadcrumb" className="flex">
       <ol className="flex flex-wrap items-center gap-2">
-        <li>
+        <li title="Home">
           <div>
             <Link href="/" className="text-zinc-400 hover:text-zinc-500">
               <span className="sr-only">Home</span>
@@ -23,17 +22,18 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
           </div>
         </li>
         {breadCrumbPages.map((page: any, index: any) => (
-          <li key={page.title}>
+          <li key={page.title} title={page.title}>
             <div className="flex items-center">
-              <ChevronRightIcon
+              <ChevronRight
                 className="h-5 w-5 flex-shrink-0 text-zinc-400"
                 aria-hidden="true"
+                strokeWidth={1.5}
               />
               <Link
                 aria-current={index === breadCrumbPages.length - 1 ? 'page' : undefined}
                 href={page.href}
                 className={clsx(
-                  'ml-2 text-sm font-medium ',
+                  'ml-2 text-base font-medium',
                   index === breadCrumbPages.length - 1
                     ? 'w-48 truncate text-brand-400 sm:w-64'
                     : 'text-zinc-400 hover:text-zinc-500'

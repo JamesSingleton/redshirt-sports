@@ -1,10 +1,9 @@
 import Link from 'next/link'
-import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
+import { Twitter, Facebook, Instagram, Mail, Globe } from 'lucide-react'
 
-import { Instagram, Twitter, Facebook } from '@components/common/icons'
 import { getAboutPageAuthors } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
-import { ImageComponent } from '@components/ui'
+import { ImageComponent, Breadcrumbs } from '@components/ui'
 
 export const metadata = {
   title: 'About Redshirt Sports: College Football Excellence & Passion',
@@ -33,6 +32,13 @@ export const metadata = {
   },
 }
 
+const breadcrumbs = [
+  {
+    title: 'About',
+    href: '/about',
+  },
+]
+
 export default async function Page() {
   const token = getPreviewToken()
   const authors = await getAboutPageAuthors({ token })
@@ -42,6 +48,7 @@ export default async function Page() {
       <section className="pt-12 sm:pt-16 lg:pt-20 xl:pt-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="md:max-w-3xl xl:max-w-5xl">
+            <Breadcrumbs breadCrumbPages={breadcrumbs} />
             <h1 className="text-secondary-900 mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
               Discover the Team Behind Redshirt Sports: Unveiling Our Passion for College Football
             </h1>
@@ -132,21 +139,11 @@ export default async function Page() {
                         <li key={social._key}>
                           <a href={social.url} target="_blank" rel="noreferrer">
                             <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
-                            {social.name === 'Email' ? (
-                              <EnvelopeOpenIcon className="h-5 w-5 text-zinc-400 transition duration-300 ease-in-out" />
-                            ) : null}
-                            {social.name === 'Twitter' ? (
-                              <Twitter className="h-5 w-5 text-zinc-400 transition duration-300 ease-in-out" />
-                            ) : null}
-                            {social.name === 'Facebook' ? (
-                              <Facebook className="h-5 w-5 text-zinc-400 transition duration-300 ease-in-out" />
-                            ) : null}
-                            {social.name === 'Instagram' ? (
-                              <Instagram className="h-5 w-5 text-zinc-400 transition duration-300 ease-in-out" />
-                            ) : null}
-                            {social.name === 'Website' ? (
-                              <GlobeAltIcon className="h-5 w-5 text-zinc-400 transition duration-300 ease-in-out" />
-                            ) : null}
+                            {social.name === 'Email' ? <Mail className="h-6 w-6" /> : null}
+                            {social.name === 'Twitter' ? <Twitter className="h-6 w-6" /> : null}
+                            {social.name === 'Facebook' ? <Facebook className="h-6 w-6" /> : null}
+                            {social.name === 'Instagram' ? <Instagram className="h-6 w-6" /> : null}
+                            {social.name === 'Website' ? <Globe className="h-6 w-6" /> : null}
                           </a>
                         </li>
                       ))}

@@ -44,7 +44,7 @@ export default async function Page() {
       <section className="mx-auto max-w-7xl py-12 md:py-16 lg:px-8 lg:py-20">
         <div className="w-full lg:flex">
           <div className="lg:w-2/3">
-            <div className="prose prose-lg prose-indigo mx-auto px-5 sm:px-6 md:px-8 lg:mx-0 lg:px-0">
+            <div className="prose prose-lg prose-indigo mx-auto px-5 dark:prose-invert sm:px-6 md:px-8 lg:mx-0 lg:px-0">
               <CustomPortableText value={privacyPolicy?.body!} />
             </div>
           </div>

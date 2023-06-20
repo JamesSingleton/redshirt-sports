@@ -1,8 +1,7 @@
 import Link from 'next/link'
-import { ChevronRightIcon } from '@heroicons/react/24/solid'
+import { ChevronRight } from 'lucide-react'
 
-import { SocialMediaFollow, AuthorsCard } from '@components/common'
-import { ArticleSection, FeaturedArticles, Hero } from '@components/home'
+import { Hero } from '@components/home'
 import { ArticleCard } from '@components/ui'
 import { getLatestDivisionArticles } from '@lib/sanity.client'
 
@@ -15,7 +14,7 @@ export default async function Page() {
   return (
     <>
       <Hero />
-      <section className="bg-zinc-800 py-12 sm:py-16 lg:py-20">
+      <section className="py-12 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-16">
             <div>
@@ -28,7 +27,7 @@ export default async function Page() {
                   >
                     View all
                     <span className="sr-only">FBS Articles</span>
-                    <ChevronRightIcon className="-mr-0.5 ml-1 h-5 w-5" />
+                    <ChevronRight className="-mr-0.5 ml-1 h-5 w-5" />
                   </Link>
                 </div>
               </div>
@@ -58,7 +57,7 @@ export default async function Page() {
                   >
                     View all
                     <span className="sr-only">FCS Articles</span>
-                    <ChevronRightIcon className="-mr-0.5 ml-1 h-5 w-5" />
+                    <ChevronRight className="-mr-0.5 ml-1 h-5 w-5" />
                   </Link>
                 </div>
               </div>
@@ -88,7 +87,7 @@ export default async function Page() {
                   >
                     View all
                     <span className="sr-only">D2 Articles</span>
-                    <ChevronRightIcon className="-mr-0.5 ml-1 h-5 w-5" />
+                    <ChevronRight className="-mr-0.5 ml-1 h-5 w-5" />
                   </Link>
                 </div>
               </div>

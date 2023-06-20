@@ -2,10 +2,10 @@
 
 import { forwardRef, ElementRef, ComponentPropsWithoutRef } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 
 import { cn } from '@lib/utils'
 import RedRSLogo from './SmallLogo'
+import LargeLogo from './LargeLogo'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -22,13 +22,12 @@ export function MainNav(props: any) {
   return (
     <div className="mr-4 hidden md:flex">
       <Link href="/" className="mr-6 flex items-center space-x-2">
-        <RedRSLogo className="h-8 w-8" />
-        <span className="hidden font-bold sm:inline-block">Redshirt Sports</span>
+        <LargeLogo className="h-10 w-auto" />
+        <span className="sr-only">Redshirt Sports</span>
       </Link>
       <NavigationMenu>
         <NavigationMenuList>
           {categories.map((category: any) => {
-            // if there are subcategories, render a dropdown
             if (category.subcategories.length > 0) {
               return (
                 <NavigationMenuItem key={category._id}>
