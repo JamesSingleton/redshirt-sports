@@ -49,7 +49,7 @@ export function MainNav(props: any) {
                       </li>
                       {category.subcategories.map((component: any) => (
                         <ListItem
-                          key={component.title}
+                          key={`main_nav_${component._id}`}
                           title={component.title}
                           href={`/news/${component.parentSlug}/${component.slug}`}
                         >
@@ -62,7 +62,7 @@ export function MainNav(props: any) {
               )
             } else {
               return (
-                <NavigationMenuItem key={category._id}>
+                <NavigationMenuItem key={`main_nav_${category._id}`}>
                   <Link href={`/news/${category.slug}`} legacyBehavior passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                       {category.title}

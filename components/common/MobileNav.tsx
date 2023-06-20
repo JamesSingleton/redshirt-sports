@@ -40,7 +40,7 @@ export function MobileNav(props: any) {
                 <h4 className="text-xl font-semibold">{item.title}</h4>
                 {item?.subcategories?.length > 0 &&
                   item.subcategories.map((item: any) => (
-                    <Fragment key={item.href}>
+                    <Fragment key={`mobile_nav_${item._id}`}>
                       <MobileLink
                         href={`/news/${item.parentSlug}/${item.slug}`}
                         onOpenChange={setOpen}
