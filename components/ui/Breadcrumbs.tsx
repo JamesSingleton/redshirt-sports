@@ -36,7 +36,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
                   'ml-2 text-sm font-medium ',
                   index === breadCrumbPages.length - 1
                     ? 'w-48 truncate text-brand-400 sm:w-64'
-                    : 'text-zinc-500 hover:text-zinc-700'
+                    : 'text-zinc-400 hover:text-zinc-500'
                 )}
               >
                 {page.title}

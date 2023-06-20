@@ -18,6 +18,9 @@ export default defineType({
       name: 'image',
       type: 'image',
       description: "The player's headshot, you usually can get this from their school's website.",
+      options: {
+        hotspot: true,
+      },
     }),
     defineField({
       title: "Player's Position",

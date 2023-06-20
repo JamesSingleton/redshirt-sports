@@ -10,12 +10,14 @@ const ImageComponent = ({
   className,
   width,
   height,
+  mode = 'cover',
 }: {
   image: any
   alt?: string
-  className: string
+  className?: string
   width: number
   height: number
+  mode?: 'cover' | 'contain'
 }) => {
   return (
     <SanityImage
@@ -24,7 +26,7 @@ const ImageComponent = ({
       alt={alt ?? image.caption}
       width={width}
       height={height}
-      mode="cover"
+      mode={mode}
       className={className}
       dataset={dataset}
       projectId={projectId}

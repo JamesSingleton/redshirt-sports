@@ -63,49 +63,6 @@ export const deskStructure = async (S, context) => {
     S.documentTypeListItem('player').title('Player Profiles'),
     S.documentTypeListItem('transferPortal').title('Transfer Portal Players'),
 
-    // Players
-    // S.documentTypeListItem("player").title("Players"),
-    // S.listItem()
-    //   .title("Players by Year")
-    //   .icon(GiAmericanFootballPlayer)
-    //   .child(() => {
-    //     const type = "player";
-    //     return client
-    //       .fetch(
-    //         "*[_type == $type && defined(transferPortalDate)] | order(transferPortalDate desc) {_id, _type, name, slug, transferPortalDate}",
-    //         { type }
-    //       )
-    //       .then((docs) => {
-    //         const years = {};
-    //         docs.forEach((d) => {
-    //           const date = new Date(d.transferPortalDate);
-    //           const year = date.getFullYear();
-    //           if (!years[year]) {
-    //             years[year] = [];
-    //           }
-    //           years[year].push(d._id);
-    //         });
-    //         return S.list()
-    //           .title("Transfer Players by year")
-    //           .id("year")
-    //           .items(
-    //             Object.keys(years).map((year) => {
-    //               return S.listItem()
-    //                 .id(year)
-    //                 .title(year)
-    //                 .icon(FaRegCalendarAlt)
-    //                 .child(
-    //                   S.documentList()
-    //                     .id(type)
-    //                     .title(`Players from ${year}`)
-    //                     .filter(`_id in $ids`)
-    //                     .params({ ids: years[year] })
-    //                 );
-    //             })
-    //           );
-    //       });
-    //   }),
-
     // Schools
     S.listItem()
       .title('Schools by Conference')
@@ -113,7 +70,7 @@ export const deskStructure = async (S, context) => {
       .child(
         S.documentTypeList('category')
           .filter(
-            '_type == "category" && title != "FBS" && title != "FCS" && title != "D2" && title != "D3"'
+            '_type == "category" && !(title in ["FBS", "FCS", "D2", "D3", "Transfer Portal", "All-Star Games"])'
           )
           .defaultOrdering([{ field: 'title', direction: 'asc' }])
           .title('Schools by Conference')

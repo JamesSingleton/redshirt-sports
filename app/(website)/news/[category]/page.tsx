@@ -1,9 +1,6 @@
 import { notFound } from 'next/navigation'
 
 import { getCategoryBySlug } from '@lib/sanity.client'
-import SocialMediaFollow from '@components/common/SocialMediaFollow'
-import AuthorsCard from '@components/common/AuthorsCard'
-import HorizontalCard from '@components/ui/HorizontalCard'
 import { ArticleCard, Pagination, Breadcrumbs } from '@components/ui'
 import { baseUrl } from '@lib/constants'
 

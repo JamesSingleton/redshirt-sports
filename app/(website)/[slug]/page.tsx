@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { LinkIcon } from '@heroicons/react/24/solid'
 
@@ -141,7 +140,7 @@ export default async function Page({ params }: PageProps) {
               <article className="lg:max-w-none">
                 <ImageComponent
                   image={post.mainImage}
-                  className="mb-12 rounded-2xl shadow-md"
+                  className="mb-12 h-auto w-full rounded-2xl shadow-md"
                   width={864}
                   height={576}
                 />

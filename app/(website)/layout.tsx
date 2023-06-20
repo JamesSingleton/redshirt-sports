@@ -1,11 +1,15 @@
+import '../globals.css'
+
 import PlausibleProvider from 'next-plausible'
 
-import { Header } from '@components/common/Navbar/Navbar'
-import Footer from '@components/common/Footer/Footer'
-import { getCategories } from '@lib/sanity.client'
+import { cal, inter } from '@styles/fonts'
+import { cn } from '@lib/utils'
 import { baseUrl } from '@lib/constants'
+import { SiteHeader, Footer } from '@components/common'
 
-export const metadata = {
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
     template: '%s | Redshirt Sports',
@@ -58,14 +62,16 @@ export const metadata = {
   publisher: 'Redshirt Sports',
 }
 
-export default async function IndexLayout({ children }: { children: React.ReactNode }) {
-  const categories = await getCategories()
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <PlausibleProvider domain="redshirtsports.xyz">
-      <Header categories={categories} />
-      <main className="flex-grow mt-12 sm:mt-0">{children}</main>
-      <Footer />
+      <html lang="en" className={cn(cal.variable, inter.variable, 'dark')}>
+        <body className="flex min-h-screen flex-col bg-background font-sans antialiased">
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </body>
+      </html>
     </PlausibleProvider>
   )
 }

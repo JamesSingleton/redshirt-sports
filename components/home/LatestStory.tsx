@@ -1,9 +1,7 @@
 import { FC } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 
-import Date from '@components/ui/Date'
-import { urlForImage } from '@lib/sanity.image'
+import { Date, ImageComponent } from '@components/ui'
 
 import type { Post } from '@types'
 
@@ -16,15 +14,12 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
     <article className="relative lg:sticky lg:top-8 lg:w-1/2">
       <div>
         <Link href={`/${post.slug}`} className="aspect-h-9 aspect-w-16 block ">
-          <Image
-            src={urlForImage(post.mainImage).width(704).height(396).url()}
+          <ImageComponent
+            image={post.mainImage}
             alt={post.mainImage.caption}
             className="overflow-hidden rounded-2xl object-cover"
             width={704}
             height={396}
-            priority={true}
-            // placeholder="blur"
-            // blurDataURL={post.mainImage.asset.metadata.lqip ?? undefined}
           />
         </Link>
         <div className="mt-6 md:align-middle">
@@ -47,14 +42,12 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
             </div>
           </div>
           <div className="mt-4 flex items-center sm:mt-8">
-            <Image
-              src={urlForImage(post.author.image).width(80).height(80).quality(50).url()}
+            <ImageComponent
+              image={post.author.image}
               alt={`${post.author.name}'s avatar`}
+              className="h-10 w-10 overflow-hidden rounded-full"
               width={80}
               height={80}
-              quality={50}
-              sizes="50vw"
-              className="h-10 w-10 overflow-hidden rounded-full"
             />
             <div className="ml-3">
               <Link href={`/authors/${post.author.slug}`} className="text-sm font-medium">

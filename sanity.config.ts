@@ -7,6 +7,7 @@ import {
   projectUsersWidget,
   sanityTutorialsWidget,
 } from '@sanity/dashboard'
+import { media } from 'sanity-plugin-media'
 import post from '@schemas/documents/post'
 import author from '@schemas/documents/author'
 import category from '@schemas/documents/category'
@@ -21,7 +22,7 @@ import height from '@schemas/objects/height'
 import position from '@schemas/objects/playerPosition'
 import teamAssociation from '@schemas/objects/teamAssociation'
 import blockContent from '@schemas/blockContent'
-import { apiVersion, previewSecretId } from '@lib/sanity.api'
+import { apiVersion, previewSecretId, projectId } from '@lib/sanity.api'
 import { defaultDocumentNodeResolver, deskStructure } from '@plugins/deskStructure'
 
 export const PREVIEWABLE_DOCUMENT_TYPES: string[] = [
@@ -36,7 +37,7 @@ export const PREVIEWABLE_DOCUMENT_TYPES: string[] = [
 export default defineConfig({
   basePath: '/studio',
   title: 'Redshirt Sports',
-  projectId: '8pbt9f8w',
+  projectId: projectId!,
   dataset: 'production',
   schema: {
     types: [
@@ -116,6 +117,7 @@ export default defineConfig({
     dashboardTool({
       widgets: [sanityTutorialsWidget(), projectInfoWidget(), projectUsersWidget()],
     }),
+    media(),
   ],
   tools: (prev, context) => {
     const isAdmin = context.currentUser?.roles?.find(({ name }) => name === 'administrator')

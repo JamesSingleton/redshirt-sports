@@ -7,6 +7,7 @@ import {
 
 import { urlForImage } from '@lib/sanity.image'
 import { getTransferPortalPlayers } from '@lib/sanity.client'
+import { ImageComponent } from '@components/ui'
 
 export default async function Page({ params }: { params: { year: string } }) {
   const { year } = params
@@ -60,12 +61,12 @@ export default async function Page({ params }: { params: { year: string } }) {
                 </span>
               </div>
               <div className="flex flex-row justify-center gap-4">
-                <Image
-                  src={urlForImage(transferPortalEntry.player.image).url() || ''}
+                <ImageComponent
+                  image={transferPortalEntry.player.image}
                   alt={transferPortalEntry.player.name}
+                  className="rounded-md object-contain"
                   width={90}
                   height={90}
-                  className="rounded-md object-contain"
                 />
                 <div>
                   <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
@@ -99,20 +100,20 @@ export default async function Page({ params }: { params: { year: string } }) {
                 </div>
               </div>
               <div className="grid grid-cols-3">
-                <Image
-                  src={urlForImage(transferPortalEntry.transferringFrom.image).url() || ''}
+                <ImageComponent
+                  image={transferPortalEntry.transferringFrom.image}
                   alt={transferPortalEntry.transferringFrom.name}
-                  width={30}
-                  height={30}
+                  width={32}
+                  height={32}
+                  className="h-8 w-8"
                 />
                 <ArrowLongRightIcon className="h-8 w-8" />
-                <Image
-                  src={
-                    urlForImage(transferPortalEntry.transferringTo.image).format('webp').url() || ''
-                  }
+                <ImageComponent
+                  image={transferPortalEntry.transferringTo.image}
                   alt={transferPortalEntry.transferringTo.name}
-                  width={50}
-                  height={50}
+                  width={56}
+                  height={56}
+                  className="h-14 w-14"
                 />
               </div>
             </li>

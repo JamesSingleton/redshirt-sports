@@ -272,11 +272,13 @@ export const categoriesQuery = groq`
   _id,
   title,
   "slug": slug.current,
-  "subcategories": *[_type == "category" && defined(slug.current) && defined(parent) && parent->slug.current == ^.slug.current] | order(title asc){
+  navSnippet,
+  "subcategories": *[_type == "category" && defined(slug.current) && defined(parent) && parent->slug.current == ^.slug.current && count(*[_type == 'post' && references(^._id)]) > 0] | order(title asc){
     _id,
     title,
     "slug": slug.current,
     "parentSlug": parent->slug.current,
+    navSnippet,
   }
 }`
 

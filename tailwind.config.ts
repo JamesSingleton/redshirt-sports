@@ -1,7 +1,8 @@
-const defaultTheme = require('tailwindcss/defaultTheme')
+import { fontFamily } from 'tailwindcss/defaultTheme'
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+import type { Config } from 'tailwindcss'
+
+const config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx}',
     './pages/**/*.{js,ts,jsx,tsx}',
@@ -10,6 +11,9 @@ module.exports = {
   ],
   darkMode: 'class',
   theme: {
+    container: {
+      center: true,
+    },
     extend: {
       colors: {
         current: 'currentColor',
@@ -25,6 +29,44 @@ module.exports = {
           800: '#580E0E',
           900: '#2C0707',
         },
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+      },
+      borderRadius: {
+        lg: `var(--radius)`,
+        md: `calc(var(--radius) - 2px)`,
+        sm: 'calc(var(--radius) - 4px)',
       },
       width: {
         1536: '1536px',
@@ -33,10 +75,10 @@ module.exports = {
         150: '37.5rem',
       },
       fontFamily: {
-        default: ['var(--font-inter)', ...defaultTheme.fontFamily.sans],
-        cal: ['var(--font-cal)', ...defaultTheme.fontFamily.sans],
-        title: ['var(--font-title)', ...defaultTheme.fontFamily.sans],
-        mono: ['Consolas', ...defaultTheme.fontFamily.mono],
+        default: ['var(--font-inter)', ...fontFamily.sans],
+        cal: ['var(--font-cal)', ...fontFamily.sans],
+        title: ['var(--font-title)', ...fontFamily.sans],
+        mono: ['Consolas', ...fontFamily.mono],
       },
       typography: {
         DEFAULT: {
@@ -90,5 +132,8 @@ module.exports = {
     require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
+    require('tailwindcss-animate'),
   ],
-}
+} satisfies Config
+
+export default config

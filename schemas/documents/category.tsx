@@ -72,12 +72,17 @@ export default defineType({
       },
     }),
     defineField({
+      name: 'navSnippet',
+      title: 'Navigation Snippet',
+      description: 'This will be used for the nav. Try to keep it short and to the point.',
+      type: 'string',
+    }),
+    defineField({
       name: 'image',
       title: 'Image',
       type: 'image',
       options: {
         hotspot: true,
-        metadata: ['blurhash', 'lqip'],
       },
       description: 'The logo of the conference',
       fields: [

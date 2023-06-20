@@ -1,5 +1,4 @@
 import { Suspense } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EnvelopeOpenIcon, GlobeAltIcon, HomeIcon } from '@heroicons/react/24/solid'

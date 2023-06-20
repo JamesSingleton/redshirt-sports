@@ -1,12 +1,10 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { EnvelopeOpenIcon, GlobeAltIcon } from '@heroicons/react/24/solid'
 
 import { Instagram, Twitter, Facebook } from '@components/common/icons'
 import { getAboutPageAuthors } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import { ImageComponent } from '@components/ui'
-import { urlForImage } from '@lib/sanity.image'
 
 export const metadata = {
   title: 'About Redshirt Sports: College Football Excellence & Passion',
