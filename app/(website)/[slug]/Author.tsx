@@ -1,7 +1,14 @@
 import Link from 'next/link'
-import { Mail, Globe, Instagram, Twitter, Facebook } from 'lucide-react'
+import { Mail, Globe } from 'lucide-react'
 
-import { SpotifyIcon, ApplePodcastIcon, OvercastIcon } from '@components/common/icons'
+import {
+  SpotifyIcon,
+  ApplePodcastIcon,
+  OvercastIcon,
+  Instagram,
+  Twitter,
+  Facebook,
+} from '@components/common/icons'
 import { ImageComponent } from '@components/ui'
 
 import type { Author } from '@types'

@@ -1,9 +1,16 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { Globe, Mail, Instagram, Twitter, Facebook } from 'lucide-react'
+import { Globe, Mail } from 'lucide-react'
 import { Person, WithContext } from 'schema-dts'
 
-import { SpotifyIcon, ApplePodcastIcon, OvercastIcon } from '@components/common/icons'
+import {
+  SpotifyIcon,
+  ApplePodcastIcon,
+  OvercastIcon,
+  Instagram,
+  Twitter,
+  Facebook,
+} from '@components/common/icons'
 import {
   getConferencesAuthorHasWrittenFor,
   getAuthorsBySlug,

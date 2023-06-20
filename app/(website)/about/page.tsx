@@ -1,9 +1,10 @@
 import Link from 'next/link'
-import { Twitter, Facebook, Instagram, Mail, Globe } from 'lucide-react'
+import { Mail, Globe } from 'lucide-react'
 
 import { getAboutPageAuthors } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import { ImageComponent, Breadcrumbs } from '@components/ui'
+import { Twitter, Facebook, Instagram } from '@components/common/icons'
 
 export const metadata = {
   title: 'About Redshirt Sports: College Football Excellence & Passion',
