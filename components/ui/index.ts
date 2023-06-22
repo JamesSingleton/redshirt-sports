@@ -10,8 +10,10 @@ import ArticleCard from './ArticleCard'
 import ReadingProgress from './ReadingProgress'
 import { CustomPortableText } from './CustomPortableText'
 import ImageComponent from './ImageComponent'
+import { Button } from './Button'
 
 export {
+  Button,
   Container,
   Pagination,
   Date,

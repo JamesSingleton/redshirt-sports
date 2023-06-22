@@ -18,7 +18,7 @@ export async function getSecret(
     query(createIfNotExists ? 60 * 30 : 60 * 60),
     { id }
   )
-  console.log('**************', secret, '**************')
+
   if (!secret && createIfNotExists) {
     const newSecret =
       createIfNotExists === true ? Math.random().toString(36).slice(2) : createIfNotExists()
@@ -37,8 +37,6 @@ export async function getSecret(
       )
     }
   }
-
-  console.log('**************', secret, '**************')
 
   return secret
 }

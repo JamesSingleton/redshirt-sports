@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { DialogProps } from '@radix-ui/react-alert-dialog'
-import { Circle, File, Laptop, Moon, SunMedium } from 'lucide-react'
+import { Link2, File, Laptop, Moon, SunMedium } from 'lucide-react'
+import { useTheme } from 'next-themes'
 
 import { cn } from '@lib/utils'
 import { Button } from '@components/ui/Button'
@@ -16,10 +17,21 @@ import {
   CommandList,
   CommandSeparator,
 } from '@components/ui/Command'
+import { STATIC_NAV_ITEMS } from '@lib/constants'
 
-export function CommandMenu({ ...props }: DialogProps) {
+export function CommandMenu({ ...props }: DialogProps & { categories: any[] }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const { setTheme } = useTheme()
+  const { categories } = props
+
+  // get just the title and slug of categories
+  const topLevelCategories = props.categories.map((category) => ({
+    title: category.title,
+    href: `/news/${category.slug}`,
+  }))
+
+  const links = [...topLevelCategories, ...STATIC_NAV_ITEMS]
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -58,40 +70,51 @@ export function CommandMenu({ ...props }: DialogProps) {
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          {/* <CommandGroup heading="Links">
-            {docsConfig.mainNav
-              .filter((navitem) => !navitem.external)
-              .map((navItem) => (
-                <CommandItem
-                  key={navItem.href}
-                  value={navItem.title}
-                  onSelect={() => {
-                    runCommand(() => router.push(navItem.href as string))
-                  }}
-                >
-                  <File className="mr-2 h-4 w-4" />
-                  {navItem.title}
-                </CommandItem>
-              ))}
+          <CommandGroup heading="Links">
+            {links.map((navItem) => (
+              <CommandItem
+                key={navItem.href}
+                value={navItem.title}
+                onSelect={() => {
+                  runCommand(() => router.push(navItem.href as string))
+                }}
+              >
+                <Link2 className="mr-2 h-4 w-4" />
+                {navItem.title}
+              </CommandItem>
+            ))}
+            <CommandItem
+              value="Privacy Policy"
+              onSelect={() => {
+                runCommand(() => router.push('/privacy'))
+              }}
+            >
+              <Link2 className="mr-2 h-4 w-4" />
+              Privacy Policy
+            </CommandItem>
           </CommandGroup>
-          {docsConfig.sidebarNav.map((group) => (
-            <CommandGroup key={group.title} heading={group.title}>
-              {group.items.map((navItem) => (
-                <CommandItem
-                  key={navItem.href}
-                  value={navItem.title}
-                  onSelect={() => {
-                    runCommand(() => router.push(navItem.href as string))
-                  }}
-                >
-                  <div className="mr-2 flex h-4 w-4 items-center justify-center">
-                    <Circle className="h-3 w-3" />
-                  </div>
-                  {navItem.title}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          ))}
+          <CommandSeparator />
+          {categories.map(
+            (group) =>
+              group.subcategories.length > 0 && (
+                <CommandGroup key={group.title} heading={group.title}>
+                  {group.subcategories.map((navItem: any) => (
+                    <CommandItem
+                      key={navItem.slug}
+                      value={navItem.title}
+                      onSelect={() => {
+                        runCommand(() => router.push(navItem.href as string))
+                      }}
+                    >
+                      <div className="mr-2 flex h-4 w-4 items-center justify-center">
+                        <File className="h-3 w-3" />
+                      </div>
+                      {navItem.title}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )
+          )}
           <CommandSeparator />
           <CommandGroup heading="Theme">
             <CommandItem onSelect={() => runCommand(() => setTheme('light'))}>
@@ -106,7 +129,7 @@ export function CommandMenu({ ...props }: DialogProps) {
               <Laptop className="mr-2 h-4 w-4" />
               System
             </CommandItem>
-          </CommandGroup> */}
+          </CommandGroup>
         </CommandList>
       </CommandDialog>
     </>

@@ -5,7 +5,7 @@ import PlausibleProvider from 'next-plausible'
 import { cal, inter } from '@styles/fonts'
 import { cn } from '@lib/utils'
 import { baseUrl } from '@lib/constants'
-import { SiteHeader, Footer } from '@components/common'
+import { SiteHeader, Footer, TailwindIndicator, ThemeProvider } from '@components/common'
 
 import type { Metadata } from 'next'
 
@@ -65,11 +65,20 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <PlausibleProvider domain="redshirtsports.xyz">
-      <html lang="en" className={cn(cal.variable, inter.variable, 'dark')}>
-        <body className="flex min-h-screen flex-col bg-background font-sans antialiased">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <Footer />
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={cn(
+            'flex min-h-screen flex-col bg-background font-sans antialiased',
+            cal.variable,
+            inter.variable
+          )}
+        >
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <TailwindIndicator />
+          </ThemeProvider>
         </body>
       </html>
     </PlausibleProvider>

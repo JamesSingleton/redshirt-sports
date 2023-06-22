@@ -13,6 +13,10 @@ const config = {
   theme: {
     container: {
       center: true,
+      padding: '2rem',
+      screens: {
+        '2xl': '1400px',
+      },
     },
     extend: {
       colors: {
@@ -98,33 +102,28 @@ const config = {
           },
         },
       },
-      keyframes: {
-        wiggle: {
-          '0%, 100%': {
-            transform: 'translateX(0%)',
-            transformOrigin: '50% 50%',
-          },
-          '15%': { transform: 'translateX(-6px) rotate(-6deg)' },
-          '30%': { transform: 'translateX(9px) rotate(6deg)' },
-          '45%': { transform: 'translateX(-9px) rotate(-3.6deg)' },
-          '60%': { transform: 'translateX(3px) rotate(2.4deg)' },
-          '75%': { transform: 'translateX(-2px) rotate(-1.2deg)' },
-        },
-      },
-      animation: {
-        wiggle: 'wiggle 0.8s both',
-      },
       textDecorationThickness: {
         3: '3px',
-      },
-      boxShadow: {
-        glow: '0 0 4px rgb(0 0 0 / 0.1)',
       },
       opacity: {
         1: '0.01',
         2.5: '0.025',
         7.5: '0.075',
         15: '0.15',
+      },
+      keyframes: {
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
+      },
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
   },
