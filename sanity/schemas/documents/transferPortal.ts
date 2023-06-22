@@ -1,6 +1,6 @@
 import { defineType, defineField } from 'sanity'
 
-import { yearsList } from '@schemas/utils'
+import { yearsList } from '../utils'
 
 export default defineType({
   name: 'transferPortal',

@@ -98,18 +98,10 @@ const moduleExports = {
     return config
   },
   async redirects() {
-    return [
-      {
-        source: '/authors',
-        destination: '/about',
-        permanent: true,
-      },
-      {
-        source: '/advertising',
-        destination: '/contact',
-        permanent: true,
-      },
-    ]
+    const query =
+      '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}'
+    const results = await client.fetch(query)
+    return results
   },
   sentry: {
     hideSourceMaps: true,

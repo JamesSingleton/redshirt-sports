@@ -6,7 +6,7 @@
 
 import { DefaultDocumentNodeResolver } from 'sanity/desk'
 
-import { PREVIEWABLE_DOCUMENT_TYPES } from '../../sanity.config'
+import { PREVIEWABLE_DOCUMENT_TYPES } from '@schemas/index'
 import { PreviewPane } from './PreviewPane'
 
 export const previewDocumentNode = ({

@@ -8,59 +8,20 @@ import {
   sanityTutorialsWidget,
 } from '@sanity/dashboard'
 import { media } from 'sanity-plugin-media'
-import post from '@schemas/documents/post'
-import author from '@schemas/documents/author'
-import category from '@schemas/documents/category'
-import legal from '@schemas/documents/legal'
-import school from '@schemas/documents/school'
-import player from '@schemas/documents/player'
-import transferPortal from '@schemas/documents/transferPortal'
-import mainImage from '@schemas/objects/mainImage'
-import socialMedia from '@schemas/objects/socialMedia'
-import twitter from '@schemas/objects/twitter'
-import height from '@schemas/objects/height'
-import position from '@schemas/objects/playerPosition'
-import teamAssociation from '@schemas/objects/teamAssociation'
-import blockContent from '@schemas/blockContent'
+
+import { schemaTypes, PREVIEWABLE_DOCUMENT_TYPES } from '@schemas/index'
 import { apiVersion, previewSecretId, projectId } from '@lib/sanity.api'
 import { defaultDocumentNodeResolver, deskStructure } from '@plugins/deskStructure'
 import { previewDocumentNode } from '@plugins/previewPane'
 import { productionUrl } from '@plugins/productionUrl'
 
-export const PREVIEWABLE_DOCUMENT_TYPES: string[] = [
-  post.name,
-  author.name,
-  category.name,
-  legal.name,
-  school.name,
-  player.name,
-]
-
 export default defineConfig({
   basePath: '/studio',
   title: 'Redshirt Sports',
-  projectId: projectId!,
+  projectId: projectId,
   dataset: 'production',
   schema: {
-    types: [
-      // Documents
-      post,
-      author,
-      category,
-      legal,
-      school,
-      player,
-      transferPortal,
-      // Objects
-      mainImage,
-      socialMedia,
-      twitter,
-      height,
-      position,
-      teamAssociation,
-      // Block Content
-      blockContent,
-    ],
+    types: schemaTypes,
     templates: (prev, context) => [
       {
         id: 'category-child',

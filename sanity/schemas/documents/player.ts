@@ -1,4 +1,4 @@
-import states from '@schemas/states'
+import states from '../states'
 import { defineType, defineField } from 'sanity'
 
 export default defineType({

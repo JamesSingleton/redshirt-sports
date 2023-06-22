@@ -131,7 +131,8 @@ export const deskStructure = async (S, context) => {
   ]
 
   if (currentUser && currentUser.role === 'administrator') {
-    items.push(S.documentTypeListItem('legal').title('Legal Documents'))
+    items.push(S.documentTypeListItem('legal').title('Legal Documents')),
+      items.push(S.documentTypeListItem('redirect').title('Redirects'))
   }
 
   return S.list().title('Content').items(items)

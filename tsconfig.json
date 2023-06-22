@@ -24,8 +24,8 @@
       "@types": ["types/index"],
       "@types/*": ["types/*"],
       "@public/*": ["public/*"],
-      "@schemas/*": ["schemas/*"],
-      "@plugins/*": ["plugins/*"]
+      "@schemas/*": ["sanity/schemas/*"],
+      "@plugins/*": ["sanity/plugins/*"]
     },
     "plugins": [
       {
