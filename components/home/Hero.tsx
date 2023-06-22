@@ -11,7 +11,7 @@ const Hero = async () => {
 
   return (
     <section className="py-4 sm:py-16 lg:py-20">
-      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:flex lg:max-w-screen-2xl lg:items-start lg:px-8">
+      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:flex lg:max-w-7xl lg:items-start lg:px-8">
         <LatestStory post={mainArticle!} />
         <RecentArticles recentArticles={recentArticles!} />
       </div>

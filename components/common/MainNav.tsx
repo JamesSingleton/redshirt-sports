@@ -52,9 +52,7 @@ export function MainNav(props: any) {
                           key={`main_nav_${component._id}`}
                           title={component.title}
                           href={`/news/${component.parentSlug}/${component.slug}`}
-                        >
-                          {component.navSnippet}
-                        </ListItem>
+                        />
                       ))}
                     </ul>
                   </NavigationMenuContent>

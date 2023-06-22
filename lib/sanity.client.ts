@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { createClient } from 'next-sanity'
+import { createClient, type SanityClient } from 'next-sanity'
 
 import { apiVersion, dataset, projectId, useCdn } from '@lib/sanity.api'
 import {
@@ -28,6 +28,29 @@ import {
   authorSlugsQuery,
 } from '@lib/sanity.queries'
 import { CategoryPayload, PrivacyPolicyPagePayload, PostPayload, Author, AuthorPosts } from '@types'
+
+export function getClient(preview?: { token: string }): SanityClient {
+  const client = createClient({
+    projectId,
+    dataset,
+    apiVersion,
+    useCdn,
+  })
+
+  if (preview) {
+    if (!preview.token) {
+      throw new Error('You must provide a token to preview drafts')
+    }
+
+    return client.withConfig({
+      token: preview.token,
+      useCdn: false,
+      ignoreBrowserTokenWarning: true,
+    })
+  }
+
+  return client
+}
 
 const sanityClient = (token?: string) => {
   return createClient({ projectId, dataset, apiVersion, token, useCdn })

@@ -70,7 +70,7 @@ export default async function Page({
   const pageIndex = page !== undefined ? parseInt(page) : 1
   const category = await getCategoryBySlug({ slug: params.category, pageIndex })
 
-  if (!category.posts.length) {
+  if (!category) {
     return notFound()
   }
   const totalPages = Math.ceil(category?.totalPosts / 10)
@@ -117,6 +117,13 @@ export default async function Page({
                 subcategory={post.subcategory}
               />
             ))}
+            {!category.posts.length && (
+              <div className="col-span-3">
+                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+                  Coming Soon
+                </h2>
+              </div>
+            )}
           </div>
           {totalPages > 1 && (
             <Pagination
