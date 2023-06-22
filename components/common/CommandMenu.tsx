@@ -103,7 +103,7 @@ export function CommandMenu({ ...props }: DialogProps & { categories: any[] }) {
                       key={navItem.slug}
                       value={navItem.title}
                       onSelect={() => {
-                        runCommand(() => router.push(navItem.href as string))
+                        runCommand(() => router.push(`/news/${navItem.parentSlug}/${navItem.slug}`))
                       }}
                     >
                       <div className="mr-2 flex h-4 w-4 items-center justify-center">
