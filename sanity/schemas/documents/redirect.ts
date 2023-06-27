@@ -16,7 +16,7 @@ export const redirect = defineType({
           if (!value.startsWith('/')) return 'Must be a URL path (e.g. /pricing)'
           if (isPattern(value)) return 'Cannot contain characters: (){}:*+?'
           if (!isValid(value)) return 'URL is not valid'
-          const id = context.document?._id.replace('drafts.', '')
+          const id = context.document?._id.replace('drafts.', '')!
           const unique = await isUnique(value, id, context)
           if (!unique) return 'Redirect for this source already exists'
           return true
