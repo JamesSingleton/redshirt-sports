@@ -1,4 +1,6 @@
-export const Organization = {
+import { Organization, WebSite } from 'schema-dts'
+
+export const Org: Organization = {
   '@type': 'Organization',
   '@id': 'https://www.redshirtsports.xyz/#organization',
   name: 'Redshirt Sports',
@@ -8,7 +10,7 @@ export const Organization = {
   image: 'https://www.redshirtsports.xyz/images/icons/RS_512.png',
 }
 
-export const WebSite = {
+export const Web: WebSite = {
   '@type': 'WebSite',
   '@id': 'https://www.redshirtsports.xyz/#website',
   name: 'Redshirt Sports',

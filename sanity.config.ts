@@ -48,9 +48,27 @@ export default defineConfig({
             type: 'string',
           },
         ],
-        value: ({ categoryId }: { categoryId: string }) => ({
-          conference: { _type: 'reference', _ref: categoryId },
+        value: ({ conferenceId }: { conferenceId: string }) => ({
+          conference: { _type: 'reference', _ref: conferenceId },
         }),
+      },
+      {
+        id: 'conference-child',
+        title: 'Conference Child',
+        schemaType: 'category',
+        parameters: [
+          {
+            name: 'parentId',
+            type: 'string',
+            title: 'Parent ID',
+          },
+        ],
+        value: ({ parentId }: { parentId: string }) => {
+          console.log('parentId', parentId)
+          return {
+            parent: { _type: 'reference', _ref: parentId },
+          }
+        },
       },
       {
         id: 'post-child',

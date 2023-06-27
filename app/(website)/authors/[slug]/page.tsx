@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import Script from 'next/script'
 import { notFound } from 'next/navigation'
 import { Globe, Mail } from 'lucide-react'
 import { Person, WithContext } from 'schema-dts'
@@ -109,7 +110,8 @@ export default async function Page({
 
   return (
     <>
-      <script
+      <Script
+        id={`${author.name.toLowerCase().replace(/\s+/g, '-')}-ld-json`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />

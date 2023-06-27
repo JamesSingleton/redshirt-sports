@@ -1,6 +1,8 @@
 import '../globals.css'
 
+import Script from 'next/script'
 import PlausibleProvider from 'next-plausible'
+import { WithContext, Organization } from 'schema-dts'
 
 import { cal, inter } from '@styles/fonts'
 import { cn } from '@lib/utils'
@@ -62,6 +64,43 @@ export const metadata: Metadata = {
   publisher: 'Redshirt Sports',
 }
 
+const jsonLd: WithContext<Organization> = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Redshirt Sports',
+  url: baseUrl,
+  logo: `${baseUrl}/api/og?title=Redshirt Sports`,
+  sameAs: ['https://www.facebook.com/RedshirtSportsNews', 'https://twitter.com/_redshirtsports'],
+  contactPoint: [
+    // point to our contact page
+    {
+      '@type': 'ContactPoint',
+      email: 'advertising@redshirtsports.xyz',
+      contactType: 'advertising',
+      url: `${baseUrl}/contact`,
+    },
+    {
+      '@type': 'ContactPoint',
+      email: 'editors@redshirtsports.xyz',
+      contactType: 'editorial',
+      url: `${baseUrl}/contact`,
+    },
+    {
+      '@type': 'ContactPoint',
+      email: 'contact@redshirtsports.xyz',
+      contactType: 'general',
+      url: `${baseUrl}/contact`,
+    },
+  ],
+  potentialAction: [
+    {
+      '@type': 'SearchAction',
+      target: `${baseUrl}/search?q={search_term_string}`,
+      query: 'required name=search_term_string',
+    },
+  ],
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <PlausibleProvider domain="redshirtsports.xyz">
@@ -73,6 +112,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             inter.variable
           )}
         >
+          <Script
+            id="default-ld-json"
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <SiteHeader />
             <main className="flex-1">{children}</main>
