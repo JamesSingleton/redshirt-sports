@@ -1,15 +1,15 @@
 import { toPlainText } from '@portabletext/react'
 
 import { urlForImage } from './sanity.image'
-import { Organization, WebSite } from '@lib/ldJson'
+import { Org, Web } from '@lib/ldJson'
 
 import type { Post, Author } from '@types'
 
 export const createPostLDJson = (post: Post) => ({
   '@context': 'http://schema.org',
   '@graph': [
-    Organization,
-    WebSite,
+    Org,
+    Web,
     {
       '@type': 'ImageObject',
       '@id': `https://www.redshirtsports.xyz/${post.slug}/#primaryimage`,
@@ -118,8 +118,8 @@ export const createPostLDJson = (post: Post) => ({
 export const createAuthorLDJson = (author: Author) => ({
   '@context': 'http://schema.org',
   '@graph': [
-    Organization,
-    WebSite,
+    Org,
+    Web,
     {
       '@type': 'ImageObject',
       '@id': `https://www.redshirtsports.xyz/authors/${author.slug}/#primaryimage`,

@@ -2,7 +2,8 @@ import { Suspense } from 'react'
 import Script from 'next/script'
 import { notFound } from 'next/navigation'
 import { Globe, Mail } from 'lucide-react'
-import { Person, WithContext } from 'schema-dts'
+import { Graph } from 'schema-dts'
+import { toPlainText } from '@portabletext/react'
 
 import {
   SpotifyIcon,
@@ -22,6 +23,7 @@ import { ArticleCard, Pagination, CustomPortableText, Breadcrumbs } from '@compo
 import { urlForImage } from '@lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
 import ImageComponent from '@components/ui/ImageComponent'
+import { Org, Web } from '@lib/ldJson'
 
 import type { Metadata } from 'next'
 
@@ -98,14 +100,95 @@ export default async function Page({
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
 
-  const jsonLd: WithContext<Person> = {
+  const jsonLd: Graph = {
     '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: author.name,
-    image: urlForImage(author.image).width(1200).height(630).url(),
-    jobTitle: author.role,
-    url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
-    sameAs: author.socialMedia.map((social) => social.url),
+    '@graph': [
+      {
+        '@type': 'ProfilePage',
+        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#profilepage`,
+        url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+        name: `${author.role} ${author.name}`,
+        isPartOf: {
+          '@id': 'https://www.redshirtsports.xyz/#website',
+        },
+        breadcrumb: {
+          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#breadcrumb`,
+        },
+        mainEntity: {
+          '@type': 'Person',
+          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#person`,
+          name: author.name,
+          image: urlForImage(author.image).width(1200).height(630).url(),
+          url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+          sameAs: author.socialMedia.map((social) => social.url),
+          jobTitle: author.role,
+        },
+        image: {
+          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#primaryimage`,
+        },
+        primaryImageOfPage: {
+          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#primaryimage`,
+        },
+        inLanguage: 'en-US',
+        potentialAction: [
+          {
+            '@type': 'ReadAction',
+            target: [`https://www.redshirtsports.xyz/authors/${author.slug}`],
+          },
+        ],
+      },
+      {
+        '@type': 'ImageObject',
+        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#primaryimage`,
+        inLanguage: 'en-US',
+        url: urlForImage(author.image).width(1200).height(675).url(),
+        width: '1200',
+        height: '675',
+        caption: `${author.role} ${author.name}`,
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#breadcrumb`,
+        itemListElement: [
+          // map over breadcrumbs but add home as first item
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: 'https://www.redshirtsports.xyz',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Authors',
+            item: 'https://www.redshirtsports.xyz/about',
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: author.name,
+            item: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+          },
+        ],
+      },
+      Web,
+      Org,
+      {
+        '@type': 'Person',
+        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#person`,
+        name: author.name,
+        image: {
+          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#primaryimage`,
+        },
+        url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+        sameAs: author.socialMedia.map((social) => social.url),
+        jobTitle: author.role,
+        description: toPlainText(author.bio),
+        mainEntityOfPage: {
+          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#profilepage`,
+        },
+      },
+    ],
   }
 
   return (

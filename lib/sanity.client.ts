@@ -1,5 +1,3 @@
-import 'server-only'
-
 import { createClient, type SanityClient } from 'next-sanity'
 
 import { apiVersion, dataset, projectId, useCdn } from '@lib/sanity.api'
@@ -168,8 +166,8 @@ export async function getAuthorsPosts({
   })
 }
 
-export async function getPostsForRssFeed({ token }: { token: string }): Promise<any> {
-  return await sanityClient(token)?.fetch(postsForRssFeed)
+export async function getPostsForRssFeed(): Promise<any> {
+  return await sanityClient()?.fetch(postsForRssFeed)
 }
 
 export async function getSubcategorySlugs(): Promise<any> {
