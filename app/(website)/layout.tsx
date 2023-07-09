@@ -62,6 +62,7 @@ export const metadata: Metadata = {
   },
   publisher: 'Redshirt Sports',
   alternates: {
+    canonical: '/',
     types: {
       'application/rss+xml': '/feeds/feed.xml',
       'application/json': '/feeds/feed.json',
@@ -71,7 +72,7 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  await buildRss()
+  // await buildRss()
   return (
     <PlausibleProvider domain="redshirtsports.xyz">
       <html lang="en" suppressHydrationWarning>

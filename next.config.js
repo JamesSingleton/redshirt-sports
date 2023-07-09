@@ -127,5 +127,5 @@ const SentryWebpackPluginOptions = {
 /** @type {import('next').NextConfig} */
 module.exports = withSentryConfig(
   withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })(moduleExports),
-  SentryWebpackPluginOptions
+  SentryWebpackPluginOptions,
 )

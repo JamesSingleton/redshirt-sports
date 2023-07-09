@@ -1,38 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { SIGNATURE_HEADER_NAME, isValidSignature } from '@sanity/webhook'
 
-const secret = process.env.SANITY_WEBHOOK_SECRET as string
-
-async function readBody(readable: any) {
-  const chunks = []
-  for await (const chunk of readable) {
-    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
-  }
-  return Buffer.concat(chunks).toString('utf8')
-}
+const secret = `${process.env.SANITY_WEBHOOK_SECRET}`
 
 export async function POST(request: NextRequest) {
-  const signature = request.headers.get(SIGNATURE_HEADER_NAME) as string
+  const res = await request.json()
 
-  const body = await readBody(request)
+  const headersList = headers()
 
-  if (!isValidSignature(body, signature, secret)) {
-    return NextResponse.json({ success: false, message: 'Invalid signature' }, { status: 401 })
+  const signature = `${headersList.get(SIGNATURE_HEADER_NAME)}`
+  const isValid = isValidSignature(JSON.stringify(res), signature, secret)
+
+  console.log(`===== Is the webhook request valid? ${isValid}`)
+
+  if (!isValid) {
+    NextResponse.json({ success: false, message: 'Invalid signature' }, { status: 401 })
+    return
   }
 
-  try {
-    const jsonBody = JSON.parse(body)
-    const { type, slug, authorSlug, category } = jsonBody
+  const { type, slug, authorSlug, parentCategory, subcategory } = res
 
-    if (type === 'post') {
-      revalidatePath(`/${slug}`)
-      revalidatePath(`/authors/${authorSlug}`)
-      revalidatePath('/')
+  const postPathToRevalidate = `/${slug}`
+  const authorPathToRevalidate = `/authors/${authorSlug}`
+  const categoryPathToRevalidate = `/news/${parentCategory}`
+  const subcategoryPathToRevalidate = `/news/${parentCategory}/${subcategory}`
 
-      return NextResponse.json({ revalidated: true, now: Date.now() })
-    }
-  } catch (err) {
-    return NextResponse.json({ success: false, message: 'Error revalidating' }, { status: 500 })
-  }
+  revalidatePath(postPathToRevalidate)
+  revalidatePath(authorPathToRevalidate)
+  revalidatePath(categoryPathToRevalidate)
+  revalidatePath(subcategoryPathToRevalidate)
+  revalidatePath('/')
+
+  console.log(`===== Revalidated path: ${postPathToRevalidate}`)
+  console.log(`===== Revalidated path: ${authorPathToRevalidate}`)
+  console.log(`===== Revalidated path: ${categoryPathToRevalidate}`)
+  console.log(`===== Revalidated path: ${subcategoryPathToRevalidate}`)
+
+  return NextResponse.json({ revalidated: true, now: Date.now() })
 }

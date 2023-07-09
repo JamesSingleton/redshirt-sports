@@ -1,11 +1,9 @@
-import Image from 'next/image'
 import {
   ArrowLongRightIcon,
   CheckCircleIcon,
   ArrowDownOnSquareIcon,
 } from '@heroicons/react/24/solid'
 
-import { urlForImage } from '@lib/sanity.image'
 import { getTransferPortalPlayers } from '@lib/sanity.client'
 import { ImageComponent } from '@components/ui'
 

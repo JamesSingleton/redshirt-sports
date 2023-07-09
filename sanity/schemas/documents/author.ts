@@ -35,7 +35,7 @@ export default defineType({
       name: 'role',
       type: 'string',
       options: {
-        list: ['Staff Writer', 'Freelancer', 'Contributor', 'Content Writer'],
+        list: ['Staff Writer', 'Freelancer', 'Contributor', 'Content Writer', 'Guest Writer'],
       },
       validation: (rule) => rule.required(),
     }),

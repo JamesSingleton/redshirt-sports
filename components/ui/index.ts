@@ -1,4 +1,3 @@
-import Container from './Container'
 import Pagination from './Pagination'
 import Date from './Date'
 import PageHeader from './PageHeader'
@@ -14,7 +13,6 @@ import { Button } from './Button'
 
 export {
   Button,
-  Container,
   Pagination,
   Date,
   PageHeader,

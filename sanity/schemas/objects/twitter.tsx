@@ -1,10 +1,11 @@
 import React from 'react'
-import { defineField } from 'sanity'
-import { TwitterTweetEmbed } from 'react-twitter-embed'
+import { defineField, PreviewProps } from 'sanity'
+import { Tweet } from 'react-tweet'
 
-const Preview = (props: { id: any }) => {
-  const { id } = props
-  return <TwitterTweetEmbed tweetId={id} options={{ conversation: 'none' }} />
+const Preview = (props: PreviewProps & { id?: string }) => {
+  const tweetId = props.id!
+
+  return <Tweet id={tweetId} />
 }
 
 export default defineField({
@@ -23,7 +24,7 @@ export default defineField({
       id: 'id',
     },
   },
-  // components: {
-  //   preview: Preview,
-  // },
+  components: {
+    preview: Preview,
+  },
 })

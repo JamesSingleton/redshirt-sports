@@ -10,7 +10,7 @@ import { Tweet } from 'react-tweet'
 
 import ImageComponent from './ImageComponent'
 
-import type { TweetComponents } from 'react-tweet'
+import type { TwitterComponents } from 'react-tweet'
 
 const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   let linkHref = `/${value?.slug.current}`
@@ -26,7 +26,7 @@ const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   )
 }
 
-const TweetComponents: TweetComponents = {
+const TweetComponents: TwitterComponents = {
   AvatarImg: (props) => <Image {...props} alt={props.alt} />,
   MediaImg: (props) => <Image {...props} alt={props.alt} fill unoptimized />,
 }
