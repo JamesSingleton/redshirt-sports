@@ -2,7 +2,6 @@ import { MoveRight, CheckCircle, ArrowLeftToLine, ArrowRightToLine, Edit3 } from
 
 import { getTransferPortalPlayers } from '@lib/sanity.client'
 import { ImageComponent } from '@components/ui'
-import { FilterBar } from '@components/common/FilterBar'
 
 export default async function Page({ params }: { params: { year: string } }) {
   const { year } = params
