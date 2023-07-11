@@ -30,9 +30,9 @@ export default async function Page({ params }: { params: { year: string } }) {
         </div>
       </div>
       <div className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
-        <div className="hidden md:grid items-end justify-center border-b-2 border-zinc-300 grid-areas-header grid-cols-header">
+        <div className="hidden md:grid items-end justify-center border-b-2 border-zinc-300 grid-areas-header grid-cols-header md:grid-areas-header-medium md:grid-cols-header-medium">
           <span className="grid-in-player">Player</span>
-          <span className="grid-in-position" aria-label="Position">
+          <span className="grid-in-position hidden" aria-label="Position">
             Pos.
           </span>
           <span className="grid-in-current">Status</span>
@@ -42,7 +42,7 @@ export default async function Page({ params }: { params: { year: string } }) {
         <ul className="flex flex-col space-y-4">
           {transferPortalEntries.map((transferPortalEntry: any) => (
             <li key={transferPortalEntry._id}>
-              <div className="grid items-center gap-x-4 border-b-8 border-border p-4 grid-cols-small grid-areas-small sm:grid-areas-medium">
+              <div className="grid md:p-0 items-center gap-x-4 border-b-8 border-border p-4 grid-cols-small grid-areas-small md:grid-areas-medium md:grid-cols-medium">
                 <ImageComponent
                   image={transferPortalEntry.player.image}
                   alt={transferPortalEntry.player.name}
@@ -75,7 +75,7 @@ export default async function Page({ params }: { params: { year: string } }) {
                     </span>
                   </div>
                 </div>
-                <div className="grid-in-current gap-y-2 mb-4 bg-secondary rounded">
+                <div className="grid-in-current mb-4 bg-secondary rounded">
                   <div className="py-1 px-2 flex rounded items-center gap-2">
                     <div className="flex items-center">
                       {transferPortalEntry.transferStatus === 'Entered' && (
@@ -91,10 +91,10 @@ export default async function Page({ params }: { params: { year: string } }) {
                         <ArrowLeftToLine className="h-5 w-5 text-red-500" />
                       )}
                     </div>
-                    <span>{transferPortalEntry.transferStatus}</span>
+                    <span className="text-xs uppercase">{transferPortalEntry.transferStatus}</span>
                   </div>
                 </div>
-                <div className="grid-in-status gap-x-3 gap-y-4 border-t border-border sm:border-none sm:pt-0 sm:mt-0 grid items-center mt-4 grid-areas-transfer-status grid-cols-transfer-status">
+                <div className="grid-in-status gap-x-3 gap-y-4 border-t border-border sm:border-none sm:pt-0 sm:mt-0 grid items-center mt-4 grid-areas-transfer-status grid-cols-transfer-status md:grid-cols-transfer-status-medium">
                   <div className="flex items-center justify-center grid-in-last">
                     <ImageComponent
                       image={transferPortalEntry.transferringFrom.image}
@@ -105,17 +105,15 @@ export default async function Page({ params }: { params: { year: string } }) {
                     />
                   </div>
                   <MoveRight className="grid-in-arrow h-7 w-7" />
-                  <div className="grid-in-new flex items-center gap-3">
-                    <div className="p-3 xl:py-5 xl:px-3">
-                      <ImageComponent
-                        image={transferPortalEntry.transferringTo.image}
-                        alt={transferPortalEntry.transferringTo.name}
-                        width={48}
-                        height={48}
-                        className="h-12 w-12"
-                      />
-                    </div>
-                    <span className="xl:hidden">{transferPortalEntry.transferringTo.name}</span>
+                  <div className="grid-in-new flex items-center gap-3 justify-center">
+                    <ImageComponent
+                      image={transferPortalEntry.transferringTo.image}
+                      alt={transferPortalEntry.transferringTo.name}
+                      width={48}
+                      height={48}
+                      className="h-12 w-12"
+                    />
+                    <span className="md:hidden">{transferPortalEntry.transferringTo.name}</span>
                   </div>
                 </div>
               </div>

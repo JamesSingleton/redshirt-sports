@@ -110,8 +110,8 @@ const config = {
         },
       },
       gridTemplateAreas: {
-        wide: ['current avatar details position status status'],
         header: ['current player player position last new'],
+        'header-medium': ['current player player last new'],
         small: [
           'current current current',
           'avatar details .',
@@ -120,17 +120,19 @@ const config = {
           'status status status',
         ],
         medium: [
-          'current current current',
-          'avatar details .',
-          'position details .',
-          'position . status',
+          'current avatar details status status',
+          'current position . status status',
+          'current position . status status',
         ],
         'transfer-status': ['last arrow new'],
       },
       gridTemplateColumns: {
         header: '120px 110px 1.5fr 1fr 1fr',
+        'header-medium': '120px 70px 1.5fr 1fr',
         small: '70px 1fr',
         'transfer-status': 'repeat(2, 30px) auto',
+        medium: '120px 70px 1.5fr 1fr 1fr',
+        'transfer-status-medium': '.5fr .5fr 1fr',
       },
     },
   },
