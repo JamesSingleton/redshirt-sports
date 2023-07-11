@@ -30,9 +30,9 @@ export default async function Page({ params }: { params: { year: string } }) {
         </div>
       </div>
       <div className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
-        <div className="hidden md:grid items-end justify-center border-b-2 border-zinc-300 grid-areas-header grid-cols-header md:grid-areas-header-medium md:grid-cols-header-medium">
+        <div className="hidden items-end justify-center border-b-2 border-zinc-300 md:grid md:grid-cols-header-medium md:grid-areas-header-medium lg:grid-cols-header lg:grid-areas-header">
           <span className="grid-in-player">Player</span>
-          <span className="grid-in-position hidden" aria-label="Position">
+          <span className="hidden grid-in-position lg:block" aria-label="Position">
             Pos.
           </span>
           <span className="grid-in-current">Status</span>
@@ -42,31 +42,31 @@ export default async function Page({ params }: { params: { year: string } }) {
         <ul className="flex flex-col space-y-4">
           {transferPortalEntries.map((transferPortalEntry: any) => (
             <li key={transferPortalEntry._id}>
-              <div className="grid md:p-0 items-center gap-x-4 border-b-8 border-border p-4 grid-cols-small grid-areas-small md:grid-areas-medium md:grid-cols-medium">
+              <div className="grid grid-cols-small items-center border-b-8 border-border p-4 grid-areas-small md:grid-cols-medium md:p-0 md:grid-areas-medium lg:grid-cols-large lg:grid-areas-large">
                 <ImageComponent
                   image={transferPortalEntry.player.image}
                   alt={transferPortalEntry.player.name}
-                  className="grid-in-avatar rounded"
+                  className="rounded grid-in-avatar"
                   width={90}
                   height={90}
                 />
-                <span className="grid-in-position text-base tracking-wider font-normal leading-normal text-center self-start xl:justify-self-center xl:self-center">
+                <span className="self-start text-center text-base font-normal leading-normal tracking-wider grid-in-position lg:self-center lg:justify-self-center">
                   {transferPortalEntry.player.position}
                 </span>
-                <div className="grid-in-details xl:my-4 xl:mx-0">
+                <div className="grid-in-details xl:mx-0 xl:my-4">
                   <div className="flex flex-wrap items-center gap-1">
-                    <span className="font-semibold text-base leading-tight tracking-wide italic">
+                    <span className="text-base font-semibold italic leading-tight tracking-wide">
                       {transferPortalEntry.player.name}
                     </span>
                   </div>
                   <div className="flex gap-1">
                     <span></span>
-                    <span className="text-xs font-normal leading-normal tracking-wider after:content-['/'] after:ml-1">{`${transferPortalEntry.player.height.feet}-${transferPortalEntry.player.height.inches}`}</span>
+                    <span className="text-xs font-normal leading-normal tracking-wider after:ml-1 after:content-['/']">{`${transferPortalEntry.player.height.feet}-${transferPortalEntry.player.height.inches}`}</span>
                     <span className="text-xs font-normal leading-normal tracking-wider">
                       {transferPortalEntry.player.weight}
                     </span>
                   </div>
-                  <div className="flex flex-wrap mb-1 gap-x-1">
+                  <div className="mb-1 flex flex-wrap gap-x-1">
                     <span className="text-xs font-normal leading-normal tracking-wider">
                       {transferPortalEntry.player.highSchool}
                     </span>
@@ -75,8 +75,8 @@ export default async function Page({ params }: { params: { year: string } }) {
                     </span>
                   </div>
                 </div>
-                <div className="grid-in-current mb-4 bg-secondary rounded">
-                  <div className="py-1 px-2 flex rounded items-center gap-2">
+                <div className="mb-4 rounded bg-secondary grid-in-current">
+                  <div className="flex items-center gap-2 rounded px-2 py-1">
                     <div className="flex items-center">
                       {transferPortalEntry.transferStatus === 'Entered' && (
                         <ArrowRightToLine className="h-5 w-5" />
@@ -94,7 +94,7 @@ export default async function Page({ params }: { params: { year: string } }) {
                     <span className="text-xs uppercase">{transferPortalEntry.transferStatus}</span>
                   </div>
                 </div>
-                <div className="grid-in-status gap-x-3 gap-y-4 border-t border-border sm:border-none sm:pt-0 sm:mt-0 grid items-center mt-4 grid-areas-transfer-status grid-cols-transfer-status md:grid-cols-transfer-status-medium">
+                <div className="mt-4 grid grid-cols-transfer-status items-center gap-x-3 gap-y-4 border-t border-border grid-areas-transfer-status grid-in-status sm:mt-0 sm:border-none sm:pt-0 md:grid-cols-transfer-status-medium">
                   <div className="flex items-center justify-center grid-in-last">
                     <ImageComponent
                       image={transferPortalEntry.transferringFrom.image}
@@ -104,8 +104,8 @@ export default async function Page({ params }: { params: { year: string } }) {
                       className="h-8 w-8"
                     />
                   </div>
-                  <MoveRight className="grid-in-arrow h-7 w-7" />
-                  <div className="grid-in-new flex items-center gap-3 justify-center">
+                  <MoveRight className="h-7 w-7 grid-in-arrow" />
+                  <div className="flex items-center justify-center gap-3 grid-in-new">
                     <ImageComponent
                       image={transferPortalEntry.transferringTo.image}
                       alt={transferPortalEntry.transferringTo.name}
