@@ -1,11 +1,8 @@
-import {
-  ArrowLongRightIcon,
-  CheckCircleIcon,
-  ArrowDownOnSquareIcon,
-} from '@heroicons/react/24/solid'
+import { MoveRight, CheckCircle, ArrowLeftToLine, ArrowRightToLine, Edit3 } from 'lucide-react'
 
 import { getTransferPortalPlayers } from '@lib/sanity.client'
 import { ImageComponent } from '@components/ui'
+import { FilterBar } from '@components/common/FilterBar'
 
 export default async function Page({ params }: { params: { year: string } }) {
   const { year } = params
@@ -13,7 +10,7 @@ export default async function Page({ params }: { params: { year: string } }) {
 
   return (
     <section>
-      <div className="bg-zinc-100 py-12 dark:bg-zinc-800 sm:py-20 lg:py-24">
+      <div className="py-12 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-xl px-4 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
           <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
             <div className="order-2 mt-8 flex flex-col items-center md:order-1 md:mt-0 md:flex-row">
@@ -34,85 +31,94 @@ export default async function Page({ params }: { params: { year: string } }) {
         </div>
       </div>
       <div className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
-        <ul role="list" className="divide-y divide-zinc-200">
+        <div className="hidden md:grid items-end justify-center border-b-2 border-zinc-300 grid-areas-header grid-cols-header">
+          <span className="grid-in-player">Player</span>
+          <span className="grid-in-position" aria-label="Position">
+            Pos.
+          </span>
+          <span className="grid-in-current">Status</span>
+          <span className="grid-in-last">Last Team</span>
+          <span className="grid-in-new">New Team</span>
+        </div>
+        <ul className="flex flex-col space-y-4">
           {transferPortalEntries.map((transferPortalEntry: any) => (
-            <li
-              key={transferPortalEntry._id}
-              className="grid grid-cols-5 items-center gap-x-6 py-5"
-            >
-              <div className="flex items-center">
-                <span className="inline-flex items-center gap-x-1.5 rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-600">
-                  {/* render different icon depending on transferPortalEntry.transferStatus. The statuses are entered, committed, signed and withdrawn */}
-                  {transferPortalEntry.transferStatus === 'Entered' && (
-                    <ArrowDownOnSquareIcon className="h-4 w-4 rotate-90" />
-                  )}
-                  {transferPortalEntry.transferStatus === 'Committed' && (
-                    <ArrowDownOnSquareIcon className="h-4 w-4 rotate-90" />
-                  )}
-                  {transferPortalEntry.transferStatus === 'Signed' && (
-                    <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                  )}
-                  {transferPortalEntry.transferStatus === 'Withdrawn' && (
-                    <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                  )}
-                  {transferPortalEntry.transferStatus}
-                </span>
-              </div>
-              <div className="flex flex-row justify-center gap-4">
+            <li key={transferPortalEntry._id}>
+              <div className="grid items-center gap-x-4 border-b-8 border-border p-4 grid-cols-small grid-areas-small sm:grid-areas-medium">
                 <ImageComponent
                   image={transferPortalEntry.player.image}
                   alt={transferPortalEntry.player.name}
-                  className="rounded-md object-contain"
+                  className="grid-in-avatar rounded"
                   width={90}
                   height={90}
                 />
-                <div>
-                  <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-                    {transferPortalEntry.player.name}
-                  </h3>
-                  <div className="flex gap-1">
-                    <span className="text-xs">{transferPortalEntry.player.position}</span>
-                    <svg
-                      className="h-5 w-5 flex-shrink-0"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      aria-hidden="true"
-                    >
-                      <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-                    </svg>
-                    <span className="text-xs">{`${transferPortalEntry.player.height.feet}-${transferPortalEntry.player.height.inches}`}</span>
-                    <svg
-                      className="h-5 w-5 flex-shrink-0"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      aria-hidden="true"
-                    >
-                      <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-                    </svg>
-                    <span className="text-xs">{transferPortalEntry.player.weight}</span>
+                <span className="grid-in-position text-base tracking-wider font-normal leading-normal text-center self-start xl:justify-self-center xl:self-center">
+                  {transferPortalEntry.player.position}
+                </span>
+                <div className="grid-in-details xl:my-4 xl:mx-0">
+                  <div className="flex flex-wrap items-center gap-1">
+                    <span className="font-semibold text-base leading-tight tracking-wide italic">
+                      {transferPortalEntry.player.name}
+                    </span>
                   </div>
-                  <div className="flex flex-wrap">
-                    <span>{transferPortalEntry.player.highSchool}</span>
-                    <span>{`${transferPortalEntry.player.homeTown.city}, ${transferPortalEntry.player.homeTown.state}`}</span>
+                  <div className="flex gap-1">
+                    <span></span>
+                    <span className="text-xs font-normal leading-normal tracking-wider after:content-['/'] after:ml-1">{`${transferPortalEntry.player.height.feet}-${transferPortalEntry.player.height.inches}`}</span>
+                    <span className="text-xs font-normal leading-normal tracking-wider">
+                      {transferPortalEntry.player.weight}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap mb-1 gap-x-1">
+                    <span className="text-xs font-normal leading-normal tracking-wider">
+                      {transferPortalEntry.player.highSchool}
+                    </span>
+                    <span className="text-xs font-normal leading-normal tracking-wider">
+                      {`(${transferPortalEntry.player.homeTown.city}, ${transferPortalEntry.player.homeTown.state})`}
+                    </span>
                   </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-3">
-                <ImageComponent
-                  image={transferPortalEntry.transferringFrom.image}
-                  alt={transferPortalEntry.transferringFrom.name}
-                  width={32}
-                  height={32}
-                  className="h-8 w-8"
-                />
-                <ArrowLongRightIcon className="h-8 w-8" />
-                <ImageComponent
-                  image={transferPortalEntry.transferringTo.image}
-                  alt={transferPortalEntry.transferringTo.name}
-                  width={56}
-                  height={56}
-                  className="h-14 w-14"
-                />
+                <div className="grid-in-current gap-y-2 mb-4 bg-secondary rounded">
+                  <div className="py-1 px-2 flex rounded items-center gap-2">
+                    <div className="flex items-center">
+                      {transferPortalEntry.transferStatus === 'Entered' && (
+                        <ArrowRightToLine className="h-5 w-5" />
+                      )}
+                      {transferPortalEntry.transferStatus === 'Committed' && (
+                        <CheckCircle className="h-5 w-5" />
+                      )}
+                      {transferPortalEntry.transferStatus === 'Signed' && (
+                        <Edit3 className="h-5 w-5 text-emerald-500" />
+                      )}
+                      {transferPortalEntry.transferStatus === 'Withdrawn' && (
+                        <ArrowLeftToLine className="h-5 w-5 text-red-500" />
+                      )}
+                    </div>
+                    <span>{transferPortalEntry.transferStatus}</span>
+                  </div>
+                </div>
+                <div className="grid-in-status gap-x-3 gap-y-4 border-t border-border sm:border-none sm:pt-0 sm:mt-0 grid items-center mt-4 grid-areas-transfer-status grid-cols-transfer-status">
+                  <div className="flex items-center justify-center grid-in-last">
+                    <ImageComponent
+                      image={transferPortalEntry.transferringFrom.image}
+                      alt={transferPortalEntry.transferringFrom.name}
+                      width={32}
+                      height={32}
+                      className="h-8 w-8"
+                    />
+                  </div>
+                  <MoveRight className="grid-in-arrow h-7 w-7" />
+                  <div className="grid-in-new flex items-center gap-3">
+                    <div className="p-3 xl:py-5 xl:px-3">
+                      <ImageComponent
+                        image={transferPortalEntry.transferringTo.image}
+                        alt={transferPortalEntry.transferringTo.name}
+                        width={48}
+                        height={48}
+                        className="h-12 w-12"
+                      />
+                    </div>
+                    <span className="xl:hidden">{transferPortalEntry.transferringTo.name}</span>
+                  </div>
+                </div>
               </div>
             </li>
           ))}

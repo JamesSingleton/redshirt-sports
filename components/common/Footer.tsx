@@ -34,7 +34,7 @@ const navigation = {
       name: 'Facebook',
       href: '#',
       icon: (
-        props: JSX.IntrinsicAttributes & JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+        props: JSX.IntrinsicAttributes & JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>,
       ) => <Facebook {...props} />,
     },
     {
@@ -43,7 +43,7 @@ const navigation = {
       icon: (
         props: JSX.IntrinsicAttributes &
           globalThis.JSX.IntrinsicAttributes &
-          SVGProps<SVGSVGElement>
+          SVGProps<SVGSVGElement>,
       ) => <Twitter {...props} />,
     },
     {
@@ -52,7 +52,7 @@ const navigation = {
       icon: (
         props: JSX.IntrinsicAttributes &
           globalThis.JSX.IntrinsicAttributes &
-          SVGProps<SVGSVGElement>
+          SVGProps<SVGSVGElement>,
       ) => <RSSIcon {...props} />,
     },
   ],
@@ -77,7 +77,6 @@ export default function Footer() {
                   <item.icon className="h-6 w-6" aria-hidden="true" />
                 </a>
               ))}
-              L
             </div>
           </div>
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">

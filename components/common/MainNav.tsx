@@ -4,7 +4,7 @@ import { forwardRef, ElementRef, ComponentPropsWithoutRef } from 'react'
 import Link from 'next/link'
 
 import { cn } from '@lib/utils'
-import RedRSLogo from './SmallLogo'
+import SmallLogo from './SmallLogo'
 import LargeLogo from './LargeLogo'
 import {
   NavigationMenu,
@@ -20,9 +20,9 @@ export function MainNav(props: any) {
   const { categories } = props
 
   return (
-    <div className="mr-4 hidden md:flex">
-      <Link href="/" className="mr-6 flex items-center space-x-2">
-        <LargeLogo className="h-10 w-auto" />
+    <div className="mr-4 hidden lg:flex">
+      <Link href="/" className="flex items-center">
+        <SmallLogo className="h-10 w-auto" />
         <span className="sr-only">Redshirt Sports</span>
       </Link>
       <NavigationMenu>
@@ -81,7 +81,7 @@ export function MainNav(props: any) {
           <NavigationMenuItem>
             <Link href="/contact" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Contact Us
+                Contact
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
@@ -101,7 +101,7 @@ const ListItem = forwardRef<ElementRef<'a'>, ComponentPropsWithoutRef<'a'>>(
             href={props.href!}
             className={cn(
               'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-              className
+              className,
             )}
             {...props}
           >
@@ -111,6 +111,6 @@ const ListItem = forwardRef<ElementRef<'a'>, ComponentPropsWithoutRef<'a'>>(
         </NavigationMenuLink>
       </li>
     )
-  }
+  },
 )
 ListItem.displayName = 'ListItem'

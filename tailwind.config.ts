@@ -3,13 +3,13 @@ import { fontFamily } from 'tailwindcss/defaultTheme'
 import type { Config } from 'tailwindcss'
 
 const config = {
+  darkMode: ['class'],
   content: [
-    './app/**/*.{js,ts,jsx,tsx}',
-    './pages/**/*.{js,ts,jsx,tsx}',
-    './components/**/*.{js,ts,jsx,tsx}',
-    './lib/**/*.{js,ts,jsx,tsx}',
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
   ],
-  darkMode: 'class',
   theme: {
     container: {
       center: true,
@@ -20,7 +20,6 @@ const config = {
     },
     extend: {
       colors: {
-        current: 'currentColor',
         brand: {
           50: '#FBE9E9',
           100: '#F8D3D3',
@@ -68,15 +67,23 @@ const config = {
         },
       },
       borderRadius: {
-        lg: `var(--radius)`,
-        md: `calc(var(--radius) - 2px)`,
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
-      width: {
-        1536: '1536px',
+      keyframes: {
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
       },
-      height: {
-        150: '37.5rem',
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
       fontFamily: {
         default: ['var(--font-inter)', ...fontFamily.sans],
@@ -102,28 +109,28 @@ const config = {
           },
         },
       },
-      textDecorationThickness: {
-        3: '3px',
+      gridTemplateAreas: {
+        wide: ['current avatar details position status status'],
+        header: ['current player player position last new'],
+        small: [
+          'current current current',
+          'avatar details .',
+          'position details .',
+          'position . .',
+          'status status status',
+        ],
+        medium: [
+          'current current current',
+          'avatar details .',
+          'position details .',
+          'position . status',
+        ],
+        'transfer-status': ['last arrow new'],
       },
-      opacity: {
-        1: '0.01',
-        2.5: '0.025',
-        7.5: '0.075',
-        15: '0.15',
-      },
-      keyframes: {
-        'accordion-down': {
-          from: { height: '0' },
-          to: { height: 'var(--radix-accordion-content-height)' },
-        },
-        'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
-        },
-      },
-      animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
+      gridTemplateColumns: {
+        header: '120px 110px 1.5fr 1fr 1fr',
+        small: '70px 1fr',
+        'transfer-status': 'repeat(2, 30px) auto',
       },
     },
   },
@@ -132,6 +139,7 @@ const config = {
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
     require('tailwindcss-animate'),
+    require('@savvywombat/tailwindcss-grid-areas'),
   ],
 } satisfies Config
 

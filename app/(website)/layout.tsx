@@ -80,7 +80,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           className={cn(
             'flex min-h-screen flex-col bg-background font-sans antialiased',
             cal.variable,
-            inter.variable
+            inter.variable,
           )}
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

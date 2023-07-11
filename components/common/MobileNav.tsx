@@ -22,7 +22,7 @@ export function MobileNav(props: any) {
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+          className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 lg:hidden"
         >
           <SidebarOpen className="h-6 w-6" />
           <span className="sr-only">Toggle Menu</span>
@@ -59,7 +59,7 @@ export function MobileNav(props: any) {
                   <MobileLink key={item.href} href={item.href} onOpenChange={setOpen}>
                     {item.title}
                   </MobileLink>
-                )
+                ),
             )}
           </div>
         </ScrollArea>

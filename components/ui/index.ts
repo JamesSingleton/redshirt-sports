@@ -10,6 +10,7 @@ import ReadingProgress from './ReadingProgress'
 import { CustomPortableText } from './CustomPortableText'
 import ImageComponent from './ImageComponent'
 import { Button } from './Button'
+import { Input } from './Input'
 
 export {
   Button,
@@ -24,4 +25,5 @@ export {
   ReadingProgress,
   CustomPortableText,
   ImageComponent,
+  Input,
 }

@@ -1,6 +1,6 @@
 import Footer from './Footer'
 import SocialMediaFollow from './SocialMediaFollow'
-import Logo from './SmallLogo'
+import SmallLogo from './SmallLogo'
 import LargeLogo from './LargeLogo'
 import AuthorsCard from './AuthorsCard'
 import { SiteHeader } from './SiteHeader'
@@ -9,7 +9,7 @@ import { ThemeProvider } from './ThemeProvider'
 
 export {
   SocialMediaFollow,
-  Logo,
+  SmallLogo,
   LargeLogo,
   AuthorsCard,
   Footer,

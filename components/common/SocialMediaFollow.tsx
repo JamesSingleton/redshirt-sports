@@ -40,7 +40,7 @@ const SocialMediaFollow = () => {
         <a
           target="_blank"
           href="https://www.facebook.com/Redshirt-Sports-103392312412641"
-          rel="noreferrer"
+          rel="noreferrer noopener"
           className="items-centers flex w-full justify-between"
         >
           <div className="flex items-center">
