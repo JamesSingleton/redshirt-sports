@@ -145,6 +145,9 @@ const config = {
     require('tailwindcss-animate'),
     require('@savvywombat/tailwindcss-grid-areas'),
   ],
+  variants: {
+    gridTemplateAreas: ['responsive'],
+  },
 } satisfies Config
 
 export default config
