@@ -29,91 +29,86 @@ export default async function Page({ params }: { params: { year: string } }) {
           </div>
         </div>
       </div>
-      <div className="mx-auto max-w-xl px-4 py-12 sm:px-12 sm:py-16 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:py-24">
-        <div className="hidden items-end justify-center border-b-2 border-zinc-300 md:grid md:grid-cols-header-medium md:grid-areas-header-medium lg:grid-cols-header lg:grid-areas-header">
-          <span className="grid-in-player">Player</span>
-          <span className="hidden grid-in-position lg:block" aria-label="Position">
-            Pos.
-          </span>
+      <div className="container">
+        <div className="grid-areas-header grid-cols-header grid border-b-2 border-border">
+          <span className="grid-in-player text-sm font-semibold tracking-wide leading-normal">Player</span>
+          <span className="grid-in-position justify-self-center" aria-label="Position">Pos</span>
           <span className="grid-in-current">Status</span>
           <span className="grid-in-last">Last Team</span>
           <span className="grid-in-new">New Team</span>
         </div>
-        <ul className="flex flex-col space-y-4">
-          {transferPortalEntries.map((transferPortalEntry: any) => (
-            <li key={transferPortalEntry._id}>
-              <div className="grid grid-cols-small items-center border-b-8 border-border p-4 grid-areas-small md:grid-cols-medium md:p-0 md:grid-areas-medium lg:grid-cols-large lg:grid-areas-large">
+        <ul className="flex flex-col xl:m-0">
+          {transferPortalEntries.map((entry: any) => (
+            <li key={entry._id}>
+              <div className="grid items-center p-0 border-b border-b-border grid-areas-row grid-cols-row">
+                {/* Player Image */}
                 <ImageComponent
-                  image={transferPortalEntry.player.image}
-                  alt={transferPortalEntry.player.name}
-                  className="rounded grid-in-avatar"
+                  image={entry.player.image}
+                  alt={entry.player.name}
+                  className="rounded grid-in-avatar h-[90px] w-[90px] my-4 mx-0 justify-self-center"
                   width={90}
                   height={90}
                 />
-                <span className="self-start text-center text-base font-normal leading-normal tracking-wider grid-in-position lg:self-center lg:justify-self-center">
-                  {transferPortalEntry.player.position}
-                </span>
-                <div className="grid-in-details xl:mx-0 xl:my-4">
-                  <div className="flex flex-wrap items-center gap-1">
-                    <span className="text-base font-semibold italic leading-tight tracking-wide">
-                      {transferPortalEntry.player.name}
-                    </span>
+                {/* Player Position */}
+                <span className="grid-in-position text-center text-xs self-start xl:self-center xl:justify-self-center">{entry.player.position}</span>
+                {/* Player Details */}
+                <div className="grid-in-details xl:my-4 xl:mx-0">
+                  <div className="flex flex-wrap items-center gap-1 text-base font-semibold italic leading-tight tracking-wide">
+                    {entry.player.name}
                   </div>
                   <div className="flex gap-1">
-                    <span></span>
-                    <span className="text-xs font-normal leading-normal tracking-wider after:ml-1 after:content-['/']">{`${transferPortalEntry.player.height.feet}-${transferPortalEntry.player.height.inches}`}</span>
-                    <span className="text-xs font-normal leading-normal tracking-wider">
-                      {transferPortalEntry.player.weight}
-                    </span>
+                    <span className="text-center text-xs font-normal leading-normal tracking-wider after:ml-1 after:content-['/']">-</span>
+                    <span className="text-center text-xs font-normal leading-normal tracking-wider after:ml-1 after:content-['/']">{`${entry.player.height.feet}-${entry.player.height.inches}`}</span>
+                    <span className="text-center text-xs font-normal leading-normal tracking-wider">{entry.player.weight}</span>
                   </div>
-                  <div className="mb-1 flex flex-wrap gap-x-1">
-                    <span className="text-xs font-normal leading-normal tracking-wider">
-                      {transferPortalEntry.player.highSchool}
-                    </span>
-                    <span className="text-xs font-normal leading-normal tracking-wider">
-                      {`(${transferPortalEntry.player.homeTown.city}, ${transferPortalEntry.player.homeTown.state})`}
-                    </span>
+                  <div className="flex flex-wrap gap-1 mb-1">
+                    <span className="text-center text-xs font-normal leading-normal tracking-wider">{entry.player.highSchool}</span>
+                    <span className="text-center text-xs font-normal leading-normal tracking-wider">{`(${entry.player.homeTown.city}, ${entry.player.homeTown.state})`}</span>
                   </div>
                 </div>
-                <div className="mb-4 rounded bg-secondary grid-in-current">
-                  <div className="flex items-center gap-2 rounded px-2 py-1">
+                {/* Player's Current Status */}
+                <div className="grid-in-current">
+                  <div className="flex py-1 px-2 bg-secondary rounded items-center gap-3">
                     <div className="flex items-center">
-                      {transferPortalEntry.transferStatus === 'Entered' && (
+                      {entry.transferStatus === 'Entered' && (
                         <ArrowRightToLine className="h-5 w-5" />
                       )}
-                      {transferPortalEntry.transferStatus === 'Committed' && (
+                      {entry.transferStatus === 'Committed' && (
                         <CheckCircle className="h-5 w-5" />
                       )}
-                      {transferPortalEntry.transferStatus === 'Signed' && (
+                      {entry.transferStatus === 'Signed' && (
                         <Edit3 className="h-5 w-5 text-emerald-500" />
                       )}
-                      {transferPortalEntry.transferStatus === 'Withdrawn' && (
+                      {entry.transferStatus === 'Withdrawn' && (
                         <ArrowLeftToLine className="h-5 w-5 text-red-500" />
                       )}
                     </div>
-                    <span className="text-xs uppercase">{transferPortalEntry.transferStatus}</span>
+                    <span className="text-xs font-semibold leading-[0.75] uppercase tracking-wide text-primary">{entry.transferStatus}</span>
                   </div>
                 </div>
-                <div className="mt-4 grid grid-cols-transfer-status items-center gap-x-3 gap-y-4 border-t border-border grid-areas-transfer-status grid-in-status sm:mt-0 sm:border-none sm:pt-0 md:grid-cols-transfer-status-medium">
-                  <div className="flex items-center justify-center grid-in-last">
+                {/* Player's Status */}
+                <div className="grid-in-status grid grid-areas-status grid-cols-status gap-0 items-center justify-items-start xl:border-t-0 sm:pt-p sm:mt-0 sm:border-none">
+                  <div className="grid-in-last flex items-center justify-center">
                     <ImageComponent
-                      image={transferPortalEntry.transferringFrom.image}
-                      alt={transferPortalEntry.transferringFrom.name}
+                      image={entry.transferringFrom.image}
+                      alt={entry.transferringFrom.name}
                       width={32}
                       height={32}
                       className="h-8 w-8"
                     />
                   </div>
-                  <MoveRight className="h-7 w-7 grid-in-arrow" />
-                  <div className="flex items-center justify-center gap-3 grid-in-new">
-                    <ImageComponent
-                      image={transferPortalEntry.transferringTo.image}
-                      alt={transferPortalEntry.transferringTo.name}
-                      width={48}
-                      height={48}
-                      className="h-12 w-12"
-                    />
-                    <span className="md:hidden">{transferPortalEntry.transferringTo.name}</span>
+                  <MoveRight className="grid-in-arrow h-8 w-8" />
+                  <div className="grid-in-new flex items-center gap-2">
+                    <div className="xl:py-5 xl:px-2.5 w-fit rounded m-0">
+                      <ImageComponent
+                        image={entry.transferringTo.image}
+                        alt={entry.transferringTo.name}
+                        width={48}
+                        height={48}
+                        className="h-12 w-12"
+                      />
+                    </div>
+                    <span className="text-xs font-semibold leading-[0.75] tracking-wide xl:hidden">{entry.transferringTo.name}</span>
                   </div>
                 </div>
               </div>
