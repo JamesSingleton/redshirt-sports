@@ -111,13 +111,14 @@ export default async function Page({ params }: { params: { year: string } }) {
                   </div>
                   <MoveRight className="h-8 w-8 grid-in-arrow" />
                   <div className="flex items-center gap-2 grid-in-new">
-                    <div className="m-0 w-fit rounded xl:px-2.5 xl:py-5">
+                    <div className="m-0 flex h-12 w-12 items-center rounded xl:px-2.5 xl:py-5">
                       <ImageComponent
                         image={entry.transferringTo.image}
                         alt={entry.transferringTo.name}
                         width={48}
                         height={48}
-                        className="h-8 w-8 md:h-12 md:w-12"
+                        className="block h-auto w-full max-w-full"
+                        mode="contain"
                       />
                     </div>
                     <span className="text-xs font-semibold leading-[0.75] tracking-wide md:hidden">
