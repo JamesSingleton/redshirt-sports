@@ -111,17 +111,22 @@ const config = {
       },
       gridTemplateAreas: {
         header: ['current player player position last new'],
-        row: [
-          'current avatar details position status status'
-        ],
-        status: [
-          'last arrow new'
+        row: ['current avatar details position status status'],
+        status: ['last arrow new'],
+        'row-mobile': [
+          'current current current',
+          'avatar details .',
+          'position details .',
+          'position . .',
+          'status status status',
         ]
       },
       gridTemplateColumns: {
         header: '120px 110px 1.5fr .5fr 1fr 1fr',
         row: '120px 110px 1.5fr .5fr 1fr 1fr',
         status: '.5fr .5fr 1fr',
+        'row-mobile': '70px 1fr',
+        'status-mobile': 'repeat(2,30px) auto'
       },
     },
   },
