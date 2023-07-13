@@ -80,7 +80,7 @@ export default async function Page({ params }: { params: { year: string } }) {
                 </div>
                 {/* Player's Current Status */}
                 <div className="mb-4 grid-in-current">
-                  <div className="flex items-center gap-3 rounded bg-secondary px-2 py-1">
+                  <div className="flex items-center gap-2 rounded bg-secondary px-2 py-1">
                     <div className="flex items-center">
                       {entry.transferStatus === 'Entered' && (
                         <ArrowRightToLine className="h-5 w-5" />
@@ -111,13 +111,12 @@ export default async function Page({ params }: { params: { year: string } }) {
                   </div>
                   <MoveRight className="h-8 w-8 grid-in-arrow" />
                   <div className="flex items-center gap-2 grid-in-new">
-                    <div className="m-0 flex h-12 w-12 items-center rounded xl:px-2.5 xl:py-5">
+                    <div className="m-0 flex aspect-1 h-12 w-12 items-center rounded">
                       <ImageComponent
                         image={entry.transferringTo.image}
                         alt={entry.transferringTo.name}
                         width={48}
                         height={48}
-                        className="block h-auto w-full max-w-full"
                         mode="contain"
                       />
                     </div>
