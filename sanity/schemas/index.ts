@@ -13,6 +13,7 @@ import position from './objects/playerPosition'
 import height from './objects/height'
 import twitter from './objects/twitter'
 import socialMedia from './objects/socialMedia'
+import classYear from './objects/classYear'
 
 export const schemaTypes = [
   author,
@@ -29,6 +30,7 @@ export const schemaTypes = [
   height,
   twitter,
   socialMedia,
+  classYear,
 ]
 
 export const PREVIEWABLE_DOCUMENT_TYPES: string[] = [

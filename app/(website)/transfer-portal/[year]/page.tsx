@@ -9,23 +9,19 @@ export default async function Page({ params }: { params: { year: string } }) {
 
   return (
     <section>
-      <div className="py-12 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-xl px-4 sm:px-12 md:max-w-3xl lg:max-w-7xl lg:px-8">
-          <div className="flex w-full flex-col items-center md:flex-row md:justify-between">
-            <div className="order-2 mt-8 flex flex-col items-center md:order-1 md:mt-0 md:flex-row">
-              <div className="mt-6 text-center md:mt-0 md:text-left">
-                <h1 className="mt-1 font-cal text-3xl font-medium tracking-normal sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
-                  {`${year} College Football Transfer Portal`}
-                </h1>
-                <p className="mt-4 text-base text-zinc-700 dark:text-zinc-200">
-                  Redshirt Sports diligently tracks the NCAA Transfer Portal, ensuring you stay
-                  informed about college athletes making transfers. Our platform provides valuable
-                  insights into the previous and new schools of these players, enabling you to keep
-                  up with the latest transfer news. Trust Redshirt Sports for comprehensive coverage
-                  of the transfer portal.
-                </p>
-              </div>
-            </div>
+      <div className="pb-12 md:pb-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-12 md:max-w-5xl lg:max-w-7xl lg:px-8">
+          <div className="mt-6 text-center sm:text-left md:text-left">
+            <h1 className="font-cal text-3xl font-medium tracking-normal sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
+              {`${year} College Football Transfer Portal`}
+            </h1>
+            <p className="mt-4 text-base text-zinc-700 dark:text-zinc-200">
+              Redshirt Sports diligently tracks the NCAA Transfer Portal, ensuring you stay informed
+              about college athletes making transfers. Our platform provides valuable insights into
+              the previous and new schools of these players, enabling you to keep up with the latest
+              transfer news. Trust Redshirt Sports for comprehensive coverage of the transfer
+              portal.
+            </p>
           </div>
         </div>
       </div>
@@ -44,7 +40,7 @@ export default async function Page({ params }: { params: { year: string } }) {
         <ul className="flex flex-col space-y-4 sm:space-y-0 xl:m-0">
           {transferPortalEntries.map((entry: any) => (
             <li key={entry._id}>
-              <div className="grid grid-cols-row-mobile items-center border-b border-border py-4 grid-areas-row-mobile sm:p-0 md:grid-cols-row md:grid-areas-row">
+              <div className="grid grid-cols-row-xs sm:grid-areas-row-sm items-center border-b border-border py-4 grid-areas-row-xs sm:p-0 md:grid-cols-row md:grid-areas-row">
                 {/* Player Image */}
                 <ImageComponent
                   image={entry.player.image}
@@ -64,7 +60,7 @@ export default async function Page({ params }: { params: { year: string } }) {
                   </div>
                   <div className="flex gap-1">
                     <span className="text-center text-xs font-normal leading-normal tracking-wider after:ml-1 after:content-['/']">
-                      -
+                      {entry.classYear ?? '-'}
                     </span>
                     <span className="text-center text-xs font-normal leading-normal tracking-wider after:ml-1 after:content-['/']">{`${entry.player.height.feet}-${entry.player.height.inches}`}</span>
                     <span className="text-center text-xs font-normal leading-normal tracking-wider">
@@ -99,7 +95,7 @@ export default async function Page({ params }: { params: { year: string } }) {
                   </div>
                 </div>
                 {/* Player's Status */}
-                <div className="mt-4 grid grid-cols-status-mobile items-center justify-items-start gap-x-2 pt-2 grid-areas-status grid-in-status sm:mt-0 sm:gap-0 sm:border-none sm:pt-0 md:grid-cols-status xl:border-t-0">
+                <div className="mt-4 grid grid-cols-status-xs items-center justify-items-start gap-x-2 pt-2 grid-areas-status grid-in-status sm:mt-0 sm:border-none sm:pt-0 md:grid-cols-status xl:border-t-0">
                   <div className="flex items-center justify-center grid-in-last">
                     <ImageComponent
                       image={entry.transferringFrom.image}

@@ -16,6 +16,11 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      title: 'Class Year',
+      name: 'classYear',
+      type: 'classYear'
+    }),
+    defineField({
       title: 'Transfer Status',
       name: 'transferStatus',
       type: 'string',
