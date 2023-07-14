@@ -36,7 +36,7 @@ export function Filter({ title, options }: FilterProps) {
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               {options &&
-                options.map((option) => {
+                options.map((option: any) => {
                   const isSelected = false
                   return (
                     <CommandItem key={option.value}>
