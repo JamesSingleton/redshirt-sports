@@ -2,6 +2,7 @@ import { MoveRight, CheckCircle, ArrowLeftToLine, ArrowRightToLine, Edit3 } from
 
 import { getTransferPortalPlayers } from '@lib/sanity.client'
 import { ImageComponent } from '@components/ui'
+import { FilterBar } from '@components/common/FilterBar'
 
 export default async function Page({ params }: { params: { year: string } }) {
   const { year } = params
@@ -26,6 +27,7 @@ export default async function Page({ params }: { params: { year: string } }) {
         </div>
       </div>
       <div className="container">
+        <FilterBar />
         <div className="hidden grid-cols-header border-b-2 border-border grid-areas-header md:grid">
           <span className="text-sm font-semibold leading-normal tracking-wide grid-in-player">
             Player
@@ -40,7 +42,7 @@ export default async function Page({ params }: { params: { year: string } }) {
         <ul className="flex flex-col space-y-4 sm:space-y-0 xl:m-0">
           {transferPortalEntries.map((entry: any) => (
             <li key={entry._id}>
-              <div className="grid grid-cols-row-xs sm:grid-areas-row-sm items-center border-b border-border py-4 grid-areas-row-xs sm:p-0 md:grid-cols-row md:grid-areas-row">
+              <div className="grid grid-cols-row-xs items-center border-b border-border py-4 grid-areas-row-xs sm:p-0 sm:grid-areas-row-sm md:grid-cols-row md:grid-areas-row">
                 {/* Player Image */}
                 <ImageComponent
                   image={entry.player.image}
