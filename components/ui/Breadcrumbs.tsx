@@ -15,7 +15,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
       <ol className="flex flex-wrap items-center gap-2">
         <li title="Home">
           <div>
-            <Link href="/" className="text-zinc-400 hover:text-zinc-500">
+            <Link href="/" className="text-primary hover:text-zinc-500">
               <span className="sr-only">Home</span>
               <HomeIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
             </Link>
@@ -25,7 +25,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
           <li key={page.title} title={page.title}>
             <div className="flex items-center">
               <ChevronRight
-                className="h-5 w-5 flex-shrink-0 text-zinc-400"
+                className="h-5 w-5 flex-shrink-0 text-primary"
                 aria-hidden="true"
                 strokeWidth={1.5}
               />
@@ -36,7 +36,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
                   'ml-2 text-base font-medium',
                   index === breadCrumbPages.length - 1
                     ? 'w-48 truncate text-brand-400 sm:w-64'
-                    : 'text-zinc-400 hover:text-zinc-500'
+                    : 'text-primary hover:text-zinc-500',
                 )}
               >
                 {page.title}

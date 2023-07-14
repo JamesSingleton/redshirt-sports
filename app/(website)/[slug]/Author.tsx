@@ -45,7 +45,7 @@ const Author = (author: Author) => {
                 target="_blank"
                 rel="noopener"
                 title={`Follow ${author.name} on ${social.name}`}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 transition-all duration-200"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200"
               >
                 <span className="sr-only">{`Follow ${author.name} on ${social.name}`}</span>
                 {social.name === 'Email' ? <Mail className="h-6 w-6" /> : null}

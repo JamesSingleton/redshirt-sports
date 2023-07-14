@@ -1,5 +1,7 @@
 import Link from 'next/link'
 
+import { buttonVariants } from './Button'
+
 export default function Pagination({
   currentPage,
   prevDisabled,
@@ -31,12 +33,12 @@ export default function Pagination({
           <span className="font-medium">{totalPosts}</span> results
         </p>
       </div>
-      <div className="flex flex-1 justify-between sm:justify-end">
+      <div className="flex flex-1 justify-between space-x-4 sm:justify-end">
         {prevDisabled ? null : (
           <Link
             href={prevPageUrl}
             aria-label="Previous Page"
-            className="relative inline-flex items-center rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className={buttonVariants({ variant: 'default' })}
           >
             Previous
           </Link>
@@ -45,7 +47,7 @@ export default function Pagination({
           <Link
             href={nextPageUrl}
             aria-label="Next Page"
-            className="relative ml-3 inline-flex items-center rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className={buttonVariants({ variant: 'default' })}
           >
             Next
           </Link>

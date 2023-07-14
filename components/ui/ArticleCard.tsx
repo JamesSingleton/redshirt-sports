@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import { Date } from '@components/ui'
 import ImageComponent from './ImageComponent'
-import { urlForImage } from '@lib/sanity.image'
+import { badgeVariants } from './Badge'
 
 type ArticleCardProps = {
   title: string
@@ -47,19 +47,18 @@ const ArticleCard = ({
       </Link>
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <Link href={`/news/${parentCategory.slug}`} className="inline-block">
-            <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
-              {parentCategory.title}
-            </span>
+          <Link
+            href={`/news/${parentCategory.slug}`}
+            className={badgeVariants({ variant: 'default' })}
+          >
+            {parentCategory.title}
           </Link>
           {subcategory && (
             <Link
               href={`/news/${subcategory.parentSlug}/${subcategory.slug}`}
-              className="inline-block"
+              className={badgeVariants({ variant: 'default' })}
             >
-              <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
-                {subcategory.title}
-              </span>
+              {subcategory.title}
             </Link>
           )}
         </div>

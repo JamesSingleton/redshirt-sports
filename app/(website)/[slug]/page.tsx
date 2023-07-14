@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { LinkIcon, Facebook, Twitter } from 'lucide-react'
 
 import { getPostBySlug, getMorePostsBySlug, getPostSlugs } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
@@ -8,6 +7,8 @@ import { Date, ArticleCard, ReadingProgress, Breadcrumbs, ImageComponent } from 
 import { urlForImage } from '@lib/sanity.image'
 import { CustomPortableText } from '@components/ui/CustomPortableText'
 import Author from './Author'
+import ArticleSocialShare from './ArticleSocialShare'
+import { badgeVariants } from '@components/ui/Badge'
 
 import type { Metadata } from 'next'
 
@@ -108,19 +109,18 @@ export default async function Page({ params }: PageProps) {
             <p className="mt-4 text-lg font-normal lg:text-xl">{post.excerpt}</p>
             <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-10">
               <div className="flex flex-wrap items-center gap-2">
-                <Link href={`/news/${post.parentCategory.slug}`} className="inline-block">
-                  <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
-                    {post.parentCategory.title}
-                  </span>
+                <Link
+                  href={`/news/${post.parentCategory.slug}`}
+                  className={badgeVariants({ variant: 'default' })}
+                >
+                  {post.parentCategory.title}
                 </Link>
                 {post.subcategory && (
                   <Link
                     href={`/news/${post.subcategory.parentSlug}/${post.subcategory.slug}`}
-                    className="inline-block"
+                    className={badgeVariants({ variant: 'default' })}
                   >
-                    <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-0.5 text-sm font-medium text-brand-800">
-                      {post.subcategory.title}
-                    </span>
+                    {post.subcategory.title}
                   </Link>
                 )}
               </div>
@@ -148,44 +148,7 @@ export default async function Page({ params }: PageProps) {
                   <CustomPortableText value={post.body} />
                 </div>
               </article>
-
-              <div className="flex flex-col gap-4 border-t border-zinc-200 pt-12 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-                <p className="text-xl font-bold">Share this post</p>
-                <ul className="flex items-center justify-center gap-3 sm:justify-end">
-                  <li>
-                    <button
-                      aria-label="Copy the Canonical link"
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 transition-all duration-200"
-                    >
-                      <LinkIcon className="h-5 w-5" aria-hidden="true" />
-                    </button>
-                  </li>
-                  <li>
-                    <a
-                      target="_blank"
-                      href={`https://twitter.com/share?url=https://www.redshirtsports.xyz/${
-                        post.slug
-                      }&text=${encodeURIComponent(post.title)}`}
-                      rel="noopener"
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 transition-all duration-200"
-                    >
-                      <span className="sr-only">Twitter</span>
-                      <Twitter className="h-5 w-5" aria-hidden="true" />
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      target="_blank"
-                      href={`https://www.facebook.com/sharer/sharer.php?u=https://www.redshirtsports.xyz/${post.slug}`}
-                      rel="noopener"
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 transition-all duration-200"
-                    >
-                      <span className="sr-only">Facebook</span>
-                      <Facebook className="h-5 w-5" aria-hidden="true" />
-                    </a>
-                  </li>
-                </ul>
-              </div>
+              <ArticleSocialShare slug={post.slug} title={post.title} />
             </div>
           </div>
         </div>
