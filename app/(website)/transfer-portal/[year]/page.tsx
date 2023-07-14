@@ -27,7 +27,9 @@ export default async function Page({ params }: { params: { year: string } }) {
         </div>
       </div>
       <div className="container">
-        <FilterBar />
+        <div className="pb-12">
+          <FilterBar />
+        </div>
         <div className="hidden grid-cols-header border-b-2 border-border grid-areas-header md:grid">
           <span className="text-sm font-semibold leading-normal tracking-wide grid-in-player">
             Player

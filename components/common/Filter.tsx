@@ -17,9 +17,10 @@ import { Separator } from '@components/ui/Separator'
 
 interface FilterProps {
   title: string
+  options?: any
 }
 
-export function Filter({ title }: FilterProps) {
+export function Filter({ title, options }: FilterProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -33,7 +34,27 @@ export function Filter({ title }: FilterProps) {
           <CommandInput placeholder={title} />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup></CommandGroup>
+            <CommandGroup>
+              {options &&
+                options.map((option) => {
+                  const isSelected = false
+                  return (
+                    <CommandItem key={option.value}>
+                      <div
+                        className={cn(
+                          'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                          isSelected
+                            ? 'bg-primary text-primary-foreground'
+                            : 'opacity-50 [&_svg]:invisible',
+                        )}
+                      >
+                        <Check className={cn('h-4 w-4')} />
+                      </div>
+                      <span>{option.title}</span>
+                    </CommandItem>
+                  )
+                })}
+            </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>
