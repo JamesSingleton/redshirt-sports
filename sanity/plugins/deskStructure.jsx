@@ -24,7 +24,7 @@ export const deskStructure = async (S, context) => {
   const client = getClient({ apiVersion: '2023-01-01' })
 
   const categories = await client.fetch(
-    '*[_type == "category" && !defined(parent) && !(_id in path("drafts.**"))]'
+    '*[_type == "category" && !defined(parent) && !(_id in path("drafts.**"))]',
   )
 
   const items = [
@@ -46,7 +46,7 @@ export const deskStructure = async (S, context) => {
                 S.initialValueTemplateItem('post-child', {
                   categoryId: category._id,
                 }),
-              ])
+              ]),
           )
       })
       .sort((a, b) => {
@@ -70,7 +70,7 @@ export const deskStructure = async (S, context) => {
       .child(
         S.documentTypeList('category')
           .filter(
-            '_type == "category" && !defined(parent) && !(_id in path("drafts.**")) && !(title in ["Transfer Portal", "All-Star Games"])'
+            '_type == "category" && !defined(parent) && !(_id in path("drafts.**")) && !(title in ["Transfer Portal", "All-Star Games"])',
           )
           .defaultOrdering([{ field: 'title', direction: 'asc' }])
           .title('Divisions')
@@ -95,9 +95,32 @@ export const deskStructure = async (S, context) => {
                     S.initialValueTemplateItem('school-child', {
                       conferenceId,
                     }),
-                  ])
-              )
-          )
+                  ]),
+              ),
+          ),
+      ),
+    S.documentTypeListItem('division').title('Divisions'),
+    // S.documentTypeListItem('conference').title('Conferences'),
+    S.listItem()
+      .title('Conferences')
+      .child(
+        S.documentTypeList('division')
+          .defaultOrdering([{ field: 'name', direction: 'asc' }])
+          .canHandleIntent(S.documentTypeList('division').getCanHandleIntent())
+          .child((divisionId) =>
+            S.documentList()
+              .id('conference')
+              .title('Conferences')
+              .filter('_type == "conference" && division._ref == $divisionId')
+              .params({ divisionId })
+              .canHandleIntent(S.documentTypeList('conference').getCanHandleIntent())
+              .defaultOrdering([{ field: 'name', direction: 'asc' }])
+              .initialValueTemplates([
+                S.initialValueTemplateItem('conference', {
+                  divisionId,
+                }),
+              ]),
+          ),
       ),
     S.divider(),
     S.listItem()
@@ -133,9 +156,9 @@ export const deskStructure = async (S, context) => {
                         .id(type)
                         .title(`Posts from ${year}`)
                         .filter(`_id in $ids`)
-                        .params({ ids: years[year] })
+                        .params({ ids: years[year] }),
                     )
-                })
+                }),
               )
           })
       }),

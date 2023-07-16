@@ -6,6 +6,8 @@ import player from './documents/player'
 import school from './documents/school'
 import { redirect } from './documents/redirect'
 import transferPortal from './documents/transferPortal'
+import conference from './documents/conference'
+import division from './documents/division'
 
 import mainImage from './objects/mainImage'
 import blockContent from './objects/blockContent'
@@ -24,6 +26,8 @@ export const schemaTypes = [
   school,
   redirect,
   transferPortal,
+  conference,
+  division,
   mainImage,
   blockContent,
   position,

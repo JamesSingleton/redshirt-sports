@@ -84,6 +84,22 @@ export default defineConfig({
           parentCategory: { _type: 'reference', _ref: categoryId },
         }),
       },
+      {
+        id: 'conference',
+        schemaType: 'conference',
+        title: 'Conference',
+        parameters: [
+          {
+            name: 'divisionId',
+            type: 'string',
+          },
+        ],
+        value: ({ divisionId }: { divisionId: string }) => {
+          return {
+            division: { _type: 'reference', _ref: divisionId },
+          }
+        },
+      },
       ...prev,
     ],
   },

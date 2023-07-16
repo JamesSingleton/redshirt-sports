@@ -119,6 +119,20 @@ export default defineType({
       hidden: ({ document }) => !document?.parentCategory,
     }),
     defineField({
+      title: 'Division',
+      name: 'division',
+      description: 'What division does this article belong to?',
+      type: 'reference',
+      to: [{ type: 'division' }],
+    }),
+    defineField({
+      title: 'Conferences',
+      name: 'conferences',
+      description: 'What conferences does this article mention?',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'conference' }] }],
+    }),
+    defineField({
       title: 'Is this a featured article?',
       description: 'Only select Featured if it has been discussed with everyone on the team.',
       name: 'featuredArticle',
@@ -131,6 +145,12 @@ export default defineType({
         'Set it to the date and time you want to publish the article, usually the day you are writing it.',
       type: 'datetime',
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'category' }] }],
     }),
     defineField({
       name: 'excerpt',
