@@ -59,7 +59,6 @@ const postFields = `
       metadata
     }
   },
-  category,
   "parentCategory": parentCategory->{title, 'slug': slug.current},
   "subcategory": subcategory->{title, 'slug': slug.current, "parentSlug": parent->slug.current,
   "parentTitle": parent->title,},
@@ -97,7 +96,6 @@ const litePostFields = `
       metadata
     },
   },
-  category,
   "parentCategory": parentCategory->{title, 'slug': slug.current},
   "subcategory": subcategory->{title, 'slug': slug.current, "parentSlug": parent->slug.current,
   "parentTitle": parent->title,},
@@ -154,20 +152,6 @@ export const otherArticlesQuery = groq`
   ${litePostFields}
 }
 `
-
-export const categoryBySlugQuery = groq`
-*[_type == "category" && slug.current == $slug][0]{
-  _id,
-  title,
-  pageHeader,
-  subTitle,
-  "slug": slug.current,
-  description,
-  "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
-    ${litePostFields}
-  },
-  "totalPosts": count(*[_type == "post" && references(^._id)])
-}`
 
 export const subcategoryBySlugQuery = groq`
 *[_type == "category" && defined(parent->slug.current) && slug.current == $slug && count(*[_type == 'post' && references(^._id)]) > 0][0]{
@@ -322,4 +306,61 @@ export const transferPortalPlayers = groq`
       ...
     },
   }
+`
+
+export const divisionsQuery = groq`
+*[_type == "division"]{
+  ...,
+  "slug": slug.current,
+  conferences[]->{
+    ...,
+    "slug": slug.current,
+  }
+} | order(name desc)
+`
+
+export const divisionBySlugQuery = groq`
+*[_type == "division" && slug.current == $slug][0]{
+  ...,
+  "slug": slug.current,
+  "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+    ${litePostFields}
+    "division": division->{
+      name,
+      "slug": slug.current,
+    },
+    conferences[]->{
+      name,
+      shortName,
+      "slug": slug.current,
+      "divisionSlug": division->slug.current,
+    }
+  },
+  "totalPosts": count(*[_type == "post" && references(^._id)])
+}
+`
+
+export const conferenceBySlugQuery = groq`
+*[_type == "conference" && slug.current == $slug][0]{
+  ...,
+  "slug": slug.current,
+  "division": division-> {
+    name,
+    "slug": slug.current,
+  },
+  "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+    ${litePostFields}
+    "division": division->{
+      name,
+      "slug": slug.current,
+    },
+    conferences[]->{
+      name,
+      shortName,
+      "slug": slug.current,
+      "divisionSlug": division->slug.current,
+    }
+  },
+  "totalPosts": count(*[_type == "post" && references(^._id)])
+}
 `

@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity'
+import { defineType, defineField, defineArrayMember } from 'sanity'
 import { DocumentTextIcon } from '@sanity/icons'
 import CustomStringInputWithLimits from '../../plugins/CustomStringInputWithLimits'
 
@@ -79,26 +79,30 @@ export default defineType({
         }),
       ],
     }),
-    defineField({
-      title: 'Category',
-      name: 'category',
-      description: 'High level category of the article (FBS or FCS)',
-      type: 'string',
-      options: {
-        list: [
-          {
-            title: 'FCS',
-            value: 'FCS',
-          },
-          {
-            title: 'FBS',
-            value: 'FBS',
-          },
-        ],
-        layout: 'radio', // <-- defaults to 'dropdown'
-      },
-      validation: (rule) => rule.required(),
-    }),
+    // defineField({
+    //   title: 'Category',
+    //   name: 'category',
+    //   description: 'High level category of the article (FBS or FCS)',
+    //   type: 'string',
+    //   options: {
+    //     list: [
+    //       {
+    //         title: 'FCS',
+    //         value: 'FCS',
+    //       },
+    //       {
+    //         title: 'FBS',
+    //         value: 'FBS',
+    //       },
+    //       {
+    //         title: 'D2',
+    //         value: 'D2',
+    //       },
+    //     ],
+    //     layout: 'radio', // <-- defaults to 'dropdown'
+    //   },
+    //   validation: (rule) => rule.required(),
+    // }),
     defineField({
       title: 'Category',
       name: 'parentCategory',
@@ -130,7 +134,21 @@ export default defineType({
       name: 'conferences',
       description: 'What conferences does this article mention?',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'conference' }] }],
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: [{ type: 'conference' }],
+          options: {
+            filter: ({ document }) => ({
+              filter: 'division._ref == $divisionId',
+              params: {
+                // @ts-ignore
+                divisionId: document?.division?._ref,
+              },
+            }),
+          },
+        }),
+      ],
     }),
     defineField({
       title: 'Is this a featured article?',

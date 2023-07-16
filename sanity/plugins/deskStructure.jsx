@@ -99,8 +99,9 @@ export const deskStructure = async (S, context) => {
               ),
           ),
       ),
-    S.documentTypeListItem('division').title('Divisions'),
-    // S.documentTypeListItem('conference').title('Conferences'),
+    S.listItem()
+      .title('Divisions')
+      .child(S.documentTypeList('division').defaultOrdering([{ field: 'name', direction: 'asc' }])),
     S.listItem()
       .title('Conferences')
       .child(

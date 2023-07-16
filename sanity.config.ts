@@ -64,7 +64,6 @@ export default defineConfig({
           },
         ],
         value: ({ parentId }: { parentId: string }) => {
-          console.log('parentId', parentId)
           return {
             parent: { _type: 'reference', _ref: parentId },
           }

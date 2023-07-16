@@ -26,7 +26,7 @@ export type Author = {
       _key: string
       name: string
       url: string
-    }
+    },
   ]
 }
 
@@ -52,6 +52,15 @@ export type Post = {
     parentSlug: string
     parentTitle: string
   }
+  division: {
+    name: string
+    slug: string
+  }
+  conferences: {
+    name: string
+    shortName: string
+    slug: string
+  }[]
   featuredArticle: boolean
   excerpt: string
   body?: PortableTextBlock[]

@@ -3,7 +3,7 @@ import { ImageResponse, NextRequest } from 'next/server'
 export const runtime = 'edge'
 
 const industryBase = fetch(new URL('./IndustryInc-Base.ttf', import.meta.url)).then((res) =>
-  res.arrayBuffer()
+  res.arrayBuffer(),
 )
 
 export async function GET(req: NextRequest): Promise<Response | ImageResponse> {
@@ -54,12 +54,11 @@ export async function GET(req: NextRequest): Promise<Response | ImageResponse> {
             weight: 400,
           },
         ],
-      }
+      },
     )
   } catch (e) {
     if (!(e instanceof Error)) throw e
 
-    console.log(e.message)
     return new Response(`Failed to generate the image`, {
       status: 500,
     })

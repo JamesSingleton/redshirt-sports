@@ -41,11 +41,13 @@ export interface PostPayload {
   wordCount: number
 }
 
-export interface CategoryPayload {
+export interface DivisionPayload {
   _id: string
   _updatedAt: string
   title: string
+  name: string
   pageHeader: string
+  heading: string
   subTitle: string
   slug: string
   description: string

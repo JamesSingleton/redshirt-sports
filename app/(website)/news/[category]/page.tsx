@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 
-import { getCategoryBySlug } from '@lib/sanity.client'
+import { getDivisionBySlug } from '@lib/sanity.client'
 import { ArticleCard, Pagination, Breadcrumbs } from '@components/ui'
 import { baseUrl } from '@lib/constants'
 
@@ -16,25 +16,25 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
-  const category = await getCategoryBySlug({ slug: params.category, pageIndex })
+  const division = await getDivisionBySlug({ slug: params.category, pageIndex })
 
-  if (!category) {
+  if (!division) {
     return {}
   }
 
-  let title = `${category?.pageHeader}, Rumors, and More`
-  let canonical = `${baseUrl}/news/${category?.slug}`
+  let title = `${division?.heading}, Rumors, and More`
+  let canonical = `${baseUrl}/news/${division?.slug}`
   if (pageIndex > 1) {
-    title = `${category?.pageHeader}, Rumors, and More - Page ${pageIndex}`
-    canonical = `${baseUrl}/news/${category?.slug}?page=${pageIndex}`
+    title = `${division?.heading}, Rumors, and More - Page ${pageIndex}`
+    canonical = `${baseUrl}/news/${division?.slug}?page=${pageIndex}`
   }
 
   return {
     title,
-    description: category?.description,
+    description: division?.description,
     openGraph: {
       title,
-      description: category?.description,
+      description: division?.description,
       url: canonical,
       siteName: 'Redshirt Sports',
       locale: 'en_US',
@@ -51,7 +51,7 @@ export async function generateMetadata({
     twitter: {
       card: 'summary_large_image',
       title,
-      description: category?.description,
+      description: division?.description,
     },
     alternates: {
       canonical,
@@ -68,19 +68,23 @@ export default async function Page({
 }) {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
-  const category = await getCategoryBySlug({ slug: params.category, pageIndex })
+  const division = await getDivisionBySlug({ slug: params.category, pageIndex })
 
-  if (!category) {
+  if (!division) {
     return notFound()
   }
-  const totalPages = Math.ceil(category?.totalPosts / 10)
+  const totalPages = Math.ceil(division?.totalPosts / 10)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
 
   const breadcrumbs = [
     {
-      title: category?.title,
-      href: `/news/${category?.slug}`,
+      title: 'News',
+      href: '/news',
+    },
+    {
+      title: division?.name,
+      href: `/news/${division?.slug}`,
     },
   ]
 
@@ -90,13 +94,13 @@ export default async function Page({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="md:max-w-3xl xl:max-w-5xl">
             <Breadcrumbs breadCrumbPages={breadcrumbs} />
-            {category?.pageHeader && (
+            {division?.pageHeader && (
               <span className="mt-8 block text-sm uppercase tracking-widest text-brand-500 dark:text-brand-300">
-                {category?.subTitle}
+                {division?.subTitle}
               </span>
             )}
             <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
-              {category.pageHeader}
+              {division.heading}
             </h1>
           </div>
         </div>
@@ -105,7 +109,7 @@ export default async function Page({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div>Filters Will Go Here</div>
           <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-            {category.posts.map((post: Post) => (
+            {division.posts.map((post: Post) => (
               <ArticleCard
                 key={post._id}
                 title={post.title}
@@ -113,11 +117,11 @@ export default async function Page({
                 date={post.publishedAt}
                 image={post.mainImage}
                 slug={post.slug}
-                parentCategory={post.parentCategory}
-                subcategory={post.subcategory}
+                division={post.division}
+                conferences={post.conferences}
               />
             ))}
-            {!category.posts.length && (
+            {!division.posts.length && (
               <div className="col-span-3">
                 <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
                   Coming Soon
@@ -128,7 +132,7 @@ export default async function Page({
           {totalPages > 1 && (
             <Pagination
               currentPage={pageIndex}
-              totalPosts={category.totalPosts}
+              totalPosts={division.totalPosts}
               nextDisabled={nextDisabled}
               prevDisabled={prevDisabled}
               slug={`/news/${params.category}`}

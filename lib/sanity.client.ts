@@ -10,13 +10,12 @@ import {
   recentArticlesQuery,
   featuredArticlesQuery,
   otherArticlesQuery,
-  categoryBySlugQuery,
   authors,
   postsForRssFeed,
   subCategorySlugQuery,
   parentCategorySlugQuery,
   postSlugsQuery,
-  subcategoryBySlugQuery,
+  conferenceBySlugQuery,
   categoriesQuery,
   sitemapQuery,
   transferPortalPlayers,
@@ -24,8 +23,10 @@ import {
   conferencesAuthorHasWrittenFor,
   authorsPosts,
   authorSlugsQuery,
+  divisionsQuery,
+  divisionBySlugQuery,
 } from '@lib/sanity.queries'
-import { CategoryPayload, PrivacyPolicyPagePayload, PostPayload, Author, AuthorPosts } from '@types'
+import { DivisionPayload, PrivacyPolicyPagePayload, PostPayload, Author, AuthorPosts } from '@types'
 
 export function getClient(preview?: { token: string }): SanityClient {
   const client = createClient({
@@ -118,24 +119,24 @@ export async function getMorePostsBySlug({
   return await sanityClient(token)?.fetch(morePostsBySlugQuery, { slug })
 }
 
-export async function getCategoryBySlug({
+export async function getDivisionBySlug({
   slug,
   pageIndex,
 }: {
   slug: string
   pageIndex: number
-}): Promise<CategoryPayload> {
-  return await sanityClient()?.fetch(categoryBySlugQuery, { slug, pageIndex })
+}): Promise<DivisionPayload> {
+  return await sanityClient()?.fetch(divisionBySlugQuery, { slug, pageIndex })
 }
 
-export async function getSubcategoryBySlug({
+export async function getConferenceBySlug({
   slug,
   pageIndex,
 }: {
   slug: string
   pageIndex: number
 }): Promise<any> {
-  return await sanityClient()?.fetch(subcategoryBySlugQuery, { slug, pageIndex })
+  return await sanityClient()?.fetch(conferenceBySlugQuery, { slug, pageIndex })
 }
 
 export async function getAuthorsBySlug({
@@ -208,4 +209,8 @@ export async function getConferencesAuthorHasWrittenFor({
   authorId: string
 }): Promise<any> {
   return await sanityClient().fetch(conferencesAuthorHasWrittenFor, { authorId })
+}
+
+export async function getDivisions(): Promise<any> {
+  return await sanityClient()?.fetch(divisionsQuery)
 }

@@ -11,15 +11,15 @@ type ArticleCardProps = {
   date: string
   image: any
   slug: string
-  parentCategory: {
-    title: string
+  division: {
+    name: string
     slug: string
   }
-  subcategory: {
-    title: string
+  conferences: {
+    name: string
+    shortName: string
     slug: string
-    parentSlug: string
-  }
+  }[]
 }
 
 const ArticleCard = ({
@@ -28,8 +28,8 @@ const ArticleCard = ({
   date,
   image,
   slug,
-  parentCategory,
-  subcategory,
+  division,
+  conferences,
 }: ArticleCardProps) => {
   return (
     <div>
@@ -47,20 +47,19 @@ const ArticleCard = ({
       </Link>
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href={`/news/${parentCategory.slug}`}
-            className={badgeVariants({ variant: 'default' })}
-          >
-            {parentCategory.title}
+          <Link href={`/news/${division.slug}`} className={badgeVariants({ variant: 'default' })}>
+            {division.name}
           </Link>
-          {subcategory && (
-            <Link
-              href={`/news/${subcategory.parentSlug}/${subcategory.slug}`}
-              className={badgeVariants({ variant: 'default' })}
-            >
-              {subcategory.title}
-            </Link>
-          )}
+          {conferences &&
+            conferences.map((conference) => (
+              <Link
+                key={conference.slug}
+                href={`/news/${division.slug}/${conference.slug}`}
+                className={badgeVariants({ variant: 'default' })}
+              >
+                {conference.shortName ?? conference.name}
+              </Link>
+            ))}
         </div>
         <span className="text-sm">•</span>
         <Date dateString={date} />
