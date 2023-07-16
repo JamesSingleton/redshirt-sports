@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'article',
       title: post.title,
       authors: [post.author.name],
-      section: post.parentCategory.title,
+      section: post.division.name,
       url: `https://www.redshirtsports.xyz/${post.slug}`,
       publishedTime: post.publishedAt,
       modifiedTime: post._updatedAt,
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       'twitter:label1': 'Reading time',
       'twitter:data1': `${post.estimatedReadingTime} min read`,
     },
-    keywords: [post.parentCategory.title, post.subcategory ? post.subcategory.title : ''],
+    keywords: [post.division.name, ...post.conferences.map((conference) => conference.name)],
   }
 }
 
@@ -87,8 +87,12 @@ export default async function Page({ params }: PageProps) {
 
   const breadcrumbs = [
     {
-      title: post.parentCategory.title,
-      href: `/news/${post.parentCategory.slug}`,
+      title: 'News',
+      href: '/news',
+    },
+    {
+      title: post.division.name,
+      href: `/news/${post.division.slug}`,
     },
     {
       title: post.title,
@@ -110,19 +114,21 @@ export default async function Page({ params }: PageProps) {
             <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-10">
               <div className="flex flex-wrap items-center gap-2">
                 <Link
-                  href={`/news/${post.parentCategory.slug}`}
+                  href={`/news/${post.division.slug}`}
                   className={badgeVariants({ variant: 'default' })}
                 >
-                  {post.parentCategory.title}
+                  {post.division.name}
                 </Link>
-                {post.subcategory && (
-                  <Link
-                    href={`/news/${post.subcategory.parentSlug}/${post.subcategory.slug}`}
-                    className={badgeVariants({ variant: 'default' })}
-                  >
-                    {post.subcategory.title}
-                  </Link>
-                )}
+                {post.conferences &&
+                  post.conferences.map((conference) => (
+                    <Link
+                      key={conference.slug}
+                      href={`/news/${post.division.slug}/${conference.slug}`}
+                      className={badgeVariants({ variant: 'default' })}
+                    >
+                      {conference.name}
+                    </Link>
+                  ))}
               </div>
               <span className="text-sm">•</span>
               <Date dateString={post.publishedAt} className="text-sm" />
@@ -169,8 +175,8 @@ export default async function Page({ params }: PageProps) {
                 date={morePost.publishedAt}
                 image={morePost.mainImage}
                 slug={morePost.slug}
-                parentCategory={morePost.parentCategory}
-                subcategory={morePost.subcategory}
+                division={morePost.division}
+                conferences={morePost.conferences}
               />
             ))}
           </div>

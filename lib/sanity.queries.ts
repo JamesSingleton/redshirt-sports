@@ -59,9 +59,15 @@ const postFields = `
       metadata
     }
   },
-  "parentCategory": parentCategory->{title, 'slug': slug.current},
-  "subcategory": subcategory->{title, 'slug': slug.current, "parentSlug": parent->slug.current,
-  "parentTitle": parent->title,},
+  division->{
+    name,
+    "slug": slug.current,
+  },
+  conferences[]->{
+    name,
+    shortName,
+    "slug": slug.current,
+  },
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, bio, role, socialMedia, image},
   excerpt,
@@ -127,7 +133,17 @@ export const latestDivisionArticlesQuery = groq`
 
 export const morePostsBySlugQuery = groq`
 *[_type == "post" && slug.current != $slug]{
-  ${postFields}
+  ${litePostFields}
+  division->{
+    name,
+    "slug": slug.current,
+  },
+  conferences[]->{
+    name,
+    shortName,
+    "slug": slug.current,
+    "divisionSlug": division->slug.current,
+  }
 }| order(publishedAt desc) [0...3]`
 
 export const heroArticleQuery = groq`

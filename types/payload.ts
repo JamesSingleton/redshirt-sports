@@ -22,16 +22,15 @@ export interface PostPayload {
   publishedAt: string
   mainImage: MainImage
   category: string
-  parentCategory: {
-    title: string
+  division: {
+    name: string
     slug: string
   }
-  subcategory: {
-    title: string
+  conferences: {
+    name: string
+    shortName: string
     slug: string
-    parentSlug: string
-    parentTitle: string
-  }
+  }[]
   slug: string
   author: Author
   excerpt: string

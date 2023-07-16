@@ -47,9 +47,11 @@ const ArticleCard = ({
       </Link>
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <Link href={`/news/${division.slug}`} className={badgeVariants({ variant: 'default' })}>
-            {division.name}
-          </Link>
+          {division && (
+            <Link href={`/news/${division.slug}`} className={badgeVariants({ variant: 'default' })}>
+              {division.name}
+            </Link>
+          )}
           {conferences &&
             conferences.map((conference) => (
               <Link
