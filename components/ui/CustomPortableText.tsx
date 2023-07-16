@@ -60,6 +60,8 @@ export function CustomPortableText({
             className="underline transition hover:opacity-50"
             href={value?.href}
             rel="noreferrer noopener"
+            target="_blank"
+            aria-label="Opens in a new tab"
           >
             {children}
           </a>

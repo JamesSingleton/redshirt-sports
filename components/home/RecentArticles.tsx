@@ -29,7 +29,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                 </Link>
               </div>
               <div className="order-1 mt-5 w-full px-2 md:mt-0 md:max-w-sm md:pl-0 md:pr-5 lg:order-2 lg:mt-4 xl:ml-5 xl:mt-0 xl:flex-1">
-                <Link
+                {/* <Link
                   href={
                     post.subcategory !== null
                       ? `/news/${post.subcategory.parentSlug}/${post.subcategory.slug}`
@@ -38,7 +38,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                   className="rounded-sm bg-brand-500 p-1 text-xs font-medium uppercase tracking-widest text-white duration-300 ease-in-out hover:bg-brand-300"
                 >
                   {post.subcategory !== null ? post.subcategory.title : post.category}
-                </Link>
+                </Link> */}
                 <h3 className="=transition mt-2 font-cal text-xl font-medium leading-normal tracking-normal duration-300 ease-in-out">
                   <Link href={`/${post.slug}`}>{post.title}</Link>
                 </h3>

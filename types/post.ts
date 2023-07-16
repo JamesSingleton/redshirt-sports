@@ -16,6 +16,7 @@ export type Author = {
   _id: string
   _updatedAt: string
   publishedAt: string
+  archived: boolean
   name: string
   slug: string
   role: string
@@ -41,17 +42,6 @@ export type Post = {
   publishedAt: string
   slug: string
   title: string
-  category: string
-  parentCategory: {
-    title: string
-    slug: string
-  }
-  subcategory: {
-    title: string
-    slug: string
-    parentSlug: string
-    parentTitle: string
-  }
   division: {
     name: string
     slug: string

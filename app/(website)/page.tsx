@@ -40,8 +40,8 @@ export default async function Page() {
                     date={article.publishedAt}
                     image={article.mainImage}
                     slug={article.slug.current}
-                    parentCategory={article.parentCategory}
-                    subcategory={article.subcategory}
+                    division={article.division}
+                    conferences={article.conferences}
                   />
                 ))}
               </div>
@@ -70,8 +70,8 @@ export default async function Page() {
                     date={article.publishedAt}
                     image={article.mainImage}
                     slug={article.slug.current}
-                    parentCategory={article.parentCategory}
-                    subcategory={article.subcategory}
+                    division={article.division}
+                    conferences={article.conferences}
                   />
                 ))}
               </div>
@@ -100,8 +100,8 @@ export default async function Page() {
                     date={article.publishedAt}
                     image={article.mainImage}
                     slug={article.slug.current}
-                    parentCategory={article.parentCategory}
-                    subcategory={article.subcategory}
+                    division={article.division}
+                    conferences={article.conferences}
                   />
                 ))}
               </div>

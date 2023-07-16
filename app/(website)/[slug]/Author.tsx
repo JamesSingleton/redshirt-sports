@@ -17,26 +17,44 @@ const Author = (author: Author) => {
   return (
     <div className="lg:sticky lg:left-0 lg:top-24 lg:mt-12 lg:self-start">
       <div className="flex flex-row lg:flex-col">
-        <Link
-          href={`/authors/${author.slug}`}
-          className="mb-4 block h-24 w-24 overflow-hidden rounded-full"
-        >
-          <ImageComponent
-            image={author.image}
-            alt={author.name}
-            className="h-full w-full object-cover"
-            width={96}
-            height={96}
-          />
-        </Link>
-        <div className="ml-4 lg:ml-0">
-          <Link href={`/authors/${author.slug}`} className="mt-5 text-xl font-bold">
-            {author.name}
+        {author.archived ? (
+          <div className="mb-4 block h-24 w-24 overflow-hidden rounded-full">
+            <ImageComponent
+              image={author.image}
+              alt={author.name}
+              className="h-full w-full object-cover"
+              width={96}
+              height={96}
+            />
+          </div>
+        ) : (
+          <Link
+            href={`/authors/${author.slug}`}
+            className="mb-4 block h-24 w-24 overflow-hidden rounded-full"
+          >
+            <ImageComponent
+              image={author.image}
+              alt={author.name}
+              className="h-full w-full object-cover"
+              width={96}
+              height={96}
+            />
           </Link>
-          <p className="mt-4 text-base font-normal">{author.role}</p>
+        )}
+        <div className="ml-4 lg:ml-0">
+          {author.archived ? (
+            <p className="text-xl font-bold">{author.name}</p>
+          ) : (
+            <>
+              <Link href={`/authors/${author.slug}`} className="mt-5 text-xl font-bold">
+                {author.name}
+              </Link>
+              <p className="mt-4 text-base font-normal">{author.role}</p>
+            </>
+          )}
         </div>
       </div>
-      {author.socialMedia && (
+      {!author.archived && author.socialMedia && (
         <ul className="hidden lg:mt-8 lg:flex lg:items-center lg:gap-3">
           {author.socialMedia.map((social) => (
             <li key={social._key}>

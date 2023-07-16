@@ -58,6 +58,28 @@ export default defineType({
           type: 'block',
           styles: [{ title: 'Normal', value: 'normal' }],
           lists: [],
+          marks: {
+            annotations: [
+              {
+                name: 'link',
+                type: 'object',
+                title: 'External Link',
+                fields: [
+                  {
+                    name: 'href',
+                    type: 'url',
+                    title: 'URL',
+                  },
+                  {
+                    title: 'Open in new tab',
+                    name: 'blank',
+                    type: 'boolean',
+                    initialValue: true,
+                  },
+                ],
+              },
+            ],
+          },
         },
       ],
       validation: (rule) => rule.required(),

@@ -53,3 +53,8 @@ export interface DivisionPayload {
   posts: Post[]
   totalPosts: number
 }
+
+export interface PostsWithPaginationPayload {
+  posts: Post[]
+  totalPosts: number
+}

@@ -12,7 +12,6 @@ import { media } from 'sanity-plugin-media'
 import { schemaTypes, PREVIEWABLE_DOCUMENT_TYPES } from '@schemas/index'
 import { apiVersion, previewSecretId, projectId } from '@lib/sanity.api'
 import { defaultDocumentNodeResolver, deskStructure } from '@plugins/deskStructure'
-import { previewDocumentNode } from '@plugins/previewPane'
 import { productionUrl } from '@plugins/productionUrl'
 
 export default defineConfig({
@@ -105,7 +104,7 @@ export default defineConfig({
   plugins: [
     deskTool({
       structure: deskStructure,
-      defaultDocumentNode: previewDocumentNode({ apiVersion, previewSecretId }),
+      defaultDocumentNode: defaultDocumentNodeResolver,
     }),
     visionTool({
       defaultApiVersion: apiVersion,

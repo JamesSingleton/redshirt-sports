@@ -149,6 +149,7 @@ export default defineType({
           },
         }),
       ],
+      hidden: ({ document }) => !document?.division,
     }),
     defineField({
       title: 'Is this a featured article?',

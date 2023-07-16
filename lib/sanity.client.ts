@@ -25,8 +25,16 @@ import {
   authorSlugsQuery,
   divisionsQuery,
   divisionBySlugQuery,
+  paginatedPostsQuery,
 } from '@lib/sanity.queries'
-import { DivisionPayload, PrivacyPolicyPagePayload, PostPayload, Author, AuthorPosts } from '@types'
+import {
+  DivisionPayload,
+  PrivacyPolicyPagePayload,
+  PostPayload,
+  Author,
+  AuthorPosts,
+  PostsWithPaginationPayload,
+} from '@types'
 
 export function getClient(preview?: { token: string }): SanityClient {
   const client = createClient({
@@ -213,4 +221,12 @@ export async function getConferencesAuthorHasWrittenFor({
 
 export async function getDivisions(): Promise<any> {
   return await sanityClient()?.fetch(divisionsQuery)
+}
+
+export async function getPaginatedPosts({
+  pageIndex,
+}: {
+  pageIndex: number
+}): Promise<PostsWithPaginationPayload> {
+  return await sanityClient()?.fetch(paginatedPostsQuery, { pageIndex })
 }

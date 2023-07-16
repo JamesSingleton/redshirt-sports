@@ -52,7 +52,10 @@ export async function generateMetadata({
       lastName: author?.name.split(' ')[1],
       images: [
         {
-          url: urlForImage(author?.image).width(1200).height(630).url(),
+          url: urlForImage(author?.image)
+            .width(1200)
+            .height(630)
+            .url(),
           width: 1200,
           height: 630,
           alt: author?.name,
@@ -96,6 +99,7 @@ export default async function Page({
   ]
 
   const authorPosts = await getAuthorsPosts({ authorId, pageIndex, conference })
+
   const totalPages = Math.ceil(authorPosts.totalPosts / 10)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
@@ -269,9 +273,9 @@ export default async function Page({
                 slug={post.slug}
                 image={post.mainImage}
                 excerpt={post.excerpt}
-                parentCategory={post.parentCategory}
-                subcategory={post.subcategory}
                 date={post.publishedAt}
+                division={post.division}
+                conferences={post.conferences}
               />
             ))}
           </div>

@@ -23,16 +23,6 @@ const LatestStory: FC<LatestStoryProps> = ({ post }) => {
           />
         </Link>
         <div className="mt-6 md:align-middle">
-          <Link
-            href={
-              post.subcategory !== null
-                ? `/news/${post.subcategory.parentSlug}/${post.subcategory.slug}`
-                : `/news/${post.category.toLowerCase()}`
-            }
-            className="rounded-sm bg-brand-500 p-1 text-xs font-medium uppercase tracking-widest text-white duration-300 ease-in-out hover:bg-brand-300"
-          >
-            {post.subcategory !== null ? post.subcategory.title : post.category}
-          </Link>
           <div className="mt-3 block">
             <h1 className="font-cal text-3xl font-medium tracking-normal transition duration-300 ease-in-out md:tracking-tight lg:text-4xl lg:leading-tight">
               <Link href={`/${post.slug}`}>{post.title}</Link>
