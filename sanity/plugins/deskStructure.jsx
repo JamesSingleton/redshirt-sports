@@ -10,7 +10,7 @@ export const defaultDocumentNodeResolver = (S) => {
     S.view
       .component(DocumentsPane)
       .options({
-        query: `*[references($id)]`,
+        query: `*[references($id)] | order(_createdAt desc)`,
         params: { id: `_id` },
         useDraft: false,
       })

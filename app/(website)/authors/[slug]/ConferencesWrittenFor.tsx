@@ -10,12 +10,18 @@ const ConferencesWrittenFor = ({
   conferences,
   slug,
 }: {
-  conferences: Conference[]
+  conferences: {
+    _id: string
+    name: string
+    path: string
+    shortName: string
+  }[]
   slug: string
 }) => {
   const searchParams = useSearchParams()
   const conferenceParam = searchParams.get('conference')
   const page = searchParams.get('page')
+  const filteredConferences = conferences?.filter((conference) => conference !== null)
 
   const inActiveClass =
     'inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-900'
@@ -27,23 +33,25 @@ const ConferencesWrittenFor = ({
       <Link
         href={`/authors/${slug}`}
         className={clsx(conferenceParam === null ? activeClass : inActiveClass)}
+        title="All Articles"
       >
         All Articles
       </Link>
-      {conferences?.map((conference) => (
+      {filteredConferences?.map((conference) => (
         <Link
           prefetch={false}
           key={conference._id}
           href={{
             pathname: `/authors/${slug}`,
             query: {
-              conference: conference.title,
+              conference: conference.name,
               ...(page && conferenceParam ? { page } : {}),
             },
           }}
-          className={clsx(conferenceParam === conference.title ? activeClass : inActiveClass)}
+          className={clsx(conferenceParam === conference.name ? activeClass : inActiveClass)}
+          title={`${conference.name} Articles`}
         >
-          {conference.title}
+          {conference.shortName ?? conference.name}
         </Link>
       ))}
     </div>

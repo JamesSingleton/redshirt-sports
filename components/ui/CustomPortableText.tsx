@@ -61,7 +61,8 @@ export function CustomPortableText({
             href={value?.href}
             rel="noreferrer noopener"
             target="_blank"
-            aria-label="Opens in a new tab"
+            aria-label={`Opens ${value?.href} in a new tab`}
+            title={`Opens ${value?.href} in a new tab`}
           >
             {children}
           </a>

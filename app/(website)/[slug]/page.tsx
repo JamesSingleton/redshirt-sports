@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'article',
       title: post.title,
       authors: [post.author.name],
-      section: post.division.name,
+      section: post.division ? post.division.name : undefined,
       url: `https://www.redshirtsports.xyz/${post.slug}`,
       publishedTime: post.publishedAt,
       modifiedTime: post._updatedAt,
@@ -70,7 +70,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       'twitter:label1': 'Reading time',
       'twitter:data1': `${post.estimatedReadingTime} min read`,
     },
-    keywords: [post.division.name, ...post.conferences.map((conference) => conference.name)],
+    keywords:
+      post.division && post.conferences
+        ? [post.division.name, ...post.conferences.map((conference) => conference.name)]
+        : undefined,
   }
 }
 
@@ -90,7 +93,8 @@ export default async function Page({ params }: PageProps) {
       title: 'News',
       href: '/news',
     },
-    {
+    // only include division if it exists
+    post.division && {
       title: post.division.name,
       href: `/news/${post.division.slug}`,
     },
@@ -112,25 +116,31 @@ export default async function Page({ params }: PageProps) {
             </h1>
             <p className="mt-4 text-lg font-normal lg:text-xl">{post.excerpt}</p>
             <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-10">
-              <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  href={`/news/${post.division.slug}`}
-                  className={badgeVariants({ variant: 'default' })}
-                >
-                  {post.division.name}
-                </Link>
-                {post.conferences &&
-                  post.conferences.map((conference) => (
-                    <Link
-                      key={conference.slug}
-                      href={`/news/${post.division.slug}/${conference.slug}`}
-                      className={badgeVariants({ variant: 'default' })}
-                    >
-                      {conference.name}
-                    </Link>
-                  ))}
-              </div>
-              <span className="text-sm">•</span>
+              {(post.division || post.conferences) && (
+                <>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {post.division && (
+                      <Link
+                        href={`/news/${post.division.slug}`}
+                        className={badgeVariants({ variant: 'default' })}
+                      >
+                        {post.division.name}
+                      </Link>
+                    )}
+                    {post.conferences &&
+                      post.conferences.map((conference) => (
+                        <Link
+                          key={conference.slug}
+                          href={`/news/${post.division.slug}/${conference.slug}`}
+                          className={badgeVariants({ variant: 'default' })}
+                        >
+                          {conference.shortName ?? conference.name}
+                        </Link>
+                      ))}
+                  </div>
+                  <span className="text-sm">•</span>
+                </>
+              )}
               <Date dateString={post.publishedAt} className="text-sm" />
             </div>
           </div>

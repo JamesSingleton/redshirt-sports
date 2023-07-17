@@ -46,24 +46,31 @@ const ArticleCard = ({
         />
       </Link>
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          {division && (
-            <Link href={`/news/${division.slug}`} className={badgeVariants({ variant: 'default' })}>
-              {division.name}
-            </Link>
-          )}
-          {conferences &&
-            conferences.map((conference) => (
-              <Link
-                key={conference.slug}
-                href={`/news/${division.slug}/${conference.slug}`}
-                className={badgeVariants({ variant: 'default' })}
-              >
-                {conference.shortName ?? conference.name}
-              </Link>
-            ))}
-        </div>
-        <span className="text-sm">•</span>
+        {(division || conferences) && (
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              {division && (
+                <Link
+                  href={`/news/${division.slug}`}
+                  className={badgeVariants({ variant: 'default' })}
+                >
+                  {division.name}
+                </Link>
+              )}
+              {conferences &&
+                conferences.map((conference) => (
+                  <Link
+                    key={conference.slug}
+                    href={`/news/${division.slug}/${conference.slug}`}
+                    className={badgeVariants({ variant: 'default' })}
+                  >
+                    {conference.shortName ?? conference.name}
+                  </Link>
+                ))}
+            </div>
+            <span className="text-sm">•</span>
+          </>
+        )}
         <Date dateString={date} />
       </div>
       <Link href={`/${slug}`} className="mt-4 block">

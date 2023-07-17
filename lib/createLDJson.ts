@@ -58,8 +58,8 @@ export const createPostLDJson = (post: Post) => ({
         {
           '@type': 'ListItem',
           position: 2,
-          name: post.category,
-          item: `https://www.redshirtsports.xyz/${post.category.toLowerCase()}`,
+          name: post.division.name,
+          item: `https://www.redshirtsports.xyz/${post.division.slug}`,
         },
         {
           '@type': 'ListItem',
@@ -94,7 +94,7 @@ export const createPostLDJson = (post: Post) => ({
         urlForImage(post.mainImage).width(1200).height(1200).fit('scale').url(),
       ],
       thumbnailUrl: urlForImage(post.mainImage).url(),
-      articleSection: [post.category],
+      articleSection: [post.division.name],
       inLanguage: 'en-US',
     },
     {

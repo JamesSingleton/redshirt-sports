@@ -87,6 +87,7 @@ export default async function Page({
 
   const authorId = author._id
   const conferencesWrittenFor = await getConferencesAuthorHasWrittenFor({ authorId })
+
   const breadcrumbs = [
     {
       title: 'Authors',
@@ -263,7 +264,7 @@ export default async function Page({
       <section className="py-12 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Suspense fallback={<div>Loading...</div>}>
-            <ConferencesWrittenFor conferences={conferencesWrittenFor.subcategories} slug={slug} />
+            <ConferencesWrittenFor conferences={conferencesWrittenFor.conferences} slug={slug} />
           </Suspense>
           <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
             {authorPosts.posts.map((post) => (

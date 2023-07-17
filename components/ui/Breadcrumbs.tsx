@@ -10,6 +10,7 @@ type BreadCrumbPages = {
 }
 
 const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
+  const filteredBreadcrumbPages = breadCrumbPages.filter((page) => page !== null)
   return (
     <nav aria-label="breadcrumb" title="breadcrumb" className="flex">
       <ol className="flex flex-wrap items-center gap-2">
@@ -21,7 +22,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
             </Link>
           </div>
         </li>
-        {breadCrumbPages.map((page: any, index: any) => (
+        {filteredBreadcrumbPages.map((page: any, index: number) => (
           <li key={page.title} title={page.title}>
             <div className="flex items-center">
               <ChevronRight
@@ -30,11 +31,11 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
                 strokeWidth={1.5}
               />
               <Link
-                aria-current={index === breadCrumbPages.length - 1 ? 'page' : undefined}
+                aria-current={index === filteredBreadcrumbPages.length - 1 ? 'page' : undefined}
                 href={page.href}
                 className={clsx(
                   'ml-2 text-base font-medium',
-                  index === breadCrumbPages.length - 1
+                  index === filteredBreadcrumbPages.length - 1
                     ? 'w-48 truncate text-brand-400 sm:w-64'
                     : 'text-primary hover:text-zinc-500',
                 )}
