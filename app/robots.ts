@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/studio/'],
     },
-    sitemap: ['https://www.redshirtsports.xyz/sitemap.xml'],
+    sitemap: [`${baseUrl}/sitemap.xml`],
     host: baseUrl,
   }
 }

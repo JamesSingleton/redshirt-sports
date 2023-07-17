@@ -295,7 +295,6 @@ export const categoriesQuery = groq`
   }
 }`
 
-// query to get all posts, authors, categories, and subcategories for sitemap
 export const sitemapQuery = groq`
 {
   "posts": *[_type == 'post' && defined(slug.current)]{
@@ -308,16 +307,16 @@ export const sitemapQuery = groq`
     _updatedAt,
     "slug": slug.current,
   },
-  "categories": *[_type == "category" && defined(slug.current) && !defined(parent) && count(*[_type == 'post' && references(^._id)]) > 0]{
+  "divisions": *[_type == "division" && defined(slug.current) && count(*[_type == 'post' && references(^._id)]) > 0]{
     _id,
     _updatedAt,
     "slug": slug.current
   },
-  "subcategories": *[_type == "category" && defined(slug.current) && defined(parent)]{
+  "conferences": *[_type == "conference" && defined(slug.current) && defined(division) && count(*[_type == 'post' && references(^._id)]) > 0]{
     _id,
     _updatedAt,
     "slug": slug.current,
-    "parentSlug": parent->slug.current,
+    "divisionSlug": division->slug.current,
   }
 }
 `

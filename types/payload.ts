@@ -58,3 +58,27 @@ export interface PostsWithPaginationPayload {
   posts: Post[]
   totalPosts: number
 }
+
+export interface SitemapPayload {
+  posts: {
+    _id: string
+    _updatedAt: string
+    slug: string
+  }[]
+  authors: {
+    _id: string
+    _updatedAt: string
+    slug: string
+  }[]
+  divisions: {
+    _id: string
+    _updatedAt: string
+    slug: string
+  }[]
+  conferences: {
+    _id: string
+    _updatedAt: string
+    slug: string
+    divisionSlug: string
+  }[]
+}

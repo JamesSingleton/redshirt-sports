@@ -34,6 +34,7 @@ import {
   Author,
   AuthorPosts,
   PostsWithPaginationPayload,
+  SitemapPayload,
 } from '@types'
 
 export function getClient(preview?: { token: string }): SanityClient {
@@ -199,7 +200,7 @@ export async function getCategories(): Promise<any> {
   return await sanityClient()?.fetch(categoriesQuery)
 }
 
-export async function getSitemap(): Promise<any> {
+export async function getSitemap(): Promise<SitemapPayload> {
   return await sanityClient()?.fetch(sitemapQuery)
 }
 
