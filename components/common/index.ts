@@ -6,6 +6,7 @@ import AuthorsCard from './AuthorsCard'
 import { SiteHeader } from './SiteHeader'
 import { TailwindIndicator } from './TailwindIndicator'
 import { ThemeProvider } from './ThemeProvider'
+import PageHeader from './PageHeader'
 
 export {
   SocialMediaFollow,
@@ -16,4 +17,5 @@ export {
   SiteHeader,
   TailwindIndicator,
   ThemeProvider,
+  PageHeader,
 }

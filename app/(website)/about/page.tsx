@@ -5,6 +5,7 @@ import { getAboutPageAuthors } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import { ImageComponent, Breadcrumbs } from '@components/ui'
 import { Twitter, Facebook, Instagram } from '@components/common/icons'
+import { PageHeader } from '@components/common'
 
 export const metadata = {
   title: 'About Redshirt Sports: College Football Excellence & Passion',
@@ -46,21 +47,9 @@ export default async function Page() {
 
   return (
     <>
-      <section className="pt-12 sm:pt-16 lg:pt-20 xl:pt-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="md:max-w-3xl xl:max-w-5xl">
-            <Breadcrumbs breadCrumbPages={breadcrumbs} />
-            <h1 className="text-secondary-900 mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
-              Discover the Team Behind Redshirt Sports: Unveiling Our Passion for College Football
-            </h1>
-            <p className="text-secondary-600 mt-4 text-lg font-normal lg:text-xl">
-              Meet the Dedicated Team Driving Redshirt Sports&apos; College Football Journey
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHeader title="About Redshirt Sports" breadcrumbs={breadcrumbs} />
       <section className="py-12 sm:py-16 lg:py-20">
-        <div className="prose prose-xl mx-auto px-5 dark:prose-invert sm:px-6 lg:max-w-7xl lg:px-8">
+        <div className="container prose-xl mx-auto dark:prose-invert">
           <p>
             At Redshirt Sports, our passion for college football extends beyond the FCS. We are
             thrilled to announce that we will also be providing comprehensive coverage of FBS, D2,

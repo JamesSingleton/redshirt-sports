@@ -1,7 +1,6 @@
-import PageHeader from '@components/ui/PageHeader'
-import Date from '@components/ui/Date'
+import { Date, CustomPortableText } from '@components/ui'
+import { PageHeader } from '@components/common'
 import SocialMediaFollow from '@components/common/SocialMediaFollow'
-import { CustomPortableText } from '@components/ui/CustomPortableText'
 import { getPrivacyPolicyPage } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 
@@ -27,6 +26,13 @@ export const metadata = {
   },
 }
 
+const breadcrumbs = [
+  {
+    title: 'Privacy Policy',
+    href: '/privacy',
+  },
+]
+
 export default async function Page() {
   const token = getPreviewToken()
   const privacyPolicy = await getPrivacyPolicyPage({ token })
@@ -34,14 +40,15 @@ export default async function Page() {
   return (
     <>
       <PageHeader
-        heading="Privacy Policy"
-        subheading={
+        breadcrumbs={breadcrumbs}
+        title="Privacy Policy"
+        subtitle={
           <>
             Last updated on <Date dateString={privacyPolicy?._updatedAt!} />
           </>
         }
       />
-      <section className="mx-auto max-w-7xl py-12 md:py-16 lg:px-8 lg:py-20">
+      <section className="container py-12 md:py-16 lg:px-8 lg:py-20">
         <div className="w-full lg:flex">
           <div className="lg:w-2/3">
             <div className="prose prose-lg prose-indigo mx-auto px-5 dark:prose-invert sm:px-6 md:px-8 lg:mx-0 lg:px-0">

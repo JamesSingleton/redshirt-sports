@@ -57,16 +57,18 @@ const Author = (author: Author) => {
       {!author.archived && author.socialMedia && (
         <ul className="hidden lg:mt-8 lg:flex lg:items-center lg:gap-3">
           {author.socialMedia.map((social) => (
-            <li key={social._key}>
+            <li key={social._key} className="group">
               <a
                 href={social.url}
                 target="_blank"
                 rel="noopener"
                 title={`Follow ${author.name} on ${social.name}`}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
               >
                 <span className="sr-only">{`Follow ${author.name} on ${social.name}`}</span>
-                {social.name === 'Email' ? <Mail className="h-6 w-6" /> : null}
+                {social.name === 'Email' ? (
+                  <Mail className="h-6 w-6 group-hover:text-secondary" />
+                ) : null}
                 {social.name === 'Twitter' ? <Twitter className="h-6 w-6" /> : null}
                 {social.name === 'Facebook' ? <Facebook className="h-6 w-6" /> : null}
                 {social.name === 'Instagram' ? <Instagram className="h-6 w-6" /> : null}

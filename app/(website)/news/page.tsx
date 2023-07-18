@@ -4,6 +4,7 @@ import { Breadcrumbs, ArticleCard, Pagination } from '@components/ui'
 import { getPaginatedPosts } from '@lib/sanity.client'
 
 import type { Post } from '@types'
+import { PageHeader } from '@components/common'
 
 const breadcrumbs = [
   {
@@ -27,17 +28,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
 
   return (
     <>
-      <section className="pt-12 sm:pt-16 lg:pt-20 xl:pt-24">
-        <div className="container">
-          <div className="md:max-w-3xl xl:max-w-5xl">
-            <Breadcrumbs breadCrumbPages={breadcrumbs} />
-
-            <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
-              Latest College Football News
-            </h1>
-          </div>
-        </div>
-      </section>
+      <PageHeader title="Latest College Football News" breadcrumbs={breadcrumbs} />
       <section className="container">
         <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
           {news.posts.map((post: Post) => (

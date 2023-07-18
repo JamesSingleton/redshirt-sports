@@ -30,3 +30,8 @@ export type Conference = {
   image?: MainImage
   parent: Conference
 }
+
+export type BreadcrumbProps = {
+  title: string
+  href: string
+}[]

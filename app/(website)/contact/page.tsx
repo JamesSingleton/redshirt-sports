@@ -1,3 +1,4 @@
+import { PageHeader } from '@components/common'
 import { Breadcrumbs } from '@components/ui'
 
 import type { Metadata } from 'next'
@@ -51,22 +52,14 @@ const socialMedia = [
 export default function Page() {
   return (
     <>
-      <section className="pt-12 sm:pt-16 lg:pt-20 xl:pt-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="md:max-w-3xl xl:max-w-5xl">
-            <Breadcrumbs breadCrumbPages={breadcrumbs} />
-            <h1 className="text-secondary-900 mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
-              Contact Us
-            </h1>
-            <p className="text-secondary-600 mt-4 text-lg font-normal lg:text-xl">
-              Interested in collaborating or advertising with us? We&apos;re all ears! Fill out the
-              contact form or use the provided contact details below to get in touch. Let&apos;s
-              explore exciting possibilities together!
-            </p>
-          </div>
-        </div>
-      </section>
-      <section className="py-12 sm:py-16 lg:py-20">
+      <PageHeader
+        breadcrumbs={breadcrumbs}
+        title="Contact Us"
+        subtitle="Interested in collaborating or advertising with us? We're all ears! Fill out the
+              contact form or use the provided contact details below to get in touch. Let's
+              explore exciting possibilities together!"
+      />
+      <section className="container py-12 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="md:max-w-3xl xl:max-w-5xl">
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">

@@ -2,11 +2,10 @@ import Link from 'next/link'
 import { ChevronRight, HomeIcon } from 'lucide-react'
 import clsx from 'clsx'
 
+import type { BreadcrumbProps } from '@types'
+
 type BreadCrumbPages = {
-  breadCrumbPages: {
-    title: string
-    href: string
-  }[]
+  breadCrumbPages: BreadcrumbProps
 }
 
 const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
