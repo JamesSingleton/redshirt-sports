@@ -5,7 +5,7 @@ import type { BreadcrumbProps } from '@types'
 type PageHeaderProps = {
   breadcrumbs: BreadcrumbProps
   title: string
-  subtitle?: string | JSX.Element
+  subtitle?: string | JSX.Element | JSX.Element[] | null
 }
 
 export default function PageHeader({ breadcrumbs, title, subtitle }: PageHeaderProps) {

@@ -8,7 +8,6 @@ import { baseUrl } from '@lib/constants'
 import { SiteHeader, Footer, TailwindIndicator, ThemeProvider } from '@components/common'
 
 import type { Metadata } from 'next'
-import buildRss from '@lib/build-rss'
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
