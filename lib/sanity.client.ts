@@ -26,6 +26,7 @@ import {
   divisionsQuery,
   divisionBySlugQuery,
   paginatedPostsQuery,
+  searchQuery,
 } from '@lib/sanity.queries'
 import {
   DivisionPayload,
@@ -230,4 +231,14 @@ export async function getPaginatedPosts({
   pageIndex: number
 }): Promise<PostsWithPaginationPayload> {
   return await sanityClient()?.fetch(paginatedPostsQuery, { pageIndex })
+}
+
+export async function getSearchResults({
+  query,
+  pageIndex,
+}: {
+  query: string | null
+  pageIndex: number
+}): Promise<any> {
+  return await sanityClient()?.fetch(searchQuery, { query, pageIndex })
 }

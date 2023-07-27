@@ -381,3 +381,28 @@ export const paginatedPostsQuery = groq`
     "totalPosts": count(*[_type == "post"])
   }
 `
+
+// Create a groq search query that searches for the query string in the title, excerpt, and body of the post and ranks it accordingly
+// export const searchQuery = groq`
+// *[_type == 'post' && (title match "*" + $query + "*" || excerpt match "*" + $query + "*" || pt::text(body) match "*" + $query + "*")] | score(
+//   boost(title match $query, 4),
+//   boost(excerpt match $query, 3),
+//   boost(pt::text(body) match $query, 2),
+// ) | order(_score desc, publishedAt desc, _updatedAt desc)[0..10]{
+//   ${litePostFields}
+// }
+// `
+
+// create a search query that includes totalPosts for the search results
+export const searchQuery = groq`
+{
+  "posts": *[_type == 'post' && (title match "*" + $query + "*" || excerpt match "*" + $query + "*" || pt::text(body) match "*" + $query + "*")] | score(
+    boost(title match $query, 4),
+    boost(excerpt match $query, 3),
+    boost(pt::text(body) match $query, 2),
+  ) | order(_score desc, publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+    ${litePostFields}
+  },
+  "totalPosts": count(*[_type == 'post' && (title match "*" + $query + "*" || excerpt match "*" + $query + "*" || pt::text(body) match "*" + $query + "*")])
+}
+`

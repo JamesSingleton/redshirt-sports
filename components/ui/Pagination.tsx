@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 import { buttonVariants } from './Button'
 
@@ -15,8 +18,17 @@ export default function Pagination({
   totalPosts: number
   slug: string
 }) {
-  const prevPageUrl = currentPage === 2 ? slug : `${slug}?page=${currentPage - 1}`
-  const nextPageUrl = `${slug}?page=${currentPage + 1}`
+  const searchParams = useSearchParams()
+  const query = searchParams.get('q')
+  // const prevPageUrl = currentPage === 2 ? slug : `${slug}?page=${currentPage - 1}`
+  // account for the possibility of a search query
+  const prevPageUrl = query
+    ? `${slug}?q=${query}&page=${currentPage - 1}`
+    : `${slug}?page=${currentPage - 1}`
+  // const nextPageUrl = `${slug}?page=${currentPage + 1}`
+  const nextPageUrl = query
+    ? `${slug}?q=${query}&page=${currentPage + 1}`
+    : `${slug}?page=${currentPage + 1}`
 
   const from = (currentPage - 1) * 10 + 1
   const to = currentPage * 10 > totalPosts ? totalPosts : currentPage * 10

@@ -104,7 +104,7 @@ export default async function Page({
               </span>
             )}
             <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
-              {conference.heading}
+              {conference.name}
             </h1>
           </div>
         </div>

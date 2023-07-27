@@ -4,7 +4,6 @@ import { forwardRef, ElementRef, ComponentPropsWithoutRef } from 'react'
 import Link from 'next/link'
 
 import { cn } from '@lib/utils'
-import SmallLogo from './SmallLogo'
 import LargeLogo from './LargeLogo'
 import {
   NavigationMenu,
@@ -21,10 +20,10 @@ export function MainNav(props: any) {
   return (
     <div className="mr-4 hidden lg:flex">
       <Link href="/" className="flex items-center">
-        <SmallLogo className="h-10 w-auto" />
+        <LargeLogo className="h-10 w-auto" />
         <span className="sr-only">Redshirt Sports</span>
       </Link>
-      <NavigationMenu>
+      <NavigationMenu className="ml-4">
         <NavigationMenuList>
           {categories.map((category: any) => {
             if (category.conferences.length > 0) {
