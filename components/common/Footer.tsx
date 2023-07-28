@@ -5,56 +5,46 @@ import { LargeLogo } from '@components/common'
 import { Facebook, Twitter, RSSIcon } from '@components/common/icons'
 
 const navigation = {
-  solutions: [
-    { name: 'Marketing', href: '#' },
-    { name: 'Analytics', href: '#' },
-    { name: 'Commerce', href: '#' },
-    { name: 'Insights', href: '#' },
-  ],
-  support: [
-    { name: 'Pricing', href: '#' },
-    { name: 'Documentation', href: '#' },
-    { name: 'Guides', href: '#' },
-    { name: 'API Status', href: '#' },
+  divisions: [
+    { name: 'FBS', href: '/news/fbs' },
+    { name: 'FCS', href: '/news/fcs' },
+    { name: 'D2', href: '/news/d2' },
+    { name: 'D3', href: '/news/d3' },
   ],
   company: [
-    { name: 'About', href: '#' },
-    { name: 'Blog', href: '#' },
-    { name: 'Jobs', href: '#' },
-    { name: 'Press', href: '#' },
-    { name: 'Partners', href: '#' },
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
   ],
-  legal: [
-    { name: 'Claim', href: '#' },
-    { name: 'Privacy', href: '#' },
+  support: [
+    { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Terms', href: '#' },
   ],
   social: [
     {
       name: 'Facebook',
-      href: '#',
+      href: 'https://www.facebook.com/RedshirtSportsNews',
       icon: (
         props: JSX.IntrinsicAttributes & JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>,
       ) => <Facebook {...props} />,
     },
     {
       name: 'Twitter',
-      href: '#',
+      href: 'https://twitter.com/_redshirtsports',
       icon: (
         props: JSX.IntrinsicAttributes &
           globalThis.JSX.IntrinsicAttributes &
           SVGProps<SVGSVGElement>,
       ) => <Twitter {...props} />,
     },
-    {
-      name: 'RSS',
-      href: '#',
-      icon: (
-        props: JSX.IntrinsicAttributes &
-          globalThis.JSX.IntrinsicAttributes &
-          SVGProps<SVGSVGElement>,
-      ) => <RSSIcon {...props} />,
-    },
+    // {
+    //   name: 'RSS',
+    //   href: '#',
+    //   icon: (
+    //     props: JSX.IntrinsicAttributes &
+    //       globalThis.JSX.IntrinsicAttributes &
+    //       SVGProps<SVGSVGElement>,
+    //   ) => <RSSIcon {...props} />,
+    // },
   ],
 }
 
@@ -70,41 +60,30 @@ export default function Footer() {
             <Link href="/" aria-label="Redshirt Sports Logo, click to go to the homepage">
               <LargeLogo className="h-10 w-auto" />
             </Link>
-            <div className="flex space-x-6">
-              {navigation.social.map((item) => (
-                <a key={item.name} href={item.href} className="text-gray-500 hover:text-gray-400">
-                  <span className="sr-only">{item.name}</span>
-                  <item.icon className="h-6 w-6" aria-hidden="true" />
-                </a>
-              ))}
-            </div>
           </div>
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold leading-6 text-white">Solutions</h3>
+                <h3 className="text-sm font-semibold leading-6 text-primary">Divisions</h3>
                 <ul role="list" className="mt-6 space-y-4">
-                  {navigation.solutions.map((item) => (
+                  {navigation.divisions.map((item) => (
                     <li key={item.name}>
-                      <a
+                      <Link
                         href={item.href}
-                        className="text-sm leading-6 text-gray-300 hover:text-white"
+                        className="text-sm leading-6 text-secondary-foreground"
                       >
                         {item.name}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-semibold leading-6 text-white">Support</h3>
+                <h3 className="text-sm font-semibold leading-6 text-primary">Company</h3>
                 <ul role="list" className="mt-6 space-y-4">
-                  {navigation.support.map((item) => (
+                  {navigation.company.map((item) => (
                     <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className="text-sm leading-6 text-gray-300 hover:text-white"
-                      >
+                      <a href={item.href} className="text-sm leading-6 text-secondary-foreground">
                         {item.name}
                       </a>
                     </li>
@@ -114,31 +93,34 @@ export default function Footer() {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold leading-6 text-white">Company</h3>
+                <h3 className="text-sm font-semibold leading-6 text-primary">Support</h3>
                 <ul role="list" className="mt-6 space-y-4">
-                  {navigation.company.map((item) => (
+                  {navigation.support.map((item) => (
                     <li key={item.name}>
-                      <a
+                      <Link
                         href={item.href}
-                        className="text-sm leading-6 text-gray-300 hover:text-white"
+                        className="text-sm leading-6 text-secondary-foreground"
                       >
                         {item.name}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-semibold leading-6 text-white">Legal</h3>
+                <h3 className="text-sm font-semibold leading-6 text-primary">Connect With Us</h3>
                 <ul role="list" className="mt-6 space-y-4">
-                  {navigation.legal.map((item) => (
+                  {navigation.social.map((item) => (
                     <li key={item.name}>
-                      <a
+                      <Link
+                        target="_blank"
+                        rel="noopener noreferrer"
                         href={item.href}
-                        className="text-sm leading-6 text-gray-300 hover:text-white"
+                        className="flex items-center text-sm leading-6 text-secondary-foreground"
                       >
-                        {item.name}
-                      </a>
+                        <item.icon className="h-4 w-4 fill-current" aria-hidden="true" />
+                        <span className="ml-2">{item.name}</span>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -147,8 +129,8 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24">
-          <p className="text-xs leading-5 text-gray-400">
-            &copy; 2020 Your Company, Inc. All rights reserved.
+          <p className="text-xs leading-5 text-primary">
+            &copy; {new Date().getFullYear()} Redshirt Sports. All rights reserved.
           </p>
         </div>
       </div>

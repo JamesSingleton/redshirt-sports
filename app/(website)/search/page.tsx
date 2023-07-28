@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 
 import { PageHeader } from '@components/common'
 import Search from '@components/common/Search'
@@ -15,7 +15,6 @@ const breadcrumbs = [
 ]
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string } }) {
-  // const searchQuery = searchParams.q ? searchParams.q : null
   const query = searchParams['q'] ?? null
   const pageIndex = searchParams['page'] !== undefined ? parseInt(searchParams['page']) : 1
   const subheadingText = query ? `Search results for "${query}"` : null
