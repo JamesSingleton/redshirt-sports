@@ -1,5 +1,12 @@
 const { withSentryConfig } = require('@sentry/nextjs')
 const withBundleAnalyzer = require('@next/bundle-analyzer')
+const { createClient } = require('@sanity/client')
+const client = createClient({
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  useCdn: process.env.NODE_ENV === 'production',
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2023-06-21',
+})
 
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
@@ -87,25 +94,11 @@ const moduleExports = {
 
     return config
   },
-  // async redirects() {
-  //   const query =
-  //     '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}'
-  //   const results = await client.fetch(query)
-  //   return results
-  // },
   async redirects() {
-    return [
-      {
-        source: '/authors',
-        destination: '/about',
-        permanent: true,
-      },
-      {
-        source: '/advertising',
-        destination: '/contact',
-        permanent: true,
-      },
-    ]
+    const query =
+      '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}'
+    const results = await client.fetch(query)
+    return results
   },
   sentry: {
     hideSourceMaps: true,

@@ -3,13 +3,13 @@ import { ChevronRight } from 'lucide-react'
 
 import { Hero } from '@components/home'
 import { ArticleCard } from '@components/ui'
-import { getLatestDivisionArticles } from '@lib/sanity.client'
+import { Date, ImageComponent } from '@components/ui'
+import { getHeroPost, getLatestDivisionArticles } from '@lib/sanity.client'
 
 export default async function Page() {
   const lastThreeFBSArticles = await getLatestDivisionArticles({ division: 'FBS' })
   const lastThreeFCSArticles = await getLatestDivisionArticles({ division: 'FCS' })
   const lastThreeD2Articles = await getLatestDivisionArticles({ division: 'D2' })
-  const lastThreeD3Articles = await getLatestDivisionArticles({ division: 'D3' })
 
   return (
     <>

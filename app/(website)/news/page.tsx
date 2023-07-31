@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation'
 
-import { Breadcrumbs, ArticleCard, Pagination } from '@components/ui'
+import { ArticleCard, Pagination } from '@components/ui'
+import { PageHeader } from '@components/common'
 import { getPaginatedPosts } from '@lib/sanity.client'
 
 import type { Post } from '@types'
-import { PageHeader } from '@components/common'
 
 const breadcrumbs = [
   {

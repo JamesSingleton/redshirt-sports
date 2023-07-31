@@ -60,7 +60,7 @@ const RecentArticles = ({ recentArticles }: RecentArticlesProps) => {
                         {post.author.name}
                       </Link>
                       <span aria-hidden="true"> &middot; </span>
-                      <Date dateString={post.publishedAt} />I
+                      <Date dateString={post.publishedAt} />
                     </div>
                   </div>
                 </div>

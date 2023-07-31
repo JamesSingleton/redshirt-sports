@@ -34,8 +34,6 @@ export const redirect = defineType({
           if (!value.startsWith('/')) return 'Must be a URL path (e.g. /pricing)'
           if (isPattern(value)) return 'Cannot contain characters: (){}:*+?'
           if (!isValid(value)) return 'URL is not valid'
-          const status = await verifyURL(value)
-          if (status !== 200) return `URL does not exist`
           return true
         }),
       ],
@@ -46,6 +44,12 @@ export const redirect = defineType({
       description: 'Whether to use a 308 Permanent Redirect or a 307 Temporary Redirect',
     },
   ],
+  preview: {
+    select: {
+      title: 'source',
+      subtitle: 'destination',
+    },
+  },
 })
 
 function isValid(path: string | URL) {
@@ -60,24 +64,6 @@ function isPattern(path: string) {
   return /[(){}:*+?]/.test(path)
 }
 
-async function verifyURL(path: string | URL) {
-  const source = new URL(path, 'https://www.redshirtsports.xyz')
-  const url = `/api/verify-url?url=${encodeURIComponent(source.href)}`
-  const res = await fetch(url)
-
-  if (res.status !== 200) {
-    throw new Error(res.statusText ?? 'Error trying to verify URL')
-  }
-
-  const data = await res.json()
-
-  if (!data?.status) {
-    throw new Error('Empty response from URL verification')
-  }
-
-  return data.status
-}
-
 async function isUnique(
   source: string,
   id: string,
@@ -89,14 +75,14 @@ async function isUnique(
     document?: SanityDocument | undefined
     path?: Path | undefined
     getDocumentExists?: ((options: { id: string }) => Promise<boolean>) | undefined
-  }
+  },
 ) {
   if (!source) return true
   const { getClient } = context
   const client = getClient({ apiVersion: '2021-11-24' })
   const count = await client.fetch(
     'count(*[_type == "redirect" && _id != $id && source == $source && !(_id in path("drafts.**"))])',
-    { source, id }
+    { source, id },
   )
   return count === 0
 }

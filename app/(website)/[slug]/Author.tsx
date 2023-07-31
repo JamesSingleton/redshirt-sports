@@ -69,13 +69,27 @@ const Author = (author: Author) => {
                 {social.name === 'Email' ? (
                   <Mail className="h-6 w-6 group-hover:text-secondary" />
                 ) : null}
-                {social.name === 'Twitter' ? <Twitter className="h-6 w-6" /> : null}
-                {social.name === 'Facebook' ? <Facebook className="h-6 w-6" /> : null}
-                {social.name === 'Instagram' ? <Instagram className="h-6 w-6" /> : null}
-                {social.name === 'Website' ? <Globe className="h-6 w-6" /> : null}
-                {social.name === 'Spotify Podcast' ? <SpotifyIcon className="h-6 w-6" /> : null}
-                {social.name === 'Apple Podcast' ? <ApplePodcastIcon className="h-6 w-6" /> : null}
-                {social.name === 'Overcast Podcast' ? <OvercastIcon className="h-6 w-6" /> : null}
+                {social.name === 'Twitter' ? (
+                  <Twitter className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
+                ) : null}
+                {social.name === 'Facebook' ? (
+                  <Facebook className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
+                ) : null}
+                {social.name === 'Instagram' ? (
+                  <Instagram className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
+                ) : null}
+                {social.name === 'Website' ? (
+                  <Globe className="h-6 w-6 group-hover:text-secondary" />
+                ) : null}
+                {social.name === 'Spotify Podcast' ? (
+                  <SpotifyIcon className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
+                ) : null}
+                {social.name === 'Apple Podcast' ? (
+                  <ApplePodcastIcon className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
+                ) : null}
+                {social.name === 'Overcast Podcast' ? (
+                  <OvercastIcon className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
+                ) : null}
               </a>
             </li>
           ))}

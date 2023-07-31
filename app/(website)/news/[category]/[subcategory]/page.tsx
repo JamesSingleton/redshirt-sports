@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 
-import { ArticleCard, Pagination, Breadcrumbs } from '@components/ui'
+import { ArticleCard, Pagination } from '@components/ui'
+import { PageHeader } from '@components/common'
 import { getConferenceBySlug } from '@lib/sanity.client'
 import { baseUrl } from '@lib/constants'
 
@@ -23,10 +24,10 @@ export async function generateMetadata({
     return {}
   }
 
-  let title = `${conference?.heading}, Rumors, and More`
+  let title = `${conference?.name} Football, Rumors, and More`
   let canonical = `${baseUrl}/news/${conference.division.slug}/${conference?.slug}`
   if (pageIndex > 1) {
-    title = `${conference?.heading}, Rumors, and More - Page ${pageIndex}`
+    title = `${conference?.name} Football, Rumors, and More - Page ${pageIndex}`
     canonical = `${baseUrl}/news/${conference.division.slug}/${conference.slug}?page=${pageIndex}`
   }
 
@@ -92,49 +93,37 @@ export default async function Page({
     },
   ]
 
+  const title = conference.shortName
+    ? `${conference.shortName} Football News`
+    : `${conference.name} Football News`
+
   return (
     <>
-      <section className="pt-12 sm:pt-16 lg:pt-20 xl:pt-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="md:max-w-3xl xl:max-w-5xl">
-            <Breadcrumbs breadCrumbPages={breadcrumbs} />
-            {conference?.heading && (
-              <span className="mt-8 block text-sm uppercase tracking-widest text-brand-500 dark:text-brand-300">
-                {conference?.subTitle}
-              </span>
-            )}
-            <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
-              {conference.name}
-            </h1>
-          </div>
-        </div>
-      </section>
-      <section className="lg:py20 py-12 sm:py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-            {conference.posts.map((post: Post) => (
-              <ArticleCard
-                key={post._id}
-                title={post.title}
-                excerpt={post.excerpt}
-                date={post.publishedAt}
-                image={post.mainImage}
-                slug={post.slug}
-                division={post.division}
-                conferences={post.conferences}
-              />
-            ))}
-          </div>
-          {totalPages > 1 && (
-            <Pagination
-              currentPage={pageIndex}
-              totalPosts={conference.totalPosts}
-              nextDisabled={nextDisabled}
-              prevDisabled={prevDisabled}
-              slug={`/news/${params.category}/${params.subcategory}`}
+      <PageHeader title={title} breadcrumbs={breadcrumbs} />
+      <section className="container">
+        <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
+          {conference.posts.map((post: Post) => (
+            <ArticleCard
+              key={post._id}
+              title={post.title}
+              excerpt={post.excerpt}
+              date={post.publishedAt}
+              image={post.mainImage}
+              slug={post.slug}
+              division={post.division}
+              conferences={post.conferences}
             />
-          )}
+          ))}
         </div>
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={pageIndex}
+            totalPosts={conference.totalPosts}
+            nextDisabled={nextDisabled}
+            prevDisabled={prevDisabled}
+            slug={`/news/${params.category}/${params.subcategory}`}
+          />
+        )}
       </section>
     </>
   )

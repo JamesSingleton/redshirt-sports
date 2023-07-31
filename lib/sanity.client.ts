@@ -65,8 +65,8 @@ const sanityClient = (token?: string) => {
   return createClient({ projectId, dataset, apiVersion, token, useCdn })
 }
 
-export async function getHeroPost({ token }: { token?: string }): Promise<PostPayload | undefined> {
-  return await sanityClient(token)?.fetch(heroArticleQuery)
+export async function getHeroPost(): Promise<PostPayload> {
+  return await sanityClient().fetch(heroArticleQuery)
 }
 
 export async function getRecentArticles({

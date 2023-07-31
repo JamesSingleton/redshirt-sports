@@ -5,7 +5,7 @@ import { getPreviewToken } from '@lib/sanity.server.preview'
 
 const Hero = async () => {
   const token = getPreviewToken()
-  const mainArticle = await getHeroPost({ token })
+  const mainArticle = await getHeroPost()
 
   const recentArticles = await getRecentArticles({ token })
 
