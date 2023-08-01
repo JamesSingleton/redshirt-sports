@@ -15,7 +15,7 @@ import LargeLogo from './LargeLogo'
 export function MobileNav(props: any) {
   const [open, setOpen] = useState(false)
 
-  const { categories } = props
+  const { divisions } = props
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -35,17 +35,17 @@ export function MobileNav(props: any) {
         </MobileLink>
         <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
           <div className="flex flex-col space-y-2">
-            {categories.map((item: any, index: number) => (
+            {divisions.map((division: any, index: number) => (
               <div key={index} className="flex flex-col space-y-3 pt-6">
-                <h4 className="text-xl font-semibold">{item.title}</h4>
-                {item?.subcategories?.length > 0 &&
-                  item.subcategories.map((item: any) => (
-                    <Fragment key={`mobile_nav_${item._id}`}>
+                <h4 className="text-xl font-semibold">{division.name}</h4>
+                {division.conferences?.length > 0 &&
+                  division.conferences.map((conference: any) => (
+                    <Fragment key={`mobile_nav_${conference._id}`}>
                       <MobileLink
-                        href={`/news/${item.parentSlug}/${item.slug}`}
+                        href={`/news/${division.slug}/${conference.slug}`}
                         onOpenChange={setOpen}
                       >
-                        {item.title}
+                        {conference.name}
                       </MobileLink>
                     </Fragment>
                   ))}

@@ -19,16 +19,16 @@ import {
 } from '@components/ui/Command'
 import { STATIC_NAV_ITEMS } from '@lib/constants'
 
-export function CommandMenu({ ...props }: DialogProps & { categories: any[] }) {
+export function CommandMenu({ ...props }: DialogProps & { divisions: any[] }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const { setTheme } = useTheme()
-  const { categories } = props
+  const { divisions } = props
 
   // get just the title and slug of categories
-  const topLevelCategories = props.categories.map((category) => ({
-    title: category.title,
-    href: `/news/${category.slug}`,
+  const topLevelCategories = divisions.map((division) => ({
+    title: division.name,
+    href: `/news/${division.slug}`,
   }))
 
   const links = [...topLevelCategories, ...STATIC_NAV_ITEMS]
@@ -94,22 +94,22 @@ export function CommandMenu({ ...props }: DialogProps & { categories: any[] }) {
             </CommandItem>
           </CommandGroup>
           <CommandSeparator />
-          {categories.map(
+          {divisions.map(
             (group) =>
-              group.subcategories.length > 0 && (
-                <CommandGroup key={group.title} heading={group.title}>
-                  {group.subcategories.map((navItem: any) => (
+              group.conferences.length > 0 && (
+                <CommandGroup key={group.name} heading={group.name}>
+                  {group.conferences.map((navItem: any) => (
                     <CommandItem
                       key={navItem.slug}
-                      value={navItem.title}
+                      value={navItem.name}
                       onSelect={() => {
-                        runCommand(() => router.push(`/news/${navItem.parentSlug}/${navItem.slug}`))
+                        runCommand(() => router.push(`/news/${group.slug}/${navItem.slug}`))
                       }}
                     >
                       <div className="mr-2 flex h-4 w-4 items-center justify-center">
                         <File className="h-3 w-3" />
                       </div>
-                      {navItem.title}
+                      {navItem.name}
                     </CommandItem>
                   ))}
                 </CommandGroup>

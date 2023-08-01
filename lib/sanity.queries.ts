@@ -125,7 +125,7 @@ export const postsBySlugQuery = groq`
 `
 
 export const latestDivisionArticlesQuery = groq`
-*[_type == "post" && parentCategory->title == $division] | order(publishedAt desc)[0...3] {
+*[_type == "post" && division->name == $division] | order(publishedAt desc)[0...3] {
   _id,
   title,
   slug,
@@ -181,23 +181,6 @@ export const otherArticlesQuery = groq`
   ${litePostFields}
 }
 `
-
-export const subcategoryBySlugQuery = groq`
-*[_type == "category" && defined(parent->slug.current) && slug.current == $slug && count(*[_type == 'post' && references(^._id)]) > 0][0]{
-  _id,
-  title,
-  pageHeader,
-  subTitle,
-  _updatedAt,
-  "parentSlug": parent->slug.current,
-  "parentTitle": parent->title,
-  "slug": slug.current,
-  description,
-  "posts": *[_type == 'post' && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
-    ${litePostFields}
-  },
-  "totalPosts": count(*[_type == "post" && references(^._id)])
-}`
 
 export const authors = groq`
   *[_type == 'author' && slug.current == $slug && archived == false][0]{
@@ -262,38 +245,12 @@ export const postsForRssFeed = groq`
 }
 `
 
-export const parentCategorySlugQuery = groq`
-*[_type == "category" && defined(slug.current) && !defined(parent)]{
-  'slug': slug.current
-}`
-
-export const subCategorySlugQuery = groq`
-*[_type == "category" && defined(slug.current) && defined(parent)]{
-  'slug': slug.current,
-  'parentSlug': parent->slug.current
-}`
-
 export const postSlugsQuery = `
 *[_type == "post" && defined(slug.current)][].slug.current
 `
 
 export const authorSlugsQuery = groq`
 *[_type == "author" && defined(slug.current) && archived == false][].slug.current`
-
-export const categoriesQuery = groq`
-*[_type == "category" && defined(slug.current) && !defined(parent) && count(*[_type == 'post' && references(^._id)]) > 0]| order(_createdAt asc){
-  _id,
-  title,
-  "slug": slug.current,
-  navSnippet,
-  "subcategories": *[_type == "category" && defined(slug.current) && defined(parent) && parent->slug.current == ^.slug.current && count(*[_type == 'post' && references(^._id)]) > 0] | order(title asc){
-    _id,
-    title,
-    "slug": slug.current,
-    "parentSlug": parent->slug.current,
-    navSnippet,
-  }
-}`
 
 export const sitemapQuery = groq`
 {
@@ -381,17 +338,6 @@ export const paginatedPostsQuery = groq`
     "totalPosts": count(*[_type == "post"])
   }
 `
-
-// Create a groq search query that searches for the query string in the title, excerpt, and body of the post and ranks it accordingly
-// export const searchQuery = groq`
-// *[_type == 'post' && (title match "*" + $query + "*" || excerpt match "*" + $query + "*" || pt::text(body) match "*" + $query + "*")] | score(
-//   boost(title match $query, 4),
-//   boost(excerpt match $query, 3),
-//   boost(pt::text(body) match $query, 2),
-// ) | order(_score desc, publishedAt desc, _updatedAt desc)[0..10]{
-//   ${litePostFields}
-// }
-// `
 
 // create a search query that includes totalPosts for the search results
 export const searchQuery = groq`

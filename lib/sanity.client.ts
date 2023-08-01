@@ -12,11 +12,8 @@ import {
   otherArticlesQuery,
   authors,
   postsForRssFeed,
-  subCategorySlugQuery,
-  parentCategorySlugQuery,
   postSlugsQuery,
   conferenceBySlugQuery,
-  categoriesQuery,
   sitemapQuery,
   transferPortalPlayers,
   latestDivisionArticlesQuery,
@@ -181,24 +178,12 @@ export async function getPostsForRssFeed(): Promise<any> {
   return await sanityClient()?.fetch(postsForRssFeed)
 }
 
-export async function getSubcategorySlugs(): Promise<any> {
-  return await sanityClient()?.fetch(subCategorySlugQuery)
-}
-
-export async function getParentCategorySlugs(): Promise<any> {
-  return await sanityClient()?.fetch(parentCategorySlugQuery)
-}
-
 export async function getPostSlugs(): Promise<string[]> {
   return await sanityClient()?.fetch(postSlugsQuery)
 }
 
 export async function getAuthorSlugs(): Promise<string[]> {
   return await sanityClient().fetch(authorSlugsQuery)
-}
-
-export async function getCategories(): Promise<any> {
-  return await sanityClient()?.fetch(categoriesQuery)
 }
 
 export async function getSitemap(): Promise<SitemapPayload> {

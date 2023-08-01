@@ -60,7 +60,6 @@ export const deskStructure = async (S, context) => {
     // S.documentTypeListItem('player').title('Player Profiles'),
     // S.documentTypeListItem('transferPortal').title('Transfer Portal Players'),
 
-    S.documentTypeListItem('school'),
     // Schools
     S.listItem()
       .title('Schools')
@@ -73,6 +72,7 @@ export const deskStructure = async (S, context) => {
           .child((divisionId) =>
             S.documentList()
               .title('Conferences')
+              .defaultOrdering([{ field: 'name', direction: 'asc' }])
               .filter('_type == "conference" && defined(division) && division._ref == $divisionId')
               .params({ divisionId })
               .canHandleIntent(S.documentTypeList('division').getCanHandleIntent())
@@ -84,6 +84,7 @@ export const deskStructure = async (S, context) => {
               .child((conferenceId) =>
                 S.documentList()
                   .title('Schools')
+                  .defaultOrdering([{ field: 'name', direction: 'asc' }])
                   .filter('_type == "school" && $conferenceId == conference._ref')
                   .params({ conferenceId })
                   .canHandleIntent(S.documentTypeList('school').getCanHandleIntent())
