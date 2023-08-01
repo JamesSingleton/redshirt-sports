@@ -4,6 +4,7 @@ import { PageHeader } from '@components/common'
 import Search from '@components/common/Search'
 import { getSearchResults } from '@lib/sanity.client'
 import { ArticleCard, Pagination } from '@components/ui'
+import { perPage } from '@lib/constants'
 
 import { Post } from '@types'
 
@@ -21,7 +22,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
 
   const searchResults = await getSearchResults({ query, pageIndex })
 
-  const totalPages = Math.ceil(searchResults.totalPosts / 10)
+  const totalPages = Math.ceil(searchResults.totalPosts / perPage)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
 

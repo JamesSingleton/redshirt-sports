@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { ArticleCard, Pagination } from '@components/ui'
 import { PageHeader } from '@components/common'
 import { getPaginatedPosts } from '@lib/sanity.client'
+import { perPage } from '@lib/constants'
 
 import type { Post } from '@types'
 
@@ -22,7 +23,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
     return notFound()
   }
 
-  const totalPages = Math.ceil(news.totalPosts / 10)
+  const totalPages = Math.ceil(news.totalPosts / perPage)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
 

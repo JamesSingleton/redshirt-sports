@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
 import { buttonVariants } from './Button'
+import { perPage } from '@lib/constants'
 
 export default function Pagination({
   currentPage,
@@ -30,8 +31,8 @@ export default function Pagination({
     ? `${slug}?q=${query}&page=${currentPage + 1}`
     : `${slug}?page=${currentPage + 1}`
 
-  const from = (currentPage - 1) * 10 + 1
-  const to = currentPage * 10 > totalPosts ? totalPosts : currentPage * 10
+  const from = (currentPage - 1) * perPage + 1
+  const to = currentPage * perPage > totalPosts ? totalPosts : currentPage * perPage
 
   return (
     <nav

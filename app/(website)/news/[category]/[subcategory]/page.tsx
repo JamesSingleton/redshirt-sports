@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { ArticleCard, Pagination } from '@components/ui'
 import { PageHeader } from '@components/common'
 import { getConferenceBySlug } from '@lib/sanity.client'
-import { baseUrl } from '@lib/constants'
+import { baseUrl, perPage } from '@lib/constants'
 
 import type { Metadata } from 'next'
 import type { Post } from '@types'
@@ -74,7 +74,7 @@ export default async function Page({
     return notFound()
   }
 
-  const totalPages = Math.ceil(conference.totalPosts / 10)
+  const totalPages = Math.ceil(conference.totalPosts / perPage)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
 

@@ -1,5 +1,7 @@
 import { groq } from 'next-sanity'
 
+import { perPage } from './constants'
+
 const legalFields = `
   _id,
   _updatedAt,
@@ -193,7 +195,7 @@ export const authorsPosts = groq`
   "posts": *[_type == 'post' && references(^._id) && select(
     $conference == null => true,
     $conference in conferences[]->name
-  )] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+  )] | order(publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
     ${litePostFields}
   },
   "totalPosts": count(*[_type == 'post' && references(^._id) && select(
@@ -308,7 +310,7 @@ export const divisionBySlugQuery = groq`
 *[_type == "division" && slug.current == $slug][0]{
   ...,
   "slug": slug.current,
-  "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+  "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
     ${litePostFields}
   },
   "totalPosts": count(*[_type == "post" && references(^._id)])
@@ -323,7 +325,7 @@ export const conferenceBySlugQuery = groq`
     name,
     "slug": slug.current,
   },
-  "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+  "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
     ${litePostFields}
   },
   "totalPosts": count(*[_type == "post" && references(^._id)])
@@ -332,7 +334,7 @@ export const conferenceBySlugQuery = groq`
 
 export const paginatedPostsQuery = groq`
   {
-    "posts": *[_type == "post"] | order(publishedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+    "posts": *[_type == "post"] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
       ${litePostFields}
     },
     "totalPosts": count(*[_type == "post"])
@@ -346,7 +348,7 @@ export const searchQuery = groq`
     boost(title match $query, 4),
     boost(excerpt match $query, 3),
     boost(pt::text(body) match $query, 2),
-  ) | order(_score desc, publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * 10)...$pageIndex * 10]{
+  ) | order(_score desc, publishedAt desc, _updatedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
     ${litePostFields}
   },
   "totalPosts": count(*[_type == 'post' && (title match "*" + $query + "*" || excerpt match "*" + $query + "*" || pt::text(body) match "*" + $query + "*")])

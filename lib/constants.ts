@@ -12,3 +12,5 @@ export const STATIC_NAV_ITEMS = [
     href: '/contact',
   },
 ]
+
+export const perPage = 12

@@ -24,6 +24,7 @@ import { urlForImage } from '@lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
 import ImageComponent from '@components/ui/ImageComponent'
 import { Org, Web } from '@lib/ldJson'
+import { perPage } from '@lib/constants'
 
 import type { Metadata } from 'next'
 
@@ -101,7 +102,7 @@ export default async function Page({
 
   const authorPosts = await getAuthorsPosts({ authorId, pageIndex, conference })
 
-  const totalPages = Math.ceil(authorPosts.totalPosts / 10)
+  const totalPages = Math.ceil(authorPosts.totalPosts / perPage)
   const nextDisabled = pageIndex === totalPages
   const prevDisabled = pageIndex === 1
 
