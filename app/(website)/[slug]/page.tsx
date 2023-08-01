@@ -108,7 +108,7 @@ export default async function Page({ params }: PageProps) {
     <>
       <ReadingProgress />
       <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="container">
           <div className="md:max-w-3xl xl:max-w-5xl">
             <Breadcrumbs breadCrumbPages={breadcrumbs} />
             <h1 className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
@@ -147,7 +147,7 @@ export default async function Page({ params }: PageProps) {
         </div>
       </section>
       <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="container">
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
             <div className="lg:w-64 lg:shrink-0">
               <Author {...post.author} />
@@ -160,7 +160,7 @@ export default async function Page({ params }: PageProps) {
                   width={864}
                   height={576}
                 />
-                <div className="prose prose-zinc mx-auto mt-8 dark:prose-invert lg:prose-lg">
+                <div className="prose prose-lg prose-zinc mx-auto mt-8 max-w-none dark:prose-invert lg:prose-xl">
                   <CustomPortableText value={post.body} />
                 </div>
               </article>
