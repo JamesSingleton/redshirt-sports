@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity'
+import { defineType, defineField, defineArrayMember } from 'sanity'
 import { HomeIcon } from '@sanity/icons'
 
 export default defineType({
@@ -40,12 +40,30 @@ export default defineType({
       ],
     }),
     defineField({
-      name: 'conference',
-      title: 'Conference',
+      title: 'Division',
+      name: 'division',
+      description: 'What division is this school in?',
       type: 'reference',
-      to: [{ type: 'category' }],
+      to: [{ type: 'division' }],
       validation: (rule) => rule.required(),
-      description: 'The conference the college or university belongs to',
+    }),
+    defineField({
+      title: 'Conference',
+      name: 'conference',
+      description: 'What conferences is this school in?',
+      type: 'reference',
+      to: [{ type: 'conference' }],
+      options: {
+        filter: ({ document }) => ({
+          filter: 'division._ref == $divisionId',
+          params: {
+            // @ts-ignore
+            divisionId: document?.division?._ref,
+          },
+        }),
+      },
+      hidden: ({ document }) => !document?.division,
+      validation: (rule) => rule.required(),
     }),
   ],
 })

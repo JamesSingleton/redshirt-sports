@@ -14,18 +14,16 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
     <nav aria-label="breadcrumb" title="breadcrumb" className="flex">
       <ol className="flex flex-wrap items-center gap-2">
         <li title="Home">
-          <div>
-            <Link href="/" className="text-primary hover:text-zinc-500">
-              <span className="sr-only">Home</span>
-              <HomeIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
-            </Link>
-          </div>
+          <Link href="/" className="text-muted-foreground hover:text-foreground">
+            <span className="sr-only">Home</span>
+            <HomeIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
+          </Link>
         </li>
         {filteredBreadcrumbPages.map((page: any, index: number) => (
           <li key={page.title} title={page.title}>
             <div className="flex items-center">
               <ChevronRight
-                className="h-5 w-5 flex-shrink-0 text-primary"
+                className="h-5 w-5 flex-shrink-0"
                 aria-hidden="true"
                 strokeWidth={1.5}
               />
@@ -36,7 +34,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
                   'ml-2 text-base font-medium',
                   index === filteredBreadcrumbPages.length - 1
                     ? 'w-48 truncate text-brand-400 sm:w-64'
-                    : 'text-primary hover:text-zinc-500',
+                    : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 {page.title}

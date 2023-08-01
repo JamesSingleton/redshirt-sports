@@ -23,28 +23,25 @@ export const deskStructure = async (S, context) => {
 
   const client = getClient({ apiVersion: '2023-01-01' })
 
-  const categories = await client.fetch(
-    '*[_type == "category" && !defined(parent) && !(_id in path("drafts.**"))]',
-  )
+  const divisions = await client.fetch('*[_type == "division" && !(_id in path("drafts.**"))]')
 
   const items = [
-    // Articles by Category
-    ...categories
-      .map((category) => {
+    ...divisions
+      .map((division) => {
         return S.listItem()
-          .title(`${category.title} Articles`)
-          .id(category._id)
+          .title(`${division.name} Articles`)
+          .id(division._id)
           .schemaType('post')
           .child(() =>
             S.documentList('post')
               .schemaType('post')
-              .title(`${category.title} Articles`)
+              .title(`${division.name} Articles`)
               .menuItems(S.documentTypeList('post').getMenuItems())
-              .filter(`_type == "post" && parentCategory->_id == "${category._id}"`)
+              .filter(`_type == "post" && division->_id == "${division._id}"`)
               .canHandleIntent(S.documentTypeList('post').getCanHandleIntent())
               .initialValueTemplates([
                 S.initialValueTemplateItem('post-child', {
-                  categoryId: category._id,
+                  categoryId: division._id,
                 }),
               ]),
           )
@@ -59,30 +56,29 @@ export const deskStructure = async (S, context) => {
         return 0
       }),
     // Categories
-    parentChild(S, context),
-    S.documentTypeListItem('player').title('Player Profiles'),
-    S.documentTypeListItem('transferPortal').title('Transfer Portal Players'),
+    // parentChild(S, context),
+    // S.documentTypeListItem('player').title('Player Profiles'),
+    // S.documentTypeListItem('transferPortal').title('Transfer Portal Players'),
 
+    S.documentTypeListItem('school'),
     // Schools
     S.listItem()
       .title('Schools')
       .icon(HomeIcon)
       .child(
-        S.documentTypeList('category')
-          .filter(
-            '_type == "category" && !defined(parent) && !(_id in path("drafts.**")) && !(title in ["Transfer Portal", "All-Star Games"])',
-          )
-          .defaultOrdering([{ field: 'title', direction: 'asc' }])
+        S.documentTypeList('division')
+          .filter('_type == "division" && !(_id in path("drafts.**"))')
+          .defaultOrdering([{ field: 'name', direction: 'asc' }])
           .title('Divisions')
-          .child((categoryId) =>
+          .child((divisionId) =>
             S.documentList()
               .title('Conferences')
-              .filter('_type == "category" && defined(parent) && parent._ref == $categoryId')
-              .params({ categoryId })
-              .canHandleIntent(S.documentTypeList('category').getCanHandleIntent())
+              .filter('_type == "conference" && defined(division) && division._ref == $divisionId')
+              .params({ divisionId })
+              .canHandleIntent(S.documentTypeList('division').getCanHandleIntent())
               .initialValueTemplates([
                 S.initialValueTemplateItem('conference-child', {
-                  categoryId,
+                  categoryId: divisionId,
                 }),
               ])
               .child((conferenceId) =>
