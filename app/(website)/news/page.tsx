@@ -30,7 +30,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
   return (
     <>
       <PageHeader title="Latest College Football News" breadcrumbs={breadcrumbs} />
-      <section className="container">
+      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
           {news.posts.map((post: Post) => (
             <ArticleCard

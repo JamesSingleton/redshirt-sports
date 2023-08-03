@@ -48,8 +48,8 @@ export default async function Page() {
   return (
     <>
       <PageHeader title="About Redshirt Sports" breadcrumbs={breadcrumbs} />
-      <section className="py-12 sm:py-16 lg:py-20">
-        <div className="container prose-xl mx-auto dark:prose-invert">
+      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
+        <div className="prose prose-xl mx-auto max-w-none dark:prose-invert">
           <p>
             At Redshirt Sports, our passion for college football extends beyond the FCS. We are
             thrilled to announce that we will also be providing comprehensive coverage of FBS, D2,
@@ -88,8 +88,8 @@ export default async function Page() {
           </p>
         </div>
       </section>
-      <section className="bg-zinc-100 py-12 dark:bg-secondary sm:py-20 lg:py-28">
-        <div className="mx-auto max-w-xl px-4 sm:max-w-3xl sm:px-6 md:px-8 lg:max-w-7xl">
+      <section className="bg-secondary py-12 sm:py-20 lg:py-28">
+        <div className="container">
           <div className="mx-auto text-center md:max-w-3xl xl:max-w-5xl">
             <h2 className="text-3xl font-medium tracking-normal sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
               Meet the Dedicated Team Driving Redshirt Sports&apos; College Football Journey

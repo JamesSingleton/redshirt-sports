@@ -43,21 +43,14 @@ export default async function Page() {
         breadcrumbs={breadcrumbs}
         title="Privacy Policy"
         subtitle={
-          <>
+          <p className="mt-4 text-lg font-normal lg:text-xl">
             Last updated on <Date dateString={privacyPolicy?._updatedAt!} />
-          </>
+          </p>
         }
       />
-      <section className="container py-12 md:py-16 lg:px-8 lg:py-20">
-        <div className="w-full lg:flex">
-          <div className="lg:w-2/3">
-            <div className="prose prose-lg prose-indigo mx-auto px-5 dark:prose-invert sm:px-6 md:px-8 lg:mx-0 lg:px-0">
-              <CustomPortableText value={privacyPolicy?.body!} />
-            </div>
-          </div>
-          <div className="mx-auto mt-12 w-full max-w-xl space-x-8 space-x-reverse px-4 sm:mt-16 sm:px-6 md:max-w-2xl md:px-8 lg:mt-0 lg:w-1/3 lg:max-w-none lg:px-0">
-            <SocialMediaFollow />
-          </div>
+      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
+        <div className="prose prose-lg prose-indigo mx-auto max-w-none px-5 dark:prose-invert sm:px-6 md:px-8 lg:mx-0 lg:px-0">
+          <CustomPortableText value={privacyPolicy?.body!} />
         </div>
       </section>
     </>

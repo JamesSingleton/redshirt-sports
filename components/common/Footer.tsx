@@ -15,10 +15,7 @@ const navigation = {
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ],
-  support: [
-    { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Terms', href: '#' },
-  ],
+  support: [{ name: 'Privacy Policy', href: '/privacy' }],
   social: [
     {
       name: 'Facebook',
@@ -50,7 +47,7 @@ const navigation = {
 
 export default function Footer() {
   return (
-    <footer aria-labelledby="footer-heading">
+    <footer aria-labelledby="footer-heading" className="border-t">
       <h2 id="footer-heading" className="sr-only">
         Footer
       </h2>
