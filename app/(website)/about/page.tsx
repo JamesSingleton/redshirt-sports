@@ -8,26 +8,33 @@ import { Twitter, Facebook, Instagram } from '@components/common/icons'
 import { PageHeader } from '@components/common'
 
 export const metadata = {
-  title: 'About Redshirt Sports: College Football Excellence & Passion',
+  title: 'About Redshirt Sports, Your Source for College Football News',
   description:
-    'Discover Redshirt Sports, a team passionate about college football. Join us for the latest news, insights, and analysis as we celebrate the spirit of the game and collegiate excellence.',
+    'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
   openGraph: {
-    title: 'About Redshirt Sports: College Football Excellence & Passion',
+    title: 'About Redshirt Sports, Your Source for College Football News',
     description:
-      'Discover Redshirt Sports, a team passionate about college football. Join us for the latest news, insights, and analysis as we celebrate the spirit of the game and collegiate excellence.',
+      'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
     url: '/about',
     images: [
       {
-        url: '/api/og?title=About Redshirt Sports: College Football Excellence & Passion',
+        url: '/api/og?title=About Redshirt Sports, Your Source for College Football News',
         width: 1200,
         height: 630,
       },
     ],
   },
   twitter: {
-    title: 'About Redshirt Sports: College Football Excellence & Passion',
+    title: 'About Redshirt Sports, Your Source for College Football News',
     description:
-      'Discover Redshirt Sports, a team passionate about college football. Join us for the latest news, insights, and analysis as we celebrate the spirit of the game and collegiate excellence.',
+      'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
+    images: [
+      {
+        url: '/api/og?title=About Redshirt Sports, Your Source for College Football News',
+        width: 1200,
+        height: 620,
+      },
+    ],
   },
   alternates: {
     canonical: '/about',

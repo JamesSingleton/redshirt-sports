@@ -1,5 +1,4 @@
 import { PageHeader } from '@components/common'
-import { Breadcrumbs } from '@components/ui'
 
 import type { Metadata } from 'next'
 
@@ -20,6 +19,18 @@ export const metadata: Metadata = {
       },
     ],
   },
+  twitter: {
+    title: 'Contact Us',
+    description:
+      'Want to collaborate on a story or advertise with Redshirt Sports? Contact us via editors@redshirtsports.xyz or advertising@redshirtsports.xyz.',
+    images: [
+      {
+        url: '/api/og?title=Contact Us',
+        width: 1200,
+        height: 620,
+      },
+    ],
+  },
   alternates: {
     canonical: '/contact',
   },
@@ -35,17 +46,6 @@ const breadcrumbs = [
   {
     title: 'Contact',
     href: '/contact',
-  },
-]
-
-const socialMedia = [
-  {
-    name: 'Twitter',
-    href: 'https://twitter.com/_redshirtsports',
-  },
-  {
-    name: 'Facebook',
-    href: 'https://www.facebook.com/RedshirtSportsNews',
   },
 ]
 
