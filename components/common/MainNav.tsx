@@ -25,13 +25,18 @@ export function MainNav(props: any) {
       </Link>
       <NavigationMenu className="ml-4">
         <NavigationMenuList>
+          <NavigationMenuItem>
+            <Link href="/news" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>News</NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
           {categories.map((category: any) => {
             if (category.conferences.length > 0) {
               return (
                 <NavigationMenuItem key={category._id}>
                   <NavigationMenuTrigger>{category.name}</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[1fr_1fr]">
+                    <ul className="grid gap-3 p-6 md:w-[700px] lg:w-[850px] lg:grid-cols-4">
                       <li className="row-span-3">
                         <NavigationMenuLink asChild>
                           <Link
@@ -39,9 +44,6 @@ export function MainNav(props: any) {
                             href={`/news/${category.slug}`}
                           >
                             <div className="mb-2 mt-4 text-lg font-medium">{`${category.name} Home`}</div>
-                            <p className="text-sm leading-tight text-muted-foreground">
-                              {/* {category.navSnippet} */}
-                            </p>
                           </Link>
                         </NavigationMenuLink>
                       </li>
@@ -100,13 +102,12 @@ const ListItem = forwardRef<ElementRef<'a'>, ComponentPropsWithoutRef<'a'>>(
             ref={ref}
             href={props.href!}
             className={cn(
-              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+              'block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
               className,
             )}
             {...props}
           >
             <div className="text-sm font-medium leading-none">{title}</div>
-            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
           </Link>
         </NavigationMenuLink>
       </li>

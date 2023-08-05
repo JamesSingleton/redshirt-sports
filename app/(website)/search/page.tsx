@@ -29,7 +29,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
   return (
     <>
       <PageHeader title="Search Results" subtitle={subheadingText} breadcrumbs={breadcrumbs} />
-      <section className="container py-12 sm:py-16 lg:py-24">
+      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="max-w-3xl">
           <Search />
         </div>

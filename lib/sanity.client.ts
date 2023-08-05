@@ -33,6 +33,7 @@ import {
   AuthorPosts,
   PostsWithPaginationPayload,
   SitemapPayload,
+  Divisions,
 } from '@types'
 
 export function getClient(preview?: { token: string }): SanityClient {
@@ -206,7 +207,7 @@ export async function getConferencesAuthorHasWrittenFor({
   return await sanityClient().fetch(conferencesAuthorHasWrittenFor, { authorId })
 }
 
-export async function getDivisions(): Promise<any> {
+export async function getDivisions(): Promise<Divisions[]> {
   return await sanityClient()?.fetch(divisionsQuery)
 }
 

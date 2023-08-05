@@ -1,7 +1,7 @@
-import { PortableTextBlock } from 'sanity'
+import { ImageAsset, PortableTextBlock } from 'sanity'
 
 import { Author, Post } from './post'
-import { MainImage } from './common'
+import { Conference, MainImage } from './common'
 
 export interface AboutPagePayload {
   authors: Author[]
@@ -52,6 +52,18 @@ export interface DivisionPayload {
   description: string
   posts: Post[]
   totalPosts: number
+}
+
+export interface Divisions {
+  _id: string
+  _updatedAt: string
+  name: string
+  heading: string
+  longName: string
+  slug: string
+  description: string
+  logo: any
+  conferences: Conference[]
 }
 
 export interface PostsWithPaginationPayload {

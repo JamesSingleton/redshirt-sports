@@ -22,11 +22,16 @@ export default function Pagination({
   const searchParams = useSearchParams()
   const query = searchParams.get('q')
   // const prevPageUrl = currentPage === 2 ? slug : `${slug}?page=${currentPage - 1}`
-  // account for the possibility of a search query
-  const prevPageUrl = query
-    ? `${slug}?q=${query}&page=${currentPage - 1}`
-    : `${slug}?page=${currentPage - 1}`
-  // const nextPageUrl = `${slug}?page=${currentPage + 1}`
+  // account for the possibility of a search query and if the currentPage is 2 don't add page param
+  const prevPageUrl =
+    currentPage === 2
+      ? query
+        ? `${slug}?q=${query}`
+        : slug
+      : query
+      ? `${slug}?q=${query}&page=${currentPage - 1}`
+      : `${slug}?page=${currentPage - 1}`
+
   const nextPageUrl = query
     ? `${slug}?q=${query}&page=${currentPage + 1}`
     : `${slug}?page=${currentPage + 1}`

@@ -24,7 +24,7 @@ import { urlForImage } from '@lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
 import ImageComponent from '@components/ui/ImageComponent'
 import { Org, Web } from '@lib/ldJson'
-import { perPage } from '@lib/constants'
+import { perPage, baseUrl } from '@lib/constants'
 
 import type { Metadata } from 'next'
 
@@ -48,7 +48,7 @@ export async function generateMetadata({
       type: 'profile',
       title: `${author.role} ${author.name}`,
       description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,
-      url: `https://www.redshirtsports.xyz/authors/${author?.slug}`,
+      url: `${baseUrl}/authors/${author?.slug}`,
       firstName: author?.name.split(' ')[0],
       lastName: author?.name.split(' ')[1],
       images: [
@@ -111,41 +111,41 @@ export default async function Page({
     '@graph': [
       {
         '@type': 'ProfilePage',
-        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#profilepage`,
-        url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+        '@id': `${baseUrl}/authors/${author.slug}#profilepage`,
+        url: `${baseUrl}/authors/${author.slug}`,
         name: `${author.role} ${author.name}`,
         isPartOf: {
-          '@id': 'https://www.redshirtsports.xyz/#website',
+          '@id': '${baseUrl}/#website',
         },
         breadcrumb: {
-          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#breadcrumb`,
+          '@id': `${baseUrl}/authors/${author.slug}#breadcrumb`,
         },
         mainEntity: {
           '@type': 'Person',
-          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#person`,
+          '@id': `${baseUrl}/authors/${author.slug}#person`,
           name: author.name,
           image: urlForImage(author.image).width(1200).height(630).url(),
-          url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+          url: `${baseUrl}/authors/${author.slug}`,
           sameAs: author.socialMedia.map((social) => social.url),
           jobTitle: author.role,
         },
         image: {
-          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#primaryimage`,
+          '@id': `${baseUrl}/authors/${author.slug}#primaryimage`,
         },
         primaryImageOfPage: {
-          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#primaryimage`,
+          '@id': `${baseUrl}/authors/${author.slug}#primaryimage`,
         },
         inLanguage: 'en-US',
         potentialAction: [
           {
             '@type': 'ReadAction',
-            target: [`https://www.redshirtsports.xyz/authors/${author.slug}`],
+            target: [`${baseUrl}/authors/${author.slug}`],
           },
         ],
       },
       {
         '@type': 'ImageObject',
-        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#primaryimage`,
+        '@id': `${baseUrl}/authors/${author.slug}#primaryimage`,
         inLanguage: 'en-US',
         url: urlForImage(author.image).width(1200).height(675).url(),
         width: '1200',
@@ -154,26 +154,25 @@ export default async function Page({
       },
       {
         '@type': 'BreadcrumbList',
-        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#breadcrumb`,
+        '@id': `${baseUrl}/authors/${author.slug}#breadcrumb`,
         itemListElement: [
-          // map over breadcrumbs but add home as first item
           {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: 'https://www.redshirtsports.xyz',
+            item: '${baseUrl}',
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: 'Authors',
-            item: 'https://www.redshirtsports.xyz/about',
+            item: '${baseUrl}/about',
           },
           {
             '@type': 'ListItem',
             position: 3,
             name: author.name,
-            item: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+            item: `${baseUrl}/authors/${author.slug}`,
           },
         ],
       },
@@ -181,17 +180,17 @@ export default async function Page({
       Org,
       {
         '@type': 'Person',
-        '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#person`,
+        '@id': `${baseUrl}/authors/${author.slug}#person`,
         name: author.name,
         image: {
-          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#primaryimage`,
+          '@id': `${baseUrl}/authors/${author.slug}#primaryimage`,
         },
-        url: `https://www.redshirtsports.xyz/authors/${author.slug}`,
+        url: `${baseUrl}/authors/${author.slug}`,
         sameAs: author.socialMedia.map((social) => social.url),
         jobTitle: author.role,
         description: toPlainText(author.bio),
         mainEntityOfPage: {
-          '@id': `https://www.redshirtsports.xyz/authors/${author.slug}#profilepage`,
+          '@id': `${baseUrl}/authors/${author.slug}#profilepage`,
         },
       },
     ],

@@ -9,6 +9,7 @@ import { CustomPortableText } from '@components/ui/CustomPortableText'
 import Author from './Author'
 import ArticleSocialShare from './ArticleSocialShare'
 import { badgeVariants } from '@components/ui/Badge'
+import { baseUrl } from '@lib/constants'
 
 import type { Metadata } from 'next'
 
@@ -40,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: post.title,
       authors: [post.author.name],
       section: post.division ? post.division.name : undefined,
-      url: `https://www.redshirtsports.xyz/${post.slug}`,
+      url: `${baseUrl}/${post.slug}`,
       publishedTime: post.publishedAt,
       modifiedTime: post._updatedAt,
       images: [
@@ -64,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       ],
     },
     alternates: {
-      canonical: `https://www.redshirtsports.xyz/${post.slug}`,
+      canonical: `${baseUrl}/${post.slug}`,
     },
     other: {
       'twitter:label1': 'Reading time',
