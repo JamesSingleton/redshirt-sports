@@ -31,9 +31,9 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
                 aria-current={index === filteredBreadcrumbPages.length - 1 ? 'page' : undefined}
                 href={page.href}
                 className={clsx(
-                  'ml-2 text-base font-medium',
+                  'ml-2 text-base font-semibold ',
                   index === filteredBreadcrumbPages.length - 1
-                    ? 'w-48 truncate text-brand-400 sm:w-64'
+                    ? 'w-48 truncate text-brand-500 dark:text-brand-400 sm:w-64'
                     : 'text-muted-foreground hover:text-foreground',
                 )}
               >

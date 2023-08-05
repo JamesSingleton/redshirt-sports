@@ -103,6 +103,7 @@ export default async function Page({
         url: `${baseUrl}/news/${params.category}${page ? `?page=${page}` : ''}`,
         breadcrumb: {
           '@type': 'BreadcrumbList',
+          name: `${division?.name} Breadcrumbs`,
           itemListElement: [
             {
               '@type': 'ListItem',

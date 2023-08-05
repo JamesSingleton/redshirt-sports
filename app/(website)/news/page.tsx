@@ -66,6 +66,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
         url: `${baseUrl}/news${page ? `?page=${page}` : ''}`,
         breadcrumb: {
           '@type': 'BreadcrumbList',
+          name: 'News Breadcrumbs',
           itemListElement: [
             {
               '@type': 'ListItem',

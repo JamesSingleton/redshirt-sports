@@ -115,6 +115,7 @@ export default async function Page({
         }`,
         breadcrumb: {
           '@type': 'BreadcrumbList',
+          name: `${conference.division.name} Breadcrumbs`,
           itemListElement: [
             {
               '@type': 'ListItem',

@@ -37,10 +37,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {}
   }
 
+  // create keywords from the division if it exists and the conferences if they exist, if there's a name and a short name for the conference, include both otherwise just name. If there are no conferences but there is a division, just use the division name
+  const keywords =
+    post.division && post.conferences
+      ? [
+          post.division.name,
+          ...post.conferences.map((conference) => conference.name),
+          ...post.conferences.map((conference) => conference.shortName),
+        ].filter((keyword) => keyword !== null)
+      : undefined
+
   return {
     title: post.title,
     description: post.excerpt,
+    authors: [
+      {
+        name: post.author.name,
+        url: `${baseUrl}/authors/${post.author.slug}`,
+      },
+    ],
     openGraph: {
+      siteName: 'Redshirt Sports',
       type: 'article',
       title: post.title,
       authors: [post.author.name],
@@ -58,6 +75,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       title: post.title,
+      card: 'summary_large_image',
       description: post.excerpt,
       site: '@_redshirtsports',
       images: [
@@ -75,10 +93,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       'twitter:label1': 'Reading time',
       'twitter:data1': `${post.estimatedReadingTime} min read`,
     },
-    keywords:
-      post.division && post.conferences
-        ? [post.division.name, ...post.conferences.map((conference) => conference.name)]
-        : undefined,
+    keywords: keywords,
   }
 }
 
@@ -109,14 +124,13 @@ export default async function Page({ params }: PageProps) {
     },
   ]
 
-  // if a division exists, return an array of the division and conferences, include the conferences name and shortName
   const keywords =
     post.division && post.conferences
       ? [
           post.division.name,
           ...post.conferences.map((conference) => conference.name),
           ...post.conferences.map((conference) => conference.shortName),
-        ]
+        ].filter((keyword) => keyword !== null)
       : undefined
 
   const articleSections =
@@ -184,6 +198,7 @@ export default async function Page({ params }: PageProps) {
       {
         '@type': 'BreadcrumbList',
         '@id': `${baseUrl}/${post.slug}#breadcrumb`,
+        name: 'Article Breadcrumbs',
         itemListElement: [
           {
             '@type': 'ListItem',
