@@ -1,5 +1,8 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { Graph } from 'schema-dts'
+import { toPlainText } from '@portabletext/react'
+import { getYear, parseISO } from 'date-fns'
 
 import { getPostBySlug, getMorePostsBySlug, getPostSlugs } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
@@ -10,6 +13,7 @@ import Author from './Author'
 import ArticleSocialShare from './ArticleSocialShare'
 import { badgeVariants } from '@components/ui/Badge'
 import { baseUrl } from '@lib/constants'
+import { Org, Web } from '@lib/ldJson'
 
 import type { Metadata } from 'next'
 
@@ -105,8 +109,134 @@ export default async function Page({ params }: PageProps) {
     },
   ]
 
+  // if a division exists, return an array of the division and conferences, include the conferences name and shortName
+  const keywords =
+    post.division && post.conferences
+      ? [
+          post.division.name,
+          ...post.conferences.map((conference) => conference.name),
+          ...post.conferences.map((conference) => conference.shortName),
+        ]
+      : undefined
+
+  const articleSections =
+    post.division && post.conferences
+      ? [post.division.name, ...post.conferences.map((conference) => conference.name)]
+      : undefined
+
+  const jsonLd: Graph = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      Org,
+      Web,
+      {
+        '@type': 'NewsArticle',
+        '@id': `${baseUrl}/${post.slug}#article`,
+        isPartOf: {
+          '@id': `${baseUrl}/${post.slug}`,
+        },
+        image: {
+          '@type': 'ImageObject',
+          url: urlForImage(post.mainImage).width(1200).height(630).url(),
+          inLanguage: 'en-US',
+          contentUrl: urlForImage(post.mainImage).width(1200).height(630).url(),
+          width: '1200',
+          height: '630',
+        },
+        author: {
+          name: post.author.name,
+          '@id': `${baseUrl}/authors/${post.author.slug}#author`,
+        },
+        headline: post.title,
+        datePublished: post.publishedAt,
+        dateModified: post._updatedAt,
+        mainEntityOfPage: {
+          '@id': `${baseUrl}/${post.slug}`,
+        },
+        wordCount: post.wordCount,
+        publisher: {
+          '@id': `${baseUrl}#organization`,
+        },
+        keywords: keywords,
+        articleSection: articleSections,
+        inLanguage: 'en-US',
+        copyrightYear: getYear(parseISO(post.publishedAt)),
+        copyrightHolder: {
+          '@id': `${baseUrl}#organization`,
+        },
+      },
+      {
+        '@type': 'WebPage',
+        '@id': `${baseUrl}/${post.slug}`,
+        url: `${baseUrl}/${post.slug}`,
+        name: post.title,
+        isPartOf: {
+          '@id': `${baseUrl}#website`,
+        },
+        datePublished: post.publishedAt,
+        dateModified: post._updatedAt,
+        inLanguage: 'en-US',
+        description: post.excerpt,
+        breadcrumb: {
+          '@id': `${baseUrl}/${post.slug}#breadcrumb`,
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${baseUrl}/${post.slug}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: baseUrl,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'News',
+            item: `${baseUrl}/news`,
+          },
+          post.division && {
+            '@type': 'ListItem',
+            position: 3,
+            name: post.division.name,
+            item: `${baseUrl}/news/${post.division.slug}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: post.division ? 4 : 3,
+            name: post.title,
+            item: `${baseUrl}/${post.slug}`,
+          },
+        ],
+      },
+      {
+        '@type': 'Person',
+        '@id': `${baseUrl}/authors/${post.author.slug}#author`,
+        name: post.author.name,
+        image: {
+          '@type': 'ImageObject',
+          url: urlForImage(post.author.image).width(96).height(96).url(),
+          inLanguage: 'en-US',
+          contentUrl: urlForImage(post.author.image).width(96).height(96).url(),
+          width: '96',
+          height: '96',
+          caption: post.author.name,
+        },
+        description: toPlainText(post.author.bio),
+        sameAs: post.author.socialMedia.map((social) => social.url),
+        url: `${baseUrl}/authors/${post.author.slug}`,
+      },
+    ],
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ReadingProgress />
       <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
         <div className="container">

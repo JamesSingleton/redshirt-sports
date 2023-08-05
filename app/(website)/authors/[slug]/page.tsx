@@ -115,7 +115,7 @@ export default async function Page({
         url: `${baseUrl}/authors/${author.slug}`,
         name: `${author.role} ${author.name}`,
         isPartOf: {
-          '@id': '${baseUrl}/#website',
+          '@id': `${baseUrl}#website`,
         },
         breadcrumb: {
           '@id': `${baseUrl}/authors/${author.slug}#breadcrumb`,
@@ -160,13 +160,13 @@ export default async function Page({
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: '${baseUrl}',
+            item: baseUrl,
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: 'Authors',
-            item: '${baseUrl}/about',
+            item: `${baseUrl}/about`,
           },
           {
             '@type': 'ListItem',

@@ -4,7 +4,7 @@ import { baseUrl } from './constants'
 
 export const Org: Organization = {
   '@type': 'Organization',
-  '@id': `${baseUrl}/#organization`,
+  '@id': `${baseUrl}#organization`,
   name: 'Redshirt Sports',
   url: baseUrl,
   sameAs: ['https://www.facebook.com/RedshirtSportsNews', 'https://twitter.com/_redshirtsports'],
@@ -45,13 +45,13 @@ export const Org: Organization = {
 
 export const Web: WebSite = {
   '@type': 'WebSite',
-  '@id': `${baseUrl}/#website`,
+  '@id': `${baseUrl}#website`,
   name: 'Redshirt Sports',
   url: baseUrl,
   description:
     'Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more.',
   publisher: {
-    '@id': `${baseUrl}/#organization`,
+    '@id': `${baseUrl}#organization`,
   },
   inLanguage: 'en-US',
 }
