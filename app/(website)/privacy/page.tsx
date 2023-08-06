@@ -1,8 +1,10 @@
 import { Date, CustomPortableText } from '@components/ui'
 import { PageHeader } from '@components/common'
-import SocialMediaFollow from '@components/common/SocialMediaFollow'
 import { getPrivacyPolicyPage } from '@lib/sanity.client'
-import { getPreviewToken } from '@lib/sanity.server.preview'
+import { baseUrl } from '@lib/constants'
+import { Org, Web } from '@lib/ldJson'
+
+import type { Graph } from 'schema-dts'
 
 export const metadata = {
   title: 'Privacy Policy',
@@ -33,12 +35,53 @@ const breadcrumbs = [
   },
 ]
 
+const jsonLd: Graph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    Org,
+    Web,
+    {
+      '@type': 'WebPage',
+      '@id': `${baseUrl}/privacy`,
+      url: `${baseUrl}/privacy`,
+      name: 'Privacy Policy',
+      description:
+        "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
+      inLanguage: 'en-US',
+      isPartOf: {
+        '@id': `${baseUrl}#website`,
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      name: 'Privacy Policy Breadcrumbs',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: baseUrl,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Privacy Policy',
+          item: `${baseUrl}/privacy`,
+        },
+      ],
+    },
+  ],
+}
+
 export default async function Page() {
-  const token = getPreviewToken()
-  const privacyPolicy = await getPrivacyPolicyPage({ token })
+  const privacyPolicy = await getPrivacyPolicyPage()
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PageHeader
         breadcrumbs={breadcrumbs}
         title="Privacy Policy"

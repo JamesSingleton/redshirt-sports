@@ -5,6 +5,14 @@ import { Hero } from '@components/home'
 import { ArticleCard } from '@components/ui'
 import { Date, ImageComponent } from '@components/ui'
 import { getHeroPost, getLatestDivisionArticles } from '@lib/sanity.client'
+import { Org, Web } from '@lib/ldJson'
+
+import type { Graph } from 'schema-dts'
+
+const jsonLd: Graph = {
+  '@context': 'https://schema.org',
+  '@graph': [Org, Web],
+}
 
 export default async function Page() {
   const lastThreeFBSArticles = await getLatestDivisionArticles({ division: 'FBS' })
@@ -13,6 +21,10 @@ export default async function Page() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Hero />
       <section className="bg-secondary py-12 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

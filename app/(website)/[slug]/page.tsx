@@ -113,7 +113,6 @@ export default async function Page({ params }: PageProps) {
       title: 'News',
       href: '/news',
     },
-    // only include division if it exists
     post.division && {
       title: post.division.name,
       href: `/news/${post.division.slug}`,

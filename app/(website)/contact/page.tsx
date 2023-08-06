@@ -1,6 +1,10 @@
 import { PageHeader } from '@components/common'
 
+import { Org, Web } from '@lib/ldJson'
+import { baseUrl } from '@lib/constants'
+
 import type { Metadata } from 'next'
+import type { Graph } from 'schema-dts'
 
 export const metadata: Metadata = {
   title: 'Contact Us',
@@ -49,9 +53,58 @@ const breadcrumbs = [
   },
 ]
 
+const jsonLd: Graph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    Org,
+    Web,
+    {
+      '@type': 'ContactPage',
+      '@id': `${baseUrl}/contact`,
+      url: `${baseUrl}/contact`,
+      description: 'Contact us for collaboration, advertising, or general inquiries.',
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': `${baseUrl}/contact`,
+      },
+      breadcrumb: {
+        '@type': 'BreadcrumbList',
+        '@id': `${baseUrl}/contact#breadcrumb`,
+      },
+      inLanguage: 'en-US',
+      isPartOf: {
+        '@id': `${baseUrl}#website`,
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${baseUrl}/contact#breadcrumb`,
+      name: 'Contact Breadcrumbs',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: baseUrl,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Contact',
+          item: `${baseUrl}/contact`,
+        },
+      ],
+    },
+  ],
+}
+
 export default function Page() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PageHeader
         breadcrumbs={breadcrumbs}
         title="Contact Us"

@@ -3,11 +3,16 @@ import { Mail, Globe } from 'lucide-react'
 
 import { getAboutPageAuthors } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
-import { ImageComponent, Breadcrumbs } from '@components/ui'
+import { ImageComponent } from '@components/ui'
 import { Twitter, Facebook, Instagram } from '@components/common/icons'
 import { PageHeader } from '@components/common'
+import { Org, Web } from '@lib/ldJson'
+import { baseUrl } from '@lib/constants'
 
-export const metadata = {
+import type { Metadata } from 'next'
+import type { Graph } from 'schema-dts'
+
+export const metadata: Metadata = {
   title: 'About Redshirt Sports, Your Source for College Football News',
   description:
     'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
@@ -48,12 +53,62 @@ const breadcrumbs = [
   },
 ]
 
+const jsonLd: Graph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    Org,
+    Web,
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${baseUrl}/about#breadcrumb`,
+      name: 'About Breadcrumbs',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: baseUrl,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'About',
+          item: `${baseUrl}/about`,
+        },
+      ],
+    },
+    {
+      '@type': 'AboutPage',
+      '@id': `${baseUrl}/about`,
+      url: `${baseUrl}/about`,
+      description:
+        'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': `${baseUrl}/about`,
+      },
+      breadcrumb: {
+        '@type': 'BreadcrumbList',
+        '@id': `${baseUrl}/about#breadcrumb`,
+      },
+      inLanguage: 'en-US',
+      isPartOf: {
+        '@id': `${baseUrl}#website`,
+      },
+    },
+  ],
+}
+
 export default async function Page() {
   const token = getPreviewToken()
   const authors = await getAboutPageAuthors({ token })
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PageHeader title="About Redshirt Sports" breadcrumbs={breadcrumbs} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="prose prose-xl mx-auto max-w-none dark:prose-invert">

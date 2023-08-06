@@ -99,12 +99,8 @@ export async function getAboutPageAuthors({
   return await sanityClient(token)?.fetch(allAuthors)
 }
 
-export async function getPrivacyPolicyPage({
-  token,
-}: {
-  token?: string
-}): Promise<PrivacyPolicyPagePayload | undefined> {
-  return await sanityClient(token)?.fetch(privacyPolicy)
+export async function getPrivacyPolicyPage(): Promise<PrivacyPolicyPagePayload> {
+  return await sanityClient().fetch(privacyPolicy)
 }
 
 export async function getPostBySlug({
