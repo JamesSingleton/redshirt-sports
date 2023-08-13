@@ -106,10 +106,11 @@ const litePostFields = `
   },
   division->{
     name,
-    longName,
     "slug": slug.current,
+    longName
   },
   conferences[]->{
+    _id,
     name,
     shortName,
     "slug": slug.current,
@@ -120,6 +121,32 @@ const litePostFields = `
   excerpt,
 `
 
+export const homePageQuery = groq`
+  {
+    "heroArticle": *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0] {
+      ${litePostFields}
+    },
+    "recentArticles": *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..2] {
+      ${litePostFields}
+    },
+    "latestArticles": *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[3..6] {
+      ${litePostFields}
+    },
+    "fcsArticles": *[_type == "post" && featuredArticle != true && division->name == "FCS" && _id != ^.heroArticle._id] | order(publishedAt desc, _updatedAt desc)[0...5] {
+      ${litePostFields}
+    },
+    "fbsArticles": *[_type == "post" && featuredArticle != true && division->name == "FBS"] | order(publishedAt desc, _updatedAt desc)[0...5] {
+      ${litePostFields}
+    },
+    "d2Articles": *[_type == "post" && featuredArticle != true && division->name == "D2"] | order(publishedAt desc, _updatedAt desc)[0...5] {
+      ${litePostFields}
+    },
+    "d3Articles": *[_type == "post" && featuredArticle != true && division->name == "D3"] | order(publishedAt desc, _updatedAt desc)[0...5] {
+      ${litePostFields}
+    },
+  }
+`
+
 export const postsBySlugQuery = groq`
 *[_type == "post" && slug.current == $slug]{
   ${postFields}
@@ -127,22 +154,8 @@ export const postsBySlugQuery = groq`
 `
 
 export const latestDivisionArticlesQuery = groq`
-*[_type == "post" && division->name == $division] | order(publishedAt desc)[0...3] {
-  _id,
-  title,
-  slug,
-  publishedAt,
-  excerpt,
-  mainImage,
-  division->{
-    name,
-    "slug": slug.current,
-  },
-  conferences[]->{
-    name,
-    shortName,
-    "slug": slug.current,
-  },
+*[_type == "post" && division->name == $division] | order(publishedAt desc)[0...5] {
+  ${litePostFields}
 }
 `
 
@@ -167,7 +180,7 @@ export const heroArticleQuery = groq`
 }`
 
 export const recentArticlesQuery = groq`
-*[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..4] {
+*[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..2] {
   ${litePostFields}
 }
 `
@@ -179,7 +192,7 @@ export const featuredArticlesQuery = groq`
 `
 
 export const otherArticlesQuery = groq`
-*[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[5..10] {
+*[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[3..6] {
   ${litePostFields}
 }
 `

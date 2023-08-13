@@ -7,7 +7,6 @@ import { badgeVariants } from './Badge'
 
 type ArticleCardProps = {
   title: string
-  excerpt: string
   date: string
   image: any
   slug: string
@@ -20,62 +19,64 @@ type ArticleCardProps = {
     shortName: string
     slug: string
   }[]
+  author: {
+    name: string
+    slug: string
+  }
+  estimatedReadingTime: number
 }
 
 const ArticleCard = ({
   title,
-  excerpt,
   date,
   image,
   slug,
   division,
   conferences,
+  author,
+  estimatedReadingTime,
 }: ArticleCardProps) => {
   return (
-    <div>
+    <div className="rounded-xl border bg-card text-card-foreground shadow">
       <Link
         href={`/${slug}`}
-        className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-2xl shadow-md"
+        className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-t-xl shadow-md"
       >
-        <ImageComponent
-          image={image}
-          alt={image.caption}
-          className="h-full w-full object-cover"
-          width={363}
-          height={181}
-        />
+        <ImageComponent image={image} alt={image.caption} width={363} height={181} />
       </Link>
-      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-        {(division || conferences) && (
-          <>
-            <div className="flex flex-wrap items-center gap-2">
-              {division && (
-                <Link
-                  href={`/news/${division.slug}`}
-                  className={badgeVariants({ variant: 'default' })}
-                >
-                  {division.name}
-                </Link>
-              )}
-              {conferences &&
-                conferences.map((conference) => (
-                  <Link
-                    key={conference.slug}
-                    href={`/news/${division.slug}/${conference.slug}`}
-                    className={badgeVariants({ variant: 'default' })}
-                  >
-                    {conference.shortName ?? conference.name}
-                  </Link>
-                ))}
-            </div>
-            <span className="text-sm">•</span>
-          </>
-        )}
-        <Date dateString={date} />
+      <div className="space-y-1.5 p-4">
+        <div className="flex flex-wrap space-x-2">
+          {division && (
+            <Link href={`/news/${division.slug}`} className={badgeVariants({ variant: 'default' })}>
+              {division.name}
+            </Link>
+          )}
+          {conferences &&
+            conferences.map((conference) => (
+              <Link
+                href={`/news/${division.slug}/${conference.slug}`}
+                key={conference.slug}
+                className={badgeVariants({ variant: 'default' })}
+              >
+                {conference.shortName ?? conference.name}
+              </Link>
+            ))}
+        </div>
+
+        <h2 className="font-cal text-xl font-semibold tracking-tight">
+          <Link href={`/${slug}`}>{title}</Link>
+        </h2>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center">
+            <span className="mr-1">By</span>
+            <Link href={`/authors/${author.slug}`} className="text-card-foreground">
+              {author.name}
+            </Link>
+          </div>
+          <Date dateString={date} />
+          <span>{estimatedReadingTime} min</span>
+        </div>
       </div>
-      <Link href={`/${slug}`} className="mt-4 block">
-        <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-      </Link>
     </div>
   )
 }

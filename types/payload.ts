@@ -27,6 +27,7 @@ export interface PostPayload {
     slug: string
   }
   conferences: {
+    _id: string
     name: string
     shortName: string
     slug: string
@@ -93,4 +94,14 @@ export interface SitemapPayload {
     slug: string
     divisionSlug: string
   }[]
+}
+
+export interface HomePagePayload {
+  heroArticle: Post
+  recentArticles: Post[]
+  latestArticles: Post[]
+  fcsArticles: Post[]
+  fbsArticles: Post[]
+  d2Articles: Post[]
+  d3Articles: Post[]
 }

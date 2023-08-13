@@ -326,12 +326,13 @@ export default async function Page({ params }: PageProps) {
               <ArticleCard
                 key={morePost._id}
                 title={morePost.title}
-                excerpt={morePost.excerpt}
                 date={morePost.publishedAt}
                 image={morePost.mainImage}
                 slug={morePost.slug}
                 division={morePost.division}
                 conferences={morePost.conferences}
+                author={morePost.author}
+                estimatedReadingTime={morePost.estimatedReadingTime}
               />
             ))}
           </div>

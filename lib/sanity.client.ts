@@ -6,10 +6,7 @@ import {
   privacyPolicy,
   postsBySlugQuery,
   morePostsBySlugQuery,
-  heroArticleQuery,
-  recentArticlesQuery,
   featuredArticlesQuery,
-  otherArticlesQuery,
   authors,
   postsForRssFeed,
   postSlugsQuery,
@@ -24,6 +21,7 @@ import {
   divisionBySlugQuery,
   paginatedPostsQuery,
   searchQuery,
+  homePageQuery,
 } from '@lib/sanity.queries'
 import {
   DivisionPayload,
@@ -34,6 +32,7 @@ import {
   PostsWithPaginationPayload,
   SitemapPayload,
   Divisions,
+  HomePagePayload,
 } from '@types'
 
 export function getClient(preview?: { token: string }): SanityClient {
@@ -63,16 +62,8 @@ const sanityClient = (token?: string) => {
   return createClient({ projectId, dataset, apiVersion, token, useCdn })
 }
 
-export async function getHeroPost(): Promise<PostPayload> {
-  return await sanityClient().fetch(heroArticleQuery)
-}
-
-export async function getRecentArticles({
-  token,
-}: {
-  token?: string
-}): Promise<PostPayload[] | undefined> {
-  return await sanityClient(token)?.fetch(recentArticlesQuery)
+export async function getHomePage(): Promise<HomePagePayload> {
+  return await sanityClient().fetch(homePageQuery)
 }
 
 export async function getFeaturedArticles({
@@ -81,14 +72,6 @@ export async function getFeaturedArticles({
   token?: string
 }): Promise<PostPayload[] | undefined> {
   return await sanityClient(token)?.fetch(featuredArticlesQuery)
-}
-
-export async function getOtherArticles({
-  token,
-}: {
-  token?: string
-}): Promise<PostPayload[] | undefined> {
-  return await sanityClient(token)?.fetch(otherArticlesQuery)
 }
 
 export async function getAboutPageAuthors({
@@ -191,7 +174,11 @@ export async function getTransferPortalPlayers(): Promise<any> {
   return await sanityClient()?.fetch(transferPortalPlayers)
 }
 
-export async function getLatestDivisionArticles({ division }: { division: string }): Promise<any> {
+export async function getLatestDivisionArticles({
+  division,
+}: {
+  division: string
+}): Promise<PostPayload[]> {
   return await sanityClient()?.fetch(latestDivisionArticlesQuery, { division })
 }
 

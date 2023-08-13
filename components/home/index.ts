@@ -1,5 +1,4 @@
 import Hero from './Hero'
-import FeaturedArticles from './FeaturedArticles'
-import MostRead from './MostRead'
+import ArticleSection from './ArticleSection'
 
-export { Hero, FeaturedArticles, MostRead }
+export { Hero, ArticleSection }

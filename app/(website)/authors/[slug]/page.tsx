@@ -273,10 +273,11 @@ export default async function Page({
                 title={post.title}
                 slug={post.slug}
                 image={post.mainImage}
-                excerpt={post.excerpt}
                 date={post.publishedAt}
                 division={post.division}
                 conferences={post.conferences}
+                author={post.author}
+                estimatedReadingTime={post.estimatedReadingTime}
               />
             ))}
           </div>

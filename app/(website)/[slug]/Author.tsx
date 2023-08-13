@@ -18,7 +18,7 @@ const Author = (author: Author) => {
     <div className="lg:sticky lg:left-0 lg:top-24 lg:mt-12 lg:self-start">
       <div className="flex flex-row lg:flex-col">
         {author.archived ? (
-          <div className="mb-4 block h-24 w-24 overflow-hidden rounded-full">
+          <div className="mb-4 h-24 w-24 overflow-hidden rounded-full">
             <ImageComponent
               image={author.image}
               alt={author.name}
@@ -30,7 +30,7 @@ const Author = (author: Author) => {
         ) : (
           <Link
             href={`/authors/${author.slug}`}
-            className="mb-4 block h-24 w-24 overflow-hidden rounded-full"
+            className="mb-4 h-24 w-24 overflow-hidden rounded-full"
           >
             <ImageComponent
               image={author.image}

@@ -43,10 +43,12 @@ export type Post = {
   slug: string
   title: string
   division: {
+    _id: string
     name: string
     slug: string
   }
   conferences: {
+    _id: string
     name: string
     shortName: string
     slug: string
