@@ -22,7 +22,7 @@ export default async function NotFoundPage() {
             </svg>
           </p>
           <h1 className="mt-3 text-2xl font-semibold md:text-3xl">Page not found</h1>
-          <p className="mt-4 text-zinc-500 dark:text-zinc-400">
+          <p className="mt-4 text-muted-foreground">
             The page you are looking for doesn&apos;t exist. Here are some helpful links:
           </p>
 

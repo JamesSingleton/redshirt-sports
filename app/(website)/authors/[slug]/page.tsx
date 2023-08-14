@@ -226,7 +226,7 @@ export default async function Page({
             </div>
             <CustomPortableText
               value={author.bio}
-              paragraphClasses="mt-4 text-lg font-normal lg:text-xl"
+              paragraphClasses="mt-4 text-lg font-normal lg:text-xl text-muted-foreground"
             />
             {author.socialMedia && (
               <ul className="mt-6 flex flex-wrap items-center space-x-3">
@@ -236,7 +236,7 @@ export default async function Page({
                       href={social.url}
                       target="_blank"
                       rel="noopener"
-                      className="inline-flex h-10 w-10 items-center rounded-full text-zinc-400 transition-all duration-200"
+                      className="inline-flex h-10 w-10 items-center rounded-full text-muted-foreground transition-all duration-200"
                     >
                       <span className="sr-only">{social.name}</span>
                       {social.name === 'Email' ? <Mail className="h-6 w-6" /> : null}

@@ -24,9 +24,9 @@ const ConferencesWrittenFor = ({
   const filteredConferences = conferences?.filter((conference) => conference !== null)
 
   const inActiveClass =
-    'inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-900'
+    'inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-accent hover:text-accent-foreground'
   const activeClass =
-    'inline-block rounded-full border border-brand-100 bg-brand-100 px-4 py-2 text-base font-semibold text-brand-800 transition-all duration-200'
+    'inline-block rounded-full  bg-accent px-4 py-2 text-base font-semibold text-accent-foreground transition-all duration-200'
 
   return (
     <div className="flex flex-wrap items-center gap-1">

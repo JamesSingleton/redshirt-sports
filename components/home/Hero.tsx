@@ -47,7 +47,10 @@ const Hero = ({ heroArticle, recentArticles }: { heroArticle: Post; recentArticl
               </h1>
               <p className="line-clamp-2 text-muted-foreground">{heroArticle.excerpt}</p>
               <div className="flex flex-wrap items-center space-x-2 text-base text-muted-foreground">
-                <Link href={`/authors/${heroArticle.author.name}`}>
+                <Link
+                  href={`/authors/${heroArticle.author.slug}`}
+                  className="flex items-center gap-2"
+                >
                   <ImageComponent
                     image={heroArticle.author.image}
                     alt={heroArticle.author.name}
@@ -55,13 +58,8 @@ const Hero = ({ heroArticle, recentArticles }: { heroArticle: Post; recentArticl
                     height={44}
                     className="h-11 w-11 rounded-full"
                   />
+                  <span className="text-primary">{heroArticle.author.name}</span>
                 </Link>
-                <div className="flex items-center">
-                  <span className="mr-1">By</span>
-                  <Link href={`/authors/${heroArticle.author.slug}`} className="text-primary">
-                    {heroArticle.author.name}
-                  </Link>
-                </div>
                 <Date dateString={heroArticle.publishedAt} />
                 <span>{heroArticle.estimatedReadingTime} min</span>
               </div>

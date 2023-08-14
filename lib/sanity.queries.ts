@@ -309,13 +309,13 @@ export const transferPortalPlayers = groq`
 `
 
 export const divisionsQuery = groq`
-*[_type == "division"]{
+*[_type == "division" && count(*[_type == 'post' && references(^._id)]) > 0]{
   ...,
   "slug": slug.current,
-  conferences[]->{
+  "conferences": *[_type == "conference" && division._ref == ^._id && count(*[_type == 'post' && references(^._id)]) > 0]{
     ...,
     "slug": slug.current,
-  }
+  } | order(name asc)
 } | order(name desc)
 `
 

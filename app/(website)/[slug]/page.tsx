@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 import { toPlainText } from '@portabletext/react'
 import { getYear, parseISO } from 'date-fns'
+import { CameraIcon } from 'lucide-react'
 
 import { getPostBySlug, getMorePostsBySlug, getPostSlugs } from '@lib/sanity.client'
 import { getPreviewToken } from '@lib/sanity.server.preview'
@@ -37,7 +38,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {}
   }
 
-  // create keywords from the division if it exists and the conferences if they exist, if there's a name and a short name for the conference, include both otherwise just name. If there are no conferences but there is a division, just use the division name
   const keywords =
     post.division && post.conferences
       ? [
@@ -299,12 +299,19 @@ export default async function Page({ params }: PageProps) {
             </div>
             <div className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <article className="lg:max-w-none">
-                <ImageComponent
-                  image={post.mainImage}
-                  className="mb-12 h-auto w-full rounded-2xl shadow-md"
-                  width={864}
-                  height={576}
-                />
+                <figure className="mb-12 space-y-1.5">
+                  <ImageComponent
+                    image={post.mainImage}
+                    className="h-auto w-full rounded-2xl shadow-md"
+                    width={864}
+                    height={576}
+                    mode={post.mainImage.crop ? 'cover' : 'contain'}
+                  />
+                  <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CameraIcon className="h-4 w-4" />
+                    <span>Source: {post.mainImage.attribution}</span>
+                  </figcaption>
+                </figure>
                 <div className="prose prose-lg prose-zinc mx-auto mt-8 max-w-none dark:prose-invert lg:prose-xl">
                   <CustomPortableText value={post.body} />
                 </div>

@@ -1,7 +1,5 @@
 import Pagination from './Pagination'
 import Date from './Date'
-import HorizontalCard from './HorizontalCard'
-import MinimalHorizontalCard from './MinimalHorizontalCard'
 import Breadcrumbs from './Breadcrumbs'
 import ArticleCard from './ArticleCard'
 import ReadingProgress from './ReadingProgress'
@@ -14,8 +12,6 @@ export {
   Button,
   Pagination,
   Date,
-  HorizontalCard,
-  MinimalHorizontalCard,
   Breadcrumbs,
   ArticleCard,
   ReadingProgress,

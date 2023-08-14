@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
-import { ArticleCard, ImageComponent } from '@components/ui'
+import { ArticleCard, ImageComponent, Date } from '@components/ui'
 import { cn } from '@lib/utils'
 import { buttonVariants } from '@components/ui/Button'
 import { Post } from '@types'
@@ -39,32 +39,39 @@ export default function ArticleSection({
         <div className="flex flex-col gap-4 pt-4 md:flex-row">
           <div
             className={cn(
-              'mt-4 md:flex md:w-1/2 md:items-center lg:w-1/3',
+              'order-1 md:flex md:w-1/2 md:items-center xl:w-1/3',
               imageFirst ? 'md:order-2' : 'md:order-1',
             )}
           >
-            <div className="md:flex-1">
-              <h3 className="mb-2 font-cal text-4xl font-semibold md:mb-0">
+            <div className="space-y-2 md:flex-1">
+              <h3 className="font-cal text-3xl font-semibold lg:text-4xl">
                 <Link href={`/${firstArticle.slug}`}>{firstArticle.title}</Link>
               </h3>
               <p className="text-muted-foreground">{firstArticle.excerpt}</p>
-              <div className="mt-2 flex items-center">
-                <ImageComponent
-                  image={firstArticle.author.image}
-                  alt={firstArticle.author.name}
-                  className="mr-2 h-8 w-8 rounded-full"
-                  width={32}
-                  height={32}
-                />
-                <span>{firstArticle.author.name}</span>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Link
+                  href={`/authors/${firstArticle.author.slug}`}
+                  className="flex items-center gap-2 text-primary"
+                >
+                  <ImageComponent
+                    image={firstArticle.author.image}
+                    alt={firstArticle.author.name}
+                    className="mr-2 h-8 w-8 rounded-full"
+                    width={32}
+                    height={32}
+                  />
+                  {firstArticle.author.name}
+                </Link>
+                <Date dateString={firstArticle.publishedAt} />
+                <span>{firstArticle.estimatedReadingTime} min</span>
               </div>
             </div>
           </div>
-          <div className={cn('md:w-1/2 lg:w-2/3', imageFirst ? 'md:order-1' : 'md:order-2')}>
+          <div className={cn('md:w-1/2  xl:w-2/3', imageFirst ? 'md:order-1' : 'md:order-2')}>
             <ImageComponent
               image={firstArticle.mainImage}
               alt={firstArticle.mainImage.caption}
-              className="w-full rounded-md"
+              className="w-full overflow-hidden rounded-xl shadow-md"
               width={860}
               height={573}
             />

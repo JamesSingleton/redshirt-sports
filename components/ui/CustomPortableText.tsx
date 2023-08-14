@@ -7,6 +7,7 @@ import {
 } from '@portabletext/react'
 import { PortableTextBlock } from 'sanity'
 import { Tweet } from 'react-tweet'
+import { CameraIcon } from 'lucide-react'
 
 import ImageComponent from './ImageComponent'
 
@@ -34,7 +35,19 @@ const TweetComponents: TwitterComponents = {
 const ImageEmbed = ({ value }: { value: any }) => {
   return (
     <figure className="my-2 flex flex-col self-center rounded-lg shadow-md">
-      <ImageComponent image={value} className="rounded-lg" width={720} height={379} />
+      <ImageComponent
+        image={value}
+        mode="contain"
+        className="rounded-lg"
+        width={720}
+        height={379}
+      />
+      {value.attribution && (
+        <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
+          <CameraIcon className="h-4 w-4" />
+          <span>Source: {value.attribution}</span>
+        </figcaption>
+      )}
     </figure>
   )
 }

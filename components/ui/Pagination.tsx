@@ -41,11 +41,11 @@ export default function Pagination({
 
   return (
     <nav
-      className="mt-12 flex items-center justify-between border-t border-zinc-200 py-3"
+      className="mt-12 flex items-center justify-between border-t border-muted-foreground py-3"
       aria-label="Pagination"
     >
       <div className="hidden sm:block">
-        <p className="text-sm text-zinc-700 dark:text-zinc-200">
+        <p className="text-muted-foreground">
           Showing <span className="font-medium">{from}</span> to{' '}
           <span className="font-medium">{to}</span> of{' '}
           <span className="font-medium">{totalPosts}</span> results

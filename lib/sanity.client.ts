@@ -191,7 +191,7 @@ export async function getConferencesAuthorHasWrittenFor({
 }
 
 export async function getDivisions(): Promise<Divisions[]> {
-  return await sanityClient()?.fetch(divisionsQuery)
+  return await sanityClient().fetch(divisionsQuery)
 }
 
 export async function getPaginatedPosts({
@@ -204,10 +204,10 @@ export async function getPaginatedPosts({
 
 export async function getSearchResults({
   query,
-  pageIndex,
+  pageIndex = 1,
 }: {
   query: string | null
-  pageIndex: number
+  pageIndex?: number
 }): Promise<any> {
   return await sanityClient()?.fetch(searchQuery, { query, pageIndex })
 }
