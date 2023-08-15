@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState, ChangeEvent } from 'react'
+import { useCallback, ChangeEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import debounce from 'lodash.debounce'
 
@@ -21,5 +21,7 @@ export default function Search() {
     [debouncedSearch],
   )
 
-  return <Input type="search" onChange={handleSearchChange} placeholder="Search..." />
+  return (
+    <Input type="search" onChange={handleSearchChange} placeholder="Search Redshirt Sports..." />
+  )
 }

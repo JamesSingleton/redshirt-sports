@@ -25,7 +25,6 @@ export function CommandMenu({ ...props }: DialogProps & { divisions: any[] }) {
   const { setTheme } = useTheme()
   const { divisions } = props
 
-  // get just the title and slug of categories
   const topLevelCategories = divisions.map((division) => ({
     title: division.name,
     href: `/news/${division.slug}`,
@@ -67,7 +66,7 @@ export function CommandMenu({ ...props }: DialogProps & { divisions: any[] }) {
         </kbd>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search..." />
+        <CommandInput placeholder="Search Redshirt Sports..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Links">
