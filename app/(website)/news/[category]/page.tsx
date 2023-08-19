@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { getDivisionBySlug } from '@lib/sanity.client'
+import { getNewsByDivision } from '@lib/sanity.fetch'
 import { ArticleCard, Pagination } from '@components/ui'
 import { PageHeader } from '@components/common'
 import { baseUrl, perPage } from '@lib/constants'
@@ -20,7 +20,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
-  const division = await getDivisionBySlug({ slug: params.category, pageIndex })
+  const division = await getNewsByDivision(params.category, pageIndex)
 
   if (!division) {
     return {}
@@ -72,7 +72,7 @@ export default async function Page({
 }) {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
-  const division = await getDivisionBySlug({ slug: params.category, pageIndex })
+  const division = await getNewsByDivision(params.category, pageIndex)
 
   if (!division) {
     return notFound()

@@ -3,6 +3,8 @@ import { ImageAsset, PortableTextBlock } from 'sanity'
 import { Author, Post } from './post'
 import { Conference, MainImage } from './common'
 
+import type { Image } from 'sanity'
+
 export interface AboutPagePayload {
   authors: Author[]
 }
@@ -39,6 +41,7 @@ export interface PostPayload {
   featuredArticle: boolean
   estimatedReadingTime: number
   wordCount: number
+  relatedArticles: Post[]
 }
 
 export interface DivisionPayload {
@@ -65,6 +68,24 @@ export interface Divisions {
   description: string
   logo: any
   conferences: Conference[]
+}
+
+export interface ConferencePayload {
+  _id: string
+  _updatedAt: string
+  name: string
+  shortName: string
+  slug: string
+  description: string
+  logo: Image & {
+    alt: string
+  }
+  division: {
+    name: string
+    slug: string
+  }
+  posts: Post[]
+  totalPosts: number
 }
 
 export interface PostsWithPaginationPayload {

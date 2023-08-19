@@ -1,4 +1,4 @@
-import { getSitemap } from '@lib/sanity.client'
+import { getSitemap } from '@lib/sanity.fetch'
 import { baseUrl } from '@lib/constants'
 
 import type { MetadataRoute } from 'next'

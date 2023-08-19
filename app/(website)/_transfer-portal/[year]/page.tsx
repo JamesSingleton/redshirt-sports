@@ -1,6 +1,6 @@
 import { MoveRight, CheckCircle, ArrowLeftToLine, ArrowRightToLine, Edit3 } from 'lucide-react'
 
-import { getTransferPortalPlayers } from '@lib/sanity.client'
+import { getTransferPortalPlayers } from '@lib/sanity.fetch'
 import { ImageComponent } from '@components/ui'
 import { FilterBar } from '@components/common/FilterBar'
 

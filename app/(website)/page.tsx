@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react'
 
 import { Hero, ArticleSection } from '@components/home'
 import { ArticleCard } from '@components/ui'
-import { getHomePage } from '@lib/sanity.client'
+import { getHomePage } from '@lib/sanity.fetch'
 import { Org, Web } from '@lib/ldJson'
 import { buttonVariants } from '@components/ui/Button'
 import { cn } from '@lib/utils'

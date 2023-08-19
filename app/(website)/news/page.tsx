@@ -4,7 +4,7 @@ import { Graph } from 'schema-dts'
 
 import { ArticleCard, Pagination } from '@components/ui'
 import { PageHeader } from '@components/common'
-import { getPaginatedPosts } from '@lib/sanity.client'
+import { getNews } from '@lib/sanity.fetch'
 import { baseUrl, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 
@@ -45,7 +45,7 @@ export async function generateMetadata({
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string } }) {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
-  const news = await getPaginatedPosts({ pageIndex })
+  const news = await getNews(pageIndex)
 
   if (!news) {
     return notFound()

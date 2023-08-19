@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import { Mail, Globe } from 'lucide-react'
 
-import { getAboutPageAuthors } from '@lib/sanity.client'
-import { getPreviewToken } from '@lib/sanity.server.preview'
+import { getAuthors } from '@lib/sanity.fetch'
 import { ImageComponent } from '@components/ui'
 import { Twitter, Facebook, Instagram } from '@components/common/icons'
 import { PageHeader } from '@components/common'
@@ -99,9 +98,8 @@ const jsonLd: Graph = {
   ],
 }
 
-export default async function Page() {
-  const token = getPreviewToken()
-  const authors = await getAboutPageAuthors({ token })
+export default async function AboutPage() {
+  const authors = await getAuthors()
 
   return (
     <>

@@ -18,7 +18,7 @@ const authorFields = `
   role,
   image,
   bio,
-  socialMedia,
+  socialMedia
 `
 
 export const allAuthors = groq`
@@ -34,12 +34,6 @@ export const allAuthors = groq`
 
 export const privacyPolicy = groq`
 *[_type == "legal" && slug.current == "privacy-policy"][0] {
-  ${legalFields}
-}
-`
-
-export const advertisingPage = groq`
-*[_type == "legal" && slug.current == "advertising"][0] {
   ${legalFields}
 }
 `
@@ -148,9 +142,16 @@ export const homePageQuery = groq`
 `
 
 export const postsBySlugQuery = groq`
-*[_type == "post" && slug.current == $slug]{
-  ${postFields}
-}[0]
+*[_type == "post" && slug.current == $slug][0]{
+  ${postFields},
+  "relatedArticles": *[
+    _type == "post"
+    && _id != ^._id
+    && count(conferences[@._ref in ^.^.conferences[]._ref]) > 0
+  ] | order(publishedAt desc, _createdAt desc) {
+    ${litePostFields}
+  }[0...3]
+}
 `
 
 export const latestDivisionArticlesQuery = groq`
@@ -158,21 +159,6 @@ export const latestDivisionArticlesQuery = groq`
   ${litePostFields}
 }
 `
-
-export const morePostsBySlugQuery = groq`
-*[_type == "post" && slug.current != $slug]{
-  ${litePostFields}
-  division->{
-    name,
-    "slug": slug.current,
-  },
-  conferences[]->{
-    name,
-    shortName,
-    "slug": slug.current,
-    "divisionSlug": division->slug.current,
-  }
-}| order(publishedAt desc) [0...3]`
 
 export const heroArticleQuery = groq`
 *[_type == "post" && featuredArticle != true] | order(publishedAt desc) [0] {
@@ -197,10 +183,21 @@ export const otherArticlesQuery = groq`
 }
 `
 
-export const authors = groq`
+export const authorBySlug = groq`
   *[_type == 'author' && slug.current == $slug && archived == false][0]{
     ${authorFields}
   }
+`
+
+export const conferencesAuthorHasWrittenFor = groq`
+*[_id == $authorId][0] {
+  "conferences": array::unique(*[_id in *[_type == "post" && references(^.^._id)].conferences[]->._id])[] {
+    _id,
+    "path": "/news/" + division->.slug.current + "/" + slug.current,
+    name,
+    shortName,
+  } | order(name asc)
+}
 `
 
 export const authorsPosts = groq`
@@ -215,17 +212,6 @@ export const authorsPosts = groq`
     $conference == null => true,
     $conference in conferences[]->name
   )])
-}
-`
-
-export const conferencesAuthorHasWrittenFor = groq`
-*[_id == $authorId][0] {
-  "conferences": array::unique(*[_id in *[_type == "post" && references(^.^._id)].conferences[]->._id])[] {
-    _id,
-    "path": "/news/" + division->.slug.current + "/" + slug.current,
-    name,
-    shortName,
-  } | order(name asc)
 }
 `
 
@@ -260,7 +246,7 @@ export const postsForRssFeed = groq`
 }
 `
 
-export const postSlugsQuery = `
+export const postPaths = `
 *[_type == "post" && defined(slug.current)][].slug.current
 `
 

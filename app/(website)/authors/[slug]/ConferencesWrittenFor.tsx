@@ -4,8 +4,6 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import clsx from 'clsx'
 
-import type { Conference } from '@types'
-
 const ConferencesWrittenFor = ({
   conferences,
   slug,
@@ -21,7 +19,7 @@ const ConferencesWrittenFor = ({
   const searchParams = useSearchParams()
   const conferenceParam = searchParams.get('conference')
   const page = searchParams.get('page')
-  const filteredConferences = conferences?.filter((conference) => conference !== null)
+  const filteredConferences = conferences.filter((conference) => conference !== null)
 
   const inActiveClass =
     'inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-accent hover:text-accent-foreground'

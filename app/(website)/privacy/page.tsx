@@ -1,6 +1,6 @@
 import { Date, CustomPortableText } from '@components/ui'
 import { PageHeader } from '@components/common'
-import { getPrivacyPolicyPage } from '@lib/sanity.client'
+import { getPrivacyPolicy } from '@lib/sanity.fetch'
 import { baseUrl } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 
@@ -73,8 +73,8 @@ const jsonLd: Graph = {
   ],
 }
 
-export default async function Page() {
-  const privacyPolicy = await getPrivacyPolicyPage()
+export default async function PrivacyPolicyPage() {
+  const privacyPolicy = await getPrivacyPolicy()
 
   return (
     <>

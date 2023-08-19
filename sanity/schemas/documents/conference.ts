@@ -1,3 +1,4 @@
+import CustomStringInputWithLimits from '@plugins/CustomStringInputWithLimits'
 import { defineType, defineField } from 'sanity'
 
 export default defineType({
@@ -38,6 +39,21 @@ export default defineType({
         isUnique: (value, context) => context.defaultIsUnique(value, context),
       },
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      title: 'Description',
+      name: 'description',
+      type: 'string',
+      description:
+        'This will be used for article snippets in social media and Google searches. Ideally between 110 and 160 characters.',
+      components: {
+        input: CustomStringInputWithLimits,
+      },
+      validation: (rule) => [
+        rule.required().error('We need an excerpt before publishing.'),
+        rule.min(110).warning('This is a short excerpt. Try to add 10-20 more characters.'),
+        rule.max(160).error('The excerpt should be less than 160 characters'),
+      ],
     }),
     defineField({
       title: 'Logo',

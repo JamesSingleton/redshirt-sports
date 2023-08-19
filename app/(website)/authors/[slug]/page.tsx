@@ -15,9 +15,9 @@ import {
 } from '@components/common/icons'
 import {
   getConferencesAuthorHasWrittenFor,
-  getAuthorsBySlug,
+  getAuthorBySlug,
   getAuthorsPosts,
-} from '@lib/sanity.client'
+} from '@lib/sanity.fetch'
 import { getPreviewToken } from '@lib/sanity.server.preview'
 import { ArticleCard, Pagination, CustomPortableText, Breadcrumbs } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
@@ -34,8 +34,7 @@ export async function generateMetadata({
   params: { slug: string }
 }): Promise<Metadata> {
   const { slug } = params
-  const token = getPreviewToken()
-  const author = await getAuthorsBySlug({ slug, token })
+  const author = await getAuthorBySlug(slug)
 
   if (!author) {
     return {}
@@ -80,14 +79,13 @@ export default async function Page({
   const { slug } = params
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
   const conference = searchParams.conference ?? null
-  const token = getPreviewToken()
-  const author = await getAuthorsBySlug({ slug, token })
+  const author = await getAuthorBySlug(slug)
   if (!author) {
     return notFound()
   }
 
   const authorId = author._id
-  const conferencesWrittenFor = await getConferencesAuthorHasWrittenFor({ authorId })
+  const conferencesWrittenFor = await getConferencesAuthorHasWrittenFor(authorId)
 
   const breadcrumbs = [
     {
@@ -100,7 +98,7 @@ export default async function Page({
     },
   ]
 
-  const authorPosts = await getAuthorsPosts({ authorId, pageIndex, conference })
+  const authorPosts = await getAuthorsPosts(authorId, pageIndex, conference)
 
   const totalPages = Math.ceil(authorPosts.totalPosts / perPage)
   const nextDisabled = pageIndex === totalPages

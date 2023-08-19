@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 
 import { PageHeader } from '@components/common'
 import Search from '@components/common/Search'
-import { getSearchResults } from '@lib/sanity.client'
+import { getSearchResults } from '@lib/sanity.fetch'
 import { ArticleCard, Pagination } from '@components/ui'
 import { perPage } from '@lib/constants'
 
@@ -20,7 +20,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
   const pageIndex = searchParams['page'] !== undefined ? parseInt(searchParams['page']) : 1
   const subheadingText = query ? `Search results for "${query}"` : null
 
-  const searchResults = await getSearchResults({ query, pageIndex })
+  const searchResults = await getSearchResults(query, pageIndex)
 
   const totalPages = Math.ceil(searchResults.totalPosts / perPage)
   const nextDisabled = pageIndex === totalPages

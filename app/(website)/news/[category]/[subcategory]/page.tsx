@@ -3,7 +3,7 @@ import { Graph } from 'schema-dts'
 
 import { ArticleCard, Pagination } from '@components/ui'
 import { PageHeader } from '@components/common'
-import { getConferenceBySlug } from '@lib/sanity.client'
+import { getNewsByConference } from '@lib/sanity.fetch'
 import { baseUrl, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 import { urlForImage } from '@lib/sanity.image'
@@ -21,7 +21,7 @@ export async function generateMetadata({
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
-  const conference = await getConferenceBySlug({ slug: params.subcategory, pageIndex })
+  const conference = await getNewsByConference(params.subcategory, pageIndex)
 
   if (!conference) {
     return {}
@@ -34,12 +34,18 @@ export async function generateMetadata({
     canonical = `${baseUrl}/news/${conference.division.slug}/${conference.slug}?page=${pageIndex}`
   }
 
+  const fallBackDescription = `Explore the latest in ${
+    conference.division.name
+  } college football from the ${
+    conference.shortName ?? conference.name
+  } conference at Redshirt Sports. Get news, highlights, and more.`
+
   return {
     title,
-    description: conference?.description,
+    description: conference.description ?? fallBackDescription,
     openGraph: {
       title,
-      description: conference?.description,
+      description: conference.description ?? fallBackDescription,
       url: canonical,
       siteName: 'Redshirt Sports',
       locale: 'en_US',
@@ -56,7 +62,7 @@ export async function generateMetadata({
     twitter: {
       card: 'summary_large_image',
       title,
-      description: conference?.description,
+      description: conference.description ?? fallBackDescription,
     },
     alternates: {
       canonical,
@@ -72,7 +78,7 @@ export default async function Page({
   searchParams: { [key: string]: string }
 }) {
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
-  const conference = await getConferenceBySlug({ slug: params.subcategory, pageIndex })
+  const conference = await getNewsByConference(params.subcategory, pageIndex)
   if (!conference) {
     return notFound()
   }

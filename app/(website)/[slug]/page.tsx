@@ -4,9 +4,8 @@ import { Graph } from 'schema-dts'
 import { toPlainText } from '@portabletext/react'
 import { getYear, parseISO } from 'date-fns'
 import { CameraIcon } from 'lucide-react'
+import { getPostBySlug, getPostsPaths } from '@lib/sanity.fetch'
 
-import { getPostBySlug, getMorePostsBySlug, getPostSlugs } from '@lib/sanity.client'
-import { getPreviewToken } from '@lib/sanity.server.preview'
 import { Date, ArticleCard, ReadingProgress, Breadcrumbs, ImageComponent } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
 import { CustomPortableText } from '@components/ui/CustomPortableText'
@@ -25,14 +24,13 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const slugs = await getPostSlugs()
+  const slugs = await getPostsPaths()
   return slugs.map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = params
-  const token = getPreviewToken()
-  const post = await getPostBySlug({ token, slug })
+  const post = await getPostBySlug(slug)
 
   if (!post) {
     return {}
@@ -99,14 +97,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { slug } = params
-  const token = getPreviewToken()
-  const post = await getPostBySlug({ token, slug })
+  const post = await getPostBySlug(slug)
 
   if (!post) {
     return notFound()
   }
-
-  const morePosts = await getMorePostsBySlug({ token, slug })
 
   const breadcrumbs = [
     {
@@ -329,7 +324,7 @@ export default async function Page({ params }: PageProps) {
             </h2>
           </div>
           <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-3 lg:mt-12 xl:gap-16">
-            {morePosts?.map((morePost) => (
+            {post.relatedArticles?.map((morePost) => (
               <ArticleCard
                 key={morePost._id}
                 title={morePost.title}

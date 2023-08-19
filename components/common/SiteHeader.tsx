@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { getDivisions } from '@lib/sanity.client'
+import { getDivisions } from '@lib/sanity.fetch'
 import { MobileNav } from './MobileNav'
 import { MainNav } from './MainNav'
 import { CommandMenu } from './CommandMenu'
