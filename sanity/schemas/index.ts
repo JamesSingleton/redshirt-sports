@@ -40,8 +40,13 @@ export const schemaTypes = [
 export const PREVIEWABLE_DOCUMENT_TYPES: string[] = [
   post.name,
   author.name,
-  category.name,
-  legal.name,
-  school.name,
-  player.name,
+  division.name,
+  conference.name,
 ]
+
+export const PREVIEWABLE_DOCUMENT_TYPES_REQUIRING_SLUGS = [
+  post.name,
+  author.name,
+  division.name,
+  conference.name,
+] satisfies typeof PREVIEWABLE_DOCUMENT_TYPES

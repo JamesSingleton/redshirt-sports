@@ -33,9 +33,9 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
         <div className="max-w-3xl">
           <Search />
         </div>
-        <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-          {searchResults.posts.length > 0 &&
-            searchResults.posts.map((post: Post) => (
+        {searchResults.posts.length > 0 && (
+          <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
+            {searchResults.posts.map((post: Post) => (
               <ArticleCard
                 key={post._id}
                 title={post.title}
@@ -48,7 +48,16 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
                 estimatedReadingTime={post.estimatedReadingTime}
               />
             ))}
-        </div>
+          </div>
+        )}
+        {searchResults.posts.length === 0 && (
+          <div className="mt-8 text-center">
+            <h2 className="text-3xl font-bold text-brand-500">No results found.</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Try searching for something else or check out our latest articles below.
+            </p>
+          </div>
+        )}
         {totalPages > 1 && (
           <Pagination
             currentPage={pageIndex}

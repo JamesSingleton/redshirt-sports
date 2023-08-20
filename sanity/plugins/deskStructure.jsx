@@ -1,22 +1,4 @@
-import DocumentsPane from 'sanity-plugin-documents-pane'
-import { DocumentsIcon } from '@sanity/icons'
-import { HomeIcon } from '@sanity/icons'
-
-import parentChild from './parentChild'
-
-export const defaultDocumentNodeResolver = (S) => {
-  return S.document().views([
-    S.view.form(),
-    S.view
-      .component(DocumentsPane)
-      .options({
-        query: `*[references($id)] | order(_createdAt desc)`,
-        params: { id: `_id` },
-        useDraft: false,
-      })
-      .title('Incoming References'),
-  ])
-}
+import { School, Newspaper, Users, Gavel, Repeat, Folder } from 'lucide-react'
 
 export const deskStructure = async (S, context) => {
   const { getClient, currentUser } = context
@@ -30,6 +12,7 @@ export const deskStructure = async (S, context) => {
       .map((division) => {
         return S.listItem()
           .title(`${division.name} Articles`)
+          .icon(Newspaper)
           .id(division._id)
           .schemaType('post')
           .child(() =>
@@ -63,7 +46,7 @@ export const deskStructure = async (S, context) => {
     // Schools
     S.listItem()
       .title('Schools')
-      .icon(HomeIcon)
+      .icon(School)
       .child(
         S.documentTypeList('division')
           .filter('_type == "division" && !(_id in path("drafts.**"))')
@@ -98,9 +81,11 @@ export const deskStructure = async (S, context) => {
       ),
     S.listItem()
       .title('Divisions')
+      .icon(Folder)
       .child(S.documentTypeList('division').defaultOrdering([{ field: 'name', direction: 'asc' }])),
     S.listItem()
       .title('Conferences')
+      .icon(Folder)
       .child(
         S.documentTypeList('division')
           .defaultOrdering([{ field: 'name', direction: 'asc' }])
@@ -123,7 +108,7 @@ export const deskStructure = async (S, context) => {
     S.divider(),
     S.listItem()
       .title('Articles by year')
-      .icon(DocumentsIcon)
+      .icon(Newspaper)
       .child(() => {
         const type = 'post'
         return client
@@ -160,12 +145,12 @@ export const deskStructure = async (S, context) => {
               )
           })
       }),
-    S.documentTypeListItem('author').title('Team Members'),
+    S.documentTypeListItem('author').title('Team Members').icon(Users),
   ]
 
   if (currentUser && currentUser.role === 'administrator') {
-    items.push(S.documentTypeListItem('legal').title('Legal Documents')),
-      items.push(S.documentTypeListItem('redirect').title('Redirects'))
+    items.push(S.documentTypeListItem('legal').title('Legal Documents').icon(Gavel)),
+      items.push(S.documentTypeListItem('redirect').title('Redirects').icon(Repeat))
   }
 
   return S.list().title('Content').items(items)

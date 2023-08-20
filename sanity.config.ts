@@ -8,11 +8,29 @@ import {
   sanityTutorialsWidget,
 } from '@sanity/dashboard'
 import { media } from 'sanity-plugin-media'
+import Iframe, { defineUrlResolver, IframeOptions } from 'sanity-plugin-iframe-pane'
+import { previewUrl } from 'sanity-plugin-iframe-pane/preview-url'
+import DocumentsPane from 'sanity-plugin-documents-pane'
 
-import { schemaTypes, PREVIEWABLE_DOCUMENT_TYPES } from '@schemas/index'
+import {
+  schemaTypes,
+  PREVIEWABLE_DOCUMENT_TYPES,
+  PREVIEWABLE_DOCUMENT_TYPES_REQUIRING_SLUGS,
+} from '@schemas/index'
 import { apiVersion, previewSecretId, projectId } from '@lib/sanity.api'
-import { defaultDocumentNodeResolver, deskStructure } from '@plugins/deskStructure'
-import { productionUrl } from '@plugins/productionUrl'
+import { deskStructure } from '@plugins/deskStructure'
+
+export const PREVIEW_BASE_URL = '/api/draft'
+
+export const urlResolver = defineUrlResolver({
+  base: PREVIEW_BASE_URL,
+  requiresSlug: PREVIEWABLE_DOCUMENT_TYPES_REQUIRING_SLUGS,
+})
+
+export const iframeOptions = {
+  url: urlResolver,
+  urlSecretId: previewSecretId,
+} satisfies IframeOptions
 
 export default defineConfig({
   basePath: '/studio',
@@ -104,7 +122,25 @@ export default defineConfig({
   plugins: [
     deskTool({
       structure: deskStructure,
-      defaultDocumentNode: defaultDocumentNodeResolver,
+      defaultDocumentNode: (S, { schemaType }) => {
+        const views = [
+          // Default form view
+          S.view.form(),
+          // Incoming References
+          S.view
+            .component(DocumentsPane)
+            .options({
+              query: `*[references($id)] | order(_createdAt desc)`,
+              params: { id: `_id` },
+              useDraft: false,
+            })
+            .title('Incoming References'),
+        ]
+        if ((PREVIEWABLE_DOCUMENT_TYPES as string[]).includes(schemaType)) {
+          views.push(S.view.component(Iframe).options(iframeOptions).title('Preview'))
+        }
+        return S.document().views(views)
+      },
     }),
     visionTool({
       defaultApiVersion: apiVersion,
@@ -113,10 +149,11 @@ export default defineConfig({
       widgets: [sanityTutorialsWidget(), projectInfoWidget(), projectUsersWidget()],
     }),
     media(),
-    productionUrl({
-      apiVersion,
-      previewSecretId,
-      types: PREVIEWABLE_DOCUMENT_TYPES,
+    previewUrl({
+      base: PREVIEW_BASE_URL,
+      requiresSlug: PREVIEWABLE_DOCUMENT_TYPES_REQUIRING_SLUGS,
+      urlSecretId: previewSecretId,
+      matchTypes: PREVIEWABLE_DOCUMENT_TYPES,
     }),
   ],
   tools: (prev, context) => {
