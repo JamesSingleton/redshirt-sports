@@ -12,7 +12,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
   const filteredBreadcrumbPages = breadCrumbPages.filter((page) => page !== null)
   return (
     <nav aria-label="breadcrumb" title="breadcrumb" className="flex">
-      <ol className="flex flex-wrap items-center gap-2">
+      <ol className="flex shrink-0 flex-wrap items-center gap-2">
         <li title="Home">
           <Link href="/" className="text-muted-foreground hover:text-foreground">
             <span className="sr-only">Home</span>
@@ -31,9 +31,9 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
                 aria-current={index === filteredBreadcrumbPages.length - 1 ? 'page' : undefined}
                 href={page.href}
                 className={clsx(
-                  'ml-2 text-base font-semibold ',
+                  'ml-2 text-base font-semibold',
                   index === filteredBreadcrumbPages.length - 1
-                    ? 'w-48 truncate text-brand-500 dark:text-brand-400 sm:w-64'
+                    ? 'w-32 truncate text-brand-500 dark:text-brand-400 sm:w-64 lg:w-full'
                     : 'text-muted-foreground hover:text-foreground',
                 )}
               >

@@ -37,7 +37,7 @@ export function MobileNav(props: any) {
           <div className="flex flex-col space-y-2">
             {divisions.map((division: any, index: number) => (
               <div key={index} className="flex flex-col space-y-3 pt-6">
-                <h4 className="text-xl font-semibold">{division.name}</h4>
+                <h4 className="font-cal text-xl font-bold">{division.name}</h4>
                 {division.conferences?.length > 0 &&
                   division.conferences.map((conference: any) => (
                     <Fragment key={`mobile_nav_${conference._id}`}>
@@ -45,7 +45,7 @@ export function MobileNav(props: any) {
                         href={`/news/${division.slug}/${conference.slug}`}
                         onOpenChange={setOpen}
                       >
-                        {conference.name}
+                        {conference.shortName ?? conference.name}
                       </MobileLink>
                     </Fragment>
                   ))}
