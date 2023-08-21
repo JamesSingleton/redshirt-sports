@@ -55,7 +55,7 @@ export type Post = {
   }[]
   featuredArticle: boolean
   excerpt: string
-  body?: PortableTextBlock[]
+  body: PortableTextBlock[]
   estimatedReadingTime: number
   author: Author
   mainImage: MainImage

@@ -217,32 +217,19 @@ export const authorsPosts = groq`
 
 export const postsForRssFeed = groq`
 *[_type == 'post']{
-  _id,
+  ...,
   'slug': slug.current,
-  publishedAt,
-  _updatedAt,
-  title,
-  excerpt,
-  "mainImage": {
-    "caption": mainImage.caption,
-    "attribution": mainImage.attribution,
-    "asset": mainImage.asset->{ 
-      _id,
-      _type,
-      metadata,
-      url
-     }
-  },
-  "author": author->{name, 'slug': slug.current},
+  'author': author->{name, 'slug': slug.current},
   body[]{
     ...,
     markDefs[]{
       ...,
       _type == "internalLink" => {
+        "parentSlug": @.reference->parent->slug.current,
         "slug": @.reference->slug
       }
     }
-  },
+  }
 }
 `
 

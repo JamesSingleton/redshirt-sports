@@ -1,5 +1,3 @@
-import { fontFamily } from 'tailwindcss/defaultTheme'
-
 import type { Config } from 'tailwindcss'
 
 const config = {
@@ -86,23 +84,21 @@ const config = {
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
       fontFamily: {
-        default: ['var(--font-inter)', ...fontFamily.sans],
-        cal: ['var(--font-cal)', ...fontFamily.sans],
-        title: ['var(--font-title)', ...fontFamily.sans],
-        mono: ['Consolas', ...fontFamily.mono],
+        sans: ['var(--font-sans)'],
+        serif: ['var(--font-serif)'],
       },
       typography: {
         DEFAULT: {
           css: {
             // use next/font variable to override h1
             h1: {
-              fontFamily: 'var(--font-cal)',
+              fontFamily: 'var(--font-sans)',
             },
             h2: {
-              fontFamily: 'var(--font-cal)',
+              fontFamily: 'var(--font-sans)',
             },
             h3: {
-              fontFamily: 'var(--font-cal)',
+              fontFamily: 'var(--font-sans)',
             },
             'blockquote p:first-of-type::before': { content: 'none' },
             'blockquote p:first-of-type::after': { content: 'none' },
@@ -124,15 +120,15 @@ const config = {
           'current current current',
           'avatar details status',
           'position details status',
-          'position . .'
-        ]
+          'position . .',
+        ],
       },
       gridTemplateColumns: {
         header: '120px 110px 1.5fr .5fr 1fr 1fr',
         row: '120px 110px 1.5fr .5fr 1fr 1fr',
         status: '.5fr .5fr 1fr',
         'row-xs': '70px 1fr',
-        'status-xs': 'repeat(2,30px) auto'
+        'status-xs': 'repeat(2,30px) auto',
       },
     },
   },

@@ -307,7 +307,7 @@ export default async function Page({ params }: PageProps) {
                     <span>Source: {post.mainImage.attribution}</span>
                   </figcaption>
                 </figure>
-                <div className="prose prose-lg prose-zinc mx-auto mt-8 max-w-none dark:prose-invert lg:prose-xl">
+                <div className="prose prose-lg prose-zinc mx-auto mt-8 max-w-none font-serif dark:prose-invert lg:prose-xl">
                   <CustomPortableText value={post.body} />
                 </div>
               </article>

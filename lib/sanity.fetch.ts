@@ -16,6 +16,7 @@ import {
   paginatedPostsQuery,
   postPaths,
   postsBySlugQuery,
+  postsForRssFeed,
   privacyPolicy,
   searchQuery,
   sitemapQuery,
@@ -183,5 +184,12 @@ export function getTransferPortalPlayers() {
   return sanityFetch<any>({
     query: transferPortalPlayers,
     tags: ['transferPortalPlayers'],
+  })
+}
+
+export function getRSSFeed() {
+  return sanityFetch<any>({
+    query: postsForRssFeed,
+    tags: ['rss'],
   })
 }

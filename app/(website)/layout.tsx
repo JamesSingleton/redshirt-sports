@@ -1,13 +1,16 @@
 import '../globals.css'
 
+import dynamic from 'next/dynamic'
+import { draftMode } from 'next/headers'
 import PlausibleProvider from 'next-plausible'
 
-import { cal, inter } from '@styles/fonts'
-import { cn } from '@lib/utils'
 import { baseUrl } from '@lib/constants'
+import { token } from '@lib/sanity.fetch'
 import { SiteHeader, Footer, TailwindIndicator, ThemeProvider } from '@components/common'
 
 import type { Metadata } from 'next'
+
+const PreviewProvider = dynamic(() => import('@components/preview/PreviewProvider'))
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -64,32 +67,25 @@ export const metadata: Metadata = {
     canonical: '/',
     types: {
       'application/rss+xml': '/feeds/feed.xml',
-      'application/json': '/feeds/feed.json',
-      'application/atom+xml': '/feeds/atom.xml',
     },
   },
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // await buildRss()
-  return (
+  const isDraftMode = draftMode().isEnabled
+  const layout = (
     <PlausibleProvider domain="redshirtsports.xyz">
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={cn(
-            'flex min-h-screen flex-col bg-background font-sans antialiased',
-            cal.variable,
-            inter.variable,
-          )}
-        >
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <TailwindIndicator />
-          </ThemeProvider>
-        </body>
-      </html>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <SiteHeader />
+        <main className="flex-1">{children}</main>
+        <Footer />
+        <TailwindIndicator />
+      </ThemeProvider>
     </PlausibleProvider>
   )
+  if (isDraftMode) {
+    return <PreviewProvider token={token!}>{layout}</PreviewProvider>
+  }
+
+  return layout
 }
