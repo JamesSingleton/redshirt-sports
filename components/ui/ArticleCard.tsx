@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Date } from '@components/ui'
 import ImageComponent from './ImageComponent'
 import { badgeVariants } from './Badge'
+import { cn } from '@lib/utils'
 
 type ArticleCardProps = {
   title: string
@@ -47,7 +48,10 @@ const ArticleCard = ({
       <div className="space-y-1.5 p-4">
         <div className="flex flex-wrap space-x-2">
           {division && (
-            <Link href={`/news/${division.slug}`} className={badgeVariants({ variant: 'default' })}>
+            <Link
+              href={`/news/${division.slug}`}
+              className={cn(badgeVariants({ variant: 'default' }), 'font-semibold')}
+            >
               {division.name}
             </Link>
           )}
@@ -56,14 +60,14 @@ const ArticleCard = ({
               <Link
                 href={`/news/${division.slug}/${conference.slug}`}
                 key={conference.slug}
-                className={badgeVariants({ variant: 'default' })}
+                className={cn(badgeVariants({ variant: 'default' }), 'font-semibold')}
               >
                 {conference.shortName ?? conference.name}
               </Link>
             ))}
         </div>
 
-        <h2 className="font-cal text-xl font-semibold tracking-tight">
+        <h2 className="text-xl font-semibold tracking-tight">
           <Link href={`/${slug}`}>{title}</Link>
         </h2>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">

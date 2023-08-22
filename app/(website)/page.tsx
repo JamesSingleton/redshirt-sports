@@ -7,13 +7,20 @@ import { getHomePage } from '@lib/sanity.fetch'
 import { Org, Web } from '@lib/ldJson'
 import { buttonVariants } from '@components/ui/Button'
 import { cn } from '@lib/utils'
+import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Graph } from 'schema-dts'
+import type { Metadata } from 'next'
 
 const jsonLd: Graph = {
   '@context': 'https://schema.org',
   '@graph': [Org, Web],
 }
+
+export const metadata: Metadata = defineMetadata({
+  description:
+    'Explore the diverse realm of college football at Redshirt Sports. From FCS to FBS, D2 to D3, stay updated on news, analysis, and the latest in transfers.',
+})
 
 export default async function Page() {
   const {
@@ -36,7 +43,7 @@ export default async function Page() {
       <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="container">
           <div className="flex items-center justify-between">
-            <h2 className="font-cal text-2xl">Latest News</h2>
+            <h2 className="text-2xl font-bold">Latest News</h2>
             <Link
               href="/news"
               className={cn(buttonVariants({ variant: 'default' }), 'flex items-center space-x-2')}

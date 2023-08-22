@@ -7,43 +7,19 @@ import { Twitter, Facebook, Instagram } from '@components/common/icons'
 import { PageHeader } from '@components/common'
 import { Org, Web } from '@lib/ldJson'
 import { baseUrl } from '@lib/constants'
+import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = defineMetadata({
   title: 'About Redshirt Sports, Your Source for College Football News',
+  baseTitle: 'Redshirt Sports',
   description:
     'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
-  openGraph: {
-    title: 'About Redshirt Sports, Your Source for College Football News',
-    description:
-      'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
-    url: '/about',
-    images: [
-      {
-        url: '/api/og?title=About Redshirt Sports, Your Source for College Football News',
-        width: 1200,
-        height: 630,
-      },
-    ],
-  },
-  twitter: {
-    title: 'About Redshirt Sports, Your Source for College Football News',
-    description:
-      'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
-    images: [
-      {
-        url: '/api/og?title=About Redshirt Sports, Your Source for College Football News',
-        width: 1200,
-        height: 620,
-      },
-    ],
-  },
-  alternates: {
-    canonical: '/about',
-  },
-}
+  canonical: '/about',
+  url: '/about',
+})
 
 const breadcrumbs = [
   {
@@ -109,7 +85,7 @@ export default async function AboutPage() {
       />
       <PageHeader title="About Redshirt Sports" breadcrumbs={breadcrumbs} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="prose prose-xl mx-auto max-w-none dark:prose-invert">
+        <div className="prose prose-xl mx-auto max-w-none font-serif dark:prose-invert">
           <p>
             At Redshirt Sports, our passion for college football extends beyond the FCS. We are
             thrilled to announce that we will also be providing comprehensive coverage of FBS, D2,
@@ -151,7 +127,7 @@ export default async function AboutPage() {
       <section className="bg-secondary py-12 sm:py-20 lg:py-28">
         <div className="container">
           <div className="mx-auto text-center md:max-w-3xl xl:max-w-5xl">
-            <h2 className="text-3xl font-medium tracking-normal sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
+            <h2 className="text-3xl font-semibold tracking-normal sm:text-4xl md:tracking-tight lg:text-5xl lg:leading-tight">
               Meet the Dedicated Team Driving Redshirt Sports&apos; College Football Journey
             </h2>
           </div>
@@ -171,13 +147,15 @@ export default async function AboutPage() {
                       height={176}
                     />
                     <div className="mt-6 leading-6">
-                      <h3 className="font-cal text-xl font-medium">
+                      <h3 className="text-xl font-semibold">
                         <Link href={`/authors/${author.slug}`}>
                           <span aria-hidden="true" className="absolute inset-0" />
                           {author.name}
                         </Link>
                       </h3>
-                      <span className="mt-1 text-base text-muted-foreground">{author.role}</span>
+                      <span className="mt-1 font-serif text-base text-muted-foreground">
+                        {author.role}
+                      </span>
                     </div>
                     <ul className="mt-6 flex items-center justify-center space-x-3">
                       {author.socialMedia?.map((social) => (
@@ -202,10 +180,10 @@ export default async function AboutPage() {
       </section>
       <section className="py-12 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl">
-          <h2 className="text-center font-cal text-3xl font-extrabold sm:text-4xl">
+          <h2 className="text-center text-3xl font-semibold sm:text-4xl">
             Join Our Community and Contribute
           </h2>
-          <div className="prose prose-xl mx-auto mt-12 px-5 dark:prose-invert sm:px-6 lg:max-w-7xl lg:px-8">
+          <div className="prose prose-xl mx-auto mt-12 px-5 font-serif dark:prose-invert sm:px-6 lg:max-w-7xl lg:px-8">
             <p>
               We believe in the power of a strong community. Redshirt Sports is not just a website
               but a platform that brings college football enthusiasts together. We invite you to

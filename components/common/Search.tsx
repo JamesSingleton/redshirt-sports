@@ -6,7 +6,7 @@ import debounce from 'lodash.debounce'
 
 import { Input } from '@components/ui'
 
-export default function Search() {
+export default function Search({ defaultValue = '' }) {
   const router = useRouter()
 
   const debouncedSearch = debounce((value: string) => {
@@ -22,6 +22,11 @@ export default function Search() {
   )
 
   return (
-    <Input type="search" onChange={handleSearchChange} placeholder="Search Redshirt Sports..." />
+    <Input
+      type="search"
+      defaultValue={defaultValue}
+      onChange={handleSearchChange}
+      placeholder="Search Redshirt Sports..."
+    />
   )
 }

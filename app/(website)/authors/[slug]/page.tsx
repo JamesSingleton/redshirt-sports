@@ -224,7 +224,7 @@ export default async function Page({
             </div>
             <CustomPortableText
               value={author.bio}
-              paragraphClasses="mt-4 text-lg font-normal lg:text-xl text-muted-foreground"
+              paragraphClasses="mt-4 text-lg font-normal lg:text-xl text-muted-foreground font-serif"
             />
             {author.socialMedia && (
               <ul className="mt-6 flex flex-wrap items-center space-x-3">

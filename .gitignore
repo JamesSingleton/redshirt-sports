@@ -11,9 +11,6 @@
 # next.js
 /.next/
 /out/
-/public/feeds/
-/public/*.xml
-/public/robots.txt
 
 # production
 /build

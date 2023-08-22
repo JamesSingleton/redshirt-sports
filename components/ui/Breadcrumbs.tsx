@@ -12,7 +12,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
   const filteredBreadcrumbPages = breadCrumbPages.filter((page) => page !== null)
   return (
     <nav aria-label="breadcrumb" title="breadcrumb" className="flex">
-      <ol className="flex shrink-0 flex-wrap items-center gap-2">
+      <ol className="flex shrink-0 flex-wrap items-center gap-2 font-serif">
         <li title="Home">
           <Link href="/" className="text-muted-foreground hover:text-foreground">
             <span className="sr-only">Home</span>

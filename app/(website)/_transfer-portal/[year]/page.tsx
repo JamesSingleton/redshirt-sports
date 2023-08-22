@@ -13,10 +13,10 @@ export default async function Page({ params }: { params: { year: string } }) {
       <div className="pb-12 md:pb-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-12 md:max-w-5xl lg:max-w-7xl lg:px-8">
           <div className="mt-6 text-center sm:text-left md:text-left">
-            <h1 className="font-cal text-3xl font-medium tracking-normal sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
+            <h1 className="text-3xl font-medium tracking-normal sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
               {`${year} College Football Transfer Portal`}
             </h1>
-            <p className="mt-4 text-base text-zinc-700 dark:text-zinc-200">
+            <p className="mt-4 font-serif text-base text-zinc-700 dark:text-zinc-200">
               Redshirt Sports diligently tracks the NCAA Transfer Portal, ensuring you stay informed
               about college athletes making transfers. Our platform provides valuable insights into
               the previous and new schools of these players, enabling you to keep up with the latest

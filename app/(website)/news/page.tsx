@@ -7,9 +7,10 @@ import { PageHeader } from '@components/common'
 import { getNews } from '@lib/sanity.fetch'
 import { baseUrl, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
+import { urlForImage } from '@lib/sanity.image'
+import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Post } from '@types'
-import { urlForImage } from '@lib/sanity.image'
 
 const breadcrumbs = [
   {
@@ -25,21 +26,16 @@ export async function generateMetadata({
   params: { [key: string]: string }
   searchParams: { [key: string]: string }
 }): Promise<Metadata> {
-  const { page } = searchParams
-  return {
-    title: page ? `Latest College Football News - Page ${page}` : 'Latest College Football News',
+  return defineMetadata({
+    title: `College Football News and Updates${
+      searchParams.page ? ` Page ${searchParams.page}` : ''
+    }`,
+    baseTitle: 'Redshirt Sports',
     description:
-      'Stay updated on exciting college football news with Redshirt Sports - your go to source for in-depth coverage and the latest updates!',
-    openGraph: {
-      title: page ? `Latest College Football News - Page ${page}` : 'Latest College Football News',
-      description:
-        'Stay updated on exciting college football news with Redshirt Sports - your go to source for in-depth coverage and the latest updates!',
-      url: `${baseUrl}/news${page ? `?page=${page}` : ''}`,
-    },
-    alternates: {
-      canonical: `${baseUrl}/news${page ? `?page=${page}` : ''}`,
-    },
-  }
+      'Stay in the know with the latest college football news, updates, and insights. From FCS to FBS, D2 to D3, catch up on all the action with Redshirt Sports.',
+    url: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
+    canonical: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
+  })
 }
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string } }) {

@@ -42,10 +42,10 @@ const Hero = ({ heroArticle, recentArticles }: { heroArticle: Post; recentArticl
                     </Link>
                   ))}
               </div>
-              <h1 className="font-cal text-2xl lg:text-5xl">
+              <h1 className="text-2xl font-bold lg:text-5xl">
                 <Link href={`/${heroArticle.slug}`}>{heroArticle.title}</Link>
               </h1>
-              <p className="line-clamp-2 text-muted-foreground">{heroArticle.excerpt}</p>
+              <p className="line-clamp-2 font-serif text-muted-foreground">{heroArticle.excerpt}</p>
               <div className="flex flex-wrap items-center space-x-2 text-base text-muted-foreground">
                 <Link
                   href={`/authors/${heroArticle.author.slug}`}
