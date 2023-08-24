@@ -14,6 +14,7 @@ import ArticleSocialShare from './ArticleSocialShare'
 import { badgeVariants } from '@components/ui/Badge'
 import { baseUrl } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
+import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Metadata } from 'next'
 
@@ -45,9 +46,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         ].filter((keyword) => keyword !== null)
       : undefined
 
-  return {
+  const defaultMetadata = defineMetadata({
     title: post.title,
     description: post.excerpt,
+  })
+
+  return {
+    ...defaultMetadata,
     authors: [
       {
         name: post.author.name,
@@ -55,9 +60,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
     ],
     openGraph: {
-      siteName: 'Redshirt Sports',
+      ...defaultMetadata.openGraph,
       type: 'article',
-      title: post.title,
       authors: [post.author.name],
       section: post.division ? post.division.name : undefined,
       url: `${baseUrl}/${post.slug}`,
@@ -65,22 +69,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       modifiedTime: post._updatedAt,
       images: [
         {
-          url: urlForImage(post.mainImage).url(),
-          width: 864,
-          height: 576,
+          url: urlForImage(post.mainImage).width(1200).height(627).fit('crop').url(),
+          width: 1200,
+          height: 627,
         },
       ],
     },
     twitter: {
-      title: post.title,
-      card: 'summary_large_image',
-      description: post.excerpt,
-      site: '@_redshirtsports',
+      ...defaultMetadata.twitter,
       images: [
         {
-          url: urlForImage(post.mainImage).url(),
-          width: 864,
-          height: 576,
+          url: urlForImage(post.mainImage).width(1200).height(627).fit('crop').url(),
+          width: 1200,
+          height: 627,
         },
       ],
     },

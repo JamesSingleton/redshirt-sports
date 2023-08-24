@@ -7,14 +7,42 @@ import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
 import { defineMetadata } from '@lib/utils.metadata'
 
-export const metadata: Metadata = defineMetadata({
+const defaultMetadata = defineMetadata({
   title: 'Contact Us',
-  baseTitle: 'Redshirt Sports',
   description:
     'Want to collaborate on a story or advertise with Redshirt Sports? Contact us via editors@redshirtsports.xyz or advertising@redshirtsports.xyz.',
-  canonical: '/contact',
-  url: '/contact',
 })
+
+export const metadata: Metadata = {
+  ...defaultMetadata,
+  openGraph: {
+    ...defaultMetadata.openGraph,
+    images: [
+      {
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Contact Us')}`,
+        width: 1200,
+        height: 630,
+        alt: 'Contact Us',
+      },
+    ],
+    url: '/contact',
+  },
+  alternates: {
+    ...defaultMetadata.alternates,
+    canonical: '/contact',
+  },
+  twitter: {
+    ...defaultMetadata.twitter,
+    images: [
+      {
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Contact Us')}`,
+        width: 1200,
+        height: 630,
+        alt: 'Contact Us',
+      },
+    ],
+  },
+}
 
 const contactDetails = [
   { name: 'Collaborate', email: 'editors@redshirtsports.xyz' },

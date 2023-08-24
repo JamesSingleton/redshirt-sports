@@ -1,27 +1,10 @@
-import { urlForImage } from '@lib/sanity.image'
 import { defaultTitle, baseUrl } from '@lib/constants'
 
 import type { Metadata } from 'next'
-import type { MainImage } from '@types'
 
-export function defineMetadata({
-  baseTitle,
-  description,
-  image,
-  title,
-  url,
-  canonical,
-}: {
-  baseTitle?: string
-  description?: string
-  image?: MainImage
-  title?: string
-  url?: string
-  canonical?: string
-}) {
+export function defineMetadata({ description, title }: { description?: string; title?: string }) {
+  const baseTitle = 'Redshirt Sports'
   const metaTitle = [...(title ? [title] : []), ...(baseTitle ? [baseTitle] : [])].join(' | ')
-
-  const imageUrl = image && urlForImage(image)?.width(1200).height(627).fit('crop').url()
 
   return {
     metadataBase: new URL(baseUrl),
@@ -41,7 +24,7 @@ export function defineMetadata({
     },
     publisher: 'Redshirt Sports',
     alternates: {
-      canonical: canonical || '/',
+      canonical: '/',
       types: {
         'application/rss+xml': '/feeds/feed.xml',
       },
@@ -50,23 +33,13 @@ export function defineMetadata({
       title: metaTitle || defaultTitle,
       description,
       type: 'website',
-      images: imageUrl
-        ? [imageUrl]
-        : [
-            {
-              url: `/api/og?title=${encodeURIComponent('Redshirt Sports')}`,
-              width: '1200',
-              height: '630',
-              alt: 'Redshirt Sports Logo',
-            },
-          ],
-      url: url || baseUrl,
       locale: 'en_US',
       siteName: 'Redshirt Sports',
+      url: '/',
     },
     twitter: {
       creator: '@_redshirtsports',
-      site: '@redshirtsports',
+      site: '@_redshirtsports',
       card: 'summary_large_image',
       title: metaTitle || defaultTitle,
       description,

@@ -5,8 +5,50 @@ import Search from '@components/common/Search'
 import { getSearchResults } from '@lib/sanity.fetch'
 import { ArticleCard, Pagination } from '@components/ui'
 import { perPage } from '@lib/constants'
+import { defineMetadata } from '@lib/utils.metadata'
 
 import { Post } from '@types'
+import type { Metadata } from 'next'
+
+export function generateMetadata({ searchParams }: { searchParams: { [key: string]: string } }) {
+  const query = searchParams['q'] ?? null
+  const defaultMetadata = defineMetadata({
+    title: `Search Results for "${query}"`,
+    description:
+      'Explore the latest College Football news and updates at Redshirt Sports. Stay informed about scores, highlights, and team analyses in one place.',
+  })
+
+  return {
+    ...defaultMetadata,
+    openGraph: {
+      ...defaultMetadata.openGraph,
+      images: [
+        {
+          url: `/api/og?title=${encodeURIComponent(`Search Results for "${query}"`)}`,
+          width: 1200,
+          height: 630,
+          alt: `Search Results for "${query}"`,
+        },
+      ],
+      url: `/search?q=${query}`,
+    },
+    alternates: {
+      ...defaultMetadata.alternates,
+      canonical: `/search?q=${query}`,
+    },
+    twitter: {
+      ...defaultMetadata.twitter,
+      images: [
+        {
+          url: `/api/og?title=${encodeURIComponent(`Search Results for "${query}"`)}`,
+          width: 1200,
+          height: 630,
+          alt: `Search Results for "${query}"`,
+        },
+      ],
+    },
+  }
+}
 
 const breadcrumbs = [
   {

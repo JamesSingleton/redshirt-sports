@@ -12,14 +12,42 @@ import { defineMetadata } from '@lib/utils.metadata'
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
 
-export const metadata: Metadata = defineMetadata({
+const defaultMetadata = defineMetadata({
   title: 'About Redshirt Sports, Your Source for College Football News',
-  baseTitle: 'Redshirt Sports',
   description:
     'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
-  canonical: '/about',
-  url: '/about',
 })
+
+export const metadata: Metadata = {
+  ...defaultMetadata,
+  openGraph: {
+    ...defaultMetadata.openGraph,
+    images: [
+      {
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('About Redshirt Sports')}`,
+        width: 1200,
+        height: 630,
+        alt: 'About Redshirt Sports, Your Source for College Football News',
+      },
+    ],
+    url: '/about',
+  },
+  alternates: {
+    ...defaultMetadata.alternates,
+    canonical: '/about',
+  },
+  twitter: {
+    ...defaultMetadata.twitter,
+    images: [
+      {
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('About Redshirt Sports')}`,
+        width: 1200,
+        height: 630,
+        alt: 'About Redshirt Sports, Your Source for College Football News',
+      },
+    ],
+  },
+}
 
 const breadcrumbs = [
   {

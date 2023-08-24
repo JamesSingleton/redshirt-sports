@@ -7,6 +7,7 @@ import { getNewsByConference } from '@lib/sanity.fetch'
 import { baseUrl, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 import { urlForImage } from '@lib/sanity.image'
+import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Metadata } from 'next'
 import type { Post } from '@types'
@@ -40,32 +41,51 @@ export async function generateMetadata({
     conference.shortName ?? conference.name
   } conference at Redshirt Sports. Get news, highlights, and more.`
 
-  return {
+  const defaultMetadata = defineMetadata({
     title,
-    description: conference.description ?? fallBackDescription,
+    description: conference?.description ?? fallBackDescription,
+  })
+
+  return {
+    ...defaultMetadata,
     openGraph: {
-      title,
-      description: conference.description ?? fallBackDescription,
-      url: canonical,
-      siteName: 'Redshirt Sports',
-      locale: 'en_US',
-      type: 'website',
+      ...defaultMetadata.openGraph,
       images: [
         {
-          url: `/api/og?title=Redshirt Sports ${conference.name} News`,
-          width: '1200',
-          height: '630',
-          alt: 'Redshirt Sports Logo',
+          url: `/api/og?title=${encodeURIComponent(
+            conference.shortName
+              ? `${conference.shortName} Football News`
+              : `${conference.name} Football News`,
+          )}`,
+          width: 1200,
+          height: 630,
+          alt: conference.shortName
+            ? `${conference.shortName} Football News`
+            : `${conference.name} Football News`,
         },
       ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description: conference.description ?? fallBackDescription,
+      url: `/news/${conference.division.slug}/${conference?.slug}${
+        pageIndex > 1 ? `?page=${pageIndex}` : ''
+      }`,
     },
     alternates: {
+      ...defaultMetadata.alternates,
       canonical,
+    },
+    twitter: {
+      ...defaultMetadata.twitter,
+      images: [
+        {
+          url: `/api/og?title=${encodeURIComponent(
+            conference.shortName
+              ? `${conference.shortName} Football News`
+              : `${conference.name} Football News`,
+          )}`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
     },
   }
 }

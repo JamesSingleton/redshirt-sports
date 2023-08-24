@@ -22,7 +22,7 @@ const authorFields = `
 `
 
 export const allAuthors = groq`
-*[_type == 'author' && archived == false] | score(
+*[_type == 'author' && archived != true] | score(
   boost(role == 'Staff Writer', 4),
   boost(role == 'Content Writer', 3),
   boost(role == 'Contributor', 2),

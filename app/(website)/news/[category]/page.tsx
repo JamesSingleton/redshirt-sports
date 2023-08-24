@@ -6,6 +6,7 @@ import { ArticleCard, Pagination } from '@components/ui'
 import { PageHeader } from '@components/common'
 import { baseUrl, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
+import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Metadata } from 'next'
 import type { Post } from '@types'
@@ -33,32 +34,39 @@ export async function generateMetadata({
     canonical = `${baseUrl}/news/${division?.slug}?page=${pageIndex}`
   }
 
-  return {
+  const defaultMetadata = defineMetadata({
     title,
     description: division?.description,
+  })
+
+  return {
+    ...defaultMetadata,
     openGraph: {
-      title,
-      description: division?.description,
-      url: canonical,
-      siteName: 'Redshirt Sports',
-      locale: 'en_US',
-      type: 'website',
+      ...defaultMetadata.openGraph,
       images: [
         {
-          url: '/api/og?title=Redshirt Sports FCS News',
-          width: '1200',
-          height: '630',
-          alt: 'Redshirt Sports Logo',
+          url: `/api/og?title=${encodeURIComponent(division?.heading)}`,
+          width: 1200,
+          height: 630,
+          alt: division?.heading,
         },
       ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description: division?.description,
+      url: `/news/${division?.slug}${pageIndex > 1 ? `?page=${pageIndex}` : ''}`,
     },
     alternates: {
+      ...defaultMetadata.alternates,
       canonical,
+    },
+    twitter: {
+      ...defaultMetadata.twitter,
+      images: [
+        {
+          url: `/api/og?title=${encodeURIComponent(division?.heading)}`,
+          width: 1200,
+          height: 630,
+          alt: division?.heading,
+        },
+      ],
     },
   }
 }

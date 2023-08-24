@@ -3,28 +3,44 @@ import { PageHeader } from '@components/common'
 import { getPrivacyPolicy } from '@lib/sanity.fetch'
 import { baseUrl } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
+import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Graph } from 'schema-dts'
 
-export const metadata = {
+const defaultMetadata = defineMetadata({
   title: 'Privacy Policy',
   description:
     "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
+})
+
+export const metadata = {
+  ...defaultMetadata,
   openGraph: {
-    title: 'Privacy Policy',
-    description:
-      "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
-    url: '/privacy',
+    ...defaultMetadata.openGraph,
     images: [
       {
-        url: '/api/og?title=Privacy Policy',
-        width: '1200',
-        height: '630',
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Privacy Policy')}`,
+        width: 1200,
+        height: 630,
+        alt: 'Privacy Policy',
       },
     ],
+    url: '/privacy',
   },
   alternates: {
+    ...defaultMetadata.alternates,
     canonical: '/privacy',
+  },
+  twitter: {
+    ...defaultMetadata.twitter,
+    images: [
+      {
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Privacy Policy')}`,
+        width: 1200,
+        height: 630,
+        alt: 'Privacy Policy',
+      },
+    ],
   },
 }
 

@@ -17,10 +17,37 @@ const jsonLd: Graph = {
   '@graph': [Org, Web],
 }
 
-export const metadata: Metadata = defineMetadata({
+const defaultMetadata = defineMetadata({
+  title: 'Your Hub for College Football: FCS, FBS, D2, D3, Transfers, News, and Analysis',
   description:
     'Explore the diverse realm of college football at Redshirt Sports. From FCS to FBS, D2 to D3, stay updated on news, analysis, and the latest in transfers.',
 })
+
+export const metadata: Metadata = {
+  ...defaultMetadata,
+  openGraph: {
+    ...defaultMetadata.openGraph,
+    images: [
+      {
+        url: '/api/og',
+        width: 1200,
+        height: 630,
+        alt: 'Redshirt Sports',
+      },
+    ],
+  },
+  twitter: {
+    ...defaultMetadata.twitter,
+    images: [
+      {
+        url: '/api/og',
+        width: 1200,
+        height: 630,
+        alt: 'Redshirt Sports',
+      },
+    ],
+  },
+}
 
 export default async function Page() {
   const {

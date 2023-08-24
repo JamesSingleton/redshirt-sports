@@ -26,16 +26,43 @@ export async function generateMetadata({
   params: { [key: string]: string }
   searchParams: { [key: string]: string }
 }): Promise<Metadata> {
-  return defineMetadata({
+  const defaultMetadata = defineMetadata({
     title: `College Football News and Updates${
       searchParams.page ? ` Page ${searchParams.page}` : ''
     }`,
-    baseTitle: 'Redshirt Sports',
     description:
       'Stay in the know with the latest college football news, updates, and insights. From FCS to FBS, D2 to D3, catch up on all the action with Redshirt Sports.',
-    url: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
-    canonical: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
   })
+  return {
+    ...defaultMetadata,
+    openGraph: {
+      ...defaultMetadata.openGraph,
+      images: [
+        {
+          url: `${baseUrl}/api/og?title=${encodeURIComponent('College Football News')}`,
+          width: 1200,
+          height: 630,
+          alt: 'College Football News',
+        },
+      ],
+      url: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
+    },
+    alternates: {
+      ...defaultMetadata.alternates,
+      canonical: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
+    },
+    twitter: {
+      ...defaultMetadata.twitter,
+      images: [
+        {
+          url: `${baseUrl}/api/og?title=${encodeURIComponent('College Football News')}`,
+          width: 1200,
+          height: 630,
+          alt: 'College Football News',
+        },
+      ],
+    },
+  }
 }
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string } }) {

@@ -18,13 +18,13 @@ import {
   getAuthorBySlug,
   getAuthorsPosts,
 } from '@lib/sanity.fetch'
-import { getPreviewToken } from '@lib/sanity.server.preview'
 import { ArticleCard, Pagination, CustomPortableText, Breadcrumbs } from '@components/ui'
 import { urlForImage } from '@lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
 import ImageComponent from '@components/ui/ImageComponent'
 import { Org, Web } from '@lib/ldJson'
 import { perPage, baseUrl } from '@lib/constants'
+import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Metadata } from 'next'
 
@@ -40,31 +40,29 @@ export async function generateMetadata({
     return {}
   }
 
-  return {
+  const defaultMetadata = defineMetadata({
     title: `${author.role} ${author.name}`,
     description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,
+  })
+
+  return {
+    ...defaultMetadata,
     openGraph: {
+      ...defaultMetadata.openGraph,
       type: 'profile',
-      title: `${author.role} ${author.name}`,
-      description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,
-      url: `${baseUrl}/authors/${author?.slug}`,
-      firstName: author?.name.split(' ')[0],
-      lastName: author?.name.split(' ')[1],
       images: [
         {
-          url: urlForImage(author?.image)
-            .width(1200)
-            .height(630)
-            .url(),
+          url: urlForImage(author.image).width(1200).height(630).url(),
           width: 1200,
           height: 630,
-          alt: author?.name,
+          alt: `${author.role} ${author.name}`,
         },
       ],
+      url: `${baseUrl}/authors/${author.slug}`,
     },
-    twitter: {
-      title: `${author.role} ${author.name}`,
-      description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,
+    alternates: {
+      ...defaultMetadata.alternates,
+      canonical: `${baseUrl}/authors/${author.slug}`,
     },
   }
 }

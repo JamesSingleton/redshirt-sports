@@ -14,7 +14,7 @@ export async function GET(req: NextRequest): Promise<Response | ImageResponse> {
 
     const title = searchParams.has('title')
       ? searchParams.get('title')?.slice(0, 100)
-      : process.env.SITE_NAME
+      : 'Redshirt Sports'
 
     return new ImageResponse(
       (
