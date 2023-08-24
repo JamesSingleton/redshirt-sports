@@ -21,6 +21,10 @@ import {
   searchQuery,
   sitemapQuery,
   transferPortalPlayers,
+  heroPostsQuery,
+  latestArticlesForHomePageQuery,
+  latestFCSArticlesForHomePage,
+  latestDivisionArticlesQuery,
 } from '@lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
@@ -31,6 +35,7 @@ import {
   DivisionPayload,
   Divisions,
   HomePagePayload,
+  Post,
   PostPayload,
   PostsWithPaginationPayload,
   PrivacyPolicyPagePayload,
@@ -81,6 +86,37 @@ export function getHomePage() {
   return sanityFetch<HomePagePayload>({
     query: homePageQuery,
     tags: ['home'],
+  })
+}
+
+export function getHeroPosts() {
+  return sanityFetch<Post[]>({
+    query: heroPostsQuery,
+    tags: ['hero'],
+  })
+}
+
+export function getLatestArticlesForHomePage() {
+  return sanityFetch<Post[]>({
+    query: latestArticlesForHomePageQuery,
+    tags: ['latestArticles'],
+  })
+}
+
+// get latest FCS articles for home page that aren't already on the home page
+export function getLatestFCSArticlesForHomePage(ids: string[]) {
+  return sanityFetch<Post[]>({
+    query: latestFCSArticlesForHomePage,
+    params: { ids },
+    tags: ['latestFCSArticles'],
+  })
+}
+
+export function getLatestDivisionArticlesForHomePage(division: string, ids: string[]) {
+  return sanityFetch<Post[]>({
+    query: latestDivisionArticlesQuery,
+    params: { division, ids },
+    tags: [`latestDivisionArticles:${division}`],
   })
 }
 

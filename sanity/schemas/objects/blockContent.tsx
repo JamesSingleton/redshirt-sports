@@ -1,4 +1,6 @@
-import { defineArrayMember, defineField } from 'sanity'
+import { defineField } from 'sanity'
+
+import { Twitter, ImagePlus } from 'lucide-react'
 
 export default defineField({
   title: 'Block Content',
@@ -8,23 +10,8 @@ export default defineField({
     {
       title: 'Block',
       type: 'block',
-      styles: [
-        { title: 'Normal', value: 'normal' },
-        { title: 'H1', value: 'h1' },
-        { title: 'H2', value: 'h2' },
-        { title: 'H3', value: 'h3' },
-        { title: 'H4', value: 'h4' },
-        { title: 'Quote', value: 'blockquote' },
-      ],
-      lists: [{ title: 'Bullet', value: 'bullet' }],
       // Marks let you mark up inline text in the block editor.
       marks: {
-        // Decorators usually describe a single property – e.g. a typographic
-        // preference or highlighting by editors.
-        decorators: [
-          { title: 'Strong', value: 'strong' },
-          { title: 'Emphasis', value: 'em' },
-        ],
         // Annotations can be any object structure – e.g. a link or a footnote.
         annotations: [
           {
@@ -59,6 +46,7 @@ export default defineField({
             icon: () => (
               <svg
                 width="16px"
+                height={16}
                 viewBox="0 0 654 869"
                 version="1.1"
                 xmlns="http://www.w3.org/2000/svg"
@@ -86,7 +74,12 @@ export default defineField({
                 title: 'Reference',
                 name: 'reference',
                 type: 'reference',
-                to: [{ type: 'post' }, { type: 'category' }],
+                to: [
+                  { type: 'post' },
+                  { type: 'category' },
+                  { type: 'division' },
+                  { type: 'conference' },
+                ],
               },
             ],
           },
@@ -99,6 +92,7 @@ export default defineField({
     {
       type: 'image',
       options: { hotspot: true, metaData: ['blurhash', 'lqip'] },
+      icon: ImagePlus,
       fields: [
         {
           name: 'caption',
@@ -113,12 +107,13 @@ export default defineField({
           type: 'string',
           title: 'Attribution',
           description: 'Where did the photo come from?',
-          // validation: (Rule) => Rule.required(),
+          validation: (rule) => rule.required(),
         },
       ],
     },
     {
       type: 'twitter',
+      icon: Twitter,
     },
   ],
 })

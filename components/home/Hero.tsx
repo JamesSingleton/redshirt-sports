@@ -4,7 +4,9 @@ import { ArticleCard, ImageComponent, Date } from '@components/ui'
 import { badgeVariants } from '@components/ui/Badge'
 import { Post } from '@types'
 
-const Hero = ({ heroArticle, recentArticles }: { heroArticle: Post; recentArticles: Post[] }) => {
+const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
+  const heroArticle = heroPosts[0]
+  const recentArticles = heroPosts.slice(1)
   return (
     <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
       <div className="container">

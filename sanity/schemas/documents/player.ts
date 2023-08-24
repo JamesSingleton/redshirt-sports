@@ -1,5 +1,5 @@
-import states from '../states'
 import { defineType, defineField } from 'sanity'
+import states from '../states'
 
 export default defineType({
   name: 'player',

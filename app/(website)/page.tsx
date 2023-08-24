@@ -3,7 +3,13 @@ import { ChevronRight } from 'lucide-react'
 
 import { Hero, ArticleSection } from '@components/home'
 import { ArticleCard } from '@components/ui'
-import { getHomePage } from '@lib/sanity.fetch'
+import {
+  getHeroPosts,
+  getHomePage,
+  getLatestArticlesForHomePage,
+  getLatestFCSArticlesForHomePage,
+  getLatestDivisionArticlesForHomePage,
+} from '@lib/sanity.fetch'
 import { Org, Web } from '@lib/ldJson'
 import { buttonVariants } from '@components/ui/Button'
 import { cn } from '@lib/utils'
@@ -50,15 +56,14 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-  const {
-    heroArticle,
-    recentArticles,
-    latestArticles,
-    fcsArticles,
-    fbsArticles,
-    d2Articles,
-    d3Articles,
-  } = await getHomePage()
+  const heroPosts = await getHeroPosts()
+  const latestArticles = await getLatestArticlesForHomePage()
+  const articleIds = [...heroPosts, ...latestArticles].map((article) => article._id)
+
+  const fcsArticles = await getLatestDivisionArticlesForHomePage('FCS', articleIds)
+  const fbsArticles = await getLatestDivisionArticlesForHomePage('FBS', articleIds)
+  const d2Articles = await getLatestDivisionArticlesForHomePage('D2', articleIds)
+  const d3Articles = await getLatestDivisionArticlesForHomePage('D3', articleIds)
 
   return (
     <>
@@ -66,7 +71,7 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Hero heroArticle={heroArticle} recentArticles={recentArticles} />
+      <Hero heroPosts={heroPosts} />
       <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="container">
           <div className="flex items-center justify-between">

@@ -1,6 +1,7 @@
 import { defineType, defineField, defineArrayMember } from 'sanity'
 import { DocumentTextIcon } from '@sanity/icons'
-import CustomStringInputWithLimits from '../../plugins/CustomStringInputWithLimits'
+import CustomStringInputWithLimits from '@plugins/CustomStringInputWithLimits'
+import { CustomBlockContentInput } from '@plugins/CustomBlockContentInput'
 
 export default defineType({
   name: 'post',
@@ -191,6 +192,9 @@ export default defineType({
       title: 'Body',
       type: 'blockContent',
       validation: (rule) => rule.required(),
+      // components: {
+      //   input: CustomBlockContentInput,
+      // },
     }),
   ],
 })

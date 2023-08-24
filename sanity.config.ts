@@ -11,6 +11,7 @@ import { media } from 'sanity-plugin-media'
 import Iframe, { defineUrlResolver, IframeOptions } from 'sanity-plugin-iframe-pane'
 import { previewUrl } from 'sanity-plugin-iframe-pane/preview-url'
 import DocumentsPane from 'sanity-plugin-documents-pane'
+import { PortableTextInputProps } from 'sanity'
 
 import {
   schemaTypes,
@@ -19,6 +20,7 @@ import {
 } from '@schemas/index'
 import { apiVersion, previewSecretId, projectId } from '@lib/sanity.api'
 import { deskStructure } from '@plugins/deskStructure'
+import { CustomBlockContentInput } from '@plugins/CustomBlockContentInput'
 
 export const PREVIEW_BASE_URL = '/api/draft'
 
@@ -164,5 +166,16 @@ export default defineConfig({
     }
 
     return prev.filter((tool) => tool.name !== 'vision')
+  },
+  form: {
+    components: {
+      input: (props) => {
+        if (props.schemaType.name === 'blockContent') {
+          return CustomBlockContentInput(props as PortableTextInputProps)
+        }
+
+        return props.renderDefault(props)
+      },
+    },
   },
 })
