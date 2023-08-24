@@ -5,9 +5,7 @@ import { Hero, ArticleSection } from '@components/home'
 import { ArticleCard } from '@components/ui'
 import {
   getHeroPosts,
-  getHomePage,
   getLatestArticlesForHomePage,
-  getLatestFCSArticlesForHomePage,
   getLatestDivisionArticlesForHomePage,
 } from '@lib/sanity.fetch'
 import { Org, Web } from '@lib/ldJson'

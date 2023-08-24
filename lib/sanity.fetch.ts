@@ -12,7 +12,6 @@ import {
   conferencesAuthorHasWrittenFor,
   divisionBySlugQuery,
   divisionsQuery,
-  homePageQuery,
   paginatedPostsQuery,
   postPaths,
   postsBySlugQuery,
@@ -23,7 +22,6 @@ import {
   transferPortalPlayers,
   heroPostsQuery,
   latestArticlesForHomePageQuery,
-  latestFCSArticlesForHomePage,
   latestDivisionArticlesQuery,
 } from '@lib/sanity.queries'
 
@@ -34,7 +32,6 @@ import {
   ConferencePayload,
   DivisionPayload,
   Divisions,
-  HomePagePayload,
   Post,
   PostPayload,
   PostsWithPaginationPayload,
@@ -82,13 +79,6 @@ export async function sanityFetch<QueryResponse>({
   })
 }
 
-export function getHomePage() {
-  return sanityFetch<HomePagePayload>({
-    query: homePageQuery,
-    tags: ['home'],
-  })
-}
-
 export function getHeroPosts() {
   return sanityFetch<Post[]>({
     query: heroPostsQuery,
@@ -100,15 +90,6 @@ export function getLatestArticlesForHomePage() {
   return sanityFetch<Post[]>({
     query: latestArticlesForHomePageQuery,
     tags: ['latestArticles'],
-  })
-}
-
-// get latest FCS articles for home page that aren't already on the home page
-export function getLatestFCSArticlesForHomePage(ids: string[]) {
-  return sanityFetch<Post[]>({
-    query: latestFCSArticlesForHomePage,
-    params: { ids },
-    tags: ['latestFCSArticles'],
   })
 }
 

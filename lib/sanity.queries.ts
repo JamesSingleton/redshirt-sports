@@ -115,20 +115,6 @@ const litePostFields = `
   excerpt,
 `
 
-export const homePageQuery = groq`
-  {
-    "fbsArticles": *[_type == "post" && featuredArticle != true && division->name == "FBS"] | order(publishedAt desc, _updatedAt desc)[0...5] {
-      ${litePostFields}
-    },
-    "d2Articles": *[_type == "post" && featuredArticle != true && division->name == "D2"] | order(publishedAt desc, _updatedAt desc)[0...5] {
-      ${litePostFields}
-    },
-    "d3Articles": *[_type == "post" && featuredArticle != true && division->name == "D3"] | order(publishedAt desc, _updatedAt desc)[0...5] {
-      ${litePostFields}
-    },
-  }
-`
-
 export const heroPostsQuery = groq`
 *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3] {
   ${litePostFields}
@@ -137,12 +123,6 @@ export const heroPostsQuery = groq`
 
 export const latestArticlesForHomePageQuery = groq`
 *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[3..6] {
-  ${litePostFields}
-}
-`
-
-export const latestFCSArticlesForHomePage = groq`
-*[_type == "post" && featuredArticle != true && division->name == "FCS" && !(_id in $ids)] | order(publishedAt desc, _updatedAt desc)[0...5] {
   ${litePostFields}
 }
 `
