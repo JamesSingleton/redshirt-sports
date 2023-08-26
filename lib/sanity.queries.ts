@@ -106,7 +106,7 @@ const litePostFields = `
   },
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
   "slug": slug.current,
-  "author": author->{name, 'slug': slug.current, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
+  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},
   excerpt,
 `
 

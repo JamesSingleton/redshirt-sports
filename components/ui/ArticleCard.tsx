@@ -23,6 +23,7 @@ type ArticleCardProps = {
   author: {
     name: string
     slug: string
+    archived: boolean
   }
   estimatedReadingTime: number
 }
@@ -73,9 +74,13 @@ const ArticleCard = ({
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <div className="flex items-center">
             <span className="mr-1">By</span>
-            <Link href={`/authors/${author.slug}`} className="text-card-foreground">
-              {author.name}
-            </Link>
+            {author.archived ? (
+              <span className="text-card-foreground">{author.name}</span>
+            ) : (
+              <Link href={`/authors/${author.slug}`} className="text-card-foreground">
+                {author.name}
+              </Link>
+            )}
           </div>
           <Date dateString={date} />
           <span>{estimatedReadingTime} min</span>
