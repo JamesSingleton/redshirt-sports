@@ -14,7 +14,7 @@ export const redirect = defineType({
         Rule.custom(async (value: string | undefined, context) => {
           if (!value) return true
           if (!value.startsWith('/')) return 'Must be a URL path (e.g. /pricing)'
-          if (isPattern(value)) return 'Cannot contain characters: (){}:*+?'
+          // if (isPattern(value)) return 'Cannot contain characters: (){}:*+?'
           if (!isValid(value)) return 'URL is not valid'
           const id = context.document?._id.replace('drafts.', '')!
           const unique = await isUnique(value, id, context)
@@ -32,7 +32,7 @@ export const redirect = defineType({
         Rule.custom(async (value: string | undefined, context) => {
           if (!value) return true
           if (!value.startsWith('/')) return 'Must be a URL path (e.g. /pricing)'
-          if (isPattern(value)) return 'Cannot contain characters: (){}:*+?'
+          // if (isPattern(value)) return 'Cannot contain characters: (){}:*+?'
           if (!isValid(value)) return 'URL is not valid'
           return true
         }),
