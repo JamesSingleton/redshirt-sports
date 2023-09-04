@@ -33,15 +33,15 @@ const navigation = {
           SVGProps<SVGSVGElement>,
       ) => <Twitter {...props} />,
     },
-    // {
-    //   name: 'RSS',
-    //   href: '#',
-    //   icon: (
-    //     props: JSX.IntrinsicAttributes &
-    //       globalThis.JSX.IntrinsicAttributes &
-    //       SVGProps<SVGSVGElement>,
-    //   ) => <RSSIcon {...props} />,
-    // },
+    {
+      name: 'RSS',
+      href: '/feeds/feed.xml',
+      icon: (
+        props: JSX.IntrinsicAttributes &
+          globalThis.JSX.IntrinsicAttributes &
+          SVGProps<SVGSVGElement>,
+      ) => <RSSIcon {...props} />,
+    },
   ],
 }
 

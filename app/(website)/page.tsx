@@ -99,17 +99,21 @@ export default async function Page() {
           </div>
         </div>
       </section>
-      <ArticleSection title="Latest FCS News" slug="/news/fcs" articles={fcsArticles} />
+      <ArticleSection title="FCS College Football News" slug="/news/fcs" articles={fcsArticles} />
       <ArticleSection
-        title="Latest FBS News"
+        title="FBS College Football News"
         slug="/news/fbs"
         articles={fbsArticles}
         imageFirst={true}
       />
-      <ArticleSection title="Latest D2 News" slug="/news/d2" articles={d2Articles} />
+      <ArticleSection
+        title="Division II (D2) Football News"
+        slug="/news/d2"
+        articles={d2Articles}
+      />
       {d3Articles.length > 0 && (
         <ArticleSection
-          title="Latest D3 News"
+          title="Division III (D3) Football News"
           slug="/news/d3"
           articles={d3Articles}
           imageFirst={true}

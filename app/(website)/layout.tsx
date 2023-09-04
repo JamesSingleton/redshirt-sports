@@ -6,6 +6,7 @@ import PlausibleProvider from 'next-plausible'
 
 import { token } from '@lib/sanity.fetch'
 import { SiteHeader, Footer, TailwindIndicator, ThemeProvider } from '@components/common'
+import { PreviewBanner } from '@components/preview/PreviewBanner'
 
 const PreviewProvider = dynamic(() => import('@components/preview/PreviewProvider'))
 
@@ -14,6 +15,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const layout = (
     <PlausibleProvider domain="redshirtsports.xyz">
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        {isDraftMode && <PreviewBanner />}
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <Footer />

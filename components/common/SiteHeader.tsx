@@ -20,7 +20,7 @@ export async function SiteHeader() {
           <span className="sr-only">Redshirt Sports</span>
         </Link>
         <div className="flex flex-1 items-center justify-between space-x-2 sm:space-x-4 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
+          <div className="w-full flex-1 md:w-auto">
             <form
               className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end"
               action="/search"

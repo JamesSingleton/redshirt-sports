@@ -1,9 +1,11 @@
 import { School, Newspaper, Users, Gavel, Repeat, Folder } from 'lucide-react'
 
+import { apiVersion } from '@lib/sanity.api'
+
 export const deskStructure = async (S, context) => {
   const { getClient, currentUser } = context
 
-  const client = getClient({ apiVersion: '2023-01-01' })
+  const client = getClient({ apiVersion })
 
   const divisions = await client.fetch('*[_type == "division" && !(_id in path("drafts.**"))]')
 
@@ -20,6 +22,7 @@ export const deskStructure = async (S, context) => {
               .schemaType('post')
               .title(`${division.name} Articles`)
               .menuItems(S.documentTypeList('post').getMenuItems())
+              .apiVersion(apiVersion)
               .filter(`_type == "post" && division->_id == "${division._id}"`)
               .canHandleIntent(S.documentTypeList('post').getCanHandleIntent())
               .initialValueTemplates([
@@ -49,6 +52,7 @@ export const deskStructure = async (S, context) => {
       .icon(School)
       .child(
         S.documentTypeList('division')
+          .apiVersion(apiVersion)
           .filter('_type == "division" && !(_id in path("drafts.**"))')
           .defaultOrdering([{ field: 'name', direction: 'asc' }])
           .title('Divisions')
@@ -56,6 +60,7 @@ export const deskStructure = async (S, context) => {
             S.documentList()
               .title('Conferences')
               .defaultOrdering([{ field: 'name', direction: 'asc' }])
+              .apiVersion(apiVersion)
               .filter('_type == "conference" && defined(division) && division._ref == $divisionId')
               .params({ divisionId })
               .canHandleIntent(S.documentTypeList('division').getCanHandleIntent())
@@ -68,6 +73,7 @@ export const deskStructure = async (S, context) => {
                 S.documentList()
                   .title('Schools')
                   .defaultOrdering([{ field: 'name', direction: 'asc' }])
+                  .apiVersion(apiVersion)
                   .filter('_type == "school" && $conferenceId == conference._ref')
                   .params({ conferenceId })
                   .canHandleIntent(S.documentTypeList('school').getCanHandleIntent())
@@ -94,6 +100,7 @@ export const deskStructure = async (S, context) => {
             S.documentList()
               .id('conference')
               .title('Conferences')
+              .apiVersion(apiVersion)
               .filter('_type == "conference" && division._ref == $divisionId')
               .params({ divisionId })
               .canHandleIntent(S.documentTypeList('conference').getCanHandleIntent())
@@ -138,6 +145,7 @@ export const deskStructure = async (S, context) => {
                       S.documentList()
                         .id(type)
                         .title(`Posts from ${year}`)
+                        .apiVersion(apiVersion)
                         .filter(`_id in $ids`)
                         .params({ ids: years[year] }),
                     )

@@ -74,12 +74,7 @@ export default defineField({
                 title: 'Reference',
                 name: 'reference',
                 type: 'reference',
-                to: [
-                  { type: 'post' },
-                  { type: 'category' },
-                  { type: 'division' },
-                  { type: 'conference' },
-                ],
+                to: [{ type: 'post' }, { type: 'division' }, { type: 'conference' }],
               },
             ],
           },
