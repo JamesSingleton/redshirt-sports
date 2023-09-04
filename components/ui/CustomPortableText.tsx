@@ -14,14 +14,18 @@ import ImageComponent from './ImageComponent'
 import type { TwitterComponents } from 'react-tweet'
 
 const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
-  let linkHref = `/${value?.slug.current}`
+  let linkHref = `/${value?.reference.slug}`
 
-  if (value?.parentSlug) {
-    linkHref = `/${value.parentSlug}/${value.slug.current}`
+  if (value?.reference._type === 'division') {
+    linkHref = `/news/${value?.reference.slug}`
+  }
+
+  if (value?.reference._type === 'conference') {
+    linkHref = `/news/${value?.reference.divisionSlug}/${value?.reference.slug}`
   }
 
   return (
-    <Link href={linkHref} className="underline transition hover:opacity-50">
+    <Link href={linkHref} className="underline hover:text-muted-foreground">
       {children}
     </Link>
   )
@@ -70,7 +74,7 @@ export function CustomPortableText({
       link: ({ value, children }: PortableTextMarkComponentProps) => {
         return value?.blank ? (
           <a
-            className="underline transition hover:opacity-50"
+            className="underline hover:text-muted-foreground"
             href={value?.href}
             rel="noreferrer noopener"
             target="_blank"
@@ -80,7 +84,7 @@ export function CustomPortableText({
             {children}
           </a>
         ) : (
-          <a className="underline transition hover:opacity-50" href={value?.href}>
+          <a className="underline hover:text-muted-foreground" href={value?.href}>
             {children}
           </a>
         )

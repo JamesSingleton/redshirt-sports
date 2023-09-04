@@ -67,8 +67,11 @@ const postFields = `
     markDefs[]{
       ...,
       _type == "internalLink" => {
-        "parentSlug": @.reference->parent->slug.current,
-        "slug": @.reference->slug
+        reference->{
+          _type,
+          "slug": slug.current,
+          "divisionSlug": division->slug.current,
+        }
       }
     }
   },
