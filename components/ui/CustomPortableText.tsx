@@ -6,8 +6,7 @@ import {
   PortableTextMarkComponentProps,
 } from '@portabletext/react'
 import { PortableTextBlock } from 'sanity'
-import { EmbeddedTweet, TweetSkeleton } from 'react-tweet'
-import { getTweet, type Tweet } from 'react-tweet/api'
+import { Tweet } from 'react-tweet'
 import { CameraIcon } from 'lucide-react'
 
 import ImageComponent from './ImageComponent'
@@ -92,11 +91,10 @@ export function CustomPortableText({
       },
     },
     types: {
-      twitter: async ({ value }) => {
-        const tweet = await getTweet(value.id)
+      twitter: ({ value }) => {
         return (
           <div className="not-prose flex items-center justify-center">
-            <EmbeddedTweet tweet={tweet!} components={TweetComponents} />
+            <Tweet id={value.id} components={TweetComponents} />
           </div>
         )
       },
