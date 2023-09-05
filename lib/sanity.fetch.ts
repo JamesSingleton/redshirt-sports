@@ -82,14 +82,14 @@ export async function sanityFetch<QueryResponse>({
 export function getHeroPosts() {
   return sanityFetch<Post[]>({
     query: heroPostsQuery,
-    tags: ['hero'],
+    tags: ['post'],
   })
 }
 
 export function getLatestArticlesForHomePage() {
   return sanityFetch<Post[]>({
     query: latestArticlesForHomePageQuery,
-    tags: ['latestArticles'],
+    tags: ['post'],
   })
 }
 
@@ -97,7 +97,7 @@ export function getLatestDivisionArticlesForHomePage(division: string, ids: stri
   return sanityFetch<Post[]>({
     query: latestDivisionArticlesQuery,
     params: { division, ids },
-    tags: [`latestDivisionArticles:${division}`],
+    tags: [`division:${division}`, 'post'],
   })
 }
 
@@ -116,21 +116,21 @@ export function getPostsPaths() {
 export function getDivisions() {
   return sanityFetch<Divisions[]>({
     query: divisionsQuery,
-    tags: ['divisions'],
+    tags: ['division'],
   })
 }
 
 export function getAuthors() {
   return sanityFetch<Author[]>({
     query: allAuthors,
-    tags: ['authors'],
+    tags: ['author'],
   })
 }
 
 export function getPrivacyPolicy() {
   return sanityFetch<PrivacyPolicyPagePayload>({
     query: privacyPolicy,
-    tags: ['privacyPolicy'],
+    tags: ['legal'],
   })
 }
 
@@ -138,7 +138,7 @@ export function getNews(pageIndex: number) {
   return sanityFetch<PostsWithPaginationPayload>({
     query: paginatedPostsQuery,
     params: { pageIndex },
-    tags: ['news'],
+    tags: ['post'],
   })
 }
 
@@ -146,7 +146,7 @@ export function getNewsByDivision(slug: string, pageIndex: number) {
   return sanityFetch<DivisionPayload>({
     query: divisionBySlugQuery,
     params: { slug, pageIndex },
-    tags: ['news', `division:${slug}`],
+    tags: [`division:${slug}`],
   })
 }
 
@@ -154,7 +154,7 @@ export function getNewsByConference(slug: string, pageIndex: number) {
   return sanityFetch<ConferencePayload>({
     query: conferenceBySlugQuery,
     params: { slug, pageIndex },
-    tags: ['news', `conference:${slug}`],
+    tags: [`conference:${slug}`],
   })
 }
 
@@ -170,7 +170,7 @@ export function getConferencesAuthorHasWrittenFor(authorId: string) {
   return sanityFetch<any>({
     query: conferencesAuthorHasWrittenFor,
     params: { authorId },
-    tags: [`conferencesAuthorHasWrittenFor:${authorId}`],
+    tags: [`author:${authorId}`],
   })
 }
 
@@ -178,14 +178,14 @@ export function getAuthorsPosts(authorId: string, pageIndex: number, conference:
   return sanityFetch<AuthorPosts>({
     query: authorsPosts,
     params: { authorId, pageIndex, conference },
-    tags: [`authorsPosts:${authorId}`],
+    tags: [`author:${authorId}`],
   })
 }
 
 export function getSitemap() {
   return sanityFetch<SitemapPayload>({
     query: sitemapQuery,
-    tags: ['sitemap'],
+    tags: ['post', 'author', 'division', 'conference'],
   })
 }
 
@@ -193,7 +193,7 @@ export function getSearchResults(query: string, pageIndex: number) {
   return sanityFetch<any>({
     query: searchQuery,
     params: { query, pageIndex },
-    tags: ['search', 'post'],
+    tags: ['post'],
   })
 }
 
@@ -207,6 +207,6 @@ export function getTransferPortalPlayers() {
 export function getRSSFeed() {
   return sanityFetch<any>({
     query: postsForRssFeed,
-    tags: ['rss'],
+    tags: ['post'],
   })
 }
