@@ -23,9 +23,24 @@
       "@hooks/*": ["hooks/*"],
       "@types": ["types/index"],
       "@types/*": ["types/*"],
-      "@public/*": ["public/*"]
-    }
+      "@public/*": ["public/*"],
+      "@schemas/*": ["sanity/schemas/*"],
+      "@plugins/*": ["sanity/plugins/*"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.d.ts", "**/*.ts", "**/*.tsx", "**/*.js"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    ".next/types/**/*.ts",
+    "next.config.js"
+  ],
   "exclude": ["node_modules"]
 }

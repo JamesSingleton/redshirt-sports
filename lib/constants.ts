@@ -1,29 +1,20 @@
-export const SITE_URL = 'https://www.redshirtsports.xyz'
+export const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL && process.env.NODE_ENV !== 'development'
+    ? `https://${process.env.NEXT_PUBLIC_SITE_URL}`
+    : 'http://localhost:3000'
 
-export const NAVIGATION_ITEMS = [
+export const STATIC_NAV_ITEMS = [
   {
-    name: 'FCS',
-    href: '/fcs',
-    conferences: [
-      { name: 'FCS Home', href: '/fcs' },
-      { name: 'ASUN', href: '/fcs/asun' },
-      { name: 'Big Sky', href: '/fcs/big-sky' },
-      { name: 'Big South', href: '/fcs/big-south' },
-      { name: 'CAA', href: '/fcs/caa' },
-      { name: 'Ivy', href: '/fcs/ivy-league' },
-      { name: 'MEAC', href: '/fcs/meac' },
-      { name: 'MVFC', href: '/fcs/mvfc' },
-      { name: 'NEC', href: '/fcs/nec' },
-      { name: 'OVC', href: '/fcs/ovc' },
-      { name: 'Patriot', href: '/fcs/patriot' },
-      { name: 'Pioneer', href: '/fcs/pioneer' },
-      { name: 'SoCon', href: '/fcs/socon' },
-      { name: 'Southland', href: '/fcs/southland' },
-      { name: 'SWAC', href: '/fcs/swac' },
-      { name: 'WAC', href: '/fcs/wac' },
-    ],
+    title: 'About',
+    href: '/about',
   },
-  { name: 'FBS', href: '/fbs' },
-  { name: 'About Us', href: '/about' },
-  { name: 'Contact Us', href: '/contact' },
+  {
+    title: 'Contact Us',
+    href: '/contact',
+  },
 ]
+
+export const perPage = 12
+
+export const defaultTitle =
+  'Your Hub for College Football: FCS, FBS, D2, D3, Transfers, News, and Analysis | Redshirt Sports'

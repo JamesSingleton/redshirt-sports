@@ -1,15 +1,6 @@
-export type Image = {
-  caption: string
-  attribution: string
-  asset: {
-    _id: string
-    _type: string
-    url: string
-    metadata: {
-      lqip: string
-    }
-  }
-}
+import type { PortableTextBlock } from 'sanity'
+
+import type { MainImage } from './common'
 
 export type Category = {
   _id: string
@@ -25,19 +16,24 @@ export type Author = {
   _id: string
   _updatedAt: string
   publishedAt: string
+  archived: boolean
   name: string
   slug: string
   role: string
-  image: Image
+  image: MainImage
   bio: any
-  posts?: Post[]
   socialMedia: [
     {
       _key: string
       name: string
       url: string
-    }
+    },
   ]
+}
+
+export type AuthorPosts = {
+  posts: Post[]
+  totalPosts: number
 }
 
 export type Post = {
@@ -46,18 +42,22 @@ export type Post = {
   publishedAt: string
   slug: string
   title: string
-  category: string
-  subcategory: {
-    title: string
+  division: {
+    _id: string
+    name: string
     slug: string
-    parentSlug: string
-    parentTitle: string
   }
+  conferences: {
+    _id: string
+    name: string
+    shortName: string
+    slug: string
+  }[]
   featuredArticle: boolean
   excerpt: string
-  body: string
+  body: PortableTextBlock[]
   estimatedReadingTime: number
   author: Author
-  mainImage: Image
+  mainImage: MainImage
   wordCount: number
 }

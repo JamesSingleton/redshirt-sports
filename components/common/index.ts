@@ -1,10 +1,9 @@
-export { default as Footer } from './Footer'
-export { default as Layout } from './Layout'
-export { default as Navbar } from './Navbar'
-import SocialMediaFollow from './SocialMediaFollow'
-import SEO from './SEO'
-import Head from './Head'
-import Logo from './SmallLogo'
+import Footer from './Footer'
+import SmallLogo from './SmallLogo'
 import LargeLogo from './LargeLogo'
+import { SiteHeader } from './SiteHeader'
+import { TailwindIndicator } from './TailwindIndicator'
+import { ThemeProvider } from './ThemeProvider'
+import PageHeader from './PageHeader'
 
-export { SocialMediaFollow, SEO, Head, Logo, LargeLogo }
+export { SmallLogo, LargeLogo, Footer, SiteHeader, TailwindIndicator, ThemeProvider, PageHeader }

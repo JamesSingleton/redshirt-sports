@@ -1,42 +1,43 @@
 import Link from 'next/link'
-import { useRouter } from 'next/router'
-import ChevronRightIcon from '@heroicons/react/24/solid/ChevronRightIcon'
-import HomeIcon from '@heroicons/react/24/solid/HomeIcon'
+import { ChevronRight, HomeIcon } from 'lucide-react'
+import clsx from 'clsx'
 
-interface BreadCrumbsProps {
-  breadCrumbPages: {
-    name: string
-    href: string
-  }[]
+import type { BreadcrumbProps } from '@types'
+
+type BreadCrumbPages = {
+  breadCrumbPages: BreadcrumbProps
 }
 
-const Breadcrumbs = ({ breadCrumbPages }: BreadCrumbsProps) => {
-  const { asPath } = useRouter()
+const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
+  const filteredBreadcrumbPages = breadCrumbPages.filter((page) => page !== null)
   return (
-    <nav aria-label="breadcrumb" title="breadcrumb" className="flex items-center text-sm">
-      <ol role="list" className="flex items-center space-x-4">
-        <li>
-          <div>
-            <Link href="/" prefetch={false} className="text-slate-400 hover:text-slate-500">
-              <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-              <span className="sr-only">Home</span>
-            </Link>
-          </div>
+    <nav aria-label="breadcrumb" title="breadcrumb" className="flex">
+      <ol className="flex shrink-0 flex-wrap items-center gap-2 font-serif">
+        <li title="Home">
+          <Link href="/" className="text-muted-foreground hover:text-foreground">
+            <span className="sr-only">Home</span>
+            <HomeIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
+          </Link>
         </li>
-        {breadCrumbPages.map((page) => (
-          <li key={page.name}>
+        {filteredBreadcrumbPages.map((page: any, index: number) => (
+          <li key={page.title} title={page.title}>
             <div className="flex items-center">
-              <ChevronRightIcon
-                className="h-5 w-5 flex-shrink-0 text-slate-400"
+              <ChevronRight
+                className="h-5 w-5 flex-shrink-0"
                 aria-hidden="true"
+                strokeWidth={1.5}
               />
               <Link
+                aria-current={index === filteredBreadcrumbPages.length - 1 ? 'page' : undefined}
                 href={page.href}
-                prefetch={false}
-                className="ml-4 text-sm font-medium text-slate-500 hover:text-slate-700"
-                aria-current={page.href === asPath ? 'page' : undefined}
+                className={clsx(
+                  'ml-2 text-base font-semibold',
+                  index === filteredBreadcrumbPages.length - 1
+                    ? 'w-32 truncate text-brand-500 dark:text-brand-400 sm:w-64 lg:w-full'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
               >
-                {page.name}
+                {page.title}
               </Link>
             </div>
           </li>
@@ -46,4 +47,4 @@ const Breadcrumbs = ({ breadCrumbPages }: BreadCrumbsProps) => {
   )
 }
 
-export default Breadcrumbs
+export default BreadCrumbs

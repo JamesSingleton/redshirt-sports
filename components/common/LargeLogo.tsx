@@ -10,7 +10,7 @@ const LargeLogo = (props: JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement
     <style>
       {".st25{fill:#dc2727}.st28{font-family:'IndustryInc-Base'}.st29{font-size:53.2646px}"}
     </style>
-    <g id="Layer_2">
+    <g>
       <text transform="translate(232.148 250.717)">
         <tspan x={0} y={0} className="st25 st28 st29">
           {'REDSHIRT'}

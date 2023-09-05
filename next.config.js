@@ -1,5 +1,12 @@
 const { withSentryConfig } = require('@sentry/nextjs')
 const withBundleAnalyzer = require('@next/bundle-analyzer')
+const { createClient } = require('@sanity/client')
+const client = createClient({
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  useCdn: process.env.NODE_ENV === 'production',
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2023-06-21',
+})
 
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
@@ -9,7 +16,7 @@ const ContentSecurityPolicy = `
     img-src * blob: data:;
     media-src 'none';
     connect-src *;
-    font-src 'self';
+    font-src 'self' fonts.gstatic.com;
 `
 
 const securityHeaders = [
@@ -26,7 +33,7 @@ const securityHeaders = [
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
   {
     key: 'X-Frame-Options',
-    value: 'DENY',
+    value: 'SAMEORIGIN',
   },
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
   {
@@ -51,7 +58,11 @@ const moduleExports = {
   reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
-    domains: ['cdn.sanity.io', 'pbs.twimg.com'],
+    domains: ['cdn.sanity.io'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'pbs.twimg.com' },
+      { protocol: 'https', hostname: 'abs.twimg.com' },
+    ],
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? true : false,
@@ -75,17 +86,7 @@ const moduleExports = {
       },
     ]
   },
-  webpack(config, { dev, isServer, nextRuntime, webpack }) {
-    if (!dev && isServer && nextRuntime === 'nodejs') {
-      let originalEntry = config.entry
-
-      config.entry = async () => {
-        let entries = { ...(await originalEntry()) }
-        entries['lib/build-rss'] = './lib/build-rss.js'
-        return entries
-      }
-    }
-
+  webpack(config, { webpack }) {
     new webpack.DefinePlugin({
       __SENTRY_DEBUG__: false,
       __SENTRY_TRACING__: false,
@@ -94,18 +95,10 @@ const moduleExports = {
     return config
   },
   async redirects() {
-    return [
-      {
-        source: '/authors',
-        destination: '/about',
-        permanent: true,
-      },
-      {
-        source: '/advertising',
-        destination: '/contact',
-        permanent: true,
-      },
-    ]
+    const query =
+      '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}'
+    const results = await client.fetch(query)
+    return results
   },
   sentry: {
     hideSourceMaps: true,
@@ -127,5 +120,5 @@ const SentryWebpackPluginOptions = {
 /** @type {import('next').NextConfig} */
 module.exports = withSentryConfig(
   withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })(moduleExports),
-  SentryWebpackPluginOptions
+  SentryWebpackPluginOptions,
 )
