@@ -21,6 +21,7 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                 alt={heroArticle.mainImage.caption}
                 width={363}
                 height={181}
+                loading="eager"
               />
             </Link>
             <div className="mt-4 space-y-2">

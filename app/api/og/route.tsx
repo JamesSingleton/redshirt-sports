@@ -2,8 +2,8 @@ import { ImageResponse, NextRequest } from 'next/server'
 
 export const runtime = 'edge'
 
-const industryBase = fetch(new URL('./IndustryInc-Base.ttf', import.meta.url)).then((res) =>
-  res.arrayBuffer(),
+const industryBase = fetch(new URL('../../../styles/IndustryInc-Base.ttf', import.meta.url)).then(
+  (res) => res.arrayBuffer(),
 )
 
 export async function GET(req: NextRequest): Promise<Response | ImageResponse> {

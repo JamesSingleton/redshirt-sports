@@ -217,6 +217,7 @@ export function Article({ post }: ArticleProps) {
                     width={864}
                     height={576}
                     mode={post.mainImage.crop ? 'cover' : 'contain'}
+                    loading="eager"
                   />
                   <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CameraIcon className="h-4 w-4" />

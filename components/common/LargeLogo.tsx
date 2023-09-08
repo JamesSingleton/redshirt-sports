@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { industryInc } from '@styles/fonts'
+
 const LargeLogo = (props: JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -7,10 +9,8 @@ const LargeLogo = (props: JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement
     xmlSpace="preserve"
     {...props}
   >
-    <style>
-      {".st25{fill:#dc2727}.st28{font-family:'IndustryInc-Base'}.st29{font-size:53.2646px}"}
-    </style>
-    <g>
+    <style>{'.st25{fill:#dc2727}.st29{font-size:53.2646px}'}</style>
+    <g className={industryInc.className}>
       <text transform="translate(232.148 250.717)">
         <tspan x={0} y={0} className="st25 st28 st29">
           {'REDSHIRT'}

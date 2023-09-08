@@ -11,6 +11,7 @@ const ImageComponent = ({
   width,
   height,
   mode = 'cover',
+  loading = 'lazy',
 }: {
   image: any
   alt?: string
@@ -18,6 +19,7 @@ const ImageComponent = ({
   width: number
   height: number
   mode?: 'cover' | 'contain'
+  loading?: 'lazy' | 'eager'
 }) => {
   return (
     <SanityImage
@@ -32,6 +34,7 @@ const ImageComponent = ({
       projectId={projectId}
       hotspot={image.hotspot}
       title={alt ?? image.caption}
+      loading={loading}
     />
   )
 }
