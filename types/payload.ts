@@ -1,4 +1,4 @@
-import { ImageAsset, PortableTextBlock } from 'sanity'
+import { PortableTextBlock } from 'sanity'
 
 import { Author, Post } from './post'
 import { Conference, MainImage } from './common'
@@ -57,7 +57,7 @@ export interface DivisionPayload {
   totalPosts: number
 }
 
-export interface Divisions {
+export interface Division {
   _id: string
   _updatedAt: string
   name: string
@@ -65,7 +65,7 @@ export interface Divisions {
   longName: string
   slug: string
   description: string
-  logo: any
+  logo: MainImage
   conferences: Conference[]
 }
 

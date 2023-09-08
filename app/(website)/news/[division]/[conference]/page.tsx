@@ -3,7 +3,7 @@ import { Graph } from 'schema-dts'
 
 import { ArticleCard, Pagination } from '@components/ui'
 import { PageHeader } from '@components/common'
-import { getNewsByConference } from '@lib/sanity.fetch'
+import { getNewsByConference, getConferencePaths } from '@lib/sanity.fetch'
 import { baseUrl, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 import { urlForImage } from '@lib/sanity.image'
@@ -11,6 +11,11 @@ import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Metadata } from 'next'
 import type { Post } from '@types'
+
+export async function generateStaticParams() {
+  const slugs = await getConferencePaths()
+  return slugs.map((slug) => ({ division: slug.divisionSlug, conference: slug.slug }))
+}
 
 export async function generateMetadata({
   params,
@@ -22,7 +27,7 @@ export async function generateMetadata({
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
-  const conference = await getNewsByConference(params.subcategory, pageIndex)
+  const conference = await getNewsByConference(params.conference, pageIndex)
 
   if (!conference) {
     return {}
@@ -94,11 +99,11 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: { category: string; subcategory: string }
+  params: { [key: string]: string }
   searchParams: { [key: string]: string }
 }) {
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
-  const conference = await getNewsByConference(params.subcategory, pageIndex)
+  const conference = await getNewsByConference(params.conference, pageIndex)
   if (!conference) {
     return notFound()
   }

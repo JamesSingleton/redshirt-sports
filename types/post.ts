@@ -11,7 +11,7 @@ export type Author = {
   slug: string
   role: string
   image: MainImage
-  bio: any
+  bio: PortableTextBlock[]
   socialMedia: [
     {
       _key: string

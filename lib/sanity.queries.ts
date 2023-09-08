@@ -225,6 +225,14 @@ export const divisionPaths = `
 *[_type == "division" && defined(slug.current)][].slug.current
 `
 
+// create a query that returns the conference slugs concatenated with the division slug where there's at least 1 article that references that conference
+export const conferencePaths = groq`
+*[_type == "conference" && defined(slug.current) && defined(division) && count(*[_type == 'post' && references(^._id)]) > 0]{
+  "slug": slug.current,
+  "divisionSlug": division->slug.current,
+}
+`
+
 export const authorSlugsQuery = groq`
 *[_type == "author" && defined(slug.current) && archived == false][].slug.current`
 

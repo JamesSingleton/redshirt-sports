@@ -19,7 +19,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
             <HomeIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
           </Link>
         </li>
-        {filteredBreadcrumbPages.map((page: any, index: number) => (
+        {filteredBreadcrumbPages.map((page, index: number) => (
           <li key={page.title} title={page.title}>
             <div className="flex items-center">
               <ChevronRight

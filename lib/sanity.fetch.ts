@@ -24,6 +24,7 @@ import {
   latestArticlesForHomePageQuery,
   latestDivisionArticlesQuery,
   divisionPaths,
+  conferencePaths,
 } from '@lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
@@ -32,7 +33,7 @@ import {
   AuthorPosts,
   ConferencePayload,
   DivisionPayload,
-  Divisions,
+  Division,
   Post,
   PostPayload,
   PostsWithPaginationPayload,
@@ -118,8 +119,16 @@ export function getDivisionPaths() {
   return client.fetch<string[]>(divisionPaths, {}, { token, perspective: 'published' })
 }
 
+export function getConferencePaths() {
+  return client.fetch<{ slug: string; divisionSlug: string }[]>(
+    conferencePaths,
+    {},
+    { token, perspective: 'published' },
+  )
+}
+
 export function getDivisions() {
-  return sanityFetch<Divisions[]>({
+  return sanityFetch<Division[]>({
     query: divisionsQuery,
     tags: ['division'],
   })

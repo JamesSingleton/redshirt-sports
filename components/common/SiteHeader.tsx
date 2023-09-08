@@ -13,7 +13,7 @@ export async function SiteHeader() {
   return (
     <header className="supports-backdrop-blur:bg-background/60 sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
       <div className="container flex h-14 items-center">
-        <MainNav categories={divisions} />
+        <MainNav divisions={divisions} />
         <MobileNav divisions={divisions} />
         <Link href="/" className="ml-4 hidden md:block lg:hidden">
           <LargeLogo className="h-10 w-auto" />

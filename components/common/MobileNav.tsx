@@ -12,10 +12,10 @@ import { ScrollArea } from '@components/ui/ScrollArea'
 import { STATIC_NAV_ITEMS } from '@lib/constants'
 import LargeLogo from './LargeLogo'
 
-export function MobileNav(props: any) {
-  const [open, setOpen] = useState(false)
+import type { NavProps } from '@types'
 
-  const { divisions } = props
+export function MobileNav({ divisions }: NavProps) {
+  const [open, setOpen] = useState(false)
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -35,11 +35,11 @@ export function MobileNav(props: any) {
         </MobileLink>
         <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
           <div className="flex flex-col space-y-2">
-            {divisions.map((division: any, index: number) => (
+            {divisions.map((division, index: number) => (
               <div key={index} className="flex flex-col space-y-3 pt-6">
                 <h4 className="text-xl font-bold">{division.name}</h4>
                 {division.conferences?.length > 0 &&
-                  division.conferences.map((conference: any) => (
+                  division.conferences.map((conference) => (
                     <Fragment key={`mobile_nav_${conference._id}`}>
                       <MobileLink
                         href={`/news/${division.slug}/${conference.slug}`}

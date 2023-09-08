@@ -14,7 +14,7 @@ import type { Post } from '@types'
 
 export async function generateStaticParams() {
   const slugs = await getDivisionPaths()
-  return slugs.map((slug) => ({ category: slug }))
+  return slugs.map((slug) => ({ division: slug }))
 }
 
 export async function generateMetadata({
@@ -26,7 +26,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
-  const division = await getNewsByDivision(params.category, pageIndex)
+  const division = await getNewsByDivision(params.division, pageIndex)
 
   if (!division) {
     return {}
@@ -80,12 +80,12 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: { category: string }
+  params: { [key: string]: string }
   searchParams: { [key: string]: string }
 }) {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
-  const division = await getNewsByDivision(params.category, pageIndex)
+  const division = await getNewsByDivision(params.division, pageIndex)
 
   if (!division) {
     return notFound()

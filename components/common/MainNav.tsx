@@ -15,8 +15,9 @@ import {
   navigationMenuTriggerStyle,
 } from '@components/ui/NavigationMenu'
 
-export function MainNav(props: any) {
-  const { categories } = props
+import type { NavProps } from '@types'
+
+export function MainNav({ divisions }: NavProps) {
   return (
     <div className="mr-4 hidden lg:flex">
       <Link href="/" className="flex items-center">
@@ -30,29 +31,29 @@ export function MainNav(props: any) {
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>News</NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
-          {categories.map((category: any) => {
-            if (category.conferences.length > 0) {
+          {divisions.map((division) => {
+            if (division.conferences.length > 0) {
               return (
-                <NavigationMenuItem key={category._id}>
-                  <NavigationMenuTrigger>{category.name}</NavigationMenuTrigger>
+                <NavigationMenuItem key={division._id}>
+                  <NavigationMenuTrigger>{division.name}</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid gap-3 p-6 font-serif md:w-[700px] lg:w-[850px] lg:grid-cols-4">
                       <li className="row-span-3">
                         <NavigationMenuLink asChild>
                           <Link
                             className="flex h-full w-full select-none flex-col justify-center rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                            href={`/news/${category.slug}`}
+                            href={`/news/${division.slug}`}
                           >
-                            <div className="mb-2 mt-4 text-lg font-medium">{`${category.name} Home`}</div>
+                            <div className="mb-2 mt-4 text-lg font-medium">{`${division.name} Home`}</div>
                           </Link>
                         </NavigationMenuLink>
                       </li>
-                      {category.conferences.map((component: any) => {
+                      {division.conferences.map((conference) => {
                         return (
                           <ListItem
-                            key={`main_nav_${component._id}`}
-                            title={component.name}
-                            href={`/news/${category.slug}/${component.slug}`}
+                            key={`main_nav_${conference._id}`}
+                            title={conference.name}
+                            href={`/news/${division.slug}/${conference.slug}`}
                           />
                         )
                       })}
@@ -62,10 +63,10 @@ export function MainNav(props: any) {
               )
             } else {
               return (
-                <NavigationMenuItem key={`main_nav_${category._id}`}>
-                  <Link href={`/news/${category.slug}`} legacyBehavior passHref>
+                <NavigationMenuItem key={`main_nav_${division._id}`}>
+                  <Link href={`/news/${division.slug}`} legacyBehavior passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      {category.title}
+                      {division.name}
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>

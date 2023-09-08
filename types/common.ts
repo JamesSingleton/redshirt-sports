@@ -1,3 +1,4 @@
+import { Division } from '@types'
 import type { PropsWithChildren } from 'react'
 import type { ImageMetadata, ImageCrop, ImageHotspot } from 'sanity'
 
@@ -22,16 +23,19 @@ export type MainImage<T = {}> = T & {
 
 export type Conference = {
   _id: string
-  title: string
-  pageHeader?: string
-  subtitle?: string
+  name: string
+  shortName?: string
   slug: string
   description: string
-  image?: MainImage
-  parent: Conference
+  logo?: MainImage
+  division: Division
 }
 
 export type BreadcrumbProps = {
   title: string
   href: string
 }[]
+
+export interface NavProps {
+  divisions: Division[]
+}
