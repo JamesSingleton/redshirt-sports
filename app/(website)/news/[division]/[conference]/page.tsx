@@ -138,10 +138,10 @@ export default async function Page({
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${baseUrl}/news/${params.category}/${params.subcategory}${
+        '@id': `${baseUrl}/news/${params.division}/${params.conference}${
           pageIndex ? `?page=${pageIndex}` : ''
         }`,
-        url: `${baseUrl}/news/${params.category}/${params.subcategory}${
+        url: `${baseUrl}/news/${params.division}/${params.conference}${
           pageIndex ? `?page=${pageIndex}` : ''
         }`,
         breadcrumb: {
@@ -164,13 +164,13 @@ export default async function Page({
               '@type': 'ListItem',
               position: 3,
               name: conference.division.name,
-              item: `${baseUrl}/news/${params.category}`,
+              item: `${baseUrl}/news/${params.division}`,
             },
             {
               '@type': 'ListItem',
               position: 4,
               name: conference.shortName ?? conference.name,
-              item: `${baseUrl}/news/${params.category}/${params.subcategory}`,
+              item: `${baseUrl}/news/${params.division}/${params.conference}`,
             },
           ],
         },
@@ -222,7 +222,7 @@ export default async function Page({
             totalPosts={conference.totalPosts}
             nextDisabled={nextDisabled}
             prevDisabled={prevDisabled}
-            slug={`/news/${params.category}/${params.subcategory}`}
+            slug={`/news/${params.division}/${params.conference}`}
           />
         )}
       </section>

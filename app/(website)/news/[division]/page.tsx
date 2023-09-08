@@ -112,8 +112,8 @@ export default async function Page({
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${baseUrl}/news/${params.category}${page ? `?page=${page}` : ''}`,
-        url: `${baseUrl}/news/${params.category}${page ? `?page=${page}` : ''}`,
+        '@id': `${baseUrl}/news/${params.division}${page ? `?page=${page}` : ''}`,
+        url: `${baseUrl}/news/${params.division}${page ? `?page=${page}` : ''}`,
         breadcrumb: {
           '@type': 'BreadcrumbList',
           name: `${division?.name} Breadcrumbs`,
@@ -134,7 +134,7 @@ export default async function Page({
               '@type': 'ListItem',
               position: 3,
               name: division?.name,
-              item: `${baseUrl}/news/${params.category}`,
+              item: `${baseUrl}/news/${params.division}`,
             },
           ],
         },
@@ -193,7 +193,7 @@ export default async function Page({
             totalPosts={division.totalPosts}
             nextDisabled={nextDisabled}
             prevDisabled={prevDisabled}
-            slug={`/news/${params.category}`}
+            slug={`/news/${params.division}`}
           />
         )}
       </section>
