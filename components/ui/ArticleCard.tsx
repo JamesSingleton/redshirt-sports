@@ -70,19 +70,12 @@ const ArticleCard = ({
         <h2 className="text-xl font-semibold tracking-tight">
           <Link href={`/${slug}`}>{title}</Link>
         </h2>
-        <div className="flex items-center gap-2 text-base text-muted-foreground">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <div className="flex items-center">
             <span className="mr-1">By</span>
-            {author.archived ? (
-              <span className="text-card-foreground">{author.name}</span>
-            ) : (
-              <Link href={`/authors/${author.slug}`} className="text-card-foreground">
-                {author.name}
-              </Link>
-            )}
+            <span className="text-card-foreground">{author.name}</span>
           </div>
           <Date dateString={date} />
-          <span>{estimatedReadingTime} min</span>
         </div>
       </div>
     </div>

@@ -63,7 +63,6 @@ export default function ArticleSection({
                   {firstArticle.author.name}
                 </Link>
                 <Date dateString={firstArticle.publishedAt} />
-                <span>{firstArticle.estimatedReadingTime} min</span>
               </div>
             </div>
           </div>

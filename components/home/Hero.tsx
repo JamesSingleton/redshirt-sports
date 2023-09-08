@@ -63,7 +63,6 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                   <span className="text-primary">{heroArticle.author.name}</span>
                 </Link>
                 <Date dateString={heroArticle.publishedAt} />
-                <span>{heroArticle.estimatedReadingTime} min</span>
               </div>
             </div>
           </div>

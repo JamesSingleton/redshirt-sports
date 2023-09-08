@@ -54,7 +54,7 @@ export default async function Page({ params }: { params: { year: string } }) {
                   height={90}
                 />
                 {/* Player Position */}
-                <span className="self-start text-center text-xs leading-normal tracking-normal grid-in-position md:self-center md:justify-self-center">
+                <span className="self-start text-center text-sm leading-normal tracking-normal grid-in-position md:self-center md:justify-self-center">
                   {entry.player.position}
                 </span>
                 {/* Player Details */}
@@ -63,19 +63,19 @@ export default async function Page({ params }: { params: { year: string } }) {
                     {entry.player.name}
                   </div>
                   <div className="flex gap-1">
-                    <span className="text-center text-xs font-normal leading-normal tracking-wider after:ml-1 after:content-['/']">
+                    <span className="text-center text-sm font-normal leading-normal tracking-wider after:ml-1 after:content-['/']">
                       {entry.classYear ?? '-'}
                     </span>
-                    <span className="text-center text-xs font-normal leading-normal tracking-wider after:ml-1 after:content-['/']">{`${entry.player.height.feet}-${entry.player.height.inches}`}</span>
-                    <span className="text-center text-xs font-normal leading-normal tracking-wider">
+                    <span className="text-center text-sm font-normal leading-normal tracking-wider after:ml-1 after:content-['/']">{`${entry.player.height.feet}-${entry.player.height.inches}`}</span>
+                    <span className="text-center text-sm font-normal leading-normal tracking-wider">
                       {entry.player.weight}
                     </span>
                   </div>
                   <div className="mb-1 flex flex-wrap gap-x-1">
-                    <span className="text-center text-xs font-normal leading-normal tracking-wider">
+                    <span className="text-center text-sm font-normal leading-normal tracking-wider">
                       {entry.player.highSchool}
                     </span>
-                    <span className="text-center text-xs font-normal leading-normal tracking-wider">{`(${entry.player.homeTown.city}, ${entry.player.homeTown.state})`}</span>
+                    <span className="text-center text-sm font-normal leading-normal tracking-wider">{`(${entry.player.homeTown.city}, ${entry.player.homeTown.state})`}</span>
                   </div>
                 </div>
                 {/* Player's Current Status */}
@@ -93,7 +93,7 @@ export default async function Page({ params }: { params: { year: string } }) {
                         <ArrowLeftToLine className="h-5 w-5 text-red-500" />
                       )}
                     </div>
-                    <span className="text-xs font-semibold uppercase leading-[0.75] tracking-wide text-primary">
+                    <span className="text-sm font-semibold uppercase leading-[0.75] tracking-wide text-primary">
                       {entry.transferStatus}
                     </span>
                   </div>
@@ -120,7 +120,7 @@ export default async function Page({ params }: { params: { year: string } }) {
                         mode="contain"
                       />
                     </div>
-                    <span className="text-xs font-semibold leading-[0.75] tracking-wide md:hidden">
+                    <span className="text-sm font-semibold leading-[0.75] tracking-wide md:hidden">
                       {entry.transferringTo.name}
                     </span>
                   </div>
