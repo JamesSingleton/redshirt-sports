@@ -221,6 +221,10 @@ export const postPaths = `
 *[_type == "post" && defined(slug.current)][].slug.current
 `
 
+export const divisionPaths = `
+*[_type == "division" && defined(slug.current)][].slug.current
+`
+
 export const authorSlugsQuery = groq`
 *[_type == "author" && defined(slug.current) && archived == false][].slug.current`
 

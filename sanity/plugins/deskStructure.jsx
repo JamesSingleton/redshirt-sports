@@ -27,7 +27,7 @@ export const deskStructure = async (S, context) => {
               .canHandleIntent(S.documentTypeList('post').getCanHandleIntent())
               .initialValueTemplates([
                 S.initialValueTemplateItem('post-child', {
-                  categoryId: division._id,
+                  divisionId: division._id,
                 }),
               ]),
           )
@@ -41,50 +41,48 @@ export const deskStructure = async (S, context) => {
         }
         return 0
       }),
-    // Categories
-    // parentChild(S, context),
     // S.documentTypeListItem('player').title('Player Profiles'),
     // S.documentTypeListItem('transferPortal').title('Transfer Portal Players'),
-
-    // Schools
     S.listItem()
       .title('Schools')
       .icon(School)
       .child(
         S.documentTypeList('division')
-          .apiVersion(apiVersion)
-          .filter('_type == "division" && !(_id in path("drafts.**"))')
           .defaultOrdering([{ field: 'name', direction: 'asc' }])
-          .title('Divisions')
+          .canHandleIntent(S.documentTypeList('division').getCanHandleIntent())
           .child((divisionId) =>
             S.documentList()
+              .id('conference')
               .title('Conferences')
-              .defaultOrdering([{ field: 'name', direction: 'asc' }])
               .apiVersion(apiVersion)
-              .filter('_type == "conference" && defined(division) && division._ref == $divisionId')
+              .filter('_type == "conference" && division._ref == $divisionId')
               .params({ divisionId })
-              .canHandleIntent(S.documentTypeList('division').getCanHandleIntent())
+              .canHandleIntent(S.documentTypeList('conference').getCanHandleIntent())
+              .defaultOrdering([{ field: 'name', direction: 'asc' }])
               .initialValueTemplates([
-                S.initialValueTemplateItem('conference-child', {
-                  categoryId: divisionId,
+                S.initialValueTemplateItem('conference', {
+                  divisionId,
                 }),
               ])
               .child((conferenceId) =>
                 S.documentList()
+                  .id('school')
                   .title('Schools')
-                  .defaultOrdering([{ field: 'name', direction: 'asc' }])
                   .apiVersion(apiVersion)
-                  .filter('_type == "school" && $conferenceId == conference._ref')
+                  .filter('_type == "school" && conference._ref == $conferenceId')
                   .params({ conferenceId })
                   .canHandleIntent(S.documentTypeList('school').getCanHandleIntent())
+                  .defaultOrdering([{ field: 'name', direction: 'asc' }])
                   .initialValueTemplates([
-                    S.initialValueTemplateItem('school-child', {
+                    S.initialValueTemplateItem('school', {
+                      divisionId,
                       conferenceId,
                     }),
                   ]),
               ),
           ),
       ),
+
     S.listItem()
       .title('Divisions')
       .icon(Folder)
@@ -134,22 +132,24 @@ export const deskStructure = async (S, context) => {
               years[year].push(d._id)
             })
             return S.list()
-              .title('Posts by year')
+              .title('Years')
               .id('year')
               .items(
-                Object.keys(years).map((year) => {
-                  return S.listItem()
-                    .id(year)
-                    .title(year)
-                    .child(
-                      S.documentList()
-                        .id(type)
-                        .title(`Posts from ${year}`)
-                        .apiVersion(apiVersion)
-                        .filter(`_id in $ids`)
-                        .params({ ids: years[year] }),
-                    )
-                }),
+                Object.keys(years)
+                  .sort((a, b) => b - a)
+                  .map((year) => {
+                    return S.listItem()
+                      .id(year)
+                      .title(year)
+                      .child(
+                        S.documentList()
+                          .id(type)
+                          .title(`Articles from ${year}`)
+                          .apiVersion(apiVersion)
+                          .filter(`_id in $ids`)
+                          .params({ ids: years[year] }),
+                      )
+                  }),
               )
           })
       }),

@@ -1,16 +1,21 @@
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { getNewsByDivision } from '@lib/sanity.fetch'
+import { getNewsByDivision, getDivisionPaths } from '@lib/sanity.fetch'
 import { ArticleCard, Pagination } from '@components/ui'
 import { PageHeader } from '@components/common'
 import { baseUrl, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 import { defineMetadata } from '@lib/utils.metadata'
+import { urlForImage } from '@lib/sanity.image'
 
 import type { Metadata } from 'next'
 import type { Post } from '@types'
-import { urlForImage } from '@lib/sanity.image'
+
+// export async function generateStaticParams() {
+//   const slugs = await getDivisionPaths()
+//   return slugs.map((slug) => ({ category: slug }))
+// }
 
 export async function generateMetadata({
   params,

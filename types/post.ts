@@ -2,16 +2,6 @@ import type { PortableTextBlock } from 'sanity'
 
 import type { MainImage } from './common'
 
-export type Category = {
-  _id: string
-  _updatedAt: string
-  title: string
-  slug: string
-  parentSlug?: string
-  parentTitle?: string
-  description: string
-}
-
 export type Author = {
   _id: string
   _updatedAt: string

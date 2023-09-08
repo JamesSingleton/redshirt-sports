@@ -23,6 +23,7 @@ import {
   heroPostsQuery,
   latestArticlesForHomePageQuery,
   latestDivisionArticlesQuery,
+  divisionPaths,
 } from '@lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
@@ -111,6 +112,10 @@ export function getPostBySlug(slug: string) {
 
 export function getPostsPaths() {
   return client.fetch<string[]>(postPaths, {}, { token, perspective: 'published' })
+}
+
+export function getDivisionPaths() {
+  return client.fetch<string[]>(divisionPaths, {}, { token, perspective: 'published' })
 }
 
 export function getDivisions() {

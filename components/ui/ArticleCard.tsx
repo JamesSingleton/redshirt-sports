@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 
 import { Date } from '@components/ui'
@@ -71,7 +70,7 @@ const ArticleCard = ({
         <h2 className="text-xl font-semibold tracking-tight">
           <Link href={`/${slug}`}>{title}</Link>
         </h2>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 text-base text-muted-foreground">
           <div className="flex items-center">
             <span className="mr-1">By</span>
             {author.archived ? (

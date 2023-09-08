@@ -23,7 +23,6 @@ export interface PostPayload {
   title: string
   publishedAt: string
   mainImage: MainImage
-  category: string
   division: {
     name: string
     slug: string

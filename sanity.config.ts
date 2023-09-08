@@ -43,22 +43,7 @@ export default defineConfig({
     types: schemaTypes,
     templates: (prev, context) => [
       {
-        id: 'category-child',
-        title: 'Category Child',
-        schemaType: 'category',
-        parameters: [
-          {
-            name: 'parentId',
-            type: 'string',
-            title: 'Parent ID',
-          },
-        ],
-        value: ({ parentId }: { parentId: string }) => ({
-          parent: { _type: 'reference', _ref: parentId },
-        }),
-      },
-      {
-        id: 'school-child',
+        id: 'school',
         title: 'School Child',
         schemaType: 'school',
         parameters: [
@@ -66,25 +51,15 @@ export default defineConfig({
             name: 'conference',
             type: 'string',
           },
-        ],
-        value: ({ conferenceId }: { conferenceId: string }) => ({
-          conference: { _type: 'reference', _ref: conferenceId },
-        }),
-      },
-      {
-        id: 'conference-child',
-        title: 'Conference Child',
-        schemaType: 'category',
-        parameters: [
           {
-            name: 'parentId',
+            name: 'division',
             type: 'string',
-            title: 'Parent ID',
           },
         ],
-        value: ({ parentId }: { parentId: string }) => {
+        value: ({ conferenceId, divisionId }: { conferenceId: string; divisionId: string }) => {
           return {
-            parent: { _type: 'reference', _ref: parentId },
+            division: { _type: 'reference', _ref: divisionId },
+            conference: { _type: 'reference', _ref: conferenceId },
           }
         },
       },
@@ -94,12 +69,12 @@ export default defineConfig({
         schemaType: 'post',
         parameters: [
           {
-            name: 'parentCategory',
+            name: 'division',
             type: 'string',
           },
         ],
-        value: ({ categoryId }: { categoryId: string }) => ({
-          parentCategory: { _type: 'reference', _ref: categoryId },
+        value: ({ divisionId }: { divisionId: string }) => ({
+          division: { _type: 'reference', _ref: divisionId },
         }),
       },
       {

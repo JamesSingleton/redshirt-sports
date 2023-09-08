@@ -1,5 +1,4 @@
 import author from './documents/author'
-import category from './documents/category'
 import post from './documents/post'
 import legal from './documents/legal'
 import player from './documents/player'
@@ -19,7 +18,6 @@ import classYear from './objects/classYear'
 
 export const schemaTypes = [
   author,
-  category,
   post,
   legal,
   player,

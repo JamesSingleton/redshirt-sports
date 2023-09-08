@@ -1,7 +1,6 @@
 import { defineType, defineField, defineArrayMember } from 'sanity'
 import { DocumentTextIcon } from '@sanity/icons'
 import CustomStringInputWithLimits from '@plugins/CustomStringInputWithLimits'
-import { CustomBlockContentInput } from '@plugins/CustomBlockContentInput'
 
 export default defineType({
   name: 'post',
@@ -80,49 +79,6 @@ export default defineType({
         }),
       ],
     }),
-    // defineField({
-    //   title: 'Category',
-    //   name: 'category',
-    //   description: 'High level category of the article (FBS or FCS)',
-    //   type: 'string',
-    //   options: {
-    //     list: [
-    //       {
-    //         title: 'FCS',
-    //         value: 'FCS',
-    //       },
-    //       {
-    //         title: 'FBS',
-    //         value: 'FBS',
-    //       },
-    //       {
-    //         title: 'D2',
-    //         value: 'D2',
-    //       },
-    //     ],
-    //     layout: 'radio', // <-- defaults to 'dropdown'
-    //   },
-    //   validation: (rule) => rule.required(),
-    // }),
-    // defineField({
-    //   title: 'Category',
-    //   name: 'parentCategory',
-    //   description: 'What category does this article belong in?',
-    //   type: 'reference',
-    //   to: [{ type: 'category' }],
-    //   options: { filter: '!defined(parent)' },
-    //   validation: (rule) => rule.required(),
-    // }),
-    // defineField({
-    //   title: 'Subcategory',
-    //   name: 'subcategory',
-    //   description:
-    //     "What subcategory does this article belong to? Ideally a conference (if it isn't in the list, add it)",
-    //   type: 'reference',
-    //   to: [{ type: 'category' }],
-    //   options: { filter: 'defined(parent)' },
-    //   hidden: ({ document }) => !document?.parentCategory,
-    // }),
     defineField({
       title: 'Division',
       name: 'division',
@@ -167,12 +123,6 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'tags',
-      title: 'Tags',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'category' }] }],
-    }),
-    defineField({
       name: 'excerpt',
       title: 'Article Excerpt',
       description:
@@ -192,9 +142,6 @@ export default defineType({
       title: 'Body',
       type: 'blockContent',
       validation: (rule) => rule.required(),
-      // components: {
-      //   input: CustomBlockContentInput,
-      // },
     }),
   ],
 })
