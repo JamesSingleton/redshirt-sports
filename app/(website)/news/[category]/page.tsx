@@ -12,10 +12,10 @@ import { urlForImage } from '@lib/sanity.image'
 import type { Metadata } from 'next'
 import type { Post } from '@types'
 
-// export async function generateStaticParams() {
-//   const slugs = await getDivisionPaths()
-//   return slugs.map((slug) => ({ category: slug }))
-// }
+export async function generateStaticParams() {
+  const slugs = await getDivisionPaths()
+  return slugs.map((slug) => ({ category: slug }))
+}
 
 export async function generateMetadata({
   params,
