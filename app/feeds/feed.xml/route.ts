@@ -73,7 +73,7 @@ export async function GET() {
       title: post.title,
       id: url,
       link: url,
-      description: post.excerpt.replace('&', '&#x26;'),
+      description: post.excerpt && post.excerpt.replace('&', '&#x26;'),
       date: parseISO(post.publishedAt),
       image: urlForRssImage(post.mainImage).url(),
       content: toHTML(post.body, { components }),

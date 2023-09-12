@@ -3,7 +3,7 @@ import { Graph } from 'schema-dts'
 
 import { ArticleCard, Pagination } from '@components/ui'
 import { PageHeader } from '@components/common'
-import { getNewsByConference, getConferencePaths } from '@lib/sanity.fetch'
+import { getNewsByConference } from '@lib/sanity.fetch'
 import { baseUrl, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 import { urlForImage } from '@lib/sanity.image'
@@ -11,11 +11,6 @@ import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Metadata } from 'next'
 import type { Post } from '@types'
-
-export async function generateStaticParams() {
-  const slugs = await getConferencePaths()
-  return slugs.map((slug) => ({ division: slug.divisionSlug, conference: slug.slug }))
-}
 
 export async function generateMetadata({
   params,
