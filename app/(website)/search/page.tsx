@@ -8,7 +8,6 @@ import { perPage } from '@lib/constants'
 import { defineMetadata } from '@lib/utils.metadata'
 
 import { Post } from '@types'
-import type { Metadata } from 'next'
 
 export function generateMetadata({ searchParams }: { searchParams: { [key: string]: string } }) {
   const query = searchParams['q'] ?? null
@@ -73,7 +72,9 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
       <PageHeader title="Search Results" subtitle={subheadingText} breadcrumbs={breadcrumbs} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="max-w-3xl">
-          <Search defaultValue={query} />
+          <Suspense fallback={<>Loading...</>}>
+            <Search defaultValue={query} />
+          </Suspense>
         </div>
         {searchResults.posts.length > 0 && (
           <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
@@ -101,13 +102,15 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
           </div>
         )}
         {totalPages > 1 && (
-          <Pagination
-            currentPage={pageIndex}
-            totalPosts={searchResults.totalPosts}
-            nextDisabled={nextDisabled}
-            prevDisabled={prevDisabled}
-            slug="/search"
-          />
+          <Suspense fallback={<>Loading...</>}>
+            <Pagination
+              currentPage={pageIndex}
+              totalPosts={searchResults.totalPosts}
+              nextDisabled={nextDisabled}
+              prevDisabled={prevDisabled}
+              slug="/search"
+            />
+          </Suspense>
         )}
       </section>
     </>
