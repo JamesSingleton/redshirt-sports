@@ -25,11 +25,24 @@ async function getAndCacheTweet(id: string): Promise<Tweet | undefined> {
   }
 }
 
+async function getTweetData(id: string): Promise<Tweet | undefined> {
+  try {
+    const tweet = await getTweet(id)
+    if (!tweet || Object.keys(tweet).length === 0) {
+      throw new Error('Tweet not found')
+    }
+
+    return tweet
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 const TweetContent = async ({ id, components, onError }: TweetProps) => {
   let error
 
   const tweet = id
-    ? await getAndCacheTweet(id).catch((err) => {
+    ? await getTweetData(id).catch((err) => {
         if (onError) {
           error = onError(err)
         } else {
