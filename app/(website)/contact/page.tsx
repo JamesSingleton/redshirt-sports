@@ -114,8 +114,7 @@ export default function Page() {
         title="Contact Us"
         subtitle={
           <p className="mt-4 text-lg font-normal lg:text-xl">
-            Interested in collaborating or advertising with us? We&apos;re all ears! Fill out the
-            contact form or use the provided contact details below to get in touch. Let&apos;s
+            Interested in collaborating or advertising with us? We&apos;re all ears! Let&apos;s
             explore exciting possibilities together!
           </p>
         }
