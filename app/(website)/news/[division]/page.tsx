@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
@@ -183,13 +184,15 @@ export default async function Page({
           )}
         </div>
         {totalPages > 1 && (
-          <Pagination
-            currentPage={pageIndex}
-            totalPosts={division.totalPosts}
-            nextDisabled={nextDisabled}
-            prevDisabled={prevDisabled}
-            slug={`/news/${params.division}`}
-          />
+          <Suspense fallback={<>Loading...</>}>
+            <Pagination
+              currentPage={pageIndex}
+              totalPosts={division.totalPosts}
+              nextDisabled={nextDisabled}
+              prevDisabled={prevDisabled}
+              slug={`/news/${params.division}`}
+            />
+          </Suspense>
         )}
       </section>
     </>

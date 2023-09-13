@@ -11,15 +11,17 @@ interface TweetArgs {
 async function getAndCacheTweet(id: string): Promise<Tweet | undefined> {
   try {
     const tweet = await getTweet(id)
-
-    if (tweet) {
-      await redis.set(`tweet:${id}`, JSON.stringify(tweet))
-      return tweet
-    } else {
-      return (await redis.get(`tweet:${id}`)) ?? undefined
+    // if tweet is null or tweet is an empty object
+    if (!tweet || Object.keys(tweet).length === 0) {
+      throw new Error('Tweet not found')
     }
+    // cache the tweet
+    await redis.set(`tweet:${id}`, JSON.stringify(tweet))
+    return tweet
   } catch (error) {
-    return (await redis.get(`tweet:${id}`)) ?? undefined
+    // check if the tweet is cached
+    const cachedTweet = (await redis.get(`tweet:${id}`)) as Tweet | undefined
+    return cachedTweet
   }
 }
 

@@ -101,13 +101,15 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
           </div>
         )}
         {totalPages > 1 && (
-          <Pagination
-            currentPage={pageIndex}
-            totalPosts={searchResults.totalPosts}
-            nextDisabled={nextDisabled}
-            prevDisabled={prevDisabled}
-            slug="/search"
-          />
+          <Suspense fallback={<>Loading...</>}>
+            <Pagination
+              currentPage={pageIndex}
+              totalPosts={searchResults.totalPosts}
+              nextDisabled={nextDisabled}
+              prevDisabled={prevDisabled}
+              slug="/search"
+            />
+          </Suspense>
         )}
       </section>
     </>
