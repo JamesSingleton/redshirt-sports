@@ -94,7 +94,7 @@ export function CustomPortableText({
       twitter: ({ value }) => {
         return (
           <div className="not-prose flex items-center justify-center">
-            <Tweet id={value.id} components={TweetComponents} />
+            <Tweet apiUrl={value.id && `/api/tweet/${value.id}`} components={TweetComponents} />
           </div>
         )
       },
