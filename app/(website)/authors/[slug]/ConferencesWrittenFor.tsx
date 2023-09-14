@@ -32,6 +32,7 @@ const ConferencesWrittenFor = ({
         href={`/authors/${slug}`}
         className={clsx(conferenceParam === null ? activeClass : inActiveClass)}
         title="All Articles"
+        prefetch={false}
       >
         All Articles
       </Link>

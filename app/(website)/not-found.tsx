@@ -29,6 +29,7 @@ export default async function NotFoundPage() {
           <div className="mt-6 flex w-full shrink-0 items-center gap-x-3 sm:w-auto">
             <Link
               href="/"
+              prefetch={false}
               className="w-1/2 shrink-0 rounded-lg bg-brand-500 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 hover:bg-brand-600 dark:bg-brand-600 dark:hover:bg-brand-500 sm:w-auto"
             >
               Take me home

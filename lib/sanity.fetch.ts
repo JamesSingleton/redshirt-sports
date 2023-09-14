@@ -56,26 +56,20 @@ export async function sanityFetch<QueryResponse>({
   tags: string[]
 }): Promise<QueryResponse> {
   const isDraftMode = draftMode().isEnabled
-
   if (isDraftMode && !token) {
-    throw new Error(
-      'The `SANITY_API_READ_TOKEN` environment variable is required to fetch data from Sanity in draft mode.',
-    )
+    throw new Error('The `SANITY_API_READ_TOKEN` environment variable is required.')
   }
 
-  // @TODO this won't be necessary after https://github.com/sanity-io/client/pull/299 lands
-  const sanityClient =
-    client.config().useCdn && isDraftMode ? client.withConfig({ useCdn: false }) : client
-  return sanityClient.fetch<QueryResponse>(query, params, {
-    // We only cache if there's a revalidation webhook setup
-    cache: revalidateSecret ? 'force-cache' : 'no-store',
+  const REVALIDATE_SKIP_CACHE = 0
+  const REVALIDATE_CACHE_FOREVER = false
+
+  return client.fetch<QueryResponse>(query, params, {
     ...(isDraftMode && {
-      cache: undefined,
       token: token,
       perspective: 'previewDrafts',
     }),
     next: {
-      ...(isDraftMode && { revalidate: 30 }),
+      revalidate: isDraftMode ? REVALIDATE_SKIP_CACHE : REVALIDATE_CACHE_FOREVER,
       tags,
     },
   })

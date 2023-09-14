@@ -53,6 +53,9 @@ const securityHeaders = [
 ]
 
 const moduleExports = {
+  experimental: {
+    logging: 'verbose',
+  },
   productionBrowserSourceMaps: true,
   swcMinify: true,
   reactStrictMode: true,

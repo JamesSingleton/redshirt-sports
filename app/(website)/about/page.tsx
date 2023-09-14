@@ -176,7 +176,7 @@ export default async function AboutPage() {
                     />
                     <div className="mt-6 leading-6">
                       <h3 className="text-xl font-semibold">
-                        <Link href={`/authors/${author.slug}`}>
+                        <Link href={`/authors/${author.slug}`} prefetch={false}>
                           <span aria-hidden="true" className="absolute inset-0" />
                           {author.name}
                         </Link>

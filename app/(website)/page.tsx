@@ -76,6 +76,7 @@ export default async function Page() {
             <h2 className="text-2xl font-bold">Latest News</h2>
             <Link
               href="/news"
+              prefetch={false}
               className={cn(buttonVariants({ variant: 'default' }), 'flex items-center space-x-2')}
             >
               <span className="text-sm">View All</span>
