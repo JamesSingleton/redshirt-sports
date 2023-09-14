@@ -233,30 +233,32 @@ export function Article({ post }: ArticleProps) {
           </div>
         </div>
       </section>
-      <section className="border-t border-zinc-700/100 py-12 sm:py-16 lg:py-20 xl:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-              Related articles
-            </h2>
+      {post.relatedArticles.length > 0 && (
+        <section className="border-t border-zinc-700/100 py-12 sm:py-16 lg:py-20 xl:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+                Related articles
+              </h2>
+            </div>
+            <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-3 lg:mt-12 xl:gap-16">
+              {post.relatedArticles.map((morePost) => (
+                <ArticleCard
+                  key={morePost._id}
+                  title={morePost.title}
+                  date={morePost.publishedAt}
+                  image={morePost.mainImage}
+                  slug={morePost.slug}
+                  division={morePost.division}
+                  conferences={morePost.conferences}
+                  author={morePost.author}
+                  estimatedReadingTime={morePost.estimatedReadingTime}
+                />
+              ))}
+            </div>
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-3 lg:mt-12 xl:gap-16">
-            {post.relatedArticles?.map((morePost) => (
-              <ArticleCard
-                key={morePost._id}
-                title={morePost.title}
-                date={morePost.publishedAt}
-                image={morePost.mainImage}
-                slug={morePost.slug}
-                division={morePost.division}
-                conferences={morePost.conferences}
-                author={morePost.author}
-                estimatedReadingTime={morePost.estimatedReadingTime}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   )
 }
