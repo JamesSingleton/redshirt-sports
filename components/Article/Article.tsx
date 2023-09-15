@@ -174,7 +174,7 @@ export function Article({ post }: ArticleProps) {
             <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-10">
               {(post.division || post.conferences) && (
                 <>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-3">
                     {post.division && (
                       <Link
                         href={`/news/${post.division.slug}`}

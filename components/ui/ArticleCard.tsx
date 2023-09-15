@@ -45,8 +45,8 @@ const ArticleCard = ({
       >
         <ImageComponent image={image} alt={image.caption} width={363} height={181} />
       </Link>
-      <div className="space-y-1.5 p-4">
-        <div className="flex flex-wrap space-x-2">
+      <div className="space-y-4 p-4">
+        <div className="flex flex-wrap gap-3">
           {division && (
             <Link
               href={`/news/${division.slug}`}
@@ -70,7 +70,7 @@ const ArticleCard = ({
         <h2 className="text-xl font-semibold tracking-tight">
           <Link href={`/${slug}`}>{title}</Link>
         </h2>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <div className="flex items-center">
             <span className="mr-1">By</span>
             <span className="text-card-foreground">{author.name}</span>

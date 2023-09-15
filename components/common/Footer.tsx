@@ -61,7 +61,7 @@ export default function Footer() {
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold leading-6 text-primary">Divisions</h3>
+                <h3 className="text-lg font-semibold leading-6 text-primary">Divisions</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.divisions.map((item) => (
                     <li key={item.name}>
@@ -76,7 +76,7 @@ export default function Footer() {
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-semibold leading-6 text-primary">Company</h3>
+                <h3 className="text-lg font-semibold leading-6 text-primary">Company</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.company.map((item) => (
                     <li key={item.name}>
@@ -90,7 +90,7 @@ export default function Footer() {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold leading-6 text-primary">Support</h3>
+                <h3 className="text-lg font-semibold leading-6 text-primary">Support</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.support.map((item) => (
                     <li key={item.name}>
@@ -105,7 +105,7 @@ export default function Footer() {
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-semibold leading-6 text-primary">Connect With Us</h3>
+                <h3 className="text-lg font-semibold leading-6 text-primary">Connect With Us</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.social.map((item) => (
                     <li key={item.name}>
