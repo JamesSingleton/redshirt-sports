@@ -54,7 +54,9 @@ const securityHeaders = [
 
 const moduleExports = {
   experimental: {
-    logging: 'verbose',
+    logging: {
+      level: 'verbose',
+    },
   },
   productionBrowserSourceMaps: true,
   swcMinify: true,
