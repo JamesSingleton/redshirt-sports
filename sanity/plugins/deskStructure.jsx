@@ -82,7 +82,6 @@ export const deskStructure = async (S, context) => {
               ),
           ),
       ),
-
     S.listItem()
       .title('Divisions')
       .icon(Folder)
@@ -110,6 +109,7 @@ export const deskStructure = async (S, context) => {
               ]),
           ),
       ),
+    S.documentTypeListItem('tag').title('Tags'),
     S.divider(),
     S.listItem()
       .title('Articles by year')

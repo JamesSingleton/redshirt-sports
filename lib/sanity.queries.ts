@@ -131,7 +131,7 @@ export const postsBySlugQuery = groq`
   "relatedArticles": *[
     _type == "post"
     && _id != ^._id
-    && count(conferences[@._ref in ^.^.conferences[]._ref]) > 0
+    && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)
   ] | order(publishedAt desc, _createdAt desc) {
     ${litePostFields}
   }[0...3]

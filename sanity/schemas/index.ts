@@ -7,6 +7,7 @@ import { redirect } from './documents/redirect'
 import transferPortal from './documents/transferPortal'
 import conference from './documents/conference'
 import division from './documents/division'
+import tag from './documents/tag'
 
 import mainImage from './objects/mainImage'
 import blockContent from './objects/blockContent'
@@ -26,6 +27,7 @@ export const schemaTypes = [
   transferPortal,
   conference,
   division,
+  tag,
   mainImage,
   blockContent,
   position,

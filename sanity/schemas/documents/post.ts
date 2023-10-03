@@ -109,6 +109,19 @@ export default defineType({
       hidden: ({ document }) => !document?.division,
     }),
     defineField({
+      title: 'Tags',
+      name: 'tags',
+      description:
+        'Add tags to help with the "Related Articles" section on a post. Especially if you are not adding a conference or division.',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: [{ type: 'tag' }],
+        }),
+      ],
+    }),
+    defineField({
       title: 'Is this a featured article?',
       description: 'Only select Featured if it has been discussed with everyone on the team.',
       name: 'featuredArticle',
@@ -129,9 +142,9 @@ export default defineType({
         'This will be used for article snippets in social media and Google searches. Ideally between 110 and 160 characters.',
       type: 'string',
       validation: (rule) => [
-        rule.required().error('We need an excerpt before publishing.'),
+        rule.required().error('Please add an excerpt before publishing.'),
         rule.min(110).warning('This is a short excerpt. Try to add 10-20 more characters.'),
-        rule.max(160).error('The excerpt should be less than 160 characters'),
+        rule.max(160).warning('The excerpt should ideally be less than 160 characters'),
       ],
       components: {
         input: CustomStringInputWithLimits,
