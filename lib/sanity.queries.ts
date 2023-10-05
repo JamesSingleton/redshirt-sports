@@ -72,6 +72,18 @@ const postFields = `
           "slug": slug.current,
           "divisionSlug": division->slug.current,
         }
+      },
+    },
+    _type == 'top25Table' => {
+      ...,
+      votes[]{
+        ...,
+        teams[]->{
+          _id,
+          name,
+          abbreviation,
+          image
+        }
       }
     }
   },

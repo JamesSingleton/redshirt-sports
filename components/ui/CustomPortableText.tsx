@@ -10,6 +10,15 @@ import { Tweet } from 'react-tweet'
 import { CameraIcon } from 'lucide-react'
 
 import ImageComponent from './ImageComponent'
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@components/ui/table'
 
 import type { TwitterComponents } from 'react-tweet'
 
@@ -99,6 +108,57 @@ export function CustomPortableText({
         )
       },
       image: ImageEmbed,
+      top25Table: ({ value }) => {
+        return (
+          <Table>
+            <TableCaption>How the Top 25 Voters Voted</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Voter</TableHead>
+                {/* <TableHead>Media</TableHead> */}
+                {Array.from(Array(25).keys()).map((num) => (
+                  <TableHead key={num} className="w-8">
+                    {num + 1}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {value.votes.map((vote) => {
+                return (
+                  <TableRow key={vote._key}>
+                    <TableCell className="whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div>
+                          <div className="font-medium">{vote.voterName}</div>
+                          <div className="mt-1 text-sm italic text-muted-foreground">
+                            {vote.voterAffiliation}
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    {/* <TableCell>{vote.voterAffiliation}</TableCell> */}
+                    {vote.teams &&
+                      vote.teams.map((team) => (
+                        <TableCell key={team._id}>
+                          <div className="w-8">
+                            <ImageComponent
+                              className="w-full"
+                              image={team.image}
+                              width={32}
+                              height={32}
+                              alt={team.name}
+                            />
+                          </div>
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        )
+      },
     },
   }
 
