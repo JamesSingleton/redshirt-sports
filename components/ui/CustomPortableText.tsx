@@ -124,7 +124,7 @@ export function CustomPortableText({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {value.votes.map((vote) => {
+              {value.votes.map((vote: any) => {
                 return (
                   <TableRow key={vote._key}>
                     <TableCell className="whitespace-nowrap">
@@ -137,9 +137,8 @@ export function CustomPortableText({
                         </div>
                       </div>
                     </TableCell>
-                    {/* <TableCell>{vote.voterAffiliation}</TableCell> */}
                     {vote.teams &&
-                      vote.teams.map((team) => (
+                      vote.teams.map((team: any) => (
                         <TableCell key={team._id}>
                           <div className="w-8">
                             <ImageComponent
