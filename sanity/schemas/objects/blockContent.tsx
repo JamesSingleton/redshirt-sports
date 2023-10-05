@@ -1,6 +1,6 @@
 import { defineField } from 'sanity'
 
-import { Twitter, ImagePlus } from 'lucide-react'
+import { Twitter, ImagePlus, TableIcon } from 'lucide-react'
 
 export default defineField({
   title: 'Block Content',
@@ -109,6 +109,10 @@ export default defineField({
     {
       type: 'twitter',
       icon: Twitter,
+    },
+    {
+      type: 'top25Table',
+      icon: TableIcon,
     },
   ],
 })
