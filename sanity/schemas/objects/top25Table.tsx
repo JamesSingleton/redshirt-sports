@@ -1,9 +1,5 @@
 import { defineField } from 'sanity'
 
-// this table will be for the FCS Top 25 that shows how each voter voted, it should include:
-// - voter name/twitter handle
-// - voter affiliation
-// - an array of 25 teams
 export default defineField({
   title: 'Top 25 Table',
   name: 'top25Table',
@@ -27,7 +23,6 @@ export default defineField({
               title: 'Voter Affiliation',
               type: 'string',
             },
-            // array of teams they voted for
             {
               name: 'teams',
               title: 'Teams',
@@ -35,17 +30,36 @@ export default defineField({
               of: [
                 {
                   type: 'reference',
-                  to: [
-                    {
-                      type: 'school',
-                    },
-                  ],
+                  to: [{ type: 'school' }],
                 },
               ],
             },
           ],
+          preview: {
+            select: {
+              title: 'voterName',
+              subtitle: 'voterAffiliation',
+            },
+            prepare({ title, subtitle }) {
+              return {
+                title,
+                subtitle,
+              }
+            },
+          },
         },
       ],
     },
   ],
+  preview: {
+    select: {
+      votes: 'votes',
+    },
+    prepare({ votes }) {
+      return {
+        title: `FCS Top 25 Table`,
+        subtitle: `${votes.length} voters`,
+      }
+    },
+  },
 })
