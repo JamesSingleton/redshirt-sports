@@ -209,7 +209,7 @@ export function Article({ post }: ArticleProps) {
               <Author {...post.author} />
             </div>
             <div className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
-              <article className="lg:max-w-none">
+              <article>
                 <figure className="mb-12 space-y-1.5">
                   <ImageComponent
                     image={post.mainImage}
@@ -224,7 +224,7 @@ export function Article({ post }: ArticleProps) {
                     <span>Source: {post.mainImage.attribution}</span>
                   </figcaption>
                 </figure>
-                <div className="prose prose-lg prose-zinc mx-auto mt-8 max-w-none font-serif dark:prose-invert lg:prose-xl">
+                <div className="prose prose-zinc mx-auto mt-8 font-serif dark:prose-invert sm:prose-lg lg:prose-xl">
                   <CustomPortableText value={post.body} />
                 </div>
               </article>
