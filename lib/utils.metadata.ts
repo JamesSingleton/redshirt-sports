@@ -10,7 +10,6 @@ export function defineMetadata({ description, title }: { description?: string; t
     metadataBase: new URL(baseUrl),
     title: metaTitle || defaultTitle,
     description,
-    themeColor: '#DC2727',
     robots: {
       index: true,
       follow: true,

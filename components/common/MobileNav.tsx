@@ -44,7 +44,6 @@ export function MobileNav({ divisions }: NavProps) {
                       <MobileLink
                         href={`/news/${division.slug}/${conference.slug}`}
                         onOpenChange={setOpen}
-                        className="font-serif"
                       >
                         {conference.shortName ?? conference.name}
                       </MobileLink>

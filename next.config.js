@@ -53,10 +53,8 @@ const securityHeaders = [
 ]
 
 const moduleExports = {
-  experimental: {
-    logging: {
-      level: 'verbose',
-    },
+  logging: {
+    level: 'verbose',
   },
   productionBrowserSourceMaps: true,
   swcMinify: true,
@@ -91,14 +89,14 @@ const moduleExports = {
       },
     ]
   },
-  webpack(config, { webpack }) {
-    new webpack.DefinePlugin({
-      __SENTRY_DEBUG__: false,
-      __SENTRY_TRACING__: false,
-    })
+  // webpack(config, { webpack }) {
+  //   new webpack.DefinePlugin({
+  //     __SENTRY_DEBUG__: false,
+  //     __SENTRY_TRACING__: false,
+  //   })
 
-    return config
-  },
+  //   return config
+  // },
   async redirects() {
     const query =
       '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}'

@@ -31,7 +31,7 @@ export default function ArticleSection({
             href={slug}
             className={cn(buttonVariants({ variant: 'default' }), 'flex items-center space-x-2')}
           >
-            <span className="font-serif text-sm">View All</span>
+            <span className="text-sm">View All</span>
             <span className="sr-only">the {title}</span>
             <ChevronRight className="h-4 w-4" />
           </Link>
@@ -47,7 +47,7 @@ export default function ArticleSection({
               <h3 className="text-3xl font-semibold lg:text-4xl">
                 <Link href={`/${firstArticle.slug}`}>{firstArticle.title}</Link>
               </h3>
-              <p className="font-serif text-muted-foreground">{firstArticle.excerpt}</p>
+              <p className="text-muted-foreground">{firstArticle.excerpt}</p>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Link
                   href={`/authors/${firstArticle.author.slug}`}

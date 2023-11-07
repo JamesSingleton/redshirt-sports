@@ -37,7 +37,7 @@ export function MainNav({ divisions }: NavProps) {
                 <NavigationMenuItem key={division._id}>
                   <NavigationMenuTrigger>{division.name}</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid gap-3 p-6 font-serif md:w-[700px] lg:w-[850px] lg:grid-cols-4">
+                    <ul className="grid gap-3 p-6 md:w-[700px] lg:w-[850px] lg:grid-cols-4">
                       <li className="row-span-3">
                         <NavigationMenuLink asChild>
                           <Link
