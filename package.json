@@ -8,11 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "prettier-fix": "prettier --write .",
-    "find:unused": "npx next-unused",
-    "analyze": "ANALYZE=true next build"
+    "find:unused": "npx next-unused"
   },
   "dependencies": {
-    "@next/bundle-analyzer": "^14.0.1",
     "@portabletext/react": "^3.0.11",
     "@portabletext/to-html": "^2.0.5",
     "@radix-ui/react-dialog": "^1.0.5",

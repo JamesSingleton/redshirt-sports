@@ -1,5 +1,4 @@
 const { withSentryConfig } = require('@sentry/nextjs')
-const withBundleAnalyzer = require('@next/bundle-analyzer')
 const { createClient } = require('@sanity/client')
 const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
@@ -52,7 +51,10 @@ const securityHeaders = [
   },
 ]
 
-const moduleExports = {
+const nextConfig = {
+  // experimental: {
+  //   webpackBuildWorker: true,
+  // },
   logging: {
     level: 'verbose',
   },
@@ -121,7 +123,4 @@ const SentryWebpackPluginOptions = {
 }
 
 /** @type {import('next').NextConfig} */
-module.exports = withSentryConfig(
-  withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })(moduleExports),
-  SentryWebpackPluginOptions,
-)
+module.exports = withSentryConfig(nextConfig, SentryWebpackPluginOptions)
