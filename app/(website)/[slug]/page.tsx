@@ -19,10 +19,10 @@ interface PageProps {
   }
 }
 
-export async function generateStaticParams() {
-  const slugs = await getPostsPaths()
-  return slugs.map((slug) => ({ slug }))
-}
+// export async function generateStaticParams() {
+//   const slugs = await getPostsPaths()
+//   return slugs.map((slug) => ({ slug }))
+// }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = params
