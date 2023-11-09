@@ -1,6 +1,8 @@
 import './globals.css'
 
-import { GeistSans, GeistMono } from 'geist/font'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
+
 import type { Viewport } from 'next'
 
 export const viewport: Viewport = {
