@@ -1,5 +1,4 @@
 const { withSentryConfig } = require('@sentry/nextjs')
-const withBundleAnalyzer = require('@next/bundle-analyzer')
 const { createClient } = require('@sanity/client')
 const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
@@ -52,14 +51,15 @@ const securityHeaders = [
   },
 ]
 
-const moduleExports = {
+const nextConfig = {
   experimental: {
-    logging: {
-      level: 'verbose',
-    },
+    webpackBuildWorker: true,
+    optimizePackageImports: ['tailwindcss', '@portabletext/react'],
+  },
+  logging: {
+    level: 'verbose',
   },
   productionBrowserSourceMaps: true,
-  swcMinify: true,
   reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -91,14 +91,14 @@ const moduleExports = {
       },
     ]
   },
-  webpack(config, { webpack }) {
-    new webpack.DefinePlugin({
-      __SENTRY_DEBUG__: false,
-      __SENTRY_TRACING__: false,
-    })
+  // webpack(config, { webpack }) {
+  //   new webpack.DefinePlugin({
+  //     __SENTRY_DEBUG__: false,
+  //     __SENTRY_TRACING__: false,
+  //   })
 
-    return config
-  },
+  //   return config
+  // },
   async redirects() {
     const query =
       '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}'
@@ -123,7 +123,4 @@ const SentryWebpackPluginOptions = {
 }
 
 /** @type {import('next').NextConfig} */
-module.exports = withSentryConfig(
-  withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })(moduleExports),
-  SentryWebpackPluginOptions,
-)
+module.exports = withSentryConfig(nextConfig, SentryWebpackPluginOptions)

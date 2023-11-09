@@ -16,7 +16,7 @@ export default async function Page({ params }: { params: { year: string } }) {
             <h1 className="text-3xl font-medium tracking-normal sm:text-4xl md:tracking-wider lg:text-5xl lg:leading-tight">
               {`${year} College Football Transfer Portal`}
             </h1>
-            <p className="mt-4 font-serif text-base text-zinc-700 dark:text-zinc-200">
+            <p className="mt-4 text-base text-zinc-700 dark:text-zinc-200">
               Redshirt Sports diligently tracks the NCAA Transfer Portal, ensuring you stay informed
               about college athletes making transfers. Our platform provides valuable insights into
               the previous and new schools of these players, enabling you to keep up with the latest

@@ -21,6 +21,7 @@ const ImageComponent = ({
   mode?: 'cover' | 'contain'
   loading?: 'lazy' | 'eager'
 }) => {
+  if (image.asset === null) return null
   return (
     <SanityImage
       key={image.asset._ref ?? image.asset._id}
