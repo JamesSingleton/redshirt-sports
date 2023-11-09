@@ -52,14 +52,14 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  // experimental: {
-  //   webpackBuildWorker: true,
-  // },
+  experimental: {
+    webpackBuildWorker: true,
+    optimizePackageImports: ['tailwindcss', '@portabletext/react'],
+  },
   logging: {
     level: 'verbose',
   },
   productionBrowserSourceMaps: true,
-  swcMinify: true,
   reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
