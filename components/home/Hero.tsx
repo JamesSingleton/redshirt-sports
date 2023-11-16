@@ -56,7 +56,7 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                 >
                   <ImageComponent
                     image={heroArticle.author.image}
-                    alt={heroArticle.author.name}
+                    alt={`${heroArticle.author.name}'s profile picture`}
                     width={44}
                     height={44}
                     className="h-11 w-11 rounded-full"

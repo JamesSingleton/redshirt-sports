@@ -55,7 +55,7 @@ export default function ArticleSection({
                 >
                   <ImageComponent
                     image={firstArticle.author.image}
-                    alt={firstArticle.author.name}
+                    alt={`${firstArticle.author.name}'s profile picture`}
                     className="mr-2 h-8 w-8 rounded-full"
                     width={32}
                     height={32}

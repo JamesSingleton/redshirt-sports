@@ -38,10 +38,3 @@ export const schemaTypes = [
   classYear,
   top25Table,
 ]
-
-export const PREVIEWABLE_DOCUMENT_TYPES: string[] = [post.name, author.name]
-
-export const PREVIEWABLE_DOCUMENT_TYPES_REQUIRING_SLUGS = [
-  post.name,
-  author.name,
-] satisfies typeof PREVIEWABLE_DOCUMENT_TYPES
