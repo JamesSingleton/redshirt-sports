@@ -8,31 +8,13 @@ import {
   sanityTutorialsWidget,
 } from '@sanity/dashboard'
 import { media } from 'sanity-plugin-media'
-import Iframe, { defineUrlResolver, IframeOptions } from 'sanity-plugin-iframe-pane'
-import { previewUrl } from 'sanity-plugin-iframe-pane/preview-url'
 import DocumentsPane from 'sanity-plugin-documents-pane'
 import { PortableTextInputProps } from 'sanity'
 
-import {
-  schemaTypes,
-  PREVIEWABLE_DOCUMENT_TYPES,
-  PREVIEWABLE_DOCUMENT_TYPES_REQUIRING_SLUGS,
-} from '@schemas/index'
-import { apiVersion, previewSecretId, projectId } from '@lib/sanity.api'
+import { schemaTypes } from '@schemas/index'
+import { apiVersion, projectId } from '@lib/sanity.api'
 import { deskStructure } from '@plugins/deskStructure'
 import { CustomBlockContentInput } from '@plugins/CustomBlockContentInput'
-
-export const PREVIEW_BASE_URL = '/api/draft'
-
-export const urlResolver = defineUrlResolver({
-  base: PREVIEW_BASE_URL,
-  requiresSlug: PREVIEWABLE_DOCUMENT_TYPES_REQUIRING_SLUGS,
-})
-
-export const iframeOptions = {
-  url: urlResolver,
-  urlSecretId: previewSecretId,
-} satisfies IframeOptions
 
 export default defineConfig({
   basePath: '/studio',
@@ -113,9 +95,6 @@ export default defineConfig({
             })
             .title('Incoming References'),
         ]
-        if ((PREVIEWABLE_DOCUMENT_TYPES as string[]).includes(schemaType)) {
-          views.push(S.view.component(Iframe).options(iframeOptions).title('Preview'))
-        }
         return S.document().views(views)
       },
     }),
@@ -126,12 +105,6 @@ export default defineConfig({
       widgets: [sanityTutorialsWidget(), projectInfoWidget(), projectUsersWidget()],
     }),
     media(),
-    previewUrl({
-      base: PREVIEW_BASE_URL,
-      requiresSlug: PREVIEWABLE_DOCUMENT_TYPES_REQUIRING_SLUGS,
-      urlSecretId: previewSecretId,
-      matchTypes: PREVIEWABLE_DOCUMENT_TYPES,
-    }),
   ],
   tools: (prev, context) => {
     const isAdmin = context.currentUser?.roles?.find(({ name }) => name === 'administrator')

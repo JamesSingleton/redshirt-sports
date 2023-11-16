@@ -1,9 +1,6 @@
 import 'server-only'
 
-import { draftMode } from 'next/headers'
-
 import { client } from '@lib/sanity.client'
-import { revalidateSecret } from '@lib/sanity.api'
 import {
   allAuthors,
   authorBySlug,
@@ -55,22 +52,11 @@ export async function sanityFetch<QueryResponse>({
   params?: QueryParams
   tags: string[]
 }): Promise<QueryResponse> {
-  const isDraftMode = draftMode().isEnabled
-  if (isDraftMode && !token) {
-    throw new Error('The `SANITY_API_READ_TOKEN` environment variable is required.')
-  }
-
-  const REVALIDATE_SKIP_CACHE = 0
-  const REVALIDATE_CACHE_FOREVER = false
-
   return client.fetch<QueryResponse>(query, params, {
-    ...(isDraftMode && {
-      token: token,
-      perspective: 'previewDrafts',
-    }),
+    cache: 'force-cache',
     next: {
-      revalidate: isDraftMode ? REVALIDATE_SKIP_CACHE : REVALIDATE_CACHE_FOREVER,
-      tags,
+      //revalidate: 30, // for simple, time-based revalidation
+      tags, // for tag-based revalidation
     },
   })
 }
