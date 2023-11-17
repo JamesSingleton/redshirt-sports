@@ -9,7 +9,7 @@ const navigation = {
     { name: 'FBS', href: '/news/fbs' },
     { name: 'FCS', href: '/news/fcs' },
     { name: 'D2', href: '/news/d2' },
-    // { name: 'D3', href: '/news/d3' },
+    { name: 'D3', href: '/news/d3' },
   ],
   company: [
     { name: 'About', href: '/about' },
