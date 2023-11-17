@@ -87,7 +87,6 @@ export default function ArticleSection({
               slug={article.slug}
               author={article.author}
               key={article._id}
-              estimatedReadingTime={article.estimatedReadingTime}
             />
           ))}
         </div>

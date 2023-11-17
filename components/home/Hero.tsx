@@ -78,7 +78,6 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                 slug={article.slug}
                 author={article.author}
                 key={article._id}
-                estimatedReadingTime={article.estimatedReadingTime}
               />
             ))}
           </div>

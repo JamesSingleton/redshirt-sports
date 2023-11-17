@@ -24,7 +24,7 @@ type ArticleCardProps = {
     slug: string
     archived: boolean
   }
-  estimatedReadingTime: number
+  index?: number
 }
 
 const ArticleCard = ({
@@ -35,7 +35,7 @@ const ArticleCard = ({
   division,
   conferences,
   author,
-  estimatedReadingTime,
+  index,
 }: ArticleCardProps) => {
   return (
     <div className="rounded-xl border bg-card text-card-foreground shadow">
@@ -43,7 +43,13 @@ const ArticleCard = ({
         href={`/${slug}`}
         className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-t-xl shadow-md"
       >
-        <ImageComponent image={image} alt={image.caption} width={363} height={181} />
+        <ImageComponent
+          image={image}
+          alt={image.caption}
+          width={363}
+          height={181}
+          loading={index === 0 ? 'eager' : 'lazy'}
+        />
       </Link>
       <div className="space-y-4 p-4">
         <div className="flex flex-wrap gap-3">

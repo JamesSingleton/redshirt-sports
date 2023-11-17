@@ -88,7 +88,6 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
                 division={post.division}
                 conferences={post.conferences}
                 author={post.author}
-                estimatedReadingTime={post.estimatedReadingTime}
               />
             ))}
           </div>

@@ -172,7 +172,6 @@ export default async function Page({
               division={post.division}
               conferences={post.conferences}
               author={post.author}
-              estimatedReadingTime={post.estimatedReadingTime}
             />
           ))}
           {!division.posts.length && (

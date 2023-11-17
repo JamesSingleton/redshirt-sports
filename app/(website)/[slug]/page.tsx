@@ -343,7 +343,6 @@ export default async function Page({ params }: PageProps) {
                   division={morePost.division}
                   conferences={morePost.conferences}
                   author={morePost.author}
-                  estimatedReadingTime={morePost.estimatedReadingTime}
                 />
               ))}
             </div>

@@ -27,20 +27,12 @@ const navigation = {
     {
       name: 'Twitter',
       href: 'https://twitter.com/_redshirtsports',
-      icon: (
-        props: JSX.IntrinsicAttributes &
-          globalThis.JSX.IntrinsicAttributes &
-          SVGProps<SVGSVGElement>,
-      ) => <Twitter {...props} />,
+      icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => <Twitter {...props} />,
     },
     {
       name: 'RSS',
       href: '/feeds/feed.xml',
-      icon: (
-        props: JSX.IntrinsicAttributes &
-          globalThis.JSX.IntrinsicAttributes &
-          SVGProps<SVGSVGElement>,
-      ) => <RSSIcon {...props} />,
+      icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => <RSSIcon {...props} />,
     },
   ],
 }
