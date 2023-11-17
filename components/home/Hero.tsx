@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { ArticleCard, ImageComponent, Date } from '@components/ui'
 import { badgeVariants } from '@components/ui/Badge'
+
 import { Post } from '@types'
 
 const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {

@@ -48,7 +48,7 @@ const ArticleCard = ({
           alt={image.caption}
           width={363}
           height={181}
-          loading={index === 0 ? 'eager' : 'lazy'}
+          loading={index !== undefined && index < 3 ? 'eager' : 'lazy'}
         />
       </Link>
       <div className="space-y-4 p-4">
