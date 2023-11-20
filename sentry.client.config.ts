@@ -10,4 +10,5 @@ Sentry.init({
     'ResizeObserver loop limit exceeded',
     'ResizeObserver loop completed with undelivered notifications.',
   ],
+  enabled: !/ByteSpider/.test(navigator.userAgent),
 })
