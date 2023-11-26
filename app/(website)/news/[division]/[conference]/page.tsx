@@ -13,6 +13,8 @@ import { defineMetadata } from '@lib/utils.metadata'
 import type { Metadata } from 'next'
 import type { Post } from '@types'
 
+export const runtime = 'edge'
+
 export async function generateMetadata({
   params,
   searchParams,

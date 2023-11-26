@@ -35,6 +35,8 @@ interface PageProps {
 //   return slugs.map((slug) => ({ slug }))
 // }
 
+export const runtime = 'edge'
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = params
   const post = await getPostBySlug(slug)
