@@ -9,10 +9,9 @@ import { defineMetadata } from '@lib/utils.metadata'
 
 import { Post } from '@types'
 
-export function generateMetadata({ searchParams }: { searchParams: { [key: string]: string } }) {
-  const query = searchParams['q'] ?? null
+export function generateMetadata() {
   const defaultMetadata = defineMetadata({
-    title: `Search Results for "${query}"`,
+    title: 'Search Results',
     description:
       'Explore the latest College Football news and updates at Redshirt Sports. Stay informed about scores, highlights, and team analyses in one place.',
   })
@@ -23,26 +22,26 @@ export function generateMetadata({ searchParams }: { searchParams: { [key: strin
       ...defaultMetadata.openGraph,
       images: [
         {
-          url: `/api/og?title=${encodeURIComponent(`Search Results for "${query}"`)}`,
+          url: `/api/og?title=${encodeURIComponent('Search Results')}`,
           width: 1200,
           height: 630,
-          alt: `Search Results for "${query}"`,
+          alt: 'Search Results',
         },
       ],
-      url: `/search?q=${query}`,
+      url: '/search',
     },
     alternates: {
       ...defaultMetadata.alternates,
-      canonical: `/search?q=${query}`,
+      canonical: '/search',
     },
     twitter: {
       ...defaultMetadata.twitter,
       images: [
         {
-          url: `/api/og?title=${encodeURIComponent(`Search Results for "${query}"`)}`,
+          url: `/api/og?title=${encodeURIComponent('Search Results')}`,
           width: 1200,
           height: 630,
-          alt: `Search Results for "${query}"`,
+          alt: 'Search Results',
         },
       ],
     },
