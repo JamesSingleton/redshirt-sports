@@ -27,12 +27,7 @@ export interface PostPayload {
     name: string
     slug: string
   }
-  conferences: {
-    _id: string
-    name: string
-    shortName: string
-    slug: string
-  }[]
+  conferences: Conference[]
   slug: string
   author: Author
   excerpt: string

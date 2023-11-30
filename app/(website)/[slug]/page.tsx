@@ -8,7 +8,7 @@ import { Graph } from 'schema-dts'
 import { urlForImage } from '@lib/sanity.image'
 import { baseUrl } from '@lib/constants'
 import { defineMetadata } from '@lib/utils.metadata'
-import { getPostBySlug, getPostsPaths } from '@lib/sanity.fetch'
+import { getPostBySlug } from '@lib/sanity.fetch'
 import { Org, Web } from '@lib/ldJson'
 import Author from './Author'
 import ArticleSocialShare from './ArticleSocialShare'
@@ -30,11 +30,6 @@ interface PageProps {
   }
 }
 
-// export async function generateStaticParams() {
-//   const slugs = await getPostsPaths()
-//   return slugs.map((slug) => ({ slug }))
-// }
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = params
   const post = await getPostBySlug(slug)
@@ -45,11 +40,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const keywords =
     post.division && post.conferences
-      ? [
-          post.division.name,
-          ...post.conferences.map((conference) => conference.name),
-          ...post.conferences.map((conference) => conference.shortName),
-        ].filter((keyword) => keyword !== null)
+      ? [post.division.name, ...post.conferences.map((conference) => conference.name)].filter(
+          (keyword) => keyword !== null,
+        )
       : undefined
 
   const defaultMetadata = defineMetadata({
@@ -127,11 +120,9 @@ export default async function Page({ params }: PageProps) {
 
   const keywords =
     post.division && post.conferences
-      ? [
-          post.division.name,
-          ...post.conferences.map((conference) => conference.name),
-          ...post.conferences.map((conference) => conference.shortName),
-        ].filter((keyword) => keyword !== null)
+      ? [post.division.name, ...post.conferences.map((conference) => conference.name)].filter(
+          (keyword) => keyword !== null,
+        )
       : undefined
 
   const articleSections =
@@ -270,6 +261,7 @@ export default async function Page({ params }: PageProps) {
                       <Link
                         href={`/news/${post.division.slug}`}
                         className={badgeVariants({ variant: 'default' })}
+                        prefetch={false}
                       >
                         {post.division.name}
                       </Link>
@@ -280,6 +272,7 @@ export default async function Page({ params }: PageProps) {
                           key={conference.slug}
                           href={`/news/${post.division.slug}/${conference.slug}`}
                           className={badgeVariants({ variant: 'default' })}
+                          prefetch={false}
                         >
                           {conference.shortName ?? conference.name}
                         </Link>

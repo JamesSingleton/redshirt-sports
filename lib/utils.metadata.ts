@@ -24,9 +24,6 @@ export function defineMetadata({ description, title }: { description?: string; t
     publisher: 'Redshirt Sports',
     alternates: {
       canonical: '/',
-      types: {
-        'application/rss+xml': '/feeds/feed.xml',
-      },
     },
     openGraph: {
       title: metaTitle || defaultTitle,
