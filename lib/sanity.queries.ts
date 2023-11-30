@@ -211,24 +211,6 @@ export const authorsPosts = groq`
 }
 `
 
-export const postsForRssFeed = groq`
-*[_type == 'post']{
-  ...,
-  'slug': slug.current,
-  'author': author->{name, 'slug': slug.current},
-  body[]{
-    ...,
-    markDefs[]{
-      ...,
-      _type == "internalLink" => {
-        "parentSlug": @.reference->parent->slug.current,
-        "slug": @.reference->slug
-      }
-    }
-  }
-}
-`
-
 export const postPaths = `
 *[_type == "post" && defined(slug.current)][].slug.current
 `
