@@ -17,10 +17,12 @@ export default function TransferPortal() {
   return (
     <>
       <h1 className="mb-4 text-4xl font-semibold">Transfer Portal Overview</h1>
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle>Total Players in Portal - {currentYear}</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Players in Portal - {currentYear}
+            </CardTitle>
             <FlipHorizontal className="h-4 w-4" />
           </CardHeader>
           <CardContent>
@@ -30,9 +32,11 @@ export default function TransferPortal() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Add Player to Our Transfer Portal List</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Add Player to Our Transfer Portal List
+            </CardTitle>
             <CardDescription>
-              Easily add players to our internal transfer portal as an admin.
+              Easily add players manually to our internal transfer portal as an admin.
             </CardDescription>
           </CardHeader>
           <CardFooter>
@@ -43,6 +47,27 @@ export default function TransferPortal() {
               })}
             >
               Add Player
+            </Link>
+          </CardFooter>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Submitted Transfer Portal Players</CardTitle>
+            <CardDescription>
+              Confirm players added to our internal transfer portal by our users.
+            </CardDescription>
+          </CardHeader>
+          {/* <CardContent>
+            <p>283 players waiting to be verified</p>
+          </CardContent> */}
+          <CardFooter>
+            <Link
+              href="/admin/transfer-portal/verify"
+              className={buttonVariants({
+                variant: 'default',
+              })}
+            >
+              Verify Players
             </Link>
           </CardFooter>
         </Card>

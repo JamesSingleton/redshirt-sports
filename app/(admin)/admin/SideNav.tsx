@@ -6,11 +6,9 @@ import { TrendingUp, User, ClipboardList, FlipHorizontal, HomeIcon } from 'lucid
 import { cn } from '@lib/utils'
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: HomeIcon, current: true },
-  { name: 'Recruitment', href: '#', icon: User, current: false },
-  { name: 'Transfer Portal', href: '/admin/transfer-portal', icon: FlipHorizontal, current: false },
-  { name: 'Offer Tracker', href: '#', icon: ClipboardList, current: false },
-  { name: 'Analytics & Reports', href: '#', icon: TrendingUp, current: false },
+  { name: 'Dashboard', href: '/admin', icon: HomeIcon },
+  { name: 'Recruitment', href: '/admin/recruitment', icon: User },
+  { name: 'Transfer Portal', href: '/admin/transfer-portal', icon: FlipHorizontal },
 ]
 
 const SideNav = () => {
