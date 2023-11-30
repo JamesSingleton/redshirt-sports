@@ -14,7 +14,6 @@ import {
   postsBySlugQuery,
   privacyPolicy,
   searchQuery,
-  sitemapQuery,
   transferPortalPlayers,
   heroPostsQuery,
   latestArticlesForHomePageQuery,
@@ -35,6 +34,7 @@ import {
   PostsWithPaginationPayload,
   PrivacyPolicyPagePayload,
   SitemapPayload,
+  SiteMapPost,
 } from '@types'
 
 export const token = process.env.SANITY_API_READ_TOKEN
@@ -172,13 +172,6 @@ export function getAuthorsPosts(authorId: string, pageIndex: number, conference:
     query: authorsPosts,
     params: { authorId, pageIndex, conference },
     tags: [`author:${authorId}`],
-  })
-}
-
-export function getSitemap() {
-  return sanityFetch<SitemapPayload>({
-    query: sitemapQuery,
-    tags: ['post', 'author', 'division', 'conference'],
   })
 }
 

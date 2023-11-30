@@ -80,11 +80,18 @@ export interface ConferencePayload {
   }
   posts: Post[]
   totalPosts: number
+  divisionSlug?: string
 }
 
 export interface PostsWithPaginationPayload {
   posts: Post[]
   totalPosts: number
+}
+
+export type SiteMapPost = {
+  _id: string
+  _updatedAt: string
+  slug: string
 }
 
 export interface SitemapPayload {

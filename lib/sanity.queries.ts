@@ -227,32 +227,10 @@ export const conferencePaths = groq`
 }
 `
 
-export const authorSlugsQuery = groq`
-*[_type == "author" && defined(slug.current) && archived == false][].slug.current`
-
-export const sitemapQuery = groq`
-{
-  "posts": *[_type == 'post' && defined(slug.current)]{
-    _id,
-    _updatedAt,
-    "slug": slug.current,
-  },
-  "authors": *[_type == 'author' && defined(slug.current) && archived == false]{
-    _id,
-    _updatedAt,
-    "slug": slug.current,
-  },
-  "divisions": *[_type == "division" && defined(slug.current) && count(*[_type == 'post' && references(^._id)]) > 0]{
-    _id,
-    _updatedAt,
-    "slug": slug.current
-  },
-  "conferences": *[_type == "conference" && defined(slug.current) && defined(division) && count(*[_type == 'post' && references(^._id)]) > 0]{
-    _id,
-    _updatedAt,
-    "slug": slug.current,
-    "divisionSlug": division->slug.current,
-  }
+export const authorsForSiteMapQuery = groq`
+*[_type == 'author' && defined(slug.current) && archived == false]{
+  _updatedAt,
+  "slug": slug.current,
 }
 `
 
