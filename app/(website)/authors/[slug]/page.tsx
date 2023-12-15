@@ -107,6 +107,8 @@ export default async function Page({
     '@graph': [
       {
         '@type': 'ProfilePage',
+        dateCreated: author._createdAt,
+        dateModified: author._updatedAt,
         '@id': `${baseUrl}/authors/${author.slug}#profilepage`,
         url: `${baseUrl}/authors/${author.slug}`,
         name: `${author.role} ${author.name}`,

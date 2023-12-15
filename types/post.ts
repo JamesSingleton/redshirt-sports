@@ -4,6 +4,7 @@ import type { MainImage } from './common'
 
 export type Author = {
   _id: string
+  _createdAt: string
   _updatedAt: string
   publishedAt: string
   archived: boolean
