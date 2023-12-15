@@ -1,0 +1,49 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Player {
+  id            Int      @id @default(autoincrement())
+  name          String
+  position      String
+  height        Float
+  weight        Float
+  graduationYear Int
+  // ... other player details
+
+  transfers     PlayerTransfer[]
+}
+
+model School {
+  id            Int      @id @default(autoincrement())
+  name          String
+  conference    String
+  location      String
+  coach         String
+  // ... other school details
+
+  previousPlayers PlayerTransfer[] @relation("PreviousSchool")
+  currentPlayers  PlayerTransfer[] @relation("DestinationSchool")
+}
+
+model PlayerTransfer {
+  id              Int      @id @default(autoincrement())
+  transferYear    Int
+  transferStatus  String
+  reasonForTransfer String?
+
+  player          Player   @relation(fields: [playerId], references: [id])
+  playerId        Int
+
+  previousSchool  School   @relation("PreviousSchool", fields: [previousSchoolId], references: [id])
+  previousSchoolId Int
+
+  destinationSchool School  @relation("DestinationSchool", fields: [destinationSchoolId], references: [id])
+  destinationSchoolId Int
+}

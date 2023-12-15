@@ -6,7 +6,7 @@ import { TrendingUp, User, ClipboardList, FlipHorizontal, HomeIcon } from 'lucid
 import { cn } from '@lib/utils'
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: HomeIcon },
+  { name: 'Home', href: '/admin', icon: HomeIcon },
   { name: 'Recruitment', href: '/admin/recruitment', icon: User },
   { name: 'Transfer Portal', href: '/admin/transfer-portal', icon: FlipHorizontal },
 ]
