@@ -152,7 +152,7 @@ export function getNewsByConference(slug: string, pageIndex: number) {
 }
 
 export function getAuthorBySlug(slug: string) {
-  return sanityFetch<Author | null>({
+  return sanityFetch<Author>({
     query: authorBySlug,
     params: { slug },
     tags: [`author:${slug}`],
