@@ -63,10 +63,10 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
-    domains: ['cdn.sanity.io'],
     remotePatterns: [
       { protocol: 'https', hostname: 'pbs.twimg.com' },
       { protocol: 'https', hostname: 'abs.twimg.com' },
+      { protocol: 'https', hostname: 'cdn.sanity.io' },
     ],
   },
   compiler: {

@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import {
   PortableText,
   PortableTextComponents,
   PortableTextMarkComponentProps,
 } from '@portabletext/react'
 import { PortableTextBlock } from 'sanity'
-import { Tweet } from 'react-tweet'
+// import { Tweet } from 'react-tweet'
 import { CameraIcon } from 'lucide-react'
 
 import ImageComponent from './ImageComponent'
@@ -21,6 +22,10 @@ import {
 } from '@components/ui/table'
 
 import type { TwitterComponents } from 'react-tweet'
+
+const Tweet = dynamic(() => import('react-tweet').then((module) => module.Tweet), {
+  ssr: false,
+})
 
 const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   let linkHref = `/${value?.reference.slug}`
