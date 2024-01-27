@@ -51,13 +51,12 @@ export async function sanityFetch<QueryResponse>({
   params?: QueryParams
   tags: string[]
 }): Promise<QueryResponse> {
-  return client.fetch<QueryResponse>(query, params, {
+  return client.fetch(query, params, {
     cache: 'force-cache',
     next: {
-      //revalidate: 30, // for simple, time-based revalidation
-      tags, // for tag-based revalidation
+      tags,
     },
-  })
+  }) as QueryResponse
 }
 
 export function getHeroPosts() {
