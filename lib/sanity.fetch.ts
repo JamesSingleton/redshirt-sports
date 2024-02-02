@@ -39,24 +39,20 @@ import {
 
 export const token = process.env.SANITY_API_READ_TOKEN
 
-const DEFAULT_PARAMS = {} as QueryParams
-const DEFAULT_TAGS = [] as string[]
-
 export async function sanityFetch<QueryResponse>({
   query,
-  params = DEFAULT_PARAMS,
-  tags = DEFAULT_TAGS,
+  params = {},
+  tags,
 }: {
   query: string
   params?: QueryParams
   tags: string[]
 }): Promise<QueryResponse> {
   return client.fetch(query, params, {
-    cache: 'force-cache',
     next: {
       tags,
     },
-  }) as QueryResponse
+  })
 }
 
 export function getHeroPosts() {
@@ -177,7 +173,7 @@ export function getAuthorsPosts(authorId: string, pageIndex: number, conference:
 export function getSearchResults(query: string, pageIndex: number) {
   return sanityFetch<any>({
     query: searchQuery,
-    params: { query, pageIndex },
+    params: { q: query, pageIndex },
     tags: ['post'],
   })
 }

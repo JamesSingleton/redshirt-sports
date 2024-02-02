@@ -295,16 +295,15 @@ export const paginatedPostsQuery = groq`
   }
 `
 
-// create a search query that includes totalPosts for the search results
 export const searchQuery = groq`
 {
-  "posts": *[_type == 'post' && (title match "*" + $query + "*" || excerpt match "*" + $query + "*" || pt::text(body) match "*" + $query + "*")] | score(
-    boost(title match $query, 4),
-    boost(excerpt match $query, 3),
-    boost(pt::text(body) match $query, 2),
+  "posts": *[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")] | score(
+    boost(title match $q, 4),
+    boost(excerpt match $q, 3),
+    boost(pt::text(body) match $q, 2),
   ) | order(_score desc, publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
     ${litePostFields}
   },
-  "totalPosts": count(*[_type == 'post' && (title match "*" + $query + "*" || excerpt match "*" + $query + "*" || pt::text(body) match "*" + $query + "*")])
+  "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])
 }
 `
