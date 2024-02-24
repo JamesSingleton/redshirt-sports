@@ -307,3 +307,12 @@ export const searchQuery = groq`
   "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])
 }
 `
+
+export const openGraphDataBySlug = groq`
+*[_type == "post" && slug.current == $slug][0]{
+  "title": title,
+  mainImage,
+  "author": author->name,
+  "publishedAt": publishedAt,
+}
+`

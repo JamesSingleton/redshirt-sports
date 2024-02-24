@@ -20,6 +20,7 @@ import {
   latestDivisionArticlesQuery,
   divisionPaths,
   conferencePaths,
+  openGraphDataBySlug,
 } from '@lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
@@ -182,5 +183,13 @@ export function getTransferPortalPlayers() {
   return sanityFetch<any>({
     query: transferPortalPlayers,
     tags: ['transferPortalPlayers'],
+  })
+}
+
+export function getOpenGraphDataBySlug(slug: string) {
+  return sanityFetch<any>({
+    query: openGraphDataBySlug,
+    params: { slug },
+    tags: [`post:${slug}`],
   })
 }

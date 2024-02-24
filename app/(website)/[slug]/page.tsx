@@ -66,13 +66,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: `${baseUrl}/${post.slug}`,
       publishedTime: post.publishedAt,
       modifiedTime: post._updatedAt,
-      images: [
-        {
-          url: urlForImage(post.mainImage).width(1200).height(627).fit('crop').url(),
-          width: 1200,
-          height: 627,
-        },
-      ],
     },
     twitter: {
       ...defaultMetadata.twitter,
