@@ -9,7 +9,7 @@ import {
   Twitter,
   Facebook,
 } from '@components/common/icons'
-import { ImageComponent } from '@components/ui'
+import { ImageComponent } from '@components/common'
 
 import type { Author } from '@types'
 

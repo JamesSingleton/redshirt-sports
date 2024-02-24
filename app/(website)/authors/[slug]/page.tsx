@@ -18,10 +18,10 @@ import {
   getAuthorBySlug,
   getAuthorsPosts,
 } from '@lib/sanity.fetch'
-import { ArticleCard, Pagination, CustomPortableText, Breadcrumbs } from '@components/ui'
+import { ArticleCard, Pagination, CustomPortableText, Breadcrumbs } from '@components/common'
 import { urlForImage } from '@lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
-import ImageComponent from '@components/ui/ImageComponent'
+import ImageComponent from '@components/common/ImageComponent'
 import { Org, Web } from '@lib/ldJson'
 import { perPage, baseUrl } from '@lib/constants'
 import { defineMetadata } from '@lib/utils.metadata'

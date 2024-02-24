@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
 import { Hero, ArticleSection } from '@components/home'
-import { ArticleCard } from '@components/ui'
+import { ArticleCard } from '@components/common'
 import {
   getHeroPosts,
   getLatestArticlesForHomePage,

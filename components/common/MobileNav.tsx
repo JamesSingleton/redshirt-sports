@@ -28,7 +28,7 @@ export function MobileNav({ divisions }: NavProps) {
           <span className="sr-only">Toggle Menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent size="xl" position="left" className="pr-0">
+      <SheetContent side="left" className="pr-0">
         <MobileLink href="/" className="flex items-center" onOpenChange={setOpen}>
           <LargeLogo className="h-10 w-auto" />
           <span className="sr-only">Redshirt Sports</span>

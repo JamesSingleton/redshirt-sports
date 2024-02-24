@@ -21,7 +21,7 @@ import {
   ArticleCard,
   ImageComponent,
   CustomPortableText,
-} from '@components/ui'
+} from '@components/common'
 import { badgeVariants } from '@components/ui/Badge'
 
 interface PageProps {

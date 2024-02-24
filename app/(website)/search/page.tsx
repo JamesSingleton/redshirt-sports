@@ -1,9 +1,8 @@
 import { Suspense } from 'react'
 
-import { PageHeader } from '@components/common'
+import { PageHeader, ArticleCard, Pagination } from '@components/common'
 import Search from '@components/common/Search'
 import { getSearchResults } from '@lib/sanity.fetch'
-import { ArticleCard, Pagination } from '@components/ui'
 import { perPage } from '@lib/constants'
 import { defineMetadata } from '@lib/utils.metadata'
 

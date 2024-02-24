@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Mail, Globe } from 'lucide-react'
 
 import { getAuthors } from '@lib/sanity.fetch'
-import { ImageComponent } from '@components/ui'
+import { ImageComponent } from '@components/common'
 import { Twitter, Facebook, Instagram } from '@components/common/icons'
 import { PageHeader } from '@components/common'
 import { Org, Web } from '@lib/ldJson'

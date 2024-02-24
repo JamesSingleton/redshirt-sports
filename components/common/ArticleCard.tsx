@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
-import { Date } from '@components/ui'
+import Date from './Date'
 import ImageComponent from './ImageComponent'
-import { badgeVariants } from './Badge'
+import { badgeVariants } from '@components/ui/Badge'
 import { cn } from '@lib/utils'
 
 type ArticleCardProps = {

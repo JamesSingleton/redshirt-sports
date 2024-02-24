@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { ArticleCard, Pagination } from '@components/ui'
+import { ArticleCard, Pagination } from '@components/common'
 import { PageHeader } from '@components/common'
 import { getNews } from '@lib/sanity.fetch'
 import { baseUrl, perPage } from '@lib/constants'

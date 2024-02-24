@@ -1,5 +1,4 @@
-import { Date, CustomPortableText } from '@components/ui'
-import { PageHeader } from '@components/common'
+import { PageHeader, Date, CustomPortableText } from '@components/common'
 import { getPrivacyPolicy } from '@lib/sanity.fetch'
 import { baseUrl } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'

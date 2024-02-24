@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
-import { buttonVariants } from './Button'
+import { buttonVariants } from '../ui/Button'
 import { perPage } from '@lib/constants'
 
 export default function Pagination({
@@ -29,8 +29,8 @@ export default function Pagination({
         ? `${slug}?q=${query}`
         : slug
       : query
-      ? `${slug}?q=${query}&page=${currentPage - 1}`
-      : `${slug}?page=${currentPage - 1}`
+        ? `${slug}?q=${query}&page=${currentPage - 1}`
+        : `${slug}?page=${currentPage - 1}`
 
   const nextPageUrl = query
     ? `${slug}?q=${query}&page=${currentPage + 1}`
