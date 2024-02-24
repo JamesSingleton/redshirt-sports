@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 import { ArticleCard, ImageComponent, Date } from '@components/common'
-import { badgeVariants } from '@components/ui/Badge'
+import { badgeVariants } from '@components/ui/badge'
 
 import { Post } from '@types'
 

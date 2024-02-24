@@ -9,7 +9,7 @@ import {
   getLatestDivisionArticlesForHomePage,
 } from '@lib/sanity.fetch'
 import { Org, Web } from '@lib/ldJson'
-import { buttonVariants } from '@components/ui/Button'
+import { buttonVariants } from '@components/ui/button'
 import { cn } from '@lib/utils'
 import { defineMetadata } from '@lib/utils.metadata'
 

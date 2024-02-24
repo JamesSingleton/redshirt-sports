@@ -13,7 +13,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from '@components/ui/NavigationMenu'
+} from '@components/ui/navigation-menu'
 
 import type { NavProps } from '@types'
 

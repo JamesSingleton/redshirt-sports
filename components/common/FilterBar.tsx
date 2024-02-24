@@ -2,7 +2,6 @@
 
 import { X } from 'lucide-react'
 
-import { Button, Input } from '@components/ui'
 import { Filter } from './Filter'
 
 const positions = [

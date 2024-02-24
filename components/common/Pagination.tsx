@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
-import { buttonVariants } from '../ui/Button'
+import { buttonVariants } from '../ui/button'
 import { perPage } from '@lib/constants'
 
 export default function Pagination({

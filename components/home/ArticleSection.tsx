@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react'
 
 import { ArticleCard, ImageComponent, Date } from '@components/common'
 import { cn } from '@lib/utils'
-import { buttonVariants } from '@components/ui/Button'
+import { buttonVariants } from '@components/ui/button'
 import { Post } from '@types'
 
 interface ArticleSectionProps {

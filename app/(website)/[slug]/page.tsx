@@ -22,7 +22,7 @@ import {
   ImageComponent,
   CustomPortableText,
 } from '@components/common'
-import { badgeVariants } from '@components/ui/Badge'
+import { badgeVariants } from '@components/ui/badge'
 
 interface PageProps {
   params: {

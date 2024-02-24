@@ -6,7 +6,7 @@ import { MobileNav } from './MobileNav'
 import { MainNav } from './MainNav'
 import { ModeToggle } from './ModeToggle'
 import LargeLogo from './LargeLogo'
-import { Input } from '@components/ui'
+import { Input } from '@components/ui/input'
 
 export async function SiteHeader() {
   const divisions = await getDivisions()

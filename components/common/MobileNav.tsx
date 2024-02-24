@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation'
 import { SidebarOpen } from 'lucide-react'
 
 import { cn } from '@lib/utils'
-import { Sheet, SheetContent, SheetTrigger } from '@components/ui/Sheet'
-import { Button } from '@components/ui/Button'
-import { ScrollArea } from '@components/ui/ScrollArea'
+import { Sheet, SheetContent, SheetTrigger } from '@components/ui/sheet'
+import { Button } from '@components/ui/button'
+import { ScrollArea } from '@components/ui/scroll-area'
 import { STATIC_NAV_ITEMS } from '@lib/constants'
 import LargeLogo from './LargeLogo'
 
