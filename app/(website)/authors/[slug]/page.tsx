@@ -18,7 +18,12 @@ import {
   getAuthorBySlug,
   getAuthorsPosts,
 } from '@lib/sanity.fetch'
-import { ArticleCard, Pagination, CustomPortableText, Breadcrumbs } from '@components/common'
+import {
+  ArticleCard,
+  PaginationControls,
+  CustomPortableText,
+  Breadcrumbs,
+} from '@components/common'
 import { urlForImage } from '@lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
 import ImageComponent from '@components/common/ImageComponent'
@@ -99,8 +104,6 @@ export default async function Page({
   const authorPosts = await getAuthorsPosts(authorId, pageIndex, conference)
 
   const totalPages = Math.ceil(authorPosts.totalPosts / perPage)
-  const nextDisabled = pageIndex === totalPages
-  const prevDisabled = pageIndex === 1
 
   const jsonLd: Graph = {
     '@context': 'https://schema.org',
@@ -278,16 +281,9 @@ export default async function Page({
               />
             ))}
           </div>
-
           {totalPages > 1 ? (
             <Suspense fallback={<>Loading...</>}>
-              <Pagination
-                currentPage={pageIndex}
-                prevDisabled={prevDisabled}
-                nextDisabled={nextDisabled}
-                totalPosts={authorPosts.totalPosts}
-                slug={`/authors/${author.slug}`}
-              />
+              <PaginationControls totalPosts={authorPosts.totalPosts} />
             </Suspense>
           ) : null}
         </div>

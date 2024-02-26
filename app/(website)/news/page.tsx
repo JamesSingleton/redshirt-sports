@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { ArticleCard, Pagination } from '@components/common'
+import { ArticleCard, PaginationControls } from '@components/common'
 import { PageHeader } from '@components/common'
 import { getNews } from '@lib/sanity.fetch'
 import { baseUrl, perPage } from '@lib/constants'
@@ -76,8 +76,6 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
   }
 
   const totalPages = Math.ceil(news.totalPosts / perPage)
-  const nextDisabled = pageIndex === totalPages
-  const prevDisabled = pageIndex === 1
 
   const jsonLd: Graph = {
     '@context': 'https://schema.org',
@@ -150,13 +148,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
         </div>
         {totalPages > 1 && (
           <Suspense fallback={<>Loading</>}>
-            <Pagination
-              currentPage={pageIndex}
-              totalPosts={news.totalPosts}
-              nextDisabled={nextDisabled}
-              prevDisabled={prevDisabled}
-              slug="/news"
-            />
+            <PaginationControls totalPosts={news.totalPosts} />
           </Suspense>
         )}
       </section>

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
 import { getNewsByDivision } from '@lib/sanity.fetch'
-import { ArticleCard, Pagination } from '@components/common'
+import { ArticleCard, PaginationControls } from '@components/common'
 import { PageHeader } from '@components/common'
 import { baseUrl, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
@@ -185,13 +185,7 @@ export default async function Page({
         </div>
         {totalPages > 1 && (
           <Suspense fallback={<>Loading...</>}>
-            <Pagination
-              currentPage={pageIndex}
-              totalPosts={division.totalPosts}
-              nextDisabled={nextDisabled}
-              prevDisabled={prevDisabled}
-              slug={`/news/${params.division}`}
-            />
+            <PaginationControls totalPosts={division.totalPosts} />
           </Suspense>
         )}
       </section>

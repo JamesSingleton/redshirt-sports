@@ -4,7 +4,7 @@ import LargeLogo from './LargeLogo'
 import { SiteHeader } from './SiteHeader'
 import { ThemeProvider } from './ThemeProvider'
 import PageHeader from './PageHeader'
-import Pagination from './Pagination'
+import PaginationControls from './PaginationControls'
 import Date from './Date'
 import Breadcrumbs from './Breadcrumbs'
 import ArticleCard from './ArticleCard'
@@ -19,7 +19,7 @@ export {
   SiteHeader,
   ThemeProvider,
   PageHeader,
-  Pagination,
+  PaginationControls,
   Date,
   Breadcrumbs,
   ArticleCard,

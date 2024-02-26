@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { ArticleCard, Pagination } from '@components/common'
+import { ArticleCard, PaginationControls } from '@components/common'
 import { PageHeader } from '@components/common'
 import { getNewsByConference } from '@lib/sanity.fetch'
 import { baseUrl, perPage } from '@lib/constants'
@@ -105,8 +105,6 @@ export default async function Page({
   }
 
   const totalPages = Math.ceil(conference.totalPosts / perPage)
-  const nextDisabled = pageIndex === totalPages
-  const prevDisabled = pageIndex === 1
 
   const breadcrumbs = [
     {
@@ -214,13 +212,7 @@ export default async function Page({
         </div>
         {totalPages > 1 && (
           <Suspense fallback={<>Loading...</>}>
-            <Pagination
-              currentPage={pageIndex}
-              totalPosts={conference.totalPosts}
-              nextDisabled={nextDisabled}
-              prevDisabled={prevDisabled}
-              slug={`/news/${params.division}/${params.conference}`}
-            />
+            <PaginationControls totalPosts={conference.totalPosts} />
           </Suspense>
         )}
       </section>

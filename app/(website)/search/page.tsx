@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 
-import { PageHeader, ArticleCard, Pagination } from '@components/common'
+import { PageHeader, ArticleCard, PaginationControls } from '@components/common'
 import Search from '@components/common/Search'
 import { getSearchResults } from '@lib/sanity.fetch'
 import { perPage } from '@lib/constants'
@@ -63,8 +63,6 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
   const searchResults = await getSearchResults(query, pageIndex)
 
   const totalPages = Math.ceil(searchResults.totalPosts / perPage)
-  const nextDisabled = pageIndex === totalPages
-  const prevDisabled = pageIndex === 1
 
   return (
     <>
@@ -101,13 +99,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
         )}
         {totalPages > 1 && (
           <Suspense fallback={<>Loading...</>}>
-            <Pagination
-              currentPage={pageIndex}
-              totalPosts={searchResults.totalPosts}
-              nextDisabled={nextDisabled}
-              prevDisabled={prevDisabled}
-              slug="/search"
-            />
+            <PaginationControls totalPosts={searchResults.totalPosts} />
           </Suspense>
         )}
       </section>
