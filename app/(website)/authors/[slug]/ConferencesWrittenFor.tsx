@@ -1,58 +1,80 @@
 'use client'
 
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
-import clsx from 'clsx'
+import { useSearchParams, usePathname, useRouter } from 'next/navigation'
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@components/ui/select'
+import { Label } from '@components/ui/label'
 
 const ConferencesWrittenFor = ({
   conferences,
-  slug,
 }: {
   conferences: {
     _id: string
     name: string
-    path: string
     shortName: string
+    division: string
   }[]
-  slug: string
 }) => {
   const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const router = useRouter()
   const conferenceParam = searchParams.get('conference')
-  const page = searchParams.get('page')
   const filteredConferences = conferences.filter((conference) => conference !== null)
 
-  const inActiveClass =
-    'inline-block rounded-full px-4 py-2 text-base font-semibold transition-all duration-200 hover:bg-accent hover:text-accent-foreground'
-  const activeClass =
-    'inline-block rounded-full  bg-accent px-4 py-2 text-base font-semibold text-accent-foreground transition-all duration-200'
+  const conferencesByDivision = filteredConferences.reduce(
+    (acc, conference) => {
+      if (!acc[conference.division]) {
+        acc[conference.division] = []
+      }
+      acc[conference.division].push(conference)
+      return acc
+    },
+    {} as { [key: string]: typeof conferences },
+  )
+
+  const divisions = Object.keys(conferencesByDivision)
+
+  const createPageUrl = (conference: string) => {
+    const params = new URLSearchParams(searchParams ?? '')
+    params.set('conference', conference)
+    if (conference === 'all') {
+      params.delete('conference')
+    }
+    return `${pathname}?${params}`
+  }
 
   return (
-    <div className="flex flex-wrap items-center gap-1">
-      <Link
-        href={`/authors/${slug}`}
-        className={clsx(conferenceParam === null ? activeClass : inActiveClass)}
-        title="All Articles"
-        prefetch={false}
+    <div className="space-y-1">
+      <Label>Filter Articles by Conference</Label>
+      <Select
+        onValueChange={(value) => router.push(createPageUrl(value))}
+        defaultValue={conferenceParam ?? 'all'}
       >
-        All Articles
-      </Link>
-      {filteredConferences?.map((conference) => (
-        <Link
-          prefetch={false}
-          key={conference._id}
-          href={{
-            pathname: `/authors/${slug}`,
-            query: {
-              conference: conference.name,
-              ...(page && conferenceParam ? { page } : {}),
-            },
-          }}
-          className={clsx(conferenceParam === conference.name ? activeClass : inActiveClass)}
-          title={`${conference.name} Articles`}
-        >
-          {conference.shortName ?? conference.name}
-        </Link>
-      ))}
+        <SelectTrigger className="w-[280px]" aria-label="filter">
+          <SelectValue placeholder="Select a conference" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Conferences</SelectItem>
+          {divisions.map((division) => (
+            <SelectGroup key={division}>
+              <SelectLabel className="text-lg underline underline-offset-2">{division}</SelectLabel>
+              {conferencesByDivision[division].map((conference) => (
+                <SelectItem key={conference._id} value={conference.name}>
+                  {conference.shortName ?? conference.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   )
 }

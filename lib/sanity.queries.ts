@@ -189,9 +189,9 @@ export const conferencesAuthorHasWrittenFor = groq`
 *[_id == $authorId][0] {
   "conferences": array::unique(*[_id in *[_type == "post" && references($authorId)].conferences[]._ref])[] {
     _id,
-    "path": "/news/" + division->.slug.current + "/" + slug.current,
     name,
     shortName,
+    "division": division->.name
   } | order(name asc)
 }
 `

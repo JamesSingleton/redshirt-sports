@@ -22,6 +22,10 @@ export default function PaginationControls({ totalPosts }: { totalPosts: number 
   const createPageUrl = (pageNumber: number | string) => {
     const params = new URLSearchParams(searchParams ?? '')
     params.set('page', pageNumber.toString())
+    // Remove page param if it's 1
+    if (pageNumber === 1) {
+      params.delete('page')
+    }
     return `${pathname}?${params}`
   }
 
