@@ -53,7 +53,6 @@ const securityHeaders = [
 
 const nextConfig = {
   experimental: {
-    webpackBuildWorker: true,
     optimizePackageImports: ['tailwindcss', '@portabletext/react'],
   },
   logging: {
@@ -91,14 +90,6 @@ const nextConfig = {
       },
     ]
   },
-  // webpack(config, { webpack }) {
-  //   new webpack.DefinePlugin({
-  //     __SENTRY_DEBUG__: false,
-  //     __SENTRY_TRACING__: false,
-  //   })
-
-  //   return config
-  // },
   async redirects() {
     const query =
       '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}'
