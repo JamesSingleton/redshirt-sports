@@ -1,5 +1,5 @@
 import { parseISO, format } from 'date-fns'
-import { utcToZonedTime } from 'date-fns-tz'
+import { toZonedTime } from 'date-fns-tz'
 
 import type { WithClassName } from '@types'
 
@@ -14,7 +14,7 @@ export default function Date({ dateString, className }: DateProps) {
 
   return (
     <time dateTime={dateString} className={className} suppressHydrationWarning>
-      {format(utcToZonedTime(date, timeZone), 'LLL d, yyyy')}
+      {format(toZonedTime(date, timeZone), 'LLL d, yyyy')}
     </time>
   )
 }
