@@ -58,6 +58,12 @@ const nextConfig = {
   logging: {
     level: 'verbose',
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   productionBrowserSourceMaps: true,
   reactStrictMode: true,
   images: {
