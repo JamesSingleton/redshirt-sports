@@ -1,8 +1,12 @@
 name: 'Lint Checker'
 
 on:
-  - push
-  - pull_request
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 jobs:
   lint:
@@ -18,7 +22,6 @@ jobs:
       - uses: pnpm/action-setup@v3
         with:
           version: 8
-      - run: pnpm install
-        shell: bash
+          run_install: true
       - name: Lint code
         run: pnpm run lint
