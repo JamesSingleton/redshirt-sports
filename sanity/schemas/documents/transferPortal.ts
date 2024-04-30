@@ -18,7 +18,7 @@ export default defineType({
     defineField({
       title: 'Class Year',
       name: 'classYear',
-      type: 'classYear'
+      type: 'classYear',
     }),
     defineField({
       title: 'Transfer Status',

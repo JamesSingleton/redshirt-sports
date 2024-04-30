@@ -39,6 +39,6 @@ export default defineField({
         value: 'RS-SR',
         title: 'Redshirt Senior',
       },
-    ]
-  }
+    ],
+  },
 })
