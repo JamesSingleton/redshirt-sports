@@ -1,5 +1,5 @@
 import { defineConfig } from 'sanity'
-import { deskTool } from 'sanity/desk'
+import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import {
   dashboardTool,
@@ -15,9 +15,11 @@ import { schemaTypes } from '@schemas/index'
 import { apiVersion, projectId } from '@lib/sanity.api'
 import { deskStructure } from '@plugins/deskStructure'
 import { CustomBlockContentInput } from '@plugins/CustomBlockContentInput'
+import SmallLogo from '@components/common/SmallLogo'
 
 export default defineConfig({
   basePath: '/studio',
+  icon: SmallLogo,
   title: 'Redshirt Sports',
   projectId: projectId,
   dataset: 'production',
@@ -79,7 +81,7 @@ export default defineConfig({
     ],
   },
   plugins: [
-    deskTool({
+    structureTool({
       structure: deskStructure,
       defaultDocumentNode: (S, { schemaType }) => {
         const views = [
