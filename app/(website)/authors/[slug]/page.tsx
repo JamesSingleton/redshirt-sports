@@ -28,7 +28,7 @@ import { urlForImage } from '@lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
 import ImageComponent from '@components/common/ImageComponent'
 import { Org, Web } from '@lib/ldJson'
-import { perPage, baseUrl } from '@lib/constants'
+import { perPage, BASE_URL } from '@lib/constants'
 import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Metadata } from 'next'
@@ -63,11 +63,11 @@ export async function generateMetadata({
           alt: `${author.role} ${author.name}`,
         },
       ],
-      url: `${baseUrl}/authors/${author.slug}`,
+      url: `${BASE_URL}/authors/${author.slug}`,
     },
     alternates: {
       ...defaultMetadata.alternates,
-      canonical: `${baseUrl}/authors/${author.slug}`,
+      canonical: `${BASE_URL}/authors/${author.slug}`,
     },
   }
 }
@@ -112,41 +112,41 @@ export default async function Page({
         '@type': 'ProfilePage',
         dateCreated: author._createdAt,
         dateModified: author._updatedAt,
-        '@id': `${baseUrl}/authors/${author.slug}#profilepage`,
-        url: `${baseUrl}/authors/${author.slug}`,
+        '@id': `${BASE_URL}/authors/${author.slug}#profilepage`,
+        url: `${BASE_URL}/authors/${author.slug}`,
         name: `${author.role} ${author.name}`,
         isPartOf: {
-          '@id': `${baseUrl}#website`,
+          '@id': `${BASE_URL}#website`,
         },
         breadcrumb: {
-          '@id': `${baseUrl}/authors/${author.slug}#breadcrumb`,
+          '@id': `${BASE_URL}/authors/${author.slug}#breadcrumb`,
         },
         mainEntity: {
           '@type': 'Person',
-          '@id': `${baseUrl}/authors/${author.slug}#person`,
+          '@id': `${BASE_URL}/authors/${author.slug}#person`,
           name: author.name,
           image: urlForImage(author.image).width(1200).height(630).url(),
-          url: `${baseUrl}/authors/${author.slug}`,
+          url: `${BASE_URL}/authors/${author.slug}`,
           sameAs: author.socialMedia.map((social) => social.url),
           jobTitle: author.role,
         },
         image: {
-          '@id': `${baseUrl}/authors/${author.slug}#primaryimage`,
+          '@id': `${BASE_URL}/authors/${author.slug}#primaryimage`,
         },
         primaryImageOfPage: {
-          '@id': `${baseUrl}/authors/${author.slug}#primaryimage`,
+          '@id': `${BASE_URL}/authors/${author.slug}#primaryimage`,
         },
         inLanguage: 'en-US',
         potentialAction: [
           {
             '@type': 'ReadAction',
-            target: [`${baseUrl}/authors/${author.slug}`],
+            target: [`${BASE_URL}/authors/${author.slug}`],
           },
         ],
       },
       {
         '@type': 'ImageObject',
-        '@id': `${baseUrl}/authors/${author.slug}#primaryimage`,
+        '@id': `${BASE_URL}/authors/${author.slug}#primaryimage`,
         inLanguage: 'en-US',
         url: urlForImage(author.image).width(1200).height(675).url(),
         width: '1200',
@@ -155,25 +155,25 @@ export default async function Page({
       },
       {
         '@type': 'BreadcrumbList',
-        '@id': `${baseUrl}/authors/${author.slug}#breadcrumb`,
+        '@id': `${BASE_URL}/authors/${author.slug}#breadcrumb`,
         itemListElement: [
           {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: baseUrl,
+            item: BASE_URL,
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: 'Authors',
-            item: `${baseUrl}/about`,
+            item: `${BASE_URL}/about`,
           },
           {
             '@type': 'ListItem',
             position: 3,
             name: author.name,
-            item: `${baseUrl}/authors/${author.slug}`,
+            item: `${BASE_URL}/authors/${author.slug}`,
           },
         ],
       },
@@ -181,17 +181,17 @@ export default async function Page({
       Org,
       {
         '@type': 'Person',
-        '@id': `${baseUrl}/authors/${author.slug}#person`,
+        '@id': `${BASE_URL}/authors/${author.slug}#person`,
         name: author.name,
         image: {
-          '@id': `${baseUrl}/authors/${author.slug}#primaryimage`,
+          '@id': `${BASE_URL}/authors/${author.slug}#primaryimage`,
         },
-        url: `${baseUrl}/authors/${author.slug}`,
+        url: `${BASE_URL}/authors/${author.slug}`,
         sameAs: author.socialMedia.map((social) => social.url),
         jobTitle: author.role,
         description: toPlainText(author.bio),
         mainEntityOfPage: {
-          '@id': `${baseUrl}/authors/${author.slug}#profilepage`,
+          '@id': `${BASE_URL}/authors/${author.slug}#profilepage`,
         },
       },
     ],

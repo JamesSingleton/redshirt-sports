@@ -5,7 +5,7 @@ import { Graph } from 'schema-dts'
 import { getNewsByDivision } from '@lib/sanity.fetch'
 import { ArticleCard, PaginationControls } from '@components/common'
 import { PageHeader } from '@components/common'
-import { baseUrl, perPage } from '@lib/constants'
+import { BASE_URL, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 import { defineMetadata } from '@lib/utils.metadata'
 import { urlForImage } from '@lib/sanity.image'
@@ -29,10 +29,10 @@ export async function generateMetadata({
   }
 
   let title = `${division?.heading}, Rumors, and More`
-  let canonical = `${baseUrl}/news/${division?.slug}`
+  let canonical = `${BASE_URL}/news/${division?.slug}`
   if (pageIndex > 1) {
     title = `${division?.heading}, Rumors, and More - Page ${pageIndex}`
-    canonical = `${baseUrl}/news/${division?.slug}?page=${pageIndex}`
+    canonical = `${BASE_URL}/news/${division?.slug}?page=${pageIndex}`
   }
 
   const defaultMetadata = defineMetadata({
@@ -108,8 +108,8 @@ export default async function Page({
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${baseUrl}/news/${params.division}${page ? `?page=${page}` : ''}`,
-        url: `${baseUrl}/news/${params.division}${page ? `?page=${page}` : ''}`,
+        '@id': `${BASE_URL}/news/${params.division}${page ? `?page=${page}` : ''}`,
+        url: `${BASE_URL}/news/${params.division}${page ? `?page=${page}` : ''}`,
         breadcrumb: {
           '@type': 'BreadcrumbList',
           name: `${division?.name} Breadcrumbs`,
@@ -118,19 +118,19 @@ export default async function Page({
               '@type': 'ListItem',
               position: 1,
               name: 'Home',
-              item: `${baseUrl}`,
+              item: `${BASE_URL}`,
             },
             {
               '@type': 'ListItem',
               position: 2,
               name: 'News',
-              item: `${baseUrl}/news`,
+              item: `${BASE_URL}/news`,
             },
             {
               '@type': 'ListItem',
               position: 3,
               name: division?.name,
-              item: `${baseUrl}/news/${params.division}`,
+              item: `${BASE_URL}/news/${params.division}`,
             },
           ],
         },
@@ -146,7 +146,7 @@ export default async function Page({
           author: {
             '@type': 'Person',
             name: post.author.name,
-            url: `${baseUrl}/authors/${post.author.slug}`,
+            url: `${BASE_URL}/authors/${post.author.slug}`,
           },
         })),
       },

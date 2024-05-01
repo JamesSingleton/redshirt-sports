@@ -6,7 +6,7 @@ import { ImageComponent } from '@components/common'
 import { Twitter, Facebook, Instagram } from '@components/common/icons'
 import { PageHeader } from '@components/common'
 import { Org, Web } from '@lib/ldJson'
-import { baseUrl } from '@lib/constants'
+import { BASE_URL } from '@lib/constants'
 import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Metadata } from 'next'
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     ...defaultMetadata.openGraph,
     images: [
       {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('About Redshirt Sports')}`,
+        url: `${BASE_URL}/api/og?title=${encodeURIComponent('About Redshirt Sports')}`,
         width: 1200,
         height: 630,
         alt: 'About Redshirt Sports, Your Source for College Football News',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     ...defaultMetadata.twitter,
     images: [
       {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('About Redshirt Sports')}`,
+        url: `${BASE_URL}/api/og?title=${encodeURIComponent('About Redshirt Sports')}`,
         width: 1200,
         height: 630,
         alt: 'About Redshirt Sports, Your Source for College Football News',
@@ -63,40 +63,40 @@ const jsonLd: Graph = {
     Web,
     {
       '@type': 'BreadcrumbList',
-      '@id': `${baseUrl}/about#breadcrumb`,
+      '@id': `${BASE_URL}/about#breadcrumb`,
       name: 'About Breadcrumbs',
       itemListElement: [
         {
           '@type': 'ListItem',
           position: 1,
           name: 'Home',
-          item: baseUrl,
+          item: BASE_URL,
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: 'About',
-          item: `${baseUrl}/about`,
+          item: `${BASE_URL}/about`,
         },
       ],
     },
     {
       '@type': 'AboutPage',
-      '@id': `${baseUrl}/about`,
-      url: `${baseUrl}/about`,
+      '@id': `${BASE_URL}/about`,
+      url: `${BASE_URL}/about`,
       description:
         'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': `${baseUrl}/about`,
+        '@id': `${BASE_URL}/about`,
       },
       breadcrumb: {
         '@type': 'BreadcrumbList',
-        '@id': `${baseUrl}/about#breadcrumb`,
+        '@id': `${BASE_URL}/about#breadcrumb`,
       },
       inLanguage: 'en-US',
       isPartOf: {
-        '@id': `${baseUrl}#website`,
+        '@id': `${BASE_URL}#website`,
       },
     },
   ],
