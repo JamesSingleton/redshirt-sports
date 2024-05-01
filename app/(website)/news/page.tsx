@@ -6,7 +6,7 @@ import { Graph } from 'schema-dts'
 import { ArticleCard, PaginationControls } from '@components/common'
 import { PageHeader } from '@components/common'
 import { getNews } from '@lib/sanity.fetch'
-import { baseUrl, perPage } from '@lib/constants'
+import { BASE_URL, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 import { urlForImage } from '@lib/sanity.image'
 import { defineMetadata } from '@lib/utils.metadata'
@@ -40,7 +40,7 @@ export async function generateMetadata({
       ...defaultMetadata.openGraph,
       images: [
         {
-          url: `${baseUrl}/api/og?title=${encodeURIComponent('College Football News')}`,
+          url: `${BASE_URL}/api/og?title=${encodeURIComponent('College Football News')}`,
           width: 1200,
           height: 630,
           alt: 'College Football News',
@@ -56,7 +56,7 @@ export async function generateMetadata({
       ...defaultMetadata.twitter,
       images: [
         {
-          url: `${baseUrl}/api/og?title=${encodeURIComponent('College Football News')}`,
+          url: `${BASE_URL}/api/og?title=${encodeURIComponent('College Football News')}`,
           width: 1200,
           height: 630,
           alt: 'College Football News',
@@ -84,8 +84,8 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${baseUrl}/news${page ? `?page=${page}` : ''}`,
-        url: `${baseUrl}/news${page ? `?page=${page}` : ''}`,
+        '@id': `${BASE_URL}/news${page ? `?page=${page}` : ''}`,
+        url: `${BASE_URL}/news${page ? `?page=${page}` : ''}`,
         breadcrumb: {
           '@type': 'BreadcrumbList',
           name: 'News Breadcrumbs',
@@ -94,13 +94,13 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
               '@type': 'ListItem',
               position: 1,
               name: 'Home',
-              item: `${baseUrl}`,
+              item: `${BASE_URL}`,
             },
             {
               '@type': 'ListItem',
               position: 2,
               name: 'News',
-              item: `${baseUrl}/news`,
+              item: `${BASE_URL}/news`,
             },
           ],
         },
@@ -116,7 +116,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
           author: {
             '@type': 'Person',
             name: post.author.name,
-            url: `${baseUrl}/authors/${post.author.slug}`,
+            url: `${BASE_URL}/authors/${post.author.slug}`,
           },
         })),
       },

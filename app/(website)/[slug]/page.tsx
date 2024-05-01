@@ -6,7 +6,7 @@ import { getYear, parseISO } from 'date-fns'
 import { Graph } from 'schema-dts'
 
 import { urlForImage } from '@lib/sanity.image'
-import { baseUrl } from '@lib/constants'
+import { BASE_URL } from '@lib/constants'
 import { defineMetadata } from '@lib/utils.metadata'
 import { getPostBySlug } from '@lib/sanity.fetch'
 import { Org, Web } from '@lib/ldJson'
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     authors: [
       {
         name: post.author.name,
-        url: `${baseUrl}/authors/${post.author.slug}`,
+        url: `${BASE_URL}/authors/${post.author.slug}`,
       },
     ],
     openGraph: {
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'article',
       authors: [post.author.name],
       section: post.division ? post.division.name : undefined,
-      url: `${baseUrl}/${post.slug}`,
+      url: `${BASE_URL}/${post.slug}`,
       publishedTime: post.publishedAt,
       modifiedTime: post._updatedAt,
     },
@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       ],
     },
     alternates: {
-      canonical: `${baseUrl}/${post.slug}`,
+      canonical: `${BASE_URL}/${post.slug}`,
     },
     other: {
       'twitter:label1': 'Reading time',
@@ -130,9 +130,9 @@ export default async function Page({ params }: PageProps) {
       Web,
       {
         '@type': 'NewsArticle',
-        '@id': `${baseUrl}/${post.slug}#article`,
+        '@id': `${BASE_URL}/${post.slug}#article`,
         isPartOf: {
-          '@id': `${baseUrl}/${post.slug}`,
+          '@id': `${BASE_URL}/${post.slug}`,
         },
         image: {
           '@type': 'ImageObject',
@@ -144,76 +144,76 @@ export default async function Page({ params }: PageProps) {
         },
         author: {
           name: post.author.name,
-          '@id': `${baseUrl}/authors/${post.author.slug}#author`,
+          '@id': `${BASE_URL}/authors/${post.author.slug}#author`,
         },
         headline: post.title,
         datePublished: post.publishedAt,
         dateModified: post._updatedAt,
         mainEntityOfPage: {
-          '@id': `${baseUrl}/${post.slug}`,
+          '@id': `${BASE_URL}/${post.slug}`,
         },
         wordCount: post.wordCount,
         publisher: {
-          '@id': `${baseUrl}#organization`,
+          '@id': `${BASE_URL}#organization`,
         },
         keywords: keywords,
         articleSection: articleSections,
         inLanguage: 'en-US',
         copyrightYear: getYear(parseISO(post.publishedAt)),
         copyrightHolder: {
-          '@id': `${baseUrl}#organization`,
+          '@id': `${BASE_URL}#organization`,
         },
       },
       {
         '@type': 'WebPage',
-        '@id': `${baseUrl}/${post.slug}`,
-        url: `${baseUrl}/${post.slug}`,
+        '@id': `${BASE_URL}/${post.slug}`,
+        url: `${BASE_URL}/${post.slug}`,
         name: post.title,
         isPartOf: {
-          '@id': `${baseUrl}#website`,
+          '@id': `${BASE_URL}#website`,
         },
         datePublished: post.publishedAt,
         dateModified: post._updatedAt,
         inLanguage: 'en-US',
         description: post.excerpt,
         breadcrumb: {
-          '@id': `${baseUrl}/${post.slug}#breadcrumb`,
+          '@id': `${BASE_URL}/${post.slug}#breadcrumb`,
         },
       },
       {
         '@type': 'BreadcrumbList',
-        '@id': `${baseUrl}/${post.slug}#breadcrumb`,
+        '@id': `${BASE_URL}/${post.slug}#breadcrumb`,
         name: 'Article Breadcrumbs',
         itemListElement: [
           {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: baseUrl,
+            item: BASE_URL,
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: 'News',
-            item: `${baseUrl}/news`,
+            item: `${BASE_URL}/news`,
           },
           post.division && {
             '@type': 'ListItem',
             position: 3,
             name: post.division.name,
-            item: `${baseUrl}/news/${post.division.slug}`,
+            item: `${BASE_URL}/news/${post.division.slug}`,
           },
           {
             '@type': 'ListItem',
             position: post.division ? 4 : 3,
             name: post.title,
-            item: `${baseUrl}/${post.slug}`,
+            item: `${BASE_URL}/${post.slug}`,
           },
         ],
       },
       {
         '@type': 'Person',
-        '@id': `${baseUrl}/authors/${post.author.slug}#author`,
+        '@id': `${BASE_URL}/authors/${post.author.slug}#author`,
         name: post.author.name,
         image: {
           '@type': 'ImageObject',
@@ -226,7 +226,7 @@ export default async function Page({ params }: PageProps) {
         },
         description: toPlainText(post.author.bio),
         sameAs: post.author.socialMedia.map((social) => social.url),
-        url: `${baseUrl}/authors/${post.author.slug}`,
+        url: `${BASE_URL}/authors/${post.author.slug}`,
       },
     ],
   }

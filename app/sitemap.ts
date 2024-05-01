@@ -1,23 +1,10 @@
 import { sanityFetch } from '@lib/sanity.fetch'
-import { baseUrl } from '@lib/constants'
-import { authorsForSiteMapQuery } from '@lib/sanity.queries'
+import { BASE_URL } from '@lib/constants'
 
 import type { MetadataRoute } from 'next'
-import { Author, Conference, ConferencePayload, Division, SiteMapPost } from '@types'
+import { ConferencePayload, Division } from '@types'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await sanityFetch<SiteMapPost[]>({
-    query: `*[_type == 'post' && defined(slug.current)]{
-      _updatedAt,
-      "slug": slug.current,
-    }`,
-    tags: ['post'],
-  })
-  const authors = await sanityFetch<Author[]>({
-    query: authorsForSiteMapQuery,
-    tags: ['author'],
-  })
-
   const divisions = await sanityFetch<Division[]>({
     query: `*[_type == "division" && defined(slug.current) && count(*[_type == 'post' && references(^._id)]) > 0]{
       _id,
@@ -37,65 +24,52 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     tags: ['conference'],
   })
 
-  const postRoutes = posts.map((post) => ({
-    url: `${baseUrl}/${post.slug}`,
-    lastModified: post._updatedAt,
-    priority: 0.7,
-  }))
-
-  const authorRoutes = authors.map((author) => ({
-    url: `${baseUrl}/authors/${author.slug}`,
-    lastModified: author._updatedAt,
-    priority: 0.8,
-    changeFrequency: 'weekly',
-  }))
-
   const divisionRoutes = divisions.map((division) => ({
-    url: `${baseUrl}/news/${division.slug}`,
+    url: `${BASE_URL}/news/${division.slug}`,
     lastModified: division._updatedAt,
-    priority: 0.8,
     changeFrequency: 'weekly',
+    priority: 0.8,
   }))
 
   const conferenceRoutes = conferences.map((conference) => ({
-    url: `${baseUrl}/news/${conference.divisionSlug}/${conference.slug}`,
+    url: `${BASE_URL}/news/${conference.divisionSlug}/${conference.slug}`,
     lastModified: conference._updatedAt,
-    priority: 0.8,
     changeFrequency: 'weekly',
+    priority: 0.8,
   }))
 
-  const routes = [
+  return [
     {
-      url: baseUrl,
+      url: BASE_URL,
       lastModified: new Date().toISOString(),
       priority: 1,
       changeFrequency: 'weekly',
     },
     {
-      url: `${baseUrl}/about`,
+      url: `${BASE_URL}/about`,
       lastModified: new Date().toISOString(),
       priority: 0.5,
       changeFrequency: 'monthly',
     },
     {
-      url: `${baseUrl}/contact`,
+      url: `${BASE_URL}/contact`,
       lastModified: new Date().toISOString(),
       priority: 0.5,
       changeFrequency: 'monthly',
     },
     {
-      url: `${baseUrl}/privacy`,
+      url: `${BASE_URL}/privacy`,
       lastModified: new Date().toISOString(),
       priority: 0.5,
       changeFrequency: 'monthly',
     },
     {
-      url: `${baseUrl}/news`,
+      url: `${BASE_URL}/news`,
       lastModified: new Date().toISOString(),
       priority: 1,
       changeFrequency: 'weekly',
     },
+    ...divisionRoutes,
+    ...conferenceRoutes,
   ]
-
-  return [...routes, ...divisionRoutes, ...conferenceRoutes, ...postRoutes, ...authorRoutes]
 }

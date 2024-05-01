@@ -1,7 +1,7 @@
 import { PageHeader } from '@components/common'
 
 import { Org, Web } from '@lib/ldJson'
-import { baseUrl } from '@lib/constants'
+import { BASE_URL } from '@lib/constants'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     ...defaultMetadata.openGraph,
     images: [
       {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('Contact Us')}`,
+        url: `${BASE_URL}/api/og?title=${encodeURIComponent('Contact Us')}`,
         width: 1200,
         height: 630,
         alt: 'Contact Us',
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     ...defaultMetadata.twitter,
     images: [
       {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('Contact Us')}`,
+        url: `${BASE_URL}/api/og?title=${encodeURIComponent('Contact Us')}`,
         width: 1200,
         height: 630,
         alt: 'Contact Us',
@@ -64,38 +64,38 @@ const jsonLd: Graph = {
     Web,
     {
       '@type': 'ContactPage',
-      '@id': `${baseUrl}/contact`,
-      url: `${baseUrl}/contact`,
+      '@id': `${BASE_URL}/contact`,
+      url: `${BASE_URL}/contact`,
       description: 'Contact us for collaboration, advertising, or general inquiries.',
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': `${baseUrl}/contact`,
+        '@id': `${BASE_URL}/contact`,
       },
       breadcrumb: {
         '@type': 'BreadcrumbList',
-        '@id': `${baseUrl}/contact#breadcrumb`,
+        '@id': `${BASE_URL}/contact#breadcrumb`,
       },
       inLanguage: 'en-US',
       isPartOf: {
-        '@id': `${baseUrl}#website`,
+        '@id': `${BASE_URL}#website`,
       },
     },
     {
       '@type': 'BreadcrumbList',
-      '@id': `${baseUrl}/contact#breadcrumb`,
+      '@id': `${BASE_URL}/contact#breadcrumb`,
       name: 'Contact Breadcrumbs',
       itemListElement: [
         {
           '@type': 'ListItem',
           position: 1,
           name: 'Home',
-          item: baseUrl,
+          item: BASE_URL,
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: 'Contact',
-          item: `${baseUrl}/contact`,
+          item: `${BASE_URL}/contact`,
         },
       ],
     },

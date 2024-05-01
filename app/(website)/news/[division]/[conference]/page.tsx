@@ -5,7 +5,7 @@ import { Graph } from 'schema-dts'
 import { ArticleCard, PaginationControls } from '@components/common'
 import { PageHeader } from '@components/common'
 import { getNewsByConference } from '@lib/sanity.fetch'
-import { baseUrl, perPage } from '@lib/constants'
+import { BASE_URL, perPage } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 import { urlForImage } from '@lib/sanity.image'
 import { defineMetadata } from '@lib/utils.metadata'
@@ -30,10 +30,10 @@ export async function generateMetadata({
   }
 
   let title = `${conference?.name} Football, Rumors, and More`
-  let canonical = `${baseUrl}/news/${conference.division.slug}/${conference?.slug}`
+  let canonical = `${BASE_URL}/news/${conference.division.slug}/${conference?.slug}`
   if (pageIndex > 1) {
     title = `${conference?.name} Football, Rumors, and More - Page ${pageIndex}`
-    canonical = `${baseUrl}/news/${conference.division.slug}/${conference.slug}?page=${pageIndex}`
+    canonical = `${BASE_URL}/news/${conference.division.slug}/${conference.slug}?page=${pageIndex}`
   }
 
   const fallBackDescription = `Explore the latest in ${
@@ -132,10 +132,10 @@ export default async function Page({
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${baseUrl}/news/${params.division}/${params.conference}${
+        '@id': `${BASE_URL}/news/${params.division}/${params.conference}${
           pageIndex ? `?page=${pageIndex}` : ''
         }`,
-        url: `${baseUrl}/news/${params.division}/${params.conference}${
+        url: `${BASE_URL}/news/${params.division}/${params.conference}${
           pageIndex ? `?page=${pageIndex}` : ''
         }`,
         breadcrumb: {
@@ -146,25 +146,25 @@ export default async function Page({
               '@type': 'ListItem',
               position: 1,
               name: 'Home',
-              item: `${baseUrl}`,
+              item: `${BASE_URL}`,
             },
             {
               '@type': 'ListItem',
               position: 2,
               name: 'News',
-              item: `${baseUrl}/news`,
+              item: `${BASE_URL}/news`,
             },
             {
               '@type': 'ListItem',
               position: 3,
               name: conference.division.name,
-              item: `${baseUrl}/news/${params.division}`,
+              item: `${BASE_URL}/news/${params.division}`,
             },
             {
               '@type': 'ListItem',
               position: 4,
               name: conference.shortName ?? conference.name,
-              item: `${baseUrl}/news/${params.division}/${params.conference}`,
+              item: `${BASE_URL}/news/${params.division}/${params.conference}`,
             },
           ],
         },
@@ -180,7 +180,7 @@ export default async function Page({
           author: {
             '@type': 'Person',
             name: post.author.name,
-            url: `${baseUrl}/authors/${post.author.slug}`,
+            url: `${BASE_URL}/authors/${post.author.slug}`,
           },
         })),
       },

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { LinkIcon } from 'lucide-react'
 
 import { Facebook, Twitter } from '@components/common/icons'
-import { baseUrl } from '@lib/constants'
+import { BASE_URL } from '@lib/constants'
 
 export default function ArticleSocialShare({ slug, title }: { slug: string; title: string }) {
   return (
@@ -15,7 +15,7 @@ export default function ArticleSocialShare({ slug, title }: { slug: string; titl
           <button
             aria-label="Copy link to article"
             onClick={() => {
-              navigator.clipboard.writeText(`${baseUrl}/${slug}`)
+              navigator.clipboard.writeText(`${BASE_URL}/${slug}`)
             }}
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
@@ -26,7 +26,7 @@ export default function ArticleSocialShare({ slug, title }: { slug: string; titl
         <li className="group">
           <Link
             target="_blank"
-            href={`https://twitter.com/share?url=${baseUrl}/${slug}&text=${encodeURIComponent(
+            href={`https://twitter.com/share?url=${BASE_URL}/${slug}&text=${encodeURIComponent(
               title,
             )}`}
             rel="noopener"
@@ -42,7 +42,7 @@ export default function ArticleSocialShare({ slug, title }: { slug: string; titl
         <li className="group">
           <Link
             target="_blank"
-            href={`https://www.facebook.com/sharer/sharer.php?u=${baseUrl}/${slug}`}
+            href={`https://www.facebook.com/sharer/sharer.php?u=${BASE_URL}/${slug}`}
             rel="noopener"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
           >

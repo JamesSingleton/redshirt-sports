@@ -1,6 +1,6 @@
 import { PageHeader, Date, CustomPortableText } from '@components/common'
 import { getPrivacyPolicy } from '@lib/sanity.fetch'
-import { baseUrl } from '@lib/constants'
+import { BASE_URL } from '@lib/constants'
 import { Org, Web } from '@lib/ldJson'
 import { defineMetadata } from '@lib/utils.metadata'
 
@@ -18,7 +18,7 @@ export const metadata = {
     ...defaultMetadata.openGraph,
     images: [
       {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('Privacy Policy')}`,
+        url: `${BASE_URL}/api/og?title=${encodeURIComponent('Privacy Policy')}`,
         width: 1200,
         height: 630,
         alt: 'Privacy Policy',
@@ -34,7 +34,7 @@ export const metadata = {
     ...defaultMetadata.twitter,
     images: [
       {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('Privacy Policy')}`,
+        url: `${BASE_URL}/api/og?title=${encodeURIComponent('Privacy Policy')}`,
         width: 1200,
         height: 630,
         alt: 'Privacy Policy',
@@ -57,14 +57,14 @@ const jsonLd: Graph = {
     Web,
     {
       '@type': 'WebPage',
-      '@id': `${baseUrl}/privacy`,
-      url: `${baseUrl}/privacy`,
+      '@id': `${BASE_URL}/privacy`,
+      url: `${BASE_URL}/privacy`,
       name: 'Privacy Policy',
       description:
         "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
       inLanguage: 'en-US',
       isPartOf: {
-        '@id': `${baseUrl}#website`,
+        '@id': `${BASE_URL}#website`,
       },
     },
     {
@@ -75,13 +75,13 @@ const jsonLd: Graph = {
           '@type': 'ListItem',
           position: 1,
           name: 'Home',
-          item: baseUrl,
+          item: BASE_URL,
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: 'Privacy Policy',
-          item: `${baseUrl}/privacy`,
+          item: `${BASE_URL}/privacy`,
         },
       ],
     },
