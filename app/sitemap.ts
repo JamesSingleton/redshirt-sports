@@ -27,18 +27,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const divisionRoutes = divisions.map((division) => ({
     url: `${BASE_URL}/news/${division.slug}`,
     lastModified: division._updatedAt,
-    changeFrequency: 'weekly',
     priority: 0.8,
   }))
 
   const conferenceRoutes = conferences.map((conference) => ({
     url: `${BASE_URL}/news/${conference.divisionSlug}/${conference.slug}`,
     lastModified: conference._updatedAt,
-    changeFrequency: 'weekly',
     priority: 0.8,
   }))
 
-  return [
+  const routes = [
     {
       url: BASE_URL,
       lastModified: new Date().toISOString(),
@@ -69,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
       changeFrequency: 'weekly',
     },
-    ...divisionRoutes,
-    ...conferenceRoutes,
   ]
+
+  return [...routes, ...divisionRoutes, ...conferenceRoutes]
 }
