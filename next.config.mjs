@@ -1,5 +1,6 @@
-const { withSentryConfig } = require('@sentry/nextjs')
-const { createClient } = require('@sanity/client')
+import { withSentryConfig } from '@sentry/nextjs'
+import { createClient } from '@sanity/client'
+
 const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -54,6 +55,7 @@ const securityHeaders = [
 const nextConfig = {
   experimental: {
     optimizePackageImports: ['tailwindcss', '@portabletext/react'],
+    instrumentationHook: true,
   },
   logging: {
     level: 'verbose',
@@ -96,22 +98,11 @@ const nextConfig = {
     const results = await client.fetch(query)
     return results
   },
-  sentry: {
-    hideSourceMaps: true,
-  },
-}
-
-const SentryWebpackPluginOptions = {
-  // Additional config options for the Sentry Webpack plugin. Keep in mind that
-  // the following options are set automatically, and overriding them is not
-  // recommended:
-  //   release, url, org, project, authToken, configFile, stripPrefix,
-  //   urlPrefix, include, ignore
-
-  silent: true, // Suppresses all logs
-  // For all available options, see:
-  // https://github.com/getsentry/sentry-webpack-plugin#options.
 }
 
 /** @type {import('next').NextConfig} */
-module.exports = withSentryConfig(nextConfig, SentryWebpackPluginOptions)
+export default withSentryConfig(nextConfig, {
+  org: 'james-singleton',
+  project: 'redshirt-sports',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+})
