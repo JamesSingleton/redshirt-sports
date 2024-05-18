@@ -50,7 +50,6 @@
     "react-tweet": "^3.2.0",
     "sanity": "^3.42.1",
     "sanity-image": "^0.1.7",
-    "sanity-pills": "^2.0.0",
     "sanity-plugin-documents-pane": "^2.3.0",
     "sanity-plugin-media": "^2.2.5",
     "schema-dts": "^1.1.2",
