@@ -11,60 +11,45 @@ export default async function ArticleOGImage({ params: { slug } }: { params: { s
     notFound()
   }
 
-  const svgDots = encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="none"><circle fill="rgb(220,39,39)" id="pattern-circle" cx="10" cy="10" r="1.6257413380501518"></circle></svg>',
-  )
-
   return new ImageResponse(
     (
-      <div
-        tw="bg-zinc-900 flex h-full w-full px-4"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,${svgDots}")`,
-          ...font('Geist-SemiBold'),
-        }}
-      >
-        <div tw="flex flex-col justify-between h-full">
-          <div tw="p-4 pt-8 pb-0 flex flex-row items-center w-full text-3xl">
-            <div tw="flex items-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                tw="w-14 h-14"
-                alt="Redshirt Sports Logo"
-                src="https://www.redshirtsports.xyz/images/icons/RS_192.png"
-              />
-              <span tw="text-[#DC2727]">Redshirt Sports</span>
-            </div>
-            <div tw="flex items-center text-zinc-100 ml-auto">redshirtsports.xyz</div>
+      <div tw="relative flex flex-col bg-[#DC2727] w-[1200px] h-[630px] px-8 text-white justify-center">
+        <h1 tw="font-bold text-6xl leading-tight mt-8 max-w-[50%]">{article.title}</h1>
+        <div tw="flex items-center mt-8">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            alt="Author's avatar"
+            tw="w-12 h-12 rounded-full border-2 border-white"
+            height="48"
+            src={urlForImage(article.author.image).width(48).height(48).url()}
+            style={{
+              objectFit: 'cover',
+            }}
+            width="48"
+          />
+          <div tw="ml-4 flex flex-col">
+            <span tw="font-semibold">{article.author.name}</span>
+            <span tw="text-sm">
+              {new Date(article.publishedAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </span>
           </div>
-          <div tw="p-4 flex flex-row justify-center items-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              alt="Article Image"
-              tw="w-1/2 rounded-lg overflow-hidden dark:border-gray-800"
-              height={300}
-              src={urlForImage(article.mainImage).url()}
-              width={300}
-              style={{
-                objectFit: 'cover',
-              }}
-            />
-            <div tw="ml-4 flex flex-col w-1/2">
-              <h3 tw="text-5xl font-bold mb-2  text-[#DC2727]">{article.title}</h3>
-              <p tw="text-3xl text-zinc-100">by {article.author}</p>
-            </div>
-          </div>
-          <div tw="p-4 pb-8 flex">
-            <div tw="text-zinc-100 flex items-center text-2xl justify-between w-full">
-              <span>
-                {new Date(article.publishedAt).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </span>
-            </div>
-          </div>
+        </div>
+        <div tw="absolute right-0 w-[50%] h-full flex justify-end">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            alt={article.mainImage.caption}
+            tw="rounded-l-full h-full"
+            height="630"
+            src={urlForImage(article.mainImage).width(600).height(630).url()}
+            style={{
+              objectFit: 'cover',
+            }}
+            width="600"
+          />
         </div>
       </div>
     ),

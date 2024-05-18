@@ -312,7 +312,7 @@ export const openGraphDataBySlug = groq`
 *[_type == "post" && slug.current == $slug][0]{
   "title": title,
   mainImage,
-  "author": author->name,
+  "author": author->{name, role, image},
   "publishedAt": publishedAt,
 }
 `
