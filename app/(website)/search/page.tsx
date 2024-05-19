@@ -7,43 +7,27 @@ import { perPage } from '@lib/constants'
 import { defineMetadata } from '@lib/utils.metadata'
 
 import { Post } from '@types'
+import type { Metadata, ResolvingMetadata } from 'next'
 
-export function generateMetadata({ searchParams }: { searchParams: { [key: string]: string } }) {
-  const query = searchParams['q'] ?? null
-  const defaultMetadata = defineMetadata({
-    title: `Search Results for "${query}"`,
-    description:
-      'Explore the latest College Football news and updates at Redshirt Sports. Stay informed about scores, highlights, and team analyses in one place.',
-  })
+const defaultMetadata = defineMetadata({
+  title: 'Search Results',
+  description:
+    'Search for articles on Redshirt Sports. Find the latest news, analysis, and opinion pieces on college sports.',
+})
+
+export async function generateMetadata({}, parent: ResolvingMetadata): Promise<Metadata> {
+  const previousImages = (await parent).openGraph?.images || []
 
   return {
     ...defaultMetadata,
     openGraph: {
       ...defaultMetadata.openGraph,
-      images: [
-        {
-          url: `/api/og?title=${encodeURIComponent(`Search Results for "${query}"`)}`,
-          width: 1200,
-          height: 630,
-          alt: `Search Results for "${query}"`,
-        },
-      ],
-      url: `/search?q=${query}`,
+      images: [...previousImages],
+      url: `/search`,
     },
     alternates: {
       ...defaultMetadata.alternates,
-      canonical: `/search?q=${query}`,
-    },
-    twitter: {
-      ...defaultMetadata.twitter,
-      images: [
-        {
-          url: `/api/og?title=${encodeURIComponent(`Search Results for "${query}"`)}`,
-          width: 1200,
-          height: 630,
-          alt: `Search Results for "${query}"`,
-        },
-      ],
+      canonical: `/search`,
     },
   }
 }
@@ -91,7 +75,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
         )}
         {searchResults.posts.length === 0 && (
           <div className="mt-8 text-center">
-            <h2 className="text-3xl font-bold text-brand-500">No results found.</h2>
+            <h2 className="text-3xl font-bold">No results found.</h2>
             <p className="mt-4 text-lg text-muted-foreground">
               Try searching for something else or check out our latest articles below.
             </p>

@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { Metadata } from 'next'
+
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
@@ -12,6 +12,7 @@ import { urlForImage } from '@lib/sanity.image'
 import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Post } from '@types'
+import type { Metadata, ResolvingMetadata } from 'next'
 
 const breadcrumbs = [
   {
@@ -20,13 +21,16 @@ const breadcrumbs = [
   },
 ]
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: { [key: string]: string }
-  searchParams: { [key: string]: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+  {
+    params,
+    searchParams,
+  }: {
+    params: { [key: string]: string }
+    searchParams: { [key: string]: string }
+  },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const defaultMetadata = defineMetadata({
     title: `College Football News and Updates${
       searchParams.page ? ` Page ${searchParams.page}` : ''
@@ -34,34 +38,17 @@ export async function generateMetadata({
     description:
       'Stay in the know with the latest college football news, updates, and insights. From FCS to FBS, D2 to D3, catch up on all the action with Redshirt Sports.',
   })
+  const previousImages = (await parent).openGraph?.images || []
   return {
     ...defaultMetadata,
     openGraph: {
       ...defaultMetadata.openGraph,
-      images: [
-        {
-          url: `${BASE_URL}/api/og?title=${encodeURIComponent('College Football News')}`,
-          width: 1200,
-          height: 630,
-          alt: 'College Football News',
-        },
-      ],
+      images: [...previousImages],
       url: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
     },
     alternates: {
       ...defaultMetadata.alternates,
       canonical: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
-    },
-    twitter: {
-      ...defaultMetadata.twitter,
-      images: [
-        {
-          url: `${BASE_URL}/api/og?title=${encodeURIComponent('College Football News')}`,
-          width: 1200,
-          height: 630,
-          alt: 'College Football News',
-        },
-      ],
     },
   }
 }

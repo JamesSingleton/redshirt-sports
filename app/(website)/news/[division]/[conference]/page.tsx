@@ -10,16 +10,19 @@ import { Org, Web } from '@lib/ldJson'
 import { urlForImage } from '@lib/sanity.image'
 import { defineMetadata } from '@lib/utils.metadata'
 
-import type { Metadata } from 'next'
+import type { Metadata, ResolvingMetadata } from 'next'
 import type { Post } from '@types'
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: { [key: string]: string }
-  searchParams: { [key: string]: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+  {
+    params,
+    searchParams,
+  }: {
+    params: { [key: string]: string }
+    searchParams: { [key: string]: string }
+  },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
@@ -47,24 +50,13 @@ export async function generateMetadata({
     description: conference?.description ?? fallBackDescription,
   })
 
+  const previousImages = (await parent).openGraph?.images || []
+
   return {
     ...defaultMetadata,
     openGraph: {
       ...defaultMetadata.openGraph,
-      images: [
-        {
-          url: `/api/og?title=${encodeURIComponent(
-            conference.shortName
-              ? `${conference.shortName} Football News`
-              : `${conference.name} Football News`,
-          )}`,
-          width: 1200,
-          height: 630,
-          alt: conference.shortName
-            ? `${conference.shortName} Football News`
-            : `${conference.name} Football News`,
-        },
-      ],
+      images: [...previousImages],
       url: `/news/${conference.division.slug}/${conference?.slug}${
         pageIndex > 1 ? `?page=${pageIndex}` : ''
       }`,
@@ -72,21 +64,6 @@ export async function generateMetadata({
     alternates: {
       ...defaultMetadata.alternates,
       canonical,
-    },
-    twitter: {
-      ...defaultMetadata.twitter,
-      images: [
-        {
-          url: `/api/og?title=${encodeURIComponent(
-            conference.shortName
-              ? `${conference.shortName} Football News`
-              : `${conference.name} Football News`,
-          )}`,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
     },
   }
 }

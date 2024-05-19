@@ -10,16 +10,19 @@ import { Org, Web } from '@lib/ldJson'
 import { defineMetadata } from '@lib/utils.metadata'
 import { urlForImage } from '@lib/sanity.image'
 
-import type { Metadata } from 'next'
+import type { Metadata, ResolvingMetadata } from 'next'
 import type { Post } from '@types'
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: { [key: string]: string }
-  searchParams: { [key: string]: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+  {
+    params,
+    searchParams,
+  }: {
+    params: { [key: string]: string }
+    searchParams: { [key: string]: string }
+  },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
   const division = await getNewsByDivision(params.division, pageIndex)
@@ -40,34 +43,18 @@ export async function generateMetadata({
     description: division?.description,
   })
 
+  const previousImages = (await parent).openGraph?.images || []
+
   return {
     ...defaultMetadata,
     openGraph: {
       ...defaultMetadata.openGraph,
-      images: [
-        {
-          url: `/api/og?title=${encodeURIComponent(division?.heading)}`,
-          width: 1200,
-          height: 630,
-          alt: division?.heading,
-        },
-      ],
+      images: [...previousImages],
       url: `/news/${division?.slug}${pageIndex > 1 ? `?page=${pageIndex}` : ''}`,
     },
     alternates: {
       ...defaultMetadata.alternates,
       canonical,
-    },
-    twitter: {
-      ...defaultMetadata.twitter,
-      images: [
-        {
-          url: `/api/og?title=${encodeURIComponent(division?.heading)}`,
-          width: 1200,
-          height: 630,
-          alt: division?.heading,
-        },
-      ],
     },
   }
 }

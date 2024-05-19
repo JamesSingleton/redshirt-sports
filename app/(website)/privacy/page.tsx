@@ -5,6 +5,7 @@ import { Org, Web } from '@lib/ldJson'
 import { defineMetadata } from '@lib/utils.metadata'
 
 import type { Graph } from 'schema-dts'
+import type { Metadata, ResolvingMetadata } from 'next'
 
 const defaultMetadata = defineMetadata({
   title: 'Privacy Policy',
@@ -12,35 +13,20 @@ const defaultMetadata = defineMetadata({
     "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
 })
 
-export const metadata = {
-  ...defaultMetadata,
-  openGraph: {
-    ...defaultMetadata.openGraph,
-    images: [
-      {
-        url: `${BASE_URL}/api/og?title=${encodeURIComponent('Privacy Policy')}`,
-        width: 1200,
-        height: 630,
-        alt: 'Privacy Policy',
-      },
-    ],
-    url: '/privacy',
-  },
-  alternates: {
-    ...defaultMetadata.alternates,
-    canonical: '/privacy',
-  },
-  twitter: {
-    ...defaultMetadata.twitter,
-    images: [
-      {
-        url: `${BASE_URL}/api/og?title=${encodeURIComponent('Privacy Policy')}`,
-        width: 1200,
-        height: 630,
-        alt: 'Privacy Policy',
-      },
-    ],
-  },
+export async function generateMetadata({}, parent: ResolvingMetadata): Promise<Metadata> {
+  const previousImages = (await parent).openGraph?.images || []
+  return {
+    ...defaultMetadata,
+    openGraph: {
+      ...defaultMetadata.openGraph,
+      images: [...previousImages],
+      url: '/privacy',
+    },
+    alternates: {
+      ...defaultMetadata.alternates,
+      canonical: '/privacy',
+    },
+  }
 }
 
 const breadcrumbs = [

@@ -13,7 +13,7 @@ export default async function ArticleOGImage({ params: { slug } }: { params: { s
 
   return new ImageResponse(
     (
-      <div key="1" tw="relative bg-white w-[1200px] h-[630px] flex">
+      <div tw="relative bg-white w-[1200px] h-[630px] flex">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt={article.mainImage.caption}

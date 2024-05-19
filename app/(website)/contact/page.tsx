@@ -2,10 +2,10 @@ import { PageHeader } from '@components/common'
 
 import { Org, Web } from '@lib/ldJson'
 import { BASE_URL } from '@lib/constants'
-
-import type { Metadata } from 'next'
-import type { Graph } from 'schema-dts'
 import { defineMetadata } from '@lib/utils.metadata'
+
+import type { Metadata, ResolvingMetadata } from 'next'
+import type { Graph } from 'schema-dts'
 
 const defaultMetadata = defineMetadata({
   title: 'Contact Us',
@@ -13,35 +13,20 @@ const defaultMetadata = defineMetadata({
     'Want to collaborate on a story or advertise with Redshirt Sports? Contact us via editors@redshirtsports.xyz or advertising@redshirtsports.xyz.',
 })
 
-export const metadata: Metadata = {
-  ...defaultMetadata,
-  openGraph: {
-    ...defaultMetadata.openGraph,
-    images: [
-      {
-        url: `${BASE_URL}/api/og?title=${encodeURIComponent('Contact Us')}`,
-        width: 1200,
-        height: 630,
-        alt: 'Contact Us',
-      },
-    ],
-    url: '/contact',
-  },
-  alternates: {
-    ...defaultMetadata.alternates,
-    canonical: '/contact',
-  },
-  twitter: {
-    ...defaultMetadata.twitter,
-    images: [
-      {
-        url: `${BASE_URL}/api/og?title=${encodeURIComponent('Contact Us')}`,
-        width: 1200,
-        height: 630,
-        alt: 'Contact Us',
-      },
-    ],
-  },
+export async function generateMetadata({}, parent: ResolvingMetadata): Promise<Metadata> {
+  const previousImages = (await parent).openGraph?.images || []
+  return {
+    ...defaultMetadata,
+    openGraph: {
+      ...defaultMetadata.openGraph,
+      images: [...previousImages],
+      url: '/contact',
+    },
+    alternates: {
+      ...defaultMetadata.alternates,
+      canonical: '/contact',
+    },
+  }
 }
 
 const contactDetails = [

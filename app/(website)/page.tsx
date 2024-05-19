@@ -29,28 +29,6 @@ const defaultMetadata = defineMetadata({
 
 export const metadata: Metadata = {
   ...defaultMetadata,
-  openGraph: {
-    ...defaultMetadata.openGraph,
-    images: [
-      {
-        url: '/api/og',
-        width: 1200,
-        height: 630,
-        alt: 'Redshirt Sports',
-      },
-    ],
-  },
-  twitter: {
-    ...defaultMetadata.twitter,
-    images: [
-      {
-        url: '/api/og',
-        width: 1200,
-        height: 630,
-        alt: 'Redshirt Sports',
-      },
-    ],
-  },
 }
 
 export default async function Page() {
