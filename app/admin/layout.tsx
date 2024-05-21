@@ -1,9 +1,8 @@
 import Link from 'next/link'
-import { CircleUser, Menu, Search, Vote, Database, LayoutDashboard } from 'lucide-react'
+import { CircleUser, Menu, Vote, Database, LayoutDashboard } from 'lucide-react'
 
 import { ThemeProvider } from '@components/common/ThemeProvider'
 import { SmallLogo } from '@components/common'
-import { Input } from '@components/ui/input'
 import { Sheet, SheetContent, SheetTrigger } from '@components/ui/sheet'
 import {
   DropdownMenu,
@@ -22,7 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="hidden border-r bg-muted/40 md:block">
           <div className="flex h-full max-h-screen flex-col gap-2">
             <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-              <Link href="/" className="flex items-center gap-2 font-semibold">
+              <Link href="/admin/home" className="flex items-center gap-2 font-semibold">
                 <SmallLogo className="h-8 w-8" />
                 <span className="">Redshirt Sports</span>
               </Link>
@@ -30,7 +29,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex-1">
               <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
                 <Link
-                  href="/admin"
+                  href="/admin/home"
                   className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
                 >
                   <LayoutDashboard className="h-4 w-4" />
@@ -65,12 +64,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </SheetTrigger>
               <SheetContent side="left" className="flex flex-col">
                 <nav className="grid gap-2 text-lg font-medium">
-                  <Link href="#" className="flex items-center gap-2 text-lg font-semibold">
+                  <Link
+                    href="/admin/home"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
                     <SmallLogo className="h-8 w-8" />
                     <span className="sr-only">Redshirt Sports</span>
                   </Link>
                   <Link
-                    href="#"
+                    href="/admin/home"
                     className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                   >
                     <LayoutDashboard className="h-5 w-5" />
@@ -93,7 +95,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </nav>
               </SheetContent>
             </Sheet>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="icon" className="ml-auto rounded-full">

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ArrowUpRight, CheckIcon, LogIn, XIcon } from 'lucide-react'
+import { auth, currentUser } from '@clerk/nextjs/server'
 
 import {
   Card,
@@ -10,11 +11,10 @@ import {
   CardTitle,
 } from '@components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
-import { Button, buttonVariants } from '@components/ui/button'
-import { Badge } from '@components/ui/badge'
+import { buttonVariants } from '@components/ui/button'
 import { cn } from '@lib/utils'
 
-export default function AdminHome() {
+export default async function AdminHome() {
   return (
     <div className="grid gap-6">
       <div className="grid gap-6 md:grid-cols-2">
