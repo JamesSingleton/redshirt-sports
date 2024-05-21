@@ -12,6 +12,7 @@
     "find:unused": "npx next-unused"
   },
   "dependencies": {
+    "@nivo/pie": "^0.87.0",
     "@portabletext/react": "^3.0.11",
     "@portabletext/to-html": "^2.0.5",
     "@radix-ui/react-dialog": "^1.0.5",
