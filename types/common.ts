@@ -39,3 +39,16 @@ export type BreadcrumbProps = {
 export interface NavProps {
   divisions: Division[]
 }
+
+export interface Top25FormProps {
+  schools: {
+    _id: string
+    name: string
+    abbreviation: string
+    image: any,
+    conference: {
+      name: string
+      shortName: string
+    }
+  }[]
+}

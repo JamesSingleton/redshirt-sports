@@ -316,3 +316,16 @@ export const openGraphDataBySlug = groq`
   "publishedAt": publishedAt,
 }
 `
+
+export const schoolsByDivision = groq`
+*[_type == "school" && division->slug.current == $division]| order(name asc){
+  _id,
+  name,
+  abbreviation,
+  image,
+  conference->{
+    name,
+    shortName
+  }
+}
+`

@@ -1,20 +1,13 @@
 import Link from 'next/link'
-import { CircleUser, Menu, Vote, Database, LayoutDashboard } from 'lucide-react'
+import { Menu, Vote, Database, LayoutDashboard } from 'lucide-react'
+import { UserButton } from '@clerk/nextjs'
 
 import { ThemeProvider } from '@components/common/ThemeProvider'
 import { SmallLogo } from '@components/common'
 import { Sheet, SheetContent, SheetTrigger } from '@components/ui/sheet'
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuItem,
-} from '@components/ui/dropdown-menu'
 import { Button } from '@components/ui/button'
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -95,22 +88,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </nav>
               </SheetContent>
             </Sheet>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="ml-auto rounded-full">
-                  <CircleUser className="h-5 w-5" />
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="ml-auto flex items-center">
+              <UserButton />
+            </div>
           </header>
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">{children}</main>
         </div>

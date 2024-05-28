@@ -1,6 +1,6 @@
 import Link from 'next/link'
+import { currentUser, auth } from '@clerk/nextjs/server'
 import { ArrowUpRight, CheckIcon, LogIn, XIcon } from 'lucide-react'
-import { auth, currentUser } from '@clerk/nextjs/server'
 
 import {
   Card,
@@ -13,8 +13,11 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
 import { buttonVariants } from '@components/ui/button'
 import { cn } from '@lib/utils'
+import { allBallots } from '@/db/index'
 
 export default async function AdminHome() {
+  const test = allBallots
+  console.log(test)
   return (
     <div className="grid gap-6">
       <div className="grid gap-6 md:grid-cols-2">

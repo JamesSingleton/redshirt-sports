@@ -11,7 +11,7 @@ const client = createClient({
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
     default-src 'self' vercel.live;
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live *.clerk.accounts.dev;
     style-src 'self' 'unsafe-inline';
     img-src * blob: data:;
     media-src 'none';

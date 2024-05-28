@@ -25,7 +25,8 @@
       "@types/*": ["types/*"],
       "@public/*": ["public/*"],
       "@schemas/*": ["sanity/schemas/*"],
-      "@plugins/*": ["sanity/plugins/*"]
+      "@plugins/*": ["sanity/plugins/*"],
+      "@/db/*": ["db/*"]
     },
     "plugins": [
       {

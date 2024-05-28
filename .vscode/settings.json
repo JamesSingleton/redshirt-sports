@@ -1,4 +1,12 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "deno.enablePaths": [
+    "supabase/functions"
+  ],
+  "deno.lint": true,
+  "deno.unstable": true,
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

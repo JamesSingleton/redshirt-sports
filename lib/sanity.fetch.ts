@@ -21,6 +21,7 @@ import {
   divisionPaths,
   conferencePaths,
   openGraphDataBySlug,
+  schoolsByDivision
 } from '@lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
@@ -191,5 +192,13 @@ export function getOpenGraphDataBySlug(slug: string) {
     query: openGraphDataBySlug,
     params: { slug },
     tags: [`post:${slug}`],
+  })
+}
+
+export function getSchoolsByDivision(division: string) {
+  return sanityFetch<any>({
+    query: schoolsByDivision,
+    params: { division },
+    tags: [`division:${division}`],
   })
 }

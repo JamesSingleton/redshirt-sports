@@ -1,0 +1,43 @@
+CREATE TABLE IF NOT EXISTS "ballots" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" varchar(256) NOT NULL,
+	"year" varchar(256) NOT NULL,
+	"week" varchar(256) NOT NULL,
+	"team_1" varchar(256) NOT NULL,
+	"team_2" varchar(256) NOT NULL,
+	"team_3" varchar(256) NOT NULL,
+	"team_4" varchar(256) NOT NULL,
+	"team_5" varchar(256) NOT NULL,
+	"team_6" varchar(256) NOT NULL,
+	"team_7" varchar(256) NOT NULL,
+	"team_8" varchar(256) NOT NULL,
+	"team_9" varchar(256) NOT NULL,
+	"team_10" varchar(256) NOT NULL,
+	"team_11" varchar(256) NOT NULL,
+	"team_12" varchar(256) NOT NULL,
+	"team_13" varchar(256) NOT NULL,
+	"team_14" varchar(256) NOT NULL,
+	"team_15" varchar(256) NOT NULL,
+	"team_16" varchar(256) NOT NULL,
+	"team_17" varchar(256) NOT NULL,
+	"team_18" varchar(256) NOT NULL,
+	"team_19" varchar(256) NOT NULL,
+	"team_20" varchar(256) NOT NULL,
+	"team_21" varchar(256) NOT NULL,
+	"team_22" varchar(256) NOT NULL,
+	"team_23" varchar(256) NOT NULL,
+	"team_24" varchar(256) NOT NULL,
+	"team_25" varchar(256) NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "rankings" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"year" varchar(256),
+	"week" varchar(256),
+	"team" varchar(256),
+	"votes" varchar(256),
+	"rank" varchar(256),
+	"user_id" varchar(256),
+	"ballot_id" varchar(256),
+	CONSTRAINT "rankings_ballot_id_unique" UNIQUE("ballot_id")
+);

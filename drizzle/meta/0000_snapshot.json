@@ -1,0 +1,265 @@
+{
+  "id": "c0dbc390-fbde-47c4-b749-aab01950e934",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "6",
+  "dialect": "postgresql",
+  "tables": {
+    "public.ballots": {
+      "name": "ballots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "year": {
+          "name": "year",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "week": {
+          "name": "week",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_1": {
+          "name": "team_1",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_2": {
+          "name": "team_2",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_3": {
+          "name": "team_3",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_4": {
+          "name": "team_4",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_5": {
+          "name": "team_5",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_6": {
+          "name": "team_6",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_7": {
+          "name": "team_7",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_8": {
+          "name": "team_8",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_9": {
+          "name": "team_9",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_10": {
+          "name": "team_10",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_11": {
+          "name": "team_11",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_12": {
+          "name": "team_12",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_13": {
+          "name": "team_13",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_14": {
+          "name": "team_14",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_15": {
+          "name": "team_15",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_16": {
+          "name": "team_16",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_17": {
+          "name": "team_17",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_18": {
+          "name": "team_18",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_19": {
+          "name": "team_19",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_20": {
+          "name": "team_20",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_21": {
+          "name": "team_21",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_22": {
+          "name": "team_22",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_23": {
+          "name": "team_23",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_24": {
+          "name": "team_24",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_25": {
+          "name": "team_25",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.rankings": {
+      "name": "rankings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "year": {
+          "name": "year",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "week": {
+          "name": "week",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "team": {
+          "name": "team",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "votes": {
+          "name": "votes",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rank": {
+          "name": "rank",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ballot_id": {
+          "name": "ballot_id",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "rankings_ballot_id_unique": {
+          "name": "rankings_ballot_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "ballot_id"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
