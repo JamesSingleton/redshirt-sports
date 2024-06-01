@@ -14,7 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@components/ui/form'
-import { Input } from '@components/ui/input'
 import {
   Select,
   SelectContent,
@@ -27,33 +26,103 @@ import ImageComponent from '@components/common/ImageComponent'
 
 import type { Top25FormProps } from '@types'
 
-const formSchema = z.object({
-  rank_1: z.string(),
-  rank_2: z.string(),
-  rank_3: z.string(),
-  rank_4: z.string(),
-  rank_5: z.string(),
-  rank_6: z.string(),
-  rank_7: z.string(),
-  rank_8: z.string(),
-  rank_9: z.string(),
-  rank_10: z.string(),
-  rank_11: z.string(),
-  rank_12: z.string(),
-  rank_13: z.string(),
-  rank_14: z.string(),
-  rank_15: z.string(),
-  rank_16: z.string(),
-  rank_17: z.string(),
-  rank_18: z.string(),
-  rank_19: z.string(),
-  rank_20: z.string(),
-  rank_21: z.string(),
-  rank_22: z.string(),
-  rank_23: z.string(),
-  rank_24: z.string(),
-  rank_25: z.string(),
-})
+const formSchema = z
+  .object({
+    rank_1: z.string({
+      required_error: 'Please select a team for rank 1.',
+    }),
+    rank_2: z.string({
+      required_error: 'Please select a team for rank 2.',
+    }),
+    rank_3: z.string({
+      required_error: 'Please select a team for rank 3.',
+    }),
+    rank_4: z.string({
+      required_error: 'Please select a team for rank 4.',
+    }),
+    rank_5: z.string({
+      required_error: 'Please select a team for rank 5.',
+    }),
+    rank_6: z.string({
+      required_error: 'Please select a team for rank 6.',
+    }),
+    rank_7: z.string({
+      required_error: 'Please select a team for rank 7.',
+    }),
+    rank_8: z.string({
+      required_error: 'Please select a team for rank 8.',
+    }),
+    rank_9: z.string({
+      required_error: 'Please select a team for rank 9.',
+    }),
+    rank_10: z.string({
+      required_error: 'Please select a team for rank 10.',
+    }),
+    rank_11: z.string({
+      required_error: 'Please select a team for rank 11.',
+    }),
+    rank_12: z.string({
+      required_error: 'Please select a team for rank 12.',
+    }),
+    rank_13: z.string({
+      required_error: 'Please select a team for rank 13.',
+    }),
+    rank_14: z.string({
+      required_error: 'Please select a team for rank 14.',
+    }),
+    rank_15: z.string({
+      required_error: 'Please select a team for rank 15.',
+    }),
+    rank_16: z.string({
+      required_error: 'Please select a team for rank 16.',
+    }),
+    rank_17: z.string({
+      required_error: 'Please select a team for rank 17.',
+    }),
+    rank_18: z.string({
+      required_error: 'Please select a team for rank 18.',
+    }),
+    rank_19: z.string({
+      required_error: 'Please select a team for rank 19.',
+    }),
+    rank_20: z.string({
+      required_error: 'Please select a team for rank 20.',
+    }),
+    rank_21: z.string({
+      required_error: 'Please select a team for rank 21.',
+    }),
+    rank_22: z.string({
+      required_error: 'Please select a team for rank 22.',
+    }),
+    rank_23: z.string({
+      required_error: 'Please select a team for rank 23.',
+    }),
+    rank_24: z.string({
+      required_error: 'Please select a team for rank 24.',
+    }),
+    rank_25: z.string({
+      required_error: 'Please select a team for rank 25.',
+    }),
+  })
+  .superRefine((arg, ctx) => {
+    // find which arg items are duplicates
+    const duplicates: string[] = Object.entries(arg).reduce((acc: string[], [key, value]) => {
+      if (Object.values(arg).filter((v) => v === value).length > 1) {
+        acc.push(key)
+      }
+      return acc
+    }, [])
+
+    if (duplicates.length) {
+      duplicates.forEach((key) => {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate team selected for rank ${key.split('_')[1]}`,
+          path: ['rank_' + key.split('_')[1]],
+        })
+      })
+    }
+  })
 
 const Top25 = ({ schools }: Top25FormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -95,7 +164,7 @@ const Top25 = ({ schools }: Top25FormProps) => {
                                 height={32}
                                 mode="cover"
                                 loading="lazy"
-                                className="h-8 w-8 rounded-full"
+                                className="h-8 w-8"
                               />
                               <span>{school.name}</span>
                             </div>
@@ -110,7 +179,9 @@ const Top25 = ({ schools }: Top25FormProps) => {
             )}
           />
         ))}
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={form.formState.isSubmitting || !form.formState.isValid}>
+          Submit
+        </Button>
       </form>
     </Form>
   )
