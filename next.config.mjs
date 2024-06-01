@@ -105,4 +105,6 @@ export default withSentryConfig(nextConfig, {
   org: 'james-singleton',
   project: 'redshirt-sports',
   authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: true,
+  telemetry: false,
 })
