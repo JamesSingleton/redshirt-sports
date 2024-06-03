@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useParams, useRouter } from 'next/navigation'
 
 import { Button } from '@components/ui/button'
 import {
@@ -43,66 +44,66 @@ const formSchema = z
     rank_5: z.string({
       required_error: 'Please select a team for rank 5.',
     }),
-    rank_6: z.string({
-      required_error: 'Please select a team for rank 6.',
-    }),
-    rank_7: z.string({
-      required_error: 'Please select a team for rank 7.',
-    }),
-    rank_8: z.string({
-      required_error: 'Please select a team for rank 8.',
-    }),
-    rank_9: z.string({
-      required_error: 'Please select a team for rank 9.',
-    }),
-    rank_10: z.string({
-      required_error: 'Please select a team for rank 10.',
-    }),
-    rank_11: z.string({
-      required_error: 'Please select a team for rank 11.',
-    }),
-    rank_12: z.string({
-      required_error: 'Please select a team for rank 12.',
-    }),
-    rank_13: z.string({
-      required_error: 'Please select a team for rank 13.',
-    }),
-    rank_14: z.string({
-      required_error: 'Please select a team for rank 14.',
-    }),
-    rank_15: z.string({
-      required_error: 'Please select a team for rank 15.',
-    }),
-    rank_16: z.string({
-      required_error: 'Please select a team for rank 16.',
-    }),
-    rank_17: z.string({
-      required_error: 'Please select a team for rank 17.',
-    }),
-    rank_18: z.string({
-      required_error: 'Please select a team for rank 18.',
-    }),
-    rank_19: z.string({
-      required_error: 'Please select a team for rank 19.',
-    }),
-    rank_20: z.string({
-      required_error: 'Please select a team for rank 20.',
-    }),
-    rank_21: z.string({
-      required_error: 'Please select a team for rank 21.',
-    }),
-    rank_22: z.string({
-      required_error: 'Please select a team for rank 22.',
-    }),
-    rank_23: z.string({
-      required_error: 'Please select a team for rank 23.',
-    }),
-    rank_24: z.string({
-      required_error: 'Please select a team for rank 24.',
-    }),
-    rank_25: z.string({
-      required_error: 'Please select a team for rank 25.',
-    }),
+    // rank_6: z.string({
+    //   required_error: 'Please select a team for rank 6.',
+    // }),
+    // rank_7: z.string({
+    //   required_error: 'Please select a team for rank 7.',
+    // }),
+    // rank_8: z.string({
+    //   required_error: 'Please select a team for rank 8.',
+    // }),
+    // rank_9: z.string({
+    //   required_error: 'Please select a team for rank 9.',
+    // }),
+    // rank_10: z.string({
+    //   required_error: 'Please select a team for rank 10.',
+    // }),
+    // rank_11: z.string({
+    //   required_error: 'Please select a team for rank 11.',
+    // }),
+    // rank_12: z.string({
+    //   required_error: 'Please select a team for rank 12.',
+    // }),
+    // rank_13: z.string({
+    //   required_error: 'Please select a team for rank 13.',
+    // }),
+    // rank_14: z.string({
+    //   required_error: 'Please select a team for rank 14.',
+    // }),
+    // rank_15: z.string({
+    //   required_error: 'Please select a team for rank 15.',
+    // }),
+    // rank_16: z.string({
+    //   required_error: 'Please select a team for rank 16.',
+    // }),
+    // rank_17: z.string({
+    //   required_error: 'Please select a team for rank 17.',
+    // }),
+    // rank_18: z.string({
+    //   required_error: 'Please select a team for rank 18.',
+    // }),
+    // rank_19: z.string({
+    //   required_error: 'Please select a team for rank 19.',
+    // }),
+    // rank_20: z.string({
+    //   required_error: 'Please select a team for rank 20.',
+    // }),
+    // rank_21: z.string({
+    //   required_error: 'Please select a team for rank 21.',
+    // }),
+    // rank_22: z.string({
+    //   required_error: 'Please select a team for rank 22.',
+    // }),
+    // rank_23: z.string({
+    //   required_error: 'Please select a team for rank 23.',
+    // }),
+    // rank_24: z.string({
+    //   required_error: 'Please select a team for rank 24.',
+    // }),
+    // rank_25: z.string({
+    //   required_error: 'Please select a team for rank 25.',
+    // }),
   })
   .superRefine((arg, ctx) => {
     // find which arg items are duplicates
@@ -128,17 +129,28 @@ const Top25 = ({ schools }: Top25FormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
+  const params = useParams()
+  const router = useRouter()
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+    // POST to /api/vote with values
+
+    fetch('/api/vote', {
+      method: 'POST',
+      body: JSON.stringify(values),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => {
+      // redirect(`/vote/${params.division}/confirmation`)
+      router.push(`/vote/${params.division}/confirmation`)
+    })
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {Array.from({ length: 25 }).map((_, index) => (
+        {Array.from({ length: 5 }).map((_, index) => (
           <FormField
             key={index}
             control={form.control}
@@ -166,7 +178,7 @@ const Top25 = ({ schools }: Top25FormProps) => {
                                 loading="lazy"
                                 className="h-8 w-8"
                               />
-                              <span>{school.name}</span>
+                              <span>{school.abbreviation ?? school.name}</span>
                             </div>
                           </SelectItem>
                         ))}

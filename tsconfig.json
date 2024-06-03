@@ -1,47 +1,38 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "target": "esnext",
+    "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "paths": {
-      "@lib/*": ["lib/*"],
-      "@config/*": ["config/*"],
-      "@components/*": ["components/*"],
-      "@styles/*": ["styles/*"],
-      "@hooks/*": ["hooks/*"],
-      "@types": ["types/index"],
-      "@types/*": ["types/*"],
-      "@public/*": ["public/*"],
-      "@schemas/*": ["sanity/schemas/*"],
-      "@plugins/*": ["sanity/plugins/*"],
-      "@/db/*": ["db/*"]
-    },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "@/*": ["./*"],
+      "@lib/*": ["./lib/*"],
+      "@config/*": ["./config/*"],
+      "@components/*": ["./components/*"],
+      "@styles/*": ["./styles/*"],
+      "@hooks/*": ["./hooks/*"],
+      "@types": ["./types/index"],
+      "@types/*": ["./types/*"],
+      "@public/*": ["./public/*"],
+      "@schemas/*": ["./sanity/schemas/*"],
+      "@plugins/*": ["./sanity/plugins/*"],
+      "@/db/*": ["./db/*"]
+    }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    ".next/types/**/*.ts",
-    "next.config.mjs"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

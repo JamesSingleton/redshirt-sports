@@ -52,6 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     ...defaultMetadata,
+    metadataBase: new URL(BASE_URL),
     authors: [
       {
         name: post.author.name,
