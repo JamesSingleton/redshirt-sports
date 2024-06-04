@@ -1,6 +1,6 @@
 import { defineType, defineField, defineArrayMember } from 'sanity'
 import { DocumentTextIcon } from '@sanity/icons'
-import CustomStringInputWithLimits from '@plugins/CustomStringInputWithLimits'
+import CustomStringInputWithLimits from '@/sanity/plugins/CustomStringInputWithLimits'
 
 export default defineType({
   name: 'post',

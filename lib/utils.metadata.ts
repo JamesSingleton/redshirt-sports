@@ -1,4 +1,4 @@
-import { defaultTitle, BASE_URL } from '@lib/constants'
+import { defaultTitle, BASE_URL } from '@/lib/constants'
 
 import type { Metadata } from 'next'
 

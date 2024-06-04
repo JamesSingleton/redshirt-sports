@@ -3,15 +3,15 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { ArticleCard, PaginationControls } from '@components/common'
-import { PageHeader } from '@components/common'
-import { getNews } from '@lib/sanity.fetch'
-import { BASE_URL, perPage } from '@lib/constants'
-import { Org, Web } from '@lib/ldJson'
-import { urlForImage } from '@lib/sanity.image'
-import { defineMetadata } from '@lib/utils.metadata'
+import { ArticleCard, PaginationControls } from '@/components/common'
+import { PageHeader } from '@/components/common'
+import { getNews } from '@/lib/sanity.fetch'
+import { BASE_URL, perPage } from '@/lib/constants'
+import { Org, Web } from '@/lib/ldJson'
+import { urlForImage } from '@/lib/sanity.image'
+import { defineMetadata } from '@/lib/utils.metadata'
 
-import type { Post } from '@types'
+import type { Post } from '@/types'
 import type { Metadata, ResolvingMetadata } from 'next'
 
 const breadcrumbs = [

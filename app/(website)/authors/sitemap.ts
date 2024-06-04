@@ -1,7 +1,7 @@
-import { BASE_URL } from '@lib/constants'
-import { sanityFetch } from '@lib/sanity.fetch'
-import { authorsForSiteMapQuery } from '@lib/sanity.queries'
-import type { Author } from '@types'
+import { BASE_URL } from '@/lib/constants'
+import { sanityFetch } from '@/lib/sanity.fetch'
+import { authorsForSiteMapQuery } from '@/lib/sanity.queries'
+import type { Author } from '@/types'
 import type { MetadataRoute } from 'next'
 
 export async function generateSitemaps() {

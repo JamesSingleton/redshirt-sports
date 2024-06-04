@@ -10,8 +10,8 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@components/ui/pagination'
-import { perPage } from '@lib/constants'
+} from '@/components/ui/pagination'
+import { perPage } from '@/lib/constants'
 
 export default function PaginationControls({ totalPosts }: { totalPosts: number }) {
   const searchParams = useSearchParams()

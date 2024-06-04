@@ -1,6 +1,6 @@
 import { School, Newspaper, Users, Gavel, Repeat, Folder } from 'lucide-react'
 
-import { apiVersion } from '@lib/sanity.api'
+import { apiVersion } from '@/lib/sanity.api'
 
 export const deskStructure = async (S, context) => {
   const { getClient, currentUser } = context

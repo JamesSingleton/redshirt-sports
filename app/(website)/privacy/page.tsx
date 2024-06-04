@@ -1,8 +1,8 @@
-import { PageHeader, Date, CustomPortableText } from '@components/common'
-import { getPrivacyPolicy } from '@lib/sanity.fetch'
-import { BASE_URL } from '@lib/constants'
-import { Org, Web } from '@lib/ldJson'
-import { defineMetadata } from '@lib/utils.metadata'
+import { PageHeader, Date, CustomPortableText } from '@/components/common'
+import { getPrivacyPolicy } from '@/lib/sanity.fetch'
+import { BASE_URL } from '@/lib/constants'
+import { Org, Web } from '@/lib/ldJson'
+import { defineMetadata } from '@/lib/utils.metadata'
 
 import type { Graph } from 'schema-dts'
 import type { Metadata, ResolvingMetadata } from 'next'

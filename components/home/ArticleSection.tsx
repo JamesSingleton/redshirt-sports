@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
-import { ArticleCard, ImageComponent, Date } from '@components/common'
-import { cn } from '@lib/utils'
-import { buttonVariants } from '@components/ui/button'
-import { Post } from '@types'
+import { ArticleCard, ImageComponent, Date } from '@/components/common'
+import { cn } from '@/lib/utils'
+import { buttonVariants } from '@/components/ui/button'
+import { Post } from '@/types'
 
 interface ArticleSectionProps {
   title: string

@@ -2,8 +2,8 @@ export const runtime = 'edge'
 
 import { ImageResponse } from 'next/og'
 import { notFound } from 'next/navigation'
-import { getOpenGraphDataBySlug } from '@lib/sanity.fetch'
-import { urlForImage } from '@lib/sanity.image'
+import { getOpenGraphDataBySlug } from '@/lib/sanity.fetch'
+import { urlForImage } from '@/lib/sanity.image'
 
 export default async function ArticleOGImage({ params: { slug } }: { params: { slug: string } }) {
   const article = await getOpenGraphDataBySlug(slug)

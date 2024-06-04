@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useParams, useRouter } from 'next/navigation'
 
-import { Button } from '@components/ui/button'
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -14,7 +14,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@components/ui/form'
+} from '@/components/ui/form'
 import {
   Select,
   SelectContent,
@@ -22,10 +22,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@components/ui/select'
-import ImageComponent from '@components/common/ImageComponent'
+} from '@/components/ui/select'
+import ImageComponent from '@/components/common/ImageComponent'
 
-import type { Top25FormProps } from '@types'
+import type { Top25FormProps } from '@/types'
 
 const formSchema = z
   .object({

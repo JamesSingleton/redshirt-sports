@@ -5,14 +5,14 @@ import Link, { LinkProps } from 'next/link'
 import { useRouter } from 'next/navigation'
 import { SidebarOpen } from 'lucide-react'
 
-import { cn } from '@lib/utils'
-import { Sheet, SheetContent, SheetTrigger } from '@components/ui/sheet'
-import { Button } from '@components/ui/button'
-import { ScrollArea } from '@components/ui/scroll-area'
-import { STATIC_NAV_ITEMS } from '@lib/constants'
+import { cn } from '@/lib/utils'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { STATIC_NAV_ITEMS } from '@/lib/constants'
 import LargeLogo from './LargeLogo'
 
-import type { NavProps } from '@types'
+import type { NavProps } from '@/types'
 
 export function MobileNav({ divisions }: NavProps) {
   const [open, setOpen] = useState(false)

@@ -1,5 +1,5 @@
-import CustomStringInputWithLimits from '@plugins/CustomStringInputWithLimits'
 import { defineType, defineField } from 'sanity'
+import CustomStringInputWithLimits from '@/sanity/plugins/CustomStringInputWithLimits'
 
 export default defineType({
   name: 'conference',

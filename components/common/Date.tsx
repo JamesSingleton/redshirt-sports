@@ -1,7 +1,7 @@
 import { parseISO, format } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 
-import type { WithClassName } from '@types'
+import type { WithClassName } from '@/types'
 
 interface DateProps extends WithClassName {
   dateString: string

@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { LinkIcon } from 'lucide-react'
 
-import { Facebook, Twitter } from '@components/common/icons'
-import { BASE_URL } from '@lib/constants'
+import { Facebook, Twitter } from '@/components/common/icons'
+import { BASE_URL } from '@/lib/constants'
 
 export default function ArticleSocialShare({ slug, title }: { slug: string; title: string }) {
   return (

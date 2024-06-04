@@ -1,9 +1,9 @@
 import Link from 'next/link'
 
-import { ArticleCard, ImageComponent, Date } from '@components/common'
-import { badgeVariants } from '@components/ui/badge'
+import { ArticleCard, ImageComponent, Date } from '@/components/common'
+import { badgeVariants } from '@/components/ui/badge'
 
-import { Post } from '@types'
+import { Post } from '@/types'
 
 const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
   const heroArticle = heroPosts[0]

@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { Menu, Vote, Database, LayoutDashboard } from 'lucide-react'
 import { UserButton } from '@clerk/nextjs'
 
-import { ThemeProvider } from '@components/common/ThemeProvider'
-import { SmallLogo } from '@components/common'
-import { Sheet, SheetContent, SheetTrigger } from '@components/ui/sheet'
-import { Button } from '@components/ui/button'
+import { ThemeProvider } from '@/components/common/ThemeProvider'
+import { SmallLogo } from '@/components/common'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   return (

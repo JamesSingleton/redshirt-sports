@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ChevronRight, HomeIcon } from 'lucide-react'
 import clsx from 'clsx'
 
-import type { BreadcrumbProps } from '@types'
+import type { BreadcrumbProps } from '@/types'
 
 type BreadCrumbPages = {
   breadCrumbPages: BreadcrumbProps

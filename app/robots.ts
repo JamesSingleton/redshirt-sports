@@ -1,4 +1,4 @@
-import { BASE_URL } from '@lib/constants'
+import { BASE_URL } from '@/lib/constants'
 
 import type { MetadataRoute } from 'next'
 

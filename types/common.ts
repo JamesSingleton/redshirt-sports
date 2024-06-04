@@ -1,4 +1,4 @@
-import { Division } from '@types'
+import { Division } from '@/types'
 import type { PropsWithChildren } from 'react'
 import type { ImageMetadata, ImageCrop, ImageHotspot } from 'sanity'
 
@@ -45,7 +45,7 @@ export interface Top25FormProps {
     _id: string
     name: string
     abbreviation: string
-    image: any,
+    image: any
     conference: {
       name: string
       shortName: string

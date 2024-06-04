@@ -12,24 +12,24 @@ import {
   Instagram,
   Twitter,
   Facebook,
-} from '@components/common/icons'
+} from '@/components/common/icons'
 import {
   getConferencesAuthorHasWrittenFor,
   getAuthorBySlug,
   getAuthorsPosts,
-} from '@lib/sanity.fetch'
+} from '@/lib/sanity.fetch'
 import {
   ArticleCard,
   PaginationControls,
   CustomPortableText,
   Breadcrumbs,
-} from '@components/common'
-import { urlForImage } from '@lib/sanity.image'
+} from '@/components/common'
+import { urlForImage } from '@/lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
-import ImageComponent from '@components/common/ImageComponent'
-import { Org, Web } from '@lib/ldJson'
-import { perPage, BASE_URL } from '@lib/constants'
-import { defineMetadata } from '@lib/utils.metadata'
+import ImageComponent from '@/components/common/ImageComponent'
+import { Org, Web } from '@/lib/ldJson'
+import { perPage, BASE_URL } from '@/lib/constants'
+import { defineMetadata } from '@/lib/utils.metadata'
 
 import type { Metadata } from 'next'
 

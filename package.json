@@ -92,35 +92,5 @@
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.3.3"
-  },
-  "next-unused": {
-    "alias": {
-      "@lib/*": [
-        "lib/*"
-      ],
-      "@styles/*": [
-        "styles/*"
-      ],
-      "@config/*": [
-        "config/*"
-      ],
-      "@components/*": [
-        "components/*"
-      ]
-    },
-    "debug": true,
-    "include": [
-      "components",
-      "lib",
-      "pages",
-      "app",
-      "styles"
-    ],
-    "exclude": [
-      "lib/build-rss.js"
-    ],
-    "entrypoints": [
-      "app"
-    ]
   }
 }

@@ -2,16 +2,16 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { getNewsByDivision } from '@lib/sanity.fetch'
-import { ArticleCard, PaginationControls } from '@components/common'
-import { PageHeader } from '@components/common'
-import { BASE_URL, perPage } from '@lib/constants'
-import { Org, Web } from '@lib/ldJson'
-import { defineMetadata } from '@lib/utils.metadata'
-import { urlForImage } from '@lib/sanity.image'
+import { getNewsByDivision } from '@/lib/sanity.fetch'
+import { ArticleCard, PaginationControls } from '@/components/common'
+import { PageHeader } from '@/components/common'
+import { BASE_URL, perPage } from '@/lib/constants'
+import { Org, Web } from '@/lib/ldJson'
+import { defineMetadata } from '@/lib/utils.metadata'
+import { urlForImage } from '@/lib/sanity.image'
 
 import type { Metadata, ResolvingMetadata } from 'next'
-import type { Post } from '@types'
+import type { Post } from '@/types'
 
 export async function generateMetadata(
   {

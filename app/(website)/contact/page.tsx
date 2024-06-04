@@ -1,8 +1,8 @@
-import { PageHeader } from '@components/common'
+import { PageHeader } from '@/components/common'
 
-import { Org, Web } from '@lib/ldJson'
-import { BASE_URL } from '@lib/constants'
-import { defineMetadata } from '@lib/utils.metadata'
+import { Org, Web } from '@/lib/ldJson'
+import { BASE_URL } from '@/lib/constants'
+import { defineMetadata } from '@/lib/utils.metadata'
 
 import type { Metadata, ResolvingMetadata } from 'next'
 import type { Graph } from 'schema-dts'

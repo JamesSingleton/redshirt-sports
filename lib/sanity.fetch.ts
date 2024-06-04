@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { client } from '@lib/sanity.client'
+import { client } from '@/lib/sanity.client'
 import {
   allAuthors,
   authorBySlug,
@@ -21,8 +21,8 @@ import {
   divisionPaths,
   conferencePaths,
   openGraphDataBySlug,
-  schoolsByDivision
-} from '@lib/sanity.queries'
+  schoolsByDivision,
+} from '@/lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
 import {
@@ -37,7 +37,7 @@ import {
   PrivacyPolicyPagePayload,
   SitemapPayload,
   SiteMapPost,
-} from '@types'
+} from '@/types'
 
 export const token = process.env.SANITY_API_READ_TOKEN
 

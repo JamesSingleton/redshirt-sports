@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { industryInc } from '@styles/fonts'
+import { industryInc } from '@/styles/fonts'
 
 const LargeLogo = (props: JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>) => (
   <svg

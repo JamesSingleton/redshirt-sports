@@ -1,5 +1,5 @@
-import { getSchoolsByDivision } from '@lib/sanity.fetch'
-import Top25 from '@components/forms/top-25'
+import { getSchoolsByDivision } from '@/lib/sanity.fetch'
+import Top25 from '@/components/forms/top-25'
 
 export async function generateStaticParams() {
   const divisions = ['fbs', 'fcs', 'd2', 'd3']

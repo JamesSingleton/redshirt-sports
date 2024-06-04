@@ -3,7 +3,7 @@
 import { forwardRef, ElementRef, ComponentPropsWithoutRef } from 'react'
 import Link from 'next/link'
 
-import { cn } from '@lib/utils'
+import { cn } from '@/lib/utils'
 import LargeLogo from './LargeLogo'
 import {
   NavigationMenu,
@@ -13,9 +13,9 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from '@components/ui/navigation-menu'
+} from '@/components/ui/navigation-menu'
 
-import type { NavProps } from '@types'
+import type { NavProps } from '@/types'
 
 export function MainNav({ divisions }: NavProps) {
   return (

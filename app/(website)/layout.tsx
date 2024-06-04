@@ -2,7 +2,7 @@ import '../globals.css'
 
 import PlausibleProvider from 'next-plausible'
 
-import { SiteHeader, Footer, ThemeProvider } from '@components/common'
+import { SiteHeader, Footer, ThemeProvider } from '@/components/common'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const layout = (

@@ -1,15 +1,22 @@
 import { CheckIcon, ClockIcon, DownloadIcon, FilterIcon, XIcon } from 'lucide-react'
 
-import { Button } from '@components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@components/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { ByDivisionChart, ByPositionChart } from './_components/PieChart'
 
 export default async function TransferPortal() {

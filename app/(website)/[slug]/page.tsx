@@ -5,11 +5,11 @@ import { CameraIcon } from 'lucide-react'
 import { getYear, parseISO } from 'date-fns'
 import { Graph } from 'schema-dts'
 
-import { urlForImage } from '@lib/sanity.image'
-import { BASE_URL } from '@lib/constants'
-import { defineMetadata } from '@lib/utils.metadata'
-import { getPostBySlug } from '@lib/sanity.fetch'
-import { Org, Web } from '@lib/ldJson'
+import { urlForImage } from '@/lib/sanity.image'
+import { BASE_URL } from '@/lib/constants'
+import { defineMetadata } from '@/lib/utils.metadata'
+import { getPostBySlug } from '@/lib/sanity.fetch'
+import { Org, Web } from '@/lib/ldJson'
 import Author from './Author'
 import ArticleSocialShare from './ArticleSocialShare'
 
@@ -21,8 +21,8 @@ import {
   ArticleCard,
   ImageComponent,
   CustomPortableText,
-} from '@components/common'
-import { badgeVariants } from '@components/ui/badge'
+} from '@/components/common'
+import { badgeVariants } from '@/components/ui/badge'
 
 interface PageProps {
   params: {

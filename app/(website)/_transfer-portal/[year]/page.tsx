@@ -1,8 +1,8 @@
 import { MoveRight, CheckCircle, ArrowLeftToLine, ArrowRightToLine, Edit3 } from 'lucide-react'
 
-import { getTransferPortalPlayers } from '@lib/sanity.fetch'
-import { ImageComponent } from '@components/common'
-import { FilterBar } from '@components/common/FilterBar'
+import { getTransferPortalPlayers } from '@/lib/sanity.fetch'
+import { ImageComponent } from '@/components/common'
+import { FilterBar } from '@/components/common/FilterBar'
 
 export default async function Page({ params }: { params: { year: string } }) {
   const { year } = params

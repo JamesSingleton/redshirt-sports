@@ -9,10 +9,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
-import { buttonVariants } from '@components/ui/button'
-import { cn } from '@lib/utils'
+} from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export default async function AdminHome() {
   return (

@@ -8,10 +8,10 @@ import {
   Instagram,
   Twitter,
   Facebook,
-} from '@components/common/icons'
-import { ImageComponent } from '@components/common'
+} from '@/components/common/icons'
+import { ImageComponent } from '@/components/common'
 
-import type { Author } from '@types'
+import type { Author } from '@/types'
 
 const Author = (author: Author) => {
   return (

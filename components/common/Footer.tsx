@@ -1,8 +1,8 @@
 import { JSX, SVGProps } from 'react'
 import Link from 'next/link'
 
-import { LargeLogo } from '@components/common'
-import { Facebook, Twitter, RSSIcon } from '@components/common/icons'
+import { LargeLogo } from '@/components/common'
+import { Facebook, Twitter, RSSIcon } from '@/components/common/icons'
 
 const navigation = {
   divisions: [

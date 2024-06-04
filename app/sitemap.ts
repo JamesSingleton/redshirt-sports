@@ -1,8 +1,8 @@
-import { sanityFetch } from '@lib/sanity.fetch'
-import { BASE_URL } from '@lib/constants'
+import { sanityFetch } from '@/lib/sanity.fetch'
+import { BASE_URL } from '@/lib/constants'
 
 import type { MetadataRoute } from 'next'
-import { ConferencePayload, Division } from '@types'
+import { ConferencePayload, Division } from '@/types'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const divisions = await sanityFetch<Division[]>({

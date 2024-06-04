@@ -1,6 +1,6 @@
-import { BASE_URL } from '@lib/constants'
-import { sanityFetch } from '@lib/sanity.fetch'
-import type { SiteMapPost } from '@types'
+import { BASE_URL } from '@/lib/constants'
+import { sanityFetch } from '@/lib/sanity.fetch'
+import type { SiteMapPost } from '@/types'
 import type { MetadataRoute } from 'next'
 
 export async function generateSitemaps() {
