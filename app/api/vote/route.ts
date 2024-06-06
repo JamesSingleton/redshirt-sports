@@ -1,26 +1,43 @@
+import * as Sentry from '@sentry/nextjs'
+
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/server/db'
 import { votes } from '@/server/db/schema'
 
-import { type NextRequest, NextResponse } from 'next/server'
-
 export async function POST(req: Request) {
-  console.log('POST /api/vote')
-  const body = await req.json()
-  console.log('body:', body)
+  try {
+    const body = await req.json()
 
-  const user = auth()
+    if (!Array.isArray(body)) {
+      console.log('Invalid request body.')
+    }
+    const user = auth()
 
-  if (!user.userId) {
-    return new Response('Unauthorized', { status: 401 })
+    if (!user.userId) {
+      return new Response('Unauthorized', { status: 401 })
+    }
+
+    console.log(body)
+
+    // const votesConverted = Object.entries(body)
+    //   .map(([key, value]) => {
+    //     const match = key.match(/rank_(\d+)/)
+    //     if (!match) return null
+    //     const rank = parseInt(match[1], 10)
+    //     return { teamId: String(value), rank: rank } // Convert 'value' to a string
+    //   })
+    //   .map((vote) => ({
+    //     userId: user.userId,
+    //     week: 1,
+    //     teamId: vote!.teamId,
+    //     rank: vote!.rank,
+    //   }))
+
+    // await db.insert(votes).values(votesConverted)
+
+    return new Response('OK', { status: 200 })
+  } catch (error) {
+    Sentry.captureException(error)
+    return Response.error()
   }
-
-  await db.insert(votes).values({
-    userId: user.userId, // Provide a default value if user.userId is null
-    teamId: body.rank_1,
-    rank: 1,
-    week: 1,
-  })
-
-  return new Response('OK', { status: 200 })
 }

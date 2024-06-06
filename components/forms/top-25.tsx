@@ -133,24 +133,39 @@ const Top25 = ({ schools }: Top25FormProps) => {
   const router = useRouter()
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // POST to /api/vote with values
+    console.log('Values before', values)
+    // transform values into an array
+    const valuesArray = Object.entries(values)
+      .map(
+        ([key, value]) => {
+          const match = key.match(/rank_(\d+)/)
+          if (!match) return null
+          const rank = parseInt(match[1], 10)
+          return { teamId: value, rank }
+        },
+        // filter out null values
+      )
+      .filter((vote) => vote !== null)
+
+    console.log('Values after', valuesArray)
 
     fetch('/api/vote', {
       method: 'POST',
-      body: JSON.stringify(values),
+      body: JSON.stringify(valuesArray),
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((res) => {
-      // redirect(`/vote/${params.division}/confirmation`)
-      router.push(`/vote/${params.division}/confirmation`)
+      // if (res.ok) {
+      //   router.push(`/vote/${params.division}/confirmation`)
+      // }
     })
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {Array.from({ length: 5 }).map((_, index) => (
+        {Array.from({ length: 25 }).map((_, index) => (
           <FormField
             key={index}
             control={form.control}
@@ -178,7 +193,7 @@ const Top25 = ({ schools }: Top25FormProps) => {
                                 loading="lazy"
                                 className="h-8 w-8"
                               />
-                              <span>{school.abbreviation ?? school.name}</span>
+                              <span>{school.name}</span>
                             </div>
                           </SelectItem>
                         ))}
