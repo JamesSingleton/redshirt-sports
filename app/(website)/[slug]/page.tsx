@@ -8,7 +8,7 @@ import { Graph } from 'schema-dts'
 import { urlForImage } from '@lib/sanity.image'
 import { BASE_URL } from '@lib/constants'
 import { defineMetadata } from '@lib/utils.metadata'
-import { getPostBySlug } from '@lib/sanity.fetch'
+import { getPostBySlug, getPostsPaths } from '@lib/sanity.fetch'
 import { Org, Web } from '@lib/ldJson'
 import Author from './Author'
 import ArticleSocialShare from './ArticleSocialShare'
@@ -69,13 +69,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       ...defaultMetadata.twitter,
-      images: [
-        {
-          url: urlForImage(post.mainImage).width(1200).height(627).fit('crop').url(),
-          width: 1200,
-          height: 627,
-        },
-      ],
     },
     alternates: {
       canonical: `${BASE_URL}/${post.slug}`,
@@ -85,7 +78,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       'twitter:data1': `${post.estimatedReadingTime} min read`,
     },
     keywords: keywords,
+    metadataBase: new URL(BASE_URL),
   }
+}
+
+export async function generateStaticParams() {
+  const postPaths = await getPostsPaths()
+
+  return postPaths.map((path) => ({
+    slug: path,
+  }))
 }
 
 export default async function Page({ params }: PageProps) {
