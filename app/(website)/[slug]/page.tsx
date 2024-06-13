@@ -79,7 +79,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       'twitter:data1': `${post.estimatedReadingTime} min read`,
     },
     keywords: keywords,
-    metadataBase: new URL(BASE_URL),
   }
 }
 
