@@ -1,5 +1,16 @@
-export default function VoteConfirmationPage({ params }: { params: { division: string } }) {
+import { auth } from '@clerk/nextjs/server'
+import { eq } from 'drizzle-orm'
+
+import { db } from '@/server/db'
+import { ballots } from '@/server/db/schema'
+import { getUsersVote } from '@/server/queries'
+
+export default async function VoteConfirmationPage({ params }: { params: { division: string } }) {
   const { division } = params
+  const vote = await getUsersVote()
+
+  console.log(vote)
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8">
       <div className="space-y-4 text-center">
