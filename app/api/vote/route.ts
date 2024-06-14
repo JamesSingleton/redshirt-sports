@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     await db.insert(ballots).values({
       userId: user.userId,
-      week: 3,
+      week: 4,
       rank_1: body.rank_1,
       rank_2: body.rank_2,
       rank_3: body.rank_3,

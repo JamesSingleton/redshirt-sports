@@ -330,12 +330,12 @@ export const schoolsByDivision = groq`
 }
 `
 
-// create a query that takes in an array of school ids and returns the school name, abbreviation, and image in the same order as the ids
 export const schoolsById = groq`
-*[_type == "school" && _id in $ids]{
+*[_type == "school" && _id in $ids[].id]{
   _id,
+  "_order": $ids[id == ^._id][0].rank,
   name,
   abbreviation,
   image,
-}
+} | order(_order)
 `

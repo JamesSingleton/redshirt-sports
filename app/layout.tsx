@@ -4,6 +4,8 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 
+import { ThemeProvider } from '@/components/common'
+
 import type { Viewport } from 'next'
 
 export const viewport: Viewport = {
@@ -19,7 +21,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         className={`${GeistSans.variable} ${GeistMono.variable}`}
       >
         <body className="flex min-h-screen flex-col bg-background font-sans antialiased">
-          {children}
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

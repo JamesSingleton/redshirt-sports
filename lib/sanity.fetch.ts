@@ -205,10 +205,17 @@ export function getSchoolsByDivision(division: string) {
   })
 }
 
-export function getSchoolsById(ids: string[]) {
-  return sanityFetch<SchoolLite[]>({
-    query: schoolsById,
-    params: { ids },
-    tags: ['school'],
-  })
+export function getSchoolsById(
+  ids: {
+    id: string
+    rank: number
+  }[],
+) {
+  return client.fetch<SchoolLite[]>(
+    schoolsById,
+    {
+      ids,
+    },
+    { token, perspective: 'published' },
+  )
 }

@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+
 import ImageComponent from '@/components/common/ImageComponent'
 
 import type { Top25FormProps } from '@/types'
@@ -133,22 +134,6 @@ const Top25 = ({ schools }: Top25FormProps) => {
   const router = useRouter()
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('Values before', values)
-    // transform values into an array
-    // const valuesArray = Object.entries(values)
-    //   .map(
-    //     ([key, value]) => {
-    //       const match = key.match(/rank_(\d+)/)
-    //       if (!match) return null
-    //       const rank = parseInt(match[1], 10)
-    //       return { teamId: value, rank }
-    //     },
-    //     // filter out null values
-    //   )
-    //   .filter((vote) => vote !== null)
-
-    // console.log('Values after', valuesArray)
-
     fetch('/api/vote', {
       method: 'POST',
       body: JSON.stringify(values),
@@ -156,9 +141,9 @@ const Top25 = ({ schools }: Top25FormProps) => {
         'Content-Type': 'application/json',
       },
     }).then((res) => {
-      // if (res.ok) {
-      //   router.push(`/vote/${params.division}/confirmation`)
-      // }
+      if (res.ok) {
+        router.push(`/vote/${params.division}/confirmation`)
+      }
     })
   }
 

@@ -31,11 +31,29 @@ const voteConfirmationHeaderByDivision = [
   },
 ]
 
+interface RankInput {
+  [key: string]: string | number | Date | null
+}
+
+function transformRanks(input: RankInput) {
+  return Object.keys(input)
+    .filter((key) => key.startsWith('rank_'))
+    .map((key) => ({
+      id: input[key] as string,
+      rank: parseInt(key.split('_')[1]),
+    }))
+}
+
 export default async function VoteConfirmationPage({ params }: { params: { division: string } }) {
   const { division } = params
   const header = voteConfirmationHeaderByDivision.find((d) => d.division === division)
   const user = auth()
-  const vote = await getUsersVote()
+  // get current year
+  const year = new Date().getFullYear()
+  const vote = await getUsersVote({
+    year,
+    week: 4,
+  })
 
   if (!user.userId) {
     redirect('/')
@@ -45,34 +63,23 @@ export default async function VoteConfirmationPage({ params }: { params: { divis
     redirect(`/vote/${division}`)
   }
 
-  const teamIds = Object.keys(vote as any).reduce((acc, key) => {
-    if (key.startsWith('rank_')) {
-      // @ts-expect-error
-      acc.push(vote[key])
-    }
-    return acc
-  }, [])
+  const transformVote = transformRanks(vote as RankInput)
 
-  const schools = await getSchoolsById(teamIds)
-
-  // order the schools in the order they were voted on
-  const orderedSchools = teamIds.map((id) =>
-    schools.find((school) => school._id === id),
-  ) as SchoolLite[]
+  const schools = await getSchoolsById(transformVote)
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8">
+    <div className="container flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8">
       <div className="space-y-4 text-center">
         <h1 className="text-3xl font-bold">{header?.title}</h1>
-        <p className="text-gray-500 dark:text-gray-400">{header?.subtitle}</p>
+        <p className="text-muted-foreground">{header?.subtitle}</p>
       </div>
       <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
-        {orderedSchools.map((school, index) => (
+        {schools.map((school, index) => (
           <div className="flex flex-col items-center gap-2" key={school._id}>
             <div className="flex h-16 w-16 flex-col justify-center">
               <ImageComponent image={school.image} width={60} height={60} mode="contain" />
             </div>
-            <p className="text-center text-sm font-medium">
+            <p className="text-center font-semibold">
               {index + 1}. {school.name}
             </p>
           </div>
