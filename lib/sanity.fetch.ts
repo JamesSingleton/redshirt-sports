@@ -22,6 +22,7 @@ import {
   conferencePaths,
   openGraphDataBySlug,
   schoolsByDivision,
+  schoolsById,
 } from '@/lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
@@ -37,6 +38,7 @@ import {
   PrivacyPolicyPagePayload,
   SitemapPayload,
   SiteMapPost,
+  SchoolLite,
 } from '@/types'
 
 export const token = process.env.SANITY_API_READ_TOKEN
@@ -200,5 +202,13 @@ export function getSchoolsByDivision(division: string) {
     query: schoolsByDivision,
     params: { division },
     tags: [`division:${division}`],
+  })
+}
+
+export function getSchoolsById(ids: string[]) {
+  return sanityFetch<SchoolLite[]>({
+    query: schoolsById,
+    params: { ids },
+    tags: ['school'],
   })
 }

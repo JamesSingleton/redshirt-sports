@@ -37,7 +37,6 @@ export default async function VotePage({ params }: { params: { division: string 
   const header = divisionHeader.find((d) => d.division === division)
   const { title, subtitle } = header || { title: '', subtitle: '' }
 
-  // console.log(schools)
   return (
     <div className="container">
       {title && subtitle && (

@@ -127,3 +127,9 @@ export interface HomePagePayload {
   d2Articles: Post[]
   d3Articles: Post[]
 }
+
+export interface SchoolLite {
+  _id: string
+  name: string
+  image: Image
+}
