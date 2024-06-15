@@ -132,4 +132,6 @@ export interface SchoolLite {
   _id: string
   name: string
   image: Image
+  abbreviation: string
+  shortName: string
 }

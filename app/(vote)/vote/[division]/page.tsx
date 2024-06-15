@@ -1,5 +1,9 @@
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+
 import { getSchoolsByDivision } from '@/lib/sanity.fetch'
 import Top25 from '@/components/forms/top-25'
+import { getUsersVote, hasVoterVoted } from '@/server/queries'
 
 export async function generateStaticParams() {
   const divisions = ['fbs', 'fcs', 'd2', 'd3']
@@ -33,7 +37,17 @@ const divisionHeader = [
 
 export default async function VotePage({ params }: { params: { division: string } }) {
   const { division } = params
+  const hasVoted = await hasVoterVoted({ year: 2024, week: 1 })
   const schools = await getSchoolsByDivision(division)
+  let vote
+
+  if (hasVoted) {
+    vote = await getUsersVote({ year: 2024, week: 1 })
+  }
+
+  if (!schools) {
+    notFound()
+  }
   const header = divisionHeader.find((d) => d.division === division)
   const { title, subtitle } = header || { title: '', subtitle: '' }
 
@@ -46,7 +60,7 @@ export default async function VotePage({ params }: { params: { division: string 
         </div>
       )}
       <div className="mx-auto my-8 max-w-4xl">
-        <Top25 schools={schools} />
+        <Top25 schools={schools} vote={vote} />
       </div>
     </div>
   )

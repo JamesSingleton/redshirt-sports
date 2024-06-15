@@ -318,9 +318,10 @@ export const openGraphDataBySlug = groq`
 `
 
 export const schoolsByDivision = groq`
-*[_type == "school" && division->slug.current == $division]| order(name asc){
+*[_type == "school" && division->slug.current == $division]| order(shortName asc){
   _id,
   name,
+  shortName,
   abbreviation,
   image,
   conference->{
@@ -335,6 +336,7 @@ export const schoolsById = groq`
   _id,
   "_order": $ids[id == ^._id][0].rank,
   name,
+  shortName,
   abbreviation,
   image,
 } | order(_order)

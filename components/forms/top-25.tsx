@@ -126,9 +126,10 @@ const formSchema = z
     }
   })
 
-const Top25 = ({ schools }: Top25FormProps) => {
+const Top25 = ({ schools, vote }: Top25FormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: vote,
   })
   const params = useParams()
   const router = useRouter()
@@ -178,7 +179,7 @@ const Top25 = ({ schools }: Top25FormProps) => {
                                 loading="lazy"
                                 className="h-8 w-8"
                               />
-                              <span>{school.name}</span>
+                              <span>{school.shortName ?? school.abbreviation ?? school.name}</span>
                             </div>
                           </SelectItem>
                         ))}

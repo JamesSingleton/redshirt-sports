@@ -9,7 +9,7 @@ export default function VoteLayout({ children }: { children: React.ReactNode }) 
         <div className="flex items-center gap-4 text-lg font-semibold">Redshirt Sports Top 25</div>
         <div className="flex items-center justify-center gap-4">
           <ModeToggle />
-          <UserButton showName />
+          <UserButton />
         </div>
       </header>
       <main className="flex-1 md:p-10">{children}</main>

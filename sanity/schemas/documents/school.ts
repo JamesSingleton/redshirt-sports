@@ -15,10 +15,15 @@ export default defineType({
       description: 'The name of the college or university. i.e. Virginia Military Institute',
     }),
     defineField({
+      name: 'shortName',
+      title: 'Short Name',
+      type: 'string',
+      description: 'The short name of the college or university. i.e. Virginia Tech',
+    }),
+    defineField({
       name: 'abbreviation',
       title: 'Abbreviation',
       type: 'string',
-      validation: (rule) => rule.required(),
       description: 'The abbreviation or shorter version of the college or university. i.e. VMI',
     }),
     defineField({

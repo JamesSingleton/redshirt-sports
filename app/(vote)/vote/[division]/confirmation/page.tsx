@@ -6,7 +6,6 @@ import { getUsersVote } from '@/server/queries'
 import { getSchoolsById } from '@/lib/sanity.fetch'
 import { ImageComponent } from '@/components/common'
 import { buttonVariants } from '@/components/ui/button'
-import { SchoolLite } from '@/types'
 
 const voteConfirmationHeaderByDivision = [
   {
@@ -48,11 +47,10 @@ export default async function VoteConfirmationPage({ params }: { params: { divis
   const { division } = params
   const header = voteConfirmationHeaderByDivision.find((d) => d.division === division)
   const user = auth()
-  // get current year
   const year = new Date().getFullYear()
   const vote = await getUsersVote({
     year,
-    week: 4,
+    week: 1,
   })
 
   if (!user.userId) {
@@ -80,7 +78,9 @@ export default async function VoteConfirmationPage({ params }: { params: { divis
               <ImageComponent image={school.image} width={60} height={60} mode="contain" />
             </div>
             <p className="text-center font-semibold">
-              {index + 1}. {school.name}
+              {/* {index + 1}. {school.shortName ?? school.name} */}
+              {/* if there is no shortName use abbreviation and if there is no abbreviation use name */}
+              {index + 1}. {school.shortName ?? school.abbreviation ?? school.name}
             </p>
           </div>
         ))}

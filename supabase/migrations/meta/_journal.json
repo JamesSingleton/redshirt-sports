@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1717363257276,
-      "tag": "0000_green_lockheed",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1717977965173,
-      "tag": "0001_low_doctor_octopus",
+      "when": 1718406665876,
+      "tag": "0000_quiet_ezekiel",
       "breakpoints": true
     }
   ]
