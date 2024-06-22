@@ -46,3 +46,11 @@ export async function getVoterBallots({ year, week }: GetUsersVote) {
 
   return votes
 }
+
+export async function getAllBallotsForWeekAndYear({ year, week }: GetUsersVote) {
+  const votes = await db.query.voterBallots.findMany({
+    where: (model, { eq, and }) => and(eq(model.year, year), eq(model.week, week)),
+  })
+
+  return votes
+}

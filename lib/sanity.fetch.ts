@@ -22,7 +22,7 @@ import {
   conferencePaths,
   openGraphDataBySlug,
   schoolsByDivision,
-  schoolsById,
+  schoolsByIdOrderedByRank,
 } from '@/lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
@@ -212,7 +212,7 @@ export function getSchoolsById(
   }[],
 ) {
   return client.fetch<SchoolLite[]>(
-    schoolsById,
+    schoolsByIdOrderedByRank,
     {
       ids,
     },

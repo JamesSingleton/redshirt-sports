@@ -331,7 +331,7 @@ export const schoolsByDivision = groq`
 }
 `
 
-export const schoolsById = groq`
+export const schoolsByIdOrderedByRank = groq`
 *[_type == "school" && _id in $ids[].id]{
   _id,
   "_order": $ids[id == ^._id][0].rank,
@@ -340,4 +340,16 @@ export const schoolsById = groq`
   abbreviation,
   image,
 } | order(_order)
+`
+
+export const schoolsByIdOrderedByPoints = groq`
+*[_type == "school" && _id in $ids[].id]{
+  _id,
+  "_points": $ids[id == ^._id][0].totalPoints,
+  name,
+  shortName,
+  abbreviation,
+  image,
+  "_firstPlaceVotes": $ids[id == ^._id][0].firstPlaceVotes,
+} | order(_points desc)
 `

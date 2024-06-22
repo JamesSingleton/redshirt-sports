@@ -93,7 +93,7 @@ export interface Top25FormProps {
 export interface Ballot {
   id: number
   userId: string
-  division: 'fbs' | 'fcs' | 'd2' | 'd3'
+  division: string
   week: number
   year: number
   createdAt: Date
