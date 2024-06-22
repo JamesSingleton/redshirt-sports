@@ -2,7 +2,31 @@ import * as Sentry from '@sentry/nextjs'
 
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/server/db'
-import { ballots } from '@/server/db/schema'
+import { voterBallots } from '@/server/db/schema'
+
+type Week = {
+  number: number
+  startDate: Date
+  endDate: Date
+  text: string
+}
+
+type SeasonTypes = {
+  id: string
+  type: number
+  name: string
+  startDate: Date
+  endDate: Date
+  weeks: Week[]
+}
+
+type Season = {
+  year: number
+  displayName: string
+  startDate: Date
+  endDate: Date
+  types: SeasonTypes[]
+}
 
 export async function POST(req: Request) {
   try {
@@ -13,68 +37,46 @@ export async function POST(req: Request) {
       return new Response('Unauthorized', { status: 401 })
     }
 
-    await db
-      .insert(ballots)
-      .values({
-        userId: user.userId,
-        week: 1,
-        rank_1: body.rank_1,
-        rank_2: body.rank_2,
-        rank_3: body.rank_3,
-        rank_4: body.rank_4,
-        rank_5: body.rank_5,
-        rank_6: body.rank_6,
-        rank_7: body.rank_7,
-        rank_8: body.rank_8,
-        rank_9: body.rank_9,
-        rank_10: body.rank_10,
-        rank_11: body.rank_11,
-        rank_12: body.rank_12,
-        rank_13: body.rank_13,
-        rank_14: body.rank_14,
-        rank_15: body.rank_15,
-        rank_16: body.rank_16,
-        rank_17: body.rank_17,
-        rank_18: body.rank_18,
-        rank_19: body.rank_19,
-        rank_20: body.rank_20,
-        rank_21: body.rank_21,
-        rank_22: body.rank_22,
-        rank_23: body.rank_23,
-        rank_24: body.rank_24,
-        rank_25: body.rank_25,
-      })
-      .onConflictDoUpdate({
-        target: [ballots.userId, ballots.year, ballots.week],
-        set: {
-          updatedAt: new Date(),
-          rank_1: body.rank_1,
-          rank_2: body.rank_2,
-          rank_3: body.rank_3,
-          rank_4: body.rank_4,
-          rank_5: body.rank_5,
-          rank_6: body.rank_6,
-          rank_7: body.rank_7,
-          rank_8: body.rank_8,
-          rank_9: body.rank_9,
-          rank_10: body.rank_10,
-          rank_11: body.rank_11,
-          rank_12: body.rank_12,
-          rank_13: body.rank_13,
-          rank_14: body.rank_14,
-          rank_15: body.rank_15,
-          rank_16: body.rank_16,
-          rank_17: body.rank_17,
-          rank_18: body.rank_18,
-          rank_19: body.rank_19,
-          rank_20: body.rank_20,
-          rank_21: body.rank_21,
-          rank_22: body.rank_22,
-          rank_23: body.rank_23,
-          rank_24: body.rank_24,
-          rank_25: body.rank_25,
-        },
-      })
+    const voterBallot = []
+    const year = new Date().getFullYear()
+
+    for (let i = 1; i <= 25; i++) {
+      const rankKey = `rank_${i}`
+      if (body[rankKey]) {
+        voterBallot.push({
+          userId: user.userId,
+          division: body.division,
+          week: 0,
+          year,
+          teamId: body[rankKey],
+          rank: i,
+          points: 26 - i,
+        })
+      }
+    }
+
+    // const currentDate = new Date()
+    let currentDate = new Date('2024-08-24T07:00:00.000+00:00')
+
+    const espnBody = await fetch(
+      'https://site.api.espn.com/apis/common/v3/sports/football/college-football/seasons',
+    ).then((res) => res.json())
+
+    const currentYearData = espnBody.seasons.find(
+      (season: Season) => season.year === new Date().getFullYear(),
+    )
+
+    const regularSeasonWeeks = currentYearData.types.find(
+      ({ type }: SeasonTypes) => type === 2,
+    ).weeks
+
+    const currentWeek = regularSeasonWeeks.find((week: Week) => {
+      const startDate = new Date(week.startDate)
+      const endDate = new Date(week.endDate)
+      return currentDate >= startDate && currentDate <= endDate
+    })
+
+    await db.insert(voterBallots).values(voterBallot)
 
     return new Response('OK', { status: 200 })
   } catch (error) {

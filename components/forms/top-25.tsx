@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useParams, useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -30,6 +31,7 @@ import type { Top25FormProps } from '@/types'
 
 const formSchema = z
   .object({
+    division: z.enum(['fbs', 'fcs', 'd2', 'd3']).optional(),
     rank_1: z.string({
       required_error: 'Please select a team for rank 1.',
     }),
@@ -131,10 +133,14 @@ const Top25 = ({ schools, vote }: Top25FormProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: vote,
   })
+
   const params = useParams()
+  const { division } = params as { division?: 'fbs' | 'fcs' | 'd2' | 'd3' }
   const router = useRouter()
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    // update the values to include the division
+    values = { ...values, division }
     fetch('/api/vote', {
       method: 'POST',
       body: JSON.stringify(values),
@@ -142,9 +148,10 @@ const Top25 = ({ schools, vote }: Top25FormProps) => {
         'Content-Type': 'application/json',
       },
     }).then((res) => {
-      if (res.ok) {
-        router.push(`/vote/${params.division}/confirmation`)
-      }
+      // if (res.ok) {
+      //   router.push(`/vote/${division}/confirmation`)
+      // }
+      console.log(res)
     })
   }
 
@@ -193,7 +200,13 @@ const Top25 = ({ schools, vote }: Top25FormProps) => {
           />
         ))}
         <Button type="submit" disabled={form.formState.isSubmitting || !form.formState.isValid}>
-          Submit
+          {form.formState.isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" size={16} /> Submitting Ballot
+            </>
+          ) : (
+            'Submit'
+          )}
         </Button>
       </form>
     </Form>

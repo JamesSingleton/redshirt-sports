@@ -2,10 +2,12 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 
-import { getUsersVote } from '@/server/queries'
+import { getVoterBallots } from '@/server/queries'
 import { getSchoolsById } from '@/lib/sanity.fetch'
 import { ImageComponent } from '@/components/common'
 import { buttonVariants } from '@/components/ui/button'
+
+import { type Ballot } from '@/types'
 
 const voteConfirmationHeaderByDivision = [
   {
@@ -30,17 +32,8 @@ const voteConfirmationHeaderByDivision = [
   },
 ]
 
-interface RankInput {
-  [key: string]: string | number | Date | null
-}
-
-function transformRanks(input: RankInput) {
-  return Object.keys(input)
-    .filter((key) => key.startsWith('rank_'))
-    .map((key) => ({
-      id: input[key] as string,
-      rank: parseInt(key.split('_')[1]),
-    }))
+const transformBallotToTeamIds = (ballot: Ballot[]) => {
+  return ballot.map((b: Ballot) => ({ id: b.teamId, rank: b.rank }))
 }
 
 export default async function VoteConfirmationPage({ params }: { params: { division: string } }) {
@@ -48,22 +41,20 @@ export default async function VoteConfirmationPage({ params }: { params: { divis
   const header = voteConfirmationHeaderByDivision.find((d) => d.division === division)
   const user = auth()
   const year = new Date().getFullYear()
-  const vote = await getUsersVote({
+  const ballot = (await getVoterBallots({
     year,
-    week: 1,
-  })
+    week: 0,
+  })) as Ballot[]
 
   if (!user.userId) {
     redirect('/')
   }
 
-  if (user.userId && !vote) {
+  if (user.userId && !ballot) {
     redirect(`/vote/${division}`)
   }
 
-  const transformVote = transformRanks(vote as RankInput)
-
-  const schools = await getSchoolsById(transformVote)
+  const schools = await getSchoolsById(transformBallotToTeamIds(ballot))
 
   return (
     <div className="container flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8">
@@ -78,8 +69,6 @@ export default async function VoteConfirmationPage({ params }: { params: { divis
               <ImageComponent image={school.image} width={60} height={60} mode="contain" />
             </div>
             <p className="text-center font-semibold">
-              {/* {index + 1}. {school.shortName ?? school.name} */}
-              {/* if there is no shortName use abbreviation and if there is no abbreviation use name */}
               {index + 1}. {school.shortName ?? school.abbreviation ?? school.name}
             </p>
           </div>

@@ -89,3 +89,15 @@ export interface Top25FormProps {
   }[]
   vote?: Vote | undefined
 }
+
+export interface Ballot {
+  id: number
+  userId: string
+  division: 'fbs' | 'fcs' | 'd2' | 'd3'
+  week: number
+  year: number
+  createdAt: Date
+  teamId: string
+  rank: number
+  points: number
+}

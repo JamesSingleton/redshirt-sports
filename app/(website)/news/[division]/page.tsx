@@ -47,6 +47,7 @@ export async function generateMetadata(
 
   return {
     ...defaultMetadata,
+    metadataBase: new URL(BASE_URL),
     openGraph: {
       ...defaultMetadata.openGraph,
       images: [...previousImages],

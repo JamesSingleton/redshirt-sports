@@ -38,13 +38,14 @@ const divisionHeader = [
 
 export default async function VotePage({ params }: { params: { division: string } }) {
   const { division } = params
-  const hasVoted = await hasVoterVoted({ year: 2024, week: 1 })
+  // const hasVoted = await hasVoterVoted({ year: 2024, week: 1 })
+
   const schools = await getSchoolsByDivision(division)
   let vote: Vote | undefined = undefined
 
-  if (hasVoted) {
-    vote = (await getUsersVote({ year: 2024, week: 1 })) as Vote
-  }
+  // if (hasVoted) {
+  //   vote = (await getUsersVote({ year: 2024, week: 1 })) as Vote
+  // }
 
   if (!schools) {
     notFound()
