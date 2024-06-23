@@ -44,6 +44,7 @@ export default async function VoteConfirmationPage({ params }: { params: { divis
   const ballot = (await getVoterBallots({
     year,
     week: 0,
+    division,
   })) as Ballot[]
 
   if (!user.userId) {

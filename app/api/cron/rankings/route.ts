@@ -6,6 +6,7 @@ import { schoolsByIdOrderedByPoints } from '@/lib/sanity.queries'
 import { token } from '@/lib/sanity.fetch'
 
 import { type Ballot, SchoolLite } from '@/types'
+import { NextResponse } from 'next/server'
 
 interface TeamPoint {
   id: string
@@ -105,8 +106,12 @@ export async function GET(request: Request) {
       week: 0,
       rankings: rankedTeams,
     })
+
+    return NextResponse.json({
+      response: 'Rankings calculated and stored in the database',
+    })
   } catch (error) {
     console.error(error)
-    return { status: 500, body: { error: 'Internal server error' } }
+    return NextResponse.error()
   }
 }
