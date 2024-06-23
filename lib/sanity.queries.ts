@@ -350,6 +350,16 @@ export const schoolsByIdOrderedByPoints = groq`
   shortName,
   abbreviation,
   image,
-  "_firstPlaceVotes": $ids[id == ^._id][0].firstPlaceVotes,
 } | order(_points desc)
+`
+
+export const lastThreePosts = groq`
+*[_type == "post" && division->slug.current == $division] | order(publishedAt desc)[0...3]{
+  _id,
+  title,
+  publishedAt,
+  "slug": slug.current,
+  "author": author->{name},
+  excerpt,
+}
 `

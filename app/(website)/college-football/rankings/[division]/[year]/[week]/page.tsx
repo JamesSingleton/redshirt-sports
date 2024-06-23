@@ -1,4 +1,7 @@
-import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { formatDistance } from 'date-fns'
+
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import {
   Select,
@@ -16,14 +19,26 @@ import {
   TableCell,
 } from '@/components/ui/table'
 import { ImageComponent } from '@/components/common'
+import { getLastThreePosts } from '@/lib/sanity.fetch'
+import { getFinalRankingsForWeekAndYear } from '@/server/queries'
 
-export default async function CollegeFootballRankingsPage() {
-  const response = await fetch('http://localhost:3000/api/rankings')
-  const rankings = await response.json()
+export default async function CollegeFootballRankingsPage({
+  params,
+}: {
+  params: { division: string; year: string; week: string }
+}) {
+  const { division, year, week } = params
+  const lastThreePosts = await getLastThreePosts(division)
+  const finalRankings = await getFinalRankingsForWeekAndYear({
+    year: parseInt(year, 10),
+    week: parseInt(week, 10),
+  })
+  const { rankings } = finalRankings
+
   const top25 = []
   const outsideTop25 = []
-  for (const team of rankings.rankedTeams) {
-    if (team.rank <= 25) {
+  for (const team of rankings) {
+    if (team.rank && team.rank <= 25) {
       top25.push(team)
     } else {
       outsideTop25.push(team)
@@ -36,7 +51,7 @@ export default async function CollegeFootballRankingsPage() {
         <Card className="w-full">
           <CardHeader>
             <CardTitle>FCS College Football Rankings</CardTitle>
-            <CardDescription className="flex items-center space-x-4">
+            <CardDescription className="flex items-center space-x-4 pt-4">
               <Select>
                 <SelectTrigger id="year" aria-label="Year">
                   <SelectValue placeholder="2024" />
@@ -79,7 +94,7 @@ export default async function CollegeFootballRankingsPage() {
                             className="mr-2 h-8 w-8"
                           />
                           {team.shortName ?? team.abbreviation ?? team.name}
-                          {team._firstPlaceVotes ? (
+                          {team.firstPlaceVotes ? (
                             <span className="ml-2 tracking-wider text-muted-foreground">
                               ({team.firstPlaceVotes})
                             </span>
@@ -104,43 +119,22 @@ export default async function CollegeFootballRankingsPage() {
       <aside className="mt-8 w-full md:mt-0 md:w-1/4">
         <Card className="w-full">
           <CardHeader>
-            <CardTitle>NCAAF News</CardTitle>
+            <CardTitle>Latest NCAAF News</CardTitle>
           </CardHeader>
           <CardContent>
-            {[
-              {
-                title: 'Boulder restaurant names burger after five-star Julian Lewis',
-                description:
-                  'Julian Lewis, the top recruit in the class of 2026, will have a burger named after him for his visit to the University of Colorado.',
-                time: '18h',
-                author: 'ESPN',
-              },
-              {
-                title: 'Former Texas A&M star Darren Lewis dies at age 55 from cancer',
-                description:
-                  "Darren Lewis, the Texas A&M star who broke Eric Dickerson's Southwest Conference rushing record before addiction derailed his football career and post-football life, died Thursday night at age 55 from cancer.",
-                time: '1d',
-                author: 'Dave Wilson',
-              },
-              {
-                title: 'Auburn flips 4-star RB Alvin Henderson from Penn State',
-                description:
-                  'Auburn gained a major in-state flip and its highest-rated prospect in the 2024 class when running back Alvin Henderson, No. 55 in the ESPN 300, decommitted from Penn State and gave his verbal pledge to the Tigers on Friday.',
-                time: '1d',
-                author: 'ESPN',
-              },
-            ].map((news, index) => (
-              <div key={index} className="mb-4">
-                <p className="font-bold">{news.title}</p>
-                <p>{news.description}</p>
+            {lastThreePosts.map((post) => (
+              <Link href={`/${post.slug}`} key={post._id} className="group mb-4 block">
+                <h4 className="font-bold group-hover:underline">{post.title}</h4>
+                <p>{post.excerpt}</p>
                 <p className="text-sm text-gray-500">
-                  {news.time} - {news.author}
+                  {formatDistance(post.publishedAt, new Date(), { addSuffix: true })} -{' '}
+                  {post.author.name}
                 </p>
-              </div>
+              </Link>
             ))}
-            <Button variant="link" className="mt-4">
+            <Link href="/news" className={buttonVariants({ variant: 'link' })}>
               All NCAAF News
-            </Button>
+            </Link>
           </CardContent>
         </Card>
       </aside>

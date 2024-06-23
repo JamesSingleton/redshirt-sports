@@ -15,6 +15,13 @@
       "when": 1719018839321,
       "tag": "0001_woozy_dark_beast",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1719168963205,
+      "tag": "0002_familiar_doctor_faustus",
+      "breakpoints": true
     }
   ]
 }

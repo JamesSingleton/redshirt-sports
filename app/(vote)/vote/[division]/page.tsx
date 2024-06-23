@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import { getSchoolsByDivision } from '@/lib/sanity.fetch'
 import Top25 from '@/components/forms/top-25'
-import { getUsersVote, hasVoterVoted } from '@/server/queries'
+import { hasVoterVoted } from '@/server/queries'
 import { Vote } from '@/types'
 
 export async function generateStaticParams() {
@@ -38,7 +38,7 @@ const divisionHeader = [
 
 export default async function VotePage({ params }: { params: { division: string } }) {
   const { division } = params
-  // const hasVoted = await hasVoterVoted({ year: 2024, week: 1 })
+  const hasVoted = await hasVoterVoted({ year: 2024, week: 0, division })
 
   const schools = await getSchoolsByDivision(division)
   let vote: Vote | undefined = undefined

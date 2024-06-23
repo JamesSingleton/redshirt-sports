@@ -148,10 +148,9 @@ const Top25 = ({ schools, vote }: Top25FormProps) => {
         'Content-Type': 'application/json',
       },
     }).then((res) => {
-      // if (res.ok) {
-      //   router.push(`/vote/${division}/confirmation`)
-      // }
-      console.log(res)
+      if (res.ok) {
+        router.push(`/vote/${division}/confirmation`)
+      }
     })
   }
 

@@ -134,4 +134,5 @@ export interface SchoolLite {
   image: Image
   abbreviation: string
   shortName: string
+  _points: number
 }

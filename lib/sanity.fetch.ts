@@ -23,6 +23,7 @@ import {
   openGraphDataBySlug,
   schoolsByDivision,
   schoolsByIdOrderedByRank,
+  lastThreePosts,
 } from '@/lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
@@ -218,4 +219,12 @@ export function getSchoolsById(
     },
     { token, perspective: 'published' },
   )
+}
+
+export function getLastThreePosts(division: string) {
+  return sanityFetch<Post[]>({
+    query: lastThreePosts,
+    params: { division },
+    tags: ['post'],
+  })
 }

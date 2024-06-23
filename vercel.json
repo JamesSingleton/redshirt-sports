@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/rankings?division=fcs",
+      "schedule": "59 23 * 8-12 0"
+    }
+  ]
+}
