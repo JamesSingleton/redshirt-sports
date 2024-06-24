@@ -87,3 +87,13 @@ export async function getFinalRankingsForWeekAndYear({
 
   return rankings as FinalRankings
 }
+
+// given a year and week, return all votes for that week
+export async function getVotesForWeekAndYear({ year, week, division }: GetUsersVote) {
+  const votes = await db.query.voterBallots.findMany({
+    where: (model, { eq, and }) =>
+      and(eq(model.year, year), eq(model.week, week), eq(model.division, division)),
+  })
+
+  return votes
+}

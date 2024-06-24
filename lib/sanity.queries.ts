@@ -363,3 +363,14 @@ export const lastThreePosts = groq`
   excerpt,
 }
 `
+
+export const test = groq`
+*[_type == "school" && _id in $ids[].teamId]{
+  _id,
+  "_order": $ids[teamId == ^._id][0].rank,
+  name,
+  shortName,
+  abbreviation,
+  image,
+} | order(_order)
+`

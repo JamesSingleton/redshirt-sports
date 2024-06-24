@@ -20,7 +20,55 @@ import {
 } from '@/components/ui/table'
 import { ImageComponent } from '@/components/common'
 import { getLastThreePosts } from '@/lib/sanity.fetch'
-import { getFinalRankingsForWeekAndYear } from '@/server/queries'
+import { getFinalRankingsForWeekAndYear, getVotesForWeekAndYear } from '@/server/queries'
+import { client } from '@/lib/sanity.client'
+import { token } from '@/lib/sanity.fetch'
+import { test } from '@/lib/sanity.queries'
+import VoterBreakdown from './_components/voter-breakdown'
+
+interface Vote {
+  _id: string
+  image: any
+  shortName?: string
+  abbreviation?: string
+  name: string
+  userId: string
+}
+
+interface Testing {
+  [userId: string]: Vote[]
+}
+
+interface VoteLite {
+  id: number
+  userId: string
+  division: string
+  week: number
+  year: number
+  createdAt: Date
+  teamId: string
+  rank: number
+  points: number
+}
+
+interface TestingLite {
+  [userId: string]: VoteLite[]
+}
+
+async function processBallotsByUser(ballots: TestingLite) {
+  const userBallots: Testing = {}
+  for (const [userId, votes] of Object.entries(ballots)) {
+    const userData = await client.fetch(
+      test,
+      {
+        ids: votes,
+      },
+      { token, perspective: 'published' },
+    )
+    userBallots[userId] = userData
+  }
+  return userBallots
+}
 
 export default async function CollegeFootballRankingsPage({
   params,
@@ -34,6 +82,22 @@ export default async function CollegeFootballRankingsPage({
     week: parseInt(week, 10),
   })
   const { rankings } = finalRankings
+
+  const allVotes: VoteLite[] = await getVotesForWeekAndYear({
+    year: parseInt(year, 10),
+    week: parseInt(week, 10),
+    division,
+  })
+
+  const ballotsByUser: { [key: string]: VoteLite[] } = allVotes.reduce((acc: TestingLite, vote) => {
+    if (!acc[vote.userId]) {
+      acc[vote.userId] = []
+    }
+    acc[vote.userId].push(vote)
+    return acc
+  }, {})
+
+  const ballotsByUserWithExtraData: Testing = await processBallotsByUser(ballotsByUser)
 
   const top25 = []
   const outsideTop25 = []
@@ -113,6 +177,17 @@ export default async function CollegeFootballRankingsPage({
                 {outsideTop25.map((team) => `${team.shortName} ${team._points}`).join(', ')}
               </p>
             </div>
+          </CardContent>
+        </Card>
+        <Card className="mt-8 w-full">
+          <CardHeader>
+            <CardTitle>Voter Breakdown</CardTitle>
+            <CardDescription>
+              See how each voter cast their ballot for this week&apos;s rankings.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4 p-6">
+            <VoterBreakdown ballots={ballotsByUserWithExtraData} />
           </CardContent>
         </Card>
       </div>
