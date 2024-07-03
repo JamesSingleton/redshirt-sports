@@ -24,10 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
 import ImageComponent from '@/components/common/ImageComponent'
+import { VirtualizedDropdown } from '@/components/common/virtualized-dropdown'
 
 import type { Top25FormProps } from '@/types'
+import { VirtualizedCombobox } from '../virtualized-combobox'
 
 const formSchema = z
   .object({
@@ -154,9 +155,23 @@ const Top25 = ({ schools, vote }: Top25FormProps) => {
     })
   }
 
+  console.log(form.getValues())
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="rank_1"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Rank 1</FormLabel>
+              <FormControl>
+                <VirtualizedCombobox options={schools} onChange={field.onChange} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
         {Array.from({ length: 25 }).map((_, index) => (
           <FormField
             key={index}
