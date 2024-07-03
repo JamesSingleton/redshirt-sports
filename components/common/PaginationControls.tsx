@@ -20,12 +20,17 @@ export default function PaginationControls({ totalPosts }: { totalPosts: number 
   const currentPage = parseInt(searchParams.get('page') || '1')
 
   const createPageUrl = (pageNumber: number | string) => {
+    let pageUrl: string
     const params = new URLSearchParams(searchParams ?? '')
     params.set('page', pageNumber.toString())
     if (pageNumber === 1 || pageNumber === 0) {
       params.delete('page')
     }
-    return `${pathname}?${params}`
+
+    // only include ? if there are params
+    pageUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`
+
+    return pageUrl
   }
 
   const showPages = () => {
