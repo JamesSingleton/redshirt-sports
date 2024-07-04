@@ -51,6 +51,11 @@ export default defineType({
       type: 'reference',
       to: { type: 'author' },
       validation: (rule) => rule.required(),
+      options: {
+        filter: 'archived != true',
+        // @ts-expect-error this actually works, just types are messed up from Sanity
+        sort: [{ field: 'name', direction: 'asc' }],
+      },
     }),
     defineField({
       name: 'mainImage',
