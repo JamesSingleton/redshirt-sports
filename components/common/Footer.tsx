@@ -26,7 +26,7 @@ const navigation = {
     },
     {
       name: 'Twitter',
-      href: 'https://twitter.com/_redshirtsports',
+      href: 'https://x.com/_redshirtsports',
       icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => <Twitter {...props} />,
     },
   ],

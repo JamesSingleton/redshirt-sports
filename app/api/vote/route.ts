@@ -6,26 +6,38 @@ import { voterBallots } from '@/server/db/schema'
 
 type Week = {
   number: number
-  startDate: Date
-  endDate: Date
+  startDate: string
+  endDate: string
   text: string
 }
 
-type SeasonTypes = {
+type WeekDetail = {
+  number: number
+  startDate: string
+  endDate: string
+  text: string
+}
+
+type SeasonType = {
   id: string
   type: number
   name: string
-  startDate: Date
-  endDate: Date
-  weeks: Week[]
+  startDate: string
+  endDate: string
+  weeks: WeekDetail[]
+  week: Week | {}
 }
 
 type Season = {
   year: number
   displayName: string
-  startDate: Date
-  endDate: Date
-  types: SeasonTypes[]
+  startDate: string
+  endDate: string
+  types: SeasonType[]
+}
+
+type ESPNBody = {
+  seasons: Season[]
 }
 
 export async function POST(req: Request) {
@@ -37,8 +49,52 @@ export async function POST(req: Request) {
       return new Response('Unauthorized', { status: 401 })
     }
 
+    let currentSeasonData: Season
+    let votingWeek: number = 0
+    let isPreseason: boolean = false
+    let isRegularSeason: boolean
+    let regularSeason: SeasonType
+    let preseason: SeasonType
     const voterBallot = []
-    const year = new Date().getFullYear()
+
+    const currentDate = new Date()
+    // let currentDate = new Date('2024-08-24T07:00:00.000+00:00')
+    const currentSeason = await fetch(
+      'https://site.api.espn.com/apis/common/v3/sports/football/college-football/season',
+    ).then((res) => res.json())
+
+    const { year } = currentSeason
+
+    const espnBody: ESPNBody = await fetch(
+      `https://site.api.espn.com/apis/common/v3/sports/football/college-football/seasons?startingseason=${year}`,
+    ).then((res) => res.json())
+
+    currentSeasonData = espnBody.seasons[0]
+
+    if (currentSeasonData.types.length) {
+      preseason = currentSeasonData.types.find((type) => type.type === 1)!
+      regularSeason = currentSeasonData.types.find((type) => type.type === 2)!
+
+      isPreseason =
+        currentDate >= new Date(preseason.startDate) && currentDate <= new Date(preseason.endDate)
+
+      isRegularSeason =
+        currentDate >= new Date(regularSeason.startDate) &&
+        currentDate <= new Date(regularSeason.endDate)
+
+      if (isRegularSeason) {
+        const currentWeek = regularSeason.weeks.find(
+          (week) =>
+            currentDate >= new Date(week.startDate) && currentDate <= new Date(week.endDate),
+        )
+
+        if (currentWeek) {
+          votingWeek = currentWeek.number
+        }
+      } else {
+        votingWeek = 0
+      }
+    }
 
     for (let i = 1; i <= 25; i++) {
       const rankKey = `rank_${i}`
@@ -46,7 +102,7 @@ export async function POST(req: Request) {
         voterBallot.push({
           userId: user.userId,
           division: body.division,
-          week: 0,
+          week: votingWeek,
           year,
           teamId: body[rankKey],
           rank: i,
@@ -55,28 +111,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // const currentDate = new Date()
-    let currentDate = new Date('2024-08-24T07:00:00.000+00:00')
-
-    const espnBody = await fetch(
-      'https://site.api.espn.com/apis/common/v3/sports/football/college-football/seasons',
-    ).then((res) => res.json())
-
-    const currentYearData = espnBody.seasons.find(
-      (season: Season) => season.year === new Date().getFullYear(),
-    )
-
-    const regularSeasonWeeks = currentYearData.types.find(
-      ({ type }: SeasonTypes) => type === 2,
-    ).weeks
-
-    const currentWeek = regularSeasonWeeks.find((week: Week) => {
-      const startDate = new Date(week.startDate)
-      const endDate = new Date(week.endDate)
-      return currentDate >= startDate && currentDate <= endDate
-    })
-
-    await db.insert(voterBallots).values(voterBallot)
+    // await db.insert(voterBallots).values(voterBallot)
 
     return new Response('OK', { status: 200 })
   } catch (error) {

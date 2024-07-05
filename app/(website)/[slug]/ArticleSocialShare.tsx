@@ -26,13 +26,11 @@ export default function ArticleSocialShare({ slug, title }: { slug: string; titl
         <li className="group">
           <Link
             target="_blank"
-            href={`https://twitter.com/share?url=${BASE_URL}/${slug}&text=${encodeURIComponent(
-              title,
-            )}`}
+            href={`https://x.com/share?url=${BASE_URL}/${slug}&text=${encodeURIComponent(title)}`}
             rel="noopener"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
           >
-            <span className="sr-only">Twitter</span>
+            <span className="sr-only">X (Formerly Twitter)</span>
             <Twitter
               className="h-5 w-5 group-hover:fill-secondary group-hover:text-secondary"
               aria-hidden="true"

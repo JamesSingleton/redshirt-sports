@@ -36,78 +36,78 @@ const formSchema = z
     rank_1: z.string({
       required_error: 'Please select a team for rank 1.',
     }),
-    rank_2: z.string({
-      required_error: 'Please select a team for rank 2.',
-    }),
-    rank_3: z.string({
-      required_error: 'Please select a team for rank 3.',
-    }),
-    rank_4: z.string({
-      required_error: 'Please select a team for rank 4.',
-    }),
-    rank_5: z.string({
-      required_error: 'Please select a team for rank 5.',
-    }),
-    rank_6: z.string({
-      required_error: 'Please select a team for rank 6.',
-    }),
-    rank_7: z.string({
-      required_error: 'Please select a team for rank 7.',
-    }),
-    rank_8: z.string({
-      required_error: 'Please select a team for rank 8.',
-    }),
-    rank_9: z.string({
-      required_error: 'Please select a team for rank 9.',
-    }),
-    rank_10: z.string({
-      required_error: 'Please select a team for rank 10.',
-    }),
-    rank_11: z.string({
-      required_error: 'Please select a team for rank 11.',
-    }),
-    rank_12: z.string({
-      required_error: 'Please select a team for rank 12.',
-    }),
-    rank_13: z.string({
-      required_error: 'Please select a team for rank 13.',
-    }),
-    rank_14: z.string({
-      required_error: 'Please select a team for rank 14.',
-    }),
-    rank_15: z.string({
-      required_error: 'Please select a team for rank 15.',
-    }),
-    rank_16: z.string({
-      required_error: 'Please select a team for rank 16.',
-    }),
-    rank_17: z.string({
-      required_error: 'Please select a team for rank 17.',
-    }),
-    rank_18: z.string({
-      required_error: 'Please select a team for rank 18.',
-    }),
-    rank_19: z.string({
-      required_error: 'Please select a team for rank 19.',
-    }),
-    rank_20: z.string({
-      required_error: 'Please select a team for rank 20.',
-    }),
-    rank_21: z.string({
-      required_error: 'Please select a team for rank 21.',
-    }),
-    rank_22: z.string({
-      required_error: 'Please select a team for rank 22.',
-    }),
-    rank_23: z.string({
-      required_error: 'Please select a team for rank 23.',
-    }),
-    rank_24: z.string({
-      required_error: 'Please select a team for rank 24.',
-    }),
-    rank_25: z.string({
-      required_error: 'Please select a team for rank 25.',
-    }),
+    // rank_2: z.string({
+    //   required_error: 'Please select a team for rank 2.',
+    // }),
+    // rank_3: z.string({
+    //   required_error: 'Please select a team for rank 3.',
+    // }),
+    // rank_4: z.string({
+    //   required_error: 'Please select a team for rank 4.',
+    // }),
+    // rank_5: z.string({
+    //   required_error: 'Please select a team for rank 5.',
+    // }),
+    // rank_6: z.string({
+    //   required_error: 'Please select a team for rank 6.',
+    // }),
+    // rank_7: z.string({
+    //   required_error: 'Please select a team for rank 7.',
+    // }),
+    // rank_8: z.string({
+    //   required_error: 'Please select a team for rank 8.',
+    // }),
+    // rank_9: z.string({
+    //   required_error: 'Please select a team for rank 9.',
+    // }),
+    // rank_10: z.string({
+    //   required_error: 'Please select a team for rank 10.',
+    // }),
+    // rank_11: z.string({
+    //   required_error: 'Please select a team for rank 11.',
+    // }),
+    // rank_12: z.string({
+    //   required_error: 'Please select a team for rank 12.',
+    // }),
+    // rank_13: z.string({
+    //   required_error: 'Please select a team for rank 13.',
+    // }),
+    // rank_14: z.string({
+    //   required_error: 'Please select a team for rank 14.',
+    // }),
+    // rank_15: z.string({
+    //   required_error: 'Please select a team for rank 15.',
+    // }),
+    // rank_16: z.string({
+    //   required_error: 'Please select a team for rank 16.',
+    // }),
+    // rank_17: z.string({
+    //   required_error: 'Please select a team for rank 17.',
+    // }),
+    // rank_18: z.string({
+    //   required_error: 'Please select a team for rank 18.',
+    // }),
+    // rank_19: z.string({
+    //   required_error: 'Please select a team for rank 19.',
+    // }),
+    // rank_20: z.string({
+    //   required_error: 'Please select a team for rank 20.',
+    // }),
+    // rank_21: z.string({
+    //   required_error: 'Please select a team for rank 21.',
+    // }),
+    // rank_22: z.string({
+    //   required_error: 'Please select a team for rank 22.',
+    // }),
+    // rank_23: z.string({
+    //   required_error: 'Please select a team for rank 23.',
+    // }),
+    // rank_24: z.string({
+    //   required_error: 'Please select a team for rank 24.',
+    // }),
+    // rank_25: z.string({
+    //   required_error: 'Please select a team for rank 25.',
+    // }),
   })
   .superRefine((arg, ctx) => {
     // find which arg items are duplicates
@@ -149,13 +149,14 @@ const Top25 = ({ schools, vote }: Top25FormProps) => {
         'Content-Type': 'application/json',
       },
     }).then((res) => {
-      if (res.ok) {
-        router.push(`/vote/${division}/confirmation`)
-      }
+      console.log('Res', res)
+      // if (res.ok) {
+      //   router.push(`/vote/${division}/confirmation`)
+      // }
     })
   }
 
-  console.log(form.getValues())
+  console.log('Form Values', form.getValues())
 
   return (
     <Form {...form}>

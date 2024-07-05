@@ -7,7 +7,7 @@ export const Org: Organization = {
   '@id': `${BASE_URL}#organization`,
   name: 'Redshirt Sports',
   url: BASE_URL,
-  sameAs: ['https://www.facebook.com/RedshirtSportsNews', 'https://twitter.com/_redshirtsports'],
+  sameAs: ['https://www.facebook.com/RedshirtSportsNews', 'https://x.com/_redshirtsports'],
   logo: {
     '@type': 'ImageObject',
     inLanguage: 'en-US',
