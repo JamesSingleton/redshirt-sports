@@ -1,5 +1,14 @@
 import { sql } from 'drizzle-orm'
-import { pgTable, serial, varchar, timestamp, integer, unique, jsonb } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  serial,
+  varchar,
+  timestamp,
+  integer,
+  unique,
+  jsonb,
+  text,
+} from 'drizzle-orm/pg-core'
 
 export const voterBallots = pgTable('voter_ballot', {
   id: serial('id').primaryKey(),
@@ -30,3 +39,13 @@ export const weeklyFinalRankings = pgTable(
     isUniqueVote: unique().on(table.year, table.week),
   }),
 )
+
+export const usersTable = pgTable('users_table', {
+  id: text('id').primaryKey(),
+  firstName: text('firstName').notNull(),
+  lastName: text('lastName').notNull(),
+  organization: text('organization'),
+})
+
+export type InsertUser = typeof usersTable.$inferInsert
+export type SelectUser = typeof usersTable.$inferSelect

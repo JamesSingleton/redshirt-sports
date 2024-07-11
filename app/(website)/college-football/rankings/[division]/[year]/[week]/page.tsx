@@ -15,7 +15,11 @@ import {
   TableCell,
 } from '@/components/ui/table'
 import { ImageComponent } from '@/components/common'
-import { getFinalRankingsForWeekAndYear, getVotesForWeekAndYear } from '@/server/queries'
+import {
+  getFinalRankingsForWeekAndYear,
+  getVotesForWeekAndYear,
+  getVoterInfo,
+} from '@/server/queries'
 import { client } from '@/lib/sanity.client'
 import { token } from '@/lib/sanity.fetch'
 import { test } from '@/lib/sanity.queries'
@@ -65,6 +69,27 @@ async function processBallotsByUser(ballots: TestingLite) {
   return userBallots
 }
 
+async function processBallotsByVoter(ballots: TestingLite) {
+  const voterBallots: VoterBallot[] = []
+
+  for (const [userId, votes] of Object.entries(ballots)) {
+    const userData = await client.fetch(
+      test,
+      {
+        ids: votes,
+      },
+      { token, perspective: 'published' },
+    )
+    const voterInfo = await getVoterInfo(userId)
+    voterBallots.push({
+      name: `${voterInfo?.firstName} ${voterInfo?.lastName}`,
+      organization: voterInfo?.organization,
+      votes: userData,
+    })
+  }
+  return voterBallots
+}
+
 export default async function CollegeFootballRankingsPage({
   params,
 }: {
@@ -92,6 +117,8 @@ export default async function CollegeFootballRankingsPage({
   }, {})
 
   const ballotsByUserWithExtraData: Testing = await processBallotsByUser(ballotsByUser)
+  const test = await processBallotsByVoter(ballotsByUser)
+  console.log(test)
 
   const top25 = []
   const outsideTop25 = []

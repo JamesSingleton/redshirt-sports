@@ -22,6 +22,20 @@
       "when": 1719168963205,
       "tag": "0002_familiar_doctor_faustus",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1720211491751,
+      "tag": "0003_curvy_sebastian_shaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1720212062565,
+      "tag": "0004_secret_ares",
+      "breakpoints": true
     }
   ]
 }

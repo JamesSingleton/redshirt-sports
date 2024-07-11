@@ -97,3 +97,11 @@ export async function getVotesForWeekAndYear({ year, week, division }: GetUsersV
 
   return votes
 }
+
+export async function getVoterInfo(userId: string) {
+  const user = await db.query.usersTable.findFirst({
+    where: (model, { eq }) => eq(model.id, userId),
+  })
+
+  return user
+}
