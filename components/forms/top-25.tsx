@@ -25,7 +25,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import ImageComponent from '@/components/common/ImageComponent'
-import { VirtualizedDropdown } from '@/components/common/virtualized-dropdown'
 
 import type { Top25FormProps } from '@/types'
 import { VirtualizedCombobox } from '../virtualized-combobox'
