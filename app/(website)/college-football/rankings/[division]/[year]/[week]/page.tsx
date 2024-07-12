@@ -54,6 +54,12 @@ interface TestingLite {
   [userId: string]: VoteLite[]
 }
 
+interface VoterBallot {
+  name: string
+  organization?: string
+  votes: any[] // Replace `any` with the actual type returned by `client.fetch`
+}
+
 async function processBallotsByUser(ballots: TestingLite) {
   const userBallots: Testing = {}
   for (const [userId, votes] of Object.entries(ballots)) {
@@ -83,7 +89,7 @@ async function processBallotsByVoter(ballots: TestingLite) {
     const voterInfo = await getVoterInfo(userId)
     voterBallots.push({
       name: `${voterInfo?.firstName} ${voterInfo?.lastName}`,
-      organization: voterInfo?.organization,
+      organization: voterInfo?.organization as string,
       votes: userData,
     })
   }
