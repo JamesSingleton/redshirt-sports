@@ -155,8 +155,6 @@ const Top25 = ({ schools, vote }: Top25FormProps) => {
     })
   }
 
-  console.log('Form Values', form.getValues())
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

@@ -16,10 +16,14 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import ImageComponent from '@/components/common/ImageComponent'
 import { cn } from '@/lib/utils'
+import { ImageAsset } from 'sanity'
 
 type Option = {
-  value: string
-  label: string
+  _id: string
+  image: ImageAsset
+  abbreviation: string
+  name: string
+  shortName: string
 }
 
 interface VirtualizedCommandProps {
@@ -100,12 +104,11 @@ const VirtualizedCommand = ({
                 <Check
                   className={cn(
                     'mr-2 h-4 w-4',
-                    selectedOption === filteredOptions[virtualOption.index].value
+                    selectedOption === filteredOptions[virtualOption.index]._id
                       ? 'opacity-100'
                       : 'opacity-0',
                   )}
                 />
-                {/* {filteredOptions[virtualOption.index].label} */}
                 <div className="flex items-center">
                   <ImageComponent
                     image={filteredOptions[virtualOption.index].image}
@@ -127,7 +130,7 @@ const VirtualizedCommand = ({
 }
 
 interface VirtualizedComboboxProps {
-  options: string[]
+  options: Option[]
   searchPlaceholder?: string
   width?: string
   height?: string
