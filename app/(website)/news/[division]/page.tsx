@@ -3,12 +3,12 @@ import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
 import { getNewsByDivision } from '@/lib/sanity.fetch'
-import { ArticleCard, PaginationControls } from '@/components/common'
-import { PageHeader } from '@/components/common'
+import { PaginationControls, PageHeader } from '@/components/common'
 import { BASE_URL, perPage } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { defineMetadata } from '@/lib/utils.metadata'
 import { urlForImage } from '@/lib/sanity.image'
+import ArticleFeed from '../_components/ArticleFeed'
 
 import type { Metadata, ResolvingMetadata } from 'next'
 import type { Post } from '@/types'
@@ -72,7 +72,7 @@ export default async function Page({
   const division = await getNewsByDivision(params.division, pageIndex)
 
   if (!division) {
-    return notFound()
+    notFound()
   }
   const totalPages = Math.ceil(division?.totalPosts / perPage)
   const nextDisabled = pageIndex === totalPages
@@ -149,28 +149,7 @@ export default async function Page({
       />
       <PageHeader title={division?.heading} breadcrumbs={breadcrumbs} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-          {division.posts.map((post: Post, index: number) => (
-            <ArticleCard
-              index={index}
-              key={post._id}
-              title={post.title}
-              date={post.publishedAt}
-              image={post.mainImage}
-              slug={post.slug}
-              division={post.division}
-              conferences={post.conferences}
-              author={post.author}
-            />
-          ))}
-          {!division.posts.length && (
-            <div className="col-span-3">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-                Coming Soon
-              </h2>
-            </div>
-          )}
-        </div>
+        <ArticleFeed articles={division.posts} />
         {totalPages > 1 && (
           <Suspense fallback={<>Loading...</>}>
             <PaginationControls totalPosts={division.totalPosts} />

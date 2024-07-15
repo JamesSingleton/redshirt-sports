@@ -9,6 +9,7 @@ import { BASE_URL, perPage } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { urlForImage } from '@/lib/sanity.image'
 import { defineMetadata } from '@/lib/utils.metadata'
+import ArticleFeed from '../../_components/ArticleFeed'
 
 import type { Metadata, ResolvingMetadata } from 'next'
 import type { Post } from '@/types'
@@ -65,6 +66,7 @@ export async function generateMetadata(
       ...defaultMetadata.alternates,
       canonical,
     },
+    metadataBase: new URL(BASE_URL),
   }
 }
 
@@ -77,8 +79,9 @@ export default async function Page({
 }) {
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
   const conference = await getNewsByConference(params.conference, pageIndex)
+
   if (!conference) {
-    return notFound()
+    notFound()
   }
 
   const totalPages = Math.ceil(conference.totalPosts / perPage)
@@ -172,21 +175,7 @@ export default async function Page({
       />
       <PageHeader title={title} breadcrumbs={breadcrumbs} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-          {conference.posts.map((post: Post, index: number) => (
-            <ArticleCard
-              index={index}
-              key={post._id}
-              title={post.title}
-              date={post.publishedAt}
-              image={post.mainImage}
-              slug={post.slug}
-              division={post.division}
-              conferences={post.conferences}
-              author={post.author}
-            />
-          ))}
-        </div>
+        <ArticleFeed articles={conference.posts} />
         {totalPages > 1 && (
           <Suspense fallback={<>Loading...</>}>
             <PaginationControls totalPosts={conference.totalPosts} />

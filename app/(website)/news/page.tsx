@@ -3,13 +3,13 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { ArticleCard, PaginationControls } from '@/components/common'
-import { PageHeader } from '@/components/common'
+import { PaginationControls, PageHeader } from '@/components/common'
 import { getNews } from '@/lib/sanity.fetch'
 import { BASE_URL, perPage } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { urlForImage } from '@/lib/sanity.image'
 import { defineMetadata } from '@/lib/utils.metadata'
+import ArticleFeed from './_components/ArticleFeed'
 
 import type { Post } from '@/types'
 import type { Metadata, ResolvingMetadata } from 'next'
@@ -50,6 +50,7 @@ export async function generateMetadata(
       ...defaultMetadata.alternates,
       canonical: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
     },
+    metadataBase: new URL(BASE_URL),
   }
 }
 
@@ -118,21 +119,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
       />
       <PageHeader title="Latest College Football News" breadcrumbs={breadcrumbs} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-          {news.posts.map((post: Post, index: number) => (
-            <ArticleCard
-              index={index}
-              key={post._id}
-              title={post.title}
-              date={post.publishedAt}
-              image={post.mainImage}
-              slug={post.slug}
-              division={post.division}
-              conferences={post.conferences}
-              author={post.author}
-            />
-          ))}
-        </div>
+        <ArticleFeed articles={news.posts} />
         {totalPages > 1 && (
           <Suspense fallback={<>Loading</>}>
             <PaginationControls totalPosts={news.totalPosts} />
