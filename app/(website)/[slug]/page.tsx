@@ -12,17 +12,17 @@ import { getPostBySlug, getPostsPaths } from '@/lib/sanity.fetch'
 import { Org, Web } from '@/lib/ldJson'
 import Author from './Author'
 import ArticleSocialShare from './ArticleSocialShare'
-
-import type { Metadata } from 'next'
 import {
   Breadcrumbs,
   ReadingProgress,
   Date,
-  ArticleCard,
   ImageComponent,
   CustomPortableText,
 } from '@/components/common'
 import { badgeVariants } from '@/components/ui/badge'
+import ArticleCard from '../news/_components/ArticleCard'
+
+import type { Metadata } from 'next'
 
 interface PageProps {
   params: {
@@ -330,7 +330,7 @@ export default async function Page({ params }: PageProps) {
                   slug={morePost.slug}
                   division={morePost.division}
                   conferences={morePost.conferences}
-                  author={morePost.author}
+                  author={morePost.author.name}
                 />
               ))}
             </div>

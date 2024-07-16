@@ -145,7 +145,18 @@ export const postsBySlugQuery = groq`
     && _id != ^._id
     && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)
   ] | order(publishedAt desc, _createdAt desc) {
-    ${litePostFields}
+      _id,
+      title,
+      publishedAt,
+      mainImage,
+      division->{
+        name,
+      },
+      conferences[]->{
+        shortName
+      },
+      "slug": slug.current,
+      "author": author->{name},
   }[0...3]
 }
 `
@@ -289,7 +300,18 @@ export const conferenceBySlugQuery = groq`
 export const paginatedPostsQuery = groq`
   {
     "posts": *[_type == "post"] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
-      ${litePostFields}
+      _id,
+      title,
+      publishedAt,
+      mainImage,
+      division->{
+        name,
+      },
+      conferences[]->{
+        shortName
+      },
+      "slug": slug.current,
+      "author": author->{name},
     },
     "totalPosts": count(*[_type == "post"])
   }
