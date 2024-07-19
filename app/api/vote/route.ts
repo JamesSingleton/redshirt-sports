@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     const voterBallot = []
 
     const currentDate = new Date()
-    // let currentDate = new Date('2024-08-24T07:00:00.000+00:00')
+    // TODO: Possibly cache this data or move to supabase
     const currentSeason = await fetch(
       'https://site.api.espn.com/apis/common/v3/sports/football/college-football/season',
     ).then((res) => res.json())
