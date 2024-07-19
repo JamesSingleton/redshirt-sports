@@ -124,7 +124,6 @@ export default async function CollegeFootballRankingsPage({
 
   const ballotsByUserWithExtraData: Testing = await processBallotsByUser(ballotsByUser)
   const test = await processBallotsByVoter(ballotsByUser)
-  console.log(test)
 
   const top25 = []
   const outsideTop25 = []
