@@ -88,20 +88,54 @@ export async function getFinalRankingsForWeekAndYear({
   return rankings as FinalRankings
 }
 
-// given a year and week, return all votes for that week
-export async function getVotesForWeekAndYear({ year, week, division }: GetUsersVote) {
-  const votes = await db.query.voterBallots.findMany({
+export async function getWeeksThatHaveVotes({
+  year,
+  division,
+}: {
+  year: number
+  division: string
+}) {
+  const finalRankings = await db.query.weeklyFinalRankings.findMany({
+    where: (model, { eq, and }) => and(eq(model.year, year), eq(model.division, division)),
+  })
+
+  const weeksArray = finalRankings.map((finalRanking) => finalRanking.week)
+
+  return weeksArray
+}
+
+// given a year, week, and division, return each voter and their votes. the voterBallots and usersTable are the ones to use
+export async function getVotesForWeekAndYearByVoter({
+  year,
+  week,
+  division,
+}: {
+  year: number
+  week: number
+  division: string
+}) {
+  const allVotes = await db.query.voterBallots.findMany({
     where: (model, { eq, and }) =>
       and(eq(model.year, year), eq(model.week, week), eq(model.division, division)),
   })
 
-  return votes
-}
+  // now I want to take the unique userIds and get the user info from the usersTable
+  const uniqueUserIds = Array.from(new Set(allVotes.map((vote) => vote.userId)))
 
-export async function getVoterInfo(userId: string) {
-  const user = await db.query.usersTable.findFirst({
-    where: (model, { eq }) => eq(model.id, userId),
-  })
+  const userBallots: { [key: string]: any } = {}
 
-  return user
+  for (const userId of uniqueUserIds) {
+    const votes = allVotes.filter((vote) => vote.userId === userId)
+
+    const userData = await db.query.usersTable.findFirst({
+      where: (model, { eq }) => eq(model.id, userId),
+    })
+
+    userBallots[userId] = {
+      votes,
+      userData,
+    }
+  }
+
+  return userBallots
 }

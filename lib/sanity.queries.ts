@@ -386,7 +386,7 @@ export const lastThreePosts = groq`
 }
 `
 
-export const test = groq`
+export const schoolWithVoteOrder = groq`
 *[_type == "school" && _id in $ids[].teamId]{
   _id,
   "_order": $ids[teamId == ^._id][0].rank,

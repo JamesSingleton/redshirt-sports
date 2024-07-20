@@ -16,15 +16,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import ImageComponent from '@/components/common/ImageComponent'
 
 import type { Top25FormProps } from '@/types'
 import { VirtualizedCombobox } from '../virtualized-combobox'
@@ -155,21 +146,13 @@ const Top25 = ({ schools, vote }: Top25FormProps) => {
     })
   }
 
+  const { getValues } = form
+
+  console.log('Form', getValues())
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="rank_1"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Rank 1</FormLabel>
-              <FormControl>
-                <VirtualizedCombobox options={schools} onChange={field.onChange} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-max space-y-6">
         {Array.from({ length: 25 }).map((_, index) => (
           <FormField
             key={index}
@@ -177,41 +160,21 @@ const Top25 = ({ schools, vote }: Top25FormProps) => {
             // @ts-ignore
             name={`rank_${index + 1}`}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex flex-col">
                 <FormLabel>Rank {index + 1}</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a team" />
-                    </SelectTrigger>
-                    <SelectContent ref={field.ref}>
-                      <SelectGroup>
-                        {schools.map((school) => (
-                          <SelectItem key={school._id} value={school._id}>
-                            <div className="flex items-center gap-4">
-                              <ImageComponent
-                                image={school.image}
-                                alt={school.name}
-                                width={32}
-                                height={32}
-                                mode="cover"
-                                loading="lazy"
-                                className="h-8 w-8"
-                              />
-                              <span>{school.shortName ?? school.abbreviation ?? school.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <VirtualizedCombobox options={schools} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         ))}
-        <Button type="submit" disabled={form.formState.isSubmitting || !form.formState.isValid}>
+        <Button
+          className="w-full"
+          type="submit"
+          disabled={form.formState.isSubmitting || !form.formState.isValid}
+        >
           {form.formState.isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" size={16} /> Submitting Ballot

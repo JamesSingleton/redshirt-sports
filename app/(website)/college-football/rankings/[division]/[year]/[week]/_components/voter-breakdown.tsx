@@ -10,20 +10,13 @@ import {
 } from '@/components/ui/table'
 import ImageComponent from '@/components/common/ImageComponent'
 
-interface Vote {
-  _id: string
-  image: any
-  shortName?: string
-  abbreviation?: string
-  name: string
-  userId: string
-}
+import type { VoterBreakdown } from '@/types'
 
 interface VoterBreakdownProps {
-  ballots: { [userId: string]: Vote[] }
+  voterBreakdown: VoterBreakdown[]
 }
 
-export default function VoterBreakdown({ ballots }: VoterBreakdownProps) {
+export default function VoterBreakdown({ voterBreakdown }: VoterBreakdownProps) {
   return (
     <Table>
       <TableHeader>
@@ -35,18 +28,20 @@ export default function VoterBreakdown({ ballots }: VoterBreakdownProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {Object.entries(ballots).map(([userId, votes]) => {
+        {voterBreakdown.map((voter: any) => {
           return (
-            <TableRow key={userId}>
+            <TableRow key={`${voter.name}_${voter.organization}`}>
               <TableCell className="whitespace-nowrap">
                 <div className="flex items-center">
                   <div>
-                    <div className="font-medium">James Singleton</div>
-                    <div className="mt-1 text-sm italic text-muted-foreground">Redshirt Sports</div>
+                    <div className="font-medium">{voter.name}</div>
+                    <div className="mt-1 text-sm italic text-muted-foreground">
+                      {voter.organization}
+                    </div>
                   </div>
                 </div>
               </TableCell>
-              {votes.map((vote) => (
+              {voter.ballot.map((vote: any) => (
                 <TableCell key={vote._id}>
                   <div className="w-8">
                     <ImageComponent

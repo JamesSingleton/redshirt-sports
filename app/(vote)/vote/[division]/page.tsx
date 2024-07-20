@@ -5,6 +5,7 @@ import { getSchoolsByDivision } from '@/lib/sanity.fetch'
 import Top25 from '@/components/forms/top-25'
 import { hasVoterVoted } from '@/server/queries'
 import { Vote } from '@/types'
+import { getCurrentWeek } from '@/utils/getCurrentWeek'
 
 export async function generateStaticParams() {
   const divisions = ['fbs', 'fcs', 'd2', 'd3']
@@ -38,6 +39,8 @@ const divisionHeader = [
 
 export default async function VotePage({ params }: { params: { division: string } }) {
   const { division } = params
+  const votingWeek = await getCurrentWeek()
+  console.log('Voting Week', votingWeek)
   const hasVoted = await hasVoterVoted({ year: 2024, week: 0, division })
 
   const schools = await getSchoolsByDivision(division)

@@ -4,41 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/server/db'
 import { voterBallots } from '@/server/db/schema'
 
-type Week = {
-  number: number
-  startDate: string
-  endDate: string
-  text: string
-}
-
-type WeekDetail = {
-  number: number
-  startDate: string
-  endDate: string
-  text: string
-}
-
-type SeasonType = {
-  id: string
-  type: number
-  name: string
-  startDate: string
-  endDate: string
-  weeks: WeekDetail[]
-  week: Week | {}
-}
-
-type Season = {
-  year: number
-  displayName: string
-  startDate: string
-  endDate: string
-  types: SeasonType[]
-}
-
-type ESPNBody = {
-  seasons: Season[]
-}
+import type { Season, SeasonType, ESPNBody } from '@/types'
 
 export async function POST(req: Request) {
   try {

@@ -17,83 +17,49 @@ import {
 import { ImageComponent } from '@/components/common'
 import {
   getFinalRankingsForWeekAndYear,
-  getVotesForWeekAndYear,
-  getVoterInfo,
+  getWeeksThatHaveVotes,
+  getVotesForWeekAndYearByVoter,
 } from '@/server/queries'
 import { client } from '@/lib/sanity.client'
 import { token } from '@/lib/sanity.fetch'
-import { test } from '@/lib/sanity.queries'
+import { schoolWithVoteOrder } from '@/lib/sanity.queries'
 import VoterBreakdown from './_components/voter-breakdown'
 
-interface Vote {
-  _id: string
-  image: any
-  shortName?: string
-  abbreviation?: string
-  name: string
-  userId: string
-}
+import { type Metadata } from 'next'
+import type { BallotsByVoter } from '@/types'
 
-interface Testing {
-  [userId: string]: Vote[]
-}
-
-interface VoteLite {
-  id: number
-  userId: string
-  division: string
-  week: number
-  year: number
-  createdAt: Date
-  teamId: string
-  rank: number
-  points: number
-}
-
-interface TestingLite {
-  [userId: string]: VoteLite[]
-}
-
-interface VoterBallot {
-  name: string
-  organization?: string
-  votes: any[] // Replace `any` with the actual type returned by `client.fetch`
-}
-
-async function processBallotsByUser(ballots: TestingLite) {
-  const userBallots: Testing = {}
-  for (const [userId, votes] of Object.entries(ballots)) {
-    const userData = await client.fetch(
-      test,
-      {
-        ids: votes,
-      },
-      { token, perspective: 'published' },
-    )
-    userBallots[userId] = userData
+export async function generateMetadata({
+  params,
+}: {
+  params: { division: string }
+}): Promise<Metadata> {
+  return {
+    title: `${params.division.toUpperCase()} College Football Rankings`,
+    description: `View the latest ${params.division.toUpperCase()} College Football Rankings.`,
   }
-  return userBallots
 }
 
-async function processBallotsByVoter(ballots: TestingLite) {
-  const voterBallots: VoterBallot[] = []
+async function processVoterBallots(userBallots: BallotsByVoter) {
+  const voterBallot = []
 
-  for (const [userId, votes] of Object.entries(ballots)) {
-    const userData = await client.fetch(
-      test,
+  for (const userId in userBallots) {
+    const { votes, userData } = userBallots[userId]
+    const votesWithMoreData = await client.fetch(
+      schoolWithVoteOrder,
       {
         ids: votes,
       },
       { token, perspective: 'published' },
     )
-    const voterInfo = await getVoterInfo(userId)
-    voterBallots.push({
-      name: `${voterInfo?.firstName} ${voterInfo?.lastName}`,
-      organization: voterInfo?.organization as string,
-      votes: userData,
+
+    voterBallot.push({
+      name: `${userData.firstName} ${userData.lastName}`,
+      organization: userData.organization,
+      ballot: votesWithMoreData,
     })
   }
-  return voterBallots
+
+  return voterBallot
 }
 
 export default async function CollegeFootballRankingsPage({
@@ -102,28 +68,20 @@ export default async function CollegeFootballRankingsPage({
   params: { division: string; year: string; week: string }
 }) {
   const { division, year, week } = params
+  const weeksWithVotes = await getWeeksThatHaveVotes({ year: parseInt(year, 10), division })
   const finalRankings = await getFinalRankingsForWeekAndYear({
     year: parseInt(year, 10),
     week: parseInt(week, 10),
   })
   const { rankings } = finalRankings
 
-  const allVotes: VoteLite[] = await getVotesForWeekAndYear({
+  const votesForWeekAndYearByVoter = await getVotesForWeekAndYearByVoter({
     year: parseInt(year, 10),
     week: parseInt(week, 10),
     division,
   })
 
-  const ballotsByUser: { [key: string]: VoteLite[] } = allVotes.reduce((acc: TestingLite, vote) => {
-    if (!acc[vote.userId]) {
-      acc[vote.userId] = []
-    }
-    acc[vote.userId].push(vote)
-    return acc
-  }, {})
-
-  const ballotsByUserWithExtraData: Testing = await processBallotsByUser(ballotsByUser)
-  const test = await processBallotsByVoter(ballotsByUser)
+  const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter)
 
   const top25 = []
   const outsideTop25 = []
@@ -134,6 +92,13 @@ export default async function CollegeFootballRankingsPage({
       outsideTop25.push(team)
     }
   }
+
+  const weeksToPickFrom = weeksWithVotes.map((week) => {
+    return {
+      value: week.toString(),
+      label: week === 0 ? 'Preseason' : `Week ${week}`,
+    }
+  })
 
   return (
     <>
@@ -154,7 +119,11 @@ export default async function CollegeFootballRankingsPage({
                 <SelectValue placeholder="Preseason" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="final">Preseason</SelectItem>
+                {weeksToPickFrom.map((week) => (
+                  <SelectItem key={week.value} value={week.value}>
+                    {week.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </CardDescription>
@@ -212,7 +181,7 @@ export default async function CollegeFootballRankingsPage({
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 p-6">
-          <VoterBreakdown ballots={ballotsByUserWithExtraData} />
+          <VoterBreakdown voterBreakdown={voterBreakdown} />
         </CardContent>
       </Card>
     </>

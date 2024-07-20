@@ -38,6 +38,41 @@ export interface PostPayload {
   relatedArticles: Post[]
 }
 
+export type Week = {
+  number: number
+  startDate: string
+  endDate: string
+  text: string
+}
+
+export type WeekDetail = {
+  number: number
+  startDate: string
+  endDate: string
+  text: string
+}
+
+export type SeasonType = {
+  id: string
+  type: number
+  name: string
+  startDate: string
+  endDate: string
+  weeks: WeekDetail[]
+  week: Week | {}
+}
+
+export type Season = {
+  year: number
+  displayName: string
+  startDate: string
+  endDate: string
+  types: SeasonType[]
+}
+
+export type ESPNBody = {
+  seasons: Season[]
+}
 export interface DivisionPayload {
   _id: string
   _updatedAt: string
