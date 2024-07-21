@@ -40,8 +40,8 @@ const divisionHeader = [
 export default async function VotePage({ params }: { params: { division: string } }) {
   const { division } = params
   const votingWeek = await getCurrentWeek()
-  console.log('Voting Week', votingWeek)
-  const hasVoted = await hasVoterVoted({ year: 2024, week: 0, division })
+  const year = new Date().getFullYear()
+  const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
 
   const schools = await getSchoolsByDivision(division)
   let vote: Vote | undefined = undefined
