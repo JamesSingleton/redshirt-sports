@@ -79,7 +79,7 @@ async function isUnique(
 ) {
   if (!source) return true
   const { getClient } = context
-  const client = getClient({ apiVersion: '2021-11-24' })
+  const client = getClient({ apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION })
   const count = await client.fetch(
     'count(*[_type == "redirect" && _id != $id && source == $source && !(_id in path("drafts.**"))])',
     { source, id },
