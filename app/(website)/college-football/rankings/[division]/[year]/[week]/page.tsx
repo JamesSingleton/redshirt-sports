@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation'
+
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import {
   Select,
@@ -19,14 +21,13 @@ import {
   getFinalRankingsForWeekAndYear,
   getWeeksThatHaveVotes,
   getVotesForWeekAndYearByVoter,
+  getYearsThatHaveVotes,
 } from '@/server/queries'
-import { client } from '@/lib/sanity.client'
-import { token } from '@/lib/sanity.fetch'
-import { schoolWithVoteOrder } from '@/lib/sanity.queries'
 import VoterBreakdown from './_components/voter-breakdown'
+import { processVoterBallots } from '@/utils/process-ballots'
 
 import { type Metadata } from 'next'
-import type { BallotsByVoter } from '@/types'
+import { RankingsFilters } from './_components/filters'
 
 export async function generateMetadata({
   params,
@@ -39,36 +40,18 @@ export async function generateMetadata({
   }
 }
 
-async function processVoterBallots(userBallots: BallotsByVoter) {
-  const voterBallot = []
-
-  for (const userId in userBallots) {
-    const { votes, userData } = userBallots[userId]
-    const votesWithMoreData = await client.fetch(
-      schoolWithVoteOrder,
-      {
-        ids: votes,
-      },
-      { token, perspective: 'published' },
-    )
-
-    voterBallot.push({
-      name: `${userData.firstName} ${userData.lastName}`,
-      organization: userData.organization,
-      ballot: votesWithMoreData,
-    })
-  }
-
-  return voterBallot
-}
-
 export default async function CollegeFootballRankingsPage({
   params,
 }: {
   params: { division: string; year: string; week: string }
 }) {
   const { division, year, week } = params
+  const yearsWithVotes = await getYearsThatHaveVotes({ division })
   const weeksWithVotes = await getWeeksThatHaveVotes({ year: parseInt(year, 10), division })
+
+  if (!yearsWithVotes.length || !weeksWithVotes.length) {
+    notFound()
+  }
   const finalRankings = await getFinalRankingsForWeekAndYear({
     year: parseInt(year, 10),
     week: parseInt(week, 10),
@@ -93,39 +76,13 @@ export default async function CollegeFootballRankingsPage({
     }
   }
 
-  const weeksToPickFrom = weeksWithVotes.map((week) => {
-    return {
-      value: week.toString(),
-      label: week === 0 ? 'Preseason' : `Week ${week}`,
-    }
-  })
-
   return (
     <>
       <Card className="w-full">
         <CardHeader>
           <CardTitle>FCS College Football Rankings</CardTitle>
           <CardDescription className="flex items-center space-x-4 pt-4">
-            <Select>
-              <SelectTrigger id="year" aria-label="Year">
-                <SelectValue placeholder="2024" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="2024">2024</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select>
-              <SelectTrigger id="ranking" aria-label="Ranking">
-                <SelectValue placeholder="Preseason" />
-              </SelectTrigger>
-              <SelectContent>
-                {weeksToPickFrom.map((week) => (
-                  <SelectItem key={week.value} value={week.value}>
-                    {week.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <RankingsFilters years={yearsWithVotes} weeks={weeksWithVotes} />
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -36,6 +36,13 @@
       "when": 1720212062565,
       "tag": "0004_secret_ares",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1721604532241,
+      "tag": "0005_slow_karnak",
+      "breakpoints": true
     }
   ]
 }

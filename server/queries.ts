@@ -88,6 +88,16 @@ export async function getFinalRankingsForWeekAndYear({
   return rankings as FinalRankings
 }
 
+export async function getYearsThatHaveVotes({ division }: { division: string }) {
+  const finalRankings = await db.query.weeklyFinalRankings.findMany({
+    where: (model, { eq }) => eq(model.division, division),
+  })
+
+  const yearsArray = finalRankings.map((finalRanking) => finalRanking.year)
+
+  return yearsArray
+}
+
 export async function getWeeksThatHaveVotes({
   year,
   division,
@@ -104,7 +114,6 @@ export async function getWeeksThatHaveVotes({
   return weeksArray
 }
 
-// given a year, week, and division, return each voter and their votes. the voterBallots and usersTable are the ones to use
 export async function getVotesForWeekAndYearByVoter({
   year,
   week,

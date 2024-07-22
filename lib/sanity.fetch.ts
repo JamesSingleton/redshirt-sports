@@ -221,10 +221,9 @@ export function getSchoolsById(
   )
 }
 
-export function getLastThreePosts(division: string) {
+export function getLastThreePosts() {
   return sanityFetch<Post[]>({
     query: lastThreePosts,
-    params: { division },
     tags: ['post'],
   })
 }

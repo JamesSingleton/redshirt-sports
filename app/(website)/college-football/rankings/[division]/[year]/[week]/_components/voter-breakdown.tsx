@@ -37,6 +37,7 @@ export default function VoterBreakdown({ voterBreakdown }: VoterBreakdownProps) 
                     <div className="font-medium">{voter.name}</div>
                     <div className="mt-1 text-sm italic text-muted-foreground">
                       {voter.organization}
+                      {voter.organizationRole ? ` — ${voter.organizationRole}` : null}
                     </div>
                   </div>
                 </div>

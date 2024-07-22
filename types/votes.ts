@@ -14,6 +14,7 @@ export type VoterData = {
   firstName: string
   lastName: string
   organization: string
+  organizationRole: string
 }
 
 export type BallotAndVoterData = {

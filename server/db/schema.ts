@@ -45,6 +45,7 @@ export const usersTable = pgTable('users_table', {
   firstName: text('firstName').notNull(),
   lastName: text('lastName').notNull(),
   organization: text('organization'),
+  organizationRole: text('organizationRole'),
 })
 
 export type InsertUser = typeof usersTable.$inferInsert

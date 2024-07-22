@@ -376,7 +376,7 @@ export const schoolsByIdOrderedByPoints = groq`
 `
 
 export const lastThreePosts = groq`
-*[_type == "post" && division->slug.current == $division] | order(publishedAt desc)[0...3]{
+*[_type == "post"] | order(publishedAt desc)[0...3]{
   _id,
   title,
   publishedAt,
