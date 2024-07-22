@@ -6,7 +6,10 @@ import { getVoterBallots } from '@/server/queries'
 import { getSchoolsById } from '@/lib/sanity.fetch'
 import { ImageComponent } from '@/components/common'
 import { buttonVariants } from '@/components/ui/button'
+import { getCurrentWeek } from '@/utils/getCurrentWeek'
+import { transformBallotToTeamIds } from '@/utils/process-ballots'
 
+import { type Metadata } from 'next'
 import { type Ballot } from '@/types'
 
 const voteConfirmationHeaderByDivision = [
@@ -32,18 +35,20 @@ const voteConfirmationHeaderByDivision = [
   },
 ]
 
-const transformBallotToTeamIds = (ballot: Ballot[]) => {
-  return ballot.map((b: Ballot) => ({ id: b.teamId, rank: b.rank }))
+export const metadata: Metadata = {
+  title: 'Vote Confirmation | Redshirt Sports',
+  description: 'Thank you for voting for the top 25 college football teams.',
 }
 
 export default async function VoteConfirmationPage({ params }: { params: { division: string } }) {
   const { division } = params
   const header = voteConfirmationHeaderByDivision.find((d) => d.division === division)
   const user = auth()
+  const votingWeek = await getCurrentWeek()
   const year = new Date().getFullYear()
   const ballot = (await getVoterBallots({
     year,
-    week: 0,
+    week: votingWeek,
     division,
   })) as Ballot[]
 

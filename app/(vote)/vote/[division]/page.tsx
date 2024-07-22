@@ -1,16 +1,21 @@
-import { notFound } from 'next/navigation'
-import Link from 'next/link'
+import { notFound, redirect } from 'next/navigation'
 
 import { getSchoolsByDivision } from '@/lib/sanity.fetch'
 import Top25 from '@/components/forms/top-25'
 import { hasVoterVoted } from '@/server/queries'
-import { Vote } from '@/types'
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
+
+import { type Metadata } from 'next'
 
 export async function generateStaticParams() {
   const divisions = ['fbs', 'fcs', 'd2', 'd3']
 
   return divisions.map((division) => ({ division }))
+}
+
+export const metadata: Metadata = {
+  title: 'College Football Top 25 Voting | Redshirt Sports',
+  description: 'Vote for the top 25 college football teams.',
 }
 
 const divisionHeader = [
@@ -44,11 +49,10 @@ export default async function VotePage({ params }: { params: { division: string 
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
 
   const schools = await getSchoolsByDivision(division)
-  let vote: Vote | undefined = undefined
 
-  // if (hasVoted) {
-  //   vote = (await getUsersVote({ year: 2024, week: 1 })) as Vote
-  // }
+  if (hasVoted) {
+    redirect(`/vote/${division}/confirmation`)
+  }
 
   if (!schools) {
     notFound()
@@ -65,7 +69,7 @@ export default async function VotePage({ params }: { params: { division: string 
         </div>
       )}
       <div className="mx-auto my-8 max-w-4xl">
-        <Top25 schools={schools} vote={vote} />
+        <Top25 schools={schools} />
       </div>
     </div>
   )

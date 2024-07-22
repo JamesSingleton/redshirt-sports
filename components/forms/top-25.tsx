@@ -119,10 +119,9 @@ const formSchema = z
     }
   })
 
-const Top25 = ({ schools, vote }: Top25FormProps) => {
+const Top25 = ({ schools }: Top25FormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: vote,
   })
 
   const params = useParams()

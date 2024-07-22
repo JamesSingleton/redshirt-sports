@@ -87,7 +87,7 @@ export interface Top25FormProps {
       shortName: string
     }
   }[]
-  vote?: Vote | undefined
+  // vote?: Vote | undefined
 }
 
 export interface Ballot {

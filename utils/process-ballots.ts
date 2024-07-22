@@ -2,7 +2,7 @@ import { client } from '@/lib/sanity.client'
 import { token } from '@/lib/sanity.fetch'
 import { schoolWithVoteOrder } from '@/lib/sanity.queries'
 
-import { type BallotsByVoter } from '@/types'
+import type { BallotsByVoter, Ballot } from '@/types'
 
 export async function processVoterBallots(userBallots: BallotsByVoter) {
   const voterBallot = []
@@ -26,4 +26,8 @@ export async function processVoterBallots(userBallots: BallotsByVoter) {
   }
 
   return voterBallot
+}
+
+export const transformBallotToTeamIds = (ballot: Ballot[]) => {
+  return ballot.map((b: Ballot) => ({ id: b.teamId, rank: b.rank }))
 }
