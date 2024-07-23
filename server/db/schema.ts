@@ -65,13 +65,15 @@ export const weeksTable = pgTable(
   'weeks',
   {
     id: serial('id').primaryKey(),
-    year: integer('year').notNull(),
+    seasonId: integer('seasonId')
+      .notNull()
+      .references(() => seasonsTable.id),
     week: integer('week').notNull(),
     start: timestamp('start').notNull(),
     end: timestamp('end').notNull(),
   },
   (table) => ({
-    isUniqueWeek: unique().on(table.year, table.week),
+    isUniqueWeek: unique().on(table.seasonId, table.week),
   }),
 )
 

@@ -2,13 +2,6 @@ import { notFound } from 'next/navigation'
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select'
-import {
   Table,
   TableHeader,
   TableRow,
@@ -25,9 +18,9 @@ import {
 } from '@/server/queries'
 import VoterBreakdown from './_components/voter-breakdown'
 import { processVoterBallots } from '@/utils/process-ballots'
+import { RankingsFilters } from './_components/filters'
 
 import { type Metadata } from 'next'
-import { RankingsFilters } from './_components/filters'
 
 export async function generateMetadata({
   params,
@@ -86,61 +79,67 @@ export default async function CollegeFootballRankingsPage({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Rank</TableHead>
-                <TableHead>School (1st Place Votes)</TableHead>
-                <TableHead>Points</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {top25.map((team, index) => {
-                return (
-                  <TableRow key={index}>
-                    <TableCell>{team.isTie ? `T-${team.rank}` : team.rank}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <ImageComponent
-                          image={team.image}
-                          width={32}
-                          height={32}
-                          mode="contain"
-                          className="mr-2 h-8 w-8"
-                        />
-                        {team.shortName ?? team.abbreviation ?? team.name}
-                        {team.firstPlaceVotes ? (
-                          <span className="ml-2 tracking-wider text-muted-foreground">
-                            ({team.firstPlaceVotes})
-                          </span>
-                        ) : null}
-                      </div>
-                    </TableCell>
-                    <TableCell>{team._points}</TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-          <div className="mt-4">
-            <p>
-              <strong>Others receiving votes:</strong>{' '}
-              {outsideTop25.map((team) => `${team.shortName} ${team._points}`).join(', ')}
-            </p>
-          </div>
+          {top25.length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Rank</TableHead>
+                  <TableHead>School (1st Place Votes)</TableHead>
+                  <TableHead>Points</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {top25.map((team, index) => {
+                  return (
+                    <TableRow key={index}>
+                      <TableCell>{team.isTie ? `T-${team.rank}` : team.rank}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <ImageComponent
+                            image={team.image}
+                            width={32}
+                            height={32}
+                            mode="contain"
+                            className="mr-2 h-8 w-8"
+                          />
+                          {team.shortName ?? team.abbreviation ?? team.name}
+                          {team.firstPlaceVotes ? (
+                            <span className="ml-2 tracking-wider text-muted-foreground">
+                              ({team.firstPlaceVotes})
+                            </span>
+                          ) : null}
+                        </div>
+                      </TableCell>
+                      <TableCell>{team._points}</TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          )}
+          {outsideTop25.length > 0 && (
+            <div className="mt-4">
+              <p>
+                <strong>Others receiving votes:</strong>{' '}
+                {outsideTop25.map((team) => `${team.shortName} ${team._points}`).join(', ')}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
-      <Card className="mt-8 w-full">
-        <CardHeader>
-          <CardTitle>Voter Breakdown</CardTitle>
-          <CardDescription>
-            See how each voter cast their ballot for this week&apos;s rankings.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 p-6">
-          <VoterBreakdown voterBreakdown={voterBreakdown} />
-        </CardContent>
-      </Card>
+      {voterBreakdown.length > 0 && (
+        <Card className="mt-8 w-full">
+          <CardHeader>
+            <CardTitle>Voter Breakdown</CardTitle>
+            <CardDescription>
+              See how each voter cast their ballot for this week&apos;s rankings.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4 p-6">
+            <VoterBreakdown voterBreakdown={voterBreakdown} />
+          </CardContent>
+        </Card>
+      )}
     </>
   )
 }
