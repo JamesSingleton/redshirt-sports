@@ -77,7 +77,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // await db.insert(voterBallots).values(voterBallot)
+    await db.insert(voterBallots).values(voterBallot)
 
     return new Response('OK', { status: 200 })
   } catch (error) {
