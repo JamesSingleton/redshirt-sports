@@ -89,13 +89,14 @@ export async function getFinalRankingsForWeekAndYear({
 }
 
 export async function getYearsThatHaveVotes({ division }: { division: string }) {
-  const finalRankings = await db.query.weeklyFinalRankings.findMany({
+  const yearsWithVotes = await db.query.weeklyFinalRankings.findMany({
+    columns: {
+      year: true,
+    },
     where: (model, { eq }) => eq(model.division, division),
   })
 
-  const yearsArray = finalRankings.map((finalRanking) => finalRanking.year)
-
-  return yearsArray
+  return yearsWithVotes
 }
 
 export async function getWeeksThatHaveVotes({
@@ -105,13 +106,14 @@ export async function getWeeksThatHaveVotes({
   year: number
   division: string
 }) {
-  const finalRankings = await db.query.weeklyFinalRankings.findMany({
+  const weeksWithVotes = await db.query.weeklyFinalRankings.findMany({
+    columns: {
+      week: true,
+    },
     where: (model, { eq, and }) => and(eq(model.year, year), eq(model.division, division)),
   })
 
-  const weeksArray = finalRankings.map((finalRanking) => finalRanking.week)
-
-  return weeksArray
+  return weeksWithVotes
 }
 
 export async function getVotesForWeekAndYearByVoter({

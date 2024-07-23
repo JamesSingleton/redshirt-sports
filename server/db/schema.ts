@@ -48,5 +48,32 @@ export const usersTable = pgTable('users_table', {
   organizationRole: text('organizationRole'),
 })
 
+export const seasonsTable = pgTable(
+  'seasons',
+  {
+    id: serial('id').primaryKey(),
+    year: integer('year').notNull(),
+    start: timestamp('start').notNull(),
+    end: timestamp('end').notNull(),
+  },
+  (table) => ({
+    isUniqueSeason: unique().on(table.year),
+  }),
+)
+
+export const weeksTable = pgTable(
+  'weeks',
+  {
+    id: serial('id').primaryKey(),
+    year: integer('year').notNull(),
+    week: integer('week').notNull(),
+    start: timestamp('start').notNull(),
+    end: timestamp('end').notNull(),
+  },
+  (table) => ({
+    isUniqueWeek: unique().on(table.year, table.week),
+  }),
+)
+
 export type InsertUser = typeof usersTable.$inferInsert
 export type SelectUser = typeof usersTable.$inferSelect

@@ -8,7 +8,16 @@ import {
   SelectItem,
 } from '@/components/ui/select'
 
-export const RankingsFilters = ({ years, weeks }: { years: number[]; weeks: number[] }) => {
+// weeks looks like [ { week: 0 } ], create a type for it
+type Week = {
+  week: number
+}
+
+type Year = {
+  year: number
+}
+
+export const RankingsFilters = ({ years, weeks }: { years: Year[]; weeks: Week[] }) => {
   const router = useRouter()
   const { division, year, week } = useParams()
 
@@ -27,7 +36,7 @@ export const RankingsFilters = ({ years, weeks }: { years: number[]; weeks: numb
           <SelectValue placeholder="2024" />
         </SelectTrigger>
         <SelectContent>
-          {years.map((year: number) => (
+          {years.map(({ year }: Year) => (
             <SelectItem key={year} value={year.toString()}>
               {year}
             </SelectItem>
@@ -39,7 +48,7 @@ export const RankingsFilters = ({ years, weeks }: { years: number[]; weeks: numb
           <SelectValue placeholder="Preseason" />
         </SelectTrigger>
         <SelectContent>
-          {weeks.map((week: number) => (
+          {weeks.map(({ week }: Week) => (
             <SelectItem key={week} value={week.toString()}>
               {week === 0 ? 'Preseason' : `Week ${week}`}
             </SelectItem>
