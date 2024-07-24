@@ -15,7 +15,7 @@
     "db:studio": "drizzle-kit studio --verbose"
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.2.5",
+    "@clerk/nextjs": "^5.2.6",
     "@hookform/resolvers": "^3.9.0",
     "@nivo/pie": "^0.87.0",
     "@portabletext/react": "^3.1.0",
@@ -34,7 +34,7 @@
     "@sanity/icons": "^3.3.1",
     "@sanity/image-url": "^1.0.2",
     "@sanity/ui": "^2.8.8",
-    "@sanity/vision": "^3.52.0",
+    "@sanity/vision": "^3.52.1",
     "@sentry/nextjs": "^8.19.0",
     "@supabase/supabase-js": "^2.44.4",
     "@t3-oss/env-nextjs": "^0.11.0",
@@ -64,7 +64,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.52.1",
     "react-tweet": "^3.2.0",
-    "sanity": "^3.52.0",
+    "sanity": "^3.52.1",
     "sanity-image": "^0.1.9",
     "sanity-plugin-documents-pane": "^2.3.0",
     "sanity-plugin-media": "^2.3.2",
