@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 type UserMetadata = {
   isVoter?: boolean
+  isAdmin?: boolean
 }
 
 const isOnboardingRoute = createRouteMatcher(['/vote/onboarding'])
@@ -12,7 +13,12 @@ export default clerkMiddleware((auth, req: NextRequest) => {
   const { userId, sessionClaims, redirectToSignIn } = auth()
   if (isProtectedRoute(req)) {
     auth().protect()
-    const { isVoter } = sessionClaims?.metadata as UserMetadata
+    const { isVoter, isAdmin } = sessionClaims?.metadata as UserMetadata
+
+    if (!isAdmin && req.nextUrl.pathname.startsWith('/admin')) {
+      return NextResponse.error()
+    }
+
     if (!isVoter) {
       return NextResponse.redirect(new URL('/', req.url))
     }

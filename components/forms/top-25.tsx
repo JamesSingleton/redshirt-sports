@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useParams, useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -131,17 +132,25 @@ const Top25 = ({ schools }: Top25FormProps) => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     // update the values to include the division
     values = { ...values, division }
-    fetch('/api/vote', {
-      method: 'POST',
-      body: JSON.stringify(values),
-      headers: {
-        'Content-Type': 'application/json',
+
+    toast.promise(
+      fetch('/api/vote', {
+        method: 'POST',
+        body: JSON.stringify(values),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then((res) => {
+        if (res.ok) {
+          router.push(`/vote/${division}/confirmation`)
+        }
+      }),
+      {
+        loading: 'Submitting Ballot',
+        success: 'Ballot submitted successfully',
+        error: 'An error occurred while submitting your ballot',
       },
-    }).then((res) => {
-      if (res.ok) {
-        router.push(`/vote/${division}/confirmation`)
-      }
-    })
+    )
   }
 
   const { getValues } = form

@@ -1,6 +1,7 @@
 import { UserButton } from '@clerk/nextjs'
 
 import { ModeToggle } from '@/components/common/ModeToggle'
+import { Toaster } from '@/components/ui/sonner'
 
 export default function VoteLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export default function VoteLayout({ children }: { children: React.ReactNode }) 
         </div>
       </header>
       <main className="flex-1 md:p-10">{children}</main>
+      <Toaster />
     </div>
   )
 }

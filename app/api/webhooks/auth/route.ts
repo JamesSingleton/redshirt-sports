@@ -65,6 +65,7 @@ export async function POST(req: Request) {
             firstName: data.first_name as string,
             lastName: data.last_name as string,
             organization: data.public_metadata.organization as string,
+            organizationRole: data.public_metadata.organizationRole as string,
           })
           .where(eq(usersTable.id, data.id))
         break
