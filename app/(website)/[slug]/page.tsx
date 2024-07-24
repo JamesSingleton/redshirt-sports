@@ -10,7 +10,7 @@ import { BASE_URL } from '@/lib/constants'
 import { defineMetadata } from '@/lib/utils.metadata'
 import { getPostBySlug, getPostsPaths } from '@/lib/sanity.fetch'
 import { Org, Web } from '@/lib/ldJson'
-import Author from './Author'
+import { AuthorItem, AuthorSection, MobileAuthorSection } from './Author'
 import ArticleSocialShare from './ArticleSocialShare'
 import {
   Breadcrumbs,
@@ -285,7 +285,8 @@ export default async function Page({ params }: PageProps) {
         <div className="container">
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
             <div className="lg:w-64 lg:shrink-0">
-              <Author {...post.author} />
+              <AuthorSection {...post.author} />
+              <MobileAuthorSection {...post.author} />
             </div>
             <div className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <article>

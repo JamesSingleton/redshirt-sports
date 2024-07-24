@@ -13,90 +13,52 @@ import { ImageComponent } from '@/components/common'
 
 import type { Author } from '@/types'
 
-const Author = (author: Author) => {
+export const AuthorItem = (author: Author) => {
   return (
-    <div className="lg:sticky lg:left-0 lg:top-24 lg:mt-12 lg:self-start">
-      <div className="flex flex-row lg:flex-col">
-        {author.archived ? (
-          <div className="mb-4 h-24 w-24 overflow-hidden rounded-full">
-            <ImageComponent
-              image={author.image}
-              alt={author.name}
-              className="h-full w-full object-cover"
-              width={96}
-              height={96}
-            />
-          </div>
-        ) : (
-          <Link
-            href={`/authors/${author.slug}`}
-            className="mb-4 h-24 w-24 overflow-hidden rounded-full"
-          >
-            <ImageComponent
-              image={author.image}
-              alt={author.name}
-              className="h-full w-full object-cover"
-              width={96}
-              height={96}
-            />
-          </Link>
-        )}
-        <div className="ml-4 lg:ml-0">
-          {author.archived ? (
-            <p className="text-xl font-bold">{author.name}</p>
-          ) : (
-            <>
-              <Link href={`/authors/${author.slug}`} className="mt-5 text-xl font-bold">
-                {author.name}
-              </Link>
-              <p className="mt-4 text-base font-normal">{author.role}</p>
-            </>
-          )}
-        </div>
+    <div className="flex min-h-10 flex-row items-center justify-start gap-3 p-0">
+      <span
+        className="relative h-9 w-9 overflow-hidden rounded-full align-top"
+        aria-label={`Avatar for ${author.name}`}
+        role="img"
+      >
+        <ImageComponent
+          image={author.image}
+          alt={author.name}
+          className="h-full w-full max-w-full"
+          width={36}
+          height={36}
+        />
+      </span>
+      <div className="flex flex-col items-stretch justify-start gap-0.5">
+        <Link href={`/authors/${author.slug}`}>
+          <p className="mr-1 whitespace-nowrap text-sm font-semibold tracking-[-.01em]">
+            {author.name}
+          </p>
+        </Link>
+        <p className="min-h-4 whitespace-nowrap text-sm/4 font-normal tracking-[-.01em] text-muted-foreground">
+          {author.role}
+        </p>
       </div>
-      {!author.archived && author.socialMedia && (
-        <ul className="hidden lg:mt-8 lg:flex lg:items-center lg:gap-3">
-          {author.socialMedia.map((social) => (
-            <li key={social._key} className="group">
-              <a
-                href={social.url}
-                target="_blank"
-                rel="noopener"
-                title={`Follow ${author.name} on ${social.name}`}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
-              >
-                <span className="sr-only">{`Follow ${author.name} on ${social.name}`}</span>
-                {social.name === 'Email' ? (
-                  <Mail className="h-6 w-6 group-hover:text-secondary" />
-                ) : null}
-                {social.name === 'Twitter' ? (
-                  <Twitter className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
-                ) : null}
-                {social.name === 'Facebook' ? (
-                  <Facebook className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
-                ) : null}
-                {social.name === 'Instagram' ? (
-                  <Instagram className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
-                ) : null}
-                {social.name === 'Website' ? (
-                  <Globe className="h-6 w-6 group-hover:text-secondary" />
-                ) : null}
-                {social.name === 'Spotify Podcast' ? (
-                  <SpotifyIcon className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
-                ) : null}
-                {social.name === 'Apple Podcast' ? (
-                  <ApplePodcastIcon className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
-                ) : null}
-                {social.name === 'Overcast Podcast' ? (
-                  <OvercastIcon className="h-6 w-6 group-hover:fill-secondary group-hover:text-secondary" />
-                ) : null}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   )
 }
 
-export default Author
+export const AuthorSection = (author: Author) => (
+  <div className="hidden lg:sticky lg:left-0 lg:top-24 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
+    <p className="text-sm font-normal text-muted-foreground">Written By</p>
+    <AuthorItem {...author} />
+  </div>
+)
+
+export const MobileAuthorSection = (author: Author) => (
+  <div className="lg:hidden">
+    <p className="text-sm font-normal text-muted-foreground">Written By</p>
+    <div className="relative -mx-6 mt-3 flex overflow-x-auto border-b border-border px-6">
+      <div className="flex-1 pb-4">
+        <div className="flex flex-row items-stretch justify-start gap-4">
+          <AuthorItem {...author} />
+        </div>
+      </div>
+    </div>
+  </div>
+)

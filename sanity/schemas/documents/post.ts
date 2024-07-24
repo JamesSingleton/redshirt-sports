@@ -59,6 +59,23 @@ export default defineType({
       },
     }),
     defineField({
+      name: 'authors',
+      title: 'Authors',
+      type: 'array',
+      description:
+        'If only you wrote the article, select yourself. Otherwise, select the authors that contributed to the article.',
+      of: [
+        {
+          type: 'reference',
+          to: { type: 'author' },
+          options: {
+            filter: 'archived != true',
+            sort: [{ field: 'name', direction: 'asc' }],
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'mainImage',
       title: 'Main image',
       type: 'image',
