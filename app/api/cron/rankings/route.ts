@@ -4,6 +4,7 @@ import { getAllBallotsForWeekAndYear } from '@/server/queries'
 import { client } from '@/lib/sanity.client'
 import { schoolsByIdOrderedByPoints } from '@/lib/sanity.queries'
 import { token } from '@/lib/sanity.fetch'
+import { getCurrentSeasonStartAndEnd } from '@/server/queries'
 
 import { type Ballot, SchoolLite } from '@/types'
 import { NextResponse } from 'next/server'
@@ -75,9 +76,18 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
 // Cron job to calculate rankings and store them in the database
 // Runs once a week on Sunday at 11:59 PM PST
 export async function GET(request: Request) {
+  const currentDate = new Date()
+  const season = await getCurrentSeasonStartAndEnd({ year: currentDate.getFullYear() })
+  // Return early if the current date is not within the season as there is no use calculating rankings
+  if (season && (season.start > currentDate || season.end < currentDate)) {
+    return NextResponse.json({
+      response: 'Current date is not within the season',
+    })
+  }
   try {
     const { searchParams } = new URL(request.url)
     const division = searchParams.get('division') || 'fcs'
+    // Figure out the current week and year based on the current date
     const votes: Ballot[] = await getAllBallotsForWeekAndYear({
       year: parseInt('2024', 10),
       week: parseInt('0', 10),

@@ -150,3 +150,11 @@ export async function getVotesForWeekAndYearByVoter({
 
   return userBallots
 }
+
+export async function getCurrentSeasonStartAndEnd({ year }: { year: number }) {
+  const season = await db.query.seasonsTable.findFirst({
+    where: (model, { eq }) => eq(model.year, year),
+  })
+
+  return season
+}
