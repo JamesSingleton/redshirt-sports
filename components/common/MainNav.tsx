@@ -20,14 +20,14 @@ import type { NavProps } from '@/types'
 export function MainNav({ divisions }: NavProps) {
   return (
     <div className="mr-4 hidden lg:flex">
-      <Link href="/" className="flex items-center">
+      <Link href="/" className="flex items-center" prefetch={false}>
         <LargeLogo className="h-10 w-auto" />
         <span className="sr-only">Redshirt Sports</span>
       </Link>
       <NavigationMenu className="ml-4">
         <NavigationMenuList>
           <NavigationMenuItem>
-            <Link href="/news" legacyBehavior passHref>
+            <Link href="/news" legacyBehavior passHref prefetch={false}>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>News</NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
@@ -43,6 +43,7 @@ export function MainNav({ divisions }: NavProps) {
                           <Link
                             className="flex h-full w-full select-none flex-col justify-center rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
                             href={`/news/${division.slug}`}
+                            prefetch={false}
                           >
                             <div className="mb-2 mt-4 text-lg font-medium">{`${division.name} Home`}</div>
                           </Link>
@@ -64,7 +65,7 @@ export function MainNav({ divisions }: NavProps) {
             } else {
               return (
                 <NavigationMenuItem key={`main_nav_${division._id}`}>
-                  <Link href={`/news/${division.slug}`} legacyBehavior passHref>
+                  <Link href={`/news/${division.slug}`} legacyBehavior passHref prefetch={false}>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                       {division.name}
                     </NavigationMenuLink>
@@ -75,14 +76,14 @@ export function MainNav({ divisions }: NavProps) {
           })}
 
           <NavigationMenuItem>
-            <Link href="/about" legacyBehavior passHref>
+            <Link href="/about" legacyBehavior passHref prefetch={false}>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 About
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/contact" legacyBehavior passHref>
+            <Link href="/contact" legacyBehavior passHref prefetch={false}>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Contact
               </NavigationMenuLink>
@@ -102,6 +103,7 @@ const ListItem = forwardRef<ElementRef<'a'>, ComponentPropsWithoutRef<'a'>>(
           <Link
             ref={ref}
             href={props.href!}
+            prefetch={false}
             className={cn(
               'block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
               className,

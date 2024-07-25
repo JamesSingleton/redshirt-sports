@@ -79,6 +79,7 @@ function MobileLink({ href, onOpenChange, className, children, ...props }: Mobil
   return (
     <Link
       href={href}
+      prefetch={false}
       onClick={() => {
         router.push(href.toString())
         onOpenChange?.(false)

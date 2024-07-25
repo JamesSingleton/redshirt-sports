@@ -30,7 +30,7 @@ export const AuthorItem = (author: Author) => {
         />
       </span>
       <div className="flex flex-col items-stretch justify-start gap-0.5">
-        <Link href={`/authors/${author.slug}`}>
+        <Link href={`/authors/${author.slug}`} prefetch={false}>
           <p className="mr-1 whitespace-nowrap text-sm font-semibold tracking-[-.01em]">
             {author.name}
           </p>
