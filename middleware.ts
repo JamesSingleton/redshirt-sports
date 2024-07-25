@@ -6,7 +6,7 @@ type UserMetadata = {
   isAdmin?: boolean
 }
 
-const isOnboardingRoute = createRouteMatcher(['/vote/onboarding'])
+const isOnboardingRoute = createRouteMatcher(['/onboarding'])
 const isProtectedRoute = createRouteMatcher(['/admin(.*)', '/vote(.*)'])
 
 export default clerkMiddleware((auth, req: NextRequest) => {
@@ -33,7 +33,7 @@ export default clerkMiddleware((auth, req: NextRequest) => {
   }
 
   if (userId && !sessionClaims?.metadata?.onboardingComplete) {
-    const onboardingUrl = new URL('/vote/onboarding', req.url)
+    const onboardingUrl = new URL('/onboarding', req.url)
     return NextResponse.redirect(onboardingUrl)
   }
 

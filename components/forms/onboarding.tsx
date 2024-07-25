@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
-import { completeOnboarding } from '@/app/(vote)/vote/onboarding/_actions'
+import { completeOnboarding } from '@/app/(auth)/onboarding/_actions'
 import {
   Form,
   FormField,
