@@ -1,5 +1,5 @@
 import { sanityFetch } from '@/lib/sanity.fetch'
-import { BASE_URL } from '@/lib/constants'
+import { HOME_DOMAIN } from '@/lib/constants'
 
 import type { MetadataRoute } from 'next'
 import { ConferencePayload, Division } from '@/types'
@@ -25,44 +25,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   })
 
   const divisionRoutes = divisions.map((division) => ({
-    url: `${BASE_URL}/news/${division.slug}`,
+    url: `${HOME_DOMAIN}/news/${division.slug}`,
     lastModified: division._updatedAt,
     priority: 0.8,
   }))
 
   const conferenceRoutes = conferences.map((conference) => ({
-    url: `${BASE_URL}/news/${conference.divisionSlug}/${conference.slug}`,
+    url: `${HOME_DOMAIN}/news/${conference.divisionSlug}/${conference.slug}`,
     lastModified: conference._updatedAt,
     priority: 0.8,
   }))
 
   const routes = [
     {
-      url: BASE_URL,
+      url: HOME_DOMAIN,
       lastModified: new Date().toISOString(),
       priority: 1,
       changeFrequency: 'weekly',
     },
     {
-      url: `${BASE_URL}/about`,
+      url: `${HOME_DOMAIN}/about`,
       lastModified: new Date().toISOString(),
       priority: 0.5,
       changeFrequency: 'monthly',
     },
     {
-      url: `${BASE_URL}/contact`,
+      url: `${HOME_DOMAIN}/contact`,
       lastModified: new Date().toISOString(),
       priority: 0.5,
       changeFrequency: 'monthly',
     },
     {
-      url: `${BASE_URL}/privacy`,
+      url: `${HOME_DOMAIN}/privacy`,
       lastModified: new Date().toISOString(),
       priority: 0.5,
       changeFrequency: 'monthly',
     },
     {
-      url: `${BASE_URL}/news`,
+      url: `${HOME_DOMAIN}/news`,
       lastModified: new Date().toISOString(),
       priority: 1,
       changeFrequency: 'weekly',

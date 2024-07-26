@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/lib/constants'
+import { HOME_DOMAIN } from '@/lib/constants'
 import { sanityFetch } from '@/lib/sanity.fetch'
 import { authorsForSiteMapQuery } from '@/lib/sanity.queries'
 import type { Author } from '@/types'
@@ -29,7 +29,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
   })
 
   return authors.map((author) => ({
-    url: `${BASE_URL}/authors/${author.slug}`,
+    url: `${HOME_DOMAIN}/authors/${author.slug}`,
     lastModified: author._updatedAt,
     priority: 0.8,
     changeFrequency: 'weekly',

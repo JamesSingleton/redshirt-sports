@@ -1,6 +1,6 @@
 import { PageHeader, Date, CustomPortableText } from '@/components/common'
 import { getPrivacyPolicy } from '@/lib/sanity.fetch'
-import { BASE_URL } from '@/lib/constants'
+import { HOME_DOMAIN } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { defineMetadata } from '@/lib/utils.metadata'
 
@@ -43,14 +43,14 @@ const jsonLd: Graph = {
     Web,
     {
       '@type': 'WebPage',
-      '@id': `${BASE_URL}/privacy`,
-      url: `${BASE_URL}/privacy`,
+      '@id': `${HOME_DOMAIN}/privacy`,
+      url: `${HOME_DOMAIN}/privacy`,
       name: 'Privacy Policy',
       description:
         "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
       inLanguage: 'en-US',
       isPartOf: {
-        '@id': `${BASE_URL}#website`,
+        '@id': `${HOME_DOMAIN}#website`,
       },
     },
     {
@@ -61,13 +61,13 @@ const jsonLd: Graph = {
           '@type': 'ListItem',
           position: 1,
           name: 'Home',
-          item: BASE_URL,
+          item: HOME_DOMAIN,
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: 'Privacy Policy',
-          item: `${BASE_URL}/privacy`,
+          item: `${HOME_DOMAIN}/privacy`,
         },
       ],
     },

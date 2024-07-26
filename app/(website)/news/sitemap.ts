@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/lib/constants'
+import { HOME_DOMAIN } from '@/lib/constants'
 import { sanityFetch } from '@/lib/sanity.fetch'
 import type { SiteMapPost } from '@/types'
 import type { MetadataRoute } from 'next'
@@ -33,7 +33,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     tags: ['post'],
   })
   return posts.map((post) => ({
-    url: `${BASE_URL}/${post.slug}`,
+    url: `${HOME_DOMAIN}/${post.slug}`,
     lastModified: post._updatedAt,
     priority: 0.7,
   }))

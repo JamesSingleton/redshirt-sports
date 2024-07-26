@@ -6,7 +6,7 @@ import { ImageComponent } from '@/components/common'
 import { Twitter, Facebook, Instagram } from '@/components/common/icons'
 import { PageHeader } from '@/components/common'
 import { Org, Web } from '@/lib/ldJson'
-import { BASE_URL } from '@/lib/constants'
+import { HOME_DOMAIN } from '@/lib/constants'
 import { defineMetadata } from '@/lib/utils.metadata'
 
 import type { Metadata, ResolvingMetadata } from 'next'
@@ -48,40 +48,40 @@ const jsonLd: Graph = {
     Web,
     {
       '@type': 'BreadcrumbList',
-      '@id': `${BASE_URL}/about#breadcrumb`,
+      '@id': `${HOME_DOMAIN}/about#breadcrumb`,
       name: 'About Breadcrumbs',
       itemListElement: [
         {
           '@type': 'ListItem',
           position: 1,
           name: 'Home',
-          item: BASE_URL,
+          item: HOME_DOMAIN,
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: 'About',
-          item: `${BASE_URL}/about`,
+          item: `${HOME_DOMAIN}/about`,
         },
       ],
     },
     {
       '@type': 'AboutPage',
-      '@id': `${BASE_URL}/about`,
-      url: `${BASE_URL}/about`,
+      '@id': `${HOME_DOMAIN}/about`,
+      url: `${HOME_DOMAIN}/about`,
       description:
         'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': `${BASE_URL}/about`,
+        '@id': `${HOME_DOMAIN}/about`,
       },
       breadcrumb: {
         '@type': 'BreadcrumbList',
-        '@id': `${BASE_URL}/about#breadcrumb`,
+        '@id': `${HOME_DOMAIN}/about#breadcrumb`,
       },
       inLanguage: 'en-US',
       isPartOf: {
-        '@id': `${BASE_URL}#website`,
+        '@id': `${HOME_DOMAIN}#website`,
       },
     },
   ],

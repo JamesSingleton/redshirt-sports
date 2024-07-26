@@ -1,7 +1,7 @@
 import { PageHeader } from '@/components/common'
 
 import { Org, Web } from '@/lib/ldJson'
-import { BASE_URL } from '@/lib/constants'
+import { HOME_DOMAIN } from '@/lib/constants'
 import { defineMetadata } from '@/lib/utils.metadata'
 
 import type { Metadata, ResolvingMetadata } from 'next'
@@ -49,38 +49,38 @@ const jsonLd: Graph = {
     Web,
     {
       '@type': 'ContactPage',
-      '@id': `${BASE_URL}/contact`,
-      url: `${BASE_URL}/contact`,
+      '@id': `${HOME_DOMAIN}/contact`,
+      url: `${HOME_DOMAIN}/contact`,
       description: 'Contact us for collaboration, advertising, or general inquiries.',
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': `${BASE_URL}/contact`,
+        '@id': `${HOME_DOMAIN}/contact`,
       },
       breadcrumb: {
         '@type': 'BreadcrumbList',
-        '@id': `${BASE_URL}/contact#breadcrumb`,
+        '@id': `${HOME_DOMAIN}/contact#breadcrumb`,
       },
       inLanguage: 'en-US',
       isPartOf: {
-        '@id': `${BASE_URL}#website`,
+        '@id': `${HOME_DOMAIN}#website`,
       },
     },
     {
       '@type': 'BreadcrumbList',
-      '@id': `${BASE_URL}/contact#breadcrumb`,
+      '@id': `${HOME_DOMAIN}/contact#breadcrumb`,
       name: 'Contact Breadcrumbs',
       itemListElement: [
         {
           '@type': 'ListItem',
           position: 1,
           name: 'Home',
-          item: BASE_URL,
+          item: HOME_DOMAIN,
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: 'Contact',
-          item: `${BASE_URL}/contact`,
+          item: `${HOME_DOMAIN}/contact`,
         },
       ],
     },
