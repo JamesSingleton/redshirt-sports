@@ -5,7 +5,7 @@ import { Graph } from 'schema-dts'
 
 import { PaginationControls, PageHeader } from '@/components/common'
 import { getNews } from '@/lib/sanity.fetch'
-import { BASE_URL, perPage } from '@/lib/constants'
+import { HOME_DOMAIN, perPage } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { urlForImage } from '@/lib/sanity.image'
 import { defineMetadata } from '@/lib/utils.metadata'
@@ -50,7 +50,7 @@ export async function generateMetadata(
       ...defaultMetadata.alternates,
       canonical: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
     },
-    metadataBase: new URL(BASE_URL),
+    metadataBase: new URL(HOME_DOMAIN),
   }
 }
 
@@ -72,8 +72,8 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${BASE_URL}/news${page ? `?page=${page}` : ''}`,
-        url: `${BASE_URL}/news${page ? `?page=${page}` : ''}`,
+        '@id': `${HOME_DOMAIN}/news${page ? `?page=${page}` : ''}`,
+        url: `${HOME_DOMAIN}/news${page ? `?page=${page}` : ''}`,
         breadcrumb: {
           '@type': 'BreadcrumbList',
           name: 'News Breadcrumbs',
@@ -82,13 +82,13 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
               '@type': 'ListItem',
               position: 1,
               name: 'Home',
-              item: `${BASE_URL}`,
+              item: `${HOME_DOMAIN}`,
             },
             {
               '@type': 'ListItem',
               position: 2,
               name: 'News',
-              item: `${BASE_URL}/news`,
+              item: `${HOME_DOMAIN}/news`,
             },
           ],
         },
@@ -104,7 +104,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
           author: {
             '@type': 'Person',
             name: post.author.name,
-            url: `${BASE_URL}/authors/${post.author.slug}`,
+            url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
           },
         })),
       },
