@@ -73,7 +73,8 @@ export async function POST(req: Request) {
         return new Response('', { status: 501 })
     }
     return new Response('', { status: 200 })
-  } catch (error) {
-    return new Response('', { status: 500 })
+  } catch (error: any) {
+    // return new Response('', { status: 500 })
+    return new Response(error?.message, { status: 500 })
   }
 }
