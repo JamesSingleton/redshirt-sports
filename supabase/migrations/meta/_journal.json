@@ -50,6 +50,13 @@
       "when": 1721748067584,
       "tag": "0006_natural_stick",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1721969772474,
+      "tag": "0007_cynical_the_professor",
+      "breakpoints": true
     }
   ]
 }

@@ -66,6 +66,8 @@ export async function POST(req: Request) {
             lastName: data.last_name as string,
             organization: data.public_metadata.organization as string,
             organizationRole: data.public_metadata.organizationRole as string,
+            isAdmin: data.public_metadata.isAdmin as boolean,
+            isVoter: data.public_metadata.isVoter as boolean,
           })
           .where(eq(usersTable.id, data.id))
         break

@@ -8,6 +8,7 @@ import {
   unique,
   jsonb,
   text,
+  boolean,
 } from 'drizzle-orm/pg-core'
 
 export const voterBallots = pgTable('voter_ballot', {
@@ -46,6 +47,8 @@ export const usersTable = pgTable('users_table', {
   lastName: text('lastName').notNull(),
   organization: text('organization'),
   organizationRole: text('organizationRole'),
+  isAdmin: boolean('isAdmin').default(false).notNull(),
+  isVoter: boolean('isVoter').default(false).notNull(),
 })
 
 export const seasonsTable = pgTable(
