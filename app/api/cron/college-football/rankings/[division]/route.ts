@@ -75,7 +75,7 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
 
 // Cron job to calculate rankings and store them in the database
 // Runs once a week on Sunday at 11:59 PM PST
-export async function GET(request: Request) {
+export async function GET(request: Request, { params }: { params: { division: string } }) {
   const currentDate = new Date()
   const season = await getCurrentSeasonStartAndEnd({ year: currentDate.getFullYear() })
   // Return early if the current date is not within the season as there is no use calculating rankings
@@ -85,8 +85,7 @@ export async function GET(request: Request) {
     })
   }
   try {
-    const { searchParams } = new URL(request.url)
-    const division = searchParams.get('division') || 'fcs'
+    const division = params.division
     // Figure out the current week and year based on the current date
     const votes: Ballot[] = await getAllBallotsForWeekAndYear({
       year: parseInt('2024', 10),
