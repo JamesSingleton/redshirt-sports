@@ -20,7 +20,12 @@ import type { NavProps } from '@/types'
 export function MainNav({ divisions }: NavProps) {
   return (
     <div className="mr-4 hidden lg:flex">
-      <Link href="/" className="flex items-center" prefetch={false}>
+      <Link
+        href="/"
+        className="flex items-center"
+        prefetch={false}
+        aria-label="Home - Redshirt Sports"
+      >
         <LargeLogo className="h-10 w-auto" />
         <span className="sr-only">Redshirt Sports</span>
       </Link>

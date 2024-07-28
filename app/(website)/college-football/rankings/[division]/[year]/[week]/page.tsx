@@ -20,24 +20,40 @@ import VoterBreakdown from './_components/voter-breakdown'
 import { processVoterBallots } from '@/utils/process-ballots'
 import { RankingsFilters } from './_components/filters'
 
-import { type Metadata } from 'next'
+import type { Metadata, ResolvingMetadata } from 'next'
+import { HOME_DOMAIN } from '@/lib/constants'
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { division: string }
-}): Promise<Metadata> {
+type Props = {
+  params: { division: string; week: string; year: string }
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { division, week, year } = params
+  const previousImages = (await parent).openGraph?.images || []
   return {
-    title: `${params.division.toUpperCase()} College Football Rankings`,
-    description: `View the latest ${params.division.toUpperCase()} College Football Rankings.`,
+    title: `${division.toUpperCase()} Top 25 College Football Rankings  - Week ${week}, ${year} | Redshirt Sports`,
+    description: `Check out the ${division.toUpperCase()} Top 25 college football rankings for Week ${week}, ${year}. Get the latest standings and updates on Redshirt Sports.`,
+    metadataBase: new URL(HOME_DOMAIN),
+    alternates: {
+      canonical: new URL(`/college-football/rankings/${division}/${year}/${week}`, HOME_DOMAIN),
+    },
+    robots: 'index, follow',
+    openGraph: {
+      type: 'website',
+      images: [...previousImages],
+      url: new URL(`/college-football/rankings/${division}/${year}/${week}`, HOME_DOMAIN),
+    },
+    twitter: {
+      site: '@_redshirtsports',
+      images: [...previousImages],
+    },
   }
 }
 
-export default async function CollegeFootballRankingsPage({
-  params,
-}: {
-  params: { division: string; year: string; week: string }
-}) {
+export default async function CollegeFootballRankingsPage({ params }: Props) {
   const { division, year, week } = params
   const yearsWithVotes = await getYearsThatHaveVotes({ division })
   const weeksWithVotes = await getWeeksThatHaveVotes({ year: parseInt(year, 10), division })
@@ -73,7 +89,7 @@ export default async function CollegeFootballRankingsPage({
     <>
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>FCS College Football Rankings</CardTitle>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight">{`${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
           <CardDescription className="flex items-center space-x-4 pt-4">
             <RankingsFilters years={yearsWithVotes} weeks={weeksWithVotes} />
           </CardDescription>
@@ -130,7 +146,7 @@ export default async function CollegeFootballRankingsPage({
       {voterBreakdown.length > 0 && (
         <Card className="mt-8 w-full">
           <CardHeader>
-            <CardTitle>Voter Breakdown</CardTitle>
+            <h2 className="text-2xl font-semibold leading-none tracking-tight">Voter Breakdown</h2>
             <CardDescription>
               See how each voter cast their ballot for this week&apos;s rankings.
             </CardDescription>

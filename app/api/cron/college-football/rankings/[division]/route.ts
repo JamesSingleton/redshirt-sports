@@ -8,6 +8,7 @@ import { getCurrentSeasonStartAndEnd } from '@/server/queries'
 
 import { type Ballot, SchoolLite } from '@/types'
 import { NextResponse } from 'next/server'
+import { getCurrentSeason } from '@/utils/getCurrentSeason'
 
 interface TeamPoint {
   id: string
@@ -84,6 +85,7 @@ export async function GET(request: Request, { params }: { params: { division: st
       response: 'Current date is not within the season',
     })
   }
+  const currentSeason = await getCurrentSeason()
   try {
     const division = params.division
     // Figure out the current week and year based on the current date
@@ -111,7 +113,7 @@ export async function GET(request: Request, { params }: { params: { division: st
 
     await db.insert(weeklyFinalRankings).values({
       division,
-      year: 2024,
+      year: currentSeason.year,
       week: 0,
       rankings: rankedTeams,
     })
