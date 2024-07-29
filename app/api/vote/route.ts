@@ -5,6 +5,7 @@ import { db } from '@/server/db'
 import { voterBallots } from '@/server/db/schema'
 
 import type { Season, SeasonType, ESPNBody } from '@/types'
+import { getCurrentSeason } from '@/utils/getCurrentSeason'
 
 export async function POST(req: Request) {
   try {
@@ -25,9 +26,7 @@ export async function POST(req: Request) {
 
     const currentDate = new Date()
     // TODO: Possibly cache this data or move to supabase
-    const currentSeason = await fetch(
-      'https://site.api.espn.com/apis/common/v3/sports/football/college-football/season',
-    ).then((res) => res.json())
+    const currentSeason = await getCurrentSeason()
 
     const { year } = currentSeason
 

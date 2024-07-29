@@ -9,6 +9,7 @@ import { getCurrentSeasonStartAndEnd } from '@/server/queries'
 import { type Ballot, SchoolLite } from '@/types'
 import { NextResponse } from 'next/server'
 import { getCurrentSeason } from '@/utils/getCurrentSeason'
+import { getCurrentWeek } from '@/utils/getCurrentWeek'
 
 interface TeamPoint {
   id: string
@@ -86,12 +87,12 @@ export async function GET(request: Request, { params }: { params: { division: st
     })
   }
   const currentSeason = await getCurrentSeason()
+  const currentWeek = await getCurrentWeek()
   try {
     const division = params.division
-    // Figure out the current week and year based on the current date
     const votes: Ballot[] = await getAllBallotsForWeekAndYear({
-      year: parseInt('2024', 10),
-      week: parseInt('0', 10),
+      year: currentSeason.year,
+      week: currentWeek,
       division,
     })
     const teamPoints = processTeamPoints(votes)
@@ -111,12 +112,18 @@ export async function GET(request: Request, { params }: { params: { division: st
       }
     })
 
-    await db.insert(weeklyFinalRankings).values({
-      division,
-      year: currentSeason.year,
-      week: 0,
-      rankings: rankedTeams,
-    })
+    await db
+      .insert(weeklyFinalRankings)
+      .values({
+        division,
+        year: currentSeason.year,
+        week: 0,
+        rankings: rankedTeams,
+      })
+      .onConflictDoUpdate({
+        target: [weeklyFinalRankings.division, weeklyFinalRankings.year, weeklyFinalRankings.week],
+        set: { rankings: rankedTeams },
+      })
 
     return NextResponse.json({
       response: 'Rankings calculated and stored in the database',

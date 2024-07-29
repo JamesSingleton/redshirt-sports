@@ -1,3 +1,4 @@
+import { getCurrentSeason } from './getCurrentSeason'
 import type { Season, SeasonType, ESPNBody } from '@/types'
 
 export async function getCurrentWeek(): Promise<number> {
@@ -10,9 +11,7 @@ export async function getCurrentWeek(): Promise<number> {
 
   const currentDate = new Date()
   // TODO: Possibly cache this data or move to supabase
-  const currentSeason = await fetch(
-    'https://site.api.espn.com/apis/common/v3/sports/football/college-football/season',
-  ).then((res) => res.json())
+  const currentSeason = await getCurrentSeason()
 
   const { year } = currentSeason
 

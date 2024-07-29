@@ -37,7 +37,7 @@ export const weeklyFinalRankings = pgTable(
     rankings: jsonb('rankings').notNull(),
   },
   (table) => ({
-    isUniqueVote: unique().on(table.year, table.week),
+    isUniqueVote: unique().on(table.division, table.year, table.week),
   }),
 )
 
