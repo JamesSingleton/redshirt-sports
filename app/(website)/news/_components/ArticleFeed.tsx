@@ -1,4 +1,4 @@
-import ArticleCard from './ArticleCard'
+import ArticleCard from '@/components/common/ArticleCard'
 import { type Post } from '@/types'
 
 export default function ArticleFeed({ articles }: { articles: Post[] }) {

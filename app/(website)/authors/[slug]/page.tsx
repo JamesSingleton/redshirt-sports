@@ -277,7 +277,7 @@ export default async function Page({
                 date={post.publishedAt}
                 division={post.division}
                 conferences={post.conferences}
-                author={post.author}
+                author={post.author.name}
               />
             ))}
           </div>

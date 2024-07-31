@@ -83,7 +83,7 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                 date={article.publishedAt}
                 image={article.mainImage}
                 slug={article.slug}
-                author={article.author}
+                author={article.author.name}
                 key={article._id}
               />
             ))}

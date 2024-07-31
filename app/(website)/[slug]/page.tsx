@@ -18,9 +18,9 @@ import {
   Date,
   ImageComponent,
   CustomPortableText,
+  ArticleCard,
 } from '@/components/common'
 import { badgeVariants } from '@/components/ui/badge'
-import ArticleCard from '../news/_components/ArticleCard'
 
 import type { Metadata } from 'next'
 

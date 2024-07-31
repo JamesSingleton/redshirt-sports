@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
 import { Hero, ArticleSection } from '@/components/home'
-import { ArticleCard } from '@/components/common'
+import ArticleCard from '@/components/common/ArticleCard'
 import {
   getHeroPosts,
   getLatestArticlesForHomePage,
@@ -78,8 +78,8 @@ export default async function Page() {
                 date={article.publishedAt}
                 image={article.mainImage}
                 slug={article.slug}
-                author={article.author}
                 key={article._id}
+                author={article.author.name}
               />
             ))}
           </div>

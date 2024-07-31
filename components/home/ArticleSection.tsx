@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
-import { ArticleCard, ImageComponent, Date } from '@/components/common'
+import { ImageComponent, Date, ArticleCard } from '@/components/common'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import { Post } from '@/types'
@@ -66,7 +66,7 @@ export default function ArticleSection({
               </div>
             </div>
           </div>
-          <div className={cn('md:w-1/2  xl:w-2/3', imageFirst ? 'md:order-1' : 'md:order-2')}>
+          <div className={cn('md:w-1/2 xl:w-2/3', imageFirst ? 'md:order-1' : 'md:order-2')}>
             <ImageComponent
               image={firstArticle.mainImage}
               alt={firstArticle.mainImage.caption}
@@ -85,7 +85,7 @@ export default function ArticleSection({
               date={article.publishedAt}
               image={article.mainImage}
               slug={article.slug}
-              author={article.author}
+              author={article.author.name}
               key={article._id}
             />
           ))}
