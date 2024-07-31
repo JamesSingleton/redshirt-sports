@@ -36,11 +36,6 @@ export default async function Page() {
   const latestArticles = await getLatestArticlesForHomePage()
   const articleIds = [...heroPosts, ...latestArticles].map((article) => article._id)
 
-  // const fcsArticles = await getLatestDivisionArticlesForHomePage('FCS', articleIds)
-  // const fbsArticles = await getLatestDivisionArticlesForHomePage('FBS', articleIds)
-  // const d2Articles = await getLatestDivisionArticlesForHomePage('D2', articleIds)
-  // const d3Articles = await getLatestDivisionArticlesForHomePage('D3', articleIds)
-
   const [fcsArticlesResult, fbsArticlesResult, d2ArticlesResult, d3ArticlesResult] =
     await Promise.allSettled([
       getLatestDivisionArticlesForHomePage('FCS', articleIds),
