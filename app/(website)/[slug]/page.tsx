@@ -10,7 +10,7 @@ import { HOME_DOMAIN } from '@/lib/constants'
 import { defineMetadata } from '@/lib/utils.metadata'
 import { getPostBySlug, getPostsPaths } from '@/lib/sanity.fetch'
 import { Org, Web } from '@/lib/ldJson'
-import { AuthorItem, AuthorSection, MobileAuthorSection } from './Author'
+import { AuthorSection, MobileAuthorSection } from './Author'
 import ArticleSocialShare from './ArticleSocialShare'
 import {
   Breadcrumbs,
@@ -97,6 +97,8 @@ export async function generateStaticParams() {
 export default async function Page({ params }: PageProps) {
   const { slug } = params
   const post = await getPostBySlug(slug)
+  const postPaths = await getPostsPaths()
+  console.log(postPaths)
 
   if (!post) {
     return notFound()

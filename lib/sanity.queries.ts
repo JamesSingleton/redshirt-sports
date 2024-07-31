@@ -163,7 +163,21 @@ export const postsBySlugQuery = groq`
 
 export const latestDivisionArticlesQuery = groq`
 *[_type == "post" && division->name == $division && !(_id in $ids)] | order(publishedAt desc, _updatedAt desc)[0...5] {
-  ${litePostFields}
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  mainImage,
+  division->{
+    name,
+    "slug": slug.current,
+  },
+  conferences[]->{
+    name,
+    shortName,
+    "slug": slug.current,
+  },
+  "author": author->{name, image, 'slug': slug.current},
 }
 `
 
@@ -223,7 +237,7 @@ export const authorsPosts = groq`
 `
 
 export const postPaths = `
-*[_type == "post" && defined(slug.current)][].slug.current
+*[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...30].slug.current
 `
 
 export const divisionPaths = `
