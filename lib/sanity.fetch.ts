@@ -91,7 +91,13 @@ export function getPostBySlug(slug: string) {
 }
 
 export function getPostsPaths() {
-  return client.fetch<string[]>(postPaths, {}, { token, perspective: 'published' })
+  return client.fetch<string[]>(
+    postPaths,
+    {
+      lasts30DaysInSeconds: 60 * 60 * 24 * 30,
+    },
+    { token, perspective: 'published' },
+  )
 }
 
 export function getDivisionPaths() {

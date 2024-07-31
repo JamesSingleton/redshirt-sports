@@ -237,7 +237,7 @@ export const authorsPosts = groq`
 `
 
 export const postPaths = `
-*[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...30].slug.current
+*[_type == "post" && defined(slug.current) && dateTime(publishedAt) > dateTime(now()) - $lasts30DaysInSeconds][].slug.current
 `
 
 export const divisionPaths = `

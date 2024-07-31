@@ -97,8 +97,6 @@ export async function generateStaticParams() {
 export default async function Page({ params }: PageProps) {
   const { slug } = params
   const post = await getPostBySlug(slug)
-  const postPaths = await getPostsPaths()
-  console.log(postPaths)
 
   if (!post) {
     return notFound()
