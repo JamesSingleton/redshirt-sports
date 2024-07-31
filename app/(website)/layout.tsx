@@ -1,5 +1,3 @@
-import '../globals.css'
-
 import PlausibleProvider from 'next-plausible'
 
 import { SiteHeader, Footer, ThemeProvider } from '@components/common'

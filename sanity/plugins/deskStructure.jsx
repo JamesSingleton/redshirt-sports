@@ -41,8 +41,6 @@ export const deskStructure = async (S, context) => {
         }
         return 0
       }),
-    // S.documentTypeListItem('player').title('Player Profiles'),
-    // S.documentTypeListItem('transferPortal').title('Transfer Portal Players'),
     S.listItem()
       .title('Schools')
       .icon(School)
