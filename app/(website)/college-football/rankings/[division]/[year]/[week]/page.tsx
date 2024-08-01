@@ -1,6 +1,8 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { buttonVariants } from '@/components/ui/button'
 import {
   Table,
   TableHeader,
@@ -139,6 +141,22 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                 <strong>Others receiving votes:</strong>{' '}
                 {outsideTop25.map((team) => `${team.shortName} ${team._points}`).join(', ')}
               </p>
+            </div>
+          )}
+          {top25.length === 0 && (
+            <div className="mx-auto max-w-md text-center">
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                Top 25 Poll Not Found
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                We&apos;re sorry, but the selected Top 25 poll could not be found. Please try again
+                or check back later.
+              </p>
+              <div className="mt-6">
+                <Link href="/" className={buttonVariants()} prefetch={false}>
+                  Go back Home
+                </Link>
+              </div>
             </div>
           )}
         </CardContent>
