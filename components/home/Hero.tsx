@@ -15,7 +15,7 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
           <div className="lg:col-span-2">
             <Link
               href={`/${heroArticle.slug}`}
-              className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-xl shadow-md"
+              className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-lg shadow-md"
               prefetch={false}
             >
               <ImageComponent

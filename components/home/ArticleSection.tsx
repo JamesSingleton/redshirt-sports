@@ -70,7 +70,7 @@ export default function ArticleSection({
             <ImageComponent
               image={firstArticle.mainImage}
               alt={firstArticle.mainImage.caption}
-              className="w-full overflow-hidden rounded-xl shadow-md"
+              className="w-full overflow-hidden rounded-lg shadow-md"
               width={860}
               height={573}
             />
