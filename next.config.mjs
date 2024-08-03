@@ -11,11 +11,11 @@ const client = createClient({
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
     default-src 'self' vercel.live;
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live *.clerk.accounts.dev https://challenges.cloudflare.com https://va.vercel-scripts.com;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live https://electric-alien-91.clerk.accounts.dev https://clerk.redshirtsports.xyz https://challenges.cloudflare.com https://va.vercel-scripts.com;
     style-src 'self' 'unsafe-inline';
     img-src * blob: data: https://img.clerk.com https://cdn.sanity.io;
     media-src 'none';
-    connect-src *;
+    connect-src * https://clerk.redshirtsports.xyz https://electric-alien-91.clerk.accounts.dev;
     font-src 'self' fonts.gstatic.com;
     frame-src 'self' https://challenges.cloudflare.com;
     worker-src 'self' blob:;
