@@ -80,7 +80,7 @@ export async function POST(req: Request) {
 
     return new Response('OK', { status: 200 })
   } catch (error) {
-    // Sentry.captureException(error)
+    Sentry.captureException(error)
     console.error(error)
     return Response.error()
   }

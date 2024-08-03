@@ -52,7 +52,7 @@ export default async function VoteConfirmationPage({ params }: { params: { divis
     redirect('/')
   }
 
-  if (user.userId && !ballot) {
+  if (user.userId && !ballot.length) {
     redirect(`/vote/${division}`)
   }
 

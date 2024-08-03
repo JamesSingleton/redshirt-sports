@@ -6,6 +6,7 @@ import { hasVoterVoted } from '@/server/queries'
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
 
 import { type Metadata } from 'next'
+import { getCurrentSeason } from '@/utils/getCurrentSeason'
 
 export async function generateStaticParams() {
   const divisions = ['fbs', 'fcs', 'd2', 'd3']
@@ -45,7 +46,7 @@ const divisionHeader = [
 export default async function VotePage({ params }: { params: { division: string } }) {
   const { division } = params
   const votingWeek = await getCurrentWeek()
-  const year = new Date().getFullYear()
+  const { year } = await getCurrentSeason()
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
 
   const schools = await getSchoolsByDivision(division)

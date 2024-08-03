@@ -153,8 +153,6 @@ const Top25 = ({ schools }: Top25FormProps) => {
     )
   }
 
-  const { getValues } = form
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-max space-y-6">
