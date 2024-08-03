@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import {
   PortableText,
@@ -7,7 +6,6 @@ import {
   PortableTextMarkComponentProps,
 } from '@portabletext/react'
 import { PortableTextBlock } from 'sanity'
-// import { Tweet } from 'react-tweet'
 import { CameraIcon } from 'lucide-react'
 
 import ImageComponent from './ImageComponent'
@@ -19,9 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@components/ui/table'
-
-import type { TwitterComponents } from 'react-tweet'
+} from '@/components/ui/table'
 
 const Tweet = dynamic(() => import('react-tweet').then((module) => module.Tweet), {
   ssr: false,
@@ -43,11 +39,6 @@ const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
       {children}
     </Link>
   )
-}
-
-const TweetComponents: TwitterComponents = {
-  AvatarImg: (props) => <Image {...props} alt={props.alt} />,
-  MediaImg: (props) => <Image {...props} alt={props.alt} fill unoptimized />,
 }
 
 const ImageEmbed = ({ value }: { value: any }) => {
@@ -108,7 +99,7 @@ export function CustomPortableText({
       twitter: ({ value }) => {
         return (
           <div className="not-prose flex items-center justify-center">
-            <Tweet id={value.id} components={TweetComponents} />
+            <Tweet id={value.id} />
           </div>
         )
       },

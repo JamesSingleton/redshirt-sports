@@ -11,11 +11,11 @@ import { media } from 'sanity-plugin-media'
 import DocumentsPane from 'sanity-plugin-documents-pane'
 import { PortableTextInputProps } from 'sanity'
 
-import { schemaTypes } from '@schemas/index'
-import { apiVersion, projectId } from '@lib/sanity.api'
-import { deskStructure } from '@plugins/deskStructure'
-import { CustomBlockContentInput } from '@plugins/CustomBlockContentInput'
-import SmallLogo from '@components/common/SmallLogo'
+import { schemaTypes } from '@/sanity/schemas'
+import { apiVersion, projectId } from '@/lib/sanity.api'
+import { deskStructure } from '@/sanity/plugins/deskStructure'
+import { CustomBlockContentInput } from '@/sanity/plugins/CustomBlockContentInput'
+import SmallLogo from '@/components/common/SmallLogo'
 
 export default defineConfig({
   basePath: '/studio',

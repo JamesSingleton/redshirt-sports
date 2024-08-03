@@ -40,6 +40,28 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      title: 'Roles',
+      name: 'roles',
+      type: 'array',
+      of: [
+        {
+          type: 'string',
+          options: {
+            list: [
+              'Contributor',
+              'Editor',
+              'Founder',
+              'Guest Writer',
+              'Historian',
+              'Podcast Host',
+              'Recruiting Insider',
+              'Senior Writer',
+            ],
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'image',
       title: 'Image',
       type: 'image',

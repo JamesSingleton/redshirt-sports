@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { client } from '@lib/sanity.client'
+import { client } from '@/lib/sanity.client'
 import {
   allAuthors,
   authorBySlug,
@@ -21,7 +21,10 @@ import {
   divisionPaths,
   conferencePaths,
   openGraphDataBySlug,
-} from '@lib/sanity.queries'
+  schoolsByDivision,
+  schoolsByIdOrderedByRank,
+  lastThreePosts,
+} from '@/lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
 import {
@@ -36,7 +39,8 @@ import {
   PrivacyPolicyPagePayload,
   SitemapPayload,
   SiteMapPost,
-} from '@types'
+  SchoolLite,
+} from '@/types'
 
 export const token = process.env.SANITY_API_READ_TOKEN
 
@@ -87,7 +91,13 @@ export function getPostBySlug(slug: string) {
 }
 
 export function getPostsPaths() {
-  return client.fetch<string[]>(postPaths, {}, { token, perspective: 'published' })
+  return client.fetch<string[]>(
+    postPaths,
+    {
+      lasts30DaysInSeconds: 60 * 60 * 24 * 30,
+    },
+    { token, perspective: 'published' },
+  )
 }
 
 export function getDivisionPaths() {
@@ -191,5 +201,35 @@ export function getOpenGraphDataBySlug(slug: string) {
     query: openGraphDataBySlug,
     params: { slug },
     tags: [`post:${slug}`],
+  })
+}
+
+export function getSchoolsByDivision(division: string) {
+  return sanityFetch<any>({
+    query: schoolsByDivision,
+    params: { division },
+    tags: [`division:${division}`],
+  })
+}
+
+export function getSchoolsById(
+  ids: {
+    id: string
+    rank: number
+  }[],
+) {
+  return client.fetch<SchoolLite[]>(
+    schoolsByIdOrderedByRank,
+    {
+      ids,
+    },
+    { token, perspective: 'published' },
+  )
+}
+
+export function getLastThreePosts() {
+  return sanityFetch<Post[]>({
+    query: lastThreePosts,
+    tags: ['post'],
   })
 }

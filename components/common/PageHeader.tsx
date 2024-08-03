@@ -1,6 +1,6 @@
-import Breadcrumbs from '@components/common/Breadcrumbs'
+import Breadcrumbs from '@/components/common/Breadcrumbs'
 
-import type { BreadcrumbProps } from '@types'
+import type { BreadcrumbProps } from '@/types'
 
 type PageHeaderProps = {
   breadcrumbs: BreadcrumbProps

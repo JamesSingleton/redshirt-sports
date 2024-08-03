@@ -1,0 +1,1 @@
+ALTER TABLE "users_table" RENAME COLUMN "mediaAffiliation" TO "organization";

@@ -145,14 +145,39 @@ export const postsBySlugQuery = groq`
     && _id != ^._id
     && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)
   ] | order(publishedAt desc, _createdAt desc) {
-    ${litePostFields}
+      _id,
+      title,
+      publishedAt,
+      mainImage,
+      division->{
+        name,
+      },
+      conferences[]->{
+        shortName
+      },
+      "slug": slug.current,
+      "author": author->{name},
   }[0...3]
 }
 `
 
 export const latestDivisionArticlesQuery = groq`
 *[_type == "post" && division->name == $division && !(_id in $ids)] | order(publishedAt desc, _updatedAt desc)[0...5] {
-  ${litePostFields}
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  mainImage,
+  division->{
+    name,
+    "slug": slug.current,
+  },
+  conferences[]->{
+    name,
+    shortName,
+    "slug": slug.current,
+  },
+  "author": author->{name, image, 'slug': slug.current},
 }
 `
 
@@ -212,7 +237,7 @@ export const authorsPosts = groq`
 `
 
 export const postPaths = `
-*[_type == "post" && defined(slug.current)][].slug.current
+*[_type == "post" && defined(slug.current) && dateTime(publishedAt) > dateTime(now()) - $lasts30DaysInSeconds][].slug.current
 `
 
 export const divisionPaths = `
@@ -289,7 +314,18 @@ export const conferenceBySlugQuery = groq`
 export const paginatedPostsQuery = groq`
   {
     "posts": *[_type == "post"] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
-      ${litePostFields}
+      _id,
+      title,
+      publishedAt,
+      mainImage,
+      division->{
+        name,
+      },
+      conferences[]->{
+        shortName
+      },
+      "slug": slug.current,
+      "author": author->{name},
     },
     "totalPosts": count(*[_type == "post"])
   }
@@ -315,4 +351,62 @@ export const openGraphDataBySlug = groq`
   "author": author->{name, role, image},
   "publishedAt": publishedAt,
 }
+`
+
+export const schoolsByDivision = groq`
+*[_type == "school" && division->slug.current == $division]| order(shortName asc){
+  _id,
+  name,
+  shortName,
+  abbreviation,
+  image,
+  conference->{
+    name,
+    shortName
+  }
+}
+`
+
+export const schoolsByIdOrderedByRank = groq`
+*[_type == "school" && _id in $ids[].id]{
+  _id,
+  "_order": $ids[id == ^._id][0].rank,
+  name,
+  shortName,
+  abbreviation,
+  image,
+} | order(_order)
+`
+
+export const schoolsByIdOrderedByPoints = groq`
+*[_type == "school" && _id in $ids[].id]{
+  _id,
+  "_points": $ids[id == ^._id][0].totalPoints,
+  name,
+  shortName,
+  abbreviation,
+  image,
+} | order(_points desc)
+`
+
+export const lastThreePosts = groq`
+*[_type == "post"] | order(publishedAt desc)[0...3]{
+  _id,
+  title,
+  publishedAt,
+  "slug": slug.current,
+  "author": author->{name},
+  excerpt,
+}
+`
+
+export const schoolWithVoteOrder = groq`
+*[_type == "school" && _id in $ids[].teamId]{
+  _id,
+  "_order": $ids[teamId == ^._id][0].rank,
+  name,
+  shortName,
+  abbreviation,
+  image,
+} | order(_order)
 `

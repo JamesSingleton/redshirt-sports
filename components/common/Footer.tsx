@@ -1,8 +1,8 @@
 import { JSX, SVGProps } from 'react'
 import Link from 'next/link'
 
-import { LargeLogo } from '@components/common'
-import { Facebook, Twitter, RSSIcon } from '@components/common/icons'
+import { LargeLogo } from '@/components/common'
+import { Facebook, Twitter, RSSIcon } from '@/components/common/icons'
 
 const navigation = {
   divisions: [
@@ -26,7 +26,7 @@ const navigation = {
     },
     {
       name: 'Twitter',
-      href: 'https://twitter.com/_redshirtsports',
+      href: 'https://x.com/_redshirtsports',
       icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => <Twitter {...props} />,
     },
   ],
@@ -41,7 +41,11 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8">
-            <Link href="/" aria-label="Redshirt Sports Logo, click to go to the homepage">
+            <Link
+              href="/"
+              prefetch={false}
+              aria-label="Redshirt Sports Logo, click to go to the homepage"
+            >
               <LargeLogo className="h-10 w-auto" />
             </Link>
           </div>
@@ -54,6 +58,7 @@ export default function Footer() {
                     <li key={item.name}>
                       <Link
                         href={item.href}
+                        prefetch={false}
                         className="text-sm leading-6 text-secondary-foreground"
                       >
                         {item.name}
@@ -83,6 +88,7 @@ export default function Footer() {
                     <li key={item.name}>
                       <Link
                         href={item.href}
+                        prefetch={false}
                         className="text-sm leading-6 text-secondary-foreground"
                       >
                         {item.name}

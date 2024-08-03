@@ -1,0 +1,2 @@
+ALTER TABLE "weekly_final_rankings" DROP CONSTRAINT "weekly_final_rankings_year_week_unique";--> statement-breakpoint
+ALTER TABLE "weekly_final_rankings" ADD CONSTRAINT "weekly_final_rankings_division_year_week_unique" UNIQUE("division","year","week");

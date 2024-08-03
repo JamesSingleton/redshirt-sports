@@ -1,4 +1,4 @@
-import { defaultTitle, BASE_URL } from '@lib/constants'
+import { defaultTitle, HOME_DOMAIN } from '@/lib/constants'
 
 import type { Metadata } from 'next'
 
@@ -7,7 +7,7 @@ export function defineMetadata({ description, title }: { description?: string; t
   const metaTitle = [...(title ? [title] : []), ...(baseTitle ? [baseTitle] : [])].join(' | ')
 
   return {
-    metadataBase: new URL(BASE_URL),
+    metadataBase: new URL(HOME_DOMAIN),
     title: metaTitle || defaultTitle,
     description,
     robots: {

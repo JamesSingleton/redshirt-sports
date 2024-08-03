@@ -1,17 +1,17 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
-import { Hero, ArticleSection } from '@components/home'
-import { ArticleCard } from '@components/common'
+import { Hero, ArticleSection } from '@/components/home'
+import ArticleCard from '@/components/common/ArticleCard'
 import {
   getHeroPosts,
   getLatestArticlesForHomePage,
   getLatestDivisionArticlesForHomePage,
-} from '@lib/sanity.fetch'
-import { Org, Web } from '@lib/ldJson'
-import { buttonVariants } from '@components/ui/button'
-import { cn } from '@lib/utils'
-import { defineMetadata } from '@lib/utils.metadata'
+} from '@/lib/sanity.fetch'
+import { Org, Web } from '@/lib/ldJson'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { defineMetadata } from '@/lib/utils.metadata'
 
 import type { Graph } from 'schema-dts'
 import type { Metadata } from 'next'
@@ -78,8 +78,8 @@ export default async function Page() {
                 date={article.publishedAt}
                 image={article.mainImage}
                 slug={article.slug}
-                author={article.author}
                 key={article._id}
+                author={article.author.name}
               />
             ))}
           </div>

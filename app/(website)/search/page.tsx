@@ -1,12 +1,12 @@
 import { Suspense } from 'react'
 
-import { PageHeader, ArticleCard, PaginationControls } from '@components/common'
-import Search from '@components/common/Search'
-import { getSearchResults } from '@lib/sanity.fetch'
-import { perPage } from '@lib/constants'
-import { defineMetadata } from '@lib/utils.metadata'
+import { PageHeader, ArticleCard, PaginationControls } from '@/components/common'
+import Search from '@/components/common/Search'
+import { getSearchResults } from '@/lib/sanity.fetch'
+import { perPage } from '@/lib/constants'
+import { defineMetadata } from '@/lib/utils.metadata'
 
-import { Post } from '@types'
+import { Post } from '@/types'
 import type { Metadata, ResolvingMetadata } from 'next'
 
 const defaultMetadata = defineMetadata({
@@ -68,7 +68,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
                 slug={post.slug}
                 division={post.division}
                 conferences={post.conferences}
-                author={post.author}
+                author={post.author.name}
               />
             ))}
           </div>

@@ -1,6 +1,6 @@
 import { School, Newspaper, Users, Gavel, Repeat, Folder } from 'lucide-react'
 
-import { apiVersion } from '@lib/sanity.api'
+import { apiVersion } from '@/lib/sanity.api'
 
 export const deskStructure = async (S, context) => {
   const { getClient, currentUser } = context
@@ -119,7 +119,6 @@ export const deskStructure = async (S, context) => {
             type,
           })
           .then((docs) => {
-            // Create a map of years
             const years = {}
             docs.forEach((d) => {
               const date = new Date(d.publishedAt)

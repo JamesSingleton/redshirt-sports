@@ -1,4 +1,4 @@
-import { BASE_URL } from '@lib/constants'
+import { HOME_DOMAIN } from '@/lib/constants'
 
 import type { MetadataRoute } from 'next'
 
@@ -7,8 +7,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: ['/'],
-      disallow: ['/api/', '/studio/'],
+      disallow: ['/api/', '/studio/', '/vote/'],
     },
-    sitemap: [`${BASE_URL}/sitemap.xml`],
+    sitemap: [`${HOME_DOMAIN}/sitemap.xml`],
   }
 }

@@ -1,9 +1,9 @@
 import Link from 'next/link'
 
-import { ArticleCard, ImageComponent, Date } from '@components/common'
-import { badgeVariants } from '@components/ui/badge'
+import { ArticleCard, ImageComponent, Date } from '@/components/common'
+import { badgeVariants } from '@/components/ui/badge'
 
-import { Post } from '@types'
+import { Post } from '@/types'
 
 const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
   const heroArticle = heroPosts[0]
@@ -15,7 +15,8 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
           <div className="lg:col-span-2">
             <Link
               href={`/${heroArticle.slug}`}
-              className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-xl shadow-md"
+              className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-lg shadow-md"
+              prefetch={false}
             >
               <ImageComponent
                 image={heroArticle.mainImage}
@@ -31,6 +32,7 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                   <Link
                     href={`/news/${heroArticle.division.slug}`}
                     className={badgeVariants({ variant: 'default' })}
+                    prefetch={false}
                   >
                     {heroArticle.division.name}
                   </Link>
@@ -41,19 +43,23 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                       href={`/news/${heroArticle.division.slug}/${conference.slug}`}
                       key={conference._id}
                       className={badgeVariants({ variant: 'default' })}
+                      prefetch={false}
                     >
                       {conference.shortName ?? conference.name}
                     </Link>
                   ))}
               </div>
               <h1 className="text-2xl font-bold lg:text-5xl">
-                <Link href={`/${heroArticle.slug}`}>{heroArticle.title}</Link>
+                <Link href={`/${heroArticle.slug}`} prefetch={false}>
+                  {heroArticle.title}
+                </Link>
               </h1>
               <p className="line-clamp-2 text-muted-foreground">{heroArticle.excerpt}</p>
               <div className="flex flex-wrap items-center space-x-2 text-base text-muted-foreground">
                 <Link
                   href={`/authors/${heroArticle.author.slug}`}
                   className="flex items-center gap-2"
+                  prefetch={false}
                 >
                   <ImageComponent
                     image={heroArticle.author.image}
@@ -77,7 +83,7 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                 date={article.publishedAt}
                 image={article.mainImage}
                 slug={article.slug}
-                author={article.author}
+                author={article.author.name}
                 key={article._id}
               />
             ))}

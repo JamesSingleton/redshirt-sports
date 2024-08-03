@@ -1,6 +1,7 @@
 import { defineType, defineField, defineArrayMember } from 'sanity'
 import { DocumentTextIcon } from '@sanity/icons'
-import CustomStringInputWithLimits from '@plugins/CustomStringInputWithLimits'
+import CustomStringInputWithLimits from '@/sanity/plugins/CustomStringInputWithLimits'
+import { CustomTextInputWithLimits } from '@/sanity/plugins/CustomTextInputWithLimits'
 
 export default defineType({
   name: 'post',
@@ -56,6 +57,23 @@ export default defineType({
         // @ts-expect-error this actually works, just types are messed up from Sanity
         sort: [{ field: 'name', direction: 'asc' }],
       },
+    }),
+    defineField({
+      name: 'authors',
+      title: 'Authors',
+      type: 'array',
+      description:
+        'If only you wrote the article, select yourself. Otherwise, select the authors that contributed to the article.',
+      of: [
+        {
+          type: 'reference',
+          to: { type: 'author' },
+          options: {
+            filter: 'archived != true',
+            sort: [{ field: 'name', direction: 'asc' }],
+          },
+        },
+      ],
     }),
     defineField({
       name: 'mainImage',
@@ -145,14 +163,14 @@ export default defineType({
       title: 'Article Excerpt',
       description:
         'This will be used for article snippets in social media and Google searches. Ideally between 110 and 160 characters.',
-      type: 'string',
+      type: 'text',
       validation: (rule) => [
         rule.required().error('Please add an excerpt before publishing.'),
         rule.min(110).warning('This is a short excerpt. Try to add 10-20 more characters.'),
         rule.max(160).warning('The excerpt should ideally be less than 160 characters'),
       ],
       components: {
-        input: CustomStringInputWithLimits,
+        input: CustomTextInputWithLimits,
       },
     }),
     defineField({

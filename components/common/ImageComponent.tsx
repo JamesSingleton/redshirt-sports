@@ -2,7 +2,7 @@
 
 import { SanityImage } from 'sanity-image'
 
-import { projectId, dataset } from '@lib/sanity.api'
+import { projectId, dataset } from '@/lib/sanity.api'
 
 const ImageComponent = ({
   image,

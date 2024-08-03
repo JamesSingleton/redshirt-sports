@@ -2,16 +2,17 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { ArticleCard, PaginationControls } from '@components/common'
-import { PageHeader } from '@components/common'
-import { getNewsByConference } from '@lib/sanity.fetch'
-import { BASE_URL, perPage } from '@lib/constants'
-import { Org, Web } from '@lib/ldJson'
-import { urlForImage } from '@lib/sanity.image'
-import { defineMetadata } from '@lib/utils.metadata'
+import { ArticleCard, PaginationControls } from '@/components/common'
+import { PageHeader } from '@/components/common'
+import { getNewsByConference } from '@/lib/sanity.fetch'
+import { HOME_DOMAIN, perPage } from '@/lib/constants'
+import { Org, Web } from '@/lib/ldJson'
+import { urlForImage } from '@/lib/sanity.image'
+import { defineMetadata } from '@/lib/utils.metadata'
+import ArticleFeed from '../../_components/ArticleFeed'
 
 import type { Metadata, ResolvingMetadata } from 'next'
-import type { Post } from '@types'
+import type { Post } from '@/types'
 
 export async function generateMetadata(
   {
@@ -33,10 +34,10 @@ export async function generateMetadata(
   }
 
   let title = `${conference?.name} Football, Rumors, and More`
-  let canonical = `${BASE_URL}/news/${conference.division.slug}/${conference?.slug}`
+  let canonical = `${HOME_DOMAIN}/news/${conference.division.slug}/${conference?.slug}`
   if (pageIndex > 1) {
     title = `${conference?.name} Football, Rumors, and More - Page ${pageIndex}`
-    canonical = `${BASE_URL}/news/${conference.division.slug}/${conference.slug}?page=${pageIndex}`
+    canonical = `${HOME_DOMAIN}/news/${conference.division.slug}/${conference.slug}?page=${pageIndex}`
   }
 
   const fallBackDescription = `Explore the latest in ${
@@ -65,6 +66,7 @@ export async function generateMetadata(
       ...defaultMetadata.alternates,
       canonical,
     },
+    metadataBase: new URL(HOME_DOMAIN),
   }
 }
 
@@ -77,8 +79,9 @@ export default async function Page({
 }) {
   const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
   const conference = await getNewsByConference(params.conference, pageIndex)
+
   if (!conference) {
-    return notFound()
+    notFound()
   }
 
   const totalPages = Math.ceil(conference.totalPosts / perPage)
@@ -109,10 +112,10 @@ export default async function Page({
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${BASE_URL}/news/${params.division}/${params.conference}${
+        '@id': `${HOME_DOMAIN}/news/${params.division}/${params.conference}${
           pageIndex ? `?page=${pageIndex}` : ''
         }`,
-        url: `${BASE_URL}/news/${params.division}/${params.conference}${
+        url: `${HOME_DOMAIN}/news/${params.division}/${params.conference}${
           pageIndex ? `?page=${pageIndex}` : ''
         }`,
         breadcrumb: {
@@ -123,25 +126,25 @@ export default async function Page({
               '@type': 'ListItem',
               position: 1,
               name: 'Home',
-              item: `${BASE_URL}`,
+              item: `${HOME_DOMAIN}`,
             },
             {
               '@type': 'ListItem',
               position: 2,
               name: 'News',
-              item: `${BASE_URL}/news`,
+              item: `${HOME_DOMAIN}/news`,
             },
             {
               '@type': 'ListItem',
               position: 3,
               name: conference.division.name,
-              item: `${BASE_URL}/news/${params.division}`,
+              item: `${HOME_DOMAIN}/news/${params.division}`,
             },
             {
               '@type': 'ListItem',
               position: 4,
               name: conference.shortName ?? conference.name,
-              item: `${BASE_URL}/news/${params.division}/${params.conference}`,
+              item: `${HOME_DOMAIN}/news/${params.division}/${params.conference}`,
             },
           ],
         },
@@ -157,7 +160,7 @@ export default async function Page({
           author: {
             '@type': 'Person',
             name: post.author.name,
-            url: `${BASE_URL}/authors/${post.author.slug}`,
+            url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
           },
         })),
       },
@@ -172,21 +175,7 @@ export default async function Page({
       />
       <PageHeader title={title} breadcrumbs={breadcrumbs} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-          {conference.posts.map((post: Post, index: number) => (
-            <ArticleCard
-              index={index}
-              key={post._id}
-              title={post.title}
-              date={post.publishedAt}
-              image={post.mainImage}
-              slug={post.slug}
-              division={post.division}
-              conferences={post.conferences}
-              author={post.author}
-            />
-          ))}
-        </div>
+        <ArticleFeed articles={conference.posts} />
         {totalPages > 1 && (
           <Suspense fallback={<>Loading...</>}>
             <PaginationControls totalPosts={conference.totalPosts} />

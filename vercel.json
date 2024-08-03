@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/college-football/rankings/fcs",
+      "schedule": "59 23 * 8-12 0"
+    }
+  ]
+}

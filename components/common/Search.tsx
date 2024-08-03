@@ -4,7 +4,7 @@ import { useCallback, ChangeEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import debounce from 'lodash.debounce'
 
-import { Input } from '@components/ui/input'
+import { Input } from '@/components/ui/input'
 
 export default function Search({ defaultValue = '' }) {
   const router = useRouter()

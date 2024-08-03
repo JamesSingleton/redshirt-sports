@@ -5,24 +5,24 @@ import { CameraIcon } from 'lucide-react'
 import { getYear, parseISO } from 'date-fns'
 import { Graph } from 'schema-dts'
 
-import { urlForImage } from '@lib/sanity.image'
-import { BASE_URL } from '@lib/constants'
-import { defineMetadata } from '@lib/utils.metadata'
-import { getPostBySlug, getPostsPaths } from '@lib/sanity.fetch'
-import { Org, Web } from '@lib/ldJson'
-import Author from './Author'
+import { urlForImage } from '@/lib/sanity.image'
+import { HOME_DOMAIN } from '@/lib/constants'
+import { defineMetadata } from '@/lib/utils.metadata'
+import { getPostBySlug, getPostsPaths } from '@/lib/sanity.fetch'
+import { Org, Web } from '@/lib/ldJson'
+import { AuthorSection, MobileAuthorSection } from './Author'
 import ArticleSocialShare from './ArticleSocialShare'
-
-import type { Metadata } from 'next'
 import {
   Breadcrumbs,
   ReadingProgress,
   Date,
-  ArticleCard,
   ImageComponent,
   CustomPortableText,
-} from '@components/common'
-import { badgeVariants } from '@components/ui/badge'
+  ArticleCard,
+} from '@/components/common'
+import { badgeVariants } from '@/components/ui/badge'
+
+import type { Metadata } from 'next'
 
 interface PageProps {
   params: {
@@ -52,10 +52,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     ...defaultMetadata,
+    metadataBase: new URL(HOME_DOMAIN),
     authors: [
       {
         name: post.author.name,
-        url: `${BASE_URL}/authors/${post.author.slug}`,
+        url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
       },
     ],
     openGraph: {
@@ -63,7 +64,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'article',
       authors: [post.author.name],
       section: post.division ? post.division.name : undefined,
-      url: `${BASE_URL}/${post.slug}`,
+      url: `${HOME_DOMAIN}/${post.slug}`,
       publishedTime: post.publishedAt,
       modifiedTime: post._updatedAt,
     },
@@ -71,14 +72,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       ...defaultMetadata.twitter,
     },
     alternates: {
-      canonical: `${BASE_URL}/${post.slug}`,
+      canonical: `${HOME_DOMAIN}/${post.slug}`,
     },
     other: {
       'twitter:label1': 'Reading time',
       'twitter:data1': `${post.estimatedReadingTime} min read`,
     },
     keywords: keywords,
-    metadataBase: new URL(BASE_URL),
   }
 }
 
@@ -136,9 +136,9 @@ export default async function Page({ params }: PageProps) {
       Web,
       {
         '@type': 'NewsArticle',
-        '@id': `${BASE_URL}/${post.slug}#article`,
+        '@id': `${HOME_DOMAIN}/${post.slug}#article`,
         isPartOf: {
-          '@id': `${BASE_URL}/${post.slug}`,
+          '@id': `${HOME_DOMAIN}/${post.slug}`,
         },
         image: {
           '@type': 'ImageObject',
@@ -150,76 +150,76 @@ export default async function Page({ params }: PageProps) {
         },
         author: {
           name: post.author.name,
-          '@id': `${BASE_URL}/authors/${post.author.slug}#author`,
+          '@id': `${HOME_DOMAIN}/authors/${post.author.slug}#author`,
         },
         headline: post.title,
         datePublished: post.publishedAt,
         dateModified: post._updatedAt,
         mainEntityOfPage: {
-          '@id': `${BASE_URL}/${post.slug}`,
+          '@id': `${HOME_DOMAIN}/${post.slug}`,
         },
         wordCount: post.wordCount,
         publisher: {
-          '@id': `${BASE_URL}#organization`,
+          '@id': `${HOME_DOMAIN}#organization`,
         },
         keywords: keywords,
         articleSection: articleSections,
         inLanguage: 'en-US',
         copyrightYear: getYear(parseISO(post.publishedAt)),
         copyrightHolder: {
-          '@id': `${BASE_URL}#organization`,
+          '@id': `${HOME_DOMAIN}#organization`,
         },
       },
       {
         '@type': 'WebPage',
-        '@id': `${BASE_URL}/${post.slug}`,
-        url: `${BASE_URL}/${post.slug}`,
+        '@id': `${HOME_DOMAIN}/${post.slug}`,
+        url: `${HOME_DOMAIN}/${post.slug}`,
         name: post.title,
         isPartOf: {
-          '@id': `${BASE_URL}#website`,
+          '@id': `${HOME_DOMAIN}#website`,
         },
         datePublished: post.publishedAt,
         dateModified: post._updatedAt,
         inLanguage: 'en-US',
         description: post.excerpt,
         breadcrumb: {
-          '@id': `${BASE_URL}/${post.slug}#breadcrumb`,
+          '@id': `${HOME_DOMAIN}/${post.slug}#breadcrumb`,
         },
       },
       {
         '@type': 'BreadcrumbList',
-        '@id': `${BASE_URL}/${post.slug}#breadcrumb`,
+        '@id': `${HOME_DOMAIN}/${post.slug}#breadcrumb`,
         name: 'Article Breadcrumbs',
         itemListElement: [
           {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: BASE_URL,
+            item: HOME_DOMAIN,
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: 'News',
-            item: `${BASE_URL}/news`,
+            item: `${HOME_DOMAIN}/news`,
           },
           post.division && {
             '@type': 'ListItem',
             position: 3,
             name: post.division.name,
-            item: `${BASE_URL}/news/${post.division.slug}`,
+            item: `${HOME_DOMAIN}/news/${post.division.slug}`,
           },
           {
             '@type': 'ListItem',
             position: post.division ? 4 : 3,
             name: post.title,
-            item: `${BASE_URL}/${post.slug}`,
+            item: `${HOME_DOMAIN}/${post.slug}`,
           },
         ],
       },
       {
         '@type': 'Person',
-        '@id': `${BASE_URL}/authors/${post.author.slug}#author`,
+        '@id': `${HOME_DOMAIN}/authors/${post.author.slug}#author`,
         name: post.author.name,
         image: {
           '@type': 'ImageObject',
@@ -232,7 +232,7 @@ export default async function Page({ params }: PageProps) {
         },
         description: toPlainText(post.author.bio),
         sameAs: post.author.socialMedia.map((social) => social.url),
-        url: `${BASE_URL}/authors/${post.author.slug}`,
+        url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
       },
     ],
   }
@@ -289,7 +289,8 @@ export default async function Page({ params }: PageProps) {
         <div className="container">
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
             <div className="lg:w-64 lg:shrink-0">
-              <Author {...post.author} />
+              <AuthorSection {...post.author} />
+              <MobileAuthorSection {...post.author} />
             </div>
             <div className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <article>
@@ -334,7 +335,7 @@ export default async function Page({ params }: PageProps) {
                   slug={morePost.slug}
                   division={morePost.division}
                   conferences={morePost.conferences}
-                  author={morePost.author}
+                  author={morePost.author.name}
                 />
               ))}
             </div>

@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { LinkIcon } from 'lucide-react'
 
-import { Facebook, Twitter } from '@components/common/icons'
-import { BASE_URL } from '@lib/constants'
+import { Facebook, Twitter } from '@/components/common/icons'
+import { HOME_DOMAIN } from '@/lib/constants'
 
 export default function ArticleSocialShare({ slug, title }: { slug: string; title: string }) {
   return (
@@ -15,7 +15,7 @@ export default function ArticleSocialShare({ slug, title }: { slug: string; titl
           <button
             aria-label="Copy link to article"
             onClick={() => {
-              navigator.clipboard.writeText(`${BASE_URL}/${slug}`)
+              navigator.clipboard.writeText(`${HOME_DOMAIN}/${slug}`)
             }}
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
@@ -26,13 +26,11 @@ export default function ArticleSocialShare({ slug, title }: { slug: string; titl
         <li className="group">
           <Link
             target="_blank"
-            href={`https://twitter.com/share?url=${BASE_URL}/${slug}&text=${encodeURIComponent(
-              title,
-            )}`}
+            href={`https://x.com/share?url=${HOME_DOMAIN}/${slug}&text=${encodeURIComponent(title)}`}
             rel="noopener"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
           >
-            <span className="sr-only">Twitter</span>
+            <span className="sr-only">X (Formerly Twitter)</span>
             <Twitter
               className="h-5 w-5 group-hover:fill-secondary group-hover:text-secondary"
               aria-hidden="true"
@@ -42,7 +40,7 @@ export default function ArticleSocialShare({ slug, title }: { slug: string; titl
         <li className="group">
           <Link
             target="_blank"
-            href={`https://www.facebook.com/sharer/sharer.php?u=${BASE_URL}/${slug}`}
+            href={`https://www.facebook.com/sharer/sharer.php?u=${HOME_DOMAIN}/${slug}`}
             rel="noopener"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
           >
