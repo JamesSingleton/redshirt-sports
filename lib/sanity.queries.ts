@@ -15,19 +15,14 @@ const authorFields = `
   _updatedAt,
   name,
   'slug': slug.current,
-  role,
+  roles,
   image,
   bio,
   socialMedia
 `
 
 export const allAuthors = groq`
-*[_type == 'author' && archived != true] | score(
-  boost(role == 'Staff Writer', 4),
-  boost(role == 'Content Writer', 3),
-  boost(role == 'Contributor', 2),
-  boost(role == 'Freelancer', 1),
-) | order(_score desc, name asc){
+*[_type == 'author' && archived != true] | order(_createdAt asc, name asc){
   ${authorFields}
 }
 `
@@ -60,7 +55,7 @@ const postFields = `
     "slug": slug.current,
   },
   "slug": slug.current,
-  "author": author->{name, 'slug': slug.current, bio, role, socialMedia, image, archived},
+  "author": author->{name, 'slug': slug.current, bio, roles, socialMedia, image, archived},
   excerpt,
   body[]{
     ...,
@@ -348,7 +343,7 @@ export const openGraphDataBySlug = groq`
 *[_type == "post" && slug.current == $slug][0]{
   "title": title,
   mainImage,
-  "author": author->{name, role, image},
+  "author": author->{name, roles, image},
   "publishedAt": publishedAt,
 }
 `

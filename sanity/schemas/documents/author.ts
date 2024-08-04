@@ -31,15 +31,6 @@ export default defineType({
       initialValue: false,
     }),
     defineField({
-      title: 'Role',
-      name: 'role',
-      type: 'string',
-      options: {
-        list: ['Staff Writer', 'Freelancer', 'Contributor', 'Content Writer', 'Guest Writer'],
-      },
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
       title: 'Roles',
       name: 'roles',
       type: 'array',
@@ -49,17 +40,20 @@ export default defineType({
           options: {
             list: [
               'Contributor',
+              'Correspondent',
               'Editor',
               'Founder',
               'Guest Writer',
               'Historian',
               'Podcast Host',
-              'Recruiting Insider',
+              'Recruiting Analyst',
               'Senior Writer',
+              'Transfer Portal Analyst',
             ],
           },
         },
       ],
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'image',

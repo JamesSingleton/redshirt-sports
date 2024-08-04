@@ -90,6 +90,8 @@ const jsonLd: Graph = {
 export default async function AboutPage() {
   const authors = await getAuthors()
 
+  authors.map((author) => console.log(author.roles))
+
   return (
     <>
       <script
@@ -166,7 +168,11 @@ export default async function AboutPage() {
                           {author.name}
                         </Link>
                       </h3>
-                      <span className="mt-1 text-base text-muted-foreground">{author.role}</span>
+                      {author.roles && (
+                        <span className="mt-1 text-base text-muted-foreground">
+                          {author.roles.join(', ')}
+                        </span>
+                      )}
                     </div>
                     <ul className="mt-6 flex items-center justify-center space-x-3">
                       {author.socialMedia?.map((social) => (

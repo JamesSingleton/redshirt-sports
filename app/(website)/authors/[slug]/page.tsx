@@ -45,9 +45,11 @@ export async function generateMetadata({
     return {}
   }
 
+  const roles = author.roles.join(', ')
+
   const defaultMetadata = defineMetadata({
-    title: `${author.role} ${author.name}`,
-    description: `Meet ${author.name}! Learn who they are and the articles that they have written here at Redshirt Sports!`,
+    title: `${author.name} | ${roles} at Redshirt Sports`,
+    description: `Meet ${author.name}, our ${roles} at Redshirt Sports. Discover their expertise and explore the articles they've written, covering everything from college football analysis to in-depth recruiting insights.`,
   })
 
   return {
@@ -60,7 +62,7 @@ export async function generateMetadata({
           url: urlForImage(author.image).width(1200).height(630).url(),
           width: 1200,
           height: 630,
-          alt: `${author.role} ${author.name}`,
+          alt: `${author.roles.join(', ')} ${author.name}`,
         },
       ],
       url: `${HOME_DOMAIN}/authors/${author.slug}`,
@@ -114,7 +116,7 @@ export default async function Page({
         dateModified: author._updatedAt,
         '@id': `${HOME_DOMAIN}/authors/${author.slug}#profilepage`,
         url: `${HOME_DOMAIN}/authors/${author.slug}`,
-        name: `${author.role} ${author.name}`,
+        name: `${author.roles.join(', ')} ${author.name}`,
         isPartOf: {
           '@id': `${HOME_DOMAIN}#website`,
         },
@@ -128,7 +130,7 @@ export default async function Page({
           image: urlForImage(author.image).width(1200).height(630).url(),
           url: `${HOME_DOMAIN}/authors/${author.slug}`,
           sameAs: author.socialMedia.map((social) => social.url),
-          jobTitle: author.role,
+          jobTitle: author.roles.join(', '),
         },
         image: {
           '@id': `${HOME_DOMAIN}/authors/${author.slug}#primaryimage`,
@@ -151,7 +153,7 @@ export default async function Page({
         url: urlForImage(author.image).width(1200).height(675).url(),
         width: '1200',
         height: '675',
-        caption: `${author.role} ${author.name}`,
+        caption: `${author.roles.join(', ')} ${author.name}`,
       },
       {
         '@type': 'BreadcrumbList',
@@ -188,7 +190,7 @@ export default async function Page({
         },
         url: `${HOME_DOMAIN}/authors/${author.slug}`,
         sameAs: author.socialMedia.map((social) => social.url),
-        jobTitle: author.role,
+        jobTitle: author.roles.join(', '),
         description: toPlainText(author.bio),
         mainEntityOfPage: {
           '@id': `${HOME_DOMAIN}/authors/${author.slug}#profilepage`,
@@ -218,7 +220,7 @@ export default async function Page({
               />
               <div>
                 <span className="block text-base font-semibold text-brand-500 dark:text-brand-400">
-                  {author.role}
+                  {author.roles.join(', ')}
                 </span>
                 <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
                   {author.name}

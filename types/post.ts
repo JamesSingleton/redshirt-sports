@@ -10,7 +10,7 @@ export type Author = {
   archived: boolean
   name: string
   slug: string
-  role: string
+  roles: string[]
   image: MainImage
   bio: PortableTextBlock[]
   socialMedia: [

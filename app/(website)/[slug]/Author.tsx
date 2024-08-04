@@ -1,14 +1,5 @@
 import Link from 'next/link'
-import { Mail, Globe } from 'lucide-react'
 
-import {
-  SpotifyIcon,
-  ApplePodcastIcon,
-  OvercastIcon,
-  Instagram,
-  Twitter,
-  Facebook,
-} from '@/components/common/icons'
 import { ImageComponent } from '@/components/common'
 
 import type { Author } from '@/types'
@@ -36,7 +27,7 @@ export const AuthorItem = (author: Author) => {
           </p>
         </Link>
         <p className="min-h-4 whitespace-nowrap text-sm/4 font-normal tracking-[-.01em] text-muted-foreground">
-          {author.role}
+          {author.roles.join(', ')}
         </p>
       </div>
     </div>

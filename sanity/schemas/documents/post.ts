@@ -1,7 +1,8 @@
 import { defineType, defineField, defineArrayMember } from 'sanity'
-import { DocumentTextIcon } from '@sanity/icons'
+import { DocumentTextIcon, CalendarIcon, ComposeIcon, LinkIcon, SearchIcon } from '@sanity/icons'
 import CustomStringInputWithLimits from '@/sanity/plugins/CustomStringInputWithLimits'
 import { CustomTextInputWithLimits } from '@/sanity/plugins/CustomTextInputWithLimits'
+import { format, parseISO } from 'date-fns'
 
 export default defineType({
   name: 'post',
@@ -60,7 +61,7 @@ export default defineType({
     }),
     defineField({
       name: 'authors',
-      title: 'Authors',
+      title: 'Author(s)',
       type: 'array',
       description:
         'If only you wrote the article, select yourself. Otherwise, select the authors that contributed to the article.',
@@ -180,4 +181,16 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
   ],
+  preview: {
+    select: {
+      title: 'title',
+      date: 'publishedAt',
+      media: 'mainImage',
+    },
+    prepare({ title, media, date }) {
+      const subtitles = [date && `on ${format(parseISO(date), 'LLL d, yyyy')}`].filter(Boolean)
+
+      return { title, media, subtitle: subtitles.join(' ') }
+    },
+  },
 })
