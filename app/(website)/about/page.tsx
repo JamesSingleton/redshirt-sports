@@ -90,8 +90,6 @@ const jsonLd: Graph = {
 export default async function AboutPage() {
   const authors = await getAuthors()
 
-  authors.map((author) => console.log(author.roles))
-
   return (
     <>
       <script
