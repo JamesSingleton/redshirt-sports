@@ -50,3 +50,7 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 }
+
+// export const config = {
+//   matcher: ['/', '/admin/:path*', '/vote/:path*', '/onboarding/:path*'],
+// }

@@ -4,7 +4,7 @@ import { forwardRef, ElementRef, ComponentPropsWithoutRef } from 'react'
 import Link from 'next/link'
 
 import { cn } from '@/lib/utils'
-import LargeLogo from './LargeLogo'
+import SmallLogo from './SmallLogo'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -26,7 +26,7 @@ export function MainNav({ divisions }: NavProps) {
         prefetch={false}
         aria-label="Home - Redshirt Sports"
       >
-        <LargeLogo className="h-10 w-auto" />
+        <SmallLogo className="h-10 w-auto" />
         <span className="sr-only">Redshirt Sports</span>
       </Link>
       <NavigationMenu className="ml-4">

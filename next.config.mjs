@@ -56,7 +56,6 @@ const securityHeaders = [
 
 const nextConfig = {
   experimental: {
-    optimizePackageImports: ['tailwindcss', '@portabletext/react'],
     instrumentationHook: true,
   },
   logging: {

@@ -1,7 +1,7 @@
 import { JSX, SVGProps } from 'react'
 import Link from 'next/link'
 
-import { LargeLogo } from '@/components/common'
+import SmallLogo from './SmallLogo'
 import { Facebook, Twitter, RSSIcon } from '@/components/common/icons'
 
 const navigation = {
@@ -46,7 +46,7 @@ export default function Footer() {
               prefetch={false}
               aria-label="Redshirt Sports Logo, click to go to the homepage"
             >
-              <LargeLogo className="h-10 w-auto" />
+              <SmallLogo className="h-10 w-auto" />
             </Link>
           </div>
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">

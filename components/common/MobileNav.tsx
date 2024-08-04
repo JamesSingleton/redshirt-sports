@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { STATIC_NAV_ITEMS } from '@/lib/constants'
-import LargeLogo from './LargeLogo'
+import SmallLogo from './SmallLogo'
 
 import type { NavProps } from '@/types'
 
@@ -30,7 +30,7 @@ export function MobileNav({ divisions }: NavProps) {
       </SheetTrigger>
       <SheetContent side="left" className="pr-0">
         <MobileLink href="/" className="flex items-center" onOpenChange={setOpen}>
-          <LargeLogo className="h-10 w-auto" />
+          <SmallLogo className="h-10 w-auto" />
           <span className="sr-only">Redshirt Sports</span>
         </MobileLink>
         <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
