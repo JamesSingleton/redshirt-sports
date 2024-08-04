@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
-import { ImageComponent, Date, ArticleCard } from '@/components/common'
+import ImageComponent from '@/components/common/ImageComponent'
+import Date from '@/components/common/Date'
+import ArticleCard from '@/components/common/ArticleCard'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import { Post } from '@/types'
