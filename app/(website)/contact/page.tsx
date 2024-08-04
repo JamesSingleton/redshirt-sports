@@ -1,19 +1,22 @@
-import { PageHeader } from '@/components/common'
+import Link from 'next/link'
 
+import { PageHeader } from '@/components/common'
 import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
-import { defineMetadata } from '@/lib/utils.metadata'
+import { constructMetadata } from '@/utils/construct-metadata'
+import { Card, CardTitle, CardDescription, CardContent, CardHeader } from '@/components/ui/card'
 
 import type { Metadata, ResolvingMetadata } from 'next'
 import type { Graph } from 'schema-dts'
 
-const defaultMetadata = defineMetadata({
-  title: 'Contact Us',
-  description:
-    'Want to collaborate on a story or advertise with Redshirt Sports? Contact us via editors@redshirtsports.xyz or advertising@redshirtsports.xyz.',
-})
-
 export async function generateMetadata({}, parent: ResolvingMetadata): Promise<Metadata> {
+  const defaultMetadata = constructMetadata({
+    title: 'Contact Redshirt Sports - Get in Touch with Our Team',
+    description:
+      "Contact Redshirt Sports for collaboration, advertising, or general inquiries. We're here to assist with any questions about our football coverage.",
+    canonical: '/contact',
+  })
+
   const previousImages = (await parent).openGraph?.images || []
   return {
     ...defaultMetadata,
@@ -22,17 +25,30 @@ export async function generateMetadata({}, parent: ResolvingMetadata): Promise<M
       images: [...previousImages],
       url: '/contact',
     },
-    alternates: {
-      ...defaultMetadata.alternates,
-      canonical: '/contact',
+    twitter: {
+      ...defaultMetadata.twitter,
+      card: 'summary_large_image',
+      images: [...previousImages],
     },
   }
 }
 
 const contactDetails = [
-  { name: 'Collaborate', email: 'editors@redshirtsports.xyz' },
-  { name: 'Advertising', email: 'advertising@redshirtsports.xyz' },
-  { name: 'General', email: 'contact@redshirtsports.xyz' },
+  {
+    title: 'Collaborate',
+    description: 'For partnership and collaboration inquiries',
+    email: 'editors@redshirtsports.xyz',
+  },
+  {
+    title: 'Advertising',
+    description: 'For advertising and sponsorship opportunities',
+    email: 'advertising@redshirtsports.xyz',
+  },
+  {
+    title: 'General Inquiries',
+    description: 'For all other questions and information',
+    email: 'contact@redshirtsports.xyz',
+  },
 ]
 
 const breadcrumbs = [
@@ -105,21 +121,23 @@ export default function Page() {
         }
       />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="md:max-w-3xl xl:max-w-5xl">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {contactDetails.map(({ name, email }) => (
-              <div key={name} className="overflow-hidden rounded-lg bg-secondary shadow">
-                <div className="px-4 py-5 sm:p-6">
-                  <h3 className="text-secondary-900 text-lg font-medium leading-6">{name}</h3>
-                  <div className="text-secondary-600 mt-2 max-w-xl text-sm">
-                    <p>
-                      <a href={`mailto:${email}`}>{email}</a>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {contactDetails.map(({ title, description, email }) => (
+            <Card key={title} className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl">{title}</CardTitle>
+                <CardDescription className="text-sm sm:text-base">{description}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-grow items-end">
+                <Link
+                  href={`mailto:${email}`}
+                  className="break-all text-sm text-primary hover:underline sm:text-base"
+                >
+                  {email}
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
     </>
