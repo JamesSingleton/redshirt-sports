@@ -4,7 +4,7 @@ import { dataset, projectId } from '@/lib/sanity.api'
 
 import type { MainImage } from '@/types'
 
-const imageBuilder = createImageUrlBuilder({
+export const imageBuilder = createImageUrlBuilder({
   projectId: projectId || '',
   dataset: dataset || '',
 })

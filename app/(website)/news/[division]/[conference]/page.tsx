@@ -2,14 +2,15 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { ArticleCard, PaginationControls } from '@/components/common'
-import { PageHeader } from '@/components/common'
-import { getNewsByConference } from '@/lib/sanity.fetch'
+import PageHeader from '@/components/common/PageHeader'
+import PaginationControls from '@/components/common/PaginationControls'
+import { getNewsByConference, getConferenceInfoBySlug } from '@/lib/sanity.fetch'
 import { HOME_DOMAIN, perPage } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { urlForImage } from '@/lib/sanity.image'
 import { defineMetadata } from '@/lib/utils.metadata'
 import ArticleFeed from '../../_components/ArticleFeed'
+import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Metadata, ResolvingMetadata } from 'next'
 import type { Post } from '@/types'
@@ -24,10 +25,11 @@ export async function generateMetadata(
   },
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
+  const { division, conference: conferenceParam } = params
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
-  const conference = await getNewsByConference(params.conference, pageIndex)
+  const conference = await getConferenceInfoBySlug(params.conference)
 
   if (!conference) {
     return {}

@@ -2,18 +2,18 @@ import { PageHeader, Date, CustomPortableText } from '@/components/common'
 import { getPrivacyPolicy } from '@/lib/sanity.fetch'
 import { HOME_DOMAIN } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
-import { defineMetadata } from '@/lib/utils.metadata'
+import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Graph } from 'schema-dts'
 import type { Metadata, ResolvingMetadata } from 'next'
 
-const defaultMetadata = defineMetadata({
-  title: 'Privacy Policy',
-  description:
-    "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
-})
-
 export async function generateMetadata({}, parent: ResolvingMetadata): Promise<Metadata> {
+  const defaultMetadata = constructMetadata({
+    title: 'Privacy Policy - Redshirt Sports',
+    description:
+      'Learn how Redshirt Sports handles your data. Read our Privacy Policy to understand our practices for data collection, use, and protection.',
+    canonical: '/privacy',
+  })
   const previousImages = (await parent).openGraph?.images || []
   return {
     ...defaultMetadata,
@@ -21,6 +21,11 @@ export async function generateMetadata({}, parent: ResolvingMetadata): Promise<M
       ...defaultMetadata.openGraph,
       images: [...previousImages],
       url: '/privacy',
+    },
+    twitter: {
+      ...defaultMetadata.twitter,
+      card: 'summary_large_image',
+      images: [...previousImages],
     },
     alternates: {
       ...defaultMetadata.alternates,

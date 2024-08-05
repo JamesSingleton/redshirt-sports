@@ -13,6 +13,7 @@ export default function ArticleCard({
   date,
   division,
   conferences,
+  headingLevel = 'h3',
 }: {
   title: string
   image: any
@@ -25,7 +26,10 @@ export default function ArticleCard({
   conferences: {
     shortName: string
   }[]
+  headingLevel?: 'h2' | 'h3' | 'h4'
 }) {
+  const Heading = headingLevel
+
   return (
     <div className="overflow-hidden rounded-lg border border-border shadow-lg">
       <ImageComponent
@@ -43,11 +47,11 @@ export default function ArticleCard({
               <Badge key={conference.shortName}>{conference.shortName}</Badge>
             ))}
         </div>
-        <h3 className="mb-2 text-lg font-semibold">
+        <Heading className="mb-2 text-lg font-semibold">
           <Link href={`/${slug}`} className="transition-colors hover:text-primary" prefetch={false}>
             {title}
           </Link>
-        </h3>
+        </Heading>
         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
           <div>{author}</div>
           <Separator orientation="vertical" className="h-4" />

@@ -7,32 +7,42 @@ import { Twitter, Facebook, Instagram } from '@/components/common/icons'
 import { PageHeader } from '@/components/common'
 import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
-import { defineMetadata } from '@/lib/utils.metadata'
+import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Metadata, ResolvingMetadata } from 'next'
 import type { Graph } from 'schema-dts'
 
-const defaultMetadata = defineMetadata({
-  title: 'About Redshirt Sports, Your Source for College Football News',
+export const metadata: Metadata = constructMetadata({
+  title: 'About Redshirt Sports - Meet the Team Behind College Football Coverage',
   description:
-    'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
+    "Learn about Redshirt Sports and our team's dedication to covering FCS, FBS, D2, and D3 football. Discover our mission and the experts behind the news.",
+  canonical: '/about',
 })
 
-export async function generateMetadata({}, parent: ResolvingMetadata): Promise<Metadata> {
-  const previousImages = (await parent).openGraph?.images || []
-  return {
-    ...defaultMetadata,
-    openGraph: {
-      ...defaultMetadata.openGraph,
-      images: [...previousImages],
-      url: '/about',
-    },
-    alternates: {
-      ...defaultMetadata.alternates,
-      canonical: '/about',
-    },
-  }
-}
+// export async function generateMetadata({}, parent: ResolvingMetadata): Promise<Metadata> {
+//   const defaultMetadata = constructMetadata({
+//     title: 'About Redshirt Sports - Meet the Team Behind College Football Coverage',
+//     description:
+//       "Learn about Redshirt Sports and our team's dedication to covering FCS, FBS, D2, and D3 football. Discover our mission and the experts behind the news.",
+//     canonical: '/about',
+//   })
+
+//   const previousImages = (await parent).openGraph?.images || []
+
+//   return {
+//     ...defaultMetadata,
+//     openGraph: {
+//       ...defaultMetadata.openGraph,
+//       images: [...previousImages],
+//       url: '/about',
+//     },
+//     twitter: {
+//       ...defaultMetadata.twitter,
+//       card: 'summary_large_image',
+//       images: [...previousImages],
+//     },
+//   }
+// }
 
 const breadcrumbs = [
   {

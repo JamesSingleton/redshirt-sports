@@ -3,61 +3,42 @@ import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
 import { getNewsByDivision } from '@/lib/sanity.fetch'
-import { PaginationControls, PageHeader } from '@/components/common'
+import PageHeader from '@/components/common/PageHeader'
+import PaginationControls from '@/components/common/PaginationControls'
 import { HOME_DOMAIN, perPage } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
-import { defineMetadata } from '@/lib/utils.metadata'
 import { urlForImage } from '@/lib/sanity.image'
 import ArticleFeed from '../_components/ArticleFeed'
+import { constructMetadata } from '@/utils/construct-metadata'
 
-import type { Metadata, ResolvingMetadata } from 'next'
+import type { Metadata } from 'next'
 import type { Post } from '@/types'
 
-export async function generateMetadata(
-  {
-    params,
-    searchParams,
-  }: {
-    params: { [key: string]: string }
-    searchParams: { [key: string]: string }
-  },
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: { [key: string]: string }
+  searchParams: { [key: string]: string }
+}): Promise<Metadata> {
+  const { division } = params
   const { page } = searchParams
-  const pageIndex = page !== undefined ? parseInt(page) : 1
-  const division = await getNewsByDivision(params.division, pageIndex)
 
-  if (!division) {
-    return {}
+  let finalTitle: string = `Latest ${division.toUpperCase()} Football Coverage | ${process.env.NEXT_PUBLIC_APP_NAME}`
+  let finalDescription: string = `Discover the latest articles and insights on ${division.toUpperCase()} football. Get comprehensive coverage at ${process.env.NEXT_PUBLIC_APP_NAME}.`
+
+  if (page) {
+    finalTitle = `Latest ${division.toUpperCase()} Football Coverage - Page ${page} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    finalDescription = `Explore more ${division.toUpperCase()} football insights on page ${page}. Get comprehensive coverage at ${process.env.NEXT_PUBLIC_APP_NAME}.`
   }
 
-  let title = `${division?.heading}, Rumors, and More`
-  let canonical = `${HOME_DOMAIN}/news/${division?.slug}`
-  if (pageIndex > 1) {
-    title = `${division?.heading}, Rumors, and More - Page ${pageIndex}`
-    canonical = `${HOME_DOMAIN}/news/${division?.slug}?page=${pageIndex}`
-  }
-
-  const defaultMetadata = defineMetadata({
-    title,
-    description: division?.description,
+  const defaultMetadata = constructMetadata({
+    title: finalTitle,
+    description: finalDescription,
+    canonical: `/news/${division}${page ? `?page=${page}` : ''}`,
   })
 
-  const previousImages = (await parent).openGraph?.images || []
-
-  return {
-    ...defaultMetadata,
-    metadataBase: new URL(HOME_DOMAIN),
-    openGraph: {
-      ...defaultMetadata.openGraph,
-      images: [...previousImages],
-      url: `/news/${division?.slug}${pageIndex > 1 ? `?page=${pageIndex}` : ''}`,
-    },
-    alternates: {
-      ...defaultMetadata.alternates,
-      canonical,
-    },
-  }
+  return defaultMetadata
 }
 
 export default async function Page({
@@ -75,8 +56,6 @@ export default async function Page({
     notFound()
   }
   const totalPages = Math.ceil(division?.totalPosts / perPage)
-  const nextDisabled = pageIndex === totalPages
-  const prevDisabled = pageIndex === 1
 
   const breadcrumbs = [
     {

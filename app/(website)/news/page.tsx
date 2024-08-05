@@ -3,16 +3,17 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { PaginationControls, PageHeader } from '@/components/common'
+import PageHeader from '@/components/common/PageHeader'
+import PaginationControls from '@/components/common/PaginationControls'
 import { getNews } from '@/lib/sanity.fetch'
 import { HOME_DOMAIN, perPage } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { urlForImage } from '@/lib/sanity.image'
-import { defineMetadata } from '@/lib/utils.metadata'
 import ArticleFeed from './_components/ArticleFeed'
+import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Post } from '@/types'
-import type { Metadata, ResolvingMetadata } from 'next'
+import type { Metadata } from 'next'
 
 const breadcrumbs = [
   {
@@ -21,37 +22,28 @@ const breadcrumbs = [
   },
 ]
 
-export async function generateMetadata(
-  {
-    params,
-    searchParams,
-  }: {
-    params: { [key: string]: string }
-    searchParams: { [key: string]: string }
-  },
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
-  const defaultMetadata = defineMetadata({
-    title: `College Football News and Updates${
-      searchParams.page ? ` Page ${searchParams.page}` : ''
-    }`,
-    description:
-      'Stay in the know with the latest college football news, updates, and insights. From FCS to FBS, D2 to D3, catch up on all the action with Redshirt Sports.',
-  })
-  const previousImages = (await parent).openGraph?.images || []
-  return {
-    ...defaultMetadata,
-    openGraph: {
-      ...defaultMetadata.openGraph,
-      images: [...previousImages],
-      url: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
-    },
-    alternates: {
-      ...defaultMetadata.alternates,
-      canonical: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
-    },
-    metadataBase: new URL(HOME_DOMAIN),
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: { [key: string]: string }
+  searchParams: { [key: string]: string }
+}): Promise<Metadata> {
+  let finalTitle: string = `College Football News & Updates | ${process.env.NEXT_PUBLIC_APP_NAME}`
+  let finalDescription: string = `Get the latest college football news, covering FCS, FBS, D2, and D3. Explore insightful articles and stay informed with ${process.env.NEXT_PUBLIC_APP_NAME}.`
+
+  if (searchParams.page) {
+    finalTitle = `College Football News & Updates - Page ${searchParams.page} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    finalDescription = `Explore more college football insights on page ${searchParams.page}. Discover the latest FCS, FBS, D2, and D3 coverage at ${process.env.NEXT_PUBLIC_APP_NAME}.`
   }
+
+  const defaultMetadata = constructMetadata({
+    title: finalTitle,
+    description: finalDescription,
+    canonical: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
+  })
+
+  return defaultMetadata
 }
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string } }) {
