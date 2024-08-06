@@ -11,7 +11,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table'
-import { ImageComponent } from '@/components/common'
+import ImageComponent from '@/components/common/ImageComponent'
 import {
   getFinalRankingsForWeekAndYear,
   getWeeksThatHaveVotes,

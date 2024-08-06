@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { ImageComponent } from '@/components/common'
+import ImageComponent from '@/components/common/ImageComponent'
 
 import type { Author } from '@/types'
 

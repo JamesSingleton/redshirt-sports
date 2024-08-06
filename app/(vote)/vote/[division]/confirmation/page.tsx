@@ -4,7 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 
 import { getVoterBallots } from '@/server/queries'
 import { getSchoolsById } from '@/lib/sanity.fetch'
-import { ImageComponent } from '@/components/common'
+import ImageComponent from '@/components/common/ImageComponent'
 import { buttonVariants } from '@/components/ui/button'
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
 import { transformBallotToTeamIds } from '@/utils/process-ballots'

@@ -4,7 +4,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 
-import { ThemeProvider } from '@/components/common'
+import { ThemeProvider } from '@/components/common/ThemeProvider'
 import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Viewport } from 'next'
