@@ -37,8 +37,6 @@ import {
   PostPayload,
   PostsWithPaginationPayload,
   PrivacyPolicyPagePayload,
-  SitemapPayload,
-  SiteMapPost,
   SchoolLite,
 } from '@/types'
 
@@ -153,6 +151,14 @@ export function getNewsByConference(slug: string, pageIndex: number) {
   return sanityFetch<ConferencePayload>({
     query: conferenceBySlugQuery,
     params: { slug, pageIndex },
+    tags: [`conference:${slug}`],
+  })
+}
+
+export function getConferenceInfoBySlug(slug: string) {
+  return sanityFetch<ConferencePayload>({
+    query: `*[_type == "conference" && slug.current == $slug][0]`,
+    params: { slug },
     tags: [`conference:${slug}`],
   })
 }

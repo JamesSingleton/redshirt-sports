@@ -29,7 +29,7 @@ import ConferencesWrittenFor from './ConferencesWrittenFor'
 import ImageComponent from '@/components/common/ImageComponent'
 import { Org, Web } from '@/lib/ldJson'
 import { perPage, HOME_DOMAIN } from '@/lib/constants'
-import { defineMetadata } from '@/lib/utils.metadata'
+import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Metadata } from 'next'
 
@@ -47,31 +47,13 @@ export async function generateMetadata({
 
   const roles = author.roles.join(', ')
 
-  const defaultMetadata = defineMetadata({
-    title: `${author.name} | ${roles} at Redshirt Sports`,
-    description: `Meet ${author.name}, our ${roles} at Redshirt Sports. Discover their expertise and explore the articles they've written, covering everything from college football analysis to in-depth recruiting insights.`,
+  return constructMetadata({
+    title: `${author.name} - ${roles} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+    description: `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`,
+    canonical: `/authors/${slug}`,
+    image: urlForImage(author.image).width(1200).height(630).url(),
+    ogType: 'profile',
   })
-
-  return {
-    ...defaultMetadata,
-    openGraph: {
-      ...defaultMetadata.openGraph,
-      type: 'profile',
-      images: [
-        {
-          url: urlForImage(author.image).width(1200).height(630).url(),
-          width: 1200,
-          height: 630,
-          alt: `${author.roles.join(', ')} ${author.name}`,
-        },
-      ],
-      url: `${HOME_DOMAIN}/authors/${author.slug}`,
-    },
-    alternates: {
-      ...defaultMetadata.alternates,
-      canonical: `${HOME_DOMAIN}/authors/${author.slug}`,
-    },
-  }
 }
 
 export default async function Page({

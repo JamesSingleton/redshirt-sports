@@ -6,32 +6,14 @@ import { HOME_DOMAIN } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'
 import { Card, CardTitle, CardDescription, CardContent, CardHeader } from '@/components/ui/card'
 
-import type { Metadata, ResolvingMetadata } from 'next'
+import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
 
-export async function generateMetadata({}, parent: ResolvingMetadata): Promise<Metadata> {
-  const defaultMetadata = constructMetadata({
-    title: 'Contact Redshirt Sports - Get in Touch with Our Team',
-    description:
-      "Contact Redshirt Sports for collaboration, advertising, or general inquiries. We're here to assist with any questions about our football coverage.",
-    canonical: '/contact',
-  })
-
-  const previousImages = (await parent).openGraph?.images || []
-  return {
-    ...defaultMetadata,
-    openGraph: {
-      ...defaultMetadata.openGraph,
-      images: [...previousImages],
-      url: '/contact',
-    },
-    twitter: {
-      ...defaultMetadata.twitter,
-      card: 'summary_large_image',
-      images: [...previousImages],
-    },
-  }
-}
+export const metadata: Metadata = constructMetadata({
+  title: `Contact Us | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+  description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for collaboration, advertising, or general inquiries. We're here to assist with any questions about our football coverage.`,
+  canonical: '/contact',
+})
 
 const contactDetails = [
   {
@@ -53,7 +35,7 @@ const contactDetails = [
 
 const breadcrumbs = [
   {
-    title: 'Contact',
+    title: 'Contact Us',
     href: '/contact',
   },
 ]

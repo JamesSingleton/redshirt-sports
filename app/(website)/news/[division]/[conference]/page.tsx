@@ -2,72 +2,55 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
-import { ArticleCard, PaginationControls } from '@/components/common'
-import { PageHeader } from '@/components/common'
-import { getNewsByConference } from '@/lib/sanity.fetch'
+import PageHeader from '@/components/common/PageHeader'
+import PaginationControls from '@/components/common/PaginationControls'
+import { getNewsByConference, getConferenceInfoBySlug } from '@/lib/sanity.fetch'
 import { HOME_DOMAIN, perPage } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { urlForImage } from '@/lib/sanity.image'
 import { defineMetadata } from '@/lib/utils.metadata'
 import ArticleFeed from '../../_components/ArticleFeed'
+import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Metadata, ResolvingMetadata } from 'next'
 import type { Post } from '@/types'
 
-export async function generateMetadata(
-  {
-    params,
-    searchParams,
-  }: {
-    params: { [key: string]: string }
-    searchParams: { [key: string]: string }
-  },
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: { [key: string]: string }
+  searchParams: { [key: string]: string }
+}): Promise<Metadata> {
+  const { division, conference } = params
   const { page } = searchParams
-  const pageIndex = page !== undefined ? parseInt(page) : 1
 
-  const conference = await getNewsByConference(params.conference, pageIndex)
+  const conferenceInfo = await getConferenceInfoBySlug(conference)
 
-  if (!conference) {
+  if (!conferenceInfo) {
     return {}
   }
 
-  let title = `${conference?.name} Football, Rumors, and More`
-  let canonical = `${HOME_DOMAIN}/news/${conference.division.slug}/${conference?.slug}`
-  if (pageIndex > 1) {
-    title = `${conference?.name} Football, Rumors, and More - Page ${pageIndex}`
-    canonical = `${HOME_DOMAIN}/news/${conference.division.slug}/${conference.slug}?page=${pageIndex}`
+  const conferenceName = conferenceInfo.shortName ?? conferenceInfo.name
+  let finalCanonical = `/news/${division}/${conference}`
+
+  let finalTitle: string = `${conferenceName} Football News | ${process.env.NEXT_PUBLIC_APP_NAME}`
+  let finalDescription: string = `Explore extensive coverage of ${conferenceName} football. Dive into detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}, your go-to source for all ${conferenceName} football news.`
+
+  if (page) {
+    finalTitle = `${conferenceName} Football News - Page ${page} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    finalDescription = `Explore extensive coverage of ${conferenceName} football on Page ${page}. Dive into detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}, your go-to source for all ${conferenceName} football news.`
+
+    if (parseInt(page) > 1) {
+      finalCanonical = `/news/${division}/${conference}?page=${page}`
+    }
   }
 
-  const fallBackDescription = `Explore the latest in ${
-    conference.division.name
-  } college football from the ${
-    conference.shortName ?? conference.name
-  } conference at Redshirt Sports. Get news, highlights, and more.`
-
-  const defaultMetadata = defineMetadata({
-    title,
-    description: conference?.description ?? fallBackDescription,
+  return constructMetadata({
+    title: finalTitle,
+    description: finalDescription,
+    canonical: finalCanonical,
   })
-
-  const previousImages = (await parent).openGraph?.images || []
-
-  return {
-    ...defaultMetadata,
-    openGraph: {
-      ...defaultMetadata.openGraph,
-      images: [...previousImages],
-      url: `/news/${conference.division.slug}/${conference?.slug}${
-        pageIndex > 1 ? `?page=${pageIndex}` : ''
-      }`,
-    },
-    alternates: {
-      ...defaultMetadata.alternates,
-      canonical,
-    },
-    metadataBase: new URL(HOME_DOMAIN),
-  }
 }
 
 export default async function Page({

@@ -4,33 +4,16 @@ import { PageHeader, ArticleCard, PaginationControls } from '@/components/common
 import Search from '@/components/common/Search'
 import { getSearchResults } from '@/lib/sanity.fetch'
 import { perPage } from '@/lib/constants'
-import { defineMetadata } from '@/lib/utils.metadata'
+import { constructMetadata } from '@/utils/construct-metadata'
 
 import { Post } from '@/types'
-import type { Metadata, ResolvingMetadata } from 'next'
+import type { Metadata } from 'next'
 
-const defaultMetadata = defineMetadata({
-  title: 'Search Results',
-  description:
-    'Search for articles on Redshirt Sports. Find the latest news, analysis, and opinion pieces on college sports.',
+export const metadata: Metadata = constructMetadata({
+  title: `Search Results | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+  description: `Explore the latest articles, news, and analysis on college football. Find what you're looking for across FCS, FBS, D2, D3, and NAIA at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
+  canonical: '/search',
 })
-
-export async function generateMetadata({}, parent: ResolvingMetadata): Promise<Metadata> {
-  const previousImages = (await parent).openGraph?.images || []
-
-  return {
-    ...defaultMetadata,
-    openGraph: {
-      ...defaultMetadata.openGraph,
-      images: [...previousImages],
-      url: `/search`,
-    },
-    alternates: {
-      ...defaultMetadata.alternates,
-      canonical: `/search`,
-    },
-  }
-}
 
 const breadcrumbs = [
   {

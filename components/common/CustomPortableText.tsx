@@ -43,7 +43,7 @@ const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
 
 const ImageEmbed = ({ value }: { value: any }) => {
   return (
-    <figure className="my-2 flex flex-col self-center rounded-lg shadow-md">
+    <figure className="my-2 flex flex-col items-center self-center rounded-lg shadow-md">
       <ImageComponent
         image={value}
         mode="contain"

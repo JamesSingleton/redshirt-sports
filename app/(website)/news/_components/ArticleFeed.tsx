@@ -14,6 +14,7 @@ export default function ArticleFeed({ articles }: { articles: Post[] }) {
           date={article.publishedAt}
           division={article.division}
           conferences={article.conferences}
+          headingLevel="h2"
         />
       ))}
     </div>

@@ -5,12 +5,15 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 
 import { ThemeProvider } from '@/components/common'
+import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Viewport } from 'next'
 
 export const viewport: Viewport = {
   themeColor: '#DC2727',
 }
+
+export const metadata = constructMetadata()
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -49,6 +49,7 @@ export type Post = {
   body: PortableTextBlock[]
   estimatedReadingTime: number
   author: Author
+  authors: Author[]
   mainImage: MainImage
   wordCount: number
 }

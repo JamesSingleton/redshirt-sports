@@ -7,7 +7,6 @@ import { Graph } from 'schema-dts'
 
 import { urlForImage } from '@/lib/sanity.image'
 import { HOME_DOMAIN } from '@/lib/constants'
-import { defineMetadata } from '@/lib/utils.metadata'
 import { getPostBySlug, getPostsPaths } from '@/lib/sanity.fetch'
 import { Org, Web } from '@/lib/ldJson'
 import { AuthorSection, MobileAuthorSection } from './Author'
@@ -21,6 +20,7 @@ import {
   ArticleCard,
 } from '@/components/common'
 import { badgeVariants } from '@/components/ui/badge'
+import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Metadata } from 'next'
 
@@ -37,6 +37,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!post) {
     return {}
   }
+  const defaultMetadata = constructMetadata({
+    title: `${post.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+    description: post.excerpt,
+    canonical: `/${slug}`,
+    image: urlForImage(post.mainImage).width(1200).height(630).url(),
+  })
 
   const keywords =
     post.division && post.conferences
@@ -45,40 +51,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         )
       : undefined
 
-  const defaultMetadata = defineMetadata({
-    title: post.title,
-    description: post.excerpt,
-  })
-
   return {
     ...defaultMetadata,
-    metadataBase: new URL(HOME_DOMAIN),
-    authors: [
-      {
-        name: post.author.name,
-        url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
-      },
-    ],
     openGraph: {
       ...defaultMetadata.openGraph,
       type: 'article',
       authors: [post.author.name],
-      section: post.division ? post.division.name : undefined,
-      url: `${HOME_DOMAIN}/${post.slug}`,
       publishedTime: post.publishedAt,
       modifiedTime: post._updatedAt,
-    },
-    twitter: {
-      ...defaultMetadata.twitter,
-    },
-    alternates: {
-      canonical: `${HOME_DOMAIN}/${post.slug}`,
     },
     other: {
       'twitter:label1': 'Reading time',
       'twitter:data1': `${post.estimatedReadingTime} min read`,
     },
-    keywords: keywords,
+    keywords,
   }
 }
 
@@ -289,19 +275,20 @@ export default async function Page({ params }: PageProps) {
         <div className="container">
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
             <div className="lg:w-64 lg:shrink-0">
-              <AuthorSection {...post.author} />
-              <MobileAuthorSection {...post.author} />
+              <AuthorSection author={post.author} authors={post.authors} />
+              <MobileAuthorSection author={post.author} authors={post.authors} />
             </div>
             <div className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <article>
                 <figure className="mb-12 space-y-1.5">
                   <ImageComponent
                     image={post.mainImage}
-                    className="h-auto w-full rounded-2xl shadow-md"
+                    className="h-auto w-full rounded-lg shadow-md"
                     width={864}
                     height={576}
                     mode={post.mainImage.crop ? 'cover' : 'contain'}
                     loading="eager"
+                    alt={post.mainImage.caption}
                   />
                   <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CameraIcon className="h-4 w-4" />
@@ -318,7 +305,7 @@ export default async function Page({ params }: PageProps) {
         </div>
       </section>
       {post.relatedArticles.length > 0 && (
-        <section className="border-t border-zinc-700/100 py-12 sm:py-16 lg:py-20 xl:py-24">
+        <section className="border-t border-border py-12 sm:py-16 lg:py-20 xl:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">

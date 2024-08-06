@@ -11,24 +11,12 @@ import {
 import { Org, Web } from '@/lib/ldJson'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { defineMetadata } from '@/lib/utils.metadata'
 
 import type { Graph } from 'schema-dts'
-import type { Metadata } from 'next'
 
 const jsonLd: Graph = {
   '@context': 'https://schema.org',
   '@graph': [Org, Web],
-}
-
-const defaultMetadata = defineMetadata({
-  title: 'Your Hub for College Football: FCS, FBS, D2, D3, Transfers, News, and Analysis',
-  description:
-    'Explore the diverse realm of college football at Redshirt Sports. From FCS to FBS, D2 to D3, stay updated on news, analysis, and the latest in transfers.',
-})
-
-export const metadata: Metadata = {
-  ...defaultMetadata,
 }
 
 export default async function Page() {

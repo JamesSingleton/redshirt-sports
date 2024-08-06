@@ -56,6 +56,13 @@ const postFields = `
   },
   "slug": slug.current,
   "author": author->{name, 'slug': slug.current, bio, roles, socialMedia, image, archived},
+  authors[]->{
+    name,
+    'slug': slug.current,
+    roles,
+    image,
+    archived,
+  },
   excerpt,
   body[]{
     ...,

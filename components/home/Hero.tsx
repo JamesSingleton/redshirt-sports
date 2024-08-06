@@ -87,6 +87,7 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                 slug={article.slug}
                 author={article.author.name}
                 key={article._id}
+                headingLevel="h2"
               />
             ))}
           </div>
