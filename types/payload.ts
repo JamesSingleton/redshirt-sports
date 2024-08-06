@@ -30,6 +30,7 @@ export interface PostPayload {
   conferences: Conference[]
   slug: string
   author: Author
+  authors: Author[]
   excerpt: string
   body: PortableTextBlock[]
   featuredArticle: boolean

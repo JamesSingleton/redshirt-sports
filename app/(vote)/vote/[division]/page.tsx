@@ -15,8 +15,16 @@ export async function generateStaticParams() {
 }
 
 export const metadata: Metadata = {
-  title: 'College Football Top 25 Voting | Redshirt Sports',
+  title: `College Football Top 25 Voting | ${process.env.NEXT_PUBLIC_APP_NAME}`,
   description: 'Vote for the top 25 college football teams.',
+  robots: {
+    follow: false,
+    index: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
 }
 
 const divisionHeader = [

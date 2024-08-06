@@ -32,8 +32,16 @@ const voteConfirmationHeaderByDivision = [
 ]
 
 export const metadata: Metadata = {
-  title: 'Vote Confirmation | Redshirt Sports',
+  title: `Vote Confirmation | ${process.env.NEXT_PUBLIC_APP_NAME}`,
   description: 'Thank you for voting for the top 25 college football teams.',
+  robots: {
+    follow: false,
+    index: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
 }
 
 export default async function VoteConfirmationPage({ params }: { params: { division: string } }) {

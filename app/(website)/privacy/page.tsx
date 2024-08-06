@@ -5,34 +5,13 @@ import { Org, Web } from '@/lib/ldJson'
 import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Graph } from 'schema-dts'
-import type { Metadata, ResolvingMetadata } from 'next'
+import type { Metadata } from 'next'
 
-export async function generateMetadata({}, parent: ResolvingMetadata): Promise<Metadata> {
-  const defaultMetadata = constructMetadata({
-    title: 'Privacy Policy - Redshirt Sports',
-    description:
-      'Learn how Redshirt Sports handles your data. Read our Privacy Policy to understand our practices for data collection, use, and protection.',
-    canonical: '/privacy',
-  })
-  const previousImages = (await parent).openGraph?.images || []
-  return {
-    ...defaultMetadata,
-    openGraph: {
-      ...defaultMetadata.openGraph,
-      images: [...previousImages],
-      url: '/privacy',
-    },
-    twitter: {
-      ...defaultMetadata.twitter,
-      card: 'summary_large_image',
-      images: [...previousImages],
-    },
-    alternates: {
-      ...defaultMetadata.alternates,
-      canonical: '/privacy',
-    },
-  }
-}
+export const metadata: Metadata = constructMetadata({
+  title: `Privacy Policy | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+  description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
+  canonical: '/privacy',
+})
 
 const breadcrumbs = [
   {

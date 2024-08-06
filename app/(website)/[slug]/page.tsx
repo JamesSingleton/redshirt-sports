@@ -38,10 +38,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {}
   }
   const defaultMetadata = constructMetadata({
-    title: `${post.title} | Redshirt Sports`,
+    title: `${post.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
     description: post.excerpt,
     canonical: `/${slug}`,
-    image: '',
+    image: urlForImage(post.mainImage).width(1200).height(630).url(),
   })
 
   const keywords =
@@ -275,8 +275,8 @@ export default async function Page({ params }: PageProps) {
         <div className="container">
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
             <div className="lg:w-64 lg:shrink-0">
-              <AuthorSection {...post.author} />
-              <MobileAuthorSection {...post.author} />
+              <AuthorSection author={post.author} authors={post.authors} />
+              <MobileAuthorSection author={post.author} authors={post.authors} />
             </div>
             <div className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <article>

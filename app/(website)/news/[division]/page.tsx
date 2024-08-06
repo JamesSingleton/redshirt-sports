@@ -32,13 +32,11 @@ export async function generateMetadata({
     finalDescription = `Explore more ${division.toUpperCase()} football insights on page ${page}. Get comprehensive coverage at ${process.env.NEXT_PUBLIC_APP_NAME}.`
   }
 
-  const defaultMetadata = constructMetadata({
+  return constructMetadata({
     title: finalTitle,
     description: finalDescription,
     canonical: `/news/${division}${page ? `?page=${page}` : ''}`,
   })
-
-  return defaultMetadata
 }
 
 export default async function Page({
