@@ -8,9 +8,9 @@ import { getLastThreePosts } from '@/lib/sanity.fetch'
 export default async function RankingsLayout({ children }: { children: React.ReactNode }) {
   const lastThreePosts = await getLastThreePosts()
   return (
-    <div className="container mx-auto flex flex-col space-x-0 py-8 md:flex-row md:space-x-8">
+    <div className="container mx-auto flex flex-col space-x-0 py-8 lg:flex-row lg:space-x-8">
       <div className="flex-1">{children}</div>
-      <aside className="mt-8 w-full md:mt-0 md:w-1/4">
+      <aside className="mt-8 w-full lg:mt-0 lg:w-1/4">
         <Card className="w-full">
           <CardHeader>
             <h2 className="text-2xl font-semibold leading-none tracking-tight">

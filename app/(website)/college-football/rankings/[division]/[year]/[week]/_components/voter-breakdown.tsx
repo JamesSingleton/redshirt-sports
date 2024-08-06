@@ -33,12 +33,14 @@ export default function VoterBreakdown({ voterBreakdown }: VoterBreakdownProps) 
             <TableRow key={`${voter.name}_${voter.organization}`}>
               <TableCell className="whitespace-nowrap">
                 <div className="flex items-center">
-                  <div>
-                    <div className="font-medium">{voter.name}</div>
-                    <div className="mt-1 text-sm italic text-muted-foreground">
-                      {voter.organization}
-                      {voter.organizationRole ? ` — ${voter.organizationRole}` : null}
-                    </div>
+                  <div className="space-y-1">
+                    <div className="font-semibold">{voter.name}</div>
+                    <div className="text-sm italic text-muted-foreground">{voter.organization}</div>
+                    {voter.organizationRole ? (
+                      <div className="text-sm italic text-muted-foreground">
+                        {voter.organizationRole}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </TableCell>
