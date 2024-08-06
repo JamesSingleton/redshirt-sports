@@ -102,34 +102,7 @@ export default async function Page({
           pageIndex ? `?page=${pageIndex}` : ''
         }`,
         breadcrumb: {
-          '@type': 'BreadcrumbList',
-          name: `${conference.division.name} Breadcrumbs`,
-          itemListElement: [
-            {
-              '@type': 'ListItem',
-              position: 1,
-              name: 'Home',
-              item: `${HOME_DOMAIN}`,
-            },
-            {
-              '@type': 'ListItem',
-              position: 2,
-              name: 'News',
-              item: `${HOME_DOMAIN}/news`,
-            },
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: conference.division.name,
-              item: `${HOME_DOMAIN}/news/${params.division}`,
-            },
-            {
-              '@type': 'ListItem',
-              position: 4,
-              name: conference.shortName ?? conference.name,
-              item: `${HOME_DOMAIN}/news/${params.division}/${params.conference}`,
-            },
-          ],
+          '@id': `${HOME_DOMAIN}/news/${params.division}/${params.conference}#breadcrumb`,
         },
       },
       {
@@ -146,6 +119,36 @@ export default async function Page({
             url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
           },
         })),
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${HOME_DOMAIN}/news/${params.division}/${params.conference}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: HOME_DOMAIN,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'News',
+            item: `${HOME_DOMAIN}/news`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: conference.division.name,
+            item: `${HOME_DOMAIN}/news/${params.division}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 4,
+            name: conference.shortName ?? conference.name,
+            item: `${HOME_DOMAIN}/news/${params.division}/${params.conference}`,
+          },
+        ],
       },
     ],
   }
