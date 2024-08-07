@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
 import {
   PortableText,
   PortableTextComponents,
@@ -12,16 +11,12 @@ import ImageComponent from './ImageComponent'
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-
-const Tweet = dynamic(() => import('react-tweet').then((module) => module.Tweet), {
-  ssr: false,
-})
+import { Tweet } from '@/components/tweet'
 
 const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   let linkHref = `/${value?.reference.slug}`
