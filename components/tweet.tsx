@@ -1,4 +1,4 @@
-import { type ReactNode, Suspense } from 'react'
+import { Suspense } from 'react'
 import { Tweet, getTweet } from 'react-tweet/api'
 import { EmbeddedTweet, TweetNotFound, TweetSkeleton, type TweetProps } from 'react-tweet'
 
@@ -40,6 +40,6 @@ export const ReactTweet = (props: TweetProps) => (
   </Suspense>
 )
 
-export async function Tweet({ id }: { id: string }) {
+export async function CachedTweet({ id }: { id: string }) {
   return <ReactTweet id={id} />
 }
