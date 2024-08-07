@@ -3,11 +3,21 @@ import { Organization, WebSite } from 'schema-dts'
 import { HOME_DOMAIN } from './constants'
 
 export const Org: Organization = {
-  '@type': 'Organization',
+  '@type': 'NewsMediaOrganization',
   '@id': `${HOME_DOMAIN}#organization`,
   name: 'Redshirt Sports',
+  foundingDate: '2021',
+  founder: {
+    '@type': 'Person',
+    name: 'James Singleton',
+    url: `${HOME_DOMAIN}/authors/james-singleton`,
+  },
   url: HOME_DOMAIN,
-  sameAs: ['https://www.facebook.com/RedshirtSportsNews', 'https://x.com/_redshirtsports'],
+  sameAs: [
+    'https://www.facebook.com/RedshirtSportsNews',
+    'https://x.com/_redshirtsports',
+    'https://www.youtube.com/@Redshirt-Sports',
+  ],
   logo: {
     '@type': 'ImageObject',
     inLanguage: 'en-US',
@@ -16,7 +26,7 @@ export const Org: Organization = {
     contentUrl: `${HOME_DOMAIN}/images/icons/RS_512.png`,
     width: '512',
     height: '512',
-    caption: 'Redshirt Sports',
+    caption: 'Redshirt Sports Logo',
   },
   image: {
     '@id': `${HOME_DOMAIN}/#logo`,
@@ -48,10 +58,15 @@ export const Web: WebSite = {
   '@id': `${HOME_DOMAIN}#website`,
   name: 'Redshirt Sports',
   url: HOME_DOMAIN,
-  description:
-    'Redshirt Sports brings you the College Football Championship Subdivision (FCS) news, standings, rumors, and more.',
+  description: `${process.env.NEXT_PUBLIC_APP_NAME} brings you the latest in FCS football, Top 25 voting, and transfer news. Get insights and updates on FBS, D2, and D3 football as well.`,
   publisher: {
     '@id': `${HOME_DOMAIN}#organization`,
   },
   inLanguage: 'en-US',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${HOME_DOMAIN}/search?q={search_term_string}`,
+    // @ts-ignore this is a valid property
+    'query-input': 'required name=search_term_string',
+  },
 }

@@ -22,8 +22,12 @@ import VoterBreakdown from './_components/voter-breakdown'
 import { processVoterBallots } from '@/utils/process-ballots'
 import { RankingsFilters } from './_components/filters'
 import { constructMetadata } from '@/utils/construct-metadata'
+import { Org, Web } from '@/lib/ldJson'
+import { HOME_DOMAIN } from '@/lib/constants'
 
 import type { Metadata } from 'next'
+import type { Graph } from 'schema-dts'
+import { urlForImage } from '@/lib/sanity.image'
 
 type Props = {
   params: { division: string; week: string; year: string }
@@ -49,6 +53,11 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   const { division, year, week } = params
   const yearsWithVotes = await getYearsThatHaveVotes({ division })
   const weeksWithVotes = await getWeeksThatHaveVotes({ year: parseInt(year, 10), division })
+  let titleWeek = `Week ${week}`
+
+  if (week === '0') {
+    titleWeek = 'Preseason'
+  }
 
   if (!yearsWithVotes.length || !weeksWithVotes.length) {
     notFound()
@@ -77,8 +86,31 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
     }
   }
 
+  const jsonLd: Graph = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      Org,
+      Web,
+      {
+        '@type': 'WebPage',
+        '@id': `${HOME_DOMAIN}/college-football/rankings/${division}/${year}/${week}#webpage`,
+        url: `${HOME_DOMAIN}/college-football/rankings/${division}/${year}/${week}`,
+        name: `${year} ${division.toUpperCase()} Top 25 Rankings, ${titleWeek} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+        description: `Discover the ${division.toUpperCase()} Top 25 College Football Rankings for ${year}, ${titleWeek}. See how the voters ranked the top teams.`,
+        isPartOf: {
+          '@id': `${HOME_DOMAIN}#website`,
+        },
+        inLanguage: 'en-US',
+      },
+    ],
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Card className="w-full">
         <CardHeader>
           <h1 className="text-2xl font-semibold leading-none tracking-tight">{`${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
