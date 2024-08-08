@@ -25,6 +25,7 @@ export default function ArticleCard({
   }
   conferences: {
     shortName: string
+    name: string
   }[]
   headingLevel?: 'h2' | 'h3' | 'h4'
 }) {
@@ -44,7 +45,9 @@ export default function ArticleCard({
           {division && <Badge>{division.name}</Badge>}
           {conferences &&
             conferences.map((conference) => (
-              <Badge key={conference.shortName}>{conference.shortName}</Badge>
+              <Badge key={conference.shortName ?? conference.name}>
+                {conference.shortName ?? conference.name}
+              </Badge>
             ))}
         </div>
         <Heading className="mb-2 text-lg font-semibold">
