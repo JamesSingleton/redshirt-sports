@@ -84,6 +84,22 @@ const nextConfig = {
         ],
       },
       {
+        // Exclude https://clerk.redshirtsports.xyz from robots
+        source: '/:path*',
+        headers: [
+          {
+            key: 'x-robots-tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+        has: [
+          {
+            type: 'host',
+            value: 'clerk.redshirtsports.xyz',
+          },
+        ],
+      },
+      {
         // Apply these headers to all routes in your application.
         source: '/:path*',
         headers: securityHeaders,
