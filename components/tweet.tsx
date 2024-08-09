@@ -1,52 +1,37 @@
 import { Suspense } from 'react'
-import { Tweet, getTweet } from 'react-tweet/api'
-import { EmbeddedTweet, TweetNotFound, TweetSkeleton, type TweetProps } from 'react-tweet'
-
+import { TweetSkeleton, EmbeddedTweet, TweetNotFound } from 'react-tweet'
+import { fetchTweet, Tweet } from 'react-tweet/api'
 import redis from '@/utils/redis'
 
 async function getAndCacheTweet(id: string): Promise<Tweet | undefined> {
   try {
-    console.log('Fetching tweet', id)
-    const tweet = await getTweet(id)
-    console.log('Before Redis Set', tweet)
+    const { data, tombstone, notFound } = await fetchTweet(id)
 
-    // @ts-ignore tombstone is available I don't know why it's not in the types
-    if (tweet && !tweet.tombstone) {
-      await redis.set(`tweet:${id}`, tweet)
-      console.log('After Redis Set', tweet)
-      return tweet
+    if (data) {
+      await redis.set(`tweet:${id}`, data)
+      return data
+    } else if (tombstone || notFound) {
+      await redis.del(`tweet:${id}`)
     }
   } catch (error) {
-    console.log('Error fetching tweet', error)
+    console.error('fetching the tweet failed with:', error)
   }
-
-  const cachedTweet: Tweet | null = await redis.get(`tweet:${id}`)
-  console.log('cachedTweet', cachedTweet)
-
-  // @ts-ignore tombstone is available I don't know why it's not in the types
-  if (!cachedTweet || cachedTweet.tombstone) return undefined
-
-  console.log('tweet cache hit', id)
-  return cachedTweet
 }
 
-const TweetContent = async ({ id, components }: TweetProps) => {
-  console.log('BEFORE getAndCacheTweet', id)
-  const tweet = id ? await getAndCacheTweet(id) : undefined
-  console.log('tweet from Tweet Component', tweet)
-
-  if (!tweet) return <TweetNotFound />
-
-  return <EmbeddedTweet tweet={tweet} components={components} />
+const TweetContent = async ({ id }: { id: string }) => {
+  try {
+    const tweet = await getAndCacheTweet(id)
+    return tweet ? <EmbeddedTweet tweet={tweet} /> : <TweetNotFound />
+  } catch (error) {
+    console.log(error)
+    return <TweetNotFound error={error} />
+  }
 }
 
-export const ReactTweet = (props: TweetProps) => (
-  <Suspense fallback={<TweetSkeleton />}>
-    <TweetContent {...props} />
-  </Suspense>
-)
-
-export async function CachedTweet({ id }: { id: string }) {
-  console.log('Before Rendering ReactTweet', id)
-  return <ReactTweet id={id} />
+export const ReactTweet = ({ id }: { id: string }) => {
+  return (
+    <Suspense fallback={<TweetSkeleton />}>
+      <TweetContent id={id} />
+    </Suspense>
+  )
 }
