@@ -11,6 +11,7 @@ async function getAndCacheTweet(id: string): Promise<Tweet | undefined> {
     // @ts-ignore tombstone is available I don't know why it's not in the types
     if (tweet && !tweet.tombstone) {
       await redis.set(`tweet:${id}`, tweet)
+      console.log('After Redis Set', tweet)
       return tweet
     }
   } catch (error) {
@@ -28,6 +29,7 @@ async function getAndCacheTweet(id: string): Promise<Tweet | undefined> {
 
 const TweetContent = async ({ id, components }: TweetProps) => {
   const tweet = id ? await getAndCacheTweet(id) : undefined
+  console.log('twee from Tweet Component', tweet)
 
   if (!tweet) return <TweetNotFound />
 
