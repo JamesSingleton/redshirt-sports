@@ -138,9 +138,9 @@ export const deskStructure = async (S: any, context: StructureContext) => {
               .id('year')
               .items(
                 Object.keys(years)
-                  .map((year) => parseInt(year))
+                  // @ts-ignore
                   .sort((a, b) => b - a)
-                  .map((year: number) => {
+                  .map((year: string) => {
                     return S.listItem()
                       .id(year)
                       .title(year)
