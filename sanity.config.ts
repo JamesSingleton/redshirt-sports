@@ -10,6 +10,8 @@ import {
 import { media } from 'sanity-plugin-media'
 import DocumentsPane from 'sanity-plugin-documents-pane'
 import { PortableTextInputProps } from 'sanity'
+import { Preflight, DeadLinks } from '@planetary/sanity-plugin-preflight'
+import { RocketIcon, EditIcon, LinkIcon } from '@sanity/icons'
 
 import { schemaTypes } from '@/sanity/schemas'
 import { apiVersion, projectId } from '@/lib/sanity.api'
@@ -85,9 +87,10 @@ export default defineConfig({
       // @ts-ignore
       structure: deskStructure,
       defaultDocumentNode: (S, { schemaType }) => {
+        console.log(schemaType)
         const views = [
           // Default form view
-          S.view.form(),
+          S.view.form().icon(EditIcon),
           // Incoming References
           S.view
             .component(DocumentsPane)
@@ -96,8 +99,22 @@ export default defineConfig({
               params: { id: `_id` },
               useDraft: false,
             })
-            .title('Incoming References'),
+            .title('Incoming References')
+            .icon(LinkIcon),
         ]
+        if (schemaType === 'post') {
+          views.push(
+            // Dead Links
+            S.view
+              .component(
+                Preflight({
+                  plugins: [DeadLinks()],
+                }),
+              )
+              .title('Preflight')
+              .icon(RocketIcon),
+          )
+        }
         return S.document().views(views)
       },
     }),

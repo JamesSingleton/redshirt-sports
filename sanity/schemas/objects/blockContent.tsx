@@ -1,6 +1,7 @@
 import { defineField } from 'sanity'
+import { ImageIcon, ThListIcon } from '@sanity/icons'
 
-import { Twitter, ImagePlus, TableIcon } from 'lucide-react'
+import { Twitter } from '@/components/common/icons'
 
 export default defineField({
   title: 'Block Content',
@@ -10,9 +11,7 @@ export default defineField({
     {
       title: 'Block',
       type: 'block',
-      // Marks let you mark up inline text in the block editor.
       marks: {
-        // Annotations can be any object structure – e.g. a link or a footnote.
         annotations: [
           {
             title: 'URL',
@@ -27,7 +26,7 @@ export default defineField({
                   'Only use this if you are linking to a website outside of Redshirt Sports. If you are linking to a Redshirt Sports page, use the internal link option.',
                 validation: (rule) =>
                   rule.uri({
-                    scheme: ['http', 'https', 'mailto', 'tel'],
+                    scheme: ['https', 'mailto', 'tel'],
                   }),
               },
               {
@@ -45,8 +44,8 @@ export default defineField({
             type: 'object',
             icon: () => (
               <svg
-                width="16px"
-                height={16}
+                width={12}
+                height={12}
                 viewBox="0 0 654 869"
                 version="1.1"
                 xmlns="http://www.w3.org/2000/svg"
@@ -81,13 +80,10 @@ export default defineField({
         ],
       },
     },
-    // You can add additional types here. Note that you can't use
-    // primitive types such as 'string' and 'number' in the same array
-    // as a block type.
     {
       type: 'image',
       options: { hotspot: true, metaData: ['blurhash', 'lqip'] },
-      icon: ImagePlus,
+      icon: ImageIcon,
       fields: [
         {
           name: 'caption',
@@ -108,11 +104,11 @@ export default defineField({
     },
     {
       type: 'twitter',
-      icon: Twitter,
+      icon: () => <Twitter className="h-auto w-3" />,
     },
     {
       type: 'top25Table',
-      icon: TableIcon,
+      icon: ThListIcon,
     },
   ],
 })
