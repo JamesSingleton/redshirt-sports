@@ -82,6 +82,7 @@ export default defineConfig({
   },
   plugins: [
     structureTool({
+      // @ts-ignore
       structure: deskStructure,
       defaultDocumentNode: (S, { schemaType }) => {
         const views = [
