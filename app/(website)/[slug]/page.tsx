@@ -13,7 +13,6 @@ import { AuthorSection, MobileAuthorSection } from './Author'
 import ArticleSocialShare from './ArticleSocialShare'
 import {
   Breadcrumbs,
-  ReadingProgress,
   Date,
   ImageComponent,
   CustomPortableText,
@@ -229,7 +228,6 @@ export default async function Page({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ReadingProgress />
       <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
         <div className="container">
           <div className="md:max-w-3xl xl:max-w-5xl">

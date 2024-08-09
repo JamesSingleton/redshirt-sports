@@ -7,7 +7,6 @@ import PaginationControls from './PaginationControls'
 import Date from './Date'
 import Breadcrumbs from './Breadcrumbs'
 import ArticleCard from './ArticleCard'
-import ReadingProgress from './ReadingProgress'
 import { CustomPortableText } from './CustomPortableText'
 import ImageComponent from './ImageComponent'
 
@@ -21,7 +20,6 @@ export {
   Date,
   Breadcrumbs,
   ArticleCard,
-  ReadingProgress,
   CustomPortableText,
   ImageComponent,
 }

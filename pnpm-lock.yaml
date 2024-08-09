@@ -107,9 +107,6 @@ importers:
       feed:
         specifier: ^4.2.2
         version: 4.2.2
-      framer-motion:
-        specifier: ^11.3.21
-        version: 11.3.21(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
@@ -4478,20 +4475,6 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
     peerDependenciesMeta:
-      react:
-        optional: true
-      react-dom:
-        optional: true
-
-  framer-motion@11.3.21:
-    resolution: {integrity: sha512-D+hfIsvzV8eL/iycld4K+tKlg2Q2LdwnrcBEohtGw3cG1AIuNYATbT5RUqIM1ndsAk+EfGhoSGf0UaiFodc5Tw==}
-    peerDependencies:
-      '@emotion/is-prop-valid': '*'
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    peerDependenciesMeta:
-      '@emotion/is-prop-valid':
-        optional: true
       react:
         optional: true
       react-dom:
@@ -12105,14 +12088,6 @@ snapshots:
       tslib: 2.6.2
     optionalDependencies:
       '@emotion/is-prop-valid': 0.8.8
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  framer-motion@11.3.21(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      tslib: 2.6.2
-    optionalDependencies:
-      '@emotion/is-prop-valid': 1.2.2
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
