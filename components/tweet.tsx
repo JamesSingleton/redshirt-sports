@@ -31,6 +31,7 @@ async function getAndCacheTweet(id: string): Promise<Tweet | undefined> {
 }
 
 const TweetContent = async ({ id, components }: TweetProps) => {
+  console.log('BEFORE getAndCacheTweet', id)
   const tweet = id ? await getAndCacheTweet(id) : undefined
   console.log('tweet from Tweet Component', tweet)
 
@@ -46,5 +47,6 @@ export const ReactTweet = (props: TweetProps) => (
 )
 
 export async function CachedTweet({ id }: { id: string }) {
+  console.log('Before Rendering ReactTweet', id)
   return <ReactTweet id={id} />
 }
