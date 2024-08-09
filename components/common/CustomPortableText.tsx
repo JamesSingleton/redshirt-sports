@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { CachedTweet as Tweet } from '@/components/tweet'
+import { ReactTweet as Tweet } from '@/components/tweet'
 
 const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   let linkHref = `/${value?.reference.slug}`
@@ -91,7 +91,7 @@ export function CustomPortableText({
       },
     },
     types: {
-      twitter: async ({ value }) => {
+      twitter: ({ value }) => {
         return (
           <div className="not-prose flex items-center justify-center">
             <Tweet id={value.id} />
