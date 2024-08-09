@@ -1,7 +1,5 @@
 import { defineField } from 'sanity'
-import { ImageIcon, ThListIcon } from '@sanity/icons'
-
-import { Twitter } from '@/components/common/icons'
+import { ImageIcon, ThListIcon, TwitterIcon } from '@sanity/icons'
 
 export default defineField({
   title: 'Block Content',
@@ -104,7 +102,7 @@ export default defineField({
     },
     {
       type: 'twitter',
-      icon: () => <Twitter className="h-auto w-3" />,
+      icon: TwitterIcon,
     },
     {
       type: 'top25Table',
