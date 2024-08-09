@@ -91,7 +91,7 @@ export function CustomPortableText({
       },
     },
     types: {
-      twitter: ({ value }) => {
+      twitter: async ({ value }) => {
         return (
           <div className="not-prose flex items-center justify-center">
             <Tweet id={value.id} />
