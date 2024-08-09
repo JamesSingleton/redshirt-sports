@@ -31,27 +31,20 @@ export default function VoterBreakdown({ voterBreakdown }: VoterBreakdownProps) 
         {voterBreakdown.map((voter: any) => {
           return (
             <TableRow key={`${voter.name}_${voter.organization}`}>
-              <TableCell className="whitespace-nowrap">
-                <div className="flex items-center">
-                  <div className="space-y-1">
-                    <div className="font-semibold">{voter.name}</div>
-                    <div className="text-sm italic text-muted-foreground">{voter.organization}</div>
-                    {voter.organizationRole ? (
-                      <div className="text-sm italic text-muted-foreground">
-                        {voter.organizationRole}
-                      </div>
-                    ) : null}
-                  </div>
+              <TableCell>
+                <div>{voter.name}</div>
+                <div className="text-sm italic text-muted-foreground">
+                  {`${voter.organization} (${voter.organizationRole})`}
                 </div>
               </TableCell>
               {voter.ballot.map((vote: any) => (
                 <TableCell key={vote._id}>
-                  <div className="w-8">
+                  <div className="w-10">
                     <ImageComponent
                       className="w-full"
                       image={vote.image}
-                      width={32}
-                      height={32}
+                      width={40}
+                      height={40}
                       alt={vote.shortName ?? vote.abbreviation ?? vote.name}
                     />
                   </div>
