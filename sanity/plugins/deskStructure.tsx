@@ -2,12 +2,17 @@ import { School, Newspaper, Users, Gavel, Repeat, Folder } from 'lucide-react'
 
 import { apiVersion } from '@/lib/sanity.api'
 
-export const deskStructure = async (S, context) => {
+import { type Division } from '@/types'
+import { type StructureContext } from 'sanity/structure'
+
+export const deskStructure = async (S: any, context: StructureContext) => {
   const { getClient, currentUser } = context
 
   const client = getClient({ apiVersion })
 
-  const divisions = await client.fetch('*[_type == "division" && !(_id in path("drafts.**"))]')
+  const divisions: Division[] = await client.fetch(
+    '*[_type == "division" && !(_id in path("drafts.**"))]',
+  )
 
   const items = [
     ...divisions
@@ -48,7 +53,7 @@ export const deskStructure = async (S, context) => {
         S.documentTypeList('division')
           .defaultOrdering([{ field: 'name', direction: 'asc' }])
           .canHandleIntent(S.documentTypeList('division').getCanHandleIntent())
-          .child((divisionId) =>
+          .child((divisionId: string) =>
             S.documentList()
               .id('conference')
               .title('Conferences')
@@ -62,7 +67,7 @@ export const deskStructure = async (S, context) => {
                   divisionId,
                 }),
               ])
-              .child((conferenceId) =>
+              .child((conferenceId: string) =>
                 S.documentList()
                   .id('school')
                   .title('Schools')
@@ -91,7 +96,7 @@ export const deskStructure = async (S, context) => {
         S.documentTypeList('division')
           .defaultOrdering([{ field: 'name', direction: 'asc' }])
           .canHandleIntent(S.documentTypeList('division').getCanHandleIntent())
-          .child((divisionId) =>
+          .child((divisionId: string) =>
             S.documentList()
               .id('conference')
               .title('Conferences')
@@ -118,9 +123,9 @@ export const deskStructure = async (S, context) => {
           .fetch('* [_type == $type && defined(publishedAt)] {_id, _type, publishedAt}', {
             type,
           })
-          .then((docs) => {
-            const years = {}
-            docs.forEach((d) => {
+          .then((docs: any) => {
+            const years: { [year: string]: string[] } = {}
+            docs.forEach((d: any) => {
               const date = new Date(d.publishedAt)
               const year = date.getFullYear()
               if (!years[year]) {
@@ -133,8 +138,9 @@ export const deskStructure = async (S, context) => {
               .id('year')
               .items(
                 Object.keys(years)
+                  .map((year) => parseInt(year))
                   .sort((a, b) => b - a)
-                  .map((year) => {
+                  .map((year: number) => {
                     return S.listItem()
                       .id(year)
                       .title(year)
@@ -153,7 +159,7 @@ export const deskStructure = async (S, context) => {
     S.documentTypeListItem('author').title('Team Members').icon(Users),
   ]
 
-  if (currentUser && currentUser.role === 'administrator') {
+  if (currentUser && currentUser?.roles?.find(({ name }) => name === 'administrator')) {
     items.push(S.documentTypeListItem('legal').title('Legal Documents').icon(Gavel)),
       items.push(S.documentTypeListItem('redirect').title('Redirects').icon(Repeat))
   }
