@@ -8,11 +8,10 @@ import { getNewsByConference, getConferenceInfoBySlug } from '@/lib/sanity.fetch
 import { HOME_DOMAIN, perPage } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { urlForImage } from '@/lib/sanity.image'
-import { defineMetadata } from '@/lib/utils.metadata'
 import ArticleFeed from '../../_components/ArticleFeed'
 import { constructMetadata } from '@/utils/construct-metadata'
 
-import type { Metadata, ResolvingMetadata } from 'next'
+import type { Metadata } from 'next'
 import type { Post } from '@/types'
 
 export async function generateMetadata({
