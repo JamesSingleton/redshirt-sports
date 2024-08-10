@@ -27,6 +27,7 @@ import { HOME_DOMAIN } from '@/lib/constants'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
+import { urlForImage } from '@/lib/sanity.image'
 
 type Props = {
   params: { division: string; week: string; year: string }
