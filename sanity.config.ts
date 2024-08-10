@@ -15,6 +15,7 @@ import { RocketIcon, EditIcon, LinkIcon } from '@sanity/icons'
 
 import { schemaTypes } from '@/sanity/schemas'
 import { apiVersion, projectId } from '@/lib/sanity.api'
+import { getDefaultDocumentNode, structure } from '@/sanity/structure'
 import { deskStructure } from '@/sanity/plugins/deskStructure'
 import { CustomBlockContentInput } from '@/sanity/plugins/CustomBlockContentInput'
 import SmallLogo from '@/components/common/SmallLogo'
@@ -84,38 +85,8 @@ export default defineConfig({
   },
   plugins: [
     structureTool({
-      // @ts-ignore
-      structure: deskStructure,
-      defaultDocumentNode: (S, { schemaType }) => {
-        const views = [
-          // Default form view
-          S.view.form().icon(EditIcon),
-          // Incoming References
-          S.view
-            .component(DocumentsPane)
-            .options({
-              query: `*[references($id)] | order(_createdAt desc)`,
-              params: { id: `_id` },
-              useDraft: false,
-            })
-            .title('Incoming References')
-            .icon(LinkIcon),
-        ]
-        if (schemaType === 'post') {
-          views.push(
-            // Dead Links
-            S.view
-              .component(
-                Preflight({
-                  plugins: [DeadLinks()],
-                }),
-              )
-              .title('Preflight')
-              .icon(RocketIcon),
-          )
-        }
-        return S.document().views(views)
-      },
+      structure,
+      defaultDocumentNode: getDefaultDocumentNode,
     }),
     visionTool({
       defaultApiVersion: apiVersion,
@@ -123,7 +94,11 @@ export default defineConfig({
     dashboardTool({
       widgets: [sanityTutorialsWidget(), projectInfoWidget(), projectUsersWidget()],
     }),
-    media(),
+    media({
+      creditLine: {
+        enabled: true,
+      },
+    }),
   ],
   tools: (prev, context) => {
     const isAdmin = context.currentUser?.roles?.find(({ name }) => name === 'administrator')

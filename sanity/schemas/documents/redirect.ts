@@ -4,6 +4,7 @@ export const redirect = defineType({
   name: 'redirect',
   type: 'document',
   title: 'Redirect',
+  icon: () => '🔀',
   fields: [
     {
       name: 'source',
