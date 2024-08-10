@@ -87,6 +87,7 @@ export default defineConfig({
       // @ts-ignore
       structure: deskStructure,
       defaultDocumentNode: (S, { schemaType }) => {
+        console.log(schemaType)
         const views = [
           // Default form view
           S.view.form().icon(EditIcon),
