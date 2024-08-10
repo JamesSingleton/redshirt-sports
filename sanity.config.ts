@@ -22,7 +22,7 @@ import SmallLogo from '@/components/common/SmallLogo'
 export default defineConfig({
   basePath: '/studio',
   icon: SmallLogo,
-  title: process.env.NEXT_PUBLIC_APP_NAME,
+  title: 'Redshirt Sports',
   projectId: projectId,
   dataset: 'production',
   schema: {

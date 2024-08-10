@@ -2,9 +2,10 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: process.env.NEXT_PUBLIC_APP_NAME,
-    short_name: process.env.NEXT_PUBLIC_APP_NAME,
-    description: `${process.env.NEXT_PUBLIC_APP_NAME} brings you the latest in FCS football, Top 25 voting, and transfer news. Get insights and updates on FBS, D2, and D3 football as well.`,
+    name: 'Redshirt Sports',
+    short_name: 'Redshirt Sports',
+    description:
+      'Explore the diverse realm of college football at Redshirt Sports. From FCS to FBS, D2 to D3, stay updated on news, analysis, and the latest in transfers.',
     start_url: '/',
     display: 'standalone',
     background_color: '#fff',

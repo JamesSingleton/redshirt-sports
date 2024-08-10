@@ -31,7 +31,7 @@ export function MobileNav({ divisions }: NavProps) {
       <SheetContent side="left" className="pr-0">
         <MobileLink href="/" className="flex items-center" onOpenChange={setOpen}>
           <SmallLogo className="h-10 w-auto" />
-          <span className="sr-only">{process.env.NEXT_PUBLIC_APP_NAME}</span>
+          <span className="sr-only">Redshirt Sports</span>
         </MobileLink>
         <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
           <div className="flex flex-col space-y-2">

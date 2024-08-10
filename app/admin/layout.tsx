@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
               <Link href="/admin/home" className="flex items-center gap-2 font-semibold">
                 <SmallLogo className="h-8 w-8" />
-                <span className="sr-only">{process.env.NEXT_PUBLIC_APP_NAME}</span>
+                <span className="">Redshirt Sports</span>
               </Link>
             </div>
             <div className="flex-1">
@@ -62,7 +62,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                     className="flex items-center gap-2 text-lg font-semibold"
                   >
                     <SmallLogo className="h-8 w-8" />
-                    <span className="sr-only">{process.env.NEXT_PUBLIC_APP_NAME}</span>
+                    <span className="sr-only">Redshirt Sports</span>
                   </Link>
                   <Link
                     href="/admin/home"
