@@ -30,8 +30,7 @@ const jsonLd: Graph = {
       '@id': `${HOME_DOMAIN}/privacy`,
       url: `${HOME_DOMAIN}/privacy`,
       name: 'Privacy Policy',
-      description:
-        "Redshirt Sports doesn't use cookies and doesn't collect personal data. Your data is your data, period.",
+      description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
       inLanguage: 'en-US',
       isPartOf: {
         '@id': `${HOME_DOMAIN}#website`,

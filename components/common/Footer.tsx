@@ -44,7 +44,7 @@ export default function Footer() {
             <Link
               href="/"
               prefetch={false}
-              aria-label="Redshirt Sports Logo, click to go to the homepage"
+              aria-label={`${process.env.NEXT_PUBLIC_APP_NAME} Logo, click to go to the homepage`}
             >
               <SmallLogo className="h-10 w-auto" />
             </Link>

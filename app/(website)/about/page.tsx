@@ -53,8 +53,7 @@ const jsonLd: Graph = {
       '@type': 'AboutPage',
       '@id': `${HOME_DOMAIN}/about`,
       url: `${HOME_DOMAIN}/about`,
-      description:
-        'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
+      description: `Learn about ${process.env.NEXT_PUBLIC_APP_NAME} and our team's dedication to covering FCS, FBS, D2, and D3 football. Discover our mission and the experts behind the news.`,
       mainEntityOfPage: {
         '@type': 'WebPage',
         '@id': `${HOME_DOMAIN}/about`,
