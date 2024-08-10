@@ -5,7 +5,7 @@ import { HOME_DOMAIN } from './constants'
 export const Org: Organization = {
   '@type': 'NewsMediaOrganization',
   '@id': `${HOME_DOMAIN}#organization`,
-  name: 'Redshirt Sports',
+  name: process.env.NEXT_PUBLIC_APP_NAME,
   foundingDate: '2021',
   founder: {
     '@type': 'Person',
@@ -26,7 +26,7 @@ export const Org: Organization = {
     contentUrl: `${HOME_DOMAIN}/images/icons/RS_512.png`,
     width: '512',
     height: '512',
-    caption: 'Redshirt Sports Logo',
+    caption: `${process.env.NEXT_PUBLIC_APP_NAME} Logo`,
   },
   image: {
     '@id': `${HOME_DOMAIN}/#logo`,
@@ -56,7 +56,7 @@ export const Org: Organization = {
 export const Web: WebSite = {
   '@type': 'WebSite',
   '@id': `${HOME_DOMAIN}#website`,
-  name: 'Redshirt Sports',
+  name: process.env.NEXT_PUBLIC_APP_NAME,
   url: HOME_DOMAIN,
   description: `${process.env.NEXT_PUBLIC_APP_NAME} brings you the latest in FCS football, Top 25 voting, and transfer news. Get insights and updates on FBS, D2, and D3 football as well.`,
   publisher: {

@@ -26,7 +26,7 @@ export default function Search({ defaultValue = '' }) {
       type="search"
       defaultValue={defaultValue}
       onChange={handleSearchChange}
-      placeholder="Search Redshirt Sports..."
+      placeholder={`Search ${process.env.NEXT_PUBLIC_APP_NAME}...`}
     />
   )
 }
