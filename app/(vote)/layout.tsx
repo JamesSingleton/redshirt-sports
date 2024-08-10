@@ -7,7 +7,7 @@ export default function VoteLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex min-h-screen flex-col">
       <header className="flex h-16 items-center justify-between border-b px-4 md:px-6">
-        <div className="flex items-center gap-4 text-lg font-semibold">Redshirt Sports Top 25</div>
+        <div className="flex items-center gap-4 text-lg font-semibold">{`${process.env.NEXT_PUBLIC_APP_NAME} Top 25`}</div>
         <div className="flex items-center justify-center gap-4">
           <ModeToggle />
           <UserButton />

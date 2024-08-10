@@ -53,8 +53,7 @@ const jsonLd: Graph = {
       '@type': 'AboutPage',
       '@id': `${HOME_DOMAIN}/about`,
       url: `${HOME_DOMAIN}/about`,
-      description:
-        'Discover Redshirt Sports: Your home for college football enthusiasts. Join us for news, insights, and the latest from the transfer portal.',
+      description: `Learn about ${process.env.NEXT_PUBLIC_APP_NAME} and our team's dedication to covering FCS, FBS, D2, and D3 football. Discover our mission and the experts behind the news.`,
       mainEntityOfPage: {
         '@type': 'WebPage',
         '@id': `${HOME_DOMAIN}/about`,
@@ -80,7 +79,7 @@ export default async function AboutPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PageHeader title="About Redshirt Sports" breadcrumbs={breadcrumbs} />
+      <PageHeader title={`About ${process.env.NEXT_PUBLIC_APP_NAME}`} breadcrumbs={breadcrumbs} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="prose prose-xl mx-auto max-w-none dark:prose-invert">
           <p>

@@ -20,8 +20,7 @@ export default defineField({
                 title: 'URL',
                 name: 'href',
                 type: 'url',
-                description:
-                  'Only use this if you are linking to a website outside of Redshirt Sports. If you are linking to a Redshirt Sports page, use the internal link option.',
+                description: `Only use this if you are linking to a website outside of ${process.env.NEXT_PUBLIC_APP_NAME}. If you are linking to a ${process.env.NEXT_PUBLIC_APP_NAME} page, use the internal link option.`,
                 validation: (rule) =>
                   rule.uri({
                     scheme: ['https', 'mailto', 'tel'],

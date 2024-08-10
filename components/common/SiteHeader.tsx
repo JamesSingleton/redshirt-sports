@@ -30,7 +30,7 @@ export async function SiteHeader() {
                   <Input
                     id="search"
                     name="q"
-                    placeholder="Search Redshirt Sports..."
+                    placeholder={`Search ${process.env.NEXT_PUBLIC_APP_NAME}...`}
                     type="search"
                   />
                 </div>

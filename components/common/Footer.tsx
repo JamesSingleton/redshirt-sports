@@ -44,7 +44,7 @@ export default function Footer() {
             <Link
               href="/"
               prefetch={false}
-              aria-label="Redshirt Sports Logo, click to go to the homepage"
+              aria-label={`${process.env.NEXT_PUBLIC_APP_NAME} Logo, click to go to the homepage`}
             >
               <SmallLogo className="h-10 w-auto" />
             </Link>
@@ -120,7 +120,8 @@ export default function Footer() {
         </div>
         <div className="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24">
           <p className="text-sm leading-5 text-primary">
-            &copy; {new Date().getFullYear()} Redshirt Sports. All rights reserved.
+            &copy; {new Date().getFullYear()} {process.env.NEXT_PUBLIC_APP_NAME}. All rights
+            reserved.
           </p>
         </div>
       </div>

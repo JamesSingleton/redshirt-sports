@@ -33,6 +33,7 @@ export function constructMetadata({
     title,
     description,
     openGraph: {
+      siteName: process.env.NEXT_PUBLIC_APP_NAME,
       title,
       type: ogType,
       description,

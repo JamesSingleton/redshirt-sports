@@ -24,10 +24,10 @@ export function MainNav({ divisions }: NavProps) {
         href="/"
         className="flex items-center"
         prefetch={false}
-        aria-label="Home - Redshirt Sports"
+        aria-label={`Home - ${process.env.NEXT_PUBLIC_APP_NAME}`}
       >
         <SmallLogo className="h-10 w-auto" />
-        <span className="sr-only">Redshirt Sports</span>
+        <span className="sr-only">{process.env.NEXT_PUBLIC_APP_NAME}</span>
       </Link>
       <NavigationMenu className="ml-4">
         <NavigationMenuList>
