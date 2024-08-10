@@ -8,15 +8,11 @@ import {
   sanityTutorialsWidget,
 } from '@sanity/dashboard'
 import { media } from 'sanity-plugin-media'
-import DocumentsPane from 'sanity-plugin-documents-pane'
 import { PortableTextInputProps } from 'sanity'
-import { Preflight, DeadLinks } from '@planetary/sanity-plugin-preflight'
-import { RocketIcon, EditIcon, LinkIcon } from '@sanity/icons'
 
 import { schemaTypes } from '@/sanity/schemas'
 import { apiVersion, projectId } from '@/lib/sanity.api'
 import { getDefaultDocumentNode, structure } from '@/sanity/structure'
-import { deskStructure } from '@/sanity/plugins/deskStructure'
 import { CustomBlockContentInput } from '@/sanity/plugins/CustomBlockContentInput'
 import SmallLogo from '@/components/common/SmallLogo'
 
