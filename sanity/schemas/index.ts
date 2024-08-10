@@ -1,10 +1,8 @@
 import author from './documents/author'
 import post from './documents/post'
 import legal from './documents/legal'
-import player from './documents/player'
 import school from './documents/school'
 import { redirect } from './documents/redirect'
-import transferPortal from './documents/transferPortal'
 import conference from './documents/conference'
 import division from './documents/division'
 import tag from './documents/tag'
@@ -22,10 +20,8 @@ export const schemaTypes = [
   author,
   post,
   legal,
-  player,
   school,
   redirect,
-  transferPortal,
   conference,
   division,
   tag,
