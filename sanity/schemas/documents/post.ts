@@ -133,6 +133,18 @@ export default defineType({
       hidden: ({ document }) => !document?.division,
     }),
     defineField({
+      title: 'Teams Mentioned',
+      name: 'teams',
+      description: 'What teams does this article mention?',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: [{ type: 'school' }],
+        }),
+      ],
+    }),
+    defineField({
       title: 'Tags',
       name: 'tags',
       description:
