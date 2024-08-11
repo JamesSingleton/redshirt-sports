@@ -76,6 +76,10 @@ const postFields = `
         }
       },
     },
+    _type == "image" => {
+      ...,
+      asset->
+    },
     _type == 'top25Table' => {
       ...,
       votes[]{

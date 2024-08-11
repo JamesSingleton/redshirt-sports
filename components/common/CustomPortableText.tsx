@@ -36,27 +36,6 @@ const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   )
 }
 
-const ImageEmbed = ({ value }: { value: any }) => {
-  return (
-    <figure className="my-2 flex flex-col items-center self-center rounded-lg shadow-md">
-      <SanityImage
-        src={value}
-        width={720}
-        height={379}
-        priority={false}
-        className="rounded-lg"
-        alt={value.caption}
-      />
-      {value.attribution && (
-        <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
-          <CameraIcon className="h-4 w-4" />
-          <span>Source: {value.attribution}</span>
-        </figcaption>
-      )}
-    </figure>
-  )
-}
-
 export function CustomPortableText({
   paragraphClasses,
   value,
@@ -99,7 +78,26 @@ export function CustomPortableText({
           </div>
         )
       },
-      image: ImageEmbed,
+      image: ({ value }: { value: any }) => {
+        return (
+          <figure className="my-2 flex flex-col items-center self-center rounded-lg shadow-md">
+            <SanityImage
+              src={value}
+              width={720}
+              height={379}
+              priority={false}
+              className="rounded-lg"
+              alt={value.asset.altText ?? value.caption}
+            />
+            {value.attribution && (
+              <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CameraIcon className="h-4 w-4" />
+                <span>Source: {value.asset.creditLine ?? value.attribution}</span>
+              </figcaption>
+            )}
+          </figure>
+        )
+      },
       top25Table: ({ value }) => {
         return (
           <div className="not-prose">
