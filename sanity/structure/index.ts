@@ -9,6 +9,7 @@ import {
 } from 'sanity/structure'
 import { apiVersion } from '@/lib/sanity.api'
 import { articlesByYear } from './articles-by-year'
+import { Division } from '@/types'
 
 const incomingReferences = (S: StructureBuilder) =>
   S.view
@@ -41,10 +42,37 @@ export const getDefaultDocumentNode: DefaultDocumentNodeResolver = (S, { schemaT
   }
 }
 
-export const structure: StructureResolver = (S, context) => {
-  const { currentUser } = context
+export const structure: StructureResolver = async (S, context) => {
+  const { currentUser, getClient } = context
+  const client = getClient({ apiVersion })
+
+  // get divisions
+  const divisions: Division[] = await client.fetch(
+    '*[_type == "division" && !(_id in path("drafts.**"))]',
+  )
+
   const items = [
-    S.documentTypeListItem('post').title('Articles'),
+    ...divisions.map((division) =>
+      S.listItem()
+        .title(`${division.name} Articles`)
+        .id(division._id)
+        .schemaType('post')
+        .child(
+          S.documentList()
+            .schemaType('post')
+            .title(`${division.name} Articles`)
+            .filter('_type == "post" && division._ref == $divisionId')
+            .apiVersion(apiVersion)
+            .params({ divisionId: division._id })
+            .canHandleIntent(S.documentTypeList('post').getCanHandleIntent())
+            .menuItems(S.documentTypeList('post').getMenuItems())
+            .initialValueTemplates([
+              S.initialValueTemplateItem('post-child', {
+                divisionId: division._id,
+              }),
+            ]),
+        ),
+    ),
     S.documentTypeListItem('school')
       .title('Schools')
       .child(
@@ -100,6 +128,7 @@ export const structure: StructureResolver = (S, context) => {
     S.divider(),
     S.documentTypeListItem('author').title('Authors'),
     articlesByYear(S),
+    S.documentTypeListItem('post').title('All Articles'),
   ]
 
   if (currentUser && currentUser?.roles?.find(({ name }) => name === 'administrator')) {
