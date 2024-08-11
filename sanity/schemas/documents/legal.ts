@@ -1,11 +1,11 @@
 import { defineType, defineField } from 'sanity'
-import { LockIcon } from '@sanity/icons'
+import { CaseIcon } from '@sanity/icons'
 
 export default defineType({
   name: 'legal',
   title: 'Legal Documents',
   type: 'document',
-  icon: LockIcon,
+  icon: CaseIcon,
   fields: [
     defineField({
       name: 'title',
