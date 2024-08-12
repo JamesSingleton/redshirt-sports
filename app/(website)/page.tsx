@@ -20,8 +20,14 @@ const jsonLd: Graph = {
 }
 
 export default async function Page() {
-  const heroPosts = await getHeroPosts()
-  const latestArticles = await getLatestArticlesForHomePage()
+  const [heroPostsResult, latestArticlesResult] = await Promise.allSettled([
+    getHeroPosts(),
+    getLatestArticlesForHomePage(),
+  ])
+
+  const heroPosts = heroPostsResult.status === 'fulfilled' ? heroPostsResult.value : []
+  const latestArticles =
+    latestArticlesResult.status === 'fulfilled' ? latestArticlesResult.value : []
   const articleIds = [...heroPosts, ...latestArticles].map((article) => article._id)
 
   const [fcsArticlesResult, fbsArticlesResult, d2ArticlesResult, d3ArticlesResult] =
