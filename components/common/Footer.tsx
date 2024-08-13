@@ -2,7 +2,7 @@ import { JSX, SVGProps } from 'react'
 import Link from 'next/link'
 
 import SmallLogo from './SmallLogo'
-import { Facebook, Twitter, RSSIcon } from '@/components/common/icons'
+import { Facebook, Twitter, YouTubeIcon } from '@/components/common/icons'
 
 const navigation = {
   divisions: [
@@ -18,6 +18,11 @@ const navigation = {
   support: [{ name: 'Privacy Policy', href: '/privacy' }],
   social: [
     {
+      name: 'Twitter',
+      href: 'https://x.com/_redshirtsports',
+      icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => <Twitter {...props} />,
+    },
+    {
       name: 'Facebook',
       href: 'https://www.facebook.com/RedshirtSportsNews',
       icon: (
@@ -25,9 +30,11 @@ const navigation = {
       ) => <Facebook {...props} />,
     },
     {
-      name: 'Twitter',
-      href: 'https://x.com/_redshirtsports',
-      icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => <Twitter {...props} />,
+      name: 'YouTube',
+      href: 'https://www.youtube.com/@Redshirt-Sports',
+      icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+        <YouTubeIcon {...props} />
+      ),
     },
   ],
 }
