@@ -14,7 +14,6 @@ import {
   postsBySlugQuery,
   privacyPolicy,
   searchQuery,
-  transferPortalPlayers,
   heroPostsQuery,
   latestArticlesForHomePageQuery,
   latestDivisionArticlesQuery,
@@ -24,6 +23,7 @@ import {
   schoolsByDivision,
   schoolsByIdOrderedByRank,
   lastThreePosts,
+  teamNewsBySlugQuery,
 } from '@/lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
@@ -179,6 +179,14 @@ export function getConferencesAuthorHasWrittenFor(authorId: string) {
   })
 }
 
+export function getTeamNewsBySlug(slug: string) {
+  return sanityFetch<any>({
+    query: teamNewsBySlugQuery,
+    params: { slug },
+    tags: [`post:${slug}`],
+  })
+}
+
 export function getAuthorsPosts(authorId: string, pageIndex: number, conference: string) {
   return sanityFetch<AuthorPosts>({
     query: authorsPosts,
@@ -192,13 +200,6 @@ export function getSearchResults(query: string, pageIndex: number) {
     query: searchQuery,
     params: { q: query, pageIndex },
     tags: ['post'],
-  })
-}
-
-export function getTransferPortalPlayers() {
-  return sanityFetch<any>({
-    query: transferPortalPlayers,
-    tags: ['transferPortalPlayers'],
   })
 }
 

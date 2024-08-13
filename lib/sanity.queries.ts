@@ -246,7 +246,6 @@ export const divisionPaths = `
 *[_type == "division" && defined(slug.current)][].slug.current
 `
 
-// create a query that returns the conference slugs concatenated with the division slug where there's at least 1 article that references that conference
 export const conferencePaths = groq`
 *[_type == "conference" && defined(slug.current) && defined(division) && count(*[_type == 'post' && references(^._id)]) > 0]{
   "slug": slug.current,
@@ -259,21 +258,6 @@ export const authorsForSiteMapQuery = groq`
   _updatedAt,
   "slug": slug.current,
 }
-`
-
-export const transferPortalPlayers = groq`
-  *[_type == 'transferPortal']{
-    ...,
-    "player": player->{
-      ...
-    },
-    "transferringFrom": transferringFrom->{
-      ...
-    },
-    "transferringTo": transferringTo->{
-      ...
-    },
-  }
 `
 
 export const divisionsQuery = groq`
@@ -311,6 +295,13 @@ export const conferenceBySlugQuery = groq`
   },
   "totalPosts": count(*[_type == "post" && references(^._id)])
 }
+`
+
+export const teamNewsBySlugQuery = groq`
+  // create a query that grabs posts where a school is mentioned
+  *[_type == "post" && references(*[_type == "school" && slug.current == $slug][0]._id)] | order(publishedAt desc)[0...5]{
+    ${litePostFields}
+  }
 `
 
 export const paginatedPostsQuery = groq`
