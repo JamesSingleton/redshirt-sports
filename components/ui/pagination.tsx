@@ -34,6 +34,7 @@ type PaginationLinkProps = {
 
 const PaginationLink = ({ className, isActive, size = 'icon', ...props }: PaginationLinkProps) => (
   <Link
+    prefetch={false}
     aria-current={isActive ? 'page' : undefined}
     className={cn(
       buttonVariants({

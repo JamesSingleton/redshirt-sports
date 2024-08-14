@@ -34,6 +34,7 @@ export default function ArticleSection({
           <Link
             href={slug}
             className={cn(buttonVariants({ variant: 'default' }), 'flex items-center space-x-2')}
+            prefetch={false}
           >
             <span className="text-sm">View All</span>
             <span className="sr-only">the {title}</span>
@@ -49,13 +50,20 @@ export default function ArticleSection({
           >
             <div className="space-y-2 md:flex-1">
               <h3 className="text-3xl font-semibold lg:text-4xl">
-                <Link href={`/${firstArticle.slug}`}>{firstArticle.title}</Link>
+                <Link
+                  href={`/${firstArticle.slug}`}
+                  className="hover:underline hover:decoration-2 hover:underline-offset-1"
+                  prefetch={false}
+                >
+                  {firstArticle.title}
+                </Link>
               </h3>
               <p className="text-muted-foreground">{firstArticle.excerpt}</p>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Link
                   href={`/authors/${firstArticle.author.slug}`}
                   className="flex items-center gap-2 text-primary"
+                  prefetch={false}
                 >
                   <SanityImage
                     src={firstArticle.author.image as any}

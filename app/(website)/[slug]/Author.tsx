@@ -27,7 +27,7 @@ export const AuthorItem = (author: Author) => {
           </p>
         ) : (
           <Link href={`/authors/${author.slug}`} prefetch={false}>
-            <p className="mr-1 whitespace-nowrap text-sm font-semibold tracking-[-.01em]">
+            <p className="mr-1 whitespace-nowrap text-sm font-semibold tracking-[-.01em] hover:underline">
               {author.name}
             </p>
           </Link>
@@ -61,7 +61,7 @@ export const MobileAuthorSection = ({ author, authors }: { author: Author; autho
           {authors === null ? (
             <AuthorItem {...author} />
           ) : (
-            authors.map((author) => <AuthorItem key={author._id} {...author} />)
+            authors.map((author) => <AuthorItem key={`${author._id}_mobile`} {...author} />)
           )}
         </div>
       </div>

@@ -19,7 +19,12 @@ export default async function RankingsLayout({ children }: { children: React.Rea
           </CardHeader>
           <CardContent>
             {lastThreePosts.map((post) => (
-              <Link href={`/${post.slug}`} key={post._id} className="group mb-4 block">
+              <Link
+                href={`/${post.slug}`}
+                key={post._id}
+                className="group mb-4 block"
+                prefetch={false}
+              >
                 <h3 className="font-bold group-hover:underline">{post.title}</h3>
                 <p>{post.excerpt}</p>
                 <p className="text-sm text-muted-foreground">
@@ -30,7 +35,7 @@ export default async function RankingsLayout({ children }: { children: React.Rea
             ))}
           </CardContent>
           <CardFooter>
-            <Link href="/news" className={buttonVariants({ variant: 'link' })}>
+            <Link href="/news" className={buttonVariants({ variant: 'link' })} prefetch={false}>
               All NCAAF News
             </Link>
           </CardFooter>

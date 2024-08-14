@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
+import { badgeVariants } from '@/components/ui/badge'
 import { Image as SanityImage } from '@/components/image'
 import Date from '@/components/common/Date'
 
@@ -24,10 +24,12 @@ export default function ArticleCard({
   date: string
   division: {
     name: string
+    slug: string
   }
   conferences: {
     shortName: string
     name: string
+    slug: string
   }[]
   headingLevel?: 'h2' | 'h3' | 'h4'
 }) {
@@ -45,16 +47,29 @@ export default function ArticleCard({
       />
       <div className="bg-background p-4">
         <div className="mb-2 flex flex-wrap gap-2">
-          {division && <Badge>{division.name}</Badge>}
+          {division && (
+            <Link href={`/news/${division.slug}`} prefetch={false} className={badgeVariants()}>
+              {division.name}
+            </Link>
+          )}
           {conferences &&
             conferences.map((conference) => (
-              <Badge key={conference.shortName ?? conference.name}>
+              <Link
+                key={conference.shortName ?? conference.name}
+                href={`/news/${division.slug}/${conference.slug}`}
+                prefetch={false}
+                className={badgeVariants()}
+              >
                 {conference.shortName ?? conference.name}
-              </Badge>
+              </Link>
             ))}
         </div>
         <Heading className="mb-2 text-lg font-semibold">
-          <Link href={`/${slug}`} className="transition-colors hover:text-primary" prefetch={false}>
+          <Link
+            href={`/${slug}`}
+            className="hover:underline hover:decoration-2 hover:underline-offset-1"
+            prefetch={false}
+          >
             {title}
           </Link>
         </Heading>
