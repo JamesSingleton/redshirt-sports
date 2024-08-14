@@ -11,7 +11,6 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table'
-import ImageComponent from '@/components/common/ImageComponent'
 import {
   getFinalRankingsForWeekAndYear,
   getWeeksThatHaveVotes,
@@ -24,6 +23,7 @@ import { RankingsFilters } from './_components/filters'
 import { constructMetadata } from '@/utils/construct-metadata'
 import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
+import { Image as SanityImage } from '@/components/image'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
@@ -144,11 +144,10 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                       <TableCell>{team.isTie ? `T-${team.rank}` : team.rank}</TableCell>
                       <TableCell>
                         <div className="flex items-center">
-                          <ImageComponent
-                            image={team.image}
+                          <SanityImage
+                            src={team.image}
                             width={32}
                             height={32}
-                            mode="contain"
                             className="mr-2 h-8 w-8"
                           />
                           {team.shortName ?? team.abbreviation ?? team.name}

@@ -8,7 +8,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table'
-import ImageComponent from '@/components/common/ImageComponent'
+import { Image as SanityImage } from '@/components/image'
 
 import type { VoterBreakdown } from '@/types'
 
@@ -40,13 +40,7 @@ export default function VoterBreakdown({ voterBreakdown }: VoterBreakdownProps) 
               {voter.ballot.map((vote: any) => (
                 <TableCell key={vote._id}>
                   <div className="w-10">
-                    <ImageComponent
-                      className="w-full"
-                      image={vote.image}
-                      width={40}
-                      height={40}
-                      alt={vote.shortName ?? vote.abbreviation ?? vote.name}
-                    />
+                    <SanityImage className="w-full" src={vote.image} width={40} height={40} />
                   </div>
                 </TableCell>
               ))}

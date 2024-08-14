@@ -4,7 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 
 import { getVoterBallots } from '@/server/queries'
 import { getSchoolsById } from '@/lib/sanity.fetch'
-import ImageComponent from '@/components/common/ImageComponent'
+import { Image as SanityImage } from '@/components/image'
 import { buttonVariants } from '@/components/ui/button'
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
 import { transformBallotToTeamIds } from '@/utils/process-ballots'
@@ -78,7 +78,7 @@ export default async function VoteConfirmationPage({ params }: { params: { divis
         {schools.map((school, index) => (
           <div className="flex flex-col items-center gap-2" key={school._id}>
             <div className="flex h-16 w-16 flex-col justify-center">
-              <ImageComponent image={school.image} width={60} height={60} mode="contain" />
+              <SanityImage src={school.image as any} width={60} height={60} />
             </div>
             <p className="text-center font-semibold">
               {index + 1}. {school.shortName ?? school.abbreviation ?? school.name}

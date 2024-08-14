@@ -26,7 +26,7 @@ import {
 } from '@/components/common'
 import { urlForImage } from '@/lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
-import ImageComponent from '@/components/common/ImageComponent'
+import { Image as SanityImage } from '@/components/image'
 import { Org, Web } from '@/lib/ldJson'
 import { perPage, HOME_DOMAIN } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'
@@ -193,10 +193,10 @@ export default async function Page({
           <div className="md:max-w-3xl xl:max-w-5xl">
             <Breadcrumbs breadCrumbPages={breadcrumbs} />
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-              <ImageComponent
-                image={author.image}
-                alt={author.name}
-                className="h-20 w-20 shrink-0 rounded-full object-cover"
+              <SanityImage
+                src={author.image as any}
+                alt={`${author.name} avatar`}
+                className="h-20 w-20 shrink-0 rounded-full object-contain"
                 width={80}
                 height={80}
               />

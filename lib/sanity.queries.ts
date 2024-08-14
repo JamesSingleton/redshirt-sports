@@ -43,7 +43,7 @@ const postFields = `
     "attribution": mainImage.attribution,
     "crop": mainImage.crop,
     "hotspot": mainImage.hotspot,
-    "asset": mainImage.asset->
+    "asset": mainImage.asset->,
   },
   division->{
     name,
@@ -76,6 +76,10 @@ const postFields = `
         }
       },
     },
+    _type == "image" => {
+      ...,
+      asset->
+    },
     _type == 'top25Table' => {
       ...,
       votes[]{
@@ -103,12 +107,7 @@ const litePostFields = `
     "attribution": mainImage.attribution,
     "crop": mainImage.crop,
     "hotspot": mainImage.hotspot,
-    "asset": mainImage.asset->{
-      _id,
-      _type,
-      url,
-      metadata
-    },
+    "asset": mainImage.asset->,
   },
   division->{
     name,

@@ -7,7 +7,7 @@ import {
 import { PortableTextBlock } from 'sanity'
 import { CameraIcon } from 'lucide-react'
 
-import ImageComponent from './ImageComponent'
+import { Image as SanityImage } from '@/components/image'
 import {
   Table,
   TableBody,
@@ -33,26 +33,6 @@ const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
     <Link href={linkHref} className="underline hover:text-muted-foreground">
       {children}
     </Link>
-  )
-}
-
-const ImageEmbed = ({ value }: { value: any }) => {
-  return (
-    <figure className="my-2 flex flex-col items-center self-center rounded-lg shadow-md">
-      <ImageComponent
-        image={value}
-        mode="contain"
-        className="rounded-lg"
-        width={720}
-        height={379}
-      />
-      {value.attribution && (
-        <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
-          <CameraIcon className="h-4 w-4" />
-          <span>Source: {value.attribution}</span>
-        </figcaption>
-      )}
-    </figure>
   )
 }
 
@@ -98,7 +78,26 @@ export function CustomPortableText({
           </div>
         )
       },
-      image: ImageEmbed,
+      image: ({ value }: { value: any }) => {
+        return (
+          <figure className="my-2 flex flex-col items-center self-center rounded-lg shadow-md">
+            <SanityImage
+              src={value}
+              width={720}
+              height={379}
+              priority={false}
+              className="rounded-lg"
+              alt={value.asset.altText ?? value.caption}
+            />
+            {value.attribution && (
+              <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CameraIcon className="h-4 w-4" />
+                <span>Source: {value.asset.creditLine ?? value.attribution}</span>
+              </figcaption>
+            )}
+          </figure>
+        )
+      },
       top25Table: ({ value }) => {
         return (
           <div className="not-prose">
@@ -131,9 +130,9 @@ export function CustomPortableText({
                         vote.teams.map((team: any) => (
                           <TableCell key={team._id}>
                             <div className="w-8">
-                              <ImageComponent
+                              <SanityImage
                                 className="w-full"
-                                image={team.image}
+                                src={team.image}
                                 width={32}
                                 height={32}
                                 alt={team.name}

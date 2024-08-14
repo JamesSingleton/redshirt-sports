@@ -14,6 +14,9 @@ export type MainImage<T = {}> = T & {
     _type: 'sanity.imageAsset'
     metadata: ImageMetadata
     url: string
+    altText?: string
+    description?: string
+    creditLine?: string
   }
   attribution: string
   caption: string

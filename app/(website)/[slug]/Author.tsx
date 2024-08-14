@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import ImageComponent from '@/components/common/ImageComponent'
+import { Image as SanityImage } from '@/components/image'
 
 import type { Author } from '@/types'
 
@@ -12,8 +12,8 @@ export const AuthorItem = (author: Author) => {
         aria-label={`Avatar for ${author.name}`}
         role="img"
       >
-        <ImageComponent
-          image={author.image}
+        <SanityImage
+          src={author.image as any}
           alt={author.name}
           className="h-full w-full max-w-full"
           width={36}
