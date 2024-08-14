@@ -8,7 +8,6 @@ import Date from './Date'
 import Breadcrumbs from './Breadcrumbs'
 import ArticleCard from './ArticleCard'
 import { CustomPortableText } from './CustomPortableText'
-import ImageComponent from './ImageComponent'
 
 export {
   SmallLogo,
@@ -21,5 +20,4 @@ export {
   Breadcrumbs,
   ArticleCard,
   CustomPortableText,
-  ImageComponent,
 }

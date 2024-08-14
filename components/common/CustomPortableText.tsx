@@ -7,7 +7,7 @@ import {
 import { PortableTextBlock } from 'sanity'
 import { CameraIcon } from 'lucide-react'
 
-import ImageComponent from './ImageComponent'
+import { Image as SanityImage } from '@/components/image'
 import {
   Table,
   TableBody,
@@ -39,12 +39,13 @@ const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
 const ImageEmbed = ({ value }: { value: any }) => {
   return (
     <figure className="my-2 flex flex-col items-center self-center rounded-lg shadow-md">
-      <ImageComponent
-        image={value}
-        mode="contain"
-        className="rounded-lg"
+      <SanityImage
+        src={value}
         width={720}
         height={379}
+        priority={false}
+        className="rounded-lg"
+        alt={value.caption}
       />
       {value.attribution && (
         <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -131,12 +132,13 @@ export function CustomPortableText({
                         vote.teams.map((team: any) => (
                           <TableCell key={team._id}>
                             <div className="w-8">
-                              <ImageComponent
+                              <SanityImage
                                 className="w-full"
-                                image={team.image}
+                                src={team.image}
                                 width={32}
                                 height={32}
                                 alt={team.name}
+                                priority={false}
                               />
                             </div>
                           </TableCell>

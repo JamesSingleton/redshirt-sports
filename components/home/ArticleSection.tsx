@@ -1,12 +1,14 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
-import ImageComponent from '@/components/common/ImageComponent'
 import Date from '@/components/common/Date'
 import ArticleCard from '@/components/common/ArticleCard'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
+import { Image as SanityImage } from '@/components/image'
+
 import { Post } from '@/types'
+import { imageBuilder } from '@/lib/sanity.image'
 
 interface ArticleSectionProps {
   title: string
@@ -55,12 +57,12 @@ export default function ArticleSection({
                   href={`/authors/${firstArticle.author.slug}`}
                   className="flex items-center gap-2 text-primary"
                 >
-                  <ImageComponent
-                    image={firstArticle.author.image}
+                  <SanityImage
+                    src={firstArticle.author.image as any}
                     alt={`${firstArticle.author.name}'s profile picture`}
-                    className="mr-2 h-8 w-8 rounded-full"
-                    width={32}
-                    height={32}
+                    width={48}
+                    height={48}
+                    className="mr-2 h-12 w-12 rounded-full"
                   />
                   {firstArticle.author.name}
                 </Link>
@@ -69,12 +71,12 @@ export default function ArticleSection({
             </div>
           </div>
           <div className={cn('md:w-1/2 xl:w-2/3', imageFirst ? 'md:order-1' : 'md:order-2')}>
-            <ImageComponent
-              image={firstArticle.mainImage}
+            <SanityImage
+              src={firstArticle.mainImage as any}
               alt={firstArticle.mainImage.caption}
-              className="w-full overflow-hidden rounded-lg shadow-md"
               width={860}
               height={573}
+              className="w-full overflow-hidden rounded-lg shadow-md"
             />
           </div>
         </div>

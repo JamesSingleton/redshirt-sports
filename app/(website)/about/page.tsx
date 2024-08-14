@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Mail, Globe } from 'lucide-react'
 
 import { getAuthors } from '@/lib/sanity.fetch'
-import ImageComponent from '@/components/common/ImageComponent'
+import { Image as SanityImage } from '@/components/image'
 import { Twitter, Facebook, Instagram } from '@/components/common/icons'
 import PageHeader from '@/components/common/PageHeader'
 import { Org, Web } from '@/lib/ldJson'
@@ -135,10 +135,10 @@ export default async function AboutPage() {
                   className="relative rounded-3xl border bg-card px-6 py-10 text-center text-card-foreground transition duration-300 ease-in-out hover:border-zinc-300/30 hover:shadow-lg sm:px-10"
                 >
                   <div>
-                    <ImageComponent
-                      image={author.image}
+                    <SanityImage
+                      src={author.image as any}
                       alt={`${author.name}'s profile picture`}
-                      className="mx-auto h-40 w-40 overflow-hidden rounded-full object-cover xl:h-44 xl:w-44"
+                      className="mx-auto h-40 w-40 overflow-hidden rounded-full object-cover object-top xl:h-44 xl:w-44"
                       width={176}
                       height={176}
                     />

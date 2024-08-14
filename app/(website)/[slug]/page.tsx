@@ -11,15 +11,10 @@ import { getPostBySlug, getPostsPaths } from '@/lib/sanity.fetch'
 import { Org, Web } from '@/lib/ldJson'
 import { AuthorSection, MobileAuthorSection } from './Author'
 import { LargeArticleSocialShare, SmallArticleSocialShare } from './ArticleSocialShare'
-import {
-  Breadcrumbs,
-  Date,
-  ImageComponent,
-  CustomPortableText,
-  ArticleCard,
-} from '@/components/common'
+import { Breadcrumbs, Date, CustomPortableText, ArticleCard } from '@/components/common'
 import { badgeVariants } from '@/components/ui/badge'
 import { constructMetadata } from '@/utils/construct-metadata'
+import { Image as SanityImage } from '@/components/image'
 
 import type { Metadata } from 'next'
 
@@ -282,18 +277,19 @@ export default async function Page({ params }: PageProps) {
             <div className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <article>
                 <figure className="mb-12 space-y-1.5">
-                  <ImageComponent
-                    image={post.mainImage}
+                  <SanityImage
+                    src={post.mainImage as any}
                     className="h-auto w-full rounded-lg shadow-md"
                     width={864}
                     height={576}
-                    mode={post.mainImage.crop ? 'cover' : 'contain'}
-                    loading="eager"
-                    alt={post.mainImage.caption}
+                    alt={post.mainImage.asset.altText ?? post.mainImage.caption}
+                    priority
                   />
                   <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CameraIcon className="h-4 w-4" />
-                    <span>Source: {post.mainImage.attribution}</span>
+                    <span>
+                      Source: {post.mainImage.asset.creditLine ?? post.mainImage.attribution}
+                    </span>
                   </figcaption>
                 </figure>
                 <div className="prose prose-zinc mx-auto mt-8 dark:prose-invert sm:prose-lg lg:prose-xl">

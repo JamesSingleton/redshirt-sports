@@ -1,11 +1,12 @@
 import Link from 'next/link'
 
-import ImageComponent from '@/components/common/ImageComponent'
 import Date from '@/components/common/Date'
 import ArticleCard from '@/components/common/ArticleCard'
 import { badgeVariants } from '@/components/ui/badge'
+import { Image } from '@/components/image'
 
 import { Post } from '@/types'
+import { imageBuilder } from '@/lib/sanity.image'
 
 const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
   const heroArticle = heroPosts[0]
@@ -20,12 +21,13 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
               className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-lg shadow-md"
               prefetch={false}
             >
-              <ImageComponent
-                image={heroArticle.mainImage}
+              <Image
+                src={heroArticle.mainImage as any}
                 alt={heroArticle.mainImage.caption}
-                width={363}
-                height={181}
-                loading="eager"
+                width={800}
+                height={400}
+                className="object-cover object-top"
+                priority
               />
             </Link>
             <div className="mt-4 space-y-2">
@@ -63,12 +65,12 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                   className="flex items-center gap-2"
                   prefetch={false}
                 >
-                  <ImageComponent
-                    image={heroArticle.author.image}
+                  <Image
+                    src={heroArticle.author.image as any}
                     alt={`${heroArticle.author.name}'s profile picture`}
-                    width={44}
-                    height={44}
-                    className="h-11 w-11 rounded-full"
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 rounded-full"
                   />
                   <span className="text-primary">{heroArticle.author.name}</span>
                 </Link>
@@ -84,6 +86,7 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                 division={article.division}
                 date={article.publishedAt}
                 image={article.mainImage}
+                imagePriority={true}
                 slug={article.slug}
                 author={article.author.name}
                 key={article._id}

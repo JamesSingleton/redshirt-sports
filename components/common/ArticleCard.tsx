@@ -2,12 +2,13 @@ import Link from 'next/link'
 
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import ImageComponent from '@/components/common/ImageComponent'
+import { Image as SanityImage } from '@/components/image'
 import Date from '@/components/common/Date'
 
 export default function ArticleCard({
   title,
   image,
+  imagePriority = false,
   slug,
   author,
   date,
@@ -17,6 +18,7 @@ export default function ArticleCard({
 }: {
   title: string
   image: any
+  imagePriority?: boolean
   slug: string
   author: string
   date: string
@@ -33,12 +35,13 @@ export default function ArticleCard({
 
   return (
     <div className="overflow-hidden rounded-lg border border-border shadow-lg">
-      <ImageComponent
-        image={image}
+      <SanityImage
+        src={image}
         alt={image.caption}
         width={600}
         height={400}
         className="h-48 w-full object-cover object-top"
+        priority={imagePriority}
       />
       <div className="bg-background p-4">
         <div className="mb-2 flex flex-wrap gap-2">
