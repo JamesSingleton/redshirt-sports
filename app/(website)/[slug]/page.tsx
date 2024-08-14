@@ -10,7 +10,7 @@ import { HOME_DOMAIN } from '@/lib/constants'
 import { getPostBySlug, getPostsPaths } from '@/lib/sanity.fetch'
 import { Org, Web } from '@/lib/ldJson'
 import { AuthorSection, MobileAuthorSection } from './Author'
-import ArticleSocialShare from './ArticleSocialShare'
+import { LargeArticleSocialShare, SmallArticleSocialShare } from './ArticleSocialShare'
 import {
   Breadcrumbs,
   Date,
@@ -273,7 +273,10 @@ export default async function Page({ params }: PageProps) {
         <div className="container">
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
             <div className="lg:w-64 lg:shrink-0">
-              <AuthorSection author={post.author} authors={post.authors} />
+              <div className="hidden lg:sticky lg:left-0 lg:top-24 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
+                <AuthorSection author={post.author} authors={post.authors} />
+                <LargeArticleSocialShare slug={post.slug} title={post.title} />
+              </div>
               <MobileAuthorSection author={post.author} authors={post.authors} />
             </div>
             <div className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
@@ -297,7 +300,7 @@ export default async function Page({ params }: PageProps) {
                   <CustomPortableText value={post.body} />
                 </div>
               </article>
-              <ArticleSocialShare slug={post.slug} title={post.title} />
+              <SmallArticleSocialShare slug={post.slug} title={post.title} />
             </div>
           </div>
         </div>

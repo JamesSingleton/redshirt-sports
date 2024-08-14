@@ -1,57 +1,136 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { LinkIcon } from 'lucide-react'
+import { LinkIcon, CheckIcon } from 'lucide-react'
 
 import { Facebook, Twitter } from '@/components/common/icons'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { HOME_DOMAIN } from '@/lib/constants'
 
-export default function ArticleSocialShare({ slug, title }: { slug: string; title: string }) {
+const shareArticle = ({
+  platform,
+  url,
+  title,
+}: {
+  platform: 'facebook' | 'twitter'
+  url: string
+  title: string
+}) => {
+  let shareUrl = ''
+  switch (platform) {
+    case 'facebook':
+      shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
+      break
+    case 'twitter':
+      shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`
+      break
+  }
+  window.open(shareUrl, '_blank', 'noopener,noreferrer')
+}
+
+const ShareButtons = ({ url, title }: { url: string; title: string }) => (
+  <>
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() =>
+        shareArticle({
+          platform: 'twitter',
+          url,
+          title,
+        })
+      }
+    >
+      <Twitter className="h-5 w-5" />
+      <span className="sr-only">Share on X</span>
+    </Button>
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() =>
+        shareArticle({
+          platform: 'facebook',
+          url,
+          title,
+        })
+      }
+    >
+      <Facebook className="h-5 w-5" />
+      <span className="sr-only">Share on Facebook</span>
+    </Button>
+  </>
+)
+
+export const LargeArticleSocialShare = ({ slug, title }: { slug: string; title: string }) => {
+  const [copied, setCopied] = useState(false)
+  const articleUrl = `${HOME_DOMAIN}/${slug}`
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(articleUrl).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
   return (
-    <div className="flex flex-col gap-4 border-t border-primary pt-12 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-      <p className="text-xl font-bold">Share this post</p>
-      <ul className="flex items-center justify-center gap-3 sm:justify-end">
-        <li className="group">
-          <button
-            aria-label="Copy link to article"
-            onClick={() => {
-              navigator.clipboard.writeText(`${HOME_DOMAIN}/${slug}`)
-            }}
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
-          >
-            <LinkIcon className="h-5 w-5 group-hover:text-secondary" aria-hidden="true" />
-          </button>
-        </li>
-        <li className="group">
-          <Link
-            target="_blank"
-            href={`https://x.com/share?url=${HOME_DOMAIN}/${slug}&text=${encodeURIComponent(title)}`}
-            rel="noopener"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
-          >
-            <span className="sr-only">X (Formerly Twitter)</span>
-            <Twitter
-              className="h-5 w-5 group-hover:fill-secondary group-hover:text-secondary"
-              aria-hidden="true"
-            />
-          </Link>
-        </li>
-        <li className="group">
-          <Link
-            target="_blank"
-            href={`https://www.facebook.com/sharer/sharer.php?u=${HOME_DOMAIN}/${slug}`}
-            rel="noopener"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary transition-all duration-200 group-hover:bg-primary"
-          >
-            <span className="sr-only">Facebook</span>
-            <Facebook
-              className="h-5 w-5 group-hover:fill-secondary group-hover:text-secondary"
-              aria-hidden="true"
-            />
-          </Link>
-        </li>
-      </ul>
+    <Card className="mt-8 hidden w-full lg:block">
+      <CardHeader>
+        <CardTitle className="text-lg">Share this article</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="card-article-url" className="text-sm text-gray-400">
+            Article URL
+          </Label>
+          <div className="flex gap-2">
+            <Input id="card-article-url" value={articleUrl} readOnly />
+            <Button onClick={copyToClipboard}>
+              <LinkIcon className="mr-2 h-4 w-4" />
+              {copied ? 'Copied!' : 'Copy'}
+            </Button>
+          </div>
+        </div>
+        <div className="flex justify-start gap-2">
+          <ShareButtons url={articleUrl} title={title} />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+export const SmallArticleSocialShare = ({ slug, title }: { slug: string; title: string }) => {
+  const [copied, setCopied] = useState(false)
+  const articleUrl = `${HOME_DOMAIN}/${slug}`
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(articleUrl).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  return (
+    <div className="mt-8 w-full px-4 lg:hidden">
+      <h2 className="mb-4 text-lg font-semibold">Share this article</h2>
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="inline-article-url">Article URL</Label>
+          <div className="flex gap-2">
+            <Input id="inline-article-url" value={articleUrl} readOnly />
+            <Button onClick={copyToClipboard}>
+              <LinkIcon className="mr-2 h-4 w-4" />
+              {copied ? 'Copied!' : 'Copy'}
+            </Button>
+          </div>
+        </div>
+        <div className="flex justify-start gap-2">
+          <ShareButtons url={articleUrl} title={title} />
+        </div>
+      </div>
     </div>
   )
 }

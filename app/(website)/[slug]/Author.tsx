@@ -41,7 +41,7 @@ export const AuthorItem = (author: Author) => {
 }
 
 export const AuthorSection = ({ author, authors }: { author: Author; authors: Author[] }) => (
-  <div className="hidden lg:sticky lg:left-0 lg:top-24 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
+  <>
     <p className="text-sm font-normal text-muted-foreground">Written By</p>
     {/* if author and no authors just render a single author, if authors is there, map over it */}
     {authors === null ? (
@@ -49,7 +49,7 @@ export const AuthorSection = ({ author, authors }: { author: Author; authors: Au
     ) : (
       authors.map((author) => <AuthorItem key={author._id} {...author} />)
     )}
-  </div>
+  </>
 )
 
 export const MobileAuthorSection = ({ author, authors }: { author: Author; authors: Author[] }) => (
