@@ -70,9 +70,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export async function generateStaticParams() {
   const postPaths = await getPostsPaths()
 
-  if (process.env.VERCEL_ENV === 'preview') {
-    return []
-  }
+  // if (process.env.VERCEL_ENV === 'preview') {
+  //   return []
+  // }
 
   return postPaths.map((path) => ({
     slug: path,
@@ -297,7 +297,7 @@ export default async function Page({ params }: PageProps) {
                   </figcaption>
                 </figure>
                 <div className="prose prose-zinc mx-auto mt-8 dark:prose-invert sm:prose-lg lg:prose-xl">
-                  {/* <CustomPortableText value={post.body} /> */}
+                  <CustomPortableText value={post.body} />
                 </div>
               </article>
               <SmallArticleSocialShare slug={post.slug} title={post.title} />
