@@ -114,7 +114,7 @@ export const SmallArticleSocialShare = ({ slug, title }: { slug: string; title: 
   }
 
   return (
-    <div className="mt-8 w-full px-4 lg:hidden">
+    <div className="mt-8 w-full lg:hidden">
       <h2 className="mb-4 text-lg font-semibold">Share this article</h2>
       <div className="space-y-4">
         <div>
