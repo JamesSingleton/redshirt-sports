@@ -152,9 +152,12 @@ export const postsBySlugQuery = groq`
       mainImage,
       division->{
         name,
+        "slug": slug.current,
       },
       conferences[]->{
-        shortName
+        shortName,
+        name,
+        "slug": slug.current,
       },
       "slug": slug.current,
       "author": author->{name},
