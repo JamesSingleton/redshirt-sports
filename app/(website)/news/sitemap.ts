@@ -2,6 +2,8 @@ import { HOME_DOMAIN } from '@/lib/constants'
 import { getPostsForSitemap } from '@/lib/sanity.fetch'
 import type { MetadataRoute } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 export async function generateSitemaps() {
   const posts = await getPostsForSitemap()
 

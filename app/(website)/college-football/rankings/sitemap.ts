@@ -3,6 +3,8 @@ import { getYearsWithVotes } from '@/server/queries'
 
 import type { MetadataRoute } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 export function generateSitemaps() {
   return [{ id: 0 }]
 }

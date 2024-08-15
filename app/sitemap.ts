@@ -4,6 +4,8 @@ import { HOME_DOMAIN } from '@/lib/constants'
 import type { MetadataRoute } from 'next'
 import { ConferencePayload, Division } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const divisions = await sanityFetch<Division[]>({
     query: `*[_type == "division" && defined(slug.current) && count(*[_type == 'post' && references(^._id)]) > 0]{
