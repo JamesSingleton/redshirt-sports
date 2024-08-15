@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { toPlainText } from '@portabletext/react'
 import { CameraIcon } from 'lucide-react'
 import { getYear, parseISO } from 'date-fns'
 import { Graph } from 'schema-dts'
@@ -209,7 +208,7 @@ export default async function Page({ params }: PageProps) {
           height: '96',
           caption: post.author.name,
         },
-        description: toPlainText(post.author.bio),
+        description: post.author.biography,
         sameAs: post.author.socialMedia.map((social) => social.url),
         url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
       },

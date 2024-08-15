@@ -3,7 +3,6 @@ import Script from 'next/script'
 import { notFound } from 'next/navigation'
 import { Globe, Mail } from 'lucide-react'
 import { Graph } from 'schema-dts'
-import { toPlainText } from '@portabletext/react'
 
 import {
   SpotifyIcon,
@@ -18,12 +17,9 @@ import {
   getAuthorBySlug,
   getAuthorsPosts,
 } from '@/lib/sanity.fetch'
-import {
-  ArticleCard,
-  PaginationControls,
-  CustomPortableText,
-  Breadcrumbs,
-} from '@/components/common'
+import ArticleCard from '@/components/common/ArticleCard'
+import BreadCrumbs from '@/components/common/Breadcrumbs'
+import PaginationControls from '@/components/common/PaginationControls'
 import { urlForImage } from '@/lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
 import { Image as SanityImage } from '@/components/image'
@@ -173,7 +169,7 @@ export default async function Page({
         url: `${HOME_DOMAIN}/authors/${author.slug}`,
         sameAs: author.socialMedia.map((social) => social.url),
         jobTitle: author.roles.join(', '),
-        description: toPlainText(author.bio),
+        description: author.biography,
         mainEntityOfPage: {
           '@id': `${HOME_DOMAIN}/authors/${author.slug}#profilepage`,
         },
@@ -191,7 +187,7 @@ export default async function Page({
       <section className="pt-12 sm:pt-16 lg:pt-20 xl:pt-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="md:max-w-3xl xl:max-w-5xl">
-            <Breadcrumbs breadCrumbPages={breadcrumbs} />
+            <BreadCrumbs breadCrumbPages={breadcrumbs} />
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <SanityImage
                 src={author.image as any}
@@ -209,10 +205,9 @@ export default async function Page({
                 </h1>
               </div>
             </div>
-            <CustomPortableText
-              value={author.bio}
-              paragraphClasses="mt-4 text-lg font-normal lg:text-xl text-muted-foreground"
-            />
+            <p className="mt-4 text-lg font-normal text-muted-foreground lg:text-xl">
+              {author.biography}
+            </p>
             {author.socialMedia && (
               <ul className="mt-6 flex flex-wrap items-center space-x-3">
                 {author.socialMedia.map((social) => (
@@ -251,7 +246,7 @@ export default async function Page({
           <Suspense fallback={<div>Loading COnferences...</div>}>
             <ConferencesWrittenFor conferences={conferencesWrittenFor.conferences} />
           </Suspense>
-          <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
+          <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {authorPosts.posts.map((post) => (
               <ArticleCard
                 key={post._id}

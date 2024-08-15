@@ -17,7 +17,7 @@ const authorFields = `
   'slug': slug.current,
   roles,
   image,
-  bio,
+  biography,
   socialMedia
 `
 

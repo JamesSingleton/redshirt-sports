@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { UsersIcon } from '@sanity/icons'
+import { CustomTextInputWithLimits } from '@/sanity/plugins/CustomTextInputWithLimits'
 
 export default defineType({
   name: 'author',
@@ -65,40 +66,14 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'bio',
-      title: 'Bio',
-      type: 'array',
-      of: [
-        {
-          title: 'Block',
-          type: 'block',
-          styles: [{ title: 'Normal', value: 'normal' }],
-          lists: [],
-          marks: {
-            annotations: [
-              {
-                name: 'link',
-                type: 'object',
-                title: 'External Link',
-                fields: [
-                  {
-                    name: 'href',
-                    type: 'url',
-                    title: 'URL',
-                  },
-                  {
-                    title: 'Open in new tab',
-                    name: 'blank',
-                    type: 'boolean',
-                    initialValue: true,
-                  },
-                ],
-              },
-            ],
-          },
-        },
-      ],
-      validation: (rule) => rule.required(),
+      name: 'biography',
+      title: 'Biography',
+      description: 'A short biography',
+      type: 'text',
+      validation: (rule) => rule.max(350).required(),
+      components: {
+        input: CustomTextInputWithLimits,
+      },
     }),
     defineField({
       name: 'socialMedia',
