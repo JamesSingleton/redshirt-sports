@@ -124,9 +124,10 @@ export interface PostsWithPaginationPayload {
   totalPosts: number
 }
 
-export type SiteMapPost = {
+export type SitemapContent = {
   _id: string
   _updatedAt: string
+  publishedAt: string
   slug: string
 }
 

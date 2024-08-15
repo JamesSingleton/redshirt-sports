@@ -258,6 +258,7 @@ export const conferencePaths = groq`
 
 export const authorsForSiteMapQuery = groq`
 *[_type == 'author' && defined(slug.current) && archived == false]{
+  _id,
   _updatedAt,
   "slug": slug.current,
 }

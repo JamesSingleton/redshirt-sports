@@ -1,14 +1,10 @@
 import { HOME_DOMAIN } from '@/lib/constants'
-import { sanityFetch } from '@/lib/sanity.fetch'
-import { authorsForSiteMapQuery } from '@/lib/sanity.queries'
-import type { Author } from '@/types'
+import { getAuthorsForSitemap } from '@/lib/sanity.fetch'
 import type { MetadataRoute } from 'next'
 
 export async function generateSitemaps() {
-  const authors = await sanityFetch<Author[]>({
-    query: authorsForSiteMapQuery,
-    tags: ['author'],
-  })
+  const authors = await getAuthorsForSitemap()
+
   const sitemaps = []
   for (let i = 0; i < Math.ceil(authors.length / 50000); i++) {
     sitemaps.push({
@@ -23,15 +19,12 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
   const start = id * 50000
   const end = start + 50000
 
-  const authors = await sanityFetch<Author[]>({
-    query: authorsForSiteMapQuery,
-    tags: ['author'],
-  })
+  const authors = await getAuthorsForSitemap()
 
   return authors.map((author) => ({
     url: `${HOME_DOMAIN}/authors/${author.slug}`,
     lastModified: author._updatedAt,
-    priority: 0.8,
+    priority: 0.5,
     changeFrequency: 'weekly',
   }))
 }

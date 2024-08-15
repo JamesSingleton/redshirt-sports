@@ -24,6 +24,7 @@ import {
   schoolsByDivision,
   schoolsByIdOrderedByRank,
   lastThreePosts,
+  authorsForSiteMapQuery,
 } from '@/lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
@@ -38,6 +39,7 @@ import {
   PostsWithPaginationPayload,
   PrivacyPolicyPagePayload,
   SchoolLite,
+  SitemapContent,
 } from '@/types'
 
 export const token = process.env.SANITY_API_READ_TOKEN
@@ -86,6 +88,27 @@ export function getPostBySlug(slug: string) {
     params: { slug },
     tags: [`post:${slug}`],
   })
+}
+
+export function getPostsForSitemap() {
+  return client.fetch<SitemapContent[]>(
+    `*[_type == 'post' && defined(slug.current)]{
+      _id,
+      _updatedAt,
+      publishedAt,
+      "slug": slug.current,
+    }`,
+    {},
+    { token, perspective: 'published' },
+  )
+}
+
+export function getAuthorsForSitemap() {
+  return client.fetch<SitemapContent[]>(
+    authorsForSiteMapQuery,
+    {},
+    { token, perspective: 'published' },
+  )
 }
 
 export function getPostsPaths() {
