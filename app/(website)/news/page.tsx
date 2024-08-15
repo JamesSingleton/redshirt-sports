@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
 import PageHeader from '@/components/common/PageHeader'
@@ -29,18 +29,24 @@ export async function generateMetadata({
   params: { [key: string]: string }
   searchParams: { [key: string]: string }
 }): Promise<Metadata> {
+  const { page } = searchParams
   let finalTitle: string = `College Football News & Updates | ${process.env.NEXT_PUBLIC_APP_NAME}`
   let finalDescription: string = `Get the latest college football news, covering FCS, FBS, D2, and D3. Explore insightful articles and stay informed with ${process.env.NEXT_PUBLIC_APP_NAME}.`
+  let canonical = '/news'
 
-  if (searchParams.page) {
-    finalTitle = `College Football News & Updates - Page ${searchParams.page} | ${process.env.NEXT_PUBLIC_APP_NAME}`
-    finalDescription = `Explore more college football insights on page ${searchParams.page}. Discover the latest FCS, FBS, D2, and D3 coverage at ${process.env.NEXT_PUBLIC_APP_NAME}.`
+  if (page) {
+    finalTitle = `College Football News & Updates - Page ${page} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    finalDescription = `Explore more college football insights on page ${page}. Discover the latest FCS, FBS, D2, and D3 coverage at ${process.env.NEXT_PUBLIC_APP_NAME}.`
+
+    if (parseInt(page) > 1) {
+      canonical = `/news?page=${page}`
+    }
   }
 
   const defaultMetadata = constructMetadata({
     title: finalTitle,
     description: finalDescription,
-    canonical: `/news${searchParams.page ? `?page=${searchParams.page}` : ''}`,
+    canonical,
   })
 
   return defaultMetadata
@@ -49,6 +55,10 @@ export async function generateMetadata({
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string } }) {
   const { page } = searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
+
+  if (parseInt(page) === 1) {
+    return redirect('/news')
+  }
   const news = await getNews(pageIndex)
 
   if (!news) {

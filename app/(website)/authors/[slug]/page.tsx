@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import Script from 'next/script'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { Globe, Mail } from 'lucide-react'
 import { Graph } from 'schema-dts'
 
@@ -31,10 +31,13 @@ import type { Metadata } from 'next'
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: { slug: string }
+  searchParams: { [key: string]: string }
 }): Promise<Metadata> {
   const { slug } = params
+  const { page, conference } = searchParams
   const author = await getAuthorBySlug(slug)
 
   if (!author) {
@@ -42,11 +45,24 @@ export async function generateMetadata({
   }
 
   const roles = author.roles.join(', ')
+  let canonical = `/authors/${slug}`
+
+  if (page && !conference && parseInt(page) > 1) {
+    canonical = `/authors/${slug}?page=${page}`
+  }
+
+  if (conference) {
+    canonical = `/authors/${slug}?conference=${conference}`
+
+    if (page && parseInt(page) > 1) {
+      canonical = `/authors/${slug}?conference=${conference}&page=${page}`
+    }
+  }
 
   return constructMetadata({
     title: `${author.name} - ${roles} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
     description: `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`,
-    canonical: `/authors/${slug}`,
+    canonical,
     image: urlForImage(author.image).width(1200).height(630).url(),
     ogType: 'profile',
   })
@@ -60,9 +76,19 @@ export default async function Page({
   searchParams: { [key: string]: string }
 }) {
   const { slug } = params
-  const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
+  const { page, conference: conferenceParam } = searchParams
+  const pageIndex = page ? parseInt(page) : 1
+
+  if (parseInt(page) === 1) {
+    if (conferenceParam) {
+      return redirect(`/authors/${slug}?conference=${conferenceParam}`)
+    }
+    return redirect(`/authors/${slug}`)
+  }
+
   const conference = searchParams.conference ?? null
   const author = await getAuthorBySlug(slug)
+
   if (!author) {
     return notFound()
   }

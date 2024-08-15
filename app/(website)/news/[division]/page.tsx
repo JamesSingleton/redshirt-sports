@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
 import { getNewsByDivision } from '@/lib/sanity.fetch'
@@ -26,16 +26,21 @@ export async function generateMetadata({
 
   let finalTitle: string = `Latest ${division.toUpperCase()} Football Coverage | ${process.env.NEXT_PUBLIC_APP_NAME}`
   let finalDescription: string = `Discover the latest articles and insights on ${division.toUpperCase()} football. Get comprehensive coverage at ${process.env.NEXT_PUBLIC_APP_NAME}.`
+  let canonical = `/news/${division}`
 
   if (page) {
     finalTitle = `Latest ${division.toUpperCase()} Football Coverage - Page ${page} | ${process.env.NEXT_PUBLIC_APP_NAME}`
     finalDescription = `Explore more ${division.toUpperCase()} football insights on page ${page}. Get comprehensive coverage at ${process.env.NEXT_PUBLIC_APP_NAME}.`
+
+    if (parseInt(page) > 1) {
+      canonical = `/news/${division}?page=${page}`
+    }
   }
 
   return constructMetadata({
     title: finalTitle,
     description: finalDescription,
-    canonical: `/news/${division}${page ? `?page=${page}` : ''}`,
+    canonical,
   })
 }
 
@@ -47,6 +52,11 @@ export default async function Page({
   searchParams: { [key: string]: string }
 }) {
   const { page } = searchParams
+
+  if (parseInt(page) === 1) {
+    return redirect(`/news/${params.division}`)
+  }
+
   const pageIndex = page !== undefined ? parseInt(page) : 1
   const division = await getNewsByDivision(params.division, pageIndex)
 

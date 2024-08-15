@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
 import PageHeader from '@/components/common/PageHeader'
@@ -31,7 +31,7 @@ export async function generateMetadata({
   }
 
   const conferenceName = conferenceInfo.shortName ?? conferenceInfo.name
-  let finalCanonical = `/news/${division}/${conference}`
+  let canonical = `/news/${division}/${conference}`
 
   let finalTitle: string = `${conferenceName} Football News | ${process.env.NEXT_PUBLIC_APP_NAME}`
   let finalDescription: string = `Explore extensive coverage of ${conferenceName} football. Dive into detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}, your go-to source for all ${conferenceName} football news.`
@@ -41,14 +41,14 @@ export async function generateMetadata({
     finalDescription = `Explore extensive coverage of ${conferenceName} football on Page ${page}. Dive into detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}, your go-to source for all ${conferenceName} football news.`
 
     if (parseInt(page) > 1) {
-      finalCanonical = `/news/${division}/${conference}?page=${page}`
+      canonical = `/news/${division}/${conference}?page=${page}`
     }
   }
 
   return constructMetadata({
     title: finalTitle,
     description: finalDescription,
-    canonical: finalCanonical,
+    canonical,
   })
 }
 
@@ -59,7 +59,12 @@ export default async function Page({
   params: { [key: string]: string }
   searchParams: { [key: string]: string }
 }) {
-  const pageIndex = searchParams.page ? parseInt(searchParams.page) : 1
+  const { page } = searchParams
+  const pageIndex = searchParams.page ? parseInt(page) : 1
+
+  if (parseInt(page) === 1) {
+    return redirect(`/news/${params.division}`)
+  }
   const conference = await getNewsByConference(params.conference, pageIndex)
 
   if (!conference) {
