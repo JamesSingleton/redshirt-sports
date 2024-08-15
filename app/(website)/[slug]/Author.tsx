@@ -43,9 +43,8 @@ export const AuthorItem = (author: Author) => {
 export const AuthorSection = ({ author, authors }: { author: Author; authors: Author[] }) => (
   <>
     <p className="text-sm font-normal text-muted-foreground">Written By</p>
-    {/* if author and no authors just render a single author, if authors is there, map over it */}
     {authors === null ? (
-      <AuthorItem {...author} />
+      <AuthorItem key={author._id} {...author} />
     ) : (
       authors.map((author) => <AuthorItem key={author._id} {...author} />)
     )}

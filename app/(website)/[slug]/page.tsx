@@ -63,11 +63,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export async function generateStaticParams() {
+  if (process.env.VERCEL_ENV === 'preview') {
+    return []
+  }
   const postPaths = await getPostsPaths()
-
-  // if (process.env.VERCEL_ENV === 'preview') {
-  //   return []
-  // }
 
   return postPaths.map((path) => ({
     slug: path,
