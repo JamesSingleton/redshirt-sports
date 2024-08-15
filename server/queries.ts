@@ -158,3 +158,16 @@ export async function getCurrentSeasonStartAndEnd({ year }: { year: number }) {
 
   return season
 }
+
+// get the years that have been voted on along with the weeks and the divisions
+export async function getYearsWithVotes() {
+  const years = await db.query.weeklyFinalRankings.findMany({
+    columns: {
+      year: true,
+      week: true,
+      division: true,
+    },
+  })
+
+  return years
+}
