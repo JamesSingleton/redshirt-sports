@@ -14,7 +14,7 @@ import { schemaTypes } from '@/sanity/schemas'
 import { apiVersion, projectId } from '@/lib/sanity.api'
 import { getDefaultDocumentNode, structure } from '@/sanity/structure'
 import { CustomBlockContentInput } from '@/sanity/plugins/CustomBlockContentInput'
-import SmallLogo from '@/components/common/SmallLogo'
+import SmallLogo from '@/components/small-logo'
 
 export default defineConfig({
   basePath: '/studio',

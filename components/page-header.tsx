@@ -1,4 +1,4 @@
-import Breadcrumbs from '@/components/common/Breadcrumbs'
+import Breadcrumbs from '@/components/breadcrumbs'
 
 import type { BreadcrumbProps } from '@/types'
 

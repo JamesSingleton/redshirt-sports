@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
-import { Hero, ArticleSection } from '@/components/home'
-import ArticleCard from '@/components/common/ArticleCard'
+import Hero from '@/components/hero'
+import ArticleSection from '@/components/article-section'
+import ArticleCard from '@/components/article-card'
 import {
   getHeroPosts,
   getLatestArticlesForHomePage,

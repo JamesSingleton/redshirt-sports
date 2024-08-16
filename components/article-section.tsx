@@ -1,14 +1,13 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
-import Date from '@/components/common/Date'
-import ArticleCard from '@/components/common/ArticleCard'
+import Date from '@/components/date'
+import ArticleCard from '@/components/article-card'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import { Image as SanityImage } from '@/components/image'
 
 import { Post } from '@/types'
-import { imageBuilder } from '@/lib/sanity.image'
 
 interface ArticleSectionProps {
   title: string

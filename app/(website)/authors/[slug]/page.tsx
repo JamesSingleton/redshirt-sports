@@ -11,15 +11,15 @@ import {
   Instagram,
   Twitter,
   Facebook,
-} from '@/components/common/icons'
+} from '@/components/icons'
 import {
   getConferencesAuthorHasWrittenFor,
   getAuthorBySlug,
   getAuthorsPosts,
 } from '@/lib/sanity.fetch'
-import ArticleCard from '@/components/common/ArticleCard'
-import BreadCrumbs from '@/components/common/Breadcrumbs'
-import PaginationControls from '@/components/common/PaginationControls'
+import ArticleCard from '@/components/article-card'
+import BreadCrumbs from '@/components/breadcrumbs'
+import PaginationControls from '@/components/pagination-controls'
 import { urlForImage } from '@/lib/sanity.image'
 import ConferencesWrittenFor from './ConferencesWrittenFor'
 import { Image as SanityImage } from '@/components/image'

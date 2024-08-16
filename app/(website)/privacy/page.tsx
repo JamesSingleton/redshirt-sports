@@ -1,4 +1,6 @@
-import { PageHeader, Date, CustomPortableText } from '@/components/common'
+import PageHeader from '@/components/page-header'
+import Date from '@/components/date'
+import { CustomPortableText } from '@/components/custom-portable-text'
 import { getPrivacyPolicy } from '@/lib/sanity.fetch'
 import { HOME_DOMAIN } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'

@@ -4,7 +4,7 @@ import { forwardRef, ElementRef, ComponentPropsWithoutRef } from 'react'
 import Link from 'next/link'
 
 import { cn } from '@/lib/utils'
-import SmallLogo from './SmallLogo'
+import SmallLogo from './small-logo'
 import {
   NavigationMenu,
   NavigationMenuContent,

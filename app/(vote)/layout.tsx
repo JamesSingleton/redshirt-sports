@@ -1,6 +1,6 @@
 import { UserButton } from '@clerk/nextjs'
 
-import { ModeToggle } from '@/components/common/ModeToggle'
+import { ModeToggle } from '@/components/mode-toggle'
 import { Toaster } from '@/components/ui/sonner'
 
 export default function VoteLayout({ children }: { children: React.ReactNode }) {

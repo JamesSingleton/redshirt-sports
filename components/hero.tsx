@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
-import Date from '@/components/common/Date'
-import ArticleCard from '@/components/common/ArticleCard'
+import Date from '@/components/date'
+import ArticleCard from '@/components/article-card'
 import { badgeVariants } from '@/components/ui/badge'
 import { Image } from '@/components/image'
 

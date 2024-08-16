@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
 import { badgeVariants } from '@/components/ui/badge'
 import { Image as SanityImage } from '@/components/image'
-import Date from '@/components/common/Date'
+import Date from '@/components/date'
 
 export default function ArticleCard({
   title,

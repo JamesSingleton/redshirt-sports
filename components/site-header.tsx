@@ -1,10 +1,7 @@
-import Link from 'next/link'
-import { Search } from 'lucide-react'
-
 import { getDivisions } from '@/lib/sanity.fetch'
-import { MobileNav } from './MobileNav'
-import { MainNav } from './MainNav'
-import { ModeToggle } from './ModeToggle'
+import { MobileNav } from '@/components/mobile-nav'
+import { MainNav } from '@/components/main-nav'
+import { ModeToggle } from '@/components/mode-toggle'
 import { Input } from '@/components/ui/input'
 
 export async function SiteHeader() {

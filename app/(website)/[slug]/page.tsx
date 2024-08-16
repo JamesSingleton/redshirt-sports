@@ -10,7 +10,10 @@ import { getPostBySlug, getPostsPaths } from '@/lib/sanity.fetch'
 import { Org, Web } from '@/lib/ldJson'
 import { AuthorSection, MobileAuthorSection } from './Author'
 import { LargeArticleSocialShare, SmallArticleSocialShare } from './ArticleSocialShare'
-import { Breadcrumbs, Date, CustomPortableText, ArticleCard } from '@/components/common'
+import BreadCrumbs from '@/components/breadcrumbs'
+import Date from '@/components/date'
+import { CustomPortableText } from '@/components/custom-portable-text'
+import ArticleCard from '@/components/article-card'
 import { badgeVariants } from '@/components/ui/badge'
 import { constructMetadata } from '@/utils/construct-metadata'
 import { Image as SanityImage } from '@/components/image'
@@ -224,7 +227,7 @@ export default async function Page({ params }: PageProps) {
       <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
         <div className="container">
           <div className="md:max-w-3xl xl:max-w-5xl">
-            <Breadcrumbs breadCrumbPages={breadcrumbs} />
+            <BreadCrumbs breadCrumbPages={breadcrumbs} />
             <h1 className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
               {post.title}
             </h1>

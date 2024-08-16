@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import PageHeader from '@/components/common/PageHeader'
+import PageHeader from '@/components/page-header'
 import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'

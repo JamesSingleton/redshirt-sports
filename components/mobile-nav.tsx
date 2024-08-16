@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { STATIC_NAV_ITEMS } from '@/lib/constants'
-import SmallLogo from './SmallLogo'
+import SmallLogo from './small-logo'
 
 import type { NavProps } from '@/types'
 
