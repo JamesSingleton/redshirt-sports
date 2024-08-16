@@ -14,7 +14,7 @@ import SmallLogo from './small-logo'
 
 import type { NavProps } from '@/types'
 
-export function MobileNav({ divisions }: NavProps) {
+export function MobileNav({ divisions, latestFCSTop25 }: NavProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -53,6 +53,14 @@ export function MobileNav({ divisions }: NavProps) {
             ))}
           </div>
           <div className="mt-4 flex flex-col space-y-3">
+            {latestFCSTop25 && (
+              <MobileLink
+                href={`/news/${latestFCSTop25.division}/${latestFCSTop25.year}/${latestFCSTop25.week}`}
+                onOpenChange={setOpen}
+              >
+                FCS Top 25
+              </MobileLink>
+            )}
             {STATIC_NAV_ITEMS.map(
               (item) =>
                 item.href && (

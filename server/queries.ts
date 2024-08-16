@@ -1,5 +1,6 @@
 import 'server-only'
 import { auth } from '@clerk/nextjs/server'
+import { desc, asc } from 'drizzle-orm'
 
 import { db } from '@/server/db'
 
@@ -170,4 +171,19 @@ export async function getYearsWithVotes() {
   })
 
   return years
+}
+
+// get the last weeklyFinalRankings for a given division & return the division, week, and year
+export async function getLatestFinalRankings({ division }: { division: string }) {
+  const latestWeeklyRankings = await db.query.weeklyFinalRankings.findFirst({
+    where: (model, { eq }) => eq(model.division, division),
+    columns: {
+      division: true,
+      week: true,
+      year: true,
+    },
+    orderBy: (model) => [desc(model.year), desc(model.week)],
+  })
+
+  return latestWeeklyRankings
 }

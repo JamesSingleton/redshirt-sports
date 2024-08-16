@@ -41,6 +41,11 @@ export type BreadcrumbProps = {
 
 export interface NavProps {
   divisions: Division[]
+  latestFCSTop25?: {
+    division: string
+    week: number
+    year: number
+  }
 }
 
 export interface Vote {

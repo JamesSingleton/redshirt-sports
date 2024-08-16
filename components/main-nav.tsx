@@ -17,7 +17,7 @@ import {
 
 import type { NavProps } from '@/types'
 
-export function MainNav({ divisions }: NavProps) {
+export function MainNav({ divisions, latestFCSTop25 }: NavProps) {
   return (
     <div className="mr-4 hidden lg:flex">
       <Link
@@ -79,6 +79,20 @@ export function MainNav({ divisions }: NavProps) {
               )
             }
           })}
+          {latestFCSTop25 && (
+            <NavigationMenuItem>
+              <Link
+                href={`/college-football/rankings/${latestFCSTop25.division}/${latestFCSTop25.year}/${latestFCSTop25.week}`}
+                legacyBehavior
+                passHref
+                prefetch={false}
+              >
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  FCS Top 25
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+          )}
 
           <NavigationMenuItem>
             <Link href="/about" legacyBehavior passHref prefetch={false}>
