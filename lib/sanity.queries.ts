@@ -325,12 +325,15 @@ export const paginatedPostsQuery = groq`
       mainImage,
       division->{
         name,
+        "slug": slug.current,
       },
       conferences[]->{
-        shortName
+        shortName,
+        name,
+        "slug": slug.current,
       },
       "slug": slug.current,
-      "author": author->{name},
+      "author": author->{name, "slug": slug.current},
     },
     "totalPosts": count(*[_type == "post"])
   }
