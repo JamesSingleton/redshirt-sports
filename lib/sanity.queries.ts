@@ -294,10 +294,10 @@ export const divisionBySlugQuery = groq`
 *[_type == "division" && slug.current == $slug][0]{
   ...,
   "slug": slug.current,
-  "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+  "posts": *[_type == "post" && division._ref == ^._id] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
     ${litePostFields}
   },
-  "totalPosts": count(*[_type == "post" && references(^._id)])
+  "totalPosts": count(*[_type == "post" && division._ref == ^._id])
 }
 `
 
