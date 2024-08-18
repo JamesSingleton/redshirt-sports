@@ -68,9 +68,9 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                   <Image
                     src={heroArticle.author.image as any}
                     alt={`${heroArticle.author.name}'s profile picture`}
-                    width={48}
-                    height={48}
-                    className="h-12 w-12 rounded-full"
+                    width={32}
+                    height={32}
+                    className="size-8 rounded-full"
                   />
                   <span className="text-primary">{heroArticle.author.name}</span>
                 </Link>

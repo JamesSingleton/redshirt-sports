@@ -19,6 +19,9 @@ export function Image(
       asset: {
         _type: 'reference'
         _ref: string
+        metadata: {
+          lqip?: string
+        }
       }
       crop: {
         top: number
@@ -51,8 +54,10 @@ export function Image(
   return (
     <SanityImage
       alt={typeof src.caption === 'string' ? src.caption : ''}
-      {...rest}
+      placeholder="blur"
+      blurDataURL={src.asset.metadata?.lqip ?? imageBuilder.width(24).height(24).blur(10).url()}
       src={imageBuilder.url()}
+      {...rest}
     />
   )
 }

@@ -149,7 +149,13 @@ export const postsBySlugQuery = groq`
       _id,
       title,
       publishedAt,
-      mainImage,
+      "mainImage": {
+        "caption": mainImage.caption,
+        "attribution": mainImage.attribution,
+        "crop": mainImage.crop,
+        "hotspot": mainImage.hotspot,
+        "asset": mainImage.asset->,
+      },
       division->{
         name,
         "slug": slug.current,
@@ -171,7 +177,13 @@ export const latestDivisionArticlesQuery = groq`
   title,
   "slug": slug.current,
   publishedAt,
-  mainImage,
+  "mainImage": {
+    "caption": mainImage.caption,
+    "attribution": mainImage.attribution,
+    "crop": mainImage.crop,
+    "hotspot": mainImage.hotspot,
+    "asset": mainImage.asset->,
+  },
   division->{
     name,
     "slug": slug.current,
@@ -322,7 +334,13 @@ export const paginatedPostsQuery = groq`
       _id,
       title,
       publishedAt,
-      mainImage,
+      "mainImage": {
+        "caption": mainImage.caption,
+        "attribution": mainImage.attribution,
+        "crop": mainImage.crop,
+        "hotspot": mainImage.hotspot,
+        "asset": mainImage.asset->,
+      },
       division->{
         name,
         "slug": slug.current,

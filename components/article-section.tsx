@@ -67,9 +67,9 @@ export default function ArticleSection({
                   <SanityImage
                     src={firstArticle.author.image as any}
                     alt={`${firstArticle.author.name}'s profile picture`}
-                    width={48}
-                    height={48}
-                    className="mr-2 h-12 w-12 rounded-full"
+                    width={32}
+                    height={32}
+                    className="mr-2 size-8 rounded-full"
                   />
                   {firstArticle.author.name}
                 </Link>

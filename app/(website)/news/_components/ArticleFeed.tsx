@@ -15,6 +15,7 @@ export default function ArticleFeed({ articles }: { articles: Post[] }) {
           division={article.division}
           conferences={article.conferences}
           headingLevel="h2"
+          imagePriority={index < 4}
         />
       ))}
     </div>
