@@ -4,6 +4,7 @@ import { Separator } from '@/components/ui/separator'
 import { badgeVariants } from '@/components/ui/badge'
 import { Image as SanityImage } from '@/components/image'
 import Date from '@/components/date'
+import { urlForImage } from '@/lib/sanity.image'
 
 export default function ArticleCard({
   title,
@@ -44,6 +45,10 @@ export default function ArticleCard({
         height={400}
         className="h-48 w-full object-cover object-top"
         priority={imagePriority}
+        placeholder="blur"
+        blurDataURL={
+          image.asset.metadata?.lqip ?? urlForImage(image).width(24).height(24).blur(10).url()
+        }
       />
       <div className="bg-background p-4">
         <div className="mb-2 flex flex-wrap gap-2">

@@ -3,10 +3,10 @@ import Link from 'next/link'
 import Date from '@/components/date'
 import ArticleCard from '@/components/article-card'
 import { badgeVariants } from '@/components/ui/badge'
-import { Image } from '@/components/image'
+import { Image as SanityImage } from '@/components/image'
 
 import { Post } from '@/types'
-import { imageBuilder } from '@/lib/sanity.image'
+import { imageBuilder, urlForImage } from '@/lib/sanity.image'
 
 const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
   const heroArticle = heroPosts[0]
@@ -21,12 +21,17 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
               className="aspect-h-1 aspect-w-2 relative block overflow-hidden rounded-lg shadow-md"
               prefetch={false}
             >
-              <Image
+              <SanityImage
                 src={heroArticle.mainImage as any}
                 alt={heroArticle.mainImage.caption}
                 width={800}
                 height={400}
                 className="object-cover object-top"
+                placeholder="blur"
+                blurDataURL={
+                  heroArticle.mainImage.asset.metadata?.lqip ??
+                  urlForImage(heroArticle.mainImage).width(24).height(24).blur(10).url()
+                }
                 priority
               />
             </Link>
@@ -65,7 +70,7 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                   className="flex items-center gap-2"
                   prefetch={false}
                 >
-                  <Image
+                  <SanityImage
                     src={heroArticle.author.image as any}
                     alt={`${heroArticle.author.name}'s profile picture`}
                     width={32}

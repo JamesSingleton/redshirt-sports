@@ -54,8 +54,6 @@ export function Image(
   return (
     <SanityImage
       alt={typeof src.caption === 'string' ? src.caption : ''}
-      placeholder="blur"
-      blurDataURL={src.asset.metadata?.lqip ?? imageBuilder.width(24).height(24).blur(10).url()}
       src={imageBuilder.url()}
       {...rest}
     />

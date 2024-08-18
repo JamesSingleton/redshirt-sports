@@ -284,6 +284,11 @@ export default async function Page({ params }: PageProps) {
                     width={864}
                     height={576}
                     alt={post.mainImage.asset.altText ?? post.mainImage.caption}
+                    placeholder="blur"
+                    blurDataURL={
+                      post.mainImage.asset.metadata?.lqip ??
+                      urlForImage(post.mainImage).width(24).height(24).blur(10).url()
+                    }
                     priority
                   />
                   <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
