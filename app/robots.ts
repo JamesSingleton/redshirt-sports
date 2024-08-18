@@ -13,6 +13,7 @@ export default function robots(): MetadataRoute.Robots {
       `${HOME_DOMAIN}/sitemap.xml`,
       `${HOME_DOMAIN}/news/sitemap/0.xml`,
       `${HOME_DOMAIN}/authors/sitemap/0.xml`,
+      `${HOME_DOMAIN}/college-football/rankings/sitemap/0.xml`,
     ],
   }
 }
