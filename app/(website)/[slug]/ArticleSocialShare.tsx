@@ -85,7 +85,7 @@ export const LargeArticleSocialShare = ({ slug, title }: { slug: string; title: 
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="card-article-url" className="text-sm text-gray-400">
+          <Label htmlFor="card-article-url" className="text-sm">
             Article URL
           </Label>
           <div className="flex gap-2">
