@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CameraIcon } from 'lucide-react'
+import { Image as SanityImage } from 'next-sanity/image'
 import { getYear, parseISO } from 'date-fns'
 import { Graph } from 'schema-dts'
 
@@ -16,7 +17,6 @@ import { CustomPortableText } from '@/components/custom-portable-text'
 import ArticleCard from '@/components/article-card'
 import { badgeVariants } from '@/components/ui/badge'
 import { constructMetadata } from '@/utils/construct-metadata'
-import { Image as SanityImage } from '@/components/image'
 
 import type { Metadata } from 'next'
 
@@ -65,9 +65,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export async function generateStaticParams() {
-  if (process.env.VERCEL_ENV === 'preview') {
-    return []
-  }
+  // if (process.env.VERCEL_ENV === 'preview') {
+  //   return []
+  // }
   const postPaths = await getPostsPaths()
 
   return postPaths.map((path) => ({
@@ -279,10 +279,11 @@ export default async function Page({ params }: PageProps) {
               <article>
                 <figure className="mb-12 space-y-1.5">
                   <SanityImage
-                    src={post.mainImage as any}
+                    src={urlForImage(post.mainImage).width(865).height(575).url()}
                     className="h-auto w-full rounded-lg shadow-md"
-                    width={864}
-                    height={576}
+                    width={865}
+                    height={575}
+                    sizes="100vw"
                     alt={post.mainImage.asset.altText ?? post.mainImage.caption}
                     placeholder="blur"
                     blurDataURL={

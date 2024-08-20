@@ -1,6 +1,7 @@
 import Link from 'next/link'
+import { Image as SanityImage } from 'next-sanity/image'
 
-import { Image as SanityImage } from '@/components/image'
+import { urlForImage } from '@/lib/sanity.image'
 
 import type { Author } from '@/types'
 
@@ -13,7 +14,7 @@ export const AuthorItem = (author: Author) => {
         role="img"
       >
         <SanityImage
-          src={author.image as any}
+          src={urlForImage(author.image)?.height(72).width(72).fit('crop').url()}
           alt={author.name}
           className="h-full w-full max-w-full"
           width={36}
