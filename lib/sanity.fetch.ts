@@ -99,7 +99,7 @@ export function getPostsForSitemap() {
       "slug": slug.current,
     }`,
     {},
-    { token, perspective: 'published' },
+    { token, perspective: 'published', cache: 'no-store' },
   )
 }
 
