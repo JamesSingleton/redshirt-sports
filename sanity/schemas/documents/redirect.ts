@@ -1,4 +1,5 @@
 import { Path, SanityDocument, Schema, SchemaType, defineType } from 'sanity'
+import { apiVersion } from '@/lib/sanity.api'
 
 export const redirect = defineType({
   name: 'redirect',
@@ -80,7 +81,9 @@ async function isUnique(
 ) {
   if (!source) return true
   const { getClient } = context
-  const client = getClient({ apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION })
+  const client = getClient({
+    apiVersion,
+  })
   const count = await client.fetch(
     'count(*[_type == "redirect" && _id != $id && source == $source && !(_id in path("drafts.**"))])',
     { source, id },
