@@ -88,6 +88,7 @@ export async function GET(request: Request, { params }: { params: { division: st
   }
   const currentSeason = await getCurrentSeason()
   const currentWeek = await getCurrentWeek()
+
   try {
     const division = params.division
     const votes: Ballot[] = await getAllBallotsForWeekAndYear({
@@ -95,6 +96,13 @@ export async function GET(request: Request, { params }: { params: { division: st
       week: currentWeek,
       division,
     })
+
+    if (!votes.length) {
+      return NextResponse.json({
+        response: 'No votes found for the current week',
+      })
+    }
+
     const teamPoints = processTeamPoints(votes)
     const teams = await client.fetch<SchoolLite[]>(
       schoolsByIdOrderedByPoints,

@@ -131,7 +131,6 @@ export async function getVotesForWeekAndYearByVoter({
       and(eq(model.year, year), eq(model.week, week), eq(model.division, division)),
   })
 
-  // now I want to take the unique userIds and get the user info from the usersTable
   const uniqueUserIds = Array.from(new Set(allVotes.map((vote) => vote.userId)))
 
   const userBallots: { [key: string]: any } = {}

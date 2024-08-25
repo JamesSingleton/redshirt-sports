@@ -50,8 +50,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CollegeFootballRankingsPage({ params }: Props) {
   const { division, year, week } = params
-  // const yearsWithVotes = await getYearsThatHaveVotes({ division })
-  // const weeksWithVotes = await getWeeksThatHaveVotes({ year: parseInt(year, 10), division })
   const [yearsWithVotesResult, weeksWithVotesResult] = await Promise.allSettled([
     getYearsThatHaveVotes({ division }),
     getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
