@@ -125,7 +125,7 @@ export async function GET(request: Request, { params }: { params: { division: st
       .values({
         division,
         year: currentSeason.year,
-        week: 0,
+        week: currentWeek,
         rankings: rankedTeams,
       })
       .onConflictDoUpdate({
