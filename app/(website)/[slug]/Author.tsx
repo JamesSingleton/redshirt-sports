@@ -8,19 +8,18 @@ import type { Author } from '@/types'
 export const AuthorItem = (author: Author) => {
   return (
     <div className="flex min-h-10 flex-row items-center justify-start gap-3 p-0">
-      <span
-        className="relative h-9 w-9 overflow-hidden rounded-full align-top"
-        aria-label={`Avatar for ${author.name}`}
-        role="img"
-      >
-        <SanityImage
-          src={urlForImage(author.image)?.height(72).width(72).fit('crop').url()}
-          alt={author.name}
-          className="h-full w-full max-w-full"
-          width={36}
-          height={36}
-        />
-      </span>
+      <SanityImage
+        src={urlForImage(author.image)
+          ?.height(36)
+          .width(36)
+          .ignoreImageParams()
+          .crop('entropy')
+          .url()}
+        alt={author.name}
+        className="relative h-9 w-9 rounded-full align-top"
+        width={36}
+        height={36}
+      />
       <div className="flex flex-col items-stretch justify-start gap-0.5">
         {author.archived ? (
           <p className="mr-1 whitespace-nowrap text-sm font-semibold tracking-[-.01em]">
