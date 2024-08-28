@@ -12,5 +12,3 @@ export const imageBuilder = createImageUrlBuilder({
 export const urlForImage = (source: MainImage) => {
   return imageBuilder?.image(source).auto('format').fit('max')
 }
-
-export const urlForRssImage = (source: any) => imageBuilder.image(source)

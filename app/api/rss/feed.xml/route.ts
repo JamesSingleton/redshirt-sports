@@ -3,11 +3,10 @@ import { Feed } from 'feed'
 
 import { getRSSFeed } from '@/lib/sanity.fetch'
 import { HOME_DOMAIN } from '@/lib/constants'
+import { urlForImage } from '@/lib/sanity.image'
 
 export async function GET(_: Request) {
   const posts = await getRSSFeed()
-
-  console.log(posts)
 
   const feed = new Feed({
     title: `${process.env.NEXT_PUBLIC_APP_NAME} - All News`,
@@ -37,13 +36,13 @@ export async function GET(_: Request) {
       link: `${HOME_DOMAIN}/${post.slug}`,
       description: post.excerpt,
       author,
-      date: new Date(post._updatedAt),
-      published: new Date(post.publishedAt),
+      date: new Date(post.publishedAt),
       ...(post.division && {
         category: [
           { name: post.division.name, domain: `${HOME_DOMAIN}/news/${post.division.slug}` },
         ],
       }),
+      image: urlForImage(post.mainImage).url(),
     })
   })
 
