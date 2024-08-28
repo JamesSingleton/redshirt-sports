@@ -20,6 +20,11 @@ export async function GET(_: Request) {
     feedLinks: {
       rss: `${HOME_DOMAIN}/api/rss/feed.xml`,
     },
+    author: {
+      name: `${process.env.NEXT_PUBLIC_APP_NAME}`,
+      email: 'contact@redshirtsports.xyz',
+      link: HOME_DOMAIN,
+    },
   })
 
   posts.forEach((post) => {
