@@ -262,3 +262,26 @@ export function getLastThreePosts() {
     tags: ['post'],
   })
 }
+
+export function getRSSFeed() {
+  return client.fetch<Post[]>(
+    `*[_type == 'post' && defined(slug.current)] | order(publishedAt desc) {
+      _id,
+      _updatedAt,
+      title,
+      publishedAt,
+      "slug": slug.current,
+      mainImage,
+      excerpt,
+      body,
+      "author": author->{name, "slug": slug.current},
+      "authors": authors[]->{name, "slug": slug.current},
+      division->{
+        name,
+        "slug": slug.current,
+      },
+    }`,
+    {},
+    { token, perspective: 'published', cache: 'no-store' },
+  )
+}

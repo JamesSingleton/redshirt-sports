@@ -60,6 +60,9 @@ export function constructMetadata({
     metadataBase: new URL(HOME_DOMAIN),
     alternates: {
       canonical: new URL(canonical, HOME_DOMAIN).toString(),
+      types: {
+        'application/rss+xml': new URL('/api/rss/feed.xml', HOME_DOMAIN).toString(),
+      },
     },
     robots: {
       index: true,
