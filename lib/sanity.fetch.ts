@@ -110,6 +110,7 @@ export function getPostsForNewsSitemap() {
       _updatedAt,
       publishedAt,
       "slug": slug.current,
+      title
     }`,
     {},
     { token, perspective: 'published', cache: 'no-store' },

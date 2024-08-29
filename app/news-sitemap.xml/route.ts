@@ -4,6 +4,24 @@ import { HOME_DOMAIN } from '@/lib/constants'
 import { getPostsForNewsSitemap } from '@/lib/sanity.fetch'
 import type { SitemapContent } from '@/types'
 
+function escapeXml(unsafe: string): string {
+  return unsafe.replace(/[<>&'"]/g, function (c) {
+    switch (c) {
+      case '<':
+        return '&lt;'
+      case '>':
+        return '&gt;'
+      case '&':
+        return '&amp;'
+      case "'":
+        return '&apos;'
+      case '"':
+        return '&quot;'
+    }
+    return c
+  })
+}
+
 function generateSitemapXml(posts: SitemapContent[]) {
   return `<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -19,7 +37,7 @@ function generateSitemapXml(posts: SitemapContent[]) {
               <news:language>en</news:language>
             </news:publication>
             <news:publication_date>${post.publishedAt}</news:publication_date>
-            <news:title>${post.title}</news:title>
+            <news:title>${escapeXml(post.title)}</news:title>
           </news:news>
         </url>
       `,
