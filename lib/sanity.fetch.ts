@@ -92,7 +92,20 @@ export function getPostBySlug(slug: string) {
 
 export function getPostsForSitemap() {
   return client.fetch<SitemapContent[]>(
-    `*[_type == 'post' && defined(slug.current)]{
+    `*[_type == 'post' && defined(slug.current)] | order(publishedAt desc){
+      _id,
+      _updatedAt,
+      publishedAt,
+      "slug": slug.current,
+    }`,
+    {},
+    { token, perspective: 'published', cache: 'no-store' },
+  )
+}
+
+export function getPostsForNewsSitemap() {
+  return client.fetch<SitemapContent[]>(
+    `*[_type == 'post' && defined(slug.current)] | order(publishedAt desc){
       _id,
       _updatedAt,
       publishedAt,

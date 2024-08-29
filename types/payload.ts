@@ -129,6 +129,7 @@ export type SitemapContent = {
   _updatedAt: string
   publishedAt: string
   slug: string
+  title: string
 }
 
 export interface SitemapPayload {
