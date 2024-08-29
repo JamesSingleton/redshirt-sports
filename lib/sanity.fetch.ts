@@ -105,14 +105,16 @@ export function getPostsForSitemap() {
 
 export function getPostsForNewsSitemap() {
   return client.fetch<SitemapContent[]>(
-    `*[_type == 'post' && defined(slug.current)] | order(publishedAt desc){
+    `*[_type == 'post' && defined(slug.current) && dateTime(publishedAt) > dateTime(now()) - $lasts2DaysInSeconds] | order(publishedAt desc){
       _id,
       _updatedAt,
       publishedAt,
       "slug": slug.current,
       title
     }`,
-    {},
+    {
+      lasts2DaysInSeconds: 60 * 60 * 24 * 2,
+    },
     { token, perspective: 'published', cache: 'no-store' },
   )
 }
