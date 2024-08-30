@@ -9,12 +9,7 @@ export const AuthorItem = (author: Author) => {
   return (
     <div className="flex min-h-10 flex-row items-center justify-start gap-3 p-0">
       <SanityImage
-        src={urlForImage(author.image)
-          ?.height(36)
-          .width(36)
-          .ignoreImageParams()
-          .crop('entropy')
-          .url()}
+        src={urlForImage(author.image).height(36).width(36).url()}
         alt={author.name}
         className="relative h-9 w-9 rounded-full align-top"
         width={36}
