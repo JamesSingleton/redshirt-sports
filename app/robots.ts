@@ -6,8 +6,18 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
-      allow: ['/', '/api/rss/feed.xml'],
-      disallow: ['/_next/image', '/api/', '/studio/', '/vote/', '/sign-in/', '/sign-up/'],
+      allow: ['/'],
+      disallow: [
+        '/_next/image',
+        '/api/cron/',
+        '/api/revalidate/',
+        '/api/vote/',
+        '/api/webhooks/',
+        '/studio/',
+        '/vote/',
+        '/sign-in/',
+        '/sign-up/',
+      ],
     },
     sitemap: [
       `${HOME_DOMAIN}/sitemap.xml`,
