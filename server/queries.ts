@@ -1,6 +1,7 @@
 import 'server-only'
 import { auth } from '@clerk/nextjs/server'
-import { desc, asc } from 'drizzle-orm'
+import { desc, asc, sql } from 'drizzle-orm'
+import { weeklyFinalRankings } from './db/schema'
 
 import { db } from '@/server/db'
 
@@ -90,12 +91,13 @@ export async function getFinalRankingsForWeekAndYear({
 }
 
 export async function getYearsThatHaveVotes({ division }: { division: string }) {
-  const yearsWithVotes = await db.query.weeklyFinalRankings.findMany({
-    columns: {
-      year: true,
-    },
-    where: (model, { eq }) => eq(model.division, division),
-  })
+  const yearsWithVotes = await db
+    .select({
+      year: sql<number>`DISTINCT ${weeklyFinalRankings.year}`,
+    })
+    .from(weeklyFinalRankings)
+    .where(sql`${weeklyFinalRankings.division} = ${division}`)
+    .orderBy(sql`${weeklyFinalRankings.year} DESC`)
 
   return yearsWithVotes
 }

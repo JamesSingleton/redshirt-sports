@@ -33,7 +33,7 @@ export const RankingsFilters = ({ years, weeks }: { years: Year[]; weeks: Week[]
     <>
       <Select onValueChange={handleYearChange} value={year as string}>
         <SelectTrigger id="year" aria-label="Year">
-          <SelectValue placeholder="2024" />
+          <SelectValue placeholder={year} />
         </SelectTrigger>
         <SelectContent>
           {years.map(({ year }: Year) => (
