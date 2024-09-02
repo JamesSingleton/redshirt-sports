@@ -1,6 +1,6 @@
 import 'server-only'
 import { auth } from '@clerk/nextjs/server'
-import { desc, asc, sql } from 'drizzle-orm'
+import { desc } from 'drizzle-orm'
 import { weeklyFinalRankings } from './db/schema'
 
 import { db } from '@/server/db'
@@ -91,15 +91,13 @@ export async function getFinalRankingsForWeekAndYear({
 }
 
 export async function getYearsThatHaveVotes({ division }: { division: string }) {
-  const yearsWithVotes = await db
-    .select({
-      year: sql<number>`DISTINCT ${weeklyFinalRankings.year}`,
+  const distinctYearsWithVotes = await db
+    .selectDistinct({
+      year: weeklyFinalRankings.year,
     })
     .from(weeklyFinalRankings)
-    .where(sql`${weeklyFinalRankings.division} = ${division}`)
-    .orderBy(sql`${weeklyFinalRankings.year} DESC`)
 
-  return yearsWithVotes
+  return distinctYearsWithVotes
 }
 
 export async function getWeeksThatHaveVotes({
