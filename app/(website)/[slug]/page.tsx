@@ -110,6 +110,60 @@ export default async function Page({ params }: PageProps) {
       ? [post.division.name, ...post.conferences.map((conference) => conference.name)]
       : undefined
 
+  const authorField =
+    post.authors !== null
+      ? post.authors.map((author) => {
+          return {
+            '@type': 'Person',
+            '@id': `${HOME_DOMAIN}/authors/${author.slug}#author`,
+            name: author.name,
+            image: {
+              '@type': 'ImageObject',
+              url: urlForImage(author.image).width(96).height(96).url(),
+              inLanguage: 'en-US',
+              contentUrl: urlForImage(author.image).width(96).height(96).url(),
+              width: '96',
+              height: '96',
+              caption: author.name,
+            },
+            description: author.biography,
+            sameAs: author.socialMedia
+              .filter((social) => social.name !== 'Email')
+              .map((social) => social.url),
+            url: `${HOME_DOMAIN}/authors/${author.slug}`,
+            ...(author.collegeOrUniversity && {
+              alumniOf: {
+                '@type': 'CollegeOrUniversity',
+                name: author.collegeOrUniversity,
+              },
+            }),
+          }
+        })
+      : {
+          '@id': `${HOME_DOMAIN}/authors/${post.author.slug}#author`,
+          name: post.author.name,
+          image: {
+            '@type': 'ImageObject',
+            url: urlForImage(post.author.image).width(96).height(96).url(),
+            inLanguage: 'en-US',
+            contentUrl: urlForImage(post.author.image).width(96).height(96).url(),
+            width: '96',
+            height: '96',
+            caption: post.author.name,
+          },
+          description: post.author.biography,
+          sameAs: post.author.socialMedia
+            .filter((social) => social.name !== 'Email')
+            .map((social) => social.url),
+          url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
+          ...(post.author.collegeOrUniversity && {
+            alumniOf: {
+              '@type': 'CollegeOrUniversity',
+              name: post.author.collegeOrUniversity,
+            },
+          }),
+        }
+
   const jsonLd: Graph = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -118,8 +172,13 @@ export default async function Page({ params }: PageProps) {
       {
         '@type': 'NewsArticle',
         '@id': `${HOME_DOMAIN}/${post.slug}#article`,
-        isPartOf: {
-          '@id': `${HOME_DOMAIN}/${post.slug}`,
+        mainEntityOfPage: {
+          '@id': `${HOME_DOMAIN}/${post.slug}#webpage`,
+        },
+        headline: post.title,
+        speakable: {
+          '@type': 'SpeakableSpecification',
+          cssSelector: ['#article-title', '#article-excerpt'],
         },
         image: {
           '@type': 'ImageObject',
@@ -129,31 +188,40 @@ export default async function Page({ params }: PageProps) {
           width: '1200',
           height: '630',
         },
-        author: {
-          name: post.author.name,
-          '@id': `${HOME_DOMAIN}/authors/${post.author.slug}#author`,
-        },
-        headline: post.title,
         datePublished: post.publishedAt,
         dateModified: post._updatedAt,
-        mainEntityOfPage: {
-          '@id': `${HOME_DOMAIN}/${post.slug}`,
-        },
+        author: authorField,
         wordCount: post.wordCount,
         publisher: {
           '@id': `${HOME_DOMAIN}#organization`,
         },
         keywords: keywords,
         articleSection: articleSections,
+        about: [
+          {
+            '@type': 'Thing',
+            name: `${post.division.name} Football`,
+          },
+        ],
         inLanguage: 'en-US',
         copyrightYear: getYear(parseISO(post.publishedAt)),
         copyrightHolder: {
           '@id': `${HOME_DOMAIN}#organization`,
         },
+        description: post.excerpt,
+        ...(post.teams !== null && {
+          mentions: post.teams.map((team) => {
+            return {
+              '@type': 'SportsTeam',
+              name:
+                team.nickname && team.shortName ? `${team.shortName} ${team.nickname}` : team.name,
+            }
+          }),
+        }),
       },
       {
         '@type': 'WebPage',
-        '@id': `${HOME_DOMAIN}/${post.slug}`,
+        '@id': `${HOME_DOMAIN}/${post.slug}#webpage`,
         url: `${HOME_DOMAIN}/${post.slug}`,
         name: post.title,
         isPartOf: {
@@ -198,23 +266,6 @@ export default async function Page({ params }: PageProps) {
           },
         ],
       },
-      {
-        '@type': 'Person',
-        '@id': `${HOME_DOMAIN}/authors/${post.author.slug}#author`,
-        name: post.author.name,
-        image: {
-          '@type': 'ImageObject',
-          url: urlForImage(post.author.image).width(96).height(96).url(),
-          inLanguage: 'en-US',
-          contentUrl: urlForImage(post.author.image).width(96).height(96).url(),
-          width: '96',
-          height: '96',
-          caption: post.author.name,
-        },
-        description: post.author.biography,
-        sameAs: post.author.socialMedia.map((social) => social.url),
-        url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
-      },
     ],
   }
 
@@ -228,10 +279,15 @@ export default async function Page({ params }: PageProps) {
         <div className="container">
           <div className="md:max-w-3xl xl:max-w-5xl">
             <BreadCrumbs breadCrumbPages={breadcrumbs} />
-            <h1 className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
+            <h1
+              id="article-title"
+              className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl"
+            >
               {post.title}
             </h1>
-            <p className="mt-4 text-lg font-normal lg:text-xl">{post.excerpt}</p>
+            <p id="article-excerpt" className="mt-4 text-lg font-normal lg:text-xl">
+              {post.excerpt}
+            </p>
             <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-10">
               {(post.division || post.conferences) && (
                 <>

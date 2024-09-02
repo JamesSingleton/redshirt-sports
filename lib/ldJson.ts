@@ -70,4 +70,12 @@ export const Web: WebSite = {
     // @ts-ignore this is a valid property
     'query-input': 'required name=search_term_string',
   },
+  image: {
+    '@id': `${HOME_DOMAIN}/#logo`,
+  },
+  sameAs: [
+    'https://www.facebook.com/RedshirtSportsNews',
+    'https://x.com/_redshirtsports',
+    'https://www.youtube.com/@Redshirt-Sports',
+  ],
 }

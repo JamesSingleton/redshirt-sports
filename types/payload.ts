@@ -28,6 +28,12 @@ export interface PostPayload {
     slug: string
   }
   conferences: Conference[]
+  teams: {
+    _id: string
+    name: string
+    shortName: string
+    nickname?: string
+  }[]
   slug: string
   author: Author
   authors: Author[]

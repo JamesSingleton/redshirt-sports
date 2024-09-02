@@ -20,6 +20,7 @@ export type Author = {
       url: string
     },
   ]
+  collegeOrUniversity?: string
 }
 
 export type AuthorPosts = {

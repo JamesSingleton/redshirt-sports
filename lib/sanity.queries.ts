@@ -55,15 +55,33 @@ const postFields = `
     "slug": slug.current,
   },
   "slug": slug.current,
-  "author": author->{name, 'slug': slug.current, bio, roles, socialMedia, image, archived},
+  "author": author->{
+    name,
+    'slug': slug.current,
+    biography,
+    roles,
+    socialMedia,
+    image,
+    archived,
+    'collegeOrUniversity': collegeOrUniversity->name
+  },
   authors[]->{
     name,
     'slug': slug.current,
+    biography,
     roles,
+    socialMedia,
     image,
     archived,
+    'collegeOrUniversity': collegeOrUniversity->name
   },
   excerpt,
+  teams[]->{
+    _id,
+    name,
+    shortName,
+    nickname
+  },
   body[]{
     ...,
     markDefs[]{

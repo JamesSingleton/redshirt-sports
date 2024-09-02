@@ -27,6 +27,12 @@ export default defineType({
       description: 'The abbreviation or shorter version of the college or university. i.e. VMI',
     }),
     defineField({
+      name: 'nickname',
+      title: 'Nickname',
+      description: 'The nickname of the college or university. i.e. Keydets',
+      type: 'string',
+    }),
+    defineField({
       name: 'image',
       title: 'Image',
       type: 'image',

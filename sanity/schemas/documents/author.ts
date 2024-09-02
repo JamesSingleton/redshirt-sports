@@ -77,6 +77,13 @@ export default defineType({
       },
     }),
     defineField({
+      name: 'collegeOrUniversity',
+      title: 'College or University',
+      description: 'The college or university you graduated from.',
+      type: 'reference',
+      to: [{ type: 'school' }],
+    }),
+    defineField({
       name: 'socialMedia',
       title: 'Social Media',
       type: 'array',
