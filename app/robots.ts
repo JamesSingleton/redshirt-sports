@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
-      allow: ['/', '/api/rss/'],
+      allow: ['/', '/api/rss/feed.xml'],
       disallow: ['/_next/image', '/api/', '/studio/', '/vote/', '/sign-in/', '/sign-up/'],
     },
     sitemap: [
