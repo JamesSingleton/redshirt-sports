@@ -46,6 +46,13 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'top25VotingEligible',
+      title: 'Top 25 Voting Eligible',
+      type: 'boolean',
+      description: 'Is this school eligible to be voted on in the Top 25?',
+      initialValue: true,
+    }),
+    defineField({
       title: 'Division',
       name: 'division',
       description: 'What division is this school in?',

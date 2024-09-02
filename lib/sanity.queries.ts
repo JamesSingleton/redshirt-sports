@@ -380,7 +380,7 @@ export const openGraphDataBySlug = groq`
 `
 
 export const schoolsByDivision = groq`
-*[_type == "school" && division->slug.current == $division]| order(shortName asc){
+*[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){
   _id,
   name,
   shortName,
