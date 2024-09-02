@@ -37,7 +37,7 @@ const divisionHeader = [
     division: 'fcs',
     title: 'Football Championship Subdivision (FCS)',
     subtitle:
-      'Cast your vote for the top 25 Football Championship Subdivision (FCS) football teams.',
+      'Cast your vote for the top 25 playoff eligible Football Championship Subdivision (FCS) football teams.',
   },
   {
     division: 'd2',
