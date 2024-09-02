@@ -15,10 +15,10 @@ export default function Loading() {
       <Card className="w-full">
         <CardHeader>
           <Skeleton className="h-8 w-3/4 max-w-md" />
-          <CardDescription className="flex items-center space-x-4 pt-4">
-            <Skeleton className="h-10 w-32" />
-            <Skeleton className="h-10 w-32" />
-          </CardDescription>
+          <div className="flex items-center space-x-4 pt-4">
+            <Skeleton className="h-10 w-1/2" />
+            <Skeleton className="h-10 w-1/2" />
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -55,9 +55,9 @@ export default function Loading() {
       <Card className="mt-8 w-full">
         <CardHeader>
           <Skeleton className="h-8 w-1/2 max-w-md" />
-          <CardDescription>
+          <div>
             <Skeleton className="h-6 w-3/4" />
-          </CardDescription>
+          </div>
         </CardHeader>
         <CardContent className="grid gap-4 p-6">
           <Table>
