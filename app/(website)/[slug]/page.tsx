@@ -197,12 +197,6 @@ export default async function Page({ params }: PageProps) {
         },
         keywords: keywords,
         articleSection: articleSections,
-        about: [
-          {
-            '@type': 'Thing',
-            name: `${post.division.name} Football`,
-          },
-        ],
         inLanguage: 'en-US',
         copyrightYear: getYear(parseISO(post.publishedAt)),
         copyrightHolder: {
