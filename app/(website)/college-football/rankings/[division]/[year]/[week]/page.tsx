@@ -121,6 +121,10 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
       <Card className="w-full">
         <CardHeader>
           <h1 className="text-2xl font-semibold leading-none tracking-tight">{`${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
+          <CardDescription>
+            Our {division.toUpperCase()} Top 25 uses a point system: 25 points for a first-place
+            vote down to 1 point for a 25th-place vote. Total points determine the final rankings.
+          </CardDescription>
           <CardDescription className="flex items-center space-x-4 pt-4">
             <RankingsFilters years={yearsWithVotes} weeks={weeksWithVotes} />
           </CardDescription>
