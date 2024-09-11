@@ -16,7 +16,7 @@
     "db:studio": "drizzle-kit studio --verbose"
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.4.1",
+    "@clerk/nextjs": "^5.5.2",
     "@hookform/resolvers": "^3.9.0",
     "@nivo/pie": "^0.87.0",
     "@planetary/sanity-plugin-preflight": "^1.1.1",
@@ -36,8 +36,8 @@
     "@sanity/icons": "^3.4.0",
     "@sanity/image-url": "^1.0.2",
     "@sanity/ui": "^2.8.9",
-    "@sanity/vision": "^3.57.1",
-    "@sentry/nextjs": "^8.28.0",
+    "@sanity/vision": "^3.57.2",
+    "@sentry/nextjs": "^8.30.0",
     "@t3-oss/env-nextjs": "^0.11.1",
     "@tanstack/react-virtual": "^3.10.7",
     "@upstash/ratelimit": "^2.0.2",
@@ -56,7 +56,7 @@
     "htm": "^3.1.1",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.439.0",
-    "next": "^14.2.8",
+    "next": "^14.2.9",
     "next-plausible": "^3.12.2",
     "next-sanity": "^9.4.7",
     "next-themes": "^0.3.0",
@@ -65,7 +65,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.53.0",
     "react-tweet": "^3.2.0",
-    "sanity": "^3.57.1",
+    "sanity": "^3.57.2",
     "sanity-image": "^0.1.9",
     "sanity-plugin-documents-pane": "^2.3.0",
     "sanity-plugin-media": "^2.3.2",
@@ -90,13 +90,13 @@
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.24.2",
     "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.8",
+    "eslint-config-next": "^14.2.9",
     "eslint-config-prettier": "^9.1.0",
     "postcss": "^8.4.45",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
     "tailwindcss": "^3.4.10",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.2"
   }
 }
