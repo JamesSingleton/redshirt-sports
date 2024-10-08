@@ -29,5 +29,6 @@ export type BallotsByVoter = {
 export type VoterBreakdown = {
   name: string
   organization: string
+  organizationRole: string
   ballot: VoteWithExtraData[]
 }

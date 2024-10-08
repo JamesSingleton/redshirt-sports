@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-import { Card, CardHeader, CardDescription, CardContent } from '@/components/ui/card'
+import { Card, CardHeader, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { buttonVariants } from '@/components/ui/button'
 import {
   Table,
@@ -17,7 +17,6 @@ import {
   getVotesForWeekAndYearByVoter,
   getYearsThatHaveVotes,
 } from '@/server/queries'
-import VoterBreakdown from './_components/voter-breakdown'
 import { processVoterBallots } from '@/utils/process-ballots'
 import { RankingsFilters } from './_components/filters'
 import { constructMetadata } from '@/utils/construct-metadata'
@@ -118,7 +117,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Card className="w-full">
+      <Card>
         <CardHeader>
           <h1 className="text-2xl font-semibold leading-none tracking-tight">{`${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
           <CardDescription>
@@ -167,14 +166,6 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
               </TableBody>
             </Table>
           )}
-          {outsideTop25.length > 0 && (
-            <div className="mt-4">
-              <p>
-                <strong>Others receiving votes:</strong>{' '}
-                {outsideTop25.map((team) => `${team.shortName} ${team._points}`).join(', ')}
-              </p>
-            </div>
-          )}
           {top25.length === 0 && (
             <div className="mx-auto max-w-md text-center">
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
@@ -192,17 +183,63 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
             </div>
           )}
         </CardContent>
+        <CardFooter>
+          {outsideTop25.length > 0 && (
+            <div className="mt-4">
+              <p>
+                <strong>Others receiving votes:</strong>{' '}
+                {outsideTop25.map((team) => `${team.shortName} ${team._points}`).join(', ')}
+              </p>
+            </div>
+          )}
+        </CardFooter>
       </Card>
       {top25.length > 0 && voterBreakdown.length > 0 && (
-        <Card className="mt-8 w-full">
+        <Card className="mt-8">
           <CardHeader>
             <h2 className="text-2xl font-semibold leading-none tracking-tight">Voter Breakdown</h2>
             <CardDescription>
               See how each voter cast their ballot for this week&apos;s rankings.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 p-6">
-            <VoterBreakdown voterBreakdown={voterBreakdown} />
+          <CardContent>
+            <div className="relative overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="sticky left-0 z-20 bg-background">Voter</TableHead>
+                    {[...Array(25)].map((_, i) => (
+                      <TableHead key={i} className="text-center">
+                        {i + 1}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {voterBreakdown.map((voter, index) => {
+                    return (
+                      <TableRow key={index}>
+                        <TableCell className="sticky left-0 z-10 min-w-32 bg-background font-medium">
+                          <div>{voter.name}</div>
+                          <div className="text-sm italic text-muted-foreground">
+                            {`${voter.organization} (${voter.organizationRole})`}
+                          </div>
+                        </TableCell>
+                        {voter.ballot.map((vote: any) => {
+                          return (
+                            <TableCell key={vote._id}>
+                              <div className="h-auto w-10">
+                                <SanityImage src={vote.image} width={40} height={40} />
+                              </div>
+                            </TableCell>
+                          )
+                        })}
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       )}

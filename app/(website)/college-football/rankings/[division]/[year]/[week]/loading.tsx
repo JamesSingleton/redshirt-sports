@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 export default function Loading() {
   return (
     <>
-      <Card className="w-full">
+      <Card>
         <CardHeader>
           <Skeleton className="h-8 w-3/4 max-w-md" />
           <div className="flex items-center space-x-4 pt-4">
@@ -52,7 +52,7 @@ export default function Loading() {
         </CardContent>
       </Card>
 
-      <Card className="mt-8 w-full">
+      <Card className="mt-8">
         <CardHeader>
           <Skeleton className="h-8 w-1/2 max-w-md" />
           <div>
