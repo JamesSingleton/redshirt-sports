@@ -31,6 +31,7 @@ interface VirtualizedCommandProps {
   options: Option[]
   placeholder: string
   selectedOption: string
+  selectedOptions: string[]
   onSelectOption?: (option: string) => void
 }
 
@@ -39,9 +40,12 @@ const VirtualizedCommand = ({
   options,
   placeholder,
   selectedOption,
+  selectedOptions,
   onSelectOption,
 }: VirtualizedCommandProps) => {
-  const [filteredOptions, setFilteredOptions] = React.useState<Option[]>(options)
+  const [filteredOptions, setFilteredOptions] = React.useState<Option[]>(
+    options.filter((option) => !selectedOptions.includes(option._id)),
+  )
   const parentRef = React.useRef(null)
 
   const virtualizer = useVirtualizer({
@@ -54,9 +58,12 @@ const VirtualizedCommand = ({
   const virtualOptions = virtualizer.getVirtualItems()
 
   const handleSearch = (search: string) => {
-    const fuse = new Fuse(options, {
-      keys: ['name', 'shortName', 'abbreviation'],
-    })
+    const fuse = new Fuse(
+      options.filter((option) => !selectedOptions.includes(option._id)),
+      {
+        keys: ['name', 'shortName', 'abbreviation'],
+      },
+    )
 
     setFilteredOptions(fuse.search(search).map((result) => result.item))
   }
@@ -68,7 +75,7 @@ const VirtualizedCommand = ({
   }
 
   return (
-    <Command shouldFilter={false} onKeyDown={handleKeyDown}>
+    <Command shouldFilter={false}>
       <CommandInput onValueChange={handleSearch} placeholder={placeholder} />
       <CommandList className="max-h-fit">
         <CommandEmpty>No school found.</CommandEmpty>
@@ -134,6 +141,7 @@ interface VirtualizedComboboxProps {
   width?: string
   height?: string
   onChange?: (value: string) => void
+  selectedOptions: string[]
 }
 
 export function VirtualizedCombobox({
@@ -142,9 +150,12 @@ export function VirtualizedCombobox({
   width = '400px',
   height = '400px',
   onChange,
+  selectedOptions,
 }: VirtualizedComboboxProps) {
   const [open, setOpen] = React.useState<boolean>(false)
   const [selectedOption, setSelectedOption] = React.useState<string>('')
+
+  const availableOptions = options.filter((option) => !selectedOptions.includes(option._id))
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -178,9 +189,10 @@ export function VirtualizedCombobox({
       <PopoverContent className="p-0" style={{ width: width }}>
         <VirtualizedCommand
           height={height}
-          options={options}
+          options={availableOptions}
           placeholder={searchPlaceholder}
           selectedOption={selectedOption}
+          selectedOptions={selectedOptions}
           onSelectOption={(currentValue) => {
             setSelectedOption(currentValue === selectedOption ? '' : currentValue)
             onChange?.(currentValue)

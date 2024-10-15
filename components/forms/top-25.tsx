@@ -124,6 +124,7 @@ const Top25 = ({ schools }: Top25FormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
+  const selectedValues = Object.values(form.watch()).filter(Boolean) as string[]
 
   const params = useParams()
   const { division } = params as { division?: 'fbs' | 'fcs' | 'd2' | 'd3' }
@@ -166,7 +167,11 @@ const Top25 = ({ schools }: Top25FormProps) => {
               <FormItem className="flex flex-col">
                 <FormLabel>Rank {index + 1}</FormLabel>
                 <FormControl>
-                  <VirtualizedCombobox options={schools} onChange={field.onChange} />
+                  <VirtualizedCombobox
+                    options={schools}
+                    onChange={field.onChange}
+                    selectedOptions={selectedValues}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
