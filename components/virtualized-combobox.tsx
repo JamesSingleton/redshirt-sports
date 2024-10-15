@@ -68,12 +68,6 @@ const VirtualizedCommand = ({
     setFilteredOptions(fuse.search(search).map((result) => result.item))
   }
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault()
-    }
-  }
-
   return (
     <Command shouldFilter={false}>
       <CommandInput onValueChange={handleSearch} placeholder={placeholder} />
