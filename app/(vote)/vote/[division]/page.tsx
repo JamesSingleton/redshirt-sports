@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import Image from 'next/image'
+import { auth } from '@clerk/nextjs/server'
 
 import { getSchoolsByDivision } from '@/lib/sanity.fetch'
 import Top25 from '@/components/forms/top-25'
@@ -15,27 +16,6 @@ export async function generateStaticParams() {
   const divisions = ['fbs', 'fcs', 'd2', 'd3']
 
   return divisions.map((division) => ({ division }))
-}
-
-const previousBallots = {
-  'Week 10': [
-    { name: 'North Dakota State', logo: '/placeholder.svg?height=32&width=32' },
-    { name: 'South Dakota State', logo: '/placeholder.svg?height=32&width=32' },
-    { name: 'Montana State', logo: '/placeholder.svg?height=32&width=32' },
-    // ... (include all 25 teams)
-  ],
-  'Week 9': [
-    { name: 'South Dakota State', logo: '/placeholder.svg?height=32&width=32' },
-    { name: 'North Dakota State', logo: '/placeholder.svg?height=32&width=32' },
-    { name: 'Montana State', logo: '/placeholder.svg?height=32&width=32' },
-    // ... (include all 25 teams)
-  ],
-  'Week 8': [
-    { name: 'Montana State', logo: '/placeholder.svg?height=32&width=32' },
-    { name: 'North Dakota State', logo: '/placeholder.svg?height=32&width=32' },
-    { name: 'South Dakota State', logo: '/placeholder.svg?height=32&width=32' },
-    // ... (include all 25 teams)
-  ],
 }
 
 export const metadata: Metadata = {
@@ -80,6 +60,7 @@ export default async function VotePage({ params }: { params: { division: string 
   const votingWeek = await getCurrentWeek()
   const { year } = await getCurrentSeason()
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
+  const { userId } = auth()
 
   const schools = await getSchoolsByDivision(division)
 
@@ -87,10 +68,10 @@ export default async function VotePage({ params }: { params: { division: string 
     redirect(`/vote/${division}/confirmation`)
   }
 
-  if (!schools) {
+  if (!schools || !userId) {
     notFound()
   }
-  const userId = 'user_2kA12TfW2tSo9VYay01FzIUrEVh'
+
   const latestBallot = await getLatestVoterBallotWithSchools(userId, division)
   const header = divisionHeader.find((d) => d.division === division)
   const { title, subtitle } = header || { title: '', subtitle: '' }
@@ -103,13 +84,13 @@ export default async function VotePage({ params }: { params: { division: string 
           <p className="text-lg text-muted-foreground">{subtitle}</p>
         </div>
       )}
-      <div className="flex flex-col gap-6 lg:flex-row">
-        <Card className="flex-1">
-          <CardHeader>
-            <CardTitle>Previous Ballot</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+      <div className="flex flex-col gap-6 pt-4 lg:flex-row">
+        {latestBallot.length > 0 && (
+          <Card className="flex-1">
+            <CardHeader>
+              <CardTitle>Previous Ballot</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               {latestBallot.map((team, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <span className="w-8 text-right font-bold">{index + 1}.</span>
@@ -125,14 +106,14 @@ export default async function VotePage({ params }: { params: { division: string 
                   </div>
                 </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
         <Card className="flex-1">
           <CardHeader>
-            <CardTitle>Current Week's Ballot</CardTitle>
+            <CardTitle>New Ballot Submission</CardTitle>
           </CardHeader>
-          <CardContent className="pr-4">
+          <CardContent>
             <Top25 schools={schools} />
           </CardContent>
         </Card>
