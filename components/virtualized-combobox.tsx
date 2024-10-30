@@ -141,7 +141,7 @@ interface VirtualizedComboboxProps {
 export function VirtualizedCombobox({
   options,
   searchPlaceholder = 'Select a school...',
-  width = '400px',
+  width = '350px',
   height = '400px',
   onChange,
   selectedOptions,
@@ -154,15 +154,7 @@ export function VirtualizedCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="justify-between"
-          style={{
-            width: width,
-          }}
-        >
+        <Button variant="outline" role="combobox" aria-expanded={open} className="justify-between">
           {options.find((option) => option._id === selectedOption)?.image ? (
             <span className="inline-flex items-center">
               <SanityImage
@@ -180,7 +172,7 @@ export function VirtualizedCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0" style={{ width: width }}>
+      <PopoverContent className="p-0">
         <VirtualizedCommand
           height={height}
           options={availableOptions}

@@ -1,9 +1,10 @@
 import 'server-only'
 import { auth } from '@clerk/nextjs/server'
-import { desc } from 'drizzle-orm'
-import { weeklyFinalRankings } from './db/schema'
+import { desc, eq, and, sql } from 'drizzle-orm'
+import { weeklyFinalRankings, voterBallots } from './db/schema'
 
 import { db } from '@/server/db'
+import { client } from '@/lib/sanity.client'
 
 interface GetUsersVote {
   year: number
@@ -185,4 +186,85 @@ export async function getLatestFinalRankings({ division }: { division: string })
   })
 
   return latestWeeklyRankings
+}
+
+type VoterBallotWithSchool = {
+  id: number
+  userId: string
+  division: string
+  week: number
+  year: number
+  createdAt: Date
+  teamId: string
+  rank: number
+  points: number
+  schoolName: string
+  schoolShortName: string
+  schoolAbbreviation: string
+  schoolNickname: string
+  schoolImageUrl: string
+}
+
+export async function getLatestVoterBallotWithSchools(
+  userId: string,
+  division: string,
+): Promise<VoterBallotWithSchool[]> {
+  // First, fetch the latest ballot metadata
+  const latestBallotMeta = await db
+    .select({
+      week: voterBallots.week,
+      year: voterBallots.year,
+      createdAt: voterBallots.createdAt,
+    })
+    .from(voterBallots)
+    .where(and(eq(voterBallots.userId, userId), eq(voterBallots.division, division)))
+    .orderBy(desc(voterBallots.createdAt))
+    .limit(1)
+
+  if (latestBallotMeta.length === 0) {
+    return [] // No ballot found
+  }
+
+  const { week, year, createdAt } = latestBallotMeta[0]
+
+  // Fetch all 25 entries for the latest ballot
+  const ballots = await db
+    .select()
+    .from(voterBallots)
+    .where(
+      and(
+        eq(voterBallots.userId, userId),
+        eq(voterBallots.division, division),
+        eq(voterBallots.week, week),
+        eq(voterBallots.year, year),
+      ),
+    )
+    .orderBy(voterBallots.rank)
+
+  // Fetch school information from Sanity
+  const schoolIds = ballots.map((ballot) => ballot.teamId)
+  const schoolsQuery = `*[_type == "school" && _id in $schoolIds]{
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    nickname,
+    "imageUrl": image.asset->url
+  }`
+  const schools = await client.fetch(schoolsQuery, { schoolIds })
+
+  // Combine the ballot data with school information
+  const ballotsWithSchools: VoterBallotWithSchool[] = ballots.map((ballot) => {
+    const school = schools.find((s: any) => s._id === ballot.teamId)
+    return {
+      ...ballot,
+      schoolName: school?.name || '',
+      schoolShortName: school?.shortName || '',
+      schoolAbbreviation: school?.abbreviation || '',
+      schoolNickname: school?.nickname || '',
+      schoolImageUrl: school?.imageUrl || '',
+    }
+  })
+
+  return ballotsWithSchools
 }

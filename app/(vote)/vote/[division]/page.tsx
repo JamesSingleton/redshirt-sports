@@ -1,12 +1,16 @@
 import { notFound, redirect } from 'next/navigation'
+import Image from 'next/image'
+import { auth } from '@clerk/nextjs/server'
 
 import { getSchoolsByDivision } from '@/lib/sanity.fetch'
 import Top25 from '@/components/forms/top-25'
-import { hasVoterVoted } from '@/server/queries'
+import { getLatestVoterBallotWithSchools, hasVoterVoted } from '@/server/queries'
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
 
 import { type Metadata } from 'next'
 import { getCurrentSeason } from '@/utils/getCurrentSeason'
+import { CardHeader, CardTitle, CardContent, Card } from '@/components/ui/card'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 export async function generateStaticParams() {
   const divisions = ['fbs', 'fcs', 'd2', 'd3']
@@ -56,6 +60,7 @@ export default async function VotePage({ params }: { params: { division: string 
   const votingWeek = await getCurrentWeek()
   const { year } = await getCurrentSeason()
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
+  const { userId } = auth()
 
   const schools = await getSchoolsByDivision(division)
 
@@ -63,9 +68,11 @@ export default async function VotePage({ params }: { params: { division: string 
     redirect(`/vote/${division}/confirmation`)
   }
 
-  if (!schools) {
+  if (!schools || !userId) {
     notFound()
   }
+
+  const latestBallot = await getLatestVoterBallotWithSchools(userId, division)
   const header = divisionHeader.find((d) => d.division === division)
   const { title, subtitle } = header || { title: '', subtitle: '' }
 
@@ -77,8 +84,39 @@ export default async function VotePage({ params }: { params: { division: string 
           <p className="text-lg text-muted-foreground">{subtitle}</p>
         </div>
       )}
-      <div className="mx-auto my-8 max-w-4xl">
-        <Top25 schools={schools} />
+      <div className="flex flex-col gap-6 pt-4 lg:flex-row">
+        {latestBallot.length > 0 && (
+          <Card className="flex-1">
+            <CardHeader>
+              <CardTitle>Previous Ballot</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {latestBallot.map((team, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <span className="w-8 text-right font-bold">{index + 1}.</span>
+                  <div className="flex flex-grow items-center space-x-2">
+                    <Image
+                      src={team.schoolImageUrl}
+                      alt={`${team.schoolName} logo`}
+                      width={32}
+                      height={32}
+                      unoptimized={true}
+                    />
+                    <span>{team.schoolShortName}</span>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+        <Card className="flex-1">
+          <CardHeader>
+            <CardTitle>New Ballot Submission</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Top25 schools={schools} />
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

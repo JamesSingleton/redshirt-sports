@@ -156,7 +156,7 @@ const Top25 = ({ schools }: Top25FormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-max space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto space-y-6">
         {Array.from({ length: 25 }).map((_, index) => (
           <FormField
             key={index}
