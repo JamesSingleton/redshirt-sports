@@ -98,7 +98,7 @@ export async function getYearsThatHaveVotes({ division }: { division: string }) 
     })
     .from(weeklyFinalRankings)
 
-  return distinctYearsWithVotes
+  return distinctYearsWithVotes.sort((a, b) => a.year - b.year)
 }
 
 export async function getWeeksThatHaveVotes({
@@ -115,7 +115,7 @@ export async function getWeeksThatHaveVotes({
     where: (model, { eq, and }) => and(eq(model.year, year), eq(model.division, division)),
   })
 
-  return weeksWithVotes
+  return weeksWithVotes.sort((a, b) => a.week - b.week)
 }
 
 export async function getVotesForWeekAndYearByVoter({
