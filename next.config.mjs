@@ -70,6 +70,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'abs.twimg.com' },
       { protocol: 'https', hostname: 'cdn.sanity.io' },
     ],
+    dangerouslyAllowSVG: true,
   },
   async headers() {
     return [
