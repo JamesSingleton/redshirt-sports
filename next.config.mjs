@@ -69,7 +69,9 @@ const nextConfig = {
       { protocol: 'https', hostname: 'pbs.twimg.com' },
       { protocol: 'https', hostname: 'abs.twimg.com' },
       { protocol: 'https', hostname: 'cdn.sanity.io' },
+      { protocol: 'https', hostname: 'on3static.com' },
     ],
+    dangerouslyAllowSVG: true,
   },
   async headers() {
     return [
