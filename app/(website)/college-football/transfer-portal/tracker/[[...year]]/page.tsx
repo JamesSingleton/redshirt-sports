@@ -1,96 +1,67 @@
-import { notFound } from 'next/navigation'
-import PlayerTracker from './_components/PlayerTracker'
+import Link from 'next/link'
+import { Twitter } from '@/components/icons'
+import { TransferPortal } from './_components/transer-portal'
+// import { getPlayers } from '@/lib/db/utils' // Kept for future use with real data
+import { dummyPlayers } from '@/lib/dummy-data'
+import { type Player } from '@/types/transfer-portal'
 
-type Player = {
-  id: string
-  name: string
-  photo: string
-  class: string
-  height: string
-  weight: number
-  highSchool: string
-  location: string
-  position: string
-  previousTeam: {
-    name: string
-    logo: string
-  }
-  status: 'ENTERED' | 'COMMITTED' | 'WITHDRAWN'
-  date: string
-  division: string
-  year: string
-}
-
-const mockPlayers: Player[] = [
-  {
-    id: '1',
-    name: 'William Stewart',
-    photo:
-      'https://on3static.com/cdn-cgi/image/height=90,width=90/uploads/assets/403/214/214403.jpeg',
-    class: 'SR',
-    height: '5-11',
-    weight: 210,
-    highSchool: 'Lewisburg',
-    location: 'Hernando, MS',
-    position: 'LS',
-    previousTeam: {
-      name: 'Memphis',
-      logo: 'https://on3static.com/uploads/assets/24/150/150024.svg',
-    },
-    status: 'ENTERED',
-    date: '11/15/24',
-    division: 'FBS',
-    year: '2025',
-  },
-  {
-    id: '2',
-    name: 'David Cole',
-    photo:
-      'https://on3static.com/cdn-cgi/image/height=90,width=90/uploads/assets/711/381/381711.jpg',
-    class: 'RS-FR',
-    height: '6-4',
-    weight: 193,
-    highSchool: 'East Hamilton',
-    location: 'Chattanooga, TN',
-    position: 'WR',
-    previousTeam: {
-      name: 'Kennesaw State',
-      logo: 'https://on3static.com/uploads/assets/982/149/149982.svg',
-    },
-    status: 'ENTERED',
-    date: '11/02/24',
-    division: 'FBS',
-    year: '2024',
-  },
-]
-
-export async function generateStaticParams() {
-  const currentYear = new Date().getFullYear()
-
-  return [
-    { year: [] },
-    { year: [currentYear.toString()] },
-    { year: [(currentYear - 1).toString()] },
-  ]
-}
-
-async function getYearData(year: string) {
-  return { year, players: mockPlayers }
-}
-
-export default async function TransferPortalTrackerPage({
-  params,
+export default function Page({
+  searchParams,
 }: {
-  params: { year?: string[] }
+  searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const currentYear = new Date().getFullYear()
-  const year = params.year?.[0] || currentYear.toString()
+  const position = searchParams.position as string
+  const division = searchParams.division as string
+  const year = searchParams.year as string
+  const status = searchParams.status as string
+  const school = searchParams.school as string
+  const page = parseInt((searchParams.page as string) || '1', 10)
+  const limit = parseInt((searchParams.limit as string) || '10', 10)
 
-  if (parseInt(year) < 2020 || parseInt(year) > currentYear) {
-    notFound()
-  }
+  // const players = await getPlayers() // Uncomment this line when ready to use real data
+  const players = dummyPlayers // Using dummy data for now
 
-  const data = await getYearData(year)
+  // Apply filters
+  const filteredPlayers = players.filter(
+    (player: Player) =>
+      (!position || position === 'All' || player.position === position) &&
+      (!division || division === 'All' || player.division === division) &&
+      (!year || year === 'All' || player.year === year) &&
+      (!status || status === 'All' || player.status === status) &&
+      (!school || school === 'All' || player.previousTeam.name === school),
+  )
 
-  return <PlayerTracker year={year} data={data} />
+  // Apply pagination
+  const startIndex = (page - 1) * limit
+  const endIndex = page * limit
+  const paginatedPlayers = filteredPlayers.slice(startIndex, endIndex)
+
+  return (
+    <div className="container mx-auto py-10">
+      <div>
+        <div className="mb-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">College Football Transfer Portal {year}</h1>
+          <Link
+            href="https://x.com/Redshirt_Portal"
+            className="text-brand-500 hover:text-brand-600"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <span className="sr-only">Follow us on Twitter</span>
+            <Twitter className="h-6 w-6" />
+          </Link>
+        </div>
+        <p className="mb-4 text-sm text-muted-foreground">
+          The Transfer Portal lists all college athletes that enter the NCAA Transfer Portal,
+          including data on the previous and new school.
+        </p>
+      </div>
+      <TransferPortal
+        initialPlayers={paginatedPlayers}
+        totalCount={filteredPlayers.length}
+        initialPage={page}
+        initialLimit={limit}
+      />
+    </div>
+  )
 }
