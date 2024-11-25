@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { CheckIcon, LogInIcon, LogOutIcon } from 'lucide-react'
@@ -32,9 +32,9 @@ export function TransferPortal({
 }: TransferPortalProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [players, setPlayers] = React.useState<Player[]>(initialPlayers)
-  const [page, setPage] = React.useState(initialPage)
-  const [limit] = React.useState(initialLimit)
+  const [players, setPlayers] = useState<Player[]>(initialPlayers)
+  const [page, setPage] = useState(initialPage)
+  const [limit] = useState(initialLimit)
 
   const positionFilter = searchParams.get('position')?.toUpperCase() || 'All'
   const divisionFilter = searchParams.get('division') || 'All'
@@ -55,7 +55,7 @@ export function TransferPortal({
     router.push(`?${newSearchParams.toString()}`)
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchPlayers = async () => {
       const queryParams = new URLSearchParams(searchParams)
       queryParams.set('page', page.toString())

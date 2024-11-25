@@ -1,7 +1,16 @@
-import { CheckIcon, ClockIcon, DownloadIcon, FilterIcon, XIcon } from 'lucide-react'
+'use client'
+import { CheckIcon, ClockIcon, DownloadIcon, FilterIcon } from 'lucide-react'
+import { LabelList, Pie, PieChart } from 'recharts'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -17,9 +26,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ByDivisionChart, ByPositionChart } from './_components/PieChart'
+import TransferPortalByDivision from './_components/transfer-portal-by-division'
+import TransferPortalByPosition from './_components/transfer-portal-by-position'
 
-export default async function TransferPortal() {
+export default function TransferPortal() {
   return (
     <>
       <div className="flex items-center justify-between">
@@ -50,8 +60,8 @@ export default async function TransferPortal() {
                 Breakdown of players in the transfer portal by NCAA division.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <ByDivisionChart className="aspect-[4/3]" />
+            <CardContent className="flex-1 pb-0">
+              <TransferPortalByDivision />
             </CardContent>
           </Card>
           <Card className="flex flex-col">
@@ -61,8 +71,8 @@ export default async function TransferPortal() {
                 Breakdown of players in the transfer portal by position.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <ByPositionChart className="aspect-[4/3]" />
+            <CardContent className="flex-1 pb-0">
+              <TransferPortalByPosition />
             </CardContent>
           </Card>
         </div>

@@ -122,8 +122,6 @@ export function Filters({
     </>
   )
 
-  console.log(positionFilter)
-
   return (
     <div className="mb-6">
       <div className="hidden gap-4 md:grid md:grid-cols-5">
