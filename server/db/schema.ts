@@ -9,6 +9,8 @@ import {
   jsonb,
   text,
   boolean,
+  uniqueIndex,
+  date,
 } from 'drizzle-orm/pg-core'
 
 export const voterBallots = pgTable('voter_ballot', {
@@ -82,3 +84,63 @@ export const weeksTable = pgTable(
 
 export type InsertUser = typeof usersTable.$inferInsert
 export type SelectUser = typeof usersTable.$inferSelect
+
+// Transfer portal related tables
+export const positions = pgTable(
+  'positions',
+  {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    abbreviation: varchar('abbreviation', { length: 10 }).notNull(),
+  },
+  (table) => ({
+    nameIdx: uniqueIndex('name_idx').on(table.name),
+    abbreviationIdx: uniqueIndex('abbreviation_idx').on(table.abbreviation),
+  }),
+)
+
+export const schools = pgTable(
+  'schools',
+  {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    conference: text('conference'),
+    division: text('division'),
+    logo: text('logo_url'),
+  },
+  (table) => {
+    return {
+      nameIdx: uniqueIndex('name_idx').on(table.name),
+    }
+  },
+)
+
+export const players = pgTable('players', {
+  id: serial('id').primaryKey(),
+  firstName: text('first_name').notNull(),
+  lastName: text('last_name').notNull(),
+  height: integer('height'), // in inches
+  weight: integer('weight'), // in pounds
+  highSchool: text('high_school'),
+  hometown: text('hometown'),
+  state: text('state'),
+  playerImage: text('player_image_url'),
+  instagramHandle: varchar('instagram_handle', { length: 30 }),
+  twitterHandle: varchar('twitter_handle', { length: 30 }),
+  positionId: integer('position_id').references(() => positions.id),
+  currentSchoolId: integer('current_school_id').references(() => schools.id),
+})
+
+export const transferPortalEntries = pgTable('transfer_portal_entries', {
+  id: serial('id').primaryKey(),
+  playerId: integer('player_id')
+    .references(() => players.id)
+    .notNull(),
+  year: integer('year').notNull(), // The year of transfer, e.g., 2025
+  entryDate: date('entry_date').notNull(),
+  eligibilityYears: integer('eligibility_years'),
+  gradTransfer: boolean('grad_transfer').default(false).notNull(),
+  previousSchoolId: integer('previous_school_id').references(() => schools.id),
+  commitmentSchoolId: integer('commitment_school_id').references(() => schools.id),
+  commitmentDate: date('commitment_date'),
+})

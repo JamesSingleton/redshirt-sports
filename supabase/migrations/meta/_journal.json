@@ -64,6 +64,13 @@
       "when": 1722266296851,
       "tag": "0008_lethal_steel_serpent",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1732592723945,
+      "tag": "0009_cold_gideon",
+      "breakpoints": true
     }
   ]
 }
