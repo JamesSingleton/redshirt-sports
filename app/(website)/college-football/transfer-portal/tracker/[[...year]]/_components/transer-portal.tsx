@@ -10,10 +10,21 @@ import { Card } from '@/components/ui/card'
 import { Image as SanityImage } from '@/components/image'
 import { Filters } from './filters'
 import { TeamTransfer } from './TeamTransfer'
-import { type Player } from '@/types/transfer-portal'
+import { type Player, type TransferSchool } from '@/types/transfer-portal'
 
 interface TransferPortalProps {
-  initialPlayers: Player[]
+  entries: {
+    id: number
+    year: number
+    entryDate: string
+    eligibilityYears: number | null
+    classYear: string | null
+    isGradTransfer: boolean
+    transferStatus: string
+    player: Player
+    previousSchool: TransferSchool | null
+    commitmentSchool: TransferSchool | null
+  }[]
   totalCount: number
   initialPage: number
   initialLimit: number
@@ -26,14 +37,14 @@ const statusIcons = {
 }
 
 export function TransferPortal({
-  initialPlayers,
+  entries,
   totalCount,
   initialPage,
   initialLimit,
 }: TransferPortalProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [players, setPlayers] = useState<Player[]>(initialPlayers)
+  const [players, setPlayers] = useState(entries)
   const [page, setPage] = useState(initialPage)
   const [limit] = useState(initialLimit)
 
@@ -80,50 +91,54 @@ export function TransferPortal({
         onFilterChange={updateFilters}
       />
       <div className="space-y-4">
-        {players.map((player) => (
-          <Card key={player.id} className="p-4">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center space-x-4">
-                <Image
-                  src={player.player.playerImage}
-                  alt={player.player.firstName + ' ' + player.player.lastName}
-                  className="size-20 rounded-full object-cover object-top"
-                  width={80}
-                  height={80}
-                  unoptimized
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex items-center space-x-2">
-                    <Badge variant="outline" className="shrink-0">
-                      {new Date(player.entryDate).toLocaleDateString()}
-                    </Badge>
-                    <Badge className="shrink-0">
-                      {statusIcons['Entered']}
-                      <span className="ml-1">Entered</span>
-                    </Badge>
-                  </div>
-                  <div className="mb-1 flex items-center space-x-2">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-brand-500 text-xs font-medium">
-                      {player.player.position.abbreviation}
+        {entries.map((entry) => {
+          const { entryDate, isGradTransfer, classYear, transferStatus, id, player } = entry
+          const feet = Math.floor(player.height / 12)
+          const inches = player.height % 12
+          return (
+            <Card key={id} className="p-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center space-x-4">
+                  <Image
+                    src={player.playerImage}
+                    alt={player.firstName + ' ' + player.lastName}
+                    className="size-20 rounded-full object-cover object-top"
+                    width={80}
+                    height={80}
+                    unoptimized
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-center space-x-2">
+                      <Badge variant="outline" className="shrink-0">
+                        {new Date(entryDate).toLocaleDateString()}
+                      </Badge>
+                      <Badge className="shrink-0">
+                        {statusIcons[transferStatus]}
+                        <span className="ml-1">{transferStatus}</span>
+                      </Badge>
                     </div>
-                    <h3 className="text-lg font-semibold">
-                      {player.player.firstName} {player.player.lastName}
-                    </h3>
+                    <div className="mb-1 flex items-center space-x-2">
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-brand-500 text-xs font-medium">
+                        {player.position.abbreviation}
+                      </div>
+                      <h3 className="text-lg font-semibold">
+                        {player.firstName} {player.lastName}
+                      </h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {classYear.abbreviation} | {`${feet}'${inches}"`} | {player.weight}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{`${player.highSchool} (${player.hometown}, ${player.state})`}</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {player.player.year || 'RS-JR'} | {player.player.height} |{' '}
-                    {player.player.weight}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{`${player.player.highSchool} (${player.player.hometown}, ${player.player.state})`}</p>
                 </div>
+                <TeamTransfer
+                  previousTeam={entry.previousSchool}
+                  newTeam={entry.commitmentSchool}
+                />
               </div>
-              <TeamTransfer
-                previousTeam={player.previousSchool}
-                newTeam={player.commitmentSchool}
-              />
-            </div>
-          </Card>
-        ))}
+            </Card>
+          )
+        })}
       </div>
     </div>
   )

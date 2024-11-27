@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { Twitter } from '@/components/icons'
 import { TransferPortal } from './_components/transer-portal'
 // import { getPlayers } from '@/lib/db/utils' // Kept for future use with real data
-import { dummyPlayers } from '@/lib/dummy-data'
 import { getTransferPortalEntriesWithDetails } from '@/lib/data'
 import { type Player } from '@/types/transfer-portal'
 
@@ -19,27 +18,22 @@ export default async function Page({
   const page = parseInt((searchParams.page as string) || '1', 10)
   const limit = parseInt((searchParams.limit as string) || '10', 10)
 
-  const playerData = await getTransferPortalEntriesWithDetails(
-    year ? parseInt(year, 10) : undefined,
-  )
-
-  // const players = await getPlayers() // Uncomment this line when ready to use real data
-  const players = dummyPlayers // Using dummy data for now
+  const entries = await getTransferPortalEntriesWithDetails(year ? parseInt(year, 10) : undefined)
 
   // Apply filters
-  const filteredPlayers = players.filter(
-    (player: Player) =>
-      (!position || position === 'All' || player.position === position) &&
-      (!division || division === 'All' || player.division === division) &&
-      (!year || year === 'All' || player.year === year) &&
-      (!status || status === 'All' || player.status === status) &&
-      (!school || school === 'All' || player.previousTeam.name === school),
-  )
+  // const filteredPlayers = entries.filter(
+  //   (player: Player) =>
+  //     (!position || position === 'All' || player.position === position) &&
+  //     (!division || division === 'All' || player.division === division) &&
+  //     (!year || year === 'All' || player.year === year) &&
+  //     (!status || status === 'All' || player.status === status) &&
+  //     (!school || school === 'All' || player.previousTeam.name === school),
+  // )
 
   // Apply pagination
   const startIndex = (page - 1) * limit
   const endIndex = page * limit
-  const paginatedPlayers = filteredPlayers.slice(startIndex, endIndex)
+  // const paginatedPlayers = filteredPlayers.slice(startIndex, endIndex)
 
   return (
     <div className="container mx-auto py-10">
@@ -62,8 +56,8 @@ export default async function Page({
         </p>
       </div>
       <TransferPortal
-        initialPlayers={playerData}
-        totalCount={filteredPlayers.length}
+        entries={entries}
+        // totalCount={filteredPlayers.length}
         initialPage={page}
         initialLimit={limit}
       />

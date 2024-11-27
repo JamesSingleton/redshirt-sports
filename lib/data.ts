@@ -1,5 +1,11 @@
 import { db } from '@/server/db'
-import { transferPortalEntries, players, schoolReferences, positions } from '@/server/db/schema'
+import {
+  transferPortalEntries,
+  players,
+  schoolReferences,
+  positions,
+  classYears,
+} from '@/server/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { getSchoolsBySanityIds } from '@/lib/sanity.fetch'
 
@@ -11,9 +17,11 @@ export async function getTransferPortalEntriesWithDetails(year?: number, limit =
       player: players,
       position: positions,
       previousSchool: schoolReferences,
+      classYear: classYears,
     })
     .from(transferPortalEntries)
     .innerJoin(players, eq(transferPortalEntries.playerId, players.id))
+    .innerJoin(classYears, eq(transferPortalEntries.classYearId, classYears.id))
     .innerJoin(positions, eq(players.positionId, positions.id))
     .leftJoin(schoolReferences, eq(transferPortalEntries.previousSchoolId, schoolReferences.id))
     .orderBy(desc(transferPortalEntries.entryDate))
@@ -53,7 +61,9 @@ export async function getTransferPortalEntriesWithDetails(year?: number, limit =
   ]
 
   // Fetch school data from Sanity
-  const schoolsData = await getSchoolsBySanityIds(schoolSanityIds)
+  const schoolsData = await getSchoolsBySanityIds(
+    schoolSanityIds.filter((id): id is string => !!id),
+  )
 
   // Combine database and Sanity data
   return entriesWithDetails.map((entry) => ({
@@ -62,6 +72,11 @@ export async function getTransferPortalEntriesWithDetails(year?: number, limit =
     entryDate: entry.entry.entryDate,
     eligibilityYears: entry.entry.eligibilityYears,
     isGradTransfer: entry.entry.isGradTransfer,
+    transferStatus: entry.entry.transferStatus,
+    classYear: {
+      name: entry.classYear.name,
+      abbreviation: entry.classYear.abbreviation,
+    },
     player: {
       id: entry.player.id,
       firstName: entry.player.firstName,

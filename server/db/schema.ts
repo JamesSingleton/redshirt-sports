@@ -99,6 +99,19 @@ export const positions = pgTable(
   ],
 )
 
+export const classYears = pgTable(
+  'class_years',
+  {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    abbreviation: varchar('abbreviation', { length: 10 }).notNull(),
+  },
+  (table) => [
+    uniqueIndex('class_year_name_idx').on(table.name),
+    uniqueIndex('class_year_abbreviation_idx').on(table.abbreviation),
+  ],
+)
+
 export const schoolReferences = pgTable(
   'school_references',
   {
@@ -132,8 +145,12 @@ export const transferPortalEntries = pgTable('transfer_portal_entries', {
   year: integer('year').notNull(), // The year of transfer, e.g., 2025
   entryDate: date('entry_date').notNull(),
   eligibilityYears: integer('eligibility_years'),
+  transferStatus: varchar('transfer_status', { length: 20 }).notNull().default('Entered'),
+  classYearId: integer('class_year_id').references(() => classYears.id),
   isGradTransfer: boolean('is_grad_transfer').notNull().default(false),
-  previousSchoolId: integer('previous_school_id').references(() => schoolReferences.id),
+  previousSchoolId: integer('previous_school_id')
+    .references(() => schoolReferences.id)
+    .notNull(),
   commitmentSchoolId: integer('commitment_school_id').references(() => schoolReferences.id),
   commitmentDate: date('commitment_date'),
 })

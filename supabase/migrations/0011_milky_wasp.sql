@@ -1,0 +1,1 @@
+ALTER TABLE "transfer_portal_entries" ADD COLUMN "transfer_status" varchar(20) DEFAULT 'Entered' NOT NULL;
