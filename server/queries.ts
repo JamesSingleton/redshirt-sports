@@ -268,3 +268,9 @@ export async function getLatestVoterBallotWithSchools(
 
   return ballotsWithSchools
 }
+
+export async function getPositions() {
+  const positions = await db.query.positions.findMany()
+
+  return positions
+}

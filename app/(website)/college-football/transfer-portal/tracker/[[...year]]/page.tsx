@@ -4,6 +4,7 @@ import { TransferPortal } from './_components/transer-portal'
 // import { getPlayers } from '@/lib/db/utils' // Kept for future use with real data
 import { getTransferPortalEntriesWithDetails } from '@/lib/data'
 import { type Player } from '@/types/transfer-portal'
+import { getPositions } from '@/server/queries'
 
 export default async function Page({
   searchParams,
@@ -18,6 +19,7 @@ export default async function Page({
   const page = parseInt((searchParams.page as string) || '1', 10)
   const limit = parseInt((searchParams.limit as string) || '10', 10)
 
+  const positions = await getPositions()
   const entries = await getTransferPortalEntriesWithDetails(year ? parseInt(year, 10) : undefined)
 
   // Apply filters
@@ -58,6 +60,7 @@ export default async function Page({
       <TransferPortal
         entries={entries}
         // totalCount={filteredPlayers.length}
+        positions={positions}
         initialPage={page}
         initialLimit={limit}
       />

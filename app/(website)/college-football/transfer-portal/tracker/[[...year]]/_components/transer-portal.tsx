@@ -28,6 +28,11 @@ interface TransferPortalProps {
   totalCount: number
   initialPage: number
   initialLimit: number
+  positions: {
+    id: number
+    name: string
+    abbreviation: string
+  }[]
 }
 
 const statusIcons = {
@@ -41,6 +46,7 @@ export function TransferPortal({
   totalCount,
   initialPage,
   initialLimit,
+  positions,
 }: TransferPortalProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -84,6 +90,7 @@ export function TransferPortal({
     <div>
       <Filters
         positionFilter={positionFilter}
+        positions={positions}
         divisionFilter={divisionFilter}
         yearFilter={yearFilter}
         statusFilter={statusFilter}

@@ -42,6 +42,11 @@ const schools = ['All', 'Springfield U', 'Oakville College', 'Rivertown State']
 
 interface FiltersProps {
   positionFilter: string
+  positions: {
+    id: number
+    name: string
+    abbreviation: string
+  }[]
   divisionFilter: string
   yearFilter: string
   statusFilter: string
@@ -51,6 +56,7 @@ interface FiltersProps {
 
 export function Filters({
   positionFilter,
+  positions,
   divisionFilter,
   yearFilter,
   statusFilter,
@@ -129,7 +135,7 @@ export function Filters({
           label="Position"
           value={positionFilter}
           onValueChange={(value) => handleFilterChange('position', value)}
-          options={positions}
+          options={['All', ...positions.map((position) => position.abbreviation)]}
         />
         <AdditionalFilters />
       </div>
@@ -140,7 +146,7 @@ export function Filters({
               label="Position"
               value={positionFilter}
               onValueChange={(value) => handleFilterChange('position', value)}
-              options={positions}
+              options={['All', ...positions.map((position) => position.abbreviation)]}
             />
           </div>
           <div className="flex w-1/2 justify-end pl-2">
