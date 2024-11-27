@@ -93,26 +93,19 @@ export const positions = pgTable(
     name: text('name').notNull(),
     abbreviation: varchar('abbreviation', { length: 10 }).notNull(),
   },
-  (table) => ({
-    nameIdx: uniqueIndex('name_idx').on(table.name),
-    abbreviationIdx: uniqueIndex('abbreviation_idx').on(table.abbreviation),
-  }),
+  (table) => [
+    uniqueIndex('name_idx').on(table.name),
+    uniqueIndex('abbreviation_idx').on(table.abbreviation),
+  ],
 )
 
-export const schools = pgTable(
-  'schools',
+export const schoolReferences = pgTable(
+  'school_references',
   {
     id: serial('id').primaryKey(),
-    name: text('name').notNull(),
-    conference: text('conference'),
-    division: text('division'),
-    logo: text('logo_url'),
+    sanityId: text('sanity_id').notNull().unique(),
   },
-  (table) => {
-    return {
-      nameIdx: uniqueIndex('name_idx').on(table.name),
-    }
-  },
+  (table) => [uniqueIndex('sanity_id_idx').on(table.sanityId)],
 )
 
 export const players = pgTable('players', {
@@ -128,7 +121,7 @@ export const players = pgTable('players', {
   instagramHandle: varchar('instagram_handle', { length: 30 }),
   twitterHandle: varchar('twitter_handle', { length: 30 }),
   positionId: integer('position_id').references(() => positions.id),
-  currentSchoolId: integer('current_school_id').references(() => schools.id),
+  currentSchoolId: integer('current_school_id').references(() => schoolReferences.id),
 })
 
 export const transferPortalEntries = pgTable('transfer_portal_entries', {
@@ -139,8 +132,8 @@ export const transferPortalEntries = pgTable('transfer_portal_entries', {
   year: integer('year').notNull(), // The year of transfer, e.g., 2025
   entryDate: date('entry_date').notNull(),
   eligibilityYears: integer('eligibility_years'),
-  gradTransfer: boolean('grad_transfer').default(false).notNull(),
-  previousSchoolId: integer('previous_school_id').references(() => schools.id),
-  commitmentSchoolId: integer('commitment_school_id').references(() => schools.id),
+  isGradTransfer: boolean('is_grad_transfer').notNull().default(false),
+  previousSchoolId: integer('previous_school_id').references(() => schoolReferences.id),
+  commitmentSchoolId: integer('commitment_school_id').references(() => schoolReferences.id),
   commitmentDate: date('commitment_date'),
 })

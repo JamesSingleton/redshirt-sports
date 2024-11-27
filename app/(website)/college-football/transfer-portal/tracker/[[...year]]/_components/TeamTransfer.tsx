@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import { ArrowRightIcon } from 'lucide-react'
 
+import { Image as SanityImage } from '@/components/image'
+
 interface TeamTransferProps {
   previousTeam: {
     name: string
@@ -15,18 +17,19 @@ interface TeamTransferProps {
 export function TeamTransfer({ previousTeam, newTeam }: TeamTransferProps) {
   return (
     <div className="mt-4 flex items-center justify-center space-x-4 md:ml-4 md:mt-0 md:justify-end">
-      <Image
+      {/* <Image
         src={previousTeam.logo}
         alt={previousTeam.name}
         width={40}
         height={40}
         unoptimized
         className="size-10"
-      />
+      /> */}
+      <SanityImage src={previousTeam.image} width={40} height={40} alt={previousTeam.name} />
       <ArrowRightIcon className="size-6 text-muted-foreground" />
-      {newTeam.logo && newTeam.name ? (
+      {newTeam && newTeam.image && newTeam.name ? (
         <Image
-          src={newTeam.logo}
+          src={newTeam.image}
           alt={newTeam.name}
           width={40}
           height={40}

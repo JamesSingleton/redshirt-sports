@@ -71,6 +71,13 @@
       "when": 1732592723945,
       "tag": "0009_cold_gideon",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1732679864127,
+      "tag": "0010_fearless_firedrake",
+      "breakpoints": true
     }
   ]
 }

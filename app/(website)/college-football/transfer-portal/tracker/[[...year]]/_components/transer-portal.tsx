@@ -7,6 +7,7 @@ import { CheckIcon, LogInIcon, LogOutIcon } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import { Image as SanityImage } from '@/components/image'
 import { Filters } from './filters'
 import { TeamTransfer } from './TeamTransfer'
 import { type Player } from '@/types/transfer-portal'
@@ -84,9 +85,9 @@ export function TransferPortal({
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="flex items-center space-x-4">
                 <Image
-                  src={player.imageUrl}
-                  alt={player.name}
-                  className="size-20 rounded-full"
+                  src={player.player.playerImage}
+                  alt={player.player.firstName + ' ' + player.player.lastName}
+                  className="size-20 rounded-full object-cover object-top"
                   width={80}
                   height={80}
                   unoptimized
@@ -94,26 +95,32 @@ export function TransferPortal({
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-center space-x-2">
                     <Badge variant="outline" className="shrink-0">
-                      {new Date(player.date).toLocaleDateString()}
+                      {new Date(player.entryDate).toLocaleDateString()}
                     </Badge>
                     <Badge className="shrink-0">
-                      {statusIcons[player.status]}
-                      <span className="ml-1">{player.status}</span>
+                      {statusIcons['Entered']}
+                      <span className="ml-1">Entered</span>
                     </Badge>
                   </div>
                   <div className="mb-1 flex items-center space-x-2">
                     <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-brand-500 text-xs font-medium">
-                      {player.position}
+                      {player.player.position.abbreviation}
                     </div>
-                    <h3 className="text-lg font-semibold">{player.name}</h3>
+                    <h3 className="text-lg font-semibold">
+                      {player.player.firstName} {player.player.lastName}
+                    </h3>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {player.year} | {player.height} | {player.weight} | {player.division}
+                    {player.player.year || 'RS-JR'} | {player.player.height} |{' '}
+                    {player.player.weight}
                   </p>
-                  <p className="text-sm text-muted-foreground">{player.location}</p>
+                  <p className="text-sm text-muted-foreground">{`${player.player.highSchool} (${player.player.hometown}, ${player.player.state})`}</p>
                 </div>
               </div>
-              <TeamTransfer previousTeam={player.previousTeam} newTeam={player.newTeam} />
+              <TeamTransfer
+                previousTeam={player.previousSchool}
+                newTeam={player.commitmentSchool}
+              />
             </div>
           </Card>
         ))}

@@ -3,9 +3,10 @@ import { Twitter } from '@/components/icons'
 import { TransferPortal } from './_components/transer-portal'
 // import { getPlayers } from '@/lib/db/utils' // Kept for future use with real data
 import { dummyPlayers } from '@/lib/dummy-data'
+import { getTransferPortalEntriesWithDetails } from '@/lib/data'
 import { type Player } from '@/types/transfer-portal'
 
-export default function Page({
+export default async function Page({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
@@ -17,6 +18,10 @@ export default function Page({
   const school = searchParams.school as string
   const page = parseInt((searchParams.page as string) || '1', 10)
   const limit = parseInt((searchParams.limit as string) || '10', 10)
+
+  const playerData = await getTransferPortalEntriesWithDetails(
+    year ? parseInt(year, 10) : undefined,
+  )
 
   // const players = await getPlayers() // Uncomment this line when ready to use real data
   const players = dummyPlayers // Using dummy data for now
@@ -57,7 +62,7 @@ export default function Page({
         </p>
       </div>
       <TransferPortal
-        initialPlayers={paginatedPlayers}
+        initialPlayers={playerData}
         totalCount={filteredPlayers.length}
         initialPage={page}
         initialLimit={limit}
