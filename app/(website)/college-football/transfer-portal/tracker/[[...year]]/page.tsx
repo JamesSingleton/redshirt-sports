@@ -20,7 +20,7 @@ export default async function Page({
   const limit = parseInt((searchParams.limit as string) || '10', 10)
 
   const positions = await getPositions()
-  const entries = await getTransferPortalEntriesWithDetails(year ? parseInt(year, 10) : undefined)
+  const entries = await getTransferPortalEntriesWithDetails(year ? parseInt(year, 10) : 2025)
 
   // Apply filters
   // const filteredPlayers = entries.filter(

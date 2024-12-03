@@ -9,7 +9,7 @@ import {
 import { eq, desc } from 'drizzle-orm'
 import { getSchoolsBySanityIds } from '@/lib/sanity.fetch'
 
-export async function getTransferPortalEntriesWithDetails(year?: number, limit = 50, offset = 0) {
+export async function getTransferPortalEntriesWithDetails(year: number, limit = 50, offset = 0) {
   // Start with the base query
   let query = db
     .select({
@@ -27,11 +27,12 @@ export async function getTransferPortalEntriesWithDetails(year?: number, limit =
     .orderBy(desc(transferPortalEntries.entryDate))
     .limit(limit)
     .offset(offset)
+    .where(eq(transferPortalEntries.year, year))
 
   // Apply year filter if provided
-  if (year) {
-    query = query.where(eq(transferPortalEntries.year, year))
-  }
+  // if (year) {
+  //   query = query.where(eq(transferPortalEntries.year, year))
+  // }
 
   const entries = await query
 

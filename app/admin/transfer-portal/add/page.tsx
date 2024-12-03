@@ -1,7 +1,10 @@
+import AddTransferPlayerForm from '@/components/forms/add-transfer-player'
+
 export default function AddTransferPlayer() {
   return (
-    <div>
-      <h1>Add Player to Transfer Portal</h1>
-    </div>
+    <>
+      <h1 className="text-3xl font-bold">Add Player to Transfer Portal</h1>
+      <AddTransferPlayerForm />
+    </>
   )
 }
