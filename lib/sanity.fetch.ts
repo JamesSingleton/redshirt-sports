@@ -316,3 +316,18 @@ export async function getSchoolsBySanityIds(sanityIds: string[]) {
     return acc
   }, {})
 }
+
+export async function getAllSchools() {
+  const query = `*[_type == "school"]{
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    image
+  }`
+
+  return sanityFetch<any>({
+    query,
+    tags: ['school'],
+  })
+}

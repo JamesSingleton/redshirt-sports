@@ -1,4 +1,8 @@
-import React from 'react'
+'use client'
+import React, { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Filter } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import {
   Drawer,
@@ -15,76 +19,53 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Filter } from 'lucide-react'
 
-const positions = [
-  'All',
-  'QB',
-  'RB',
-  'WR',
-  'TE',
-  'OT',
-  'IOL',
-  'EDGE',
-  'DL',
-  'LB',
-  'CB',
-  'S',
-  'ATH',
-  'K',
-  'P',
-  'LS',
-]
 const divisions = ['All', 'FBS', 'FCS', 'D2', 'D3', 'NAIA']
-const years = ['All', 'FR', 'SO', 'JR', 'SR']
+const years = ['All', '2025']
 const statuses = ['All', 'Entered', 'Withdrawn', 'Committed']
 const schools = ['All', 'Springfield U', 'Oakville College', 'Rivertown State']
 
 interface FiltersProps {
-  positionFilter: string
   positions: {
     id: number
     name: string
     abbreviation: string
   }[]
-  divisionFilter: string
-  yearFilter: string
-  statusFilter: string
-  schoolFilter: string
-  onFilterChange: (filters: Record<string, string>) => void
+  searchParams: { [key: string]: string | string[] | undefined }
 }
 
-export function Filters({
-  positionFilter,
-  positions,
-  divisionFilter,
-  yearFilter,
-  statusFilter,
-  schoolFilter,
-  onFilterChange,
-}: FiltersProps) {
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
+export function Filters({ positions, searchParams }: FiltersProps) {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const router = useRouter()
+  const currentSearchParams = useSearchParams()
 
   const handleFilterChange = (key: string, value: string) => {
-    onFilterChange({ [key]: value })
+    const newSearchParams = new URLSearchParams(currentSearchParams.toString())
+    if (value && value !== 'All') {
+      newSearchParams.set(key, value)
+    } else {
+      newSearchParams.delete(key)
+    }
+    router.push(`?${newSearchParams.toString()}`)
   }
 
   const FilterSelect = ({
     label,
-    value,
-    onValueChange,
+    paramKey,
     options,
   }: {
     label: string
-    value: string
-    onValueChange: (value: string) => void
+    paramKey: string
     options: string[]
   }) => (
     <div className="w-full">
       <Label htmlFor={label} className="mb-2 block text-sm font-medium">
         {label}
       </Label>
-      <Select value={value} onValueChange={onValueChange}>
+      <Select
+        value={(searchParams[paramKey] as string) || 'All'}
+        onValueChange={(value) => handleFilterChange(paramKey, value)}
+      >
         <SelectTrigger id={label} className="w-full">
           <SelectValue placeholder={`Select ${label}`} />
         </SelectTrigger>
@@ -101,30 +82,10 @@ export function Filters({
 
   const AdditionalFilters = () => (
     <>
-      <FilterSelect
-        label="Division"
-        value={divisionFilter}
-        onValueChange={(value) => handleFilterChange('division', value)}
-        options={divisions}
-      />
-      <FilterSelect
-        label="Year"
-        value={yearFilter}
-        onValueChange={(value) => handleFilterChange('year', value)}
-        options={years}
-      />
-      <FilterSelect
-        label="Status"
-        value={statusFilter}
-        onValueChange={(value) => handleFilterChange('status', value)}
-        options={statuses}
-      />
-      <FilterSelect
-        label="School"
-        value={schoolFilter}
-        onValueChange={(value) => handleFilterChange('school', value)}
-        options={schools}
-      />
+      <FilterSelect label="Division" paramKey="division" options={divisions} />
+      <FilterSelect label="School" paramKey="school" options={schools} />
+      <FilterSelect label="Year" paramKey="year" options={years} />
+      <FilterSelect label="Status" paramKey="status" options={statuses} />
     </>
   )
 
@@ -133,8 +94,7 @@ export function Filters({
       <div className="hidden gap-4 md:grid md:grid-cols-5">
         <FilterSelect
           label="Position"
-          value={positionFilter}
-          onValueChange={(value) => handleFilterChange('position', value)}
+          paramKey="position"
           options={['All', ...positions.map((position) => position.abbreviation)]}
         />
         <AdditionalFilters />
@@ -144,8 +104,7 @@ export function Filters({
           <div className="w-1/2 pr-2">
             <FilterSelect
               label="Position"
-              value={positionFilter}
-              onValueChange={(value) => handleFilterChange('position', value)}
+              paramKey="position"
               options={['All', ...positions.map((position) => position.abbreviation)]}
             />
           </div>

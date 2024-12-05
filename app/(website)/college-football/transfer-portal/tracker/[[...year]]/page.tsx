@@ -4,17 +4,14 @@ import { TransferPortal } from './_components/transer-portal'
 import { getTransferPortalEntriesWithDetails } from '@/lib/data'
 import { type TransferPortalEntry } from '@/types/transfer-portal'
 import { getPositions } from '@/server/queries'
+import { Filters } from './_components/filters'
 
 export default async function Page({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const position = searchParams.position as string
-  const division = searchParams.division as string
   const year = searchParams.year as string
-  const status = searchParams.status as string
-  const school = searchParams.school as string
   const page = parseInt((searchParams.page as string) || '1', 10)
   const limit = parseInt((searchParams.limit as string) || '10', 10)
 
@@ -58,13 +55,8 @@ export default async function Page({
           including data on the previous and new school.
         </p>
       </div>
-      <TransferPortal
-        entries={entries}
-        totalCount={entries.length}
-        positions={positions}
-        initialPage={page}
-        initialLimit={limit}
-      />
+      <Filters positions={positions} searchParams={searchParams} />
+      <TransferPortal entries={entries} />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { ArrowRightIcon } from 'lucide-react'
 
 import { Image as SanityImage } from '@/components/image'
-import { TransferSchool } from '@/types'
+import { type TransferSchool } from '@/types'
 
 interface TeamTransferProps {
   previousSchool: TransferSchool
@@ -9,9 +9,6 @@ interface TeamTransferProps {
 }
 
 export function TeamTransfer({ previousSchool, commitmentSchool }: TeamTransferProps) {
-  console.log(previousSchool.conference)
-  console.log(previousSchool.division)
-  console.log(previousSchool.image)
   return (
     <div className="mt-4 flex items-center justify-center space-x-4 md:ml-4 md:mt-0 md:justify-end">
       <SanityImage
