@@ -1,7 +1,7 @@
 import 'server-only'
 import { auth } from '@clerk/nextjs/server'
 import { desc, eq, and, sql } from 'drizzle-orm'
-import { weeklyFinalRankings, voterBallots } from './db/schema'
+import { weeklyFinalRankings, voterBallots, transferPortalEntries } from './db/schema'
 
 import { db } from '@/server/db'
 import { client } from '@/lib/sanity.client'
@@ -267,4 +267,10 @@ export async function getLatestVoterBallotWithSchools(
   })
 
   return ballotsWithSchools
+}
+
+export async function getPositions() {
+  const positions = await db.query.positions.findMany()
+
+  return positions
 }
