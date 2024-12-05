@@ -3,28 +3,16 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { CheckIcon, LogInIcon, LogOutIcon } from 'lucide-react'
+import { CheckIcon, LogInIcon, LogOutIcon, GraduationCap } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
-import { Image as SanityImage } from '@/components/image'
 import { Filters } from './filters'
 import { TeamTransfer } from './TeamTransfer'
-import { type Player, type TransferSchool } from '@/types/transfer-portal'
+import { type TransferPortalEntry } from '@/types/transfer-portal'
 
 interface TransferPortalProps {
-  entries: {
-    id: number
-    year: number
-    entryDate: string
-    eligibilityYears: number | null
-    classYear: string | null
-    isGradTransfer: boolean
-    transferStatus: string
-    player: Player
-    previousSchool: TransferSchool | null
-    commitmentSchool: TransferSchool | null
-  }[]
+  entries: TransferPortalEntry[]
   totalCount: number
   initialPage: number
   initialLimit: number
@@ -35,7 +23,7 @@ interface TransferPortalProps {
   }[]
 }
 
-const statusIcons = {
+const statusIcons: { [key: string]: JSX.Element } = {
   Entered: <LogInIcon className="h-4 w-4" />,
   Committed: <CheckIcon className="h-4 w-4" />,
   Withdrawn: <LogOutIcon className="h-4 w-4" />,
@@ -100,27 +88,37 @@ export function TransferPortal({
       <div className="space-y-4">
         {entries.map((entry) => {
           const { entryDate, isGradTransfer, classYear, transferStatus, id, player } = entry
-          const feet = Math.floor(player.height / 12)
-          const inches = player.height % 12
+          let feet = 0
+          let inches = 0
+          if (player.height) {
+            feet = Math.floor(player.height / 12)
+            inches = player.height % 12
+          }
           return (
             <Card key={id} className="p-4">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center space-x-4">
-                  <Image
-                    src={player.playerImage}
-                    alt={player.firstName + ' ' + player.lastName}
-                    className="size-20 rounded-full object-cover object-top"
-                    width={80}
-                    height={80}
-                    unoptimized
-                  />
+                  {player.playerImage ? (
+                    <Image
+                      src={player.playerImage}
+                      alt={player.firstName + ' ' + player.lastName}
+                      className="size-20 rounded-full object-cover object-top"
+                      width={80}
+                      height={80}
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex size-20 items-center justify-center rounded-full bg-muted">
+                      <span className="text-sm">{player.firstName[0] + player.lastName[0]}</span>
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-center space-x-2">
                       <Badge variant="outline" className="shrink-0">
                         {new Date(entryDate).toLocaleDateString()}
                       </Badge>
                       <Badge className="shrink-0">
-                        {statusIcons[transferStatus]}
+                        {statusIcons[transferStatus as keyof typeof statusIcons]}
                         <span className="ml-1">{transferStatus}</span>
                       </Badge>
                     </div>
@@ -128,8 +126,14 @@ export function TransferPortal({
                       <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-brand-500 text-xs font-medium">
                         {player.position.abbreviation}
                       </div>
-                      <h3 className="text-lg font-semibold">
+                      <h3 className="inline-flex items-center text-lg font-semibold">
                         {player.firstName} {player.lastName}
+                        {isGradTransfer && (
+                          <>
+                            <span className="sr-only">Graduate Transfer</span>
+                            <GraduationCap className="ml-2 h-5 w-5" />
+                          </>
+                        )}
                       </h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
@@ -139,8 +143,8 @@ export function TransferPortal({
                   </div>
                 </div>
                 <TeamTransfer
-                  previousTeam={entry.previousSchool}
-                  newTeam={entry.commitmentSchool}
+                  previousSchool={entry.previousSchool}
+                  commitmentSchool={entry.commitmentSchool}
                 />
               </div>
             </Card>

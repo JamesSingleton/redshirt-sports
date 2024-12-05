@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import { Twitter } from '@/components/icons'
 import { TransferPortal } from './_components/transer-portal'
-// import { getPlayers } from '@/lib/db/utils' // Kept for future use with real data
 import { getTransferPortalEntriesWithDetails } from '@/lib/data'
-import { type Player } from '@/types/transfer-portal'
+import { type TransferPortalEntry } from '@/types/transfer-portal'
 import { getPositions } from '@/server/queries'
 
 export default async function Page({
@@ -20,7 +19,9 @@ export default async function Page({
   const limit = parseInt((searchParams.limit as string) || '10', 10)
 
   const positions = await getPositions()
-  const entries = await getTransferPortalEntriesWithDetails(year ? parseInt(year, 10) : 2025)
+  const entries: TransferPortalEntry[] = await getTransferPortalEntriesWithDetails(
+    year ? parseInt(year, 10) : 2025,
+  )
 
   // Apply filters
   // const filteredPlayers = entries.filter(
@@ -59,7 +60,7 @@ export default async function Page({
       </div>
       <TransferPortal
         entries={entries}
-        // totalCount={filteredPlayers.length}
+        totalCount={entries.length}
         positions={positions}
         initialPage={page}
         initialLimit={limit}
