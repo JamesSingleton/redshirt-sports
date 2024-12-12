@@ -117,6 +117,7 @@ export const schoolReferences = pgTable(
   {
     id: serial('id').primaryKey(),
     sanityId: text('sanity_id').notNull().unique(),
+    name: text('name'),
   },
   (table) => [uniqueIndex('sanity_id_idx').on(table.sanityId)],
 )
@@ -144,7 +145,6 @@ export const transferPortalEntries = pgTable('transfer_portal_entries', {
     .notNull(),
   year: integer('year').notNull(), // The year of transfer, e.g., 2025
   entryDate: date('entry_date').notNull(),
-  eligibilityYears: integer('eligibility_years'),
   transferStatus: varchar('transfer_status', { length: 20 }).notNull().default('Entered'),
   classYearId: integer('class_year_id').references(() => classYears.id),
   isGradTransfer: boolean('is_grad_transfer').notNull().default(false),
