@@ -1,0 +1,1 @@
+ALTER TABLE "school_references" ADD COLUMN "name" text NOT NULL;

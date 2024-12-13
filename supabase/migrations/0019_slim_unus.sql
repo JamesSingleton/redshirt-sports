@@ -1,0 +1,1 @@
+ALTER TABLE "school_references" DROP COLUMN IF EXISTS "name";

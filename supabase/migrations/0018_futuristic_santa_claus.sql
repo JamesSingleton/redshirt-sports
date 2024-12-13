@@ -1,0 +1,1 @@
+ALTER TABLE "school_references" ALTER COLUMN "name" DROP NOT NULL;

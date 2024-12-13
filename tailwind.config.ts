@@ -14,16 +14,16 @@ const config = {
     extend: {
       colors: {
         brand: {
-          50: '#FBE9E9',
-          100: '#F8D3D3',
-          200: '#F1A7A7',
-          300: '#EA7B7B',
-          400: '#E35454',
-          500: '#DC2727',
-          600: '#B41D1D',
-          700: '#841515',
-          800: '#580E0E',
-          900: '#2C0707',
+          '50': '#FBE9E9',
+          '100': '#F8D3D3',
+          '200': '#F1A7A7',
+          '300': '#EA7B7B',
+          '400': '#E35454',
+          '500': '#DC2727',
+          '600': '#B41D1D',
+          '700': '#841515',
+          '800': '#580E0E',
+          '900': '#2C0707',
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -58,6 +58,16 @@ const config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        sidebar: {
+          DEFAULT: 'hsl(var(--sidebar-background))',
+          foreground: 'hsl(var(--sidebar-foreground))',
+          primary: 'hsl(var(--sidebar-primary))',
+          'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+          accent: 'hsl(var(--sidebar-accent))',
+          'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+          border: 'hsl(var(--sidebar-border))',
+          ring: 'hsl(var(--sidebar-ring))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -66,12 +76,20 @@ const config = {
       },
       keyframes: {
         'accordion-down': {
-          from: { height: '0' },
-          to: { height: 'var(--radix-accordion-content-height)' },
+          from: {
+            height: '0',
+          },
+          to: {
+            height: 'var(--radix-accordion-content-height)',
+          },
         },
         'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
+          from: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+          to: {
+            height: '0',
+          },
         },
       },
       animation: {
@@ -85,7 +103,6 @@ const config = {
       typography: {
         DEFAULT: {
           css: {
-            // use next/font variable to override h1
             h1: {
               fontFamily: 'var(--font-sans)',
             },
@@ -95,8 +112,12 @@ const config = {
             h3: {
               fontFamily: 'var(--font-sans)',
             },
-            'blockquote p:first-of-type::before': { content: 'none' },
-            'blockquote p:first-of-type::after': { content: 'none' },
+            'blockquote p:first-of-type::before': {
+              content: 'none',
+            },
+            'blockquote p:first-of-type::after': {
+              content: 'none',
+            },
           },
         },
       },
