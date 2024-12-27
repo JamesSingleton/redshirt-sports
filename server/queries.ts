@@ -1,10 +1,22 @@
 import 'server-only'
 import { auth } from '@clerk/nextjs/server'
-import { desc, eq, and, sql } from 'drizzle-orm'
-import { weeklyFinalRankings, voterBallots } from './db/schema'
+import { alias } from 'drizzle-orm/pg-core'
+import { desc, eq, and, sql, or, SQL } from 'drizzle-orm'
+import {
+  weeklyFinalRankings,
+  voterBallots,
+  transferPortalEntries,
+  players,
+  schoolReferences,
+  positions,
+  classYears,
+} from './db/schema'
+import { getSchoolsBySanityIds } from '@/lib/sanity.fetch'
 
 import { db } from '@/server/db'
 import { client } from '@/lib/sanity.client'
+
+import type { TransferPortalFilters } from '@/types/transfer-portal'
 
 interface GetUsersVote {
   year: number
@@ -267,4 +279,126 @@ export async function getLatestVoterBallotWithSchools(
   })
 
   return ballotsWithSchools
+}
+
+// Transfer Portal Tracker
+export async function getPositions() {
+  const playerPositions = await db.query.positions.findMany({
+    orderBy: (positions) => positions.id,
+  })
+
+  return playerPositions
+}
+
+export async function getTransferCycleYears() {
+  const cycleYears = await db.query.cycleYears.findMany({
+    orderBy: (cycleYears, { desc }) => desc(cycleYears.year),
+  })
+
+  return cycleYears
+}
+
+export async function getSchools() {
+  const schools = await db.query.schoolReferences.findMany({
+    orderBy: (schools, { asc }) => asc(schools.name),
+  })
+
+  return schools
+}
+
+export async function getTransferPortalEntries(
+  page: number = 1,
+  pageSize: number = 20,
+  filters: TransferPortalFilters = {},
+) {
+  const offset = (page - 1) * pageSize
+
+  // Create aliases for the schoolReferences table
+  const previousSchool = alias(schoolReferences, 'previous_school')
+  const commitmentSchool = alias(schoolReferences, 'commitment_school')
+
+  const filtersArray: (SQL | undefined)[] = []
+
+  console.log({ filters })
+
+  // if (filters.year) {
+  //   filtersArray.push(eq(transferPortalEntries.cycleYear, filters.year))
+  // }
+
+  if (filters.status) {
+    filtersArray.push(eq(transferPortalEntries.transferStatus, filters.status))
+  }
+
+  if (filters.position) {
+    // position will be something like "QB" or "RB"
+    const position = filters.position.toUpperCase()
+    filtersArray.push(eq(positions.abbreviation, position))
+  }
+
+  if (filters.isGradTransfer) {
+    filtersArray.push(eq(transferPortalEntries.isGradTransfer, filters.isGradTransfer))
+  }
+
+  const query = db
+    .select({
+      id: transferPortalEntries.id,
+      entryDate: transferPortalEntries.entryDate,
+      transferStatus: transferPortalEntries.transferStatus,
+      isGradTransfer: transferPortalEntries.isGradTransfer,
+      createdAt: transferPortalEntries.createdAt,
+      updatedAt: transferPortalEntries.updatedAt,
+      lastStatusChangeAt: transferPortalEntries.lastStatusChangeAt,
+      firstName: players.firstName,
+      lastName: players.lastName,
+      height: players.height,
+      weight: players.weight,
+      highSchool: players.highSchool,
+      hometown: players.hometown,
+      state: players.state,
+      playerImageUrl: players.playerImageUrl,
+      instagramHandle: players.instagramHandle,
+      twitterHandle: players.twitterHandle,
+      position: positions.name,
+      positionAbbreviation: positions.abbreviation,
+      classYear: classYears.name,
+      classYearAbbreviation: classYears.abbreviation,
+      previousSchoolName: previousSchool.name,
+      previousSchoolSanityId: previousSchool.sanityId,
+      commitmentSchoolName: commitmentSchool.name,
+      commitmentSchoolSanityId: commitmentSchool.sanityId,
+      commitmentDate: transferPortalEntries.commitmentDate,
+    })
+    .from(transferPortalEntries)
+    .innerJoin(players, eq(transferPortalEntries.playerId, players.id))
+    .innerJoin(positions, eq(players.positionId, positions.id))
+    .innerJoin(classYears, eq(players.classYearId, classYears.id))
+    .innerJoin(previousSchool, eq(transferPortalEntries.previousSchoolId, previousSchool.id))
+    .leftJoin(commitmentSchool, eq(transferPortalEntries.commitmentSchoolId, commitmentSchool.id))
+    .where(and(...filtersArray))
+
+  const entries = await query
+    .orderBy(desc(transferPortalEntries.lastStatusChangeAt), desc(transferPortalEntries.createdAt))
+    .limit(pageSize)
+    .offset(offset)
+
+  // Fetch school images from Sanity
+  const schoolSanityIds = [
+    ...new Set(
+      entries
+        .map((e) => e.previousSchoolSanityId)
+        .concat(
+          entries.map((e) => e.commitmentSchoolSanityId).filter((id): id is string => id !== null),
+        ),
+    ),
+  ]
+  const schoolImages = await getSchoolsBySanityIds(schoolSanityIds)
+
+  // Combine database results with Sanity images
+  return entries.map((entry) => ({
+    ...entry,
+    previousSchool: schoolImages[entry.previousSchoolSanityId],
+    commitmentSchool: entry.commitmentSchoolSanityId
+      ? schoolImages[entry.commitmentSchoolSanityId]
+      : null,
+  }))
 }
