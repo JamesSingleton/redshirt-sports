@@ -56,9 +56,9 @@ export default async function TransferPortalTracker({ params, searchParams }: Pr
     (searchParams.status as 'Entered' | 'Committed' | 'Withdrawn' | undefined) || undefined
   const position = (searchParams.position as string) || undefined
   const isGradTransfer =
-    searchParams.grad?.toLowerCase() === 'true'
+    typeof searchParams.grad === 'string' && searchParams.grad.toLowerCase() === 'true'
       ? true
-      : searchParams.grad?.toLowerCase() === 'false'
+      : typeof searchParams.grad === 'string' && searchParams.grad.toLowerCase() === 'false'
         ? false
         : undefined
 
