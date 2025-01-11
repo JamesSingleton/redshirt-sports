@@ -6,6 +6,7 @@ export async function getCurrentWeek(): Promise<number> {
   let votingWeek: number = 0
   let isPreseason: boolean = false
   let isRegularSeason: boolean
+  let isPostseason: boolean
   let regularSeason: SeasonType
   let preseason: SeasonType
 
@@ -20,6 +21,7 @@ export async function getCurrentWeek(): Promise<number> {
   ).then((res) => res.json())
 
   currentSeasonData = espnBody.seasons[0]
+  const currentSeasonEndDate = new Date(currentSeasonData.endDate)
 
   if (currentSeasonData.types.length) {
     preseason = currentSeasonData.types.find((type) => type.type === 1)!
@@ -32,6 +34,9 @@ export async function getCurrentWeek(): Promise<number> {
       currentDate >= new Date(regularSeason.startDate) &&
       currentDate <= new Date(regularSeason.endDate)
 
+    isPostseason =
+      currentDate >= new Date(regularSeason.endDate) && currentDate <= currentSeasonEndDate
+
     if (isRegularSeason) {
       const currentWeek = regularSeason.weeks.find(
         (week) => currentDate >= new Date(week.startDate) && currentDate <= new Date(week.endDate),
@@ -40,6 +45,8 @@ export async function getCurrentWeek(): Promise<number> {
       if (currentWeek) {
         votingWeek = currentWeek.number
       }
+    } else if (isPostseason) {
+      votingWeek = 999
     } else {
       votingWeek = 0
     }
