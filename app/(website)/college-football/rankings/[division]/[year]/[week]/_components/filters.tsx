@@ -50,7 +50,9 @@ export const RankingsFilters = ({ years, weeks }: { years: Year[]; weeks: Week[]
         <SelectContent>
           {weeks.map(({ week }: Week) => (
             <SelectItem key={week} value={week.toString()}>
-              {week === 0 ? 'Preseason' : `Week ${week}`}
+              {/* {week === 0 ? 'Preseason' : `Week ${week}`} */}
+              {/* if week === 0 then Preseason, if week is 999 Final Rankings else `Week ${week}` */}
+              {week === 0 ? 'Preseason' : week === 999 ? 'Final Rankings' : `Week ${week}`}
             </SelectItem>
           ))}
         </SelectContent>

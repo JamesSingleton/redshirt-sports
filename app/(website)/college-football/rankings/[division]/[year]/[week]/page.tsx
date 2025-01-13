@@ -49,6 +49,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CollegeFootballRankingsPage({ params }: Props) {
   const { division, year, week } = params
+  let weekNumber = parseInt(week, 10)
+
+  if (week === 'final-rankings') {
+    weekNumber = 999
+  }
   const [yearsWithVotesResult, weeksWithVotesResult] = await Promise.allSettled([
     getYearsThatHaveVotes({ division }),
     getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
@@ -59,10 +64,14 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   const weeksWithVotes =
     weeksWithVotesResult.status === 'fulfilled' ? weeksWithVotesResult.value : []
 
-  let titleWeek = `Week ${week}`
+  let titleWeek = `Week ${weekNumber}`
 
-  if (week === '0') {
+  if (weekNumber === 0) {
     titleWeek = 'Preseason'
+  }
+
+  if (weekNumber === 999) {
+    titleWeek = 'Postseason'
   }
 
   if (!yearsWithVotes.length || !weeksWithVotes.length) {
@@ -70,13 +79,13 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   }
   const finalRankings = await getFinalRankingsForWeekAndYear({
     year: parseInt(year, 10),
-    week: parseInt(week, 10),
+    week: weekNumber,
   })
   const { rankings } = finalRankings
 
   const votesForWeekAndYearByVoter = await getVotesForWeekAndYearByVoter({
     year: parseInt(year, 10),
-    week: parseInt(week, 10),
+    week: weekNumber,
     division,
   })
 

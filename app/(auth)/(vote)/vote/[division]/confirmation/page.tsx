@@ -11,6 +11,7 @@ import { transformBallotToTeamIds } from '@/utils/process-ballots'
 
 import { type Metadata } from 'next'
 import { type Ballot } from '@/types'
+import { getCurrentSeason } from '@/utils/getCurrentSeason'
 
 const voteConfirmationHeaderByDivision = [
   {
@@ -49,7 +50,7 @@ export default async function VoteConfirmationPage({ params }: { params: { divis
   const header = voteConfirmationHeaderByDivision.find((d) => d.division === division)
   const user = auth()
   const votingWeek = await getCurrentWeek()
-  const year = new Date().getFullYear()
+  const { year } = await getCurrentSeason()
   const ballot = (await getVoterBallots({
     year,
     week: votingWeek,
