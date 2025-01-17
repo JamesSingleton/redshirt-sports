@@ -301,3 +301,18 @@ export function getRSSFeed() {
     { token, perspective: 'published', cache: 'no-store' },
   )
 }
+
+export async function getSchoolsBySanityIds(sanityIds: string[]) {
+  const query = `*[_type == "school" && _id in $ids]{
+    _id,
+    name,
+    conference,
+    division,
+    image
+  }`
+  const schools = await client.fetch(query, { ids: sanityIds })
+  return schools.reduce((acc: { [x: string]: any }, school: { _id: string | number }) => {
+    acc[school._id] = school
+    return acc
+  }, {})
+}
