@@ -49,7 +49,10 @@ export const RankingsFilters = ({ years, weeks }: { years: Year[]; weeks: Week[]
         </SelectTrigger>
         <SelectContent>
           {weeks.map(({ week }: Week) => (
-            <SelectItem key={week} value={week.toString()}>
+            <SelectItem
+              key={week}
+              value={week.toString() === '999' ? 'final-rankings' : week.toString()}
+            >
               {/* {week === 0 ? 'Preseason' : `Week ${week}`} */}
               {/* if week === 0 then Preseason, if week is 999 Final Rankings else `Week ${week}` */}
               {week === 0 ? 'Preseason' : week === 999 ? 'Final Rankings' : `Week ${week}`}

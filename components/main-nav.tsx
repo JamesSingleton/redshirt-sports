@@ -82,7 +82,7 @@ export function MainNav({ divisions, latestFCSTop25 }: NavProps) {
           {latestFCSTop25 && (
             <NavigationMenuItem>
               <Link
-                href={`/college-football/rankings/${latestFCSTop25.division}/${latestFCSTop25.year}/${latestFCSTop25.week}`}
+                href={`/college-football/rankings/${latestFCSTop25.division}/${latestFCSTop25.year}/${latestFCSTop25.week === 999 ? 'final-rankings' : latestFCSTop25.week}`}
                 legacyBehavior
                 passHref
                 prefetch={false}

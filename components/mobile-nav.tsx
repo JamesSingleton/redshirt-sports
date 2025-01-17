@@ -55,7 +55,7 @@ export function MobileNav({ divisions, latestFCSTop25 }: NavProps) {
           <div className="mt-4 flex flex-col space-y-3">
             {latestFCSTop25 && (
               <MobileLink
-                href={`/college-football/rankings/${latestFCSTop25.division}/${latestFCSTop25.year}/${latestFCSTop25.week}`}
+                href={`/college-football/rankings/${latestFCSTop25.division}/${latestFCSTop25.year}/${latestFCSTop25.week === 999 ? 'final-rankings' : latestFCSTop25.week}`}
                 onOpenChange={setOpen}
               >
                 FCS Top 25
