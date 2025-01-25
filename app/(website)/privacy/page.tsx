@@ -73,13 +73,13 @@ export default async function PrivacyPolicyPage() {
         title="Privacy Policy"
         subtitle={
           <p className="mt-4 text-lg font-normal lg:text-xl">
-            Last updated on <Date dateString={privacyPolicy?._updatedAt!} />
+            Last updated on <Date dateString={privacyPolicy._updatedAt} />
           </p>
         }
       />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="prose prose-lg prose-indigo mx-auto max-w-none px-5 dark:prose-invert sm:px-6 md:px-8 lg:mx-0 lg:px-0">
-          <CustomPortableText value={privacyPolicy?.body!} />
+          <CustomPortableText value={privacyPolicy.body!} />
         </div>
       </section>
     </>

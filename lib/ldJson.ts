@@ -67,7 +67,7 @@ export const Web: WebSite = {
     '@type': 'SearchAction',
     target: `${HOME_DOMAIN}/search?q={search_term_string}`,
     name: 'Search',
-    // @ts-ignore this is a valid property
+    // @ts-expect-error this is a valid property
     'query-input': 'required name=search_term_string',
   },
   image: {

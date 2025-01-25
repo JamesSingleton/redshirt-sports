@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, ElementRef, ComponentPropsWithoutRef } from 'react'
+import { forwardRef, ComponentRef, ComponentPropsWithoutRef } from 'react'
 import Link from 'next/link'
 
 import { cn } from '@/lib/utils'
@@ -114,8 +114,8 @@ export function MainNav({ divisions, latestFCSTop25 }: NavProps) {
   )
 }
 
-const ListItem = forwardRef<ElementRef<'a'>, ComponentPropsWithoutRef<'a'>>(
-  ({ className, title, children, ...props }, ref) => {
+const ListItem = forwardRef<ComponentRef<'a'>, ComponentPropsWithoutRef<'a'>>(
+  ({ className, title, ...props }, ref) => {
     return (
       <li>
         <NavigationMenuLink asChild>

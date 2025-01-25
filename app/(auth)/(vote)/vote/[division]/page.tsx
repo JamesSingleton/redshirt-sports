@@ -10,7 +10,6 @@ import { getCurrentWeek } from '@/utils/getCurrentWeek'
 import { type Metadata } from 'next'
 import { getCurrentSeason } from '@/utils/getCurrentSeason'
 import { CardHeader, CardTitle, CardContent, Card } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
 
 export async function generateStaticParams() {
   const divisions = ['fbs', 'fcs', 'd2', 'd3']
@@ -55,12 +54,12 @@ const divisionHeader = [
   },
 ]
 
-export default async function VotePage({ params }: { params: { division: string } }) {
-  const { division } = params
+export default async function VotePage({ params }: { params: Promise<{ division: string }> }) {
+  const { division } = await params
   const votingWeek = await getCurrentWeek()
   const { year } = await getCurrentSeason()
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
-  const { userId } = auth()
+  const { userId } = await auth()
 
   const schools = await getSchoolsByDivision(division)
 

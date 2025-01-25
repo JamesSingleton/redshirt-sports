@@ -17,10 +17,7 @@ export async function generateSitemaps() {
   return sitemaps
 }
 
-export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
-  const start = id * 50000
-  const end = start + 50000
-
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const authors = await getAuthorsForSitemap()
 
   return authors.map((author) => ({

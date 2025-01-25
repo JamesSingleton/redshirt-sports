@@ -73,8 +73,3 @@ export default async function ArticleOGImage({ params: { slug } }: { params: { s
     },
   )
 }
-
-// lil helper for more succinct styles
-function font(fontFamily: string) {
-  return { fontFamily }
-}

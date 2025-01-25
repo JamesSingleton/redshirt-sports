@@ -17,10 +17,7 @@ export async function generateSitemaps() {
   return sitemaps
 }
 
-export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
-  // Google's limit is 50,000 URLs per sitemap
-  const start = id * 50000
-  const end = start + 50000
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await getPostsForSitemap()
 
   return posts.map((post) => {

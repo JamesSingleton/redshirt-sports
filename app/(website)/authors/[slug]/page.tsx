@@ -33,11 +33,11 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: { slug: string }
-  searchParams: { [key: string]: string }
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ [key: string]: string }>
 }): Promise<Metadata> {
-  const { slug } = params
-  const { page, conference } = searchParams
+  const { slug } = await params
+  const { page, conference } = await searchParams
   const author = await getAuthorBySlug(slug)
 
   if (!author) {
@@ -72,21 +72,21 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: { slug: string }
-  searchParams: { [key: string]: string }
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ [key: string]: string }>
 }) {
-  const { slug } = params
-  const { page, conference: conferenceParam } = searchParams
+  const { slug } = await params
+  const { page, conference: conferenceSearchParam } = await searchParams
   const pageIndex = page ? parseInt(page) : 1
 
   if (parseInt(page) === 1) {
-    if (conferenceParam) {
-      return redirect(`/authors/${slug}?conference=${conferenceParam}`)
+    if (conferenceSearchParam) {
+      return redirect(`/authors/${slug}?conference=${conferenceSearchParam}`)
     }
     return redirect(`/authors/${slug}`)
   }
 
-  const conference = searchParams.conference ?? null
+  const conference = conferenceSearchParam ?? null
   const author = await getAuthorBySlug(slug)
 
   if (!author) {

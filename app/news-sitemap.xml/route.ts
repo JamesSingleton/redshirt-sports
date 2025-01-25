@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 import { HOME_DOMAIN } from '@/lib/constants'
 import { getPostsForNewsSitemap } from '@/lib/sanity.fetch'

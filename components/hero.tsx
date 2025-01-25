@@ -6,7 +6,7 @@ import { badgeVariants } from '@/components/ui/badge'
 import { Image as SanityImage } from '@/components/image'
 
 import { Post } from '@/types'
-import { imageBuilder, urlForImage } from '@/lib/sanity.image'
+import { urlForImage } from '@/lib/sanity.image'
 
 const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
   const heroArticle = heroPosts[0]
