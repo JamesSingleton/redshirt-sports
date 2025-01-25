@@ -1,3 +1,4 @@
+import React from 'react'
 import Breadcrumbs from '@/components/breadcrumbs'
 
 import type { BreadcrumbProps } from '@/types'
@@ -5,7 +6,7 @@ import type { BreadcrumbProps } from '@/types'
 type PageHeaderProps = {
   breadcrumbs: BreadcrumbProps
   title: string
-  subtitle?: string | JSX.Element | JSX.Element[] | null
+  subtitle?: string | React.ReactNode
 }
 
 export default function PageHeader({ breadcrumbs, title, subtitle }: PageHeaderProps) {

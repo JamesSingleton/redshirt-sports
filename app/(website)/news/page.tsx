@@ -25,9 +25,9 @@ const breadcrumbs = [
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: { [key: string]: string }
+  searchParams: Promise<{ [key: string]: string }>
 }): Promise<Metadata> {
-  const { page } = searchParams
+  const { page } = await searchParams
   let finalTitle: string = `College Football News & Updates | ${process.env.NEXT_PUBLIC_APP_NAME}`
   let finalDescription: string = `Get the latest college football news, covering FCS, FBS, D2, and D3. Explore insightful articles and stay informed with ${process.env.NEXT_PUBLIC_APP_NAME}.`
   let canonical = '/news'
@@ -50,8 +50,12 @@ export async function generateMetadata({
   return defaultMetadata
 }
 
-export default async function Page({ searchParams }: { searchParams: { [key: string]: string } }) {
-  const { page } = searchParams
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string }>
+}) {
+  const { page } = await searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
   if (parseInt(page) === 1) {

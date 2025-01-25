@@ -9,7 +9,9 @@ export const completeOnboarding = async (formData: FormData) => {
   }
 
   try {
-    const res = await clerkClient().users.updateUserMetadata(userId, {
+    const client = await clerkClient()
+
+    const res = await client.users.updateUserMetadata(userId, {
       publicMetadata: {
         onboardingComplete: true,
         organization: formData.get('organizationName'),

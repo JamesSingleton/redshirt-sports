@@ -54,8 +54,8 @@ const divisionHeader = [
   },
 ]
 
-export default async function VotePage({ params }: { params: { division: string } }) {
-  const { division } = params
+export default async function VotePage({ params }: { params: Promise<{ division: string }> }) {
+  const { division } = await params
   const votingWeek = await getCurrentWeek()
   const { year } = await getCurrentSeason()
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })

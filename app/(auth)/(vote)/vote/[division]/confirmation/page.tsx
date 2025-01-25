@@ -45,8 +45,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function VoteConfirmationPage({ params }: { params: { division: string } }) {
-  const { division } = params
+export default async function VoteConfirmationPage({
+  params,
+}: {
+  params: Promise<{ division: string }>
+}) {
+  const { division } = await params
   const header = voteConfirmationHeaderByDivision.find((d) => d.division === division)
   const user = await auth()
   const votingWeek = await getCurrentWeek()

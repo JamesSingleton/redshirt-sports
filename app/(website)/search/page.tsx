@@ -24,9 +24,14 @@ const breadcrumbs = [
   },
 ]
 
-export default async function Page({ searchParams }: { searchParams: { [key: string]: string } }) {
-  const query = searchParams['q'] ?? null
-  const pageIndex = searchParams['page'] !== undefined ? parseInt(searchParams['page']) : 1
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string }>
+}) {
+  // const query = searchParams['q'] ?? null
+  const { q: query, page } = await searchParams
+  const pageIndex = page !== undefined ? parseInt(page) : 1
   const subheadingText = query ? `Search results for "${query}"` : null
 
   const searchResults = await getSearchResults(query, pageIndex)
