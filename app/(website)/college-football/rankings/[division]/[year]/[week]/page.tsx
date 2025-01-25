@@ -28,11 +28,11 @@ import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
 
 type Props = {
-  params: { division: string; week: string; year: string }
+  params: Promise<{ division: string; week: string; year: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { division, year, week } = params
+  const { division, year, week } = await params
 
   let titleWeek = `Week ${week}`
 
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CollegeFootballRankingsPage({ params }: Props) {
-  const { division, year, week } = params
+  const { division, year, week } = await params
   let weekNumber = parseInt(week, 10)
 
   if (week === 'final-rankings') {

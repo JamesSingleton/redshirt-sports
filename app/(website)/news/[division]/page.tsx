@@ -18,11 +18,11 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: { [key: string]: string }
-  searchParams: { [key: string]: string }
+  params: Promise<{ [key: string]: string }>
+  searchParams: Promise<{ [key: string]: string }>
 }): Promise<Metadata> {
-  const { division } = params
-  const { page } = searchParams
+  const { division } = await params
+  const { page } = await searchParams
 
   let finalTitle: string = `Latest ${division.toUpperCase()} Football Coverage | ${process.env.NEXT_PUBLIC_APP_NAME}`
   let finalDescription: string = `Discover the latest articles and insights on ${division.toUpperCase()} football. Get comprehensive coverage at ${process.env.NEXT_PUBLIC_APP_NAME}.`
@@ -48,17 +48,18 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: { [key: string]: string }
-  searchParams: { [key: string]: string }
+  params: Promise<{ [key: string]: string }>
+  searchParams: Promise<{ [key: string]: string }>
 }) {
-  const { page } = searchParams
+  const { division: divisionParam } = await params
+  const { page } = await searchParams
 
   if (parseInt(page) === 1) {
-    return redirect(`/news/${params.division}`)
+    return redirect(`/news/${divisionParam}`)
   }
 
   const pageIndex = page !== undefined ? parseInt(page) : 1
-  const division = await getNewsByDivision(params.division, pageIndex)
+  const division = await getNewsByDivision(divisionParam, pageIndex)
 
   if (!division) {
     notFound()
@@ -83,10 +84,10 @@ export default async function Page({
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${HOME_DOMAIN}/news/${params.division}${page ? `?page=${page}` : ''}`,
-        url: `${HOME_DOMAIN}/news/${params.division}${page ? `?page=${page}` : ''}`,
+        '@id': `${HOME_DOMAIN}/news/${divisionParam}${page ? `?page=${page}` : ''}`,
+        url: `${HOME_DOMAIN}/news/${divisionParam}${page ? `?page=${page}` : ''}`,
         breadcrumb: {
-          '@id': `${HOME_DOMAIN}/news/${params.division}#breadcrumb`,
+          '@id': `${HOME_DOMAIN}/news/${divisionParam}#breadcrumb`,
         },
       },
       {
@@ -106,7 +107,7 @@ export default async function Page({
       },
       {
         '@type': 'BreadcrumbList',
-        '@id': `${HOME_DOMAIN}/news/${params.division}#breadcrumb`,
+        '@id': `${HOME_DOMAIN}/news/${divisionParam}#breadcrumb`,
         itemListElement: [
           {
             '@type': 'ListItem',
@@ -124,7 +125,7 @@ export default async function Page({
             '@type': 'ListItem',
             position: 3,
             name: division?.name,
-            item: `${HOME_DOMAIN}/news/${params.division}`,
+            item: `${HOME_DOMAIN}/news/${divisionParam}`,
           },
         ],
       },

@@ -18,11 +18,11 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: { [key: string]: string }
-  searchParams: { [key: string]: string }
+  params: Promise<{ [key: string]: string }>
+  searchParams: Promise<{ [key: string]: string }>
 }): Promise<Metadata> {
-  const { division, conference } = params
-  const { page } = searchParams
+  const { division, conference } = await params
+  const { page } = await searchParams
 
   const conferenceInfo = await getConferenceInfoBySlug(conference)
 
@@ -56,16 +56,17 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: { [key: string]: string }
-  searchParams: { [key: string]: string }
+  params: Promise<{ [key: string]: string }>
+  searchParams: Promise<{ [key: string]: string }>
 }) {
-  const { page } = searchParams
-  const pageIndex = searchParams.page ? parseInt(page) : 1
+  const { division: divisionParam, conference: conferenceParam } = await params
+  const { page } = await searchParams
+  const pageIndex = page ? parseInt(page) : 1
 
   if (parseInt(page) === 1) {
-    return redirect(`/news/${params.division}`)
+    return redirect(`/news/${divisionParam}`)
   }
-  const conference = await getNewsByConference(params.conference, pageIndex)
+  const conference = await getNewsByConference(conferenceParam, pageIndex)
 
   if (!conference) {
     notFound()
@@ -99,14 +100,14 @@ export default async function Page({
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${HOME_DOMAIN}/news/${params.division}/${params.conference}${
+        '@id': `${HOME_DOMAIN}/news/${divisionParam}/${conferenceParam}${
           pageIndex ? `?page=${pageIndex}` : ''
         }`,
-        url: `${HOME_DOMAIN}/news/${params.division}/${params.conference}${
+        url: `${HOME_DOMAIN}/news/${divisionParam}/${conferenceParam}${
           pageIndex ? `?page=${pageIndex}` : ''
         }`,
         breadcrumb: {
-          '@id': `${HOME_DOMAIN}/news/${params.division}/${params.conference}#breadcrumb`,
+          '@id': `${HOME_DOMAIN}/news/${divisionParam}/${conferenceParam}#breadcrumb`,
         },
       },
       {
@@ -126,7 +127,7 @@ export default async function Page({
       },
       {
         '@type': 'BreadcrumbList',
-        '@id': `${HOME_DOMAIN}/news/${params.division}/${params.conference}#breadcrumb`,
+        '@id': `${HOME_DOMAIN}/news/${divisionParam}/${conferenceParam}#breadcrumb`,
         itemListElement: [
           {
             '@type': 'ListItem',
@@ -144,13 +145,13 @@ export default async function Page({
             '@type': 'ListItem',
             position: 3,
             name: conference.division.name,
-            item: `${HOME_DOMAIN}/news/${params.division}`,
+            item: `${HOME_DOMAIN}/news/${divisionParam}`,
           },
           {
             '@type': 'ListItem',
             position: 4,
             name: conference.shortName ?? conference.name,
-            item: `${HOME_DOMAIN}/news/${params.division}/${params.conference}`,
+            item: `${HOME_DOMAIN}/news/${divisionParam}/${conferenceParam}`,
           },
         ],
       },
