@@ -10,7 +10,6 @@ import { getCurrentWeek } from '@/utils/getCurrentWeek'
 import { type Metadata } from 'next'
 import { getCurrentSeason } from '@/utils/getCurrentSeason'
 import { CardHeader, CardTitle, CardContent, Card } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
 
 export async function generateStaticParams() {
   const divisions = ['fbs', 'fcs', 'd2', 'd3']

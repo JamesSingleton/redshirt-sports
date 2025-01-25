@@ -23,10 +23,8 @@ const breadcrumbs = [
 ]
 
 export async function generateMetadata({
-  params,
   searchParams,
 }: {
-  params: { [key: string]: string }
   searchParams: { [key: string]: string }
 }): Promise<Metadata> {
   const { page } = searchParams

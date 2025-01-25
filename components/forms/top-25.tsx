@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -161,7 +160,7 @@ const Top25 = ({ schools }: Top25FormProps) => {
           <FormField
             key={index}
             control={form.control}
-            // @ts-ignore
+            // @ts-expect-error zodResolver doesn't support this
             name={`rank_${index + 1}`}
             render={({ field }) => (
               <FormItem className="flex flex-col">

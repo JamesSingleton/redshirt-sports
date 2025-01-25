@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { currentUser, auth } from '@clerk/nextjs/server'
 import { ArrowUpRight, CheckIcon, LogIn, XIcon } from 'lucide-react'
 
 import {

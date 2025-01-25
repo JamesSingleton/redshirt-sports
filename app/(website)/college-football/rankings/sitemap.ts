@@ -9,7 +9,7 @@ export function generateSitemaps() {
   return [{ id: 0 }]
 }
 
-export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const yearsWithVotes = await getYearsWithVotes()
   return yearsWithVotes.map(({ year, week, division }) => ({
     url: `${HOME_DOMAIN}/college-football/rankings/${division}/${year}/${week}`,

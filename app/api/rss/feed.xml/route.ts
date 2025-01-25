@@ -5,7 +5,7 @@ import { getRSSFeed } from '@/lib/sanity.fetch'
 import { HOME_DOMAIN } from '@/lib/constants'
 import { urlForImage } from '@/lib/sanity.image'
 
-export async function GET(_: Request) {
+export async function GET() {
   const posts = await getRSSFeed()
 
   const feed = new Feed({

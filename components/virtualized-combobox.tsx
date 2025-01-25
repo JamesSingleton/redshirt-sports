@@ -141,7 +141,7 @@ interface VirtualizedComboboxProps {
 export function VirtualizedCombobox({
   options,
   searchPlaceholder = 'Select a school...',
-  width = '350px',
+  // width = '350px',
   height = '400px',
   onChange,
   selectedOptions,

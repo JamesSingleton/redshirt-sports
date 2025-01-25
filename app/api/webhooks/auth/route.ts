@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     switch (type) {
       case 'user.created':
         await db.insert(usersTable).values({
-          // @ts-ignore
+          // @ts-expect-error Clerk doesn't provide types for the data
           id: data.id,
           firstName: data.first_name,
           lastName: data.last_name,

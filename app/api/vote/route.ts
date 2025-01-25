@@ -16,9 +16,7 @@ export async function POST(req: Request) {
       return new Response('Unauthorized', { status: 401 })
     }
 
-    let currentSeasonData: Season
     let votingWeek: number = 0
-    let isPreseason: boolean = false
     let isRegularSeason: boolean
     let isPostseason: boolean
     let regularSeason: SeasonType
@@ -35,14 +33,15 @@ export async function POST(req: Request) {
       `https://site.api.espn.com/apis/common/v3/sports/football/college-football/seasons?startingseason=${year}`,
     ).then((res) => res.json())
 
-    currentSeasonData = espnBody.seasons[0]
+    const currentSeasonData: Season = espnBody.seasons[0]
     const currentSeasonEndDate = new Date(currentSeasonData.endDate)
 
     if (currentSeasonData.types.length) {
       preseason = currentSeasonData.types.find((type) => type.type === 1)!
       regularSeason = currentSeasonData.types.find((type) => type.type === 2)!
 
-      isPreseason =
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const isPreseason: boolean =
         currentDate >= new Date(preseason.startDate) && currentDate <= new Date(preseason.endDate)
 
       isRegularSeason =
