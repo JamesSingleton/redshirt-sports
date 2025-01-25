@@ -9,10 +9,10 @@ type UserMetadata = {
 const isOnboardingRoute = createRouteMatcher(['/onboarding'])
 const isProtectedRoute = createRouteMatcher(['/admin(.*)', '/vote(.*)'])
 
-export default clerkMiddleware((auth, req: NextRequest) => {
-  const { userId, sessionClaims, redirectToSignIn } = auth()
+export default clerkMiddleware(async (auth, req: NextRequest) => {
+  const { userId, sessionClaims, redirectToSignIn } = await auth()
   if (isProtectedRoute(req)) {
-    auth().protect()
+    await auth.protect()
     const { isVoter, isAdmin } = sessionClaims?.metadata as UserMetadata
 
     if (!isAdmin && req.nextUrl.pathname.startsWith('/admin')) {

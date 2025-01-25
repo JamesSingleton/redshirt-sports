@@ -2,7 +2,7 @@
 import { auth, clerkClient } from '@clerk/nextjs/server'
 
 export const completeOnboarding = async (formData: FormData) => {
-  const { userId } = auth()
+  const { userId } = await auth()
 
   if (!userId) {
     return { message: 'No Logged In User' }

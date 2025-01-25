@@ -31,7 +31,7 @@ type FinalRankings = {
 }
 
 export async function hasVoterVoted({ year, week }: GetUsersVote) {
-  const user = auth()
+  const user = await auth()
 
   if (!user.userId) throw new Error('Unauthorized')
 
@@ -44,7 +44,7 @@ export async function hasVoterVoted({ year, week }: GetUsersVote) {
 }
 
 export async function getVoterBallots({ year, week }: GetUsersVote) {
-  const user = auth()
+  const user = await auth()
 
   if (!user.userId) throw new Error('Unauthorized')
 

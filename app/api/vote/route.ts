@@ -10,7 +10,7 @@ import { getCurrentSeason } from '@/utils/getCurrentSeason'
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const user = auth()
+    const user = await auth()
 
     if (!user.userId) {
       return new Response('Unauthorized', { status: 401 })

@@ -59,7 +59,7 @@ export default async function VotePage({ params }: { params: { division: string 
   const votingWeek = await getCurrentWeek()
   const { year } = await getCurrentSeason()
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
-  const { userId } = auth()
+  const { userId } = await auth()
 
   const schools = await getSchoolsByDivision(division)
 
