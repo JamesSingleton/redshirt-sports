@@ -65,7 +65,6 @@
     "react-hook-form": "^7.54.2",
     "react-tweet": "^3.2.0",
     "sanity": "^3.72.1",
-    "sanity-image": "^0.2.0",
     "sanity-plugin-documents-pane": "^2.3.0",
     "sanity-plugin-media": "^2.3.2",
     "schema-dts": "^1.1.2",
