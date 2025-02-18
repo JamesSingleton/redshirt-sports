@@ -107,5 +107,10 @@ export default defineField({
       type: 'top25Table',
       icon: ThListIcon,
     },
+    {
+      name: 'table',
+      title: 'Table',
+      type: 'table',
+    },
   ],
 })

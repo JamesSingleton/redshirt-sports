@@ -18,6 +18,17 @@ import {
 } from '@/components/ui/table'
 import { ReactTweet as Tweet } from '@/components/tweet'
 
+type TableType = {
+  _type: 'table'
+  _key: string
+  rows: {
+    _key: string
+    _type: 'tableRow'
+    cells: string[]
+  }[]
+  markDefs: any
+}
+
 const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
   let linkHref = `/${value?.reference.slug}`
 
@@ -143,6 +154,33 @@ export function CustomPortableText({
                     </TableRow>
                   )
                 })}
+              </TableBody>
+            </Table>
+          </div>
+        )
+      },
+      table: ({ value }: { value: TableType }) => {
+        const headerRow = value.rows[0]
+        const rows = value.rows.slice(1)
+
+        return (
+          <div className="not-prose">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {headerRow.cells.map((cell) => (
+                    <TableHead key={cell}>{cell}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row._key}>
+                    {row.cells.map((cell) => (
+                      <TableCell key={cell}>{cell}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>

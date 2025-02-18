@@ -9,6 +9,7 @@ import {
 } from '@sanity/dashboard'
 import { media } from 'sanity-plugin-media'
 import { PortableTextInputProps } from 'sanity'
+import { table } from '@sanity/table'
 
 import { schemaTypes } from '@/sanity/schemas'
 import { apiVersion, projectId } from '@/lib/sanity.api'
@@ -24,7 +25,7 @@ export default defineConfig({
   dataset: 'production',
   schema: {
     types: schemaTypes,
-    templates: (prev, context) => [
+    templates: (prev) => [
       {
         id: 'school',
         title: 'School Child',
@@ -95,6 +96,7 @@ export default defineConfig({
         enabled: true,
       },
     }),
+    table(),
   ],
   tools: (prev, context) => {
     const isAdmin = context.currentUser?.roles?.find(({ name }) => name === 'administrator')
