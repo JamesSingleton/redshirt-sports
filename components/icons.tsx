@@ -1,6 +1,6 @@
 import { SVGProps } from 'react'
 
-export const Instagram = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const Instagram = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -14,7 +14,7 @@ export const Instagram = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElemen
   </svg>
 )
 
-export const Twitter = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const Twitter = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -28,7 +28,7 @@ export const Twitter = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
   </svg>
 )
 
-export const Facebook = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const Facebook = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -42,7 +42,7 @@ export const Facebook = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement
   </svg>
 )
 
-export const Website = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const Website = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -60,7 +60,7 @@ export const Website = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
   </svg>
 )
 
-export const SpotifyIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const SpotifyIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -74,7 +74,7 @@ export const SpotifyIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElem
   </svg>
 )
 
-export const ApplePodcastIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const ApplePodcastIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -88,7 +88,7 @@ export const ApplePodcastIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSV
   </svg>
 )
 
-export const OvercastIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const OvercastIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -102,7 +102,7 @@ export const OvercastIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGEle
   </svg>
 )
 
-export const RSSIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const RSSIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -116,7 +116,7 @@ export const RSSIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
   </svg>
 )
 
-export const YouTubeIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const YouTubeIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -127,5 +127,23 @@ export const YouTubeIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElem
   >
     <title>YouTube</title>
     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+  </svg>
+)
+
+export const UndecidedTransferIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 50 51" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path
+      d="M49.9101 35.5812C49.9101 35.5812 52.9706 0.25 23.3855 0.25C23.3855 0.25 0 1.3541 0 25.5655C0 49.7768 24.5627 50.25 24.5627 50.25H38.2958C38.2958 50.25 44.0244 49.7768 44.0244 44.8872V35.5812C43.946 35.5812 50.1455 35.3446 49.9101 35.5812Z"
+      fill="#E1E6EE"
+    />
+    <path
+      d="M13.027 14.4456H35.3138C36.8049 14.4456 38.0605 15.7074 38.0605 17.2058V42.3635L32.4888 36.7642H13.027C11.5359 36.7642 10.2803 35.5023 10.2803 34.0039V17.2847C10.2019 15.7074 11.4575 14.4456 13.027 14.4456Z"
+      fill="#A1B1C8"
+      fillOpacity="0.87"
+    />
+    <path
+      d="M28.565 21.9377C28.565 23.2784 27.9372 24.3825 26.6031 25.7232C25.5045 26.7484 25.1906 27.3005 25.1121 28.2468H23.2287C23.3072 27.0639 23.6996 26.3541 24.6413 25.25C25.8969 23.8304 26.2892 23.1207 26.2892 22.0954C26.2892 20.9125 25.583 20.1238 24.3274 20.1238C23.0718 20.1238 22.2085 20.9913 22.1301 22.5686H20.0112C20.0897 20.0449 21.8162 18.5465 24.4058 18.5465C27.074 18.4677 28.565 19.8872 28.565 21.9377ZM25.5045 30.6916C25.5045 31.4803 24.9552 32.0323 24.1704 32.0323C23.3857 32.0323 22.8363 31.4803 22.8363 30.6916C22.8363 29.903 23.3857 29.3509 24.1704 29.3509C24.9552 29.3509 25.5045 29.903 25.5045 30.6916Z"
+      fill="white"
+    />
   </svg>
 )
