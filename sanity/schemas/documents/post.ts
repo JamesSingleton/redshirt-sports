@@ -1,5 +1,5 @@
 import { defineType, defineField, defineArrayMember } from 'sanity'
-import { DocumentTextIcon, CalendarIcon, ComposeIcon, LinkIcon, SearchIcon } from '@sanity/icons'
+import { DocumentTextIcon } from '@sanity/icons'
 import CustomStringInputWithLimits from '@/sanity/plugins/CustomStringInputWithLimits'
 import { CustomTextInputWithLimits } from '@/sanity/plugins/CustomTextInputWithLimits'
 import { format, parseISO } from 'date-fns'
@@ -123,7 +123,7 @@ export default defineType({
             filter: ({ document }) => ({
               filter: 'division._ref == $divisionId',
               params: {
-                // @ts-ignore
+                // @ts-expect-error this actually works, just types are messed up from Sanity
                 divisionId: document?.division?._ref,
               },
             }),

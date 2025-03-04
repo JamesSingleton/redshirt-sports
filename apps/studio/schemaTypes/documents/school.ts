@@ -1,11 +1,9 @@
 import { defineType, defineField } from 'sanity'
-import { HomeIcon } from '@sanity/icons'
 
-export default defineType({
+export const school = defineType({
   name: 'school',
   title: 'School',
   type: 'document',
-  icon: HomeIcon,
   fields: [
     defineField({
       name: 'name',
@@ -85,4 +83,17 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
   ],
+  preview: {
+    select: {
+      title: 'name',
+      media: 'image',
+      division: 'division.name',
+      conference: 'conference.name',
+    },
+    prepare: ({ title, media, division, conference }) => ({
+      title,
+      subtitle: `${division} - ${conference}`,
+      media,
+    }),
+  },
 })
