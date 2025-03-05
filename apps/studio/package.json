@@ -12,6 +12,7 @@
     "type": "sanity schema extract && sanity typegen generate --enforce-required-fields"
   },
   "dependencies": {
+    "@portabletext/react": "^3.2.1",
     "@sanity/asset-utils": "^2.2.1",
     "@sanity/assist": "^3.2.0",
     "@sanity/dashboard": "^4.1.2",
