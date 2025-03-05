@@ -16,7 +16,7 @@ import { presentationUrl } from './plugins/presentation-url'
 import { Logo } from './components/logo'
 import { locations } from './location'
 import { schemaTypes } from './schemaTypes'
-import { structure } from './structure'
+import { getDefaultDocumentNode, structure } from './structure'
 import { BlockContentInput } from './components/block-content-input'
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? ''
@@ -44,6 +44,7 @@ export default defineConfig({
     assist(),
     structureTool({
       structure,
+      defaultDocumentNode: getDefaultDocumentNode,
     }),
     visionTool(),
     dashboardTool({

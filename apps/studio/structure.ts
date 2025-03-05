@@ -12,7 +12,13 @@ import {
   GavelIcon,
   RefreshCcw,
 } from 'lucide-react'
-import type { StructureBuilder, StructureResolverContext } from 'sanity/structure'
+import { LinkIcon, ComposeIcon } from '@sanity/icons'
+import type {
+  DefaultDocumentNodeResolver,
+  StructureBuilder,
+  StructureResolverContext,
+} from 'sanity/structure'
+import DocumentsPane from 'sanity-plugin-documents-pane'
 
 import type { SchemaType, SingletonType } from './schemaTypes'
 import { getTitleCase } from './utils/helper'
@@ -28,6 +34,26 @@ type Base<T = SchemaType> = {
 type CreateSingleTon = {
   S: StructureBuilder
 } & Base<SingletonType>
+
+const incomingReferences = (S: StructureBuilder) =>
+  S.view
+    .component(DocumentsPane)
+    .options({
+      query: `*[references($id)] | order(_createdAt desc)`,
+      params: { id: `_id` },
+      useDraft: false,
+    })
+    .title('Incoming References')
+    .icon(LinkIcon)
+
+export const getDefaultDocumentNode: DefaultDocumentNodeResolver = (S, { schemaType }) => {
+  switch (schemaType) {
+    case 'post':
+      return S.document().views([S.view.form().icon(ComposeIcon), incomingReferences(S)])
+    default:
+      return S.document().views([S.view.form(), incomingReferences(S)])
+  }
+}
 
 const createSingleTon = ({ S, type, title, icon }: CreateSingleTon) => {
   const newTitle = title ?? getTitleCase(type)

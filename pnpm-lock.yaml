@@ -44,15 +44,6 @@ importers:
       cmdk:
         specifier: ^1.0.4
         version: 1.0.4(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      date-fns:
-        specifier: ^4.1.0
-        version: 4.1.0
-      date-fns-tz:
-        specifier: ^3.2.0
-        version: 3.2.0(date-fns@4.1.0)
-      drizzle-orm:
-        specifier: ^0.40.0
-        version: 0.40.0(@libsql/client-wasm@0.14.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.0)(postgres@3.4.5)
       feed:
         specifier: ^4.2.2
         version: 4.2.2
@@ -62,36 +53,15 @@ importers:
       htm:
         specifier: ^3.1.1
         version: 3.1.1
-      postgres:
-        specifier: ^3.4.5
-        version: 3.4.5
       react-hook-form:
         specifier: ^7.54.2
         version: 7.54.2(react@19.0.0)
-      schema-dts:
-        specifier: ^1.1.2
-        version: 1.1.2(typescript@5.7.3)
       sonner:
         specifier: ^2.0.1
         version: 2.0.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      styled-components:
-        specifier: ^6.1.15
-        version: 6.1.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       suspend-react:
         specifier: ^0.1.3
         version: 0.1.3(react@19.0.0)
-      svix:
-        specifier: ^1.60.1
-        version: 1.60.1
-      tailwind-merge:
-        specifier: ^3.0.2
-        version: 3.0.2
-      vaul:
-        specifier: ^1.1.2
-        version: 1.1.2(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      zod:
-        specifier: ^3.24.2
-        version: 3.24.2
     devDependencies:
       '@workspace/eslint-config':
         specifier: workspace:*
@@ -247,6 +217,9 @@ importers:
       react-tweet:
         specifier: ^3.2.2
         version: 3.2.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      schema-dts:
+        specifier: ^1.1.5
+        version: 1.1.5
       svix:
         specifier: ^1.60.1
         version: 1.60.1
@@ -7626,10 +7599,8 @@ packages:
   scheduler@0.25.0:
     resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
 
-  schema-dts@1.1.2:
-    resolution: {integrity: sha512-MpNwH0dZJHinVxk9bT8XUdjKTxMYrA5bLtrrGmFA6PTLwlOKnhi67XoRd6/ty+Djt6ZC0slR57qFhZDNMI6DhQ==}
-    peerDependencies:
-      typescript: '>=4.1.0'
+  schema-dts@1.1.5:
+    resolution: {integrity: sha512-RJr9EaCmsLzBX2NDiO5Z3ux2BVosNZN5jo0gWgsyKvxKIUL5R3swNvoorulAeL9kLB0iTSX7V6aokhla2m7xbg==}
 
   schema-utils@3.3.0:
     resolution: {integrity: sha512-pN/yOAvcC+5rQ5nERGuwrjLlYvLTbCibnZ1I7B1LaiAz9BRBlE9GMgE/eqV30P7aJQUf7Ddimy/RsbYO/GrVGg==}
@@ -8044,9 +8015,6 @@ packages:
 
   tailwind-merge@2.6.0:
     resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
-
-  tailwind-merge@3.0.2:
-    resolution: {integrity: sha512-l7z+OYZ7mu3DTqrL88RiKrKIqO3NcpEO8V/Od04bNpvk0kiIFndGEoqfuzvj4yuhRkHKjRkII2z+KS2HfPcSxw==}
 
   tailwindcss-animate@1.0.7:
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
@@ -8545,12 +8513,6 @@ packages:
   validate-npm-package-name@5.0.1:
     resolution: {integrity: sha512-OljLrQ9SQdOUqTaQxqL5dEfZWrXExyyWsozYlAWFawPVNuD83igl7uJD2RTkNMbniIYgt8l81eCJGIdQF7avLQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
-
-  vaul@1.1.2:
-    resolution: {integrity: sha512-ZFkClGpWyI2WUQjdLJ/BaGuV6AVQiJ3uELGk3OYtP+B6yCO7Cmn9vPFXVJkRaGkOJu3m8bQMgtyzNHixULceQA==}
-    peerDependencies:
-      react: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
-      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
 
   vite@6.1.0:
     resolution: {integrity: sha512-RjjMipCKVoR4hVfPY6GQTgveinjNuyLw+qruksLDvA5ktI1150VmcMBKmQaEWJhg/j6Uaf6dNCNA0AfdzUb/hQ==}
@@ -10835,7 +10797,7 @@ snapshots:
 
   '@portabletext/block-tools@1.1.10(@sanity/types@3.77.2(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)':
     dependencies:
-      '@sanity/types': 3.77.2(@types/react@18.3.12)
+      '@sanity/types': 3.77.2(@types/react@18.3.12)(debug@4.4.0)
       '@types/react': 18.3.12
       get-random-values-esm: 1.0.2
       lodash: 4.17.21
@@ -10846,7 +10808,7 @@ snapshots:
       '@portabletext/patches': 1.1.3
       '@portabletext/to-html': 2.0.14
       '@sanity/schema': 3.77.2(@types/react@18.3.12)(debug@4.4.0)
-      '@sanity/types': 3.77.2(@types/react@18.3.12)
+      '@sanity/types': 3.77.2(@types/react@18.3.12)(debug@4.4.0)
       '@xstate/react': 5.0.2(@types/react@18.3.12)(react@18.3.1)(xstate@5.19.2)
       debug: 4.4.0
       get-random-values-esm: 1.0.2
@@ -12051,7 +12013,7 @@ snapshots:
   '@sanity/insert-menu@1.1.3(@emotion/is-prop-valid@1.2.2)(@sanity/types@3.77.2(@types/react@18.3.12)(debug@4.4.0))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@sanity/icons': 3.7.0(react@18.3.1)
-      '@sanity/types': 3.77.2(@types/react@18.3.12)
+      '@sanity/types': 3.77.2(@types/react@18.3.12)(debug@4.4.0)
       '@sanity/ui': 2.14.3(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       lodash: 4.17.21
       react: 18.3.1
@@ -12172,7 +12134,7 @@ snapshots:
   '@sanity/schema@3.77.2(@types/react@18.3.12)(debug@4.4.0)':
     dependencies:
       '@sanity/generate-help-url': 3.0.0
-      '@sanity/types': 3.77.2(@types/react@18.3.12)
+      '@sanity/types': 3.77.2(@types/react@18.3.12)(debug@4.4.0)
       arrify: 2.0.1
       groq-js: 1.15.0
       humanize-list: 1.0.1
@@ -12227,13 +12189,6 @@ snapshots:
       - debug
 
   '@sanity/types@3.68.3(@types/react@18.3.12)(debug@4.4.0)':
-    dependencies:
-      '@sanity/client': 6.28.1(debug@4.4.0)
-      '@types/react': 18.3.12
-    transitivePeerDependencies:
-      - debug
-
-  '@sanity/types@3.77.2(@types/react@18.3.12)':
     dependencies:
       '@sanity/client': 6.28.1(debug@4.4.0)
       '@types/react': 18.3.12
@@ -12342,7 +12297,7 @@ snapshots:
     dependencies:
       '@sanity/client': 6.28.1(debug@4.4.0)
     optionalDependencies:
-      '@sanity/types': 3.77.2(@types/react@18.3.12)
+      '@sanity/types': 3.77.2(@types/react@18.3.12)(debug@4.4.0)
 
   '@sentry-internal/browser-utils@8.54.0':
     dependencies:
@@ -17325,7 +17280,7 @@ snapshots:
       '@sanity/preview-url-secret': 2.1.4(@sanity/client@6.28.1(debug@4.4.0))
       '@sanity/schema': 3.77.2(@types/react@18.3.12)(debug@4.4.0)
       '@sanity/telemetry': 0.7.7
-      '@sanity/types': 3.77.2(@types/react@18.3.12)
+      '@sanity/types': 3.77.2(@types/react@18.3.12)(debug@4.4.0)
       '@sanity/ui': 2.14.3(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@sanity/util': 3.77.2(@types/react@18.3.12)(debug@4.4.0)
       '@sanity/uuid': 3.0.2
@@ -17456,9 +17411,7 @@ snapshots:
 
   scheduler@0.25.0: {}
 
-  schema-dts@1.1.2(typescript@5.7.3):
-    dependencies:
-      typescript: 5.7.3
+  schema-dts@1.1.5: {}
 
   schema-utils@3.3.0:
     dependencies:
@@ -17883,20 +17836,6 @@ snapshots:
       stylis: 4.3.2
       tslib: 2.6.2
 
-  styled-components@6.1.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
-    dependencies:
-      '@emotion/is-prop-valid': 1.2.2
-      '@emotion/unitless': 0.8.1
-      '@types/stylis': 4.2.5
-      css-to-react-native: 3.2.0
-      csstype: 3.1.3
-      postcss: 8.4.49
-      react: 19.0.0
-      react-dom: 19.0.0(react@19.0.0)
-      shallowequal: 1.1.0
-      stylis: 4.3.2
-      tslib: 2.6.2
-
   styled-jsx@5.1.6(react@19.0.0):
     dependencies:
       client-only: 0.0.1
@@ -17981,8 +17920,6 @@ snapshots:
       tslib: 2.8.1
 
   tailwind-merge@2.6.0: {}
-
-  tailwind-merge@3.0.2: {}
 
   tailwindcss-animate@1.0.7(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))):
     dependencies:
@@ -18597,15 +18534,6 @@ snapshots:
       builtins: 1.0.3
 
   validate-npm-package-name@5.0.1: {}
-
-  vaul@1.1.2(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
-    dependencies:
-      '@radix-ui/react-dialog': 1.1.6(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      react: 19.0.0
-      react-dom: 19.0.0(react@19.0.0)
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
 
   vite@6.1.0(@types/node@22.13.9)(jiti@1.21.6)(terser@5.31.0)(yaml@2.6.1):
     dependencies:
