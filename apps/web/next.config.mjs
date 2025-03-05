@@ -5,7 +5,7 @@ const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   useCdn: process.env.NODE_ENV === 'production',
-  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2023-06-21',
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2025-02-06',
 })
 
 // https://nextjs.org/docs/advanced-features/security-headers

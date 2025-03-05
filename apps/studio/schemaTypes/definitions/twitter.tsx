@@ -1,5 +1,5 @@
 import React from 'react'
-import { defineField, PreviewProps } from 'sanity'
+import { defineField, defineType, PreviewProps } from 'sanity'
 import { Tweet } from 'react-tweet'
 
 const Preview = (props: PreviewProps & { id?: string }) => {
@@ -8,16 +8,16 @@ const Preview = (props: PreviewProps & { id?: string }) => {
   return <Tweet id={tweetId} />
 }
 
-export const twitter = defineField({
+export const twitter = defineType({
   name: 'twitter',
   type: 'object',
   title: 'Twitter Embed',
   fields: [
-    {
+    defineField({
       name: 'id',
       type: 'string',
       title: 'Twitter tweet ID',
-    },
+    }),
   ],
   preview: {
     select: {

@@ -1,7 +1,7 @@
 import 'server-only'
 import { auth } from '@clerk/nextjs/server'
 import { desc, eq, and, sql } from 'drizzle-orm'
-import { weeklyFinalRankings, voterBallots } from './db/schema'
+import { weeklyFinalRankings, voterBallots } from './db/schema.js'
 
 import { db } from '@/server/db'
 import { client } from '@/lib/sanity.client'

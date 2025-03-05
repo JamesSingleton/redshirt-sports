@@ -1,7 +1,7 @@
 import { PortableTextBlock } from 'sanity'
 
-import { Author, Post } from './post'
-import { Conference, MainImage } from './common'
+import { Author, Post } from './post.js'
+import { Conference, MainImage } from './common.js'
 
 import type { Image } from 'sanity'
 

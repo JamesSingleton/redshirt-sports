@@ -81,7 +81,6 @@ export const post = defineType({
     defineField({
       name: 'publishedAt',
       type: 'datetime',
-      initialValue: () => new Date().toISOString().split('T')[0],
       title: 'Published At',
       group: GROUP.MAIN_CONTENT,
     }),
@@ -112,6 +111,72 @@ export const post = defineType({
           validation: (rule) => rule.required(),
         }),
       ],
+    }),
+    defineField({
+      title: 'Division',
+      name: 'division',
+      description: 'What division does this article belong to?',
+      type: 'reference',
+      to: [{ type: 'division' }],
+      group: GROUP.MAIN_CONTENT,
+    }),
+    defineField({
+      title: 'Conferences',
+      name: 'conferences',
+      description: 'What conferences does this article mention?',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: [{ type: 'conference' }],
+          options: {
+            filter: ({ document }) => ({
+              filter: 'division._ref == $divisionId',
+              params: {
+                // @ts-expect-error this actually works, just types are messed up from Sanity
+                divisionId: document?.division?._ref,
+              },
+            }),
+          },
+        }),
+      ],
+      hidden: ({ document }) => !document?.division,
+      group: GROUP.MAIN_CONTENT,
+    }),
+    defineField({
+      title: 'Teams Mentioned',
+      name: 'teams',
+      description: 'What teams does this article mention?',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: [{ type: 'school' }],
+        }),
+      ],
+      group: GROUP.MAIN_CONTENT,
+    }),
+    defineField({
+      title: 'Tags',
+      name: 'tags',
+      description:
+        'Add tags to help with the "Related Articles" section on a post. Especially if you are not adding a conference or division.',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: [{ type: 'tag' }],
+        }),
+      ],
+      group: GROUP.MAIN_CONTENT,
+    }),
+    defineField({
+      title: 'Is this a featured article?',
+      description: 'Only select Featured if it has been discussed with everyone on the team.',
+      name: 'featuredArticle',
+      type: 'boolean',
+      initialValue: false,
+      group: GROUP.MAIN_CONTENT,
     }),
     defineField({
       name: 'excerpt',

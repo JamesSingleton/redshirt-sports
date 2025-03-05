@@ -54,76 +54,51 @@ const createList = ({ S, type, icon, title, id }: CreateList) => {
     .icon(icon ?? Folder)
 }
 
-type CreateIndexList = {
-  S: StructureBuilder
-  list: Base
-  index: Base<SingletonType>
-}
-
-const createIndexList = ({ S, index, list }: CreateIndexList) => {
-  const indexTitle = index.title ?? getTitleCase(index.type)
-  const listTitle = list.title ?? getTitleCase(list.type)
-  return S.listItem()
-    .title(listTitle)
-    .icon(index.icon ?? Folder)
-    .child(
-      S.list()
-        .title(indexTitle)
-        .items([
-          S.listItem()
-            .title(indexTitle)
-            .icon(index.icon ?? Folder)
-            .child(
-              S.document().views([S.view.form()]).schemaType(index.type).documentId(index.type),
-            ),
-          S.documentTypeListItem(list.type)
-            .title(`${listTitle}`)
-            .icon(list.icon ?? Folder),
-        ]),
-    )
-}
-
 export const structure = (S: StructureBuilder, context: StructureResolverContext) => {
-  return S.list()
-    .title('Content')
-    .items([
-      // createSingleTon({ S, type: 'homePage', icon: HomeIcon }),
+  const { currentUser } = context
+  const items = [
+    createList({ S, type: 'post', title: 'Articles', icon: FileText }),
+    S.divider(),
+    createList({
+      S,
+      type: 'division',
+      title: 'Divisions',
+    }),
+    createList({
+      S,
+      type: 'conference',
+      title: 'Conferences',
+    }).child(
+      S.documentTypeList('conference')
+        .title('Conferences')
+        .defaultOrdering([{ field: 'name', direction: 'asc' }]),
+    ),
+    createList({
+      S,
+      type: 'school',
+      title: 'Schools',
+      icon: UniversityIcon,
+    }).child(
+      S.documentTypeList('school')
+        .title('Schools')
+        .defaultOrdering([{ field: 'name', direction: 'asc' }]),
+    ),
+    S.divider(),
+    createList({
+      S,
+      type: 'tag',
+      title: 'Tags',
+      icon: TagIcon,
+    }),
+    S.divider(),
+    createList({ S, type: 'author', title: 'Authors', icon: User }),
+  ]
 
-      createList({ S, type: 'post', title: 'Articles', icon: FileText }),
-      // createIndexList({
-      //   S,
-      //   // index: { type: 'blogIndex', icon: BookMarked },
-      //   list: { type: 'post', title: 'Posts', icon: FileText },
-      // }),
-      S.divider(),
-      createList({
-        S,
-        type: 'division',
-        title: 'Divisions',
-      }),
-      createList({
-        S,
-        type: 'conference',
-        title: 'Conferences',
-      }),
-      createList({
-        S,
-        type: 'school',
-        title: 'Schools',
-        icon: UniversityIcon,
-      }),
-      S.divider(),
-      createList({
-        S,
-        type: 'tag',
-        title: 'Tags',
-        icon: TagIcon,
-      }),
-      S.divider(),
-      createList({ S, type: 'author', title: 'Authors', icon: User }),
-      S.divider(),
-      createList({ S, type: 'legal', title: 'Legal Documents', icon: GavelIcon }),
-      createList({ S, type: 'redirect', title: 'Redirects', icon: RefreshCcw }),
+  if (currentUser && currentUser?.roles?.find(({ name }) => name === 'administrator')) {
+    items.push(S.divider())
+    items.push(createList({ S, type: 'legal', title: 'Legal Documents', icon: GavelIcon }))
+    items.push(createList({ S, type: 'redirect', title: 'Redirects', icon: RefreshCcw }))
+    items.push(
       S.listItem()
         .title('Site Configuration')
         .icon(Settings2)
@@ -151,5 +126,8 @@ export const structure = (S: StructureBuilder, context: StructureResolverContext
               }),
             ]),
         ),
-    ])
+    )
+  }
+
+  return S.list().title('Content').items(items)
 }

@@ -1,6 +1,6 @@
 import type { PortableTextBlock } from 'sanity'
 
-import type { MainImage } from './common'
+import type { MainImage } from './common.js'
 
 export type Author = {
   _id: string

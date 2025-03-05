@@ -1,6 +1,6 @@
 import { groq } from 'next-sanity'
 
-import { perPage } from './constants'
+import { perPage } from './constants.js'
 
 const legalFields = `
   _id,

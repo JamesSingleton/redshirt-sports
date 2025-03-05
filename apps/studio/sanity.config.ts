@@ -65,9 +65,24 @@ export default defineConfig({
     },
   },
   document: {
-    newDocumentOptions: (prev, { creationContext }) => {
+    newDocumentOptions: (prev, { creationContext, currentUser }) => {
       const { type } = creationContext
-      if (type === 'global') return []
+      const isAdmin = currentUser?.roles?.find(({ name }) => name === 'administrator')
+
+      if (type === 'global') {
+        if (!isAdmin) {
+          return prev.filter(
+            (option) =>
+              option.templateId !== 'settings' &&
+              option.templateId !== 'legal' &&
+              option.templateId !== 'redirect' &&
+              option.templateId !== 'footer' &&
+              option.templateId !== 'navbar',
+          )
+        }
+
+        return prev
+      }
       return prev
     },
   },

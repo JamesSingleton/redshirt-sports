@@ -1,4 +1,4 @@
-import { getCurrentSeason } from './getCurrentSeason'
+import { getCurrentSeason } from './getCurrentSeason.js'
 import type { Season, SeasonType, ESPNBody } from '@/types'
 
 export async function getCurrentWeek(): Promise<number> {
