@@ -1,6 +1,12 @@
 import { assist } from '@sanity/assist'
 import { visionTool } from '@sanity/vision'
 import { table } from '@sanity/table'
+import {
+  dashboardTool,
+  projectInfoWidget,
+  projectUsersWidget,
+  sanityTutorialsWidget,
+} from '@sanity/dashboard'
 import { defineConfig, PortableTextInputProps } from 'sanity'
 import { presentationTool } from 'sanity/presentation'
 import { structureTool } from 'sanity/structure'
@@ -40,6 +46,9 @@ export default defineConfig({
       structure,
     }),
     visionTool(),
+    dashboardTool({
+      widgets: [sanityTutorialsWidget(), projectInfoWidget(), projectUsersWidget()],
+    }),
     media({
       creditLine: {
         enabled: true,

@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss'
 import tailwindcssAnimate from 'tailwindcss-animate'
+import tailwindcssTypography from '@tailwindcss/typography'
 import { fontFamily } from 'tailwindcss/defaultTheme'
 
 const config = {
@@ -16,6 +17,18 @@ const config = {
         mono: ['var(--font-mono)', ...fontFamily.mono],
       },
       colors: {
+        brand: {
+          50: '#FBE9E9',
+          100: '#F8D3D3',
+          200: '#F1A7A7',
+          300: '#EA7B7B',
+          400: '#E35454',
+          500: '#DC2727',
+          600: '#B41D1D',
+          700: '#841515',
+          800: '#580E0E',
+          900: '#2C0707',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -57,7 +70,7 @@ const config = {
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [tailwindcssTypography, tailwindcssAnimate],
 } satisfies Config
 
 export default config
