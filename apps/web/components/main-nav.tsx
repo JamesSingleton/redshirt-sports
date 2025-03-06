@@ -2,9 +2,7 @@
 
 import { forwardRef, ComponentRef, ComponentPropsWithoutRef } from 'react'
 import Link from 'next/link'
-
-import { cn } from '@/lib/utils'
-import SmallLogo from './small-logo'
+import { cn } from '@workspace/ui/lib/utils'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,8 +10,11 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu'
+  navigationMenuTriggerStyle
+} from '@workspace/ui/components/navigation-menu'
+
+import SmallLogo from './small-logo'
+
 
 import type { NavProps } from '@/types'
 

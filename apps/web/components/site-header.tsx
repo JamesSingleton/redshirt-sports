@@ -1,8 +1,9 @@
+import { Input } from '@workspace/ui/components/input'
+
 import { getDivisions } from '@/lib/sanity.fetch'
 import { MobileNav } from '@/components/mobile-nav'
 import { MainNav } from '@/components/main-nav'
 import { ModeToggle } from '@/components/mode-toggle'
-import { Input } from '@/components/ui/input'
 import { getLatestFinalRankings } from '@/server/queries'
 
 export async function SiteHeader() {

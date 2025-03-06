@@ -8,6 +8,8 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Providers } from '@/components/providers'
 
 import type { Viewport } from 'next'
+import { SiteHeader } from '@/components/site-header';
+import Footer from '@/components/site-footer';
 
 const fontSans = Geist({
   subsets: ['latin'],
@@ -34,9 +36,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased flex min-h-screen flex-col`}>
         <Providers>
-          <main className="flex-1">
-          {children}
-          </main>
+          <SiteHeader />
+            <main className="flex-1">
+              {children}
+            </main>
+          <Footer />
         </Providers>
         <SpeedInsights />
       </body>

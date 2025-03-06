@@ -1,7 +1,6 @@
 'use client'
 
 import { useSearchParams, usePathname } from 'next/navigation'
-
 import {
   Pagination,
   PaginationContent,
@@ -10,7 +9,8 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/components/ui/pagination'
+} from '@workspace/ui/components/pagination'
+
 import { perPage } from '@/lib/constants'
 
 export default function PaginationControls({ totalPosts }: { totalPosts: number }) {
