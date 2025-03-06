@@ -1,6 +1,6 @@
 import { Organization, WebSite } from 'schema-dts'
 
-import { HOME_DOMAIN } from './constants.js'
+import { HOME_DOMAIN } from './constants'
 
 export const Org: Organization = {
   '@type': 'NewsMediaOrganization',

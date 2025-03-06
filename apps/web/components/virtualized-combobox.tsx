@@ -14,8 +14,9 @@ import {
   CommandList,
 } from '@workspace/ui/components/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover'
+import { cn } from '@workspace/ui/lib/utils'
+
 import { Image as SanityImage } from '@/components/image'
-import { cn } from '@/lib/utils'
 import { ImageAsset } from 'sanity'
 
 type Option = {
@@ -112,7 +113,7 @@ const VirtualizedCommand = ({
                 />
                 <div className="flex items-center">
                   <SanityImage
-                    src={filteredOptions[virtualOption.index].image as any}
+                    asset={filteredOptions[virtualOption.index].image as any}
                     width={32}
                     height={32}
                     priority={false}
@@ -158,7 +159,7 @@ export function VirtualizedCombobox({
           {options.find((option) => option._id === selectedOption)?.image ? (
             <span className="inline-flex items-center">
               <SanityImage
-                src={options.find((option) => option._id === selectedOption)?.image as any}
+                asset={options.find((option) => option._id === selectedOption)?.image as any}
                 width={32}
                 height={32}
                 priority={false}

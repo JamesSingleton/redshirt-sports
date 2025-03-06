@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardContent } from '@/components/ui/card'
+import { Card, CardHeader, CardContent } from '@workspace/ui/components/card'
 import {
   Table,
   TableHeader,
@@ -6,8 +6,8 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from '@/components/ui/table'
-import { Skeleton } from '@/components/ui/skeleton'
+} from '@workspace/ui/components/table'
+import { Skeleton } from '@workspace/ui/components/skeleton'
 
 export default function Loading() {
   return (

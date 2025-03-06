@@ -4,12 +4,13 @@ import React from 'react'
 import { preconnect, prefetchDNS } from "react-dom";
 import { Geist, Geist_Mono } from 'next/font/google'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Toaster } from '@workspace/ui/components/sonner'
 
 import { Providers } from '@/components/providers'
-
-import type { Viewport } from 'next'
 import { SiteHeader } from '@/components/site-header';
 import Footer from '@/components/site-footer';
+
+import type { Viewport } from 'next'
 
 const fontSans = Geist({
   subsets: ['latin'],
@@ -43,6 +44,7 @@ export default function RootLayout({
           <Footer />
         </Providers>
         <SpeedInsights />
+        <Toaster />
       </body>
     </html>
   )

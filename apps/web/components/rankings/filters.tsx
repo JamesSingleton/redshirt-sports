@@ -6,7 +6,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@/components/ui/select'
+} from '@workspace/ui/components/select'
 
 // weeks looks like [ { week: 0 } ], create a type for it
 type Week = {

@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-
-import { Card, CardHeader, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
-import { buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@workspace/ui/components/button'
+import { Card, CardHeader, CardDescription, CardContent, CardFooter } from '@workspace/ui/components/card'
 import {
   Table,
   TableHeader,
@@ -10,7 +9,7 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from '@/components/ui/table'
+} from '@workspace/ui/components/table'
 import {
   getFinalRankingsForWeekAndYear,
   getWeeksThatHaveVotes,
@@ -18,7 +17,7 @@ import {
   getYearsThatHaveVotes,
 } from '@/server/queries'
 import { processVoterBallots } from '@/utils/process-ballots'
-import { RankingsFilters } from './_components/filters'
+import { RankingsFilters } from '@/components/rankings/filters'
 import { constructMetadata } from '@/utils/construct-metadata'
 import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
@@ -155,7 +154,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                       <TableCell>
                         <div className="flex items-center">
                           <SanityImage
-                            src={team.image}
+                            asset={team.image}
                             width={32}
                             height={32}
                             className="mr-2 h-8 w-8"
@@ -238,7 +237,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                           return (
                             <TableCell key={vote._id}>
                               <div className="h-auto w-10">
-                                <SanityImage src={vote.image} width={40} height={40} />
+                                <SanityImage asset={vote.image} width={40} height={40} />
                               </div>
                             </TableCell>
                           )
