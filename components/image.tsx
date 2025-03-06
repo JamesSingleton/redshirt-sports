@@ -51,6 +51,8 @@ export function Image(
     )
   }
 
+  console.log('TEST', imageBuilder.url())
+
   return (
     <SanityImage
       alt={typeof src.caption === 'string' ? src.caption : ''}

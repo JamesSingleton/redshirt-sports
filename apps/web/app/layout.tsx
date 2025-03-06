@@ -31,8 +31,12 @@ export default function RootLayout({
   prefetchDNS("https://cdn.sanity.io");
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased`}>
-        <Providers>{children}</Providers>
+      <body className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased flex min-h-screen flex-col`}>
+        <Providers>
+          <main className="flex-1">
+          {children}
+          </main>
+        </Providers>
       </body>
     </html>
   )

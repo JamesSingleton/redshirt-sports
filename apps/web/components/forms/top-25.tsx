@@ -6,8 +6,7 @@ import { useForm } from 'react-hook-form'
 import { useParams, useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-
-import { Button } from '@/components/ui/button'
+import { Button } from '@workspace/ui/components/button'
 import {
   Form,
   FormControl,
@@ -15,7 +14,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@workspace/ui/components/form'
 
 import type { Top25FormProps } from '@/types'
 import { VirtualizedCombobox } from '../virtualized-combobox'
