@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { ChevronRight, HomeIcon } from 'lucide-react'
-import clsx from 'clsx'
+import { cn } from '@workspace/ui/lib/utils'
 
 import type { BreadcrumbProps } from '@/types'
 
@@ -31,7 +31,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
                 aria-current={index === filteredBreadcrumbPages.length - 1 ? 'page' : undefined}
                 href={page.href}
                 prefetch={false}
-                className={clsx(
+                className={cn(
                   'ml-2 text-base font-semibold',
                   index === filteredBreadcrumbPages.length - 1
                     ? 'w-32 truncate text-brand-500 dark:text-brand-400 sm:w-64 lg:w-full'

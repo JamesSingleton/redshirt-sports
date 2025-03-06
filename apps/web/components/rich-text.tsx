@@ -1,5 +1,6 @@
+import Link from "next/link"
 import { CameraIcon } from "lucide-react"
-import { PortableText, type PortableTextReactComponents, type PortableTextBlock } from "next-sanity"
+import { PortableText, type PortableTextReactComponents, type PortableTextBlock, PortableTextMarkComponentProps } from "next-sanity"
 import { cn } from "@workspace/ui/lib/utils"
 import {Table,
   TableBody,
@@ -22,7 +23,46 @@ type TableType = {
   markDefs: any
 }
 
+const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
+  let linkHref = `/${value?.reference.slug}`
+
+  if (value?.reference._type === 'division') {
+    linkHref = `/news/${value?.reference.slug}`
+  }
+
+  if (value?.reference._type === 'conference') {
+    linkHref = `/news/${value?.reference.divisionSlug}/${value?.reference.slug}`
+  }
+
+  return (
+    <Link href={linkHref} prefetch={false} className="underline hover:text-muted-foreground">
+      {children}
+    </Link>
+  )
+}
+
 const components: Partial<PortableTextReactComponents> = {
+  marks: {
+    internalLink: InternalLink,
+    link: ({ value, children }: PortableTextMarkComponentProps) => {
+      return value?.blank ? (
+        <a
+          className="underline hover:text-muted-foreground"
+          href={value?.href}
+          rel="noreferrer noopener"
+          target="_blank"
+          aria-label={`Opens ${value?.href} in a new tab`}
+          title={`Opens ${value?.href} in a new tab`}
+        >
+          {children}
+        </a>
+      ) : (
+        <a className="underline hover:text-muted-foreground" href={value?.href}>
+          {children}
+        </a>
+      )
+    },
+  },
   types: {
     twitter: ({value}) => {
       return (

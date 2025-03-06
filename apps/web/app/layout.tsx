@@ -3,6 +3,7 @@ import '@workspace/ui/globals.css'
 import React from 'react'
 import { preconnect, prefetchDNS } from "react-dom";
 import { Geist, Geist_Mono } from 'next/font/google'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 import { Providers } from '@/components/providers'
 
@@ -37,6 +38,7 @@ export default function RootLayout({
           {children}
           </main>
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   )
