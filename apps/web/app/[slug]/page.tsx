@@ -10,6 +10,7 @@ import Date from '@/components/date'
 import { AuthorSection, MobileAuthorSection } from '@/components/posts/author'
 import { Image } from '@/components/image'
 import { RichText } from '@/components/rich-text'
+import BreadCrumbs from '@/components/breadcrumbs'
 
 interface PageProps {
   params: Promise<{
@@ -32,18 +33,34 @@ export default async function PostPage({params}: PageProps) {
     notFound()
   }
 
+  const breadcrumbs = [
+    {
+      title: 'News',
+      href: '/news',
+    },
+    data.division && {
+      title: data.division.name,
+      href: `/news/${data.division.slug}`,
+    },
+    {
+      title: data.title,
+      href: `/${data.slug}`,
+    },
+  ]
+
   return (
     <>
-      <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
+      <section className="py-12">
         <div className="container">
           <div className="md:max-w-3xl xl:max-w-5xl">
+            <BreadCrumbs breadCrumbPages={breadcrumbs} />
             <h1 id="article-title" className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
               {data.title}
             </h1>
             <p id="article-excerpt" className="mt-4 text-lg font-normal lg:text-xl">
               {data.excerpt}
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-10">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               {(data.division || data.conferences) && (
                   <>
                     <div className="flex flex-wrap items-center gap-3">

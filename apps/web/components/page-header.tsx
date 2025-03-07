@@ -11,7 +11,7 @@ type PageHeaderProps = {
 
 export default function PageHeader({ breadcrumbs, title, subtitle }: PageHeaderProps) {
   return (
-    <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
+    <section className="py-12">
       <div className="container">
         <div className="md:max-w-3xl xl:max-w-5xl">
           <Breadcrumbs breadCrumbPages={breadcrumbs} />

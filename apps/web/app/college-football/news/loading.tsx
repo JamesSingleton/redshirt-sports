@@ -1,5 +1,6 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import { LoadingArticle } from './_components/loading-article'
+import { Skeleton } from '@workspace/ui/components/skeleton'
+
+import { LoadingArticle } from '@/components/loading-article'
 
 export default function Loading() {
   return (

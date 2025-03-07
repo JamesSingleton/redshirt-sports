@@ -23,27 +23,45 @@ type TableType = {
   markDefs: any
 }
 
-const InternalLink = ({ children, value }: PortableTextMarkComponentProps) => {
-  let linkHref = `/${value?.reference.slug}`
-
-  if (value?.reference._type === 'division') {
-    linkHref = `/news/${value?.reference.slug}`
-  }
-
-  if (value?.reference._type === 'conference') {
-    linkHref = `/news/${value?.reference.divisionSlug}/${value?.reference.slug}`
-  }
-
-  return (
-    <Link href={linkHref} prefetch={false} className="underline hover:text-muted-foreground">
-      {children}
-    </Link>
-  )
-}
-
 const components: Partial<PortableTextReactComponents> = {
+  block: {
+    h2: ({ children, value }) => {
+      return (
+        <h2 className="text-4xl">
+          {children}
+        </h2>
+      );
+    },
+    h3: ({ children, value }) => {
+      return (
+        <h3 className="text-3xl">{children}</h3>
+      );
+    },
+    h4: ({ children, value }) => {
+      return (
+        <h4 className="text-2xl">{children}</h4>
+      );
+    },
+    h5: ({ children, value }) => {
+      return (
+        <h5 className="text-xl">{children}</h5>
+      );
+    },
+    h6: ({ children, value }) => {
+      return (
+        <h6 className="text-lg">{children}</h6>
+      );
+    },
+  },
   marks: {
-    internalLink: InternalLink,
+    internalLink:  ({ children, value }: PortableTextMarkComponentProps) => {
+    
+      return (
+        <Link href={value?.href} prefetch={false} className="underline hover:text-muted-foreground">
+          {children}
+        </Link>
+      )
+    },
     link: ({ value, children }: PortableTextMarkComponentProps) => {
       return value?.blank ? (
         <a
@@ -61,7 +79,7 @@ const components: Partial<PortableTextReactComponents> = {
           {children}
         </a>
       )
-    },
+    }
   },
   types: {
     twitter: ({value}) => {
@@ -179,10 +197,12 @@ export function RichText({
   className?: string
 }) {
   return (
-    <div className={cn(
-      "prose prose-slate prose-headings:scroll-m-24 prose-headings:font-bold prose-headings:text-opacity-90 prose-p:text-opacity-80 prose-a:underline prose-ol:text-opacity-80 prose-ul:text-opacity-80 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:prose-h2:first:mt-0 max-w-none dark:prose-invert",
-      className,
-    )}>
+    <div 
+      className={cn(
+        "prose prose-zinc prose-h2:border-b prose-a:underline-offset-2 prose-h2:pb-2 prose-h2:first:mt-0 max-w-none dark:prose-invert",
+        className,
+      )}
+    >
       <PortableText
         value={richText}
         components={components}

@@ -1,5 +1,5 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@workspace/ui/components/skeleton'
+import { Separator } from '@workspace/ui/components/separator'
 
 export function LoadingArticle() {
   return (

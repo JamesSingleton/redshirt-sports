@@ -9,7 +9,7 @@ import { getNews } from '@/lib/sanity.fetch'
 import { HOME_DOMAIN, perPage } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { urlForImage } from '@/lib/sanity.image'
-import ArticleFeed from './_components/ArticleFeed'
+import ArticleFeed from '@/components/article-feed'
 import { constructMetadata } from '@/utils/construct-metadata'
 
 import type { Post } from '@/types'
