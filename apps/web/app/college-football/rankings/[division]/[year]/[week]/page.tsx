@@ -121,7 +121,8 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
 
   return (
     <>
-      <script
+    Hello World
+      {/* <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
@@ -250,7 +251,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
     </>
   )
 }

@@ -221,14 +221,17 @@ export const post = defineType({
     prepare: ({ title, media, date }) => ({
       title,
       media,
-      subtitle: `on ${
-        date &&
-        new Date(date).toLocaleString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-        })
-      }`,
+      // add subtitle to preview but only if it's defined
+      subtitle: date
+        ? `on ${
+            date &&
+            new Date(date).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            })
+          }`
+        : 'Missing publish date',
     }),
   },
 })

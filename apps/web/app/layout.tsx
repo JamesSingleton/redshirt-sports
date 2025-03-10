@@ -9,6 +9,7 @@ import { Toaster } from '@workspace/ui/components/sonner'
 import { Providers } from '@/components/providers'
 import { SiteHeader } from '@/components/site-header';
 import Footer from '@/components/site-footer';
+import { SanityLive } from "@/lib/sanity/live";
 
 import type { Viewport } from 'next'
 
@@ -45,6 +46,7 @@ export default function RootLayout({
         </Providers>
         <SpeedInsights />
         <Toaster />
+        <SanityLive />
       </body>
     </html>
   )
