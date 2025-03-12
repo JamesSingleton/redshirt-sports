@@ -31,12 +31,12 @@ export const post = defineType({
       type: 'slug',
       title: 'URL',
       group: GROUP.MAIN_CONTENT,
-      components: {
-        field: PathnameFieldComponent,
-      },
+      // components: {
+      //   field: PathnameFieldComponent,
+      // },
       options: {
         source: 'title',
-        slugify: createSlug,
+        // slugify: createSlug,
         isUnique,
       },
       validation: (rule) => rule.required(),
@@ -52,6 +52,7 @@ export const post = defineType({
         disableNew: true,
       },
       group: GROUP.MAIN_CONTENT,
+      hidden: true,
     }),
     defineField({
       name: 'authors',
@@ -111,6 +112,18 @@ export const post = defineType({
           validation: (rule) => rule.required(),
         }),
       ],
+    }),
+    defineField({
+      title: 'Sport',
+      name: 'sport',
+      description: 'What sport is this article about?',
+      type: 'reference',
+      to: [{ type: 'sport' }],
+      group: GROUP.MAIN_CONTENT,
+      options: {
+        disableNew: true,
+      },
+      validation: (rule) => rule.required(),
     }),
     defineField({
       title: 'Division',

@@ -87,6 +87,11 @@ export const structure = (S: StructureBuilder, context: StructureResolverContext
     S.divider(),
     createList({
       S,
+      type: 'sport',
+      title: 'Sports',
+    }),
+    createList({
+      S,
       type: 'division',
       title: 'Divisions',
     }),

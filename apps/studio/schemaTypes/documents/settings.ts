@@ -9,15 +9,15 @@ const socialLinks = defineField({
   options: {},
   fields: [
     defineField({
-      name: 'facebook',
-      title: 'Facebook URL',
-      description: 'Full URL to your Facebook page',
-      type: 'string',
-    }),
-    defineField({
       name: 'twitter',
       title: 'Twitter/X URL',
       description: 'Full URL to your Twitter/X profile',
+      type: 'string',
+    }),
+    defineField({
+      name: 'facebook',
+      title: 'Facebook URL',
+      description: 'Full URL to your Facebook page',
       type: 'string',
     }),
     defineField({

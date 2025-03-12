@@ -8,6 +8,7 @@ import { post } from './post'
 import { redirect } from './redirect'
 import { school } from './school'
 import { settings } from './settings'
+import { sport } from './sport'
 import { tag } from './tag'
 
 export const singletons = [footer, navbar, settings]
@@ -20,6 +21,7 @@ export const documents = [
   post,
   redirect,
   school,
+  sport,
   tag,
   ...singletons,
 ]

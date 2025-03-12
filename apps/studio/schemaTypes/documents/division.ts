@@ -16,6 +16,13 @@ export const division = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      title: 'Title',
+      name: 'title',
+      type: 'string',
+      description: 'The title of the division.',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       title: 'Heading',
       name: 'heading',
       type: 'string',
@@ -35,7 +42,7 @@ export const division = defineType({
       name: 'slug',
       type: 'slug',
       options: {
-        source: 'name',
+        source: 'title',
         maxLength: 96,
         slugify: (input) =>
           input
@@ -60,9 +67,16 @@ export const division = defineType({
         input: TextInputWithLimits,
       },
       validation: (rule) => [
-        rule.required().error('We need an excerpt before publishing.'),
-        rule.min(110).warning('This is a short excerpt. Try to add 10-20 more characters.'),
-        rule.max(160).error('The excerpt should be less than 160 characters'),
+        rule
+          .min(140)
+          .warning(
+            'The meta description should be at least 140 characters for optimal SEO visibility in search results',
+          ),
+        rule
+          .max(160)
+          .warning(
+            'The meta description should not exceed 160 characters as it will be truncated in search results',
+          ),
       ],
     }),
     defineField({

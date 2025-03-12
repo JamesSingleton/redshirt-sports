@@ -1,4 +1,5 @@
 import { defineQuery } from "next-sanity";
+import { perPage } from "../constants";
 
 const markDefsFragment = /* groq */ `
   markDefs[]{
@@ -93,5 +94,25 @@ export const queryPostSlugData = defineQuery(/* groq */ `
     ${postAuthorFragment},
     ${postImageFragment},
     ${richTextFragment}
+  }
+`);
+
+export const querySportsNews = defineQuery(/* groq */ `
+  {
+    "posts": *[_type == "post" && sport->title match $sport] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+      ...,
+      division->{
+        name,
+        "slug": slug.current,
+      },
+      conferences[]->{
+        shortName,
+        name,
+        "slug": slug.current,
+      },
+      "slug": slug.current,
+      "author": author->{name, "slug": slug.current},
+    },
+    "totalPosts": count(*[_type == "post" && sport->title match $sport])
   }
 `);

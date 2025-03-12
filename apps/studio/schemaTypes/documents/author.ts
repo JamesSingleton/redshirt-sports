@@ -76,24 +76,17 @@ export const author = defineType({
         input: TextInputWithLimits,
       },
     }),
-    // defineField({
-    //   name: 'collegeOrUniversity',
-    //   title: 'College or University',
-    //   description: 'The college or university you graduated from.',
-    //   type: 'reference',
-    //   to: [{ type: 'school' }],
-    // }),
-    // defineField({
-    //   name: 'socialMedia',
-    //   title: 'Social Media',
-    //   type: 'array',
-    //   of: [
-    //     {
-    //       type: 'socialMedia',
-    //     },
-    //   ],
-    //   validation: (rule) => rule.required(),
-    // }),
+    defineField({
+      name: 'socialMedia',
+      title: 'Social Media',
+      type: 'array',
+      of: [
+        {
+          type: 'socialMedia',
+        },
+      ],
+      validation: (rule) => rule.required(),
+    }),
   ],
   preview: {
     select: {

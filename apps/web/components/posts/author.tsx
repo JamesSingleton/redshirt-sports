@@ -38,11 +38,7 @@ export const AuthorItem = (author: Author) => {
 export const AuthorSection = ({ author, authors }: { author: Author; authors: Author[] }) => (
   <>
     <p className="text-sm font-normal text-muted-foreground">Written By</p>
-    {authors === null ? (
-      <AuthorItem key={author._id} {...author} />
-    ) : (
-      authors.map((author) => <AuthorItem key={author._id} {...author} />)
-    )}
+    {authors && authors.map((author) => <AuthorItem key={author._id} {...author} />)}
   </>
 )
 
@@ -52,11 +48,7 @@ export const MobileAuthorSection = ({ author, authors }: { author: Author; autho
     <div className="relative -mx-6 mt-3 flex overflow-x-auto border-b border-border px-6">
       <div className="flex-1 pb-4">
         <div className="flex flex-row items-stretch justify-start gap-4">
-          {authors === null ? (
-            <AuthorItem {...author} />
-          ) : (
-            authors.map((author) => <AuthorItem key={`${author._id}_mobile`} {...author} />)
-          )}
+          {authors && authors.map((author) => <AuthorItem key={`${author._id}_mobile`} {...author} />)}
         </div>
       </div>
     </div>
