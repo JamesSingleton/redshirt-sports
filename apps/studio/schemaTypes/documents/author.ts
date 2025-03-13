@@ -1,12 +1,12 @@
 import { defineType, defineField } from 'sanity'
-import { UsersIcon } from '@sanity/icons'
+import { User } from 'lucide-react'
 import { TextInputWithLimits } from '../../components/text-input-with-limits'
 
 export const author = defineType({
   name: 'author',
   title: 'Author',
   type: 'document',
-  icon: UsersIcon,
+  icon: User,
   fields: [
     defineField({
       name: 'name',
@@ -75,6 +75,7 @@ export const author = defineType({
       components: {
         input: TextInputWithLimits,
       },
+      rows: 3,
     }),
     defineField({
       name: 'socialMedia',

@@ -11,6 +11,7 @@ import { AuthorSection, MobileAuthorSection } from '@/components/posts/author'
 import { Image } from '@/components/image'
 import { RichText } from '@/components/rich-text'
 import BreadCrumbs from '@/components/breadcrumbs'
+import { LargeArticleSocialShare } from '@/components/posts/article-share'
 
 interface PageProps {
   params: Promise<{
@@ -50,46 +51,43 @@ export default async function PostPage({params}: PageProps) {
 
   return (
     <>
-      <section className="py-12">
+      <section className="pb-8 mt-8">
         <div className="container">
-          <div className="md:max-w-3xl xl:max-w-5xl">
-            <BreadCrumbs breadCrumbPages={breadcrumbs} />
-            <h1 id="article-title" className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
+          <h1 id="article-title" className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
               {data.title}
-            </h1>
-            <p id="article-excerpt" className="mt-4 text-lg font-normal lg:text-xl">
-              {data.excerpt}
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              {(data.division || data.conferences) && (
-                  <>
-                    <div className="flex flex-wrap items-center gap-3">
-                      {data.division && (
+          </h1>
+          <p id="article-excerpt" className="mt-4 text-lg font-normal lg:text-xl">
+            {data.excerpt}
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            {(data.division || data.conferences) && (
+                <>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {data.division && (
+                      <Link
+                        href={`/news/${data.division.slug}`}
+                        className={badgeVariants({ variant: 'default' })}
+                        prefetch={false}
+                      >
+                        {data.division.name}
+                      </Link>
+                    )}
+                    {data.conferences &&
+                      data.conferences.map((conference) => (
                         <Link
-                          href={`/news/${data.division.slug}`}
+                          key={conference.slug}
+                          href={`/news/${data.division.slug}/${conference.slug}`}
                           className={badgeVariants({ variant: 'default' })}
                           prefetch={false}
                         >
-                          {data.division.name}
+                          {conference.shortName ?? conference.name}
                         </Link>
-                      )}
-                      {data.conferences &&
-                        data.conferences.map((conference) => (
-                          <Link
-                            key={conference.slug}
-                            href={`/news/${data.division.slug}/${conference.slug}`}
-                            className={badgeVariants({ variant: 'default' })}
-                            prefetch={false}
-                          >
-                            {conference.shortName ?? conference.name}
-                          </Link>
-                        ))}
-                    </div>
-                    <span className="text-sm">•</span>
-                  </>
-                )}
-                <Date dateString={data.publishedAt} className="text-sm" />
-            </div>
+                      ))}
+                  </div>
+                  <span className="text-sm">•</span>
+                </>
+              )}
+              <Date dateString={data.publishedAt} className="text-sm" />
           </div>
         </div>
       </section>
@@ -99,12 +97,12 @@ export default async function PostPage({params}: PageProps) {
             <div className="lg:w-64 lg:shrink-0">
               <div className="hidden lg:sticky lg:left-0 lg:top-24 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
                 <AuthorSection author={data.author} authors={data.authors} />
-                {/* <LargeArticleSocialShare slug={data.slug} title={data.title} /> */}
+                <LargeArticleSocialShare slug={data.slug} title={data.title} />
               </div>
               <MobileAuthorSection author={data.author} authors={data.authors} />
             </div>
             <article className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
-              <figure className="mb-12 space-y-1.5">
+              <figure className="mb-8 space-y-1.5">
                 <Image
                   asset={data.mainImage}
                   // alt={title}

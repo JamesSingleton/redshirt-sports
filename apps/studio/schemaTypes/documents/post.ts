@@ -128,7 +128,7 @@ export const post = defineType({
     defineField({
       title: 'Division',
       name: 'division',
-      description: 'What division does this article belong to?',
+      description: "What's the primary division this article is about?",
       type: 'reference',
       to: [{ type: 'division' }],
       group: GROUP.MAIN_CONTENT,
@@ -142,15 +142,6 @@ export const post = defineType({
         defineArrayMember({
           type: 'reference',
           to: [{ type: 'conference' }],
-          options: {
-            filter: ({ document }) => ({
-              filter: 'division._ref == $divisionId',
-              params: {
-                // @ts-expect-error this actually works, just types are messed up from Sanity
-                divisionId: document?.division?._ref,
-              },
-            }),
-          },
         }),
       ],
       hidden: ({ document }) => !document?.division,

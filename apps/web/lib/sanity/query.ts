@@ -26,12 +26,6 @@ const imageFragment = /* groq */ `
 `;
 
 const postAuthorFragment = /* groq */ `
-  author->{
-    _id,
-    name,
-    roles,
-    ${imageFragment}
-  },
   authors[]->{
     _id,
     name,
@@ -114,5 +108,49 @@ export const querySportsNews = defineQuery(/* groq */ `
       "author": author->{name, "slug": slug.current},
     },
     "totalPosts": count(*[_type == "post" && sport->title match $sport])
+  }
+`);
+
+export const querySportsAndDivisionNews = defineQuery(/* groq */ `
+  {
+    "posts": *[_type == "post" && sport->title match $sport && division->slug.current == $division] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+      ...,
+      division->{
+        name,
+        "slug": slug.current,
+      },
+      conferences[]->{
+        shortName,
+        name,
+        "slug": slug.current,
+      },
+      "slug": slug.current,
+      "author": author->{name, "slug": slug.current},
+    },
+    "totalPosts": count(*[_type == "post" && sport->title match $sport && division->slug.current == $division])
+  }
+`);
+
+export const queryFooterData = defineQuery(/* groq */ `
+  *[_type == "footer" && _id == "footer"][0]{
+    _id,
+    subtitle,
+    columns[]{
+      _key,
+      title,
+      links[]{
+        _key,
+        name,
+        "openInNewTab": url.openInNewTab,
+        "href": select(
+          url.type == "internal" => url.internal->slug.current,
+          url.type == "external" => url.external,
+          url.href
+        ),
+      }
+    },
+    "logo": *[_type == "settings"][0].logo.asset->url + "?w=80&h=40&dpr=3&fit=max",
+    "siteTitle": *[_type == "settings"][0].siteTitle,
+    "socialLinks": *[_type == "settings"][0].socialLinks,
   }
 `);

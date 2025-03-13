@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
+import { cn } from '@workspace/ui/lib/utils'
+import { buttonVariants } from '@workspace/ui/components/button'
 
 import Date from '@/components/date'
 import ArticleCard from '@/components/article-card'
-import { cn } from '@/lib/utils'
-import { buttonVariants } from '@/components/ui/button'
 import { Image as SanityImage } from '@/components/image'
 
 import { Post } from '@/types'
@@ -60,18 +60,18 @@ export default function ArticleSection({
               <p className="text-muted-foreground">{firstArticle.excerpt}</p>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Link
-                  href={`/authors/${firstArticle.author.slug}`}
+                  href={`/authors/${firstArticle.authors[0].slug}`}
                   className="flex items-center gap-2 text-primary"
                   prefetch={false}
                 >
                   <SanityImage
-                    src={firstArticle.author.image as any}
-                    alt={`${firstArticle.author.name}'s profile picture`}
+                    asset={firstArticle.authors[0].image as any}
+                    alt={`${firstArticle.authors[0].name}'s profile picture`}
                     width={32}
                     height={32}
                     className="mr-2 size-8 rounded-full"
                   />
-                  {firstArticle.author.name}
+                  {firstArticle.authors[0].name}
                 </Link>
                 <Date dateString={firstArticle.publishedAt} />
               </div>
@@ -79,7 +79,7 @@ export default function ArticleSection({
           </div>
           <div className={cn('md:w-1/2 xl:w-2/3', imageFirst ? 'md:order-1' : 'md:order-2')}>
             <SanityImage
-              src={firstArticle.mainImage as any}
+              asset={firstArticle.mainImage as any}
               alt={firstArticle.mainImage.caption}
               width={860}
               height={573}
@@ -96,7 +96,7 @@ export default function ArticleSection({
               date={article.publishedAt}
               image={article.mainImage}
               slug={article.slug}
-              author={article.author.name}
+              author={article.authors[0].name}
               key={article._id}
             />
           ))}

@@ -2,11 +2,12 @@ import { notFound } from "next/navigation";
 
 import { sanityFetch } from "@/lib/sanity/live";
 import { querySportsNews } from "@/lib/sanity/query";
-import type { Metadata } from "next"
 import { perPage } from "@/lib/constants";
 import PageHeader from "@/components/page-header";
 import ArticleFeed from "@/components/article-feed";
 import PaginationControls from "@/components/pagination-controls";
+
+import type { Metadata } from "next"
 
 async function fetchSportsNews({ sport, pageIndex }: {sport: string; pageIndex: number}) {
   return await sanityFetch({
@@ -24,13 +25,6 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-const breadcrumbs = [
-  {
-    title: 'News',
-    href: '/news',
-  },
-]
-
 export default async function Page({
   params,
   searchParams
@@ -39,12 +33,13 @@ export default async function Page({
   searchParams: Promise<{ [key: string]: string }>
 }) {
   const { sport } = await params
+  const sportTitleCase = sport.charAt(0).toUpperCase() + sport.slice(1)
   const { page } = await searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
   const {data: news } = await fetchSportsNews({ sport, pageIndex })
 
-  if (!news) {
+  if (!news.posts.length) {
     notFound()
   }
 
@@ -52,8 +47,8 @@ export default async function Page({
 
   return (
     <>
-      <PageHeader title="Latest College News" breadcrumbs={breadcrumbs} />
-      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
+      <PageHeader title={`Latest College ${sportTitleCase} News`} />
+      <section className="container pb-12">
         <ArticleFeed articles={news.posts} />
         {totalPages > 1 && (
           <PaginationControls totalPosts={news.totalPosts} />

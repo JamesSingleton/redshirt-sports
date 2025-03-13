@@ -5,9 +5,10 @@ import { cn } from '@workspace/ui/lib/utils'
 
 import Hero from '@/components/home/hero'
 import { sanityFetch } from '@/lib/sanity/live'
+import ArticleCard from '@/components/article-card'
+import ArticleSection from '@/components/article-section'
 
 import { type Metadata } from "next"
-import ArticleCard from '@/components/article-card'
 
 async function fetchHomePageData() {
   return await sanityFetch({
@@ -89,6 +90,47 @@ async function fetchLatestArticles() {
   })
 }
 
+async function fetchLatestCollegeSportsArticles({division, sport, articleIds}: {division: string, sport: string, articleIds: string[]}) {
+  return await sanityFetch({
+    query: `
+*[_type == "post" && division->name == $division && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{
+    _id,
+    title,
+    excerpt,
+    "slug": slug.current,
+    mainImage{
+      ...,
+      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
+      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+    },
+    publishedAt,
+    division->{
+      name,
+      "slug": slug.current
+    },
+    conferences[]->{
+      name,
+      "slug": slug.current,
+      shortName
+    },
+    authors[]->{
+      name,
+      "slug": slug.current,
+      image{
+        ...,
+        "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+        "blurData": asset->metadata.lqip,
+        "dominantColor": asset->metadata.palette.dominant.background,
+        "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+      },
+    }
+  }`,
+    params: {division, sport, articleIds}
+  })
+}
+
 export const metadata: Metadata = {
   title: "Home Page",
   description: "The home page of the website",
@@ -97,6 +139,13 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const {data: homePageData} = await fetchHomePageData()
   const {data: latestArticles} = await fetchLatestArticles()
+
+  const articleIds = [...homePageData, ...latestArticles].map((article) => article._id)
+
+  const {data: fbsArticles} = await fetchLatestCollegeSportsArticles({division: "FBS", sport: "Football", articleIds})
+  const {data: fcsArticles} = await fetchLatestCollegeSportsArticles({division: "FCS", sport: "Football", articleIds})
+  const {data: d2Articles} = await fetchLatestCollegeSportsArticles({division: "D2", sport: "Football", articleIds})
+  const {data: d3Articles} = await fetchLatestCollegeSportsArticles({division: "D3", sport: "Football", articleIds})
 
   return (
     <>
@@ -130,6 +179,24 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      <ArticleSection title="FCS College Football News" slug="/college/football/news/fcs" articles={fcsArticles} />
+      <ArticleSection
+        title="FBS College Football News"
+        slug="/news/fbs"
+        articles={fbsArticles}
+        imageFirst={true}
+      />
+      <ArticleSection
+        title="Division II (D2) Football News"
+        slug="/news/d2"
+        articles={d2Articles}
+      />
+      <ArticleSection
+          title="Division III (D3) Football News"
+          slug="/news/d3"
+          articles={d3Articles}
+          imageFirst={true}
+        />
     </>
   )
 }

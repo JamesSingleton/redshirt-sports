@@ -1,6 +1,6 @@
 import '@workspace/ui/globals.css'
 
-import React from 'react'
+import React, {Suspense} from 'react'
 import { preconnect, prefetchDNS } from "react-dom";
 import { Geist, Geist_Mono } from 'next/font/google'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -8,7 +8,8 @@ import { Toaster } from '@workspace/ui/components/sonner'
 
 import { Providers } from '@/components/providers'
 import { SiteHeader } from '@/components/site-header';
-import Footer from '@/components/site-footer';
+// import Footer from '@/components/site-footer';
+import { FooterServer, FooterSkeleton } from "@/components/footer";
 import { SanityLive } from "@/lib/sanity/live";
 
 import type { Viewport } from 'next'
@@ -42,7 +43,10 @@ export default function RootLayout({
             <main className="flex-1">
               {children}
             </main>
-          <Footer />
+          {/* <Footer /> */}
+          <Suspense fallback={<FooterSkeleton />}>
+            <FooterServer />
+          </Suspense>
         </Providers>
         <SpeedInsights />
         <Toaster />
