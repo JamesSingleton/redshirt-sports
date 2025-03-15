@@ -22,11 +22,29 @@ const footerColumnLink = defineField({
       title: 'name',
       externalUrl: 'url.external',
       urlType: 'url.type',
-      internalUrl: 'url.internal.slug.current',
+      internalType: 'url.internalType',
+      internalDocUrl: 'url.internal.slug.current',
+      internalCustomUrl: 'url.internalUrl',
       openInNewTab: 'url.openInNewTab',
     },
-    prepare: ({ title, externalUrl, urlType, internalUrl, openInNewTab }) => {
-      const url = urlType === 'external' ? externalUrl : internalUrl
+    prepare: ({
+      title,
+      externalUrl,
+      urlType,
+      internalType,
+      internalDocUrl,
+      internalCustomUrl,
+      openInNewTab,
+    }) => {
+      let url
+      if (urlType === 'external') {
+        url = externalUrl
+      } else if (internalType === 'reference') {
+        url = internalDocUrl
+      } else if (internalType === 'custom') {
+        url = internalCustomUrl
+      }
+
       const newTabIndicator = openInNewTab ? ' ↗' : ''
       const truncatedUrl = url?.length > 30 ? `${url.substring(0, 30)}...` : url
 

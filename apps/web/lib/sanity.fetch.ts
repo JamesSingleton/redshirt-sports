@@ -218,7 +218,7 @@ export function getConferencesAuthorHasWrittenFor(authorId: string) {
   })
 }
 
-export function getAuthorsPosts(authorId: string, pageIndex: number, conference: string) {
+export function getAuthorsPosts(authorId: string, pageIndex: number, conference: string | null) {
   return sanityFetch<AuthorPosts>({
     query: authorsPosts,
     params: { authorId, pageIndex, conference },

@@ -18,13 +18,6 @@ export const metadata: Metadata = constructMetadata({
   canonical: '/about',
 })
 
-const breadcrumbs = [
-  {
-    title: 'About',
-    href: '/about',
-  },
-]
-
 const jsonLd: Graph = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -79,7 +72,7 @@ export default async function AboutPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PageHeader title={`About ${process.env.NEXT_PUBLIC_APP_NAME}`} breadcrumbs={breadcrumbs} />
+      <PageHeader title={`About ${process.env.NEXT_PUBLIC_APP_NAME}`} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="prose prose-xl mx-auto max-w-none dark:prose-invert">
           <p>
@@ -136,7 +129,7 @@ export default async function AboutPage() {
                 >
                   <div>
                     <SanityImage
-                      src={author.image as any}
+                      asset={author.image as any}
                       alt={`${author.name}'s profile picture`}
                       className="mx-auto h-40 w-40 overflow-hidden rounded-full object-cover object-top xl:h-44 xl:w-44"
                       width={176}

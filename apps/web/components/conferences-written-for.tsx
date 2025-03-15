@@ -10,8 +10,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
+} from '@workspace/ui/components/select'
+import { Label } from '@workspace/ui/components/label'
 
 const ConferencesWrittenFor = ({
   conferences,

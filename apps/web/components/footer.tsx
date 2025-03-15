@@ -145,7 +145,7 @@ export function Footer({ data }: FooterProps) {
                           className="font-medium hover:text-primary"
                         >
                           <Link
-                            href={`${basePath}${link.href}`}
+                            href={link.href}
                             target={link.openInNewTab ? "_blank" : undefined}
                             rel={
                               link.openInNewTab

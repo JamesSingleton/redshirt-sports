@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CameraIcon } from 'lucide-react'
-import { getYear, parseISO } from 'date-fns'
 import { badgeVariants } from '@workspace/ui/components/badge'
 
 import { sanityFetch } from '@/lib/sanity/live'
@@ -10,8 +9,9 @@ import Date from '@/components/date'
 import { AuthorSection, MobileAuthorSection } from '@/components/posts/author'
 import { Image } from '@/components/image'
 import { RichText } from '@/components/rich-text'
-import BreadCrumbs from '@/components/breadcrumbs'
 import { LargeArticleSocialShare } from '@/components/posts/article-share'
+
+import type { Metadata } from 'next'
 
 interface PageProps {
   params: Promise<{
@@ -26,6 +26,24 @@ async function fetchPostSlugData(slug: string) {
   })
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata>{
+  const { slug } = await params
+  const { data: pageData } = await fetchPostSlugData(slug)
+
+  if (!pageData) {
+    return {}
+  }
+
+  return {
+    title: `${pageData.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+    description: pageData.excerpt,
+  }
+}
+
 export default async function PostPage({params}: PageProps) {
   const { slug } = await params
   const { data } = await fetchPostSlugData(slug)
@@ -33,21 +51,6 @@ export default async function PostPage({params}: PageProps) {
   if(!data) {
     notFound()
   }
-
-  const breadcrumbs = [
-    {
-      title: 'News',
-      href: '/news',
-    },
-    data.division && {
-      title: data.division.name,
-      href: `/news/${data.division.slug}`,
-    },
-    {
-      title: data.title,
-      href: `/${data.slug}`,
-    },
-  ]
 
   return (
     <>

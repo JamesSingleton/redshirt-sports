@@ -17,13 +17,6 @@ export const metadata: Metadata = constructMetadata({
   canonical: '/search',
 })
 
-const breadcrumbs = [
-  {
-    title: 'Search',
-    href: '/search',
-  },
-]
-
 export default async function Page({
   searchParams,
 }: {
@@ -42,7 +35,7 @@ export default async function Page({
 
   return (
     <>
-      <PageHeader title="Search Results" subtitle={subheadingText} breadcrumbs={breadcrumbs} />
+      <PageHeader title="Search Results" subtitle={subheadingText} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="max-w-3xl">
           <Suspense fallback={<>Loading...</>}>

@@ -1,10 +1,10 @@
 import Link from 'next/link'
+import { Card, CardTitle, CardDescription, CardContent, CardHeader } from '@workspace/ui/components/card'
 
 import PageHeader from '@/components/page-header'
 import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'
-import { Card, CardTitle, CardDescription, CardContent, CardHeader } from '@/components/ui/card'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
@@ -30,13 +30,6 @@ const contactDetails = [
     title: 'General Inquiries',
     description: 'For all other questions and information',
     email: 'contact@redshirtsports.xyz',
-  },
-]
-
-const breadcrumbs = [
-  {
-    title: 'Contact Us',
-    href: '/contact',
   },
 ]
 
@@ -93,7 +86,6 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <PageHeader
-        breadcrumbs={breadcrumbs}
         title="Contact Us"
         subtitle={
           <p className="mt-4 text-lg font-normal lg:text-xl">

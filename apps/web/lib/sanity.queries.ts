@@ -381,7 +381,7 @@ export const searchQuery = groq`
     boost(title match $q, 4),
     boost(excerpt match $q, 3),
     boost(pt::text(body) match $q, 2),
-  ) | order(_score desc, publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+  ) | order(publishedAt desc, _score desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
     ${litePostFields}
   },
   "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])
