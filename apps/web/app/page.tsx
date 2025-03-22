@@ -5,136 +5,43 @@ import { cn } from '@workspace/ui/lib/utils'
 
 import Hero from '@/components/home/hero'
 import { sanityFetch } from '@/lib/sanity/live'
+import { queryHomePageData, queryLatestArticles, queryLatestCollegeSportsArticles } from '@/lib/sanity/query'
 import ArticleCard from '@/components/article-card'
 import ArticleSection from '@/components/article-section'
+import { Org, Web } from '@/lib/ldJson'
 
 import { type Metadata } from "next"
+import type { Graph } from 'schema-dts'
+
+const jsonLd: Graph = {
+  '@context': 'https://schema.org',
+  '@graph': [Org, Web],
+}
+
 
 async function fetchHomePageData() {
   return await sanityFetch({
-    query: `
-*[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{
-    _id,
-    title,
-    excerpt,
-    "slug": slug.current,
-    mainImage{
-      ...,
-      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-    },
-    publishedAt,
-    division->{
-      name,
-      "slug": slug.current
-    },
-    conferences[]->{
-      name,
-      "slug": slug.current,
-      shortName
-    },
-    author->{
-      name,
-      "slug": slug.current,
-      image
-    },
-    authors[]->{
-      name,
-      "slug": slug.current,
-      image
-    }
-}
-`
+    query: queryHomePageData
   })
 }
 
 async function fetchLatestArticles() {
   return await sanityFetch({
-    query: `
-*[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{
-    _id,
-    title,
-    excerpt,
-    "slug": slug.current,
-    mainImage{
-      ...,
-      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-    },
-    publishedAt,
-    division->{
-      name,
-      "slug": slug.current
-    },
-    conferences[]->{
-      name,
-      "slug": slug.current,
-      shortName
-    },
-    author->{
-      name,
-      "slug": slug.current,
-      image
-    },
-    authors[]->{
-      name,
-      "slug": slug.current,
-      image
-    }
-}
-`
+    query: queryLatestArticles
   })
 }
 
 async function fetchLatestCollegeSportsArticles({division, sport, articleIds}: {division: string, sport: string, articleIds: string[]}) {
   return await sanityFetch({
-    query: `
-*[_type == "post" && division->name == $division && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{
-    _id,
-    title,
-    excerpt,
-    "slug": slug.current,
-    mainImage{
-      ...,
-      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-    },
-    publishedAt,
-    division->{
-      name,
-      "slug": slug.current
-    },
-    conferences[]->{
-      name,
-      "slug": slug.current,
-      shortName
-    },
-    authors[]->{
-      name,
-      "slug": slug.current,
-      image{
-        ...,
-        "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-        "blurData": asset->metadata.lqip,
-        "dominantColor": asset->metadata.palette.dominant.background,
-        "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-      },
-    }
-  }`,
+    query: queryLatestCollegeSportsArticles,
     params: {division, sport, articleIds}
   })
 }
 
-export const metadata: Metadata = {
-  title: "Home Page",
-  description: "The home page of the website",
-}
+// export const metadata: Metadata = {
+//   title: "Home Page",
+//   description: "The home page of the website",
+// }
 
 export default async function HomePage() {
   const {data: homePageData} = await fetchHomePageData()
@@ -149,6 +56,10 @@ export default async function HomePage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Hero heroPosts={homePageData} />
       <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="container">

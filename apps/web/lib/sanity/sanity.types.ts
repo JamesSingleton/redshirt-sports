@@ -1954,4 +1954,31 @@ export type QueryFooterDataResult = {
     youtube?: string;
   } | null;
 } | null;
+// Variable: queryNavbarData
+// Query: *[_type == "navbar" && _id == "navbar"][0]{    _id,    columns[]{      _key,      _type == "navbarColumn" => {        "type": "column",        title,        links[]{          _key,          name,          icon,          description,          "openInNewTab": url.openInNewTab,          "href": select(            url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,            url.type == "internal" && url.internalType == "custom" => url.internalUrl,            url.type == "external" => url.external,            url.href          )        }      },      _type == "navbarLink" => {        "type": "link",        name,        description,        "openInNewTab": url.openInNewTab,        "href": select(          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,          url.type == "internal" && url.internalType == "custom" => url.internalUrl,          url.type == "external" => url.external,          url.href        )      }    },    "logo": *[_type == "settings"][0].logo.asset->url + "?w=70&h=40&dpr=3&fit=max",    "siteTitle": *[_type == "settings"][0].siteTitle,  }
+export type QueryNavbarDataResult = {
+  _id: string;
+  columns: Array<{
+    _key: string;
+    type: "link";
+    name: string | null;
+    description: null;
+    openInNewTab: boolean | null;
+    href: string | null;
+  } | {
+    _key: string;
+    type: "column";
+    title: string | null;
+    links: Array<{
+      _key: string;
+      name: string | null;
+      icon: null;
+      description: string | null;
+      openInNewTab: boolean | null;
+      href: string | null;
+    }> | null;
+  }> | null;
+  logo: string | null;
+  siteTitle: string | null;
+} | null;
 

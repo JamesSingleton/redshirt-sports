@@ -8,9 +8,9 @@ import { Toaster } from '@workspace/ui/components/sonner'
 
 import { Providers } from '@/components/providers'
 import { SiteHeader } from '@/components/site-header';
-// import Footer from '@/components/site-footer';
 import { FooterServer, FooterSkeleton } from "@/components/footer";
 import { SanityLive } from "@/lib/sanity/live";
+import { constructMetadata } from '@/utils/construct-metadata';
 
 import type { Viewport } from 'next'
 
@@ -27,6 +27,8 @@ const fontMono = Geist_Mono({
 export const viewport: Viewport = {
   themeColor: '#DC2727',
 }
+
+export const metadata = constructMetadata()
 
 export default function RootLayout({
   children,

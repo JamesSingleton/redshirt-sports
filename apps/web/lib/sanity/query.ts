@@ -195,3 +195,112 @@ export const queryNavbarData = defineQuery(/* groq */ `
     "siteTitle": *[_type == "settings"][0].siteTitle,
   }
 `);
+
+export const queryHomePageData = defineQuery(/* groq */ `
+  *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{
+    _id,
+    title,
+    excerpt,
+    "slug": slug.current,
+    mainImage{
+      ...,
+      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
+      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+    },
+    publishedAt,
+    division->{
+      name,
+      "slug": slug.current
+    },
+    conferences[]->{
+      name,
+      "slug": slug.current,
+      shortName
+    },
+    author->{
+      name,
+      "slug": slug.current,
+      image
+    },
+    authors[]->{
+      name,
+      "slug": slug.current,
+      image
+    }
+  }
+`);
+
+export const queryLatestArticles = defineQuery(/* groq */ `
+ *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{
+    _id,
+    title,
+    excerpt,
+    "slug": slug.current,
+    mainImage{
+      ...,
+      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
+      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+    },
+    publishedAt,
+    division->{
+      name,
+      "slug": slug.current
+    },
+    conferences[]->{
+      name,
+      "slug": slug.current,
+      shortName
+    },
+    author->{
+      name,
+      "slug": slug.current,
+      image
+    },
+    authors[]->{
+      name,
+      "slug": slug.current,
+      image
+    }
+  }
+`);
+
+export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
+  *[_type == "post" && division->name == $division && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{
+    _id,
+    title,
+    excerpt,
+    "slug": slug.current,
+    mainImage{
+      ...,
+      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
+      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+    },
+    publishedAt,
+    division->{
+      name,
+      "slug": slug.current
+    },
+    conferences[]->{
+      name,
+      "slug": slug.current,
+      shortName
+    },
+    authors[]->{
+      name,
+      "slug": slug.current,
+      image{
+        ...,
+        "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+        "blurData": asset->metadata.lqip,
+        "dominantColor": asset->metadata.palette.dominant.background,
+        "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+      },
+    }
+  }
+`);
