@@ -128,17 +128,13 @@ export function Footer({ data }: FooterProps) {
           {socialLinks && <SocialLinks data={socialLinks} />}
         </div>
         {Array.isArray(columns) && columns?.length > 0 && (
-          <div className="grid grid-cols-3 gap-6 lg:gap-28 lg:mr-20">
+          <div className="grid grid-cols-4 gap-6 lg:gap-28 lg:mr-20">
             {columns.map((column, index) => (
               <div key={`column-${column?._key}-${index}`}>
                 <h3 className="mb-6 font-semibold">{column?.title}</h3>
                 {column?.links && column?.links?.length > 0 && (
                   <ul className="space-y-4 text-sm text-muted-foreground dark:text-zinc-400">
                     {column?.links?.map((link, index) =>  {
-                      let basePath: string
-                      if (column?.title === 'Football') {
-                        basePath = `/college/football/news/`
-                      }
                       return (
                         <li
                           key={`${link?._key}-${index}-column-${column?._key}`}

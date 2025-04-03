@@ -1,78 +1,39 @@
+import { SanityImage } from "sanity-image"
 import { getImageDimensions } from "@sanity/asset-utils";
-import { cn } from "@workspace/ui/lib/utils";
-import Image, { type ImageProps as NextImageProps } from "next/image";
 
-import { urlFor } from "@/lib/sanity/client";
-import type { SanityImageProps } from "@/types";
+import { projectId, dataset } from "@/lib/sanity/api"
 
-type ImageProps = {
-  asset: SanityImageProps;
-  alt?: string;
-} & Omit<NextImageProps, "alt" | "src">;
-
-function getBlurDataURL(asset: SanityImageProps) {
-  if (asset?.blurData) {
-    return {
-      blurDataURL: asset.blurData,
-      placeholder: "blur" as const,
-    };
-  }
-  return {};
+type CustomImageProps = {
+  image: any
+  width?: number
+  height?: number
+  className?: string
+  loading?: "lazy" | "eager"
+  mode?: "cover" | "contain"
+  quality?: number
 }
 
-export function SanityImage({
-  asset,
-  alt,
-  width,
-  height,
-  className,
-  quality = 75,
-  fill,
-  ...props
-}: ImageProps) {
-  if (!asset?.asset) return null;
-  const dimensions = getImageDimensions(asset.asset);
-
-  const url = urlFor({ ...asset, _id: asset?.asset?._ref })
-    .size(
-      Number(width ?? dimensions.width),
-      Number(height ?? dimensions.height),
-    )
-    .dpr(2)
-    .auto("format")
-    .quality(Number(quality))
-    .url();
-
-  // Base image props
-  const imageProps = {
-    alt: alt ?? asset.alt ?? "Image",
-    "aria-label": alt ?? asset.alt ?? "Image",
-    src: url,
-    className: cn(className),
-    // Optimize image sizes for performance and LCP
-    // Use smaller percentages to reduce initial load size while maintaining quality
-    // Order from smallest to largest breakpoint for better browser parsing
-    // Define responsive image sizes for optimal loading:
-    // - Mobile (<640px): Image takes up 80% of viewport width
-    // - Tablet (<768px): Image takes up 50% of viewport width
-    // - Small desktop (<1200px): Image takes up 33% of viewport width
-    // - Large desktop (>1200px): Image takes up 25% of viewport width
-    sizes:
-      "(max-width: 640px) 75vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw",
-    ...getBlurDataURL(asset),
-    ...props,
-  };
-
-  // Add width and height only if fill is not true
-  if (!fill) {
-    return (
-      <Image
-        {...imageProps}
-        width={width ?? dimensions.width}
-        height={height ?? dimensions.height}
-      />
-    );
-  }
-
-  return <Image {...imageProps} fill={fill} />;
+const CustomImage = ({image, width, height, className, loading, mode="contain", quality = 75}: CustomImageProps) => {
+  const dimensions = getImageDimensions(image.asset);
+  return (
+    <SanityImage
+      id={image.asset._ref}
+      projectId={projectId}
+      dataset={dataset}
+      hotspot={image.hotspot}
+      crop={image.crop}
+      width={dimensions.width ?? width}
+      height={dimensions.height ?? height}
+      className={className}
+      alt={image.alt}
+      loading={loading}
+      mode={mode}
+      sizes="(max-width: 640px) 75vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+      queryParams={{
+        q: quality,
+      }}
+    />
+  )
 }
+
+export default CustomImage

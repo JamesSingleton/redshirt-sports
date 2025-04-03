@@ -35,20 +35,4 @@ export const seoFields = [
       hotspot: true,
     },
   }),
-  defineField({
-    name: 'seoNoIndex',
-    title: 'Do not index this page',
-    description: "If checked, this content won't be indexed by search engines.",
-    type: 'boolean',
-    initialValue: () => false,
-    group: GROUP.SEO,
-  }),
-  defineField({
-    name: 'seoHideFromLists',
-    title: 'Hide from lists',
-    description: "If checked, this content won't appear in any list pages.",
-    type: 'boolean',
-    initialValue: () => false,
-    group: GROUP.SEO,
-  }),
 ]

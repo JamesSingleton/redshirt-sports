@@ -8,11 +8,11 @@ import {
   sanityTutorialsWidget,
 } from '@sanity/dashboard'
 import { defineConfig, PortableTextInputProps } from 'sanity'
-import { presentationTool } from 'sanity/presentation'
+// import { presentationTool } from 'sanity/presentation'
 import { structureTool } from 'sanity/structure'
 import { media, mediaAssetSource } from 'sanity-plugin-media'
 
-import { presentationUrl } from './plugins/presentation-url'
+// import { presentationUrl } from './plugins/presentation-url'
 import { Logo } from './components/logo'
 import { locations } from './location'
 import { schemaTypes } from './schemaTypes'
@@ -30,17 +30,17 @@ export default defineConfig({
   icon: Logo,
   dataset: dataset ?? 'production',
   plugins: [
-    presentationTool({
-      resolve: {
-        locations,
-      },
-      previewUrl: {
-        origin: presentationOriginUrl ?? 'http://localhost:3000',
-        previewMode: {
-          enable: '/api/presentation-draft',
-        },
-      },
-    }),
+    // presentationTool({
+    //   resolve: {
+    //     locations,
+    //   },
+    //   previewUrl: {
+    //     origin: presentationOriginUrl ?? 'http://localhost:3000',
+    //     previewMode: {
+    //       enable: '/api/presentation-draft',
+    //     },
+    //   },
+    // }),
     assist(),
     structureTool({
       structure,
@@ -55,7 +55,7 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    presentationUrl(),
+    // presentationUrl(),
     table(),
   ],
   form: {

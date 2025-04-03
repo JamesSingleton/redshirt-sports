@@ -10,6 +10,7 @@ import { AuthorSection, MobileAuthorSection } from '@/components/posts/author'
 import { Image } from '@/components/image'
 import { RichText } from '@/components/rich-text'
 import { LargeArticleSocialShare } from '@/components/posts/article-share'
+import CustomImage from '@/components/sanity-image'
 
 import type { Metadata } from 'next'
 
@@ -106,19 +107,17 @@ export default async function PostPage({params}: PageProps) {
             </div>
             <article className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <figure className="mb-8 space-y-1.5">
-                <Image
-                  asset={data.mainImage}
-                  // alt={title}
+                <CustomImage 
+                  image={data.mainImage}
                   width={1600}
-                  loading="eager"
-                  priority
                   height={900}
                   className="rounded-lg h-auto w-full"
+                  loading="eager"
                 />
                 <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
                   <CameraIcon className="h-4 w-4" />
                   <span>
-                    Source: {data.mainImage.asset.creditLine ?? data.mainImage.attribution}
+                    Source: {data.mainImage.credit}
                   </span>
                 </figcaption>
               </figure>

@@ -37,7 +37,8 @@ const postAuthorFragment = /* groq */ `
 const postImageFragment = /* groq */ `
   mainImage{
     ...,
-    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+    "alt": coalesce(asset->altText, caption, "Image-Broken"),
+    "credit": coalesce(asset->creditLine, attribution, "Unknown"),
     "blurData": asset->metadata.lqip,
     "dominantColor": asset->metadata.palette.dominant.background,
   }
@@ -303,4 +304,12 @@ export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
       },
     }
   }
+`);
+
+export const queryCollegeSportsArticlesForSitemap = defineQuery(/* groq */ `
+  *[_type == "post" && defined(slug.current) && sport->title match $sport] | order(publishedAt desc){
+    _id,
+    _updatedAt,
+    publishedAt,
+    "slug": slug.current,
 `);
