@@ -2,9 +2,8 @@ import Link from 'next/link'
 import { badgeVariants } from '@workspace/ui/components/badge'
 import { Separator } from '@workspace/ui/components/separator'
 
-import { Image as SanityImage } from '@/components/image'
+import CustomImage from './sanity-image'
 import Date from '@/components/date'
-import { urlForImage } from '@/lib/sanity.image'
 
 export default function ArticleCard({
   title,
@@ -38,17 +37,12 @@ export default function ArticleCard({
 
   return (
     <div className="overflow-hidden rounded-lg border border-border shadow-lg">
-      <SanityImage
-        asset={image}
-        alt={image.caption}
+      <CustomImage
+        image={image}
         width={600}
         height={400}
         className="h-48 w-full object-cover object-top"
-        priority={imagePriority}
-        placeholder="blur"
-        blurDataURL={
-          image.asset.metadata?.lqip ?? urlForImage(image).width(24).height(24).blur(10).url()
-        }
+        loading={imagePriority ? 'eager' : 'lazy'}
       />
       <div className="bg-background p-4">
         <div className="mb-2 flex flex-wrap gap-2">

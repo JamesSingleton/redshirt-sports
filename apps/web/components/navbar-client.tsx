@@ -225,7 +225,7 @@ export function DesktopNavbar({
 }: {
   navbarData: QueryNavbarDataResult;
 }) {
-  const { columns, buttons } = navbarData ?? {};
+  const { columns } = navbarData ?? {};
 
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-8">

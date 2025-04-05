@@ -77,7 +77,11 @@ export default async function PostPage({params}: PageProps) {
                       </Link>
                     )}
                     {data.conferences &&
-                      data.conferences.map((conference) => (
+                      data.conferences.map((conference: {
+                        shortName: string
+                        name: string
+                        slug: string
+                      }) => (
                         <Link
                           key={conference.slug}
                           href={`/news/${data.division.slug}/${conference.slug}`}

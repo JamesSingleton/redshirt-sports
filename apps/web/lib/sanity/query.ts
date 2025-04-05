@@ -313,3 +313,18 @@ export const queryCollegeSportsArticlesForSitemap = defineQuery(/* groq */ `
     publishedAt,
     "slug": slug.current,
 `);
+
+export const querySitemapData = defineQuery(/* groq */ `{
+  "posts": *[_type == "post" && defined(slug.current)] {
+    "slug": slug.current,
+    "lastModified": _updatedAt
+  },
+  "authors": *[_type == "author" && defined(slug.current) && archived == false] {
+    "slug": slug.current,
+    "lastModified": _updatedAt
+  },
+  "sports": *[_type == "sport" && defined(title) && count(*[_type == "post" && references(^._id)]) > 0] {
+    "slug": slug.current,
+    "lastModified": _updatedAt
+  },
+}`);

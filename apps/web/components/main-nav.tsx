@@ -33,81 +33,30 @@ export function MainNav({ divisions, latestFCSTop25 }: NavProps) {
       <NavigationMenu className="ml-4">
         <NavigationMenuList>
           <NavigationMenuItem>
-            <Link href="/news" legacyBehavior passHref prefetch={false}>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>News</NavigationMenuLink>
-            </Link>
+            <NavigationMenuTrigger>College Football</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid grid-cols-3 gap-2 w-[700px]">
+                <li>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/college/football/news/fbs"
+                      prefetch={false}
+                      className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                    >
+                      <div className="text-sm font-medium leading-none">FBS</div>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
+              </ul>
+            </NavigationMenuContent>
           </NavigationMenuItem>
-          {divisions.map((division) => {
-            if (division.conferences.length > 0) {
-              return (
-                <NavigationMenuItem key={division._id}>
-                  <NavigationMenuTrigger>{division.name}</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-6 md:w-[700px] lg:w-[850px] lg:grid-cols-4">
-                      <li className="row-span-3">
-                        <NavigationMenuLink asChild>
-                          <Link
-                            className="flex h-full w-full select-none flex-col justify-center rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                            href={`/news/${division.slug}`}
-                            prefetch={false}
-                          >
-                            <div className="mb-2 mt-4 text-lg font-medium">{`${division.name} Home`}</div>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                      {division.conferences.map((conference) => {
-                        return (
-                          <ListItem
-                            key={`main_nav_${conference._id}`}
-                            title={conference.name}
-                            href={`/news/${division.slug}/${conference.slug}`}
-                          />
-                        )
-                      })}
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              )
-            } else {
-              return (
-                <NavigationMenuItem key={`main_nav_${division._id}`}>
-                  <Link href={`/news/${division.slug}`} legacyBehavior passHref prefetch={false}>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      {division.name}
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-              )
-            }
-          })}
-          {latestFCSTop25 && (
-            <NavigationMenuItem>
-              <Link
-                href={`/college/football/rankings/${latestFCSTop25.division}/${latestFCSTop25.year}/${latestFCSTop25.week === 999 ? 'final-rankings' : latestFCSTop25.week}`}
-                legacyBehavior
-                passHref
-                prefetch={false}
-              >
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  FCS Top 25
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          )}
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>College Basketball</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid grid-cols-3 gap-2 w-[700px]">
 
-          <NavigationMenuItem>
-            <Link href="/about" legacyBehavior passHref prefetch={false}>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                About
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link href="/contact" legacyBehavior passHref prefetch={false}>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Contact
-              </NavigationMenuLink>
-            </Link>
+              </ul>
+            </NavigationMenuContent>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
