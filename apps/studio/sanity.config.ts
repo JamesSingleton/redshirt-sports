@@ -8,6 +8,7 @@ import {
   sanityTutorialsWidget,
 } from '@sanity/dashboard'
 import { defineConfig, PortableTextInputProps } from 'sanity'
+
 // import { presentationTool } from 'sanity/presentation'
 import { structureTool } from 'sanity/structure'
 import { media, mediaAssetSource } from 'sanity-plugin-media'

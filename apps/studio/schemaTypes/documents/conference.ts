@@ -82,4 +82,16 @@ export const conference = defineType({
       validation: (rule) => rule.required(),
     }),
   ],
+  preview: {
+    select: {
+      title: 'shortName',
+      subtitle: 'name',
+      media: 'logo',
+    },
+    prepare: ({ title, subtitle, media }) => ({
+      title: title,
+      subtitle: subtitle,
+      media,
+    }),
+  },
 })

@@ -328,3 +328,28 @@ export const querySitemapData = defineQuery(/* groq */ `{
     "lastModified": _updatedAt
   },
 }`);
+
+export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ `
+  {
+    "posts": *[_type == "post" && sport->title match $sport && division->slug.current == $division && $conference in conferences[]->slug.current] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+      ...,
+      division->{
+        name,
+        "slug": slug.current
+      },
+      conferences[]->{
+        name,
+        "slug": slug.current,
+        shortName
+      },
+      "slug": slug.current,
+      "author": author->{name, "slug": slug.current},
+      "authors": authors[]->{name, "slug": slug.current},
+    },
+    "conferenceInfo": *[_type == "conference" && slug.current == $conference][0]{
+      name,
+      shortName,
+    },
+    "totalPosts": count(*[_type == "post" && sport->title match $sport && division->slug.current == $division && $conference in conferences[]->slug.current])
+  }  
+`)

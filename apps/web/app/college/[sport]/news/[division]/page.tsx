@@ -61,7 +61,7 @@ export default async function Page({
     <>
       <PageHeader title={`Latest ${division.toUpperCase()} ${sportTitleCase} News`} />
       <section className="container pb-12">
-        <ArticleFeed articles={news.posts} />
+        <ArticleFeed articles={news.posts} sport={sport} />
         {totalPages > 1 && (
           <PaginationControls totalPosts={news.totalPosts} />
         )}

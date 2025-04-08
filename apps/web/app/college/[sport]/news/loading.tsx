@@ -5,10 +5,10 @@ import { LoadingArticle } from '@/components/loading-article'
 export default function Loading() {
   return (
     <>
-      <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
+      <section className="py-12">
         <div className="container">
           <div className="md:max-w-3xl xl:max-w-5xl">
-            <Skeleton className="h-6 w-60" />
+            {/* <Skeleton className="h-6 w-60" /> */}
             <Skeleton className="mt-8 h-10 w-3/4 rounded" />
             <Skeleton className="mt-2 h-6 w-3/4 rounded" />
           </div>

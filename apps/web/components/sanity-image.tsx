@@ -28,7 +28,7 @@ const CustomImage = ({image, width, height, className, loading, mode="contain", 
       alt={image.alt}
       loading={loading}
       mode={mode}
-      sizes="(max-width: 640px) 75vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+      // sizes="(max-width: 640px) 75vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
       queryParams={{
         q: quality,
       }}

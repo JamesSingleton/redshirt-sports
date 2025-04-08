@@ -37,7 +37,7 @@ export default async function Page({
   const { page } = await searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
-  const {data: news } = await fetchSportsNews({ sport, pageIndex })
+  const {data: news } = await fetchSportsNews({ sport, pageIndex })  
 
   if (!news.posts.length) {
     notFound()
@@ -49,7 +49,7 @@ export default async function Page({
     <>
       <PageHeader title={`Latest College ${sportTitleCase} News`} />
       <section className="container pb-12">
-        <ArticleFeed articles={news.posts} />
+        <ArticleFeed articles={news.posts} sport={sport} />
         {totalPages > 1 && (
           <PaginationControls totalPosts={news.totalPosts} />
         )}

@@ -87,12 +87,9 @@ export const school = defineType({
     select: {
       title: 'name',
       media: 'image',
-      division: 'division.name',
-      conference: 'conference.name',
     },
-    prepare: ({ title, media, division, conference }) => ({
+    prepare: ({ title, media }) => ({
       title,
-      subtitle: `${division} - ${conference}`,
       media,
     }),
   },
