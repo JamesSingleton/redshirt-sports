@@ -32,10 +32,10 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: Promise<{ [key: string]: string }>
+  params: Promise<{ sport: string, division: string; conference: string }>
   searchParams: Promise<{ [key: string]: string }>
 }): Promise<Metadata> {
-  const { division, conference } = await params
+  const { sport, division, conference } = await params
   const { page } = await searchParams
 
   const conferenceInfo = await getConferenceInfoBySlug(conference)
@@ -45,7 +45,7 @@ export async function generateMetadata({
   }
 
   const conferenceName = conferenceInfo.shortName ?? conferenceInfo.name
-  let canonical = `/news/${division}/${conference}`
+  let canonical = `/college/${sport}/news/${division}/${conference}`
 
   let finalTitle: string = `${conferenceName} Football News | ${process.env.NEXT_PUBLIC_APP_NAME}`
   let finalDescription: string = `Explore extensive coverage of ${conferenceName} football. Dive into detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}, your go-to source for all ${conferenceName} football news.`
@@ -55,7 +55,7 @@ export async function generateMetadata({
     finalDescription = `Explore extensive coverage of ${conferenceName} football on Page ${page}. Dive into detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}, your go-to source for all ${conferenceName} football news.`
 
     if (parseInt(page) > 1) {
-      canonical = `/news/${division}/${conference}?page=${page}`
+      canonical = `/college/${sport}/news/${division}/${conference}?page=${page}`
     }
   }
 
