@@ -3,7 +3,7 @@ import { badgeVariants } from '@workspace/ui/components/badge'
 
 import Date from '@/components/date'
 import ArticleCard from '@/components/article-card'
-import { Image as SanityImage } from '@/components/image'
+import CustomImage from '../sanity-image'
 
 import { Post } from '@/types'
 
@@ -21,14 +21,10 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
               className="aspect-[2/1] relative block overflow-hidden rounded-lg shadow-md"
               prefetch={false}
             >
-              <SanityImage
-                asset={heroArticle.mainImage}
-                alt={heroArticle.mainImage.caption}
-                // width={800}
-                // height={400}
+              <CustomImage
+                image={heroArticle.mainImage}
                 className="object-cover object-top"
-                priority
-                fill
+                mode="cover"
               />
             </Link>
             <div className="mt-4 space-y-2">
@@ -66,9 +62,9 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                   className="flex items-center gap-2"
                   prefetch={false}
                 >
-                  <SanityImage
-                    asset={heroArticle.author.image}
-                    alt={`${heroArticle.author.name}'s profile picture`}
+                  <CustomImage
+                    image={heroArticle.author.image}
+                    // alt={`${heroArticle.author.name}'s profile picture`}
                     width={32}
                     height={32}
                     className="size-8 rounded-full"
@@ -92,6 +88,7 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                 author={article.author.name}
                 key={article._id}
                 headingLevel="h2"
+                sport={article.sport}
               />
             ))}
           </div>

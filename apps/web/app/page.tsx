@@ -85,6 +85,7 @@ export default async function HomePage() {
                 slug={article.slug}
                 key={article._id}
                 author={article.author.name}
+                sport={article.sport}
               />
             ))}
           </div>

@@ -4,12 +4,20 @@ import PageHeader from '@/components/page-header'
 import ArticleCard from '@/components/article-card'
 import PaginationControls from '@/components/pagination-controls'
 import Search from '@/components/search'
-import { getSearchResults } from '@/lib/sanity.fetch'
 import { perPage } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'
 
 import { Post } from '@/types'
 import type { Metadata } from 'next'
+import { sanityFetch } from '@/lib/sanity/live'
+import { searchQuery } from '@/lib/sanity/query'
+
+async function fetchSearchResults(query: string, page: number) {
+  return await sanityFetch({
+    query:searchQuery,
+    params: { q:query, pageIndex: page },
+  })
+}
 
 export const metadata: Metadata = constructMetadata({
   title: `Search Results | ${process.env.NEXT_PUBLIC_APP_NAME}`,
@@ -28,7 +36,8 @@ export default async function Page({
 
   let searchResults = { posts: [], totalPosts: 0 }
   if (query) {
-    searchResults = await getSearchResults(query, pageIndex)
+    const {data} = await fetchSearchResults(query, pageIndex)
+    searchResults = data
   }
 
   const totalPages = Math.ceil(searchResults.totalPosts / perPage)
@@ -53,7 +62,8 @@ export default async function Page({
                 slug={post.slug}
                 division={post.division}
                 conferences={post.conferences}
-                author={post.author.name}
+                author={post.authors[0]?.name || post.author.name}
+                sport={post.sport}
               />
             ))}
           </div>

@@ -1,4 +1,4 @@
-import type { PortableTextBlock } from 'sanity'
+import type { PortableTextBlock } from 'next-sanity'
 
 import type { MainImage } from './common'
 
@@ -53,4 +53,5 @@ export type Post = {
   authors: Author[]
   mainImage: MainImage
   wordCount: number
+  sport: string
 }

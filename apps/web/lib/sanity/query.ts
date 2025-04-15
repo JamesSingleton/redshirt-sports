@@ -353,3 +353,31 @@ export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ 
     "totalPosts": count(*[_type == "post" && sport->title match $sport && division->slug.current == $division && $conference in conferences[]->slug.current])
   }  
 `)
+
+export const searchQuery = defineQuery(/* groq */ `
+{
+  "posts": *[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")] | score(
+    boost(title match $q, 4),
+    boost(excerpt match $q, 3),
+    boost(pt::text(body) match $q, 2),
+  ) | order(publishedAt desc, _score desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+    ...,
+    "slug": slug.current,
+    ${divisionFragment},
+    ${conferencesFragment},
+    authors[]->{
+      name,
+      "slug": slug.current,
+      image{
+        ...,
+        "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+        "blurData": asset->metadata.lqip,
+        "dominantColor": asset->metadata.palette.dominant.background,
+        "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+      },
+    },
+    "sport": sport->title,
+  },
+  "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])
+}
+`)

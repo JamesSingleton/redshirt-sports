@@ -22,8 +22,8 @@ const CustomImage = ({image, width, height, className, loading, mode="contain", 
       dataset={dataset}
       hotspot={image.hotspot}
       crop={image.crop}
-      width={dimensions.width ?? width}
-      height={dimensions.height ?? height}
+      width={width ?? dimensions.width}
+      height={height ?? dimensions.height}
       className={className}
       alt={image.alt}
       loading={loading}

@@ -5,7 +5,7 @@ import { buttonVariants } from '@workspace/ui/components/button'
 
 import Date from '@/components/date'
 import ArticleCard from '@/components/article-card'
-import { Image as SanityImage } from '@/components/image'
+import CustomImage from '@/components/sanity-image'
 
 import { Post } from '@/types'
 
@@ -64,9 +64,8 @@ export default function ArticleSection({
                   className="flex items-center gap-2 text-primary"
                   prefetch={false}
                 >
-                  <SanityImage
-                    asset={firstArticle.authors[0].image as any}
-                    alt={`${firstArticle.authors[0].name}'s profile picture`}
+                  <CustomImage
+                    image={firstArticle.authors[0].image}
                     width={32}
                     height={32}
                     className="mr-2 size-8 rounded-full"
@@ -78,9 +77,8 @@ export default function ArticleSection({
             </div>
           </div>
           <div className={cn('md:w-1/2 xl:w-2/3', imageFirst ? 'md:order-1' : 'md:order-2')}>
-            <SanityImage
-              asset={firstArticle.mainImage as any}
-              alt={firstArticle.mainImage.caption}
+            <CustomImage
+              image={firstArticle.mainImage}
               width={860}
               height={573}
               className="w-full overflow-hidden rounded-lg shadow-md"
@@ -98,6 +96,7 @@ export default function ArticleSection({
               slug={article.slug}
               author={article.authors[0].name}
               key={article._id}
+              sport={article.sport}
             />
           ))}
         </div>
