@@ -12,10 +12,10 @@ import type { Metadata } from 'next'
 import { sanityFetch } from '@/lib/sanity/live'
 import { searchQuery } from '@/lib/sanity/query'
 
-async function fetchSearchResults(query: string, page: number) {
+async function fetchSearchResults(query: string, page: number): Promise<{ data: { posts: Post[]; totalPosts: number } }> {
   return await sanityFetch({
-    query:searchQuery,
-    params: { q:query, pageIndex: page },
+    query: searchQuery,
+    params: { q: query, pageIndex: page },
   })
 }
 
@@ -34,7 +34,8 @@ export default async function Page({
   const pageIndex = page !== undefined ? parseInt(page) : 1
   const subheadingText = query ? `Search results for "${query}"` : null
 
-  let searchResults = { posts: [], totalPosts: 0 }
+  let searchResults: { posts: Post[]; totalPosts: number } = { posts: [], totalPosts: 0 }
+
   if (query) {
     const {data} = await fetchSearchResults(query, pageIndex)
     searchResults = data

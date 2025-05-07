@@ -375,19 +375,6 @@ export const paginatedPostsQuery = groq`
   }
 `
 
-export const searchQuery = groq`
-{
-  "posts": *[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")] | score(
-    boost(title match $q, 4),
-    boost(excerpt match $q, 3),
-    boost(pt::text(body) match $q, 2),
-  ) | order(publishedAt desc, _score desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
-    ${litePostFields}
-  },
-  "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])
-}
-`
-
 export const openGraphDataBySlug = groq`
 *[_type == "post" && slug.current == $slug][0]{
   "title": title,

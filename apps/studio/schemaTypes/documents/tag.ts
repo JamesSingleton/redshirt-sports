@@ -31,12 +31,5 @@ export const tag = defineType({
       readOnly: ({ document }) => !!document?.name && !!document?.slug,
       validation: (rule) => rule.required(),
     }),
-    defineField({
-      name: 'description',
-      title: 'Description',
-      type: 'text',
-      description: 'A brief description of the tag.',
-      validation: (rule) => rule.required(),
-    }),
   ],
 })

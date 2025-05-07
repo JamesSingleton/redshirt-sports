@@ -13,7 +13,7 @@ import {
   postPaths,
   postsBySlugQuery,
   privacyPolicy,
-  searchQuery,
+  // searchQuery,
   transferPortalPlayers,
   heroPostsQuery,
   latestArticlesForHomePageQuery,
@@ -226,13 +226,13 @@ export function getAuthorsPosts(authorId: string, pageIndex: number, conference:
   })
 }
 
-export function getSearchResults(query: string, pageIndex: number) {
-  return sanityFetch<any>({
-    query: searchQuery,
-    params: { q: query, pageIndex },
-    tags: ['post'],
-  })
-}
+// export function getSearchResults(query: string, pageIndex: number) {
+//   return sanityFetch<any>({
+//     query: searchQuery,
+//     params: { q: query, pageIndex },
+//     tags: ['post'],
+//   })
+// }
 
 export function getTransferPortalPlayers() {
   return sanityFetch<any>({

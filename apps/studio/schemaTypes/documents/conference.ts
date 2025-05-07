@@ -51,7 +51,6 @@ export const conference = defineType({
         input: TextInputWithLimits,
       },
       validation: (rule) => [
-        rule.required().error('We need an excerpt before publishing.'),
         rule.min(110).warning('This is a short excerpt. Try to add 10-20 more characters.'),
         rule.max(160).error('The excerpt should be less than 160 characters'),
       ],
