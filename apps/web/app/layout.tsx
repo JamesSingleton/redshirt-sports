@@ -8,6 +8,7 @@ import { Toaster } from '@workspace/ui/components/sonner'
 
 import { Providers } from '@/components/providers'
 import { SiteHeader } from '@/components/site-header';
+import { MegaNav } from '@/components/mega-nav';
 import { FooterServer, FooterSkeleton } from "@/components/footer";
 import { SanityLive } from "@/lib/sanity/live";
 import { constructMetadata } from '@/utils/construct-metadata';
@@ -41,7 +42,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased flex min-h-screen flex-col`}>
         <Providers>
-          <SiteHeader />
+          {/* <SiteHeader /> */}
+          <MegaNav />
             <main className="flex-1">
               {children}
             </main>
