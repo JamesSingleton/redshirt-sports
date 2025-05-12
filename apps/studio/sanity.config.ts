@@ -31,6 +31,9 @@ export default defineConfig({
   projectId: projectId,
   icon: Logo,
   dataset: dataset ?? 'production',
+  mediaLibrary: {
+    enabled: true,
+  },
   plugins: [
     // presentationTool({
     //   resolve: {
@@ -59,7 +62,9 @@ export default defineConfig({
     }),
     // presentationUrl(),
     table(),
-    taxonomyManager({}),
+    taxonomyManager({
+      baseUri: 'https://studio.redshirtsports.xyz/',
+    }),
   ],
   form: {
     image: {
