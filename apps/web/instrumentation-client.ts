@@ -5,4 +5,7 @@ Sentry.init({
   tracesSampleRate: 1,
   debug: false,
   maxValueLength: 500,
+  sendDefaultPii: true,
 })
+
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
