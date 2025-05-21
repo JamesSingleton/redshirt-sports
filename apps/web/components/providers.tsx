@@ -9,7 +9,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <PlausibleProvider domain="redshirtsports.xyz">
       <NextThemesProvider
         attribute="class"
-        defaultTheme="dark"
+        defaultTheme="system"
         enableSystem
         disableTransitionOnChange
         enableColorScheme
