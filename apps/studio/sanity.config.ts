@@ -8,7 +8,6 @@ import {
   sanityTutorialsWidget,
 } from '@sanity/dashboard'
 import { defineConfig, PortableTextInputProps } from 'sanity'
-import { taxonomyManager } from 'sanity-plugin-taxonomy-manager'
 
 // import { presentationTool } from 'sanity/presentation'
 import { structureTool } from 'sanity/structure'
@@ -62,9 +61,6 @@ export default defineConfig({
     }),
     // presentationUrl(),
     table(),
-    taxonomyManager({
-      baseUri: 'https://studio.redshirtsports.xyz/',
-    }),
   ],
   form: {
     image: {

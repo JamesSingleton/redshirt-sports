@@ -74,7 +74,7 @@ export default async function AboutPage() {
       />
       <PageHeader title={`About ${process.env.NEXT_PUBLIC_APP_NAME}`} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="prose prose-xl mx-auto max-w-none dark:prose-invert">
+        <div className="prose prose-xl dark:prose-invert mx-auto max-w-none">
           <p>
             At Redshirt Sports, our passion for college football extends beyond the FCS. We are
             thrilled to announce that we will also be providing comprehensive coverage of FBS, D2,
@@ -125,7 +125,7 @@ export default async function AboutPage() {
               {authors?.map((author) => (
                 <li
                   key={author._id}
-                  className="relative rounded-3xl border bg-card px-6 py-10 text-center text-card-foreground transition duration-300 ease-in-out hover:border-zinc-300/30 hover:shadow-lg sm:px-10"
+                  className="bg-card text-card-foreground relative rounded-3xl border px-6 py-10 text-center transition duration-300 ease-in-out hover:border-zinc-300/30 hover:shadow-lg sm:px-10"
                 >
                   <div>
                     <SanityImage
@@ -143,7 +143,7 @@ export default async function AboutPage() {
                         </Link>
                       </h3>
                       {author.roles && (
-                        <span className="mt-1 text-base text-muted-foreground">
+                        <span className="text-muted-foreground mt-1 text-base">
                           {author.roles.join(', ')}
                         </span>
                       )}
@@ -174,7 +174,7 @@ export default async function AboutPage() {
           <h2 className="text-center text-3xl font-semibold sm:text-4xl">
             Join Our Community and Contribute
           </h2>
-          <div className="prose prose-xl mx-auto mt-12 px-5 dark:prose-invert sm:px-6 lg:max-w-7xl lg:px-8">
+          <div className="prose prose-xl dark:prose-invert mx-auto mt-12 px-5 sm:px-6 lg:max-w-7xl lg:px-8">
             <p>
               We believe in the power of a strong community. Redshirt Sports is not just a website
               but a platform that brings college football enthusiasts together. We invite you to

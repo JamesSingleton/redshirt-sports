@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       `https://site.api.espn.com/apis/common/v3/sports/football/college-football/seasons?startingseason=${year}`,
     ).then((res) => res.json())
 
-    const currentSeasonData: Season = espnBody.seasons[0]
+    const currentSeasonData: Season = espnBody.seasons[0]!
     const currentSeasonEndDate = new Date(currentSeasonData.endDate)
 
     if (currentSeasonData.types.length) {

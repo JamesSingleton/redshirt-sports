@@ -200,7 +200,7 @@ export default async function Page({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <section className="py-8">
-        <div className="mx-auto container">
+        <div className="container mx-auto">
           <div className="md:max-w-3xl xl:max-w-5xl">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <SanityImage
@@ -211,7 +211,7 @@ export default async function Page({
                 height={80}
               />
               <div>
-                <span className="block text-base font-semibold text-brand-500 dark:text-brand-400">
+                <span className="text-brand-500 dark:text-brand-400 block text-base font-semibold">
                   {author.roles.join(', ')}
                 </span>
                 <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
@@ -219,7 +219,7 @@ export default async function Page({
                 </h1>
               </div>
             </div>
-            <p className="mt-4 text-lg font-normal text-muted-foreground lg:text-xl">
+            <p className="text-muted-foreground mt-4 text-lg font-normal lg:text-xl">
               {author.biography}
             </p>
             {author.socialMedia && (
@@ -230,7 +230,7 @@ export default async function Page({
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex h-10 w-10 items-center rounded-full text-muted-foreground transition-all duration-200"
+                      className="text-muted-foreground inline-flex h-10 w-10 items-center rounded-full transition-all duration-200"
                     >
                       <span className="sr-only">{social.name}</span>
                       {social.name === 'Email' ? <Mail className="h-6 w-6" /> : null}

@@ -80,7 +80,7 @@ export default async function VotePage({ params }: { params: Promise<{ division:
       {title && subtitle && (
         <div className="space-y-4 pt-12 text-center">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">{title}</h1>
-          <p className="text-lg text-muted-foreground">{subtitle}</p>
+          <p className="text-muted-foreground text-lg">{subtitle}</p>
         </div>
       )}
       <div className="flex flex-col gap-6 pt-4 lg:flex-row">

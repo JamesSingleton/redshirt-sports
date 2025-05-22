@@ -15,13 +15,6 @@ export const metadata: Metadata = constructMetadata({
   canonical: '/privacy',
 })
 
-const breadcrumbs = [
-  {
-    title: 'Privacy Policy',
-    href: '/privacy',
-  },
-]
-
 const jsonLd: Graph = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -69,7 +62,6 @@ export default async function PrivacyPolicyPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <PageHeader
-        breadcrumbs={breadcrumbs}
         title="Privacy Policy"
         subtitle={
           <p className="mt-4 text-lg font-normal lg:text-xl">

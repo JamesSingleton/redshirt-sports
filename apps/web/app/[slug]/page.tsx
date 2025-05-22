@@ -22,15 +22,15 @@ interface PageProps {
 async function fetchPostSlugData(slug: string) {
   return await sanityFetch({
     query: queryPostSlugData,
-    params: { slug }
+    params: { slug },
   })
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata>{
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
   const { slug } = await params
   const { data: pageData } = await fetchPostSlugData(slug)
 
@@ -44,43 +44,43 @@ export async function generateMetadata({
   }
 }
 
-export default async function PostPage({params}: PageProps) {
+export default async function PostPage({ params }: PageProps) {
   const { slug } = await params
   const { data } = await fetchPostSlugData(slug)
 
-  if(!data) {
+  if (!data) {
     notFound()
   }
 
   return (
     <>
-      <section className="pb-8 mt-8">
+      <section className="mt-8 pb-8">
         <div className="container">
-          <h1 id="article-title" className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
-              {data.title}
+          <h1
+            id="article-title"
+            className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl"
+          >
+            {data.title}
           </h1>
           <p id="article-excerpt" className="mt-4 text-lg font-normal lg:text-xl">
             {data.excerpt}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             {(data.division || data.conferences) && (
-                <>
-                  <div className="flex flex-wrap items-center gap-3">
-                    {data.division && (
-                      <Link
-                        href={`/news/${data.division.slug}`}
-                        className={badgeVariants({ variant: 'default' })}
-                        prefetch={false}
-                      >
-                        {data.division.name}
-                      </Link>
-                    )}
-                    {data.conferences &&
-                      data.conferences.map((conference: {
-                        shortName: string
-                        name: string
-                        slug: string
-                      }) => (
+              <>
+                <div className="flex flex-wrap items-center gap-3">
+                  {data.division && (
+                    <Link
+                      href={`/news/${data.division.slug}`}
+                      className={badgeVariants({ variant: 'default' })}
+                      prefetch={false}
+                    >
+                      {data.division.name}
+                    </Link>
+                  )}
+                  {data.conferences &&
+                    data.conferences.map(
+                      (conference: { shortName: string; name: string; slug: string }) => (
                         <Link
                           key={conference.slug}
                           href={`/news/${data.division.slug}/${conference.slug}`}
@@ -89,12 +89,13 @@ export default async function PostPage({params}: PageProps) {
                         >
                           {conference.shortName ?? conference.name}
                         </Link>
-                      ))}
-                  </div>
-                  <span className="text-sm">•</span>
-                </>
-              )}
-              <Date dateString={data.publishedAt} className="text-sm" />
+                      ),
+                    )}
+                </div>
+                <span className="text-sm">•</span>
+              </>
+            )}
+            <Date dateString={data.publishedAt} className="text-sm" />
           </div>
         </div>
       </section>
@@ -102,7 +103,7 @@ export default async function PostPage({params}: PageProps) {
         <div className="container">
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
             <div className="lg:w-64 lg:shrink-0">
-              <div className="hidden lg:sticky lg:left-0 lg:top-24 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
+              <div className="hidden lg:sticky lg:top-24 lg:left-0 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
                 <AuthorSection author={data.author} authors={data.authors} />
                 <LargeArticleSocialShare slug={data.slug} title={data.title} />
               </div>
@@ -110,18 +111,16 @@ export default async function PostPage({params}: PageProps) {
             </div>
             <article className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <figure className="mb-8 space-y-1.5">
-                <CustomImage 
+                <CustomImage
                   image={data.mainImage}
                   width={1600}
                   height={900}
-                  className="rounded-lg h-auto w-full"
+                  className="h-auto w-full rounded-lg"
                   loading="eager"
                 />
-                <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
+                <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
                   <CameraIcon className="h-4 w-4" />
-                  <span>
-                    Source: {data.mainImage.credit}
-                  </span>
+                  <span>Source: {data.mainImage.credit}</span>
                 </figcaption>
               </figure>
               <RichText richText={data.body} />

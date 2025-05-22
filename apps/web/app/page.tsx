@@ -5,12 +5,16 @@ import { cn } from '@workspace/ui/lib/utils'
 
 import Hero from '@/components/home/hero'
 import { sanityFetch } from '@/lib/sanity/live'
-import { queryHomePageData, queryLatestArticles, queryLatestCollegeSportsArticles } from '@/lib/sanity/query'
+import {
+  queryHomePageData,
+  queryLatestArticles,
+  queryLatestCollegeSportsArticles,
+} from '@/lib/sanity/query'
 import ArticleCard from '@/components/article-card'
 import ArticleSection from '@/components/article-section'
 import { Org, Web } from '@/lib/ldJson'
 
-import { type Metadata } from "next"
+import { type Metadata } from 'next'
 import type { Graph } from 'schema-dts'
 
 const jsonLd: Graph = {
@@ -18,23 +22,30 @@ const jsonLd: Graph = {
   '@graph': [Org, Web],
 }
 
-
 async function fetchHomePageData() {
   return await sanityFetch({
-    query: queryHomePageData
+    query: queryHomePageData,
   })
 }
 
 async function fetchLatestArticles() {
   return await sanityFetch({
-    query: queryLatestArticles
+    query: queryLatestArticles,
   })
 }
 
-async function fetchLatestCollegeSportsArticles({division, sport, articleIds}: {division: string, sport: string, articleIds: string[]}) {
+async function fetchLatestCollegeSportsArticles({
+  division,
+  sport,
+  articleIds,
+}: {
+  division: string
+  sport: string
+  articleIds: string[]
+}) {
   return await sanityFetch({
     query: queryLatestCollegeSportsArticles,
-    params: {division, sport, articleIds}
+    params: { division, sport, articleIds },
   })
 }
 
@@ -44,15 +55,31 @@ async function fetchLatestCollegeSportsArticles({division, sport, articleIds}: {
 // }
 
 export default async function HomePage() {
-  const {data: homePageData} = await fetchHomePageData()
-  const {data: latestArticles} = await fetchLatestArticles()
+  const { data: homePageData } = await fetchHomePageData()
+  const { data: latestArticles } = await fetchLatestArticles()
 
   const articleIds = [...homePageData, ...latestArticles].map((article) => article._id)
 
-  const {data: fbsArticles} = await fetchLatestCollegeSportsArticles({division: "FBS", sport: "Football", articleIds})
-  const {data: fcsArticles} = await fetchLatestCollegeSportsArticles({division: "FCS", sport: "Football", articleIds})
-  const {data: d2Articles} = await fetchLatestCollegeSportsArticles({division: "D2", sport: "Football", articleIds})
-  const {data: d3Articles} = await fetchLatestCollegeSportsArticles({division: "D3", sport: "Football", articleIds})
+  const { data: fbsArticles } = await fetchLatestCollegeSportsArticles({
+    division: 'FBS',
+    sport: 'Football',
+    articleIds,
+  })
+  const { data: fcsArticles } = await fetchLatestCollegeSportsArticles({
+    division: 'FCS',
+    sport: 'Football',
+    articleIds,
+  })
+  const { data: d2Articles } = await fetchLatestCollegeSportsArticles({
+    division: 'D2',
+    sport: 'Football',
+    articleIds,
+  })
+  const { data: d3Articles } = await fetchLatestCollegeSportsArticles({
+    division: 'D3',
+    sport: 'Football',
+    articleIds,
+  })
 
   return (
     <>
@@ -91,7 +118,11 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-      <ArticleSection title="FCS College Football News" slug="/college/football/news/fcs" articles={fcsArticles} />
+      <ArticleSection
+        title="FCS College Football News"
+        slug="/college/football/news/fcs"
+        articles={fcsArticles}
+      />
       <ArticleSection
         title="FBS College Football News"
         slug="/news/fbs"
@@ -104,11 +135,11 @@ export default async function HomePage() {
         articles={d2Articles}
       />
       <ArticleSection
-          title="Division III (D3) Football News"
-          slug="/news/d3"
-          articles={d3Articles}
-          imageFirst={true}
-        />
+        title="Division III (D3) Football News"
+        slug="/news/d3"
+        articles={d3Articles}
+        imageFirst={true}
+      />
     </>
   )
 }

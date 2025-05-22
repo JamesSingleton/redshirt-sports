@@ -5,18 +5,17 @@ import { client } from '@/lib/sanity/client'
 import { querySitemapData } from '@/lib/sanity/query'
 import { getYearsWithVotes } from '@/server/queries'
 
-const baseUrl = getBaseUrl();
+const baseUrl = getBaseUrl()
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap>{
-
-  const { posts, authors, sports } = await client.fetch(querySitemapData);
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { posts, authors, sports } = await client.fetch(querySitemapData)
   const yearsWithVotes = await getYearsWithVotes()
 
   return [
     {
       url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: "weekly",
+      changeFrequency: 'weekly',
       priority: 1,
     },
     {
@@ -40,13 +39,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap>{
     ...posts.map((post: any) => ({
       url: `${baseUrl}/${post.slug}`,
       lastModified: new Date(post.lastModified),
-      changeFrequency: "weekly" as const,
+      changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
     ...authors.map((author: any) => ({
       url: `${baseUrl}/authors/${author.slug}`,
       lastModified: new Date(author.lastModified),
-      changeFrequency: "weekly" as const,
+      changeFrequency: 'weekly' as const,
       priority: 0.7,
     })),
     ...sports.map((sport: any) => {
@@ -54,7 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap>{
       return {
         url: `${baseUrl}/college/${sportSlug}/news`,
         lastModified: new Date(sport.lastModified),
-        changeFrequency: "weekly" as const,
+        changeFrequency: 'weekly' as const,
         priority: 0.7,
       }
     }),

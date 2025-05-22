@@ -12,7 +12,10 @@ import type { Metadata } from 'next'
 import { sanityFetch } from '@/lib/sanity/live'
 import { searchQuery } from '@/lib/sanity/query'
 
-async function fetchSearchResults(query: string, page: number): Promise<{ data: { posts: Post[]; totalPosts: number } }> {
+async function fetchSearchResults(
+  query: string,
+  page: number,
+): Promise<{ data: { posts: Post[]; totalPosts: number } }> {
   return await sanityFetch({
     query: searchQuery,
     params: { q: query, pageIndex: page },
@@ -37,7 +40,7 @@ export default async function Page({
   let searchResults: { posts: Post[]; totalPosts: number } = { posts: [], totalPosts: 0 }
 
   if (query) {
-    const {data} = await fetchSearchResults(query, pageIndex)
+    const { data } = await fetchSearchResults(query, pageIndex)
     searchResults = data
   }
 
@@ -72,7 +75,7 @@ export default async function Page({
         {searchResults.posts.length === 0 && (
           <div className="mt-8 text-center">
             <h2 className="text-3xl font-bold">No results found.</h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="text-muted-foreground mt-4 text-lg">
               Try searching for something else or check out our latest articles below.
             </p>
           </div>

@@ -6,14 +6,22 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Button } from '@workspace/ui/components/button'
-import {Form,
+import {
+  Form,
   FormField,
   FormControl,
   FormDescription,
   FormItem,
   FormLabel,
-  FormMessage,} from '@workspace/ui/components/form'
-  import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@workspace/ui/components/card'
+  FormMessage,
+} from '@workspace/ui/components/form'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@workspace/ui/components/card'
 import { Input } from '@workspace/ui/components/input'
 
 import { completeOnboarding } from '@/actions/complete-onboarding'

@@ -1,5 +1,11 @@
 import Link from 'next/link'
-import { Card, CardTitle, CardDescription, CardContent, CardHeader } from '@workspace/ui/components/card'
+import {
+  Card,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardHeader,
+} from '@workspace/ui/components/card'
 
 import PageHeader from '@/components/page-header'
 import { Org, Web } from '@/lib/ldJson'
@@ -105,7 +111,7 @@ export default function Page() {
               <CardContent className="flex flex-grow items-end">
                 <Link
                   href={`mailto:${email}`}
-                  className="break-all text-sm text-primary hover:underline sm:text-base"
+                  className="text-primary text-sm break-all hover:underline sm:text-base"
                 >
                   {email}
                 </Link>

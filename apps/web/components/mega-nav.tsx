@@ -1,11 +1,15 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Menu, X, ChevronRight, Search } from "lucide-react"
-import { Button } from "@workspace/ui/components/button"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@workspace/ui/components/collapsible"
+import * as React from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { Menu, X, ChevronRight, Search } from 'lucide-react'
+import { Button } from '@workspace/ui/components/button'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@workspace/ui/components/collapsible'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,11 +18,17 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@workspace/ui/components/navigation-menu"
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@workspace/ui/components/sheet"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@workspace/ui/components/dialog"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
-import { useState } from "react"
+} from '@workspace/ui/components/navigation-menu'
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@workspace/ui/components/sheet'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@workspace/ui/components/dialog'
+import { ScrollArea } from '@workspace/ui/components/scroll-area'
+import { useState } from 'react'
 // import { SearchInput } from "@/components/search/search-input"
 // import { MobileSearch } from "@/components/search/mobile-search"
 
@@ -27,211 +37,211 @@ import SmallLogo from './small-logo'
 // Football divisions and conferences data
 const footballData = {
   FBS: [
-    "ACC",
-    "Big 12",
-    "Big Ten",
-    "Pac-12",
-    "SEC",
-    "American",
-    "Conference USA",
-    "MAC",
-    "Mountain West",
-    "Sun Belt",
-    "Independents",
+    'ACC',
+    'Big 12',
+    'Big Ten',
+    'Pac-12',
+    'SEC',
+    'American',
+    'Conference USA',
+    'MAC',
+    'Mountain West',
+    'Sun Belt',
+    'Independents',
   ],
   FCS: [
-    "Big Sky",
-    "Big South",
-    "CAA",
-    "Ivy League",
-    "MEAC",
-    "Missouri Valley",
-    "Northeast",
-    "Ohio Valley",
-    "Patriot",
-    "Pioneer",
-    "Southern",
-    "Southland",
-    "SWAC",
+    'Big Sky',
+    'Big South',
+    'CAA',
+    'Ivy League',
+    'MEAC',
+    'Missouri Valley',
+    'Northeast',
+    'Ohio Valley',
+    'Patriot',
+    'Pioneer',
+    'Southern',
+    'Southland',
+    'SWAC',
   ],
   DII: [
-    "CIAA",
-    "G-MAC",
-    "GLIAC",
-    "GLVC",
-    "GMAC",
-    "Gulf South",
-    "Lone Star",
-    "MIAA",
-    "Mountain East",
-    "NE-10",
-    "NSIC",
-    "PSAC",
-    "RMAC",
-    "SAC",
-    "SIAC",
+    'CIAA',
+    'G-MAC',
+    'GLIAC',
+    'GLVC',
+    'GMAC',
+    'Gulf South',
+    'Lone Star',
+    'MIAA',
+    'Mountain East',
+    'NE-10',
+    'NSIC',
+    'PSAC',
+    'RMAC',
+    'SAC',
+    'SIAC',
   ],
   DIII: [
-    "ASC",
-    "CCIW",
-    "Centennial",
-    "Empire 8",
-    "HCAC",
-    "Liberty League",
-    "MAC",
-    "MIAA",
-    "Middle Atlantic",
-    "Midwest",
-    "NACC",
-    "NESCAC",
-    "NEWMAC",
-    "NJAC",
-    "NWC",
-    "OAC",
-    "ODAC",
-    "PAC",
-    "SAA",
-    "SCIAC",
-    "SCAC",
-    "USA South",
+    'ASC',
+    'CCIW',
+    'Centennial',
+    'Empire 8',
+    'HCAC',
+    'Liberty League',
+    'MAC',
+    'MIAA',
+    'Middle Atlantic',
+    'Midwest',
+    'NACC',
+    'NESCAC',
+    'NEWMAC',
+    'NJAC',
+    'NWC',
+    'OAC',
+    'ODAC',
+    'PAC',
+    'SAA',
+    'SCIAC',
+    'SCAC',
+    'USA South',
   ],
   NAIA: [
-    "Appalachian Athletic",
-    "Cascade",
-    "Frontier",
-    "Great Plains Athletic",
-    "Heart of America",
-    "Kansas Collegiate",
-    "Mid-South",
-    "North Star Athletic",
-    "Sooner Athletic",
-    "The Sun",
+    'Appalachian Athletic',
+    'Cascade',
+    'Frontier',
+    'Great Plains Athletic',
+    'Heart of America',
+    'Kansas Collegiate',
+    'Mid-South',
+    'North Star Athletic',
+    'Sooner Athletic',
+    'The Sun',
   ],
 }
 
 // Basketball divisions and conferences data
 const basketballData = {
-  "DI (Power 5)": ["ACC", "Big 12", "Big Ten", "Pac-12", "SEC"],
-  "DI (Mid-Major)": [
-    "American",
-    "Atlantic 10",
-    "Big East",
-    "Big Sky",
-    "Big South",
-    "Big West",
-    "CAA",
-    "Conference USA",
-    "Horizon",
-    "Ivy League",
-    "MAAC",
-    "MAC",
-    "MEAC",
-    "Missouri Valley",
-    "Mountain West",
-    "Northeast",
-    "Ohio Valley",
-    "Patriot",
-    "Southern",
-    "Southland",
-    "Summit League",
-    "Sun Belt",
-    "SWAC",
-    "WAC",
-    "WCC",
+  'DI (Power 5)': ['ACC', 'Big 12', 'Big Ten', 'Pac-12', 'SEC'],
+  'DI (Mid-Major)': [
+    'American',
+    'Atlantic 10',
+    'Big East',
+    'Big Sky',
+    'Big South',
+    'Big West',
+    'CAA',
+    'Conference USA',
+    'Horizon',
+    'Ivy League',
+    'MAAC',
+    'MAC',
+    'MEAC',
+    'Missouri Valley',
+    'Mountain West',
+    'Northeast',
+    'Ohio Valley',
+    'Patriot',
+    'Southern',
+    'Southland',
+    'Summit League',
+    'Sun Belt',
+    'SWAC',
+    'WAC',
+    'WCC',
   ],
   DII: [
-    "CACC",
-    "CIAA",
-    "ECC",
-    "G-MAC",
-    "GLIAC",
-    "GLVC",
-    "GMAC",
-    "Great Northwest",
-    "Gulf South",
-    "Lone Star",
-    "MIAA",
-    "Mountain East",
-    "NE-10",
-    "NSIC",
-    "PacWest",
-    "Peach Belt",
-    "PSAC",
-    "RMAC",
-    "SAC",
-    "SIAC",
-    "SSC",
+    'CACC',
+    'CIAA',
+    'ECC',
+    'G-MAC',
+    'GLIAC',
+    'GLVC',
+    'GMAC',
+    'Great Northwest',
+    'Gulf South',
+    'Lone Star',
+    'MIAA',
+    'Mountain East',
+    'NE-10',
+    'NSIC',
+    'PacWest',
+    'Peach Belt',
+    'PSAC',
+    'RMAC',
+    'SAC',
+    'SIAC',
+    'SSC',
   ],
   DIII: [
-    "AMCC",
-    "ASC",
-    "Capital Athletic",
-    "CCIW",
-    "Centennial",
-    "Coast-To-Coast",
-    "Commonwealth Coast",
-    "Empire 8",
-    "GNAC",
-    "HCAC",
-    "Landmark",
-    "Liberty League",
-    "Little East",
-    "MAC Freedom",
-    "MAC Commonwealth",
-    "MASCAC",
-    "MIAA",
-    "Midwest",
-    "NACC",
-    "NESCAC",
-    "NEWMAC",
-    "NJAC",
-    "NWC",
-    "OAC",
-    "ODAC",
-    "PAC",
-    "SAA",
-    "SCIAC",
-    "SCAC",
-    "SLIAC",
-    "USA South",
-    "WIAC",
+    'AMCC',
+    'ASC',
+    'Capital Athletic',
+    'CCIW',
+    'Centennial',
+    'Coast-To-Coast',
+    'Commonwealth Coast',
+    'Empire 8',
+    'GNAC',
+    'HCAC',
+    'Landmark',
+    'Liberty League',
+    'Little East',
+    'MAC Freedom',
+    'MAC Commonwealth',
+    'MASCAC',
+    'MIAA',
+    'Midwest',
+    'NACC',
+    'NESCAC',
+    'NEWMAC',
+    'NJAC',
+    'NWC',
+    'OAC',
+    'ODAC',
+    'PAC',
+    'SAA',
+    'SCIAC',
+    'SCAC',
+    'SLIAC',
+    'USA South',
+    'WIAC',
   ],
   NAIA: [
-    "Appalachian Athletic",
-    "California Pacific",
-    "Cascade",
-    "Chicagoland",
-    "Crossroads League",
-    "Frontier",
-    "Golden State Athletic",
-    "Great Plains Athletic",
-    "Gulf Coast Athletic",
-    "Heart of America",
-    "Kansas Collegiate",
-    "Mid-South",
-    "North Star Athletic",
-    "Red River Athletic",
-    "River States",
-    "Sooner Athletic",
-    "The Sun",
-    "Wolverine-Hoosier",
+    'Appalachian Athletic',
+    'California Pacific',
+    'Cascade',
+    'Chicagoland',
+    'Crossroads League',
+    'Frontier',
+    'Golden State Athletic',
+    'Great Plains Athletic',
+    'Gulf Coast Athletic',
+    'Heart of America',
+    'Kansas Collegiate',
+    'Mid-South',
+    'North Star Athletic',
+    'Red River Athletic',
+    'River States',
+    'Sooner Athletic',
+    'The Sun',
+    'Wolverine-Hoosier',
   ],
 }
 
 // Combined data for search functionality
 const allConferences = [
   ...Object.entries(footballData).flatMap(([division, conferences]) =>
-    conferences.map((conf) => ({ sport: "Football", division, conference: conf })),
+    conferences.map((conf) => ({ sport: 'Football', division, conference: conf })),
   ),
   ...Object.entries(basketballData).flatMap(([division, conferences]) =>
-    conferences.map((conf) => ({ sport: "Basketball", division, conference: conf })),
+    conferences.map((conf) => ({ sport: 'Basketball', division, conference: conf })),
   ),
 ]
 
 export function MegaNav() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = React.useState(false)
-  const [searchQuery, setSearchQuery] = React.useState("")
+  const [searchQuery, setSearchQuery] = React.useState('')
   const [searchResults, setSearchResults] = React.useState<typeof allConferences>([])
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
 
@@ -239,7 +249,7 @@ export function MegaNav() {
   const handleSearch = (query: string) => {
     setSearchQuery(query)
 
-    if (query.trim() === "") {
+    if (query.trim() === '') {
       setSearchResults([])
       return
     }
@@ -255,7 +265,7 @@ export function MegaNav() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
+    <header className="bg-background sticky top-0 z-50 w-full border-b shadow-sm">
       <div className="container flex h-16 items-center">
         {/* Mobile Menu Trigger */}
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -267,10 +277,12 @@ export function MegaNav() {
           </SheetTrigger>
           <SheetContent side="left" className="w-[85vw] max-w-[400px] p-0">
             <div className="flex h-16 items-center justify-between border-b px-4">
-              <Link href="/" className="flex items-center space-x-2" onClick={() => setMobileOpen(false)}>
-                <SmallLogo
-                  className="h-8 w-auto"
-                />
+              <Link
+                href="/"
+                className="flex items-center space-x-2"
+                onClick={() => setMobileOpen(false)}
+              >
+                <SmallLogo className="h-8 w-auto" />
               </Link>
               <SheetClose asChild>
                 <Button variant="ghost" size="icon">
@@ -281,7 +293,11 @@ export function MegaNav() {
 
             {/* Mobile Search */}
             <div className="border-b p-4">
-              <Button variant="outline" className="w-full justify-start" onClick={() => setIsMobileSearchOpen(true)}>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => setIsMobileSearchOpen(true)}
+              >
                 <Search className="mr-2 h-4 w-4" />
                 Search conferences, divisions...
               </Button>
@@ -299,24 +315,24 @@ export function MegaNav() {
                   </div>
                   <div className="space-y-1 px-2 pb-2">
                     <Collapsible>
-                      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left hover:bg-accent/50">
+                      <CollapsibleTrigger className="hover:bg-accent/50 flex w-full items-center justify-between rounded-md px-2 py-2 text-left">
                         College Football
-                        <ChevronRight className="h-4 w-4 transition-transform ui-open:rotate-90" />
+                        <ChevronRight className="ui-open:rotate-90 h-4 w-4 transition-transform" />
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         {Object.entries(footballData).map(([division, conferences]) => (
-                          <Collapsible key={division} className="ml-4 mt-1">
-                            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent/50">
+                          <Collapsible key={division} className="mt-1 ml-4">
+                            <CollapsibleTrigger className="hover:bg-accent/50 flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm">
                               {division}
-                              <ChevronRight className="h-3.5 w-3.5 transition-transform ui-open:rotate-90" />
+                              <ChevronRight className="ui-open:rotate-90 h-3.5 w-3.5 transition-transform" />
                             </CollapsibleTrigger>
                             <CollapsibleContent>
                               <div className="grid grid-cols-2 gap-x-2 p-2">
                                 {conferences.map((conference) => (
                                   <Link
                                     key={conference}
-                                    href={`/football/${division.toLowerCase()}/${conference.toLowerCase().replace(/\s+/g, "-")}`}
-                                    className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                    href={`/football/${division.toLowerCase()}/${conference.toLowerCase().replace(/\s+/g, '-')}`}
+                                    className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                     onClick={() => setMobileOpen(false)}
                                   >
                                     {conference}
@@ -330,24 +346,24 @@ export function MegaNav() {
                     </Collapsible>
 
                     <Collapsible>
-                      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left hover:bg-accent/50">
+                      <CollapsibleTrigger className="hover:bg-accent/50 flex w-full items-center justify-between rounded-md px-2 py-2 text-left">
                         Men's College Basketball
-                        <ChevronRight className="h-4 w-4 transition-transform ui-open:rotate-90" />
+                        <ChevronRight className="ui-open:rotate-90 h-4 w-4 transition-transform" />
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         {Object.entries(basketballData).map(([division, conferences]) => (
-                          <Collapsible key={division} className="ml-4 mt-1">
-                            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent/50">
+                          <Collapsible key={division} className="mt-1 ml-4">
+                            <CollapsibleTrigger className="hover:bg-accent/50 flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm">
                               {division}
-                              <ChevronRight className="h-3.5 w-3.5 transition-transform ui-open:rotate-90" />
+                              <ChevronRight className="ui-open:rotate-90 h-3.5 w-3.5 transition-transform" />
                             </CollapsibleTrigger>
                             <CollapsibleContent>
                               <div className="grid grid-cols-2 gap-x-2 p-2">
                                 {conferences.map((conference) => (
                                   <Link
                                     key={conference}
-                                    href={`/basketball/${division.toLowerCase().replace(/\s+|$$|$$/g, "-")}/${conference.toLowerCase().replace(/\s+/g, "-")}`}
-                                    className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                    href={`/basketball/${division.toLowerCase().replace(/\s+|$$|$$/g, '-')}/${conference.toLowerCase().replace(/\s+/g, '-')}`}
+                                    className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                     onClick={() => setMobileOpen(false)}
                                   >
                                     {conference}
@@ -361,49 +377,49 @@ export function MegaNav() {
                     </Collapsible>
 
                     <Collapsible>
-                      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left hover:bg-accent/50">
+                      <CollapsibleTrigger className="hover:bg-accent/50 flex w-full items-center justify-between rounded-md px-2 py-2 text-left">
                         Rankings
-                        <ChevronRight className="h-4 w-4 transition-transform ui-open:rotate-90" />
+                        <ChevronRight className="ui-open:rotate-90 h-4 w-4 transition-transform" />
                       </CollapsibleTrigger>
                       <CollapsibleContent>
-                        <Collapsible className="ml-4 mt-1">
-                          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent/50">
+                        <Collapsible className="mt-1 ml-4">
+                          <CollapsibleTrigger className="hover:bg-accent/50 flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm">
                             College Football Rankings
-                            <ChevronRight className="h-3.5 w-3.5 transition-transform ui-open:rotate-90" />
+                            <ChevronRight className="ui-open:rotate-90 h-3.5 w-3.5 transition-transform" />
                           </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="flex flex-col p-2 space-y-1">
+                            <div className="flex flex-col space-y-1 p-2">
                               <Link
                                 href="/rankings/football/fbs"
-                                className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 FBS College Football Rankings
                               </Link>
                               <Link
                                 href="/rankings/football/fcs"
-                                className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 FCS College Football Rankings
                               </Link>
                               <Link
                                 href="/rankings/football/dii"
-                                className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 DII College Football Rankings
                               </Link>
                               <Link
                                 href="/rankings/football/diii"
-                                className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 DIII College Football Rankings
                               </Link>
                               <Link
                                 href="/rankings/football/naia"
-                                className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 NAIA College Football Rankings
@@ -411,44 +427,44 @@ export function MegaNav() {
                             </div>
                           </CollapsibleContent>
                         </Collapsible>
-                        <Collapsible className="ml-4 mt-1">
-                          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent/50">
+                        <Collapsible className="mt-1 ml-4">
+                          <CollapsibleTrigger className="hover:bg-accent/50 flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm">
                             Men's College Basketball Rankings
-                            <ChevronRight className="h-3.5 w-3.5 transition-transform ui-open:rotate-90" />
+                            <ChevronRight className="ui-open:rotate-90 h-3.5 w-3.5 transition-transform" />
                           </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="flex flex-col p-2 space-y-1">
+                            <div className="flex flex-col space-y-1 p-2">
                               <Link
                                 href="/rankings/basketball/di-power-5"
-                                className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 DI (Power 5) Men's College Basketball Rankings
                               </Link>
                               <Link
                                 href="/rankings/basketball/di-mid-major"
-                                className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 DI (Mid Major) Men's College Basketball Rankings
                               </Link>
                               <Link
                                 href="/rankings/basketball/dii"
-                                className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 DII Men's College Basketball Rankings
                               </Link>
                               <Link
                                 href="/rankings/basketball/diii"
-                                className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 DIII Men's College Basketball Rankings
                               </Link>
                               <Link
                                 href="/rankings/basketball/naia"
-                                className="rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                                className="hover:bg-accent rounded-md px-2 py-1.5 text-sm"
                                 onClick={() => setMobileOpen(false)}
                               >
                                 NAIA Men's College Basketball Rankings
@@ -462,19 +478,25 @@ export function MegaNav() {
                     {/* Placeholder for future sports - demonstrates scalability */}
                     <Button
                       variant="ghost"
-                      className="w-full justify-between px-2 py-2 font-normal text-muted-foreground"
+                      className="text-muted-foreground w-full justify-between px-2 py-2 font-normal"
                     >
                       <span>
-                        Baseball <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5 text-xs">Coming Soon</span>
+                        Baseball{' '}
+                        <span className="bg-muted ml-2 rounded-full px-1.5 py-0.5 text-xs">
+                          Coming Soon
+                        </span>
                       </span>
                       <ChevronRight className="h-4 w-4 opacity-50" />
                     </Button>
                     <Button
                       variant="ghost"
-                      className="w-full justify-between px-2 py-2 font-normal text-muted-foreground"
+                      className="text-muted-foreground w-full justify-between px-2 py-2 font-normal"
                     >
                       <span>
-                        Softball <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5 text-xs">Coming Soon</span>
+                        Softball{' '}
+                        <span className="bg-muted ml-2 rounded-full px-1.5 py-0.5 text-xs">
+                          Coming Soon
+                        </span>
                       </span>
                       <ChevronRight className="h-4 w-4 opacity-50" />
                     </Button>
@@ -484,7 +506,7 @@ export function MegaNav() {
                 <div className="border-t">
                   <Link
                     href="/news"
-                    className="flex h-12 items-center border-b px-4 font-medium hover:bg-accent"
+                    className="hover:bg-accent flex h-12 items-center border-b px-4 font-medium"
                     onClick={() => setMobileOpen(false)}
                   >
                     News
@@ -496,7 +518,7 @@ export function MegaNav() {
         </Sheet>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 mr-4">
+        <Link href="/" className="mr-4 flex items-center space-x-2">
           <SmallLogo className="h-8 w-auto" />
         </Link>
 
@@ -510,14 +532,14 @@ export function MegaNav() {
                   <div className="grid grid-cols-5 gap-6">
                     {Object.entries(footballData).map(([division, conferences]) => (
                       <div key={division} className="space-y-3">
-                        <h3 className="text-base font-medium border-b pb-1">{division}</h3>
+                        <h3 className="border-b pb-1 text-base font-medium">{division}</h3>
                         <ScrollArea className="h-[280px] pr-4" scrollHideDelay={0} type="always">
                           <div className="space-y-1.5">
                             {conferences.map((conference) => (
                               <Link
                                 key={conference}
-                                href={`/football/${division.toLowerCase()}/${conference.toLowerCase().replace(/\s+/g, "-")}`}
-                                className="block text-sm py-1 hover:text-primary"
+                                href={`/football/${division.toLowerCase()}/${conference.toLowerCase().replace(/\s+/g, '-')}`}
+                                className="hover:text-primary block py-1 text-sm"
                               >
                                 {conference}
                               </Link>
@@ -538,14 +560,14 @@ export function MegaNav() {
                   <div className="grid grid-cols-5 gap-6">
                     {Object.entries(basketballData).map(([division, conferences]) => (
                       <div key={division} className="space-y-3">
-                        <h3 className="text-base font-medium border-b pb-1">{division}</h3>
+                        <h3 className="border-b pb-1 text-base font-medium">{division}</h3>
                         <ScrollArea className="h-[280px] pr-4" scrollHideDelay={0} type="always">
                           <div className="space-y-1.5">
                             {conferences.map((conference) => (
                               <Link
                                 key={conference}
-                                href={`/basketball/${division.toLowerCase().replace(/\s+|$$|$$/g, "-")}/${conference.toLowerCase().replace(/\s+/g, "-")}`}
-                                className="block text-sm py-1 hover:text-primary"
+                                href={`/basketball/${division.toLowerCase().replace(/\s+|$$|$$/g, '-')}/${conference.toLowerCase().replace(/\s+/g, '-')}`}
+                                className="hover:text-primary block py-1 text-sm"
                               >
                                 {conference}
                               </Link>
@@ -565,44 +587,75 @@ export function MegaNav() {
                 <div className="w-[600px] p-4">
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-3">
-                      <h3 className="text-base font-medium border-b pb-1">College Football Rankings</h3>
+                      <h3 className="border-b pb-1 text-base font-medium">
+                        College Football Rankings
+                      </h3>
                       <div className="space-y-1.5">
-                        <Link href="/rankings/football/fbs" className="block text-sm py-1 hover:text-primary">
+                        <Link
+                          href="/rankings/football/fbs"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
                           FBS College Football Rankings
                         </Link>
-                        <Link href="/rankings/football/fcs" className="block text-sm py-1 hover:text-primary">
+                        <Link
+                          href="/rankings/football/fcs"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
                           FCS College Football Rankings
                         </Link>
-                        <Link href="/rankings/football/dii" className="block text-sm py-1 hover:text-primary">
+                        <Link
+                          href="/rankings/football/dii"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
                           DII College Football Rankings
                         </Link>
-                        <Link href="/rankings/football/diii" className="block text-sm py-1 hover:text-primary">
+                        <Link
+                          href="/rankings/football/diii"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
                           DIII College Football Rankings
                         </Link>
-                        <Link href="/rankings/football/naia" className="block text-sm py-1 hover:text-primary">
+                        <Link
+                          href="/rankings/football/naia"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
                           NAIA College Football Rankings
                         </Link>
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <h3 className="text-base font-medium border-b pb-1">Men's College Basketball Rankings</h3>
+                      <h3 className="border-b pb-1 text-base font-medium">
+                        Men's College Basketball Rankings
+                      </h3>
                       <div className="space-y-1.5">
-                        <Link href="/rankings/basketball/di-power-5" className="block text-sm py-1 hover:text-primary">
+                        <Link
+                          href="/rankings/basketball/di-power-5"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
                           DI (Power 5) Men's College Basketball Rankings
                         </Link>
                         <Link
                           href="/rankings/basketball/di-mid-major"
-                          className="block text-sm py-1 hover:text-primary"
+                          className="hover:text-primary block py-1 text-sm"
                         >
                           DI (Mid Major) Men's College Basketball Rankings
                         </Link>
-                        <Link href="/rankings/basketball/dii" className="block text-sm py-1 hover:text-primary">
+                        <Link
+                          href="/rankings/basketball/dii"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
                           DII Men's College Basketball Rankings
                         </Link>
-                        <Link href="/rankings/basketball/diii" className="block text-sm py-1 hover:text-primary">
+                        <Link
+                          href="/rankings/basketball/diii"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
                           DIII Men's College Basketball Rankings
                         </Link>
-                        <Link href="/rankings/basketball/naia" className="block text-sm py-1 hover:text-primary">
+                        <Link
+                          href="/rankings/basketball/naia"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
                           NAIA Men's College Basketball Rankings
                         </Link>
                       </div>
@@ -613,9 +666,9 @@ export function MegaNav() {
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link href="/news" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>News</NavigationMenuLink>
-              </Link>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()} href="/news">
+                News
+              </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
@@ -630,7 +683,12 @@ export function MegaNav() {
         ) : (
           <>
             {/* Mobile Search Button */}
-            <Button variant="ghost" size="icon" className="md:hidden ml-auto" onClick={() => setMobileSearchOpen(true)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-auto md:hidden"
+              onClick={() => setMobileSearchOpen(true)}
+            >
               <Search className="h-4 w-4" />
               <span className="sr-only">Search</span>
             </Button>
@@ -638,7 +696,7 @@ export function MegaNav() {
             {/* Desktop Search Dialog */}
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="icon" className="hidden md:flex ml-auto">
+                <Button variant="outline" size="icon" className="ml-auto hidden md:flex">
                   <Search className="h-4 w-4" />
                   <span className="sr-only">Search</span>
                 </Button>
@@ -653,14 +711,13 @@ export function MegaNav() {
                     method="get"
                     onSubmit={(e) => {
                       const form = e.currentTarget
-                      const input = form.querySelector("input") as HTMLInputElement
+                      const input = form.querySelector('input') as HTMLInputElement
                       if (!input.value.trim()) {
                         e.preventDefault()
                       }
                     }}
                   >
                     {/* <SearchInput name="q" placeholder="Search articles, teams, conferences..." autoFocus /> */}
-                    
                   </form>
                 </div>
 
