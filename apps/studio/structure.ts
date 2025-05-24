@@ -83,8 +83,9 @@ const createList = ({ S, type, icon, title, id }: CreateList) => {
 export const structure = (S: StructureBuilder, context: StructureResolverContext) => {
   const { currentUser } = context
   const items = [
-    createList({ S, type: 'post', title: 'Articles', icon: FileText }),
-    S.divider(),
+    S.divider().title('Articles'),
+    createList({ S, type: 'post', title: 'All Articles', icon: FileText }),
+    S.divider().title('Sports Organizational Structure'),
     createList({
       S,
       type: 'sport',
@@ -114,19 +115,29 @@ export const structure = (S: StructureBuilder, context: StructureResolverContext
         .title('Schools')
         .defaultOrdering([{ field: 'name', direction: 'asc' }]),
     ),
-    S.divider(),
+    createList({
+      S,
+      type: 'membership',
+      title: 'Memberships',
+    }),
+    createList({
+      S,
+      type: 'sportSubgrouping',
+      title: 'Sport Subgroupings',
+    }),
+    S.divider().title('Labeling'),
     createList({
       S,
       type: 'tag',
       title: 'Tags',
       icon: TagIcon,
     }),
-    S.divider(),
+    S.divider().title('Team'),
     createList({ S, type: 'author', title: 'Authors', icon: User }),
   ]
 
   if (currentUser && currentUser?.roles?.find(({ name }) => name === 'administrator')) {
-    items.push(S.divider())
+    items.push(S.divider().title('Admin'))
     items.push(createList({ S, type: 'legal', title: 'Legal Documents', icon: GavelIcon }))
     items.push(createList({ S, type: 'redirect', title: 'Redirects', icon: RefreshCcw }))
     items.push(

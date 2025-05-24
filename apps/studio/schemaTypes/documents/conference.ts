@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity'
+import { defineType, defineField, defineArrayMember } from 'sanity'
 
 import { TextInputWithLimits } from '../../components/text-input-with-limits'
 import { isUnique } from '../../utils/slug'
@@ -42,20 +42,6 @@ export const conference = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      title: 'Description',
-      name: 'description',
-      type: 'text',
-      description:
-        'This will be used for article snippets in social media and Google searches. Ideally between 110 and 160 characters.',
-      components: {
-        input: TextInputWithLimits,
-      },
-      validation: (rule) => [
-        rule.min(110).warning('This is a short excerpt. Try to add 10-20 more characters.'),
-        rule.max(160).error('The excerpt should be less than 160 characters'),
-      ],
-    }),
-    defineField({
       title: 'Logo',
       name: 'logo',
       type: 'image',
@@ -80,11 +66,108 @@ export const conference = defineType({
       to: { type: 'division' },
       validation: (rule) => rule.required(),
     }),
+    defineField({
+      title: 'Sports',
+      name: 'sports',
+      description: 'The sports that this conference sponsors.',
+      // validation: (rule) => rule.required(),
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: { type: 'sport' },
+          options: {
+            disableNew: true,
+          },
+        }),
+      ],
+    }),
+    defineField({
+      title: 'Sport Subgrouping Affiliations', // Renamed title for clarity in Studio
+      name: 'sportSubdivisionAffiliations', // Kept field name for GROQ compatibility, but consider renaming to sportSubgroupingAffiliations if you prefer
+      type: 'array',
+      description:
+        'For each sport this conference participates in, select the relevant subgrouping (e.g., for Football, select FBS or FCS; for Basketball, select Power 5 or Mid-Major).',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'sportSubgroupingAffiliation',
+          fields: [
+            defineField({
+              name: 'sport',
+              title: 'Sport',
+              type: 'reference',
+              description:
+                'Select the sport and then the subgrouping that applies to this conference.',
+              to: [{ type: 'sport' }],
+              validation: (rule) => rule.required(),
+              options: {
+                disableNew: true,
+                filter: ({ document }) => {
+                  const conferenceSportsRefs = Array.isArray(document?.sports)
+                    ? document.sports
+                    : []
+
+                  const conferenceSportIds = conferenceSportsRefs.map((s) => s._ref)
+
+                  if (conferenceSportIds.length === 0) {
+                    return { filter: 'false' }
+                  }
+
+                  return {
+                    filter: '_id in $conferenceSportIds',
+                    params: { conferenceSportIds: conferenceSportIds },
+                  }
+                },
+              },
+            }),
+            defineField({
+              name: 'subgrouping',
+              title: 'Subgrouping',
+              type: 'reference',
+              to: [{ type: 'sportSubgrouping' }],
+              validation: (rule) => rule.required(),
+              description: 'Select the subgrouping that applies to this sport for this conference.',
+              options: {
+                disableNew: true,
+                filter: ({ parent }) => {
+                  // Ensure parent is an object and not an array before accessing sport
+                  const sportRef =
+                    parent && !Array.isArray(parent) && typeof parent === 'object'
+                      ? (parent as { sport?: { _ref?: string } }).sport?._ref
+                      : undefined
+                  if (!sportRef) {
+                    return { filter: 'false' }
+                  }
+                  return {
+                    filter: '$sportId in applicableSports[]._ref',
+                    params: { sportId: sportRef },
+                  }
+                },
+              },
+            }),
+          ],
+          preview: {
+            select: {
+              sportTitle: 'sport.title',
+              subgroupingName: 'subgrouping.name', // Updated path
+              subgroupingShortName: 'subgrouping.shortName', // Updated path
+            },
+            prepare: ({ sportTitle, subgroupingName, subgroupingShortName }) => ({
+              title: sportTitle,
+              subtitle: subgroupingShortName || subgroupingName,
+            }),
+          },
+        }),
+      ],
+      validation: (rule) =>
+        rule.unique().min(1).error('At least one sport subgrouping affiliation is required.'),
+    }),
   ],
   preview: {
     select: {
-      title: 'shortName',
-      subtitle: 'name',
+      title: 'name',
+      subtitle: 'division.title',
       media: 'logo',
     },
     prepare: ({ title, subtitle, media }) => ({

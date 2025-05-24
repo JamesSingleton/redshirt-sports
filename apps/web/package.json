@@ -16,7 +16,7 @@
     "db:studio": "drizzle-kit studio --verbose"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.19.5",
+    "@clerk/nextjs": "^6.20.0",
     "@hookform/resolvers": "^5.0.1",
     "@portabletext/react": "^3.2.1",
     "@portabletext/to-html": "^2.0.14",
@@ -50,8 +50,8 @@
     "schema-dts": "^1.1.5",
     "server-only": "^0.0.1",
     "sonner": "^2.0.3",
-    "svix": "^1.65.0",
-    "zod": "^3.25.17"
+    "svix": "^1.66.0",
+    "zod": "^3.25.20"
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.9",
