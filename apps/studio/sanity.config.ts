@@ -20,7 +20,7 @@ import { schemaTypes } from './schemaTypes'
 import { getDefaultDocumentNode, structure } from './structure'
 import { BlockContentInput } from './components/block-content-input'
 
-const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? ''
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? '8pbt9f8w'
 const dataset = process.env.SANITY_STUDIO_DATASET
 const title = process.env.SANITY_STUDIO_TITLE
 const presentationOriginUrl = process.env.SANITY_STUDIO_PRESENTATION_URL
