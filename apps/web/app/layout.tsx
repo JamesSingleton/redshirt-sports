@@ -28,27 +28,50 @@ const fontMono = Geist_Mono({
 
 async function fetchNavigationData() {
   return await sanityFetch({
-    query: `*[_type == "sport" && defined(*[_type == "post" && sport._ref == ^._id][0])] | order(title asc) {
+    query: `*[_type == "sport"] | order(title asc) {
   _id,
   "name": title,
   "slug": slug.current,
-  "divisions": *[_type == "division"] | order(name asc) {
-    _id,
-    name,
-    "slug": slug.current,
-    "conferences": *[_type == "conference"
-      && defined(*[_type == "post"
-        && ^._id in conferences[]._ref // Using 'conferences' array from post.ts
-        && sport._ref == ^.^.^._id    // Using 'sport' field from post.ts
-      ][0])
-    ] | order(name asc) { // 'name' for conference is correct as per conference.ts
-      _id,
-      name,
-      shortName,
-      "slug": slug.current,
-    },
-    "hasConferences": defined(conferences) && length(conferences) > 0
-  } [hasConferences == true] | order(name asc)
+  "groupings": select(
+    slug.current == "football" => [
+      // FBS specific entry
+      *[_type == "sportSubgrouping" && slug.current == "fbs"][0]{
+        _id, "name": coalesce(shortName, name), "slug": slug.current, "type": "subgrouping", "designationType": designationType,
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+      },
+      // FCS specific entry
+      *[_type == "sportSubgrouping" && slug.current == "fcs"][0]{
+        _id, "name": coalesce(shortName, name), "slug": slug.current, "type": "subgrouping", "designationType": designationType,
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+      },
+      // Division II specific entry
+      *[_type == "division" && name == "Division II"][0]{
+        _id, "name": name, "slug": slug.current, "type": "division",
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+      },
+      // Division III specific entry
+      *[_type == "division" && name == "Division III"][0]{
+        _id, "name": name, "slug": slug.current, "type": "division",
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+      },
+      // NAIA specific entry
+      *[_type == "division" && name == "NAIA"][0]{
+        _id, "name": name, "slug": slug.current, "type": "division",
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+      }
+    ],
+    // Default grouping for all other sports
+    true => (
+      *[_type == "sportSubgrouping" && references(^._id) && ^._id in applicableSports[]._ref] | order(name asc) {
+        _id, "name": coalesce(shortName, name), "slug": slug.current, "type": "subgrouping", designationType,
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+      } +
+      *[_type == "division" && references(^._id)] | order(name asc) {
+        _id, "name": name, "slug": slug.current, "type": "division",
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+      }
+    )
+  )
 }`,
   })
 }
@@ -67,9 +90,9 @@ export default async function RootLayout({
   preconnect('https://cdn.sanity.io')
   prefetchDNS('https://cdn.sanity.io')
 
-  // const { data: navigationData } = await fetchNavigationData()
+  const { data: navigationData } = await fetchNavigationData()
 
-  // console.log(JSON.stringify(navigationData, null, 2))
+  console.log(JSON.stringify(navigationData, null, 2))
   return (
     <html lang="en" suppressHydrationWarning>
       <body
