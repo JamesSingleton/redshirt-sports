@@ -51,7 +51,7 @@
     "server-only": "^0.0.1",
     "sonner": "^2.0.3",
     "svix": "^1.66.0",
-    "zod": "^3.25.20"
+    "zod": "^3.25.28"
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.9",
