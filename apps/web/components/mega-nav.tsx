@@ -238,7 +238,30 @@ const allConferences = [
   ),
 ]
 
-export function MegaNav() {
+export interface Conference {
+  _id: string
+  name: string
+  slug: string
+}
+
+export interface Grouping {
+  _id: string
+  conferences: Conference[]
+  name: string
+  slug: string | null
+  type: string
+}
+
+export interface SportData {
+  _id: string
+  groupings: Grouping[]
+  name: string
+  slug: string
+}
+
+export type SportsData = SportData[]
+
+export function MegaNav({ sportsNav }: { sportsNav: SportsData }) {
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
@@ -474,32 +497,6 @@ export function MegaNav() {
                         </Collapsible>
                       </CollapsibleContent>
                     </Collapsible>
-
-                    {/* Placeholder for future sports - demonstrates scalability */}
-                    <Button
-                      variant="ghost"
-                      className="text-muted-foreground w-full justify-between px-2 py-2 font-normal"
-                    >
-                      <span>
-                        Baseball{' '}
-                        <span className="bg-muted ml-2 rounded-full px-1.5 py-0.5 text-xs">
-                          Coming Soon
-                        </span>
-                      </span>
-                      <ChevronRight className="h-4 w-4 opacity-50" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="text-muted-foreground w-full justify-between px-2 py-2 font-normal"
-                    >
-                      <span>
-                        Softball{' '}
-                        <span className="bg-muted ml-2 rounded-full px-1.5 py-0.5 text-xs">
-                          Coming Soon
-                        </span>
-                      </span>
-                      <ChevronRight className="h-4 w-4 opacity-50" />
-                    </Button>
                   </div>
                 </div>
 
@@ -525,61 +522,44 @@ export function MegaNav() {
         {/* Desktop Navigation */}
         <NavigationMenu className="hidden lg:flex">
           <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>College Football</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="w-[850px] p-4">
-                  <div className="grid grid-cols-5 gap-6">
-                    {Object.entries(footballData).map(([division, conferences]) => (
-                      <div key={division} className="space-y-3">
-                        <h3 className="border-b pb-1 text-base font-medium">{division}</h3>
-                        <ScrollArea className="h-[280px] pr-4" scrollHideDelay={0} type="always">
-                          <div className="space-y-1.5">
-                            {conferences.map((conference) => (
-                              <Link
-                                key={conference}
-                                href={`/football/${division.toLowerCase()}/${conference.toLowerCase().replace(/\s+/g, '-')}`}
-                                className="hover:text-primary block py-1 text-sm"
-                              >
-                                {conference}
-                              </Link>
-                            ))}
+            {sportsNav.map((sport) => (
+              <NavigationMenuItem key={sport.slug}>
+                <NavigationMenuTrigger>{sport.name}</NavigationMenuTrigger>
+                <NavigationMenuContent key={sport.slug}>
+                  <div className="w-[850px] p-4">
+                    <div className="grid grid-cols-4 gap-6">
+                      {sport.groupings.map((grouping) => {
+                        // console.log({ grouping })
+                        return (
+                          <div className="space-y-3" key={grouping._id}>
+                            <h3 className="border-b pb-1 text-base font-medium">
+                              {grouping?.name}
+                            </h3>
+                            <ScrollArea
+                              className="h-[280px] pr-4"
+                              scrollHideDelay={0}
+                              type="always"
+                            >
+                              <div className="space-y-1.5">
+                                {grouping?.conferences.map((conference) => (
+                                  <Link
+                                    key={conference._id}
+                                    href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}
+                                    className="hover:text-primary block py-1 text-sm"
+                                  >
+                                    {conference?.name}
+                                  </Link>
+                                ))}
+                              </div>
+                            </ScrollArea>
                           </div>
-                        </ScrollArea>
-                      </div>
-                    ))}
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Men's College Basketball</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="w-[850px] p-4">
-                  <div className="grid grid-cols-5 gap-6">
-                    {Object.entries(basketballData).map(([division, conferences]) => (
-                      <div key={division} className="space-y-3">
-                        <h3 className="border-b pb-1 text-base font-medium">{division}</h3>
-                        <ScrollArea className="h-[280px] pr-4" scrollHideDelay={0} type="always">
-                          <div className="space-y-1.5">
-                            {conferences.map((conference) => (
-                              <Link
-                                key={conference}
-                                href={`/basketball/${division.toLowerCase().replace(/\s+|$$|$$/g, '-')}/${conference.toLowerCase().replace(/\s+/g, '-')}`}
-                                className="hover:text-primary block py-1 text-sm"
-                              >
-                                {conference}
-                              </Link>
-                            ))}
-                          </div>
-                        </ScrollArea>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            ))}
 
             <NavigationMenuItem>
               <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
@@ -666,7 +646,7 @@ export function MegaNav() {
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()} href="/news">
+              <NavigationMenuLink className={navigationMenuTriggerStyle()} href="/college/news">
                 News
               </NavigationMenuLink>
             </NavigationMenuItem>

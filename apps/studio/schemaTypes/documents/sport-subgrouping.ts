@@ -22,6 +22,14 @@ export const sportSubgrouping = defineType({
       description: 'A shorter version of the name (e.g., "FBS", "Power 5").',
     }),
     defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'shortName',
+      },
+    }),
+    defineField({
       name: 'applicableSports',
       title: 'Applicable Sports',
       type: 'array',

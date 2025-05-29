@@ -15,7 +15,7 @@ export default function ArticleCard({
   division,
   conferences,
   headingLevel = 'h3',
-  sport
+  sport,
 }: {
   title: string
   image: any
@@ -38,7 +38,7 @@ export default function ArticleCard({
   const Heading = headingLevel
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border shadow-lg">
+    <div className="border-border overflow-hidden rounded-lg border shadow-lg">
       <CustomImage
         image={image}
         width={600}
@@ -47,7 +47,7 @@ export default function ArticleCard({
         loading={imagePriority ? 'eager' : 'lazy'}
       />
       <div className="bg-background p-4">
-        <div className="mb-2 flex flex-wrap gap-2">
+        {/* <div className="mb-2 flex flex-wrap gap-2">
           {division && (
             <Link href={`/college/${sport}/news/${division.slug}`} prefetch={false} className={badgeVariants()}>
               {division.name}
@@ -64,7 +64,7 @@ export default function ArticleCard({
                 {conference.shortName ?? conference.name}
               </Link>
             ))}
-        </div>
+        </div> */}
         <Heading className="mb-2 text-lg font-semibold">
           <Link
             href={`/${slug}`}
@@ -74,7 +74,7 @@ export default function ArticleCard({
             {title}
           </Link>
         </Heading>
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex items-center space-x-2 text-sm">
           <div>{author}</div>
           <Separator orientation="vertical" className="h-4" />
           <Date dateString={date} />

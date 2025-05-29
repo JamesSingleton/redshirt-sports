@@ -14,7 +14,7 @@ import { SanityLive } from '@/lib/sanity/live'
 import { constructMetadata } from '@/utils/construct-metadata'
 import { sanityFetch } from '@/lib/sanity/live'
 
-import type { Viewport } from 'next'
+import type { Metadata, Viewport } from 'next'
 
 const fontSans = Geist({
   subsets: ['latin'],
@@ -28,47 +28,69 @@ const fontMono = Geist_Mono({
 
 async function fetchNavigationData() {
   return await sanityFetch({
-    query: `*[_type == "sport"] | order(title asc) {
+    query: `*[_type == "sport" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc) {
   _id,
   "name": title,
   "slug": slug.current,
   "groupings": select(
     slug.current == "football" => [
       // FBS specific entry
-      *[_type == "sportSubgrouping" && slug.current == "fbs"][0]{
-        _id, "name": coalesce(shortName, name), "slug": slug.current, "type": "subgrouping", "designationType": designationType,
-        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+      *[_type == "sportSubgrouping" && shortName == "FBS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{ // Filter FBS by having conferences with posts
+        _id, "name": coalesce(shortName, name), "slug": slug.current, "type": "subgrouping",
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
+          _id, name, "slug": slug.current, shortName
+        }
       },
       // FCS specific entry
-      *[_type == "sportSubgrouping" && slug.current == "fcs"][0]{
-        _id, "name": coalesce(shortName, name), "slug": slug.current, "type": "subgrouping", "designationType": designationType,
-        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+      *[_type == "sportSubgrouping" && shortName == "FCS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{ // Filter FCS by having conferences with posts
+        _id, "name": coalesce(shortName, name), "slug": slug.current, "type": "subgrouping",
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
+          _id, name, "slug": slug.current, shortName
+        }
       },
       // Division II specific entry
-      *[_type == "division" && name == "Division II"][0]{
+      *[_type == "division" && title == "Division II" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{ // Filter Division II by having conferences with posts
         _id, "name": name, "slug": slug.current, "type": "division",
-        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
+          _id, name, "slug": slug.current, shortName
+        }
       },
       // Division III specific entry
-      *[_type == "division" && name == "Division III"][0]{
+      *[_type == "division" && title == "Division III" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{ // Filter Division III by having conferences with posts
         _id, "name": name, "slug": slug.current, "type": "division",
-        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
+          _id, name, "slug": slug.current, shortName
+        }
       },
-      // NAIA specific entry
-      *[_type == "division" && name == "NAIA"][0]{
-        _id, "name": name, "slug": slug.current, "type": "division",
-        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
-      }
     ],
     // Default grouping for all other sports
     true => (
-      *[_type == "sportSubgrouping" && references(^._id) && ^._id in applicableSports[]._ref] | order(name asc) {
-        _id, "name": coalesce(shortName, name), "slug": slug.current, "type": "subgrouping", designationType,
-        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+      // sportSubgrouping part (remains the same)
+      *[_type == "sportSubgrouping"
+          && ^._id in applicableSports[]._ref
+          && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0
+      ] | order(name asc) {
+        _id, "name": coalesce(shortName, name), "slug": slug.current, "type": "subgrouping",
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
+          _id, name, "slug": slug.current
+        }
       } +
-      *[_type == "division" && references(^._id)] | order(name asc) {
+      // MODIFIED DIVISION QUERY: Added conditional exclusion for "Division I"
+      *[_type == "division"
+          && !(title == "FBS" || title == "FCS") // Existing exclusion for old divisions
+          // NEW EXCLUSION: Exclude "Division I" if the current sport is Men's or Women's Basketball
+          && !(
+              (title == "Division I")
+              && (
+                  ^.slug.current == "mens-basketball" || ^.slug.current == "womens-basketball"
+              )
+          )
+          && count(*[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0]) > 0
+      ] | order(name asc) {
         _id, "name": name, "slug": slug.current, "type": "division",
-        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref] | order(name asc) { _id, name, "slug": slug.current }
+        "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
+          _id, name, "slug": slug.current
+        }
       }
     )
   )
@@ -80,7 +102,7 @@ export const viewport: Viewport = {
   themeColor: '#DC2727',
 }
 
-export const metadata = constructMetadata()
+export const metadata: Metadata = constructMetadata()
 
 export default async function RootLayout({
   children,
@@ -92,7 +114,7 @@ export default async function RootLayout({
 
   const { data: navigationData } = await fetchNavigationData()
 
-  console.log(JSON.stringify(navigationData, null, 2))
+  // console.log(JSON.stringify(navigationData, null, 2))
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -100,7 +122,7 @@ export default async function RootLayout({
       >
         <Providers>
           {/* <SiteHeader /> */}
-          <MegaNav />
+          <MegaNav sportsNav={navigationData} />
           <main className="flex-1">{children}</main>
           {/* <Footer /> */}
           <Suspense fallback={<FooterSkeleton />}>

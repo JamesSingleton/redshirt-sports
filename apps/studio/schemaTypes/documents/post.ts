@@ -123,7 +123,6 @@ export const post = defineType({
       options: {
         disableNew: true,
       },
-      validation: (rule) => rule.required(),
     }),
     defineField({
       title: 'Division',

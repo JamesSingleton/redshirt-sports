@@ -10,6 +10,7 @@ import { AuthorSection, MobileAuthorSection } from '@/components/posts/author'
 import { RichText } from '@/components/rich-text'
 import { LargeArticleSocialShare } from '@/components/posts/article-share'
 import CustomImage from '@/components/sanity-image'
+import { urlForImage } from '@/lib/sanity.image'
 
 import type { Metadata } from 'next'
 
@@ -41,6 +42,39 @@ export async function generateMetadata({
   return {
     title: `${pageData.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
     description: pageData.excerpt,
+    openGraph: {
+      title: `${pageData.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+      description: pageData.excerpt,
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/${slug}`,
+      images: [
+        {
+          url: urlForImage(pageData.mainImage).url().width(1200).height(630),
+          width: 1200,
+          height: 630,
+          alt: pageData.mainImage.caption,
+        },
+      ],
+      type: 'article',
+      publishedTime: new Date(pageData.publishedAt).toISOString(),
+      authors: pageData.authors.map((author) => {
+        return {
+          name: author.name,
+        }
+      }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${pageData.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+      description: pageData.excerpt,
+      images: [
+        {
+          url: urlForImage(pageData.mainImage).width(1200).height(630).url(),
+          width: 1200,
+          height: 630,
+          alt: pageData.mainImage.caption,
+        },
+      ],
+    },
   }
 }
 
