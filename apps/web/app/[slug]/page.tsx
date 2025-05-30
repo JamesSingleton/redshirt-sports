@@ -5,7 +5,7 @@ import { badgeVariants } from '@workspace/ui/components/badge'
 
 import { sanityFetch } from '@/lib/sanity/live'
 import { queryPostSlugData } from '@/lib/sanity/query'
-import Date from '@/components/date'
+// import Date from '@/components/date'
 import { AuthorSection, MobileAuthorSection } from '@/components/posts/author'
 import { RichText } from '@/components/rich-text'
 import { LargeArticleSocialShare } from '@/components/posts/article-share'
@@ -48,7 +48,7 @@ export async function generateMetadata({
       url: `${process.env.NEXT_PUBLIC_APP_URL}/${slug}`,
       images: [
         {
-          url: urlForImage(pageData.mainImage).url().width(1200).height(630),
+          url: urlForImage(pageData.mainImage).width(1200).height(630).url(),
           width: 1200,
           height: 630,
           alt: pageData.mainImage.caption,
@@ -127,9 +127,15 @@ export default async function PostPage({ params }: PageProps) {
                     )}
                 </div>
                 <span className="text-sm">•</span>
+                <time className="text-sm">
+                  {new Date(data.publishedAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </time>
               </>
             )}
-            <Date dateString={data.publishedAt} className="text-sm" />
           </div>
         </div>
       </section>

@@ -196,7 +196,10 @@ export function getNewsByConference(slug: string, pageIndex: number) {
 
 export function getConferenceInfoBySlug(slug: string) {
   return sanityFetch<ConferencePayload>({
-    query: `*[_type == "conference" && slug.current == $slug][0]`,
+    query: `*[_type == "conference" && slug.current == $slug][0]{
+    name,
+    shortName
+    }`,
     params: { slug },
     tags: [`conference:${slug}`],
   })

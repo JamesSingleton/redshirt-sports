@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { Graph } from 'schema-dts'
 
 import PageHeader from '@/components/page-header'
@@ -14,49 +14,94 @@ import { constructMetadata } from '@/utils/construct-metadata'
 import type { Metadata } from 'next'
 import type { Post } from '@/types'
 import { sanityFetch } from '@/lib/sanity/live'
-import { queryArticlesBySportDivisionAndConference } from '@/lib/sanity/query'
+import { queryArticlesBySportDivisionAndConference, sportInfoBySlug } from '@/lib/sanity/query'
 
-async function fetchSportNewsForDivisionAndConference({sport, division, conference, pageIndex}: { sport: string; division: string; conference: string; pageIndex: number }) {
+async function fetchSportNewsForDivisionAndConference({
+  sport,
+  division,
+  conference,
+  pageIndex,
+}: {
+  sport: string
+  division: string
+  conference: string
+  pageIndex: number
+}) {
   return await sanityFetch({
     query: queryArticlesBySportDivisionAndConference,
     params: {
       sport,
       division,
       conference,
-      pageIndex
-    }
+      pageIndex,
+    },
   })
+}
+
+async function fetchSportInfoBySlug(slug: string) {
+  return await sanityFetch({
+    query: sportInfoBySlug,
+    params: {
+      slug,
+    },
+  })
+}
+
+export async function getDivisionOrSubgroupingDisplayName(slugOrShortName: string) {
+  // First, try to find it as a SportSubgrouping by its shortName (case-insensitive)
+  const subgroupingShortName = await sanityFetch({
+    query: `*[_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)][0].shortName`,
+    params: { slugOrShortName },
+  })
+  if (subgroupingShortName.data) {
+    return subgroupingShortName // e.g., "FCS", "FBS"
+  }
+
+  // If not found as a SportSubgrouping, then try to find it as a Division by its slug
+  const divisionName = await sanityFetch({
+    query: `*[_type == "division" && slug.current == $slugOrShortName][0].title`,
+    params: { slugOrShortName },
+  })
+  if (divisionName.data) {
+    return divisionName // e.g., "Division II", "Division III"
+  }
+
+  return null // Return null if no matching document is found
 }
 
 export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: Promise<{ sport: string, division: string; conference: string }>
+  params: Promise<{ sport: string; division: string; conference: string }>
   searchParams: Promise<{ [key: string]: string }>
 }): Promise<Metadata> {
   const { sport, division, conference } = await params
   const { page } = await searchParams
 
-  const conferenceInfo = await getConferenceInfoBySlug(conference)
+  const [divisionDisplayName, conferenceInfo, sportTitle] = await Promise.all([
+    getDivisionOrSubgroupingDisplayName(division),
+    getConferenceInfoBySlug(conference),
+    fetchSportInfoBySlug(sport),
+  ])
 
-  if (!conferenceInfo) {
+  if (!conferenceInfo || !sportTitle.data.title || !divisionDisplayName?.data) {
     return {}
   }
 
   const conferenceName = conferenceInfo.shortName ?? conferenceInfo.name
   let canonical = `/college/${sport}/news/${division}/${conference}`
 
-  let finalTitle: string = `${conferenceName} Football News | ${process.env.NEXT_PUBLIC_APP_NAME}`
-  let finalDescription: string = `Explore extensive coverage of ${conferenceName} football. Dive into detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}, your go-to source for all ${conferenceName} football news.`
+  const baseTitle = `${conferenceName} ${divisionDisplayName?.data} ${sportTitle.data.title} News, Updates & Analysis`
+  const baseDescription = `Stay informed with breaking ${conferenceName} ${divisionDisplayName?.data} ${sportTitle.data.title} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`
 
-  if (page) {
-    finalTitle = `${conferenceName} Football News - Page ${page} | ${process.env.NEXT_PUBLIC_APP_NAME}`
-    finalDescription = `Explore extensive coverage of ${conferenceName} football on Page ${page}. Dive into detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}, your go-to source for all ${conferenceName} football news.`
+  let finalTitle = `${baseTitle} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+  let finalDescription = baseDescription
 
-    if (parseInt(page) > 1) {
-      canonical = `/college/${sport}/news/${division}/${conference}?page=${page}`
-    }
+  if (page && parseInt(page) > 1) {
+    finalTitle = `${baseTitle} - Page ${page} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    finalDescription = `Continue exploring coverage of ${conferenceName} ${divisionDisplayName?.data} ${sportTitle.data.title} on Page ${page}. Find more detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}.`
+    canonical = `/college/${sport}/news/${division}/${conference}?page=${page}`
   }
 
   return constructMetadata({
@@ -70,19 +115,18 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: Promise<{ sport: string, division: string; conference: string }>
+  params: Promise<{ sport: string; division: string; conference: string }>
   searchParams: Promise<{ [key: string]: string }>
 }) {
   const { sport, division, conference } = await params
   const { page } = await searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
-
   const { data: news } = await fetchSportNewsForDivisionAndConference({
     sport,
     division,
     conference,
-    pageIndex
+    pageIndex,
   })
 
   if (!news.posts.length) {
@@ -91,9 +135,12 @@ export default async function Page({
 
   const totalPages = Math.ceil(news.totalPosts / perPage)
 
+  const { data: sportInfo } = await fetchSportInfoBySlug(sport)
+  const { data: divisionOrSubgroupingName } = await getDivisionOrSubgroupingDisplayName(division)
+
   const title = news.conferenceInfo.shortName
-    ? `${news.conferenceInfo.shortName} Football News`
-    : `${news.conferenceInfo.name} Football News`
+    ? `${news.conferenceInfo.shortName} ${sportInfo.title} News`
+    : `${news.conferenceInfo.name} ${sportInfo.title} News`
 
   const jsonLd: Graph = {
     '@context': 'https://schema.org',
@@ -102,14 +149,14 @@ export default async function Page({
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${HOME_DOMAIN}/news/${division}/${conference}${
+        '@id': `${HOME_DOMAIN}/college/${sport}/news/${division}/${conference}${
           pageIndex ? `?page=${pageIndex}` : ''
-        }`,
-        url: `${HOME_DOMAIN}/news/${division}/${conference}${
+        }#webpage`,
+        url: `${HOME_DOMAIN}/college/${sport}/news/${division}/${conference}${
           pageIndex ? `?page=${pageIndex}` : ''
         }`,
         breadcrumb: {
-          '@id': `${HOME_DOMAIN}/news/${division}/${conference}#breadcrumb`,
+          '@id': `${HOME_DOMAIN}/college/${sport}/news/${division}/${conference}#breadcrumb`,
         },
       },
       {
@@ -118,18 +165,28 @@ export default async function Page({
           '@type': 'NewsArticle',
           headline: post.title,
           description: post.excerpt,
+          image: {
+            '@type': 'ImageObject',
+            url: urlForImage(post.mainImage).width(1200).height(630).url(),
+            width: 1200,
+            height: 630,
+            alt: post.mainImage.caption,
+          },
           datePublished: post.publishedAt,
-          image: urlForImage(post.mainImage).url(),
+          dateModified: post._updatedAt,
           author: {
             '@type': 'Person',
             name: post.author.name,
             url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
           },
+          publisher: {
+            '@id': `${HOME_DOMAIN}#organization`,
+          },
         })),
       },
       {
         '@type': 'BreadcrumbList',
-        '@id': `${HOME_DOMAIN}/news/${division}/${conference}#breadcrumb`,
+        '@id': `${HOME_DOMAIN}/college/${sport}/news/${division}/${conference}#breadcrumb`,
         itemListElement: [
           {
             '@type': 'ListItem',
@@ -141,24 +198,49 @@ export default async function Page({
             '@type': 'ListItem',
             position: 2,
             name: 'News',
-            item: `${HOME_DOMAIN}/news`,
+            item: `${HOME_DOMAIN}/college/news`,
           },
           {
             '@type': 'ListItem',
             position: 3,
-            name: division,
-            item: `${HOME_DOMAIN}/news/${division}`,
+            name: 'News',
+            item: `${HOME_DOMAIN}/college/${sport}/news`,
           },
           {
             '@type': 'ListItem',
             position: 4,
+            name: divisionOrSubgroupingName,
+            item: `${HOME_DOMAIN}/college/${sport}/news/${division}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 5,
             name: news.conferenceInfo.shortName ?? news.conferenceInfo.name,
-            item: `${HOME_DOMAIN}/news/${division}/${conference}`,
+            item: `${HOME_DOMAIN}/college/${sport}/news/${division}/${conference}`,
           },
         ],
       },
     ],
   }
+
+  const breadcrumbItems = [
+    {
+      title: 'News',
+      href: '/college/news',
+    },
+    {
+      title: sportInfo.title,
+      href: `/college/${sport}/news`,
+    },
+    {
+      title: divisionOrSubgroupingName,
+      href: `/college/${sport}/news/${division}`,
+    },
+    {
+      title: news.conferenceInfo.shortName ?? news.conferenceInfo.name,
+      href: `/college/${sport}/news/${division}/${conference}`,
+    },
+  ]
 
   return (
     <>
@@ -166,7 +248,7 @@ export default async function Page({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PageHeader title={title} />
+      <PageHeader title={title} breadcrumbs={breadcrumbItems} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <ArticleFeed articles={news.posts} sport={sport} />
         {totalPages > 1 && (
