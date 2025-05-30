@@ -31,13 +31,13 @@
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.25.36"
+    "zod": "^3.25.42"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.8",
     "@tailwindcss/typography": "^0.5.16",
-    "@turbo/gen": "^2.5.3",
-    "@types/node": "^22.15.24",
+    "@turbo/gen": "^2.5.4",
+    "@types/node": "^22.15.28",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "@workspace/eslint-config": "workspace:*",

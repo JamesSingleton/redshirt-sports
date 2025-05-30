@@ -38,20 +38,25 @@ async function fetchSportNewsForDivisionAndConference({
   })
 }
 
-async function fetchSportInfoBySlug(slug: string) {
+async function fetchSportInfoBySlug(slug: string, { stega = true } = {}) {
   return await sanityFetch({
     query: sportInfoBySlug,
     params: {
       slug,
     },
+    stega,
   })
 }
 
-export async function getDivisionOrSubgroupingDisplayName(slugOrShortName: string) {
+export async function getDivisionOrSubgroupingDisplayName(
+  slugOrShortName: string,
+  { stega = true } = {},
+) {
   // First, try to find it as a SportSubgrouping by its shortName (case-insensitive)
   const subgroupingShortName = await sanityFetch({
     query: `*[_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)][0].shortName`,
     params: { slugOrShortName },
+    stega,
   })
   if (subgroupingShortName.data) {
     return subgroupingShortName // e.g., "FCS", "FBS"
@@ -61,6 +66,7 @@ export async function getDivisionOrSubgroupingDisplayName(slugOrShortName: strin
   const divisionName = await sanityFetch({
     query: `*[_type == "division" && slug.current == $slugOrShortName][0].title`,
     params: { slugOrShortName },
+    stega,
   })
   if (divisionName.data) {
     return divisionName // e.g., "Division II", "Division III"
@@ -80,9 +86,9 @@ export async function generateMetadata({
   const { page } = await searchParams
 
   const [divisionDisplayName, conferenceInfo, sportTitle] = await Promise.all([
-    getDivisionOrSubgroupingDisplayName(division),
+    getDivisionOrSubgroupingDisplayName(division, { stega: false }),
     getConferenceInfoBySlug(conference),
-    fetchSportInfoBySlug(sport),
+    fetchSportInfoBySlug(sport, { stega: false }),
   ])
 
   if (!conferenceInfo || !sportTitle.data.title || !divisionDisplayName?.data) {
