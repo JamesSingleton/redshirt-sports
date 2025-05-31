@@ -128,21 +128,26 @@ export default async function Page({
   const { page } = await searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
-  const { data: news } = await fetchSportNewsForDivisionAndConference({
-    sport,
-    division,
-    conference,
-    pageIndex,
-  })
+  const [newsResponse, sportInfoResponse, divisionNameResponse] = await Promise.all([
+    fetchSportNewsForDivisionAndConference({
+      sport,
+      division,
+      conference,
+      pageIndex,
+    }),
+    fetchSportInfoBySlug(sport),
+    getDivisionOrSubgroupingDisplayName(division),
+  ])
 
-  if (!news.posts.length) {
+  const news = newsResponse.data
+  const sportInfo = sportInfoResponse.data
+  const divisionOrSubgroupingName = divisionNameResponse?.data
+
+  if (!news || !news.posts || !news.posts.length) {
     notFound()
   }
 
   const totalPages = Math.ceil(news.totalPosts / perPage)
-
-  const { data: sportInfo } = await fetchSportInfoBySlug(sport)
-  const { data: divisionOrSubgroupingName } = await getDivisionOrSubgroupingDisplayName(division)
 
   const title = news.conferenceInfo.shortName
     ? `${news.conferenceInfo.shortName} ${sportInfo.title} News`

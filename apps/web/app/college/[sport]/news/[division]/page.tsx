@@ -86,15 +86,21 @@ export default async function Page({
   const { page } = await searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
-  const { data: news } = await fetchSportsAndDivisionNews({ sport, division, pageIndex })
+  const [newsResponse, sportInfoResponse, divisionNameResponse] = await Promise.all([
+    fetchSportsAndDivisionNews({ sport, division, pageIndex }),
+    fetchSportInfoBySlug(sport),
+    getDivisionOrSubgroupingDisplayName(division),
+  ])
 
-  if (!news.posts.length) {
+  const news = newsResponse.data
+  const sportInfo = sportInfoResponse.data
+  const divisionOrSubgroupingName = divisionNameResponse?.data
+
+  if (!news || !news.posts || !news.posts.length) {
     notFound()
   }
 
   const totalPages = Math.ceil(news.totalPosts / perPage)
-  const { data: sportInfo } = await fetchSportInfoBySlug(sport)
-  const { data: divisionOrSubgroupingName } = await getDivisionOrSubgroupingDisplayName(division)
 
   const breadcrumbItems = [
     {
