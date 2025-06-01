@@ -17,17 +17,17 @@ export const AuthorItem = (author: Author) => {
       />
       <div className="flex flex-col items-stretch justify-start gap-0.5">
         {author.archived ? (
-          <p className="mr-1 whitespace-nowrap text-sm font-semibold tracking-[-.01em]">
+          <p className="mr-1 text-sm font-semibold tracking-[-.01em] whitespace-nowrap">
             {author.name}
           </p>
         ) : (
           <Link href={`/authors/${author.slug}`} prefetch={false}>
-            <p className="mr-1 whitespace-nowrap text-sm font-semibold tracking-[-.01em] hover:underline">
+            <p className="mr-1 text-sm font-semibold tracking-[-.01em] whitespace-nowrap hover:underline">
               {author.name}
             </p>
           </Link>
         )}
-        <p className="min-h-4 whitespace-nowrap text-sm/4 font-normal tracking-[-.01em] text-muted-foreground">
+        <p className="text-muted-foreground min-h-4 text-sm/4 font-normal tracking-[-.01em] whitespace-nowrap">
           {author.roles.join(', ')}
         </p>
       </div>
@@ -37,18 +37,19 @@ export const AuthorItem = (author: Author) => {
 
 export const AuthorSection = ({ author, authors }: { author: Author; authors: Author[] }) => (
   <>
-    <p className="text-sm font-normal text-muted-foreground">Written By</p>
+    <p className="text-muted-foreground text-sm font-normal">Written By</p>
     {authors && authors.map((author) => <AuthorItem key={author._id} {...author} />)}
   </>
 )
 
 export const MobileAuthorSection = ({ author, authors }: { author: Author; authors: Author[] }) => (
   <div className="lg:hidden">
-    <p className="text-sm font-normal text-muted-foreground">Written By</p>
-    <div className="relative -mx-6 mt-3 flex overflow-x-auto border-b border-border px-6">
+    <p className="text-muted-foreground text-sm font-normal">Written By</p>
+    <div className="border-border relative -mx-6 mt-3 flex overflow-x-auto border-b px-6">
       <div className="flex-1 pb-4">
         <div className="flex flex-row items-stretch justify-start gap-4">
-          {authors && authors.map((author) => <AuthorItem key={`${author._id}_mobile`} {...author} />)}
+          {authors &&
+            authors.map((author) => <AuthorItem key={`${author._id}_mobile`} {...author} />)}
         </div>
       </div>
     </div>

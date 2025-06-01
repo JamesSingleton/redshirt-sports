@@ -261,7 +261,7 @@ export default async function Page({
       />
       <PageHeader title={title} breadcrumbs={breadcrumbItems} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <ArticleFeed articles={news.posts} sport={sport} />
+        <ArticleFeed articles={news.posts} />
         {totalPages > 1 && (
           <Suspense fallback={<>Loading...</>}>
             <PaginationControls totalPosts={news.totalPosts} />

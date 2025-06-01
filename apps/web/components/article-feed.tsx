@@ -1,7 +1,7 @@
 import ArticleCard from '@/components/article-card'
 import { type Post } from '@/types'
 
-export default function ArticleFeed({ articles, sport }: { articles: Post[], sport: string }) {
+export default function ArticleFeed({ articles }: { articles: Post[] }) {
   return (
     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {articles.map((article: Post, index: number) => {
@@ -17,7 +17,6 @@ export default function ArticleFeed({ articles, sport }: { articles: Post[], spo
             conferences={article.conferences}
             headingLevel="h2"
             imagePriority={index < 4}
-            sport={sport}
           />
         )
       })}

@@ -69,7 +69,21 @@ const conferencesFragment = /* groq */ `
       "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
       "blurData": asset->metadata.lqip,
       "dominantColor": asset->metadata.palette.dominant.background,
-    }
+    },
+    division->{
+      "slug": slug.current,
+    },
+    sportSubdivisionAffiliations[]{
+        _key,
+        sport->{
+          _id, // Need this _id for client-side comparison
+        },
+        subgrouping->{
+          "slug": slug.current,
+          name,
+          shortName
+        }
+      }
   }
 `
 
@@ -84,6 +98,11 @@ export const queryPostSlugData = defineQuery(/* groq */ `
   *[_type == "post" && slug.current == $slug][0]{
     ...,
     "slug": slug.current,
+    sport->{
+      _id, // KEEP THIS - CRUCIAL FOR COMPARISON
+      "slug": slug.current,
+      title // ADDED: Fetch title for easier debugging
+    },
     ${divisionFragment},
     ${conferencesFragment},
     ${postAuthorFragment},

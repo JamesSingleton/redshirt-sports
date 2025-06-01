@@ -12,10 +12,7 @@ export default function ArticleCard({
   slug,
   author,
   date,
-  division,
-  conferences,
   headingLevel = 'h3',
-  sport,
 }: {
   title: string
   image: any
@@ -33,7 +30,6 @@ export default function ArticleCard({
     slug: string
   }[]
   headingLevel?: 'h2' | 'h3' | 'h4'
-  sport: string
 }) {
   const Heading = headingLevel
 
@@ -47,24 +43,6 @@ export default function ArticleCard({
         loading={imagePriority ? 'eager' : 'lazy'}
       />
       <div className="bg-background p-4">
-        {/* <div className="mb-2 flex flex-wrap gap-2">
-          {division && (
-            <Link href={`/college/${sport}/news/${division.slug}`} prefetch={false} className={badgeVariants()}>
-              {division.name}
-            </Link>
-          )}
-          {conferences &&
-            conferences.map((conference) => (
-              <Link
-                key={conference.shortName ?? conference.name}
-                href={`/college/${sport}/news/${division.slug}/${conference.slug}`}
-                prefetch={false}
-                className={badgeVariants()}
-              >
-                {conference.shortName ?? conference.name}
-              </Link>
-            ))}
-        </div> */}
         <Heading className="mb-2 text-lg font-semibold">
           <Link
             href={`/${slug}`}

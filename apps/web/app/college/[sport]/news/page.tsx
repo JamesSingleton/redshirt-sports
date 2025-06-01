@@ -115,9 +115,9 @@ export default async function Page({
 
   return (
     <>
-      <PageHeader title={`Latest College ${sportData.title} News`} breadcrumbs={breadcrumbItems} />
+      <PageHeader title={`College ${sportData.title} News`} breadcrumbs={breadcrumbItems} />
       <section className="container pb-12">
-        <ArticleFeed articles={news.posts} sport={sport} />
+        <ArticleFeed articles={news.posts} />
         {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
       </section>
     </>

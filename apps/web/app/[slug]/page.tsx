@@ -5,7 +5,6 @@ import { badgeVariants } from '@workspace/ui/components/badge'
 
 import { sanityFetch } from '@/lib/sanity/live'
 import { queryPostSlugData } from '@/lib/sanity/query'
-// import Date from '@/components/date'
 import { AuthorSection, MobileAuthorSection } from '@/components/posts/author'
 import { RichText } from '@/components/rich-text'
 import { LargeArticleSocialShare } from '@/components/posts/article-share'
@@ -101,41 +100,48 @@ export default async function PostPage({ params }: PageProps) {
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             {(data.division || data.conferences) && (
-              <>
-                <div className="flex flex-wrap items-center gap-3">
-                  {data.division && (
-                    <Link
-                      href={`/news/${data.division.slug}`}
-                      className={badgeVariants({ variant: 'default' })}
-                      prefetch={false}
-                    >
-                      {data.division.name}
-                    </Link>
-                  )}
-                  {data.conferences &&
-                    data.conferences.map(
-                      (conference: { shortName: string; name: string; slug: string }) => (
-                        <Link
-                          key={conference.slug}
-                          href={`/news/${data.division.slug}/${conference.slug}`}
-                          className={badgeVariants({ variant: 'default' })}
-                          prefetch={false}
-                        >
-                          {conference.shortName ?? conference.name}
-                        </Link>
-                      ),
-                    )}
-                </div>
-                <span className="text-sm">•</span>
-                <time className="text-sm">
-                  {new Date(data.publishedAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
+              <div className="flex flex-wrap items-center gap-3">
+                {data.conferences &&
+                  data.conferences.map((conference) => {
+                    // Get the _id of the sport for the current article
+                    const articleSportId = data.sport._id
+
+                    // Find the sportSubdivisionAffiliation that matches the article's sport
+                    const matchingAffiliation = conference.sportSubdivisionAffiliations?.find(
+                      (affiliation) => affiliation.sport._id === articleSportId,
+                    )
+
+                    // Determine the division path segment:
+                    // Use the subgrouping slug if a matching affiliation is found,
+                    // otherwise fall back to the conference's direct division slug.
+                    const divisionPathSegment =
+                      matchingAffiliation?.subgrouping.slug || conference.division.slug
+
+                    // Construct the full conference URL
+                    const conferenceHref = `/college/${data.sport.slug}/news/${divisionPathSegment}/${conference.slug}`
+
+                    return (
+                      <Link
+                        key={conference.slug}
+                        href={conferenceHref}
+                        className={badgeVariants({ variant: 'default' })}
+                        prefetch={false}
+                      >
+                        {conference.shortName ?? conference.name}
+                      </Link>
+                    )
                   })}
-                </time>
-              </>
+              </div>
             )}
+
+            {(data.division || data.conferences) && <span className="text-sm">•</span>}
+            <time className="text-sm">
+              {new Date(data.publishedAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </time>
           </div>
         </div>
       </section>
