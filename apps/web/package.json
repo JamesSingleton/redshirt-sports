@@ -27,7 +27,7 @@
     "@t3-oss/env-nextjs": "^0.13.6",
     "@tanstack/react-virtual": "^3.13.9",
     "@upstash/ratelimit": "^2.0.5",
-    "@upstash/redis": "^1.34.9",
+    "@upstash/redis": "^1.35.0",
     "@vercel/speed-insights": "^1.2.0",
     "@workspace/ui": "workspace:*",
     "date-fns": "^4.1.0",
@@ -44,14 +44,14 @@
     "postgres": "^3.4.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-hook-form": "^7.56.4",
+    "react-hook-form": "^7.57.0",
     "react-tweet": "^3.2.2",
     "sanity-image": "^1.0.0",
     "schema-dts": "^1.1.5",
     "server-only": "^0.0.1",
-    "sonner": "^2.0.4",
+    "sonner": "^2.0.5",
     "svix": "^1.66.0",
-    "zod": "^3.25.43"
+    "zod": "^3.25.49"
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.9",
