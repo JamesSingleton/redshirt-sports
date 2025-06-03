@@ -7,7 +7,6 @@ import CustomImage from '../sanity-image'
 
 import { Post } from '@/types'
 
-
 const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
   const heroArticle = heroPosts[0]!
   const recentArticles = heroPosts.slice(1)
@@ -18,45 +17,22 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
           <div className="lg:col-span-2">
             <Link
               href={`/${heroArticle.slug}`}
-              className="aspect-[2/1] relative block overflow-hidden rounded-lg shadow-md"
+              className="relative block aspect-[2/1] overflow-hidden rounded-lg shadow-md"
               prefetch={false}
             >
               <CustomImage
                 image={heroArticle.mainImage}
-                className="object-cover object-top"
-                mode="cover"
+                className="h-full w-full object-cover object-top"
               />
             </Link>
             <div className="mt-4 space-y-2">
-              <div className="flex flex-wrap space-x-2 py-2">
-                {heroArticle.division && (
-                  <Link
-                    href={`/news/${heroArticle.division.slug}`}
-                    className={badgeVariants({ variant: 'default' })}
-                    prefetch={false}
-                  >
-                    {heroArticle.division.name}
-                  </Link>
-                )}
-                {heroArticle.conferences &&
-                  heroArticle.conferences.map((conference) => (
-                    <Link
-                      href={`/news/${heroArticle.division.slug}/${conference.slug}`}
-                      key={`${conference._id}-${heroArticle._id}`}
-                      className={badgeVariants({ variant: 'default' })}
-                      prefetch={false}
-                    >
-                      {conference.shortName ?? conference.name}
-                    </Link>
-                  ))}
-              </div>
               <h1 className="text-2xl font-bold lg:text-5xl">
                 <Link href={`/${heroArticle.slug}`} prefetch={false}>
                   {heroArticle.title}
                 </Link>
               </h1>
-              <p className="line-clamp-2 text-muted-foreground">{heroArticle.excerpt}</p>
-              <div className="flex flex-wrap items-center space-x-2 text-base text-muted-foreground">
+              <p className="text-muted-foreground line-clamp-2">{heroArticle.excerpt}</p>
+              <div className="text-muted-foreground flex flex-wrap items-center space-x-2 text-base">
                 <Link
                   href={`/authors/${heroArticle.author.slug}`}
                   className="flex items-center gap-2"
@@ -88,7 +64,6 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
                 author={article.author.name}
                 key={article._id}
                 headingLevel="h2"
-                sport={article.sport}
               />
             ))}
           </div>

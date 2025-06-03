@@ -10,8 +10,9 @@ async function fetchCollegeNews({ pageIndex }: { pageIndex: number }) {
   return await sanityFetch({
     query: `{
       "posts": *[_type == "post"] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}] {
+        _id,
         title,
-        slug,
+        "slug": slug.current,
         publishedAt,
         sport-> {
           title
@@ -20,19 +21,28 @@ async function fetchCollegeNews({ pageIndex }: { pageIndex: number }) {
           name,
           image
         },
-        mainImage {
-          asset-> {
-            url
-          }
-        }
+        mainImage{
+          ...,
+          "alt": coalesce(caption,asset->altText, asset->originalFilename, "Image-Broken"),
+          "blurData": asset->metadata.lqip,
+          "dominantColor": asset->metadata.palette.dominant.background,
+          "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+        },
       },
-      "totalPosts": count(*[_type == "post" && sport->title match "College"])
+      "totalPosts": count(*[_type == "post"])
     }`,
     params: {
       pageIndex,
     },
   })
 }
+
+const breadcrumbItems = [
+  {
+    title: 'News',
+    href: '/college/news',
+  },
+]
 
 export default async function CollegeSportsNews({
   params,
@@ -51,7 +61,7 @@ export default async function CollegeSportsNews({
 
   return (
     <>
-      <PageHeader title="College Sports News" />
+      <PageHeader title="College Sports News" breadcrumbs={breadcrumbItems} />
       <section className="container pb-12">
         <ArticleFeed articles={posts} />
         {totalPages > 1 && <PaginationControls totalPosts={totalPosts} />}

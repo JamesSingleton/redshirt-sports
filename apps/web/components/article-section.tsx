@@ -58,10 +58,10 @@ export default function ArticleSection({
                 </Link>
               </h3>
               <p className="text-muted-foreground">{firstArticle.excerpt}</p>
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="text-muted-foreground flex items-center gap-2">
                 <Link
                   href={`/authors/${firstArticle.authors[0].slug}`}
-                  className="flex items-center gap-2 text-primary"
+                  className="text-primary flex items-center gap-2"
                   prefetch={false}
                 >
                   <CustomImage
@@ -96,7 +96,6 @@ export default function ArticleSection({
               slug={article.slug}
               author={article.authors[0].name}
               key={article._id}
-              sport={article.sport}
             />
           ))}
         </div>

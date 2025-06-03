@@ -22,6 +22,12 @@ export const conference = defineType({
       description: 'The short name of the conference.',
     }),
     defineField({
+      title: 'Abbreviation',
+      name: 'abbreviation',
+      type: 'string',
+      description: 'The abbreviation of the conference (e.g., "SEC", "ACC").',
+    }),
+    defineField({
       title: 'Slug',
       name: 'slug',
       type: 'slug',

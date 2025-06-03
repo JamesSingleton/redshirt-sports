@@ -8,7 +8,6 @@ import {
   SelectItem,
 } from '@workspace/ui/components/select'
 
-// weeks looks like [ { week: 0 } ], create a type for it
 type Week = {
   week: number
 }
@@ -19,14 +18,14 @@ type Year = {
 
 export const RankingsFilters = ({ years, weeks }: { years: Year[]; weeks: Week[] }) => {
   const router = useRouter()
-  const { division, year, week } = useParams()
+  const { division, year, week, sport } = useParams()
 
   const handleYearChange = (e: string) => {
-    router.push(`/college-football/rankings/${division}/${e}/0`)
+    router.push(`/college/${sport}/rankings/${division}/${e}/0`)
   }
 
   const handleWeekChange = (e: string) => {
-    router.push(`/college-football/rankings/${division}/${year}/${e}`)
+    router.push(`/college/${sport}/rankings/${division}/${year}/${e}`)
   }
 
   return (

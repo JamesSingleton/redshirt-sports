@@ -224,7 +224,7 @@ export const queryHomePageData = defineQuery(/* groq */ `
     "slug": slug.current,
     mainImage{
       ...,
-      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+      "alt": coalesce(caption,asset->altText, asset->originalFilename, "Image-Broken"),
       "blurData": asset->metadata.lqip,
       "dominantColor": asset->metadata.palette.dominant.background,
       "credit": coalesce(asset->creditLine, attribution, "Unknown"),

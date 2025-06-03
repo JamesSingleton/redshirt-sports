@@ -1,20 +1,29 @@
-import { SanityImage } from "sanity-image"
-import { getImageDimensions } from "@sanity/asset-utils";
+import { SanityImage } from 'sanity-image'
+import { getImageDimensions } from '@sanity/asset-utils'
 
-import { projectId, dataset } from "@/lib/sanity/api"
+import { projectId, dataset } from '@/lib/sanity/api'
 
 type CustomImageProps = {
   image: any
   width?: number
   height?: number
   className?: string
-  loading?: "lazy" | "eager"
-  mode?: "cover" | "contain"
+  loading?: 'lazy' | 'eager'
+  mode?: 'cover' | 'contain'
   quality?: number
 }
 
-const CustomImage = ({image, width, height, className, loading, mode="contain", quality = 75}: CustomImageProps) => {
-  const dimensions = getImageDimensions(image.asset);
+const CustomImage = ({
+  image,
+  width,
+  height,
+  className,
+  loading,
+  mode = 'contain',
+  quality = 75,
+}: CustomImageProps) => {
+  const dimensions = getImageDimensions(image.asset)
+
   return (
     <SanityImage
       id={image.asset._ref}

@@ -1,7 +1,13 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { buttonVariants } from '@workspace/ui/components/button'
-import { Card, CardHeader, CardDescription, CardContent, CardFooter } from '@workspace/ui/components/card'
+import {
+  Card,
+  CardHeader,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '@workspace/ui/components/card'
 import {
   Table,
   TableHeader,
@@ -27,32 +33,41 @@ import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
 
 type Props = {
-  params: Promise<{ division: string; week: string; year: string }>
+  params: Promise<{ division: string; week: string; year: string; sport: string }>
+}
+
+const FINAL_RANKINGS_WEEK = 999
+const PRESEASON_WEEK = 0
+const TOP_25_THRESHOLD = 25
+
+function getWeekTitle(weekNumber: number): string {
+  if (weekNumber === PRESEASON_WEEK) return 'Preseason'
+  if (weekNumber === FINAL_RANKINGS_WEEK) return 'Postseason'
+  return `Week ${weekNumber}`
+}
+
+function parseWeekNumber(week: string): number {
+  if (week === 'final-rankings') return FINAL_RANKINGS_WEEK
+  return parseInt(week, 10)
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { division, year, week } = await params
-
-  let titleWeek = `Week ${week}`
-
-  if (week === '0') {
-    titleWeek = 'Preseason'
-  }
+  const { division, year, week, sport } = await params
+  const weekNumber = parseWeekNumber(week)
+  const titleWeek = getWeekTitle(weekNumber)
 
   return constructMetadata({
     title: `${year} ${division.toUpperCase()} Top 25 Rankings, ${titleWeek} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
     description: `Discover the ${division.toUpperCase()} Top 25 College Football Rankings for ${year}, ${titleWeek}. See how the voters ranked the top teams.`,
-    canonical: `/college-football/rankings/${division}/${year}/${week}`,
+    canonical: `/college/${sport}/rankings/${division}/${year}/${week}`,
   })
 }
 
 export default async function CollegeFootballRankingsPage({ params }: Props) {
-  const { division, year, week } = await params
-  let weekNumber = parseInt(week, 10)
+  const { division, year, week, sport } = await params
+  const weekNumber = parseWeekNumber(week)
+  const titleWeek = getWeekTitle(weekNumber)
 
-  if (week === 'final-rankings') {
-    weekNumber = 999
-  }
   const [yearsWithVotesResult, weeksWithVotesResult] = await Promise.allSettled([
     getYearsThatHaveVotes({ division }),
     getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
@@ -63,19 +78,10 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   const weeksWithVotes =
     weeksWithVotesResult.status === 'fulfilled' ? weeksWithVotesResult.value : []
 
-  let titleWeek = `Week ${weekNumber}`
-
-  if (weekNumber === 0) {
-    titleWeek = 'Preseason'
-  }
-
-  if (weekNumber === 999) {
-    titleWeek = 'Postseason'
-  }
-
   if (!yearsWithVotes.length || !weeksWithVotes.length) {
     notFound()
   }
+
   const finalRankings = await getFinalRankingsForWeekAndYear({
     year: parseInt(year, 10),
     week: weekNumber,
@@ -107,8 +113,8 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
       Web,
       {
         '@type': 'WebPage',
-        '@id': `${HOME_DOMAIN}/college-football/rankings/${division}/${year}/${week}#webpage`,
-        url: `${HOME_DOMAIN}/college-football/rankings/${division}/${year}/${week}`,
+        '@id': `${HOME_DOMAIN}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,
+        url: `${HOME_DOMAIN}/college/${sport}/rankings/${division}/${year}/${week}`,
         name: `${year} ${division.toUpperCase()} Top 25 Rankings, ${titleWeek} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
         description: `Discover the ${division.toUpperCase()} Top 25 College Football Rankings for ${year}, ${titleWeek}. See how the voters ranked the top teams.`,
         isPartOf: {
@@ -127,7 +133,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
       />
       <Card>
         <CardHeader>
-          <h1 className="text-2xl font-semibold leading-none tracking-tight">{`${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
+          <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
           <CardDescription>
             Our {division.toUpperCase()} Top 25 uses a point system: 25 points for a first-place
             vote down to 1 point for a 25th-place vote. Total points determine the final rankings.
@@ -161,7 +167,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                           />
                           {team.shortName ?? team.abbreviation ?? team.name}
                           {team.firstPlaceVotes ? (
-                            <span className="ml-2 tracking-wider text-muted-foreground">
+                            <span className="text-muted-foreground ml-2 tracking-wider">
                               ({team.firstPlaceVotes})
                             </span>
                           ) : null}
@@ -176,10 +182,10 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           )}
           {top25.length === 0 && (
             <div className="mx-auto max-w-md text-center">
-              <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              <h2 className="text-foreground mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
                 Top 25 Poll Not Found
               </h2>
-              <p className="mt-4 text-muted-foreground">
+              <p className="text-muted-foreground mt-4">
                 We&apos;re sorry, but the selected Top 25 poll could not be found. Please try again
                 or check back later.
               </p>
@@ -205,7 +211,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
       {top25.length > 0 && voterBreakdown.length > 0 && (
         <Card className="mt-8">
           <CardHeader>
-            <h2 className="text-2xl font-semibold leading-none tracking-tight">Voter Breakdown</h2>
+            <h2 className="text-2xl leading-none font-semibold tracking-tight">Voter Breakdown</h2>
             <CardDescription>
               See how each voter cast their ballot for this week&apos;s rankings.
             </CardDescription>
@@ -215,7 +221,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="sticky left-0 z-20 bg-background">Voter</TableHead>
+                    <TableHead className="bg-background sticky left-0 z-20">Voter</TableHead>
                     {[...Array(25)].map((_, i) => (
                       <TableHead key={i} className="text-center">
                         {i + 1}
@@ -227,9 +233,9 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                   {voterBreakdown.map((voter, index) => {
                     return (
                       <TableRow key={index}>
-                        <TableCell className="sticky left-0 z-10 min-w-32 bg-background font-medium">
+                        <TableCell className="bg-background sticky left-0 z-10 min-w-32 font-medium">
                           <div>{voter.name}</div>
-                          <div className="text-sm italic text-muted-foreground">
+                          <div className="text-muted-foreground text-sm italic">
                             {`${voter.organization} (${voter.organizationRole})`}
                           </div>
                         </TableCell>
