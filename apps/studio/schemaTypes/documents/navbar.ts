@@ -1,5 +1,5 @@
-import { defineField, defineType } from 'sanity'
 import { LayoutPanelLeft, Link, PanelTop } from 'lucide-react'
+import { defineField, defineType } from 'sanity'
 
 // import { buttonsField, iconField } from "../common";
 

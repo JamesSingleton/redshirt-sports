@@ -1,4 +1,5 @@
-import { defineType, defineField, SanityDocumentLike } from 'sanity'
+import type { SanityDocumentLike } from 'sanity'
+import { defineField, defineType } from 'sanity'
 
 function isValidInternalPath(value: string | undefined) {
   if (!value) {

@@ -1,6 +1,7 @@
-import { defineType, defineField } from 'sanity'
-import { isUnique } from '../../utils/slug'
+import { defineField, defineType } from 'sanity'
+
 import { GROUPS } from '../../utils/constant'
+import { isUnique } from '../../utils/slug'
 
 export const sport = defineType({
   name: 'sport',

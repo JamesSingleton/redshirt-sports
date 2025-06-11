@@ -1,5 +1,6 @@
-import { defineType, defineField } from 'sanity'
 import { User } from 'lucide-react'
+import { defineField, defineType } from 'sanity'
+
 import { TextInputWithLimits } from '../../components/text-input-with-limits'
 
 export const author = defineType({

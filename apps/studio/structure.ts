@@ -1,18 +1,18 @@
+import { ComposeIcon, LinkIcon } from '@sanity/icons'
 import {
   CogIcon,
-  Folder,
   FileText,
+  Folder,
+  GavelIcon,
   type LucideIcon,
   PanelBottomIcon,
   PanelTopDashedIcon,
-  Settings2,
-  User,
-  UniversityIcon,
-  TagIcon,
-  GavelIcon,
   RefreshCcw,
+  Settings2,
+  TagIcon,
+  UniversityIcon,
+  User,
 } from 'lucide-react'
-import { LinkIcon, ComposeIcon } from '@sanity/icons'
 import type {
   DefaultDocumentNodeResolver,
   StructureBuilder,

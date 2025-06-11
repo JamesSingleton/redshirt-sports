@@ -1,5 +1,5 @@
-import { defineField } from 'sanity'
 import { Link } from 'lucide-react'
+import { defineField } from 'sanity'
 export const socialMedia = defineField({
   title: 'Social Media',
   name: 'socialMedia',

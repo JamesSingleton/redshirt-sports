@@ -1,5 +1,5 @@
-import { defineField, defineType, defineArrayMember } from 'sanity'
 import { ImageIcon, ThListIcon, TwitterIcon } from '@sanity/icons'
+import { defineArrayMember, defineType } from 'sanity'
 
 const richTextMembers = [
   defineArrayMember({

@@ -1,6 +1,7 @@
 import React from 'react'
-import { defineField, defineType, PreviewProps } from 'sanity'
 import { Tweet } from 'react-tweet'
+import type { PreviewProps } from 'sanity'
+import { defineField, defineType } from 'sanity'
 
 const Preview = (props: PreviewProps & { id?: string }) => {
   const tweetId = props.id!

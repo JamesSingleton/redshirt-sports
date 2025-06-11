@@ -1,4 +1,4 @@
-import { at, defineMigration, setIfMissing, unset, append } from 'sanity/migrate'
+import { append, at, defineMigration, setIfMissing, unset } from 'sanity/migrate'
 
 export default defineMigration({
   title: 'Convert author reference field into an array of references',

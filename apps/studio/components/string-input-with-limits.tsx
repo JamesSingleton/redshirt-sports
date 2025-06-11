@@ -1,6 +1,5 @@
-import { useMemo } from 'react'
 import { Box, Stack, Text } from '@sanity/ui'
-
+import { useMemo } from 'react'
 import { type StringInputProps } from 'sanity'
 
 export const StringInputWithLimits = (props: StringInputProps) => {

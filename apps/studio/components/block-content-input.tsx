@@ -1,7 +1,7 @@
 import { toPlainText } from '@portabletext/react'
 import { Box, Stack, Text } from '@sanity/ui'
 import { useMemo } from 'react'
-import { PortableTextInputProps } from 'sanity'
+import type { PortableTextInputProps } from 'sanity'
 
 export function BlockContentInput(props: PortableTextInputProps) {
   const characterCount = useMemo(

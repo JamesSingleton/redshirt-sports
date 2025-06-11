@@ -1,5 +1,5 @@
-import { defineField, defineType } from 'sanity'
 import { CogIcon } from 'lucide-react'
+import { defineField, defineType } from 'sanity'
 
 const socialLinks = defineField({
   name: 'socialLinks',

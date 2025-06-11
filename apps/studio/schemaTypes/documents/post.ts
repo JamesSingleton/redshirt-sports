@@ -1,12 +1,12 @@
 import { defineArrayMember, defineField, defineType } from 'sanity'
 
 import { PathnameFieldComponent } from '../../components/slug-field-component'
-import { GROUPS, GROUP } from '../../utils/constant'
+import { StringInputWithLimits } from '../../components/string-input-with-limits'
+import { TextInputWithLimits } from '../../components/text-input-with-limits'
+import { GROUP, GROUPS } from '../../utils/constant'
 import { ogFields } from '../../utils/og-fields'
 import { seoFields } from '../../utils/seo-fields'
 import { createSlug, isUnique } from '../../utils/slug'
-import { TextInputWithLimits } from '../../components/text-input-with-limits'
-import { StringInputWithLimits } from '../../components/string-input-with-limits'
 
 export const post = defineType({
   name: 'post',

@@ -1,4 +1,4 @@
-import { defineType, defineField, defineArrayMember } from 'sanity'
+import { defineArrayMember, defineField, defineType } from 'sanity'
 
 import { TextInputWithLimits } from '../../components/text-input-with-limits'
 import { isUnique } from '../../utils/slug'

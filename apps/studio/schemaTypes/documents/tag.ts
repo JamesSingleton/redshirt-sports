@@ -1,4 +1,5 @@
-import { defineType, defineField } from 'sanity'
+import { defineField, defineType } from 'sanity'
+
 import { isUnique } from '../../utils/slug'
 
 export const tag = defineType({

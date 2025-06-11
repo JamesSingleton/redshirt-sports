@@ -1,24 +1,24 @@
 import { assist } from '@sanity/assist'
-import { visionTool } from '@sanity/vision'
-import { table } from '@sanity/table'
 import {
   dashboardTool,
   projectInfoWidget,
   projectUsersWidget,
   sanityTutorialsWidget,
 } from '@sanity/dashboard'
-import { defineConfig, PortableTextInputProps } from 'sanity'
-
+import { table } from '@sanity/table'
+import { visionTool } from '@sanity/vision'
+import type { PortableTextInputProps } from 'sanity'
+import { defineConfig } from 'sanity'
 // import { presentationTool } from 'sanity/presentation'
 import { structureTool } from 'sanity/structure'
 import { media, mediaAssetSource } from 'sanity-plugin-media'
 
+import { BlockContentInput } from './components/block-content-input'
 // import { presentationUrl } from './plugins/presentation-url'
 import { Logo } from './components/logo'
 import { locations } from './location'
 import { schemaTypes } from './schemaTypes'
 import { getDefaultDocumentNode, structure } from './structure'
-import { BlockContentInput } from './components/block-content-input'
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? ''
 const dataset = process.env.SANITY_STUDIO_DATASET

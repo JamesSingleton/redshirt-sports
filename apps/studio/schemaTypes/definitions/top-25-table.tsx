@@ -1,4 +1,4 @@
-import { defineField, defineArrayMember, defineType } from 'sanity'
+import { defineArrayMember, defineField, defineType } from 'sanity'
 
 export const top25Table = defineType({
   title: 'Top 25 Table',

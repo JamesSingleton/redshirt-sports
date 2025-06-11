@@ -1,5 +1,5 @@
-import { defineField, defineType } from 'sanity'
 import { LayoutPanelLeft, Link, PanelBottom } from 'lucide-react'
+import { defineField, defineType } from 'sanity'
 
 const footerColumnLink = defineField({
   name: 'footerColumnLink',
