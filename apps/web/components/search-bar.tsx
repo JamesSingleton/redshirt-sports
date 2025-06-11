@@ -127,7 +127,7 @@ export function SearchBar({ placeholder = 'Search...', className }: SearchBarPro
         e.preventDefault()
         if (selectedIndex >= 0 && results[selectedIndex]) {
           const result = results[selectedIndex]
-          router.push(`/article/${result.slug}`)
+          router.push(`/${result.slug}`)
           setShowResults(false)
           inputRef.current?.blur()
         } else {
