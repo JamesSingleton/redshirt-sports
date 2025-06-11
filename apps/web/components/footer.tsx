@@ -61,7 +61,7 @@ function SocialLinks({ data }: SocialLinksProps) {
             rel="noopener noreferrer"
             aria-label={label}
           >
-            <Icon className="fill-muted-foreground hover:fill-primary/80 dark:hover:fill-primary dark:fill-zinc-400" />
+            <Icon className="fill-muted-foreground hover:fill-primary size-6" />
             <span className="sr-only">{label}</span>
           </Link>
         </li>
@@ -129,9 +129,7 @@ function Footer({ data, settingsData }: FooterProps) {
             <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
               <div>
                 <span className="flex items-center justify-center gap-4 lg:justify-start">
-                  <Link href="/">
-                    <CustomImage image={logo} />
-                  </Link>
+                  <CustomImage image={logo} className="w-[125px]" />
                 </span>
                 {subtitle && (
                   <p className="text-muted-foreground mt-6 text-sm dark:text-zinc-400">
@@ -147,7 +145,7 @@ function Footer({ data, settingsData }: FooterProps) {
                   <div key={`column-${column?._key}-${index}`}>
                     <h3 className="mb-6 font-semibold">{column?.title}</h3>
                     {column?.links && column?.links?.length > 0 && (
-                      <ul className="text-muted-foreground space-y-4 text-sm dark:text-zinc-400">
+                      <ul className="text-muted-foreground space-y-4 text-sm">
                         {column?.links?.map((link, index) => (
                           <li
                             key={`${link?._key}-${index}-column-${column?._key}`}

@@ -186,10 +186,8 @@ export const queryGlobalSeoSettings = defineQuery(`
     },
     siteDescription,
     socialLinks{
-      linkedin,
       facebook,
       twitter,
-      instagram,
       youtube
     }
   }
