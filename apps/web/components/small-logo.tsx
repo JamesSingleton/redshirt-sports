@@ -1,6 +1,6 @@
 import React from 'react'
 
-const SmallLogo = (props: JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>) => (
+const SmallLogo = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="38.68 124.69 433.19 262.6"

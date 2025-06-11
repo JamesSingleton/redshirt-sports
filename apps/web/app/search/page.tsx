@@ -67,7 +67,6 @@ export default async function Page({
                 division={post.division}
                 conferences={post.conferences}
                 author={post.authors[0]?.name || post.author.name}
-                sport={post.sport}
               />
             ))}
           </div>

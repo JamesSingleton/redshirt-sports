@@ -13,11 +13,14 @@ import { ScrollArea } from '@workspace/ui/components/scroll-area'
 import { SearchBar } from './search-bar'
 import SmallLogo from './small-logo'
 import { getLatestFinalRankings } from '@/server/queries'
+import MegaMobileNav from './mega-mobile-nav'
+import { ModeToggle } from './mode-toggle'
 
 export interface Conference {
   _id: string
   name: string
   slug: string
+  shortName: string | null
 }
 
 export interface Grouping {
@@ -44,11 +47,14 @@ export async function MegaNav({ sportsNav }: { sportsNav: SportsData }) {
 
   return (
     <header className="bg-background sticky top-0 z-50 w-full border-b shadow-sm">
-      <div className="container flex h-16 items-center">
+      <div className="container flex h-16 items-center px-4">
         {/* Mobile Menu Trigger */}
-
+        <MegaMobileNav sportsNav={sportsNav} latestFCSTop25={latestFCSTop25} />
         {/* Logo */}
-        <Link href="/" className="mr-4 flex items-center space-x-2">
+        <Link
+          href="/"
+          className="absolute left-1/2 flex -translate-x-1/2 transform items-center lg:static lg:mx-4 lg:transform-none"
+        >
           <SmallLogo className="h-8 w-auto" />
         </Link>
 
@@ -156,10 +162,11 @@ export async function MegaNav({ sportsNav }: { sportsNav: SportsData }) {
         </NavigationMenu>
 
         {/* Search Button */}
-        <div className="ml-auto flex items-center">
-          <div className="w-full max-w-[200px] sm:max-w-[250px] md:max-w-[300px] lg:max-w-[350px]">
-            <SearchBar placeholder="Search..." className="w-full" />
+        <div className="ml-auto flex items-center gap-2">
+          <div className="hidden w-full max-w-[250px] md:max-w-[300px] lg:block lg:max-w-[350px]">
+            <SearchBar placeholder="Search articles..." className="w-full" />
           </div>
+          <ModeToggle />
         </div>
       </div>
     </header>

@@ -7,9 +7,7 @@ const markDefsFragment = /* groq */ `
     _type == "internalLink" => {
       ...,
       "href": select(
-        reference->_type == "division" => "/news/" + reference->slug.current,
-        reference->_type == "conference" => "/news/" + reference->division->slug.current + "/" + reference->slug.current,
-        reference->_type == "article" => "/" + reference->slug.current,
+        reference->_type == "post" => "/" + reference->slug.current,
         "#"
       )
     }
@@ -170,9 +168,30 @@ export const queryFooterData = defineQuery(/* groq */ `
         )
       }
     },
-    "logo": *[_type == "settings"][0].logo.asset->url + "?w=80&h=40&dpr=3&fit=max",
-    "siteTitle": *[_type == "settings"][0].siteTitle,
-    "socialLinks": *[_type == "settings"][0].socialLinks,
+  }
+`)
+
+export const queryGlobalSeoSettings = defineQuery(`
+  *[_type == "settings"][0]{
+    _id,
+    _type,
+    siteTitle,
+    logo{
+      ...,
+      ...asset->{
+        "alt": coalesce(altText, originalFilename, "no-alt"),
+        "blurData": metadata.lqip,
+        "dominantColor": metadata.palette.dominant.background
+      }
+    },
+    siteDescription,
+    socialLinks{
+      linkedin,
+      facebook,
+      twitter,
+      instagram,
+      youtube
+    }
   }
 `)
 

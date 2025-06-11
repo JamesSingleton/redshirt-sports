@@ -36,7 +36,7 @@
     "feed": "^5.1.0",
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
-    "lucide-react": "^0.513.0",
+    "lucide-react": "^0.514.0",
     "next": "15.4.0-canary.76",
     "next-plausible": "^3.12.4",
     "next-sanity": "^9.12.0",
@@ -51,7 +51,7 @@
     "server-only": "^0.0.1",
     "sonner": "^2.0.5",
     "svix": "^1.67.0",
-    "zod": "^3.25.57"
+    "zod": "^3.25.58"
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.9",

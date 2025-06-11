@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { badgeVariants } from '@workspace/ui/components/badge'
 
 import Date from '@/components/date'
 import ArticleCard from '@/components/article-card'
