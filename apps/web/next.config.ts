@@ -1,7 +1,7 @@
 import { withSentryConfig } from '@sentry/nextjs'
 import { createClient } from '@sanity/client'
 
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
@@ -19,7 +19,7 @@ const ContentSecurityPolicy = `
     media-src 'none';
     connect-src * https://clerk.redshirtsports.xyz https://electric-alien-91.clerk.accounts.dev;
     font-src 'self' fonts.gstatic.com;
-    frame-src 'self' https://challenges.cloudflare.com;
+    frame-src 'self' https://challenges.cloudflare.com https://vercel.live;
     worker-src 'self' blob:;
 `
 
@@ -63,7 +63,7 @@ const nextConfig: NextConfig = {
     inlineCss: true,
   },
   logging: {
-    fetches: {}
+    fetches: {},
   },
   typescript: {
     ignoreBuildErrors: true,
