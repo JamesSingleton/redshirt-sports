@@ -3,10 +3,7 @@ import Link from 'next/link'
 import { sanityFetch } from '@/lib/sanity/live'
 import { queryFooterData, queryGlobalSeoSettings } from '@/lib/sanity/query'
 import type { QueryFooterDataResult, QueryGlobalSeoSettingsResult } from '@/lib/sanity/sanity.types'
-
-// import { Logo } from './logo'
 import { Facebook, Twitter, YouTubeIcon } from './icons'
-import Image from 'next/image'
 import CustomImage from './sanity-image'
 
 interface SocialLinksProps {

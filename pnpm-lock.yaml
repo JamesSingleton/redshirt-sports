@@ -235,6 +235,9 @@ importers:
       drizzle-kit:
         specifier: ^0.31.1
         version: 0.31.1
+      eslint:
+        specifier: ^9.28.0
+        version: 9.28.0(jiti@2.4.2)
       postcss:
         specifier: ^8.5.4
         version: 8.5.4
@@ -247,20 +250,17 @@ importers:
 
   packages/eslint-config:
     devDependencies:
+      '@eslint/js':
+        specifier: ^9.28.0
+        version: 9.28.0
       '@next/eslint-plugin-next':
-        specifier: ^15.3.3
+        specifier: ^15.3.0
         version: 15.3.3
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.34.0
-        version: 8.34.0(@typescript-eslint/parser@8.34.0(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3)
-      '@typescript-eslint/parser':
-        specifier: ^8.34.0
-        version: 8.34.0(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3)
       eslint:
-        specifier: ^9.27.0
+        specifier: ^9.28.0
         version: 9.28.0(jiti@2.4.2)
       eslint-config-prettier:
-        specifier: ^10.1.5
+        specifier: ^10.1.1
         version: 10.1.5(eslint@9.28.0(jiti@2.4.2))
       eslint-plugin-only-warn:
         specifier: ^1.1.0
@@ -269,19 +269,19 @@ importers:
         specifier: ^7.37.5
         version: 7.37.5(eslint@9.28.0(jiti@2.4.2))
       eslint-plugin-react-hooks:
-        specifier: ^6.0.0
-        version: 6.0.0(eslint@9.28.0(jiti@2.4.2))
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@9.28.0(jiti@2.4.2))
       eslint-plugin-turbo:
-        specifier: ^2.5.4
+        specifier: ^2.5.0
         version: 2.5.4(eslint@9.28.0(jiti@2.4.2))(turbo@2.5.4)
       globals:
         specifier: ^16.2.0
         version: 16.2.0
       typescript:
-        specifier: ^5.8.3
+        specifier: ^5.8.2
         version: 5.8.3
       typescript-eslint:
-        specifier: ^8.34.0
+        specifier: ^8.33.0
         version: 8.34.0(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3)
 
   packages/typescript-config: {}
@@ -362,7 +362,7 @@ importers:
         version: 1.0.7(tailwindcss@4.1.8)
       zod:
         specifier: ^3.25.49
-        version: 3.25.57
+        version: 3.25.58
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4.1.8
@@ -5258,13 +5258,6 @@ packages:
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
 
-  eslint-plugin-react-hooks@6.0.0:
-    resolution: {integrity: sha512-NyC3yIC9fazLitYiN8eHykV5wLp/SMuUZMh+sdPSHIeN4ReXIc7if40jtGjDplAgVL/4OkN1d9gneWe9lFZgag==}
-    engines: {node: '>=18'}
-    deprecated: This stable release was published by accident, please use 6.0.0-rc.1 instead.
-    peerDependencies:
-      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
-
   eslint-plugin-react@7.37.5:
     resolution: {integrity: sha512-Qteup0SqU15kdocexFNAJMvCJEfa2xUKNV4CC1xsVMrIIqEy3SQ/rqyxCWNzfrd3/ldy6HMlD2e0JDVpDg2qIA==}
     engines: {node: '>=4'}
@@ -5796,12 +5789,6 @@ packages:
 
   header-case@1.0.1:
     resolution: {integrity: sha512-i0q9mkOeSuhXw6bGgiQCCBgY/jlZuV/7dZXyZ9c6LcBrqwvT8eT719E9uxE5LiZftdl+z81Ugbg/VvXV4OJOeQ==}
-
-  hermes-estree@0.25.1:
-    resolution: {integrity: sha512-0wUoCcLp+5Ev5pDW2OriHC2MJCbwLwuRx+gAqMTOkGKJJiBCLjtrvy4PWUGn6MIVefecRpzoOZ/UV6iGdOr+Cw==}
-
-  hermes-parser@0.25.1:
-    resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
 
   history@5.3.0:
     resolution: {integrity: sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==}
@@ -8842,12 +8829,6 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
-  zod-validation-error@3.4.0:
-    resolution: {integrity: sha512-ZOPR9SVY6Pb2qqO5XHt+MkkTRxGXb4EVtnjc9JpXUOtUB1T9Ru7mZOT361AN3MsetVe7R0a1KZshJDZdgp9miQ==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      zod: ^3.18.0
-
   zod@3.25.57:
     resolution: {integrity: sha512-6tgzLuwVST5oLUxXTmBqoinKMd3JeesgbgseXeFasKKj8Q1FCZrHnbqJOyiEvr4cVAlbug+CgIsmJ8cl/pU5FA==}
 
@@ -11745,7 +11726,7 @@ snapshots:
       groq-js: 1.17.0
       json5: 2.2.3
       tsconfig-paths: 4.2.0
-      zod: 3.25.57
+      zod: 3.25.58
     transitivePeerDependencies:
       - supports-color
 
@@ -12885,8 +12866,8 @@ snapshots:
 
   '@typescript-eslint/project-service@8.33.1(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.33.1(typescript@5.8.3)
-      '@typescript-eslint/types': 8.33.1
+      '@typescript-eslint/tsconfig-utils': 8.34.0(typescript@5.8.3)
+      '@typescript-eslint/types': 8.34.0
       debug: 4.4.1(supports-color@8.1.1)
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -14365,18 +14346,6 @@ snapshots:
     dependencies:
       eslint: 9.28.0(jiti@2.4.2)
 
-  eslint-plugin-react-hooks@6.0.0(eslint@9.28.0(jiti@2.4.2)):
-    dependencies:
-      '@babel/core': 7.26.10
-      '@babel/parser': 7.26.10
-      '@babel/plugin-transform-private-methods': 7.25.9(@babel/core@7.26.10)
-      eslint: 9.28.0(jiti@2.4.2)
-      hermes-parser: 0.25.1
-      zod: 3.25.57
-      zod-validation-error: 3.4.0(zod@3.25.57)
-    transitivePeerDependencies:
-      - supports-color
-
   eslint-plugin-react@7.37.5(eslint@9.28.0(jiti@2.4.2)):
     dependencies:
       array-includes: 3.1.8
@@ -14996,12 +14965,6 @@ snapshots:
     dependencies:
       no-case: 2.3.2
       upper-case: 1.1.3
-
-  hermes-estree@0.25.1: {}
-
-  hermes-parser@0.25.1:
-    dependencies:
-      hermes-estree: 0.25.1
 
   history@5.3.0:
     dependencies:
@@ -18328,10 +18291,6 @@ snapshots:
       archiver-utils: 5.0.2
       compress-commons: 6.0.2
       readable-stream: 4.7.0
-
-  zod-validation-error@3.4.0(zod@3.25.57):
-    dependencies:
-      zod: 3.25.57
 
   zod@3.25.57: {}
 
