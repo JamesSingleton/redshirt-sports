@@ -133,3 +133,28 @@ export function OrganizationJsonLd({ settings }) {
 
   return <JsonLdScript data={organizationJsonLd} id="organization-json-ld" />
 }
+
+export function WebSiteJsonLd({ settings }) {
+  if (!settings) return null
+
+  const baseUrl = getBaseUrl()
+
+  const webSiteJsonLd: WithContext<WebSite> = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    url: baseUrl,
+    name: settings.name || 'Redshirt Sports',
+    description: settings.siteDescription || undefined,
+    // potentialAction: {
+    //   '@type': 'SearchAction',
+    //   target: `${baseUrl}/search?q={search_term_string}`,
+    //   'query-input': 'required name=search_term_string',
+    // },
+  }
+
+  return <JsonLdScript data={webSiteJsonLd} id="website-json-ld" />
+}
+
+export async function CombinedJsonLd({}) {
+  return <></>
+}

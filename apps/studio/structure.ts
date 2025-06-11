@@ -84,7 +84,69 @@ export const structure = (S: StructureBuilder, context: StructureResolverContext
   const { currentUser } = context
   const items = [
     S.divider().title('Articles'),
-    createList({ S, type: 'post', title: 'All Articles', icon: FileText }),
+    createList({ S, type: 'post', title: 'All Articles', icon: FileText, id: 'all-articles' }),
+    S.divider().title('Football Articles'),
+    // Create FBS Articles
+    createList({
+      S,
+      type: 'post',
+      title: 'FBS Articles',
+      icon: FileText,
+      id: 'fbs-articles',
+    }).child(
+      S.documentTypeList('post')
+        .title('FBS Articles')
+        .filter(
+          `_type == "post" &&
+                        sport->title == "Football" &&
+                        defined(conferences[]->sportSubdivisionAffiliations[_type == "sportSubgroupingAffiliation" && sport._ref == ^.^.sport._ref && subgrouping->shortName == "FBS"][0])`,
+        ) // Adjusted filter for array of conferences (plural 'conferences')
+        .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }]),
+    ),
+    createList({
+      S,
+      type: 'post',
+      title: 'FCS Articles',
+      icon: FileText,
+      id: 'fcs-articles',
+    }).child(
+      S.documentTypeList('post')
+        .title('FCS Articles')
+        .filter(
+          `_type == "post" &&
+                        sport->title == "Football" &&
+                        defined(conferences[]->sportSubdivisionAffiliations[_type == "sportSubgroupingAffiliation" && sport._ref == ^.^.sport._ref && subgrouping->shortName == "FCS"][0])`,
+        ) // Adjusted filter for array of conferences (plural 'conferences')
+        .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }]),
+    ),
+    createList({
+      S,
+      type: 'post',
+      title: 'Division II Articles',
+      icon: FileText,
+      id: 'division-ii-articles',
+    }).child(
+      S.documentTypeList('post')
+        .title('Division II Articles')
+        .filter('_type == "post" && sport->title == "Football" && division->title == "Division II"')
+        .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }]),
+    ),
+    // --- NEW: Division III Articles ---
+    createList({
+      S,
+      type: 'post',
+      title: 'Division III Articles',
+      icon: FileText,
+      id: 'division-iii-articles',
+    }).child(
+      S.documentTypeList('post')
+        .title('Division III Articles')
+        .filter(
+          '_type == "post" && sport->title == "Football" && division->title == "Division III"',
+        )
+        .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }]),
+    ),
+    S.divider().title('Basketball Articles'),
     S.divider().title('Sports Organizational Structure'),
     createList({
       S,

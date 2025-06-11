@@ -225,7 +225,7 @@ export async function getLatestVoterBallotWithSchools(
     return [] // No ballot found
   }
 
-  const { week, year, createdAt } = latestBallotMeta[0]
+  const { week, year, createdAt } = latestBallotMeta[0]!
 
   // Fetch all 25 entries for the latest ballot
   const ballots = await db
