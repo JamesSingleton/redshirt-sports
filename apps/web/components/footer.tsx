@@ -119,7 +119,10 @@ function Footer({ data, settingsData }: FooterProps) {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="mt-20 pb-8">
+    <footer className="mt-20 pb-8" aria-labelledby="footer-heading">
+      <h2 className="sr-only" id="footer-heading">
+        Footer Navigation and Information
+      </h2>
       <div className="container mx-auto">
         <section className="h-[500px] lg:h-auto">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-10 px-4 text-center md:px-6 lg:flex-row lg:text-left">

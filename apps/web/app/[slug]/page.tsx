@@ -10,9 +10,12 @@ import { RichText } from '@/components/rich-text'
 import { LargeArticleSocialShare } from '@/components/posts/article-share'
 import CustomImage from '@/components/sanity-image'
 import { urlForImage } from '@/lib/sanity.image'
+import ArticleCard from '@/components/article-card'
+import { buildSafeImageUrl, JsonLdScript } from '@/components/json-ld'
+import { getBaseUrl } from '@/lib/get-base-url'
 
 import type { Metadata } from 'next'
-import ArticleCard from '@/components/article-card'
+import type { Graph, ListItem } from 'schema-dts'
 
 interface PageProps {
   params: Promise<{
@@ -45,7 +48,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${pageData.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
       description: pageData.excerpt,
-      url: `${process.env.NEXT_PUBLIC_APP_URL}/${slug}`,
+      url: `/${slug}`,
       images: [
         {
           url: urlForImage(pageData.mainImage).width(1200).height(630).url(),
@@ -55,8 +58,9 @@ export async function generateMetadata({
         },
       ],
       type: 'article',
-      publishedTime: new Date(pageData.publishedAt).toISOString(),
-      authors: pageData.authors.map((author) => {
+      publishedTime: pageData.publishedAt,
+      modifiedTime: pageData._updatedAt,
+      authors: pageData.authors.map((author: any) => {
         return {
           name: author.name,
         }
@@ -74,6 +78,7 @@ export async function generateMetadata({
           alt: pageData.mainImage.caption,
         },
       ],
+      site: '@_redshirtsports',
     },
     other: {
       'twitter:label1': 'Reading time',
@@ -88,13 +93,136 @@ export async function generateMetadata({
 export default async function PostPage({ params }: PageProps) {
   const { slug } = await params
   const { data } = await fetchPostSlugData(slug)
+  const baseUrl = getBaseUrl()
+  const organizationId = `${baseUrl}/#organization`
+  const websiteId = `${baseUrl}/#website`
 
   if (!data) {
     notFound()
   }
 
+  const articleUrl = `${baseUrl}/${data.slug}`
+  const articleId = `${articleUrl}#article`
+  const imageId = `${articleUrl}#primaryImage`
+  const articleImageUrl = buildSafeImageUrl(data.mainImage)
+
+  const breadcrumbItems: ListItem[] = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: baseUrl,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: data.title,
+      item: articleUrl,
+    },
+  ]
+
+  const graph: Graph = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'NewsArticle',
+        '@id': articleId,
+        isPartOf: { '@id': articleUrl },
+        author: data.authors.map((author: any) => ({
+          '@type': 'Person',
+          name: author.name,
+          url: author.slug ? `${baseUrl}/${author.slug}` : undefined,
+        })),
+        headline: data.title,
+        dateCreated: new Date(data.publishedAt).toISOString(),
+        datePublished: new Date(data.publishedAt).toISOString(),
+        dateModified: new Date(data._updatedAt).toISOString(),
+        description: data.excerpt,
+        mainEntityOfPage: { '@id': articleUrl },
+        wordCount: data.wordCount,
+        publisher: { '@id': organizationId },
+        image: { '@id': imageId },
+        thumbnailUrl: articleImageUrl,
+        inLanguage: 'en-US',
+        copyrightYear: new Date().getFullYear(),
+        copyrightHolder: { '@id': organizationId },
+      },
+      {
+        '@type': 'WebPage',
+        '@id': articleUrl,
+        url: articleUrl,
+        name: `${data.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+        isPartOf: { '@id': websiteId },
+        primaryImageOfPage: { '@id': imageId },
+        thumbnailUrl: articleImageUrl,
+        datePublished: new Date(data.publishedAt).toISOString(),
+        dateModified: new Date(data._updatedAt).toISOString(),
+        description: data.excerpt,
+        breadcrumb: {
+          '@type': 'BreadcrumbList',
+          '@id': `${articleUrl}#breadcrumb`,
+          itemListElement: breadcrumbItems,
+        },
+        inLanguage: 'en-US',
+        potentialAction: [
+          {
+            '@type': 'ReadAction',
+            target: [articleUrl],
+          },
+        ],
+      },
+      {
+        '@type': 'ImageObject',
+        inLanguage: 'en-US',
+        '@id': imageId,
+        url: articleImageUrl,
+        contentUrl: articleImageUrl,
+        caption: data.mainImage.alt,
+        width: '1920',
+        height: '1080',
+      },
+      {
+        '@type': 'WebSite',
+        '@id': websiteId,
+        url: baseUrl,
+        name: process.env.NEXT_PUBLIC_APP_NAME,
+        publisher: { '@id': organizationId },
+        potentialAction: [
+          {
+            '@type': 'SearchAction',
+            target: {
+              '@type': 'EntryPoint',
+              urlTemplate: `${baseUrl}/search?q={search_term_string}`,
+            },
+            'query-input': {
+              '@type': 'PropertyValueSpecification',
+              valueRequired: true,
+              valueName: 'search_term_string',
+            },
+          },
+        ],
+      },
+      {
+        '@type': 'Organization',
+        '@id': organizationId,
+        name: process.env.NEXT_PUBLIC_APP_NAME,
+        url: baseUrl,
+      },
+      data.authors.map((author: any) => ({
+        '@type': 'Person',
+        '@id': `${baseUrl}/authors/${author.slug}`,
+        name: author.name,
+        image: buildSafeImageUrl(author.image),
+        sameAs: author.socialMedia?.map((link: any) => link.url) || [],
+        url: `${baseUrl}/authors/${author.slug}`,
+        description: author.biography,
+      })),
+    ],
+  }
+
   return (
     <>
+      <JsonLdScript data={graph} id={`article-json-ld-${data.slug}`} />
       <section className="mt-8 pb-8">
         <div className="container">
           <h1
@@ -110,13 +238,13 @@ export default async function PostPage({ params }: PageProps) {
             {(data.division || data.conferences) && (
               <div className="flex flex-wrap items-center gap-3">
                 {data.conferences &&
-                  data.conferences.map((conference) => {
+                  data.conferences.map((conference: any) => {
                     // Get the _id of the sport for the current article
                     const articleSportId = data.sport._id
 
                     // Find the sportSubdivisionAffiliation that matches the article's sport
                     const matchingAffiliation = conference.sportSubdivisionAffiliations?.find(
-                      (affiliation) => affiliation.sport._id === articleSportId,
+                      (affiliation: any) => affiliation.sport._id === articleSportId,
                     )
 
                     // Determine the division path segment:
@@ -191,7 +319,7 @@ export default async function PostPage({ params }: PageProps) {
               </h2>
             </div>
             <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-3 lg:mt-12 xl:gap-16">
-              {data.relatedPosts.map((morePost) => (
+              {data.relatedPosts.map((morePost: any) => (
                 <ArticleCard
                   key={morePost._id}
                   title={morePost.title}

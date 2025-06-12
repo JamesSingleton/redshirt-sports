@@ -51,7 +51,7 @@ export function JsonLdScript<T>({ data, id }: { data: T; id: string }) {
   )
 }
 
-function buildSafeImageUrl(image?: { asset?: { _ref: string } }) {
+export function buildSafeImageUrl(image?: { asset?: { _ref: string } }) {
   if (!image?.asset?._ref) {
     return undefined
   }
@@ -72,17 +72,18 @@ export function ArticleJsonLd({ article }) {
 
   const articleJsonLd: WithContext<Article> = {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'NewsArticle',
     headline: article.title,
     description: article.excerpt,
     image: imageUrl ? [imageUrl] : undefined,
     author: article.authors
-      ? [
-          {
+      ? article.authors.map((author) => {
+          return {
             '@type': 'Person',
-            name: '',
-          },
-        ]
+            name: author.name,
+            url: author.slug ? `${baseUrl}/${author.slug}` : undefined,
+          } as Person
+        })
       : [],
     publisher: {
       '@type': 'Organization',

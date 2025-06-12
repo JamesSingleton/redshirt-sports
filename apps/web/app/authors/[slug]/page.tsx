@@ -15,11 +15,11 @@ import {
 import ArticleCard from '@/components/article-card'
 import PaginationControls from '@/components/pagination-controls'
 import { urlForImage } from '@/lib/sanity.image'
-import { Image as SanityImage } from '@/components/image'
 import { Org, Web } from '@/lib/ldJson'
 import { perPage, HOME_DOMAIN } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'
 import { sanityFetch } from '@/lib/sanity/live'
+import CustomImage from '@/components/sanity-image'
 
 import type { Metadata } from 'next'
 import { authorBySlug, postsByAuthor } from '@/lib/sanity/query'
@@ -220,9 +220,8 @@ export default async function Page({
         <div className="container mx-auto">
           <div className="md:max-w-3xl xl:max-w-5xl">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-              <SanityImage
-                asset={author.image as any}
-                alt={`${author.name} avatar`}
+              <CustomImage
+                image={author.image}
                 className="h-20 w-20 shrink-0 rounded-full object-contain"
                 width={80}
                 height={80}
@@ -272,30 +271,32 @@ export default async function Page({
           </div>
         </div>
       </section>
-      <section className="container mx-auto">
-        <div>
-          <h2 className="mb-6 text-2xl font-bold tracking-tight">Articles by {author.name}</h2>
-          <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {authorPosts.posts.map((post: any) => (
-              <ArticleCard
-                key={post._id}
-                title={post.title}
-                slug={post.slug}
-                image={post.mainImage}
-                date={post.publishedAt}
-                division={post.division}
-                conferences={post.conferences}
-                author={post.authors[0].name}
-              />
-            ))}
+      {authorPosts && authorPosts.posts.length > 0 && (
+        <section className="container mx-auto">
+          <div>
+            <h2 className="mb-6 text-2xl font-bold tracking-tight">Articles by {author.name}</h2>
+            <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {authorPosts.posts.map((post: any) => (
+                <ArticleCard
+                  key={post._id}
+                  title={post.title}
+                  slug={post.slug}
+                  image={post.mainImage}
+                  date={post.publishedAt}
+                  division={post.division}
+                  conferences={post.conferences}
+                  author={post.authors[0].name}
+                />
+              ))}
+            </div>
+            {totalPages > 1 ? (
+              <Suspense fallback={<>Loading...</>}>
+                <PaginationControls totalPosts={authorPosts.totalPosts} />
+              </Suspense>
+            ) : null}
           </div>
-          {totalPages > 1 ? (
-            <Suspense fallback={<>Loading...</>}>
-              <PaginationControls totalPosts={authorPosts.totalPosts} />
-            </Suspense>
-          ) : null}
-        </div>
-      </section>
+        </section>
+      )}
     </>
   )
 }

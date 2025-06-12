@@ -25,9 +25,7 @@ const imageFragment = /* groq */ `
 
 const postAuthorFragment = /* groq */ `
   authors[]->{
-    _id,
-    name,
-    roles,
+    ...,
     "slug": slug.current,
     ${imageFragment}
   }
