@@ -1,6 +1,5 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
-import Script from 'next/script'
 import { notFound, redirect } from 'next/navigation'
 import { Globe, Mail } from 'lucide-react'
 import { Graph } from 'schema-dts'
@@ -13,21 +12,55 @@ import {
   Twitter,
   Facebook,
 } from '@/components/icons'
-import {
-  getConferencesAuthorHasWrittenFor,
-  getAuthorBySlug,
-  getAuthorsPosts,
-} from '@/lib/sanity.fetch'
 import ArticleCard from '@/components/article-card'
 import PaginationControls from '@/components/pagination-controls'
 import { urlForImage } from '@/lib/sanity.image'
-import ConferencesWrittenFor from '@/components/conferences-written-for'
 import { Image as SanityImage } from '@/components/image'
 import { Org, Web } from '@/lib/ldJson'
 import { perPage, HOME_DOMAIN } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'
+import { sanityFetch } from '@/lib/sanity/live'
 
 import type { Metadata } from 'next'
+import { authorBySlug, postsByAuthor } from '@/lib/sanity/query'
+
+async function fetchAuthorInfo(slug: string) {
+  return await sanityFetch({
+    query: authorBySlug,
+    params: { slug },
+  })
+}
+
+async function fetchAuthorPosts(slug: string, pageIndex: number) {
+  return await sanityFetch({
+    query: postsByAuthor,
+    params: { slug, pageIndex },
+  })
+}
+
+async function fetchAuthorData(slug: string, pageIndex: number) {
+  try {
+    // Fetch author and posts in parallel for better performance
+    const [authorResult, postsResult] = await Promise.all([
+      sanityFetch({
+        query: authorBySlug,
+        params: { slug },
+      }),
+      sanityFetch({
+        query: postsByAuthor,
+        params: { slug, pageIndex },
+      }),
+    ])
+
+    return {
+      author: authorResult.data,
+      authorPosts: postsResult.data,
+    }
+  } catch (error) {
+    console.error('Error fetching author data:', error)
+    return { author: null, authorPosts: null }
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -37,8 +70,8 @@ export async function generateMetadata({
   searchParams: Promise<{ [key: string]: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const { page, conference } = await searchParams
-  const author = await getAuthorBySlug(slug)
+  const { page } = await searchParams
+  const { data: author } = await fetchAuthorInfo(slug)
 
   if (!author) {
     return {}
@@ -47,16 +80,8 @@ export async function generateMetadata({
   const roles = author.roles.join(', ')
   let canonical = `/authors/${slug}`
 
-  if (page && !conference && parseInt(page) > 1) {
+  if (page && parseInt(page) > 1) {
     canonical = `/authors/${slug}?page=${page}`
-  }
-
-  if (conference) {
-    canonical = `/authors/${slug}?conference=${conference}`
-
-    if (page && parseInt(page) > 1) {
-      canonical = `/authors/${slug}?conference=${conference}&page=${page}`
-    }
   }
 
   return constructMetadata({
@@ -76,27 +101,19 @@ export default async function Page({
   searchParams: Promise<{ [key: string]: string }>
 }) {
   const { slug } = await params
-  const { page, conference: conferenceSearchParam } = await searchParams
+  const { page } = await searchParams
   const pageIndex = page ? parseInt(page) : 1
 
   if (page && parseInt(page) === 1) {
-    if (conferenceSearchParam) {
-      return redirect(`/authors/${slug}?conference=${conferenceSearchParam}`)
-    }
     return redirect(`/authors/${slug}`)
   }
 
-  const conference = conferenceSearchParam ?? null
-  const author = await getAuthorBySlug(slug)
+  const { data: author } = await fetchAuthorInfo(slug)
+  const { data: authorPosts } = await fetchAuthorPosts(slug, pageIndex)
 
   if (!author) {
     return notFound()
   }
-
-  const authorId = author._id
-  const conferencesWrittenFor = await getConferencesAuthorHasWrittenFor(authorId)
-
-  const authorPosts = await getAuthorsPosts(authorId, pageIndex, conference)
 
   const totalPages = Math.ceil(authorPosts.totalPosts / perPage)
 
@@ -122,7 +139,7 @@ export default async function Page({
           name: author.name,
           image: urlForImage(author.image).width(1200).height(630).url(),
           url: `${HOME_DOMAIN}/authors/${author.slug}`,
-          sameAs: author.socialMedia.map((social) => social.url),
+          sameAs: author.socialMedia.map((social: any) => social.url),
           jobTitle: author.roles.join(', '),
         },
         image: {
@@ -182,7 +199,7 @@ export default async function Page({
           '@id': `${HOME_DOMAIN}/authors/${author.slug}#primaryimage`,
         },
         url: `${HOME_DOMAIN}/authors/${author.slug}`,
-        sameAs: author.socialMedia.map((social) => social.url),
+        sameAs: author.socialMedia.map((social: any) => social.url),
         jobTitle: author.roles.join(', '),
         description: author.biography,
         mainEntityOfPage: {
@@ -194,7 +211,7 @@ export default async function Page({
 
   return (
     <>
-      <Script
+      <script
         id={`${author.name.toLowerCase().replace(/\s+/g, '-')}-ld-json`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -224,7 +241,7 @@ export default async function Page({
             </p>
             {author.socialMedia && (
               <ul className="mt-6 flex flex-wrap items-center space-x-3">
-                {author.socialMedia.map((social) => (
+                {author.socialMedia.map((social: any) => (
                   <li key={social._key}>
                     <Link
                       href={social.url}
@@ -257,11 +274,9 @@ export default async function Page({
       </section>
       <section className="container mx-auto">
         <div>
-          <Suspense fallback={<div>Loading COnferences...</div>}>
-            <ConferencesWrittenFor conferences={conferencesWrittenFor.conferences} />
-          </Suspense>
+          <h2 className="mb-6 text-2xl font-bold tracking-tight">Articles by {author.name}</h2>
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {authorPosts.posts.map((post) => (
+            {authorPosts.posts.map((post: any) => (
               <ArticleCard
                 key={post._id}
                 title={post.title}
@@ -270,7 +285,7 @@ export default async function Page({
                 date={post.publishedAt}
                 division={post.division}
                 conferences={post.conferences}
-                author={post.author.name}
+                author={post.authors[0].name}
               />
             ))}
           </div>

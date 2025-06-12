@@ -16,7 +16,12 @@ const authorFields = `
   name,
   'slug': slug.current,
   roles,
-  image,
+  image{
+    ...,
+    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+    "blurData": asset->metadata.lqip,
+    "dominantColor": asset->metadata.palette.dominant.background,
+  },
   biography,
   socialMedia
 `
@@ -120,12 +125,12 @@ const litePostFields = `
   _id,
   title,
   publishedAt,
-  "mainImage": {
-    "caption": mainImage.caption,
-    "attribution": mainImage.attribution,
-    "crop": mainImage.crop,
-    "hotspot": mainImage.hotspot,
-    "asset": mainImage.asset->,
+  mainImage{
+    ...,
+    "alt": coalesce(asset->altText, caption, "Image-Broken"),
+    "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+    "blurData": asset->metadata.lqip,
+    "dominantColor": asset->metadata.palette.dominant.background,
   },
   division->{
     name,

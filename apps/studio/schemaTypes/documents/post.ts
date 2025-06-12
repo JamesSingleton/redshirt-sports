@@ -8,6 +8,8 @@ import { ogFields } from '../../utils/og-fields'
 import { seoFields } from '../../utils/seo-fields'
 import { createSlug, isUnique } from '../../utils/slug'
 
+const DIVISION_1_ID = '329c4f4f-bb7c-459e-872d-eb1a57deb196' // Assuming this is the ID for Division 1
+
 export const post = defineType({
   name: 'post',
   title: 'Post',
@@ -127,10 +129,38 @@ export const post = defineType({
     defineField({
       title: 'Division',
       name: 'division',
-      description: "What's the primary division this article is about?",
+      description:
+        "What's the primary division this article is about? If it's FCS, FBS, Mid-Major, or Power 5, select Division I.",
       type: 'reference',
       to: [{ type: 'division' }],
       group: GROUP.MAIN_CONTENT,
+    }),
+    defineField({
+      name: 'sportSubgrouping',
+      title: 'Sport Subgrouping',
+      type: 'reference',
+      to: [{ type: 'sportSubgrouping' }],
+      description:
+        'Select a subgrouping related to the chosen sport (e.g., "FBS" for "Football", "Mid-Major" for "Basketball").',
+      group: GROUP.MAIN_CONTENT,
+      // @ts-expect-error `_ref` actually does exist on the document
+      hidden: ({ document }) => !document?.sport || document?.division?._ref !== DIVISION_1_ID,
+      options: {
+        disableNew: true,
+        filter: ({ document }) => {
+          // @ts-expect-error `_ref` actually does exist on the document
+          if (!document.sport?._ref || document.division?._ref !== DIVISION_1_ID) {
+            return {
+              filter: `_id == null`,
+            }
+          }
+          return {
+            filter: 'references($sportId)',
+            // @ts-expect-error `_ref` actually does exist on the document
+            params: { sportId: document.sport._ref },
+          }
+        },
+      },
     }),
     defineField({
       title: 'Conferences',

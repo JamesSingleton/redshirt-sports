@@ -50,15 +50,13 @@ export async function MegaNav({ sportsNav }: { sportsNav: SportsData }) {
       <div className="container flex h-16 items-center px-4">
         {/* Mobile Menu Trigger */}
         <MegaMobileNav sportsNav={sportsNav} latestFCSTop25={latestFCSTop25} />
-        {/* Logo */}
         <Link
           href="/"
           className="absolute left-1/2 flex -translate-x-1/2 transform items-center lg:static lg:mx-4 lg:transform-none"
         >
           <SmallLogo className="h-8 w-auto" />
+          <span className="sr-only">Redshirt Sports Logo</span>
         </Link>
-
-        {/* Desktop Navigation */}
         <NavigationMenu className="hidden lg:flex">
           <NavigationMenuList>
             {sportsNav.map((sport) => (

@@ -28,6 +28,7 @@ const postAuthorFragment = /* groq */ `
     _id,
     name,
     roles,
+    "slug": slug.current,
     ${imageFragment}
   }
 `
@@ -97,15 +98,34 @@ export const queryPostSlugData = defineQuery(/* groq */ `
     ...,
     "slug": slug.current,
     sport->{
-      _id, // KEEP THIS - CRUCIAL FOR COMPARISON
+      _id,
       "slug": slug.current,
-      title // ADDED: Fetch title for easier debugging
+      title
     },
     ${divisionFragment},
     ${conferencesFragment},
     ${postAuthorFragment},
     ${postImageFragment},
-    ${richTextFragment}
+    ${richTextFragment},
+    "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
+    "wordCount": length(pt::text(body)),
+    // grab similar posts based on sport, and conferences and NOT division
+    "relatedPosts": *[
+      _type == "post"
+      && _id != ^._id
+      && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)
+    ] | order(publishedAt desc, _createdAt desc) {
+      _id,
+      title,
+      publishedAt,
+      ${postImageFragment},
+      "slug": slug.current,
+      authors[]->{
+        _id,
+        name,
+        roles,
+      }
+    }[0...3]
   }
 `)
 
@@ -113,15 +133,7 @@ export const querySportsNews = defineQuery(/* groq */ `
   {
     "posts": *[_type == "post" && sport->title match $sport] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
       ...,
-      division->{
-        name,
-        "slug": slug.current,
-      },
-      conferences[]->{
-        shortName,
-        name,
-        "slug": slug.current,
-      },
+      ${postImageFragment},
       "slug": slug.current,
       "author": author->{name, "slug": slug.current},
     },
@@ -133,15 +145,7 @@ export const querySportsAndDivisionNews = defineQuery(/* groq */ `
   {
     "posts": *[_type == "post" && sport->title match $sport && division->slug.current == $division] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
       ...,
-      division->{
-        name,
-        "slug": slug.current,
-      },
-      conferences[]->{
-        shortName,
-        name,
-        "slug": slug.current,
-      },
+      ${postImageFragment},
       "slug": slug.current,
       "author": author->{name, "slug": slug.current},
     },
@@ -403,15 +407,7 @@ export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ 
       )
     ] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
       ...,
-      division->{ // Keep division projection if you need it for display
-        name,
-        "slug": slug.current
-      },
-      conferences[]->{
-        name,
-        "slug": slug.current,
-        shortName
-      },
+      ${postImageFragment},
       "slug": slug.current,
       "author": author->{name, "slug": slug.current},
       "authors": authors[]->{name, "slug": slug.current},
@@ -475,3 +471,23 @@ export const sportInfoBySlug = defineQuery(/* groq */ `
   _id,
   title,
 }`)
+
+export const authorBySlug = defineQuery(/* groq */ `
+  *[_type == "author" && slug.current == $slug && archived == false][0]{
+    ...,
+    "slug": slug.current,
+    ${imageFragment},
+  }
+`)
+
+export const postsByAuthor = defineQuery(/* groq */ `
+  *[_type == "author" && slug.current == $slug && archived == false][0]{
+    "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+      ...,
+      "slug": slug.current,
+      ${postImageFragment},
+      ${postAuthorFragment},
+    },
+    "totalPosts": count(*[_type == "post" && references(^._id)])
+  }
+`)

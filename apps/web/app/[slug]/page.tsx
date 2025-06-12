@@ -12,6 +12,7 @@ import CustomImage from '@/components/sanity-image'
 import { urlForImage } from '@/lib/sanity.image'
 
 import type { Metadata } from 'next'
+import ArticleCard from '@/components/article-card'
 
 interface PageProps {
   params: Promise<{
@@ -73,6 +74,13 @@ export async function generateMetadata({
           alt: pageData.mainImage.caption,
         },
       ],
+    },
+    other: {
+      'twitter:label1': 'Reading time',
+      'twitter:data1': pageData.estimatedReadingTime,
+    },
+    alternates: {
+      canonical: `/${pageData.slug}`,
     },
   }
 }
@@ -174,6 +182,31 @@ export default async function PostPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+      {data.relatedPosts.length > 0 && (
+        <section className="border-border border-t py-12 sm:py-16 lg:py-20 xl:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+                You Might Also Like
+              </h2>
+            </div>
+            <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-3 lg:mt-12 xl:gap-16">
+              {data.relatedPosts.map((morePost) => (
+                <ArticleCard
+                  key={morePost._id}
+                  title={morePost.title}
+                  date={morePost.publishedAt}
+                  image={morePost.mainImage}
+                  slug={morePost.slug}
+                  division={morePost.division}
+                  conferences={morePost.conferences}
+                  author={morePost.authors[0].name}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </>
   )
 }

@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { badgeVariants } from '@workspace/ui/components/badge'
 import { Separator } from '@workspace/ui/components/separator'
 
 import CustomImage from './sanity-image'

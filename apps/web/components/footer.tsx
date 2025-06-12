@@ -119,9 +119,9 @@ function Footer({ data, settingsData }: FooterProps) {
   const year = new Date().getFullYear()
 
   return (
-    <section className="mt-20 pb-8">
+    <footer className="mt-20 pb-8">
       <div className="container mx-auto">
-        <footer className="h-[500px] lg:h-auto">
+        <section className="h-[500px] lg:h-auto">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-10 px-4 text-center md:px-6 lg:flex-row lg:text-left">
             <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
               <div>
@@ -169,18 +169,10 @@ function Footer({ data, settingsData }: FooterProps) {
               <p>
                 © {year} {siteTitle}. All rights reserved.
               </p>
-              <ul className="flex justify-center gap-4 lg:justify-start">
-                <li className="hover:text-primary">
-                  <Link href="/terms">Terms and Conditions</Link>
-                </li>
-                <li className="hover:text-primary">
-                  <Link href="/privacy">Privacy Policy</Link>
-                </li>
-              </ul>
             </div>
           </div>
-        </footer>
+        </section>
       </div>
-    </section>
+    </footer>
   )
 }

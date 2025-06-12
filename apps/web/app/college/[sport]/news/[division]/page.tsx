@@ -124,7 +124,7 @@ export default async function Page({
         breadcrumbs={breadcrumbItems}
       />
       <section className="container pb-12">
-        <ArticleFeed articles={news.posts} sport={sport} />
+        <ArticleFeed articles={news.posts} />
         {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
       </section>
     </>

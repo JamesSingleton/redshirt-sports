@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "build": "sanity build",
     "deploy": "sanity deploy",
-    "type": "sanity schema extract && sanity typegen generate --enforce-required-fields"
+    "type": "sanity schema extract --enforce-required-fields && sanity typegen generate"
   },
   "dependencies": {
     "@portabletext/react": "^3.2.1",
@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^5.0.2",
-    "@types/react": "^19.1.7",
+    "@types/react": "^19.1.8",
     "eslint": "^9.28.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.4.1",

@@ -23,7 +23,7 @@
     "@sanity/asset-utils": "^2.2.1",
     "@sanity/client": "^7.5.0",
     "@sanity/image-url": "^1.1.0",
-    "@sentry/nextjs": "^9.28.0",
+    "@sentry/nextjs": "^9.28.1",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tanstack/react-virtual": "^3.13.10",
     "@upstash/ratelimit": "^2.0.5",
@@ -51,20 +51,20 @@
     "server-only": "^0.0.1",
     "sonner": "^2.0.5",
     "svix": "^1.67.0",
-    "zod": "^3.25.58"
+    "zod": "^3.25.62"
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^24.0.0",
-    "@types/react": "19.1.7",
+    "@types/node": "^24.0.1",
+    "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
     "babel-plugin-react-compiler": "19.1.0-rc.2",
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.28.0",
-    "postcss": "^8.5.4",
-    "tailwindcss": "^4.1.8",
+    "postcss": "^8.5.5",
+    "tailwindcss": "^4.1.10",
     "typescript": "^5.8.3"
   }
 }
