@@ -1,7 +1,7 @@
 import type {
-  Article,
   ContactPoint,
   ImageObject,
+  NewsArticle,
   Organization,
   Person,
   WebPage,
@@ -9,8 +9,9 @@ import type {
   WithContext,
 } from 'schema-dts'
 
-import { urlFor } from '@/lib/sanity/client'
+import { urlFor, client } from '@/lib/sanity/client'
 import { getBaseUrl } from '@/lib/get-base-url'
+import { querySettingsData } from '@/lib/sanity/query'
 
 interface RichTextChild {
   _type: string
@@ -26,22 +27,10 @@ interface RichTextBlock {
   _key: string
 }
 
-// Utility function to safely extract plain text from rich text blocks
-function extractPlainTextFromRichText(richText: RichTextBlock[] | null | undefined): string {
-  if (!Array.isArray(richText)) return ''
+const baseUrl = getBaseUrl()
 
-  return richText
-    .filter((block) => block._type === 'block' && Array.isArray(block.children))
-    .map(
-      (block) =>
-        block.children
-          ?.filter((child) => child._type === 'span' && Boolean(child.text))
-          .map((child) => child.text)
-          .join('') ?? '',
-    )
-    .join(' ')
-    .trim()
-}
+export const organizationId = `${baseUrl}/#organization`
+export const websiteId = `${baseUrl}/#website`
 
 export function JsonLdScript<T>({ data, id }: { data: T; id: string }) {
   return (
@@ -63,21 +52,19 @@ export function buildSafeImageUrl(image?: { asset?: { _ref: string } }) {
     .url()
 }
 
-export function ArticleJsonLd({ article }) {
+export function ArticleJsonLd({ article }: { article: any }) {
   if (!article) return null
 
-  const baseUrl = getBaseUrl()
   const articleUrl = `${baseUrl}/${article.slug}`
   const imageUrl = buildSafeImageUrl(article.mainImage)
 
-  const articleJsonLd: WithContext<Article> = {
+  const articleJsonLd: WithContext<NewsArticle> = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
-    headline: article.title,
-    description: article.excerpt,
-    image: imageUrl ? [imageUrl] : undefined,
+    '@id': `${articleUrl}#article`,
+    isPartOf: { '@id': articleUrl },
     author: article.authors
-      ? article.authors.map((author) => {
+      ? article.authors.map((author: any) => {
           return {
             '@type': 'Person',
             name: author.name,
@@ -85,23 +72,43 @@ export function ArticleJsonLd({ article }) {
           } as Person
         })
       : [],
-    publisher: {
-      '@type': 'Organization',
-      name: 'Redshirt Sports',
-    } as Organization,
+    headline: article.title,
     datePublished: new Date(article.publishedAt).toISOString(),
     dateModified: new Date(article._updatedAt).toISOString(),
-    url: articleUrl,
+    description: article.excerpt,
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': articleUrl,
     } as WebPage,
+    wordCount: article.wordCount,
+    publisher: { '@id': organizationId },
+    image: [
+      {
+        '@type': 'ImageObject',
+        url: imageUrl,
+        contentUrl: imageUrl,
+        caption: article.mainImage.alt,
+        width: '1920',
+        height: '1080',
+      } as ImageObject,
+    ],
+    thumbnailUrl: imageUrl,
+    url: articleUrl,
+    inLanguage: 'en-US',
+    copyrightYear: new Date().getFullYear(),
+    copyrightHolder: { '@id': organizationId },
+    potentialAction: [
+      {
+        '@type': 'ReadAction',
+        target: [articleUrl],
+      },
+    ],
   }
 
   return <JsonLdScript data={articleJsonLd} id={`article-json-ld-${article.slug}`} />
 }
 
-export function OrganizationJsonLd({ settings }) {
+export function OrganizationJsonLd({ settings }: { settings: any }) {
   if (!settings) return null
 
   const baseUrl = getBaseUrl()
@@ -126,7 +133,7 @@ export function OrganizationJsonLd({ settings }) {
       ? ({
           '@type': 'ContactPoint',
           email: settings.contactEmail,
-          contactType: 'customer service',
+          contactType: 'media inquiries',
         } as ContactPoint)
       : undefined,
     sameAs: socialLinks?.length ? socialLinks : undefined,
@@ -135,7 +142,7 @@ export function OrganizationJsonLd({ settings }) {
   return <JsonLdScript data={organizationJsonLd} id="organization-json-ld" />
 }
 
-export function WebSiteJsonLd({ settings }) {
+export function WebSiteJsonLd({ settings }: { settings: any }) {
   if (!settings) return null
 
   const baseUrl = getBaseUrl()
@@ -143,19 +150,48 @@ export function WebSiteJsonLd({ settings }) {
   const webSiteJsonLd: WithContext<WebSite> = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': websiteId,
     url: baseUrl,
-    name: settings.name || 'Redshirt Sports',
+    name: settings.siteTitle,
     description: settings.siteDescription || undefined,
-    // potentialAction: {
-    //   '@type': 'SearchAction',
-    //   target: `${baseUrl}/search?q={search_term_string}`,
-    //   'query-input': 'required name=search_term_string',
-    // },
+    publisher: {
+      '@id': organizationId,
+    },
+    potentialAction: [
+      {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${baseUrl}/search?q={search_term_string}`,
+        },
+        // @ts-expect-error query-input is a valid property
+        'query-input': {
+          '@type': 'PropertyValueSpecification',
+          valueRequired: true,
+          valueName: 'search_term_string',
+        },
+      },
+    ],
   }
 
   return <JsonLdScript data={webSiteJsonLd} id="website-json-ld" />
 }
 
+export function WebPageJsonLd() {
+  const webPageJsonLd: WithContext<WebPage> = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+  }
+  return <JsonLdScript data={webPageJsonLd} id="webpage-json-ld" />
+}
+
 export async function CombinedJsonLd({}) {
-  return <></>
+  const res = await client.fetch(querySettingsData)
+
+  return (
+    <>
+      <OrganizationJsonLd settings={res} />
+      <WebSiteJsonLd settings={res} />
+    </>
+  )
 }

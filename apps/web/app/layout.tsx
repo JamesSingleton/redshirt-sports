@@ -13,6 +13,7 @@ import { FooterServer, FooterSkeleton } from '@/components/footer'
 import { SanityLive } from '@/lib/sanity/live'
 import { constructMetadata } from '@/utils/construct-metadata'
 import { sanityFetch } from '@/lib/sanity/live'
+import { CombinedJsonLd } from '@/components/json-ld'
 
 import type { Metadata, Viewport } from 'next'
 
@@ -132,6 +133,7 @@ export default async function RootLayout({
         <SpeedInsights />
         <Toaster />
         {/* <SanityLive /> */}
+        <CombinedJsonLd />
       </body>
     </html>
   )

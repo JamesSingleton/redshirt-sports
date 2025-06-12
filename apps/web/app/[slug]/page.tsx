@@ -11,11 +11,11 @@ import { LargeArticleSocialShare } from '@/components/posts/article-share'
 import CustomImage from '@/components/sanity-image'
 import { urlForImage } from '@/lib/sanity.image'
 import ArticleCard from '@/components/article-card'
-import { buildSafeImageUrl, JsonLdScript } from '@/components/json-ld'
+import { ArticleJsonLd, buildSafeImageUrl, JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
 
 import type { Metadata } from 'next'
-import type { Graph, ListItem } from 'schema-dts'
+import type { ListItem, WithContext, WebPage } from 'schema-dts'
 
 interface PageProps {
   params: Promise<{
@@ -94,135 +94,58 @@ export default async function PostPage({ params }: PageProps) {
   const { slug } = await params
   const { data } = await fetchPostSlugData(slug)
   const baseUrl = getBaseUrl()
-  const organizationId = `${baseUrl}/#organization`
-  const websiteId = `${baseUrl}/#website`
 
   if (!data) {
     notFound()
   }
 
   const articleUrl = `${baseUrl}/${data.slug}`
-  const articleId = `${articleUrl}#article`
   const imageId = `${articleUrl}#primaryImage`
   const articleImageUrl = buildSafeImageUrl(data.mainImage)
 
-  const breadcrumbItems: ListItem[] = [
-    {
-      '@type': 'ListItem',
-      position: 1,
-      name: 'Home',
-      item: baseUrl,
-    },
-    {
-      '@type': 'ListItem',
-      position: 2,
-      name: data.title,
-      item: articleUrl,
-    },
-  ]
-
-  const graph: Graph = {
+  const webPageJsonLd: WithContext<WebPage> = {
     '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'NewsArticle',
-        '@id': articleId,
-        isPartOf: { '@id': articleUrl },
-        author: data.authors.map((author: any) => ({
-          '@type': 'Person',
-          name: author.name,
-          url: author.slug ? `${baseUrl}/${author.slug}` : undefined,
-        })),
-        headline: data.title,
-        dateCreated: new Date(data.publishedAt).toISOString(),
-        datePublished: new Date(data.publishedAt).toISOString(),
-        dateModified: new Date(data._updatedAt).toISOString(),
-        description: data.excerpt,
-        mainEntityOfPage: { '@id': articleUrl },
-        wordCount: data.wordCount,
-        publisher: { '@id': organizationId },
-        image: { '@id': imageId },
-        thumbnailUrl: articleImageUrl,
-        inLanguage: 'en-US',
-        copyrightYear: new Date().getFullYear(),
-        copyrightHolder: { '@id': organizationId },
-      },
-      {
-        '@type': 'WebPage',
-        '@id': articleUrl,
-        url: articleUrl,
-        name: `${data.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-        isPartOf: { '@id': websiteId },
-        primaryImageOfPage: { '@id': imageId },
-        thumbnailUrl: articleImageUrl,
-        datePublished: new Date(data.publishedAt).toISOString(),
-        dateModified: new Date(data._updatedAt).toISOString(),
-        description: data.excerpt,
-        breadcrumb: {
-          '@type': 'BreadcrumbList',
-          '@id': `${articleUrl}#breadcrumb`,
-          itemListElement: breadcrumbItems,
+    '@type': 'WebPage',
+    '@id': articleUrl,
+    url: articleUrl,
+    name: `${data.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+    isPartOf: { '@id': websiteId },
+    primaryImageOfPage: { '@id': imageId },
+    thumbnailUrl: articleImageUrl,
+    datePublished: new Date(data.publishedAt).toISOString(),
+    dateModified: new Date(data._updatedAt).toISOString(),
+    description: data.excerpt,
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      '@id': `${articleUrl}#breadcrumb`,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: baseUrl,
         },
-        inLanguage: 'en-US',
-        potentialAction: [
-          {
-            '@type': 'ReadAction',
-            target: [articleUrl],
-          },
-        ],
-      },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: data.title,
+          item: articleUrl,
+        },
+      ],
+    },
+    inLanguage: 'en-US',
+    potentialAction: [
       {
-        '@type': 'ImageObject',
-        inLanguage: 'en-US',
-        '@id': imageId,
-        url: articleImageUrl,
-        contentUrl: articleImageUrl,
-        caption: data.mainImage.alt,
-        width: '1920',
-        height: '1080',
+        '@type': 'ReadAction',
+        target: [articleUrl],
       },
-      {
-        '@type': 'WebSite',
-        '@id': websiteId,
-        url: baseUrl,
-        name: process.env.NEXT_PUBLIC_APP_NAME,
-        publisher: { '@id': organizationId },
-        potentialAction: [
-          {
-            '@type': 'SearchAction',
-            target: {
-              '@type': 'EntryPoint',
-              urlTemplate: `${baseUrl}/search?q={search_term_string}`,
-            },
-            'query-input': {
-              '@type': 'PropertyValueSpecification',
-              valueRequired: true,
-              valueName: 'search_term_string',
-            },
-          },
-        ],
-      },
-      {
-        '@type': 'Organization',
-        '@id': organizationId,
-        name: process.env.NEXT_PUBLIC_APP_NAME,
-        url: baseUrl,
-      },
-      data.authors.map((author: any) => ({
-        '@type': 'Person',
-        '@id': `${baseUrl}/authors/${author.slug}`,
-        name: author.name,
-        image: buildSafeImageUrl(author.image),
-        sameAs: author.socialMedia?.map((link: any) => link.url) || [],
-        url: `${baseUrl}/authors/${author.slug}`,
-        description: author.biography,
-      })),
     ],
   }
 
   return (
     <>
-      <JsonLdScript data={graph} id={`article-json-ld-${data.slug}`} />
+      <ArticleJsonLd article={data} />
+      <JsonLdScript data={webPageJsonLd} id={`article-webpage-json-ld-${data.slug}`} />
       <section className="mt-8 pb-8">
         <div className="container">
           <h1

@@ -56,8 +56,8 @@ const divisionHeader = [
 
 export default async function VotePage({ params }: { params: Promise<{ division: string }> }) {
   const { division } = await params
-  const votingWeek = await getCurrentWeek()
-  const { year } = await getCurrentSeason()
+  const [votingWeek, { year }] = await Promise.all([getCurrentWeek(), getCurrentSeason()])
+
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
   const { userId } = await auth()
 

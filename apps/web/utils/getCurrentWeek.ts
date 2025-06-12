@@ -20,7 +20,7 @@ export async function getCurrentWeek(): Promise<number> {
     `https://site.api.espn.com/apis/common/v3/sports/football/college-football/seasons?startingseason=${year}`,
   ).then((res) => res.json())
 
-  currentSeasonData = espnBody.seasons[0]
+  currentSeasonData = espnBody.seasons[0]!
   const currentSeasonEndDate = new Date(currentSeasonData.endDate)
 
   if (currentSeasonData.types.length) {

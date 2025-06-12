@@ -10,11 +10,14 @@ import { Org, Web } from '@/lib/ldJson'
 import { urlForImage } from '@/lib/sanity.image'
 import ArticleFeed from '@/components/article-feed'
 import { constructMetadata } from '@/utils/construct-metadata'
+import { queryArticlesBySportDivisionAndConference, sportInfoBySlug } from '@/lib/sanity/query'
+import { sanityFetch } from '@/lib/sanity/live'
+import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
+import { getBaseUrl } from '@/lib/get-base-url'
 
 import type { Metadata } from 'next'
 import type { Post } from '@/types'
-import { sanityFetch } from '@/lib/sanity/live'
-import { queryArticlesBySportDivisionAndConference, sportInfoBySlug } from '@/lib/sanity/query'
+import type { CollectionPage, WithContext } from 'schema-dts'
 
 async function fetchSportNewsForDivisionAndConference({
   sport,
@@ -127,6 +130,7 @@ export default async function Page({
   const { sport, division, conference } = await params
   const { page } = await searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
+  const baseUrl = getBaseUrl()
 
   const [newsResponse, sportInfoResponse, divisionNameResponse] = await Promise.all([
     fetchSportNewsForDivisionAndConference({
@@ -153,85 +157,22 @@ export default async function Page({
     ? `${news.conferenceInfo.shortName} ${sportInfo.title} News`
     : `${news.conferenceInfo.name} ${sportInfo.title} News`
 
-  const jsonLd: Graph = {
+  const collectionPageJsonLd: WithContext<CollectionPage> = {
     '@context': 'https://schema.org',
-    '@graph': [
-      Org,
-      Web,
-      {
-        '@type': 'WebPage',
-        '@id': `${HOME_DOMAIN}/college/${sport}/news/${division}/${conference}${
-          pageIndex ? `?page=${pageIndex}` : ''
-        }#webpage`,
-        url: `${HOME_DOMAIN}/college/${sport}/news/${division}/${conference}${
-          pageIndex ? `?page=${pageIndex}` : ''
-        }`,
-        breadcrumb: {
-          '@id': `${HOME_DOMAIN}/college/${sport}/news/${division}/${conference}#breadcrumb`,
-        },
-      },
-      {
-        '@type': 'CollectionPage',
-        mainEntity: news.posts.map((post: Post) => ({
-          '@type': 'NewsArticle',
-          headline: post.title,
-          description: post.excerpt,
-          image: {
-            '@type': 'ImageObject',
-            url: urlForImage(post.mainImage).width(1200).height(630).url(),
-            width: 1200,
-            height: 630,
-            alt: post.mainImage.caption,
-          },
-          datePublished: post.publishedAt,
-          dateModified: post._updatedAt,
-          author: {
-            '@type': 'Person',
-            name: post.author.name,
-            url: `${HOME_DOMAIN}/authors/${post.author.slug}`,
-          },
-          publisher: {
-            '@id': `${HOME_DOMAIN}#organization`,
-          },
-        })),
-      },
-      {
-        '@type': 'BreadcrumbList',
-        '@id': `${HOME_DOMAIN}/college/${sport}/news/${division}/${conference}#breadcrumb`,
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Home',
-            item: HOME_DOMAIN,
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: 'News',
-            item: `${HOME_DOMAIN}/college/news`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: 'News',
-            item: `${HOME_DOMAIN}/college/${sport}/news`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 4,
-            name: divisionOrSubgroupingName,
-            item: `${HOME_DOMAIN}/college/${sport}/news/${division}`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 5,
-            name: news.conferenceInfo.shortName ?? news.conferenceInfo.name,
-            item: `${HOME_DOMAIN}/college/${sport}/news/${division}/${conference}`,
-          },
-        ],
-      },
-    ],
+    '@type': 'CollectionPage',
+    name: title,
+    description: `Stay informed with breaking ${news.conferenceInfo.shortName ?? news.conferenceInfo.name} ${divisionOrSubgroupingName} ${sportInfo.title} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
+    url: `${baseUrl}/college/${sport}/news/${division}/${conference}${page ? `?page=${page}` : ''}`,
+    isPartOf: { '@id': websiteId, '@type': 'WebSite' },
+    publisher: { '@id': organizationId, '@type': 'Organization' },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: news.posts.map((post: Post, index: number) => ({
+        '@id': `${baseUrl}/${post.slug}#article`,
+      })),
+      numberOfItems: news.totalPosts,
+      url: `${baseUrl}/college/${sport}/news/${division}/${conference}`,
+    },
   }
 
   const breadcrumbItems = [
@@ -255,9 +196,9 @@ export default async function Page({
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      <JsonLdScript
+        data={collectionPageJsonLd}
+        id={`collection-page-${sport}-${division}-${conference}`}
       />
       <PageHeader title={title} breadcrumbs={breadcrumbItems} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">

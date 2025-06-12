@@ -1,6 +1,18 @@
 import { defineQuery } from 'next-sanity'
 import { perPage } from '../constants'
 
+export const querySettingsData = defineQuery(/* groq */ `
+  *[_type == "settings"][0]{
+    _id,
+    _type,
+    siteTitle,
+    siteDescription,
+    "logo": logo.asset->url + "?w=80&h=40&dpr=3&fit=max",
+    "socialLinks": socialLinks,
+    "contactEmail": contactEmail,
+  }
+`)
+
 const markDefsFragment = /* groq */ `
   markDefs[]{
     ...,
