@@ -1,13 +1,11 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { Graph } from 'schema-dts'
+import { stegaClean } from 'next-sanity'
 
 import PageHeader from '@/components/page-header'
 import PaginationControls from '@/components/pagination-controls'
 import { getConferenceInfoBySlug } from '@/lib/sanity.fetch'
-import { HOME_DOMAIN, perPage } from '@/lib/constants'
-import { Org, Web } from '@/lib/ldJson'
-import { urlForImage } from '@/lib/sanity.image'
+import { perPage } from '@/lib/constants'
 import ArticleFeed from '@/components/article-feed'
 import { constructMetadata } from '@/utils/construct-metadata'
 import { queryArticlesBySportDivisionAndConference, sportInfoBySlug } from '@/lib/sanity/query'
@@ -153,15 +151,17 @@ export default async function Page({
 
   const totalPages = Math.ceil(news.totalPosts / perPage)
 
+  const sportTitle = stegaClean(sportInfo.title)
+
   const title = news.conferenceInfo.shortName
-    ? `${news.conferenceInfo.shortName} ${sportInfo.title} News`
-    : `${news.conferenceInfo.name} ${sportInfo.title} News`
+    ? `${news.conferenceInfo.shortName} ${sportTitle} News`
+    : `${news.conferenceInfo.name} ${sportTitle} News`
 
   const collectionPageJsonLd: WithContext<CollectionPage> = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: title,
-    description: `Stay informed with breaking ${news.conferenceInfo.shortName ?? news.conferenceInfo.name} ${divisionOrSubgroupingName} ${sportInfo.title} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
+    description: `Stay informed with breaking ${news.conferenceInfo.shortName ?? news.conferenceInfo.name} ${stegaClean(divisionOrSubgroupingName)} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
     url: `${baseUrl}/college/${sport}/news/${division}/${conference}${page ? `?page=${page}` : ''}`,
     isPartOf: { '@id': websiteId, '@type': 'WebSite' },
     publisher: { '@id': organizationId, '@type': 'Organization' },
@@ -172,6 +172,41 @@ export default async function Page({
       })),
       numberOfItems: news.totalPosts,
       url: `${baseUrl}/college/${sport}/news/${division}/${conference}`,
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: baseUrl,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'News',
+          item: `${baseUrl}/college/news`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: sportTitle,
+          item: `${baseUrl}/college/${sport}/news`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 4,
+          name: stegaClean(divisionOrSubgroupingName),
+          item: `${baseUrl}/college/${sport}/news/${division}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 5,
+          name: news.conferenceInfo.shortName ?? news.conferenceInfo.name,
+          item: `${baseUrl}/college/${sport}/news/${division}/${conference}`,
+        },
+      ],
     },
   }
 
