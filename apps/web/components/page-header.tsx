@@ -1,12 +1,4 @@
 import React from 'react'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@workspace/ui/components/breadcrumb'
 import { BreadcrumbProps } from '@/types'
 import BreadCrumbs from './breadcrumbs'
 

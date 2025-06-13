@@ -84,7 +84,6 @@ export async function generateMetadata({
   const sportTitle = sportInfoResponse?.data?.title
   const divisionName = divisionDisplayName.data?.displayName
 
-  // Handle missing data gracefully
   if (!sportTitle || !divisionName) {
     return {
       title: `Sports News | ${process.env.NEXT_PUBLIC_APP_NAME}`,
@@ -92,14 +91,11 @@ export async function generateMetadata({
     }
   }
 
-  // Base content for title and description
   const baseTitle = `Latest ${divisionName} ${sportTitle} News`
   const baseDescription = `Complete ${divisionName} ${sportTitle} coverage including breaking news, game analysis, player spotlights, and coaching updates. Your go-to source for ${sportTitle} insights.`
 
-  // Base canonical URL (without page parameter)
   const baseCanonical = `/college/${sport}/news/${division}`
 
-  // Handle pagination
   const pageNumber = page ? parseInt(page, 10) : 1
   const isFirstPage = !page || pageNumber <= 1
 
@@ -108,12 +104,10 @@ export async function generateMetadata({
   let canonical: string
 
   if (isFirstPage) {
-    // Page 1 or no page parameter - use base URLs without ?page=1
     title = `${baseTitle} | ${process.env.NEXT_PUBLIC_APP_NAME}`
     description = baseDescription
     canonical = baseCanonical
   } else {
-    // Page 2+ - include page number in title/description and canonical
     title = `${baseTitle} - Page ${pageNumber} | ${process.env.NEXT_PUBLIC_APP_NAME}`
     description = `More ${divisionName} ${sportTitle} stories on Page ${pageNumber}. Continued coverage of recruiting updates, game previews, injury reports, and in-depth team analysis.`
     canonical = `${baseCanonical}?page=${pageNumber}`
@@ -127,11 +121,23 @@ export async function generateMetadata({
       description,
       type: 'website',
       siteName: process.env.NEXT_PUBLIC_APP_NAME,
+      images: [
+        {
+          url: 'https://cdn.sanity.io/images/8pbt9f8w/production/429b65d83baa82c7178798a398fdf3ee28972fe6-1200x630.png',
+          width: 1200,
+          height: 630,
+        },
+      ],
+      url: `${getBaseUrl()}/college/${sport}/news/${division}${page ? `?page=${page}` : ''}`,
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: [
+        'https://cdn.sanity.io/images/8pbt9f8w/production/429b65d83baa82c7178798a398fdf3ee28972fe6-1200x630.png',
+      ],
+      site: '@_redshirtsports',
     },
     alternates: {
       canonical,

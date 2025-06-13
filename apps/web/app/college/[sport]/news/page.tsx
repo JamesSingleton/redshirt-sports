@@ -81,13 +81,13 @@ export default async function Page({
   const { page } = await searchParams
   const pageIndex = page !== undefined ? parseInt(page) : 1
 
-  const [newsResponse, sportDataResponse] = await Promise.all([
+  const [newsResponse, sportInfoResponse] = await Promise.all([
     fetchSportsNews({ sport, pageIndex }),
     fetchSportTitle(sport),
   ])
 
   const news = newsResponse.data
-  const sportData = sportDataResponse.data
+  const sportInfo = sportInfoResponse?.data
 
   if (!news || !news.posts || !news.posts.length) {
     notFound()
@@ -101,14 +101,14 @@ export default async function Page({
       href: '/college/news',
     },
     {
-      title: sportData.title,
+      title: sportInfo!.title,
       href: `/college/${sport}/news`,
     },
   ]
 
   return (
     <>
-      <PageHeader title={`College ${sportData.title} News`} breadcrumbs={breadcrumbItems} />
+      <PageHeader title={`College ${sportInfo?.title} News`} breadcrumbs={breadcrumbItems} />
       <section className="container pb-12">
         <ArticleFeed articles={news.posts} />
         {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}

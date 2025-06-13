@@ -5,7 +5,7 @@ import { type Metadata } from 'next'
 export function constructMetadata({
   title = `${process.env.NEXT_PUBLIC_APP_NAME} - Comprehensive FCS, FBS, D2, D3 Football Coverage`,
   description = `${process.env.NEXT_PUBLIC_APP_NAME} brings you the latest in FCS football, Top 25 voting, and transfer news. Get insights and updates on FBS, D2, and D3 football as well.`,
-  image = new URL('/images/og-images/default-og-image.png', HOME_DOMAIN).toString(),
+  image = 'https://cdn.sanity.io/images/8pbt9f8w/production/429b65d83baa82c7178798a398fdf3ee28972fe6-1200x630.png',
   canonical = '/',
   ogType = 'website',
 }: {
