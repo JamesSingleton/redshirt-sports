@@ -92,7 +92,7 @@ export async function generateMetadata({
     fetchSportInfoBySlug(sport, { stega: false }),
   ])
 
-  if (!conferenceInfo || !sportTitle.data.title || !divisionDisplayName?.data) {
+  if (!conferenceInfo || !sportTitle.data?.title || !divisionDisplayName?.data) {
     return {}
   }
 
@@ -151,7 +151,7 @@ export default async function Page({
 
   const totalPages = Math.ceil(news.totalPosts / perPage)
 
-  const sportTitle = stegaClean(sportInfo.title)
+  const sportTitle = stegaClean(sportInfo?.title)
 
   const title = news.conferenceInfo.shortName
     ? `${news.conferenceInfo.shortName} ${sportTitle} News`
@@ -216,7 +216,7 @@ export default async function Page({
       href: '/college/news',
     },
     {
-      title: sportInfo.title,
+      title: sportInfo?.title,
       href: `/college/${sport}/news`,
     },
     {

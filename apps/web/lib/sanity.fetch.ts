@@ -3,7 +3,6 @@ import 'server-only'
 import { client } from '@/lib/sanity.client'
 import {
   allAuthors,
-  authorBySlug,
   authorsPosts,
   conferenceBySlugQuery,
   conferencesAuthorHasWrittenFor,
@@ -202,14 +201,6 @@ export function getConferenceInfoBySlug(slug: string) {
     }`,
     params: { slug },
     tags: [`conference:${slug}`],
-  })
-}
-
-export function getAuthorBySlug(slug: string) {
-  return sanityFetch<Author>({
-    query: authorBySlug,
-    params: { slug },
-    tags: [`author:${slug}`],
   })
 }
 

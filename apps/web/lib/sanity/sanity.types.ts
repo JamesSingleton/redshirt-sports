@@ -13,61 +13,6 @@
  */
 
 // Source: schema.json
-export type SanityImagePaletteSwatch = {
-  _type: 'sanity.imagePaletteSwatch'
-  background?: string
-  foreground?: string
-  population?: number
-  title?: string
-}
-
-export type SanityImagePalette = {
-  _type: 'sanity.imagePalette'
-  darkMuted?: SanityImagePaletteSwatch
-  lightVibrant?: SanityImagePaletteSwatch
-  darkVibrant?: SanityImagePaletteSwatch
-  vibrant?: SanityImagePaletteSwatch
-  dominant?: SanityImagePaletteSwatch
-  lightMuted?: SanityImagePaletteSwatch
-  muted?: SanityImagePaletteSwatch
-}
-
-export type SanityImageDimensions = {
-  _type: 'sanity.imageDimensions'
-  height?: number
-  width?: number
-  aspectRatio?: number
-}
-
-export type SanityFileAsset = {
-  _id: string
-  _type: 'sanity.fileAsset'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  originalFilename?: string
-  label?: string
-  title?: string
-  description?: string
-  altText?: string
-  sha1hash?: string
-  extension?: string
-  mimeType?: string
-  size?: number
-  assetId?: string
-  uploadId?: string
-  path?: string
-  url?: string
-  source?: SanityAssetSourceData
-}
-
-export type Geopoint = {
-  _type: 'geopoint'
-  lat?: number
-  lng?: number
-  alt?: number
-}
-
 export type Twitter = {
   _type: 'twitter'
   id?: string
@@ -91,7 +36,7 @@ export type Top25Table = {
 
 export type SocialMedia = {
   _type: 'socialMedia'
-  name?:
+  name:
     | 'Email'
     | 'Twitter'
     | 'Facebook'
@@ -121,25 +66,12 @@ export type BlockContent = Array<
             _key: string
           }
         | {
-            reference?:
-              | {
-                  _ref: string
-                  _type: 'reference'
-                  _weak?: boolean
-                  [internalGroqTypeReferenceTo]?: 'post'
-                }
-              | {
-                  _ref: string
-                  _type: 'reference'
-                  _weak?: boolean
-                  [internalGroqTypeReferenceTo]?: 'division'
-                }
-              | {
-                  _ref: string
-                  _type: 'reference'
-                  _weak?: boolean
-                  [internalGroqTypeReferenceTo]?: 'conference'
-                }
+            reference?: {
+              _ref: string
+              _type: 'reference'
+              _weak?: boolean
+              [internalGroqTypeReferenceTo]?: 'post'
+            }
             _type: 'internalLink'
             _key: string
           }
@@ -158,8 +90,8 @@ export type BlockContent = Array<
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
-      caption?: string
-      attribution?: string
+      caption: string
+      attribution: string
       _type: 'image'
       _key: string
     }
@@ -180,9 +112,9 @@ export type Settings = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  label?: string
-  siteTitle?: string
-  siteDescription?: string
+  label: string
+  siteTitle: string
+  siteDescription: string
   logo?: {
     asset?: {
       _ref: string
@@ -209,11 +141,11 @@ export type Navbar = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  label?: string
+  label: string
   columns?: Array<
     | {
         title?: string
-        links?: Array<{
+        links: Array<{
           name?: string
           description?: string
           url?: CustomUrl
@@ -238,7 +170,7 @@ export type Footer = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  label?: string
+  label: string
   subtitle?: string
   columns?: Array<{
     title?: string
@@ -255,7 +187,7 @@ export type Footer = {
 
 export type CustomUrl = {
   _type: 'customUrl'
-  type?: 'internal' | 'external'
+  type: 'internal' | 'external'
   openInNewTab?: boolean
   external?: string
   href?: string
@@ -288,15 +220,40 @@ export type CustomUrl = {
   internalUrl?: string
 }
 
+export type Membership = {
+  _id: string
+  _type: 'membership'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  school: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'school'
+  }
+  conference: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'conference'
+  }
+  sport: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'sport'
+  }
+}
+
 export type Tag = {
   _id: string
   _type: 'tag'
   _createdAt: string
   _updatedAt: string
   _rev: string
-  name?: string
-  slug?: Slug
-  description?: string
+  name: string
+  slug: Slug
 }
 
 export type School = {
@@ -305,11 +262,11 @@ export type School = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  name?: string
+  name: string
   shortName?: string
   abbreviation?: string
   nickname?: string
-  image?: {
+  image: {
     asset?: {
       _ref: string
       _type: 'reference'
@@ -319,17 +276,17 @@ export type School = {
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
+    caption: string
     _type: 'image'
   }
   top25VotingEligible?: boolean
-  division?: {
+  division: {
     _ref: string
     _type: 'reference'
     _weak?: boolean
     [internalGroqTypeReferenceTo]?: 'division'
   }
-  conference?: {
+  conference: {
     _ref: string
     _type: 'reference'
     _weak?: boolean
@@ -343,8 +300,8 @@ export type Redirect = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  source?: string
-  destination?: string
+  source: string
+  destination: string
   permanent?: boolean
 }
 
@@ -354,9 +311,9 @@ export type Legal = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  title?: string
-  slug?: Slug
-  body?: BlockContent
+  title: string
+  slug: Slug
+  body: BlockContent
 }
 
 export type Post = {
@@ -365,15 +322,15 @@ export type Post = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  title?: string
-  slug?: Slug
-  author?: {
+  title: string
+  slug: Slug
+  author: {
     _ref: string
     _type: 'reference'
     _weak?: boolean
     [internalGroqTypeReferenceTo]?: 'author'
   }
-  authors?: Array<{
+  authors: Array<{
     _ref: string
     _type: 'reference'
     _weak?: boolean
@@ -381,7 +338,7 @@ export type Post = {
     [internalGroqTypeReferenceTo]?: 'author'
   }>
   publishedAt?: string
-  mainImage?: {
+  mainImage: {
     asset?: {
       _ref: string
       _type: 'reference'
@@ -391,8 +348,8 @@ export type Post = {
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
-    attribution?: string
+    caption: string
+    attribution: string
     _type: 'image'
   }
   sport?: {
@@ -406,6 +363,12 @@ export type Post = {
     _type: 'reference'
     _weak?: boolean
     [internalGroqTypeReferenceTo]?: 'division'
+  }
+  sportSubgrouping?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'sportSubgrouping'
   }
   conferences?: Array<{
     _ref: string
@@ -429,34 +392,8 @@ export type Post = {
     [internalGroqTypeReferenceTo]?: 'tag'
   }>
   featuredArticle?: boolean
-  excerpt?: string
-  body?: BlockContent
-  seoTitle?: string
-  seoDescription?: string
-  seoImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    _type: 'image'
-  }
-  ogTitle?: string
-  ogDescription?: string
-}
-
-export type Sport = {
-  _id: string
-  _type: 'sport'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  title?: string
-  slug?: Slug
+  excerpt: string
+  body: BlockContent
   seoTitle?: string
   seoDescription?: string
   seoImage?: {
@@ -481,10 +418,10 @@ export type Conference = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  name?: string
+  name: string
   shortName?: string
-  slug?: Slug
-  description?: string
+  abbreviation?: string
+  slug: Slug
   logo?: {
     asset?: {
       _ref: string
@@ -498,12 +435,63 @@ export type Conference = {
     alt?: string
     _type: 'image'
   }
-  division?: {
+  division: {
     _ref: string
     _type: 'reference'
     _weak?: boolean
     [internalGroqTypeReferenceTo]?: 'division'
   }
+  sports?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'sport'
+  }>
+  sportSubdivisionAffiliations?: Array<{
+    sport: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sport'
+    }
+    subgrouping: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sportSubgrouping'
+    }
+    _type: 'sportSubgroupingAffiliation'
+    _key: string
+  }>
+}
+
+export type SportSubgrouping = {
+  _id: string
+  _type: 'sportSubgrouping'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name: string
+  shortName?: string
+  slug?: Slug
+  applicableSports: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'sport'
+  }>
+}
+
+export type Sport = {
+  _id: string
+  _type: 'sport'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title: string
+  slug: Slug
 }
 
 export type Division = {
@@ -512,11 +500,11 @@ export type Division = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  name?: string
-  title?: string
-  heading?: string
-  longName?: string
-  slug?: Slug
+  name: string
+  title: string
+  heading: string
+  longName: string
+  slug: Slug
   description?: string
   logo?: {
     asset?: {
@@ -528,16 +516,9 @@ export type Division = {
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    alt?: string
+    alt: string
     _type: 'image'
   }
-  conferences?: Array<{
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    _key: string
-    [internalGroqTypeReferenceTo]?: 'conference'
-  }>
 }
 
 export type Author = {
@@ -546,10 +527,10 @@ export type Author = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  name?: string
-  slug?: Slug
+  name: string
+  slug: Slug
   archived?: boolean
-  roles?: Array<
+  roles: Array<
     | 'Contributor'
     | 'Correspondent'
     | 'Editor'
@@ -561,7 +542,7 @@ export type Author = {
     | 'Senior Writer'
     | 'Transfer Portal Analyst'
   >
-  image?: {
+  image: {
     asset?: {
       _ref: string
       _type: 'reference'
@@ -573,69 +554,12 @@ export type Author = {
     crop?: SanityImageCrop
     _type: 'image'
   }
-  biography?: string
-  socialMedia?: Array<
+  biography: string
+  socialMedia: Array<
     {
       _key: string
     } & SocialMedia
   >
-}
-
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop'
-  top?: number
-  bottom?: number
-  left?: number
-  right?: number
-}
-
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot'
-  x?: number
-  y?: number
-  height?: number
-  width?: number
-}
-
-export type SanityImageAsset = {
-  _id: string
-  _type: 'sanity.imageAsset'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  originalFilename?: string
-  label?: string
-  title?: string
-  description?: string
-  altText?: string
-  sha1hash?: string
-  extension?: string
-  mimeType?: string
-  size?: number
-  assetId?: string
-  uploadId?: string
-  path?: string
-  url?: string
-  metadata?: SanityImageMetadata
-  source?: SanityAssetSourceData
-}
-
-export type SanityAssetSourceData = {
-  _type: 'sanity.assetSourceData'
-  name?: string
-  id?: string
-  url?: string
-}
-
-export type SanityImageMetadata = {
-  _type: 'sanity.imageMetadata'
-  location?: Geopoint
-  dimensions?: SanityImageDimensions
-  palette?: SanityImagePalette
-  lqip?: string
-  blurHash?: string
-  hasAlpha?: boolean
-  isOpaque?: boolean
 }
 
 export type Table = {
@@ -659,12 +583,6 @@ export type MediaTag = {
   _updatedAt: string
   _rev: string
   name?: Slug
-}
-
-export type Slug = {
-  _type: 'slug'
-  current?: string
-  source?: string
 }
 
 export type SanityAssistInstructionTask = {
@@ -707,7 +625,7 @@ export type SanityAssistOutputField = {
 
 export type SanityAssistInstructionContext = {
   _type: 'sanity.assist.instruction.context'
-  reference?: {
+  reference: {
     _ref: string
     _type: 'reference'
     _weak?: boolean
@@ -740,7 +658,7 @@ export type AssistInstructionContext = {
 
 export type SanityAssistInstructionUserInput = {
   _type: 'sanity.assist.instruction.userInput'
-  message?: string
+  message: string
   description?: string
 }
 
@@ -802,12 +720,125 @@ export type SanityAssistSchemaTypeField = {
   >
 }
 
+export type SanityImagePaletteSwatch = {
+  _type: 'sanity.imagePaletteSwatch'
+  background?: string
+  foreground?: string
+  population?: number
+  title?: string
+}
+
+export type SanityImagePalette = {
+  _type: 'sanity.imagePalette'
+  darkMuted?: SanityImagePaletteSwatch
+  lightVibrant?: SanityImagePaletteSwatch
+  darkVibrant?: SanityImagePaletteSwatch
+  vibrant?: SanityImagePaletteSwatch
+  dominant?: SanityImagePaletteSwatch
+  lightMuted?: SanityImagePaletteSwatch
+  muted?: SanityImagePaletteSwatch
+}
+
+export type SanityImageDimensions = {
+  _type: 'sanity.imageDimensions'
+  height?: number
+  width?: number
+  aspectRatio?: number
+}
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot'
+  x?: number
+  y?: number
+  height?: number
+  width?: number
+}
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop'
+  top?: number
+  bottom?: number
+  left?: number
+  right?: number
+}
+
+export type SanityFileAsset = {
+  _id: string
+  _type: 'sanity.fileAsset'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  originalFilename?: string
+  label?: string
+  title?: string
+  description?: string
+  altText?: string
+  sha1hash?: string
+  extension?: string
+  mimeType?: string
+  size?: number
+  assetId?: string
+  uploadId?: string
+  path?: string
+  url?: string
+  source?: SanityAssetSourceData
+}
+
+export type SanityImageAsset = {
+  _id: string
+  _type: 'sanity.imageAsset'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  originalFilename?: string
+  label?: string
+  title?: string
+  description?: string
+  altText?: string
+  sha1hash?: string
+  extension?: string
+  mimeType?: string
+  size?: number
+  assetId?: string
+  uploadId?: string
+  path?: string
+  url?: string
+  metadata?: SanityImageMetadata
+  source?: SanityAssetSourceData
+}
+
+export type SanityImageMetadata = {
+  _type: 'sanity.imageMetadata'
+  location?: Geopoint
+  dimensions?: SanityImageDimensions
+  palette?: SanityImagePalette
+  lqip?: string
+  blurHash?: string
+  hasAlpha?: boolean
+  isOpaque?: boolean
+}
+
+export type Geopoint = {
+  _type: 'geopoint'
+  lat?: number
+  lng?: number
+  alt?: number
+}
+
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
+}
+
+export type SanityAssetSourceData = {
+  _type: 'sanity.assetSourceData'
+  name?: string
+  id?: string
+  url?: string
+}
+
 export type AllSanitySchemaTypes =
-  | SanityImagePaletteSwatch
-  | SanityImagePalette
-  | SanityImageDimensions
-  | SanityFileAsset
-  | Geopoint
   | Twitter
   | Top25Table
   | SocialMedia
@@ -816,24 +847,20 @@ export type AllSanitySchemaTypes =
   | Navbar
   | Footer
   | CustomUrl
+  | Membership
   | Tag
   | School
   | Redirect
   | Legal
   | Post
-  | Sport
   | Conference
+  | SportSubgrouping
+  | Sport
   | Division
   | Author
-  | SanityImageCrop
-  | SanityImageHotspot
-  | SanityImageAsset
-  | SanityAssetSourceData
-  | SanityImageMetadata
   | Table
   | TableRow
   | MediaTag
-  | Slug
   | SanityAssistInstructionTask
   | SanityAssistTaskStatus
   | SanityAssistSchemaTypeAnnotations
@@ -846,15 +873,26 @@ export type AllSanitySchemaTypes =
   | SanityAssistInstructionFieldRef
   | SanityAssistInstruction
   | SanityAssistSchemaTypeField
+  | SanityImagePaletteSwatch
+  | SanityImagePalette
+  | SanityImageDimensions
+  | SanityImageHotspot
+  | SanityImageCrop
+  | SanityFileAsset
+  | SanityImageAsset
+  | SanityImageMetadata
+  | Geopoint
+  | Slug
+  | SanityAssetSourceData
 export declare const internalGroqTypeReferenceTo: unique symbol
 // Source: ../web/lib/sanity.queries.ts
 // Variable: allAuthors
-// Query: *[_type == 'author' && archived != true] | order(_createdAt asc, name asc){    _id,  _updatedAt,  name,  'slug': slug.current,  roles,  image,  biography,  socialMedia}
+// Query: *[_type == 'author' && archived != true] | order(_createdAt asc, name asc){    _id,  _updatedAt,  name,  'slug': slug.current,  roles,  image{    ...,    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },  biography,  socialMedia}
 export type AllAuthorsResult = Array<{
   _id: string
   _updatedAt: string
-  name: string | null
-  slug: string | null
+  name: string
+  slug: string
   roles: Array<
     | 'Contributor'
     | 'Correspondent'
@@ -866,7 +904,7 @@ export type AllAuthorsResult = Array<{
     | 'Recruiting Analyst'
     | 'Senior Writer'
     | 'Transfer Portal Analyst'
-  > | null
+  >
   image: {
     asset?: {
       _ref: string
@@ -878,73 +916,66 @@ export type AllAuthorsResult = Array<{
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
     _type: 'image'
-  } | null
-  biography: string | null
+    alt: string | 'Image-Broken'
+    blurData: string | null
+    dominantColor: string | null
+  }
+  biography: string
   socialMedia: Array<
     {
       _key: string
     } & SocialMedia
-  > | null
+  >
 }>
 // Variable: privacyPolicy
 // Query: *[_type == "legal" && slug.current == "privacy-policy"][0] {    _id,  _updatedAt,  title,  slug,  body}
 export type PrivacyPolicyResult = {
   _id: string
   _updatedAt: string
-  title: string | null
-  slug: Slug | null
-  body: BlockContent | null
+  title: string
+  slug: Slug
+  body: BlockContent
 } | null
 // Variable: heroPostsQuery
-// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3] {    _id,  title,  publishedAt,  "mainImage": {    "caption": mainImage.caption,    "attribution": mainImage.attribution,    "crop": mainImage.crop,    "hotspot": mainImage.hotspot,    "asset": mainImage.asset->,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
+// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3] {    _id,  title,  publishedAt,  mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
 export type HeroPostsQueryResult = Array<{
   _id: string
-  title: string | null
+  title: string
   publishedAt: string | null
   mainImage: {
-    caption: string | null
-    attribution: string | null
-    crop: SanityImageCrop | null
-    hotspot: SanityImageHotspot | null
-    asset: {
-      _id: string
-      _type: 'sanity.imageAsset'
-      _createdAt: string
-      _updatedAt: string
-      _rev: string
-      originalFilename?: string
-      label?: string
-      title?: string
-      description?: string
-      altText?: string
-      sha1hash?: string
-      extension?: string
-      mimeType?: string
-      size?: number
-      assetId?: string
-      uploadId?: string
-      path?: string
-      url?: string
-      metadata?: SanityImageMetadata
-      source?: SanityAssetSourceData
-    } | null
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    caption: string
+    attribution: string
+    _type: 'image'
+    alt: string
+    credit: string
+    blurData: string | null
+    dominantColor: string | null
   }
   division: {
-    name: string | null
-    slug: string | null
-    longName: string | null
+    name: string
+    slug: string
+    longName: string
   } | null
   conferences: Array<{
     _id: string
-    name: string | null
+    name: string
     shortName: string | null
-    slug: string | null
+    slug: string
   }> | null
   estimatedReadingTime: number
-  slug: string | null
+  slug: string
   author: {
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
     archived: boolean | null
     image: {
       asset: {
@@ -954,59 +985,49 @@ export type HeroPostsQueryResult = Array<{
         url: string | null
       } | null
     }
-  } | null
-  excerpt: string | null
+  }
+  excerpt: string
 }>
 // Variable: latestArticlesForHomePageQuery
-// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[3..6] {    _id,  title,  publishedAt,  "mainImage": {    "caption": mainImage.caption,    "attribution": mainImage.attribution,    "crop": mainImage.crop,    "hotspot": mainImage.hotspot,    "asset": mainImage.asset->,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
+// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[3..6] {    _id,  title,  publishedAt,  mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
 export type LatestArticlesForHomePageQueryResult = Array<{
   _id: string
-  title: string | null
+  title: string
   publishedAt: string | null
   mainImage: {
-    caption: string | null
-    attribution: string | null
-    crop: SanityImageCrop | null
-    hotspot: SanityImageHotspot | null
-    asset: {
-      _id: string
-      _type: 'sanity.imageAsset'
-      _createdAt: string
-      _updatedAt: string
-      _rev: string
-      originalFilename?: string
-      label?: string
-      title?: string
-      description?: string
-      altText?: string
-      sha1hash?: string
-      extension?: string
-      mimeType?: string
-      size?: number
-      assetId?: string
-      uploadId?: string
-      path?: string
-      url?: string
-      metadata?: SanityImageMetadata
-      source?: SanityAssetSourceData
-    } | null
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    caption: string
+    attribution: string
+    _type: 'image'
+    alt: string
+    credit: string
+    blurData: string | null
+    dominantColor: string | null
   }
   division: {
-    name: string | null
-    slug: string | null
-    longName: string | null
+    name: string
+    slug: string
+    longName: string
   } | null
   conferences: Array<{
     _id: string
-    name: string | null
+    name: string
     shortName: string | null
-    slug: string | null
+    slug: string
   }> | null
   estimatedReadingTime: number
-  slug: string | null
+  slug: string
   author: {
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
     archived: boolean | null
     image: {
       asset: {
@@ -1016,19 +1037,19 @@ export type LatestArticlesForHomePageQueryResult = Array<{
         url: string | null
       } | null
     }
-  } | null
-  excerpt: string | null
+  }
+  excerpt: string
 }>
 // Variable: postsBySlugQuery
 // Query: *[_type == "post" && slug.current == $slug][0]{    _id,  _updatedAt,  title,  publishedAt,  "mainImage": {    "caption": mainImage.caption,    "attribution": mainImage.attribution,    "crop": mainImage.crop,    "hotspot": mainImage.hotspot,    "asset": mainImage.asset->,  },  division->{    name,    "slug": slug.current,  },  conferences[]->{    name,    shortName,    "slug": slug.current,  },  "slug": slug.current,  "author": author->{    name,    'slug': slug.current,    biography,    roles,    socialMedia,    image,    archived,    'collegeOrUniversity': collegeOrUniversity->name  },  authors[]->{    name,    'slug': slug.current,    biography,    roles,    socialMedia,    image,    archived,    'collegeOrUniversity': collegeOrUniversity->name  },  excerpt,  teams[]->{    _id,    name,    shortName,    nickname  },  body[]{    ...,    markDefs[]{      ...,      _type == "internalLink" => {        reference->{          _type,          "slug": slug.current,          "divisionSlug": division->slug.current,        }      },    },    _type == "image" => {      ...,      asset->    },    _type == 'top25Table' => {      ...,      votes[]{        ...,        teams[]->{          _id,          name,          abbreviation,          image        }      }    }  },  featuredArticle,  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "wordCount": length(pt::text(body)),  "relatedArticles": *[    _type == "post"    && _id != ^._id    && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)  ] | order(publishedAt desc, _createdAt desc) {      _id,      title,      publishedAt,      "mainImage": {        "caption": mainImage.caption,        "attribution": mainImage.attribution,        "crop": mainImage.crop,        "hotspot": mainImage.hotspot,        "asset": mainImage.asset->,      },      division->{        name,        "slug": slug.current,      },      conferences[]->{        shortName,        name,        "slug": slug.current,      },      "slug": slug.current,      "author": author->{name},  }[0...3]}
 export type PostsBySlugQueryResult = {
   _id: string
   _updatedAt: string
-  title: string | null
+  title: string
   publishedAt: string | null
   mainImage: {
-    caption: string | null
-    attribution: string | null
+    caption: string
+    attribution: string
     crop: SanityImageCrop | null
     hotspot: SanityImageHotspot | null
     asset: {
@@ -1055,19 +1076,19 @@ export type PostsBySlugQueryResult = {
     } | null
   }
   division: {
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
   } | null
   conferences: Array<{
-    name: string | null
+    name: string
     shortName: string | null
-    slug: string | null
+    slug: string
   }> | null
-  slug: string | null
+  slug: string
   author: {
-    name: string | null
-    slug: string | null
-    biography: string | null
+    name: string
+    slug: string
+    biography: string
     roles: Array<
       | 'Contributor'
       | 'Correspondent'
@@ -1079,12 +1100,12 @@ export type PostsBySlugQueryResult = {
       | 'Recruiting Analyst'
       | 'Senior Writer'
       | 'Transfer Portal Analyst'
-    > | null
+    >
     socialMedia: Array<
       {
         _key: string
       } & SocialMedia
-    > | null
+    >
     image: {
       asset?: {
         _ref: string
@@ -1096,14 +1117,14 @@ export type PostsBySlugQueryResult = {
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
       _type: 'image'
-    } | null
+    }
     archived: boolean | null
     collegeOrUniversity: null
-  } | null
+  }
   authors: Array<{
-    name: string | null
-    slug: string | null
-    biography: string | null
+    name: string
+    slug: string
+    biography: string
     roles: Array<
       | 'Contributor'
       | 'Correspondent'
@@ -1115,12 +1136,12 @@ export type PostsBySlugQueryResult = {
       | 'Recruiting Analyst'
       | 'Senior Writer'
       | 'Transfer Portal Analyst'
-    > | null
+    >
     socialMedia: Array<
       {
         _key: string
       } & SocialMedia
-    > | null
+    >
     image: {
       asset?: {
         _ref: string
@@ -1132,14 +1153,14 @@ export type PostsBySlugQueryResult = {
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
       _type: 'image'
-    } | null
+    }
     archived: boolean | null
     collegeOrUniversity: null
-  }> | null
-  excerpt: string | null
+  }>
+  excerpt: string
   teams: Array<{
     _id: string
-    name: string | null
+    name: string
     shortName: string | null
     nickname: string | null
   }> | null
@@ -1155,23 +1176,11 @@ export type PostsBySlugQueryResult = {
         listItem?: 'bullet' | 'number'
         markDefs: Array<
           | {
-              reference:
-                | {
-                    _type: 'conference'
-                    slug: string | null
-                    divisionSlug: string | null
-                  }
-                | {
-                    _type: 'division'
-                    slug: string | null
-                    divisionSlug: null
-                  }
-                | {
-                    _type: 'post'
-                    slug: string | null
-                    divisionSlug: string | null
-                  }
-                | null
+              reference: {
+                _type: 'post'
+                slug: string
+                divisionSlug: string | null
+              } | null
               _type: 'internalLink'
               _key: string
             }
@@ -1212,8 +1221,8 @@ export type PostsBySlugQueryResult = {
         media?: unknown
         hotspot?: SanityImageHotspot
         crop?: SanityImageCrop
-        caption?: string
-        attribution?: string
+        caption: string
+        attribution: string
         _type: 'image'
         _key: string
         markDefs: null
@@ -1236,7 +1245,7 @@ export type PostsBySlugQueryResult = {
           voterAffiliation?: string
           teams: Array<{
             _id: string
-            name: string | null
+            name: string
             abbreviation: string | null
             image: {
               asset?: {
@@ -1248,9 +1257,9 @@ export type PostsBySlugQueryResult = {
               media?: unknown
               hotspot?: SanityImageHotspot
               crop?: SanityImageCrop
-              caption?: string
+              caption: string
               _type: 'image'
-            } | null
+            }
           }> | null
           _key: string
         }> | null
@@ -1262,17 +1271,17 @@ export type PostsBySlugQueryResult = {
         id?: string
         markDefs: null
       }
-  > | null
+  >
   featuredArticle: boolean | null
   estimatedReadingTime: number
   wordCount: number
   relatedArticles: Array<{
     _id: string
-    title: string | null
+    title: string
     publishedAt: string | null
     mainImage: {
-      caption: string | null
-      attribution: string | null
+      caption: string
+      attribution: string
       crop: SanityImageCrop | null
       hotspot: SanityImageHotspot | null
       asset: {
@@ -1299,30 +1308,30 @@ export type PostsBySlugQueryResult = {
       } | null
     }
     division: {
-      name: string | null
-      slug: string | null
+      name: string
+      slug: string
     } | null
     conferences: Array<{
       shortName: string | null
-      name: string | null
-      slug: string | null
+      name: string
+      slug: string
     }> | null
-    slug: string | null
+    slug: string
     author: {
-      name: string | null
-    } | null
+      name: string
+    }
   }>
 } | null
 // Variable: latestDivisionArticlesQuery
 // Query: *[_type == "post" && division->name == $division && !(_id in $ids)] | order(publishedAt desc, _updatedAt desc)[0...5] {  _id,  title,  "slug": slug.current,  publishedAt,  "mainImage": {    "caption": mainImage.caption,    "attribution": mainImage.attribution,    "crop": mainImage.crop,    "hotspot": mainImage.hotspot,    "asset": mainImage.asset->,  },  division->{    name,    "slug": slug.current,  },  conferences[]->{    name,    shortName,    "slug": slug.current,  },  "author": author->{name, image, 'slug': slug.current},}
 export type LatestDivisionArticlesQueryResult = Array<{
   _id: string
-  title: string | null
-  slug: string | null
+  title: string
+  slug: string
   publishedAt: string | null
   mainImage: {
-    caption: string | null
-    attribution: string | null
+    caption: string
+    attribution: string
     crop: SanityImageCrop | null
     hotspot: SanityImageHotspot | null
     asset: {
@@ -1349,16 +1358,16 @@ export type LatestDivisionArticlesQueryResult = Array<{
     } | null
   }
   division: {
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
   } | null
   conferences: Array<{
-    name: string | null
+    name: string
     shortName: string | null
-    slug: string | null
+    slug: string
   }> | null
   author: {
-    name: string | null
+    name: string
     image: {
       asset?: {
         _ref: string
@@ -1370,278 +1379,17 @@ export type LatestDivisionArticlesQueryResult = Array<{
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
       _type: 'image'
-    } | null
-    slug: string | null
-  } | null
+    }
+    slug: string
+  }
 }>
 // Variable: heroArticleQuery
-// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc) [0] {    _id,  title,  publishedAt,  "mainImage": {    "caption": mainImage.caption,    "attribution": mainImage.attribution,    "crop": mainImage.crop,    "hotspot": mainImage.hotspot,    "asset": mainImage.asset->,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
+// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc) [0] {    _id,  title,  publishedAt,  mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
 export type HeroArticleQueryResult = {
   _id: string
-  title: string | null
+  title: string
   publishedAt: string | null
   mainImage: {
-    caption: string | null
-    attribution: string | null
-    crop: SanityImageCrop | null
-    hotspot: SanityImageHotspot | null
-    asset: {
-      _id: string
-      _type: 'sanity.imageAsset'
-      _createdAt: string
-      _updatedAt: string
-      _rev: string
-      originalFilename?: string
-      label?: string
-      title?: string
-      description?: string
-      altText?: string
-      sha1hash?: string
-      extension?: string
-      mimeType?: string
-      size?: number
-      assetId?: string
-      uploadId?: string
-      path?: string
-      url?: string
-      metadata?: SanityImageMetadata
-      source?: SanityAssetSourceData
-    } | null
-  }
-  division: {
-    name: string | null
-    slug: string | null
-    longName: string | null
-  } | null
-  conferences: Array<{
-    _id: string
-    name: string | null
-    shortName: string | null
-    slug: string | null
-  }> | null
-  estimatedReadingTime: number
-  slug: string | null
-  author: {
-    name: string | null
-    slug: string | null
-    archived: boolean | null
-    image: {
-      asset: {
-        _id: string
-        _type: 'sanity.imageAsset'
-        metadata: SanityImageMetadata | null
-        url: string | null
-      } | null
-    }
-  } | null
-  excerpt: string | null
-} | null
-// Variable: recentArticlesQuery
-// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..2] {    _id,  title,  publishedAt,  "mainImage": {    "caption": mainImage.caption,    "attribution": mainImage.attribution,    "crop": mainImage.crop,    "hotspot": mainImage.hotspot,    "asset": mainImage.asset->,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
-export type RecentArticlesQueryResult = Array<{
-  _id: string
-  title: string | null
-  publishedAt: string | null
-  mainImage: {
-    caption: string | null
-    attribution: string | null
-    crop: SanityImageCrop | null
-    hotspot: SanityImageHotspot | null
-    asset: {
-      _id: string
-      _type: 'sanity.imageAsset'
-      _createdAt: string
-      _updatedAt: string
-      _rev: string
-      originalFilename?: string
-      label?: string
-      title?: string
-      description?: string
-      altText?: string
-      sha1hash?: string
-      extension?: string
-      mimeType?: string
-      size?: number
-      assetId?: string
-      uploadId?: string
-      path?: string
-      url?: string
-      metadata?: SanityImageMetadata
-      source?: SanityAssetSourceData
-    } | null
-  }
-  division: {
-    name: string | null
-    slug: string | null
-    longName: string | null
-  } | null
-  conferences: Array<{
-    _id: string
-    name: string | null
-    shortName: string | null
-    slug: string | null
-  }> | null
-  estimatedReadingTime: number
-  slug: string | null
-  author: {
-    name: string | null
-    slug: string | null
-    archived: boolean | null
-    image: {
-      asset: {
-        _id: string
-        _type: 'sanity.imageAsset'
-        metadata: SanityImageMetadata | null
-        url: string | null
-      } | null
-    }
-  } | null
-  excerpt: string | null
-}>
-// Variable: featuredArticlesQuery
-// Query: *[_type == "post" && featuredArticle == true] | order(publishedAt desc, _updatedAt desc)[0..3] {    _id,  title,  publishedAt,  "mainImage": {    "caption": mainImage.caption,    "attribution": mainImage.attribution,    "crop": mainImage.crop,    "hotspot": mainImage.hotspot,    "asset": mainImage.asset->,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
-export type FeaturedArticlesQueryResult = Array<{
-  _id: string
-  title: string | null
-  publishedAt: string | null
-  mainImage: {
-    caption: string | null
-    attribution: string | null
-    crop: SanityImageCrop | null
-    hotspot: SanityImageHotspot | null
-    asset: {
-      _id: string
-      _type: 'sanity.imageAsset'
-      _createdAt: string
-      _updatedAt: string
-      _rev: string
-      originalFilename?: string
-      label?: string
-      title?: string
-      description?: string
-      altText?: string
-      sha1hash?: string
-      extension?: string
-      mimeType?: string
-      size?: number
-      assetId?: string
-      uploadId?: string
-      path?: string
-      url?: string
-      metadata?: SanityImageMetadata
-      source?: SanityAssetSourceData
-    } | null
-  }
-  division: {
-    name: string | null
-    slug: string | null
-    longName: string | null
-  } | null
-  conferences: Array<{
-    _id: string
-    name: string | null
-    shortName: string | null
-    slug: string | null
-  }> | null
-  estimatedReadingTime: number
-  slug: string | null
-  author: {
-    name: string | null
-    slug: string | null
-    archived: boolean | null
-    image: {
-      asset: {
-        _id: string
-        _type: 'sanity.imageAsset'
-        metadata: SanityImageMetadata | null
-        url: string | null
-      } | null
-    }
-  } | null
-  excerpt: string | null
-}>
-// Variable: otherArticlesQuery
-// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[3..6] {    _id,  title,  publishedAt,  "mainImage": {    "caption": mainImage.caption,    "attribution": mainImage.attribution,    "crop": mainImage.crop,    "hotspot": mainImage.hotspot,    "asset": mainImage.asset->,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
-export type OtherArticlesQueryResult = Array<{
-  _id: string
-  title: string | null
-  publishedAt: string | null
-  mainImage: {
-    caption: string | null
-    attribution: string | null
-    crop: SanityImageCrop | null
-    hotspot: SanityImageHotspot | null
-    asset: {
-      _id: string
-      _type: 'sanity.imageAsset'
-      _createdAt: string
-      _updatedAt: string
-      _rev: string
-      originalFilename?: string
-      label?: string
-      title?: string
-      description?: string
-      altText?: string
-      sha1hash?: string
-      extension?: string
-      mimeType?: string
-      size?: number
-      assetId?: string
-      uploadId?: string
-      path?: string
-      url?: string
-      metadata?: SanityImageMetadata
-      source?: SanityAssetSourceData
-    } | null
-  }
-  division: {
-    name: string | null
-    slug: string | null
-    longName: string | null
-  } | null
-  conferences: Array<{
-    _id: string
-    name: string | null
-    shortName: string | null
-    slug: string | null
-  }> | null
-  estimatedReadingTime: number
-  slug: string | null
-  author: {
-    name: string | null
-    slug: string | null
-    archived: boolean | null
-    image: {
-      asset: {
-        _id: string
-        _type: 'sanity.imageAsset'
-        metadata: SanityImageMetadata | null
-        url: string | null
-      } | null
-    }
-  } | null
-  excerpt: string | null
-}>
-// Variable: authorBySlug
-// Query: *[_type == 'author' && slug.current == $slug && archived == false][0]{      _id,  _updatedAt,  name,  'slug': slug.current,  roles,  image,  biography,  socialMedia  }
-export type AuthorBySlugResult = {
-  _id: string
-  _updatedAt: string
-  name: string | null
-  slug: string | null
-  roles: Array<
-    | 'Contributor'
-    | 'Correspondent'
-    | 'Editor'
-    | 'Founder'
-    | 'Guest Writer'
-    | 'Historian'
-    | 'Podcast Host'
-    | 'Recruiting Analyst'
-    | 'Senior Writer'
-    | 'Transfer Portal Analyst'
-  > | null
-  image: {
     asset?: {
       _ref: string
       _type: 'reference'
@@ -1651,15 +1399,198 @@ export type AuthorBySlugResult = {
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
+    caption: string
+    attribution: string
     _type: 'image'
+    alt: string
+    credit: string
+    blurData: string | null
+    dominantColor: string | null
+  }
+  division: {
+    name: string
+    slug: string
+    longName: string
   } | null
-  biography: string | null
-  socialMedia: Array<
-    {
-      _key: string
-    } & SocialMedia
-  > | null
+  conferences: Array<{
+    _id: string
+    name: string
+    shortName: string | null
+    slug: string
+  }> | null
+  estimatedReadingTime: number
+  slug: string
+  author: {
+    name: string
+    slug: string
+    archived: boolean | null
+    image: {
+      asset: {
+        _id: string
+        _type: 'sanity.imageAsset'
+        metadata: SanityImageMetadata | null
+        url: string | null
+      } | null
+    }
+  }
+  excerpt: string
 } | null
+// Variable: recentArticlesQuery
+// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..2] {    _id,  title,  publishedAt,  mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
+export type RecentArticlesQueryResult = Array<{
+  _id: string
+  title: string
+  publishedAt: string | null
+  mainImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    caption: string
+    attribution: string
+    _type: 'image'
+    alt: string
+    credit: string
+    blurData: string | null
+    dominantColor: string | null
+  }
+  division: {
+    name: string
+    slug: string
+    longName: string
+  } | null
+  conferences: Array<{
+    _id: string
+    name: string
+    shortName: string | null
+    slug: string
+  }> | null
+  estimatedReadingTime: number
+  slug: string
+  author: {
+    name: string
+    slug: string
+    archived: boolean | null
+    image: {
+      asset: {
+        _id: string
+        _type: 'sanity.imageAsset'
+        metadata: SanityImageMetadata | null
+        url: string | null
+      } | null
+    }
+  }
+  excerpt: string
+}>
+// Variable: featuredArticlesQuery
+// Query: *[_type == "post" && featuredArticle == true] | order(publishedAt desc, _updatedAt desc)[0..3] {    _id,  title,  publishedAt,  mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
+export type FeaturedArticlesQueryResult = Array<{
+  _id: string
+  title: string
+  publishedAt: string | null
+  mainImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    caption: string
+    attribution: string
+    _type: 'image'
+    alt: string
+    credit: string
+    blurData: string | null
+    dominantColor: string | null
+  }
+  division: {
+    name: string
+    slug: string
+    longName: string
+  } | null
+  conferences: Array<{
+    _id: string
+    name: string
+    shortName: string | null
+    slug: string
+  }> | null
+  estimatedReadingTime: number
+  slug: string
+  author: {
+    name: string
+    slug: string
+    archived: boolean | null
+    image: {
+      asset: {
+        _id: string
+        _type: 'sanity.imageAsset'
+        metadata: SanityImageMetadata | null
+        url: string | null
+      } | null
+    }
+  }
+  excerpt: string
+}>
+// Variable: otherArticlesQuery
+// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[3..6] {    _id,  title,  publishedAt,  mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
+export type OtherArticlesQueryResult = Array<{
+  _id: string
+  title: string
+  publishedAt: string | null
+  mainImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    caption: string
+    attribution: string
+    _type: 'image'
+    alt: string
+    credit: string
+    blurData: string | null
+    dominantColor: string | null
+  }
+  division: {
+    name: string
+    slug: string
+    longName: string
+  } | null
+  conferences: Array<{
+    _id: string
+    name: string
+    shortName: string | null
+    slug: string
+  }> | null
+  estimatedReadingTime: number
+  slug: string
+  author: {
+    name: string
+    slug: string
+    archived: boolean | null
+    image: {
+      asset: {
+        _id: string
+        _type: 'sanity.imageAsset'
+        metadata: SanityImageMetadata | null
+        url: string | null
+      } | null
+    }
+  }
+  excerpt: string
+}>
 // Variable: conferencesAuthorHasWrittenFor
 // Query: *[_id == $authorId][0] {  "conferences": array::unique(*[_id in *[_type == "post" && references($authorId)].conferences[]._ref])[] {    _id,    name,    shortName,    "division": division->.name  } | order(name asc)}
 export type ConferencesAuthorHasWrittenForResult = {
@@ -1672,15 +1603,27 @@ export type ConferencesAuthorHasWrittenForResult = {
       }
     | {
         _id: string
+        name: string
+        shortName: null
+        division: null
+      }
+    | {
+        _id: string
+        name: string
+        shortName: string | null
+        division: null
+      }
+    | {
+        _id: string
         name: Slug | null
         shortName: null
         division: null
       }
     | {
         _id: string
-        name: string | null
-        shortName: null
-        division: null
+        name: string
+        shortName: string | null
+        division: string
       }
     | {
         _id: string
@@ -1688,26 +1631,20 @@ export type ConferencesAuthorHasWrittenForResult = {
         shortName: null
         division: string | null
       }
-    | {
-        _id: string
-        name: string | null
-        shortName: string | null
-        division: string | null
-      }
   >
 } | null
 // Variable: conferencePaths
 // Query: *[_type == "conference" && defined(slug.current) && defined(division) && count(*[_type == 'post' && references(^._id)]) > 0]{  "slug": slug.current,  "divisionSlug": division->slug.current,}
 export type ConferencePathsResult = Array<{
-  slug: string | null
-  divisionSlug: string | null
+  slug: string
+  divisionSlug: string
 }>
 // Variable: authorsForSiteMapQuery
 // Query: *[_type == 'author' && defined(slug.current) && archived == false]{  _id,  _updatedAt,  "slug": slug.current,}
 export type AuthorsForSiteMapQueryResult = Array<{
   _id: string
   _updatedAt: string
-  slug: string | null
+  slug: string
 }>
 // Variable: transferPortalPlayers
 // Query: *[_type == 'transferPortal']{    ...,    "player": player->{      ...    },    "transferringFrom": transferringFrom->{      ...    },    "transferringTo": transferringTo->{      ...    },  }
@@ -1720,11 +1657,11 @@ export type DivisionsQueryResult = Array<{
   _createdAt: string
   _updatedAt: string
   _rev: string
-  name?: string
-  title?: string
-  heading?: string
-  longName?: string
-  slug: string | null
+  name: string
+  title: string
+  heading: string
+  longName: string
+  slug: string
   description?: string
   logo?: {
     asset?: {
@@ -1736,7 +1673,7 @@ export type DivisionsQueryResult = Array<{
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    alt?: string
+    alt: string
     _type: 'image'
   }
   conferences: Array<{
@@ -1745,10 +1682,10 @@ export type DivisionsQueryResult = Array<{
     _createdAt: string
     _updatedAt: string
     _rev: string
-    name?: string
+    name: string
     shortName?: string
-    slug: string | null
-    description?: string
+    abbreviation?: string
+    slug: string
     logo?: {
       asset?: {
         _ref: string
@@ -1762,18 +1699,41 @@ export type DivisionsQueryResult = Array<{
       alt?: string
       _type: 'image'
     }
-    division?: {
+    division: {
       _ref: string
       _type: 'reference'
       _weak?: boolean
       [internalGroqTypeReferenceTo]?: 'division'
     }
+    sports?: Array<{
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      _key: string
+      [internalGroqTypeReferenceTo]?: 'sport'
+    }>
+    sportSubdivisionAffiliations?: Array<{
+      sport: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sport'
+      }
+      subgrouping: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sportSubgrouping'
+      }
+      _type: 'sportSubgroupingAffiliation'
+      _key: string
+    }>
   }>
 }>
 // Variable: openGraphDataBySlug
 // Query: *[_type == "post" && slug.current == $slug][0]{  "title": title,  mainImage,  "author": author->{name, roles, image},  "publishedAt": publishedAt,}
 export type OpenGraphDataBySlugResult = {
-  title: string | null
+  title: string
   mainImage: {
     asset?: {
       _ref: string
@@ -1784,12 +1744,12 @@ export type OpenGraphDataBySlugResult = {
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
-    attribution?: string
+    caption: string
+    attribution: string
     _type: 'image'
-  } | null
+  }
   author: {
-    name: string | null
+    name: string
     roles: Array<
       | 'Contributor'
       | 'Correspondent'
@@ -1801,7 +1761,7 @@ export type OpenGraphDataBySlugResult = {
       | 'Recruiting Analyst'
       | 'Senior Writer'
       | 'Transfer Portal Analyst'
-    > | null
+    >
     image: {
       asset?: {
         _ref: string
@@ -1813,15 +1773,15 @@ export type OpenGraphDataBySlugResult = {
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
       _type: 'image'
-    } | null
-  } | null
+    }
+  }
   publishedAt: string | null
 } | null
 // Variable: schoolsByDivision
 // Query: *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){  _id,  name,  shortName,  abbreviation,  image,  conference->{    name,    shortName  }}
 export type SchoolsByDivisionResult = Array<{
   _id: string
-  name: string | null
+  name: string
   shortName: string | null
   abbreviation: string | null
   image: {
@@ -1834,20 +1794,20 @@ export type SchoolsByDivisionResult = Array<{
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
+    caption: string
     _type: 'image'
-  } | null
+  }
   conference: {
-    name: string | null
+    name: string
     shortName: string | null
-  } | null
+  }
 }>
 // Variable: schoolsByIdOrderedByRank
 // Query: *[_type == "school" && _id in $ids[].id]{  _id,  "_order": $ids[id == ^._id][0].rank,  name,  shortName,  abbreviation,  image,} | order(_order)
 export type SchoolsByIdOrderedByRankResult = Array<{
   _id: string
   _order: unknown | null
-  name: string | null
+  name: string
   shortName: string | null
   abbreviation: string | null
   image: {
@@ -1860,16 +1820,16 @@ export type SchoolsByIdOrderedByRankResult = Array<{
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
+    caption: string
     _type: 'image'
-  } | null
+  }
 }>
 // Variable: schoolsByIdOrderedByPoints
 // Query: *[_type == "school" && _id in $ids[].id]{  _id,  "_points": $ids[id == ^._id][0].totalPoints,  name,  shortName,  abbreviation,  image,} | order(_points desc)
 export type SchoolsByIdOrderedByPointsResult = Array<{
   _id: string
   _points: unknown | null
-  name: string | null
+  name: string
   shortName: string | null
   abbreviation: string | null
   image: {
@@ -1882,28 +1842,28 @@ export type SchoolsByIdOrderedByPointsResult = Array<{
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
+    caption: string
     _type: 'image'
-  } | null
+  }
 }>
 // Variable: lastThreePosts
 // Query: *[_type == "post"] | order(publishedAt desc)[0...3]{  _id,  title,  publishedAt,  "slug": slug.current,  "author": author->{name},  excerpt,}
 export type LastThreePostsResult = Array<{
   _id: string
-  title: string | null
+  title: string
   publishedAt: string | null
-  slug: string | null
+  slug: string
   author: {
-    name: string | null
-  } | null
-  excerpt: string | null
+    name: string
+  }
+  excerpt: string
 }>
 // Variable: schoolWithVoteOrder
 // Query: *[_type == "school" && _id in $ids[].teamId]{  _id,  "_order": $ids[teamId == ^._id][0].rank,  name,  shortName,  abbreviation,  image,} | order(_order)
 export type SchoolWithVoteOrderResult = Array<{
   _id: string
   _order: unknown | null
-  name: string | null
+  name: string
   shortName: string | null
   abbreviation: string | null
   image: {
@@ -1916,23 +1876,38 @@ export type SchoolWithVoteOrderResult = Array<{
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
+    caption: string
     _type: 'image'
-  } | null
+  }
 }>
 
 // Source: ../web/lib/sanity/query.ts
+// Variable: querySettingsData
+// Query: *[_type == "settings"][0]{    _id,    _type,    siteTitle,    siteDescription,    "logo": logo.asset->url + "?w=80&h=40&dpr=3&fit=max",    "socialLinks": socialLinks,    "contactEmail": contactEmail,  }
+export type QuerySettingsDataResult = {
+  _id: string
+  _type: 'settings'
+  siteTitle: string
+  siteDescription: string
+  logo: string | null
+  socialLinks: {
+    twitter?: string
+    facebook?: string
+    youtube?: string
+  } | null
+  contactEmail: string | null
+} | null
 // Variable: queryPostSlugData
-// Query: *[_type == "post" && slug.current == $slug][0]{    ...,    "slug": slug.current,      division->{    _id,    name,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    }  },      conferences[]->{    _id,    name,    shortName,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    }  },      authors[]->{    _id,    name,    roles,      image{    ...,    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  },      mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      body[]{    ...,      markDefs[]{    ...,    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "division" => "/news/" + reference->slug.current,        reference->_type == "conference" => "/news/" + reference->division->slug.current + "/" + reference->slug.current,        reference->_type == "article" => "/" + reference->slug.current,        "#"      )    }  }  }  }
+// Query: *[_type == "post" && slug.current == $slug][0]{    ...,    "slug": slug.current,    sport->{      _id,      "slug": slug.current,      title    },      division->{    _id,    name,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    }  },      conferences[]->{    _id,    name,    shortName,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    division->{      "slug": slug.current,    },    sportSubdivisionAffiliations[]{        _key,        sport->{          _id, // Need this _id for client-side comparison        },        subgrouping->{          "slug": slug.current,          name,          shortName        }      }  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  },      mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      body[]{    ...,      markDefs[]{    ...,    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        "#"      )    }  }  },    "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),    "wordCount": length(pt::text(body)),    // grab similar posts based on sport, and conferences and NOT division    "relatedPosts": *[      _type == "post"      && _id != ^._id      && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)    ] | order(publishedAt desc, _createdAt desc) {      _id,      title,      publishedAt,        mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      "slug": slug.current,      authors[]->{        _id,        name,        roles,      }    }[0...3]  }
 export type QueryPostSlugDataResult = {
   _id: string
   _type: 'post'
   _createdAt: string
   _updatedAt: string
   _rev: string
-  title?: string
-  slug: string | null
-  author?: {
+  title: string
+  slug: string
+  author: {
     _ref: string
     _type: 'reference'
     _weak?: boolean
@@ -1940,7 +1915,13 @@ export type QueryPostSlugDataResult = {
   }
   authors: Array<{
     _id: string
-    name: string | null
+    _type: 'author'
+    _createdAt: string
+    _updatedAt: string
+    _rev: string
+    name: string
+    slug: string
+    archived?: boolean
     roles: Array<
       | 'Contributor'
       | 'Correspondent'
@@ -1952,7 +1933,7 @@ export type QueryPostSlugDataResult = {
       | 'Recruiting Analyst'
       | 'Senior Writer'
       | 'Transfer Portal Analyst'
-    > | null
+    >
     image: {
       asset?: {
         _ref: string
@@ -1967,8 +1948,14 @@ export type QueryPostSlugDataResult = {
       alt: string | 'Image-Broken'
       blurData: string | null
       dominantColor: string | null
-    } | null
-  }> | null
+    }
+    biography: string
+    socialMedia: Array<
+      {
+        _key: string
+      } & SocialMedia
+    >
+  }>
   publishedAt?: string
   mainImage: {
     asset?: {
@@ -1980,45 +1967,50 @@ export type QueryPostSlugDataResult = {
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
-    attribution?: string
+    caption: string
+    attribution: string
     _type: 'image'
-    alt: string | 'Image-Broken'
-    credit: string | 'Unknown'
+    alt: string
+    credit: string
     blurData: string | null
     dominantColor: string | null
+  }
+  sport: {
+    _id: string
+    slug: string
+    title: string
   } | null
-  sport?: {
+  division: {
+    _id: string
+    name: string
+    slug: string
+    logo: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt: string | 'Image-Broken'
+      _type: 'image'
+      blurData: string | null
+      dominantColor: string | null
+    } | null
+  } | null
+  sportSubgrouping?: {
     _ref: string
     _type: 'reference'
     _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'sport'
+    [internalGroqTypeReferenceTo]?: 'sportSubgrouping'
   }
-  division: {
-    _id: string
-    name: string | null
-    slug: string | null
-    logo: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
-      media?: unknown
-      hotspot?: SanityImageHotspot
-      crop?: SanityImageCrop
-      alt: string | 'Image-Broken'
-      _type: 'image'
-      blurData: string | null
-      dominantColor: string | null
-    } | null
-  } | null
   conferences: Array<{
     _id: string
-    name: string | null
+    name: string
     shortName: string | null
-    slug: string | null
+    slug: string
     logo: {
       asset?: {
         _ref: string
@@ -2034,6 +2026,20 @@ export type QueryPostSlugDataResult = {
       blurData: string | null
       dominantColor: string | null
     } | null
+    division: {
+      slug: string
+    }
+    sportSubdivisionAffiliations: Array<{
+      _key: string
+      sport: {
+        _id: string
+      }
+      subgrouping: {
+        slug: string | null
+        name: string
+        shortName: string | null
+      }
+    }> | null
   }> | null
   teams?: Array<{
     _ref: string
@@ -2050,7 +2056,7 @@ export type QueryPostSlugDataResult = {
     [internalGroqTypeReferenceTo]?: 'tag'
   }>
   featuredArticle?: boolean
-  excerpt?: string
+  excerpt: string
   body: Array<
     | {
         children?: Array<{
@@ -2063,25 +2069,12 @@ export type QueryPostSlugDataResult = {
         listItem?: 'bullet' | 'number'
         markDefs: Array<
           | {
-              reference?:
-                | {
-                    _ref: string
-                    _type: 'reference'
-                    _weak?: boolean
-                    [internalGroqTypeReferenceTo]?: 'conference'
-                  }
-                | {
-                    _ref: string
-                    _type: 'reference'
-                    _weak?: boolean
-                    [internalGroqTypeReferenceTo]?: 'division'
-                  }
-                | {
-                    _ref: string
-                    _type: 'reference'
-                    _weak?: boolean
-                    [internalGroqTypeReferenceTo]?: 'post'
-                  }
+              reference?: {
+                _ref: string
+                _type: 'reference'
+                _weak?: boolean
+                [internalGroqTypeReferenceTo]?: 'post'
+              }
               _type: 'internalLink'
               _key: string
               href: string | '#' | null
@@ -2107,8 +2100,8 @@ export type QueryPostSlugDataResult = {
         media?: unknown
         hotspot?: SanityImageHotspot
         crop?: SanityImageCrop
-        caption?: string
-        attribution?: string
+        caption: string
+        attribution: string
         _type: 'image'
         _key: string
         markDefs: null
@@ -2146,7 +2139,7 @@ export type QueryPostSlugDataResult = {
         id?: string
         markDefs: null
       }
-  > | null
+  >
   seoTitle?: string
   seoDescription?: string
   seoImage?: {
@@ -2163,9 +2156,51 @@ export type QueryPostSlugDataResult = {
   }
   ogTitle?: string
   ogDescription?: string
+  estimatedReadingTime: number
+  wordCount: number
+  relatedPosts: Array<{
+    _id: string
+    title: string
+    publishedAt: string | null
+    mainImage: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      caption: string
+      attribution: string
+      _type: 'image'
+      alt: string
+      credit: string
+      blurData: string | null
+      dominantColor: string | null
+    }
+    slug: string
+    authors: Array<{
+      _id: string
+      name: string
+      roles: Array<
+        | 'Contributor'
+        | 'Correspondent'
+        | 'Editor'
+        | 'Founder'
+        | 'Guest Writer'
+        | 'Historian'
+        | 'Podcast Host'
+        | 'Recruiting Analyst'
+        | 'Senior Writer'
+        | 'Transfer Portal Analyst'
+      >
+    }>
+  }>
 } | null
 // Variable: queryFooterData
-// Query: *[_type == "footer" && _id == "footer"][0]{    _id,    subtitle,    columns[]{      _key,      title,      links[]{        _key,        name,        "openInNewTab": url.openInNewTab,        "href": select(          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,          url.type == "internal" && url.internalType == "custom" => url.internalUrl,          url.type == "external" => url.external,          url.href        )      }    },    "logo": *[_type == "settings"][0].logo.asset->url + "?w=80&h=40&dpr=3&fit=max",    "siteTitle": *[_type == "settings"][0].siteTitle,    "socialLinks": *[_type == "settings"][0].socialLinks,  }
+// Query: *[_type == "footer" && _id == "footer"][0]{    _id,    subtitle,    columns[]{      _key,      title,      links[]{        _key,        name,        "openInNewTab": url.openInNewTab,        "href": select(          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,          url.type == "internal" && url.internalType == "custom" => url.internalUrl,          url.type == "external" => url.external,          url.href        )      }    },  }
 export type QueryFooterDataResult = {
   _id: string
   subtitle: string | null
@@ -2179,12 +2214,47 @@ export type QueryFooterDataResult = {
       href: string | null
     }> | null
   }> | null
-  logo: string | null
-  siteTitle: string | null
+} | null
+// Variable: queryGlobalSeoSettings
+// Query: *[_type == "settings"][0]{    _id,    _type,    siteTitle,    logo{      ...,      ...asset->{        "alt": coalesce(altText, originalFilename, "no-alt"),        "blurData": metadata.lqip,        "dominantColor": metadata.palette.dominant.background      }    },    siteDescription,    socialLinks{      facebook,      twitter,      youtube    }  }
+export type QueryGlobalSeoSettingsResult = {
+  _id: string
+  _type: 'settings'
+  siteTitle: string
+  logo:
+    | {
+        asset?: {
+          _ref: string
+          _type: 'reference'
+          _weak?: boolean
+          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+        }
+        media?: unknown
+        hotspot?: SanityImageHotspot
+        crop?: SanityImageCrop
+        _type: 'image'
+        alt: string | 'no-alt'
+        blurData: string | null
+        dominantColor: string | null
+      }
+    | {
+        asset?: {
+          _ref: string
+          _type: 'reference'
+          _weak?: boolean
+          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+        }
+        media?: unknown
+        hotspot?: SanityImageHotspot
+        crop?: SanityImageCrop
+        _type: 'image'
+      }
+    | null
+  siteDescription: string
   socialLinks: {
-    twitter?: string
-    facebook?: string
-    youtube?: string
+    facebook: string | null
+    twitter: string | null
+    youtube: string | null
   } | null
 } | null
 // Variable: queryNavbarData
@@ -2211,19 +2281,19 @@ export type QueryNavbarDataResult = {
           description: string | null
           openInNewTab: boolean | null
           href: string | null
-        }> | null
+        }>
       }
   > | null
   logo: string | null
   siteTitle: string | null
 } | null
 // Variable: queryHomePageData
-// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{    _id,    title,    excerpt,    "slug": slug.current,    mainImage{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,      "credit": coalesce(asset->creditLine, attribution, "Unknown"),    },    publishedAt,    division->{      name,      "slug": slug.current    },    conferences[]->{      name,      "slug": slug.current,      shortName    },    author->{      name,      "slug": slug.current,      image    },    authors[]->{      name,      "slug": slug.current,      image    }  }
+// Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{    _id,    title,    excerpt,    "slug": slug.current,    mainImage{      ...,      "alt": coalesce(caption,asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,      "credit": coalesce(asset->creditLine, attribution, "Unknown"),    },    publishedAt,    division->{      name,      "slug": slug.current    },    conferences[]->{      name,      "slug": slug.current,      shortName    },    author->{      name,      "slug": slug.current,      image    },    authors[]->{      name,      "slug": slug.current,      image    }  }
 export type QueryHomePageDataResult = Array<{
   _id: string
-  title: string | null
-  excerpt: string | null
-  slug: string | null
+  title: string
+  excerpt: string
+  slug: string
   mainImage: {
     asset?: {
       _ref: string
@@ -2234,27 +2304,27 @@ export type QueryHomePageDataResult = Array<{
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
-    attribution?: string
+    caption: string
+    attribution: string
     _type: 'image'
-    alt: string | 'Image-Broken'
+    alt: string
     blurData: string | null
     dominantColor: string | null
-    credit: string | 'Unknown'
-  } | null
+    credit: string
+  }
   publishedAt: string | null
   division: {
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
   } | null
   conferences: Array<{
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
     shortName: string | null
   }> | null
   author: {
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
     image: {
       asset?: {
         _ref: string
@@ -2266,11 +2336,11 @@ export type QueryHomePageDataResult = Array<{
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
       _type: 'image'
-    } | null
-  } | null
+    }
+  }
   authors: Array<{
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
     image: {
       asset?: {
         _ref: string
@@ -2282,16 +2352,16 @@ export type QueryHomePageDataResult = Array<{
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
       _type: 'image'
-    } | null
-  }> | null
+    }
+  }>
 }>
 // Variable: queryLatestArticles
 // Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{    _id,    title,    excerpt,    "slug": slug.current,    mainImage{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,      "credit": coalesce(asset->creditLine, attribution, "Unknown"),    },    publishedAt,    division->{      name,      "slug": slug.current    },    conferences[]->{      name,      "slug": slug.current,      shortName    },    author->{      name,      "slug": slug.current,      image    },    authors[]->{      name,      "slug": slug.current,      image    }  }
 export type QueryLatestArticlesResult = Array<{
   _id: string
-  title: string | null
-  excerpt: string | null
-  slug: string | null
+  title: string
+  excerpt: string
+  slug: string
   mainImage: {
     asset?: {
       _ref: string
@@ -2302,27 +2372,27 @@ export type QueryLatestArticlesResult = Array<{
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
-    attribution?: string
+    caption: string
+    attribution: string
     _type: 'image'
     alt: string | 'Image-Broken'
     blurData: string | null
     dominantColor: string | null
-    credit: string | 'Unknown'
-  } | null
+    credit: string
+  }
   publishedAt: string | null
   division: {
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
   } | null
   conferences: Array<{
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
     shortName: string | null
   }> | null
   author: {
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
     image: {
       asset?: {
         _ref: string
@@ -2334,11 +2404,11 @@ export type QueryLatestArticlesResult = Array<{
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
       _type: 'image'
-    } | null
-  } | null
+    }
+  }
   authors: Array<{
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
     image: {
       asset?: {
         _ref: string
@@ -2350,16 +2420,16 @@ export type QueryLatestArticlesResult = Array<{
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
       _type: 'image'
-    } | null
-  }> | null
+    }
+  }>
 }>
 // Variable: queryLatestCollegeSportsArticles
 // Query: *[_type == "post" && division->name == $division && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{    _id,    title,    excerpt,    "slug": slug.current,    mainImage{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,      "credit": coalesce(asset->creditLine, attribution, "Unknown"),    },    publishedAt,    division->{      name,      "slug": slug.current    },    conferences[]->{      name,      "slug": slug.current,      shortName    },    authors[]->{      name,      "slug": slug.current,      image{        ...,        "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),        "blurData": asset->metadata.lqip,        "dominantColor": asset->metadata.palette.dominant.background,        "credit": coalesce(asset->creditLine, attribution, "Unknown"),      },    }  }
 export type QueryLatestCollegeSportsArticlesResult = Array<{
   _id: string
-  title: string | null
-  excerpt: string | null
-  slug: string | null
+  title: string
+  excerpt: string
+  slug: string
   mainImage: {
     asset?: {
       _ref: string
@@ -2370,27 +2440,27 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    caption?: string
-    attribution?: string
+    caption: string
+    attribution: string
     _type: 'image'
     alt: string | 'Image-Broken'
     blurData: string | null
     dominantColor: string | null
-    credit: string | 'Unknown'
-  } | null
+    credit: string
+  }
   publishedAt: string | null
   division: {
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
   } | null
   conferences: Array<{
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
     shortName: string | null
   }> | null
   authors: Array<{
-    name: string | null
-    slug: string | null
+    name: string
+    slug: string
     image: {
       asset?: {
         _ref: string
@@ -2406,42 +2476,92 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
       blurData: string | null
       dominantColor: string | null
       credit: 'Unknown'
-    } | null
-  }> | null
+    }
+  }>
 }>
 // Variable: querySitemapData
 // Query: {  "posts": *[_type == "post" && defined(slug.current)] {    "slug": slug.current,    "lastModified": _updatedAt  },  "authors": *[_type == "author" && defined(slug.current) && archived == false] {    "slug": slug.current,    "lastModified": _updatedAt  },  "sports": *[_type == "sport" && defined(title) && count(*[_type == "post" && references(^._id)]) > 0] {    "slug": slug.current,    "lastModified": _updatedAt  },}
 export type QuerySitemapDataResult = {
   posts: Array<{
-    slug: string | null
+    slug: string
     lastModified: string
   }>
   authors: Array<{
-    slug: string | null
+    slug: string
     lastModified: string
   }>
   sports: Array<{
-    slug: string | null
+    slug: string
     lastModified: string
   }>
 }
+// Variable: sportInfoBySlug
+// Query: *[_type == "sport" && slug.current == $slug][0]{  _id,  title,}
+export type SportInfoBySlugResult = {
+  _id: string
+  title: string
+} | null
+// Variable: authorBySlug
+// Query: *[_type == "author" && slug.current == $slug && archived == false][0]{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },  }
+export type AuthorBySlugResult = {
+  _id: string
+  _type: 'author'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name: string
+  slug: string
+  archived?: boolean
+  roles: Array<
+    | 'Contributor'
+    | 'Correspondent'
+    | 'Editor'
+    | 'Founder'
+    | 'Guest Writer'
+    | 'Historian'
+    | 'Podcast Host'
+    | 'Recruiting Analyst'
+    | 'Senior Writer'
+    | 'Transfer Portal Analyst'
+  >
+  image: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+    alt: string | 'Image-Broken'
+    blurData: string | null
+    dominantColor: string | null
+  }
+  biography: string
+  socialMedia: Array<
+    {
+      _key: string
+    } & SocialMedia
+  >
+} | null
 
 // Query TypeMap
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
-    "\n*[_type == 'author' && archived != true] | order(_createdAt asc, name asc){\n  \n  _id,\n  _updatedAt,\n  name,\n  'slug': slug.current,\n  roles,\n  image,\n  biography,\n  socialMedia\n\n}\n": AllAuthorsResult
+    '\n*[_type == \'author\' && archived != true] | order(_createdAt asc, name asc){\n  \n  _id,\n  _updatedAt,\n  name,\n  \'slug\': slug.current,\n  roles,\n  image{\n    ...,\n    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  },\n  biography,\n  socialMedia\n\n}\n': AllAuthorsResult
     '\n*[_type == "legal" && slug.current == "privacy-policy"][0] {\n  \n  _id,\n  _updatedAt,\n  title,\n  slug,\n  body\n\n}\n': PrivacyPolicyResult
-    '\n*[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3] {\n  \n  _id,\n  title,\n  publishedAt,\n  "mainImage": {\n    "caption": mainImage.caption,\n    "attribution": mainImage.attribution,\n    "crop": mainImage.crop,\n    "hotspot": mainImage.hotspot,\n    "asset": mainImage.asset->,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n    longName\n  },\n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "slug": slug.current,\n  "author": author->{name, \'slug\': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},\n  excerpt,\n\n}\n': HeroPostsQueryResult
-    '\n*[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[3..6] {\n  \n  _id,\n  title,\n  publishedAt,\n  "mainImage": {\n    "caption": mainImage.caption,\n    "attribution": mainImage.attribution,\n    "crop": mainImage.crop,\n    "hotspot": mainImage.hotspot,\n    "asset": mainImage.asset->,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n    longName\n  },\n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "slug": slug.current,\n  "author": author->{name, \'slug\': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},\n  excerpt,\n\n}\n':
+    '\n*[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3] {\n  \n  _id,\n  title,\n  publishedAt,\n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n    longName\n  },\n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "slug": slug.current,\n  "author": author->{name, \'slug\': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},\n  excerpt,\n\n}\n': HeroPostsQueryResult
+    '\n*[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[3..6] {\n  \n  _id,\n  title,\n  publishedAt,\n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n    longName\n  },\n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "slug": slug.current,\n  "author": author->{name, \'slug\': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},\n  excerpt,\n\n}\n':
       | LatestArticlesForHomePageQueryResult
       | OtherArticlesQueryResult
     '\n*[_type == "post" && slug.current == $slug][0]{\n  \n  _id,\n  _updatedAt,\n  title,\n  publishedAt,\n  "mainImage": {\n    "caption": mainImage.caption,\n    "attribution": mainImage.attribution,\n    "crop": mainImage.crop,\n    "hotspot": mainImage.hotspot,\n    "asset": mainImage.asset->,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n  },\n  conferences[]->{\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "slug": slug.current,\n  "author": author->{\n    name,\n    \'slug\': slug.current,\n    biography,\n    roles,\n    socialMedia,\n    image,\n    archived,\n    \'collegeOrUniversity\': collegeOrUniversity->name\n  },\n  authors[]->{\n    name,\n    \'slug\': slug.current,\n    biography,\n    roles,\n    socialMedia,\n    image,\n    archived,\n    \'collegeOrUniversity\': collegeOrUniversity->name\n  },\n  excerpt,\n  teams[]->{\n    _id,\n    name,\n    shortName,\n    nickname\n  },\n  body[]{\n    ...,\n    markDefs[]{\n      ...,\n      _type == "internalLink" => {\n        reference->{\n          _type,\n          "slug": slug.current,\n          "divisionSlug": division->slug.current,\n        }\n      },\n    },\n    _type == "image" => {\n      ...,\n      asset->\n    },\n    _type == \'top25Table\' => {\n      ...,\n      votes[]{\n        ...,\n        teams[]->{\n          _id,\n          name,\n          abbreviation,\n          image\n        }\n      }\n    }\n  },\n  featuredArticle,\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "wordCount": length(pt::text(body))\n,\n  "relatedArticles": *[\n    _type == "post"\n    && _id != ^._id\n    && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)\n  ] | order(publishedAt desc, _createdAt desc) {\n      _id,\n      title,\n      publishedAt,\n      "mainImage": {\n        "caption": mainImage.caption,\n        "attribution": mainImage.attribution,\n        "crop": mainImage.crop,\n        "hotspot": mainImage.hotspot,\n        "asset": mainImage.asset->,\n      },\n      division->{\n        name,\n        "slug": slug.current,\n      },\n      conferences[]->{\n        shortName,\n        name,\n        "slug": slug.current,\n      },\n      "slug": slug.current,\n      "author": author->{name},\n  }[0...3]\n}\n': PostsBySlugQueryResult
     '\n*[_type == "post" && division->name == $division && !(_id in $ids)] | order(publishedAt desc, _updatedAt desc)[0...5] {\n  _id,\n  title,\n  "slug": slug.current,\n  publishedAt,\n  "mainImage": {\n    "caption": mainImage.caption,\n    "attribution": mainImage.attribution,\n    "crop": mainImage.crop,\n    "hotspot": mainImage.hotspot,\n    "asset": mainImage.asset->,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n  },\n  conferences[]->{\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "author": author->{name, image, \'slug\': slug.current},\n}\n': LatestDivisionArticlesQueryResult
-    '\n*[_type == "post" && featuredArticle != true] | order(publishedAt desc) [0] {\n  \n  _id,\n  title,\n  publishedAt,\n  "mainImage": {\n    "caption": mainImage.caption,\n    "attribution": mainImage.attribution,\n    "crop": mainImage.crop,\n    "hotspot": mainImage.hotspot,\n    "asset": mainImage.asset->,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n    longName\n  },\n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "slug": slug.current,\n  "author": author->{name, \'slug\': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},\n  excerpt,\n\n}': HeroArticleQueryResult
-    '\n*[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..2] {\n  \n  _id,\n  title,\n  publishedAt,\n  "mainImage": {\n    "caption": mainImage.caption,\n    "attribution": mainImage.attribution,\n    "crop": mainImage.crop,\n    "hotspot": mainImage.hotspot,\n    "asset": mainImage.asset->,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n    longName\n  },\n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "slug": slug.current,\n  "author": author->{name, \'slug\': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},\n  excerpt,\n\n}\n': RecentArticlesQueryResult
-    '\n*[_type == "post" && featuredArticle == true] | order(publishedAt desc, _updatedAt desc)[0..3] {\n  \n  _id,\n  title,\n  publishedAt,\n  "mainImage": {\n    "caption": mainImage.caption,\n    "attribution": mainImage.attribution,\n    "crop": mainImage.crop,\n    "hotspot": mainImage.hotspot,\n    "asset": mainImage.asset->,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n    longName\n  },\n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "slug": slug.current,\n  "author": author->{name, \'slug\': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},\n  excerpt,\n\n}\n': FeaturedArticlesQueryResult
-    "\n  *[_type == 'author' && slug.current == $slug && archived == false][0]{\n    \n  _id,\n  _updatedAt,\n  name,\n  'slug': slug.current,\n  roles,\n  image,\n  biography,\n  socialMedia\n\n  }\n": AuthorBySlugResult
+    '\n*[_type == "post" && featuredArticle != true] | order(publishedAt desc) [0] {\n  \n  _id,\n  title,\n  publishedAt,\n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n    longName\n  },\n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "slug": slug.current,\n  "author": author->{name, \'slug\': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},\n  excerpt,\n\n}': HeroArticleQueryResult
+    '\n*[_type == "post" && featuredArticle != true] | order(publishedAt desc, _updatedAt desc)[1..2] {\n  \n  _id,\n  title,\n  publishedAt,\n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n    longName\n  },\n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "slug": slug.current,\n  "author": author->{name, \'slug\': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},\n  excerpt,\n\n}\n': RecentArticlesQueryResult
+    '\n*[_type == "post" && featuredArticle == true] | order(publishedAt desc, _updatedAt desc)[0..3] {\n  \n  _id,\n  title,\n  publishedAt,\n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  },\n  division->{\n    name,\n    "slug": slug.current,\n    longName\n  },\n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n  },\n  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n  "slug": slug.current,\n  "author": author->{name, \'slug\': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},\n  excerpt,\n\n}\n': FeaturedArticlesQueryResult
     '\n*[_id == $authorId][0] {\n  "conferences": array::unique(*[_id in *[_type == "post" && references($authorId)].conferences[]._ref])[] {\n    _id,\n    name,\n    shortName,\n    "division": division->.name\n  } | order(name asc)\n}\n': ConferencesAuthorHasWrittenForResult
     '\n*[_type == "conference" && defined(slug.current) && defined(division) && count(*[_type == \'post\' && references(^._id)]) > 0]{\n  "slug": slug.current,\n  "divisionSlug": division->slug.current,\n}\n': ConferencePathsResult
     '\n*[_type == \'author\' && defined(slug.current) && archived == false]{\n  _id,\n  _updatedAt,\n  "slug": slug.current,\n}\n': AuthorsForSiteMapQueryResult
@@ -2453,12 +2573,16 @@ declare module '@sanity/client' {
     '\n*[_type == "school" && _id in $ids[].id]{\n  _id,\n  "_points": $ids[id == ^._id][0].totalPoints,\n  name,\n  shortName,\n  abbreviation,\n  image,\n} | order(_points desc)\n': SchoolsByIdOrderedByPointsResult
     '\n*[_type == "post"] | order(publishedAt desc)[0...3]{\n  _id,\n  title,\n  publishedAt,\n  "slug": slug.current,\n  "author": author->{name},\n  excerpt,\n}\n': LastThreePostsResult
     '\n*[_type == "school" && _id in $ids[].teamId]{\n  _id,\n  "_order": $ids[teamId == ^._id][0].rank,\n  name,\n  shortName,\n  abbreviation,\n  image,\n} | order(_order)\n': SchoolWithVoteOrderResult
-    '\n  *[_type == "post" && slug.current == $slug][0]{\n    ...,\n    "slug": slug.current,\n    \n  division->{\n    _id,\n    name,\n    "slug": slug.current,\n    logo{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    }\n  }\n,\n    \n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n    logo{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    }\n  }\n,\n    \n  authors[]->{\n    _id,\n    name,\n    roles,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n,\n    \n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "division" => "/news/" + reference->slug.current,\n        reference->_type == "conference" => "/news/" + reference->division->slug.current + "/" + reference->slug.current,\n        reference->_type == "article" => "/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n\n  }\n\n  }\n': QueryPostSlugDataResult
-    '\n  *[_type == "footer" && _id == "footer"][0]{\n    _id,\n    subtitle,\n    columns[]{\n      _key,\n      title,\n      links[]{\n        _key,\n        name,\n        "openInNewTab": url.openInNewTab,\n        "href": select(\n          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,\n          url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n          url.type == "external" => url.external,\n          url.href\n        )\n      }\n    },\n    "logo": *[_type == "settings"][0].logo.asset->url + "?w=80&h=40&dpr=3&fit=max",\n    "siteTitle": *[_type == "settings"][0].siteTitle,\n    "socialLinks": *[_type == "settings"][0].socialLinks,\n  }\n': QueryFooterDataResult
+    '\n  *[_type == "settings"][0]{\n    _id,\n    _type,\n    siteTitle,\n    siteDescription,\n    "logo": logo.asset->url + "?w=80&h=40&dpr=3&fit=max",\n    "socialLinks": socialLinks,\n    "contactEmail": contactEmail,\n  }\n': QuerySettingsDataResult
+    '\n  *[_type == "post" && slug.current == $slug][0]{\n    ...,\n    "slug": slug.current,\n    sport->{\n      _id,\n      "slug": slug.current,\n      title\n    },\n    \n  division->{\n    _id,\n    name,\n    "slug": slug.current,\n    logo{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    }\n  }\n,\n    \n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n    logo{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    },\n    division->{\n      "slug": slug.current,\n    },\n    sportSubdivisionAffiliations[]{\n        _key,\n        sport->{\n          _id, // Need this _id for client-side comparison\n        },\n        subgrouping->{\n          "slug": slug.current,\n          name,\n          shortName\n        }\n      }\n  }\n,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n,\n    \n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n\n  }\n,\n    "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),\n    "wordCount": length(pt::text(body)),\n    // grab similar posts based on sport, and conferences and NOT division\n    "relatedPosts": *[\n      _type == "post"\n      && _id != ^._id\n      && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)\n    ] | order(publishedAt desc, _createdAt desc) {\n      _id,\n      title,\n      publishedAt,\n      \n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n      "slug": slug.current,\n      authors[]->{\n        _id,\n        name,\n        roles,\n      }\n    }[0...3]\n  }\n': QueryPostSlugDataResult
+    '\n  *[_type == "footer" && _id == "footer"][0]{\n    _id,\n    subtitle,\n    columns[]{\n      _key,\n      title,\n      links[]{\n        _key,\n        name,\n        "openInNewTab": url.openInNewTab,\n        "href": select(\n          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,\n          url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n          url.type == "external" => url.external,\n          url.href\n        )\n      }\n    },\n  }\n': QueryFooterDataResult
+    '\n  *[_type == "settings"][0]{\n    _id,\n    _type,\n    siteTitle,\n    logo{\n      ...,\n      ...asset->{\n        "alt": coalesce(altText, originalFilename, "no-alt"),\n        "blurData": metadata.lqip,\n        "dominantColor": metadata.palette.dominant.background\n      }\n    },\n    siteDescription,\n    socialLinks{\n      facebook,\n      twitter,\n      youtube\n    }\n  }\n': QueryGlobalSeoSettingsResult
     '\n  *[_type == "navbar" && _id == "navbar"][0]{\n    _id,\n    columns[]{\n      _key,\n      _type == "navbarColumn" => {\n        "type": "column",\n        title,\n        links[]{\n          _key,\n          name,\n          icon,\n          description,\n          "openInNewTab": url.openInNewTab,\n          "href": select(\n            url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,\n            url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n            url.type == "external" => url.external,\n            url.href\n          )\n        }\n      },\n      _type == "navbarLink" => {\n        "type": "link",\n        name,\n        description,\n        "openInNewTab": url.openInNewTab,\n        "href": select(\n          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,\n          url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n          url.type == "external" => url.external,\n          url.href\n        )\n      }\n    },\n    "logo": *[_type == "settings"][0].logo.asset->url + "?w=70&h=40&dpr=3&fit=max",\n    "siteTitle": *[_type == "settings"][0].siteTitle,\n  }\n': QueryNavbarDataResult
-    '\n  *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    mainImage{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    publishedAt,\n    division->{\n      name,\n      "slug": slug.current\n    },\n    conferences[]->{\n      name,\n      "slug": slug.current,\n      shortName\n    },\n    author->{\n      name,\n      "slug": slug.current,\n      image\n    },\n    authors[]->{\n      name,\n      "slug": slug.current,\n      image\n    }\n  }\n': QueryHomePageDataResult
+    '\n  *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    mainImage{\n      ...,\n      "alt": coalesce(caption,asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    publishedAt,\n    division->{\n      name,\n      "slug": slug.current\n    },\n    conferences[]->{\n      name,\n      "slug": slug.current,\n      shortName\n    },\n    author->{\n      name,\n      "slug": slug.current,\n      image\n    },\n    authors[]->{\n      name,\n      "slug": slug.current,\n      image\n    }\n  }\n': QueryHomePageDataResult
     '\n *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    mainImage{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    publishedAt,\n    division->{\n      name,\n      "slug": slug.current\n    },\n    conferences[]->{\n      name,\n      "slug": slug.current,\n      shortName\n    },\n    author->{\n      name,\n      "slug": slug.current,\n      image\n    },\n    authors[]->{\n      name,\n      "slug": slug.current,\n      image\n    }\n  }\n': QueryLatestArticlesResult
     '\n  *[_type == "post" && division->name == $division && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    mainImage{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    publishedAt,\n    division->{\n      name,\n      "slug": slug.current\n    },\n    conferences[]->{\n      name,\n      "slug": slug.current,\n      shortName\n    },\n    authors[]->{\n      name,\n      "slug": slug.current,\n      image{\n        ...,\n        "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n        "blurData": asset->metadata.lqip,\n        "dominantColor": asset->metadata.palette.dominant.background,\n        "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n      },\n    }\n  }\n': QueryLatestCollegeSportsArticlesResult
     '{\n  "posts": *[_type == "post" && defined(slug.current)] {\n    "slug": slug.current,\n    "lastModified": _updatedAt\n  },\n  "authors": *[_type == "author" && defined(slug.current) && archived == false] {\n    "slug": slug.current,\n    "lastModified": _updatedAt\n  },\n  "sports": *[_type == "sport" && defined(title) && count(*[_type == "post" && references(^._id)]) > 0] {\n    "slug": slug.current,\n    "lastModified": _updatedAt\n  },\n}': QuerySitemapDataResult
+    '\n*[_type == "sport" && slug.current == $slug][0]{\n  _id,\n  title,\n}': SportInfoBySlugResult
+    '\n  *[_type == "author" && slug.current == $slug && archived == false][0]{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n  }\n': AuthorBySlugResult
   }
 }

@@ -243,12 +243,6 @@ export const otherArticlesQuery = groq`
 }
 `
 
-export const authorBySlug = groq`
-  *[_type == 'author' && slug.current == $slug && archived == false][0]{
-    ${authorFields}
-  }
-`
-
 export const conferencesAuthorHasWrittenFor = groq`
 *[_id == $authorId][0] {
   "conferences": array::unique(*[_id in *[_type == "post" && references($authorId)].conferences[]._ref])[] {
