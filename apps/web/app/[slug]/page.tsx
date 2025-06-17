@@ -9,13 +9,13 @@ import { AuthorSection, MobileAuthorSection } from '@/components/posts/author'
 import { RichText } from '@/components/rich-text'
 import { LargeArticleSocialShare } from '@/components/posts/article-share'
 import CustomImage from '@/components/sanity-image'
-import { urlForImage } from '@/lib/sanity.image'
+import { urlFor } from '@/lib/sanity/client'
 import ArticleCard from '@/components/article-card'
 import { ArticleJsonLd, buildSafeImageUrl, JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
 
 import type { Metadata } from 'next'
-import type { ListItem, WithContext, WebPage } from 'schema-dts'
+import type { WithContext, WebPage } from 'schema-dts'
 
 interface PageProps {
   params: Promise<{
@@ -51,7 +51,7 @@ export async function generateMetadata({
       url: `/${slug}`,
       images: [
         {
-          url: urlForImage(pageData.mainImage).width(1200).height(630).url(),
+          url: urlFor(pageData.mainImage).width(1200).height(630).url(),
           width: 1200,
           height: 630,
           alt: pageData.mainImage.caption,
@@ -72,7 +72,7 @@ export async function generateMetadata({
       description: pageData.excerpt,
       images: [
         {
-          url: urlForImage(pageData.mainImage).width(1200).height(630).url(),
+          url: urlFor(pageData.mainImage).width(1200).height(630).url(),
           width: 1200,
           height: 630,
           alt: pageData.mainImage.caption,

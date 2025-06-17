@@ -3,8 +3,7 @@ import Link from 'next/link'
 import Date from '@/components/date'
 import ArticleCard from '@/components/article-card'
 import CustomImage from '../sanity-image'
-
-import { Post } from '@/types'
+import { Post } from '@/lib/sanity/sanity.types'
 
 const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
   const heroArticle = heroPosts[0]!

@@ -68,6 +68,15 @@ export const settings = defineType({
       },
     }),
     defineField({
+      name: 'defaultOpenGraphImage',
+      type: 'image',
+      title: 'Default Open Graph Image',
+      description: 'Image used for social media sharing when no specific image is set',
+      options: {
+        hotspot: true,
+      },
+    }),
+    defineField({
       name: 'contactEmail',
       type: 'string',
       title: 'Contact Email',

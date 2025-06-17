@@ -4,7 +4,7 @@ import { desc, eq, and, sql } from 'drizzle-orm'
 import { weeklyFinalRankings, voterBallots } from './db/schema'
 
 import { db } from '@/server/db'
-import { client } from '@/lib/sanity.client'
+import { client } from '@/lib/sanity/client'
 
 interface GetUsersVote {
   year: number

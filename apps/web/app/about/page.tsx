@@ -5,7 +5,6 @@ import { getAuthors } from '@/lib/sanity.fetch'
 import { Image as SanityImage } from '@/components/image'
 import { Twitter, Facebook, Instagram } from '@/components/icons'
 import PageHeader from '@/components/page-header'
-import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'
 
@@ -21,8 +20,6 @@ export const metadata: Metadata = constructMetadata({
 const jsonLd: Graph = {
   '@context': 'https://schema.org',
   '@graph': [
-    Org,
-    Web,
     {
       '@type': 'BreadcrumbList',
       '@id': `${HOME_DOMAIN}/about#breadcrumb`,

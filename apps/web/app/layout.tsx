@@ -7,7 +7,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Toaster } from '@workspace/ui/components/sonner'
 
 import { Providers } from '@/components/providers'
-import { SiteHeader } from '@/components/site-header'
 import { MegaNav } from '@/components/mega-nav'
 import { FooterServer, FooterSkeleton } from '@/components/footer'
 import { SanityLive } from '@/lib/sanity/live'

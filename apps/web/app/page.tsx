@@ -12,15 +12,9 @@ import {
 } from '@/lib/sanity/query'
 import ArticleCard from '@/components/article-card'
 import ArticleSection from '@/components/article-section'
-import { Org, Web } from '@/lib/ldJson'
 
 import { type Metadata } from 'next'
 import type { Graph } from 'schema-dts'
-
-const jsonLd: Graph = {
-  '@context': 'https://schema.org',
-  '@graph': [Org, Web],
-}
 
 async function fetchHomePageData() {
   return await sanityFetch({
@@ -112,10 +106,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
       <Hero heroPosts={homePageData} />
       {latestArticles.length > 0 && (
         <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
@@ -135,19 +125,19 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {latestArticles.map((article) => (
-                <ArticleCard
-                  title={article.title}
-                  conferences={article.conferences}
-                  division={article.division}
-                  date={article.publishedAt}
-                  image={article.mainImage}
-                  slug={article.slug}
-                  key={article._id}
-                  author={article.author.name}
-                  sport={article.sport}
-                />
-              ))}
+              {latestArticles &&
+                latestArticles.map((article) => (
+                  <ArticleCard
+                    title={article.title}
+                    conferences={article.conferences}
+                    division={article.division}
+                    date={article.publishedAt}
+                    image={article.mainImage}
+                    slug={article.slug}
+                    key={article._id}
+                    author={article.author.name}
+                  />
+                ))}
             </div>
           </div>
         </section>

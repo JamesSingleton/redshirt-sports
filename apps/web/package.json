@@ -16,7 +16,7 @@
     "db:studio": "drizzle-kit studio --verbose"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.21.0",
+    "@clerk/nextjs": "^6.22.0",
     "@hookform/resolvers": "^5.1.1",
     "@portabletext/react": "^3.2.1",
     "@portabletext/to-html": "^2.0.14",
@@ -37,33 +37,33 @@
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.515.0",
-    "next": "15.4.0-canary.80",
+    "next": "15.4.0-canary.83",
     "next-plausible": "^3.12.4",
     "next-sanity": "^9.12.0",
     "next-themes": "0.4.6",
     "postgres": "^3.4.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-hook-form": "^7.57.0",
+    "react-hook-form": "^7.58.0",
     "react-tweet": "^3.2.2",
     "sanity-image": "^1.0.0",
     "schema-dts": "^1.1.5",
     "server-only": "^0.0.1",
     "sonner": "^2.0.5",
     "svix": "^1.67.0",
-    "zod": "^3.25.64"
+    "zod": "^3.25.65"
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^24.0.1",
+    "@types/node": "^24.0.3",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
     "babel-plugin-react-compiler": "19.1.0-rc.2",
     "drizzle-kit": "^0.31.1",
-    "eslint": "^9.28.0",
-    "postcss": "^8.5.5",
+    "eslint": "^9.29.0",
+    "postcss": "^8.5.6",
     "tailwindcss": "^4.1.10",
     "typescript": "^5.8.3"
   }

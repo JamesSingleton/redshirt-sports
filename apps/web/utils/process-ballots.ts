@@ -1,4 +1,4 @@
-import { client } from '@/lib/sanity.client'
+import { client } from '@/lib/sanity/client'
 import { token } from '@/lib/sanity.fetch'
 import { schoolWithVoteOrder } from '@/lib/sanity.queries'
 

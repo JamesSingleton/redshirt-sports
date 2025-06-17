@@ -3,7 +3,7 @@ import { Feed } from 'feed'
 
 import { getRSSFeed } from '@/lib/sanity.fetch'
 import { HOME_DOMAIN } from '@/lib/constants'
-import { urlForImage } from '@/lib/sanity.image'
+import { buildSafeImageUrl } from '@/components/json-ld'
 
 export async function GET() {
   const posts = await getRSSFeed()
@@ -47,7 +47,7 @@ export async function GET() {
           { name: post.division.name, domain: `${HOME_DOMAIN}/news/${post.division.slug}` },
         ],
       }),
-      image: urlForImage(post.mainImage).url(),
+      image: buildSafeImageUrl(post.mainImage),
     })
   })
 

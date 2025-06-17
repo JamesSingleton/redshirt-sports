@@ -14,12 +14,13 @@ import {
 } from '@/components/icons'
 import ArticleCard from '@/components/article-card'
 import PaginationControls from '@/components/pagination-controls'
-import { urlForImage } from '@/lib/sanity.image'
+import { urlFor } from '@/lib/sanity/client'
 import { Org, Web } from '@/lib/ldJson'
 import { perPage, HOME_DOMAIN } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'
 import { sanityFetch } from '@/lib/sanity/live'
 import CustomImage from '@/components/sanity-image'
+import { buildSafeImageUrl } from '@/components/json-ld'
 
 import type { Metadata } from 'next'
 import { authorBySlug, postsByAuthor } from '@/lib/sanity/query'
@@ -88,7 +89,7 @@ export async function generateMetadata({
     title: `${author.name} - ${roles} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
     description: `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`,
     canonical,
-    image: urlForImage(author.image).width(1200).height(630).url(),
+    image: urlFor(author.image).width(1200).height(630).url(),
     ogType: 'profile',
   })
 }
@@ -137,7 +138,7 @@ export default async function Page({
           '@type': 'Person',
           '@id': `${HOME_DOMAIN}/authors/${author.slug}#person`,
           name: author.name,
-          image: urlForImage(author.image).width(1200).height(630).url(),
+          image: buildSafeImageUrl(author.image),
           url: `${HOME_DOMAIN}/authors/${author.slug}`,
           sameAs: author.socialMedia.map((social: any) => social.url),
           jobTitle: author.roles.join(', '),
@@ -160,7 +161,7 @@ export default async function Page({
         '@type': 'ImageObject',
         '@id': `${HOME_DOMAIN}/authors/${author.slug}#primaryimage`,
         inLanguage: 'en-US',
-        url: urlForImage(author.image).width(1200).height(675).url(),
+        url: buildSafeImageUrl(author.image),
         width: '1200',
         height: '675',
         caption: `${author.roles.join(', ')} ${author.name}`,

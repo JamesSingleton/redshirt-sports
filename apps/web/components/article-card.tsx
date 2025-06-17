@@ -3,6 +3,7 @@ import { Separator } from '@workspace/ui/components/separator'
 
 import CustomImage from './sanity-image'
 import Date from '@/components/date'
+import { Conference, Division } from '@/lib/sanity/sanity.types'
 
 export default function ArticleCard({
   title,
@@ -19,15 +20,8 @@ export default function ArticleCard({
   slug: string
   author: string
   date: string
-  division: {
-    name: string
-    slug: string
-  }
-  conferences: {
-    shortName: string
-    name: string
-    slug: string
-  }[]
+  division: Division
+  conferences: Conference[]
   headingLevel?: 'h2' | 'h3' | 'h4'
 }) {
   const Heading = headingLevel

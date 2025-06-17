@@ -133,7 +133,7 @@ export function OrganizationJsonLd({ settings }: { settings: any }) {
       ? ({
           '@type': 'ContactPoint',
           email: settings.contactEmail,
-          contactType: 'media inquiries',
+          contactType: 'general',
         } as ContactPoint)
       : undefined,
     sameAs: socialLinks?.length ? socialLinks : undefined,
