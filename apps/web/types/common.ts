@@ -8,6 +8,8 @@ export type WithClassName<T = {}> = T & {
   className?: string
 }
 
+export type Maybe<T> = T | null | undefined
+
 export type MainImage<T = {}> = T & {
   asset: {
     _id: string

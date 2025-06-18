@@ -14,7 +14,6 @@ import {
 } from '@/components/icons'
 import ArticleCard from '@/components/article-card'
 import PaginationControls from '@/components/pagination-controls'
-import { urlFor } from '@/lib/sanity/client'
 import { Org, Web } from '@/lib/ldJson'
 import { perPage, HOME_DOMAIN } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'
@@ -41,7 +40,6 @@ async function fetchAuthorPosts(slug: string, pageIndex: number) {
 
 async function fetchAuthorData(slug: string, pageIndex: number) {
   try {
-    // Fetch author and posts in parallel for better performance
     const [authorResult, postsResult] = await Promise.all([
       sanityFetch({
         query: authorBySlug,
@@ -89,7 +87,7 @@ export async function generateMetadata({
     title: `${author.name} - ${roles} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
     description: `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`,
     canonical,
-    image: urlFor(author.image).width(1200).height(630).url(),
+    image: buildSafeImageUrl(author.image),
     ogType: 'profile',
   })
 }

@@ -9,14 +9,6 @@ export interface AboutPagePayload {
   authors: Author[]
 }
 
-export interface PrivacyPolicyPagePayload {
-  _id: string
-  _updatedAt: string
-  title: string
-  slug: string
-  body: PortableTextBlock[]
-}
-
 export interface PostPayload {
   _id: string
   _updatedAt: string

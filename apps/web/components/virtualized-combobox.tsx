@@ -16,7 +16,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover'
 import { cn } from '@workspace/ui/lib/utils'
 
-import { Image as SanityImage } from '@/components/image'
+import CustomImage from '@/components/sanity-image'
 import { ImageAsset } from 'sanity'
 
 type Option = {
@@ -47,6 +47,7 @@ const VirtualizedCommand = ({
   const [filteredOptions, setFilteredOptions] = React.useState<Option[]>(
     options.filter((option) => !selectedOptions.includes(option._id)),
   )
+  const [searchValue, setSearchValue] = React.useState('')
   const parentRef = React.useRef(null)
 
   const virtualizer = useVirtualizer({
@@ -58,16 +59,35 @@ const VirtualizedCommand = ({
 
   const virtualOptions = virtualizer.getVirtualItems()
 
-  const handleSearch = (search: string) => {
-    const fuse = new Fuse(
-      options.filter((option) => !selectedOptions.includes(option._id)),
-      {
-        keys: ['name', 'shortName', 'abbreviation'],
-      },
-    )
+  const handleSearch = React.useCallback(
+    (search: string) => {
+      setSearchValue(search)
 
-    setFilteredOptions(fuse.search(search).map((result) => result.item))
-  }
+      const availableOptions = options.filter((option) => !selectedOptions.includes(option._id))
+
+      // If search is empty, show all available options
+      if (!search || search.trim() === '') {
+        setFilteredOptions(availableOptions)
+        return
+      }
+
+      const fuse = new Fuse(availableOptions, {
+        keys: ['name', 'shortName', 'abbreviation'],
+      })
+
+      const searchResults = fuse.search(search).map((result) => result.item)
+      setFilteredOptions(searchResults)
+    },
+    [options, selectedOptions],
+  )
+
+  // Reset filtered options when options or selectedOptions change
+  React.useEffect(() => {
+    if (!searchValue) {
+      const availableOptions = options.filter((option) => !selectedOptions.includes(option._id))
+      setFilteredOptions(availableOptions)
+    }
+  }, [options, selectedOptions, searchValue])
 
   return (
     <Command shouldFilter={false}>
@@ -89,40 +109,44 @@ const VirtualizedCommand = ({
               position: 'relative',
             }}
           >
-            {virtualOptions.map((virtualOption) => (
-              <CommandItem
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: `${virtualOption.size}px`,
-                  transform: `translateY(${virtualOption.start}px)`,
-                }}
-                key={filteredOptions[virtualOption.index]._id}
-                value={filteredOptions[virtualOption.index]._id}
-                onSelect={onSelectOption}
-              >
-                <Check
-                  className={cn(
-                    'mr-2 h-4 w-4',
-                    selectedOption === filteredOptions[virtualOption.index]._id
-                      ? 'opacity-100'
-                      : 'opacity-0',
-                  )}
-                />
-                <div className="flex items-center">
-                  <SanityImage
-                    asset={filteredOptions[virtualOption.index].image as any}
-                    width={32}
-                    height={32}
-                    priority={false}
-                    className="mr-2 h-8 w-8"
+            {virtualOptions.map((virtualOption) => {
+              const option = filteredOptions[virtualOption.index]
+              if (!option) {
+                return null
+              }
+
+              return (
+                <CommandItem
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualOption.size}px`,
+                    transform: `translateY(${virtualOption.start}px)`,
+                  }}
+                  key={option._id}
+                  value={option._id}
+                  onSelect={onSelectOption}
+                >
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      selectedOption === option._id ? 'opacity-100' : 'opacity-0',
+                    )}
                   />
-                  {filteredOptions[virtualOption.index].shortName}
-                </div>
-              </CommandItem>
-            ))}
+                  <div className="flex items-center">
+                    <CustomImage
+                      image={option.image}
+                      width={32}
+                      height={32}
+                      className="mr-2 h-8 w-8"
+                    />
+                    {option.shortName}
+                  </div>
+                </CommandItem>
+              )
+            })}
           </div>
         </CommandGroup>
       </CommandList>
@@ -158,11 +182,10 @@ export function VirtualizedCombobox({
         <Button variant="outline" role="combobox" aria-expanded={open} className="justify-between">
           {options.find((option) => option._id === selectedOption)?.image ? (
             <span className="inline-flex items-center">
-              <SanityImage
-                asset={options.find((option) => option._id === selectedOption)?.image as any}
+              <CustomImage
+                image={options.find((option) => option._id === selectedOption)?.image as any}
                 width={32}
                 height={32}
-                priority={false}
                 className="mr-2 h-8 w-8"
               />
               {options.find((option) => option._id === selectedOption)?.shortName}

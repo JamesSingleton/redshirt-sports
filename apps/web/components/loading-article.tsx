@@ -4,7 +4,7 @@ import { Separator } from '@workspace/ui/components/separator'
 export function LoadingArticle() {
   return (
     <div className="overflow-hidden rounded-lg shadow-lg">
-      <div className="flex h-48 w-full items-center justify-center bg-muted">
+      <div className="bg-muted flex h-48 w-full items-center justify-center">
         <Skeleton className="h-8 w-32" />
       </div>
       <div className="bg-background p-4">

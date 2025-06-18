@@ -1,17 +1,17 @@
-import { sanityFetch } from "@/lib/sanity/live";
-import { queryNavbarData } from "@/lib/sanity/query";
-import type { QueryNavbarDataResult } from "@/lib/sanity/sanity.types";
+import { sanityFetch } from '@/lib/sanity/live'
+import { queryNavbarData } from '@/lib/sanity/query'
+import type { QueryNavbarDataResult } from '@/lib/sanity/sanity.types'
 
-import { Logo } from "./logo";
-import { NavbarClient, NavbarSkeletonResponsive } from "./navbar-client";
+import { Logo } from './logo'
+import { NavbarClient, NavbarSkeletonResponsive } from './navbar-client'
 
 export async function NavbarServer() {
-  const navbarData = await sanityFetch({ query: queryNavbarData });
-  return <Navbar navbarData={navbarData.data} />;
+  const navbarData = await sanityFetch({ query: queryNavbarData })
+  return <Navbar navbarData={navbarData.data} />
 }
 
 export function Navbar({ navbarData }: { navbarData: QueryNavbarDataResult }) {
-  const { logo, siteTitle } = navbarData ?? {};
+  const { logo, siteTitle } = navbarData ?? {}
 
   return (
     <section className="py-3 md:border-b">
@@ -22,7 +22,7 @@ export function Navbar({ navbarData }: { navbarData: QueryNavbarDataResult }) {
         </nav>
       </div>
     </section>
-  );
+  )
 }
 
 export function NavbarSkeleton() {
@@ -30,10 +30,10 @@ export function NavbarSkeleton() {
     <header className="h-[75px] py-4 md:border-b">
       <div className="container mx-auto px-4 md:px-6">
         <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
-          <div className="h-[40px] w-[170px] rounded animate-pulse bg-muted" />
+          <div className="bg-muted h-[40px] w-[170px] animate-pulse rounded" />
           <NavbarSkeletonResponsive />
         </nav>
       </div>
     </header>
-  );
+  )
 }

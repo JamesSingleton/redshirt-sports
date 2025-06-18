@@ -32,7 +32,7 @@ export async function FooterServer() {
 function SocialLinks({ data }: SocialLinksProps) {
   if (!data) return null
 
-  const { facebook, twitter, instagram, youtube, linkedin } = data
+  const { facebook, twitter, youtube } = data
 
   const socialLinks = [
     { url: facebook, Icon: Facebook, label: 'Follow us on Facebook' },

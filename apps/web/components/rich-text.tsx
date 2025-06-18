@@ -1,16 +1,23 @@
-import Link from "next/link"
-import { CameraIcon } from "lucide-react"
-import { PortableText, type PortableTextReactComponents, type PortableTextBlock, PortableTextMarkComponentProps } from "next-sanity"
-import { cn } from "@workspace/ui/lib/utils"
-import {Table,
+import Link from 'next/link'
+import { CameraIcon } from 'lucide-react'
+import {
+  PortableText,
+  type PortableTextReactComponents,
+  type PortableTextBlock,
+  PortableTextMarkComponentProps,
+} from 'next-sanity'
+import { cn } from '@workspace/ui/lib/utils'
+import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,} from '@workspace/ui/components/table'
+  TableRow,
+} from '@workspace/ui/components/table'
 
 import { ReactTweet as Tweet } from '@/components/tweet'
-import { Image as SanityImage } from '@/components/image'
+import CustomImage from '@/components/sanity-image'
 
 type TableType = {
   _type: 'table'
@@ -26,38 +33,25 @@ type TableType = {
 const components: Partial<PortableTextReactComponents> = {
   block: {
     h2: ({ children, value }) => {
-      return (
-        <h2 className="text-4xl">
-          {children}
-        </h2>
-      );
+      return <h2 className="text-4xl">{children}</h2>
     },
     h3: ({ children, value }) => {
-      return (
-        <h3 className="text-3xl">{children}</h3>
-      );
+      return <h3 className="text-3xl">{children}</h3>
     },
     h4: ({ children, value }) => {
-      return (
-        <h4 className="text-2xl">{children}</h4>
-      );
+      return <h4 className="text-2xl">{children}</h4>
     },
     h5: ({ children, value }) => {
-      return (
-        <h5 className="text-xl">{children}</h5>
-      );
+      return <h5 className="text-xl">{children}</h5>
     },
     h6: ({ children, value }) => {
-      return (
-        <h6 className="text-lg">{children}</h6>
-      );
+      return <h6 className="text-lg">{children}</h6>
     },
   },
   marks: {
-    internalLink:  ({ children, value }: PortableTextMarkComponentProps) => {
-    
+    internalLink: ({ children, value }: PortableTextMarkComponentProps) => {
       return (
-        <Link href={value?.href} prefetch={false} className="underline hover:text-muted-foreground">
+        <Link href={value?.href} prefetch={false} className="hover:text-muted-foreground underline">
           {children}
         </Link>
       )
@@ -65,7 +59,7 @@ const components: Partial<PortableTextReactComponents> = {
     link: ({ value, children }: PortableTextMarkComponentProps) => {
       return value?.blank ? (
         <a
-          className="underline hover:text-muted-foreground"
+          className="hover:text-muted-foreground underline"
           href={value?.href}
           rel="noreferrer noopener"
           target="_blank"
@@ -75,33 +69,26 @@ const components: Partial<PortableTextReactComponents> = {
           {children}
         </a>
       ) : (
-        <a className="underline hover:text-muted-foreground" href={value?.href}>
+        <a className="hover:text-muted-foreground underline" href={value?.href}>
           {children}
         </a>
       )
-    }
+    },
   },
   types: {
-    twitter: ({value}) => {
+    twitter: ({ value }) => {
       return (
         <div className="not-prose flex items-center justify-center">
           <Tweet id={value.id} />
         </div>
       )
     },
-    image: ({value}) => {
+    image: ({ value }) => {
       return (
         <figure className="my-2 flex flex-col items-center self-center rounded-lg shadow-md">
-          <SanityImage
-            asset={value}
-            width={720}
-            height={379}
-            priority={false}
-            className="rounded-lg"
-            alt={value.asset.altText ?? value.caption}
-          />
+          <CustomImage image={value} width={720} height={379} className="rounded-lg" />
           {value.attribution && (
-            <figcaption className="flex items-center gap-2 text-sm text-muted-foreground">
+            <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
               <CameraIcon className="h-4 w-4" />
               <span>Source: {value.asset.creditLine ?? value.attribution}</span>
             </figcaption>
@@ -131,7 +118,7 @@ const components: Partial<PortableTextReactComponents> = {
                       <div className="flex items-center">
                         <div>
                           <div className="font-medium">{vote.voterName}</div>
-                          <div className="mt-1 text-sm italic text-muted-foreground">
+                          <div className="text-muted-foreground mt-1 text-sm italic">
                             {vote.voterAffiliation}
                           </div>
                         </div>
@@ -141,12 +128,11 @@ const components: Partial<PortableTextReactComponents> = {
                       vote.teams.map((team: any) => (
                         <TableCell key={team._id}>
                           <div className="w-8">
-                            <SanityImage
+                            <CustomImage
                               className="w-full"
-                              asset={team.image}
+                              image={team.image}
                               width={32}
                               height={32}
-                              alt={team.name}
                             />
                           </div>
                         </TableCell>
@@ -168,9 +154,8 @@ const components: Partial<PortableTextReactComponents> = {
           <Table>
             <TableHeader>
               <TableRow>
-                {headerRow && headerRow.cells.map((cell) => (
-                  <TableHead key={cell}>{cell}</TableHead>
-                ))}
+                {headerRow &&
+                  headerRow.cells.map((cell) => <TableHead key={cell}>{cell}</TableHead>)}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -186,7 +171,7 @@ const components: Partial<PortableTextReactComponents> = {
         </div>
       )
     },
-  }
+  },
 }
 
 export function RichText({
@@ -197,9 +182,9 @@ export function RichText({
   className?: string
 }) {
   return (
-    <div 
+    <div
       className={cn(
-        "prose prose-zinc prose-h2:border-b prose-a:underline-offset-2 prose-h2:pb-2 prose-h2:first:mt-0 max-w-none dark:prose-invert",
+        'prose prose-zinc prose-h2:border-b prose-a:underline-offset-2 prose-h2:pb-2 prose-h2:first:mt-0 dark:prose-invert max-w-none',
         className,
       )}
     >
@@ -207,7 +192,7 @@ export function RichText({
         value={richText}
         components={components}
         onMissingComponent={(_, { nodeType, type }) =>
-          console.log("missing component", nodeType, type)
+          console.log('missing component', nodeType, type)
         }
       />
     </div>

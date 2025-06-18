@@ -2,42 +2,6 @@ import { groq } from 'next-sanity'
 
 import { perPage } from './constants'
 
-const legalFields = `
-  _id,
-  _updatedAt,
-  title,
-  slug,
-  body
-`
-
-const authorFields = `
-  _id,
-  _updatedAt,
-  name,
-  'slug': slug.current,
-  roles,
-  image{
-    ...,
-    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-    "blurData": asset->metadata.lqip,
-    "dominantColor": asset->metadata.palette.dominant.background,
-  },
-  biography,
-  socialMedia
-`
-
-export const allAuthors = groq`
-*[_type == 'author' && archived != true] | order(_createdAt asc, name asc){
-  ${authorFields}
-}
-`
-
-export const privacyPolicy = groq`
-*[_type == "legal" && slug.current == "privacy-policy"][0] {
-  ${legalFields}
-}
-`
-
 const postFields = `
   _id,
   _updatedAt,
@@ -285,14 +249,6 @@ export const conferencePaths = groq`
 }
 `
 
-export const authorsForSiteMapQuery = groq`
-*[_type == 'author' && defined(slug.current) && archived == false]{
-  _id,
-  _updatedAt,
-  "slug": slug.current,
-}
-`
-
 export const transferPortalPlayers = groq`
   *[_type == 'transferPortal']{
     ...,
@@ -306,17 +262,6 @@ export const transferPortalPlayers = groq`
       ...
     },
   }
-`
-
-export const divisionsQuery = groq`
-*[_type == "division" && count(*[_type == 'post' && references(^._id)]) > 0]{
-  ...,
-  "slug": slug.current,
-  "conferences": *[_type == "conference" && division._ref == ^._id && count(*[_type == 'post' && references(^._id)]) > 0]{
-    ...,
-    "slug": slug.current,
-  } | order(name asc)
-} | order(name desc)
 `
 
 export const divisionBySlugQuery = groq`
@@ -380,20 +325,6 @@ export const openGraphDataBySlug = groq`
   mainImage,
   "author": author->{name, roles, image},
   "publishedAt": publishedAt,
-}
-`
-
-export const schoolsByDivision = groq`
-*[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){
-  _id,
-  name,
-  shortName,
-  abbreviation,
-  image,
-  conference->{
-    name,
-    shortName
-  }
 }
 `
 

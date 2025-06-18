@@ -27,7 +27,7 @@ import { RankingsFilters } from '@/components/rankings/filters'
 import { constructMetadata } from '@/utils/construct-metadata'
 import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
-import { Image as SanityImage } from '@/components/image'
+import CustomImage from '@/components/sanity-image'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
@@ -159,8 +159,8 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                       <TableCell>{team.isTie ? `T-${team.rank}` : team.rank}</TableCell>
                       <TableCell>
                         <div className="flex items-center">
-                          <SanityImage
-                            asset={team.image}
+                          <CustomImage
+                            image={team.image}
                             width={32}
                             height={32}
                             className="mr-2 h-8 w-8"
@@ -243,7 +243,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                           return (
                             <TableCell key={vote._id}>
                               <div className="h-auto w-10">
-                                <SanityImage asset={vote.image} width={40} height={40} />
+                                <CustomImage image={vote.image} width={40} height={40} />
                               </div>
                             </TableCell>
                           )

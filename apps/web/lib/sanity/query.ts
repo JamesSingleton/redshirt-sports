@@ -198,6 +198,14 @@ export const queryGlobalSeoSettings = defineQuery(`
         "dominantColor": metadata.palette.dominant.background
       }
     },
+    defaultOpenGraphImage{
+      ...,
+      ...asset->{
+        "alt": coalesce(altText, originalFilename, "no-alt"),
+        "blurData": metadata.lqip,
+        "dominantColor": metadata.palette.dominant.background
+      }
+    },
     siteDescription,
     socialLinks{
       facebook,
@@ -250,6 +258,7 @@ export const queryNavbarData = defineQuery(/* groq */ `
 export const queryHomePageData = defineQuery(/* groq */ `
   *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{
     _id,
+    _type,
     title,
     excerpt,
     "slug": slug.current,
@@ -289,6 +298,7 @@ export const queryLatestArticles = defineQuery(/* groq */ `
     title,
     excerpt,
     "slug": slug.current,
+    publishedAt,
     mainImage{
       ...,
       "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
@@ -296,7 +306,6 @@ export const queryLatestArticles = defineQuery(/* groq */ `
       "dominantColor": asset->metadata.palette.dominant.background,
       "credit": coalesce(asset->creditLine, attribution, "Unknown"),
     },
-    publishedAt,
     division->{
       name,
       "slug": slug.current
@@ -500,4 +509,42 @@ export const postsByAuthor = defineQuery(/* groq */ `
     },
     "totalPosts": count(*[_type == "post" && references(^._id)])
   }
+`)
+
+export const authorsListNotArchived = defineQuery(/* groq */ `
+  *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {
+    _id,
+    name,
+    roles,
+    "slug": slug.current,
+    image{
+      ...,
+      "alt": coalesce(asset->altText, ^.name, asset->originalFilename, "Image-Broken"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
+    },
+    socialMedia[]{
+      _key,
+      name,
+      url
+    }
+  }
+`)
+
+export const privacyPolicyQuery = defineQuery(/* groq */ `
+  *[_type == "legal" && slug.current == "privacy-policy"][0]
+`)
+
+export const schoolsByDivisionQuery = defineQuery(/* groq */ `
+  *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){
+  _id,
+  name,
+  shortName,
+  abbreviation,
+  image,
+  conference->{
+    name,
+    shortName
+  }
+}
 `)

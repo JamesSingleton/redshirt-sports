@@ -2,26 +2,6 @@ import type { PortableTextBlock } from 'next-sanity'
 
 import type { MainImage } from './common'
 
-export type Author = {
-  _id: string
-  _createdAt: string
-  _updatedAt: string
-  publishedAt: string
-  archived: boolean
-  name: string
-  slug: string
-  roles: string[]
-  image: MainImage
-  biography: string
-  socialMedia: [
-    {
-      _key: string
-      name: string
-      url: string
-    },
-  ]
-}
-
 export type AuthorPosts = {
   posts: Post[]
   totalPosts: number

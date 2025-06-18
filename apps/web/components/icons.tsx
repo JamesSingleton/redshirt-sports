@@ -1,6 +1,6 @@
-import { SVGProps } from 'react'
+import type { SVGProps } from 'react'
 
-export const Instagram = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const Instagram = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -14,7 +14,7 @@ export const Instagram = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElemen
   </svg>
 )
 
-export const Twitter = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const Twitter = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -28,7 +28,7 @@ export const Twitter = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
   </svg>
 )
 
-export const Facebook = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const Facebook = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -42,7 +42,7 @@ export const Facebook = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement
   </svg>
 )
 
-export const Website = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const Website = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -60,7 +60,7 @@ export const Website = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
   </svg>
 )
 
-export const SpotifyIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const SpotifyIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -74,7 +74,7 @@ export const SpotifyIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElem
   </svg>
 )
 
-export const ApplePodcastIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const ApplePodcastIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -88,7 +88,7 @@ export const ApplePodcastIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSV
   </svg>
 )
 
-export const OvercastIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const OvercastIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -102,7 +102,7 @@ export const OvercastIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGEle
   </svg>
 )
 
-export const RSSIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const RSSIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"
@@ -116,7 +116,7 @@ export const RSSIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
   </svg>
 )
 
-export const YouTubeIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
+export const YouTubeIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     role="img"
     viewBox="0 0 24 24"

@@ -13,9 +13,6 @@ import {
 import ArticleCard from '@/components/article-card'
 import ArticleSection from '@/components/article-section'
 
-import { type Metadata } from 'next'
-import type { Graph } from 'schema-dts'
-
 async function fetchHomePageData() {
   return await sanityFetch({
     query: queryHomePageData,
@@ -43,10 +40,36 @@ async function fetchLatestCollegeSportsArticles({
   })
 }
 
-// export const metadata: Metadata = {
-//   title: "Home Page",
-//   description: "The home page of the website",
-// }
+const divisions = [
+  {
+    key: 'fbs',
+    division: 'FBS',
+    title: 'FBS College Football News',
+    slug: '/college/football/news/fbs',
+    imageFirst: false,
+  },
+  {
+    key: 'fcs',
+    division: 'FCS',
+    title: 'FCS College Football News',
+    slug: '/college/football/news/fcs',
+    imageFirst: false,
+  },
+  {
+    key: 'd2',
+    division: 'D2',
+    title: 'Division II (D2) Football News',
+    slug: '/college/football/news/d2',
+    imageFirst: false,
+  },
+  {
+    key: 'd3',
+    division: 'D3',
+    title: 'Division III (D3) Football News',
+    slug: '/college/football/news/d3',
+    imageFirst: true,
+  },
+]
 
 export default async function HomePage() {
   const [{ data: homePageData }, { data: latestArticles }] = await Promise.all([
@@ -55,37 +78,6 @@ export default async function HomePage() {
   ])
 
   const articleIds = [...homePageData, ...latestArticles].map((article) => article._id)
-
-  const divisions = [
-    {
-      key: 'fbs',
-      division: 'FBS',
-      title: 'FBS College Football News',
-      slug: '/college/football/news/fbs',
-      imageFirst: false,
-    },
-    {
-      key: 'fcs',
-      division: 'FCS',
-      title: 'FCS College Football News',
-      slug: '/college/football/news/fcs',
-      imageFirst: false,
-    },
-    {
-      key: 'd2',
-      division: 'D2',
-      title: 'Division II (D2) Football News',
-      slug: '/college/football/news/d2',
-      imageFirst: false,
-    },
-    {
-      key: 'd3',
-      division: 'D3',
-      title: 'Division III (D3) Football News',
-      slug: '/college/football/news/d3',
-      imageFirst: true,
-    },
-  ]
 
   const collegeSportsResults = await Promise.all(
     divisions.map(({ division }) =>

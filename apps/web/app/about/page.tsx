@@ -1,15 +1,23 @@
 import Link from 'next/link'
 import { Mail, Globe } from 'lucide-react'
 
-import { getAuthors } from '@/lib/sanity.fetch'
-import { Image as SanityImage } from '@/components/image'
 import { Twitter, Facebook, Instagram } from '@/components/icons'
 import PageHeader from '@/components/page-header'
 import { HOME_DOMAIN } from '@/lib/constants'
 import { constructMetadata } from '@/utils/construct-metadata'
+import CustomImage from '@/components/sanity-image'
+import { sanityFetch } from '@/lib/sanity/live'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
+import { authorsListNotArchived } from '@/lib/sanity/query'
+import { Author } from '@/lib/sanity/sanity.types'
+
+async function fetchAuthors() {
+  return await sanityFetch({
+    query: authorsListNotArchived,
+  })
+}
 
 export const metadata: Metadata = constructMetadata({
   title: `Meet the Team | ${process.env.NEXT_PUBLIC_APP_NAME}`,
@@ -61,7 +69,7 @@ const jsonLd: Graph = {
 }
 
 export default async function AboutPage() {
-  const authors = await getAuthors()
+  const { data: authors } = await fetchAuthors()
 
   return (
     <>
@@ -119,15 +127,14 @@ export default async function AboutPage() {
           </div>
           <div className="mx-auto mt-12 max-w-7xl sm:mt-16">
             <ul className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
-              {authors?.map((author) => (
+              {authors?.map((author: Author) => (
                 <li
                   key={author._id}
                   className="bg-card text-card-foreground relative rounded-3xl border px-6 py-10 text-center transition duration-300 ease-in-out hover:border-zinc-300/30 hover:shadow-lg sm:px-10"
                 >
                   <div>
-                    <SanityImage
-                      asset={author.image as any}
-                      alt={`${author.name}'s profile picture`}
+                    <CustomImage
+                      image={author.image}
                       className="mx-auto h-40 w-40 overflow-hidden rounded-full object-cover object-top xl:h-44 xl:w-44"
                       width={176}
                       height={176}

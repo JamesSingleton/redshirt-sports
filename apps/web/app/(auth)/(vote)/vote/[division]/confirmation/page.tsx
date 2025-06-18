@@ -5,7 +5,7 @@ import { buttonVariants } from '@workspace/ui/components/button'
 
 import { getVoterBallots } from '@/server/queries'
 import { getSchoolsById } from '@/lib/sanity.fetch'
-import { Image as SanityImage } from '@/components/image'
+import CustomImage from '@/components/sanity-image'
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
 import { transformBallotToTeamIds } from '@/utils/process-ballots'
 
@@ -83,7 +83,7 @@ export default async function VoteConfirmationPage({
         {schools.map((school, index) => (
           <div className="flex flex-col items-center gap-2" key={school._id}>
             <div className="flex h-16 w-16 flex-col justify-center">
-              <SanityImage asset={school.image as any} width={60} height={60} />
+              <CustomImage image={school.image} width={60} height={60} />
             </div>
             <p className="text-center font-semibold">
               {index + 1}. {school.shortName ?? school.abbreviation ?? school.name}

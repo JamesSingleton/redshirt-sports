@@ -1,18 +1,25 @@
 import PageHeader from '@/components/page-header'
 import Date from '@/components/date'
 import { RichText } from '@/components/rich-text'
-import { getPrivacyPolicy } from '@/lib/sanity.fetch'
 import { HOME_DOMAIN } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
 import { constructMetadata } from '@/utils/construct-metadata'
+import { sanityFetch } from '@/lib/sanity/live'
+import { privacyPolicyQuery } from '@/lib/sanity/query'
 
 import type { Graph } from 'schema-dts'
 import type { Metadata } from 'next'
 
+async function fetchPrivacyPolicy() {
+  return await sanityFetch({
+    query: privacyPolicyQuery,
+  })
+}
+
 export const metadata: Metadata = constructMetadata({
   title: `Privacy Policy | ${process.env.NEXT_PUBLIC_APP_NAME}`,
   description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
-  canonical: '/privacy',
+  canonical: '/privacy-policy',
 })
 
 const jsonLd: Graph = {
@@ -22,8 +29,8 @@ const jsonLd: Graph = {
     Web,
     {
       '@type': 'WebPage',
-      '@id': `${HOME_DOMAIN}/privacy`,
-      url: `${HOME_DOMAIN}/privacy`,
+      '@id': `${HOME_DOMAIN}/privacy-policy`,
+      url: `${HOME_DOMAIN}/privacy-policy`,
       name: 'Privacy Policy',
       description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
       inLanguage: 'en-US',
@@ -45,7 +52,7 @@ const jsonLd: Graph = {
           '@type': 'ListItem',
           position: 2,
           name: 'Privacy Policy',
-          item: `${HOME_DOMAIN}/privacy`,
+          item: `${HOME_DOMAIN}/privacy-policy`,
         },
       ],
     },
@@ -53,7 +60,7 @@ const jsonLd: Graph = {
 }
 
 export default async function PrivacyPolicyPage() {
-  const privacyPolicy = await getPrivacyPolicy()
+  const { data: privacyPolicy } = await fetchPrivacyPolicy()
 
   return (
     <>

@@ -3,13 +3,21 @@ import Image from 'next/image'
 import { auth } from '@clerk/nextjs/server'
 import { CardHeader, CardTitle, CardContent, Card } from '@workspace/ui/components/card'
 
-import { getSchoolsByDivision } from '@/lib/sanity.fetch'
 import Top25 from '@/components/forms/top-25'
 import { getLatestVoterBallotWithSchools, hasVoterVoted } from '@/server/queries'
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
 import { getCurrentSeason } from '@/utils/getCurrentSeason'
+import { sanityFetch } from '@/lib/sanity/live'
+import { schoolsByDivisionQuery } from '@/lib/sanity/query'
 
 import { type Metadata } from 'next'
+
+async function fetchSchoolsByDivision(division: string) {
+  return await sanityFetch({
+    query: schoolsByDivisionQuery,
+    params: { division },
+  })
+}
 
 export async function generateStaticParams() {
   const divisions = ['fbs', 'fcs', 'd2', 'd3']
@@ -61,7 +69,7 @@ export default async function VotePage({ params }: { params: Promise<{ division:
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
   const { userId } = await auth()
 
-  const schools = await getSchoolsByDivision(division)
+  const { data: schools } = await fetchSchoolsByDivision(division)
 
   if (hasVoted) {
     redirect(`/vote/${division}/confirmation`)
