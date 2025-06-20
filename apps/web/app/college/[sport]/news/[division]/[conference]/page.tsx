@@ -53,27 +53,25 @@ export async function getDivisionOrSubgroupingDisplayName(
   slugOrShortName: string,
   { stega = true } = {},
 ) {
-  // First, try to find it as a SportSubgrouping by its shortName (case-insensitive)
   const subgroupingShortName = await sanityFetch({
     query: `*[_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)][0].shortName`,
     params: { slugOrShortName },
     stega,
   })
   if (subgroupingShortName.data) {
-    return subgroupingShortName // e.g., "FCS", "FBS"
+    return subgroupingShortName
   }
 
-  // If not found as a SportSubgrouping, then try to find it as a Division by its slug
   const divisionName = await sanityFetch({
     query: `*[_type == "division" && slug.current == $slugOrShortName][0].title`,
     params: { slugOrShortName },
     stega,
   })
   if (divisionName.data) {
-    return divisionName // e.g., "Division II", "Division III"
+    return divisionName
   }
 
-  return null // Return null if no matching document is found
+  return null
 }
 
 export async function generateMetadata({

@@ -48,7 +48,6 @@ export const post = defineType({
       title: 'Author',
       type: 'reference',
       to: { type: 'author' },
-      validation: (rule) => rule.required(),
       options: {
         filter: 'archived != true',
         disableNew: true,

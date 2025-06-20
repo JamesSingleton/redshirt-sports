@@ -10,8 +10,8 @@ export async function GET() {
 
   const feed = new Feed({
     title: `${process.env.NEXT_PUBLIC_APP_NAME} - All News`,
-    id: `${HOME_DOMAIN}/news`,
-    link: `${HOME_DOMAIN}/news`,
+    id: `${HOME_DOMAIN}/college/news`,
+    link: `${HOME_DOMAIN}/college/news`,
     description: `Get the latest college football news, covering FCS, FBS, D2, and D3. Explore insightful articles and stay informed with ${process.env.NEXT_PUBLIC_APP_NAME}.`,
     language: 'en',
     copyright: `All rights reserved ${new Date().getFullYear()}, ${process.env.NEXT_PUBLIC_APP_NAME}`,

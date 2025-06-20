@@ -2,6 +2,7 @@ import { User } from 'lucide-react'
 import { defineField, defineType } from 'sanity'
 
 import { TextInputWithLimits } from '../../components/text-input-with-limits'
+import { socialLinks } from '../definitions/social-links'
 
 export const author = defineType({
   name: 'author',
@@ -89,6 +90,7 @@ export const author = defineType({
       ],
       validation: (rule) => rule.required(),
     }),
+    socialLinks,
   ],
   preview: {
     select: {

@@ -390,70 +390,22 @@ export const querySitemapData = defineQuery(/* groq */ `{
 
 export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ `
   {
-    "posts": *[_type == "post"
-      // 1. Filter by the main sport of the post
-      && sport->title match $sport // e.g., "Football"
-
-      // 2. Ensure the post references the specific conference by its slug
-      && $conference in conferences[]->slug.current // e.g., "big-sky-conference"
-
-      // 3. CRITICAL NEW LOGIC: Filter by division OR by subgrouping affiliation
-      //    This handles cases where $division is a division slug (D2, D3)
-      //    OR a sportSubgrouping shortName (FCS, FBS).
-      && (
-          // Path A: Post's primary division directly matches the $division slug
-          // This covers "D2", "D3", and any legacy "FCS"/"FBS" division documents
-          division->slug.current == $division
-          
-          || // OR
-
-          // Path B: Post references a conference that is affiliated with a sportSubgrouping
-          // whose shortName matches $division (case-insensitively) for this sport.
-          // This covers "FCS", "FBS" when they are sportSubgroupings.
-          references(
-              *[_type == "conference"
-                  && slug.current == $conference // Match the specific conference from the URL
-                  // Check its sportSubdivisionAffiliations array
-                  && count(sportSubdivisionAffiliations[
-                      // The affiliation's sport reference must match the current sport ID
-                      sport._ref == *[_type == "sport" && title match $sport][0]._id
-                      // AND the affiliation's subgrouping reference must match the specified subgrouping ID
-                      // We use lower() to handle potential case differences between URL param and shortName
-                      && subgrouping._ref == *[_type == "sportSubgrouping" && lower(shortName) == lower($division)][0]._id
-                  ]) > 0
-              ]._id
-          )
-      )
-    ] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+    "posts": *[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (
+      sportSubgrouping->slug.current == $division || division->slug.current == $division
+    )] | order(publishedAt desc) [(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
       ...,
       ${postImageFragment},
       "slug": slug.current,
-      "author": author->{name, "slug": slug.current},
       "authors": authors[]->{name, "slug": slug.current},
     },
-    // Conference info remains the same (uses $conference)
     "conferenceInfo": *[_type == "conference" && slug.current == $conference][0]{
+      _id,
       name,
-      shortName,
+      shortName
     },
-    // Total posts count needs to use the exact same combined filtering logic
-    "totalPosts": count(*[_type == "post"
-      && sport->title match $sport
-      && $conference in conferences[]->slug.current
-      && (
-          division->slug.current == $division
-          ||
-          references(
-              *[_type == "conference"
-                  && slug.current == $conference
-                  && count(sportSubdivisionAffiliations[
-                      sport._ref == *[_type == "sport" && title match $sport][0]._id
-                      && subgrouping._ref == *[_type == "sportSubgrouping" && lower(shortName) == lower($division)][0]._id
-                  ]) > 0
-              ]._id
-          )
-      )
-    ])
+    "totalPosts": count(*[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (
+      sportSubgrouping->slug.current == $division || division->slug.current == $division
+    )]),
   }
 `)
 
@@ -547,4 +499,21 @@ export const schoolsByDivisionQuery = defineQuery(/* groq */ `
     shortName
   }
 }
+`)
+
+export const collegeNewsQuery = defineQuery(/* groq */ `
+  {
+    "posts": *[_type == "post"] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}] {
+      _id,
+      title,
+      "slug": slug.current,
+      publishedAt,
+      authors[]->{
+        name,
+        image
+      },
+      ${postImageFragment}
+    },
+    "totalPosts": count(*[_type == "post"])
+  }
 `)

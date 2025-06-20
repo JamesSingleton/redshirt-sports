@@ -98,24 +98,5 @@ export const division = defineType({
         }),
       ],
     }),
-    // defineField({
-    //   title: 'Conferences',
-    //   name: 'conferences',
-    //   type: 'array',
-    //   of: [
-    //     defineArrayMember({
-    //       type: 'reference',
-    //       to: [{ type: 'conference' }],
-    //       options: {
-    //         filter: ({ document }) => ({
-    //           filter: 'division._ref == $divisionId',
-    //           params: {
-    //             divisionId: document._id.replace('drafts.', ''),
-    //           },
-    //         }),
-    //       },
-    //     }),
-    //   ],
-    // }),
   ],
 })

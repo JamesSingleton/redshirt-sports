@@ -13,6 +13,7 @@ import { urlFor } from '@/lib/sanity/client'
 import ArticleCard from '@/components/article-card'
 import { ArticleJsonLd, buildSafeImageUrl, JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
+import { getMetaData } from '@/lib/seo'
 
 import type { Metadata } from 'next'
 import type { WithContext, WebPage } from 'schema-dts'
@@ -23,10 +24,11 @@ interface PageProps {
   }>
 }
 
-async function fetchPostSlugData(slug: string) {
+async function fetchPostSlugData(slug: string, { stega = true } = {}) {
   return await sanityFetch({
     query: queryPostSlugData,
     params: { slug },
+    stega,
   })
 }
 
@@ -36,58 +38,23 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const { data: pageData } = await fetchPostSlugData(slug)
+  const { data } = await fetchPostSlugData(slug, { stega: false })
 
-  if (!pageData) {
+  if (!data) {
     return {}
   }
 
-  return {
-    title: `${pageData.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-    description: pageData.excerpt,
-    openGraph: {
-      title: `${pageData.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-      description: pageData.excerpt,
-      url: `/${slug}`,
-      images: [
-        {
-          url: urlFor(pageData.mainImage).width(1200).height(630).url(),
-          width: 1200,
-          height: 630,
-          alt: pageData.mainImage.caption,
-        },
-      ],
-      type: 'article',
-      publishedTime: pageData.publishedAt,
-      modifiedTime: pageData._updatedAt,
-      authors: pageData.authors.map((author: any) => {
-        return {
-          name: author.name,
-        }
-      }),
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${pageData.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-      description: pageData.excerpt,
-      images: [
-        {
-          url: urlFor(pageData.mainImage).width(1200).height(630).url(),
-          width: 1200,
-          height: 630,
-          alt: pageData.mainImage.caption,
-        },
-      ],
-      site: '@_redshirtsports',
-    },
-    other: {
-      'twitter:label1': 'Reading time',
-      'twitter:data1': pageData.estimatedReadingTime,
-    },
-    alternates: {
-      canonical: `/${pageData.slug}`,
-    },
-  }
+  const meta = await getMetaData({
+    ogType: 'article',
+    image: data.mainImage,
+    authors: data.authors,
+    title: data.title,
+    description: data.excerpt,
+    slug: data.slug,
+    readingTime: data.estimatedReadingTime,
+  })
+
+  return meta
 }
 
 export default async function PostPage({ params }: PageProps) {

@@ -11,7 +11,7 @@ export default function ArticleFeed({ articles }: { articles: Post[] }) {
             title={article.title}
             image={article.mainImage}
             slug={article.slug}
-            author={article.author.name}
+            author={article.authors[0].name}
             date={article.publishedAt}
             division={article.division}
             conferences={article.conferences}

@@ -32,18 +32,18 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
               <p className="text-muted-foreground line-clamp-2">{heroArticle.excerpt}</p>
               <div className="text-muted-foreground flex flex-wrap items-center space-x-2 text-base">
                 <Link
-                  href={`/authors/${heroArticle.author.slug}`}
+                  href={`/authors/${heroArticle.authors[0]?.slug}`}
                   className="flex items-center gap-2"
                   prefetch={false}
                 >
                   <CustomImage
-                    image={heroArticle.author.image}
+                    image={heroArticle.authors[0]?.image}
                     // alt={`${heroArticle.author.name}'s profile picture`}
                     width={32}
                     height={32}
                     className="size-8 rounded-full"
                   />
-                  <span className="text-primary">{heroArticle.author.name}</span>
+                  <span className="text-primary">{heroArticle.authors[0]?.name}</span>
                 </Link>
                 <Date dateString={heroArticle.publishedAt} />
               </div>

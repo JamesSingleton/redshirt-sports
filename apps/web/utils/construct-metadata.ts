@@ -1,4 +1,4 @@
-import { HOME_DOMAIN } from '@/lib/constants'
+import { getBaseUrl } from '@/lib/get-base-url'
 
 import { type Metadata } from 'next'
 
@@ -29,6 +29,7 @@ export function constructMetadata({
     | 'video.other'
     | undefined
 } = {}): Metadata {
+  const baseUrl = getBaseUrl()
   return {
     title,
     description,
@@ -57,11 +58,11 @@ export function constructMetadata({
       }),
       site: '@_redshirtsports',
     },
-    metadataBase: new URL(HOME_DOMAIN),
+    metadataBase: new URL(baseUrl),
     alternates: {
-      canonical: new URL(canonical, HOME_DOMAIN).toString(),
+      canonical: new URL(canonical, baseUrl).toString(),
       types: {
-        'application/rss+xml': new URL('/api/rss/feed.xml', HOME_DOMAIN).toString(),
+        'application/rss+xml': new URL('/api/rss/feed.xml', baseUrl).toString(),
       },
     },
     robots: {
