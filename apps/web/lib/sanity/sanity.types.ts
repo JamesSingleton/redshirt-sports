@@ -48,6 +48,13 @@ export type SocialMedia = {
   url?: string
 }
 
+export type SocialLinks = {
+  _type: 'socialLinks'
+  twitter?: string
+  facebook?: string
+  youtube?: string
+}
+
 export type BlockContent = Array<
   | {
       children?: Array<{
@@ -336,7 +343,7 @@ export type Post = {
   _rev: string
   title: string
   slug: Slug
-  author: {
+  author?: {
     _ref: string
     _type: 'reference'
     _weak?: boolean
@@ -572,6 +579,11 @@ export type Author = {
       _key: string
     } & SocialMedia
   >
+  socialLinks?: {
+    twitter?: string
+    facebook?: string
+    youtube?: string
+  }
 }
 
 export type Table = {
@@ -854,6 +866,7 @@ export type AllSanitySchemaTypes =
   | Twitter
   | Top25Table
   | SocialMedia
+  | SocialLinks
   | BlockContent
   | Settings
   | Navbar
@@ -947,7 +960,7 @@ export type HeroPostsQueryResult = Array<{
         url: string | null
       } | null
     }
-  }
+  } | null
   excerpt: string
 }>
 // Variable: latestArticlesForHomePageQuery
@@ -999,7 +1012,7 @@ export type LatestArticlesForHomePageQueryResult = Array<{
         url: string | null
       } | null
     }
-  }
+  } | null
   excerpt: string
 }>
 // Variable: postsBySlugQuery
@@ -1082,7 +1095,7 @@ export type PostsBySlugQueryResult = {
     }
     archived: boolean | null
     collegeOrUniversity: null
-  }
+  } | null
   authors: Array<{
     name: string
     slug: string
@@ -1281,7 +1294,7 @@ export type PostsBySlugQueryResult = {
     slug: string
     author: {
       name: string
-    }
+    } | null
   }>
 } | null
 // Variable: latestDivisionArticlesQuery
@@ -1343,7 +1356,7 @@ export type LatestDivisionArticlesQueryResult = Array<{
       _type: 'image'
     }
     slug: string
-  }
+  } | null
 }>
 // Variable: heroArticleQuery
 // Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc) [0] {    _id,  title,  publishedAt,  mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },  division->{    name,    "slug": slug.current,    longName  },  conferences[]->{    _id,    name,    shortName,    "slug": slug.current,  },  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),  "slug": slug.current,  "author": author->{name, 'slug': slug.current, archived, "image": { "asset": image.asset->{_id, _type, metadata, url}}},  excerpt,}
@@ -1394,7 +1407,7 @@ export type HeroArticleQueryResult = {
         url: string | null
       } | null
     }
-  }
+  } | null
   excerpt: string
 } | null
 // Variable: recentArticlesQuery
@@ -1446,7 +1459,7 @@ export type RecentArticlesQueryResult = Array<{
         url: string | null
       } | null
     }
-  }
+  } | null
   excerpt: string
 }>
 // Variable: featuredArticlesQuery
@@ -1498,7 +1511,7 @@ export type FeaturedArticlesQueryResult = Array<{
         url: string | null
       } | null
     }
-  }
+  } | null
   excerpt: string
 }>
 // Variable: otherArticlesQuery
@@ -1550,7 +1563,7 @@ export type OtherArticlesQueryResult = Array<{
         url: string | null
       } | null
     }
-  }
+  } | null
   excerpt: string
 }>
 // Variable: conferencesAuthorHasWrittenFor
@@ -1648,34 +1661,9 @@ export type OpenGraphDataBySlugResult = {
       crop?: SanityImageCrop
       _type: 'image'
     }
-  }
+  } | null
   publishedAt: string
 } | null
-// Variable: schoolsByDivision
-// Query: *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){  _id,  name,  shortName,  abbreviation,  image,  conference->{    name,    shortName  }}
-export type SchoolsByDivisionResult = Array<{
-  _id: string
-  name: string
-  shortName: string | null
-  abbreviation: string | null
-  image: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    caption: string
-    _type: 'image'
-  }
-  conference: {
-    name: string
-    shortName: string | null
-  }
-}>
 // Variable: schoolsByIdOrderedByRank
 // Query: *[_type == "school" && _id in $ids[].id]{  _id,  "_order": $ids[id == ^._id][0].rank,  name,  shortName,  abbreviation,  image,} | order(_order)
 export type SchoolsByIdOrderedByRankResult = Array<{
@@ -1729,7 +1717,7 @@ export type LastThreePostsResult = Array<{
   slug: string
   author: {
     name: string
-  }
+  } | null
   excerpt: string
 }>
 // Variable: schoolWithVoteOrder
@@ -1781,7 +1769,7 @@ export type QueryPostSlugDataResult = {
   _rev: string
   title: string
   slug: string
-  author: {
+  author?: {
     _ref: string
     _type: 'reference'
     _weak?: boolean
@@ -1829,6 +1817,11 @@ export type QueryPostSlugDataResult = {
         _key: string
       } & SocialMedia
     >
+    socialLinks?: {
+      twitter?: string
+      facebook?: string
+      youtube?: string
+    }
   }>
   publishedAt: string
   mainImage: {
@@ -2241,7 +2234,7 @@ export type QueryHomePageDataResult = Array<{
       crop?: SanityImageCrop
       _type: 'image'
     }
-  }
+  } | null
   authors: Array<{
     name: string
     slug: string
@@ -2309,7 +2302,7 @@ export type QueryLatestArticlesResult = Array<{
       crop?: SanityImageCrop
       _type: 'image'
     }
-  }
+  } | null
   authors: Array<{
     name: string
     slug: string
@@ -2449,6 +2442,11 @@ export type AuthorBySlugResult = {
       _key: string
     } & SocialMedia
   >
+  socialLinks?: {
+    twitter?: string
+    facebook?: string
+    youtube?: string
+  }
 } | null
 // Variable: authorsListNotArchived
 // Query: *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {    _id,    name,    roles,    "slug": slug.current,    image{      ...,      "alt": coalesce(asset->altText, ^.name, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    socialMedia[]{      _key,      name,      url    }  }
@@ -2509,6 +2507,31 @@ export type PrivacyPolicyQueryResult = {
   slug: Slug
   body: BlockContent
 } | null
+// Variable: schoolsByDivisionQuery
+// Query: *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){  _id,  name,  shortName,  abbreviation,  image,  conference->{    name,    shortName  }}
+export type SchoolsByDivisionQueryResult = Array<{
+  _id: string
+  name: string
+  shortName: string | null
+  abbreviation: string | null
+  image: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    caption: string
+    _type: 'image'
+  }
+  conference: {
+    name: string
+    shortName: string | null
+  }
+}>
 
 // Query TypeMap
 import '@sanity/client'
@@ -2527,7 +2550,6 @@ declare module '@sanity/client' {
     '\n*[_type == "conference" && defined(slug.current) && defined(division) && count(*[_type == \'post\' && references(^._id)]) > 0]{\n  "slug": slug.current,\n  "divisionSlug": division->slug.current,\n}\n': ConferencePathsResult
     '\n  *[_type == \'transferPortal\']{\n    ...,\n    "player": player->{\n      ...\n    },\n    "transferringFrom": transferringFrom->{\n      ...\n    },\n    "transferringTo": transferringTo->{\n      ...\n    },\n  }\n': TransferPortalPlayersResult
     '\n*[_type == "post" && slug.current == $slug][0]{\n  "title": title,\n  mainImage,\n  "author": author->{name, roles, image},\n  "publishedAt": publishedAt,\n}\n': OpenGraphDataBySlugResult
-    '\n*[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){\n  _id,\n  name,\n  shortName,\n  abbreviation,\n  image,\n  conference->{\n    name,\n    shortName\n  }\n}\n': SchoolsByDivisionResult
     '\n*[_type == "school" && _id in $ids[].id]{\n  _id,\n  "_order": $ids[id == ^._id][0].rank,\n  name,\n  shortName,\n  abbreviation,\n  image,\n} | order(_order)\n': SchoolsByIdOrderedByRankResult
     '\n*[_type == "school" && _id in $ids[].id]{\n  _id,\n  "_points": $ids[id == ^._id][0].totalPoints,\n  name,\n  shortName,\n  abbreviation,\n  image,\n} | order(_points desc)\n': SchoolsByIdOrderedByPointsResult
     '\n*[_type == "post"] | order(publishedAt desc)[0...3]{\n  _id,\n  title,\n  publishedAt,\n  "slug": slug.current,\n  "author": author->{name},\n  excerpt,\n}\n': LastThreePostsResult
@@ -2545,5 +2567,6 @@ declare module '@sanity/client' {
     '\n  *[_type == "author" && slug.current == $slug && archived == false][0]{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n  }\n': AuthorBySlugResult
     '\n  *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {\n    _id,\n    name,\n    roles,\n    "slug": slug.current,\n    image{\n      ...,\n      "alt": coalesce(asset->altText, ^.name, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    },\n    socialMedia[]{\n      _key,\n      name,\n      url\n    }\n  }\n': AuthorsListNotArchivedResult
     '\n  *[_type == "legal" && slug.current == "privacy-policy"][0]\n': PrivacyPolicyQueryResult
+    '\n  *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){\n  _id,\n  name,\n  shortName,\n  abbreviation,\n  image,\n  conference->{\n    name,\n    shortName\n  }\n}\n': SchoolsByDivisionQueryResult
   }
 }

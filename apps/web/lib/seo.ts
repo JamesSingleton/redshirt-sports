@@ -89,7 +89,7 @@ export async function getMetaData(data: MetaDataInput = {}): Promise<Metadata> {
           url: image ? buildSafeImageUrl(image) : buildSafeImageUrl(defaultOpenGraphImage),
           width: 1200,
           height: 630,
-          alt: image ? image.alt : defaultOpenGraphImage.alt,
+          alt: image ? image.alt : defaultOpenGraphImage?.alt,
           secureUrl: buildSafeImageUrl(image) ?? buildSafeImageUrl(defaultOpenGraphImage),
           type: 'image/jpeg',
         },
