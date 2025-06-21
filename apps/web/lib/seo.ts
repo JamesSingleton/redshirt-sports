@@ -1,7 +1,7 @@
 import { getBaseUrl } from './get-base-url'
 import { client } from './sanity/client'
 import { queryGlobalSeoSettings } from './sanity/query'
-import { buildSafeImageUrl } from '@/components/json-ld'
+import { urlFor } from './sanity/client'
 
 import type { Metadata } from 'next'
 import type { Maybe } from '@/types'
@@ -13,18 +13,23 @@ interface MetaDataInput {
   seoDescription?: Maybe<string>
   title?: Maybe<string>
   description?: Maybe<string>
-  slug?: Maybe<string> | { current: Maybe<string> }
+  slug?: string
   authors?: any[]
-  ogType?: Maybe<string>
+  ogType?: Extract<Metadata['openGraph'], { type: string }>['type']
   image?: any
   readingTime?: Maybe<number>
 }
 
-export async function getMetaData(data: MetaDataInput = {}): Promise<Metadata> {
+function buildPageUrl({ baseUrl, slug }: { baseUrl: string; slug: string }) {
+  const normalizedSlug = slug.startsWith('/') ? slug : `/${slug}`
+  return `${baseUrl}${normalizedSlug}`
+}
+
+export async function getSEOMetadata(data: MetaDataInput = {}): Promise<Metadata> {
   const {
     seoDescription,
     seoTitle,
-    slug,
+    slug = '/',
     title,
     description,
     authors,
@@ -37,8 +42,7 @@ export async function getMetaData(data: MetaDataInput = {}): Promise<Metadata> {
   const { siteTitle, siteDescription, socialLinks, defaultOpenGraphImage } = globalSettings || {}
 
   const baseUrl = getBaseUrl()
-  const pageSlug = typeof slug === 'string' ? slug : (slug?.current ?? '')
-  const pageUrl = `${baseUrl}/${pageSlug}`
+  const pageUrl = buildPageUrl({ baseUrl, slug })
 
   const twitterHandle = socialLinks?.twitter
     ? `@${socialLinks.twitter.split('/').pop()}`
@@ -65,7 +69,7 @@ export async function getMetaData(data: MetaDataInput = {}): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      images: [image ? buildSafeImageUrl(image) : buildSafeImageUrl(defaultOpenGraphImage)],
+      images: [image ? urlFor(image).size(1200, 630).url() : defaultOpenGraphImage],
       site: twitterHandle,
       creator: authorTwitterHandle,
       title: meta.title,
@@ -86,11 +90,11 @@ export async function getMetaData(data: MetaDataInput = {}): Promise<Metadata> {
       siteName: brandName,
       images: [
         {
-          url: image ? buildSafeImageUrl(image) : buildSafeImageUrl(defaultOpenGraphImage),
+          url: image ? urlFor(image).size(1200, 630).url() : defaultOpenGraphImage,
           width: 1200,
           height: 630,
-          alt: image ? image.alt : defaultOpenGraphImage?.alt,
-          secureUrl: buildSafeImageUrl(image) ?? buildSafeImageUrl(defaultOpenGraphImage),
+          alt: image ? image.alt : brandName,
+          secureUrl: urlFor(image).size(1200, 630).url() ?? defaultOpenGraphImage,
           type: 'image/jpeg',
         },
       ],

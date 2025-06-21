@@ -88,8 +88,8 @@ export const conference = defineType({
       ],
     }),
     defineField({
-      title: 'Sport Subgrouping Affiliations', // Renamed title for clarity in Studio
-      name: 'sportSubdivisionAffiliations', // Kept field name for GROQ compatibility, but consider renaming to sportSubgroupingAffiliations if you prefer
+      title: 'Sport Subgrouping Affiliations',
+      name: 'sportSubdivisionAffiliations',
       type: 'array',
       description:
         'For each sport this conference participates in, select the relevant subgrouping (e.g., for Football, select FBS or FCS; for Basketball, select Power 5 or Mid-Major).',
@@ -136,7 +136,6 @@ export const conference = defineType({
               options: {
                 disableNew: true,
                 filter: ({ parent }) => {
-                  // Ensure parent is an object and not an array before accessing sport
                   const sportRef =
                     parent && !Array.isArray(parent) && typeof parent === 'object'
                       ? (parent as { sport?: { _ref?: string } }).sport?._ref
@@ -155,8 +154,8 @@ export const conference = defineType({
           preview: {
             select: {
               sportTitle: 'sport.title',
-              subgroupingName: 'subgrouping.name', // Updated path
-              subgroupingShortName: 'subgrouping.shortName', // Updated path
+              subgroupingName: 'subgrouping.name',
+              subgroupingShortName: 'subgrouping.shortName',
             },
             prepare: ({ sportTitle, subgroupingName, subgroupingShortName }) => ({
               title: sportTitle,

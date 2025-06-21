@@ -13,7 +13,7 @@ import { urlFor } from '@/lib/sanity/client'
 import ArticleCard from '@/components/article-card'
 import { ArticleJsonLd, buildSafeImageUrl, JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
-import { getMetaData } from '@/lib/seo'
+import { getSEOMetadata } from '@/lib/seo'
 
 import type { Metadata } from 'next'
 import type { WithContext, WebPage } from 'schema-dts'
@@ -44,7 +44,7 @@ export async function generateMetadata({
     return {}
   }
 
-  const meta = await getMetaData({
+  const meta = await getSEOMetadata({
     ogType: 'article',
     image: data.mainImage,
     authors: data.authors,

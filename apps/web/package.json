@@ -36,7 +36,7 @@
     "feed": "^5.1.0",
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
-    "lucide-react": "^0.518.0",
+    "lucide-react": "^0.522.0",
     "next": "15.4.0-canary.83",
     "next-plausible": "^3.12.4",
     "next-sanity": "^9.12.0",

@@ -185,7 +185,7 @@ export const queryFooterData = defineQuery(/* groq */ `
   }
 `)
 
-export const queryGlobalSeoSettings = defineQuery(`
+export const queryGlobalSeoSettings = defineQuery(/* groq */ `
   *[_type == "settings"][0]{
     _id,
     _type,
@@ -198,14 +198,7 @@ export const queryGlobalSeoSettings = defineQuery(`
         "dominantColor": metadata.palette.dominant.background
       }
     },
-    defaultOpenGraphImage{
-      ...,
-      ...asset->{
-        "alt": coalesce(altText, originalFilename, "no-alt"),
-        "blurData": metadata.lqip,
-        "dominantColor": metadata.palette.dominant.background
-      }
-    },
+    "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",
     siteDescription,
     socialLinks{
       facebook,

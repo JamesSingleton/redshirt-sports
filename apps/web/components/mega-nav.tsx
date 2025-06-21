@@ -15,6 +15,7 @@ import SmallLogo from './small-logo'
 import { getLatestFinalRankings } from '@/server/queries'
 import MegaMobileNav from './mega-mobile-nav'
 import { ModeToggle } from './mode-toggle'
+import { cn } from '@workspace/ui/lib/utils'
 
 export interface Conference {
   _id: string
@@ -54,7 +55,7 @@ export async function MegaNav({ sportsNav }: { sportsNav: SportsData }) {
           href="/"
           className="absolute left-1/2 flex -translate-x-1/2 transform items-center lg:static lg:mx-4 lg:transform-none"
         >
-          <SmallLogo className="h-8 w-auto" />
+          <SmallLogo className="h-10 w-auto" />
           <span className="sr-only">Redshirt Sports Logo</span>
         </Link>
         <NavigationMenu className="hidden lg:flex">
@@ -81,9 +82,10 @@ export async function MegaNav({ sportsNav }: { sportsNav: SportsData }) {
                                   <Link
                                     key={conference._id}
                                     href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}
-                                    className="hover:text-primary block py-1 text-sm"
+                                    className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
+                                    title={conference.name}
                                   >
-                                    {conference?.name}
+                                    {conference.shortName ?? conference.name}
                                   </Link>
                                 ))}
                               </div>
@@ -109,7 +111,7 @@ export async function MegaNav({ sportsNav }: { sportsNav: SportsData }) {
                       <div className="space-y-1.5">
                         <Link
                           href={`college/football/rankings/${latestFCSTop25?.division}/${latestFCSTop25?.year}/${latestFCSTop25?.week === 999 ? 'final-rankings' : latestFCSTop25?.week}`}
-                          className="hover:text-primary block py-1 text-sm"
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
                         >
                           FCS College Football Rankings
                         </Link>
