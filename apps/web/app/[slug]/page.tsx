@@ -125,12 +125,13 @@ export default async function PostPage({ params }: PageProps) {
             {data.excerpt}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            {(data.division || data.conferences) && (
+            {data.sport && (data.division || data.conferences) && (
               <div className="flex flex-wrap items-center gap-3">
-                {data.conferences &&
+                {data.sport &&
+                  data.conferences &&
                   data.conferences.map((conference: any) => {
                     // Get the _id of the sport for the current article
-                    const articleSportId = data.sport._id
+                    const articleSportId = data.sport?._id
 
                     // Find the sportSubdivisionAffiliation that matches the article's sport
                     const matchingAffiliation = conference.sportSubdivisionAffiliations?.find(
@@ -144,7 +145,7 @@ export default async function PostPage({ params }: PageProps) {
                       matchingAffiliation?.subgrouping.slug || conference.division.slug
 
                     // Construct the full conference URL
-                    const conferenceHref = `/college/${data.sport.slug}/news/${divisionPathSegment}/${conference.slug}`
+                    const conferenceHref = `/college/${data.sport?.slug}/news/${divisionPathSegment}/${conference.slug}`
 
                     return (
                       <Link
