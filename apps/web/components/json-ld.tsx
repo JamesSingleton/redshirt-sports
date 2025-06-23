@@ -13,20 +13,6 @@ import { urlFor, client } from '@/lib/sanity/client'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { querySettingsData } from '@/lib/sanity/query'
 
-interface RichTextChild {
-  _type: string
-  text?: string
-  marks?: string[]
-  _key: string
-}
-
-interface RichTextBlock {
-  _type: string
-  children?: RichTextChild[]
-  style?: string
-  _key: string
-}
-
 const baseUrl = getBaseUrl()
 
 export const organizationId = `${baseUrl}/#organization`

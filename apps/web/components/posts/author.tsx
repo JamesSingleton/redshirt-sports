@@ -3,7 +3,7 @@ import { Image as SanityImage } from 'next-sanity/image'
 
 import { urlFor } from '@/lib/sanity/client'
 
-import type { Author } from '@/types'
+import type { Author } from '@/lib/sanity/sanity.types'
 
 export const AuthorItem = (author: Author) => {
   return (
@@ -35,14 +35,14 @@ export const AuthorItem = (author: Author) => {
   )
 }
 
-export const AuthorSection = ({ author, authors }: { author: Author; authors: Author[] }) => (
+export const AuthorSection = ({ authors }: { authors: Author[] }) => (
   <>
     <p className="text-muted-foreground text-sm font-normal">Written By</p>
     {authors && authors.map((author) => <AuthorItem key={author._id} {...author} />)}
   </>
 )
 
-export const MobileAuthorSection = ({ author, authors }: { author: Author; authors: Author[] }) => (
+export const MobileAuthorSection = ({ authors }: { authors: Author[] }) => (
   <div className="lg:hidden">
     <p className="text-muted-foreground text-sm font-normal">Written By</p>
     <div className="border-border relative -mx-6 mt-3 flex overflow-x-auto border-b px-6">

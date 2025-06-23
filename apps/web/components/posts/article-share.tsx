@@ -78,7 +78,7 @@ export const LargeArticleSocialShare = ({ slug, title }: { slug: string; title: 
   return (
     <Card className="mt-8 hidden w-full lg:block">
       <CardHeader>
-        <span className="text-lg font-semibold leading-none tracking-tight">
+        <span className="text-lg leading-none font-semibold tracking-tight">
           Share this article
         </span>
       </CardHeader>

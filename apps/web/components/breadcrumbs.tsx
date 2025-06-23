@@ -34,7 +34,7 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
                 className={cn(
                   'ml-2 text-base font-semibold',
                   index === filteredBreadcrumbPages.length - 1
-                    ? 'w-32 truncate text-brand-500 dark:text-brand-400 sm:w-64 lg:w-full'
+                    ? 'text-brand-500 dark:text-brand-400 w-32 truncate sm:w-64 lg:w-full'
                     : 'text-muted-foreground hover:text-foreground',
                 )}
               >

@@ -1,7 +1,6 @@
 import { getBaseUrl } from './get-base-url'
-import { buildSafeImageUrl } from '@/components/json-ld'
 
-import type { Graph, ListItem, Organization, WebSite } from 'schema-dts'
+import type { Organization, WebSite } from 'schema-dts'
 
 const baseUrl = getBaseUrl()
 
