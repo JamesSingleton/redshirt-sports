@@ -4,7 +4,7 @@ import { client } from '@/lib/sanity/client'
 import { schoolsByIdOrderedByRank } from '@/lib/sanity.queries'
 
 import type { QueryParams } from '@sanity/client'
-import { ConferencePayload, Division, Post, SchoolLite, SitemapContent } from '@/types'
+import { ConferencePayload, Post, SchoolLite, SitemapContent } from '@/types'
 
 export const token = process.env.SANITY_API_READ_TOKEN
 
