@@ -1,6 +1,6 @@
 import { defineArrayMember, defineField, defineType } from 'sanity'
 
-import { isUnique } from '../../utils/slug'
+import { createSlug, isUnique } from '../../utils/slug'
 
 export const conference = defineType({
   name: 'conference',
@@ -33,15 +33,7 @@ export const conference = defineType({
       options: {
         source: 'name',
         maxLength: 96,
-        slugify: (input) =>
-          input
-            .toLowerCase()
-            .trim()
-            .replace(/\s+/g, '-')
-            .replace(/[^\w\-]+/g, '')
-            .replace(/\-\-+/g, '-')
-            .replace(/^-+/, '')
-            .replace(/-+$/, ''),
+        slugify: createSlug,
         isUnique,
       },
       validation: (rule) => rule.required(),

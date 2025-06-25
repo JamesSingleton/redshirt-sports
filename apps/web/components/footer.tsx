@@ -140,7 +140,7 @@ function Footer({ data, settingsData }: FooterProps) {
               {socialLinks && <SocialLinks data={socialLinks} />}
             </div>
             {Array.isArray(columns) && columns?.length > 0 && (
-              <div className="grid grid-cols-3 gap-6 lg:mr-20 lg:gap-28">
+              <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-12">
                 {columns.map((column, index) => (
                   <div key={`column-${column?._key}-${index}`}>
                     <h3 className="mb-6 font-semibold">{column?.title}</h3>

@@ -1,7 +1,7 @@
 import { defineField, defineType } from 'sanity'
 
 import { TextInputWithLimits } from '../../components/text-input-with-limits'
-import { isUnique } from '../../utils/slug'
+import { createSlug, isUnique } from '../../utils/slug'
 
 export const division = defineType({
   name: 'division',
@@ -44,15 +44,7 @@ export const division = defineType({
       options: {
         source: 'title',
         maxLength: 96,
-        slugify: (input) =>
-          input
-            .toLowerCase()
-            .trim()
-            .replace(/\s+/g, '-')
-            .replace(/[^\w\-]+/g, '')
-            .replace(/\-\-+/g, '-')
-            .replace(/^-+/, '')
-            .replace(/-+$/, ''),
+        slugify: createSlug,
         isUnique,
       },
       validation: (rule) => rule.required(),

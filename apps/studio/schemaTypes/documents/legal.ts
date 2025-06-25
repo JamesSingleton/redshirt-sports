@@ -1,5 +1,7 @@
 import { defineField, defineType } from 'sanity'
 
+import { createSlug, isUnique } from '../../utils/slug'
+
 export const legal = defineType({
   name: 'legal',
   title: 'Legal Documents',
@@ -18,7 +20,8 @@ export const legal = defineType({
       options: {
         source: 'title',
         maxLength: 96,
-        isUnique: (value, context) => context.defaultIsUnique(value, context),
+        isUnique,
+        slugify: createSlug,
       },
       validation: (rule) => rule.required(),
     }),

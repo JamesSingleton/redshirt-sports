@@ -12,6 +12,9 @@ import {
 } from '@/lib/sanity/query'
 import ArticleCard from '@/components/article-card'
 import ArticleSection from '@/components/article-section'
+import { WebPage, WithContext } from 'schema-dts'
+import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
+import { getBaseUrl } from '@/lib/get-base-url'
 
 async function fetchHomePageData() {
   return await sanityFetch({
@@ -58,18 +61,20 @@ const divisions = [
   {
     key: 'd2',
     division: 'D2',
-    title: 'Division II (D2) Football News',
+    title: 'Division II Football News',
     slug: '/college/football/news/d2',
     imageFirst: false,
   },
   {
     key: 'd3',
     division: 'D3',
-    title: 'Division III (D3) Football News',
+    title: 'Division III Football News',
     slug: '/college/football/news/d3',
     imageFirst: true,
   },
 ]
+
+const baseUrl = getBaseUrl()
 
 export default async function HomePage() {
   const [{ data: homePageData }, { data: latestArticles }] = await Promise.all([
@@ -96,8 +101,36 @@ export default async function HomePage() {
 
   const sectionOrder = ['fcs', 'fbs', 'd2', 'd3']
 
+  const webPageJson: WithContext<WebPage> = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': baseUrl,
+    url: baseUrl,
+    isPartOf: {
+      '@id': websiteId,
+    },
+    about: {
+      '@id': organizationId,
+    },
+    inLanguage: 'en-US',
+    datePublished: '2021-12-13T00:00:00-07:00',
+    dateModified: homePageData[0]?.publishedAt,
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: baseUrl,
+        },
+      ],
+    },
+  }
+
   return (
     <>
+      <JsonLdScript data={webPageJson} id="home-webpage-json-ld" />
       <Hero heroPosts={homePageData} />
       {latestArticles.length > 0 && (
         <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">

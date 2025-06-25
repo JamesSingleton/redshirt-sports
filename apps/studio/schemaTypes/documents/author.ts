@@ -14,7 +14,7 @@ export const author = defineType({
       name: 'name',
       title: 'Name',
       type: 'string',
-      validation: (rule) => rule.required(),
+      validation: (rule) => rule.required().error('Author name is required'),
     }),
     defineField({
       name: 'slug',
@@ -70,25 +70,14 @@ export const author = defineType({
     }),
     defineField({
       name: 'biography',
-      title: 'Biography',
-      description: 'A short biography',
+      title: 'Bio',
+      description: "A short paragraph about the author's background and expertise",
       type: 'text',
-      validation: (rule) => rule.max(350).required(),
+      validation: (rule) => rule.required().error('Bio is required'),
       components: {
         input: TextInputWithLimits,
       },
       rows: 3,
-    }),
-    defineField({
-      name: 'socialMedia',
-      title: 'Social Media',
-      type: 'array',
-      of: [
-        {
-          type: 'socialMedia',
-        },
-      ],
-      validation: (rule) => rule.required(),
     }),
     socialLinks,
   ],

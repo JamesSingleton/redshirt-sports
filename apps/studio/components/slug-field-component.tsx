@@ -1,6 +1,6 @@
-import { CopyIcon, EditIcon, FolderIcon, WarningOutlineIcon } from '@sanity/icons'
-import { Badge, Box, Button, Card, Flex, Stack, Text, TextInput } from '@sanity/ui'
-import type { FocusEvent, FormEvent, MouseEvent } from 'react'
+import { CopyIcon, WarningOutlineIcon } from '@sanity/icons'
+import { Badge, Box, Button, Flex, Stack, Text, TextInput } from '@sanity/ui'
+import type { FocusEvent, FormEvent } from 'react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   getPublishedId,
@@ -19,17 +19,6 @@ import { getDocumentPath, stringToPathname } from '../utils/helper'
 
 const presentationOriginUrl = process.env.SANITY_STUDIO_PRESENTATION_URL
 
-const UnlockButton = styled(Button)`
-  cursor: pointer;
-  > span:nth-of-type(2) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-  }
-`
-
 const CopyButton = styled(Button)`
   margin-left: auto;
   cursor: pointer;
@@ -45,16 +34,6 @@ const CopyButton = styled(Button)`
 const GenerateButton = styled(Button)`
   margin-left: auto;
   cursor: pointer;
-`
-
-const FolderText = styled(Text)`
-  span {
-    white-space: nowrap;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
-  }
 `
 
 export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
@@ -79,7 +58,6 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
   const [folderLocked, setFolderLocked] = useState(segments.length > 1)
 
   const fullPathInputRef = useRef<HTMLInputElement>(null)
-  const pathSegmentInputRef = useRef<HTMLInputElement>(null)
 
   const handleChange = useCallback(
     (value?: string) => {
@@ -115,32 +93,12 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
     }
   }, [document?.title, handleChange, segments])
 
-  const updateSegment = useCallback(
-    (index: number, newValue: string) => {
-      const newSegments = [...segments]
-      newSegments[index] = slugify(newValue, {
-        lower: true,
-        remove: /[^a-zA-Z0-9 ]/g,
-      })
-      handleChange(newSegments.join('/'))
-    },
-    [segments, handleChange],
-  )
-
   const updateFullPath = useCallback(
     (e: FormEvent<HTMLInputElement>) => {
       handleChange(e.currentTarget.value)
     },
     [handleChange],
   )
-
-  const unlockFolder = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    setFolderLocked(false)
-    requestAnimationFrame(() => {
-      fullPathInputRef.current?.focus()
-    })
-  }, [])
 
   const handleBlur = useCallback(
     (e: FocusEvent<HTMLInputElement>) => {
@@ -155,54 +113,6 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
   })
 
   const pathInput = useMemo(() => {
-    if (folderLocked && segments.length > 1) {
-      return (
-        <Stack space={2} width="100%" style={{ flex: 1 }}>
-          <Flex gap={2} wrap="wrap">
-            {segments.slice(0, -1).map((segment) => (
-              <Flex key={segment} gap={1} align="center">
-                <Card paddingX={2} paddingY={2} border tone="transparent">
-                  <Flex gap={2}>
-                    <Text muted>
-                      <FolderIcon />
-                    </Text>
-                    <FolderText muted>{segment}</FolderText>
-                  </Flex>
-                </Card>
-                <Text muted size={4}>
-                  /
-                </Text>
-              </Flex>
-            ))}
-            <Flex gap={1} flex={1} align="center">
-              <Box flex={1} width="100%">
-                <TextInput
-                  width="100%"
-                  value={segments[segments.length - 1] || ''}
-                  onChange={(e) => updateSegment(segments.length - 1, e.currentTarget.value)}
-                  ref={pathSegmentInputRef}
-                  onBlur={handleBlur}
-                  disabled={readOnly}
-                />
-              </Box>
-            </Flex>
-            <UnlockButton
-              icon={EditIcon}
-              onClick={unlockFolder}
-              title="Edit full path"
-              mode="bleed"
-              tone="primary"
-              padding={2}
-              fontSize={1}
-              disabled={readOnly}
-            >
-              <span />
-            </UnlockButton>
-          </Flex>
-        </Stack>
-      )
-    }
-
     return (
       <Stack space={2} style={{ flex: 1, width: '100%' }}>
         <Box width="100%">
@@ -217,16 +127,7 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
         </Box>
       </Stack>
     )
-  }, [
-    folderLocked,
-    segments,
-    value,
-    updateFullPath,
-    handleBlur,
-    readOnly,
-    unlockFolder,
-    updateSegment,
-  ])
+  }, [value, updateFullPath, handleBlur, readOnly])
 
   return (
     <Stack space={3}>

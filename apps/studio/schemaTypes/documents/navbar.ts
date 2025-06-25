@@ -1,8 +1,6 @@
 import { LayoutPanelLeft, Link, PanelTop } from 'lucide-react'
 import { defineField, defineType } from 'sanity'
 
-// import { buttonsField, iconField } from "../common";
-
 const navbarLink = defineField({
   name: 'navbarLink',
   type: 'object',
@@ -52,7 +50,6 @@ const navbarColumnLink = defineField({
   title: 'Navigation Column Link',
   description: 'A link within a navigation column',
   fields: [
-    // iconField,
     defineField({
       name: 'name',
       type: 'string',
@@ -153,7 +150,6 @@ export const navbar = defineType({
         'Build your navigation menu using columns and links. Add either a column of links or individual links.',
       of: [navbarColumn, navbarLink],
     }),
-    // buttonsField,
   ],
   preview: {
     select: {

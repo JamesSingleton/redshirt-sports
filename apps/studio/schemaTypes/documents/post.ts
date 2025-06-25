@@ -33,12 +33,12 @@ export const post = defineType({
       type: 'slug',
       title: 'URL',
       group: GROUP.MAIN_CONTENT,
-      // components: {
-      //   field: PathnameFieldComponent,
-      // },
+      components: {
+        field: PathnameFieldComponent,
+      },
       options: {
         source: 'title',
-        // slugify: createSlug,
+        slugify: createSlug,
         isUnique,
       },
       validation: (rule) => rule.required(),

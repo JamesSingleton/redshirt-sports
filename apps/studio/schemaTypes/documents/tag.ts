@@ -1,6 +1,6 @@
 import { defineField, defineType } from 'sanity'
 
-import { isUnique } from '../../utils/slug'
+import { createSlug, isUnique } from '../../utils/slug'
 
 export const tag = defineType({
   name: 'tag',
@@ -20,13 +20,7 @@ export const tag = defineType({
       description: 'Press generate to generate the slug automatically, do not manually input slug.',
       options: {
         source: 'name',
-        slugify: (input) =>
-          input
-            .toLowerCase()
-            .trim()
-            .replace(/\s+/g, '-')
-            .replace(/[^\w\-]+/g, '')
-            .replace(/\-\-+/g, '-'),
+        slugify: createSlug,
         isUnique,
       },
       readOnly: ({ document }) => !!document?.name && !!document?.slug,
