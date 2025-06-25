@@ -141,25 +141,25 @@ export const queryPostSlugData = defineQuery(/* groq */ `
 
 export const querySportsNews = defineQuery(/* groq */ `
   {
-    "posts": *[_type == "post" && sport->title match $sport] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+    "posts": *[_type == "post" && sport->slug.current == $sport] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
       ...,
       ${postImageFragment},
       "slug": slug.current,
       "author": author->{name, "slug": slug.current},
     },
-    "totalPosts": count(*[_type == "post" && sport->title match $sport])
+    "totalPosts": count(*[_type == "post" && sport->slug.current == $sport])
   }
 `)
 
 export const querySportsAndDivisionNews = defineQuery(/* groq */ `
   {
-    "posts": *[_type == "post" && sport->title match $sport && division->slug.current == $division] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+    "posts": *[_type == "post" && sport->slug.current == $sport && (division->slug.current == $division || sportSubgrouping->slug.current == $division)] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
       ...,
       ${postImageFragment},
       "slug": slug.current,
       "author": author->{name, "slug": slug.current},
     },
-    "totalPosts": count(*[_type == "post" && sport->title match $sport && division->slug.current == $division])
+    "totalPosts": count(*[_type == "post" && sport->slug.current == $sport && division->slug.current == $division])
   }
 `)
 
