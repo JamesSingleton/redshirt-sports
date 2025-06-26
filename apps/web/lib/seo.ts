@@ -1,3 +1,4 @@
+import { stegaClean } from 'next-sanity'
 import { getBaseUrl } from './get-base-url'
 import { client } from './sanity/client'
 import { queryGlobalSeoSettings } from './sanity/query'
@@ -38,7 +39,13 @@ export async function getSEOMetadata(data: MetaDataInput = {}): Promise<Metadata
     readingTime,
   } = data ?? {}
 
-  const globalSettings = await client.fetch(queryGlobalSeoSettings)
+  const globalSettings = await client.fetch(
+    queryGlobalSeoSettings,
+    {},
+    {
+      stega: false,
+    },
+  )
   const { siteTitle, siteDescription, socialLinks, defaultOpenGraphImage } = globalSettings || {}
 
   const baseUrl = getBaseUrl()
@@ -53,8 +60,8 @@ export async function getSEOMetadata(data: MetaDataInput = {}): Promise<Metadata
     : twitterHandle
 
   const meta = {
-    title: `${seoTitle ?? title}`,
-    description: seoDescription ?? description ?? siteDescription,
+    title: stegaClean(`${seoTitle ?? title}`),
+    description: stegaClean(seoDescription ?? description ?? siteDescription),
   }
 
   const brandName = siteTitle || 'Redshirt Sports'
