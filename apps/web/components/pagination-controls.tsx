@@ -17,6 +17,7 @@ export default function PaginationControls({ totalPosts }: { totalPosts: number 
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const currentPage = parseInt(searchParams.get('page') || '1')
+  const totalPages = Math.ceil(totalPosts / perPage)
 
   const createPageUrl = (pageNumber: number | string) => {
     const params = new URLSearchParams(searchParams ?? '')
@@ -25,16 +26,15 @@ export default function PaginationControls({ totalPosts }: { totalPosts: number 
       params.delete('page')
     }
 
-    // only include ? if there are params
     const pageUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`
 
     return pageUrl
   }
 
   const showPages = () => {
-    const pages: any = []
+    const pages: React.ReactElement[] = []
     for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-      if (i > 0 && i <= Math.ceil(totalPosts / perPage)) {
+      if (i > 0 && i <= totalPages) {
         pages.push(
           <PaginationLink
             key={`${currentPage}${i}`}
@@ -49,31 +49,34 @@ export default function PaginationControls({ totalPosts }: { totalPosts: number 
     return pages
   }
 
+  const isPreviousDisabled = currentPage <= 1
+  const isNextDisabled = currentPage >= totalPages
+
+  const showEllipsis = totalPages > 3 && (currentPage < totalPages - 1 || currentPage > 2)
+
   return (
     <Pagination className="mt-12">
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            href={createPageUrl(currentPage - 1)}
-            aria-disabled={currentPage <= 1}
-            tabIndex={currentPage <= 1 ? -1 : undefined}
-            className={currentPage <= 1 ? 'pointer-events-none opacity-50' : undefined}
+            href={isPreviousDisabled ? undefined : createPageUrl(currentPage - 1)}
+            aria-disabled={isPreviousDisabled}
+            tabIndex={isPreviousDisabled ? -1 : undefined}
+            className={isPreviousDisabled ? 'pointer-events-none opacity-50' : undefined}
           />
         </PaginationItem>
         <PaginationItem>{showPages()}</PaginationItem>
-        <PaginationItem>
-          <PaginationEllipsis />
-        </PaginationItem>
+        {showEllipsis && (
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+        )}
         <PaginationItem>
           <PaginationNext
-            href={createPageUrl(currentPage + 1)}
-            aria-disabled={currentPage >= Math.ceil(totalPosts / perPage)}
-            tabIndex={currentPage >= Math.ceil(totalPosts / perPage) ? -1 : undefined}
-            className={
-              currentPage >= Math.ceil(totalPosts / perPage)
-                ? 'pointer-events-none opacity-50'
-                : undefined
-            }
+            href={isNextDisabled ? undefined : createPageUrl(currentPage + 1)}
+            aria-disabled={isNextDisabled}
+            tabIndex={isNextDisabled ? -1 : undefined}
+            className={isNextDisabled ? 'pointer-events-none opacity-50' : undefined}
           />
         </PaginationItem>
       </PaginationContent>

@@ -438,8 +438,8 @@ export type Conference = {
   _updatedAt: string
   _rev: string
   name: string
-  shortName?: string
-  abbreviation?: string
+  shortName: string
+  abbreviation: string
   slug: Slug
   logo?: {
     asset?: {
@@ -938,7 +938,7 @@ export type HeroPostsQueryResult = Array<{
   conferences: Array<{
     _id: string
     name: string
-    shortName: string | null
+    shortName: string
     slug: string
   }> | null
   estimatedReadingTime: number
@@ -990,7 +990,7 @@ export type LatestArticlesForHomePageQueryResult = Array<{
   conferences: Array<{
     _id: string
     name: string
-    shortName: string | null
+    shortName: string
     slug: string
   }> | null
   estimatedReadingTime: number
@@ -1051,7 +1051,7 @@ export type PostsBySlugQueryResult = {
   } | null
   conferences: Array<{
     name: string
-    shortName: string | null
+    shortName: string
     slug: string
   }> | null
   slug: string
@@ -1274,7 +1274,7 @@ export type PostsBySlugQueryResult = {
       slug: string
     } | null
     conferences: Array<{
-      shortName: string | null
+      shortName: string
       name: string
       slug: string
     }> | null
@@ -1325,7 +1325,7 @@ export type LatestDivisionArticlesQueryResult = Array<{
   } | null
   conferences: Array<{
     name: string
-    shortName: string | null
+    shortName: string
     slug: string
   }> | null
   author: {
@@ -1377,7 +1377,7 @@ export type HeroArticleQueryResult = {
   conferences: Array<{
     _id: string
     name: string
-    shortName: string | null
+    shortName: string
     slug: string
   }> | null
   estimatedReadingTime: number
@@ -1429,7 +1429,7 @@ export type RecentArticlesQueryResult = Array<{
   conferences: Array<{
     _id: string
     name: string
-    shortName: string | null
+    shortName: string
     slug: string
   }> | null
   estimatedReadingTime: number
@@ -1481,7 +1481,7 @@ export type FeaturedArticlesQueryResult = Array<{
   conferences: Array<{
     _id: string
     name: string
-    shortName: string | null
+    shortName: string
     slug: string
   }> | null
   estimatedReadingTime: number
@@ -1533,7 +1533,7 @@ export type OtherArticlesQueryResult = Array<{
   conferences: Array<{
     _id: string
     name: string
-    shortName: string | null
+    shortName: string
     slug: string
   }> | null
   estimatedReadingTime: number
@@ -1580,6 +1580,12 @@ export type ConferencesAuthorHasWrittenForResult = {
         name: Slug | null
         shortName: null
         division: null
+      }
+    | {
+        _id: string
+        name: string
+        shortName: string
+        division: string
       }
     | {
         _id: string
@@ -1858,7 +1864,7 @@ export type QueryPostSlugDataResult = {
   conferences: Array<{
     _id: string
     name: string
-    shortName: string | null
+    shortName: string
     slug: string
     logo: {
       asset?: {
@@ -2171,7 +2177,7 @@ export type QueryHomePageDataResult = Array<{
   conferences: Array<{
     name: string
     slug: string
-    shortName: string | null
+    shortName: string
   }> | null
   author: {
     name: string
@@ -2239,7 +2245,7 @@ export type QueryLatestArticlesResult = Array<{
   conferences: Array<{
     name: string
     slug: string
-    shortName: string | null
+    shortName: string
   }> | null
   author: {
     name: string
@@ -2307,7 +2313,7 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
   conferences: Array<{
     name: string
     slug: string
-    shortName: string | null
+    shortName: string
   }> | null
   authors: Array<{
     name: string
@@ -2466,7 +2472,7 @@ export type SchoolsByDivisionQueryResult = Array<{
   }
   conference: {
     name: string
-    shortName: string | null
+    shortName: string
   }
 }>
 

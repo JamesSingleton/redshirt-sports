@@ -30,6 +30,15 @@ async function fetchSportTitle(sport: string, { stega = true } = {}) {
   })
 }
 
+function validatePageIndex(page: string | undefined): number {
+  if (!page) return 1
+
+  const parsed = parseInt(page, 10)
+  if (isNaN(parsed) || parsed < 1) return 1
+
+  return parsed
+}
+
 export async function generateMetadata({
   params,
   searchParams,
@@ -39,7 +48,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { sport } = await params
   const { page } = await searchParams
-  const pageIndex = page !== undefined ? parseInt(page) : 1
+  const pageIndex = validatePageIndex(page)
 
   const { data: sportData } = await fetchSportTitle(sport, { stega: false })
 
@@ -79,7 +88,7 @@ export default async function Page({
   const { sport } = await params
 
   const { page } = await searchParams
-  const pageIndex = page !== undefined ? parseInt(page) : 1
+  const pageIndex = validatePageIndex(page)
 
   const [newsResponse, sportInfoResponse] = await Promise.all([
     fetchSportsNews({ sport, pageIndex }),

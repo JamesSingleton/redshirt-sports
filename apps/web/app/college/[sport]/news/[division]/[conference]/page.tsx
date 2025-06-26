@@ -7,11 +7,11 @@ import PaginationControls from '@/components/pagination-controls'
 import { getConferenceInfoBySlug } from '@/lib/sanity.fetch'
 import { perPage } from '@/lib/constants'
 import ArticleFeed from '@/components/article-feed'
-import { constructMetadata } from '@/utils/construct-metadata'
 import { queryArticlesBySportDivisionAndConference, sportInfoBySlug } from '@/lib/sanity/query'
 import { sanityFetch } from '@/lib/sanity/live'
 import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
+import { getSEOMetadata } from '@/lib/seo'
 
 import type { Metadata } from 'next'
 import type { Post } from '@/types'
@@ -109,10 +109,10 @@ export async function generateMetadata({
     canonical = `/college/${sport}/news/${division}/${conference}?page=${page}`
   }
 
-  return constructMetadata({
-    title: finalTitle,
-    description: finalDescription,
-    canonical,
+  return await getSEOMetadata({
+    seoDescription: finalDescription,
+    seoTitle: finalTitle,
+    slug: canonical,
   })
 }
 

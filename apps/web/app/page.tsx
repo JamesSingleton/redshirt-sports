@@ -96,7 +96,7 @@ export default async function HomePage() {
 
   const divisionsWithArticles = divisions.map((division, index) => ({
     ...division,
-    articles: collegeSportsResults[index]?.data || [],
+    articles: collegeSportsResults[index]?.data,
   }))
 
   const sectionOrder = ['fcs', 'fbs', 'd2', 'd3']
@@ -154,13 +154,11 @@ export default async function HomePage() {
                 latestArticles.map((article) => (
                   <ArticleCard
                     title={article.title}
-                    conferences={article.conferences}
-                    division={article.division}
                     date={article.publishedAt}
                     image={article.mainImage}
                     slug={article.slug}
                     key={article._id}
-                    author={article.author.name}
+                    author={article.author!.name}
                   />
                 ))}
             </div>

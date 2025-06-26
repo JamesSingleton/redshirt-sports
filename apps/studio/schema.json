@@ -2446,14 +2446,14 @@
         "value": {
           "type": "string"
         },
-        "optional": true
+        "optional": false
       },
       "abbreviation": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
         },
-        "optional": true
+        "optional": false
       },
       "slug": {
         "type": "objectAttribute",

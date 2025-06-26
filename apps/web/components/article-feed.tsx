@@ -13,8 +13,6 @@ export default function ArticleFeed({ articles }: { articles: Post[] }) {
             slug={article.slug}
             author={article.authors[0].name}
             date={article.publishedAt}
-            division={article.division}
-            conferences={article.conferences}
             headingLevel="h2"
             imagePriority={index < 4}
           />

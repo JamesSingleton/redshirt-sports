@@ -7,7 +7,7 @@ import Date from '@/components/date'
 import ArticleCard from '@/components/article-card'
 import CustomImage from '@/components/sanity-image'
 
-import { Post } from '@/types'
+import type { Post } from '@/lib/sanity/sanity.types'
 
 interface ArticleSectionProps {
   title: string
@@ -22,8 +22,8 @@ export default function ArticleSection({
   articles,
   imageFirst = false,
 }: ArticleSectionProps) {
-  const firstArticle = articles[0]
-  const remainingArticles = articles.slice(1)
+  const firstArticle = articles[0]!
+  const remainingArticles = articles.slice(1)!
 
   return (
     <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">

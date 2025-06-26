@@ -94,11 +94,11 @@ export async function getSEOMetadata(data: MetaDataInput = {}): Promise<Metadata
           width: 1200,
           height: 630,
           alt: image ? image.alt : brandName,
-          secureUrl: urlFor(image).size(1200, 630).url() ?? defaultOpenGraphImage,
+          secureUrl: image ? urlFor(image).size(1200, 630).url() : defaultOpenGraphImage,
           type: 'image/jpeg',
         },
       ],
-      authors: authors && authors.length > 0 ? authors.map((author) => author.name) : [],
+      ...(authors && authors.length > 0 && { authors: authors.map((author) => author.name) }),
     },
     robots: {
       index: true,

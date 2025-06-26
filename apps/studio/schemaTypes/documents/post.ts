@@ -75,6 +75,7 @@ export const post = defineType({
           options: {
             disableNew: true,
           },
+          validation: (rule) => rule.required(),
         }),
       ],
       validation: (rule) => [rule.required(), rule.unique()],

@@ -19,12 +19,14 @@ export const conference = defineType({
       name: 'shortName',
       type: 'string',
       description: 'The short name of the conference.',
+      validation: (rule) => rule.required(),
     }),
     defineField({
       title: 'Abbreviation',
       name: 'abbreviation',
       type: 'string',
       description: 'The abbreviation of the conference (e.g., "SEC", "ACC").',
+      validation: (rule) => rule.required(),
     }),
     defineField({
       title: 'Slug',
