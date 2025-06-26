@@ -60,8 +60,8 @@ export async function getSEOMetadata(data: MetaDataInput = {}): Promise<Metadata
     : twitterHandle
 
   const meta = {
-    title: stegaClean(`${seoTitle ?? title}`),
-    description: stegaClean(seoDescription ?? description ?? siteDescription),
+    title: `${seoTitle ?? title}`,
+    description: seoDescription ?? description ?? siteDescription,
   }
 
   const brandName = siteTitle || 'Redshirt Sports'
