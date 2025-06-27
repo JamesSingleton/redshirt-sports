@@ -1,17 +1,16 @@
 import Link from 'next/link'
-import { Mail, Globe } from 'lucide-react'
 
-import { Twitter, Facebook, Instagram } from '@/components/icons'
+import { Twitter, Facebook, YouTubeIcon } from '@/components/icons'
 import PageHeader from '@/components/page-header'
-import { HOME_DOMAIN } from '@/lib/constants'
 import CustomImage from '@/components/sanity-image'
 import { sanityFetch } from '@/lib/sanity/live'
 import { getSEOMetadata } from '@/lib/seo'
+import { authorsListNotArchived } from '@/lib/sanity/query'
+import { JsonLdScript, websiteId } from '@/components/json-ld'
+import { getBaseUrl } from '@/lib/get-base-url'
 
 import type { Metadata } from 'next'
-import type { Graph } from 'schema-dts'
-import { authorsListNotArchived } from '@/lib/sanity/query'
-import { Author } from '@/lib/sanity/sanity.types'
+import type { WithContext, AboutPage } from 'schema-dts'
 
 async function fetchAuthors() {
   return await sanityFetch({
@@ -27,47 +26,33 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-const jsonLd: Graph = {
+const aboutPageJsonLd: WithContext<AboutPage> = {
   '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'BreadcrumbList',
-      '@id': `${HOME_DOMAIN}/about#breadcrumb`,
-      name: 'About Breadcrumbs',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Home',
-          item: HOME_DOMAIN,
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: 'About',
-          item: `${HOME_DOMAIN}/about`,
-        },
-      ],
-    },
-    {
-      '@type': 'AboutPage',
-      '@id': `${HOME_DOMAIN}/about`,
-      url: `${HOME_DOMAIN}/about`,
-      description: `Learn about ${process.env.NEXT_PUBLIC_APP_NAME} and our team's dedication to covering FCS, FBS, D2, and D3 football. Discover our mission and the experts behind the news.`,
-      mainEntityOfPage: {
-        '@type': 'WebPage',
-        '@id': `${HOME_DOMAIN}/about`,
+  '@type': 'AboutPage',
+  '@id': `${getBaseUrl()}/about`,
+  url: `${getBaseUrl()}/about`,
+  description: `Meet the team at ${process.env.NEXT_PUBLIC_APP_NAME}! We're dedicated to bringing you comprehensive coverage of college sports at every level, sharing our mission and expertise.`,
+  isPartOf: {
+    '@id': websiteId,
+  },
+  inLanguage: 'en-US',
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${getBaseUrl()}`,
       },
-      breadcrumb: {
-        '@type': 'BreadcrumbList',
-        '@id': `${HOME_DOMAIN}/about#breadcrumb`,
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'About',
+        item: `${getBaseUrl()}/about`,
       },
-      inLanguage: 'en-US',
-      isPartOf: {
-        '@id': `${HOME_DOMAIN}#website`,
-      },
-    },
-  ],
+    ],
+  },
 }
 
 export default async function AboutPage() {
@@ -75,10 +60,7 @@ export default async function AboutPage() {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLdScript data={aboutPageJsonLd} id="about-page-json-ld" />
       <PageHeader title={`About ${process.env.NEXT_PUBLIC_APP_NAME}`} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <div className="prose prose-xl dark:prose-invert mx-auto max-w-none">
@@ -129,7 +111,7 @@ export default async function AboutPage() {
           </div>
           <div className="mx-auto mt-12 max-w-7xl sm:mt-16">
             <ul className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
-              {authors?.map((author: Author) => (
+              {authors?.map((author: any) => (
                 <li
                   key={author._id}
                   className="bg-card text-card-foreground relative rounded-3xl border px-6 py-10 text-center transition duration-300 ease-in-out hover:border-zinc-300/30 hover:shadow-lg sm:px-10"
@@ -154,20 +136,57 @@ export default async function AboutPage() {
                         </span>
                       )}
                     </div>
-                    <ul className="mt-6 flex items-center justify-center space-x-3">
-                      {author.socialMedia?.map((social) => (
-                        <li key={social._key}>
-                          <a href={social.url} target="_blank" rel="noreferrer">
-                            <span className="sr-only">{`${author.name}'s ${social.name}`}</span>
-                            {social.name === 'Email' ? <Mail className="h-6 w-6" /> : null}
-                            {social.name === 'Twitter' ? <Twitter className="h-6 w-6" /> : null}
-                            {social.name === 'Facebook' ? <Facebook className="h-6 w-6" /> : null}
-                            {social.name === 'Instagram' ? <Instagram className="h-6 w-6" /> : null}
-                            {social.name === 'Website' ? <Globe className="h-6 w-6" /> : null}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
+                    {author.socialLinks && (
+                      <ul className="mt-6 flex items-center justify-center space-x-3">
+                        {author.socialLinks.twitter && (
+                          <li>
+                            <Link
+                              href={author.socialLinks.twitter}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Twitter
+                                name="twitter"
+                                className="fill-muted-foreground hover:fill-primary size-6"
+                              />
+                              <span className="sr-only">
+                                {`Follow ${author.name} on X (Formerly Twitter)`}
+                              </span>
+                            </Link>
+                          </li>
+                        )}
+                        {author.socialLinks.facebook && (
+                          <li>
+                            <Link
+                              href={author.socialLinks.facebook}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Facebook
+                                name="facebook"
+                                className="fill-muted-foreground hover:fill-primary size-6"
+                              />
+                              <span className="sr-only">{`Follow ${author.name} on Facebook`}</span>
+                            </Link>
+                          </li>
+                        )}
+                        {author.socialLinks.youtube && (
+                          <li>
+                            <Link
+                              href={author.socialLinks.youtube}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <YouTubeIcon
+                                name="youtube"
+                                className="fill-muted-foreground hover:fill-primary size-6"
+                              />
+                              <span className="sr-only">{`Subscribe to ${author.name}'s YouTube channel`}</span>
+                            </Link>
+                          </li>
+                        )}
+                      </ul>
+                    )}
                   </div>
                 </li>
               ))}

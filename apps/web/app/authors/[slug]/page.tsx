@@ -1,20 +1,11 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { Globe, Mail } from 'lucide-react'
 import { Graph } from 'schema-dts'
 
-import {
-  SpotifyIcon,
-  ApplePodcastIcon,
-  OvercastIcon,
-  Instagram,
-  Twitter,
-  Facebook,
-} from '@/components/icons'
+import { Twitter, Facebook, YouTubeIcon } from '@/components/icons'
 import ArticleCard from '@/components/article-card'
 import PaginationControls from '@/components/pagination-controls'
-import { Org, Web } from '@/lib/ldJson'
 import { perPage, HOME_DOMAIN } from '@/lib/constants'
 import { sanityFetch } from '@/lib/sanity/live'
 import CustomImage from '@/components/sanity-image'
@@ -138,8 +129,8 @@ export default async function Page({
           name: author.name,
           image: buildSafeImageUrl(author.image),
           url: `${HOME_DOMAIN}/authors/${author.slug}`,
-          sameAs: author.socialMedia.map((social: any) => social.url),
           jobTitle: author.roles.join(', '),
+          sameAs: [...Object.values(author?.socialLinks || {})],
         },
         image: {
           '@id': `${HOME_DOMAIN}/authors/${author.slug}#primaryimage`,
@@ -188,8 +179,6 @@ export default async function Page({
           },
         ],
       },
-      Web,
-      Org,
       {
         '@type': 'Person',
         '@id': `${HOME_DOMAIN}/authors/${author.slug}#person`,
@@ -198,7 +187,7 @@ export default async function Page({
           '@id': `${HOME_DOMAIN}/authors/${author.slug}#primaryimage`,
         },
         url: `${HOME_DOMAIN}/authors/${author.slug}`,
-        sameAs: author.socialMedia.map((social: any) => social.url),
+        sameAs: [...Object.values(author?.socialLinks || {})],
         jobTitle: author.roles.join(', '),
         description: author.biography,
         mainEntityOfPage: {
@@ -237,34 +226,55 @@ export default async function Page({
             <p className="text-muted-foreground mt-4 text-lg font-normal lg:text-xl">
               {author.biography}
             </p>
-            {author.socialMedia && (
-              <ul className="mt-6 flex flex-wrap items-center space-x-3">
-                {author.socialMedia.map((social: any) => (
-                  <li key={social._key}>
+            {author.socialLinks && (
+              <ul className="text-muted-foreground mt-6 flex items-center space-x-6">
+                {author.socialLinks.twitter && (
+                  <li>
                     <Link
-                      href={social.url}
+                      href={author.socialLinks.twitter}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-muted-foreground inline-flex h-10 w-10 items-center rounded-full transition-all duration-200"
                     >
-                      <span className="sr-only">{social.name}</span>
-                      {social.name === 'Email' ? <Mail className="h-6 w-6" /> : null}
-                      {social.name === 'Twitter' ? <Twitter className="h-6 w-6" /> : null}
-                      {social.name === 'Facebook' ? <Facebook className="h-6 w-6" /> : null}
-                      {social.name === 'Instagram' ? <Instagram className="h-6 w-6" /> : null}
-                      {social.name === 'Website' ? <Globe className="h-6 w-6" /> : null}
-                      {social.name === 'Spotify Podcast' ? (
-                        <SpotifyIcon className="h-6 w-6" />
-                      ) : null}
-                      {social.name === 'Apple Podcast' ? (
-                        <ApplePodcastIcon className="h-6 w-6" />
-                      ) : null}
-                      {social.name === 'Overcast Podcast' ? (
-                        <OvercastIcon className="h-6 w-6" />
-                      ) : null}
+                      <Twitter
+                        name="twitter"
+                        className="fill-muted-foreground hover:fill-primary size-6"
+                      />
+                      <span className="sr-only">
+                        {`Follow ${author.name} on X (Formerly Twitter)`}
+                      </span>
                     </Link>
                   </li>
-                ))}
+                )}
+                {author.socialLinks.facebook && (
+                  <li>
+                    <Link
+                      href={author.socialLinks.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Facebook
+                        name="facebook"
+                        className="fill-muted-foreground hover:fill-primary size-6"
+                      />
+                      <span className="sr-only">{`Follow ${author.name} on Facebook`}</span>
+                    </Link>
+                  </li>
+                )}
+                {author.socialLinks.youtube && (
+                  <li>
+                    <Link
+                      href={author.socialLinks.youtube}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <YouTubeIcon
+                        name="youtube"
+                        className="fill-muted-foreground hover:fill-primary size-6"
+                      />
+                      <span className="sr-only">{`Subscribe to ${author.name}'s YouTube channel`}</span>
+                    </Link>
+                  </li>
+                )}
               </ul>
             )}
           </div>

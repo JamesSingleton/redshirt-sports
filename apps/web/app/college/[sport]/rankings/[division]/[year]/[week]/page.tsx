@@ -24,7 +24,6 @@ import {
 } from '@/server/queries'
 import { processVoterBallots } from '@/utils/process-ballots'
 import { RankingsFilters } from '@/components/rankings/filters'
-import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
 import CustomImage from '@/components/sanity-image'
 import { getSEOMetadata } from '@/lib/seo'
@@ -109,8 +108,6 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   const jsonLd: Graph = {
     '@context': 'https://schema.org',
     '@graph': [
-      Org,
-      Web,
       {
         '@type': 'WebPage',
         '@id': `${HOME_DOMAIN}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,

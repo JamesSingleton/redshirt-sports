@@ -2,7 +2,6 @@ import PageHeader from '@/components/page-header'
 import Date from '@/components/date'
 import { RichText } from '@/components/rich-text'
 import { HOME_DOMAIN } from '@/lib/constants'
-import { Org, Web } from '@/lib/ldJson'
 import { getSEOMetadata } from '@/lib/seo'
 import { sanityFetch } from '@/lib/sanity/live'
 import { privacyPolicyQuery } from '@/lib/sanity/query'
@@ -27,8 +26,6 @@ export async function generateMetadata(): Promise<Metadata> {
 const jsonLd: Graph = {
   '@context': 'https://schema.org',
   '@graph': [
-    Org,
-    Web,
     {
       '@type': 'WebPage',
       '@id': `${HOME_DOMAIN}/privacy-policy`,

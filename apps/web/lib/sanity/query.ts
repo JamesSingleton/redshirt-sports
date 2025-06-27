@@ -475,11 +475,7 @@ export const authorsListNotArchived = defineQuery(/* groq */ `
       "blurData": asset->metadata.lqip,
       "dominantColor": asset->metadata.palette.dominant.background,
     },
-    socialMedia[]{
-      _key,
-      name,
-      url
-    }
+    socialLinks
   }
 `)
 

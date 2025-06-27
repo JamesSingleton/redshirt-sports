@@ -8,7 +8,6 @@ import {
 } from '@workspace/ui/components/card'
 
 import PageHeader from '@/components/page-header'
-import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
 import { getSEOMetadata } from '@/lib/seo'
 
@@ -44,8 +43,6 @@ const contactDetails = [
 const jsonLd: Graph = {
   '@context': 'https://schema.org',
   '@graph': [
-    Org,
-    Web,
     {
       '@type': 'ContactPage',
       '@id': `${HOME_DOMAIN}/contact`,
