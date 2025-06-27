@@ -4,9 +4,9 @@ import { Mail, Globe } from 'lucide-react'
 import { Twitter, Facebook, Instagram } from '@/components/icons'
 import PageHeader from '@/components/page-header'
 import { HOME_DOMAIN } from '@/lib/constants'
-import { constructMetadata } from '@/utils/construct-metadata'
 import CustomImage from '@/components/sanity-image'
 import { sanityFetch } from '@/lib/sanity/live'
+import { getSEOMetadata } from '@/lib/seo'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
@@ -19,11 +19,13 @@ async function fetchAuthors() {
   })
 }
 
-export const metadata: Metadata = constructMetadata({
-  title: `Meet the Team | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-  description: `Learn about ${process.env.NEXT_PUBLIC_APP_NAME} and our team's dedication to covering FCS, FBS, D2, and D3 football. Discover our mission and the experts behind the news.`,
-  canonical: '/about',
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return await getSEOMetadata({
+    title: 'About Us',
+    description: `Meet the team at ${process.env.NEXT_PUBLIC_APP_NAME}! We're dedicated to bringing you comprehensive coverage of college sports at every level, sharing our mission and expertise.`,
+    slug: '/about',
+  })
+}
 
 const jsonLd: Graph = {
   '@context': 'https://schema.org',

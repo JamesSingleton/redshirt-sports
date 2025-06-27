@@ -145,7 +145,10 @@ export const querySportsNews = defineQuery(/* groq */ `
       ...,
       ${postImageFragment},
       "slug": slug.current,
-      "author": author->{name, "slug": slug.current},
+      "authors": authors[]->{
+        _id,
+        name,
+      }
     },
     "totalPosts": count(*[_type == "post" && sport->slug.current == $sport])
   }
@@ -157,7 +160,10 @@ export const querySportsAndDivisionNews = defineQuery(/* groq */ `
       ...,
       ${postImageFragment},
       "slug": slug.current,
-      "author": author->{name, "slug": slug.current},
+      "authors": authors[]->{
+        _id,
+        name,
+      }
     },
     "totalPosts": count(*[_type == "post" && sport->slug.current == $sport && division->slug.current == $division])
   }
@@ -189,7 +195,9 @@ export const queryGlobalSeoSettings = defineQuery(/* groq */ `
   *[_type == "settings"][0]{
     _id,
     _type,
+    siteBrand,
     siteTitle,
+    siteDescription,
     logo{
       ...,
       ...asset->{
@@ -199,7 +207,6 @@ export const queryGlobalSeoSettings = defineQuery(/* groq */ `
       }
     },
     "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",
-    siteDescription,
     socialLinks{
       facebook,
       twitter,

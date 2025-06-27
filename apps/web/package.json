@@ -16,7 +16,7 @@
     "db:studio": "drizzle-kit studio --verbose"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.23.0",
+    "@clerk/nextjs": "^6.23.1",
     "@hookform/resolvers": "^5.1.1",
     "@portabletext/react": "^3.2.1",
     "@portabletext/to-html": "^2.0.14",
@@ -37,7 +37,7 @@
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.523.0",
-    "next": "15.4.0-canary.96",
+    "next": "15.4.0-canary.99",
     "next-plausible": "^3.12.4",
     "next-sanity": "^9.12.0",
     "next-themes": "0.4.6",
@@ -61,10 +61,10 @@
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
     "babel-plugin-react-compiler": "19.1.0-rc.2",
-    "drizzle-kit": "^0.31.2",
+    "drizzle-kit": "^0.31.3",
     "eslint": "^9.29.0",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.10",
+    "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3"
   }
 }

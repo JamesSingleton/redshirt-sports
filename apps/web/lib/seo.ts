@@ -46,7 +46,8 @@ export async function getSEOMetadata(data: MetaDataInput = {}): Promise<Metadata
       stega: false,
     },
   )
-  const { siteTitle, siteDescription, socialLinks, defaultOpenGraphImage } = globalSettings || {}
+  const { siteBrand, siteTitle, siteDescription, socialLinks, defaultOpenGraphImage } =
+    globalSettings || {}
 
   const baseUrl = getBaseUrl()
   const pageUrl = buildPageUrl({ baseUrl, slug })
@@ -60,11 +61,11 @@ export async function getSEOMetadata(data: MetaDataInput = {}): Promise<Metadata
     : twitterHandle
 
   const meta = {
-    title: `${seoTitle ?? title}`,
+    title: `${seoTitle ?? title ?? siteTitle}`,
     description: seoDescription ?? description ?? siteDescription,
   }
 
-  const brandName = siteTitle || 'Redshirt Sports'
+  const brandName = siteBrand || 'Redshirt Sports'
 
   return {
     title: `${meta.title} | ${brandName}`,

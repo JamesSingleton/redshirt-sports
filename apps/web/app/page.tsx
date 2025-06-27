@@ -15,6 +15,9 @@ import ArticleSection from '@/components/article-section'
 import { WebPage, WithContext } from 'schema-dts'
 import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
+import { getSEOMetadata } from '@/lib/seo'
+
+import type { Metadata } from 'next'
 
 async function fetchHomePageData() {
   return await sanityFetch({
@@ -75,6 +78,10 @@ const divisions = [
 ]
 
 const baseUrl = getBaseUrl()
+
+export async function generateMetadata(): Promise<Metadata> {
+  return await getSEOMetadata()
+}
 
 export default async function HomePage() {
   const [{ data: homePageData }, { data: latestArticles }] = await Promise.all([

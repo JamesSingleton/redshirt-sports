@@ -19,10 +19,17 @@ export const settings = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'siteBrand',
+      type: 'string',
+      title: 'Site Brand',
+      description: 'The brand name of your website',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: 'siteTitle',
       type: 'string',
       title: 'Site Title',
-      description: 'The main title of your website, used in browser tabs and SEO',
+      description: 'The default title of your website, used in browser tabs and SEO',
       validation: (rule) => rule.required(),
     }),
     defineField({

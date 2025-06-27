@@ -16,10 +16,10 @@ import ArticleCard from '@/components/article-card'
 import PaginationControls from '@/components/pagination-controls'
 import { Org, Web } from '@/lib/ldJson'
 import { perPage, HOME_DOMAIN } from '@/lib/constants'
-import { constructMetadata } from '@/utils/construct-metadata'
 import { sanityFetch } from '@/lib/sanity/live'
 import CustomImage from '@/components/sanity-image'
 import { buildSafeImageUrl } from '@/components/json-ld'
+import { getSEOMetadata } from '@/lib/seo'
 
 import type { Metadata } from 'next'
 import { authorBySlug, postsByAuthor } from '@/lib/sanity/query'
@@ -83,11 +83,11 @@ export async function generateMetadata({
     canonical = `/authors/${slug}?page=${page}`
   }
 
-  return constructMetadata({
-    title: `${author.name} - ${roles} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+  return await getSEOMetadata({
+    title: `${author.name} - ${roles}`,
     description: `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`,
-    canonical,
-    image: buildSafeImageUrl(author.image),
+    slug: canonical,
+    image: author.image,
     ogType: 'profile',
   })
 }

@@ -110,8 +110,8 @@ export async function generateMetadata({
   }
 
   return await getSEOMetadata({
-    seoDescription: finalDescription,
-    seoTitle: finalTitle,
+    title: finalTitle,
+    description: finalDescription,
     slug: canonical,
   })
 }

@@ -10,16 +10,18 @@ import {
 import PageHeader from '@/components/page-header'
 import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
-import { constructMetadata } from '@/utils/construct-metadata'
+import { getSEOMetadata } from '@/lib/seo'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
 
-export const metadata: Metadata = constructMetadata({
-  title: `Contact Us | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-  description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for collaboration, advertising, or general inquiries. We're here to assist with any questions about our football coverage.`,
-  canonical: '/contact',
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return await getSEOMetadata({
+    title: 'Contact Us',
+    description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for collaboration, advertising, or general inquiries. We're here to assist with any questions about our college sports coverage.`,
+    slug: '/contact',
+  })
+}
 
 const contactDetails = [
   {

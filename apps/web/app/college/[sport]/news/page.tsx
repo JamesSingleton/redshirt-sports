@@ -6,7 +6,7 @@ import { HOME_DOMAIN, perPage } from '@/lib/constants'
 import PageHeader from '@/components/page-header'
 import ArticleFeed from '@/components/article-feed'
 import PaginationControls from '@/components/pagination-controls'
-import { constructMetadata } from '@/utils/construct-metadata'
+import { getSEOMetadata } from '@/lib/seo'
 
 import type { Metadata } from 'next'
 
@@ -70,11 +70,10 @@ export async function generateMetadata({
     description = `Find comprehensive college ${sportTitle} news, detailed game results, expert analysis, and valuable insights. Your trusted source for NCAA ${sportTitle} information.`
   }
 
-  return constructMetadata({
+  return await getSEOMetadata({
     title,
     description,
-    canonical: canonicalUrl,
-    ogType: 'website',
+    slug: canonicalUrl,
   })
 }
 

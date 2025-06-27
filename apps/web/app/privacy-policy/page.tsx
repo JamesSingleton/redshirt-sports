@@ -3,7 +3,7 @@ import Date from '@/components/date'
 import { RichText } from '@/components/rich-text'
 import { HOME_DOMAIN } from '@/lib/constants'
 import { Org, Web } from '@/lib/ldJson'
-import { constructMetadata } from '@/utils/construct-metadata'
+import { getSEOMetadata } from '@/lib/seo'
 import { sanityFetch } from '@/lib/sanity/live'
 import { privacyPolicyQuery } from '@/lib/sanity/query'
 
@@ -16,11 +16,13 @@ async function fetchPrivacyPolicy() {
   })
 }
 
-export const metadata: Metadata = constructMetadata({
-  title: `Privacy Policy | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-  description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
-  canonical: '/privacy-policy',
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return await getSEOMetadata({
+    title: 'Privacy Policy',
+    description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
+    slug: '/privacy-policy',
+  })
+}
 
 const jsonLd: Graph = {
   '@context': 'https://schema.org',

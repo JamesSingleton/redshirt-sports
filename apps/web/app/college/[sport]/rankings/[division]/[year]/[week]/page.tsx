@@ -24,10 +24,10 @@ import {
 } from '@/server/queries'
 import { processVoterBallots } from '@/utils/process-ballots'
 import { RankingsFilters } from '@/components/rankings/filters'
-import { constructMetadata } from '@/utils/construct-metadata'
 import { Org, Web } from '@/lib/ldJson'
 import { HOME_DOMAIN } from '@/lib/constants'
 import CustomImage from '@/components/sanity-image'
+import { getSEOMetadata } from '@/lib/seo'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
@@ -56,10 +56,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const weekNumber = parseWeekNumber(week)
   const titleWeek = getWeekTitle(weekNumber)
 
-  return constructMetadata({
-    title: `${year} ${division.toUpperCase()} Top 25 Rankings, ${titleWeek} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+  return await getSEOMetadata({
+    title: `${year} ${division.toUpperCase()} Top 25 Rankings, ${titleWeek}`,
     description: `Discover the ${division.toUpperCase()} Top 25 College Football Rankings for ${year}, ${titleWeek}. See how the voters ranked the top teams.`,
-    canonical: `/college/${sport}/rankings/${division}/${year}/${week}`,
+    slug: `/college/${sport}/rankings/${division}/${year}/${week}`,
   })
 }
 

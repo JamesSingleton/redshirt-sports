@@ -10,6 +10,7 @@ import { querySportsAndDivisionNews, sportInfoBySlug } from '@/lib/sanity/query'
 import { perPage } from '@/lib/constants'
 import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
+import { getSEOMetadata } from '@/lib/seo'
 
 import type { Metadata } from 'next'
 import type { Post } from '@/types'
@@ -91,7 +92,7 @@ export async function generateMetadata({
     }
   }
 
-  const baseTitle = `Latest ${divisionName} ${sportTitle} News`
+  const baseTitle = `${divisionName} ${sportTitle} News, Updates & Analysis`
   const baseDescription = `Complete ${divisionName} ${sportTitle} coverage including breaking news, game analysis, player spotlights, and coaching updates. Your go-to source for ${sportTitle} insights.`
 
   const baseCanonical = `/college/${sport}/news/${division}`
@@ -104,45 +105,20 @@ export async function generateMetadata({
   let canonical: string
 
   if (isFirstPage) {
-    title = `${baseTitle} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    title = baseTitle
     description = baseDescription
     canonical = baseCanonical
   } else {
-    title = `${baseTitle} - Page ${pageNumber} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    title = `${baseTitle} - Page ${pageNumber}`
     description = `More ${divisionName} ${sportTitle} stories on Page ${pageNumber}. Continued coverage of recruiting updates, game previews, injury reports, and in-depth team analysis.`
     canonical = `${baseCanonical}?page=${pageNumber}`
   }
 
-  return {
+  return await getSEOMetadata({
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      type: 'website',
-      siteName: process.env.NEXT_PUBLIC_APP_NAME,
-      images: [
-        {
-          url: 'https://cdn.sanity.io/images/8pbt9f8w/production/429b65d83baa82c7178798a398fdf3ee28972fe6-1200x630.png',
-          width: 1200,
-          height: 630,
-        },
-      ],
-      url: `${getBaseUrl()}/college/${sport}/news/${division}${page ? `?page=${page}` : ''}`,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [
-        'https://cdn.sanity.io/images/8pbt9f8w/production/429b65d83baa82c7178798a398fdf3ee28972fe6-1200x630.png',
-      ],
-      site: '@_redshirtsports',
-    },
-    alternates: {
-      canonical,
-    },
-  }
+    slug: canonical,
+  })
 }
 
 export default async function Page({

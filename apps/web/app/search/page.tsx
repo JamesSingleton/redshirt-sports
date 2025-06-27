@@ -5,7 +5,7 @@ import ArticleCard from '@/components/article-card'
 import PaginationControls from '@/components/pagination-controls'
 import Search from '@/components/search'
 import { perPage } from '@/lib/constants'
-import { constructMetadata } from '@/utils/construct-metadata'
+import { getSEOMetadata } from '@/lib/seo'
 
 import { Post } from '@/types'
 import type { Metadata } from 'next'
@@ -22,11 +22,13 @@ async function fetchSearchResults(
   })
 }
 
-export const metadata: Metadata = constructMetadata({
-  title: `Search Results | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-  description: `Explore the latest articles, news, and analysis on college football. Find what you're looking for across FCS, FBS, D2, D3, and NAIA at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
-  canonical: '/search',
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return await getSEOMetadata({
+    title: `Search Results | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+    description: `Explore the latest articles, news, and analysis on college football. Find what you're looking for across FCS, FBS, D2, D3, and NAIA at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
+    slug: '/search',
+  })
+}
 
 export default async function Page({
   searchParams,

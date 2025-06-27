@@ -10,7 +10,6 @@ import { Providers } from '@/components/providers'
 import { MegaNav } from '@/components/mega-nav'
 import { FooterServer, FooterSkeleton } from '@/components/footer'
 import { SanityLive } from '@/lib/sanity/live'
-import { constructMetadata } from '@/utils/construct-metadata'
 import { sanityFetch } from '@/lib/sanity/live'
 import { CombinedJsonLd } from '@/components/json-ld'
 import { NavbarServer, NavbarSkeleton } from '@/components/navbar'
@@ -132,8 +131,6 @@ async function fetchNavigationData() {
 export const viewport: Viewport = {
   themeColor: '#DC2727',
 }
-
-export const metadata: Metadata = constructMetadata()
 
 export default async function RootLayout({
   children,
