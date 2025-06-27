@@ -24,9 +24,10 @@ import {
 } from '@/server/queries'
 import { processVoterBallots } from '@/utils/process-ballots'
 import { RankingsFilters } from '@/components/rankings/filters'
-import { HOME_DOMAIN } from '@/lib/constants'
 import CustomImage from '@/components/sanity-image'
 import { getSEOMetadata } from '@/lib/seo'
+import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
+import { getBaseUrl } from '@/lib/get-base-url'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
@@ -64,6 +65,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CollegeFootballRankingsPage({ params }: Props) {
   const { division, year, week, sport } = await params
+  const baseUrl = getBaseUrl()
   const weekNumber = parseWeekNumber(week)
   const titleWeek = getWeekTitle(weekNumber)
 
@@ -110,24 +112,41 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
     '@graph': [
       {
         '@type': 'WebPage',
-        '@id': `${HOME_DOMAIN}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,
-        url: `${HOME_DOMAIN}/college/${sport}/rankings/${division}/${year}/${week}`,
-        name: `${year} ${division.toUpperCase()} Top 25 Rankings, ${titleWeek} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+        '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,
+        url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
+        name: `${year} ${division.toUpperCase()} ${sport} Top 25 Rankings, ${titleWeek} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
         description: `Discover the ${division.toUpperCase()} Top 25 College Football Rankings for ${year}, ${titleWeek}. See how the voters ranked the top teams.`,
         isPartOf: {
-          '@id': `${HOME_DOMAIN}#website`,
+          '@type': 'WebSite',
+          '@id': websiteId,
         },
         inLanguage: 'en-US',
+        mainEntity: {
+          '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
+        },
+      },
+      {
+        '@type': 'ItemList',
+        '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
+        url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
+        numberOfItems: top25.length,
+        itemListOrder: 'https://schema.org/ItemListOrderAscending',
+        itemListElement: top25.map((team) => ({
+          '@type': 'ListItem',
+          position: team.rank,
+          item: {
+            '@type': 'SportsTeam',
+            name: team.shortName,
+            sport: sport,
+          },
+        })),
       },
     ],
   }
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLdScript data={jsonLd} id={`json-ld-${sport}-${division}-${year}-${week}`} />
       <Card>
         <CardHeader>
           <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>

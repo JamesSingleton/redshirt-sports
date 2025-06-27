@@ -33,6 +33,7 @@ const aboutPageJsonLd: WithContext<AboutPage> = {
   url: `${getBaseUrl()}/about`,
   description: `Meet the team at ${process.env.NEXT_PUBLIC_APP_NAME}! We're dedicated to bringing you comprehensive coverage of college sports at every level, sharing our mission and expertise.`,
   isPartOf: {
+    '@type': 'WebSite',
     '@id': websiteId,
   },
   inLanguage: 'en-US',

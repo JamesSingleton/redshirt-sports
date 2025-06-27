@@ -15,7 +15,6 @@ import SmallLogo from './small-logo'
 import { getLatestFinalRankings } from '@/server/queries'
 import MegaMobileNav from './mega-mobile-nav'
 import { ModeToggle } from './mode-toggle'
-import { cn } from '@workspace/ui/lib/utils'
 
 export interface Conference {
   _id: string
@@ -110,7 +109,7 @@ export async function MegaNav({ sportsNav }: { sportsNav: SportsData }) {
                       </h3>
                       <div className="space-y-1.5">
                         <Link
-                          href={`college/football/rankings/${latestFCSTop25?.division}/${latestFCSTop25?.year}/${latestFCSTop25?.week === 999 ? 'final-rankings' : latestFCSTop25?.week}`}
+                          href={`/college/football/rankings/${latestFCSTop25?.division}/${latestFCSTop25?.year}/${latestFCSTop25?.week === 999 ? 'final-rankings' : latestFCSTop25?.week}`}
                           className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
                         >
                           FCS College Football Rankings

@@ -114,6 +114,7 @@ export default async function HomePage() {
     '@id': baseUrl,
     url: baseUrl,
     isPartOf: {
+      '@type': 'WebSite',
       '@id': websiteId,
     },
     about: {

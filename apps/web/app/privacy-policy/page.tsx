@@ -1,12 +1,13 @@
 import PageHeader from '@/components/page-header'
 import Date from '@/components/date'
 import { RichText } from '@/components/rich-text'
-import { HOME_DOMAIN } from '@/lib/constants'
 import { getSEOMetadata } from '@/lib/seo'
 import { sanityFetch } from '@/lib/sanity/live'
 import { privacyPolicyQuery } from '@/lib/sanity/query'
+import { JsonLdScript, websiteId } from '@/components/json-ld'
+import { getBaseUrl } from '@/lib/get-base-url'
 
-import type { Graph } from 'schema-dts'
+import type { WithContext, WebPage } from 'schema-dts'
 import type { Metadata } from 'next'
 
 async function fetchPrivacyPolicy() {
@@ -23,39 +24,37 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-const jsonLd: Graph = {
+const baseUrl = getBaseUrl()
+
+const privacyPolicyJsonLd: WithContext<WebPage> = {
   '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'WebPage',
-      '@id': `${HOME_DOMAIN}/privacy-policy`,
-      url: `${HOME_DOMAIN}/privacy-policy`,
-      name: 'Privacy Policy',
-      description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
-      inLanguage: 'en-US',
-      isPartOf: {
-        '@id': `${HOME_DOMAIN}#website`,
+  '@type': 'WebPage',
+  url: `${baseUrl}/privacy-policy`,
+  name: 'Privacy Policy',
+  description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
+  isPartOf: {
+    '@type': 'WebSite',
+    '@id': websiteId,
+  },
+  inLanguage: 'en-US',
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    '@id': `${baseUrl}/privacy-policy#breadcrumb`,
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl,
       },
-    },
-    {
-      '@type': 'BreadcrumbList',
-      name: 'Privacy Policy Breadcrumbs',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Home',
-          item: HOME_DOMAIN,
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: 'Privacy Policy',
-          item: `${HOME_DOMAIN}/privacy-policy`,
-        },
-      ],
-    },
-  ],
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Privacy Policy',
+        item: `${baseUrl}/privacy-policy`,
+      },
+    ],
+  },
 }
 
 export default async function PrivacyPolicyPage() {
@@ -63,10 +62,7 @@ export default async function PrivacyPolicyPage() {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLdScript data={privacyPolicyJsonLd} id="privacy-policy-json-ld" />
       <PageHeader
         title="Privacy Policy"
         subtitle={

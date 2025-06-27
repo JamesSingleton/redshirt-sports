@@ -8,11 +8,12 @@ import {
 } from '@workspace/ui/components/card'
 
 import PageHeader from '@/components/page-header'
-import { HOME_DOMAIN } from '@/lib/constants'
 import { getSEOMetadata } from '@/lib/seo'
+import { JsonLdScript, websiteId } from '@/components/json-ld'
+import { getBaseUrl } from '@/lib/get-base-url'
 
 import type { Metadata } from 'next'
-import type { Graph } from 'schema-dts'
+import type { WithContext, ContactPage } from 'schema-dts'
 
 export async function generateMetadata(): Promise<Metadata> {
   return await getSEOMetadata({
@@ -40,56 +41,45 @@ const contactDetails = [
   },
 ]
 
-const jsonLd: Graph = {
+const baseUrl = getBaseUrl()
+
+const contactPageJsonLd: WithContext<ContactPage> = {
   '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'ContactPage',
-      '@id': `${HOME_DOMAIN}/contact`,
-      url: `${HOME_DOMAIN}/contact`,
-      description: 'Contact us for collaboration, advertising, or general inquiries.',
-      mainEntityOfPage: {
-        '@type': 'WebPage',
-        '@id': `${HOME_DOMAIN}/contact`,
+  '@type': 'ContactPage',
+  '@id': `${baseUrl}/contact`,
+  name: 'Contact Us',
+  description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for collaboration, advertising, or general inquiries. We're here to assist with any questions about our college sports coverage.`,
+  url: `${baseUrl}/contact`,
+  isPartOf: {
+    '@type': 'WebSite',
+    '@id': websiteId,
+  },
+  inLanguage: 'en-us',
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    '@id': `${baseUrl}/contact#breadcrumb`,
+    name: 'Contact Breadcrumbs',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${baseUrl}`,
       },
-      breadcrumb: {
-        '@type': 'BreadcrumbList',
-        '@id': `${HOME_DOMAIN}/contact#breadcrumb`,
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Contact Us',
+        item: `${baseUrl}/contact`,
       },
-      inLanguage: 'en-US',
-      isPartOf: {
-        '@id': `${HOME_DOMAIN}#website`,
-      },
-    },
-    {
-      '@type': 'BreadcrumbList',
-      '@id': `${HOME_DOMAIN}/contact#breadcrumb`,
-      name: 'Contact Breadcrumbs',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Home',
-          item: HOME_DOMAIN,
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: 'Contact',
-          item: `${HOME_DOMAIN}/contact`,
-        },
-      ],
-    },
-  ],
+    ],
+  },
 }
 
 export default function Page() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLdScript data={contactPageJsonLd} id="contact-page-json-ld" />
       <PageHeader
         title="Contact Us"
         subtitle={

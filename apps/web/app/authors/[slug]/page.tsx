@@ -1,7 +1,6 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { Graph } from 'schema-dts'
 
 import { Twitter, Facebook, YouTubeIcon } from '@/components/icons'
 import ArticleCard from '@/components/article-card'
@@ -9,11 +8,15 @@ import PaginationControls from '@/components/pagination-controls'
 import { perPage, HOME_DOMAIN } from '@/lib/constants'
 import { sanityFetch } from '@/lib/sanity/live'
 import CustomImage from '@/components/sanity-image'
-import { buildSafeImageUrl } from '@/components/json-ld'
+import { buildSafeImageUrl, organizationId, websiteId } from '@/components/json-ld'
 import { getSEOMetadata } from '@/lib/seo'
+import { getBaseUrl } from '@/lib/get-base-url'
+import { JsonLdScript } from '@/components/json-ld'
+import { authorBySlug, postsByAuthor } from '@/lib/sanity/query'
 
 import type { Metadata } from 'next'
-import { authorBySlug, postsByAuthor } from '@/lib/sanity/query'
+import type { Graph, WithContext, ProfilePage, Person } from 'schema-dts'
+import { urlFor } from '@/lib/sanity/client'
 
 async function fetchAuthorInfo(slug: string) {
   return await sanityFetch({
@@ -93,6 +96,7 @@ export default async function Page({
   const { slug } = await params
   const { page } = await searchParams
   const pageIndex = page ? parseInt(page) : 1
+  const baseUrl = getBaseUrl()
 
   if (page && parseInt(page) === 1) {
     return redirect(`/authors/${slug}`)
@@ -107,91 +111,72 @@ export default async function Page({
 
   const totalPages = Math.ceil(authorPosts.totalPosts / perPage)
 
-  const jsonLd: Graph = {
+  const authorJsonLd: Graph = {
     '@context': 'https://schema.org',
     '@graph': [
       {
         '@type': 'ProfilePage',
-        dateCreated: author._createdAt,
-        dateModified: author._updatedAt,
-        '@id': `${HOME_DOMAIN}/authors/${author.slug}#profilepage`,
-        url: `${HOME_DOMAIN}/authors/${author.slug}`,
-        name: `${author.roles.join(', ')} ${author.name}`,
-        isPartOf: {
-          '@id': `${HOME_DOMAIN}#website`,
-        },
+        '@id': `${baseUrl}/authors/${slug}#profile`,
+        url: `${baseUrl}/authors/${slug}`,
+        name: author.name,
+        description: author.biography,
         breadcrumb: {
-          '@id': `${HOME_DOMAIN}/authors/${author.slug}#breadcrumb`,
+          '@type': 'BreadcrumbList',
+          name: `${author.name} breadcrumbs`,
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: `${baseUrl}/`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: author.name,
+              item: `${baseUrl}/authors/${slug}`,
+            },
+          ],
         },
-        mainEntity: {
-          '@type': 'Person',
-          '@id': `${HOME_DOMAIN}/authors/${author.slug}#person`,
-          name: author.name,
-          image: buildSafeImageUrl(author.image),
-          url: `${HOME_DOMAIN}/authors/${author.slug}`,
-          jobTitle: author.roles.join(', '),
-          sameAs: [...Object.values(author?.socialLinks || {})],
-        },
-        image: {
-          '@id': `${HOME_DOMAIN}/authors/${author.slug}#primaryimage`,
+        inLanguage: 'en-US',
+        isPartOf: {
+          '@type': 'WebSite',
+          '@id': websiteId,
         },
         primaryImageOfPage: {
-          '@id': `${HOME_DOMAIN}/authors/${author.slug}#primaryimage`,
+          '@type': 'ImageObject',
+          '@id': `${baseUrl}/authors/${slug}#image`,
+          url: urlFor(author.image).size(1200, 630).url(),
+          width: '1200',
+          height: '630',
+          contentUrl: urlFor(author.image).size(1200, 630).url(),
+          caption: author.image.alt,
+          inLanguage: 'en-US',
         },
-        inLanguage: 'en-US',
-        potentialAction: [
-          {
-            '@type': 'ReadAction',
-            target: [`${HOME_DOMAIN}/authors/${author.slug}`],
-          },
-        ],
-      },
-      {
-        '@type': 'ImageObject',
-        '@id': `${HOME_DOMAIN}/authors/${author.slug}#primaryimage`,
-        inLanguage: 'en-US',
-        url: buildSafeImageUrl(author.image),
-        width: '1200',
-        height: '675',
-        caption: `${author.roles.join(', ')} ${author.name}`,
-      },
-      {
-        '@type': 'BreadcrumbList',
-        '@id': `${HOME_DOMAIN}/authors/${author.slug}#breadcrumb`,
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Home',
-            item: HOME_DOMAIN,
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: 'Authors',
-            item: `${HOME_DOMAIN}/about`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: author.name,
-            item: `${HOME_DOMAIN}/authors/${author.slug}`,
-          },
-        ],
+        mainEntity: {
+          '@id': `${baseUrl}/authors/${slug}#person`,
+        },
       },
       {
         '@type': 'Person',
-        '@id': `${HOME_DOMAIN}/authors/${author.slug}#person`,
+        '@id': `${baseUrl}/authors/${slug}#person`,
         name: author.name,
+        url: `${baseUrl}/authors/${slug}`,
         image: {
-          '@id': `${HOME_DOMAIN}/authors/${author.slug}#primaryimage`,
+          '@type': 'ImageObject',
+          '@id': `${baseUrl}/authors/${slug}#image`,
+          url: urlFor(author.image).size(1200, 630).url(),
+          width: '1200',
+          height: '630',
+          contentUrl: urlFor(author.image).size(1200, 630).url(),
+          caption: author.image.alt,
+          inLanguage: 'en-US',
         },
-        url: `${HOME_DOMAIN}/authors/${author.slug}`,
-        sameAs: [...Object.values(author?.socialLinks || {})],
         jobTitle: author.roles.join(', '),
-        description: author.biography,
-        mainEntityOfPage: {
-          '@id': `${HOME_DOMAIN}/authors/${author.slug}#profilepage`,
+        sameAs: [...Object.values(author?.socialLinks || {})],
+        worksFor: {
+          '@type': 'Organization',
+          '@id': organizationId,
         },
       },
     ],
@@ -199,10 +184,9 @@ export default async function Page({
 
   return (
     <>
-      <script
-        id={`${author.name.toLowerCase().replace(/\s+/g, '-')}-ld-json`}
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      <JsonLdScript
+        data={authorJsonLd}
+        id={`${author.name.toLowerCase().replace(/\s+/g, '-')}-json-ld`}
       />
       <section className="py-8">
         <div className="container mx-auto">
