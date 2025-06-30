@@ -3,7 +3,6 @@ import { Suspense } from 'react'
 import PageHeader from '@/components/page-header'
 import ArticleCard from '@/components/article-card'
 import PaginationControls from '@/components/pagination-controls'
-import Search from '@/components/search'
 import { perPage } from '@/lib/constants'
 import { getSEOMetadata } from '@/lib/seo'
 
@@ -52,11 +51,6 @@ export default async function Page({
     <>
       <PageHeader title="Search Results" subtitle={subheadingText} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="max-w-3xl">
-          <Suspense fallback={<>Loading...</>}>
-            <Search defaultValue={query} />
-          </Suspense>
-        </div>
         {searchResults.posts.length > 0 && (
           <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
             {searchResults.posts.map((post: Post) => (
@@ -66,8 +60,6 @@ export default async function Page({
                 date={post.publishedAt}
                 image={post.mainImage}
                 slug={post.slug}
-                division={post.division}
-                conferences={post.conferences}
                 author={post.authors[0]?.name || post.author.name}
               />
             ))}

@@ -53,25 +53,22 @@ export async function getDivisionOrSubgroupingDisplayName(
   slugOrShortName: string,
   { stega = true } = {},
 ) {
-  const subgroupingShortName = await sanityFetch({
-    query: `*[_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)][0].shortName`,
+  return await sanityFetch({
+    query: `
+      *[
+        (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||
+        (_type == "division" && slug.current == $slugOrShortName)
+      ][0]{
+        _type,
+        "displayName": select(
+          _type == "sportSubgrouping" => shortName,
+          _type == "division" => title
+        )
+      }
+    `,
     params: { slugOrShortName },
     stega,
   })
-  if (subgroupingShortName.data) {
-    return subgroupingShortName
-  }
-
-  const divisionName = await sanityFetch({
-    query: `*[_type == "division" && slug.current == $slugOrShortName][0].title`,
-    params: { slugOrShortName },
-    stega,
-  })
-  if (divisionName.data) {
-    return divisionName
-  }
-
-  return null
 }
 
 export async function generateMetadata({
@@ -141,7 +138,7 @@ export default async function Page({
 
   const news = newsResponse.data
   const sportInfo = sportInfoResponse.data
-  const divisionOrSubgroupingName = divisionNameResponse?.data
+  const divisionOrSubgroupingName = divisionNameResponse?.data.displayName
 
   if (!news || !news.posts || !news.posts.length) {
     notFound()
