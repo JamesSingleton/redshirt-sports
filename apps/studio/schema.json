@@ -646,6 +646,13 @@
         },
         "optional": false
       },
+      "siteBrand": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
       "siteTitle": {
         "type": "objectAttribute",
         "value": {

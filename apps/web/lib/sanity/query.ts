@@ -514,3 +514,132 @@ export const collegeNewsQuery = defineQuery(/* groq */ `
     "totalPosts": count(*[_type == "post"])
   }
 `)
+
+export const conferenceInfoBySlugQuery = defineQuery(/* groq */ `
+  *[_type == "conference" && slug.current == $slug][0]
+`)
+
+export const globalNavigationQuery = defineQuery(/* groq */ `
+  *[_type == "sport" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc) {
+    _id,
+    "name": title,
+    "slug": slug.current,
+    "groupings": select(
+      slug.current == "football" => [
+        // FBS Subgrouping
+        *[_type == "sportSubgrouping" && shortName == "FBS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
+          _id,
+          "name": coalesce(shortName, name),
+          "slug": slug.current,
+          "type": "subgrouping",
+          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
+            _id,
+            name,
+            "slug": slug.current,
+            shortName
+          }
+        },
+        // FCS Subgrouping
+        *[_type == "sportSubgrouping" && shortName == "FCS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
+          _id,
+          "name": coalesce(shortName, name),
+          "slug": slug.current,
+          "type": "subgrouping",
+          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
+            _id,
+            name,
+            "slug": slug.current,
+            shortName
+          }
+        },
+        // Division II
+        *[_type == "division" && title == "Division II" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
+          _id,
+          "name": name,
+          "slug": slug.current,
+          "type": "division",
+          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
+            _id,
+            name,
+            "slug": slug.current,
+            shortName
+          }
+        },
+        // Division III
+        *[_type == "division" && title == "Division III" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
+          _id,
+          "name": name,
+          "slug": slug.current,
+          "type": "division",
+          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
+            _id,
+            name,
+            "slug": slug.current,
+            shortName
+          }
+        }
+      ],
+      true => (
+        // Generic subgroupings
+        *[_type == "sportSubgrouping" && ^._id in applicableSports[]._ref] | order(name asc) {
+          _id,
+          "name": coalesce(shortName, name),
+          "slug": slug.current,
+          "type": "subgrouping",
+          "conferences": *[_type == "conference" && count(sportSubdivisionAffiliations[subgrouping._ref == ^.^._id && sport._ref == ^.^.^._id]) > 0 && count(*[_type == "post" && references(^._id) && sport._ref == ^.^.^._id]) > 0] | order(name asc) {
+            _id,
+            name,
+            shortName,
+            "slug": slug.current
+          }
+        } +
+        // Generic divisions (excluding specific football and basketball divisions)
+        *[_type == "division"
+          && !(title == "FBS" || title == "FCS")
+          && !(
+            (title == "Division I")
+            && (
+              ^.slug.current == "mens-basketball" || ^.slug.current == "womens-basketball"
+            )
+          )
+        ] | order(name asc) {
+          _id,
+          "name": title,
+          "slug": slug.current,
+          "type": "division",
+          "conferences": *[_type == "conference" && division._ref == ^.^._id && count(*[_type == "post" && references(^._id) && sport->slug.current == ^.^.slug.current]) > 0] | order(name asc) {
+            _id,
+            name,
+            shortName,
+            "slug": slug.current
+          }
+        }
+      )[defined(conferences) && count(conferences) > 0]
+    )
+  }
+`)
+
+export const rssFeedQuery = defineQuery(
+  /* groq */
+  `*[_type == "post"][0..50] | order(publishedAt desc) {
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  excerpt,
+  ${postImageFragment},
+}
+`,
+)
+
+export const schoolsByIdQuery = defineQuery(
+  /* groq */
+  `*[_type == "school" && _id in $ids[].id]{
+    _id,
+    "_order": $ids[id == ^._id][0].rank,
+    name,
+    shortName,
+    abbreviation,
+    image,
+  }| order(_order)`,
+)

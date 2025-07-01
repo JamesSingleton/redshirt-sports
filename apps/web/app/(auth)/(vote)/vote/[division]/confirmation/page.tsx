@@ -4,14 +4,15 @@ import { auth } from '@clerk/nextjs/server'
 import { buttonVariants } from '@workspace/ui/components/button'
 
 import { getVoterBallots } from '@/server/queries'
-import { getSchoolsById } from '@/lib/sanity.fetch'
 import CustomImage from '@/components/sanity-image'
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
 import { transformBallotToTeamIds } from '@/utils/process-ballots'
+import { client } from '@/lib/sanity/client'
 
 import { type Metadata } from 'next'
 import { type Ballot } from '@/types'
 import { getCurrentSeason } from '@/utils/getCurrentSeason'
+import { schoolsByIdQuery } from '@/lib/sanity/query'
 
 const voteConfirmationHeaderByDivision = [
   {
@@ -69,7 +70,9 @@ export default async function VoteConfirmationPage({
     redirect(`/vote/${division}`)
   }
 
-  const schools = await getSchoolsById(transformBallotToTeamIds(ballot))
+  const schools = await client.fetch(schoolsByIdQuery, {
+    ids: transformBallotToTeamIds(ballot),
+  })
 
   return (
     <div className="container flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8">

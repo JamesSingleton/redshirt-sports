@@ -328,17 +328,6 @@ export const openGraphDataBySlug = groq`
 }
 `
 
-export const schoolsByIdOrderedByRank = groq`
-*[_type == "school" && _id in $ids[].id]{
-  _id,
-  "_order": $ids[id == ^._id][0].rank,
-  name,
-  shortName,
-  abbreviation,
-  image,
-} | order(_order)
-`
-
 export const schoolsByIdOrderedByPoints = groq`
 *[_type == "school" && _id in $ids[].id]{
   _id,
@@ -348,17 +337,6 @@ export const schoolsByIdOrderedByPoints = groq`
   abbreviation,
   image,
 } | order(_points desc)
-`
-
-export const lastThreePosts = groq`
-*[_type == "post"] | order(publishedAt desc)[0...3]{
-  _id,
-  title,
-  publishedAt,
-  "slug": slug.current,
-  "author": author->{name},
-  excerpt,
-}
 `
 
 export const schoolWithVoteOrder = groq`

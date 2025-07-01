@@ -1,13 +1,16 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { stegaClean } from 'next-sanity'
+import { stegaClean, defineLive } from 'next-sanity'
 
 import PageHeader from '@/components/page-header'
 import PaginationControls from '@/components/pagination-controls'
-import { getConferenceInfoBySlug } from '@/lib/sanity.fetch'
 import { perPage } from '@/lib/constants'
 import ArticleFeed from '@/components/article-feed'
-import { queryArticlesBySportDivisionAndConference, sportInfoBySlug } from '@/lib/sanity/query'
+import {
+  conferenceInfoBySlugQuery,
+  queryArticlesBySportDivisionAndConference,
+  sportInfoBySlug,
+} from '@/lib/sanity/query'
 import { sanityFetch } from '@/lib/sanity/live'
 import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
@@ -16,6 +19,16 @@ import { getSEOMetadata } from '@/lib/seo'
 import type { Metadata } from 'next'
 import type { Post } from '@/types'
 import type { CollectionPage, WithContext } from 'schema-dts'
+
+async function fetchConferenceInfo(slug: string, { stega = true } = {}) {
+  return await sanityFetch({
+    query: conferenceInfoBySlugQuery,
+    params: {
+      slug,
+    },
+    stega,
+  })
+}
 
 async function fetchSportNewsForDivisionAndConference({
   sport,
@@ -83,7 +96,7 @@ export async function generateMetadata({
 
   const [divisionDisplayName, conferenceInfo, sportTitle] = await Promise.all([
     getDivisionOrSubgroupingDisplayName(division, { stega: false }),
-    getConferenceInfoBySlug(conference),
+    fetchConferenceInfo(conference, { stega: false }),
     fetchSportInfoBySlug(sport, { stega: false }),
   ])
 
@@ -91,18 +104,18 @@ export async function generateMetadata({
     return {}
   }
 
-  const conferenceName = conferenceInfo.shortName ?? conferenceInfo.name
+  const conferenceName = conferenceInfo.data.shortName ?? conferenceInfo.data.name
   let canonical = `/college/${sport}/news/${division}/${conference}`
 
-  const baseTitle = `${conferenceName} ${divisionDisplayName?.data} ${sportTitle.data.title} News, Updates & Analysis`
-  const baseDescription = `Stay informed with breaking ${conferenceName} ${divisionDisplayName?.data} ${sportTitle.data.title} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`
+  const baseTitle = `${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} News, Updates & Analysis`
+  const baseDescription = `Stay informed with breaking ${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`
 
   let finalTitle = `${baseTitle} | ${process.env.NEXT_PUBLIC_APP_NAME}`
   let finalDescription = baseDescription
 
   if (page && parseInt(page) > 1) {
     finalTitle = `${baseTitle} - Page ${page} | ${process.env.NEXT_PUBLIC_APP_NAME}`
-    finalDescription = `Continue exploring coverage of ${conferenceName} ${divisionDisplayName?.data} ${sportTitle.data.title} on Page ${page}. Find more detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}.`
+    finalDescription = `Continue exploring coverage of ${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} on Page ${page}. Find more detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}.`
     canonical = `/college/${sport}/news/${division}/${conference}?page=${page}`
   }
 

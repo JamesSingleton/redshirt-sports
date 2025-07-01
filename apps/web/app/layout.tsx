@@ -9,10 +9,10 @@ import { Toaster } from '@workspace/ui/components/sonner'
 import { Providers } from '@/components/providers'
 import { MegaNav } from '@/components/mega-nav'
 import { FooterServer, FooterSkeleton } from '@/components/footer'
-import { SanityLive } from '@/lib/sanity/live'
-import { sanityFetch } from '@/lib/sanity/live'
+import { SanityLive, sanityFetch } from '@/lib/sanity/live'
 import { CombinedJsonLd } from '@/components/json-ld'
 import { NavbarServer, NavbarSkeleton } from '@/components/navbar'
+import { globalNavigationQuery } from '@/lib/sanity/query'
 
 import type { Metadata, Viewport } from 'next'
 
@@ -28,103 +28,7 @@ const fontMono = Geist_Mono({
 
 async function fetchNavigationData() {
   return await sanityFetch({
-    query: `*[_type == "sport" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc) {
-      _id,
-      "name": title,
-      "slug": slug.current,
-      "groupings": select(
-        slug.current == "football" => [
-          // FBS Subgrouping
-          *[_type == "sportSubgrouping" && shortName == "FBS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
-            _id,
-            "name": coalesce(shortName, name),
-            "slug": slug.current,
-            "type": "subgrouping",
-            "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
-              _id,
-              name,
-              "slug": slug.current,
-              shortName
-            }
-          },
-          // FCS Subgrouping
-          *[_type == "sportSubgrouping" && shortName == "FCS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
-            _id,
-            "name": coalesce(shortName, name),
-            "slug": slug.current,
-            "type": "subgrouping",
-            "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
-              _id,
-              name,
-              "slug": slug.current,
-              shortName
-            }
-          },
-          // Division II
-          *[_type == "division" && title == "Division II" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
-            _id,
-            "name": name,
-            "slug": slug.current,
-            "type": "division",
-            "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
-              _id,
-              name,
-              "slug": slug.current,
-              shortName
-            }
-          },
-          // Division III
-          *[_type == "division" && title == "Division III" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
-            _id,
-            "name": name,
-            "slug": slug.current,
-            "type": "division",
-            "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
-              _id,
-              name,
-              "slug": slug.current,
-              shortName
-            }
-          }
-        ],
-        true => (
-          // Generic subgroupings
-          *[_type == "sportSubgrouping" && ^._id in applicableSports[]._ref] | order(name asc) {
-            _id,
-            "name": coalesce(shortName, name),
-            "slug": slug.current,
-            "type": "subgrouping",
-            "conferences": *[_type == "conference" && count(sportSubdivisionAffiliations[subgrouping._ref == ^.^._id && sport._ref == ^.^.^._id]) > 0 && count(*[_type == "post" && references(^._id) && sport._ref == ^.^.^._id]) > 0] | order(name asc) {
-              _id,
-              name,
-              shortName,
-              "slug": slug.current
-            }
-          } +
-          // Generic divisions (excluding specific football and basketball divisions)
-          *[_type == "division"
-            && !(title == "FBS" || title == "FCS")
-            && !(
-              (title == "Division I")
-              && (
-                ^.slug.current == "mens-basketball" || ^.slug.current == "womens-basketball"
-              )
-            )
-          ] | order(name asc) {
-            _id,
-            "name": title,
-            "slug": slug.current,
-            "type": "division",
-            "conferences": *[_type == "conference" && division._ref == ^.^._id && count(*[_type == "post" && references(^._id) && sport->slug.current == ^.^.slug.current]) > 0] | order(name asc) {
-              _id,
-              name,
-              shortName,
-              "slug": slug.current
-            }
-          }
-        )[defined(conferences) && count(conferences) > 0]
-      )
-    }`,
+    query: globalNavigationQuery,
   })
 }
 

@@ -1,52 +1,43 @@
 import { NextResponse } from 'next/server'
 import { Feed } from 'feed'
 
-import { getRSSFeed } from '@/lib/sanity.fetch'
-import { HOME_DOMAIN } from '@/lib/constants'
+import { client } from '@/lib/sanity/client'
+import { getBaseUrl } from '@/lib/get-base-url'
 import { buildSafeImageUrl } from '@/components/json-ld'
+import { rssFeedQuery } from '@/lib/sanity/query'
+import { Post } from '@/lib/sanity/sanity.types'
+
+const baseUrl = getBaseUrl()
 
 export async function GET() {
-  const posts = await getRSSFeed()
+  const posts = await client.fetch(rssFeedQuery)
 
   const feed = new Feed({
-    title: `${process.env.NEXT_PUBLIC_APP_NAME} - All News`,
-    id: `${HOME_DOMAIN}/college/news`,
-    link: `${HOME_DOMAIN}/college/news`,
-    description: `Get the latest college football news, covering FCS, FBS, D2, and D3. Explore insightful articles and stay informed with ${process.env.NEXT_PUBLIC_APP_NAME}.`,
+    title: `${process.env.NEXT_PUBLIC_APP_NAME}`,
+    id: `${baseUrl}/college/news`,
+    link: `${baseUrl}/college/news`,
+    description:
+      'Redshirt Sports is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.',
     language: 'en',
     copyright: `All rights reserved ${new Date().getFullYear()}, ${process.env.NEXT_PUBLIC_APP_NAME}`,
-    favicon: `${HOME_DOMAIN}/favicon.ico`,
-    image: `${HOME_DOMAIN}/images/icons/RS_horizontal_513x512.png`,
+    favicon: `${baseUrl}/favicon.ico`,
+    image: `${baseUrl}/images/icons/RS_horizontal_513x512.png`,
     feedLinks: {
-      rss: `${HOME_DOMAIN}/api/rss/feed.xml`,
+      rss: `${baseUrl}/api/rss/feed.xml`,
     },
     author: {
       name: `${process.env.NEXT_PUBLIC_APP_NAME}`,
       email: 'contact@redshirtsports.xyz',
-      link: HOME_DOMAIN,
+      link: baseUrl,
     },
   })
 
-  posts.forEach((post) => {
-    const author = post.authors
-      ? post.authors.map((author) => ({
-          name: author.name,
-          link: `${HOME_DOMAIN}/authors/${author.slug}`,
-        }))
-      : [{ name: post.author.name, link: `${HOME_DOMAIN}/authors/${post.author.slug}` }]
-
+  posts.forEach((post: Post) => {
     feed.addItem({
       title: post.title,
-      id: `${HOME_DOMAIN}/${post.slug}`,
-      link: `${HOME_DOMAIN}/${post.slug}`,
+      link: `${baseUrl}/${post.slug}`,
       description: post.excerpt,
-      author,
       date: new Date(post.publishedAt),
-      ...(post.division && {
-        category: [
-          { name: post.division.name, domain: `${HOME_DOMAIN}/news/${post.division.slug}` },
-        ],
-      }),
       image: buildSafeImageUrl(post.mainImage),
     })
   })
