@@ -7,12 +7,12 @@ import Date from '@/components/date'
 import ArticleCard from '@/components/article-card'
 import CustomImage from '@/components/sanity-image'
 
-import type { Post } from '@/lib/sanity/sanity.types'
+import type { QueryLatestCollegeSportsArticlesResult, Author } from '@/lib/sanity/sanity.types'
 
 interface ArticleSectionProps {
   title: string
   slug: string
-  articles: Post[]
+  articles: QueryLatestCollegeSportsArticlesResult
   imageFirst?: boolean
 }
 
@@ -60,17 +60,17 @@ export default function ArticleSection({
               <p className="text-muted-foreground">{firstArticle.excerpt}</p>
               <div className="text-muted-foreground flex items-center gap-2">
                 <Link
-                  href={`/authors/${firstArticle.authors[0].slug}`}
+                  href={`/authors/${firstArticle.authors[0]?.slug}`}
                   className="text-primary flex items-center gap-2"
                   prefetch={false}
                 >
                   <CustomImage
-                    image={firstArticle.authors[0].image}
+                    image={firstArticle.authors[0]?.image}
                     width={32}
                     height={32}
                     className="mr-2 size-8 rounded-full"
                   />
-                  {firstArticle.authors[0].name}
+                  {firstArticle.authors[0]?.name}
                 </Link>
                 <Date dateString={firstArticle.publishedAt} />
               </div>
@@ -89,12 +89,10 @@ export default function ArticleSection({
           {remainingArticles.map((article) => (
             <ArticleCard
               title={article.title}
-              conferences={article.conferences}
-              division={article.division}
               date={article.publishedAt}
               image={article.mainImage}
               slug={article.slug}
-              author={article.authors[0].name}
+              author={(article.authors[0] as unknown as Author)?.name}
               key={article._id}
             />
           ))}

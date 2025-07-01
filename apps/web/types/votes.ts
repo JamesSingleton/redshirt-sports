@@ -1,10 +1,10 @@
-import { type ImageAsset } from 'sanity'
+import type { SanityImageAsset } from '@/lib/sanity/sanity.types'
 
 export type VoteWithExtraData = {
   name: string
   shortName: string
   abbreviation: string
-  image: { caption: string; asset: ImageAsset; _type: string }
+  image: SanityImageAsset
   _id: string
   _order: number
 }

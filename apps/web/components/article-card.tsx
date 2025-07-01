@@ -4,6 +4,8 @@ import { Separator } from '@workspace/ui/components/separator'
 import CustomImage from './sanity-image'
 import Date from '@/components/date'
 
+import type { Slug } from '@/lib/sanity/sanity.types'
+
 export default function ArticleCard({
   title,
   image,
@@ -16,7 +18,7 @@ export default function ArticleCard({
   title: string
   image: any
   imagePriority?: boolean
-  slug: string
+  slug: Slug | string
   author: string
   date: string
   headingLevel?: 'h2' | 'h3' | 'h4'

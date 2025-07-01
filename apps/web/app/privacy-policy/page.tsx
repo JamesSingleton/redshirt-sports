@@ -63,17 +63,21 @@ export default async function PrivacyPolicyPage() {
   return (
     <>
       <JsonLdScript data={privacyPolicyJsonLd} id="privacy-policy-json-ld" />
-      <PageHeader
-        title="Privacy Policy"
-        subtitle={
-          <p className="mt-4 text-lg font-normal lg:text-xl">
-            Last updated on <Date dateString={privacyPolicy._updatedAt} />
-          </p>
-        }
-      />
-      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <RichText richText={privacyPolicy.body} />
-      </section>
+      {privacyPolicy && (
+        <>
+          <PageHeader
+            title="Privacy Policy"
+            subtitle={
+              <p className="mt-4 text-lg font-normal lg:text-xl">
+                Last updated on <Date dateString={privacyPolicy._updatedAt} />
+              </p>
+            }
+          />
+          <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
+            <RichText richText={privacyPolicy.body} />
+          </section>
+        </>
+      )}
     </>
   )
 }

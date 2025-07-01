@@ -1,6 +1,7 @@
 import { Division } from '@/types'
 import type { PropsWithChildren } from 'react'
-import type { ImageMetadata, ImageCrop, ImageHotspot } from 'sanity'
+
+import type { SanityImageAsset } from '@/lib/sanity/sanity.types'
 
 export type WithChildren<T = {}> = T & PropsWithChildren<{}>
 
@@ -10,29 +11,13 @@ export type WithClassName<T = {}> = T & {
 
 export type Maybe<T> = T | null | undefined
 
-export type MainImage<T = {}> = T & {
-  asset: {
-    _id: string
-    _type: 'sanity.imageAsset'
-    metadata: ImageMetadata
-    url: string
-    altText?: string
-    description?: string
-    creditLine?: string
-  }
-  attribution: string
-  caption: string
-  crop: ImageCrop
-  hotspot: ImageHotspot
-}
-
 export type Conference = {
   _id: string
   name: string
   shortName?: string
   slug: string
   description: string
-  logo?: MainImage
+  logo?: SanityImageAsset
   division: Division
 }
 

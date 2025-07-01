@@ -175,7 +175,7 @@ export default async function HomePage() {
       )}
       {sectionOrder.map((key) => {
         const section = divisionsWithArticles.find((d) => d.key === key)
-        if (!section) return null
+        if (!section || section.articles === undefined) return null
 
         return (
           <ArticleSection

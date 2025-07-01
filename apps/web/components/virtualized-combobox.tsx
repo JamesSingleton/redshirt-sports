@@ -17,19 +17,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/component
 import { cn } from '@workspace/ui/lib/utils'
 
 import CustomImage from '@/components/sanity-image'
-import { ImageAsset } from 'sanity'
 
-type Option = {
-  _id: string
-  image: ImageAsset
-  abbreviation: string
-  name: string
-  shortName: string
-}
+import type { SchoolsByDivisionQueryResult } from '@/lib/sanity/sanity.types'
 
 interface VirtualizedCommandProps {
   height: string
-  options: Option[]
+  options: SchoolsByDivisionQueryResult
   placeholder: string
   selectedOption: string
   selectedOptions: string[]
@@ -44,7 +37,7 @@ const VirtualizedCommand = ({
   selectedOptions,
   onSelectOption,
 }: VirtualizedCommandProps) => {
-  const [filteredOptions, setFilteredOptions] = React.useState<Option[]>(
+  const [filteredOptions, setFilteredOptions] = React.useState<SchoolsByDivisionQueryResult>(
     options.filter((option) => !selectedOptions.includes(option._id)),
   )
   const [searchValue, setSearchValue] = React.useState('')
@@ -155,7 +148,7 @@ const VirtualizedCommand = ({
 }
 
 interface VirtualizedComboboxProps {
-  options: Option[]
+  options: SchoolsByDivisionQueryResult
   searchPlaceholder?: string
   width?: string
   height?: string
@@ -183,7 +176,7 @@ export function VirtualizedCombobox({
           {options.find((option) => option._id === selectedOption)?.image ? (
             <span className="inline-flex items-center">
               <CustomImage
-                image={options.find((option) => option._id === selectedOption)?.image as any}
+                image={options.find((option) => option._id === selectedOption)?.image}
                 width={32}
                 height={32}
                 className="mr-2 h-8 w-8"

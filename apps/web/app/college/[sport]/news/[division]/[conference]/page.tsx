@@ -104,7 +104,7 @@ export async function generateMetadata({
     return {}
   }
 
-  const conferenceName = conferenceInfo.data.shortName ?? conferenceInfo.data.name
+  const conferenceName = conferenceInfo.data?.shortName ?? conferenceInfo.data?.name
   let canonical = `/college/${sport}/news/${division}/${conference}`
 
   const baseTitle = `${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} News, Updates & Analysis`

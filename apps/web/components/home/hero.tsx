@@ -3,9 +3,9 @@ import Link from 'next/link'
 import Date from '@/components/date'
 import ArticleCard from '@/components/article-card'
 import CustomImage from '../sanity-image'
-import { Post } from '@/lib/sanity/sanity.types'
+import { QueryHomePageDataResult } from '@/lib/sanity/sanity.types'
 
-const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
+const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
   const heroArticle = heroPosts[0]!
   const recentArticles = heroPosts.slice(1)
   return (
@@ -53,13 +53,11 @@ const Hero = ({ heroPosts }: { heroPosts: Post[] }) => {
             {recentArticles.map((article) => (
               <ArticleCard
                 title={article.title}
-                conferences={article.conferences}
-                division={article.division}
                 date={article.publishedAt}
                 image={article.mainImage}
                 imagePriority={true}
                 slug={article.slug}
-                author={article.author.name}
+                author={article.authors[0]!.name}
                 key={article._id}
                 headingLevel="h2"
               />

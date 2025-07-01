@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation'
+
 import ArticleFeed from '@/components/article-feed'
 import PageHeader from '@/components/page-header'
 import PaginationControls from '@/components/pagination-controls'
@@ -70,10 +72,15 @@ export default async function CollegeSportsNews({
   searchParams: Promise<{ [key: string]: string }>
 }) {
   const { page } = await searchParams
+  console.log({ page })
   const pageIndex = page !== undefined ? parseInt(page) : 1
   const {
     data: { posts, totalPosts },
   } = await fetchCollegeNews({ pageIndex })
+
+  if (posts.length === 0) {
+    notFound()
+  }
 
   const totalPages = Math.ceil(totalPosts / perPage)
 

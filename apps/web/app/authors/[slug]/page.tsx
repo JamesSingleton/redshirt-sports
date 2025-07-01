@@ -146,10 +146,10 @@ export default async function Page({
         primaryImageOfPage: {
           '@type': 'ImageObject',
           '@id': `${baseUrl}/authors/${slug}#image`,
-          url: urlFor(author.image).size(1200, 630).url(),
+          url: buildSafeImageUrl(author.image),
           width: '1200',
           height: '630',
-          contentUrl: urlFor(author.image).size(1200, 630).url(),
+          contentUrl: buildSafeImageUrl(author.image),
           caption: author.image.alt,
           inLanguage: 'en-US',
         },
@@ -165,10 +165,10 @@ export default async function Page({
         image: {
           '@type': 'ImageObject',
           '@id': `${baseUrl}/authors/${slug}#image`,
-          url: urlFor(author.image).size(1200, 630).url(),
+          url: buildSafeImageUrl(author.image),
           width: '1200',
           height: '630',
-          contentUrl: urlFor(author.image).size(1200, 630).url(),
+          contentUrl: buildSafeImageUrl(author.image),
           caption: author.image.alt,
           inLanguage: 'en-US',
         },
@@ -276,8 +276,6 @@ export default async function Page({
                   slug={post.slug}
                   image={post.mainImage}
                   date={post.publishedAt}
-                  division={post.division}
-                  conferences={post.conferences}
                   author={post.authors[0].name}
                 />
               ))}

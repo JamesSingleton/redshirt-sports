@@ -1,6 +1,6 @@
 import type { PortableTextBlock } from 'next-sanity'
 
-import type { MainImage } from './common'
+import type { SanityImageAsset, Author } from '@/lib/sanity/sanity.types'
 
 export type AuthorPosts = {
   posts: Post[]
@@ -30,7 +30,7 @@ export type Post = {
   estimatedReadingTime: number
   author: Author
   authors: Author[]
-  mainImage: MainImage
+  mainImage: SanityImageAsset
   wordCount: number
   sport: string
 }

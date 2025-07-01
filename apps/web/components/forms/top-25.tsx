@@ -15,9 +15,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@workspace/ui/components/form'
-
-import type { Top25FormProps } from '@/types'
 import { VirtualizedCombobox } from '../virtualized-combobox'
+
+import type { SchoolsByDivisionQueryResult } from '@/lib/sanity/sanity.types'
 
 const formSchema = z
   .object({
@@ -118,7 +118,7 @@ const formSchema = z
     }
   })
 
-const Top25 = ({ schools }: Top25FormProps) => {
+const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })

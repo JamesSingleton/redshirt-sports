@@ -9,21 +9,17 @@ import { table } from '@sanity/table'
 import { visionTool } from '@sanity/vision'
 import type { PortableTextInputProps } from 'sanity'
 import { defineConfig } from 'sanity'
-// import { presentationTool } from 'sanity/presentation'
 import { structureTool } from 'sanity/structure'
 import { media, mediaAssetSource } from 'sanity-plugin-media'
 
 import { BlockContentInput } from './components/block-content-input'
-// import { presentationUrl } from './plugins/presentation-url'
 import { Logo } from './components/logo'
-import { locations } from './location'
 import { schemaTypes } from './schemaTypes'
 import { getDefaultDocumentNode, structure } from './structure'
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? ''
 const dataset = process.env.SANITY_STUDIO_DATASET
 const title = process.env.SANITY_STUDIO_TITLE
-const presentationOriginUrl = process.env.SANITY_STUDIO_PRESENTATION_URL
 
 export default defineConfig({
   title: title ?? 'Redshirt Sports Studio',
@@ -34,17 +30,6 @@ export default defineConfig({
     enabled: true,
   },
   plugins: [
-    // presentationTool({
-    //   resolve: {
-    //     locations,
-    //   },
-    //   previewUrl: {
-    //     origin: presentationOriginUrl ?? 'http://localhost:3000',
-    //     previewMode: {
-    //       enable: '/api/presentation-draft',
-    //     },
-    //   },
-    // }),
     assist(),
     structureTool({
       structure,
@@ -59,7 +44,6 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    // presentationUrl(),
     table(),
   ],
   form: {

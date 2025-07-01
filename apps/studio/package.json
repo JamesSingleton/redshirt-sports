@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "build": "sanity build",
     "deploy": "sanity deploy",
-    "type": "NODE_OPTIONS=--no-experimental-require-module sanity schema extract --enforce-required-fields && sanity typegen generate"
+    "type": "NODE_OPTIONS=--no-experimental-require-module sanity schema extract --enforce-required-fields && sanity typegen generate",
+    "check:types": "tsc --noEmit"
   },
   "dependencies": {
     "@portabletext/react": "^3.2.1",
@@ -34,11 +35,11 @@
   "devDependencies": {
     "@sanity/eslint-config-studio": "^5.0.2",
     "@types/react": "^19.1.8",
-    "eslint": "^9.30.0",
+    "eslint": "^9.30.1",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "typescript-eslint": "^8.35.0"
+    "typescript-eslint": "^8.35.1"
   }
 }

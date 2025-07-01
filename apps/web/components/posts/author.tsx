@@ -1,19 +1,20 @@
 import Link from 'next/link'
-import { Image as SanityImage } from 'next-sanity/image'
 
-import { urlFor } from '@/lib/sanity/client'
+import CustomImage from '../sanity-image'
 
-import type { Author } from '@/lib/sanity/sanity.types'
+import type { QueryPostSlugDataResult } from '@/lib/sanity/sanity.types'
 
-export const AuthorItem = (author: Author) => {
+type PostAuthor = NonNullable<QueryPostSlugDataResult>['authors'][0]
+
+export const AuthorItem = (author: PostAuthor) => {
   return (
     <div className="flex min-h-10 flex-row items-center justify-start gap-3 p-0">
-      <SanityImage
-        src={urlFor(author.image).height(36).width(36).url()}
-        alt={author.name}
-        className="relative h-9 w-9 rounded-full align-top"
+      <CustomImage
+        image={author.image}
+        className="size-9 rounded-full align-top"
         width={36}
         height={36}
+        mode="cover"
       />
       <div className="flex flex-col items-stretch justify-start gap-0.5">
         {author.archived ? (
@@ -35,14 +36,14 @@ export const AuthorItem = (author: Author) => {
   )
 }
 
-export const AuthorSection = ({ authors }: { authors: Author[] }) => (
+export const AuthorSection = ({ authors }: { authors: PostAuthor[] }) => (
   <>
     <p className="text-muted-foreground text-sm font-normal">Written By</p>
     {authors && authors.map((author) => <AuthorItem key={author._id} {...author} />)}
   </>
 )
 
-export const MobileAuthorSection = ({ authors }: { authors: Author[] }) => (
+export const MobileAuthorSection = ({ authors }: { authors: PostAuthor[] }) => (
   <div className="lg:hidden">
     <p className="text-muted-foreground text-sm font-normal">Written By</p>
     <div className="border-border relative -mx-6 mt-3 flex overflow-x-auto border-b px-6">

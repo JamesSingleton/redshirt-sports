@@ -128,22 +128,16 @@ export default async function PostPage({ params }: PageProps) {
               <div className="flex flex-wrap items-center gap-3">
                 {data.sport &&
                   data.conferences &&
-                  data.conferences.map((conference: any) => {
-                    // Get the _id of the sport for the current article
+                  data.conferences.map((conference) => {
                     const articleSportId = data.sport?._id
 
-                    // Find the sportSubdivisionAffiliation that matches the article's sport
                     const matchingAffiliation = conference.sportSubdivisionAffiliations?.find(
-                      (affiliation: any) => affiliation.sport._id === articleSportId,
+                      (affiliation) => affiliation.sport._id === articleSportId,
                     )
 
-                    // Determine the division path segment:
-                    // Use the subgrouping slug if a matching affiliation is found,
-                    // otherwise fall back to the conference's direct division slug.
                     const divisionPathSegment =
                       matchingAffiliation?.subgrouping.slug || conference.division.slug
 
-                    // Construct the full conference URL
                     const conferenceHref = `/college/${data.sport?.slug}/news/${divisionPathSegment}/${conference.slug}`
 
                     return (
@@ -160,7 +154,9 @@ export default async function PostPage({ params }: PageProps) {
               </div>
             )}
 
-            {(data.division || data.conferences) && <span className="text-sm">•</span>}
+            {data.sport && (data.division || data.conferences) && (
+              <span className="text-sm">•</span>
+            )}
             <time className="text-sm">
               {new Date(data.publishedAt).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -176,10 +172,10 @@ export default async function PostPage({ params }: PageProps) {
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
             <div className="lg:w-64 lg:shrink-0">
               <div className="hidden lg:sticky lg:top-24 lg:left-0 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
-                <AuthorSection author={data.author} authors={data.authors} />
+                <AuthorSection authors={data.authors} />
                 <LargeArticleSocialShare slug={data.slug} title={data.title} />
               </div>
-              <MobileAuthorSection author={data.author} authors={data.authors} />
+              <MobileAuthorSection authors={data.authors} />
             </div>
             <article className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <figure className="mb-8 space-y-1.5">
@@ -201,7 +197,7 @@ export default async function PostPage({ params }: PageProps) {
         </div>
       </section>
       {data.relatedPosts.length > 0 && (
-        <section className="border-border border-t py-12 sm:py-16 lg:py-20 xl:py-24">
+        <section className="border-border border-y py-12 sm:py-16 lg:py-20 xl:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
@@ -216,8 +212,6 @@ export default async function PostPage({ params }: PageProps) {
                   date={morePost.publishedAt}
                   image={morePost.mainImage}
                   slug={morePost.slug}
-                  division={morePost.division}
-                  conferences={morePost.conferences}
                   author={morePost.authors[0].name}
                 />
               ))}

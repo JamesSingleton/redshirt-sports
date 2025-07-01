@@ -20,13 +20,13 @@ import {
 import SmallLogo from './small-logo'
 import { SearchBar } from './search-bar'
 
-import type { SportsData } from './mega-nav'
+import type { GlobalNavigationQueryResult } from '@/lib/sanity/sanity.types'
 
 export default function MegaMobileNav({
   sportsNav,
   latestFCSTop25,
 }: {
-  sportsNav: SportsData
+  sportsNav: GlobalNavigationQueryResult
   latestFCSTop25: any
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -60,14 +60,14 @@ export default function MegaMobileNav({
                 </CollapsibleTrigger>
                 <CollapsibleContent className="px-4 pb-2">
                   {sport.groupings.map((grouping) => (
-                    <Collapsible key={grouping._id}>
+                    <Collapsible key={grouping?._id}>
                       <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
-                        {grouping.name} ({grouping.conferences.length})
+                        {grouping?.name} ({grouping?.conferences.length})
                         <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="px-2 pb-1">
                         <div className="mt-1 grid grid-cols-1 gap-0.5">
-                          {grouping.conferences.map((conference) => (
+                          {grouping?.conferences.map((conference) => (
                             <Link
                               key={conference._id}
                               href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}

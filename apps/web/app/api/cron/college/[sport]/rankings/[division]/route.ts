@@ -57,7 +57,10 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
         team.isTie = true // Mark current team as tied
         if (!wasPreviousTeamTied) {
           // If the previous team wasn't already marked as tied, find and mark it
-          teamPoints[index - 1].isTie = true
+          const prevTeam = teamPoints[index - 1]
+          if (prevTeam) {
+            prevTeam.isTie = true
+          }
         }
         wasPreviousTeamTied = true // Mark that this team is part of a tie for the next iteration
       } else {

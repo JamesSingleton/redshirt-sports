@@ -5,7 +5,6 @@ import { client } from '@/lib/sanity/client'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { buildSafeImageUrl } from '@/components/json-ld'
 import { rssFeedQuery } from '@/lib/sanity/query'
-import { Post } from '@/lib/sanity/sanity.types'
 
 const baseUrl = getBaseUrl()
 
@@ -32,7 +31,7 @@ export async function GET() {
     },
   })
 
-  posts.forEach((post: Post) => {
+  posts.forEach((post) => {
     feed.addItem({
       title: post.title,
       link: `${baseUrl}/${post.slug}`,

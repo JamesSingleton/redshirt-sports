@@ -16,31 +16,9 @@ import { getLatestFinalRankings } from '@/server/queries'
 import MegaMobileNav from './mega-mobile-nav'
 import { ModeToggle } from './mode-toggle'
 
-export interface Conference {
-  _id: string
-  name: string
-  slug: string
-  shortName: string | null
-}
+import type { GlobalNavigationQueryResult } from '@/lib/sanity/sanity.types'
 
-export interface Grouping {
-  _id: string
-  conferences: Conference[]
-  name: string
-  slug: string | null
-  type: string
-}
-
-export interface SportData {
-  _id: string
-  groupings: Grouping[]
-  name: string
-  slug: string
-}
-
-export type SportsData = SportData[]
-
-export async function MegaNav({ sportsNav }: { sportsNav: SportsData }) {
+export async function MegaNav({ sportsNav }: { sportsNav: GlobalNavigationQueryResult }) {
   const latestFCSTop25 = await getLatestFinalRankings({
     division: 'fcs',
   })
@@ -67,7 +45,7 @@ export async function MegaNav({ sportsNav }: { sportsNav: SportsData }) {
                     <div className="grid grid-cols-4 gap-6">
                       {sport.groupings.map((grouping) => {
                         return (
-                          <div className="space-y-3" key={grouping._id}>
+                          <div className="space-y-3" key={grouping?._id}>
                             <h3 className="border-b pb-1 text-base font-medium">
                               {grouping?.name}
                             </h3>

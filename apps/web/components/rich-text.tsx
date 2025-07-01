@@ -174,13 +174,9 @@ const components: Partial<PortableTextReactComponents> = {
   },
 }
 
-export function RichText({
-  richText,
-  className,
-}: {
-  richText: PortableTextBlock[]
-  className?: string
-}) {
+export function RichText<T>({ richText, className }: { richText?: T | null; className?: string }) {
+  if (!richText) return null
+
   return (
     <div
       className={cn(
@@ -189,7 +185,7 @@ export function RichText({
       )}
     >
       <PortableText
-        value={richText}
+        value={richText as PortableTextBlock[]}
         components={components}
         onMissingComponent={(_, { nodeType, type }) =>
           console.log('missing component', nodeType, type)

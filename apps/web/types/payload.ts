@@ -1,9 +1,7 @@
-import { PortableTextBlock } from 'sanity'
+import { type PortableTextBlock } from 'next-sanity'
 
-import { Author, Post } from './post'
-import { Conference, MainImage } from './common'
-
-import type { Image } from 'sanity'
+import { Conference } from './common'
+import type { SanityImageAsset, Author, Post } from '@/lib/sanity/sanity.types'
 
 export interface AboutPagePayload {
   authors: Author[]
@@ -14,7 +12,7 @@ export interface PostPayload {
   _updatedAt: string
   title: string
   publishedAt: string
-  mainImage: MainImage
+  mainImage: SanityImageAsset
   division: {
     name: string
     slug: string
@@ -94,7 +92,7 @@ export interface Division {
   longName: string
   slug: string
   description: string
-  logo: MainImage
+  logo: SanityImageAsset
   conferences: Conference[]
 }
 
@@ -105,9 +103,7 @@ export interface ConferencePayload {
   shortName: string
   slug: string
   description: string
-  logo: Image & {
-    alt: string
-  }
+  logo: SanityImageAsset
   division: {
     name: string
     slug: string
@@ -167,7 +163,7 @@ export interface HomePagePayload {
 export interface SchoolLite {
   _id: string
   name: string
-  image: Image
+  image: SanityImageAsset
   abbreviation: string
   shortName: string
   _points: number

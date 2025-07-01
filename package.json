@@ -10,7 +10,7 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "check:types": "turbo check-types",
+    "check:types": "turbo check:types",
     "check:format": "prettier --check \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
