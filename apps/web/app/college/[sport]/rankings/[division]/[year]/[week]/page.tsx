@@ -26,7 +26,7 @@ import { processVoterBallots } from '@/utils/process-ballots'
 import { RankingsFilters } from '@/components/rankings/filters'
 import CustomImage from '@/components/sanity-image'
 import { getSEOMetadata } from '@/lib/seo'
-import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
+import { JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
 
 import type { Metadata } from 'next'

@@ -8,7 +8,11 @@ export async function processVoterBallots(userBallots: BallotsByVoter) {
   const voterBallot = []
 
   for (const userId in userBallots) {
-    const { votes, userData } = userBallots[userId]
+    const userBallot = userBallots[userId]
+
+    if (!userBallot) continue
+
+    const { votes, userData } = userBallot
     const votesWithMoreData = await client.fetch(
       schoolWithVoteOrder,
       {
