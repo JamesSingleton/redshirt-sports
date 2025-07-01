@@ -3,7 +3,7 @@ import { weeklyFinalRankings } from '@/server/db/schema'
 import { getAllBallotsForWeekAndYear } from '@/server/queries'
 import { client } from '@/lib/sanity/client'
 import { schoolsByIdOrderedByPoints } from '@/lib/sanity.queries'
-import { token } from '@/lib/sanity.fetch'
+import { token } from '@/lib/sanity/token'
 import { getCurrentSeasonStartAndEnd } from '@/server/queries'
 
 import { type Ballot, SchoolLite } from '@/types'
