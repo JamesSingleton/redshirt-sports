@@ -29,7 +29,7 @@ const markDefsFragment = /* groq */ `
 const imageFragment = /* groq */ `
   image{
     ...,
-    "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
+    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
     "credit": coalesce(asset->creditLine, attribution, "Unknown"),
     "blurData": asset->metadata.lqip,
     "dominantColor": asset->metadata.palette.dominant.background,
@@ -100,7 +100,24 @@ const conferencesFragment = /* groq */ `
 const richTextFragment = /* groq */ `
   body[]{
     ...,
-    ${markDefsFragment}
+    ${markDefsFragment},
+    _type == 'image' => {
+      ...,
+      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
+      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
+    },
+    _type == 'top25Table' => {
+      ...,
+      votes[]{
+        ...,
+        teams[]->{
+          ...,
+          ${imageFragment}
+        }
+      }
+    }
   }
 `
 

@@ -87,10 +87,10 @@ const components: Partial<PortableTextReactComponents> = {
       return (
         <figure className="my-2 flex flex-col items-center self-center rounded-lg shadow-md">
           <CustomImage image={value} width={720} height={379} className="rounded-lg" />
-          {value.attribution && (
+          {(value.attribution || value.credit) && (
             <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
               <CameraIcon className="h-4 w-4" />
-              <span>Source: {value.asset.creditLine ?? value.attribution}</span>
+              <span>Source: {value.credit ?? value.attribution}</span>
             </figcaption>
           )}
         </figure>
@@ -98,7 +98,7 @@ const components: Partial<PortableTextReactComponents> = {
     },
     top25Table: ({ value }) => {
       return (
-        <div className="not-prose">
+        <div className="not-prose max-w-4xl">
           <Table>
             <TableHeader>
               <TableRow>

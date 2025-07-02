@@ -1,4 +1,5 @@
 import { SanityImage } from 'sanity-image'
+import { stegaClean } from 'next-sanity'
 import { getImageDimensions } from '@sanity/asset-utils'
 
 import { projectId, dataset } from '@/lib/sanity/api'
@@ -34,7 +35,7 @@ const CustomImage = ({
       width={width ?? dimensions.width}
       height={height ?? dimensions.height}
       className={className}
-      alt={image.alt}
+      alt={stegaClean(image.alt)}
       loading={loading}
       mode={mode}
       // sizes="(max-width: 640px) 75vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
