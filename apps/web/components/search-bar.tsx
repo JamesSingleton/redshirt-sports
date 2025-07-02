@@ -24,8 +24,8 @@ interface SearchBarProps {
 
 export const postsSearchQuery = /* groq */ `
 *[_type == 'post' && (
-  title match "*" + $q + "*" || 
-  excerpt match "*" + $q + "*" || 
+  title match "*" + $q + "*" ||
+  excerpt match "*" + $q + "*" ||
   pt::text(body) match "*" + $q + "*" ||
   authors[]->name match "*" + $q + "*" ||
   conferences[]->name match "*" + $q + "*"
@@ -220,7 +220,7 @@ export function SearchBar({ placeholder = 'Search...', className }: SearchBarPro
                   >
                     <div className="flex items-center gap-3">
                       <Search className="h-4 w-4" />
-                      <span>Search for "{query}"</span>
+                      <span>Search for &quot;{query}&quot;</span>
                     </div>
                   </button>
                 </div>
@@ -228,7 +228,7 @@ export function SearchBar({ placeholder = 'Search...', className }: SearchBarPro
             </div>
           ) : query.trim() ? (
             <div className="text-muted-foreground p-4 text-center text-sm">
-              No articles found for "{query}"
+              No articles found for &quot;{query}&quot;
             </div>
           ) : null}
         </Card>
