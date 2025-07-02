@@ -35,6 +35,7 @@ import type {
 import { Logo } from './logo'
 import { ModeToggle } from './mode-toggle'
 import { SearchBar } from './search-bar'
+import { Top25RankingsData } from './navbar'
 
 interface MenuItem {
   title: string
@@ -71,12 +72,15 @@ function MenuItemLink({
 function MobileNavbar({
   navbarData,
   settingsData,
+  latestRankings,
 }: {
   navbarData: GlobalNavigationQueryResult
   settingsData: QueryGlobalSeoSettingsResult
+  latestRankings: Top25RankingsData
 }) {
   const { siteTitle, logo } = settingsData ?? {}
   const [isOpen, setIsOpen] = useState(false)
+  const footballRankings = latestRankings.find((sportData) => sportData.football)?.football || []
 
   const path = usePathname()
 
@@ -133,6 +137,85 @@ function MobileNavbar({
               </CollapsibleContent>
             </Collapsible>
           ))}
+          {latestRankings && (
+            <Collapsible>
+              <CollapsibleTrigger className="hover:bg-muted flex w-full items-center justify-between px-4 py-3 text-left font-medium transition-colors">
+                Rankings
+                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="px-4 pb-2">
+                {footballRankings && (
+                  <Collapsible>
+                    <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
+                      College Football
+                      <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="px-2 pb-1">
+                      <div className="mt-1 grid grid-cols-1 gap-0.5">
+                        {footballRankings.map((ranking) => (
+                          <Link
+                            key={`${ranking?.division}-${ranking?.year}-${ranking?.week}-mobile`}
+                            href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? 'final-rankings' : ranking?.week}`}
+                            className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            FCS College Football Rankings
+                          </Link>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                )}
+
+                {/* <Collapsible>
+                  <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
+                    Men's Basketball
+                    <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-2 pb-1">
+                    <div className="mt-1 grid grid-cols-1 gap-0.5">
+                      <Link
+                        href="/rankings/basketball/di-power-5"
+                        className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        DI (Power 5)
+                      </Link>
+                      <Link
+                        href="/rankings/basketball/di-mid-major"
+                        className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        DI (Mid Major)
+                      </Link>
+                      <Link
+                        href="/rankings/basketball/dii"
+                        className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        DII
+                      </Link>
+                      <Link
+                        href="/rankings/basketball/diii"
+                        className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        DIII
+                      </Link>
+                      <Link
+                        href="/rankings/basketball/naia"
+                        className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        NAIA
+                      </Link>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible> */}
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
           <Link
             href="/college/news"
             className="hover:bg-muted flex items-center px-4 py-3 text-base font-medium transition-colors"
@@ -146,54 +229,15 @@ function MobileNavbar({
   )
 }
 
-function NavbarColumnLink({
-  column,
+export function DesktopNavbar({
+  navbarData,
+  latestRankings,
 }: {
-  column: NonNullable<NonNullable<QueryNavbarDataResult>['columns']>[number]
+  navbarData: GlobalNavigationQueryResult
+  latestRankings: Top25RankingsData
 }) {
-  if (column.type !== 'link') return null
-  return (
-    <Link aria-label={`Link to ${column.name ?? column.href}`} href={column.href ?? ''}>
-      <NavigationMenuLink
-        className={cn(navigationMenuTriggerStyle(), 'text-muted-foreground dark:text-neutral-300')}
-      >
-        {column.name}
-      </NavigationMenuLink>
-    </Link>
-  )
-}
+  const footballRankings = latestRankings.find((sportData) => sportData.football)?.football || []
 
-function NavbarColumn({
-  column,
-}: {
-  column: NonNullable<NonNullable<QueryNavbarDataResult>['columns']>[number]
-}) {
-  if (column.type !== 'column') return null
-  return (
-    <NavigationMenuList>
-      <NavigationMenuItem className="text-muted-foreground dark:text-neutral-300">
-        <NavigationMenuTrigger>{column.title}</NavigationMenuTrigger>
-        <NavigationMenuContent>
-          <ul className="w-80 p-3">
-            {column.links?.map((item) => (
-              <li key={item._key}>
-                <MenuItemLink
-                  item={{
-                    description: item.description ?? '',
-                    href: item.href ?? '',
-                    title: item.name ?? '',
-                  }}
-                />
-              </li>
-            ))}
-          </ul>
-        </NavigationMenuContent>
-      </NavigationMenuItem>
-    </NavigationMenuList>
-  )
-}
-
-export function DesktopNavbar({ navbarData }: { navbarData: GlobalNavigationQueryResult }) {
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-8">
       <NavigationMenu className="hidden lg:flex">
@@ -231,59 +275,66 @@ export function DesktopNavbar({ navbarData }: { navbarData: GlobalNavigationQuer
             </NavigationMenuItem>
           ))}
 
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <div className="w-[600px] p-4">
-                <div className="grid gap-6">
-                  <div className="space-y-3">
-                    <h3 className="border-b pb-1 text-base font-medium">
-                      College Football Rankings
-                    </h3>
-                    {/* <div className="space-y-1.5">
-                      <Link
-                        href={`/college/football/rankings/${latestFCSTop25?.division}/${latestFCSTop25?.year}/${latestFCSTop25?.week === 999 ? 'final-rankings' : latestFCSTop25?.week}`}
-                        className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
-                      >
-                        FCS College Football Rankings
-                      </Link>
+          {latestRankings && (
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <div className="w-[600px] p-4">
+                  <div className="grid gap-6">
+                    {footballRankings && (
+                      <div className="space-y-3">
+                        <h3 className="border-b pb-1 text-base font-medium">
+                          College Football Rankings
+                        </h3>
+                        <div className="space-y-1.5">
+                          {footballRankings.map((ranking) => (
+                            <Link
+                              key={`${ranking?.division}-${ranking?.year}-${ranking?.week}`}
+                              href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? 'final-rankings' : ranking?.week}`}
+                              className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
+                            >
+                              FCS College Football Rankings
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {/* <div className="space-y-3">
+                      <h3 className="border-b pb-1 text-base font-medium">
+                        Men's College Basketball Rankings
+                      </h3>
+                      <div className="space-y-1.5">
+                        <Link
+                          href="/rankings/basketball/di-power-5"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
+                          DI (Power 5) Men's College Basketball Rankings
+                        </Link>
+                        <Link
+                          href="/rankings/basketball/di-mid-major"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
+                          DI (Mid Major) Men's College Basketball Rankings
+                        </Link>
+                        <Link
+                          href="/rankings/basketball/dii"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
+                          DII Men's College Basketball Rankings
+                        </Link>
+                        <Link
+                          href="/rankings/basketball/diii"
+                          className="hover:text-primary block py-1 text-sm"
+                        >
+                          DIII Men's College Basketball Rankings
+                        </Link>
+                      </div>
                     </div> */}
                   </div>
-                  {/* <div className="space-y-3">
-                    <h3 className="border-b pb-1 text-base font-medium">
-                      Men's College Basketball Rankings
-                    </h3>
-                    <div className="space-y-1.5">
-                      <Link
-                        href="/rankings/basketball/di-power-5"
-                        className="hover:text-primary block py-1 text-sm"
-                      >
-                        DI (Power 5) Men's College Basketball Rankings
-                      </Link>
-                      <Link
-                        href="/rankings/basketball/di-mid-major"
-                        className="hover:text-primary block py-1 text-sm"
-                      >
-                        DI (Mid Major) Men's College Basketball Rankings
-                      </Link>
-                      <Link
-                        href="/rankings/basketball/dii"
-                        className="hover:text-primary block py-1 text-sm"
-                      >
-                        DII Men's College Basketball Rankings
-                      </Link>
-                      <Link
-                        href="/rankings/basketball/diii"
-                        className="hover:text-primary block py-1 text-sm"
-                      >
-                        DIII Men's College Basketball Rankings
-                      </Link>
-                    </div>
-                  </div> */}
                 </div>
-              </div>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          )}
 
           <NavigationMenuItem>
             <NavigationMenuLink className={navigationMenuTriggerStyle()} href="/college/news">
@@ -304,9 +355,11 @@ export function DesktopNavbar({ navbarData }: { navbarData: GlobalNavigationQuer
 const ClientSideNavbar = ({
   navbarData,
   settingsData,
+  latestRankings,
 }: {
   navbarData: GlobalNavigationQueryResult
   settingsData: QueryGlobalSeoSettingsResult
+  latestRankings: Top25RankingsData
 }) => {
   const isMobile = useIsMobile()
 
@@ -315,9 +368,13 @@ const ClientSideNavbar = ({
   }
 
   return isMobile ? (
-    <MobileNavbar navbarData={navbarData} settingsData={settingsData} />
+    <MobileNavbar
+      navbarData={navbarData}
+      settingsData={settingsData}
+      latestRankings={latestRankings}
+    />
   ) : (
-    <DesktopNavbar navbarData={navbarData} />
+    <DesktopNavbar navbarData={navbarData} latestRankings={latestRankings} />
   )
 }
 

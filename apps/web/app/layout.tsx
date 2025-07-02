@@ -52,7 +52,7 @@ export default async function RootLayout({
         </Providers>
         <SpeedInsights />
         <Toaster />
-        {/* <SanityLive /> */}
+        <SanityLive />
         <CombinedJsonLd />
       </body>
     </html>
