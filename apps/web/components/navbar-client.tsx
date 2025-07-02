@@ -1,4 +1,5 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
@@ -23,11 +24,9 @@ import {
 } from '@workspace/ui/components/navigation-menu'
 import { SheetContent, SheetHeader, SheetTitle } from '@workspace/ui/components/sheet'
 import { Sheet, SheetTrigger } from '@workspace/ui/components/sheet'
-import { cn } from '@workspace/ui/lib/utils'
 
 import { useIsMobile } from '@/hooks/use-is-mobile'
 import type {
-  QueryNavbarDataResult,
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
 } from '@/lib/sanity/sanity.types'
@@ -36,38 +35,6 @@ import { Logo } from './logo'
 import { ModeToggle } from './mode-toggle'
 import { SearchBar } from './search-bar'
 import { Top25RankingsData } from './navbar'
-
-interface MenuItem {
-  title: string
-  description: string
-  href?: string
-}
-
-function MenuItemLink({
-  item,
-  setIsOpen,
-}: {
-  item: MenuItem
-  setIsOpen?: (isOpen: boolean) => void
-}) {
-  return (
-    <Link
-      className={cn(
-        'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 leading-none transition-colors outline-none select-none',
-      )}
-      aria-label={`Link to ${item.title ?? item.href}`}
-      onClick={() => setIsOpen?.(false)}
-      href={item.href ?? '/'}
-    >
-      <div className="">
-        <div className="text-sm font-semibold">{item.title}</div>
-        <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-          {item.description}
-        </p>
-      </div>
-    </Link>
-  )
-}
 
 function MobileNavbar({
   navbarData,
@@ -84,7 +51,6 @@ function MobileNavbar({
 
   const path = usePathname()
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This is intentional
   useEffect(() => {
     setIsOpen(false)
   }, [path])
