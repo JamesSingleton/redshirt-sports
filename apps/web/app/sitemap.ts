@@ -3,13 +3,11 @@ import type { MetadataRoute } from 'next'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { client } from '@/lib/sanity/client'
 import { querySitemapData } from '@/lib/sanity/query'
-import { getYearsWithVotes } from '@/server/queries'
 
 const baseUrl = getBaseUrl()
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { posts, authors, sports } = await client.fetch(querySitemapData)
-  const yearsWithVotes = await getYearsWithVotes()
 
   return [
     {
@@ -54,15 +52,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${baseUrl}/college/${sportSlug}/news`,
         lastModified: new Date(sport.lastModified),
         changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      }
-    }),
-    ...yearsWithVotes.map(({ year, week, division }) => {
-      // if week is 999 it should be `final-rankings`
-      const weekString = week === 999 ? 'final-rankings' : week
-      return {
-        url: `${baseUrl}/college/football/rankings/${division}/${year}/${weekString}`,
-        lastModified: new Date(),
         priority: 0.7,
       }
     }),
