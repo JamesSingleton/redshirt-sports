@@ -180,7 +180,7 @@ export function RichText<T>({ richText, className }: { richText?: T | null; clas
   return (
     <div
       className={cn(
-        'prose prose-zinc prose-h2:border-b prose-a:underline-offset-2 prose-h2:pb-2 prose-h2:first:mt-0 dark:prose-invert md:prose-lg max-w-none',
+        'prose prose-zinc prose-a:underline-offset-2 dark:prose-invert md:prose-lg max-w-none',
         className,
       )}
     >
