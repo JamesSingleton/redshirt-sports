@@ -27,7 +27,7 @@ export function Logo({
   priority = true,
 }: LogoProps) {
   return (
-    <Link href="/" className="">
+    <Link href="/" prefetch={false}>
       {image ? (
         <CustomImage
           image={image}

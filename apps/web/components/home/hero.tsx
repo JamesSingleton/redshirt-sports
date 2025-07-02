@@ -8,6 +8,7 @@ import { QueryHomePageDataResult } from '@/lib/sanity/sanity.types'
 const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
   const heroArticle = heroPosts[0]!
   const recentArticles = heroPosts.slice(1)
+
   return (
     <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
       <div className="container">
@@ -38,7 +39,6 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
                 >
                   <CustomImage
                     image={heroArticle.authors[0]?.image}
-                    // alt={`${heroArticle.author.name}'s profile picture`}
                     width={32}
                     height={32}
                     className="size-8 rounded-full"

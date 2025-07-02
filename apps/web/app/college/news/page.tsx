@@ -77,7 +77,6 @@ export default async function CollegeSportsNews({
   searchParams: Promise<{ [key: string]: string }>
 }) {
   const { page } = await searchParams
-  console.log({ page })
   const pageIndex = page !== undefined ? parseInt(page) : 1
   const {
     data: { posts, totalPosts },

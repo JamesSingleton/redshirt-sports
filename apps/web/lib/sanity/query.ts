@@ -131,11 +131,7 @@ export const queryPostSlugData = defineQuery(/* groq */ `
       publishedAt,
       ${postImageFragment},
       "slug": slug.current,
-      authors[]->{
-        _id,
-        name,
-        roles,
-      }
+      ${postAuthorFragment}
     }[0...3]
   }
 `)
@@ -146,10 +142,7 @@ export const querySportsNews = defineQuery(/* groq */ `
       ...,
       ${postImageFragment},
       "slug": slug.current,
-      "authors": authors[]->{
-        _id,
-        name,
-      }
+      ${postAuthorFragment}
     },
     "totalPosts": count(*[_type == "post" && sport->slug.current == $sport])
   }
@@ -161,10 +154,7 @@ export const querySportsAndDivisionNews = defineQuery(/* groq */ `
       ...,
       ${postImageFragment},
       "slug": slug.current,
-      "authors": authors[]->{
-        _id,
-        name,
-      }
+      ${postAuthorFragment}
     },
     "totalPosts": count(*[_type == "post" && sport->slug.current == $sport && division->slug.current == $division])
   }
@@ -271,25 +261,7 @@ export const queryHomePageData = defineQuery(/* groq */ `
       "credit": coalesce(asset->creditLine, attribution, "Unknown"),
     },
     publishedAt,
-    division->{
-      name,
-      "slug": slug.current
-    },
-    conferences[]->{
-      name,
-      "slug": slug.current,
-      shortName
-    },
-    author->{
-      name,
-      "slug": slug.current,
-      image
-    },
-    authors[]->{
-      name,
-      "slug": slug.current,
-      image
-    }
+    ${postAuthorFragment}
   }
 `)
 
@@ -307,25 +279,7 @@ export const queryLatestArticles = defineQuery(/* groq */ `
       "dominantColor": asset->metadata.palette.dominant.background,
       "credit": coalesce(asset->creditLine, attribution, "Unknown"),
     },
-    division->{
-      name,
-      "slug": slug.current
-    },
-    conferences[]->{
-      name,
-      "slug": slug.current,
-      shortName
-    },
-    author->{
-      name,
-      "slug": slug.current,
-      image
-    },
-    authors[]->{
-      name,
-      "slug": slug.current,
-      image
-    }
+    ${postAuthorFragment}
   }
 `)
 
@@ -352,17 +306,7 @@ export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
       "slug": slug.current,
       shortName
     },
-    authors[]->{
-      name,
-      "slug": slug.current,
-      image{
-        ...,
-        "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-        "blurData": asset->metadata.lqip,
-        "dominantColor": asset->metadata.palette.dominant.background,
-        "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-      },
-    }
+    ${postAuthorFragment}
   }
 `)
 
@@ -397,7 +341,7 @@ export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ 
       ...,
       ${postImageFragment},
       "slug": slug.current,
-      "authors": authors[]->{name, "slug": slug.current},
+      ${postAuthorFragment}
     },
     "conferenceInfo": *[_type == "conference" && slug.current == $conference][0]{
       _id,
@@ -421,17 +365,7 @@ export const searchQuery = defineQuery(/* groq */ `
     "slug": slug.current,
     ${divisionFragment},
     ${conferencesFragment},
-    authors[]->{
-      name,
-      "slug": slug.current,
-      image{
-        ...,
-        "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-        "blurData": asset->metadata.lqip,
-        "dominantColor": asset->metadata.palette.dominant.background,
-        "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-      },
-    },
+    ${postAuthorFragment},
     "sport": sport->title,
   },
   "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])
@@ -505,10 +439,7 @@ export const collegeNewsQuery = defineQuery(/* groq */ `
       title,
       "slug": slug.current,
       publishedAt,
-      authors[]->{
-        name,
-        image
-      },
+      ${postAuthorFragment},
       ${postImageFragment}
     },
     "totalPosts": count(*[_type == "post"])

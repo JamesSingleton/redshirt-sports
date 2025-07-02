@@ -7,12 +7,10 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Toaster } from '@workspace/ui/components/sonner'
 
 import { Providers } from '@/components/providers'
-import { MegaNav } from '@/components/mega-nav'
 import { FooterServer, FooterSkeleton } from '@/components/footer'
-import { SanityLive, sanityFetch } from '@/lib/sanity/live'
+import { SanityLive } from '@/lib/sanity/live'
 import { CombinedJsonLd } from '@/components/json-ld'
 import { NavbarServer, NavbarSkeleton } from '@/components/navbar'
-import { globalNavigationQuery } from '@/lib/sanity/query'
 
 import type { Viewport } from 'next'
 
@@ -26,12 +24,6 @@ const fontMono = Geist_Mono({
   variable: '--font-mono',
 })
 
-async function fetchNavigationData() {
-  return await sanityFetch({
-    query: globalNavigationQuery,
-  })
-}
-
 export const viewport: Viewport = {
   themeColor: '#DC2727',
 }
@@ -44,8 +36,6 @@ export default async function RootLayout({
   preconnect('https://cdn.sanity.io')
   prefetchDNS('https://cdn.sanity.io')
 
-  const { data: navigationData } = await fetchNavigationData()
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -53,8 +43,7 @@ export default async function RootLayout({
       >
         <Providers>
           <Suspense fallback={<NavbarSkeleton />}>
-            <MegaNav sportsNav={navigationData} />
-            {/* <NavbarServer /> */}
+            <NavbarServer />
           </Suspense>
           <main className="flex-1">{children}</main>
           <Suspense fallback={<FooterSkeleton />}>

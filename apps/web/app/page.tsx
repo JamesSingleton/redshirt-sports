@@ -166,7 +166,7 @@ export default async function HomePage() {
                     image={article.mainImage}
                     slug={article.slug}
                     key={article._id}
-                    author={article.author!.name}
+                    author={article.authors[0]!.name}
                   />
                 ))}
             </div>
