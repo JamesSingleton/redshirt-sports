@@ -31,7 +31,7 @@
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.25.65"
+    "zod": "^3.25.69"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.11",
