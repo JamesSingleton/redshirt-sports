@@ -92,6 +92,7 @@ function MobileNavbar({
                             href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}
                             className="hover:bg-muted block rounded px-2 py-1 transition-colors"
                             onClick={() => setIsOpen(false)}
+                            prefetch={false}
                           >
                             {conference.shortName || conference.name}
                           </Link>
@@ -186,6 +187,7 @@ function MobileNavbar({
             href="/college/news"
             className="hover:bg-muted flex items-center px-4 py-3 text-base font-medium transition-colors"
             onClick={() => setIsOpen(false)}
+            prefetch={false}
           >
             News
           </Link>
@@ -226,6 +228,7 @@ export function DesktopNavbar({
                                   href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}
                                   className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
                                   title={conference.name}
+                                  prefetch={false}
                                 >
                                   {conference.shortName ?? conference.name}
                                 </Link>
