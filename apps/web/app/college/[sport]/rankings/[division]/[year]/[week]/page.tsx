@@ -38,7 +38,6 @@ type Props = {
 
 const FINAL_RANKINGS_WEEK = 999
 const PRESEASON_WEEK = 0
-const TOP_25_THRESHOLD = 25
 
 function getWeekTitle(weekNumber: number): string {
   if (weekNumber === PRESEASON_WEEK) return 'Preseason'

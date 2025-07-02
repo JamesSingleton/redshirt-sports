@@ -171,7 +171,7 @@ export function WebPageJsonLd() {
   return <JsonLdScript data={webPageJsonLd} id="webpage-json-ld" />
 }
 
-export async function CombinedJsonLd({}) {
+export async function CombinedJsonLd() {
   const res = await client.fetch(querySettingsData)
 
   return (

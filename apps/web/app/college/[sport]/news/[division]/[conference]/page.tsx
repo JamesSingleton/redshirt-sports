@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { stegaClean, defineLive } from 'next-sanity'
+import { stegaClean } from 'next-sanity'
 
 import PageHeader from '@/components/page-header'
 import PaginationControls from '@/components/pagination-controls'
@@ -177,6 +177,7 @@ export default async function Page({
       '@type': 'ItemList',
       itemListElement: news.posts.map((post: Post, index: number) => ({
         '@id': `${baseUrl}/${post.slug}#article`,
+        position: index + 1,
       })),
       numberOfItems: news.totalPosts,
       url: `${baseUrl}/college/${sport}/news/${division}/${conference}`,

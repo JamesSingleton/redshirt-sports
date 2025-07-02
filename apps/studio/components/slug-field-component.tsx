@@ -15,9 +15,9 @@ import {
 import slugify from 'slugify'
 import { styled } from 'styled-components'
 
-import { getDocumentPath, stringToPathname } from '../utils/helper'
+import { getDocumentPath, getPresentationUrl, stringToPathname } from '../utils/helper'
 
-const presentationOriginUrl = process.env.SANITY_STUDIO_PRESENTATION_URL
+const presentationOriginUrl = getPresentationUrl()
 
 const CopyButton = styled(Button)`
   margin-left: auto;

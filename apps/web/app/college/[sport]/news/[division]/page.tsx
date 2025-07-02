@@ -164,6 +164,7 @@ export default async function Page({
       '@type': 'ItemList',
       itemListElement: news.posts.map((post: Post, index: number) => ({
         '@id': `${baseUrl}/${post.slug}#article`,
+        position: index + 1,
       })),
       numberOfItems: news.totalPosts,
       url: `${baseUrl}/college/${sport}/news/${division}`,

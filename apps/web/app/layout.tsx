@@ -14,7 +14,7 @@ import { CombinedJsonLd } from '@/components/json-ld'
 import { NavbarServer, NavbarSkeleton } from '@/components/navbar'
 import { globalNavigationQuery } from '@/lib/sanity/query'
 
-import type { Metadata, Viewport } from 'next'
+import type { Viewport } from 'next'
 
 const fontSans = Geist({
   subsets: ['latin'],

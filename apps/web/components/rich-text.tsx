@@ -32,19 +32,19 @@ type TableType = {
 
 const components: Partial<PortableTextReactComponents> = {
   block: {
-    h2: ({ children, value }) => {
+    h2: ({ children }) => {
       return <h2 className="text-4xl">{children}</h2>
     },
-    h3: ({ children, value }) => {
+    h3: ({ children }) => {
       return <h3 className="text-3xl">{children}</h3>
     },
-    h4: ({ children, value }) => {
+    h4: ({ children }) => {
       return <h4 className="text-2xl">{children}</h4>
     },
-    h5: ({ children, value }) => {
+    h5: ({ children }) => {
       return <h5 className="text-xl">{children}</h5>
     },
-    h6: ({ children, value }) => {
+    h6: ({ children }) => {
       return <h6 className="text-lg">{children}</h6>
     },
   },
@@ -180,7 +180,7 @@ export function RichText<T>({ richText, className }: { richText?: T | null; clas
   return (
     <div
       className={cn(
-        'prose prose-zinc prose-h2:border-b prose-a:underline-offset-2 prose-h2:pb-2 prose-h2:first:mt-0 dark:prose-invert max-w-none',
+        'prose prose-zinc prose-h2:border-b prose-a:underline-offset-2 prose-h2:pb-2 prose-h2:first:mt-0 dark:prose-invert md:prose-lg max-w-none',
         className,
       )}
     >

@@ -42,7 +42,6 @@ export const postsSearchQuery = /* groq */ `
   excerpt
 }`
 
-// Mock search function - replace with your actual search API
 const realSearch = async (query: string): Promise<any> => {
   if (!query.trim()) return []
 
@@ -77,7 +76,6 @@ export function SearchBar({ placeholder = 'Search...', className }: SearchBarPro
   const searchRef = React.useRef<HTMLDivElement>(null)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
-  // Search when debounced query changes
   React.useEffect(() => {
     if (debouncedQuery.trim()) {
       setIsLoading(true)
@@ -89,7 +87,6 @@ export function SearchBar({ placeholder = 'Search...', className }: SearchBarPro
     }
   }, [debouncedQuery])
 
-  // Handle click outside to close results
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -184,14 +181,12 @@ export function SearchBar({ placeholder = 'Search...', className }: SearchBarPro
         )}
       </form>
 
-      {/* Search Results Dropdown */}
       {showResults && (query.trim() || results.length > 0) && (
         <Card className="absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden shadow-lg">
           {isLoading ? (
             <div className="text-muted-foreground p-4 text-center text-sm">Searching...</div>
           ) : results.length > 0 ? (
             <div className="flex max-h-[400px] flex-col md:max-h-[500px]">
-              {/* Scrollable Results */}
               <div className="flex-1 overflow-y-auto">
                 {results.map((result, index) => (
                   <button
@@ -211,7 +206,6 @@ export function SearchBar({ placeholder = 'Search...', className }: SearchBarPro
                 ))}
               </div>
 
-              {/* Fixed Search Option at Bottom */}
               {query.trim() && (
                 <div className="border-border bg-background border-t">
                   <button

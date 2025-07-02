@@ -7,9 +7,14 @@ import { perPage } from '@/lib/constants'
 import { sanityFetch } from '@/lib/sanity/live'
 import { collegeNewsQuery } from '@/lib/sanity/query'
 import { getBaseUrl } from '@/lib/get-base-url'
+import { JsonLdScript, websiteId, organizationId } from '@/components/json-ld'
+import { getSEOMetadata } from '@/lib/seo'
 
 import type { Metadata } from 'next'
-import { getSEOMetadata } from '@/lib/seo'
+import type { WithContext, CollectionPage } from 'schema-dts'
+import { Post } from '@/lib/sanity/sanity.types'
+
+const baseUrl = getBaseUrl()
 
 async function fetchCollegeNews({ pageIndex }: { pageIndex: number }) {
   return await sanityFetch({
@@ -33,7 +38,7 @@ export async function generateMetadata({
 
   const appName = process.env.NEXT_PUBLIC_APP_NAME
 
-  const baseTitle = `Latest College Sports News`
+  const baseTitle = `College Sports News`
   const baseCanonical = `/college/news`
 
   let title: string
@@ -84,10 +89,50 @@ export default async function CollegeSportsNews({
 
   const totalPages = Math.ceil(totalPosts / perPage)
 
-  // TODO: Implement ld+json
+  const newsJsonLd: WithContext<CollectionPage> = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'College Sports News',
+    url: `${baseUrl}/college/news`,
+    description: `Stay updated with comprehensive college sports coverage: breaking news, game highlights, recruiting, & in-depth analysis from across the NCAA. Get the latest from ${process.env.NEXT_PUBLIC_APP_NAME}.`,
+    isPartOf: {
+      '@type': 'WebSite',
+      '@id': websiteId,
+    },
+    publisher: {
+      '@type': 'Organization',
+      '@id': organizationId,
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: posts.map((post: Post, index: number) => ({
+        '@id': `${baseUrl}/${post.slug}#article`,
+        position: index + 1,
+      })),
+      numberOfItems: posts.length,
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: baseUrl,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'College Sports News',
+          item: `${baseUrl}/college/news`,
+        },
+      ],
+    },
+  }
 
   return (
     <>
+      <JsonLdScript data={newsJsonLd} id="college-sports-news-json-ld" />
       <PageHeader title="College Sports News" breadcrumbs={breadcrumbItems} />
       <section className="container pb-12">
         <ArticleFeed articles={posts} />

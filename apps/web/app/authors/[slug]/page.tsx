@@ -5,7 +5,7 @@ import { notFound, redirect } from 'next/navigation'
 import { Twitter, Facebook, YouTubeIcon } from '@/components/icons'
 import ArticleCard from '@/components/article-card'
 import PaginationControls from '@/components/pagination-controls'
-import { perPage, HOME_DOMAIN } from '@/lib/constants'
+import { perPage } from '@/lib/constants'
 import { sanityFetch } from '@/lib/sanity/live'
 import CustomImage from '@/components/sanity-image'
 import { buildSafeImageUrl, organizationId, websiteId } from '@/components/json-ld'
@@ -15,8 +15,7 @@ import { JsonLdScript } from '@/components/json-ld'
 import { authorBySlug, postsByAuthor } from '@/lib/sanity/query'
 
 import type { Metadata } from 'next'
-import type { Graph, WithContext, ProfilePage, Person } from 'schema-dts'
-import { urlFor } from '@/lib/sanity/client'
+import type { Graph } from 'schema-dts'
 
 async function fetchAuthorInfo(slug: string) {
   return await sanityFetch({
@@ -30,29 +29,6 @@ async function fetchAuthorPosts(slug: string, pageIndex: number) {
     query: postsByAuthor,
     params: { slug, pageIndex },
   })
-}
-
-async function fetchAuthorData(slug: string, pageIndex: number) {
-  try {
-    const [authorResult, postsResult] = await Promise.all([
-      sanityFetch({
-        query: authorBySlug,
-        params: { slug },
-      }),
-      sanityFetch({
-        query: postsByAuthor,
-        params: { slug, pageIndex },
-      }),
-    ])
-
-    return {
-      author: authorResult.data,
-      authorPosts: postsResult.data,
-    }
-  } catch (error) {
-    console.error('Error fetching author data:', error)
-    return { author: null, authorPosts: null }
-  }
 }
 
 export async function generateMetadata({
