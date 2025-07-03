@@ -47,9 +47,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     })),
     ...sports.map((sport: any) => {
-      const sportSlug = sport.slug.replace('college-', '')
       return {
-        url: `${baseUrl}/college/${sportSlug}/news`,
+        url: `${baseUrl}/college/${sport.slug}/news`,
         lastModified: new Date(sport.lastModified),
         changeFrequency: 'weekly' as const,
         priority: 0.7,
