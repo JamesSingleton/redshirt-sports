@@ -17,7 +17,7 @@ async function fetchPrivacyPolicy() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return await getSEOMetadata({
+  return getSEOMetadata({
     title: 'Privacy Policy',
     description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
     slug: '/privacy-policy',

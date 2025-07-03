@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const weekNumber = parseWeekNumber(week)
   const titleWeek = getWeekTitle(weekNumber)
 
-  return await getSEOMetadata({
+  return getSEOMetadata({
     title: `${year} ${division.toUpperCase()} Top 25 Rankings, ${titleWeek}`,
     description: `Discover the ${division.toUpperCase()} Top 25 College Football Rankings for ${year}, ${titleWeek}. See how the voters ranked the top teams.`,
     slug: `/college/${sport}/rankings/${division}/${year}/${week}`,

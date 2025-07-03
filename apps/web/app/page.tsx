@@ -80,7 +80,7 @@ const divisions = [
 const baseUrl = getBaseUrl()
 
 export async function generateMetadata(): Promise<Metadata> {
-  return await getSEOMetadata()
+  return getSEOMetadata()
 }
 
 export default async function HomePage() {

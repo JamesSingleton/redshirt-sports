@@ -53,7 +53,7 @@ export async function generateMetadata({
     canonical = `/authors/${slug}?page=${page}`
   }
 
-  return await getSEOMetadata({
+  return getSEOMetadata({
     title: `${author.name} - ${roles}`,
     description: `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`,
     slug: canonical,

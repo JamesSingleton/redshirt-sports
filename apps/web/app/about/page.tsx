@@ -19,7 +19,7 @@ async function fetchAuthors() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return await getSEOMetadata({
+  return getSEOMetadata({
     title: 'About Us',
     description: `Meet the team at ${process.env.NEXT_PUBLIC_APP_NAME}! We're dedicated to bringing you comprehensive coverage of college sports at every level, sharing our mission and expertise.`,
     slug: '/about',

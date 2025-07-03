@@ -43,7 +43,7 @@ export async function generateMetadata({
     return {}
   }
 
-  const meta = await getSEOMetadata({
+  return getSEOMetadata({
     ogType: 'article',
     image: data.mainImage,
     authors: data.authors,
@@ -52,8 +52,6 @@ export async function generateMetadata({
     slug: data.slug,
     readingTime: data.estimatedReadingTime,
   })
-
-  return meta
 }
 
 export default async function PostPage({ params }: PageProps) {

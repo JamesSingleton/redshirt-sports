@@ -119,7 +119,7 @@ export async function generateMetadata({
     canonical = `/college/${sport}/news/${division}/${conference}?page=${page}`
   }
 
-  return await getSEOMetadata({
+  return getSEOMetadata({
     title: finalTitle,
     description: finalDescription,
     slug: canonical,

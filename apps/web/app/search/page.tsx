@@ -22,7 +22,7 @@ async function fetchSearchResults(
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return await getSEOMetadata({
+  return getSEOMetadata({
     title: `Search Results | ${process.env.NEXT_PUBLIC_APP_NAME}`,
     description: `Explore the latest articles, news, and analysis on college football. Find what you're looking for across FCS, FBS, D2, D3, and NAIA at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
     slug: '/search',

@@ -16,7 +16,7 @@ import type { Metadata } from 'next'
 import type { WithContext, ContactPage } from 'schema-dts'
 
 export async function generateMetadata(): Promise<Metadata> {
-  return await getSEOMetadata({
+  return getSEOMetadata({
     title: 'Contact Us',
     description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for collaboration, advertising, or general inquiries. We're here to assist with any questions about our college sports coverage.`,
     slug: '/contact',

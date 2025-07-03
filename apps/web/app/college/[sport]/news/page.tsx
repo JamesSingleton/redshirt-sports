@@ -70,7 +70,7 @@ export async function generateMetadata({
     description = `Find comprehensive college ${sportTitle} news, detailed game results, expert analysis, and valuable insights. Your trusted source for NCAA ${sportTitle} information.`
   }
 
-  return await getSEOMetadata({
+  return getSEOMetadata({
     title,
     description,
     slug: canonicalUrl,

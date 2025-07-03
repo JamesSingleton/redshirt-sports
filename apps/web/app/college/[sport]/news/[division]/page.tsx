@@ -114,7 +114,7 @@ export async function generateMetadata({
     canonical = `${baseCanonical}?page=${pageNumber}`
   }
 
-  return await getSEOMetadata({
+  return getSEOMetadata({
     title,
     description,
     slug: canonical,
