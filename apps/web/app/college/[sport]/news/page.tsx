@@ -62,11 +62,11 @@ export async function generateMetadata({
   let canonicalUrl = `/college/${sport}/news`
 
   if (pageIndex > 1) {
-    title = `College ${sportTitle} News & Updates - Page ${pageIndex} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    title = `College ${sportTitle} News & Updates - Page ${pageIndex}`
     description = `Continue exploring comprehensive college ${sportTitle} news, game analysis, and feature stories. This is page ${page} of our in-depth coverage.`
     canonicalUrl = `${canonicalUrl}?page=${page}`
   } else {
-    title = `College ${sportTitle} News & Updates | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    title = `College ${sportTitle} News & Updates`
     description = `Find comprehensive college ${sportTitle} news, detailed game results, expert analysis, and valuable insights. Your trusted source for NCAA ${sportTitle} information.`
   }
 

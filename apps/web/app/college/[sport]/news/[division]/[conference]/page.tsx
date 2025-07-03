@@ -110,11 +110,11 @@ export async function generateMetadata({
   const baseTitle = `${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} News, Updates & Analysis`
   const baseDescription = `Stay informed with breaking ${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`
 
-  let finalTitle = `${baseTitle} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+  let finalTitle = baseTitle
   let finalDescription = baseDescription
 
   if (page && parseInt(page) > 1) {
-    finalTitle = `${baseTitle} - Page ${page} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    finalTitle = `${baseTitle} - Page ${page}`
     finalDescription = `Continue exploring coverage of ${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} on Page ${page}. Find more detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}.`
     canonical = `/college/${sport}/news/${division}/${conference}?page=${page}`
   }
