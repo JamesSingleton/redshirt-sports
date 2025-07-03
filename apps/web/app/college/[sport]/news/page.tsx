@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 
 import { sanityFetch } from '@/lib/sanity/live'
 import { querySportsNews, sportInfoBySlug } from '@/lib/sanity/query'
-import { HOME_DOMAIN, perPage } from '@/lib/constants'
+import { perPage } from '@/lib/constants'
 import PageHeader from '@/components/page-header'
 import ArticleFeed from '@/components/article-feed'
 import PaginationControls from '@/components/pagination-controls'
@@ -59,7 +59,7 @@ export async function generateMetadata({
   const sportTitle = sportData.title
   let title: string
   let description: string
-  let canonicalUrl = `${HOME_DOMAIN}/college/${sport}/news`
+  let canonicalUrl = `/college/${sport}/news`
 
   if (pageIndex > 1) {
     title = `College ${sportTitle} News & Updates - Page ${pageIndex} | ${process.env.NEXT_PUBLIC_APP_NAME}`

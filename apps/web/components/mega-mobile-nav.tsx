@@ -100,7 +100,7 @@ export default function MegaMobileNav({
                   <CollapsibleContent className="px-2 pb-1">
                     <div className="mt-1 grid grid-cols-1 gap-0.5">
                       <Link
-                        href={`college/football/rankings/${latestFCSTop25?.division}/${latestFCSTop25?.year}/${latestFCSTop25?.week === 999 ? 'final-rankings' : latestFCSTop25?.week}`}
+                        href={`/college/football/rankings/${latestFCSTop25?.division}/${latestFCSTop25?.year}/${latestFCSTop25?.week === 999 ? 'final-rankings' : latestFCSTop25?.week}`}
                         className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
                         onClick={() => setMobileMenuOpen(false)}
                       >
