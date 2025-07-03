@@ -48,8 +48,11 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
     : twitterHandle
 
   const meta = {
-    title: `${seoTitle ?? title}`,
-    description: seoDescription ?? description,
+    title: `${seoTitle ?? title ?? 'College Sports News & Analysis at All Levels'}`,
+    description:
+      seoDescription ??
+      description ??
+      'Redshirt Sports is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.',
   }
 
   const brandName = 'Redshirt Sports'
