@@ -6,7 +6,7 @@ function isValidInternalPath(value: string | undefined) {
     return 'Value is required'
   } else if (!value.startsWith('/')) {
     return 'Internal paths must start with /'
-  } else if (/[^a-zA-Z0-9\-_/:]/.test(value)) {
+  } else if (/[^a-zA-Z0-9\-_/:*]/.test(value)) {
     return 'Source path contains invalid characters'
   } else if (/:[^/]+:/.test(value)) {
     return 'Parameters can only contain one : directly after /'
