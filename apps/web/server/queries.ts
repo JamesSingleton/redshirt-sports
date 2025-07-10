@@ -10,6 +10,7 @@ interface GetUsersVote {
   year: number
   week: number
   division: string
+  sport: string
 }
 
 type FinalRankings = {
@@ -30,14 +31,20 @@ type FinalRankings = {
   }[]
 }
 
-export async function hasVoterVoted({ year, week }: GetUsersVote) {
+export async function hasVoterVoted({ year, week, division, sport }: GetUsersVote) {
   const user = await auth()
 
   if (!user.userId) throw new Error('Unauthorized')
 
   const vote = await db.query.voterBallots.findFirst({
     where: (model, { eq, and }) =>
-      and(eq(model.userId, user.userId), eq(model.year, year), eq(model.week, week)),
+      and(
+        eq(model.userId, user.userId),
+        eq(model.year, year),
+        eq(model.week, week),
+        eq(model.division, division),
+        // eq(model.sport, sport),
+      ),
   })
 
   return !!vote

@@ -62,17 +62,21 @@ const divisionHeader = [
   },
 ]
 
-export default async function VotePage({ params }: { params: Promise<{ division: string }> }) {
-  const { division } = await params
+export default async function VotePage({
+  params,
+}: {
+  params: Promise<{ sport: string; division: string }>
+}) {
+  const { sport, division } = await params
   const [votingWeek, { year }] = await Promise.all([getCurrentWeek(), getCurrentSeason()])
 
-  const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
+  const hasVoted = await hasVoterVoted({ year, week: votingWeek, division, sport })
   const { userId } = await auth()
 
   const { data: schools } = await fetchSchoolsByDivision(division)
 
   if (hasVoted) {
-    redirect(`/vote/${division}/confirmation`)
+    redirect(`/vote/${sport}/${division}/confirmation`)
   }
 
   if (!schools || !userId) {
