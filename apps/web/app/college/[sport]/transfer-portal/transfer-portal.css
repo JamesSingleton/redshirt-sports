@@ -1,0 +1,22 @@
+@layer utilities {
+  .player-grid {
+    grid-template-areas: 'player-status player player team-status';
+    grid-template-columns: 100px 70px 2fr 2fr;
+
+    @media only screen and (min-width: 1200px) {
+      grid-template-areas: 'player-status player player position team-status';
+      grid-template-columns: 100px 90px 1.75fr 0.5fr 2fr;
+    }
+    @media only screen and (min-width: 1440px) {
+      grid-template-columns: 100px 110px 1.75fr 0.5fr 2fr;
+    }
+  }
+  .individual-player {
+    grid-template-columns: 40px 70px min-content 1fr;
+    grid-template-areas:
+      '. avatar details details .'
+      '. position details details .'
+      '. position . . .'
+      'playerStatus playerStatus playerStatus teamStatus teamStatus';
+  }
+}
