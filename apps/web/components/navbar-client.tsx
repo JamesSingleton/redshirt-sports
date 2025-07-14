@@ -69,8 +69,10 @@ function MobileNavbar({
         <SheetHeader>
           <SheetTitle>{logo && <Logo alt={siteTitle} image={logo} />}</SheetTitle>
         </SheetHeader>
-
-        <div className="mt-8 mb-8 flex flex-col gap-4">
+        <div className="my-4 flex flex-col gap-4">
+          <div className="border-b px-4 py-3">
+            <SearchBar placeholder="Search articles..." className="w-full" />
+          </div>
           {navbarData.map((sport) => (
             <Collapsible key={sport._id}>
               <CollapsibleTrigger className="hover:bg-muted flex w-full items-center justify-between px-4 py-3 text-left font-medium transition-colors">
