@@ -1,5 +1,5 @@
 import './transfer-portal.css'
-import { CircleCheckBigIcon } from 'lucide-react'
+import { CircleCheckBigIcon, MoveRightIcon } from 'lucide-react'
 import { Badge } from '@workspace/ui/components/badge'
 import { Button } from '@workspace/ui/components/button'
 import { sanityFetch } from '@/lib/sanity/live'
@@ -92,9 +92,24 @@ export default async function TransferPortalPage({
                   Enrolled
                 </div>
               </div>
-              <div className="flex items-center justify-items-start gap-2.5 [grid-area:teamStatus] md:grid">
-                <div></div>
-                <div></div>
+              <div className="flex items-center justify-items-start gap-2.5 [grid-area:teamStatus] md:grid md:grid-cols-[1fr_1fr] md:gap-2.5">
+                <div className="flex flex-row flex-nowrap items-center justify-start gap-1.5">
+                  <div className="flex items-center justify-center lg:justify-start">
+                    <img
+                      src="https://on3static.com/uploads/assets/20/150/150020.svg"
+                      alt="UMass School Logo"
+                      className="size-8"
+                    />
+                  </div>
+                  <MoveRightIcon className="size-8" />
+                </div>
+                <div>
+                  <img
+                    src="https://on3static.com/uploads/assets/960/424/424960.png"
+                    alt="Temple Logo"
+                    className="flex size-12 flex-row flex-nowrap items-center justify-start gap-0"
+                  />
+                </div>
               </div>
             </div>
           </li>
