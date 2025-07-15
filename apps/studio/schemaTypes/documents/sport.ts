@@ -1,7 +1,7 @@
 import { defineField, defineType } from 'sanity'
 
 import { GROUPS } from '../../utils/constant'
-import { isUnique } from '../../utils/slug'
+import { createSlug, isUnique } from '../../utils/slug'
 
 export const sport = defineType({
   name: 'sport',
@@ -19,9 +19,9 @@ export const sport = defineType({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-
       options: {
         source: 'title',
+        slugify: createSlug,
         isUnique,
       },
       validation: (rule) => rule.required(),

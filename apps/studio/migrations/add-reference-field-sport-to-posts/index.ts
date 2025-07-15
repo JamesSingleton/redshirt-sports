@@ -1,4 +1,4 @@
-import { at, defineMigration, setIfMissing, unset } from 'sanity/migrate'
+import { at, defineMigration, setIfMissing } from 'sanity/migrate'
 
 export default defineMigration({
   title: 'Add reference field sport to posts',

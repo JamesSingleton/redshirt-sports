@@ -1,5 +1,7 @@
 import { defineArrayMember, defineField, defineType } from 'sanity'
 
+import { createSlug, isUnique } from '../../utils/slug'
+
 export const sportSubgrouping = defineType({
   name: 'sportSubgrouping',
   title: 'Sport Subgrouping',
@@ -27,6 +29,8 @@ export const sportSubgrouping = defineType({
       type: 'slug',
       options: {
         source: 'shortName',
+        slugify: createSlug,
+        isUnique,
       },
     }),
     defineField({

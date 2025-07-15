@@ -2,6 +2,7 @@ import { User } from 'lucide-react'
 import { defineField, defineType } from 'sanity'
 
 import { TextInputWithLimits } from '../../components/text-input-with-limits'
+import { createSlug } from '../../utils/slug'
 import { socialLinks } from '../definitions/social-links'
 
 export const author = defineType({
@@ -23,6 +24,7 @@ export const author = defineType({
       options: {
         source: 'name',
         maxLength: 96,
+        slugify: createSlug,
       },
       validation: (rule) => rule.required(),
     }),
