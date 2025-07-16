@@ -106,7 +106,7 @@ export default async function HomePage() {
     articles: collegeSportsResults[index]?.data,
   }))
 
-  const sectionOrder = ['fcs', 'fbs', 'd2', 'd3']
+  const sectionOrder = ['division-i', 'division-i', 'd2', 'd3']
 
   const webPageJson: WithContext<WebPage> = {
     '@context': 'https://schema.org',
@@ -173,7 +173,7 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-      {sectionOrder.map((key) => {
+      {/* {sectionOrder.map((key) => {
         const section = divisionsWithArticles.find((d) => d.key === key)
         if (!section || section.articles === undefined) return null
 
@@ -186,7 +186,7 @@ export default async function HomePage() {
             imageFirst={section.imageFirst}
           />
         )
-      })}
+      })} */}
     </>
   )
 }
