@@ -301,7 +301,7 @@ export const queryLatestArticles = defineQuery(/* groq */ `
 `)
 
 export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
-  *[_type == "post" && division->name == $division && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{
+  *[_type == "post" && (division->name == $division || sportSubgrouping->name == $division) && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{
     _id,
     title,
     excerpt,
