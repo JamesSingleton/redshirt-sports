@@ -449,6 +449,93 @@ export const schoolsByDivisionQuery = defineQuery(/* groq */ `
 }
 `)
 
+export const schoolsBySportAndSubgroupingWorkingQuery = defineQuery(/* groq */ `
+  *[_type == "school" &&
+    top25VotingEligible != false &&
+    count(conferenceAffiliations[sport->slug.current == $sport]) > 0
+  ] {
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    image,
+    "sportConferenceAffiliation": conferenceAffiliations[sport->slug.current == $sport][0] {
+      sport-> {
+        title,
+        slug
+      },
+      conference-> {
+        _id,
+        name,
+        shortName,
+        abbreviation,
+        "validSubgrouping": sportSubdivisionAffiliations[
+          sport->slug.current == $sport &&
+          subgrouping->slug.current == $subgrouping
+        ][0]
+      }
+    }
+  }[defined(sportConferenceAffiliation.conference.validSubgrouping)] | order(shortName asc) {
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    image,
+    "conferenceInfo": {
+      "conference": sportConferenceAffiliation.conference {
+        name,
+        shortName,
+        abbreviation
+      }
+    }
+  }
+`)
+
+export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
+  *[_type == "school" &&
+    top25VotingEligible != false
+  ] {
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    image,
+    conferenceAffiliations,
+    "relevantAffiliation": conferenceAffiliations[sport->slug.current == $sport][0]
+  }[defined(relevantAffiliation)] {
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    image,
+    relevantAffiliation,
+    "conferenceDetails": *[_type == "conference" && _id == ^.relevantAffiliation.conference._ref][0] {
+      name,
+      shortName,
+      abbreviation,
+      sportSubdivisionAffiliations
+    }
+  }[
+    count(conferenceDetails.sportSubdivisionAffiliations[
+      sport->slug.current == $sport &&
+      subgrouping->slug.current == $subgrouping
+    ]) > 0
+  ] | order(shortName asc) {
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    image,
+    "conferenceInfo": {
+      "conference": conferenceDetails {
+        name,
+        shortName,
+        abbreviation
+      }
+    }
+  }
+`)
+
 export const collegeNewsQuery = defineQuery(/* groq */ `
   {
     "posts": *[_type == "post"] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}] {
