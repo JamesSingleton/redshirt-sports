@@ -153,6 +153,10 @@ export const queryPostSlugData = defineQuery(/* groq */ `
   }
 `)
 
+export const queryPostPaths = defineQuery(/* groq */ `
+  *[_type == "post" && defined(slug.current)].slug.current
+`)
+
 export const querySportsNews = defineQuery(/* groq */ `
   {
     "posts": *[_type == "post" && sport->slug.current == $sport] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
