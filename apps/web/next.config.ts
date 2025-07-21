@@ -59,7 +59,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   experimental: {
     reactCompiler: true,
-    ppr: true,
+    // ppr: true, // Commenting this out due to increase in Fast Origin Transfer on Vercel
     inlineCss: true,
   },
   logging: {
