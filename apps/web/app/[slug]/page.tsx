@@ -5,7 +5,7 @@ import { CameraIcon } from 'lucide-react'
 import { badgeVariants } from '@workspace/ui/components/badge'
 
 import { sanityFetch } from '@/lib/sanity/live'
-import { queryPostSlugData } from '@/lib/sanity/query'
+import { queryPostPaths, queryPostSlugData } from '@/lib/sanity/query'
 import { AuthorSection, MobileAuthorSection } from '@/components/posts/author'
 import { RichText } from '@/components/rich-text'
 import { LargeArticleSocialShare } from '@/components/posts/article-share'
@@ -14,16 +14,21 @@ import ArticleCard from '@/components/article-card'
 import { ArticleJsonLd, buildSafeImageUrl, JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { getSEOMetadata } from '@/lib/seo'
+import ArticleLoadingSkeleton from '@/components/article-loading-skeleton'
+import { client } from '@/lib/sanity/client'
 
 import type { Metadata } from 'next'
 import type { WithContext, WebPage } from 'schema-dts'
-import ArticleLoadingSkeleton from '@/components/article-loading-skeleton'
 
 interface PageProps {
   params: Promise<{
     slug: string
   }>
 }
+
+export const dynamicParams = true
+
+const baseUrl = getBaseUrl()
 
 async function fetchPostSlugData(slug: string, { stega = true } = {}) {
   return await sanityFetch({
@@ -56,10 +61,17 @@ export async function generateMetadata({
   })
 }
 
+export async function generateStaticParams() {
+  const slugs = await client.fetch(queryPostPaths)
+
+  return slugs.map((slug) => ({
+    slug,
+  }))
+}
+
 export default async function PostPage({ params }: PageProps) {
   const { slug } = await params
   const { data } = await fetchPostSlugData(slug)
-  const baseUrl = getBaseUrl()
 
   if (!data) {
     notFound()
@@ -76,7 +88,15 @@ export default async function PostPage({ params }: PageProps) {
     url: articleUrl,
     name: `${data.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
     isPartOf: { '@id': websiteId },
-    primaryImageOfPage: { '@id': imageId },
+    primaryImageOfPage: {
+      '@type': 'ImageObject',
+      '@id': imageId,
+      url: articleImageUrl,
+      contentUrl: articleImageUrl,
+      caption: data.mainImage.alt,
+      width: '1920',
+      height: '1080',
+    },
     thumbnailUrl: articleImageUrl,
     datePublished: new Date(data.publishedAt).toISOString(),
     dateModified: new Date(data._updatedAt).toISOString(),
