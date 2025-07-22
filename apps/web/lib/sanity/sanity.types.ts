@@ -240,32 +240,6 @@ export type CustomUrl = {
   internalUrl?: string
 }
 
-export type Membership = {
-  _id: string
-  _type: 'membership'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  school: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'school'
-  }
-  conference: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'conference'
-  }
-  sport: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'sport'
-  }
-}
-
 export type Tag = {
   _id: string
   _type: 'tag'
@@ -916,7 +890,6 @@ export type AllSanitySchemaTypes =
   | Navbar
   | Footer
   | CustomUrl
-  | Membership
   | Tag
   | School
   | Redirect
