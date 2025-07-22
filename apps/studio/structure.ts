@@ -117,11 +117,6 @@ export const structure = (S: StructureBuilder, context: StructureResolverContext
     ),
     createList({
       S,
-      type: 'membership',
-      title: 'Memberships',
-    }),
-    createList({
-      S,
       type: 'sportSubgrouping',
       title: 'Sport Subgroupings',
     }),

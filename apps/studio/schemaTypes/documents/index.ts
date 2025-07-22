@@ -3,7 +3,6 @@ import { conference } from './conference'
 import { division } from './division'
 import { footer } from './footer'
 import { legal } from './legal'
-import { membership } from './membership'
 import { navbar } from './navbar'
 import { post } from './post'
 import { redirect } from './redirect'
@@ -26,6 +25,5 @@ export const documents = [
   sport,
   sportSubgrouping,
   tag,
-  membership,
   ...singletons,
 ]
