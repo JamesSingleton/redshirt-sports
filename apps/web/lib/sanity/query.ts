@@ -154,7 +154,7 @@ export const queryPostSlugData = defineQuery(/* groq */ `
 `)
 
 export const queryPostPaths = defineQuery(/* groq */ `
-  *[_type == "post" && defined(slug.current)].slug.current
+  *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50].slug.current
 `)
 
 export const querySportsNews = defineQuery(/* groq */ `

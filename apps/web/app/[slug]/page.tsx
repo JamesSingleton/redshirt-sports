@@ -26,6 +26,10 @@ interface PageProps {
   }>
 }
 
+export const dynamicParams = true
+
+const baseUrl = getBaseUrl()
+
 async function fetchPostSlugData(slug: string, { stega = true } = {}) {
   return await sanityFetch({
     query: queryPostSlugData,
@@ -69,8 +73,6 @@ export default async function PostPage({ params }: PageProps) {
   const { slug } = await params
   const { data } = await fetchPostSlugData(slug)
 
-  const baseUrl = getBaseUrl()
-
   if (!data) {
     notFound()
   }
@@ -86,7 +88,15 @@ export default async function PostPage({ params }: PageProps) {
     url: articleUrl,
     name: `${data.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
     isPartOf: { '@id': websiteId },
-    primaryImageOfPage: { '@id': imageId },
+    primaryImageOfPage: {
+      '@type': 'ImageObject',
+      '@id': imageId,
+      url: articleImageUrl,
+      contentUrl: articleImageUrl,
+      caption: data.mainImage.alt,
+      width: '1920',
+      height: '1080',
+    },
     thumbnailUrl: articleImageUrl,
     datePublished: new Date(data.publishedAt).toISOString(),
     dateModified: new Date(data._updatedAt).toISOString(),
