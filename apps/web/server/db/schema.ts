@@ -36,9 +36,7 @@ export const weeklyFinalRankings = pgTable(
     year: integer('year').notNull(),
     rankings: jsonb('rankings').notNull(),
   },
-  (table) => ({
-    isUniqueVote: unique().on(table.division, table.year, table.week),
-  }),
+  (table) => [unique().on(table.division, table.year, table.week)],
 )
 
 export const usersTable = pgTable('users_table', {
@@ -59,9 +57,7 @@ export const seasonsTable = pgTable(
     start: timestamp('start').notNull(),
     end: timestamp('end').notNull(),
   },
-  (table) => ({
-    isUniqueSeason: unique().on(table.year),
-  }),
+  (table) => [unique().on(table.year)],
 )
 
 export const weeksTable = pgTable(
@@ -75,9 +71,7 @@ export const weeksTable = pgTable(
     start: timestamp('start').notNull(),
     end: timestamp('end').notNull(),
   },
-  (table) => ({
-    isUniqueWeek: unique().on(table.seasonId, table.week),
-  }),
+  (table) => [unique().on(table.seasonId, table.week)],
 )
 
 export type InsertUser = typeof usersTable.$inferInsert
