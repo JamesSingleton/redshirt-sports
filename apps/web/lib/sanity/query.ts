@@ -157,6 +157,10 @@ export const queryPostPaths = defineQuery(/* groq */ `
   *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50].slug.current
 `)
 
+export const queryAuthorPaths = defineQuery(/* groq */ `
+  *[_type == "author" && defined(slug.current) && archived == false]| order(_createdAt desc)[0...20].slug.current
+`)
+
 export const querySportsNews = defineQuery(/* groq */ `
   {
     "posts": *[_type == "post" && sport->slug.current == $sport] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{

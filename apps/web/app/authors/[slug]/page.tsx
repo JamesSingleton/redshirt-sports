@@ -12,10 +12,11 @@ import { buildSafeImageUrl, organizationId, websiteId } from '@/components/json-
 import { getSEOMetadata } from '@/lib/seo'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { JsonLdScript } from '@/components/json-ld'
-import { authorBySlug, postsByAuthor } from '@/lib/sanity/query'
+import { authorBySlug, postsByAuthor, queryAuthorPaths } from '@/lib/sanity/query'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
+import { client } from '@/lib/sanity/client'
 
 async function fetchAuthorInfo(slug: string) {
   return await sanityFetch({
@@ -31,15 +32,25 @@ async function fetchAuthorPosts(slug: string, pageIndex: number) {
   })
 }
 
+export async function generateStaticParams() {
+  const slugs = await client.fetch(queryAuthorPaths, {}, { stega: false })
+
+  return slugs.map((slug) => ({ slug }))
+}
+
 export async function generateMetadata({
   params,
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ [key: string]: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }): Promise<Metadata> {
-  const { slug } = await params
-  const { page } = await searchParams
+  const resolvedParams = await params
+  const resolvedSearchParams = await searchParams
+
+  const { slug } = resolvedParams
+  const page = resolvedSearchParams.page
+
   const { data: author } = await fetchAuthorInfo(slug)
 
   if (!author) {
@@ -49,13 +60,21 @@ export async function generateMetadata({
   const roles = author.roles.join(', ')
   let canonical = `/authors/${slug}`
 
-  if (page && parseInt(page) > 1) {
-    canonical = `/authors/${slug}?page=${page}`
+  let title = `${author.name} - ${roles}`
+  let description = `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`
+
+  if (page && typeof page === 'string') {
+    const pageNum = parseInt(page)
+    if (pageNum > 1) {
+      canonical = `/authors/${slug}?page=${pageNum}`
+      title = `${author.name} - ${roles} (Page ${pageNum})`
+      description = `Page ${pageNum} of articles by ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Discover their latest insights into college football.`
+    }
   }
 
   return getSEOMetadata({
-    title: `${author.name} - ${roles}`,
-    description: `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`,
+    title: title,
+    description: description,
     slug: canonical,
     image: author.image,
     ogType: 'profile',
