@@ -54,7 +54,7 @@ export function ArticleJsonLd({ article }: { article: any }) {
           return {
             '@type': 'Person',
             name: author.name,
-            url: author.slug ? `${baseUrl}/${author.slug}` : undefined,
+            url: author.slug ? `${baseUrl}/authors/${author.slug}` : undefined,
           } as Person
         })
       : [],
