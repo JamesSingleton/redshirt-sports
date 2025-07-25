@@ -62,7 +62,13 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  const slugs = await client.fetch(queryPostPaths)
+  const slugs = await client.fetch(
+    queryPostPaths,
+    {},
+    {
+      stega: false,
+    },
+  )
 
   return slugs.map((slug) => ({
     slug,
