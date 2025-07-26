@@ -1,3 +1,9 @@
+import { stegaClean } from 'next-sanity'
+
+import { urlFor, client } from '@/lib/sanity/client'
+import { getBaseUrl } from '@/lib/get-base-url'
+import { querySettingsData } from '@/lib/sanity/query'
+
 import type {
   ContactPoint,
   ImageObject,
@@ -8,10 +14,6 @@ import type {
   WebSite,
   WithContext,
 } from 'schema-dts'
-
-import { urlFor, client } from '@/lib/sanity/client'
-import { getBaseUrl } from '@/lib/get-base-url'
-import { querySettingsData } from '@/lib/sanity/query'
 
 const baseUrl = getBaseUrl()
 
@@ -53,15 +55,15 @@ export function ArticleJsonLd({ article }: { article: any }) {
       ? article.authors.map((author: any) => {
           return {
             '@type': 'Person',
-            name: author.name,
+            name: stegaClean(author.name),
             url: author.slug ? `${baseUrl}/authors/${author.slug}` : undefined,
           } as Person
         })
       : [],
-    headline: article.title,
+    headline: stegaClean(article.title),
     datePublished: new Date(article.publishedAt).toISOString(),
     dateModified: new Date(article._updatedAt).toISOString(),
-    description: article.excerpt,
+    description: stegaClean(article.excerpt),
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': articleUrl,
@@ -73,7 +75,7 @@ export function ArticleJsonLd({ article }: { article: any }) {
         '@type': 'ImageObject',
         url: imageUrl,
         contentUrl: imageUrl,
-        caption: article.mainImage.alt,
+        caption: stegaClean(article.mainImage.alt),
         width: '1920',
         height: '1080',
       } as ImageObject,

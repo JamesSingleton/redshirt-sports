@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { stegaClean } from 'next-sanity'
 import { CameraIcon } from 'lucide-react'
 import { badgeVariants } from '@workspace/ui/components/badge'
 
@@ -94,14 +95,14 @@ export default async function PostPage({ params }: PageProps) {
       '@id': imageId,
       url: articleImageUrl,
       contentUrl: articleImageUrl,
-      caption: data.mainImage.alt,
+      caption: stegaClean(data.mainImage.alt),
       width: '1920',
       height: '1080',
     },
     thumbnailUrl: articleImageUrl,
     datePublished: new Date(data.publishedAt).toISOString(),
     dateModified: new Date(data._updatedAt).toISOString(),
-    description: data.excerpt,
+    description: stegaClean(data.excerpt),
     breadcrumb: {
       '@type': 'BreadcrumbList',
       '@id': `${articleUrl}#breadcrumb`,
@@ -115,7 +116,7 @@ export default async function PostPage({ params }: PageProps) {
         {
           '@type': 'ListItem',
           position: 2,
-          name: data.title,
+          name: stegaClean(data.title),
           item: articleUrl,
         },
       ],
