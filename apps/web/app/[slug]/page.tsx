@@ -15,7 +15,6 @@ import { ArticleJsonLd, buildSafeImageUrl, JsonLdScript, websiteId } from '@/com
 import { getBaseUrl } from '@/lib/get-base-url'
 import { getSEOMetadata } from '@/lib/seo'
 import ArticleLoadingSkeleton from '@/components/article-loading-skeleton'
-import { client } from '@/lib/sanity/client'
 
 import type { Metadata } from 'next'
 import type { WithContext, WebPage } from 'schema-dts'
@@ -62,17 +61,13 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  const slugs = await client.fetch(
-    queryPostPaths,
-    {},
-    {
-      stega: false,
-    },
-  )
+  const { data } = await sanityFetch({
+    query: queryPostPaths,
+    stega: false,
+    perspective: 'published',
+  })
 
-  return slugs.map((slug) => ({
-    slug,
-  }))
+  return data
 }
 
 export default async function PostPage({ params }: PageProps) {

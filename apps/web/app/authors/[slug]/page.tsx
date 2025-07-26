@@ -16,7 +16,6 @@ import { authorBySlug, postsByAuthor, queryAuthorPaths } from '@/lib/sanity/quer
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
-import { client } from '@/lib/sanity/client'
 
 async function fetchAuthorInfo(slug: string) {
   return await sanityFetch({
@@ -33,9 +32,13 @@ async function fetchAuthorPosts(slug: string, pageIndex: number) {
 }
 
 export async function generateStaticParams() {
-  const slugs = await client.fetch(queryAuthorPaths, {}, { stega: false })
+  const { data } = await sanityFetch({
+    query: queryAuthorPaths,
+    stega: false,
+    perspective: 'published',
+  })
 
-  return slugs.map((slug) => ({ slug }))
+  return data
 }
 
 export async function generateMetadata({

@@ -154,11 +154,11 @@ export const queryPostSlugData = defineQuery(/* groq */ `
 `)
 
 export const queryPostPaths = defineQuery(/* groq */ `
-  *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50].slug.current
+  *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50]{"slug": slug.current}
 `)
 
 export const queryAuthorPaths = defineQuery(/* groq */ `
-  *[_type == "author" && defined(slug.current) && archived == false]| order(_createdAt desc)[0...20].slug.current
+  *[_type == "author" && defined(slug.current) && archived == false]| order(_createdAt desc)[0...20]{"slug": slug.current}
 `)
 
 export const querySportsNews = defineQuery(/* groq */ `
