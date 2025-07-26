@@ -106,6 +106,7 @@ export default async function PostPage({ params }: PageProps) {
     breadcrumb: {
       '@type': 'BreadcrumbList',
       '@id': `${articleUrl}#breadcrumb`,
+      name: `${stegaClean(data.title)} breadcrumbs`,
       itemListElement: [
         {
           '@type': 'ListItem',

@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
+import { stegaClean } from 'next-sanity'
 
 import { Twitter, Facebook, YouTubeIcon } from '@/components/icons'
 import ArticleCard from '@/components/article-card'
@@ -116,11 +117,11 @@ export default async function Page({
         '@type': 'ProfilePage',
         '@id': `${baseUrl}/authors/${slug}#profile`,
         url: `${baseUrl}/authors/${slug}`,
-        name: author.name,
-        description: author.biography,
+        name: stegaClean(author.name),
+        description: stegaClean(author.biography),
         breadcrumb: {
           '@type': 'BreadcrumbList',
-          name: `${author.name} breadcrumbs`,
+          name: `${stegaClean(author.name)} breadcrumbs`,
           itemListElement: [
             {
               '@type': 'ListItem',
@@ -131,7 +132,7 @@ export default async function Page({
             {
               '@type': 'ListItem',
               position: 2,
-              name: author.name,
+              name: stegaClean(author.name),
               item: `${baseUrl}/authors/${slug}`,
             },
           ],
@@ -148,7 +149,7 @@ export default async function Page({
           width: '1200',
           height: '630',
           contentUrl: buildSafeImageUrl(author.image),
-          caption: author.image.alt,
+          caption: stegaClean(author.image.alt),
           inLanguage: 'en-US',
         },
         mainEntity: {
@@ -158,7 +159,7 @@ export default async function Page({
       {
         '@type': 'Person',
         '@id': `${baseUrl}/authors/${slug}#person`,
-        name: author.name,
+        name: stegaClean(author.name),
         url: `${baseUrl}/authors/${slug}`,
         image: {
           '@type': 'ImageObject',
@@ -167,7 +168,7 @@ export default async function Page({
           width: '1200',
           height: '630',
           contentUrl: buildSafeImageUrl(author.image),
-          caption: author.image.alt,
+          caption: stegaClean(author.image.alt),
           inLanguage: 'en-US',
         },
         jobTitle: author.roles.join(', '),
