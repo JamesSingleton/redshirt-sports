@@ -11,6 +11,16 @@ import {
   boolean,
 } from 'drizzle-orm/pg-core'
 
+export const sportsTable = pgTable('sports', {
+  id: text('id').primaryKey(), // Sanity _id
+  slug: varchar('slug', { length: 100 }).notNull().unique(),
+  name: varchar('name', { length: 256 }).notNull(),
+  displayName: varchar('display_name', { length: 256 }),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`),
+})
+
 export const voterBallots = pgTable('voter_ballot', {
   id: serial('id').primaryKey(),
   userId: varchar('userId', { length: 256 }).notNull(),
@@ -25,6 +35,7 @@ export const voterBallots = pgTable('voter_ballot', {
   teamId: varchar('team_id', { length: 256 }).notNull(),
   rank: integer('rank').notNull(),
   points: integer('points').notNull(),
+  sportId: varchar('sport_id', { length: 256 }).references(() => sportsTable.id),
 })
 
 export const weeklyFinalRankings = pgTable(
@@ -32,9 +43,11 @@ export const weeklyFinalRankings = pgTable(
   {
     id: serial('id').primaryKey(),
     division: varchar('division', { length: 10 }).notNull(),
+    sportId: varchar('sport_id', { length: 256 }).references(() => sportsTable.id),
     week: integer('week').notNull(),
     year: integer('year').notNull(),
     rankings: jsonb('rankings').notNull(),
+    createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => [unique().on(table.division, table.year, table.week)],
 )
