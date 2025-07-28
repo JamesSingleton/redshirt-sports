@@ -175,13 +175,23 @@ export const querySportsNews = defineQuery(/* groq */ `
 
 export const querySportsAndDivisionNews = defineQuery(/* groq */ `
   {
-    "posts": *[_type == "post" && sport->slug.current == $sport && (division->slug.current == $division || sportSubgrouping->slug.current == $division) && !((division->slug.current == "d1") || (sportSubgrouping->slug.current == "d1"))] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+    "posts": *[
+      _type == "post" &&
+      sport->slug.current == $sport &&
+      (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&
+      $division != "d1"
+    ] | order(publishedAt desc)[(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
       ...,
       ${postImageFragment},
       "slug": slug.current,
       ${postAuthorFragment}
     },
-    "totalPosts": count(*[_type == "post" && sport->slug.current == $sport && (division->slug.current == $division || sportSubgrouping->slug.current == $division) && !((division->slug.current == "d1") || (sportSubgrouping->slug.current == "d1"))])
+    "totalPosts": count(*[
+      _type == "post" &&
+      sport->slug.current == $sport &&
+      (division->slug.current == $division || sportSubgrouping->slug.current == $division) &&
+      $division != "d1"
+    ])
   }
 `)
 
