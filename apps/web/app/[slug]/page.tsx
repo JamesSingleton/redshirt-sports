@@ -26,6 +26,8 @@ interface PageProps {
   }>
 }
 
+// cache page for a week
+export const revalidate = 604800
 export const dynamicParams = true
 
 const baseUrl = getBaseUrl()

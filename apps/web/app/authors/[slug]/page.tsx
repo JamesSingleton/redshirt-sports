@@ -18,6 +18,10 @@ import { authorBySlug, postsByAuthor, queryAuthorPaths } from '@/lib/sanity/quer
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
 
+// cache for 48 hours
+export const revalidate = 172800
+export const dynamicParams = true
+
 async function fetchAuthorInfo(slug: string) {
   return await sanityFetch({
     query: authorBySlug,
