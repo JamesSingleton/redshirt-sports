@@ -249,7 +249,13 @@ export async function getLatestVoterBallotWithSchools(
     shortName,
     abbreviation,
     nickname,
-    "imageUrl": image.asset->url
+    image{
+      ...,
+      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
+      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
+    }
   }`
   const schools = await client.fetch(schoolsQuery, { schoolIds })
 
@@ -262,7 +268,7 @@ export async function getLatestVoterBallotWithSchools(
       schoolShortName: school?.shortName || '',
       schoolAbbreviation: school?.abbreviation || '',
       schoolNickname: school?.nickname || '',
-      schoolImageUrl: school?.imageUrl || '',
+      schoolImageUrl: school?.image || '',
     }
   })
 
