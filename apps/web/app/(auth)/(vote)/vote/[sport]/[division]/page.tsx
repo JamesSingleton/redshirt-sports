@@ -8,14 +8,15 @@ import { getLatestVoterBallotWithSchools, hasVoterVoted } from '@/server/queries
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
 import { getCurrentSeason } from '@/utils/getCurrentSeason'
 import { sanityFetch } from '@/lib/sanity/live'
-import { schoolsByDivisionQuery } from '@/lib/sanity/query'
+import CustomImage from '@/components/sanity-image'
+import { schoolsByDivisionQuery, schoolsBySportAndSubgroupingStringQuery } from '@/lib/sanity/query'
 
 import { type Metadata } from 'next'
 
-async function fetchSchoolsByDivision(division: string) {
+async function fetchSchoolsByDivision(sport: string, division: string) {
   return await sanityFetch({
-    query: schoolsByDivisionQuery,
-    params: { division },
+    query: schoolsBySportAndSubgroupingStringQuery,
+    params: { sport, subgrouping: division },
   })
 }
 
@@ -62,17 +63,21 @@ const divisionHeader = [
   },
 ]
 
-export default async function VotePage({ params }: { params: Promise<{ division: string }> }) {
-  const { division } = await params
+export default async function VotePage({
+  params,
+}: {
+  params: Promise<{ sport: string; division: string }>
+}) {
+  const { sport, division } = await params
   const [votingWeek, { year }] = await Promise.all([getCurrentWeek(), getCurrentSeason()])
 
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
   const { userId } = await auth()
 
-  const { data: schools } = await fetchSchoolsByDivision(division)
+  const { data: schools } = await fetchSchoolsByDivision(sport, division)
 
   if (hasVoted) {
-    redirect(`/vote/${division}/confirmation`)
+    redirect(`/vote/${sport}/${division}/confirmation`)
   }
 
   if (!schools || !userId) {
@@ -102,12 +107,11 @@ export default async function VotePage({ params }: { params: Promise<{ division:
                 <div key={index} className="flex items-center space-x-2">
                   <span className="w-8 text-right font-bold">{index + 1}.</span>
                   <div className="flex flex-grow items-center space-x-2">
-                    <Image
-                      src={team.schoolImageUrl}
-                      alt={`${team.schoolName} logo`}
+                    <CustomImage
+                      image={team.schoolImageUrl}
                       width={32}
                       height={32}
-                      unoptimized={true}
+                      className="size-8"
                     />
                     <span>{team.schoolShortName}</span>
                   </div>

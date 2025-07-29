@@ -86,6 +86,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
     year: parseInt(year, 10),
     week: weekNumber,
   })
+
   const { rankings } = finalRankings
 
   const votesForWeekAndYearByVoter = await getVotesForWeekAndYearByVoter({

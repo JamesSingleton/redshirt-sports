@@ -1,0 +1,1 @@
+ALTER TABLE "weekly_final_rankings" ADD COLUMN "sport" varchar(256);
