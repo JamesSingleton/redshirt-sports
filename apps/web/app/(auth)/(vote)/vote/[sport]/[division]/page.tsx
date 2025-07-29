@@ -8,6 +8,7 @@ import { getLatestVoterBallotWithSchools, hasVoterVoted } from '@/server/queries
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
 import { getCurrentSeason } from '@/utils/getCurrentSeason'
 import { sanityFetch } from '@/lib/sanity/live'
+import CustomImage from '@/components/sanity-image'
 import { schoolsByDivisionQuery, schoolsBySportAndSubgroupingStringQuery } from '@/lib/sanity/query'
 
 import { type Metadata } from 'next'
@@ -106,12 +107,11 @@ export default async function VotePage({
                 <div key={index} className="flex items-center space-x-2">
                   <span className="w-8 text-right font-bold">{index + 1}.</span>
                   <div className="flex flex-grow items-center space-x-2">
-                    <Image
-                      src={team.schoolImageUrl}
-                      alt={`${team.schoolName} logo`}
+                    <CustomImage
+                      image={team.schoolImageUrl}
                       width={32}
                       height={32}
-                      unoptimized={true}
+                      className="size-8"
                     />
                     <span>{team.schoolShortName}</span>
                   </div>

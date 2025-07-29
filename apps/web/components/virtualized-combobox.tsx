@@ -133,7 +133,7 @@ const VirtualizedCommand = ({
                       image={option.image}
                       width={32}
                       height={32}
-                      className="mr-2 h-8 w-8"
+                      className="mr-2 size-8"
                     />
                     {option.shortName}
                   </div>
