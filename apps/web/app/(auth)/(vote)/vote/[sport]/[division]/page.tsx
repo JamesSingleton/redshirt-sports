@@ -1,17 +1,22 @@
 import { notFound, redirect } from 'next/navigation'
-import Image from 'next/image'
 import { auth } from '@clerk/nextjs/server'
+import z from 'zod'
 import { CardHeader, CardTitle, CardContent, Card } from '@workspace/ui/components/card'
 
 import Top25 from '@/components/forms/top-25'
 import { getLatestVoterBallotWithSchools, hasVoterVoted } from '@/server/queries'
 import { getCurrentWeek } from '@/utils/getCurrentWeek'
-import { getCurrentSeason } from '@/utils/getCurrentSeason'
+import { getCurrentSeason, SportSchema } from '@/utils/getCurrentSeason'
 import { sanityFetch } from '@/lib/sanity/live'
 import CustomImage from '@/components/sanity-image'
-import { schoolsByDivisionQuery, schoolsBySportAndSubgroupingStringQuery } from '@/lib/sanity/query'
+import { schoolsBySportAndSubgroupingStringQuery } from '@/lib/sanity/query'
 
 import { type Metadata } from 'next'
+
+const ParamsSchema = z.object({
+  sport: SportSchema,
+  division: z.string(), // Add more specific validation if needed
+})
 
 async function fetchSchoolsByDivision(sport: string, division: string) {
   return await sanityFetch({
@@ -68,8 +73,16 @@ export default async function VotePage({
 }: {
   params: Promise<{ sport: string; division: string }>
 }) {
-  const { sport, division } = await params
-  const [votingWeek, { year }] = await Promise.all([getCurrentWeek(), getCurrentSeason()])
+  const rawParams = await params
+  const validationResult = ParamsSchema.safeParse(rawParams)
+  if (!validationResult.success) {
+    console.error('Invalid params:', validationResult.error)
+    notFound()
+  }
+
+  const { sport, division } = validationResult.data
+
+  const [votingWeek, { year }] = await Promise.all([getCurrentWeek(), getCurrentSeason(sport)])
 
   const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
   const { userId } = await auth()
@@ -84,7 +97,7 @@ export default async function VotePage({
     notFound()
   }
 
-  const latestBallot = await getLatestVoterBallotWithSchools(userId, division)
+  const latestBallot = await getLatestVoterBallotWithSchools(userId, division, sport, year)
   const header = divisionHeader.find((d) => d.division === division)
   const { title, subtitle } = header || { title: '', subtitle: '' }
 

@@ -5,6 +5,7 @@ import { weeklyFinalRankings, voterBallots } from './db/schema'
 
 import { db } from '@/server/db'
 import { client } from '@/lib/sanity/client'
+import { SportParam } from '@/utils/getCurrentSeason'
 
 interface GetUsersVote {
   year: number
@@ -208,6 +209,8 @@ type VoterBallotWithSchool = {
 export async function getLatestVoterBallotWithSchools(
   userId: string,
   division: string,
+  sport: SportParam,
+  currentYear: number,
 ): Promise<VoterBallotWithSchool[]> {
   // First, fetch the latest ballot metadata
   const latestBallotMeta = await db
