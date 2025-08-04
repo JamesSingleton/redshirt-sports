@@ -22,6 +22,7 @@ import type { SchoolsByDivisionQueryResult } from '@/lib/sanity/sanity.types'
 const formSchema = z
   .object({
     division: z.enum(['fbs', 'fcs', 'd2', 'd3']).optional(),
+    sport: z.string().optional(),
     rank_1: z.string({
       required_error: 'Please select a team for rank 1.',
     }),
@@ -125,12 +126,15 @@ const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
   const selectedValues = Object.values(form.watch()).filter(Boolean) as string[]
 
   const params = useParams()
-  const { division } = params as { division?: 'fbs' | 'fcs' | 'd2' | 'd3' }
+  const { sport, division } = params as {
+    sport: string
+    division?: 'fbs' | 'fcs' | 'd2' | 'd3'
+  }
   const router = useRouter()
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // update the values to include the division
-    values = { ...values, division }
+    values = { ...values, division, sport }
 
     toast.promise(
       fetch('/api/vote', {
@@ -141,7 +145,7 @@ const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
         },
       }).then((res) => {
         if (res.ok) {
-          router.push(`/vote/${division}/confirmation`)
+          router.push(`/vote/${sport}/${division}/confirmation`)
         }
       }),
       {

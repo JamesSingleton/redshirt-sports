@@ -1,7 +1,7 @@
 import 'server-only'
 import { auth } from '@clerk/nextjs/server'
 import { desc, eq, and, sql } from 'drizzle-orm'
-import { weeklyFinalRankings, voterBallots } from './db/schema'
+import { weeklyFinalRankings, voterBallots, sportsTable } from './db/schema'
 
 import { db } from '@/server/db'
 import { client } from '@/lib/sanity/client'
@@ -212,7 +212,7 @@ export async function getLatestVoterBallotWithSchools(
   sport: SportParam,
   currentYear: number,
 ): Promise<VoterBallotWithSchool[]> {
-  // First, fetch the latest ballot metadata
+  // First, fetch the latest ballot metadata for the current season and sport
   const latestBallotMeta = await db
     .select({
       week: voterBallots.week,
@@ -220,24 +220,46 @@ export async function getLatestVoterBallotWithSchools(
       createdAt: voterBallots.createdAt,
     })
     .from(voterBallots)
-    .where(and(eq(voterBallots.userId, userId), eq(voterBallots.division, division)))
-    .orderBy(desc(voterBallots.createdAt))
-    .limit(1)
-
-  if (latestBallotMeta.length === 0) {
-    return [] // No ballot found
-  }
-
-  const { week, year, createdAt } = latestBallotMeta[0]!
-
-  // Fetch all 25 entries for the latest ballot
-  const ballots = await db
-    .select()
-    .from(voterBallots)
+    .innerJoin(sportsTable, eq(voterBallots.sportId, sportsTable.id))
     .where(
       and(
         eq(voterBallots.userId, userId),
         eq(voterBallots.division, division),
+        eq(sportsTable.slug, sport), // Filter by sport slug
+        eq(voterBallots.year, currentYear),
+      ),
+    )
+    .orderBy(desc(voterBallots.createdAt))
+    .limit(1)
+
+  if (latestBallotMeta.length === 0) {
+    return [] // No ballot found for current season/sport
+  }
+
+  const { week, year } = latestBallotMeta[0]!
+
+  // Fetch all 25 entries for the latest ballot
+  const ballotsResult = await db
+    .select({
+      // Select only the ballot fields we need
+      id: voterBallots.id,
+      userId: voterBallots.userId,
+      division: voterBallots.division,
+      week: voterBallots.week,
+      year: voterBallots.year,
+      createdAt: voterBallots.createdAt,
+      teamId: voterBallots.teamId,
+      rank: voterBallots.rank,
+      points: voterBallots.points,
+      sportId: voterBallots.sportId,
+    })
+    .from(voterBallots)
+    .innerJoin(sportsTable, eq(voterBallots.sportId, sportsTable.id))
+    .where(
+      and(
+        eq(voterBallots.userId, userId),
+        eq(voterBallots.division, division),
+        eq(sportsTable.slug, sport),
         eq(voterBallots.week, week),
         eq(voterBallots.year, year),
       ),
@@ -245,7 +267,7 @@ export async function getLatestVoterBallotWithSchools(
     .orderBy(voterBallots.rank)
 
   // Fetch school information from Sanity
-  const schoolIds = ballots.map((ballot) => ballot.teamId)
+  const schoolIds = ballotsResult.map((ballot) => ballot.teamId)
   const schoolsQuery = `*[_type == "school" && _id in $schoolIds]{
     _id,
     name,
@@ -263,7 +285,7 @@ export async function getLatestVoterBallotWithSchools(
   const schools = await client.fetch(schoolsQuery, { schoolIds })
 
   // Combine the ballot data with school information
-  const ballotsWithSchools: VoterBallotWithSchool[] = ballots.map((ballot) => {
+  const ballotsWithSchools: VoterBallotWithSchool[] = ballotsResult.map((ballot) => {
     const school = schools.find((s: any) => s._id === ballot.teamId)
     return {
       ...ballot,
@@ -276,4 +298,14 @@ export async function getLatestVoterBallotWithSchools(
   })
 
   return ballotsWithSchools
+}
+
+export async function getSportIdBySlug(slug: SportParam): Promise<string | null> {
+  const result = await db
+    .select({ id: sportsTable.id })
+    .from(sportsTable)
+    .where(eq(sportsTable.slug, slug))
+    .limit(1)
+
+  return result[0]?.id || null
 }
