@@ -372,20 +372,20 @@ export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ 
   {
     "posts": *[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (
       sportSubgrouping->slug.current == $division || division->slug.current == $division
-    ) && $conference in *[_type == "conference" && slug.current == $conference && count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0].slug.current] | order(publishedAt desc) [(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
+    ) && $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current] | order(publishedAt desc) [(($pageIndex - 1) * ${perPage})...$pageIndex * ${perPage}]{
       ...,
       ${postImageFragment},
       "slug": slug.current,
       ${postAuthorFragment}
     },
-    "conferenceInfo": *[_type == "conference" && slug.current == $conference && count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0][0]{
+    "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))][0]{
       _id,
       name,
       shortName
     },
     "totalPosts": count(*[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (
       sportSubgrouping->slug.current == $division || division->slug.current == $division
-    ) && $conference in *[_type == "conference" && slug.current == $conference && count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0].slug.current]),
+    ) && $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current]),
   }
 `)
 
