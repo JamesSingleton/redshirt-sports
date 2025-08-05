@@ -5,7 +5,7 @@ import { weeklyFinalRankings, voterBallots, sportsTable } from './db/schema'
 
 import { db } from '@/server/db'
 import { client } from '@/lib/sanity/client'
-import { SportParam } from '@/utils/getCurrentSeason'
+import { SportParam } from '@/utils/espn'
 
 interface GetUsersVote {
   year: number
@@ -31,14 +31,32 @@ type FinalRankings = {
   }[]
 }
 
-export async function hasVoterVoted({ year, week }: GetUsersVote) {
+export async function hasVoterVoted({
+  year,
+  week,
+  division,
+  sportId,
+}: GetUsersVote & { division?: string; sportId?: string }) {
   const user = await auth()
 
   if (!user.userId) throw new Error('Unauthorized')
 
+  const conditions = [
+    eq(voterBallots.userId, user.userId),
+    eq(voterBallots.year, year),
+    eq(voterBallots.week, week),
+  ]
+
+  if (division) {
+    conditions.push(eq(voterBallots.division, division))
+  }
+
+  if (sportId) {
+    conditions.push(eq(voterBallots.sportId, sportId))
+  }
+
   const vote = await db.query.voterBallots.findFirst({
-    where: (model, { eq, and }) =>
-      and(eq(model.userId, user.userId), eq(model.year, year), eq(model.week, week)),
+    where: (model, { eq, and }) => and(...conditions),
   })
 
   return !!vote

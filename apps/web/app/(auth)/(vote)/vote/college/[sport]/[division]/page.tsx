@@ -4,9 +4,8 @@ import z from 'zod'
 import { CardHeader, CardTitle, CardContent, Card } from '@workspace/ui/components/card'
 
 import Top25 from '@/components/forms/top-25'
-import { getLatestVoterBallotWithSchools, hasVoterVoted } from '@/server/queries'
-import { getCurrentWeek } from '@/utils/getCurrentWeek'
-import { getCurrentSeason, SportSchema } from '@/utils/getCurrentSeason'
+import { getLatestVoterBallotWithSchools, hasVoterVoted, getSportIdBySlug } from '@/server/queries'
+import { getCurrentWeek, SportSchema, getCurrentSeason, SportParam } from '@/utils/espn'
 import { sanityFetch } from '@/lib/sanity/live'
 import CustomImage from '@/components/sanity-image'
 import { schoolsBySportAndSubgroupingStringQuery } from '@/lib/sanity/query'
@@ -82,15 +81,25 @@ export default async function VotePage({
 
   const { sport, division } = validationResult.data
 
-  const [votingWeek, { year }] = await Promise.all([getCurrentWeek(), getCurrentSeason(sport)])
+  const [votingWeek, { year }] = await Promise.all([
+    getCurrentWeek(sport as SportParam),
+    getCurrentSeason(sport as SportParam),
+  ])
 
-  const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
+  // Get sport ID for more precise vote checking
+  const sportId = await getSportIdBySlug(sport as SportParam)
+  const hasVoted = await hasVoterVoted({
+    year,
+    week: votingWeek,
+    division,
+    sportId: sportId || undefined,
+  })
   const { userId } = await auth()
 
   const { data: schools } = await fetchSchoolsByDivision(sport, division)
 
   if (hasVoted) {
-    redirect(`/vote/${sport}/${division}/confirmation`)
+    redirect(`/vote/college/${sport}/${division}/confirmation`)
   }
 
   if (!schools || !userId) {

@@ -43,5 +43,5 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 })
 
 export const config = {
-  matcher: ['/admin/:path*', '/vote/:path*', '/onboarding/:path*', '/api/vote'],
+  matcher: ['/admin/:path*', '/vote/:path*', '/onboarding/:path*', '/api/vote/:path*'],
 }

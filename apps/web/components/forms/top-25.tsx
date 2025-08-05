@@ -21,7 +21,7 @@ import type { SchoolsByDivisionQueryResult } from '@/lib/sanity/sanity.types'
 
 const formSchema = z
   .object({
-    division: z.enum(['fbs', 'fcs', 'd2', 'd3']).optional(),
+    division: z.enum(['fbs', 'fcs', 'd2', 'd3', 'mid-major', 'power-conferences']).optional(),
     sport: z.string().optional(),
     rank_1: z.string({
       required_error: 'Please select a team for rank 1.',
@@ -128,7 +128,7 @@ const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
   const params = useParams()
   const { sport, division } = params as {
     sport: string
-    division?: 'fbs' | 'fcs' | 'd2' | 'd3'
+    division?: 'fbs' | 'fcs' | 'd2' | 'd3' | 'mid-major' | 'power-conferences'
   }
   const router = useRouter()
 
@@ -137,21 +137,26 @@ const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
     values = { ...values, division, sport }
 
     toast.promise(
-      fetch('/api/vote', {
+      fetch(`/api/vote/college/${sport}/rankings/${division}`, {
         method: 'POST',
         body: JSON.stringify(values),
         headers: {
           'Content-Type': 'application/json',
         },
-      }).then((res) => {
-        if (res.ok) {
-          router.push(`/vote/${sport}/${division}/confirmation`)
+      }).then(async (res) => {
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
+          throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`)
         }
+
+        const data = await res.json()
+        router.push(`/vote/college/${sport}/${division}/confirmation`)
+        return data
       }),
       {
         loading: 'Submitting Ballot',
-        success: 'Ballot submitted successfully',
-        error: 'An error occurred while submitting your ballot',
+        success: (data) => data?.message || 'Ballot submitted successfully',
+        error: (err) => err.message || 'An error occurred while submitting your ballot',
       },
     )
   }

@@ -8,8 +8,7 @@ import { getCurrentSeasonStartAndEnd } from '@/server/queries'
 
 import { type Ballot, SchoolLite } from '@/types'
 import { NextResponse } from 'next/server'
-import { getCurrentSeason } from '@/utils/getCurrentSeason'
-import { getCurrentWeek } from '@/utils/getCurrentWeek'
+import { getCurrentSeason, getCurrentWeek } from '@/utils/espn'
 
 interface TeamPoint {
   id: string
