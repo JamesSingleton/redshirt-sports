@@ -14,16 +14,12 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
       <div className="container">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <Link
-              href={`/${heroArticle.slug}`}
-              className="relative block aspect-[2/1] overflow-hidden rounded-lg shadow-md"
-              prefetch={false}
-            >
+            <div className="relative aspect-[2/1] overflow-hidden rounded-lg shadow-md">
               <CustomImage
                 image={heroArticle.mainImage}
                 className="h-full w-full object-cover object-top"
               />
-            </Link>
+            </div>
             <div className="mt-4 space-y-2">
               <h1 className="text-2xl font-bold lg:text-5xl">
                 <Link href={`/${heroArticle.slug}`} prefetch={false}>

@@ -1,21 +1,26 @@
 import { notFound, redirect } from 'next/navigation'
-import Image from 'next/image'
 import { auth } from '@clerk/nextjs/server'
+import z from 'zod'
 import { CardHeader, CardTitle, CardContent, Card } from '@workspace/ui/components/card'
 
 import Top25 from '@/components/forms/top-25'
-import { getLatestVoterBallotWithSchools, hasVoterVoted } from '@/server/queries'
-import { getCurrentWeek } from '@/utils/getCurrentWeek'
-import { getCurrentSeason } from '@/utils/getCurrentSeason'
+import { getLatestVoterBallotWithSchools, hasVoterVoted, getSportIdBySlug } from '@/server/queries'
+import { getCurrentWeek, SportSchema, getCurrentSeason, SportParam } from '@/utils/espn'
 import { sanityFetch } from '@/lib/sanity/live'
-import { schoolsByDivisionQuery } from '@/lib/sanity/query'
+import CustomImage from '@/components/sanity-image'
+import { schoolsBySportAndSubgroupingStringQuery } from '@/lib/sanity/query'
 
 import { type Metadata } from 'next'
 
-async function fetchSchoolsByDivision(division: string) {
+const ParamsSchema = z.object({
+  sport: SportSchema,
+  division: z.string(), // Add more specific validation if needed
+})
+
+async function fetchSchoolsByDivision(sport: string, division: string) {
   return await sanityFetch({
-    query: schoolsByDivisionQuery,
-    params: { division },
+    query: schoolsBySportAndSubgroupingStringQuery,
+    params: { sport, subgrouping: division },
   })
 }
 
@@ -62,24 +67,46 @@ const divisionHeader = [
   },
 ]
 
-export default async function VotePage({ params }: { params: Promise<{ division: string }> }) {
-  const { division } = await params
-  const [votingWeek, { year }] = await Promise.all([getCurrentWeek(), getCurrentSeason()])
+export default async function VotePage({
+  params,
+}: {
+  params: Promise<{ sport: string; division: string }>
+}) {
+  const rawParams = await params
+  const validationResult = ParamsSchema.safeParse(rawParams)
+  if (!validationResult.success) {
+    console.error('Invalid params:', validationResult.error)
+    notFound()
+  }
 
-  const hasVoted = await hasVoterVoted({ year, week: votingWeek, division })
+  const { sport, division } = validationResult.data
+
+  const [votingWeek, { year }] = await Promise.all([
+    getCurrentWeek(sport as SportParam),
+    getCurrentSeason(sport as SportParam),
+  ])
+
+  // Get sport ID for more precise vote checking
+  const sportId = await getSportIdBySlug(sport as SportParam)
+  const hasVoted = await hasVoterVoted({
+    year,
+    week: votingWeek,
+    division,
+    sportId: sportId || undefined,
+  })
   const { userId } = await auth()
 
-  const { data: schools } = await fetchSchoolsByDivision(division)
+  const { data: schools } = await fetchSchoolsByDivision(sport, division)
 
   if (hasVoted) {
-    redirect(`/vote/${division}/confirmation`)
+    redirect(`/vote/college/${sport}/${division}/confirmation`)
   }
 
   if (!schools || !userId) {
     notFound()
   }
 
-  const latestBallot = await getLatestVoterBallotWithSchools(userId, division)
+  const latestBallot = await getLatestVoterBallotWithSchools(userId, division, sport, year)
   const header = divisionHeader.find((d) => d.division === division)
   const { title, subtitle } = header || { title: '', subtitle: '' }
 
@@ -102,12 +129,11 @@ export default async function VotePage({ params }: { params: Promise<{ division:
                 <div key={index} className="flex items-center space-x-2">
                   <span className="w-8 text-right font-bold">{index + 1}.</span>
                   <div className="flex flex-grow items-center space-x-2">
-                    <Image
-                      src={team.schoolImageUrl}
-                      alt={`${team.schoolName} logo`}
+                    <CustomImage
+                      image={team.schoolImageUrl}
                       width={32}
                       height={32}
-                      unoptimized={true}
+                      className="size-8"
                     />
                     <span>{team.schoolShortName}</span>
                   </div>

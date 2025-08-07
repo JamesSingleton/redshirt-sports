@@ -5,33 +5,37 @@ import { buttonVariants } from '@workspace/ui/components/button'
 
 import { getVoterBallots } from '@/server/queries'
 import CustomImage from '@/components/sanity-image'
-import { getCurrentWeek } from '@/utils/getCurrentWeek'
+import { getCurrentWeek, SportParam, getCurrentSeason } from '@/utils/espn'
 import { transformBallotToTeamIds } from '@/utils/process-ballots'
 import { client } from '@/lib/sanity/client'
 
 import { type Metadata } from 'next'
 import { type Ballot } from '@/types'
-import { getCurrentSeason } from '@/utils/getCurrentSeason'
 import { schoolsByIdQuery } from '@/lib/sanity/query'
 
-const voteConfirmationHeaderByDivision = [
-  {
-    division: 'fbs',
-    title: 'Your FBS Top 25 Vote is In!',
-  },
-  {
-    division: 'fcs',
-    title: 'Your FCS Top 25 Vote is In!',
-  },
-  {
-    division: 'd2',
-    title: 'Your Division II Top 25 Vote is In!',
-  },
-  {
-    division: 'd3',
-    title: 'Your Division III Top 25 Vote is In!',
-  },
-]
+function generateConfirmationHeader(sport: string, division: string) {
+  const sportNames = {
+    football: 'College Football',
+    'mens-basketball': "Men's College Basketball",
+    'womens-basketball': "Women's College Basketball",
+  }
+
+  const divisionNames = {
+    fbs: 'Football Bowl Subdivision (FBS)',
+    fcs: 'Football Championship Subdivision (FCS)',
+    d2: 'Division II',
+    d3: 'Division III',
+    'mid-major': 'Mid-Major Conferences',
+    'power-conferences': 'Power Conferences',
+  }
+
+  const sportName = sportNames[sport as keyof typeof sportNames] || sport
+  const divisionName = divisionNames[division as keyof typeof divisionNames] || division
+
+  return {
+    title: `Your ${divisionName} Top 25 Vote is In!`,
+  }
+}
 
 export const metadata: Metadata = {
   title: `Vote Confirmation | ${process.env.NEXT_PUBLIC_APP_NAME}`,
@@ -49,13 +53,13 @@ export const metadata: Metadata = {
 export default async function VoteConfirmationPage({
   params,
 }: {
-  params: Promise<{ division: string }>
+  params: Promise<{ sport: string; division: string }>
 }) {
-  const { division } = await params
-  const header = voteConfirmationHeaderByDivision.find((d) => d.division === division)
+  const { sport, division } = await params
+  const header = generateConfirmationHeader(sport, division)
   const user = await auth()
-  const votingWeek = await getCurrentWeek()
-  const { year } = await getCurrentSeason()
+  const votingWeek = await getCurrentWeek(sport as SportParam)
+  const { year } = await getCurrentSeason(sport as SportParam)
   const ballot = (await getVoterBallots({
     year,
     week: votingWeek,
@@ -67,7 +71,7 @@ export default async function VoteConfirmationPage({
   }
 
   if (user.userId && !ballot.length) {
-    redirect(`/vote/${division}`)
+    redirect(`/vote/college/${sport}/${division}`)
   }
 
   const schools = await client.fetch(schoolsByIdQuery, {

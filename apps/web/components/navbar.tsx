@@ -62,7 +62,7 @@ export function Navbar({
           <NavbarClient
             navbarData={navbarData}
             settingsData={settingsData}
-            latestRankings={latestRankings}
+            latestRankings={latestRankings || []}
           />
         </div>
       </div>
