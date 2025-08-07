@@ -24,12 +24,6 @@ async function fetchSchoolsByDivision(sport: string, division: string) {
   })
 }
 
-export async function generateStaticParams() {
-  const divisions = ['fbs', 'fcs', 'd2', 'd3']
-
-  return divisions.map((division) => ({ division }))
-}
-
 export const metadata: Metadata = {
   title: `College Football Top 25 Voting | ${process.env.NEXT_PUBLIC_APP_NAME}`,
   description: 'Vote for the top 25 college football teams.',
