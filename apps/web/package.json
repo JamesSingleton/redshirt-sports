@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "pnpm db:migrate && next start",
+    "build": "drizzle-kit migrate && next build",
+    "start": "next start",
     "lint": "next lint",
     "prettier:check": "prettier --check .",
     "prettier:fix": "prettier --write .",
