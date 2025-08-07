@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "pnpm db:migrate && next start",
     "lint": "next lint",
     "prettier:check": "prettier --check .",
     "prettier:fix": "prettier --write .",
