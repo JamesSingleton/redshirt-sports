@@ -1,6 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -37,7 +36,6 @@ const FormSchema = z.object({
 
 export default function Onboarding() {
   const { user } = useUser()
-  const router = useRouter()
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -51,7 +49,6 @@ export default function Onboarding() {
     const res = await completeOnboarding(formData)
     if (res?.message) {
       await user?.reload()
-      router.push('/vote/fcs')
     }
   }
   return (
