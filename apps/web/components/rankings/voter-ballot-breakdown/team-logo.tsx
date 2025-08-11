@@ -4,11 +4,7 @@ import * as React from 'react'
 
 import CustomImage from '../../sanity-image'
 
-type Vote = {
-  _id: string
-  image?: string
-  teamName?: string
-}
+import type { Vote } from '@/types/votes'
 
 function TeamLogoBase({ vote, size = 40 }: { vote: Vote; size?: number }) {
   return (
