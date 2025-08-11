@@ -49,7 +49,7 @@ export async function processVoterBallots(userBallots: BallotsByVoter) {
       : []
 
   // Create a map for quick school lookups
-  const schoolMap = new Map()
+  const schoolMap = new Map<string, any>()
   allSchoolsData.forEach((school: any) => {
     schoolMap.set(school._id, school)
   })
