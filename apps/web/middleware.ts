@@ -34,6 +34,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
   if (userId && !sessionClaims?.metadata?.onboardingComplete) {
     const onboardingUrl = new URL('/onboarding', req.url)
+    onboardingUrl.searchParams.set('redirect_url', req.url)
     return NextResponse.redirect(onboardingUrl)
   }
 
