@@ -1,6 +1,6 @@
 import { db } from '@/server/db'
 import { weeklyFinalRankings } from '@/server/db/schema'
-import { getAllBallotsForWeekAndYear } from '@/server/queries'
+import { getBallotsByWeekYearDivisionAndSport, getSportIdBySlug } from '@/server/queries'
 import { client } from '@/lib/sanity/client'
 import { schoolsByIdOrderedByPoints } from '@/lib/sanity.queries'
 import { token } from '@/lib/sanity/token'
@@ -8,7 +8,7 @@ import { getCurrentSeasonStartAndEnd } from '@/server/queries'
 
 import { type Ballot, SchoolLite } from '@/types'
 import { NextResponse } from 'next/server'
-import { getCurrentSeason, getCurrentWeek } from '@/utils/espn'
+import { getCurrentSeason, getCurrentWeek, SportParam } from '@/utils/espn'
 
 interface TeamPoint {
   id: string
@@ -77,12 +77,12 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
   return teamPoints
 }
 
-type Params = Promise<{ division: string }>
+type Params = Promise<{ division: string; sport: string }>
 
 // Cron job to calculate rankings and store them in the database
 // Runs once a week on Sunday at 11:59 PM PST
 export async function GET(request: Request, segmentData: { params: Params }) {
-  const { division: divisionParam } = await segmentData.params
+  const { division: divisionParam, sport: sportParam } = await segmentData.params
   const currentDate = new Date()
   const season = await getCurrentSeasonStartAndEnd({ year: currentDate.getFullYear() })
   // Return early if the current date is not within the season as there is no use calculating rankings
@@ -96,10 +96,22 @@ export async function GET(request: Request, segmentData: { params: Params }) {
 
   try {
     const division = divisionParam
-    const votes: Ballot[] = await getAllBallotsForWeekAndYear({
+    const sportId = await getSportIdBySlug(sportParam as SportParam)
+
+    if (!sportId) {
+      return NextResponse.json(
+        {
+          response: 'Invalid sport parameter',
+        },
+        { status: 400 },
+      )
+    }
+
+    const votes: Ballot[] = await getBallotsByWeekYearDivisionAndSport({
       year: currentSeason.year,
       week: currentWeek,
       division,
+      sportId,
     })
 
     if (!votes.length) {

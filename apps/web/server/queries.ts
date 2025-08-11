@@ -32,12 +32,7 @@ type FinalRankings = {
   }[]
 }
 
-export async function hasVoterVoted({
-  year,
-  week,
-  division,
-  sportId,
-}: GetUsersVote & { division?: string; sportId?: string }) {
+export async function hasVoterVoted({ year, week, division, sportId }: GetUsersVote) {
   const user = await auth()
 
   if (!user.userId) throw new Error('Unauthorized')
@@ -82,9 +77,21 @@ export async function getVoterBallots({ year, week, division, sportId }: GetUser
   return votes
 }
 
-export async function getAllBallotsForWeekAndYear({ year, week, division }: GetUsersVote) {
+export async function getBallotsByWeekYearDivisionAndSport({
+  year,
+  week,
+  division,
+  sportId,
+}: GetUsersVote) {
+  const conditions = [
+    eq(voterBallots.year, year),
+    eq(voterBallots.week, week),
+    eq(voterBallots.division, division),
+    eq(voterBallots.sportId, sportId),
+  ]
+
   const votes = await db.query.voterBallots.findMany({
-    where: (model, { eq, and }) => and(eq(model.year, year), eq(model.week, week)),
+    where: (model, { eq, and }) => and(...conditions),
   })
 
   return votes
