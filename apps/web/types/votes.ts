@@ -32,3 +32,16 @@ export type VoterBreakdown = {
   organizationRole: string
   ballot: VoteWithExtraData[]
 }
+
+export type Vote = {
+  _id: string
+  image?: string
+  teamName?: string
+}
+
+export type Voter = {
+  name: string
+  organization: string
+  organizationRole?: string
+  ballot: Vote[] // expected length 25
+}

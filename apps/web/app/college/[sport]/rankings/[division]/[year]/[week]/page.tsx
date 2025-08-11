@@ -28,6 +28,8 @@ import CustomImage from '@/components/sanity-image'
 import { getSEOMetadata } from '@/lib/seo'
 import { JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
+import VoterBreakdown from '@/components/rankings/voter-breakdown'
+import VoterBreakdown2 from '@/components/rankings/voter-ballot-breakdown'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
@@ -38,6 +40,7 @@ type Props = {
 
 const FINAL_RANKINGS_WEEK = 999
 const PRESEASON_WEEK = 0
+const baseUrl = getBaseUrl()
 
 function getWeekTitle(weekNumber: number): string {
   if (weekNumber === PRESEASON_WEEK) return 'Preseason'
@@ -64,7 +67,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CollegeFootballRankingsPage({ params }: Props) {
   const { division, year, week, sport } = await params
-  const baseUrl = getBaseUrl()
+
   const weekNumber = parseWeekNumber(week)
   const titleWeek = getWeekTitle(weekNumber)
 
@@ -224,54 +227,15 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           )}
         </CardFooter>
       </Card>
-      {top25.length > 0 && voterBreakdown.length > 0 && (
-        <Card className="mt-8">
-          <CardHeader>
-            <h2 className="text-2xl leading-none font-semibold tracking-tight">Voter Breakdown</h2>
-            <CardDescription>
-              See how each voter cast their ballot for this week&apos;s rankings.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="relative overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="bg-background sticky left-0 z-20">Voter</TableHead>
-                    {[...Array(25)].map((_, i) => (
-                      <TableHead key={i} className="text-center">
-                        {i + 1}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {voterBreakdown.map((voter, index) => {
-                    return (
-                      <TableRow key={index}>
-                        <TableCell className="bg-background sticky left-0 z-10 min-w-32 font-medium">
-                          <div>{voter.name}</div>
-                          <div className="text-muted-foreground text-sm italic">
-                            {`${voter.organization} (${voter.organizationRole})`}
-                          </div>
-                        </TableCell>
-                        {voter.ballot.map((vote: any) => {
-                          return (
-                            <TableCell key={vote._id}>
-                              <div className="h-auto w-10">
-                                <CustomImage image={vote.image} width={40} height={40} />
-                              </div>
-                            </TableCell>
-                          )
-                        })}
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+      {/*{voterBreakdown.length > 0 && (
+        <div className="mt-8">
+          <VoterBreakdown voterBreakdown={voterBreakdown} />
+        </div>
+      )}*/}
+      {voterBreakdown.length > 0 && (
+        <div className="mt-8">
+          <VoterBreakdown2 voterBreakdown={voterBreakdown} />
+        </div>
       )}
     </>
   )
