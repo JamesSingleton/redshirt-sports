@@ -60,25 +60,14 @@ export function SyncedScroll({ group, className, children, ...rest }: Props) {
       rafMap.set(group, raf)
     }
 
-    const onScroll = (e: Event) => {
-      const src = e.currentTarget as HTMLElement
-
-      // Ignore programmatic updates we trigger to avoid infinite loops.
-      if (syncing.has(src)) {
-        syncing.delete(src)
-        return
-      }
-
-      syncScrollPositions(src, groupSet, group)
-    }
-
     el.addEventListener('scroll', onScroll, { passive: true })
 
     // Optional: Add ResizeObserver if you need to handle dynamic content changes
     const ro = new ResizeObserver(() => {
-      // Directly sync scroll positions when content size changes
+      // Trigger a sync when content size changes
       if (el.scrollLeft > 0) {
-        syncScrollPositions(el, groupSet, group)
+        const event = new Event('scroll')
+        el.dispatchEvent(event)
       }
     })
     ro.observe(el)
