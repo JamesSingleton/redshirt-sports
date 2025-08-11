@@ -63,7 +63,16 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
     metadataBase: new URL(baseUrl),
     creator: brandName,
     icons: {
-      icon: `${baseUrl}/favicon.ico`,
+      icon: [
+        {
+          url: '/icon1.png',
+          sizes: '16x16',
+        },
+        {
+          url: '/icon2.png',
+          sizes: '32x32',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',

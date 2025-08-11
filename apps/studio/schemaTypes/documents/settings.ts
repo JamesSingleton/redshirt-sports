@@ -49,6 +49,24 @@ export const settings = defineType({
       },
     }),
     defineField({
+      name: 'footerLogo',
+      type: 'image',
+      title: 'Footer Logo',
+      description: 'Upload your website footer logo',
+      options: {
+        hotspot: true,
+      },
+    }),
+    defineField({
+      name: 'footerLogoDarkMode',
+      type: 'image',
+      title: 'Footer Logo Dark Mode',
+      description: 'Upload your website footer logo for Dark Mode',
+      options: {
+        hotspot: true,
+      },
+    }),
+    defineField({
       name: 'defaultOpenGraphImage',
       type: 'image',
       title: 'Default Open Graph Image',
