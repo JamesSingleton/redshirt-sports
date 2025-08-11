@@ -28,7 +28,6 @@ import CustomImage from '@/components/sanity-image'
 import { getSEOMetadata } from '@/lib/seo'
 import { JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
-import VoterBreakdown from '@/components/rankings/voter-breakdown'
 import VoterBreakdown2 from '@/components/rankings/voter-ballot-breakdown'
 
 import type { Metadata } from 'next'
@@ -71,25 +70,27 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   const weekNumber = parseWeekNumber(week)
   const titleWeek = getWeekTitle(weekNumber)
 
-  const [yearsWithVotesResult, weeksWithVotesResult] = await Promise.allSettled([
-    getYearsThatHaveVotes({ division }),
-    getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
-  ])
+  const [yearsWithVotesResult, weeksWithVotesResult, finalRankingsResult] =
+    await Promise.allSettled([
+      getYearsThatHaveVotes({ division }),
+      getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
+      getFinalRankingsForWeekAndYear({ year: parseInt(year, 10), week: weekNumber }),
+    ])
 
   const yearsWithVotes =
     yearsWithVotesResult.status === 'fulfilled' ? yearsWithVotesResult.value : []
   const weeksWithVotes =
     weeksWithVotesResult.status === 'fulfilled' ? weeksWithVotesResult.value : []
 
-  if (!yearsWithVotes.length || !weeksWithVotes.length) {
+  if (
+    !yearsWithVotes.length ||
+    !weeksWithVotes.length ||
+    finalRankingsResult.status === 'rejected'
+  ) {
     notFound()
   }
 
-  const finalRankings = await getFinalRankingsForWeekAndYear({
-    year: parseInt(year, 10),
-    week: weekNumber,
-  })
-
+  const finalRankings = finalRankingsResult.value
   const { rankings } = finalRankings
 
   const votesForWeekAndYearByVoter = await getVotesForWeekAndYearByVoter({
@@ -100,15 +101,8 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
 
   const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter)
 
-  const top25 = []
-  const outsideTop25 = []
-  for (const team of rankings) {
-    if (team.rank && team.rank <= 25) {
-      top25.push(team)
-    } else {
-      outsideTop25.push(team)
-    }
-  }
+  const top25 = rankings.filter((team) => team.rank && team.rank <= 25)
+  const outsideTop25 = rankings.filter((team) => !team.rank || team.rank > 25)
 
   const jsonLd: Graph = {
     '@context': 'https://schema.org',

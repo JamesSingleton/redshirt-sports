@@ -156,23 +156,38 @@ export async function getVotesForWeekAndYearByVoter({
   const allVotes = await db.query.voterBallots.findMany({
     where: (model, { eq, and }) =>
       and(eq(model.year, year), eq(model.week, week), eq(model.division, division)),
+    orderBy: (model) => [model.userId, model.rank], // Pre-sort to reduce client-side processing
   })
+
+  if (allVotes.length === 0) {
+    return {}
+  }
 
   const uniqueUserIds = Array.from(new Set(allVotes.map((vote) => vote.userId)))
 
+  const allUsers = await db.query.usersTable.findMany({
+    where: (model, { inArray }) => inArray(model.id, uniqueUserIds),
+    columns: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      organization: true,
+      organizationRole: true,
+    },
+  })
+
+  const userMap = new Map(allUsers.map((user) => [user.id, user]))
+
   const userBallots: { [key: string]: any } = {}
 
-  for (const userId of uniqueUserIds) {
-    const votes = allVotes.filter((vote) => vote.userId === userId)
-
-    const userData = await db.query.usersTable.findFirst({
-      where: (model, { eq }) => eq(model.id, userId),
-    })
-
-    userBallots[userId] = {
-      votes,
-      userData,
+  for (const vote of allVotes) {
+    if (!userBallots[vote.userId]) {
+      userBallots[vote.userId] = {
+        votes: [],
+        userData: userMap.get(vote.userId),
+      }
     }
+    userBallots[vote.userId].votes.push(vote)
   }
 
   return userBallots
