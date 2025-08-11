@@ -232,6 +232,22 @@ export const queryGlobalSeoSettings = defineQuery(/* groq */ `
         "dominantColor": metadata.palette.dominant.background
       }
     },
+    footerLogo{
+      ...,
+      ...asset->{
+        "alt": coalesce(altText, originalFilename, "no-alt"),
+        "blurData": metadata.lqip,
+        "dominantColor": metadata.palette.dominant.background
+      }
+    },
+    footerLogoDarkMode{
+      ...,
+      ...asset->{
+        "alt": coalesce(altText, originalFilename, "no-alt"),
+        "blurData": metadata.lqip,
+        "dominantColor": metadata.palette.dominant.background
+      }
+    },
     "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",
     socialLinks{
       facebook,

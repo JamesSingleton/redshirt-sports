@@ -114,7 +114,8 @@ export function FooterSkeleton() {
 
 function Footer({ data, settingsData }: FooterProps) {
   const { subtitle, columns } = data
-  const { siteTitle, logo, socialLinks } = settingsData
+  // @ts-expect-error sanity typegen is not working for some reason
+  const { siteTitle, footerLogo, footerLogoDarkMode, socialLinks } = settingsData
 
   const year = new Date().getFullYear()
 
@@ -129,7 +130,8 @@ function Footer({ data, settingsData }: FooterProps) {
             <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
               <div>
                 <span className="flex items-center justify-center gap-4 lg:justify-start">
-                  <CustomImage image={logo} className="w-[125px]" />
+                  <CustomImage image={footerLogo} className="block dark:hidden" />
+                  <CustomImage image={footerLogoDarkMode} className="hidden dark:block" />
                 </span>
                 {subtitle && (
                   <p className="text-muted-foreground mt-6 text-sm dark:text-zinc-400">
