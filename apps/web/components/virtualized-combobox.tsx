@@ -152,6 +152,7 @@ interface VirtualizedComboboxProps {
   searchPlaceholder?: string
   width?: string
   height?: string
+  value?: string
   onChange?: (value: string) => void
   selectedOptions: string[]
 }
@@ -161,25 +162,46 @@ export function VirtualizedCombobox({
   searchPlaceholder = 'Select a school...',
   // width = '350px',
   height = '400px',
+  value,
   onChange,
   selectedOptions,
 }: VirtualizedComboboxProps) {
   const [open, setOpen] = React.useState<boolean>(false)
-  const [selectedOption, setSelectedOption] = React.useState<string>('')
+  const [selectedOption, setSelectedOption] = React.useState<string>(value || '')
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
+  const [triggerWidth, setTriggerWidth] = React.useState<number | undefined>(undefined)
 
   const availableOptions = options.filter((option) => !selectedOptions.includes(option._id))
+
+  // Sync internal state with external value
+  React.useEffect(() => {
+    setSelectedOption(value || '')
+  }, [value])
+
+  // Update trigger width when popover opens
+  React.useEffect(() => {
+    if (open && triggerRef.current) {
+      setTriggerWidth(triggerRef.current.offsetWidth)
+    }
+  }, [open])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="justify-between">
+        <Button
+          ref={triggerRef}
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+        >
           {options.find((option) => option._id === selectedOption)?.image ? (
             <span className="inline-flex items-center">
               <CustomImage
                 image={options.find((option) => option._id === selectedOption)?.image}
                 width={32}
                 height={32}
-                className="mr-2 h-8 w-8"
+                className="mr-2 size-8"
               />
               {options.find((option) => option._id === selectedOption)?.shortName}
             </span>
@@ -189,7 +211,10 @@ export function VirtualizedCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent
+        className="p-0"
+        style={{ width: triggerWidth ? `${triggerWidth}px` : '100%' }}
+      >
         <VirtualizedCommand
           height={height}
           options={availableOptions}
@@ -197,8 +222,9 @@ export function VirtualizedCombobox({
           selectedOption={selectedOption}
           selectedOptions={selectedOptions}
           onSelectOption={(currentValue) => {
-            setSelectedOption(currentValue === selectedOption ? '' : currentValue)
-            onChange?.(currentValue)
+            const newValue = currentValue === selectedOption ? '' : currentValue
+            setSelectedOption(newValue)
+            onChange?.(newValue)
             setOpen(false)
           }}
         />

@@ -28,7 +28,7 @@ import CustomImage from '@/components/sanity-image'
 import { getSEOMetadata } from '@/lib/seo'
 import { JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
-import VoterBreakdown2 from '@/components/rankings/voter-ballot-breakdown'
+import VoterBallotBreakdown from '@/components/rankings/voter-ballot-breakdown'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
@@ -221,14 +221,10 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           )}
         </CardFooter>
       </Card>
-      {/*{voterBreakdown.length > 0 && (
-        <div className="mt-8">
-          <VoterBreakdown voterBreakdown={voterBreakdown} />
-        </div>
-      )}*/}
+
       {voterBreakdown.length > 0 && (
         <div className="mt-8">
-          <VoterBreakdown2 voterBreakdown={voterBreakdown} />
+          <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
         </div>
       )}
     </>

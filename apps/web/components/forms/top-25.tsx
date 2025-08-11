@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -123,7 +124,12 @@ const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
-  const selectedValues = Object.values(form.watch()).filter(Boolean) as string[]
+
+  // Watch form values and update selectedValues when they change
+  const formValues = form.watch()
+  const selectedValues = React.useMemo(() => {
+    return Object.values(formValues).filter(Boolean) as string[]
+  }, [formValues])
 
   const params = useParams()
   const { sport, division } = params as {
@@ -176,6 +182,7 @@ const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
                 <FormControl>
                   <VirtualizedCombobox
                     options={schools}
+                    value={field.value}
                     onChange={field.onChange}
                     selectedOptions={selectedValues}
                   />
