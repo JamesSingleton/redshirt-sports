@@ -37,11 +37,23 @@ const VirtualizedCommand = ({
   selectedOptions,
   onSelectOption,
 }: VirtualizedCommandProps) => {
-  const [filteredOptions, setFilteredOptions] = React.useState<SchoolsByDivisionQueryResult>(
-    options.filter((option) => !selectedOptions.includes(option._id)),
+  const availableOptions = React.useMemo(
+    () => options.filter((option) => !selectedOptions.includes(option._id)),
+    [options, selectedOptions],
   )
+
+  const [filteredOptions, setFilteredOptions] =
+    React.useState<SchoolsByDivisionQueryResult>(availableOptions)
   const [searchValue, setSearchValue] = React.useState('')
   const parentRef = React.useRef(null)
+
+  const fuse = React.useMemo(
+    () =>
+      new Fuse(availableOptions, {
+        keys: ['name', 'shortName', 'abbreviation'],
+      }),
+    [availableOptions],
+  )
 
   const virtualizer = useVirtualizer({
     count: filteredOptions.length,
@@ -56,31 +68,24 @@ const VirtualizedCommand = ({
     (search: string) => {
       setSearchValue(search)
 
-      const availableOptions = options.filter((option) => !selectedOptions.includes(option._id))
-
       // If search is empty, show all available options
       if (!search || search.trim() === '') {
         setFilteredOptions(availableOptions)
         return
       }
 
-      const fuse = new Fuse(availableOptions, {
-        keys: ['name', 'shortName', 'abbreviation'],
-      })
-
       const searchResults = fuse.search(search).map((result) => result.item)
       setFilteredOptions(searchResults)
     },
-    [options, selectedOptions],
+    [availableOptions, fuse],
   )
 
   // Reset filtered options when options or selectedOptions change
   React.useEffect(() => {
     if (!searchValue) {
-      const availableOptions = options.filter((option) => !selectedOptions.includes(option._id))
       setFilteredOptions(availableOptions)
     }
-  }, [options, selectedOptions, searchValue])
+  }, [availableOptions, searchValue])
 
   return (
     <Command shouldFilter={false}>
@@ -171,7 +176,15 @@ export function VirtualizedCombobox({
   const triggerRef = React.useRef<HTMLButtonElement>(null)
   const [triggerWidth, setTriggerWidth] = React.useState<number | undefined>(undefined)
 
-  const availableOptions = options.filter((option) => !selectedOptions.includes(option._id))
+  const availableOptions = React.useMemo(
+    () => options.filter((option) => !selectedOptions.includes(option._id)),
+    [options, selectedOptions],
+  )
+
+  const selectedSchool = React.useMemo(
+    () => options.find((option) => option._id === selectedOption),
+    [options, selectedOption],
+  )
 
   // Sync internal state with external value
   React.useEffect(() => {
@@ -185,6 +198,16 @@ export function VirtualizedCombobox({
     }
   }, [open])
 
+  const handleSelectOption = React.useCallback(
+    (currentValue: string) => {
+      const newValue = currentValue === selectedOption ? '' : currentValue
+      setSelectedOption(newValue)
+      onChange?.(newValue)
+      setOpen(false)
+    },
+    [selectedOption, onChange],
+  )
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -195,15 +218,15 @@ export function VirtualizedCombobox({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {options.find((option) => option._id === selectedOption)?.image ? (
+          {selectedSchool?.image ? (
             <span className="inline-flex items-center">
               <CustomImage
-                image={options.find((option) => option._id === selectedOption)?.image}
+                image={selectedSchool.image}
                 width={32}
                 height={32}
                 className="mr-2 size-8"
               />
-              {options.find((option) => option._id === selectedOption)?.shortName}
+              {selectedSchool.shortName}
             </span>
           ) : (
             searchPlaceholder
@@ -221,12 +244,7 @@ export function VirtualizedCombobox({
           placeholder={searchPlaceholder}
           selectedOption={selectedOption}
           selectedOptions={selectedOptions}
-          onSelectOption={(currentValue) => {
-            const newValue = currentValue === selectedOption ? '' : currentValue
-            setSelectedOption(newValue)
-            onChange?.(newValue)
-            setOpen(false)
-          }}
+          onSelectOption={handleSelectOption}
         />
       </PopoverContent>
     </Popover>
