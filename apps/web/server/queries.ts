@@ -11,6 +11,7 @@ interface GetUsersVote {
   year: number
   week: number
   division: string
+  sportId: string
 }
 
 type FinalRankings = {
@@ -62,14 +63,20 @@ export async function hasVoterVoted({
   return !!vote
 }
 
-export async function getVoterBallots({ year, week }: GetUsersVote) {
+export async function getVoterBallots({ year, week, division, sportId }: GetUsersVote) {
   const user = await auth()
 
   if (!user.userId) throw new Error('Unauthorized')
+  const conditions = [
+    eq(voterBallots.userId, user.userId),
+    eq(voterBallots.year, year),
+    eq(voterBallots.week, week),
+    eq(voterBallots.division, division),
+    eq(voterBallots.sportId, sportId),
+  ]
 
   const votes = await db.query.voterBallots.findMany({
-    where: (model, { eq, and }) =>
-      and(eq(model.userId, user.userId), eq(model.year, year), eq(model.week, week)),
+    where: (model, { eq, and }) => and(...conditions),
   })
 
   return votes

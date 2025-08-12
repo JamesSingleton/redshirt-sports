@@ -3,14 +3,13 @@ import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { buttonVariants } from '@workspace/ui/components/button'
 
-import { getVoterBallots } from '@/server/queries'
+import { getVoterBallots, getSportIdBySlug } from '@/server/queries'
 import CustomImage from '@/components/sanity-image'
 import { getCurrentWeek, SportParam, getCurrentSeason } from '@/utils/espn'
 import { transformBallotToTeamIds } from '@/utils/process-ballots'
 import { client } from '@/lib/sanity/client'
 
 import { type Metadata } from 'next'
-import { type Ballot } from '@/types'
 import { schoolsByIdQuery } from '@/lib/sanity/query'
 
 function generateConfirmationHeader(sport: string, division: string) {
@@ -58,17 +57,23 @@ export default async function VoteConfirmationPage({
   const { sport, division } = await params
   const header = generateConfirmationHeader(sport, division)
   const user = await auth()
-  const votingWeek = await getCurrentWeek(sport as SportParam)
-  const { year } = await getCurrentSeason(sport as SportParam)
-  const ballot = (await getVoterBallots({
-    year,
-    week: votingWeek,
-    division,
-  })) as Ballot[]
 
   if (!user.userId) {
     redirect('/')
   }
+
+  const [votingWeek, { year }, sportId] = await Promise.all([
+    getCurrentWeek(sport as SportParam),
+    getCurrentSeason(sport as SportParam),
+    getSportIdBySlug(sport as SportParam),
+  ])
+
+  const ballot = await getVoterBallots({
+    year,
+    week: votingWeek,
+    division,
+    sportId,
+  })
 
   if (user.userId && !ballot.length) {
     redirect(`/vote/college/${sport}/${division}`)
