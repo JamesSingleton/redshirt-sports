@@ -29,7 +29,7 @@ type Props = {
   voterBreakdown: Voter[]
 }
 
-export default function VoterBreakdown2({ voterBreakdown }: Props) {
+export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
   const [query, setQuery] = useState('')
   const debouncedQuery = useDebounce(query, 150)
   const [page, setPage] = useState(1)
