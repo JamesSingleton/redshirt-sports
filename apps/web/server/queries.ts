@@ -148,14 +148,21 @@ export async function getVotesForWeekAndYearByVoter({
   year,
   week,
   division,
+  sportId,
 }: {
   year: number
   week: number
   division: string
+  sportId: string
 }) {
   const allVotes = await db.query.voterBallots.findMany({
     where: (model, { eq, and }) =>
-      and(eq(model.year, year), eq(model.week, week), eq(model.division, division)),
+      and(
+        eq(model.year, year),
+        eq(model.week, week),
+        eq(model.division, division),
+        eq(model.sportId, sportId),
+      ),
   })
 
   const uniqueUserIds = Array.from(new Set(allVotes.map((vote) => vote.userId)))

@@ -18,6 +18,7 @@ import {
 } from '@workspace/ui/components/table'
 import {
   getFinalRankingsForWeekAndYear,
+  getSportIdBySlug,
   getWeeksThatHaveVotes,
   getVotesForWeekAndYearByVoter,
   getYearsThatHaveVotes,
@@ -33,6 +34,7 @@ import { FINAL_RANKINGS_WEEK, PRESEASON_WEEK, TOP_25 } from '@/lib/constants'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
+import { SportParam } from '@/utils/espn'
 
 type Props = {
   params: Promise<{ division: string; week: string; year: string; sport: string }>
@@ -69,22 +71,25 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   const weekNumber = parseWeekNumber(week)
   const titleWeek = getWeekTitle(weekNumber)
 
-  const [yearsWithVotesResult, weeksWithVotesResult, finalRankingsResult] =
+  const [yearsWithVotesResult, weeksWithVotesResult, finalRankingsResult, sportIdResult] =
     await Promise.allSettled([
       getYearsThatHaveVotes({ division }),
       getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
       getFinalRankingsForWeekAndYear({ year: parseInt(year, 10), week: weekNumber }),
+      getSportIdBySlug(sport as SportParam),
     ])
 
   const yearsWithVotes =
     yearsWithVotesResult.status === 'fulfilled' ? yearsWithVotesResult.value : []
   const weeksWithVotes =
     weeksWithVotesResult.status === 'fulfilled' ? weeksWithVotesResult.value : []
+  const sportId = sportIdResult.status === 'fulfilled' ? sportIdResult.value : null
 
   if (
     !yearsWithVotes.length ||
     !weeksWithVotes.length ||
-    finalRankingsResult.status === 'rejected'
+    finalRankingsResult.status === 'rejected' ||
+    !sportId
   ) {
     notFound()
   }
@@ -96,6 +101,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
     year: parseInt(year, 10),
     week: weekNumber,
     division,
+    sportId,
   })
 
   const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter)
