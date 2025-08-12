@@ -155,15 +155,21 @@ export async function getVotesForWeekAndYearByVoter({
   year,
   week,
   division,
+  sportId,
 }: {
   year: number
   week: number
   division: string
+  sportId: string
 }) {
   const allVotes = await db.query.voterBallots.findMany({
     where: (model, { eq, and }) =>
-      and(eq(model.year, year), eq(model.week, week), eq(model.division, division)),
-    orderBy: (model) => [model.userId, model.rank], // Pre-sort to reduce client-side processing
+      and(
+        eq(model.year, year),
+        eq(model.week, week),
+        eq(model.division, division),
+        eq(model.sportId, sportId),
+      ),
   })
 
   if (allVotes.length === 0) {

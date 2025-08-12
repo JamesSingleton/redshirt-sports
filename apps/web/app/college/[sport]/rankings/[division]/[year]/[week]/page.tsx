@@ -18,6 +18,7 @@ import {
 } from '@workspace/ui/components/table'
 import {
   getFinalRankingsForWeekAndYear,
+  getSportIdBySlug,
   getWeeksThatHaveVotes,
   getVotesForWeekAndYearByVoter,
   getYearsThatHaveVotes,
@@ -29,16 +30,16 @@ import { getSEOMetadata } from '@/lib/seo'
 import { JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
 import VoterBallotBreakdown from '@/components/rankings/voter-ballot-breakdown'
+import { FINAL_RANKINGS_WEEK, PRESEASON_WEEK, TOP_25 } from '@/lib/constants'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
+import { SportParam } from '@/utils/espn'
 
 type Props = {
   params: Promise<{ division: string; week: string; year: string; sport: string }>
 }
 
-const FINAL_RANKINGS_WEEK = 999
-const PRESEASON_WEEK = 0
 const baseUrl = getBaseUrl()
 
 function getWeekTitle(weekNumber: number): string {
@@ -70,22 +71,25 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   const weekNumber = parseWeekNumber(week)
   const titleWeek = getWeekTitle(weekNumber)
 
-  const [yearsWithVotesResult, weeksWithVotesResult, finalRankingsResult] =
+  const [yearsWithVotesResult, weeksWithVotesResult, finalRankingsResult, sportIdResult] =
     await Promise.allSettled([
       getYearsThatHaveVotes({ division }),
       getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
       getFinalRankingsForWeekAndYear({ year: parseInt(year, 10), week: weekNumber }),
+      getSportIdBySlug(sport as SportParam),
     ])
 
   const yearsWithVotes =
     yearsWithVotesResult.status === 'fulfilled' ? yearsWithVotesResult.value : []
   const weeksWithVotes =
     weeksWithVotesResult.status === 'fulfilled' ? weeksWithVotesResult.value : []
+  const sportId = sportIdResult.status === 'fulfilled' ? sportIdResult.value : null
 
   if (
     !yearsWithVotes.length ||
     !weeksWithVotes.length ||
-    finalRankingsResult.status === 'rejected'
+    finalRankingsResult.status === 'rejected' ||
+    !sportId
   ) {
     notFound()
   }
@@ -97,12 +101,13 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
     year: parseInt(year, 10),
     week: weekNumber,
     division,
+    sportId,
   })
 
   const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter)
 
-  const top25 = rankings.filter((team) => team.rank && team.rank <= 25)
-  const outsideTop25 = rankings.filter((team) => !team.rank || team.rank > 25)
+  const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25)
+  const outsideTop25 = rankings.filter((team) => !team.rank || team.rank > TOP_25)
 
   const jsonLd: Graph = {
     '@context': 'https://schema.org',
@@ -156,7 +161,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {top25.length > 0 && (
+          {top25.length === TOP_25 && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -221,8 +226,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           )}
         </CardFooter>
       </Card>
-
-      {voterBreakdown.length > 0 && (
+      {top25.length === TOP_25 && voterBreakdown.length > 0 && (
         <div className="mt-8">
           <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
         </div>
