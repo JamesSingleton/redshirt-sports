@@ -72,7 +72,7 @@ export default async function VoteConfirmationPage({
     year,
     week: votingWeek,
     division,
-    sportId,
+    sportId: sportId || '',
   })
 
   if (user.userId && !ballot.length) {
