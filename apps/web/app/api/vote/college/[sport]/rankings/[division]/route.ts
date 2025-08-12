@@ -138,7 +138,6 @@ export async function POST(
     // Validate request body
     const body = await req.json()
     const validatedBody = VoteRequestSchema.parse(body)
-    console.log(validatedBody)
 
     // Validate that request body matches URL parameters
     if (validatedBody.sport && validatedBody.sport !== validatedSport) {
@@ -223,8 +222,6 @@ export async function POST(
       })
     }
 
-    console.log(ballot)
-
     // Insert ballot into database
     await db.insert(voterBallots).values(ballot)
 
@@ -245,7 +242,6 @@ export async function POST(
     )
   } catch (error) {
     Sentry.captureException(error)
-    console.error('Vote submission error:', error)
 
     // Handle validation errors
     if (error instanceof z.ZodError) {
