@@ -21,22 +21,27 @@ export const sportsTable = pgTable('sports', {
   updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`),
 })
 
-export const voterBallots = pgTable('voter_ballot', {
-  id: serial('id').primaryKey(),
-  userId: varchar('userId', { length: 256 }).notNull(),
-  division: varchar('division', { length: 10 }).notNull(),
-  week: integer('week').notNull(),
-  year: integer('year')
-    .default(sql`EXTRACT(year FROM CURRENT_DATE)`)
-    .notNull(),
-  createdAt: timestamp('created_at')
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  teamId: varchar('team_id', { length: 256 }).notNull(),
-  rank: integer('rank').notNull(),
-  points: integer('points').notNull(),
-  sportId: varchar('sport_id', { length: 256 }).references(() => sportsTable.id),
-})
+export const voterBallots = pgTable(
+  'voter_ballot',
+  {
+    id: serial('id').primaryKey(),
+    userId: varchar('userId', { length: 256 }).notNull(),
+    division: varchar('division', { length: 10 }).notNull(),
+    week: integer('week').notNull(),
+    year: integer('year')
+      .default(sql`EXTRACT(year FROM CURRENT_DATE)`)
+      .notNull(),
+    createdAt: timestamp('created_at')
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    teamId: varchar('team_id', { length: 256 }).notNull(),
+    rank: integer('rank').notNull(),
+    points: integer('points').notNull(),
+    sportId: varchar('sport_id', { length: 256 }).references(() => sportsTable.id),
+  },
+  // TODO, add a unique on this table
+  // (table) => [unique().on(table.userId, table.division, table.week, table.year, table.sportId)],
+)
 
 export const weeklyFinalRankings = pgTable(
   'weekly_final_rankings',
