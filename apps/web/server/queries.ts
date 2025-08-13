@@ -119,12 +119,12 @@ export async function getFinalRankingsForWeekAndYear({
 
 export async function getYearsThatHaveVotes({ division }: { division: string }) {
   const distinctYearsWithVotes = await db
-    .selectDistinct({
-      year: weeklyFinalRankings.year,
-    })
+    .selectDistinctOn([weeklyFinalRankings.year])
     .from(weeklyFinalRankings)
+    .where(eq(weeklyFinalRankings.division, division))
+    .orderBy(desc(weeklyFinalRankings.year))
 
-  return distinctYearsWithVotes.sort((a, b) => a.year - b.year)
+  return distinctYearsWithVotes
 }
 
 export async function getWeeksThatHaveVotes({
