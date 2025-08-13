@@ -82,9 +82,15 @@ export async function getVoterBallots({ year, week, division, sportId }: GetUser
   return votes
 }
 
-export async function getAllBallotsForWeekAndYear({ year, week, division }: GetUsersVote) {
+export async function getAllBallotsForWeekAndYear({ year, week, division, sportId }: GetUsersVote) {
   const votes = await db.query.voterBallots.findMany({
-    where: (model, { eq, and }) => and(eq(model.year, year), eq(model.week, week)),
+    where: (model, { eq, and }) =>
+      and(
+        eq(model.year, year),
+        eq(model.week, week),
+        eq(model.division, division),
+        eq(model.sportId, sportId),
+      ),
   })
 
   return votes

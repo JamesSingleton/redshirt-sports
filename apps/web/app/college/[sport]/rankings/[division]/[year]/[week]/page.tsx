@@ -85,70 +85,70 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
     weeksWithVotesResult.status === 'fulfilled' ? weeksWithVotesResult.value : []
   const sportId = sportIdResult.status === 'fulfilled' ? sportIdResult.value : null
 
-  if (
-    !yearsWithVotes.length ||
-    !weeksWithVotes.length ||
-    finalRankingsResult.status === 'rejected' ||
-    !sportId
-  ) {
-    notFound()
-  }
+  // if (
+  //   !yearsWithVotes.length ||
+  //   !weeksWithVotes.length ||
+  //   finalRankingsResult.status === 'rejected' ||
+  //   !sportId
+  // ) {
+  //   notFound()
+  // }
 
-  const finalRankings = finalRankingsResult.value
-  const { rankings } = finalRankings
+  // const finalRankings = finalRankingsResult.value
+  // const { rankings } = finalRankings
 
   const votesForWeekAndYearByVoter = await getVotesForWeekAndYearByVoter({
     year: parseInt(year, 10),
     week: weekNumber,
     division,
-    sportId,
+    sportId: sportId || '',
   })
 
   const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter)
 
-  const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25)
-  const outsideTop25 = rankings.filter((team) => !team.rank || team.rank > TOP_25)
+  // const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25)
+  // const outsideTop25 = rankings.filter((team) => !team.rank || team.rank > TOP_25)
 
-  const jsonLd: Graph = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'WebPage',
-        '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,
-        url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
-        name: `${year} ${division.toUpperCase()} ${sport} Top 25 Rankings, ${titleWeek} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-        description: `Discover the ${division.toUpperCase()} Top 25 College Football Rankings for ${year}, ${titleWeek}. See how the voters ranked the top teams.`,
-        isPartOf: {
-          '@type': 'WebSite',
-          '@id': websiteId,
-        },
-        inLanguage: 'en-US',
-        mainEntity: {
-          '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
-        },
-      },
-      {
-        '@type': 'ItemList',
-        '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
-        url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
-        numberOfItems: top25.length,
-        itemListOrder: 'https://schema.org/ItemListOrderAscending',
-        itemListElement: top25.map((team) => ({
-          '@type': 'ListItem',
-          position: team.rank,
-          item: {
-            '@type': 'SportsTeam',
-            name: team.shortName,
-            sport: sport,
-          },
-        })),
-      },
-    ],
-  }
+  // const jsonLd: Graph = {
+  //   '@context': 'https://schema.org',
+  //   '@graph': [
+  //     {
+  //       '@type': 'WebPage',
+  //       '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,
+  //       url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
+  //       name: `${year} ${division.toUpperCase()} ${sport} Top 25 Rankings, ${titleWeek} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+  //       description: `Discover the ${division.toUpperCase()} Top 25 College Football Rankings for ${year}, ${titleWeek}. See how the voters ranked the top teams.`,
+  //       isPartOf: {
+  //         '@type': 'WebSite',
+  //         '@id': websiteId,
+  //       },
+  //       inLanguage: 'en-US',
+  //       mainEntity: {
+  //         '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
+  //       },
+  //     },
+  //     {
+  //       '@type': 'ItemList',
+  //       '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
+  //       url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
+  //       numberOfItems: top25.length,
+  //       itemListOrder: 'https://schema.org/ItemListOrderAscending',
+  //       itemListElement: top25.map((team) => ({
+  //         '@type': 'ListItem',
+  //         position: team.rank,
+  //         item: {
+  //           '@type': 'SportsTeam',
+  //           name: team.shortName,
+  //           sport: sport,
+  //         },
+  //       })),
+  //     },
+  //   ],
+  // }
 
   return (
     <>
-      <JsonLdScript data={jsonLd} id={`json-ld-${sport}-${division}-${year}-${week}`} />
+      {/*<JsonLdScript data={jsonLd} id={`json-ld-${sport}-${division}-${year}-${week}`} />*/}
       <Card>
         <CardHeader>
           <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
@@ -161,7 +161,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {top25.length === TOP_25 && (
+          {/*{top25.length === TOP_25 && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -213,20 +213,20 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                 </Link>
               </div>
             </div>
-          )}
+          )}*/}
         </CardContent>
         <CardFooter>
-          {outsideTop25.length > 0 && (
+          {/*{outsideTop25.length > 0 && (
             <div className="mt-4">
               <p>
                 <strong>Others receiving votes:</strong>{' '}
                 {outsideTop25.map((team) => `${team.shortName} ${team._points}`).join(', ')}
               </p>
             </div>
-          )}
+          )}*/}
         </CardFooter>
       </Card>
-      {top25.length === TOP_25 && voterBreakdown.length > 0 && (
+      {voterBreakdown.length > 0 && (
         <div className="mt-8">
           <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
         </div>

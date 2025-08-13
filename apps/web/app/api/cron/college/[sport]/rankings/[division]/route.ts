@@ -1,14 +1,17 @@
 import { db } from '@/server/db'
 import { weeklyFinalRankings } from '@/server/db/schema'
-import { getAllBallotsForWeekAndYear } from '@/server/queries'
+import {
+  getAllBallotsForWeekAndYear,
+  getSportIdBySlug,
+  getCurrentSeasonStartAndEnd,
+} from '@/server/queries'
 import { client } from '@/lib/sanity/client'
 import { schoolsByIdOrderedByPoints } from '@/lib/sanity.queries'
 import { token } from '@/lib/sanity/token'
-import { getCurrentSeasonStartAndEnd } from '@/server/queries'
 
 import { type Ballot, SchoolLite } from '@/types'
 import { NextResponse } from 'next/server'
-import { getCurrentSeason, getCurrentWeek } from '@/utils/espn'
+import { getCurrentSeason, getCurrentWeek, SportParam } from '@/utils/espn'
 
 interface TeamPoint {
   id: string
@@ -77,12 +80,12 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
   return teamPoints
 }
 
-type Params = Promise<{ division: string }>
+type Params = Promise<{ sport: SportParam; division: string }>
 
 // Cron job to calculate rankings and store them in the database
 // Runs once a week on Sunday at 11:59 PM PST
 export async function GET(request: Request, segmentData: { params: Params }) {
-  const { division: divisionParam } = await segmentData.params
+  const { sport, division: divisionParam } = await segmentData.params
   const currentDate = new Date()
   const season = await getCurrentSeasonStartAndEnd({ year: currentDate.getFullYear() })
   // Return early if the current date is not within the season as there is no use calculating rankings
@@ -91,15 +94,18 @@ export async function GET(request: Request, segmentData: { params: Params }) {
       response: 'Current date is not within the season',
     })
   }
-  const currentSeason = await getCurrentSeason()
-  const currentWeek = await getCurrentWeek()
+  const [currentSeason, currentWeek, sportId] = await Promise.all([
+    getCurrentSeason(),
+    getCurrentWeek(),
+    getSportIdBySlug(sport),
+  ])
 
   try {
-    const division = divisionParam
     const votes: Ballot[] = await getAllBallotsForWeekAndYear({
       year: currentSeason.year,
       week: currentWeek,
-      division,
+      division: divisionParam,
+      sportId: sportId || '',
     })
 
     if (!votes.length) {
@@ -128,10 +134,11 @@ export async function GET(request: Request, segmentData: { params: Params }) {
     await db
       .insert(weeklyFinalRankings)
       .values({
-        division,
+        division: divisionParam,
         year: currentSeason.year,
         week: currentWeek,
         rankings: rankedTeams,
+        sportId: sportId,
       })
       .onConflictDoUpdate({
         target: [weeklyFinalRankings.division, weeklyFinalRankings.year, weeklyFinalRankings.week],
