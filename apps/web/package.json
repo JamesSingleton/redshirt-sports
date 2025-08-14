@@ -16,14 +16,14 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.30.0",
+    "@clerk/nextjs": "^6.30.2",
     "@hookform/resolvers": "^5.2.1",
     "@portabletext/react": "^3.2.1",
     "@portabletext/to-html": "^2.0.14",
     "@sanity/asset-utils": "^2.2.1",
     "@sanity/client": "^7.8.1",
     "@sanity/image-url": "^1.1.0",
-    "@sentry/nextjs": "^10.4.0",
+    "@sentry/nextjs": "^10.5.0",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tanstack/react-virtual": "^3.13.12",
     "@upstash/ratelimit": "^2.0.6",
