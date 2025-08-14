@@ -5,6 +5,7 @@ import { useUser } from '@clerk/nextjs'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { Button } from '@workspace/ui/components/button'
 import {
   Form,
@@ -50,8 +51,12 @@ export default function Onboarding() {
 
   const handleSubmit = async (formData: FormData) => {
     const res = await completeOnboarding(formData)
+    if (res?.error) {
+      toast.error(res.error)
+    }
     if (res?.message) {
       await user?.reload()
+      toast.success('Onboarding completed successfully!')
       const redirectUrl = searchParams.get('redirect_url')
       if (redirectUrl) {
         router.push(redirectUrl)

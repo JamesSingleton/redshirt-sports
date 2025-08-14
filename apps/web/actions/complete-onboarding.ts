@@ -5,7 +5,7 @@ export const completeOnboarding = async (formData: FormData) => {
   const { userId } = await auth()
 
   if (!userId) {
-    return { message: 'No Logged In User' }
+    return { error: 'No Logged In User' }
   }
 
   try {
@@ -20,6 +20,8 @@ export const completeOnboarding = async (formData: FormData) => {
     })
     return { message: res.publicMetadata }
   } catch (error) {
-    return { error: 'There was an error updating the user metadata.' }
+    const errorMessage =
+      error instanceof Error ? error.message : 'There was an error updating your user.'
+    return { error: errorMessage }
   }
 }
