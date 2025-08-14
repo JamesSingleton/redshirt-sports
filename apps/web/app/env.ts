@@ -3,11 +3,11 @@ import { z } from 'zod'
 
 export const env = createEnv({
   shared: {
-    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    NODE_ENV: z.enum(['development', 'test', 'production']).prefault('development'),
   },
   server: {
-    POSTGRES_URL: z.string().url(),
-    POSTGRES_URL_NON_POOLING: z.string().url(),
+    POSTGRES_URL: z.url(),
+    POSTGRES_URL_NON_POOLING: z.url(),
     CLERK_SECRET_KEY: z.string().min(1),
   },
   client: {
