@@ -20,7 +20,7 @@ export default function Loading() {
   const rows = Array.from({ length: 8 })
 
   return (
-    <>
+    <div className="container mx-auto gap-8 px-4 py-8">
       <Card>
         <CardHeader>
           <Skeleton className="h-8 w-3/4 max-w-md" />
@@ -171,6 +171,6 @@ export default function Loading() {
           </div>
         </CardContent>
       </Card>
-    </>
+    </div>
   )
 }

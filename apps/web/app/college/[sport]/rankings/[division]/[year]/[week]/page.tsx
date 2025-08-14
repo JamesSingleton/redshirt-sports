@@ -147,7 +147,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   }
 
   return (
-    <>
+    <div className="container mx-auto gap-8 px-4 py-8">
       <JsonLdScript data={jsonLd} id={`json-ld-${sport}-${division}-${year}-${week}`} />
       <Card>
         <CardHeader>
@@ -231,6 +231,6 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
         </div>
       )}
-    </>
+    </div>
   )
 }
