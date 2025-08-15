@@ -114,7 +114,6 @@ export function FooterSkeleton() {
 
 function Footer({ data, settingsData }: FooterProps) {
   const { subtitle, columns } = data
-  // @ts-expect-error sanity typegen is not working for some reason
   const { siteTitle, footerLogo, footerLogoDarkMode, socialLinks } = settingsData
 
   const year = new Date().getFullYear()
