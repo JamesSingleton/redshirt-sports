@@ -135,9 +135,6 @@ export const queryPostSlugData = defineQuery(/* groq */ `
     ${postAuthorFragment},
     ${postImageFragment},
     ${richTextFragment},
-    "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180 ),
-    "wordCount": length(pt::text(body)),
-    // grab similar posts based on sport, and conferences and NOT division
     "relatedPosts": *[
       _type == "post"
       && _id != ^._id

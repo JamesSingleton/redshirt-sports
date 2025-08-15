@@ -1,4 +1,4 @@
-import { stegaClean } from 'next-sanity'
+import { toPlainText } from 'next-sanity'
 
 import { urlFor, client } from '@/lib/sanity/client'
 import { getBaseUrl } from '@/lib/get-base-url'
@@ -43,6 +43,8 @@ export function buildSafeImageUrl(image?: { asset?: { _ref: string } }) {
 export function ArticleJsonLd({ article }: { article: any }) {
   if (!article) return null
 
+  const plainText = toPlainText(article.body)
+
   const articleUrl = `${baseUrl}/${article.slug}`
   const imageUrl = buildSafeImageUrl(article.mainImage)
 
@@ -55,27 +57,27 @@ export function ArticleJsonLd({ article }: { article: any }) {
       ? article.authors.map((author: any) => {
           return {
             '@type': 'Person',
-            name: stegaClean(author.name),
+            name: author.name,
             url: author.slug ? `${baseUrl}/authors/${author.slug}` : undefined,
           } as Person
         })
       : [],
-    headline: stegaClean(article.title),
+    headline: article.title,
     datePublished: new Date(article.publishedAt).toISOString(),
     dateModified: new Date(article._updatedAt).toISOString(),
-    description: stegaClean(article.excerpt),
+    description: article.excerpt,
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': articleUrl,
     } as WebPage,
-    wordCount: article.wordCount,
+    wordCount: plainText.split(/\s+/).filter(Boolean).length,
     publisher: { '@id': organizationId },
     image: [
       {
         '@type': 'ImageObject',
         url: imageUrl,
         contentUrl: imageUrl,
-        caption: stegaClean(article.mainImage.alt),
+        caption: article.mainImage.alt,
         width: '1920',
         height: '1080',
       } as ImageObject,

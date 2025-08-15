@@ -1,6 +1,5 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { stegaClean } from 'next-sanity'
 
 import PageHeader from '@/components/page-header'
 import PaginationControls from '@/components/pagination-controls'
@@ -20,13 +19,12 @@ import type { Metadata } from 'next'
 import type { Post } from '@/types'
 import type { CollectionPage, WithContext } from 'schema-dts'
 
-async function fetchConferenceInfo(slug: string, { stega = true } = {}) {
+async function fetchConferenceInfo(slug: string) {
   return await sanityFetch({
     query: conferenceInfoBySlugQuery,
     params: {
       slug,
     },
-    stega,
   })
 }
 
@@ -52,20 +50,16 @@ async function fetchSportNewsForDivisionAndConference({
   })
 }
 
-async function fetchSportInfoBySlug(slug: string, { stega = true } = {}) {
+async function fetchSportInfoBySlug(slug: string) {
   return await sanityFetch({
     query: sportInfoBySlug,
     params: {
       slug,
     },
-    stega,
   })
 }
 
-export async function getDivisionOrSubgroupingDisplayName(
-  slugOrShortName: string,
-  { stega = true } = {},
-) {
+export async function getDivisionOrSubgroupingDisplayName(slugOrShortName: string) {
   return await sanityFetch({
     query: `
       *[
@@ -80,7 +74,6 @@ export async function getDivisionOrSubgroupingDisplayName(
       }
     `,
     params: { slugOrShortName },
-    stega,
   })
 }
 
@@ -95,9 +88,9 @@ export async function generateMetadata({
   const { page } = await searchParams
 
   const [divisionDisplayName, conferenceInfo, sportTitle] = await Promise.all([
-    getDivisionOrSubgroupingDisplayName(division, { stega: false }),
-    fetchConferenceInfo(conference, { stega: false }),
-    fetchSportInfoBySlug(sport, { stega: false }),
+    getDivisionOrSubgroupingDisplayName(division),
+    fetchConferenceInfo(conference),
+    fetchSportInfoBySlug(sport),
   ])
 
   if (!conferenceInfo || !sportTitle.data?.title || !divisionDisplayName?.data) {
@@ -159,7 +152,7 @@ export default async function Page({
 
   const totalPages = Math.ceil(news.totalPosts / perPage)
 
-  const sportTitle = stegaClean(sportInfo?.title)
+  const sportTitle = sportInfo?.title
 
   const title = news.conferenceInfo.shortName
     ? `${news.conferenceInfo.shortName} ${sportTitle} News`
@@ -169,7 +162,7 @@ export default async function Page({
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: title,
-    description: `Stay informed with breaking ${news.conferenceInfo.shortName ?? news.conferenceInfo.name} ${stegaClean(divisionOrSubgroupingName)} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
+    description: `Stay informed with breaking ${news.conferenceInfo.shortName ?? news.conferenceInfo.name} ${divisionOrSubgroupingName} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
     url: `${baseUrl}/college/${sport}/news/${division}/${conference}${page ? `?page=${page}` : ''}`,
     isPartOf: { '@id': websiteId, '@type': 'WebSite' },
     publisher: { '@id': organizationId, '@type': 'Organization' },
@@ -206,7 +199,7 @@ export default async function Page({
         {
           '@type': 'ListItem',
           position: 4,
-          name: stegaClean(divisionOrSubgroupingName),
+          name: divisionOrSubgroupingName,
           item: `${baseUrl}/college/${sport}/news/${division}`,
         },
         {

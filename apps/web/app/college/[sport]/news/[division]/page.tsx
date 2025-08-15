@@ -1,6 +1,5 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { stegaClean } from 'next-sanity'
 
 import ArticleFeed from '@/components/article-feed'
 import PageHeader from '@/components/page-header'
@@ -35,20 +34,16 @@ async function fetchSportsAndDivisionNews({
   })
 }
 
-async function fetchSportInfoBySlug(slug: string, { stega = true } = {}) {
+async function fetchSportInfoBySlug(slug: string) {
   return await sanityFetch({
     query: sportInfoBySlug,
     params: {
       slug,
     },
-    stega,
   })
 }
 
-export async function getDivisionOrSubgroupingDisplayName(
-  slugOrShortName: string,
-  { stega = true } = {},
-) {
+export async function getDivisionOrSubgroupingDisplayName(slugOrShortName: string) {
   return await sanityFetch({
     query: `
       *[
@@ -63,7 +58,6 @@ export async function getDivisionOrSubgroupingDisplayName(
       }
     `,
     params: { slugOrShortName },
-    stega,
   })
 }
 
@@ -78,8 +72,8 @@ export async function generateMetadata({
   const { page } = await searchParams
 
   const [sportInfoResponse, divisionDisplayName] = await Promise.all([
-    fetchSportInfoBySlug(sport, { stega: false }), // Clean data for metadata
-    getDivisionOrSubgroupingDisplayName(division, { stega: false }),
+    fetchSportInfoBySlug(sport),
+    getDivisionOrSubgroupingDisplayName(division),
   ])
 
   const sportTitle = sportInfoResponse?.data?.title
@@ -147,8 +141,8 @@ export default async function Page({
     notFound()
   }
 
-  const sportTitle = stegaClean(sportInfo?.title)
-  const divisionTitle = stegaClean(divisionOrSubgroupingName)
+  const sportTitle = sportInfo?.title
+  const divisionTitle = divisionOrSubgroupingName
 
   const totalPages = Math.ceil(news.totalPosts / perPage)
 
@@ -156,7 +150,7 @@ export default async function Page({
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: `${divisionTitle} ${sportTitle} News`,
-    description: `Stay informed with breaking ${stegaClean(divisionOrSubgroupingName)} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
+    description: `Stay informed with breaking ${divisionOrSubgroupingName} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
     url: `${baseUrl}/college/${sport}/news/${division}${page ? `?page=${page}` : ''}`,
     isPartOf: { '@id': websiteId, '@type': 'WebSite' },
     publisher: { '@id': organizationId, '@type': 'Organization' },

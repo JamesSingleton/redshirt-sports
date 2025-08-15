@@ -20,13 +20,12 @@ async function fetchSportsNews({ sport, pageIndex }: { sport: string; pageIndex:
   })
 }
 
-async function fetchSportTitle(sport: string, { stega = true } = {}) {
+async function fetchSportTitle(sport: string) {
   return await sanityFetch({
     query: sportInfoBySlug,
     params: {
       slug: sport,
     },
-    stega,
   })
 }
 
@@ -50,7 +49,7 @@ export async function generateMetadata({
   const { page } = await searchParams
   const pageIndex = validatePageIndex(page)
 
-  const { data: sportData } = await fetchSportTitle(sport, { stega: false })
+  const { data: sportData } = await fetchSportTitle(sport)
 
   if (!sportData || !sportData.title) {
     return {}

@@ -1,12 +1,12 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { stegaClean } from 'next-sanity'
 import { CameraIcon } from 'lucide-react'
+import { toPlainText } from 'next-sanity'
 import { badgeVariants } from '@workspace/ui/components/badge'
 
 import { sanityFetch } from '@/lib/sanity/live'
-import { queryPostPaths, queryPostSlugData } from '@/lib/sanity/query'
+import { queryPostSlugData } from '@/lib/sanity/query'
 import { AuthorSection, MobileAuthorSection } from '@/components/posts/author'
 import { RichText } from '@/components/rich-text'
 import { LargeArticleSocialShare } from '@/components/posts/article-share'
@@ -16,6 +16,7 @@ import { ArticleJsonLd, buildSafeImageUrl, JsonLdScript, websiteId } from '@/com
 import { getBaseUrl } from '@/lib/get-base-url'
 import { getSEOMetadata } from '@/lib/seo'
 import ArticleLoadingSkeleton from '@/components/article-loading-skeleton'
+import { WORDS_PER_MINUTE } from '@/lib/constants'
 
 import type { Metadata } from 'next'
 import type { WithContext, WebPage } from 'schema-dts'
@@ -29,15 +30,13 @@ interface PageProps {
 // cache page for a week
 export const revalidate = 604800
 export const dynamic = 'force-static'
-export const dynamicParams = true
 
 const baseUrl = getBaseUrl()
 
-async function fetchPostSlugData(slug: string, { stega = true } = {}) {
+async function fetchPostSlugData(slug: string) {
   return await sanityFetch({
     query: queryPostSlugData,
     params: { slug },
-    stega,
   })
 }
 
@@ -47,11 +46,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const { data } = await fetchPostSlugData(slug, { stega: false })
+  const { data } = await fetchPostSlugData(slug)
 
   if (!data) {
     return {}
   }
+
+  const plainText = toPlainText(data.body)
+  const wordCount = plainText.split(/\s+/).filter(Boolean).length
 
   return getSEOMetadata({
     ogType: 'article',
@@ -60,18 +62,8 @@ export async function generateMetadata({
     title: data.title,
     description: data.excerpt,
     slug: data.slug,
-    readingTime: data.estimatedReadingTime,
+    readingTime: Math.ceil(wordCount / WORDS_PER_MINUTE),
   })
-}
-
-export async function generateStaticParams() {
-  const { data } = await sanityFetch({
-    query: queryPostPaths,
-    stega: false,
-    perspective: 'published',
-  })
-
-  return data
 }
 
 export default async function PostPage({ params }: PageProps) {
@@ -98,18 +90,18 @@ export default async function PostPage({ params }: PageProps) {
       '@id': imageId,
       url: articleImageUrl,
       contentUrl: articleImageUrl,
-      caption: stegaClean(data.mainImage.alt),
+      caption: data.mainImage.alt,
       width: '1920',
       height: '1080',
     },
     thumbnailUrl: articleImageUrl,
     datePublished: new Date(data.publishedAt).toISOString(),
     dateModified: new Date(data._updatedAt).toISOString(),
-    description: stegaClean(data.excerpt),
+    description: data.excerpt,
     breadcrumb: {
       '@type': 'BreadcrumbList',
       '@id': `${articleUrl}#breadcrumb`,
-      name: `${stegaClean(data.title)} breadcrumbs`,
+      name: `${data.title} breadcrumbs`,
       itemListElement: [
         {
           '@type': 'ListItem',
@@ -120,7 +112,7 @@ export default async function PostPage({ params }: PageProps) {
         {
           '@type': 'ListItem',
           position: 2,
-          name: stegaClean(data.title),
+          name: data.title,
           item: articleUrl,
         },
       ],

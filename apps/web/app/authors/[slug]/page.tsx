@@ -1,7 +1,6 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { stegaClean } from 'next-sanity'
 
 import { Twitter, Facebook, YouTubeIcon } from '@/components/icons'
 import ArticleCard from '@/components/article-card'
@@ -39,7 +38,6 @@ async function fetchAuthorPosts(slug: string, pageIndex: number) {
 export async function generateStaticParams() {
   const { data } = await sanityFetch({
     query: queryAuthorPaths,
-    stega: false,
     perspective: 'published',
   })
 
@@ -121,11 +119,11 @@ export default async function Page({
         '@type': 'ProfilePage',
         '@id': `${baseUrl}/authors/${slug}#profile`,
         url: `${baseUrl}/authors/${slug}`,
-        name: stegaClean(author.name),
-        description: stegaClean(author.biography),
+        name: author.name,
+        description: author.biography,
         breadcrumb: {
           '@type': 'BreadcrumbList',
-          name: `${stegaClean(author.name)} breadcrumbs`,
+          name: `${author.name} breadcrumbs`,
           itemListElement: [
             {
               '@type': 'ListItem',
@@ -136,7 +134,7 @@ export default async function Page({
             {
               '@type': 'ListItem',
               position: 2,
-              name: stegaClean(author.name),
+              name: author.name,
               item: `${baseUrl}/authors/${slug}`,
             },
           ],
@@ -153,7 +151,7 @@ export default async function Page({
           width: '1200',
           height: '630',
           contentUrl: buildSafeImageUrl(author.image),
-          caption: stegaClean(author.image.alt),
+          caption: author.image.alt,
           inLanguage: 'en-US',
         },
         mainEntity: {
@@ -163,7 +161,7 @@ export default async function Page({
       {
         '@type': 'Person',
         '@id': `${baseUrl}/authors/${slug}#person`,
-        name: stegaClean(author.name),
+        name: author.name,
         url: `${baseUrl}/authors/${slug}`,
         image: {
           '@type': 'ImageObject',
@@ -172,7 +170,7 @@ export default async function Page({
           width: '1200',
           height: '630',
           contentUrl: buildSafeImageUrl(author.image),
-          caption: stegaClean(author.image.alt),
+          caption: author.image.alt,
           inLanguage: 'en-US',
         },
         jobTitle: author.roles.join(', '),

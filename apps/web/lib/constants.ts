@@ -16,3 +16,5 @@ export const HOME_DOMAIN = `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRO
 export const FINAL_RANKINGS_WEEK = 999
 export const PRESEASON_WEEK = 0
 export const TOP_25 = 25
+
+export const WORDS_PER_MINUTE = 200
