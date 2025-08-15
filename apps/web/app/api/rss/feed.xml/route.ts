@@ -19,7 +19,7 @@ export async function GET() {
       'Redshirt Sports is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.',
     language: 'en',
     copyright: `All rights reserved ${new Date().getFullYear()}, ${process.env.NEXT_PUBLIC_APP_NAME}`,
-    favicon: `${baseUrl}/icon1.png`,
+    favicon: `${baseUrl}/favicon.ico`,
     image: `${baseUrl}/images/icons/RS_horizontal_513x512.png`,
     feedLinks: {
       rss: `${baseUrl}/api/rss/feed.xml`,

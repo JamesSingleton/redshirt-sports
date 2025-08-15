@@ -25,7 +25,7 @@ const fontMono = Geist_Mono({
 })
 
 export const viewport: Viewport = {
-  themeColor: '#DC2727',
+  themeColor: '#E80022',
 }
 
 export default async function RootLayout({
