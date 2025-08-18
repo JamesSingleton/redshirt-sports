@@ -15,9 +15,11 @@ export interface RankingPeriod {
   year: number
 }
 
+export type RankingPeriodOrUndefined = RankingPeriod | undefined
+
 export interface SportRankings {
   sport: string
-  periods: RankingPeriod[]
+  divisions: RankingPeriodOrUndefined[]
 }
 
 export type Top25RankingsData = SportRankings[]
@@ -34,11 +36,11 @@ export async function NavbarServer() {
   const latestRankings: Top25RankingsData = [
     {
       sport: 'football',
-      periods: latestFootballRankings,
+      divisions: latestFootballRankings,
     },
     {
       sport: 'mens-basketball',
-      periods: latestMensBasketballRankings,
+      divisions: latestMensBasketballRankings,
     },
   ]
 
