@@ -59,8 +59,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const titleWeek = getWeekTitle(weekNumber)
 
   return getSEOMetadata({
-    title: `${year} ${division.toUpperCase()} Top 25 Rankings, ${titleWeek}`,
-    description: `Discover the ${division.toUpperCase()} Top 25 College Football Rankings for ${year}, ${titleWeek}. See how the voters ranked the top teams.`,
+    title: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings`,
+    description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
     slug: `/college/${sport}/rankings/${division}/${year}/${week}`,
   })
 }
@@ -116,8 +116,8 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
         '@type': 'WebPage',
         '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,
         url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
-        name: `${year} ${division.toUpperCase()} ${sport} Top 25 Rankings, ${titleWeek} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-        description: `Discover the ${division.toUpperCase()} Top 25 College Football Rankings for ${year}, ${titleWeek}. See how the voters ranked the top teams.`,
+        name: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+        description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
         isPartOf: {
           '@type': 'WebSite',
           '@id': websiteId,
@@ -151,7 +151,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
       <JsonLdScript data={jsonLd} id={`json-ld-${sport}-${division}-${year}-${week}`} />
       <Card>
         <CardHeader>
-          <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
+          <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
           <CardDescription>
             Our {division.toUpperCase()} Top 25 uses a point system: 25 points for a first-place
             vote down to 1 point for a 25th-place vote. Total points determine the final rankings.
