@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import dynamic from 'next/dynamic'
+import { useEffect, useState, memo, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, ChevronDown, ChevronRight } from 'lucide-react'
@@ -46,7 +45,7 @@ const divisionDisplayNames: Record<string, string> = {
   'mid-major': 'Mid-Major',
 }
 
-function MobileNavbar({
+const MobileNavbar = memo(function MobileNavbar({
   navbarData,
   settingsData,
   latestRankings,
@@ -57,8 +56,10 @@ function MobileNavbar({
 }) {
   const { siteTitle, logo } = settingsData ?? {}
   const [isOpen, setIsOpen] = useState(false)
-  const footballRankings =
-    latestRankings.find((sportData) => sportData.sport === 'football')?.divisions || []
+  const footballRankings = useMemo(
+    () => latestRankings.find((sportData) => sportData.sport === 'football')?.divisions || [],
+    [latestRankings],
+  )
 
   const path = usePathname()
 
@@ -175,17 +176,19 @@ function MobileNavbar({
       </SheetContent>
     </Sheet>
   )
-}
+})
 
-export function DesktopNavbar({
+export const DesktopNavbar = memo(function DesktopNavbar({
   navbarData,
   latestRankings,
 }: {
   navbarData: GlobalNavigationQueryResult
   latestRankings: Top25RankingsData
 }) {
-  const footballRankings =
-    latestRankings.find((sportData) => sportData.sport === 'football')?.divisions || []
+  const footballRankings = useMemo(
+    () => latestRankings.find((sportData) => sportData.sport === 'football')?.divisions || [],
+    [latestRankings],
+  )
 
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-8">
@@ -276,9 +279,9 @@ export function DesktopNavbar({
       </div>
     </div>
   )
-}
+})
 
-const ClientSideNavbar = ({
+const ClientSideNavbar = memo(function ClientSideNavbar({
   navbarData,
   settingsData,
   latestRankings,
@@ -286,11 +289,12 @@ const ClientSideNavbar = ({
   navbarData: GlobalNavigationQueryResult
   settingsData: QueryGlobalSeoSettingsResult
   latestRankings: Top25RankingsData
-}) => {
+}) {
   const isMobile = useIsMobile()
 
-  if (isMobile === undefined) {
-    return null // Return null on initial render to avoid hydration mismatch
+  // Show skeleton during initial render/hydration to prevent mismatch
+  if (isMobile === null) {
+    return <NavbarSkeletonResponsive />
   }
 
   return isMobile ? (
@@ -302,7 +306,7 @@ const ClientSideNavbar = ({
   ) : (
     <DesktopNavbar navbarData={navbarData} latestRankings={latestRankings} />
   )
-}
+})
 
 function SkeletonMobileNavbar() {
   return (
@@ -349,8 +353,5 @@ export function NavbarSkeletonResponsive() {
   )
 }
 
-// Dynamically import the navbar with no SSR to avoid hydration issues
-export const NavbarClient = dynamic(() => Promise.resolve(ClientSideNavbar), {
-  ssr: false,
-  loading: () => <NavbarSkeletonResponsive />,
-})
+// Export the client navbar directly - now SSR-friendly with proper hydration handling
+export const NavbarClient = ClientSideNavbar

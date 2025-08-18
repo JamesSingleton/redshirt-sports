@@ -4,6 +4,7 @@ import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
 } from '@/lib/sanity/sanity.types'
+import { memo } from 'react'
 
 import { Logo } from './logo'
 import { NavbarClient, NavbarSkeletonResponsive } from './navbar-client'
@@ -45,7 +46,7 @@ export async function NavbarServer() {
   ]
 
   return (
-    <Navbar
+    <MemoizedNavbar
       navbarData={navbarData.data}
       settingsData={settingsData.data}
       latestRankings={latestRankings}
@@ -53,7 +54,8 @@ export async function NavbarServer() {
   )
 }
 
-export function Navbar({
+// Memoize the main Navbar component to prevent unnecessary re-renders
+const MemoizedNavbar = memo(function Navbar({
   navbarData,
   settingsData,
   latestRankings,
@@ -78,7 +80,9 @@ export function Navbar({
       </div>
     </header>
   )
-}
+})
+
+export { MemoizedNavbar as Navbar }
 
 export function NavbarSkeleton() {
   return (
