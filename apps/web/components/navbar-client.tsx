@@ -36,6 +36,16 @@ import { ModeToggle } from './mode-toggle'
 import { SearchBar } from './search-bar'
 import { Top25RankingsData } from './navbar'
 
+const divisionDisplayNames: Record<string, string> = {
+  fbs: 'FBS',
+  fcs: 'FCS',
+  d2: 'Division II',
+  d3: 'Division III',
+  naia: 'NAIA',
+  'power-conference': 'Power Conference',
+  'mid-major': 'Mid-Major',
+}
+
 function MobileNavbar({
   navbarData,
   settingsData,
@@ -206,7 +216,10 @@ export function DesktopNavbar({
   navbarData: GlobalNavigationQueryResult
   latestRankings: Top25RankingsData
 }) {
-  const footballRankings = latestRankings.find((sportData) => sportData.football)?.football || []
+  const footballRankings =
+    latestRankings.find((sportData) => sportData.sport === 'football')?.periods || []
+  const mensBasketballRankings =
+    latestRankings.find((sportData) => sportData.sport === 'mens-basketball')?.periods || []
 
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-8">
@@ -264,7 +277,8 @@ export function DesktopNavbar({
                               href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? 'final-rankings' : ranking?.week}`}
                               className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
                             >
-                              FCS College Football Rankings
+                              {divisionDisplayNames[ranking?.division] ?? ranking?.division} College
+                              Football Rankings
                             </Link>
                           ))}
                         </div>

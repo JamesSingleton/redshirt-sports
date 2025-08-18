@@ -75,7 +75,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
     await Promise.allSettled([
       getYearsThatHaveVotes({ division }),
       getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
-      getFinalRankingsForWeekAndYear({ year: parseInt(year, 10), week: weekNumber }),
+      getFinalRankingsForWeekAndYear({ year: parseInt(year, 10), week: weekNumber, division }),
       getSportIdBySlug(sport as SportParam),
     ])
 
@@ -179,9 +179,10 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                         <div className="flex items-center">
                           <CustomImage
                             image={team.image}
-                            width={32}
-                            height={32}
-                            className="mr-2 h-8 w-8"
+                            width={40}
+                            height={40}
+                            className="mr-2 size-10 shrink-0 object-contain"
+                            mode="contain"
                           />
                           {team.shortName ?? team.abbreviation ?? team.name}
                           {team.firstPlaceVotes ? (

@@ -7,7 +7,7 @@ import type {
 
 import { Logo } from './logo'
 import { NavbarClient, NavbarSkeletonResponsive } from './navbar-client'
-import { getLatestFinalRankings } from '@/server/queries'
+import { getLatestFinalRankingsBySportSlug } from '@/server/queries'
 
 export interface RankingPeriod {
   division: string
@@ -16,21 +16,29 @@ export interface RankingPeriod {
 }
 
 export interface SportRankings {
-  [sportName: string]: RankingPeriod[] | undefined
+  sport: string
+  periods: RankingPeriod[]
 }
 
 export type Top25RankingsData = SportRankings[]
 
 export async function NavbarServer() {
-  const [navbarData, settingsData, latestFCSTop25] = await Promise.all([
-    sanityFetch({ query: globalNavigationQuery }),
-    sanityFetch({ query: queryGlobalSeoSettings }),
-    getLatestFinalRankings({ division: 'fcs' }),
-  ])
+  const [navbarData, settingsData, latestFootballRankings, latestMensBasketballRankings] =
+    await Promise.all([
+      sanityFetch({ query: globalNavigationQuery }),
+      sanityFetch({ query: queryGlobalSeoSettings }),
+      getLatestFinalRankingsBySportSlug('football'),
+      getLatestFinalRankingsBySportSlug('mens-basketball'),
+    ])
 
   const latestRankings: Top25RankingsData = [
     {
-      football: latestFCSTop25 ? [latestFCSTop25] : [],
+      sport: 'football',
+      periods: latestFootballRankings,
+    },
+    {
+      sport: 'mens-basketball',
+      periods: latestMensBasketballRankings,
     },
   ]
 
