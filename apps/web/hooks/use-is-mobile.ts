@@ -1,51 +1,36 @@
-import { useCallback, useState, useEffect } from 'react'
-
-interface MediaQueryResult {
-  matches: boolean
-  addEventListener: (type: string, listener: (event: MediaQueryListEvent) => void) => void
-  removeEventListener: (type: string, listener: (event: MediaQueryListEvent) => void) => void
-  addListener?: (listener: (event: MediaQueryListEvent) => void) => void
-  removeListener?: (listener: (event: MediaQueryListEvent) => void) => void
-}
+import { useState, useEffect, useMemo } from 'react'
 
 export function useIsMobile(mobileScreenSize = 768) {
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return undefined
-    }
-    return window.matchMedia(`(max-width: ${mobileScreenSize}px)`).matches
-  })
+  // Start with null to avoid hydration mismatch
+  const [isMobile, setIsMobile] = useState<boolean | null>(null)
 
-  const checkIsMobile = useCallback((event: MediaQueryListEvent) => {
-    setIsMobile(event.matches)
-  }, [])
+  // Memoize the media query string to prevent unnecessary effect re-runs
+  const mediaQuery = useMemo(() => `(max-width: ${mobileScreenSize}px)`, [mobileScreenSize])
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
       return
     }
 
-    const mediaListener: MediaQueryResult = window.matchMedia(`(max-width: ${mobileScreenSize}px)`)
+    const mediaListener = window.matchMedia(mediaQuery)
 
-    const attachListener = () => {
-      if (mediaListener.addEventListener) {
-        mediaListener.addEventListener('change', checkIsMobile)
-      } else if (mediaListener.addListener) {
-        mediaListener.addListener(checkIsMobile)
-      }
+    // Set initial state
+    setIsMobile(mediaListener.matches)
+
+    // Create stable listener function
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsMobile(event.matches)
     }
 
-    const removeListener = () => {
-      if (mediaListener.removeEventListener) {
-        mediaListener.removeEventListener('change', checkIsMobile)
-      } else if (mediaListener.removeListener) {
-        mediaListener.removeListener(checkIsMobile)
-      }
+    // Add listener
+    mediaListener.addEventListener('change', handleChange)
+
+    // Cleanup
+    return () => {
+      mediaListener.removeEventListener('change', handleChange)
     }
+  }, [mediaQuery])
 
-    attachListener()
-    return removeListener
-  }, [mobileScreenSize, checkIsMobile])
-
+  // Return undefined during SSR/hydration to prevent mismatch
   return isMobile
 }

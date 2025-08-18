@@ -4,10 +4,11 @@ import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
 } from '@/lib/sanity/sanity.types'
+import { memo } from 'react'
 
 import { Logo } from './logo'
 import { NavbarClient, NavbarSkeletonResponsive } from './navbar-client'
-import { getLatestFinalRankings } from '@/server/queries'
+import { getLatestFinalRankingsBySportSlug } from '@/server/queries'
 
 export interface RankingPeriod {
   division: string
@@ -15,27 +16,37 @@ export interface RankingPeriod {
   year: number
 }
 
+export type RankingPeriodOrUndefined = RankingPeriod | undefined
+
 export interface SportRankings {
-  [sportName: string]: RankingPeriod[] | undefined
+  sport: string
+  divisions: RankingPeriodOrUndefined[]
 }
 
 export type Top25RankingsData = SportRankings[]
 
 export async function NavbarServer() {
-  const [navbarData, settingsData, latestFCSTop25] = await Promise.all([
-    sanityFetch({ query: globalNavigationQuery }),
-    sanityFetch({ query: queryGlobalSeoSettings }),
-    getLatestFinalRankings({ division: 'fcs' }),
-  ])
+  const [navbarData, settingsData, latestFootballRankings, latestMensBasketballRankings] =
+    await Promise.all([
+      sanityFetch({ query: globalNavigationQuery }),
+      sanityFetch({ query: queryGlobalSeoSettings }),
+      getLatestFinalRankingsBySportSlug('football'),
+      getLatestFinalRankingsBySportSlug('mens-basketball'),
+    ])
 
   const latestRankings: Top25RankingsData = [
     {
-      football: latestFCSTop25 ? [latestFCSTop25] : [],
+      sport: 'football',
+      divisions: latestFootballRankings,
+    },
+    {
+      sport: 'mens-basketball',
+      divisions: latestMensBasketballRankings,
     },
   ]
 
   return (
-    <Navbar
+    <MemoizedNavbar
       navbarData={navbarData.data}
       settingsData={settingsData.data}
       latestRankings={latestRankings}
@@ -43,7 +54,8 @@ export async function NavbarServer() {
   )
 }
 
-export function Navbar({
+// Memoize the main Navbar component to prevent unnecessary re-renders
+const MemoizedNavbar = memo(function Navbar({
   navbarData,
   settingsData,
   latestRankings,
@@ -68,7 +80,9 @@ export function Navbar({
       </div>
     </header>
   )
-}
+})
+
+export { MemoizedNavbar as Navbar }
 
 export function NavbarSkeleton() {
   return (

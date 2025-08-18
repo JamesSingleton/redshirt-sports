@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import dynamic from 'next/dynamic'
+import { useEffect, useState, memo, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, ChevronDown, ChevronRight } from 'lucide-react'
@@ -36,7 +35,17 @@ import { ModeToggle } from './mode-toggle'
 import { SearchBar } from './search-bar'
 import { Top25RankingsData } from './navbar'
 
-function MobileNavbar({
+const divisionDisplayNames: Record<string, string> = {
+  fbs: 'FBS',
+  fcs: 'FCS',
+  d2: 'Division II',
+  d3: 'Division III',
+  naia: 'NAIA',
+  'power-conference': 'Power Conference',
+  'mid-major': 'Mid-Major',
+}
+
+const MobileNavbar = memo(function MobileNavbar({
   navbarData,
   settingsData,
   latestRankings,
@@ -47,7 +56,10 @@ function MobileNavbar({
 }) {
   const { siteTitle, logo } = settingsData ?? {}
   const [isOpen, setIsOpen] = useState(false)
-  const footballRankings = latestRankings.find((sportData) => sportData.football)?.football || []
+  const footballRankings = useMemo(
+    () => latestRankings.find((sportData) => sportData.sport === 'football')?.divisions || [],
+    [latestRankings],
+  )
 
   const path = usePathname()
 
@@ -121,14 +133,15 @@ function MobileNavbar({
                     </CollapsibleTrigger>
                     <CollapsibleContent className="px-2 pb-1">
                       <div className="mt-1 grid grid-cols-1 gap-0.5">
-                        {footballRankings.map((ranking) => (
+                        {footballRankings.map((ranking: any) => (
                           <Link
                             key={`${ranking?.division}-${ranking?.year}-${ranking?.week}-mobile`}
                             href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? 'final-rankings' : ranking?.week}`}
                             className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
                             onClick={() => setIsOpen(false)}
                           >
-                            FCS College Football Rankings
+                            {divisionDisplayNames[ranking?.division] ?? ranking?.division} Football
+                            Rankings
                           </Link>
                         ))}
                       </div>
@@ -136,51 +149,17 @@ function MobileNavbar({
                   </Collapsible>
                 )}
 
-                {/* <Collapsible>
+                <Collapsible>
                   <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
-                    Men's Basketball
+                    Men&apos;s Basketball
                     <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="px-2 pb-1">
                     <div className="mt-1 grid grid-cols-1 gap-0.5">
-                      <Link
-                        href="/rankings/basketball/di-power-5"
-                        className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        DI (Power 5)
-                      </Link>
-                      <Link
-                        href="/rankings/basketball/di-mid-major"
-                        className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        DI (Mid Major)
-                      </Link>
-                      <Link
-                        href="/rankings/basketball/dii"
-                        className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        DII
-                      </Link>
-                      <Link
-                        href="/rankings/basketball/diii"
-                        className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        DIII
-                      </Link>
-                      <Link
-                        href="/rankings/basketball/naia"
-                        className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        NAIA
-                      </Link>
+                      <span className="text-muted-foreground py-1 text-sm">Coming Soon...</span>
                     </div>
                   </CollapsibleContent>
-                </Collapsible> */}
+                </Collapsible>
               </CollapsibleContent>
             </Collapsible>
           )}
@@ -197,16 +176,19 @@ function MobileNavbar({
       </SheetContent>
     </Sheet>
   )
-}
+})
 
-export function DesktopNavbar({
+export const DesktopNavbar = memo(function DesktopNavbar({
   navbarData,
   latestRankings,
 }: {
   navbarData: GlobalNavigationQueryResult
   latestRankings: Top25RankingsData
 }) {
-  const footballRankings = latestRankings.find((sportData) => sportData.football)?.football || []
+  const footballRankings = useMemo(
+    () => latestRankings.find((sportData) => sportData.sport === 'football')?.divisions || [],
+    [latestRankings],
+  )
 
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-8">
@@ -251,12 +233,10 @@ export function DesktopNavbar({
               <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <div className="w-[600px] p-4">
-                  <div className="grid gap-6">
+                  <div className="grid grid-cols-2 gap-6">
                     {footballRankings && (
                       <div className="space-y-3">
-                        <h3 className="border-b pb-1 text-base font-medium">
-                          College Football Rankings
-                        </h3>
+                        <h3 className="border-b pb-1 text-base font-medium">College Football</h3>
                         <div className="space-y-1.5">
                           {footballRankings.map((ranking) => (
                             <Link
@@ -264,43 +244,21 @@ export function DesktopNavbar({
                               href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? 'final-rankings' : ranking?.week}`}
                               className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
                             >
-                              FCS College Football Rankings
+                              {divisionDisplayNames[ranking?.division] ?? ranking?.division}{' '}
+                              Football Rankings
                             </Link>
                           ))}
                         </div>
                       </div>
                     )}
-                    {/* <div className="space-y-3">
+                    <div className="space-y-3">
                       <h3 className="border-b pb-1 text-base font-medium">
-                        Men's College Basketball Rankings
+                        Men&apos;s College Basketball
                       </h3>
                       <div className="space-y-1.5">
-                        <Link
-                          href="/rankings/basketball/di-power-5"
-                          className="hover:text-primary block py-1 text-sm"
-                        >
-                          DI (Power 5) Men's College Basketball Rankings
-                        </Link>
-                        <Link
-                          href="/rankings/basketball/di-mid-major"
-                          className="hover:text-primary block py-1 text-sm"
-                        >
-                          DI (Mid Major) Men's College Basketball Rankings
-                        </Link>
-                        <Link
-                          href="/rankings/basketball/dii"
-                          className="hover:text-primary block py-1 text-sm"
-                        >
-                          DII Men's College Basketball Rankings
-                        </Link>
-                        <Link
-                          href="/rankings/basketball/diii"
-                          className="hover:text-primary block py-1 text-sm"
-                        >
-                          DIII Men's College Basketball Rankings
-                        </Link>
+                        <span className="text-muted-foreground py-1 text-sm">Coming Soon...</span>
                       </div>
-                    </div> */}
+                    </div>
                   </div>
                 </div>
               </NavigationMenuContent>
@@ -321,9 +279,9 @@ export function DesktopNavbar({
       </div>
     </div>
   )
-}
+})
 
-const ClientSideNavbar = ({
+const ClientSideNavbar = memo(function ClientSideNavbar({
   navbarData,
   settingsData,
   latestRankings,
@@ -331,11 +289,12 @@ const ClientSideNavbar = ({
   navbarData: GlobalNavigationQueryResult
   settingsData: QueryGlobalSeoSettingsResult
   latestRankings: Top25RankingsData
-}) => {
+}) {
   const isMobile = useIsMobile()
 
-  if (isMobile === undefined) {
-    return null // Return null on initial render to avoid hydration mismatch
+  // Show skeleton during initial render/hydration to prevent mismatch
+  if (isMobile === null) {
+    return <NavbarSkeletonResponsive />
   }
 
   return isMobile ? (
@@ -347,7 +306,7 @@ const ClientSideNavbar = ({
   ) : (
     <DesktopNavbar navbarData={navbarData} latestRankings={latestRankings} />
   )
-}
+})
 
 function SkeletonMobileNavbar() {
   return (
@@ -394,8 +353,5 @@ export function NavbarSkeletonResponsive() {
   )
 }
 
-// Dynamically import the navbar with no SSR to avoid hydration issues
-export const NavbarClient = dynamic(() => Promise.resolve(ClientSideNavbar), {
-  ssr: false,
-  loading: () => <NavbarSkeletonResponsive />,
-})
+// Export the client navbar directly - now SSR-friendly with proper hydration handling
+export const NavbarClient = ClientSideNavbar

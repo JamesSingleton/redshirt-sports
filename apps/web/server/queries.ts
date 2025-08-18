@@ -108,12 +108,15 @@ export async function getVotedWeeks(year: number) {
 export async function getFinalRankingsForWeekAndYear({
   year,
   week,
+  division,
 }: {
   year: number
   week: number
+  division: string
 }): Promise<FinalRankings> {
   const rankings = await db.query.weeklyFinalRankings.findFirst({
-    where: (model, { eq, and }) => and(eq(model.year, year), eq(model.week, week)),
+    where: (model, { eq, and }) =>
+      and(eq(model.year, year), eq(model.week, week), eq(model.division, division)),
   })
 
   if (!rankings) {
@@ -225,6 +228,26 @@ export async function getLatestFinalRankings({ division }: { division: string })
   })
 
   return latestWeeklyRankings
+}
+
+export async function getLatestFinalRankingsBySportSlug(sportSlug: string) {
+  // Use DISTINCT ON to get the latest ranking for each division in a single query
+  const results = await db
+    .selectDistinctOn([weeklyFinalRankings.division], {
+      division: weeklyFinalRankings.division,
+      week: weeklyFinalRankings.week,
+      year: weeklyFinalRankings.year,
+    })
+    .from(weeklyFinalRankings)
+    .innerJoin(sportsTable, eq(weeklyFinalRankings.sportId, sportsTable.id))
+    .where(eq(sportsTable.slug, sportSlug))
+    .orderBy(
+      weeklyFinalRankings.division,
+      desc(weeklyFinalRankings.year),
+      desc(weeklyFinalRankings.week),
+    )
+
+  return results
 }
 
 type VoterBallotWithSchool = {
