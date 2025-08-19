@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 import { buttonVariants } from '@workspace/ui/components/button'
 import {
   Card,
@@ -168,6 +169,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                   <TableHead>Rank</TableHead>
                   <TableHead>School (1st Place Votes)</TableHead>
                   <TableHead>Points</TableHead>
+                  <TableHead>Trend</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -184,7 +186,9 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                             className="mr-2 size-10 shrink-0 object-contain"
                             mode="contain"
                           />
+
                           {team.shortName ?? team.abbreviation ?? team.name}
+
                           {team.firstPlaceVotes ? (
                             <span className="text-muted-foreground ml-2 tracking-wider">
                               ({team.firstPlaceVotes})
@@ -193,6 +197,15 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
                         </div>
                       </TableCell>
                       <TableCell>{team._points}</TableCell>
+                      <TableCell>
+                        {/*<div className="text-destructive-foreground flex items-center">
+                          <ChevronDown className="size-5" />
+                          <span className="ml-1 font-semibold">2</span>
+                        </div>*/}
+                        <div className="text-muted-foreground flex items-center">
+                          <span className="text-muted-foreground text-lg">—</span>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   )
                 })}
@@ -216,14 +229,12 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
             </div>
           )}
         </CardContent>
-        <CardFooter>
+        <CardFooter className="block">
           {outsideTop25.length > 0 && (
-            <div className="mt-4">
-              <p>
-                <strong>Others receiving votes:</strong>{' '}
-                {outsideTop25.map((team) => `${team.shortName} ${team._points}`).join(', ')}
-              </p>
-            </div>
+            <>
+              <strong>Others receiving votes:</strong>{' '}
+              {outsideTop25.map((team) => `${team.shortName} ${team._points}`).join(', ')}
+            </>
           )}
         </CardFooter>
       </Card>
