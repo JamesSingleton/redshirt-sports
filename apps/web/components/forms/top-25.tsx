@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -24,79 +25,104 @@ const formSchema = z
     division: z.enum(['fbs', 'fcs', 'd2', 'd3', 'mid-major', 'power-conferences']).optional(),
     sport: z.string().optional(),
     rank_1: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 1.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 1.' : undefined,
     }),
     rank_2: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 2.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 2.' : undefined,
     }),
     rank_3: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 3.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 3.' : undefined,
     }),
     rank_4: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 4.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 4.' : undefined,
     }),
     rank_5: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 5.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 5.' : undefined,
     }),
     rank_6: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 6.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 6.' : undefined,
     }),
     rank_7: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 7.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 7.' : undefined,
     }),
     rank_8: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 8.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 8.' : undefined,
     }),
     rank_9: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 9.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 9.' : undefined,
     }),
     rank_10: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 10.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 10.' : undefined,
     }),
     rank_11: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 11.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 11.' : undefined,
     }),
     rank_12: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 12.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 12.' : undefined,
     }),
     rank_13: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 13.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 13.' : undefined,
     }),
     rank_14: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 14.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 14.' : undefined,
     }),
     rank_15: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 15.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 15.' : undefined,
     }),
     rank_16: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 16.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 16.' : undefined,
     }),
     rank_17: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 17.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 17.' : undefined,
     }),
     rank_18: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 18.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 18.' : undefined,
     }),
     rank_19: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 19.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 19.' : undefined,
     }),
     rank_20: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 20.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 20.' : undefined,
     }),
     rank_21: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 21.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 21.' : undefined,
     }),
     rank_22: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 22.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 22.' : undefined,
     }),
     rank_23: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 23.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 23.' : undefined,
     }),
     rank_24: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 24.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 24.' : undefined,
     }),
     rank_25: z.string({
-        error: (issue) => issue.input === undefined ? 'Please select a team for rank 25.' : undefined
+      error: (issue) =>
+        issue.input === undefined ? 'Please select a team for rank 25.' : undefined,
     }),
   })
   .superRefine((arg, ctx) => {
@@ -123,7 +149,10 @@ const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
-  const selectedValues = Object.values(form.watch()).filter(Boolean) as string[]
+  const formValues = form.watch()
+  const selectedValues = useMemo(() => {
+    return Object.values(formValues).filter(Boolean) as string[]
+  }, [formValues])
 
   const params = useParams()
   const { sport, division } = params as {
