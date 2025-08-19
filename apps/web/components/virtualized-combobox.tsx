@@ -37,11 +37,23 @@ const VirtualizedCommand = ({
   selectedOptions,
   onSelectOption,
 }: VirtualizedCommandProps) => {
-  const [filteredOptions, setFilteredOptions] = React.useState<SchoolsByDivisionQueryResult>(
-    options.filter((option) => !selectedOptions.includes(option._id)),
+  const availableOptions = React.useMemo(
+    () => options.filter((option) => !selectedOptions.includes(option._id)),
+    [options, selectedOptions],
   )
+
+  const [filteredOptions, setFilteredOptions] =
+    React.useState<SchoolsByDivisionQueryResult>(availableOptions)
   const [searchValue, setSearchValue] = React.useState('')
   const parentRef = React.useRef(null)
+
+  const fuse = React.useMemo(
+    () =>
+      new Fuse(availableOptions, {
+        keys: ['name', 'shortName', 'abbreviation'],
+      }),
+    [availableOptions],
+  )
 
   const virtualizer = useVirtualizer({
     count: filteredOptions.length,
@@ -56,31 +68,24 @@ const VirtualizedCommand = ({
     (search: string) => {
       setSearchValue(search)
 
-      const availableOptions = options.filter((option) => !selectedOptions.includes(option._id))
-
       // If search is empty, show all available options
       if (!search || search.trim() === '') {
         setFilteredOptions(availableOptions)
         return
       }
 
-      const fuse = new Fuse(availableOptions, {
-        keys: ['name', 'shortName', 'abbreviation'],
-      })
-
       const searchResults = fuse.search(search).map((result) => result.item)
       setFilteredOptions(searchResults)
     },
-    [options, selectedOptions],
+    [availableOptions, fuse],
   )
 
   // Reset filtered options when options or selectedOptions change
   React.useEffect(() => {
     if (!searchValue) {
-      const availableOptions = options.filter((option) => !selectedOptions.includes(option._id))
       setFilteredOptions(availableOptions)
     }
-  }, [options, selectedOptions, searchValue])
+  }, [availableOptions, searchValue])
 
   return (
     <Command shouldFilter={false}>
@@ -124,7 +129,7 @@ const VirtualizedCommand = ({
                 >
                   <Check
                     className={cn(
-                      'mr-2 h-4 w-4',
+                      'mr-2 size-4',
                       selectedOption === option._id ? 'opacity-100' : 'opacity-0',
                     )}
                   />
@@ -152,6 +157,7 @@ interface VirtualizedComboboxProps {
   searchPlaceholder?: string
   width?: string
   height?: string
+  value?: string
   onChange?: (value: string) => void
   selectedOptions: string[]
 }
@@ -161,46 +167,84 @@ export function VirtualizedCombobox({
   searchPlaceholder = 'Select a school...',
   // width = '350px',
   height = '400px',
+  value,
   onChange,
   selectedOptions,
 }: VirtualizedComboboxProps) {
   const [open, setOpen] = React.useState<boolean>(false)
-  const [selectedOption, setSelectedOption] = React.useState<string>('')
+  const [selectedOption, setSelectedOption] = React.useState<string>(value || '')
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
+  const [triggerWidth, setTriggerWidth] = React.useState<number | undefined>(undefined)
 
-  const availableOptions = options.filter((option) => !selectedOptions.includes(option._id))
+  const availableOptions = React.useMemo(
+    () => options.filter((option) => !selectedOptions.includes(option._id)),
+    [options, selectedOptions],
+  )
+
+  const selectedSchool = React.useMemo(
+    () => options.find((option) => option._id === selectedOption),
+    [options, selectedOption],
+  )
+
+  // Sync internal state with external value
+  React.useEffect(() => {
+    setSelectedOption(value || '')
+  }, [value])
+
+  // Update trigger width when popover opens
+  React.useEffect(() => {
+    if (open && triggerRef.current) {
+      setTriggerWidth(triggerRef.current.offsetWidth)
+    }
+  }, [open])
+
+  const handleSelectOption = React.useCallback(
+    (currentValue: string) => {
+      const newValue = currentValue === selectedOption ? '' : currentValue
+      setSelectedOption(newValue)
+      onChange?.(newValue)
+      setOpen(false)
+    },
+    [selectedOption, onChange],
+  )
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="justify-between">
-          {options.find((option) => option._id === selectedOption)?.image ? (
+        <Button
+          ref={triggerRef}
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+        >
+          {selectedSchool?.image ? (
             <span className="inline-flex items-center">
               <CustomImage
-                image={options.find((option) => option._id === selectedOption)?.image}
+                image={selectedSchool.image}
                 width={32}
                 height={32}
-                className="mr-2 h-8 w-8"
+                className="mr-2 size-8"
               />
-              {options.find((option) => option._id === selectedOption)?.shortName}
+              {selectedSchool.shortName}
             </span>
           ) : (
             searchPlaceholder
           )}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent
+        className="p-0"
+        style={{ width: triggerWidth ? `${triggerWidth}px` : '100%' }}
+      >
         <VirtualizedCommand
           height={height}
           options={availableOptions}
           placeholder={searchPlaceholder}
           selectedOption={selectedOption}
           selectedOptions={selectedOptions}
-          onSelectOption={(currentValue) => {
-            setSelectedOption(currentValue === selectedOption ? '' : currentValue)
-            onChange?.(currentValue)
-            setOpen(false)
-          }}
+          onSelectOption={handleSelectOption}
         />
       </PopoverContent>
     </Popover>
