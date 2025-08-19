@@ -32,12 +32,7 @@ type FinalRankings = {
   }[]
 }
 
-export async function hasVoterVoted({
-  year,
-  week,
-  division,
-  sportId,
-}: GetUsersVote & { division?: string; sportId?: string }) {
+export async function hasVoterVoted({ year, week, division, sportId }: GetUsersVote) {
   const user = await auth()
 
   if (!user.userId) throw new Error('Unauthorized')
