@@ -22,7 +22,7 @@
     "@sanity/table": "^1.1.4",
     "@sanity/ui": "^3.0.7",
     "@sanity/vision": "^4.4.1",
-    "lucide-react": "^0.539.0",
+    "lucide-react": "^0.540.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-tweet": "^3.2.2",
@@ -40,6 +40,6 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "typescript-eslint": "^8.39.1"
+    "typescript-eslint": "^8.40.0"
   }
 }
