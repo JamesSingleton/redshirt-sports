@@ -24,79 +24,79 @@ const formSchema = z
     division: z.enum(['fbs', 'fcs', 'd2', 'd3', 'mid-major', 'power-conferences']).optional(),
     sport: z.string().optional(),
     rank_1: z.string({
-      required_error: 'Please select a team for rank 1.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 1.' : undefined
     }),
     rank_2: z.string({
-      required_error: 'Please select a team for rank 2.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 2.' : undefined
     }),
     rank_3: z.string({
-      required_error: 'Please select a team for rank 3.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 3.' : undefined
     }),
     rank_4: z.string({
-      required_error: 'Please select a team for rank 4.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 4.' : undefined
     }),
     rank_5: z.string({
-      required_error: 'Please select a team for rank 5.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 5.' : undefined
     }),
     rank_6: z.string({
-      required_error: 'Please select a team for rank 6.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 6.' : undefined
     }),
     rank_7: z.string({
-      required_error: 'Please select a team for rank 7.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 7.' : undefined
     }),
     rank_8: z.string({
-      required_error: 'Please select a team for rank 8.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 8.' : undefined
     }),
     rank_9: z.string({
-      required_error: 'Please select a team for rank 9.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 9.' : undefined
     }),
     rank_10: z.string({
-      required_error: 'Please select a team for rank 10.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 10.' : undefined
     }),
     rank_11: z.string({
-      required_error: 'Please select a team for rank 11.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 11.' : undefined
     }),
     rank_12: z.string({
-      required_error: 'Please select a team for rank 12.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 12.' : undefined
     }),
     rank_13: z.string({
-      required_error: 'Please select a team for rank 13.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 13.' : undefined
     }),
     rank_14: z.string({
-      required_error: 'Please select a team for rank 14.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 14.' : undefined
     }),
     rank_15: z.string({
-      required_error: 'Please select a team for rank 15.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 15.' : undefined
     }),
     rank_16: z.string({
-      required_error: 'Please select a team for rank 16.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 16.' : undefined
     }),
     rank_17: z.string({
-      required_error: 'Please select a team for rank 17.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 17.' : undefined
     }),
     rank_18: z.string({
-      required_error: 'Please select a team for rank 18.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 18.' : undefined
     }),
     rank_19: z.string({
-      required_error: 'Please select a team for rank 19.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 19.' : undefined
     }),
     rank_20: z.string({
-      required_error: 'Please select a team for rank 20.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 20.' : undefined
     }),
     rank_21: z.string({
-      required_error: 'Please select a team for rank 21.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 21.' : undefined
     }),
     rank_22: z.string({
-      required_error: 'Please select a team for rank 22.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 22.' : undefined
     }),
     rank_23: z.string({
-      required_error: 'Please select a team for rank 23.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 23.' : undefined
     }),
     rank_24: z.string({
-      required_error: 'Please select a team for rank 24.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 24.' : undefined
     }),
     rank_25: z.string({
-      required_error: 'Please select a team for rank 25.',
+        error: (issue) => issue.input === undefined ? 'Please select a team for rank 25.' : undefined
     }),
   })
   .superRefine((arg, ctx) => {

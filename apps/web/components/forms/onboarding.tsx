@@ -29,11 +29,11 @@ import { completeOnboarding } from '@/actions/complete-onboarding'
 
 const FormSchema = z.object({
   organizationName: z.string().min(2, {
-    message: 'Organization Name must be at least 2 characters',
-  }),
+      error: 'Organization Name must be at least 2 characters'
+}),
   organizationRole: z.string().min(2, {
-    message: 'Organization Role must be at least 2 characters',
-  }),
+      error: 'Organization Role must be at least 2 characters'
+}),
 })
 
 export default function Onboarding() {
