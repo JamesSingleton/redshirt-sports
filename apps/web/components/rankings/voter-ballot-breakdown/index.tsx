@@ -34,6 +34,8 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
   const debouncedQuery = useDebounce(query, 150)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const isMobile = useIsMobile()
+  const [ready, setReady] = useState(false)
 
   const searchable = useMemo(
     () =>
@@ -57,13 +59,21 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
     [filtered, startIdx, pageSize],
   )
 
+  const pageSizeOptions = useMemo(() => {
+    const total = filtered.length
+    const increments = [10, 20, 30, 40, 50, 100]
+    // If increments is empty, fallback to total or 10
+    const fallback = total > 0 ? total : 10
+    const maxOption =
+      increments.find((n) => n >= total) ?? increments[increments.length - 1] ?? fallback
+    // Only include increments up to maxOption
+    return increments.filter((n) => n <= maxOption)
+  }, [filtered.length])
+
   useEffect(() => {
     setPage(1)
   }, [debouncedQuery, pageSize])
 
-  const isMobile = useIsMobile()
-
-  const [ready, setReady] = useState(false)
   useEffect(() => setReady(true), [])
   if (!ready) {
     return (
@@ -104,7 +114,7 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
               <SelectValue placeholder="Rows per page" />
             </SelectTrigger>
             <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((n) => (
+              {pageSizeOptions.map((n) => (
                 <SelectItem key={n} value={String(n)}>
                   {`${n} per page`}
                 </SelectItem>

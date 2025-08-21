@@ -6,7 +6,7 @@ import { token } from '@/lib/sanity/token'
 import {
   getCurrentSeasonStartAndEnd,
   getSportIdBySlug,
-  getAllBallotsForWeekAndYear,
+  getBallotsByWeekYearDivisionAndSport,
 } from '@/server/queries'
 
 import { type Ballot, SchoolLite } from '@/types'
@@ -103,7 +103,7 @@ export async function GET(request: Request, segmentData: { params: Params }) {
 
   try {
     const division = divisionParam
-    const votes: Ballot[] = await getAllBallotsForWeekAndYear({
+    const votes: Ballot[] = await getBallotsByWeekYearDivisionAndSport({
       year: currentSeason.year,
       week: currentWeek,
       division,
