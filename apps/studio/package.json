@@ -13,7 +13,7 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
-    "@portabletext/react": "^3.2.1",
+    "@portabletext/react": "^3.2.3",
     "@sanity/asset-utils": "^2.2.1",
     "@sanity/assist": "^5.0.0",
     "@sanity/dashboard": "^4.1.4",
