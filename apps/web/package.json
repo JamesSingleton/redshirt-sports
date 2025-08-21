@@ -16,9 +16,9 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.31.3",
+    "@clerk/nextjs": "^6.31.4",
     "@hookform/resolvers": "^5.2.1",
-    "@portabletext/react": "^3.2.1",
+    "@portabletext/react": "^3.2.3",
     "@portabletext/to-html": "^2.0.16",
     "@sanity/asset-utils": "^2.2.1",
     "@sanity/client": "^7.9.0",
