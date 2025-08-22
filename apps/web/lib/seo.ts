@@ -18,7 +18,7 @@ interface MetaDataInput {
 }
 
 const defaultOpenGraphImage =
-  'https://cdn.sanity.io/images/8pbt9f8w/production/429b65d83baa82c7178798a398fdf3ee28972fe6-1200x630.png'
+  'https://cdn.sanity.io/images/8pbt9f8w/production/6d97679ef6ed2b82dafaf9227080944158b4263d-1200x630.png'
 
 function buildPageUrl({ baseUrl, slug }: { baseUrl: string; slug: string }) {
   const normalizedSlug = slug.startsWith('/') ? slug : `/${slug}`

@@ -1,13 +1,14 @@
-import React from 'react'
-import { Tweet } from 'react-tweet'
-import type { PreviewProps } from 'sanity'
+// import React from 'react'
+// import type { PreviewProps } from 'sanity'
 import { defineField, defineType } from 'sanity'
 
-const Preview = (props: PreviewProps & { id?: string }) => {
-  const tweetId = props.id!
+import TweetPreview from '../../components/tweet'
 
-  return <Tweet id={tweetId} />
-}
+// const Preview = (props: PreviewProps & { id?: string }) => {
+//   const tweetId = props.id!
+
+//   return <Tweet id={tweetId} />
+// }
 
 export const twitter = defineType({
   name: 'twitter',
@@ -22,10 +23,10 @@ export const twitter = defineType({
   ],
   preview: {
     select: {
-      id: 'id',
+      tweetId: 'id',
     },
   },
   components: {
-    preview: Preview,
+    preview: TweetPreview,
   },
 })
