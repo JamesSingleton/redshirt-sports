@@ -35,15 +35,6 @@ async function fetchAuthorPosts(slug: string, pageIndex: number) {
   })
 }
 
-export async function generateStaticParams() {
-  const { data } = await sanityFetch({
-    query: queryAuthorPaths,
-    perspective: 'published',
-  })
-
-  return data
-}
-
 export async function generateMetadata({
   params,
   searchParams,
