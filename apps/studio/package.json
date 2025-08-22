@@ -7,7 +7,7 @@
     "format": "prettier --write .",
     "start": "sanity start",
     "lint": "eslint .",
-    "build": "sanity build",
+    "build": "sanity build && sanity schema deploy --manifest-dir ./dist/static",
     "deploy": "sanity deploy",
     "type": "NODE_OPTIONS=--no-experimental-require-module sanity schema extract --enforce-required-fields && sanity typegen generate",
     "check:types": "tsc --noEmit"
