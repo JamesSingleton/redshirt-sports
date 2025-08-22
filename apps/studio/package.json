@@ -7,7 +7,7 @@
     "format": "prettier --write .",
     "start": "sanity start",
     "lint": "eslint .",
-    "build": "sanity build && sanity schema deploy --manifest-dir ./dist/static",
+    "build": "sanity build && NODE_OPTIONS=--no-experimental-require-module sanity schema deploy --manifest-dir ./dist/static",
     "deploy": "sanity deploy",
     "type": "NODE_OPTIONS=--no-experimental-require-module sanity schema extract --enforce-required-fields && sanity typegen generate",
     "check:types": "tsc --noEmit"
@@ -26,7 +26,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-tweet": "^3.2.2",
-    "sanity": "^4.5.0",
+    "sanity": "4.1.1",
     "sanity-plugin-documents-pane": "^2.4.1",
     "sanity-plugin-media": "^4.0.0",
     "slugify": "^1.6.6",
