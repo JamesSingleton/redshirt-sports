@@ -81,6 +81,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: '/((?!api/).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'max-age=0, s-maxage=86400',
+          },
+        ],
+      },
+      {
         // Apply these headers to all routes in your application.
         source: '/:path*',
         headers: [
