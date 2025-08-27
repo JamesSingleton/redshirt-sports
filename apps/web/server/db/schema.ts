@@ -39,8 +39,9 @@ export const voterBallots = pgTable(
     points: integer('points').notNull(),
     sportId: varchar('sport_id', { length: 256 }).references(() => sportsTable.id),
   },
-  // TODO, add a unique on this table
-  // (table) => [unique().on(table.userId, table.division, table.week, table.year, table.sportId)],
+  (table) => [
+    unique().on(table.userId, table.division, table.week, table.year, table.sportId, table.teamId),
+  ],
 )
 
 export const weeklyFinalRankings = pgTable(

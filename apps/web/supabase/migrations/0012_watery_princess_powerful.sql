@@ -1,0 +1,1 @@
+ALTER TABLE "voter_ballot" ADD CONSTRAINT "voter_ballot_userId_division_week_year_sport_id_team_id_unique" UNIQUE("userId","division","week","year","sport_id","team_id");
