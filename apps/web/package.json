@@ -16,7 +16,7 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.31.4",
+    "@clerk/nextjs": "^6.31.5",
     "@hookform/resolvers": "^5.2.1",
     "@portabletext/react": "^4.0.1",
     "@portabletext/to-html": "^3.0.0",
@@ -37,9 +37,9 @@
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.542.0",
-    "next": "15.5.1",
+    "next": "15.5.2",
     "next-plausible": "^3.12.4",
-    "next-sanity": "^10.0.14",
+    "next-sanity": "^10.0.15",
     "next-themes": "0.4.6",
     "postgres": "^3.4.7",
     "react": "^19.1.1",
