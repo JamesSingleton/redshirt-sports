@@ -1,4 +1,25 @@
+import { ChevronDown, ArrowRight } from 'lucide-react'
+
+import { Button } from '@workspace/ui/components/button'
+
 import { AthleteRow } from '@/components/transfer-portal/athlete-row'
+
+interface Player {
+  id: string
+  name: string
+  position: string
+  height: string
+  weight: string
+  school: string
+  location: string
+  status: 'Withdrawn' | 'Committed' | 'Enrolled'
+  lastTeam: string
+  newTeam: string | null // Allow null for undecided players
+  lastTeamLogo: string
+  newTeamLogo: string | null // Allow null for undecided players
+  photo: string
+  classYear: string
+}
 
 const mockPlayers: Player[] = [
   {
@@ -91,110 +112,146 @@ const mockPlayers: Player[] = [
 
 export default async function TransferPortal() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <h2 className="mb-6 text-2xl font-bold text-gray-900">
-        2025 College Football Transfer Portal
-      </h2>
-
-      {/* Tabs */}
-      <div className="mb-6 flex space-x-1">
-        {['TOP', 'TRANSFER PORTAL', 'RANKINGS'].map((tab) => (
-          <Button
-            key={tab}
-            variant={activeTab === tab ? 'default' : 'ghost'}
-            onClick={() => setActiveTab(tab)}
-            className={activeTab === tab ? 'bg-orange-600 text-white' : ''}
-          >
-            {tab}
+    <>
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <h2 className="mb-6 text-2xl font-bold text-gray-900">
+          2025 College Football Transfer Portal
+        </h2>
+        {/* Filters */}
+        <div className="mb-6 flex flex-wrap gap-4">
+          <Button variant="outline" className="flex items-center gap-2 bg-transparent">
+            2025 <ChevronDown className="h-4 w-4" />
           </Button>
-        ))}
-      </div>
-
-      {/* Filters */}
-      <div className="mb-6 flex flex-wrap gap-4">
-        <Button variant="outline" className="flex items-center gap-2 bg-transparent">
-          2025 <ChevronDown className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" className="flex items-center gap-2 bg-transparent">
-          Football <ChevronDown className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" className="flex items-center gap-2 bg-transparent">
-          Status <ChevronDown className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" className="flex items-center gap-2 bg-transparent">
-          Positions <ChevronDown className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Statistics */}
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="rounded-lg border bg-white p-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-gray-900">
-              <ArrowRight className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-sm text-gray-600">ENTERED</span>
-            <span className="text-2xl font-bold">4,173</span>
-          </div>
+          <Button variant="outline" className="flex items-center gap-2 bg-transparent">
+            Football <ChevronDown className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" className="flex items-center gap-2 bg-transparent">
+            Status <ChevronDown className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" className="flex items-center gap-2 bg-transparent">
+            Positions <ChevronDown className="h-4 w-4" />
+          </Button>
         </div>
-        <div className="rounded-lg border bg-white p-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-green-600">
-              <span className="text-xs text-white">✓</span>
-            </div>
-            <span className="text-sm text-gray-600">COMMITTED</span>
-            <span className="text-2xl font-bold">2,790</span>
-            <span className="text-sm text-gray-500">67%</span>
-          </div>
-        </div>
-        <div className="rounded-lg border bg-white p-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-red-600">
-              <span className="text-xs text-white">↩</span>
-            </div>
-            <span className="text-sm text-gray-600">WITHDRAWN</span>
-            <span className="text-2xl font-bold">147</span>
-            <span className="text-sm text-gray-500">3.52%</span>
-          </div>
-        </div>
-      </div>
 
-      <div className="rounded-lg border bg-white">
-        {/* Desktop Headers - hidden on mobile */}
-        <div className="hidden border-b border-gray-200 px-4 py-3 md:block">
-          <div
-            className="grid items-center gap-4 text-sm font-medium text-gray-700"
-            style={{
-              gridTemplateColumns: '100px 110px 1.75fr 1fr 1fr 40px 1fr',
-              gridTemplateAreas:
-                '"statusHeader avatarHeader playerHeader positionHeader lastTeamHeader arrowHeader newTeamHeader"',
-            }}
-          >
-            <div style={{ gridArea: 'statusHeader' }}>Status</div>
-            <div style={{ gridArea: 'avatarHeader' }}></div>
-            <div style={{ gridArea: 'playerHeader' }}>Player</div>
-            <div style={{ gridArea: 'positionHeader' }} className="text-center">
-              Position
+        {/* Statistics */}
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="rounded-lg border bg-white p-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded bg-gray-900">
+                <ArrowRight className="h-4 w-4 text-white" />
+              </div>
+              <span className="text-sm text-gray-600">ENTERED</span>
+              <span className="text-2xl font-bold">4,173</span>
             </div>
-            <div style={{ gridArea: 'lastTeamHeader' }} className="text-center">
-              Last Team
+          </div>
+          <div className="rounded-lg border bg-white p-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded bg-green-600">
+                <span className="text-xs text-white">✓</span>
+              </div>
+              <span className="text-sm text-gray-600">COMMITTED</span>
+              <span className="text-2xl font-bold">2,790</span>
+              <span className="text-sm text-gray-500">67%</span>
             </div>
-            <div style={{ gridArea: 'arrowHeader' }}></div>
-            <div style={{ gridArea: 'newTeamHeader' }} className="text-center">
-              New Team
+          </div>
+          <div className="rounded-lg border bg-white p-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded bg-red-600">
+                <span className="text-xs text-white">↩</span>
+              </div>
+              <span className="text-sm text-gray-600">WITHDRAWN</span>
+              <span className="text-2xl font-bold">147</span>
+              <span className="text-sm text-gray-500">3.52%</span>
             </div>
           </div>
         </div>
 
-        <ul className="divide-y divide-gray-200 md:divide-y-0">
-          {mockPlayers.map((player) => (
-            <AthleteRow key={player.id} player={player} />
-          ))}
-        </ul>
-      </div>
+        <div className="rounded-lg border bg-white">
+          {/* Desktop Headers - hidden on mobile */}
+          <div className="hidden border-b border-gray-200 px-4 py-3 md:block">
+            <div
+              className="grid items-center gap-4 text-sm font-medium text-gray-700"
+              style={{
+                gridTemplateColumns: '100px 110px 1.75fr 1fr 1fr 40px 1fr',
+                gridTemplateAreas:
+                  '"statusHeader avatarHeader playerHeader positionHeader lastTeamHeader arrowHeader newTeamHeader"',
+              }}
+            >
+              <div style={{ gridArea: 'statusHeader' }}>Status</div>
+              <div style={{ gridArea: 'avatarHeader' }}></div>
+              <div style={{ gridArea: 'playerHeader' }}>Player</div>
+              <div style={{ gridArea: 'positionHeader' }} className="text-center">
+                Position
+              </div>
+              <div style={{ gridArea: 'lastTeamHeader' }} className="text-center">
+                Last Team
+              </div>
+              <div style={{ gridArea: 'arrowHeader' }}></div>
+              <div style={{ gridArea: 'newTeamHeader' }} className="text-center">
+                New Team
+              </div>
+            </div>
+          </div>
 
-      {/* Update Notice */}
-      <div className="mt-6 text-sm text-gray-500">UPDATE: 6/15/25</div>
-    </div>
+          <ul className="divide-y divide-gray-200 md:divide-y-0">
+            {mockPlayers.map((player) => (
+              <AthleteRow key={player.id} player={player} />
+            ))}
+          </ul>
+        </div>
+
+        {/* Update Notice */}
+        <div className="mt-6 text-sm text-gray-500">UPDATE: 6/15/25</div>
+      </div>
+      <style jsx>{`
+        .player-grid {
+          grid-template-columns: var(--mobile-grid-columns);
+          grid-template-areas: var(--mobile-grid-areas);
+        }
+
+        @media (min-width: 768px) {
+          .player-grid {
+            grid-template-columns: var(--desktop-grid-columns);
+            grid-template-areas: var(--desktop-grid-areas);
+          }
+        }
+
+        .player-status {
+          grid-area: playerStatus;
+        }
+
+        .player-avatar {
+          grid-area: avatar;
+        }
+
+        .player-position-mobile {
+          grid-area: position;
+        }
+
+        .player-details {
+          grid-area: details;
+        }
+
+        .player-position-desktop {
+          grid-area: position;
+        }
+
+        .player-last-team {
+          grid-area: lastTeam;
+        }
+
+        .player-arrow {
+          grid-area: arrow;
+        }
+
+        .player-new-team {
+          grid-area: newTeam;
+        }
+
+        .player-team-status {
+          grid-area: teamStatus;
+        }
+      `}</style>
+    </>
   )
 }
