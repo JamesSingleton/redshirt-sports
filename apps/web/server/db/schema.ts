@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm'
 import {
   pgTable,
+  pgEnum,
   serial,
   varchar,
   timestamp,
@@ -10,6 +11,43 @@ import {
   text,
   boolean,
 } from 'drizzle-orm/pg-core'
+
+// Enums for better type safety and consistency
+export const classLevelEnum = pgEnum('class_level', [
+  'FR', // Freshman
+  'RS-FR', // Redshirt Freshman
+  'SO', // Sophomore
+  'RS-SO', // Redshirt Sophomore
+  'JR', // Junior
+  'RS-JR', // Redshirt Junior
+  'SR', // Senior
+  'RS-SR', // Redshirt Senior
+  'GR', // Graduate
+])
+
+export const transferStatusEnum = pgEnum('transfer_status', [
+  'entered',
+  'withdrawn',
+  'committed',
+  'enrolled',
+  'signed',
+])
+
+export const countryEnum = pgEnum('country', [
+  'US',
+  'CA',
+  'AU',
+  'GB',
+  'DE',
+  'FR',
+  'ES',
+  'IT',
+  'BR',
+  'MX',
+  'JP',
+  'CN',
+  'other',
+])
 
 export const sportsTable = pgTable('sports', {
   id: text('id').primaryKey(), // Sanity _id
