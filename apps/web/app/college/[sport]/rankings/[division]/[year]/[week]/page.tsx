@@ -161,7 +161,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {top25.length === TOP_25 && (
+          {top25.length > 0 && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -227,7 +227,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           )}
         </CardFooter>
       </Card>
-      {top25.length === TOP_25 && voterBreakdown.length > 0 && (
+      {top25.length > 0 && voterBreakdown.length > 0 && (
         <div className="mt-8">
           <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
         </div>
