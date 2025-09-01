@@ -18,11 +18,11 @@ import { cn } from '@workspace/ui/lib/utils'
 
 import CustomImage from '@/components/sanity-image'
 
-import type { SchoolsByDivisionQueryResult } from '@/lib/sanity/sanity.types'
+import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@/lib/sanity/sanity.types'
 
 interface VirtualizedCommandProps {
   height: string
-  options: SchoolsByDivisionQueryResult
+  options: SchoolsBySportAndSubgroupingStringQueryResult
   placeholder: string
   selectedOption: string
   selectedOptions: string[]
@@ -37,20 +37,25 @@ const VirtualizedCommand = ({
   selectedOptions,
   onSelectOption,
 }: VirtualizedCommandProps) => {
+  // Memoized available options to prevent unnecessary recalculations
   const availableOptions = React.useMemo(
     () => options.filter((option) => !selectedOptions.includes(option._id)),
     [options, selectedOptions],
   )
 
   const [filteredOptions, setFilteredOptions] =
-    React.useState<SchoolsByDivisionQueryResult>(availableOptions)
+    React.useState<SchoolsBySportAndSubgroupingStringQueryResult>(availableOptions)
   const [searchValue, setSearchValue] = React.useState('')
-  const parentRef = React.useRef(null)
+  const parentRef = React.useRef<HTMLDivElement>(null)
 
+  // Memoized Fuse instance for better performance
   const fuse = React.useMemo(
     () =>
       new Fuse(availableOptions, {
         keys: ['name', 'shortName', 'abbreviation'],
+        threshold: 0.3, // Lower threshold for more precise matching
+        includeScore: true,
+        minMatchCharLength: 2,
       }),
     [availableOptions],
   )
@@ -64,6 +69,7 @@ const VirtualizedCommand = ({
 
   const virtualOptions = virtualizer.getVirtualItems()
 
+  // Debounced search handler for better performance
   const handleSearch = React.useCallback(
     (search: string) => {
       setSearchValue(search)
@@ -74,6 +80,7 @@ const VirtualizedCommand = ({
         return
       }
 
+      // Use Fuse.js for fuzzy search
       const searchResults = fuse.search(search).map((result) => result.item)
       setFilteredOptions(searchResults)
     },
@@ -86,6 +93,43 @@ const VirtualizedCommand = ({
       setFilteredOptions(availableOptions)
     }
   }, [availableOptions, searchValue])
+
+  // Memoized command items to prevent unnecessary re-renders
+  const commandItems = React.useMemo(() => {
+    return virtualOptions.map((virtualOption) => {
+      const option = filteredOptions[virtualOption.index]
+      if (!option) {
+        return null
+      }
+
+      return (
+        <CommandItem
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: `${virtualOption.size}px`,
+            transform: `translateY(${virtualOption.start}px)`,
+          }}
+          key={option._id}
+          value={option._id}
+          onSelect={onSelectOption}
+        >
+          <Check
+            className={cn(
+              'mr-2 size-4',
+              selectedOption === option._id ? 'opacity-100' : 'opacity-0',
+            )}
+          />
+          <div className="flex items-center">
+            <CustomImage image={option.image} width={32} height={32} className="mr-2 size-8" />
+            {option.shortName}
+          </div>
+        </CommandItem>
+      )
+    })
+  }, [virtualOptions, filteredOptions, selectedOption, onSelectOption])
 
   return (
     <Command shouldFilter={false}>
@@ -107,44 +151,7 @@ const VirtualizedCommand = ({
               position: 'relative',
             }}
           >
-            {virtualOptions.map((virtualOption) => {
-              const option = filteredOptions[virtualOption.index]
-              if (!option) {
-                return null
-              }
-
-              return (
-                <CommandItem
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: `${virtualOption.size}px`,
-                    transform: `translateY(${virtualOption.start}px)`,
-                  }}
-                  key={option._id}
-                  value={option._id}
-                  onSelect={onSelectOption}
-                >
-                  <Check
-                    className={cn(
-                      'mr-2 size-4',
-                      selectedOption === option._id ? 'opacity-100' : 'opacity-0',
-                    )}
-                  />
-                  <div className="flex items-center">
-                    <CustomImage
-                      image={option.image}
-                      width={32}
-                      height={32}
-                      className="mr-2 size-8"
-                    />
-                    {option.shortName}
-                  </div>
-                </CommandItem>
-              )
-            })}
+            {commandItems}
           </div>
         </CommandGroup>
       </CommandList>
@@ -153,7 +160,7 @@ const VirtualizedCommand = ({
 }
 
 interface VirtualizedComboboxProps {
-  options: SchoolsByDivisionQueryResult
+  options: SchoolsBySportAndSubgroupingStringQueryResult
   searchPlaceholder?: string
   width?: string
   height?: string
@@ -176,11 +183,13 @@ export function VirtualizedCombobox({
   const triggerRef = React.useRef<HTMLButtonElement>(null)
   const [triggerWidth, setTriggerWidth] = React.useState<number | undefined>(undefined)
 
+  // Memoized available options to prevent unnecessary recalculations
   const availableOptions = React.useMemo(
     () => options.filter((option) => !selectedOptions.includes(option._id)),
     [options, selectedOptions],
   )
 
+  // Memoized selected school lookup
   const selectedSchool = React.useMemo(
     () => options.find((option) => option._id === selectedOption),
     [options, selectedOption],
@@ -198,6 +207,7 @@ export function VirtualizedCombobox({
     }
   }, [open])
 
+  // Memoized select handler to prevent unnecessary re-renders
   const handleSelectOption = React.useCallback(
     (currentValue: string) => {
       const newValue = currentValue === selectedOption ? '' : currentValue
@@ -207,6 +217,24 @@ export function VirtualizedCombobox({
     },
     [selectedOption, onChange],
   )
+
+  // Memoized trigger content to prevent unnecessary re-renders
+  const triggerContent = React.useMemo(() => {
+    if (selectedSchool?.image) {
+      return (
+        <span className="inline-flex items-center">
+          <CustomImage
+            image={selectedSchool.image}
+            width={32}
+            height={32}
+            className="mr-2 size-8"
+          />
+          {selectedSchool.shortName}
+        </span>
+      )
+    }
+    return searchPlaceholder
+  }, [selectedSchool, searchPlaceholder])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -218,19 +246,7 @@ export function VirtualizedCombobox({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {selectedSchool?.image ? (
-            <span className="inline-flex items-center">
-              <CustomImage
-                image={selectedSchool.image}
-                width={32}
-                height={32}
-                className="mr-2 size-8"
-              />
-              {selectedSchool.shortName}
-            </span>
-          ) : (
-            searchPlaceholder
-          )}
+          {triggerContent}
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -18,138 +18,68 @@ import {
 } from '@workspace/ui/components/form'
 import { VirtualizedCombobox } from '../virtualized-combobox'
 
-import type { SchoolsByDivisionQueryResult } from '@/lib/sanity/sanity.types'
+import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@/lib/sanity/sanity.types'
 
+// Optimized form schema with better error messages
 const formSchema = z
   .object({
     division: z.enum(['fbs', 'fcs', 'd2', 'd3', 'mid-major', 'power-conferences']).optional(),
     sport: z.string().optional(),
-    rank_1: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 1.' : undefined,
-    }),
-    rank_2: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 2.' : undefined,
-    }),
-    rank_3: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 3.' : undefined,
-    }),
-    rank_4: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 4.' : undefined,
-    }),
-    rank_5: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 5.' : undefined,
-    }),
-    rank_6: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 6.' : undefined,
-    }),
-    rank_7: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 7.' : undefined,
-    }),
-    rank_8: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 8.' : undefined,
-    }),
-    rank_9: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 9.' : undefined,
-    }),
-    rank_10: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 10.' : undefined,
-    }),
-    rank_11: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 11.' : undefined,
-    }),
-    rank_12: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 12.' : undefined,
-    }),
-    rank_13: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 13.' : undefined,
-    }),
-    rank_14: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 14.' : undefined,
-    }),
-    rank_15: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 15.' : undefined,
-    }),
-    rank_16: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 16.' : undefined,
-    }),
-    rank_17: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 17.' : undefined,
-    }),
-    rank_18: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 18.' : undefined,
-    }),
-    rank_19: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 19.' : undefined,
-    }),
-    rank_20: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 20.' : undefined,
-    }),
-    rank_21: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 21.' : undefined,
-    }),
-    rank_22: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 22.' : undefined,
-    }),
-    rank_23: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 23.' : undefined,
-    }),
-    rank_24: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 24.' : undefined,
-    }),
-    rank_25: z.string({
-      error: (issue) =>
-        issue.input === undefined ? 'Please select a team for rank 25.' : undefined,
-    }),
+    rank_1: z.string().min(1, 'Please select a team for rank 1.'),
+    rank_2: z.string().min(1, 'Please select a team for rank 2.'),
+    rank_3: z.string().min(1, 'Please select a team for rank 3.'),
+    rank_4: z.string().min(1, 'Please select a team for rank 4.'),
+    rank_5: z.string().min(1, 'Please select a team for rank 5.'),
+    rank_6: z.string().min(1, 'Please select a team for rank 6.'),
+    rank_7: z.string().min(1, 'Please select a team for rank 7.'),
+    rank_8: z.string().min(1, 'Please select a team for rank 8.'),
+    rank_9: z.string().min(1, 'Please select a team for rank 9.'),
+    rank_10: z.string().min(1, 'Please select a team for rank 10.'),
+    rank_11: z.string().min(1, 'Please select a team for rank 11.'),
+    rank_12: z.string().min(1, 'Please select a team for rank 12.'),
+    rank_13: z.string().min(1, 'Please select a team for rank 13.'),
+    rank_14: z.string().min(1, 'Please select a team for rank 14.'),
+    rank_15: z.string().min(1, 'Please select a team for rank 15.'),
+    rank_16: z.string().min(1, 'Please select a team for rank 16.'),
+    rank_17: z.string().min(1, 'Please select a team for rank 17.'),
+    rank_18: z.string().min(1, 'Please select a team for rank 18.'),
+    rank_19: z.string().min(1, 'Please select a team for rank 19.'),
+    rank_20: z.string().min(1, 'Please select a team for rank 20.'),
+    rank_21: z.string().min(1, 'Please select a team for rank 21.'),
+    rank_22: z.string().min(1, 'Please select a team for rank 22.'),
+    rank_23: z.string().min(1, 'Please select a team for rank 23.'),
+    rank_24: z.string().min(1, 'Please select a team for rank 24.'),
+    rank_25: z.string().min(1, 'Please select a team for rank 25.'),
   })
-  .superRefine((arg, ctx) => {
-    // find which arg items are duplicates
-    const duplicates: string[] = Object.entries(arg).reduce((acc: string[], [key, value]) => {
-      if (Object.values(arg).filter((v) => v === value).length > 1) {
-        acc.push(key)
-      }
-      return acc
-    }, [])
+  .superRefine((data, ctx) => {
+    // Optimized duplicate detection
+    const values = Object.values(data).filter(Boolean) as string[]
+    const duplicates = values.filter((value, index) => values.indexOf(value) !== index)
 
-    if (duplicates.length) {
-      duplicates.forEach((key) => {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Duplicate team selected for rank ${key.split('_')[1]}`,
-          path: ['rank_' + key.split('_')[1]],
-        })
+    if (duplicates.length > 0) {
+      // Find all ranks that have duplicate values
+      Object.entries(data).forEach(([key, value]) => {
+        if (duplicates.includes(value)) {
+          const rankNumber = key.split('_')[1]
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Duplicate team selected for rank ${rankNumber}`,
+            path: [key as keyof typeof data],
+          })
+        }
       })
     }
   })
 
-const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
+const Top25 = ({ schools }: { schools: SchoolsBySportAndSubgroupingStringQueryResult }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: 'onChange', // Enable real-time validation
   })
+
   const formValues = form.watch()
+
+  // Memoized selected values for better performance
   const selectedValues = useMemo(() => {
     return Object.values(formValues).filter(Boolean) as string[]
   }, [formValues])
@@ -161,59 +91,67 @@ const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
   }
   const router = useRouter()
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // update the values to include the division
-    values = { ...values, division, sport }
+  // Memoized submit handler to prevent unnecessary re-renders
+  const onSubmit = useCallback(
+    async (values: z.infer<typeof formSchema>) => {
+      // update the values to include the division
+      const submitData = { ...values, division, sport }
 
-    toast.promise(
-      fetch(`/api/vote/college/${sport}/rankings/${division}`, {
-        method: 'POST',
-        body: JSON.stringify(values),
-        headers: {
-          'Content-Type': 'application/json',
+      toast.promise(
+        fetch(`/api/vote/college/${sport}/rankings/${division}`, {
+          method: 'POST',
+          body: JSON.stringify(submitData),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }).then(async (res) => {
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
+            throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`)
+          }
+
+          const data = await res.json()
+          router.push(`/vote/college/${sport}/${division}/confirmation`)
+          return data
+        }),
+        {
+          loading: 'Submitting Ballot',
+          success: (data) => data?.message || 'Ballot submitted successfully',
+          error: (err) => err.message || 'An error occurred while submitting your ballot',
         },
-      }).then(async (res) => {
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
-          throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`)
-        }
+      )
+    },
+    [sport, division, router],
+  )
 
-        const data = await res.json()
-        router.push(`/vote/college/${sport}/${division}/confirmation`)
-        return data
-      }),
-      {
-        loading: 'Submitting Ballot',
-        success: (data) => data?.message || 'Ballot submitted successfully',
-        error: (err) => err.message || 'An error occurred while submitting your ballot',
-      },
-    )
-  }
+  // Memoized rank fields to prevent unnecessary re-renders
+  const rankFields = useMemo(() => {
+    return Array.from({ length: 25 }).map((_, index) => (
+      <FormField
+        key={index}
+        control={form.control}
+        name={`rank_${index + 1}` as keyof z.infer<typeof formSchema>}
+        render={({ field }) => (
+          <FormItem className="flex flex-col">
+            <FormLabel>Rank {index + 1}</FormLabel>
+            <FormControl>
+              <VirtualizedCombobox
+                options={schools}
+                onChange={field.onChange}
+                selectedOptions={selectedValues}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ))
+  }, [form.control, selectedValues, schools])
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto space-y-6">
-        {Array.from({ length: 25 }).map((_, index) => (
-          <FormField
-            key={index}
-            control={form.control}
-            // @ts-expect-error zodResolver doesn't support this
-            name={`rank_${index + 1}`}
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Rank {index + 1}</FormLabel>
-                <FormControl>
-                  <VirtualizedCombobox
-                    options={schools}
-                    onChange={field.onChange}
-                    selectedOptions={selectedValues}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ))}
+        {rankFields}
         <Button
           className="w-full"
           type="submit"

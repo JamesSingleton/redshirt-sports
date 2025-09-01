@@ -25,5 +25,29 @@ export const socialLinks = defineField({
       description: 'Full URL to your YouTube channel',
       type: 'string',
     }),
+    defineField({
+      name: 'instagram',
+      title: 'Instagram URL',
+      description: 'Full URL to your Instagram profile',
+      type: 'string',
+    }),
+    defineField({
+      name: 'linkedin',
+      title: 'LinkedIn URL',
+      description: 'Full URL to your LinkedIn profile',
+      type: 'string',
+    }),
+    defineField({
+      name: 'bluesky',
+      title: 'Bluesky URL',
+      description: 'Full URL to your Bluesky profile',
+      type: 'string',
+    }),
+    defineField({
+      name: 'threads',
+      title: 'Threads URL',
+      description: 'Full URL to your Threads profile',
+      type: 'string',
+    }),
   ],
 })

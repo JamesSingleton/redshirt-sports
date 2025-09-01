@@ -120,70 +120,6 @@
     }
   },
   {
-    "name": "socialMedia",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "socialMedia"
-          }
-        },
-        "name": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "union",
-            "of": [
-              {
-                "type": "string",
-                "value": "Email"
-              },
-              {
-                "type": "string",
-                "value": "Twitter"
-              },
-              {
-                "type": "string",
-                "value": "Facebook"
-              },
-              {
-                "type": "string",
-                "value": "Instagram"
-              },
-              {
-                "type": "string",
-                "value": "Website"
-              },
-              {
-                "type": "string",
-                "value": "Spotify Podcast"
-              },
-              {
-                "type": "string",
-                "value": "Apple Podcast"
-              },
-              {
-                "type": "string",
-                "value": "Overcast Podcast"
-              }
-            ]
-          },
-          "optional": false
-        },
-        "url": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        }
-      }
-    }
-  },
-  {
     "name": "socialLinks",
     "type": "type",
     "value": {
@@ -211,6 +147,34 @@
           "optional": true
         },
         "youtube": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "instagram": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "linkedin": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "bluesky": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "threads": {
           "type": "objectAttribute",
           "value": {
             "type": "string"
@@ -970,6 +934,34 @@
               "optional": true
             },
             "youtube": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
+            "instagram": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
+            "linkedin": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
+            "bluesky": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
+            "threads": {
               "type": "objectAttribute",
               "value": {
                 "type": "string"
@@ -3269,6 +3261,34 @@
               "optional": true
             },
             "youtube": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
+            "instagram": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
+            "linkedin": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
+            "bluesky": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
+            "threads": {
               "type": "objectAttribute",
               "value": {
                 "type": "string"

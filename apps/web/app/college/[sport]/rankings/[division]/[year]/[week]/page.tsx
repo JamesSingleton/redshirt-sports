@@ -107,6 +107,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter)
 
   const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25)
+  console.log(top25)
   const outsideTop25 = rankings.filter((team) => !team.rank || team.rank > TOP_25)
 
   const jsonLd: Graph = {
