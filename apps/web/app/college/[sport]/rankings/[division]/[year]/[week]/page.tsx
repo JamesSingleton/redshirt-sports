@@ -107,6 +107,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
   const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter)
 
   const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25)
+  console.log(top25)
   const outsideTop25 = rankings.filter((team) => !team.rank || team.rank > TOP_25)
 
   const jsonLd: Graph = {
@@ -161,7 +162,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {top25.length === TOP_25 && (
+          {top25.length > 0 && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -227,7 +228,7 @@ export default async function CollegeFootballRankingsPage({ params }: Props) {
           )}
         </CardFooter>
       </Card>
-      {top25.length === TOP_25 && voterBreakdown.length > 0 && (
+      {top25.length > 0 && voterBreakdown.length > 0 && (
         <div className="mt-8">
           <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
         </div>

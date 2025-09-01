@@ -34,25 +34,15 @@ export type Top25Table = {
   }>
 }
 
-export type SocialMedia = {
-  _type: 'socialMedia'
-  name:
-    | 'Email'
-    | 'Twitter'
-    | 'Facebook'
-    | 'Instagram'
-    | 'Website'
-    | 'Spotify Podcast'
-    | 'Apple Podcast'
-    | 'Overcast Podcast'
-  url?: string
-}
-
 export type SocialLinks = {
   _type: 'socialLinks'
   twitter?: string
   facebook?: string
   youtube?: string
+  instagram?: string
+  linkedin?: string
+  bluesky?: string
+  threads?: string
 }
 
 export type BlockContent = Array<
@@ -176,6 +166,10 @@ export type Settings = {
     twitter?: string
     facebook?: string
     youtube?: string
+    instagram?: string
+    linkedin?: string
+    bluesky?: string
+    threads?: string
   }
 }
 
@@ -581,6 +575,10 @@ export type Author = {
     twitter?: string
     facebook?: string
     youtube?: string
+    instagram?: string
+    linkedin?: string
+    bluesky?: string
+    threads?: string
   }
 }
 
@@ -907,7 +905,6 @@ export type SanityAssetSourceData = {
 export type AllSanitySchemaTypes =
   | Twitter
   | Top25Table
-  | SocialMedia
   | SocialLinks
   | BlockContent
   | Settings
@@ -1013,6 +1010,10 @@ export type QuerySettingsDataResult = {
     twitter?: string
     facebook?: string
     youtube?: string
+    instagram?: string
+    linkedin?: string
+    bluesky?: string
+    threads?: string
   } | null
   contactEmail: string | null
 } | null
@@ -1074,6 +1075,10 @@ export type QueryPostSlugDataResult = {
       twitter?: string
       facebook?: string
       youtube?: string
+      instagram?: string
+      linkedin?: string
+      bluesky?: string
+      threads?: string
     }
   }>
   publishedAt: string
@@ -1383,6 +1388,10 @@ export type QueryPostSlugDataResult = {
         twitter?: string
         facebook?: string
         youtube?: string
+        instagram?: string
+        linkedin?: string
+        bluesky?: string
+        threads?: string
       }
     }>
   }>
@@ -1614,6 +1623,10 @@ export type QueryHomePageDataResult = Array<{
       twitter?: string
       facebook?: string
       youtube?: string
+      instagram?: string
+      linkedin?: string
+      bluesky?: string
+      threads?: string
     }
   }>
 }>
@@ -1685,6 +1698,10 @@ export type QueryLatestArticlesResult = Array<{
       twitter?: string
       facebook?: string
       youtube?: string
+      instagram?: string
+      linkedin?: string
+      bluesky?: string
+      threads?: string
     }
   }>
 }>
@@ -1765,6 +1782,10 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
       twitter?: string
       facebook?: string
       youtube?: string
+      instagram?: string
+      linkedin?: string
+      bluesky?: string
+      threads?: string
     }
   }>
 }>
@@ -1834,6 +1855,10 @@ export type AuthorBySlugResult = {
     twitter?: string
     facebook?: string
     youtube?: string
+    instagram?: string
+    linkedin?: string
+    bluesky?: string
+    threads?: string
   }
 } | null
 // Variable: authorsListNotArchived
@@ -1873,6 +1898,10 @@ export type AuthorsListNotArchivedResult = Array<{
     twitter?: string
     facebook?: string
     youtube?: string
+    instagram?: string
+    linkedin?: string
+    bluesky?: string
+    threads?: string
   } | null
 }>
 // Variable: privacyPolicyQuery
