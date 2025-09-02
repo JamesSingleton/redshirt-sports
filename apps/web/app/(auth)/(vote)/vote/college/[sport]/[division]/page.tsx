@@ -86,7 +86,7 @@ export default async function VotePage({
     year,
     week: votingWeek,
     division,
-    sportId: sportId || undefined,
+    sportId: sportId || '',
   })
   const { userId } = await auth()
 

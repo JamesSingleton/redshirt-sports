@@ -18,7 +18,7 @@ import {
 } from '@workspace/ui/components/form'
 import { VirtualizedCombobox } from '../virtualized-combobox'
 
-import type { SchoolsByDivisionQueryResult } from '@/lib/sanity/sanity.types'
+import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@/lib/sanity/sanity.types'
 
 const formSchema = z
   .object({
@@ -145,7 +145,7 @@ const formSchema = z
     }
   })
 
-const Top25 = ({ schools }: { schools: SchoolsByDivisionQueryResult }) => {
+const Top25 = ({ schools }: { schools: SchoolsBySportAndSubgroupingStringQueryResult }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
