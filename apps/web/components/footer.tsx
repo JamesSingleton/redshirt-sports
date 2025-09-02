@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { sanityFetch } from '@/lib/sanity/live'
 import { queryFooterData, queryGlobalSeoSettings } from '@/lib/sanity/query'
 import type { QueryFooterDataResult, QueryGlobalSeoSettingsResult } from '@/lib/sanity/sanity.types'
-import { Facebook, Twitter, YouTubeIcon } from './icons'
+import { BlueSkyIcon, Facebook, Instagram, ThreadsIcon, Twitter, YouTubeIcon } from './icons'
 import CustomImage from './sanity-image'
 
 interface SocialLinksProps {
@@ -32,7 +32,7 @@ export async function FooterServer() {
 function SocialLinks({ data }: SocialLinksProps) {
   if (!data) return null
 
-  const { facebook, twitter, youtube } = data
+  const { facebook, twitter, youtube, instagram, bluesky, threads } = data
 
   const socialLinks = [
     { url: facebook, Icon: Facebook, label: 'Follow us on Facebook' },
@@ -41,6 +41,21 @@ function SocialLinks({ data }: SocialLinksProps) {
       url: youtube,
       Icon: YouTubeIcon,
       label: 'Subscribe to our YouTube channel',
+    },
+    {
+      url: instagram,
+      Icon: Instagram,
+      label: 'Follow us on Instagram',
+    },
+    {
+      url: bluesky,
+      Icon: BlueSkyIcon,
+      label: 'Follow us on Bluesky',
+    },
+    {
+      url: threads,
+      Icon: ThreadsIcon,
+      label: 'Follow us on Threads',
     },
   ].filter((link) => link.url)
 

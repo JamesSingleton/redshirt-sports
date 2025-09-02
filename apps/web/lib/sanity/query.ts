@@ -249,7 +249,10 @@ export const queryGlobalSeoSettings = defineQuery(/* groq */ `
     socialLinks{
       facebook,
       twitter,
-      youtube
+      youtube,
+      instagram,
+      bluesky,
+      threads
     }
   }
 `)
