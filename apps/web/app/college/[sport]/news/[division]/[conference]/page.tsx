@@ -14,6 +14,7 @@ import { sanityFetch } from '@/lib/sanity/live'
 import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { getSEOMetadata } from '@/lib/seo'
+import { validatePageIndex } from '@/utils/validate-page-index'
 
 import type { Metadata } from 'next'
 import type { Post } from '@/types'
@@ -77,15 +78,12 @@ export async function getDivisionOrSubgroupingDisplayName(slugOrShortName: strin
   })
 }
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ sport: string; division: string; conference: string }>
-  searchParams: Promise<{ [key: string]: string }>
-}): Promise<Metadata> {
-  const { sport, division, conference } = await params
-  const { page } = await searchParams
+export async function generateMetadata(
+  props: PageProps<'/college/[sport]/news/[division]/[conference]'>,
+): Promise<Metadata> {
+  const { sport, division, conference } = await props.params
+  const { page } = await props.searchParams
+  const pageIndex = validatePageIndex(page)
 
   const [divisionDisplayName, conferenceInfo, sportTitle] = await Promise.all([
     getDivisionOrSubgroupingDisplayName(division),
@@ -106,10 +104,10 @@ export async function generateMetadata({
   let finalTitle = baseTitle
   let finalDescription = baseDescription
 
-  if (page && parseInt(page) > 1) {
-    finalTitle = `${baseTitle} - Page ${page}`
-    finalDescription = `Continue exploring coverage of ${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} on Page ${page}. Find more detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}.`
-    canonical = `/college/${sport}/news/${division}/${conference}?page=${page}`
+  if (pageIndex && pageIndex > 1) {
+    finalTitle = `${baseTitle} - Page ${pageIndex}`
+    finalDescription = `Continue exploring coverage of ${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} on Page ${pageIndex}. Find more detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}.`
+    canonical = `/college/${sport}/news/${division}/${conference}?page=${pageIndex}`
   }
 
   return getSEOMetadata({
@@ -119,16 +117,12 @@ export async function generateMetadata({
   })
 }
 
-export default async function Page({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ sport: string; division: string; conference: string }>
-  searchParams: Promise<{ [key: string]: string }>
-}) {
-  const { sport, division, conference } = await params
-  const { page } = await searchParams
-  const pageIndex = page !== undefined ? parseInt(page) : 1
+export default async function Page(
+  props: PageProps<'/college/[sport]/news/[division]/[conference]'>,
+) {
+  const { sport, division, conference } = await props.params
+  const { page } = await props.searchParams
+  const pageIndex = validatePageIndex(page)
   const baseUrl = getBaseUrl()
 
   const [newsResponse, sportInfoResponse, divisionNameResponse] = await Promise.all([

@@ -49,12 +49,10 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function VoteConfirmationPage({
-  params,
-}: {
-  params: Promise<{ sport: string; division: string }>
-}) {
-  const { sport, division } = await params
+export default async function VoteConfirmationPage(
+  props: PageProps<'/vote/college/[sport]/[division]/confirmation'>,
+) {
+  const { sport, division } = await props.params
   const header = generateConfirmationHeader(sport, division)
   const user = await auth()
 

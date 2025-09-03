@@ -12,7 +12,7 @@ import { buildSafeImageUrl, organizationId, websiteId } from '@/components/json-
 import { getSEOMetadata } from '@/lib/seo'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { JsonLdScript } from '@/components/json-ld'
-import { authorBySlug, postsByAuthor, queryAuthorPaths } from '@/lib/sanity/query'
+import { authorBySlug, postsByAuthor } from '@/lib/sanity/query'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'

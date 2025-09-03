@@ -7,6 +7,7 @@ import PageHeader from '@/components/page-header'
 import ArticleFeed from '@/components/article-feed'
 import PaginationControls from '@/components/pagination-controls'
 import { getSEOMetadata } from '@/lib/seo'
+import { validatePageIndex } from '@/utils/validate-page-index'
 
 import type { Metadata } from 'next'
 
@@ -29,24 +30,11 @@ async function fetchSportTitle(sport: string) {
   })
 }
 
-function validatePageIndex(page: string | undefined): number {
-  if (!page) return 1
-
-  const parsed = parseInt(page, 10)
-  if (isNaN(parsed) || parsed < 1) return 1
-
-  return parsed
-}
-
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ sport: string }>
-  searchParams: Promise<{ [key: string]: string }>
-}): Promise<Metadata> {
-  const { sport } = await params
-  const { page } = await searchParams
+export async function generateMetadata(
+  props: PageProps<'/college/[sport]/news'>,
+): Promise<Metadata> {
+  const { sport } = await props.params
+  const { page } = await props.searchParams
   const pageIndex = validatePageIndex(page)
 
   const { data: sportData } = await fetchSportTitle(sport)
@@ -76,16 +64,10 @@ export async function generateMetadata({
   })
 }
 
-export default async function Page({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ sport: string }>
-  searchParams: Promise<{ [key: string]: string }>
-}) {
-  const { sport } = await params
+export default async function Page(props: PageProps<'/college/[sport]/news'>) {
+  const { sport } = await props.params
 
-  const { page } = await searchParams
+  const { page } = await props.searchParams
   const pageIndex = validatePageIndex(page)
 
   const [newsResponse, sportInfoResponse] = await Promise.all([

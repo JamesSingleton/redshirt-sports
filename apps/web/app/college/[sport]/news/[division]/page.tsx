@@ -10,6 +10,7 @@ import { perPage } from '@/lib/constants'
 import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { getSEOMetadata } from '@/lib/seo'
+import { validatePageIndex } from '@/utils/validate-page-index'
 
 import type { Metadata } from 'next'
 import type { Post } from '@/types'
@@ -61,15 +62,12 @@ export async function getDivisionOrSubgroupingDisplayName(slugOrShortName: strin
   })
 }
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ sport: string; division: string }>
-  searchParams: Promise<{ [key: string]: string }>
-}): Promise<Metadata> {
-  const { sport, division } = await params
-  const { page } = await searchParams
+export async function generateMetadata(
+  props: PageProps<'/college/[sport]/news/[division]'>,
+): Promise<Metadata> {
+  const { sport, division } = await props.params
+  const { page } = await props.searchParams
+  const pageIndex = validatePageIndex(page)
 
   const [sportInfoResponse, divisionDisplayName] = await Promise.all([
     fetchSportInfoBySlug(sport),
@@ -91,8 +89,7 @@ export async function generateMetadata({
 
   const baseCanonical = `/college/${sport}/news/${division}`
 
-  const pageNumber = page ? parseInt(page, 10) : 1
-  const isFirstPage = !page || pageNumber <= 1
+  const isFirstPage = !page || pageIndex <= 1
 
   let title: string
   let description: string
@@ -103,9 +100,9 @@ export async function generateMetadata({
     description = baseDescription
     canonical = baseCanonical
   } else {
-    title = `${baseTitle} - Page ${pageNumber}`
-    description = `More ${divisionName} ${sportTitle} stories on Page ${pageNumber}. Continued coverage of recruiting updates, game previews, injury reports, and in-depth team analysis.`
-    canonical = `${baseCanonical}?page=${pageNumber}`
+    title = `${baseTitle} - Page ${pageIndex}`
+    description = `More ${divisionName} ${sportTitle} stories on Page ${pageIndex}. Continued coverage of recruiting updates, game previews, injury reports, and in-depth team analysis.`
+    canonical = `${baseCanonical}?page=${pageIndex}`
   }
 
   return getSEOMetadata({
@@ -115,16 +112,10 @@ export async function generateMetadata({
   })
 }
 
-export default async function Page({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ sport: string; division: string }>
-  searchParams: Promise<{ [key: string]: string }>
-}) {
-  const { sport, division } = await params
-  const { page } = await searchParams
-  const pageIndex = page !== undefined ? parseInt(page) : 1
+export default async function Page(props: PageProps<'/college/[sport]/news/[division]'>) {
+  const { sport, division } = await props.params
+  const { page } = await props.searchParams
+  const pageIndex = validatePageIndex(page)
   const baseUrl = getBaseUrl()
 
   const [newsResponse, sportInfoResponse, divisionNameResponse] = await Promise.all([
