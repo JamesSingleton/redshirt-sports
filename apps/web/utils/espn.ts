@@ -69,6 +69,18 @@ export async function getSeasonData(
 }
 
 /**
+ * Get multiple seasons worth of season data
+ */
+export async function getMultipleSeasonsData(sport: SportParam = 'football', startingYear: number) {
+  const sportPath = getSportPath(sport)
+
+  const url = `${ESPN_BASE_URL}/${sportPath}/seasons?startingseason=${startingYear}`
+  const espnBody: ESPNBody = await fetchESPNData(url)
+
+  return espnBody.seasons!
+}
+
+/**
  * Get current week number for a specific sport
  */
 export async function getCurrentWeek(sport: SportParam = 'football'): Promise<number> {

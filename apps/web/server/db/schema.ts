@@ -10,6 +10,7 @@ import {
   text,
   boolean,
 } from 'drizzle-orm/pg-core'
+import { randomUUID } from 'node:crypto'
 
 export const sportsTable = pgTable('sports', {
   id: text('id').primaryKey(), // Sanity _id
@@ -71,27 +72,67 @@ export const usersTable = pgTable('users_table', {
 export const seasonsTable = pgTable(
   'seasons',
   {
-    id: serial('id').primaryKey(),
+    id: text('id')
+      .$defaultFn(() => randomUUID())
+      .primaryKey(),
     year: integer('year').notNull(),
-    start: timestamp('start').notNull(),
-    end: timestamp('end').notNull(),
+    displayName: varchar('display_name', { length: 256 }),
+    startDate: timestamp('start_date', { withTimezone: true }).notNull(),
+    endDate: timestamp('end_date', { withTimezone: true }).notNull(),
+    sportId: text('sport_id')
+      .notNull()
+      .references(() => sportsTable.id),
+    createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`),
   },
-  (table) => [unique().on(table.year)],
+  (table) => [unique().on(table.sportId, table.year)],
+)
+
+export const seasonTypesTable = pgTable(
+  'season_types',
+  {
+    id: text('id')
+      .$defaultFn(() => randomUUID())
+      .primaryKey(),
+    type: integer('type').notNull(),
+    startDate: timestamp('start_date', { withTimezone: true }).notNull(),
+    endDate: timestamp('end_date', { withTimezone: true }).notNull(),
+    seasonId: text('season_id')
+      .notNull()
+      .references(() => seasonsTable.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [unique().on(table.seasonId, table.type)],
 )
 
 export const weeksTable = pgTable(
   'weeks',
   {
-    id: serial('id').primaryKey(),
-    seasonId: integer('seasonId')
+    id: text('id')
+      .$defaultFn(() => randomUUID())
+      .primaryKey(),
+    number: integer('number').notNull(),
+    startDate: timestamp('start_date', { withTimezone: true }).notNull(),
+    endDate: timestamp('end_date', { withTimezone: true }).notNull(),
+    text: varchar('text', { length: 256 }),
+    seasonTypeId: text('season_type_id')
       .notNull()
-      .references(() => seasonsTable.id),
-    week: integer('week').notNull(),
-    start: timestamp('start').notNull(),
-    end: timestamp('end').notNull(),
+      .references(() => seasonTypesTable.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`),
   },
-  (table) => [unique().on(table.seasonId, table.week)],
+  (table) => [unique().on(table.seasonTypeId, table.number)],
 )
 
 export type InsertUser = typeof usersTable.$inferInsert
 export type SelectUser = typeof usersTable.$inferSelect
+export type InsertSeason = typeof seasonsTable.$inferInsert
+export type InsertSeasonType = typeof seasonTypesTable.$inferInsert
+
+export const SEASON_TYPE_CODES = {
+  PRESEASON: 1,
+  REGULAR_SEASON: 2,
+  POSTSEASON: 3,
+  OFF_SEASON: 4,
+} as const

@@ -670,3 +670,14 @@ export const schoolsByIdQuery = defineQuery(
     image,
   }| order(_order)`,
 )
+
+export const sportInfoQuery = defineQuery(
+  /* groq */
+  `*[_type == "sport" && defined(slug.current)]{
+    _id,
+    _createdAt,
+    _updatedAt,
+    title,
+    "slug": slug.current,
+  }`,
+)
