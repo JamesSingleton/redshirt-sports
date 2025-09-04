@@ -28,7 +28,7 @@ export const viewport: Viewport = {
   themeColor: '#E80022',
 }
 
-export default async function RootLayout(props: LayoutProps<'/'>) {
+export default async function RootLayout({ children }: LayoutProps<'/'>) {
   preconnect('https://cdn.sanity.io')
   prefetchDNS('https://cdn.sanity.io')
 
@@ -41,7 +41,7 @@ export default async function RootLayout(props: LayoutProps<'/'>) {
           <Suspense fallback={<NavbarSkeleton />}>
             <NavbarServer />
           </Suspense>
-          <main className="flex-1">{props.children}</main>
+          <main className="flex-1">{children}</main>
           <Suspense fallback={<FooterSkeleton />}>
             <FooterServer />
           </Suspense>

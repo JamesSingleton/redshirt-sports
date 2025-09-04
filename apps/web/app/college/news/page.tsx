@@ -70,8 +70,8 @@ const breadcrumbItems = [
   },
 ]
 
-export default async function CollegeSportsNews(props: PageProps<'/college/news'>) {
-  const { page } = await props.searchParams
+export default async function CollegeSportsNews({ searchParams }: PageProps<'/college/news'>) {
+  const { page } = await searchParams
   const pageIndex = validatePageIndex(page)
   const {
     data: { posts, totalPosts },

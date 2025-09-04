@@ -16,6 +16,7 @@ import { authorBySlug, postsByAuthor } from '@/lib/sanity/query'
 
 import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
+import { validatePageIndex } from '@/utils/validate-page-index'
 
 // cache for 48 hours
 export const revalidate = 172800
@@ -38,15 +39,9 @@ async function fetchAuthorPosts(slug: string, pageIndex: number) {
 export async function generateMetadata({
   params,
   searchParams,
-}: {
-  params: Promise<{ slug: string }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}): Promise<Metadata> {
-  const resolvedParams = await params
-  const resolvedSearchParams = await searchParams
-
-  const { slug } = resolvedParams
-  const page = resolvedSearchParams.page
+}: PageProps<'/authors/[slug]'>): Promise<Metadata> {
+  const { slug } = await params
+  const { page } = await searchParams
 
   const { data: author } = await fetchAuthorInfo(slug)
 
@@ -61,7 +56,7 @@ export async function generateMetadata({
   let description = `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`
 
   if (page && typeof page === 'string') {
-    const pageNum = parseInt(page)
+    const pageNum = validatePageIndex(page)
     if (pageNum > 1) {
       canonical = `/authors/${slug}?page=${pageNum}`
       title = `${author.name} - ${roles} (Page ${pageNum})`
@@ -78,19 +73,13 @@ export async function generateMetadata({
   })
 }
 
-export default async function Page({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ slug: string }>
-  searchParams: Promise<{ [key: string]: string }>
-}) {
+export default async function Page({ params, searchParams }: PageProps<'/authors/[slug]'>) {
   const { slug } = await params
   const { page } = await searchParams
-  const pageIndex = page ? parseInt(page) : 1
+  const pageIndex = validatePageIndex(page)
   const baseUrl = getBaseUrl()
 
-  if (page && parseInt(page) === 1) {
+  if (page && pageIndex === 1) {
     return redirect(`/authors/${slug}`)
   }
 

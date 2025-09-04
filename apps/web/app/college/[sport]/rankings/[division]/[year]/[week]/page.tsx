@@ -53,10 +53,10 @@ function parseWeekNumber(week: string): number {
   return parseInt(week, 10)
 }
 
-export async function generateMetadata(
-  props: PageProps<'/college/[sport]/rankings/[division]/[year]/[week]'>,
-): Promise<Metadata> {
-  const { division, year, week, sport } = await props.params
+export async function generateMetadata({
+  params,
+}: PageProps<'/college/[sport]/rankings/[division]/[year]/[week]'>): Promise<Metadata> {
+  const { division, year, week, sport } = await params
   const weekNumber = parseWeekNumber(week)
   const titleWeek = getWeekTitle(weekNumber)
 
@@ -67,10 +67,10 @@ export async function generateMetadata(
   })
 }
 
-export default async function CollegeFootballRankingsPage(
-  props: PageProps<'/college/[sport]/rankings/[division]/[year]/[week]'>,
-) {
-  const { division, year, week, sport } = await props.params
+export default async function CollegeFootballRankingsPage({
+  params,
+}: PageProps<'/college/[sport]/rankings/[division]/[year]/[week]'>) {
+  const { division, year, week, sport } = await params
 
   const weekNumber = parseWeekNumber(week)
   const titleWeek = getWeekTitle(weekNumber)

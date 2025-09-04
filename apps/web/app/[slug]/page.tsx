@@ -60,8 +60,8 @@ export async function generateMetadata({
   })
 }
 
-export default async function PostPage(props: PageProps<'/[slug]'>) {
-  const { slug } = await props.params
+export default async function PostPage({ params }: PageProps<'/[slug]'>) {
+  const { slug } = await params
   const { data } = await fetchPostSlugData(slug)
 
   if (!data) {

@@ -30,11 +30,12 @@ async function fetchSportTitle(sport: string) {
   })
 }
 
-export async function generateMetadata(
-  props: PageProps<'/college/[sport]/news'>,
-): Promise<Metadata> {
-  const { sport } = await props.params
-  const { page } = await props.searchParams
+export async function generateMetadata({
+  params,
+  searchParams,
+}: PageProps<'/college/[sport]/news'>): Promise<Metadata> {
+  const { sport } = await params
+  const { page } = await searchParams
   const pageIndex = validatePageIndex(page)
 
   const { data: sportData } = await fetchSportTitle(sport)
@@ -64,10 +65,10 @@ export async function generateMetadata(
   })
 }
 
-export default async function Page(props: PageProps<'/college/[sport]/news'>) {
-  const { sport } = await props.params
+export default async function Page({ params, searchParams }: PageProps<'/college/[sport]/news'>) {
+  const { sport } = await params
 
-  const { page } = await props.searchParams
+  const { page } = await searchParams
   const pageIndex = validatePageIndex(page)
 
   const [newsResponse, sportInfoResponse] = await Promise.all([

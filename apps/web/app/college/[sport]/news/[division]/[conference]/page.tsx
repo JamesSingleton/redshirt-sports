@@ -78,11 +78,12 @@ export async function getDivisionOrSubgroupingDisplayName(slugOrShortName: strin
   })
 }
 
-export async function generateMetadata(
-  props: PageProps<'/college/[sport]/news/[division]/[conference]'>,
-): Promise<Metadata> {
-  const { sport, division, conference } = await props.params
-  const { page } = await props.searchParams
+export async function generateMetadata({
+  params,
+  searchParams,
+}: PageProps<'/college/[sport]/news/[division]/[conference]'>): Promise<Metadata> {
+  const { sport, division, conference } = await params
+  const { page } = await searchParams
   const pageIndex = validatePageIndex(page)
 
   const [divisionDisplayName, conferenceInfo, sportTitle] = await Promise.all([
@@ -117,11 +118,12 @@ export async function generateMetadata(
   })
 }
 
-export default async function Page(
-  props: PageProps<'/college/[sport]/news/[division]/[conference]'>,
-) {
-  const { sport, division, conference } = await props.params
-  const { page } = await props.searchParams
+export default async function Page({
+  params,
+  searchParams,
+}: PageProps<'/college/[sport]/news/[division]/[conference]'>) {
+  const { sport, division, conference } = await params
+  const { page } = await searchParams
   const pageIndex = validatePageIndex(page)
   const baseUrl = getBaseUrl()
 
