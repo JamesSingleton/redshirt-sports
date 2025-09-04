@@ -61,11 +61,7 @@ const divisionHeader = [
   },
 ]
 
-export default async function VotePage({
-  params,
-}: {
-  params: Promise<{ sport: string; division: string }>
-}) {
+export default async function VotePage({ params }: PageProps<'/vote/college/[sport]/[division]'>) {
   const rawParams = await params
   const validationResult = ParamsSchema.safeParse(rawParams)
   if (!validationResult.success) {

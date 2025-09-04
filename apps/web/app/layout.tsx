@@ -28,11 +28,7 @@ export const viewport: Viewport = {
   themeColor: '#E80022',
 }
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default async function RootLayout({ children }: LayoutProps<'/'>) {
   preconnect('https://cdn.sanity.io')
   prefetchDNS('https://cdn.sanity.io')
 

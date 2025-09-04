@@ -9,6 +9,7 @@ import { collegeNewsQuery } from '@/lib/sanity/query'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { JsonLdScript, websiteId, organizationId } from '@/components/json-ld'
 import { getSEOMetadata } from '@/lib/seo'
+import { validatePageIndex } from '@/utils/validate-page-index'
 
 import type { Metadata } from 'next'
 import type { WithContext, CollectionPage } from 'schema-dts'
@@ -69,15 +70,9 @@ const breadcrumbItems = [
   },
 ]
 
-export default async function CollegeSportsNews({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ sport: string }>
-  searchParams: Promise<{ [key: string]: string }>
-}) {
+export default async function CollegeSportsNews({ searchParams }: PageProps<'/college/news'>) {
   const { page } = await searchParams
-  const pageIndex = page !== undefined ? parseInt(page) : 1
+  const pageIndex = validatePageIndex(page)
   const {
     data: { posts, totalPosts },
   } = await fetchCollegeNews({ pageIndex })

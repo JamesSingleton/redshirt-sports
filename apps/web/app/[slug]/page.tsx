@@ -21,12 +21,6 @@ import { WORDS_PER_MINUTE } from '@/lib/constants'
 import type { Metadata } from 'next'
 import type { WithContext, WebPage } from 'schema-dts'
 
-interface PageProps {
-  params: Promise<{
-    slug: string
-  }>
-}
-
 // cache page for a week
 export const revalidate = 604800
 export const dynamic = 'force-static'
@@ -66,7 +60,7 @@ export async function generateMetadata({
   })
 }
 
-export default async function PostPage({ params }: PageProps) {
+export default async function PostPage({ params }: PageProps<'/[slug]'>) {
   const { slug } = await params
   const { data } = await fetchPostSlugData(slug)
 
