@@ -1,5 +1,5 @@
 {
-  "id": "ed32b1e0-97ef-41c3-af59-4b1d4616ea84",
+  "id": "79b752fe-9dc3-461a-8c02-f0f6232ac560",
   "prevId": "e1495552-fd69-4c25-8b07-2e610ccc3174",
   "version": "7",
   "dialect": "postgresql",
@@ -10,7 +10,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
@@ -34,7 +34,7 @@
         },
         "season_id": {
           "name": "season_id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -90,7 +90,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
@@ -481,7 +481,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
@@ -511,7 +511,7 @@
         },
         "season_type_id": {
           "name": "season_type_id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
