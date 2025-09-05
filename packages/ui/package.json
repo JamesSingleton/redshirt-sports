@@ -34,7 +34,7 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindcss/postcss": "^4.1.13",
     "@tailwindcss/typography": "^0.5.16",
     "@turbo/gen": "^2.5.6",
     "@types/node": "^24.3.0",
