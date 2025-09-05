@@ -6,6 +6,7 @@ import { Search, X } from 'lucide-react'
 import { Input } from '@workspace/ui/components/input'
 import { Button } from '@workspace/ui/components/button'
 import { Card } from '@workspace/ui/components/card'
+
 import { useDebounce } from '@/hooks/use-debounce'
 import { client } from '@/lib/sanity/client'
 
@@ -53,15 +54,6 @@ const realSearch = async (query: string): Promise<any> => {
     console.error('Search error:', error)
     return []
   }
-}
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
 }
 
 export function SearchBar({ placeholder = 'Search...', className }: SearchBarProps) {
@@ -198,9 +190,6 @@ export function SearchBar({ placeholder = 'Search...', className }: SearchBarPro
                   >
                     <div className="flex flex-col">
                       <div className="line-clamp-2 text-sm font-medium">{result.title}</div>
-                      <div className="text-muted-foreground mt-1 text-xs">
-                        {formatDate(result.publishedAt)}
-                      </div>
                     </div>
                   </button>
                 ))}
