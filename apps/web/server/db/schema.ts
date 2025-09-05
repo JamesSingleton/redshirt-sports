@@ -129,6 +129,7 @@ export type InsertUser = typeof usersTable.$inferInsert
 export type SelectUser = typeof usersTable.$inferSelect
 export type InsertSeason = typeof seasonsTable.$inferInsert
 export type InsertSeasonType = typeof seasonTypesTable.$inferInsert
+export type InsertWeeks = typeof weeksTable.$inferInsert
 
 export const SEASON_TYPE_CODES = {
   PRESEASON: 1,

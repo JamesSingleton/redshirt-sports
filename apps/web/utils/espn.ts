@@ -1,5 +1,12 @@
 import z from 'zod'
-import type { Season, SeasonType, ESPNBody, WeekDetail } from '@/types'
+import type {
+  Season,
+  SeasonType,
+  ESPNBody,
+  WeekDetail,
+  ESPNWeeksResponse,
+  ESPNWeekResponse,
+} from '@/types'
 
 export const SportSchema = z.enum(['football', 'mens-basketball', 'womens-basketball'])
 export type SportParam = z.infer<typeof SportSchema>
@@ -11,9 +18,10 @@ const SPORT_MAPPINGS = {
 } as const
 
 /**
- * ESPN API base URL
+ * ESPN API base URLs
  */
-const ESPN_BASE_URL = 'https://site.api.espn.com/apis/common/v3/sports'
+const ESPN_BASE_SITE_URL = 'https://site.api.espn.com/apis/common/v3/sports'
+const ESPN_BASE_SPORTS_URL = 'https://sports.core.api.espn.com/v2/sports'
 
 /**
  * Get the ESPN sport path for a given sport
@@ -24,6 +32,29 @@ function getSportPath(sport: SportParam): string {
     throw new Error(`Unsupported sport: ${sport}`)
   }
   return sportPath
+}
+
+function getSportPathParts(sport: SportParam): string[] {
+  const sportPath = getSportPath(sport)
+  return sportPath.split('/')
+}
+
+export async function fetchWeeksFromSportsUrl(
+  sport: SportParam,
+  seasonYear: number,
+  seasonTypeType: number,
+) {
+  const [sportPart, leaguePart] = getSportPathParts(sport)
+  const url = `${ESPN_BASE_SPORTS_URL}/${sportPart}/leagues/${leaguePart}/seasons/${seasonYear}/types/${seasonTypeType}/weeks`
+
+  const weeksResponse = await fetchESPNData<ESPNWeeksResponse>(url)
+
+  const weekPromises = []
+  for (const week of weeksResponse.items) {
+    weekPromises.push(fetchESPNData<ESPNWeekResponse>(week.$ref))
+  }
+
+  return Promise.all(weekPromises)
 }
 
 /**
@@ -42,7 +73,7 @@ async function fetchESPNData<T>(url: string): Promise<T> {
  */
 export async function getCurrentSeason(sport: SportParam = 'football'): Promise<Season> {
   const sportPath = getSportPath(sport)
-  const url = `${ESPN_BASE_URL}/${sportPath}/season`
+  const url = `${ESPN_BASE_SITE_URL}/${sportPath}/season`
 
   return fetchESPNData<Season>(url)
 }
@@ -62,7 +93,7 @@ export async function getSeasonData(
     year = currentSeason.year
   }
 
-  const url = `${ESPN_BASE_URL}/${sportPath}/seasons?startingseason=${year}`
+  const url = `${ESPN_BASE_SITE_URL}/${sportPath}/seasons?startingseason=${year}`
   const espnBody: ESPNBody = await fetchESPNData(url)
 
   return espnBody.seasons[0]!
@@ -74,7 +105,7 @@ export async function getSeasonData(
 export async function getMultipleSeasonsData(sport: SportParam = 'football', startingYear: number) {
   const sportPath = getSportPath(sport)
 
-  const url = `${ESPN_BASE_URL}/${sportPath}/seasons?startingseason=${startingYear}`
+  const url = `${ESPN_BASE_SITE_URL}/${sportPath}/seasons?startingseason=${startingYear}`
   const espnBody: ESPNBody = await fetchESPNData(url)
 
   return espnBody.seasons!
@@ -110,7 +141,7 @@ export async function getCurrentWeek(sport: SportParam = 'football'): Promise<nu
     currentDate >= new Date(regularSeason.endDate) && currentDate <= currentSeasonEndDate
 
   if (isRegularSeason) {
-    const currentWeek = regularSeason.weeks.find(
+    const currentWeek = regularSeason.weeks?.find(
       (week) => currentDate >= new Date(week.startDate) && currentDate <= new Date(week.endDate),
     )
 
@@ -159,7 +190,7 @@ export async function getSeasonInfo(sport: SportParam = 'football'): Promise<{
   let currentWeek = 0
 
   if (isRegularSeason && regularSeason) {
-    const week = regularSeason.weeks.find(
+    const week = regularSeason.weeks?.find(
       (week) => currentDate >= new Date(week.startDate) && currentDate <= new Date(week.endDate),
     )
     if (week) {
@@ -215,7 +246,7 @@ export function isDateInSeasonPeriod(date: Date, seasonType: SeasonType): boolea
  * Get the week number for a specific date
  */
 export function getWeekForDate(date: Date, seasonType: SeasonType): number | null {
-  const week = seasonType.weeks.find(
+  const week = seasonType.weeks?.find(
     (week) => date >= new Date(week.startDate) && date <= new Date(week.endDate),
   )
   return week?.number || null

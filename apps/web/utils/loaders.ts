@@ -9,7 +9,7 @@ import {
   sportsTable,
   weeksTable,
 } from '@/server/db/schema'
-import { getMultipleSeasonsData, SportParam } from './espn'
+import { fetchWeeksFromSportsUrl, getMultipleSeasonsData, SportParam } from './espn'
 
 interface SanitySport {
   _id: string
@@ -45,7 +45,14 @@ export async function fetchAndLoadSeasons(sport: SportParam, startingSeason: num
 
       const dbSeasonType = await findOrCreateSeasonType(newSeasonType)
 
-      const mappedWeeks = seasonType.weeks.map((week) => ({
+      let sourceWeeks = []
+      if (seasonType.weeks) {
+        sourceWeeks = seasonType.weeks
+      } else {
+        sourceWeeks = await fetchWeeksFromSportsUrl(sport, dbSeason.year, dbSeasonType.type)
+      }
+
+      const mappedWeeks = sourceWeeks.map((week) => ({
         number: week.number,
         text: week.text,
         startDate: new Date(week.startDate),
@@ -53,10 +60,12 @@ export async function fetchAndLoadSeasons(sport: SportParam, startingSeason: num
         seasonTypeId: dbSeasonType.id,
       }))
 
-      try {
-        await db.insert(weeksTable).values(mappedWeeks)
-      } catch {
-        throw new Error('Unable to find or create season type! Aborting.')
+      if (mappedWeeks.length) {
+        try {
+          await db.insert(weeksTable).values(mappedWeeks)
+        } catch {
+          throw new Error('Unable to find or create season type! Aborting.')
+        }
       }
     }
   }

@@ -55,7 +55,7 @@ export type SeasonType = {
   name: string
   startDate: string
   endDate: string
-  weeks: WeekDetail[]
+  weeks?: WeekDetail[]
   week: Week | {}
 }
 
@@ -167,4 +167,21 @@ export interface SchoolLite {
   abbreviation: string
   shortName: string
   _points: number
+}
+
+export interface ESPNApiRef {
+  $ref: string
+}
+
+export interface ESPNWeeksResponse {
+  count: number
+  pageIndex: number
+  pageSize: number
+  pageCount: number
+  items: ESPNApiRef[]
+}
+
+export interface ESPNWeekResponse extends Week {
+  $ref: string
+  rankings: ESPNApiRef
 }
