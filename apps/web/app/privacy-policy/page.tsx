@@ -1,5 +1,5 @@
 import PageHeader from '@/components/page-header'
-import Date from '@/components/date'
+import FormatDate from '@/components/format-date'
 import { RichText } from '@/components/rich-text'
 import { getSEOMetadata } from '@/lib/seo'
 import { sanityFetch } from '@/lib/sanity/live'
@@ -69,7 +69,7 @@ export default async function PrivacyPolicyPage() {
             title="Privacy Policy"
             subtitle={
               <p className="mt-4 text-lg font-normal lg:text-xl">
-                Last updated on <Date dateString={privacyPolicy._updatedAt} />
+                Last updated on <FormatDate dateString={privacyPolicy._updatedAt} />
               </p>
             }
           />

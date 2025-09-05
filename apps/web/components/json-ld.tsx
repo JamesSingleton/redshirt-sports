@@ -63,8 +63,8 @@ export function ArticleJsonLd({ article }: { article: any }) {
         })
       : [],
     headline: article.title,
-    datePublished: new Date(article.publishedAt).toISOString(),
-    dateModified: new Date(article._updatedAt).toISOString(),
+    datePublished: article.publishedAt,
+    dateModified: article._updatedAt,
     description: article.excerpt,
     mainEntityOfPage: {
       '@type': 'WebPage',

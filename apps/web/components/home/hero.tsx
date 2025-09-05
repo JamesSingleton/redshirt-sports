@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import Date from '@/components/date'
+import FormatDate from '@/components/format-date'
 import ArticleCard from '@/components/article-card'
 import CustomImage from '../sanity-image'
 import { QueryHomePageDataResult } from '@/lib/sanity/sanity.types'
@@ -41,7 +41,7 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
                   />
                   <span className="text-primary">{heroArticle.authors[0]?.name}</span>
                 </Link>
-                <Date dateString={heroArticle.publishedAt} />
+                <FormatDate dateString={heroArticle.publishedAt} />
               </div>
             </div>
           </div>

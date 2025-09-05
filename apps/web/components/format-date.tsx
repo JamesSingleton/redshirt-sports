@@ -9,7 +9,7 @@ interface DateProps extends WithClassName {
 
 const timeZone = 'America/Phoenix'
 
-export default function Date({ dateString, className }: DateProps) {
+export default function FormatDate({ dateString, className }: DateProps) {
   const date = parseISO(dateString)
 
   return (

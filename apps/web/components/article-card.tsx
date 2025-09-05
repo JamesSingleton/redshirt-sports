@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Separator } from '@workspace/ui/components/separator'
 
 import CustomImage from './sanity-image'
-import Date from '@/components/date'
+import FormatDate from '@/components/format-date'
 
 import type { Slug } from '@/lib/sanity/sanity.types'
 
@@ -47,7 +47,7 @@ export default function ArticleCard({
         <div className="text-muted-foreground flex items-center space-x-2 text-sm">
           <div>{author}</div>
           <Separator orientation="vertical" className="h-4" />
-          <Date dateString={date} />
+          <FormatDate dateString={date} />
         </div>
       </div>
     </div>

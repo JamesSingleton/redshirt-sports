@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import { buttonVariants } from '@workspace/ui/components/button'
 
-import Date from '@/components/date'
+import FormatDate from '@/components/format-date'
 import ArticleCard from '@/components/article-card'
 import CustomImage from '@/components/sanity-image'
 
@@ -72,7 +72,7 @@ export default function ArticleSection({
                   />
                   {firstArticle.authors[0]?.name}
                 </Link>
-                <Date dateString={firstArticle.publishedAt} />
+                <FormatDate dateString={firstArticle.publishedAt} />
               </div>
             </div>
           </div>

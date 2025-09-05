@@ -17,6 +17,7 @@ import { getBaseUrl } from '@/lib/get-base-url'
 import { getSEOMetadata } from '@/lib/seo'
 import ArticleLoadingSkeleton from '@/components/article-loading-skeleton'
 import { WORDS_PER_MINUTE } from '@/lib/constants'
+import FormatDate from '@/components/format-date'
 
 import type { Metadata } from 'next'
 import type { WithContext, WebPage } from 'schema-dts'
@@ -89,8 +90,8 @@ export default async function PostPage({ params }: PageProps<'/[slug]'>) {
       height: '1080',
     },
     thumbnailUrl: articleImageUrl,
-    datePublished: new Date(data.publishedAt).toISOString(),
-    dateModified: new Date(data._updatedAt).toISOString(),
+    datePublished: data.publishedAt,
+    dateModified: data._updatedAt,
     description: data.excerpt,
     breadcrumb: {
       '@type': 'BreadcrumbList',
@@ -170,13 +171,7 @@ export default async function PostPage({ params }: PageProps<'/[slug]'>) {
               {data.sport && (data.division || data.conferences) && (
                 <span className="text-sm">•</span>
               )}
-              <time className="text-sm">
-                {new Date(data.publishedAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </time>
+              <FormatDate dateString={data.publishedAt} />
             </div>
           </div>
         </section>
