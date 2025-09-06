@@ -89,7 +89,7 @@ export async function GET(request: Request, segmentData: { params: Params }) {
   const currentDate = new Date()
   const season = await getCurrentSeasonStartAndEnd({ year: currentDate.getFullYear() })
   // Return early if the current date is not within the season as there is no use calculating rankings
-  if (season && (season.start > currentDate || season.end < currentDate)) {
+  if (season && (season.startDate > currentDate || season.endDate < currentDate)) {
     return NextResponse.json({
       response: 'Current date is not within the season',
     })

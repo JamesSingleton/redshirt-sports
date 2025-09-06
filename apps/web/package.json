@@ -13,6 +13,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio --verbose",
+    "db:push": "drizzle-kit push",
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
