@@ -484,8 +484,7 @@ export const schoolsByDivisionQuery = defineQuery(/* groq */ `
 `)
 
 export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
-  *[_type == "school" &&
-    top25VotingEligible != false
+  *[_type == "school"
   ] {
     _id,
     name,

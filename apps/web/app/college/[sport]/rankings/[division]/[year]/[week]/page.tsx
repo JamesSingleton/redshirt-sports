@@ -159,7 +159,6 @@ export default async function CollegeFootballRankingsPage({
           <CardDescription>
             Our {division.toUpperCase()} Top 25 uses a point system: 25 points for a first-place
             vote down to 1 point for a 25th-place vote. Total points determine the final rankings.
-            Only playoff eligible teams are considered.
           </CardDescription>
           <CardDescription className="flex items-center space-x-4 pt-4">
             <RankingsFilters years={yearsWithVotes} weeks={weeksWithVotes} />
