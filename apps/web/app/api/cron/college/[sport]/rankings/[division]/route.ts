@@ -80,25 +80,40 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
   return teamPoints
 }
 
-type Params = Promise<{ sport: string; division: string }>
+type Params = Promise<{ sport: SportParam; division: string }>
 
 // Cron job to calculate rankings and store them in the database
 // Runs once a week on Sunday at 11:59 PM PST
 export async function GET(request: Request, segmentData: { params: Params }) {
   const { sport, division: divisionParam } = await segmentData.params
   const currentDate = new Date()
-  const season = await getCurrentSeasonStartAndEnd({ year: currentDate.getFullYear() })
+  const sportId = await getSportIdBySlug(sport)
+  if (!sportId) {
+    return NextResponse.json(
+      {
+        error: `Invalid sport: ${sport}`,
+      },
+      {
+        status: 400,
+      },
+    )
+  }
+
+  const season = await getCurrentSeasonStartAndEnd({
+    sportId: sportId,
+    year: currentDate.getFullYear(),
+  })
+
   // Return early if the current date is not within the season as there is no use calculating rankings
-  if (season && (season.start > currentDate || season.end < currentDate)) {
+  if (season && (season.startDate > currentDate || season.endDate < currentDate)) {
     return NextResponse.json({
       response: 'Current date is not within the season',
     })
   }
 
-  const [currentSeason, currentWeek, sportId] = await Promise.all([
+  const [currentSeason, currentWeek] = await Promise.all([
     await getCurrentSeason(),
     await getCurrentWeek(),
-    await getSportIdBySlug(sport as SportParam),
   ])
 
   try {

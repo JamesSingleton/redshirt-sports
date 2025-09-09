@@ -207,9 +207,15 @@ export async function getVotesForWeekAndYearByVoter({
 
   return userBallots
 }
-export async function getCurrentSeasonStartAndEnd({ year }: { year: number }) {
+export async function getCurrentSeasonStartAndEnd({
+  sportId,
+  year,
+}: {
+  sportId: string
+  year: number
+}) {
   const season = await db.query.seasonsTable.findFirst({
-    where: (model, { eq }) => eq(model.year, year),
+    where: (model, { eq }) => and(eq(model.year, year), eq(model.sportId, sportId)),
   })
 
   return season
