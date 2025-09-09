@@ -10,6 +10,7 @@ import {
   text,
   boolean,
 } from 'drizzle-orm/pg-core'
+import { randomUUID } from 'node:crypto'
 
 export const sportsTable = pgTable('sports', {
   id: text('id').primaryKey(), // Sanity _id
@@ -71,7 +72,9 @@ export const usersTable = pgTable('users_table', {
 export const seasonsTable = pgTable(
   'seasons',
   {
-    id: serial('id').primaryKey(),
+    id: text('id')
+      .primaryKey()
+      .$default(() => randomUUID()),
     year: integer('year').notNull(),
     displayName: varchar('display_name', { length: 256 }),
     startDate: timestamp('start_date', { withTimezone: true }).notNull(),
@@ -88,11 +91,13 @@ export const seasonsTable = pgTable(
 export const seasonTypesTable = pgTable(
   'season_types',
   {
-    id: serial('id').primaryKey(),
+    id: text('id')
+      .primaryKey()
+      .$default(() => randomUUID()),
     type: integer('type').notNull(),
     startDate: timestamp('start_date', { withTimezone: true }).notNull(),
     endDate: timestamp('end_date', { withTimezone: true }).notNull(),
-    seasonId: integer('season_id')
+    seasonId: text('season_id')
       .notNull()
       .references(() => seasonsTable.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
@@ -104,12 +109,14 @@ export const seasonTypesTable = pgTable(
 export const weeksTable = pgTable(
   'weeks',
   {
-    id: serial('id').primaryKey(),
+    id: text('id')
+      .primaryKey()
+      .$default(() => randomUUID()),
     number: integer('number').notNull(),
     startDate: timestamp('start_date', { withTimezone: true }).notNull(),
     endDate: timestamp('end_date', { withTimezone: true }).notNull(),
     text: varchar('text', { length: 256 }),
-    seasonTypeId: integer('season_type_id')
+    seasonTypeId: text('season_type_id')
       .notNull()
       .references(() => seasonTypesTable.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),

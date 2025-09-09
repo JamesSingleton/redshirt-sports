@@ -1,9 +1,9 @@
 CREATE TABLE "season_types" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"type" integer NOT NULL,
 	"start_date" timestamp with time zone NOT NULL,
 	"end_date" timestamp with time zone NOT NULL,
-	"season_id" integer NOT NULL,
+	"season_id" text NOT NULL,
 	"created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
 	"updated_at" timestamp DEFAULT CURRENT_TIMESTAMP,
 	CONSTRAINT "season_types_season_id_type_unique" UNIQUE("season_id","type")
@@ -19,6 +19,9 @@ ALTER TABLE "seasons" DROP CONSTRAINT "seasons_year_unique";--> statement-breakp
 ALTER TABLE "weeks" DROP CONSTRAINT "weeks_seasonId_week_unique";--> statement-breakpoint
 ALTER TABLE "weeks" DROP CONSTRAINT "weeks_seasonId_seasons_id_fk";
 --> statement-breakpoint
+ALTER TABLE "seasons" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "weeks" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "weeks" ALTER COLUMN "season_type_id" SET DATA TYPE text;--> statement-breakpoint
 ALTER TABLE "seasons" ADD COLUMN "display_name" varchar(256);--> statement-breakpoint
 ALTER TABLE "seasons" ADD COLUMN "sport_id" text NOT NULL;--> statement-breakpoint
 ALTER TABLE "seasons" ADD COLUMN "created_at" timestamp DEFAULT CURRENT_TIMESTAMP;--> statement-breakpoint
