@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { SportParam } from '@/utils/espn'
 import { fetchAndLoadSeasons } from '@/utils/loaders'
 import { NextResponse } from 'next/server'
@@ -20,7 +21,8 @@ export async function POST(
   try {
     await fetchAndLoadSeasons(sportSlug)
   } catch (e) {
-    console.log(e)
+    Sentry.captureException(e)
+
     return NextResponse.json(
       {
         error: e,
