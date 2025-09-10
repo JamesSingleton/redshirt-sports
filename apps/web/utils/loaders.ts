@@ -19,7 +19,10 @@ interface SanitySport {
   _updatedAt: string
 }
 
-export async function fetchAndLoadSeasons(sport: SportParam, startingSeason: number) {
+export async function fetchAndLoadSeasons(
+  sport: SportParam,
+  startingSeason = new Date().getFullYear() - 3,
+) {
   const espnSeasons = await getMultipleSeasonsData(sport, startingSeason)
 
   const dbSport = await sportBySlug(sport)
@@ -61,10 +64,18 @@ export async function fetchAndLoadSeasons(sport: SportParam, startingSeason: num
       }))
 
       if (mappedWeeks.length) {
-        try {
-          await db.insert(weeksTable).values(mappedWeeks)
-        } catch {
-          throw new Error('Unable to find or create season type! Aborting.')
+        const existingWeeks = await db.query.weeksTable.findMany({
+          where: (model, { eq }) => eq(model.seasonTypeId, dbSeasonType.id),
+        })
+
+        if (existingWeeks.length) {
+          console.log('Existing weeks found. Skipping load of weeks.')
+        } else {
+          try {
+            await db.insert(weeksTable).values(mappedWeeks)
+          } catch {
+            throw new Error('Unable to create weeks! Aborting.')
+          }
         }
       }
     }
