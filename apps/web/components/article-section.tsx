@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
-import { cn } from '@workspace/ui/lib/utils'
-import { buttonVariants } from '@workspace/ui/components/button'
+import { cn } from '@redshirt-sports/ui/lib/utils'
+import { buttonVariants } from '@redshirt-sports/ui/components/button'
 
 import FormatDate from '@/components/format-date'
 import ArticleCard from '@/components/article-card'

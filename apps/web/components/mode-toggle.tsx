@@ -3,13 +3,13 @@
 import { useTheme } from 'next-themes'
 import { Sun, Moon, Laptop } from 'lucide-react'
 
-import { Button } from '@workspace/ui/components/button'
+import { Button } from '@redshirt-sports/ui/components/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@workspace/ui/components/dropdown-menu'
+} from '@redshirt-sports/ui/components/dropdown-menu'
 
 export function ModeToggle() {
   const { setTheme } = useTheme()

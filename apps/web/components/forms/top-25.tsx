@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import { useParams, useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@workspace/ui/components/button'
+import { Button } from '@redshirt-sports/ui/components/button'
 import {
   Form,
   FormControl,
@@ -15,7 +15,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@workspace/ui/components/form'
+} from '@redshirt-sports/ui/components/form'
 import { VirtualizedCombobox } from '../virtualized-combobox'
 
 import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@/lib/sanity/sanity.types'

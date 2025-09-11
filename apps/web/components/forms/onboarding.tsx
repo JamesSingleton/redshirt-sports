@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { Button } from '@workspace/ui/components/button'
+import { Button } from '@redshirt-sports/ui/components/button'
 import {
   Form,
   FormField,
@@ -15,25 +15,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@workspace/ui/components/form'
+} from '@redshirt-sports/ui/components/form'
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from '@workspace/ui/components/card'
-import { Input } from '@workspace/ui/components/input'
+} from '@redshirt-sports/ui/components/card'
+import { Input } from '@redshirt-sports/ui/components/input'
 
 import { completeOnboarding } from '@/actions/complete-onboarding'
 
 const FormSchema = z.object({
   organizationName: z.string().min(2, {
-      error: 'Organization Name must be at least 2 characters'
-}),
+    error: 'Organization Name must be at least 2 characters',
+  }),
   organizationRole: z.string().min(2, {
-      error: 'Organization Role must be at least 2 characters'
-}),
+    error: 'Organization Role must be at least 2 characters',
+  }),
 })
 
 export default function Onboarding() {

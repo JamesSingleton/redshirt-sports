@@ -6,7 +6,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@workspace/ui/components/select'
+} from '@redshirt-sports/ui/components/select'
 
 type Week = {
   week: number

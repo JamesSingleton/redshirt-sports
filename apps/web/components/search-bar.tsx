@@ -3,9 +3,9 @@
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, X } from 'lucide-react'
-import { Input } from '@workspace/ui/components/input'
-import { Button } from '@workspace/ui/components/button'
-import { Card } from '@workspace/ui/components/card'
+import { Input } from '@redshirt-sports/ui/components/input'
+import { Button } from '@redshirt-sports/ui/components/button'
+import { Card } from '@redshirt-sports/ui/components/card'
 
 import { useDebounce } from '@/hooks/use-debounce'
 import { client } from '@/lib/sanity/client'

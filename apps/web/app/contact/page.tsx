@@ -5,7 +5,7 @@ import {
   CardDescription,
   CardContent,
   CardHeader,
-} from '@workspace/ui/components/card'
+} from '@redshirt-sports/ui/components/card'
 
 import PageHeader from '@/components/page-header'
 import { getSEOMetadata } from '@/lib/seo'

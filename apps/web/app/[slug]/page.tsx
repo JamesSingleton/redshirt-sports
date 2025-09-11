@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CameraIcon } from 'lucide-react'
 import { toPlainText } from 'next-sanity'
-import { badgeVariants } from '@workspace/ui/components/badge'
+import { badgeVariants } from '@redshirt-sports/ui/components/badge'
 
 import { sanityFetch } from '@/lib/sanity/live'
 import { queryPostSlugData } from '@/lib/sanity/query'

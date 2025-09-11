@@ -6,7 +6,7 @@ import {
   type PortableTextBlock,
   PortableTextMarkComponentProps,
 } from 'next-sanity'
-import { cn } from '@workspace/ui/lib/utils'
+import { cn } from '@redshirt-sports/ui/lib/utils'
 import {
   Table,
   TableBody,
@@ -14,7 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@workspace/ui/components/table'
+} from '@redshirt-sports/ui/components/table'
 
 import { ReactTweet as Tweet } from '@/components/tweet'
 import CustomImage from '@/components/sanity-image'

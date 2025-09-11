@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { buttonVariants } from '@workspace/ui/components/button'
+import { buttonVariants } from '@redshirt-sports/ui/components/button'
 
 export default function NotFound() {
   return (

@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import z from 'zod'
-import { CardHeader, CardTitle, CardContent, Card } from '@workspace/ui/components/card'
+import { CardHeader, CardTitle, CardContent, Card } from '@redshirt-sports/ui/components/card'
 
 import Top25 from '@/components/forms/top-25'
 import { getLatestVoterBallotWithSchools, hasVoterVoted, getSportIdBySlug } from '@/server/queries'

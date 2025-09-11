@@ -8,8 +8,8 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from '@workspace/ui/components/navigation-menu'
-import { ScrollArea } from '@workspace/ui/components/scroll-area'
+} from '@redshirt-sports/ui/components/navigation-menu'
+import { ScrollArea } from '@redshirt-sports/ui/components/scroll-area'
 import { SearchBar } from './search-bar'
 import SmallLogo from './small-logo'
 import { getLatestFinalRankings } from '@/server/queries'

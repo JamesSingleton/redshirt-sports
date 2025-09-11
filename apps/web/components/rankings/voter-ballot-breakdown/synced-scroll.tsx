@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
-import { cn } from '@workspace/ui/lib/utils'
+import { cn } from '@redshirt-sports/ui/lib/utils'
 
 type Props = React.HTMLAttributes<HTMLDivElement> & {
   group: string

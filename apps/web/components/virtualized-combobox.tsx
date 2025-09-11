@@ -4,7 +4,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import Fuse from 'fuse.js'
 
-import { Button } from '@workspace/ui/components/button'
+import { Button } from '@redshirt-sports/ui/components/button'
 import {
   Command,
   CommandEmpty,
@@ -12,9 +12,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@workspace/ui/components/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover'
-import { cn } from '@workspace/ui/lib/utils'
+} from '@redshirt-sports/ui/components/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@redshirt-sports/ui/components/popover'
+import { cn } from '@redshirt-sports/ui/lib/utils'
 
 import CustomImage from '@/components/sanity-image'
 

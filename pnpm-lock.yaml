@@ -8,10 +8,10 @@ importers:
 
   .:
     devDependencies:
-      '@workspace/eslint-config':
+      '@redshirt-sports/eslint-config':
         specifier: workspace:*
         version: link:packages/eslint-config
-      '@workspace/typescript-config':
+      '@redshirt-sports/typescript-config':
         specifier: workspace:*
         version: link:packages/typescript-config
       prettier:
@@ -29,7 +29,7 @@ importers:
 
   apps/admin:
     dependencies:
-      '@workspace/ui':
+      '@redshirt-sports/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       next:
@@ -42,6 +42,12 @@ importers:
         specifier: 19.1.1
         version: 19.1.1(react@19.1.1)
     devDependencies:
+      '@redshirt-sports/eslint-config':
+        specifier: workspace:^
+        version: link:../../packages/eslint-config
+      '@redshirt-sports/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
       '@types/node':
         specifier: ^24.3.1
         version: 24.3.1
@@ -51,12 +57,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.1.9
         version: 19.1.9(@types/react@19.1.12)
-      '@workspace/eslint-config':
-        specifier: workspace:^
-        version: link:../../packages/eslint-config
-      '@workspace/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       eslint:
         specifier: ^9.35.0
         version: 9.35.0(jiti@2.5.1)
@@ -160,6 +160,9 @@ importers:
       '@portabletext/to-html':
         specifier: ^3.0.0
         version: 3.0.0
+      '@redshirt-sports/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@sanity/asset-utils':
         specifier: ^2.3.0
         version: 2.3.0
@@ -187,9 +190,6 @@ importers:
       '@vercel/speed-insights':
         specifier: ^1.2.0
         version: 1.2.0(next@15.5.2(@babel/core@7.28.3)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@19.1.0-rc.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
-      '@workspace/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -257,6 +257,12 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
     devDependencies:
+      '@redshirt-sports/eslint-config':
+        specifier: workspace:^
+        version: link:../../packages/eslint-config
+      '@redshirt-sports/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
       '@types/lodash.debounce':
         specifier: ^4.0.9
         version: 4.0.9
@@ -269,12 +275,6 @@ importers:
       '@types/react-dom':
         specifier: 19.1.9
         version: 19.1.9(@types/react@19.1.12)
-      '@workspace/eslint-config':
-        specifier: workspace:^
-        version: link:../../packages/eslint-config
-      '@workspace/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       babel-plugin-react-compiler:
         specifier: 19.1.0-rc.3
         version: 19.1.0-rc.3
@@ -419,6 +419,12 @@ importers:
         specifier: ^4.0.17
         version: 4.1.5
     devDependencies:
+      '@redshirt-sports/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@redshirt-sports/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       '@tailwindcss/postcss':
         specifier: ^4.1.13
         version: 4.1.13
@@ -437,12 +443,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.1.7
         version: 19.1.9(@types/react@19.1.12)
-      '@workspace/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
-      '@workspace/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)

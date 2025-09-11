@@ -1,5 +1,5 @@
 {
-  "name": "redshirt-sports",
+  "name": "@redshirt-sports/root",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.15.0",
@@ -14,8 +14,8 @@
     "check:format": "prettier --check \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
+    "@redshirt-sports/eslint-config": "workspace:*",
+    "@redshirt-sports/typescript-config": "workspace:*",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "turbo": "^2.5.6",

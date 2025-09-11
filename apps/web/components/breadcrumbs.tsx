@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { ChevronRight, HomeIcon } from 'lucide-react'
-import { cn } from '@workspace/ui/lib/utils'
+import { cn } from '@redshirt-sports/ui/lib/utils'
 
 import type { BreadcrumbProps } from '@/types'
 

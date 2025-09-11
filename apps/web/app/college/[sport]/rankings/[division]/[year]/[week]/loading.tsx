@@ -4,7 +4,7 @@ import {
   CardContent,
   CardTitle,
   CardDescription,
-} from '@workspace/ui/components/card'
+} from '@redshirt-sports/ui/components/card'
 import {
   Table,
   TableHeader,
@@ -12,8 +12,8 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from '@workspace/ui/components/table'
-import { Skeleton } from '@workspace/ui/components/skeleton'
+} from '@redshirt-sports/ui/components/table'
+import { Skeleton } from '@redshirt-sports/ui/components/skeleton'
 
 export default function Loading() {
   const cols = Array.from({ length: 25 })
