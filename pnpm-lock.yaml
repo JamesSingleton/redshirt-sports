@@ -29,6 +29,9 @@ importers:
 
   apps/admin:
     dependencies:
+      '@clerk/nextjs':
+        specifier: ^6.31.10
+        version: 6.31.10(next@15.5.3(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@redshirt-sports/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -9831,6 +9834,18 @@ snapshots:
       '@clerk/shared': 3.24.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@clerk/types': 4.85.0
       next: 15.5.2(@babel/core@7.28.3)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@19.1.0-rc.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+      server-only: 0.0.1
+      tslib: 2.8.1
+
+  '@clerk/nextjs@6.31.10(next@15.5.3(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+    dependencies:
+      '@clerk/backend': 2.13.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@clerk/clerk-react': 5.46.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@clerk/shared': 3.24.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@clerk/types': 4.85.0
+      next: 15.5.3(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
       server-only: 0.0.1
