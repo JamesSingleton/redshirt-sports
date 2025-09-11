@@ -1,4 +1,4 @@
-import { Skeleton } from '@workspace/ui/components/skeleton'
+import { Skeleton } from '@redshirt-sports/ui/components/skeleton'
 
 import { LoadingArticle } from '@/components/loading-article'
 

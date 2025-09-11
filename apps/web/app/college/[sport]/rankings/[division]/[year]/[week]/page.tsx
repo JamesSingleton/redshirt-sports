@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { buttonVariants } from '@workspace/ui/components/button'
+import { buttonVariants } from '@redshirt-sports/ui/components/button'
 import {
   Card,
   CardHeader,
   CardDescription,
   CardContent,
   CardFooter,
-} from '@workspace/ui/components/card'
+} from '@redshirt-sports/ui/components/card'
 import {
   Table,
   TableHeader,
@@ -15,7 +15,7 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from '@workspace/ui/components/table'
+} from '@redshirt-sports/ui/components/table'
 import {
   getFinalRankingsForWeekAndYear,
   getSportIdBySlug,

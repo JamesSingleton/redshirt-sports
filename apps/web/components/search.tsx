@@ -3,7 +3,7 @@
 import { useCallback, ChangeEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import debounce from 'lodash.debounce'
-import { Input } from '@workspace/ui/components/input'
+import { Input } from '@redshirt-sports/ui/components/input'
 
 export default function Search({ defaultValue = '' }) {
   const router = useRouter()

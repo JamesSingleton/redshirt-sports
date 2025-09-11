@@ -1,6 +1,6 @@
 import { CameraIcon } from 'lucide-react'
-import { Skeleton } from '@workspace/ui/components/skeleton'
-import { Card, CardContent, CardHeader } from '@workspace/ui/components/card'
+import { Skeleton } from '@redshirt-sports/ui/components/skeleton'
+import { Card, CardContent, CardHeader } from '@redshirt-sports/ui/components/card'
 
 export default function ArticlePageSkeleton() {
   return (

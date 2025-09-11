@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
-import { buttonVariants } from '@workspace/ui/components/button'
+import { buttonVariants } from '@redshirt-sports/ui/components/button'
 
 import { getVoterBallots, getSportIdBySlug } from '@/server/queries'
 import CustomImage from '@/components/sanity-image'

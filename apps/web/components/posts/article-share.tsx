@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import { LinkIcon } from 'lucide-react'
-import { Card, CardContent, CardHeader } from '@workspace/ui/components/card'
-import { Button } from '@workspace/ui/components/button'
-import { Input } from '@workspace/ui/components/input'
-import { Label } from '@workspace/ui/components/label'
+import { Card, CardContent, CardHeader } from '@redshirt-sports/ui/components/card'
+import { Button } from '@redshirt-sports/ui/components/button'
+import { Input } from '@redshirt-sports/ui/components/input'
+import { Label } from '@redshirt-sports/ui/components/label'
 
 import { Facebook, Twitter } from '@/components/icons'
 import { HOME_DOMAIN } from '@/lib/constants'

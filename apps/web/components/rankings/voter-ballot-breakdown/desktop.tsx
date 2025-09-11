@@ -8,8 +8,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@workspace/ui/components/table'
-import { Button } from '@workspace/ui/components/button'
+} from '@redshirt-sports/ui/components/table'
+import { Button } from '@redshirt-sports/ui/components/button'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { TeamLogo } from './team-logo'
 import type { Voter } from '@/types/votes'

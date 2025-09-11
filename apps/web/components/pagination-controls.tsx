@@ -9,7 +9,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@workspace/ui/components/pagination'
+} from '@redshirt-sports/ui/components/pagination'
 
 import { perPage } from '@/lib/constants'
 

@@ -4,7 +4,7 @@ import * as React from 'react'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { Plus } from 'lucide-react'
 
-import { cn } from '@workspace/ui/lib/utils'
+import { cn } from '@redshirt-sports/ui/lib/utils'
 
 const Accordion = AccordionPrimitive.Root
 

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Separator } from '@workspace/ui/components/separator'
+import { Separator } from '@redshirt-sports/ui/components/separator'
 
 import CustomImage from './sanity-image'
 import FormatDate from '@/components/format-date'

@@ -1,10 +1,10 @@
-import '@workspace/ui/globals.css'
+import '@redshirt-sports/ui/globals.css'
 
 import React, { Suspense } from 'react'
 import { preconnect, prefetchDNS } from 'react-dom'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import { Toaster } from '@workspace/ui/components/sonner'
+import { Toaster } from '@redshirt-sports/ui/components/sonner'
 
 import { Providers } from '@/components/providers'
 import { FooterServer, FooterSkeleton } from '@/components/footer'

@@ -5,13 +5,13 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, ChevronDown, ChevronRight } from 'lucide-react'
 
-import { ScrollArea } from '@workspace/ui/components/scroll-area'
+import { ScrollArea } from '@redshirt-sports/ui/components/scroll-area'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@workspace/ui/components/collapsible'
-import { Button } from '@workspace/ui/components/button'
+} from '@redshirt-sports/ui/components/collapsible'
+import { Button } from '@redshirt-sports/ui/components/button'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -20,9 +20,9 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from '@workspace/ui/components/navigation-menu'
-import { SheetContent, SheetHeader, SheetTitle } from '@workspace/ui/components/sheet'
-import { Sheet, SheetTrigger } from '@workspace/ui/components/sheet'
+} from '@redshirt-sports/ui/components/navigation-menu'
+import { SheetContent, SheetHeader, SheetTitle } from '@redshirt-sports/ui/components/sheet'
+import { Sheet, SheetTrigger } from '@redshirt-sports/ui/components/sheet'
 
 import { useIsMobile } from '@/hooks/use-is-mobile'
 import type {

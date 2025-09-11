@@ -8,14 +8,14 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@workspace/ui/components/sheet'
-import { Button } from '@workspace/ui/components/button'
-import { ScrollArea } from '@workspace/ui/components/scroll-area'
+} from '@redshirt-sports/ui/components/sheet'
+import { Button } from '@redshirt-sports/ui/components/button'
+import { ScrollArea } from '@redshirt-sports/ui/components/scroll-area'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@workspace/ui/components/collapsible'
+} from '@redshirt-sports/ui/components/collapsible'
 
 import SmallLogo from './small-logo'
 import { SearchBar } from './search-bar'

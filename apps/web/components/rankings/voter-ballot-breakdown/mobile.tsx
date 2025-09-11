@@ -1,6 +1,6 @@
 'use client'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '@workspace/ui/components/button'
+import { Button } from '@redshirt-sports/ui/components/button'
 
 import { TeamLogo } from './team-logo'
 import { SyncedScroll } from './synced-scroll'

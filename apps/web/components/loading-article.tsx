@@ -1,5 +1,5 @@
-import { Skeleton } from '@workspace/ui/components/skeleton'
-import { Separator } from '@workspace/ui/components/separator'
+import { Skeleton } from '@redshirt-sports/ui/components/skeleton'
+import { Separator } from '@redshirt-sports/ui/components/separator'
 
 export function LoadingArticle() {
   return (
