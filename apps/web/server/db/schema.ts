@@ -125,6 +125,49 @@ export const weeksTable = pgTable(
   (table) => [unique().on(table.seasonTypeId, table.number)],
 )
 
+export const schoolsTable = pgTable(
+  'schools',
+  {
+    id: text('id')
+      .primaryKey()
+      .$default(() => randomUUID()),
+    name: text('name'),
+    sanityId: text('sanity_id'),
+    createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [unique().on(table.sanityId)],
+)
+
+export const conferencesTable = pgTable(
+  'conferences',
+  {
+    id: text('id')
+      .primaryKey()
+      .$default(() => randomUUID()),
+    name: text('name'),
+    sanityId: text('sanity_id'),
+    divisionId: text('division_id'),
+    createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [unique().on(table.sanityId)],
+)
+
+export const divisionsTable = pgTable(
+  'divisions',
+  {
+    id: text('id')
+      .primaryKey()
+      .$default(() => randomUUID()),
+    name: text('name'),
+    sanityId: text('sanity_id'),
+    createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [unique().on(table.sanityId)],
+)
+
 export type InsertUser = typeof usersTable.$inferInsert
 export type SelectUser = typeof usersTable.$inferSelect
 export type InsertSeason = typeof seasonsTable.$inferInsert
