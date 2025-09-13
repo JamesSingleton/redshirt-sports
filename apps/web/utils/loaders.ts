@@ -1,9 +1,12 @@
 import { sanityFetch } from '@/lib/sanity/live'
-import { sportInfoQuery } from '@/lib/sanity/query'
+import { conferencesQuery, divisionsQuery, schoolsQuery, sportInfoQuery } from '@/lib/sanity/query'
 import { db } from '@/server/db'
 import {
+  conferencesTable,
+  divisionsTable,
   InsertSeason,
   InsertSeasonType,
+  schoolsTable,
   seasonsTable,
   seasonTypesTable,
   sportsTable,
@@ -11,12 +14,26 @@ import {
 } from '@/server/db/schema'
 import { fetchWeeksFromSportsUrl, getMultipleSeasonsData, SportParam } from './espn'
 
-interface SanitySport {
+interface BaseSanityObject {
   _id: string
-  slug: string
-  title: string
   _createdAt: string
   _updatedAt: string
+}
+
+interface BaseSanityObjectWithName {
+  _createdAt: string
+  _id: string
+  _updatedAt: string
+  name: string
+}
+
+interface SanitySport extends BaseSanityObject {
+  slug: string
+  title: string
+}
+
+interface SanityConference extends BaseSanityObjectWithName {
+  divisionId: string
 }
 
 export async function fetchAndLoadSeasons(
@@ -138,4 +155,53 @@ export async function fetchAndLoadSports() {
   }))
 
   return db.insert(sportsTable).values(mappedSports)
+}
+
+export async function fetchAndLoadDivisions() {
+  const { data } = await sanityFetch({ query: divisionsQuery })
+  const mappedDivisions = data.map((d: BaseSanityObjectWithName) => ({
+    sanityId: d._id,
+    name: d.name,
+    createdAt: new Date(d._createdAt),
+    updatedAt: new Date(d._updatedAt),
+  }))
+
+  return db.insert(divisionsTable).values(mappedDivisions)
+}
+
+export async function fetchAndLoadSchools() {
+  const { data } = await sanityFetch({ query: schoolsQuery })
+  const mappedSchools = data.map((d: BaseSanityObjectWithName) => ({
+    sanityId: d._id,
+    name: d.name,
+    createdAt: new Date(d._createdAt),
+    updatedAt: new Date(d._updatedAt),
+  }))
+
+  return db.insert(schoolsTable).values(mappedSchools)
+}
+
+export async function fetchAndLoadConferences() {
+  const { data } = await sanityFetch({ query: conferencesQuery })
+  const divisions = await db.query.divisionsTable.findMany()
+  if (!divisions.length) {
+    throw new Error('No divisions found. Divisions must be loaded prior to conferences.')
+  }
+  const mappedConferences = data.map((d: SanityConference) => {
+    const divisionId = divisions.find((division) => division.sanityId === d.divisionId)?.id
+
+    if (!divisionId) {
+      throw new Error(`Unable to find a division for conference ${d.name}`)
+    }
+
+    return {
+      sanityId: d._id,
+      name: d.name,
+      divisionId,
+      createdAt: new Date(d._createdAt),
+      updatedAt: new Date(d._updatedAt),
+    }
+  })
+
+  return db.insert(conferencesTable).values(mappedConferences)
 }
