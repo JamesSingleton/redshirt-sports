@@ -1,25 +1,12 @@
 import '@redshirt-sports/ui/globals.css'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@redshirt-sports/ui/components/sidebar'
+import { SidebarInset, SidebarProvider } from '@redshirt-sports/ui/components/sidebar'
 
 import { AppSidebar } from '@/components/app-sidebar'
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/site-header'
 import { Providers } from '@/components/providers'
-import { Separator } from '@redshirt-sports/ui/components/separator'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@redshirt-sports/ui/components/breadcrumb'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
