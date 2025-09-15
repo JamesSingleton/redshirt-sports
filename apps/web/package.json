@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.32.0",
-    "@hookform/resolvers": "^5.2.1",
+    "@hookform/resolvers": "^5.2.2",
     "@portabletext/react": "^4.0.3",
     "@portabletext/to-html": "^3.0.0",
     "@redshirt-sports/ui": "workspace:*",
@@ -58,7 +58,7 @@
     "@redshirt-sports/eslint-config": "workspace:^",
     "@redshirt-sports/typescript-config": "workspace:*",
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^24.3.3",
+    "@types/node": "^24.4.0",
     "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
     "babel-plugin-react-compiler": "19.1.0-rc.3",
