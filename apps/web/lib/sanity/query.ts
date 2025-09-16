@@ -709,3 +709,15 @@ export const schoolsQuery = defineQuery(/* groq */ `
     name
   }
   `)
+
+export const subdivisionsQuery = defineQuery(/* groq */ `
+    *[_type == "sportSubgrouping"]{
+    _id,
+    _createdAt,
+    _updatedAt,
+    name,
+    shortName,
+    "slug": slug.current,
+    "applicableSports": applicableSports[]->_id
+  }
+`)

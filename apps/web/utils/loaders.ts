@@ -1,5 +1,11 @@
 import { sanityFetch } from '@/lib/sanity/live'
-import { conferencesQuery, divisionsQuery, schoolsQuery, sportInfoQuery } from '@/lib/sanity/query'
+import {
+  conferencesQuery,
+  divisionsQuery,
+  schoolsQuery,
+  sportInfoQuery,
+  subdivisionsQuery,
+} from '@/lib/sanity/query'
 import { db } from '@/server/db'
 import {
   conferencesTable,
@@ -204,4 +210,16 @@ export async function fetchAndLoadConferences() {
   })
 
   return db.insert(conferencesTable).values(mappedConferences)
+}
+
+export async function fetchAndLoadSubdivisions() {
+  const { data } = await sanityFetch({ query: subdivisionsQuery })
+  const sports = await db.query.sportsTable.findMany()
+  if (!sports.length) {
+    throw new Error('No sports found. Sports must be loaded prior to subdivisions.')
+  }
+
+  // const subdivisions = data.map(d=> {
+  //   const divisionId =
+  // })
 }
