@@ -49,12 +49,11 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
 
   let currentRank = 1
   let previousPoints = teamPoints[0]?.totalPoints
-  let previousFirstPlaceVotes = teamPoints[0]?.firstPlaceVotes
   let wasPreviousTeamTied = false
 
   teamPoints.forEach((team, index) => {
     if (index > 0) {
-      if (team.totalPoints === previousPoints && team.firstPlaceVotes === previousFirstPlaceVotes) {
+      if (team.totalPoints === previousPoints) {
         // Same rank due to same totalPoints and firstPlaceVotes
         team.isTie = true // Mark current team as tied
         if (!wasPreviousTeamTied) {
@@ -74,7 +73,6 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
     }
     team.rank = currentRank // Assign current rank
     previousPoints = team.totalPoints // Update previousPoints for next iteration
-    previousFirstPlaceVotes = team.firstPlaceVotes // Update previousFirstPlaceVotes for next iteration
   })
 
   return teamPoints
