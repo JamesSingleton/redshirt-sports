@@ -85,8 +85,7 @@ export const post = defineType({
       name: 'publishedAt',
       type: 'datetime',
       title: 'Published At',
-      group: GROUP.MAIN_CONTENT,
-      validation: (rule) => rule.required(),
+      readOnly: true,
     }),
     defineField({
       name: 'mainImage',
