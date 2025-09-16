@@ -51,11 +51,18 @@ export const sportSubgrouping = defineType({
       validation: (rule) =>
         rule.required().min(1).error('At least one applicable sport is required.'),
     }),
+    defineField({
+      name: 'parentDivision',
+      title: 'Parent Division',
+      type: 'reference',
+      to: { type: 'division' },
+      validation: (rule) => rule.required(),
+    }),
   ],
   preview: {
     select: {
       title: 'name',
-      subtitle: 'applicableSport.title',
+      subtitle: 'parentDivision.title',
     },
     prepare: ({ title, subtitle }) => ({
       title,
