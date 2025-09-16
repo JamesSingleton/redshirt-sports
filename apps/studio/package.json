@@ -16,7 +16,9 @@
     "@portabletext/react": "^4.0.3",
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/assist": "^5.0.0",
+    "@sanity/client": "^7.11.1",
     "@sanity/dashboard": "^5.0.0",
+    "@sanity/functions": "^1.0.3",
     "@sanity/icons": "^3.7.4",
     "@sanity/image-url": "^1.2.0",
     "@sanity/table": "^2.0.0",
@@ -32,6 +34,7 @@
     "styled-components": "^6.1.19"
   },
   "devDependencies": {
+    "@sanity/blueprints": "0.2.0",
     "@sanity/eslint-config-studio": "^5.0.2",
     "@types/react": "^19.1.13",
     "eslint": "^9.35.0",
