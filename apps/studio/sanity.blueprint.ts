@@ -1,4 +1,3 @@
-// Add this to the `resources` array in your blueprint configuraiton
 import { defineBlueprint, defineDocumentFunction } from '@sanity/blueprints'
 
 export default defineBlueprint({
