@@ -85,7 +85,7 @@ export function ArticleJsonLd({ article }: { article: any }) {
     thumbnailUrl: imageUrl,
     url: articleUrl,
     inLanguage: 'en-US',
-    copyrightYear: new Date().getFullYear(),
+    copyrightYear: 2025,
     copyrightHolder: { '@id': organizationId },
     potentialAction: [
       {
