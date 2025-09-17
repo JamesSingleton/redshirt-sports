@@ -687,7 +687,18 @@ export const divisionsQuery = defineQuery(/* groq */ `
     _id,
     _createdAt,
     _updatedAt,
-    name
+    name,
+    title,
+    heading,
+    longName,
+    "slug": slug.current,
+    description,
+    logo {
+      alt,
+      asset->{
+        ...
+      }
+    },
   }
   `)
 
@@ -697,7 +708,17 @@ export const conferencesQuery = defineQuery(/* groq */ `
     _createdAt,
     _updatedAt,
     name,
-    "divisionId": division->_id
+    shortName,
+    abbreviation,
+    "slug": slug->current,
+    "divisionId": division->_id,
+    logo {
+      alt,
+      asset->{
+        ...
+      }
+    },
+    "sports": sports[]->_id
   }
   `)
 
@@ -706,7 +727,21 @@ export const schoolsQuery = defineQuery(/* groq */ `
     _id,
     _createdAt,
     _updatedAt,
-    name
+    name,
+    shortName,
+    abbreviation,
+    nickname,
+    top25VotingEligible,
+    image {
+      alt,
+      asset->{
+        ...
+      }
+    },
+    conferenceAffiliations[] {
+      "conferenceId": conference->_id,
+      "sportId": sport->_id,
+    }
   }
   `)
 
@@ -718,6 +753,7 @@ export const subdivisionsQuery = defineQuery(/* groq */ `
     name,
     shortName,
     "slug": slug.current,
+    "parentDivisionId": parentDivision->id,
     "applicableSports": applicableSports[]->_id
   }
 `)

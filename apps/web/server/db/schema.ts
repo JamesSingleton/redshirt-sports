@@ -9,6 +9,7 @@ import {
   jsonb,
   text,
   boolean,
+  index,
 } from 'drizzle-orm/pg-core'
 import { randomUUID } from 'node:crypto'
 
@@ -183,7 +184,7 @@ export const schoolsTable = pgTable(
     image: jsonb(),
     top25Eligible: boolean('top_25_eligible'),
   },
-  (table) => [unique().on(table.sanityId)],
+  (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
 )
 
 export const schoolsTableRelations = relations(schoolsTable, ({ many }) => ({
@@ -202,7 +203,7 @@ export const conferencesTable = pgTable(
     slug: text(),
     logo: jsonb(),
   },
-  (table) => [unique().on(table.sanityId)],
+  (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
 )
 
 export const conferencesTableRelations = relations(conferencesTable, ({ many }) => ({
@@ -214,8 +215,8 @@ export const conferenceSportsTable = pgTable(
   'conference_sports',
   {
     ...defaultColumns,
-    conferenceId: text('conference_id'),
-    sportId: text('sport_id'),
+    conferenceId: text('conference_id').notNull(),
+    sportId: text('sport_id').notNull(),
   },
   (table) => [unique().on(table.conferenceId, table.sportId)],
 )
@@ -235,9 +236,9 @@ export const schoolConferenceAffiliationsTable = pgTable(
   'school_conference_affiliations',
   {
     ...defaultColumns,
-    schoolId: text('school_id'),
-    sportId: text('sport_id'),
-    conferenceId: text('conference_id'),
+    schoolId: text('school_id').notNull(),
+    sportId: text('sport_id').notNull(),
+    conferenceId: text('conference_id').notNull(),
   },
   (table) => [unique().on(table.schoolId, table.sportId, table.conferenceId)],
 )
@@ -273,7 +274,7 @@ export const divisionsTable = pgTable(
     description: text(),
     logo: jsonb(),
   },
-  (table) => [unique().on(table.sanityId)],
+  (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
 )
 
 export const divisionsTableRelations = relations(divisionsTable, ({ many }) => ({
@@ -290,7 +291,7 @@ export const subdivisionsTable = pgTable(
     slug: text(),
     sanityId: text('sanity_id'),
   },
-  (table) => [unique().on(table.sanityId)],
+  (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
 )
 
 export const subdivisionsTableRelations = relations(subdivisionsTable, ({ one, many }) => ({
@@ -305,8 +306,8 @@ export const subdivisionSportsTables = pgTable(
   'subdivision_sports',
   {
     ...defaultColumns,
-    sportId: text('sport_id'),
-    subdivisionId: text('subdivision_id'),
+    sportId: text('sport_id').notNull(),
+    subdivisionId: text('subdivision_id').notNull(),
   },
   (table) => [unique().on(table.sportId, table.subdivisionId)],
 )
@@ -327,6 +328,10 @@ export type SelectUser = typeof usersTable.$inferSelect
 export type InsertSeason = typeof seasonsTable.$inferInsert
 export type InsertSeasonType = typeof seasonTypesTable.$inferInsert
 export type InsertWeeks = typeof weeksTable.$inferInsert
+export type InsertSchoolConferenceAffiliations =
+  typeof schoolConferenceAffiliationsTable.$inferInsert
+export type InsertConferenceSports = typeof conferenceSportsTable.$inferInsert
+export type InsertSubdivisionSports = typeof subdivisionSportsTables.$inferInsert
 
 export const SEASON_TYPE_CODES = {
   PRESEASON: 1,
