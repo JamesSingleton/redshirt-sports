@@ -292,7 +292,6 @@ export async function fetchAndLoadConferences() {
     const divisionId = divisions.find((division) => division.sanityId === conference.divisionId)?.id
 
     if (!divisionId) {
-      console.log('inside error block')
       throw new Error(`Unable to find a division for conference ${conference.name}`)
     }
 
