@@ -10,9 +10,6 @@ export const client = createClient({
   apiVersion,
   useCdn: process.env.NODE_ENV === 'production',
   perspective: 'published',
-  fetch: {
-    cache: 'force-cache',
-  },
 })
 
 const imageBuilder = createImageUrlBuilder({
