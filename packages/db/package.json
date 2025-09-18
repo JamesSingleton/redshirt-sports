@@ -1,0 +1,20 @@
+{
+  "name": "@redshirt-sports/db",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./client": "./src/client.ts",
+    "./queries": "./src/queries/index.ts",
+    "./schema": "./src/schema.ts",
+    "./utils/search-query": "./src/utils/search-query.ts",
+    "./utils/health": "./src/utils/health.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.5",
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": {
+    "@redshirt-sports/typescript-config": "workspace:*",
+    "drizzle-kit": "^0.31.4"
+  }
+}
