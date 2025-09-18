@@ -1,5 +1,5 @@
 {
-  "id": "2ccd3057-9199-4b61-b21a-1c6baee850b0",
+  "id": "ba477c44-61f2-41c9-9532-d503b3ddccba",
   "prevId": "292d8420-a974-4054-b2bf-41da6a420693",
   "version": "7",
   "dialect": "postgresql",
@@ -157,6 +157,60 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.division_sports": {
+      "name": "division_sports",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "sport_id": {
+          "name": "sport_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "division_id": {
+          "name": "division_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "division_sports_sport_id_division_id_unique": {
+          "name": "division_sports_sport_id_division_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "sport_id",
+            "division_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.divisions": {
       "name": "divisions",
       "schema": "",
@@ -226,6 +280,18 @@
         "logo": {
           "name": "logo",
           "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "parent_division_id": {
+          "name": "parent_division_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_subdivision": {
+          "name": "is_subdivision",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         }
@@ -647,147 +713,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "slug"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.subdivision_sports": {
-      "name": "subdivision_sports",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "sport_id": {
-          "name": "sport_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "subdivision_id": {
-          "name": "subdivision_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "subdivision_sports_sport_id_subdivision_id_unique": {
-          "name": "subdivision_sports_sport_id_subdivision_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "sport_id",
-            "subdivision_id"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.subdivisions": {
-      "name": "subdivisions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "division_id": {
-          "name": "division_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "short_name": {
-          "name": "short_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "sanity_id": {
-          "name": "sanity_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "subdivisions_sanity_id_index": {
-          "name": "subdivisions_sanity_id_index",
-          "columns": [
-            {
-              "expression": "sanity_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "subdivisions_sanity_id_unique": {
-          "name": "subdivisions_sanity_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "sanity_id"
           ]
         }
       },

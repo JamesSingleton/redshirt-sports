@@ -15,14 +15,13 @@ import {
   InsertSchoolConferenceAffiliations,
   InsertSeason,
   InsertSeasonType,
-  InsertSubdivisionSports,
+  InsertDivisionSports,
   schoolConferenceAffiliationsTable,
   schoolsTable,
   seasonsTable,
   seasonTypesTable,
   sportsTable,
-  subdivisionSportsTables,
-  subdivisionsTable,
+  divisionSportsTable,
   weeksTable,
 } from '@/server/db/schema'
 import { fetchWeeksFromSportsUrl, getMultipleSeasonsData, SportParam } from './espn'
@@ -341,39 +340,40 @@ export async function fetchAndLoadSubdivisions() {
   }
   const { data } = await sanityFetch({ query: subdivisionsQuery })
 
-  let subdivisionSportMappings: Record<string, string>[] = []
+  let divisionSportMappings: Record<string, string>[] = []
 
   const subdivisions = data.map((d: SanitySubdivision) => {
     const division = divisions.find((div) => div.sanityId === d.parentDivisionId)
     d.applicableSports.forEach((sport: string) =>
-      subdivisionSportMappings.push({
-        subdivisionName: d.name,
+      divisionSportMappings.push({
+        subdivisionName: d.shortName,
         sportId: sport,
       }),
     )
 
     return {
       divisionId: division?.id,
-      name: d.name,
-      shortName: d.shortName,
+      name: d.shortName,
+      longName: d.name,
       sanityId: d._id,
       slug: d.slug,
+      isSubdivision: true,
     }
   })
 
-  const dbSubdivisions = await db.insert(subdivisionsTable).values(subdivisions).returning()
+  const dbSubdivisions = await db.insert(divisionsTable).values(subdivisions).returning()
 
-  subdivisionSportMappings = subdivisionSportMappings.map((mapping) => {
+  divisionSportMappings = divisionSportMappings.map((mapping) => {
     const subdivision = dbSubdivisions.find(
       (subdivision) => subdivision.name === mapping.subdivisionName,
     )
     return {
       sportId: mapping.sportId!,
-      subdivisionId: subdivision?.id || '',
+      divisionId: subdivision?.id || '',
     }
   })
 
   return db
-    .insert(subdivisionSportsTables)
-    .values(subdivisionSportMappings as unknown as InsertSubdivisionSports)
+    .insert(divisionSportsTable)
+    .values(divisionSportMappings as unknown as InsertDivisionSports)
 }

@@ -39,7 +39,7 @@ export const sportsTableRelations = relations(sportsTable, ({ one, many }) => ({
   seasons: many(seasonsTable),
   conferenceSports: many(conferenceSportsTable),
   schoolConferenceAffiliations: many(schoolConferenceAffiliationsTable),
-  subdivisionSports: many(subdivisionSportsTables),
+  divisionSports: many(divisionSportsTable),
   voterBallots: many(voterBallots),
   weeklyFinalRankings: many(weeklyFinalRankings),
 }))
@@ -273,53 +273,34 @@ export const divisionsTable = pgTable(
     slug: text(),
     description: text(),
     logo: jsonb(),
+    parentDivisionId: text('parent_division_id'), // if this is not null, it is a subdivision
+    isSubdivision: text('is_subdivision'), // if this is not null, it is a subdivision
   },
   (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
 )
 
 export const divisionsTableRelations = relations(divisionsTable, ({ many }) => ({
-  subdivisions: many(subdivisionsTable),
+  divisionSports: many(divisionSportsTable),
 }))
 
-export const subdivisionsTable = pgTable(
-  'subdivisions',
-  {
-    ...defaultColumns,
-    name: text(),
-    divisionId: text('division_id'),
-    shortName: text('short_name'),
-    slug: text(),
-    sanityId: text('sanity_id'),
-  },
-  (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
-)
-
-export const subdivisionsTableRelations = relations(subdivisionsTable, ({ one, many }) => ({
-  division: one(divisionsTable, {
-    fields: [subdivisionsTable.divisionId],
-    references: [divisionsTable.id],
-  }),
-  subdivisionSports: many(subdivisionSportsTables),
-}))
-
-export const subdivisionSportsTables = pgTable(
-  'subdivision_sports',
+export const divisionSportsTable = pgTable(
+  'division_sports',
   {
     ...defaultColumns,
     sportId: text('sport_id').notNull(),
-    subdivisionId: text('subdivision_id').notNull(),
+    divisionId: text('division_id').notNull(),
   },
-  (table) => [unique().on(table.sportId, table.subdivisionId)],
+  (table) => [unique().on(table.sportId, table.divisionId)],
 )
 
-export const subdivisionSportsTablesRelations = relations(subdivisionSportsTables, ({ one }) => ({
+export const subdivisionSportsTableRelations = relations(divisionSportsTable, ({ one }) => ({
   sport: one(sportsTable, {
-    fields: [subdivisionSportsTables.sportId],
+    fields: [divisionSportsTable.sportId],
     references: [sportsTable.id],
   }),
-  subdivision: one(subdivisionsTable, {
-    fields: [subdivisionSportsTables.subdivisionId],
-    references: [subdivisionsTable.id],
+  division: one(divisionsTable, {
+    fields: [divisionSportsTable.divisionId],
+    references: [divisionsTable.id],
   }),
 }))
 
@@ -331,7 +312,7 @@ export type InsertWeeks = typeof weeksTable.$inferInsert
 export type InsertSchoolConferenceAffiliations =
   typeof schoolConferenceAffiliationsTable.$inferInsert
 export type InsertConferenceSports = typeof conferenceSportsTable.$inferInsert
-export type InsertSubdivisionSports = typeof subdivisionSportsTables.$inferInsert
+export type InsertDivisionSports = typeof divisionSportsTable.$inferInsert
 
 export const SEASON_TYPE_CODES = {
   PRESEASON: 1,

@@ -36,6 +36,16 @@ const imageFragment = /* groq */ `
   }
 `
 
+// same as imageFragment but with a logo key and no credit
+const logoFragment = /* groq */ `
+  logo{
+    ...,
+    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
+    "blurData": asset->metadata.lqip,
+    "dominantColor": asset->metadata.palette.dominant.background,
+  }
+`
+
 const postAuthorFragment = /* groq */ `
   authors[]->{
     ...,
@@ -693,12 +703,7 @@ export const divisionsQuery = defineQuery(/* groq */ `
     longName,
     "slug": slug.current,
     description,
-    logo {
-      alt,
-      asset->{
-        ...
-      }
-    },
+    ${logoFragment}
   }
   `)
 
@@ -712,12 +717,7 @@ export const conferencesQuery = defineQuery(/* groq */ `
     abbreviation,
     "slug": slug->current,
     "divisionId": division->_id,
-    logo {
-      alt,
-      asset->{
-        ...
-      }
-    },
+    ${logoFragment},
     "sports": sports[]->_id
   }
   `)
@@ -732,12 +732,7 @@ export const schoolsQuery = defineQuery(/* groq */ `
     abbreviation,
     nickname,
     top25VotingEligible,
-    image {
-      alt,
-      asset->{
-        ...
-      }
-    },
+    ${imageFragment},
     conferenceAffiliations[] {
       "conferenceId": conference->_id,
       "sportId": sport->_id,
