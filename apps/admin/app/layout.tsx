@@ -1,6 +1,10 @@
 import '@redshirt-sports/ui/globals.css'
-import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { ClerkProvider } from '@clerk/nextjs'
+
+import { Providers } from '@/components/providers'
+
+import type { Metadata } from 'next'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -23,10 +27,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}>
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <Providers>
+        <html lang="en" suppressHydrationWarning>
+          <body className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}>
+            {children}
+          </body>
+        </html>
+      </Providers>
+    </ClerkProvider>
   )
 }

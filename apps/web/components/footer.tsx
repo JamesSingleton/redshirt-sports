@@ -131,8 +131,6 @@ function Footer({ data, settingsData }: FooterProps) {
   const { subtitle, columns } = data
   const { siteTitle, footerLogo, footerLogoDarkMode, socialLinks } = settingsData
 
-  const year = new Date().getFullYear()
-
   return (
     <footer className="mt-20 pb-8" aria-labelledby="footer-heading">
       <h2 className="sr-only" id="footer-heading">
@@ -185,9 +183,7 @@ function Footer({ data, settingsData }: FooterProps) {
           </div>
           <div className="mt-20 border-t pt-8">
             <div className="text-muted-foreground mx-auto flex max-w-7xl flex-col justify-between gap-4 px-4 text-center text-sm font-normal md:px-6 lg:flex-row lg:items-center lg:text-left">
-              <p>
-                © {year} {siteTitle}. All rights reserved.
-              </p>
+              <p>© 2025 {siteTitle}. All rights reserved.</p>
             </div>
           </div>
         </section>
