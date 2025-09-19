@@ -36,6 +36,16 @@ const imageFragment = /* groq */ `
   }
 `
 
+// same as imageFragment but with a logo key and no credit
+const logoFragment = /* groq */ `
+  logo{
+    ...,
+    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
+    "blurData": asset->metadata.lqip,
+    "dominantColor": asset->metadata.palette.dominant.background,
+  }
+`
+
 const postAuthorFragment = /* groq */ `
   authors[]->{
     ...,
@@ -367,6 +377,7 @@ export const queryCollegeSportsArticlesForSitemap = defineQuery(/* groq */ `
     _updatedAt,
     publishedAt,
     "slug": slug.current,
+  }
 `)
 
 export const querySitemapData = defineQuery(/* groq */ `{
@@ -680,3 +691,64 @@ export const sportInfoQuery = defineQuery(
     "slug": slug.current,
   }`,
 )
+
+export const divisionsQuery = defineQuery(/* groq */ `
+  *[_type == "division"]{
+    _id,
+    _createdAt,
+    _updatedAt,
+    name,
+    title,
+    heading,
+    longName,
+    "slug": slug.current,
+    description,
+    ${logoFragment}
+  }
+  `)
+
+export const conferencesQuery = defineQuery(/* groq */ `
+  *[_type == "conference"]{
+    _id,
+    _createdAt,
+    _updatedAt,
+    name,
+    shortName,
+    abbreviation,
+    "slug": slug->current,
+    "divisionId": division->_id,
+    ${logoFragment},
+    "sports": sports[]->_id
+  }
+  `)
+
+export const schoolsQuery = defineQuery(/* groq */ `
+  *[_type == "school"]{
+    _id,
+    _createdAt,
+    _updatedAt,
+    name,
+    shortName,
+    abbreviation,
+    nickname,
+    top25VotingEligible,
+    ${imageFragment},
+    conferenceAffiliations[] {
+      "conferenceId": conference->_id,
+      "sportId": sport->_id,
+    }
+  }
+  `)
+
+export const subdivisionsQuery = defineQuery(/* groq */ `
+    *[_type == "sportSubgrouping"]{
+    _id,
+    _createdAt,
+    _updatedAt,
+    name,
+    shortName,
+    "slug": slug.current,
+    "parentDivisionId": parentDivision->id,
+    "applicableSports": applicableSports[]->_id
+  }
+`)
