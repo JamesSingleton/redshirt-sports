@@ -36,10 +36,6 @@ import type { Metadata } from 'next'
 import type { Graph } from 'schema-dts'
 import { SportParam } from '@/utils/espn'
 
-type Props = {
-  params: Promise<{ division: string; week: string; year: string; sport: string }>
-}
-
 const baseUrl = getBaseUrl()
 
 function getWeekTitle(weekNumber: number): string {
