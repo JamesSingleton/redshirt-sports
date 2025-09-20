@@ -28,10 +28,11 @@ function generateConfirmationHeader(sport: string, division: string) {
     'power-conferences': 'Power Conferences',
   }
 
+  const sportName = sportNames[sport as keyof typeof sportNames] || sport
   const divisionName = divisionNames[division as keyof typeof divisionNames] || division
 
   return {
-    title: `Your ${divisionName} Top 25 Vote is In!`,
+    title: `Your ${divisionName} ${sportName} Top 25 Vote is In!`,
   }
 }
 
