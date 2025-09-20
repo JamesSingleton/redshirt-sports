@@ -81,7 +81,7 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
         <CardHeader>
           <CardTitle className="text-2xl">Voter Breakdown</CardTitle>
           <CardDescription>
-            See how each voter cast their ballot for this week's rankings.
+            See how each voter cast their ballot for this week&apos;s rankings.
           </CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground text-sm">Loading view…</CardContent>
@@ -95,7 +95,7 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
         <div className="space-y-1">
           <CardTitle className="text-2xl">Voter Breakdown</CardTitle>
           <CardDescription>
-            See how each voter cast their ballot for this week's rankings.
+            See how each voter cast their ballot for this week&apos;s rankings.
           </CardDescription>
         </div>
         <div className="grid w-full grid-cols-1 gap-2 md:w-auto md:auto-cols-max md:grid-flow-col">
