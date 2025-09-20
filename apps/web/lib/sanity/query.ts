@@ -118,16 +118,6 @@ const richTextFragment = /* groq */ `
       "blurData": asset->metadata.lqip,
       "dominantColor": asset->metadata.palette.dominant.background,
     },
-    _type == 'top25Table' => {
-      ...,
-      votes[]{
-        ...,
-        teams[]->{
-          ...,
-          ${imageFragment}
-        }
-      }
-    }
   }
 `
 
