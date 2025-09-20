@@ -96,55 +96,6 @@ const components: Partial<PortableTextReactComponents> = {
         </figure>
       )
     },
-    top25Table: ({ value }) => {
-      return (
-        <div className="not-prose max-w-4xl">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Voter</TableHead>
-                {Array.from(Array(25).keys()).map((num) => (
-                  <TableHead key={num} className="w-8">
-                    {num + 1}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {value.votes.map((vote: any) => {
-                return (
-                  <TableRow key={vote._key}>
-                    <TableCell className="whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div>
-                          <div className="font-medium">{vote.voterName}</div>
-                          <div className="text-muted-foreground mt-1 text-sm italic">
-                            {vote.voterAffiliation}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    {vote.teams &&
-                      vote.teams.map((team: any) => (
-                        <TableCell key={team._id}>
-                          <div className="w-8">
-                            <CustomImage
-                              className="w-full"
-                              image={team.image}
-                              width={32}
-                              height={32}
-                            />
-                          </div>
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      )
-    },
     table: ({ value }: { value: TableType }) => {
       const headerRow = value.rows[0]
       const rows = value.rows.slice(1)

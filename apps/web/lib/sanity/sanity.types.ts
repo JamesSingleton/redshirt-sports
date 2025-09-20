@@ -18,22 +18,6 @@ export type Twitter = {
   id?: string
 }
 
-export type Top25Table = {
-  _type: 'top25Table'
-  votes?: Array<{
-    voterName?: string
-    voterAffiliation?: string
-    teams?: Array<{
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      _key: string
-      [internalGroqTypeReferenceTo]?: 'school'
-    }>
-    _key: string
-  }>
-}
-
 export type SocialLinks = {
   _type: 'socialLinks'
   twitter?: string
@@ -95,9 +79,6 @@ export type BlockContent = Array<
   | ({
       _key: string
     } & Twitter)
-  | ({
-      _key: string
-    } & Top25Table)
   | ({
       _key: string
     } & Table)
@@ -498,6 +479,12 @@ export type SportSubgrouping = {
     _key: string
     [internalGroqTypeReferenceTo]?: 'sport'
   }>
+  parentDivision: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'division'
+  }
 }
 
 export type Sport = {
@@ -582,15 +569,9 @@ export type Author = {
   }
 }
 
-export type SanityVideo = {
-  _type: 'sanity.video'
-  asset?: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'sanity.videoAsset'
-  }
-  media?: unknown
+export type SanityVideoMetadataPlayback = {
+  _type: 'sanity.videoMetadata.playback'
+  policy?: string
 }
 
 export type SanityVideoAsset = {
@@ -624,6 +605,12 @@ export type SanityVideoMetadata = {
   hasAudio?: boolean
   codec?: string
   bitrate?: number
+}
+
+export type SanityVideo = {
+  _type: 'sanity.video'
+  asset?: unknown
+  media?: unknown
 }
 
 export type Table = {
@@ -904,7 +891,6 @@ export type SanityAssetSourceData = {
 
 export type AllSanitySchemaTypes =
   | Twitter
-  | Top25Table
   | SocialLinks
   | BlockContent
   | Settings
@@ -921,9 +907,10 @@ export type AllSanitySchemaTypes =
   | Sport
   | Division
   | Author
-  | SanityVideo
+  | SanityVideoMetadataPlayback
   | SanityVideoAsset
   | SanityVideoMetadata
+  | SanityVideo
   | Table
   | TableRow
   | MediaTag
@@ -1018,7 +1005,7 @@ export type QuerySettingsDataResult = {
   contactEmail: string | null
 } | null
 // Variable: queryPostSlugData
-// Query: *[_type == "post" && slug.current == $slug][0]{    ...,    "slug": slug.current,    sport->{      _id,      "slug": slug.current,      title    },      division->{    _id,    name,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    }  },      conferences[]->{    _id,    name,    shortName,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    division->{      "slug": slug.current,    },    sportSubdivisionAffiliations[]{        _key,        sport->{          _id, // Need this _id for client-side comparison        },        subgrouping->{          "slug": slug.current,          name,          shortName        }      }  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  },      mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      body[]{    ...,      markDefs[]{    ...,    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),      "credit": coalesce(asset->creditLine, attribution, "Unknown"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    _type == 'top25Table' => {      ...,      votes[]{        ...,        teams[]->{          ...,            image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }        }      }    }  },    "relatedPosts": *[      _type == "post"      && _id != ^._id      && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)    ] | order(publishedAt desc, _createdAt desc) {      _id,      title,      publishedAt,        mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      "slug": slug.current,        authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }    }[0...3]  }
+// Query: *[_type == "post" && slug.current == $slug][0]{    ...,    "slug": slug.current,    sport->{      _id,      "slug": slug.current,      title    },      division->{    _id,    name,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    }  },      conferences[]->{    _id,    name,    shortName,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    division->{      "slug": slug.current,    },    sportSubdivisionAffiliations[]{        _key,        sport->{          _id, // Need this _id for client-side comparison        },        subgrouping->{          "slug": slug.current,          name,          shortName        }      }  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  },      mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      body[]{    ...,      markDefs[]{    ...,    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),      "credit": coalesce(asset->creditLine, attribution, "Unknown"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },  },    "relatedPosts": *[      _type == "post"      && _id != ^._id      && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)    ] | order(publishedAt desc, _createdAt desc) {      _id,      title,      publishedAt,        mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      "slug": slug.current,        authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }    }[0...3]  }
 export type QueryPostSlugDataResult = {
   _id: string
   _type: 'post'
@@ -1243,61 +1230,6 @@ export type QueryPostSlugDataResult = {
             _key: string
           } & TableRow
         >
-        markDefs: null
-      }
-    | {
-        _key: string
-        _type: 'top25Table'
-        votes: Array<{
-          voterName?: string
-          voterAffiliation?: string
-          teams: Array<{
-            _id: string
-            _type: 'school'
-            _createdAt: string
-            _updatedAt: string
-            _rev: string
-            name: string
-            shortName?: string
-            abbreviation?: string
-            nickname?: string
-            image: {
-              asset?: {
-                _ref: string
-                _type: 'reference'
-                _weak?: boolean
-                [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-              }
-              media?: unknown
-              hotspot?: SanityImageHotspot
-              crop?: SanityImageCrop
-              caption: string
-              _type: 'image'
-              alt: string
-              credit: 'Unknown'
-              blurData: string | null
-              dominantColor: string | null
-            }
-            top25VotingEligible?: boolean
-            conferenceAffiliations?: Array<{
-              sport: {
-                _ref: string
-                _type: 'reference'
-                _weak?: boolean
-                [internalGroqTypeReferenceTo]?: 'sport'
-              }
-              conference: {
-                _ref: string
-                _type: 'reference'
-                _weak?: boolean
-                [internalGroqTypeReferenceTo]?: 'conference'
-              }
-              _type: 'conferenceAffiliation'
-              _key: string
-            }>
-          }> | null
-          _key: string
-        }> | null
         markDefs: null
       }
     | {
@@ -1792,6 +1724,14 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
     }
   }>
 }>
+// Variable: queryCollegeSportsArticlesForSitemap
+// Query: *[_type == "post" && defined(slug.current) && sport->title match $sport] | order(publishedAt desc){    _id,    _updatedAt,    publishedAt,    "slug": slug.current,  }
+export type QueryCollegeSportsArticlesForSitemapResult = Array<{
+  _id: string
+  _updatedAt: string
+  publishedAt: string
+  slug: string
+}>
 // Variable: querySitemapData
 // Query: {  "posts": *[_type == "post" && defined(slug.current)] {    "slug": slug.current,    "lastModified": _updatedAt  },  "authors": *[_type == "author" && defined(slug.current) && archived == false] {    "slug": slug.current,    "lastModified": _updatedAt  },  "sports": *[_type == "sport" && defined(slug.current) && count(*[_type == "post" && references(^._id)]) > 0] {    "slug": slug.current,    "lastModified": _updatedAt  }}
 export type QuerySitemapDataResult = {
@@ -1942,7 +1882,7 @@ export type SchoolsByDivisionQueryResult = Array<{
   conference: null
 }>
 // Variable: schoolsBySportAndSubgroupingStringQuery
-// Query: *[_type == "school" &&    top25VotingEligible != false  ] {    _id,    name,    shortName,    abbreviation,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    conferenceAffiliations,    "relevantAffiliation": conferenceAffiliations[sport->slug.current == $sport][0]  }[defined(relevantAffiliation)] {    _id,    name,    shortName,    abbreviation,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    relevantAffiliation,    "conferenceDetails": *[_type == "conference" && _id == ^.relevantAffiliation.conference._ref][0] {      name,      shortName,      abbreviation,      sportSubdivisionAffiliations    }  }[    count(conferenceDetails.sportSubdivisionAffiliations[      sport->slug.current == $sport &&      subgrouping->slug.current == $subgrouping    ]) > 0  ] | order(shortName asc) {    _id,    name,    shortName,    abbreviation,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    "conferenceInfo": {      "conference": conferenceDetails {        name,        shortName,        abbreviation      }    }  }
+// Query: *[_type == "school"  ] {    _id,    name,    shortName,    abbreviation,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    conferenceAffiliations,    "relevantAffiliation": conferenceAffiliations[sport->slug.current == $sport][0]  }[defined(relevantAffiliation)] {    _id,    name,    shortName,    abbreviation,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    relevantAffiliation,    "conferenceDetails": *[_type == "conference" && _id == ^.relevantAffiliation.conference._ref][0] {      name,      shortName,      abbreviation,      sportSubdivisionAffiliations    }  }[    count(conferenceDetails.sportSubdivisionAffiliations[      sport->slug.current == $sport &&      subgrouping->slug.current == $subgrouping    ]) > 0  ] | order(shortName asc) {    _id,    name,    shortName,    abbreviation,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    "conferenceInfo": {      "conference": conferenceDetails {        name,        shortName,        abbreviation      }    }  }
 export type SchoolsBySportAndSubgroupingStringQueryResult = Array<{
   _id: string
   name: string
@@ -2138,6 +2078,116 @@ export type SchoolsByIdQueryResult = Array<{
     _type: 'image'
   }
 }>
+// Variable: sportInfoQuery
+// Query: *[_type == "sport" && defined(slug.current)]{    _id,    _createdAt,    _updatedAt,    title,    "slug": slug.current,  }
+export type SportInfoQueryResult = Array<{
+  _id: string
+  _createdAt: string
+  _updatedAt: string
+  title: string
+  slug: string
+}>
+// Variable: divisionsQuery
+// Query: *[_type == "division"]{    _id,    _createdAt,    _updatedAt,    name,    title,    heading,    longName,    "slug": slug.current,    description,      logo{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }
+export type DivisionsQueryResult = Array<{
+  _id: string
+  _createdAt: string
+  _updatedAt: string
+  name: string
+  title: string
+  heading: string
+  longName: string
+  slug: string
+  description: string | null
+  logo: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt: string | 'Image-Broken'
+    _type: 'image'
+    blurData: string | null
+    dominantColor: string | null
+  } | null
+}>
+// Variable: conferencesQuery
+// Query: *[_type == "conference"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    abbreviation,    "slug": slug->current,    "divisionId": division->_id,      logo{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    "sports": sports[]->_id  }
+export type ConferencesQueryResult = Array<{
+  _id: string
+  _createdAt: string
+  _updatedAt: string
+  name: string
+  shortName: string
+  abbreviation: string
+  slug: null
+  divisionId: string
+  logo: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt: string | 'Image-Broken'
+    _type: 'image'
+    blurData: string | null
+    dominantColor: string | null
+  } | null
+  sports: Array<string> | null
+}>
+// Variable: schoolsQuery
+// Query: *[_type == "school"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    abbreviation,    nickname,    top25VotingEligible,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    conferenceAffiliations[] {      "conferenceId": conference->_id,      "sportId": sport->_id,    }  }
+export type SchoolsQueryResult = Array<{
+  _id: string
+  _createdAt: string
+  _updatedAt: string
+  name: string
+  shortName: string | null
+  abbreviation: string | null
+  nickname: string | null
+  top25VotingEligible: boolean | null
+  image: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    caption: string
+    _type: 'image'
+    alt: string
+    credit: 'Unknown'
+    blurData: string | null
+    dominantColor: string | null
+  }
+  conferenceAffiliations: Array<{
+    conferenceId: string
+    sportId: string
+  }> | null
+}>
+// Variable: subdivisionsQuery
+// Query: *[_type == "sportSubgrouping"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    "slug": slug.current,    "parentDivisionId": parentDivision->id,    "applicableSports": applicableSports[]->_id  }
+export type SubdivisionsQueryResult = Array<{
+  _id: string
+  _createdAt: string
+  _updatedAt: string
+  name: string
+  shortName: string | null
+  slug: string | null
+  parentDivisionId: null
+  applicableSports: Array<string>
+}>
 
 // Query TypeMap
 import '@sanity/client'
@@ -2146,7 +2196,7 @@ declare module '@sanity/client' {
     '\n*[_type == "school" && _id in $ids[].id]{\n  _id,\n  "_points": $ids[id == ^._id][0].totalPoints,\n  name,\n  shortName,\n  abbreviation,\n  image,\n} | order(_points desc)\n': SchoolsByIdOrderedByPointsResult
     '\n*[_type == "school" && _id in $ids[].teamId]{\n  _id,\n  "_order": $ids[teamId == ^._id][0].rank,\n  name,\n  shortName,\n  abbreviation,\n  image,\n} | order(_order)\n': SchoolWithVoteOrderResult
     '\n  *[_type == "settings"][0]{\n    _id,\n    _type,\n    siteTitle,\n    siteDescription,\n    "logo": logo.asset->url + "?w=80&h=40&dpr=3&fit=max",\n    "socialLinks": socialLinks,\n    "contactEmail": contactEmail,\n  }\n': QuerySettingsDataResult
-    '\n  *[_type == "post" && slug.current == $slug][0]{\n    ...,\n    "slug": slug.current,\n    sport->{\n      _id,\n      "slug": slug.current,\n      title\n    },\n    \n  division->{\n    _id,\n    name,\n    "slug": slug.current,\n    logo{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    }\n  }\n,\n    \n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n    logo{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    },\n    division->{\n      "slug": slug.current,\n    },\n    sportSubdivisionAffiliations[]{\n        _key,\n        sport->{\n          _id, // Need this _id for client-side comparison\n        },\n        subgrouping->{\n          "slug": slug.current,\n          name,\n          shortName\n        }\n      }\n  }\n,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n,\n    \n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n,\n    _type == \'image\' => {\n      ...,\n      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    },\n    _type == \'top25Table\' => {\n      ...,\n      votes[]{\n        ...,\n        teams[]->{\n          ...,\n          \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n        }\n      }\n    }\n  }\n,\n    "relatedPosts": *[\n      _type == "post"\n      && _id != ^._id\n      && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)\n    ] | order(publishedAt desc, _createdAt desc) {\n      _id,\n      title,\n      publishedAt,\n      \n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n      "slug": slug.current,\n      \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n\n    }[0...3]\n  }\n': QueryPostSlugDataResult
+    '\n  *[_type == "post" && slug.current == $slug][0]{\n    ...,\n    "slug": slug.current,\n    sport->{\n      _id,\n      "slug": slug.current,\n      title\n    },\n    \n  division->{\n    _id,\n    name,\n    "slug": slug.current,\n    logo{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    }\n  }\n,\n    \n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n    logo{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    },\n    division->{\n      "slug": slug.current,\n    },\n    sportSubdivisionAffiliations[]{\n        _key,\n        sport->{\n          _id, // Need this _id for client-side comparison\n        },\n        subgrouping->{\n          "slug": slug.current,\n          name,\n          shortName\n        }\n      }\n  }\n,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n,\n    \n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n,\n    _type == \'image\' => {\n      ...,\n      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    },\n  }\n,\n    "relatedPosts": *[\n      _type == "post"\n      && _id != ^._id\n      && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)\n    ] | order(publishedAt desc, _createdAt desc) {\n      _id,\n      title,\n      publishedAt,\n      \n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n      "slug": slug.current,\n      \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n\n    }[0...3]\n  }\n': QueryPostSlugDataResult
     '\n  *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50]{"slug": slug.current}\n': QueryPostPathsResult
     '\n  *[_type == "author" && defined(slug.current) && archived == false]| order(_createdAt desc)[0...20]{"slug": slug.current}\n': QueryAuthorPathsResult
     '\n  *[_type == "footer" && _id == "footer"][0]{\n    _id,\n    subtitle,\n    columns[]{\n      _key,\n      title,\n      links[]{\n        _key,\n        name,\n        "openInNewTab": url.openInNewTab,\n        "href": select(\n          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,\n          url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n          url.type == "external" => url.external,\n          url.href\n        )\n      }\n    },\n  }\n': QueryFooterDataResult
@@ -2155,16 +2205,22 @@ declare module '@sanity/client' {
     '\n  *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{\n    _id,\n    _type,\n    title,\n    excerpt,\n    "slug": slug.current,\n    mainImage{\n      ...,\n      "alt": coalesce(caption,asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    publishedAt,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n\n  }\n': QueryHomePageDataResult
     '\n *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    publishedAt,\n    mainImage{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n\n  }\n': QueryLatestArticlesResult
     '\n  *[_type == "post" && (division->name == $division || sportSubgrouping->name == $division) && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    mainImage{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    publishedAt,\n    division->{\n      name,\n      "slug": slug.current\n    },\n    conferences[]->{\n      name,\n      "slug": slug.current,\n      shortName\n    },\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n\n  }\n': QueryLatestCollegeSportsArticlesResult
+    '\n  *[_type == "post" && defined(slug.current) && sport->title match $sport] | order(publishedAt desc){\n    _id,\n    _updatedAt,\n    publishedAt,\n    "slug": slug.current,\n  }\n': QueryCollegeSportsArticlesForSitemapResult
     '{\n  "posts": *[_type == "post" && defined(slug.current)] {\n    "slug": slug.current,\n    "lastModified": _updatedAt\n  },\n  "authors": *[_type == "author" && defined(slug.current) && archived == false] {\n    "slug": slug.current,\n    "lastModified": _updatedAt\n  },\n  "sports": *[_type == "sport" && defined(slug.current) && count(*[_type == "post" && references(^._id)]) > 0] {\n    "slug": slug.current,\n    "lastModified": _updatedAt\n  }\n}': QuerySitemapDataResult
     '\n*[_type == "sport" && slug.current == $slug][0]{\n  _id,\n  title,\n}': SportInfoBySlugResult
     '\n  *[_type == "author" && slug.current == $slug && archived == false][0]{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n  }\n': AuthorBySlugResult
     '\n  *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {\n    _id,\n    name,\n    roles,\n    "slug": slug.current,\n    image{\n      ...,\n      "alt": coalesce(asset->altText, ^.name, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    },\n    socialLinks\n  }\n': AuthorsListNotArchivedResult
     '\n  *[_type == "legal" && slug.current == "privacy-policy"][0]\n': PrivacyPolicyQueryResult
     '\n  *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){\n  _id,\n  name,\n  shortName,\n  abbreviation,\n  image,\n  conference->{\n    name,\n    shortName\n  }\n}\n': SchoolsByDivisionQueryResult
-    '\n  *[_type == "school" &&\n    top25VotingEligible != false\n  ] {\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    conferenceAffiliations,\n    "relevantAffiliation": conferenceAffiliations[sport->slug.current == $sport][0]\n  }[defined(relevantAffiliation)] {\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    relevantAffiliation,\n    "conferenceDetails": *[_type == "conference" && _id == ^.relevantAffiliation.conference._ref][0] {\n      name,\n      shortName,\n      abbreviation,\n      sportSubdivisionAffiliations\n    }\n  }[\n    count(conferenceDetails.sportSubdivisionAffiliations[\n      sport->slug.current == $sport &&\n      subgrouping->slug.current == $subgrouping\n    ]) > 0\n  ] | order(shortName asc) {\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    "conferenceInfo": {\n      "conference": conferenceDetails {\n        name,\n        shortName,\n        abbreviation\n      }\n    }\n  }\n': SchoolsBySportAndSubgroupingStringQueryResult
+    '\n  *[_type == "school"\n  ] {\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    conferenceAffiliations,\n    "relevantAffiliation": conferenceAffiliations[sport->slug.current == $sport][0]\n  }[defined(relevantAffiliation)] {\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    relevantAffiliation,\n    "conferenceDetails": *[_type == "conference" && _id == ^.relevantAffiliation.conference._ref][0] {\n      name,\n      shortName,\n      abbreviation,\n      sportSubdivisionAffiliations\n    }\n  }[\n    count(conferenceDetails.sportSubdivisionAffiliations[\n      sport->slug.current == $sport &&\n      subgrouping->slug.current == $subgrouping\n    ]) > 0\n  ] | order(shortName asc) {\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    "conferenceInfo": {\n      "conference": conferenceDetails {\n        name,\n        shortName,\n        abbreviation\n      }\n    }\n  }\n': SchoolsBySportAndSubgroupingStringQueryResult
     '\n  *[_type == "conference" && slug.current == $slug][0]\n': ConferenceInfoBySlugQueryResult
     '\n  *[_type == "sport" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc) {\n    _id,\n    "name": title,\n    "slug": slug.current,\n    "groupings": select(\n      slug.current == "football" => [\n        // FBS Subgrouping\n        *[_type == "sportSubgrouping" && shortName == "FBS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{\n          _id,\n          "name": coalesce(shortName, name),\n          "slug": slug.current,\n          "type": "subgrouping",\n          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {\n            _id,\n            name,\n            "slug": slug.current,\n            shortName\n          }\n        },\n        // FCS Subgrouping\n        *[_type == "sportSubgrouping" && shortName == "FCS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{\n          _id,\n          "name": coalesce(shortName, name),\n          "slug": slug.current,\n          "type": "subgrouping",\n          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {\n            _id,\n            name,\n            "slug": slug.current,\n            shortName\n          }\n        },\n        // Division II\n        *[_type == "division" && title == "Division II" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{\n          _id,\n          "name": name,\n          "slug": slug.current,\n          "type": "division",\n          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {\n            _id,\n            name,\n            "slug": slug.current,\n            shortName\n          }\n        },\n        // Division III\n        *[_type == "division" && title == "Division III" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{\n          _id,\n          "name": name,\n          "slug": slug.current,\n          "type": "division",\n          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {\n            _id,\n            name,\n            "slug": slug.current,\n            shortName\n          }\n        }\n      ],\n      true => (\n        // Generic subgroupings\n        *[_type == "sportSubgrouping" && ^._id in applicableSports[]._ref] | order(name asc) {\n          _id,\n          "name": coalesce(shortName, name),\n          "slug": slug.current,\n          "type": "subgrouping",\n          "conferences": *[_type == "conference" && count(sportSubdivisionAffiliations[subgrouping._ref == ^.^._id && sport._ref == ^.^.^._id]) > 0 && count(*[_type == "post" && references(^._id) && sport._ref == ^.^.^._id]) > 0] | order(name asc) {\n            _id,\n            name,\n            shortName,\n            "slug": slug.current\n          }\n        } +\n        // Generic divisions (excluding specific football and basketball divisions)\n        *[_type == "division"\n          && !(title == "FBS" || title == "FCS")\n          && !(\n            (title == "Division I")\n            && (\n              ^.slug.current == "mens-basketball" || ^.slug.current == "womens-basketball"\n            )\n          )\n        ] | order(name asc) {\n          _id,\n          "name": title,\n          "slug": slug.current,\n          "type": "division",\n          "conferences": *[_type == "conference" && division._ref == ^.^._id && count(*[_type == "post" && references(^._id) && sport->slug.current == ^.^.slug.current]) > 0] | order(name asc) {\n            _id,\n            name,\n            shortName,\n            "slug": slug.current\n          }\n        }\n      )[defined(conferences) && count(conferences) > 0]\n    )\n  }\n': GlobalNavigationQueryResult
     '*[_type == "post"][0..50] | order(publishedAt desc) {\n  _id,\n  title,\n  "slug": slug.current,\n  publishedAt,\n  excerpt,\n  \n  mainImage{\n    ...,\n    "alt": coalesce(asset->altText, caption, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n}\n': RssFeedQueryResult
     '*[_type == "school" && _id in $ids[].id]{\n    _id,\n    "_order": $ids[id == ^._id][0].rank,\n    name,\n    shortName,\n    abbreviation,\n    image,\n  }| order(_order)': SchoolsByIdQueryResult
+    '*[_type == "sport" && defined(slug.current)]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    title,\n    "slug": slug.current,\n  }': SportInfoQueryResult
+    '\n  *[_type == "division"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    title,\n    heading,\n    longName,\n    "slug": slug.current,\n    description,\n    \n  logo{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n  ': DivisionsQueryResult
+    '\n  *[_type == "conference"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    "slug": slug->current,\n    "divisionId": division->_id,\n    \n  logo{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    "sports": sports[]->_id\n  }\n  ': ConferencesQueryResult
+    '\n  *[_type == "school"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    top25VotingEligible,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    conferenceAffiliations[] {\n      "conferenceId": conference->_id,\n      "sportId": sport->_id,\n    }\n  }\n  ': SchoolsQueryResult
+    '\n    *[_type == "sportSubgrouping"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    "slug": slug.current,\n    "parentDivisionId": parentDivision->id,\n    "applicableSports": applicableSports[]->_id\n  }\n': SubdivisionsQueryResult
   }
 }

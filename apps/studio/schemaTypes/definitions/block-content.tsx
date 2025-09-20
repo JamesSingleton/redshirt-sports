@@ -1,4 +1,4 @@
-import { ImageIcon, ThListIcon, TwitterIcon } from '@sanity/icons'
+import { ImageIcon, TwitterIcon } from '@sanity/icons'
 import { defineArrayMember, defineType } from 'sanity'
 
 const richTextMembers = [
@@ -103,10 +103,6 @@ const richTextMembers = [
   defineArrayMember({
     type: 'twitter',
     icon: TwitterIcon,
-  }),
-  defineArrayMember({
-    type: 'top25Table',
-    icon: ThListIcon,
   }),
   defineArrayMember({
     name: 'table',
