@@ -1,0 +1,22 @@
+{
+  "name": "@redshirt-sports/sanity",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./client": "./src/client.ts",
+    "./queries": "./src/queries.ts",
+    "./live": "./src/live.ts"
+  },
+  "dependencies": {
+    "@sanity/asset-utils": "^2.3.0",
+    "@sanity/client": "^7.11.1",
+    "@sanity/image-url": "^1.2.0",
+    "@sentry/nextjs": "^10.11.0",
+    "next-sanity": "^11.1.0",
+    "sanity-image": "^1.0.0"
+  },
+  "devDependencies": {
+    "@redshirt-sports/typescript-config": "workspace:*",
+    "@types/node": "^24.4.0"
+  }
+}
