@@ -1,0 +1,14 @@
+{
+  "name": "@redshirt-sports/clients",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./espn": "./src/espn.ts"
+  },
+  "dependencies": {
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "@redshirt-sports/typescript-config": "workspace:*"
+  }
+}
