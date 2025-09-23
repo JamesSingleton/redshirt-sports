@@ -10,6 +10,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@redshirt-sports/ui/components/sidebar'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export function NavMain({
   items,
@@ -20,6 +22,7 @@ export function NavMain({
     icon?: Icon
   }[]
 }) {
+  const currentPath = usePathname()
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -45,9 +48,9 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
+              <SidebarMenuButton tooltip={item.title} isActive={item?.url === currentPath}>
                 {item.icon && <item.icon />}
-                <span>{item.title}</span>
+                {item.url ? <Link href={item.url}>{item.title}</Link> : <span>{item.title}</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
