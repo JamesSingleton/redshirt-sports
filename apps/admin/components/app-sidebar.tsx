@@ -6,6 +6,7 @@ import {
   IconChartBar,
   IconDashboard,
   IconDatabase,
+  IconDeviceLaptop,
   IconFileAi,
   IconFileDescription,
   IconFileWord,
@@ -65,12 +66,16 @@ const data = {
       url: '#',
       icon: IconUsers,
     },
+    {
+      title: 'Development',
+      url: '/development',
+      icon: IconDeviceLaptop,
+    },
   ],
   navClouds: [
     {
       title: 'Capture',
       icon: IconCamera,
-      isActive: true,
       url: '#',
       items: [
         {

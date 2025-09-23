@@ -1,12 +1,14 @@
-import { sanityFetch } from '@/lib/sanity/live'
+'use server'
+
+import { sanityFetch } from '@redshirt-sports/sanity/live'
 import {
   conferencesQuery,
   divisionsQuery,
   schoolsQuery,
   sportInfoQuery,
   subdivisionsQuery,
-} from '@/lib/sanity/query'
-import { db } from '@/server/db'
+} from '@redshirt-sports/sanity/queries'
+import { primaryDb as db } from '@redshirt-sports/db/client'
 import {
   conferenceSportsTable,
   conferencesTable,
@@ -23,8 +25,12 @@ import {
   sportsTable,
   divisionSportsTable,
   weeksTable,
-} from '@/server/db/schema'
-import { fetchWeeksFromSportsUrl, getMultipleSeasonsData, SportParam } from './espn'
+} from '@redshirt-sports/db/schema'
+import {
+  fetchWeeksFromSportsUrl,
+  getMultipleSeasonsData,
+  SportParam,
+} from '@redshirt-sports/clients/espn'
 
 interface BaseSanityObject {
   _id: string
@@ -76,6 +82,14 @@ interface SanitySubdivision extends BaseSanityObjectWithName {
   slug: string
   parentDivisionId: string
   applicableSports: string[]
+}
+
+export async function fetchAndLoadAllSeasons() {
+  await Promise.all(
+    ['football', 'mens-basketball', 'womens-basketball'].map((sport) =>
+      fetchAndLoadSeasons(sport as SportParam, 2023),
+    ),
+  )
 }
 
 export async function fetchAndLoadSeasons(
@@ -196,7 +210,7 @@ export async function fetchAndLoadSports() {
     updatedAt: new Date(d._updatedAt),
   }))
 
-  return db.insert(sportsTable).values(mappedSports)
+  await db.insert(sportsTable).values(mappedSports)
 }
 
 export async function fetchAndLoadDivisions() {
@@ -214,7 +228,7 @@ export async function fetchAndLoadDivisions() {
     updatedAt: new Date(d._updatedAt),
   }))
 
-  return db.insert(divisionsTable).values(mappedDivisions)
+  await db.insert(divisionsTable).values(mappedDivisions)
 }
 
 export async function fetchAndLoadSchools() {
@@ -269,7 +283,7 @@ export async function fetchAndLoadSchools() {
     }
   })
 
-  return db
+  await db
     .insert(schoolConferenceAffiliationsTable)
     .values(schoolConferenceAffiliations as unknown as InsertSchoolConferenceAffiliations)
 }
@@ -323,7 +337,7 @@ export async function fetchAndLoadConferences() {
     }
   })
 
-  return db
+  await db
     .insert(conferenceSportsTable)
     .values(conferenceSportMappings as unknown as InsertConferenceSports)
 }
@@ -373,7 +387,7 @@ export async function fetchAndLoadSubdivisions() {
     }
   })
 
-  return db
+  await db
     .insert(divisionSportsTable)
     .values(divisionSportMappings as unknown as InsertDivisionSports)
 }

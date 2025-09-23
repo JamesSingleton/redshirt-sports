@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.32.0",
+    "@redshirt-sports/clients": "workspace:*",
+    "@redshirt-sports/db": "workspace:*",
+    "@redshirt-sports/sanity": "workspace:*",
     "@redshirt-sports/ui": "workspace:*",
     "@tabler/icons-react": "^3.35.0",
     "lucide-react": "^0.544.0",
