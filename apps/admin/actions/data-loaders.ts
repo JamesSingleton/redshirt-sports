@@ -25,6 +25,8 @@ import {
   sportsTable,
   divisionSportsTable,
   weeksTable,
+  weeklyRankings,
+  SEASON_TYPE_CODES,
 } from '@redshirt-sports/db/schema'
 import {
   fetchWeeksFromSportsUrl,
@@ -390,4 +392,69 @@ export async function fetchAndLoadSubdivisions() {
   await db
     .insert(divisionSportsTable)
     .values(divisionSportMappings as unknown as InsertDivisionSports)
+}
+
+export async function fetchAndTransformRankings() {
+  const legacyRankings = await db.query.weeklyFinalRankings.findMany()
+  if (!legacyRankings) return
+
+  for (const jsonRanking of legacyRankings) {
+    const seasonTypeCode =
+      jsonRanking.week === 0 ? SEASON_TYPE_CODES.PRESEASON : SEASON_TYPE_CODES.REGULAR_SEASON
+
+    const season = await db.query.seasonsTable.findFirst({
+      where: (model, { eq, and }) =>
+        and(eq(model.sportId, jsonRanking.sportId || ''), eq(model.year, jsonRanking.year)),
+      with: {
+        seasonTypes: {
+          where: (seasonType, { eq }) => eq(seasonType.type, seasonTypeCode),
+          with: {
+            weeks: {
+              where: (week, { eq }) => eq(week.number, jsonRanking.week),
+            },
+          },
+        },
+      },
+    })
+
+    const division = await db.query.divisionsTable.findFirst({
+      where: (model, { eq }) => eq(model.slug, jsonRanking.division),
+    })
+    const divisionSport = await db.query.divisionSportsTable.findFirst({
+      where: (model, { eq, and }) =>
+        and(eq(model.divisionId, division?.id || ''), eq(model.sportId, jsonRanking.sportId || '')),
+    })
+
+    const staticFields = {
+      divisionSportId: divisionSport?.id,
+      weekId: season?.seasonTypes[0]?.weeks[0]?.id || '',
+    }
+
+    const transformedRankings = []
+    for (const r of jsonRanking.rankings as any) {
+      const school = await schoolBySanityId(r._id)
+      if (!school) {
+        console.log('no team found')
+      } else {
+        transformedRankings.push({
+          ...staticFields,
+          schoolId: school!.id,
+          ranking: r.rank,
+          isTie: r.isTie ?? false,
+          points: r._points,
+          firstPlaceVotes: r.firstPlaceVotes,
+        })
+      }
+    }
+
+    try {
+      await db.insert(weeklyRankings).values(transformedRankings)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+}
+
+async function schoolBySanityId(sanityId: string) {
+  return db.query.schoolsTable.findFirst({ where: (model, { eq }) => eq(model.sanityId, sanityId) })
 }

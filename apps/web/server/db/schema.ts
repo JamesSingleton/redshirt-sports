@@ -304,6 +304,36 @@ export const subdivisionSportsTableRelations = relations(divisionSportsTable, ({
   }),
 }))
 
+export const weeklyRankings = pgTable(
+  'weekly_team_rankings',
+  {
+    ...defaultColumns,
+    schoolId: text('school_id').notNull(),
+    divisionSportId: text('division_sport_id'),
+    weekId: text('week_id').notNull(),
+    ranking: integer(),
+    points: integer(),
+    firstPlaceVotes: integer('first_place_votes'),
+    isTie: boolean('is_tie'),
+  },
+  (table) => [unique().on(table.divisionSportId, table.schoolId, table.weekId)],
+)
+
+export const weeklyRankingsRelations = relations(weeklyRankings, ({ one }) => ({
+  school: one(schoolsTable, {
+    fields: [weeklyRankings.schoolId],
+    references: [schoolsTable.id],
+  }),
+  divisionSport: one(divisionSportsTable, {
+    fields: [weeklyRankings.divisionSportId],
+    references: [divisionSportsTable.id],
+  }),
+  week: one(weeksTable, {
+    fields: [weeklyRankings.weekId],
+    references: [weeksTable.id],
+  }),
+}))
+
 export type InsertUser = typeof usersTable.$inferInsert
 export type SelectUser = typeof usersTable.$inferSelect
 export type InsertSeason = typeof seasonsTable.$inferInsert
