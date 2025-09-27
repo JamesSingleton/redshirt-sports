@@ -92,8 +92,6 @@ export type ReducerAction = {
   payload?: unknown
 }
 
-export interface DocumentWithLocale extends SanityDocument {}
-
 export interface SectionOptions extends ObjectOptions {
   variants?: SectionVariant[]
 }

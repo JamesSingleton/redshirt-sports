@@ -5,6 +5,7 @@ import { StringInputWithLimits } from '../../components/string-input-with-limits
 import { TextInputWithLimits } from '../../components/text-input-with-limits'
 import { GROUP, GROUPS } from '../../utils/constant'
 import { ogFields } from '../../utils/og-fields'
+import { validateH2IsFirst, validateHeadingOrder } from '../../utils/portable-text-validations'
 import { seoFields } from '../../utils/seo-fields'
 import { createSlug, isUnique } from '../../utils/slug'
 
@@ -242,7 +243,8 @@ export const post = defineType({
       title: 'Body',
       type: 'blockContent',
       group: GROUP.MAIN_CONTENT,
-      validation: (rule) => rule.required(),
+      // @ts-ignore not sure why there's a type error here
+      validation: (rule) => [validateH2IsFirst(rule), validateHeadingOrder(rule), rule.required()],
     }),
     ...seoFields,
     ...ogFields,
