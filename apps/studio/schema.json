@@ -1690,14 +1690,16 @@
       "source": {
         "type": "objectAttribute",
         "value": {
-          "type": "string"
+          "type": "inline",
+          "name": "slug"
         },
         "optional": false
       },
       "destination": {
         "type": "objectAttribute",
         "value": {
-          "type": "string"
+          "type": "inline",
+          "name": "slug"
         },
         "optional": false
       },
@@ -1899,7 +1901,7 @@
         "value": {
           "type": "string"
         },
-        "optional": false
+        "optional": true
       },
       "mainImage": {
         "type": "objectAttribute",
