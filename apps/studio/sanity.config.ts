@@ -12,7 +12,7 @@ import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { media, mediaAssetSource } from 'sanity-plugin-media'
 
-import { BlockContentInput } from './components/block-content-input'
+import { CharacterCountInputPTE } from './components/character-count'
 import { Logo } from './components/logo'
 import { schemaTypes } from './schemaTypes'
 import { getDefaultDocumentNode, structure } from './structure'
@@ -56,7 +56,7 @@ export default defineConfig({
     components: {
       input: (props) => {
         if (props.schemaType.name === 'blockContent') {
-          return BlockContentInput(props as PortableTextInputProps)
+          return CharacterCountInputPTE(props as PortableTextInputProps)
         }
 
         return props.renderDefault(props)
