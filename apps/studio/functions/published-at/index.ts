@@ -11,20 +11,20 @@ export const handler = documentEventHandler(async ({ context, event }) => {
   const { local } = context // local is true when running locally
 
   try {
-    const firstPublishedDate = new Date().toISOString()
+    const publishedAtDate = new Date().toISOString()
     const result = await client
       .patch(data._id)
       .setIfMissing({
-        firstPublished: firstPublishedDate,
+        publishedAt: publishedAtDate,
       })
       .commit({ dryRun: local })
     console.log(
       local
-        ? `(LOCAL TEST MODE - Content Lake not updated) Set firstPublished timestamp for document (${data._id}): ${firstPublishedDate}  `
-        : `Set firstPublished timestamp for document (${data._id}): ${firstPublishedDate}`,
+        ? `(LOCAL TEST MODE - Content Lake not updated) Set publishedAt timestamp for document (${data._id}): ${publishedAtDate}  `
+        : `Set publishedAt timestamp for document (${data._id}): ${publishedAtDate}`,
       result,
     )
   } catch (error) {
-    console.error('Error setting firstPublished timestamp:', error)
+    console.error('Error setting publishedAt timestamp:', error)
   }
 })
