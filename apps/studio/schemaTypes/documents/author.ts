@@ -1,7 +1,7 @@
 import { User } from 'lucide-react'
 import { defineField, defineType } from 'sanity'
 
-import { TextInputWithLimits } from '../../components/text-input-with-limits'
+import { CharacterCountInput } from '../../components/character-count'
 import { createSlug } from '../../utils/slug'
 import { socialLinks } from '../definitions/social-links'
 
@@ -77,7 +77,7 @@ export const author = defineType({
       type: 'text',
       validation: (rule) => rule.required().error('Bio is required'),
       components: {
-        input: TextInputWithLimits,
+        input: CharacterCountInput,
       },
       rows: 3,
     }),
