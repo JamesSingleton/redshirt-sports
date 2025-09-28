@@ -87,6 +87,7 @@ export const post = defineType({
       title: 'Published At',
       group: GROUP.MAIN_CONTENT,
       readOnly: true,
+      description: 'This will be automatically generated when the post is published.',
     }),
     defineField({
       name: 'mainImage',

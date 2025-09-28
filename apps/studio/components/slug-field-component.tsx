@@ -1,7 +1,7 @@
 import { CopyIcon, WarningOutlineIcon } from '@sanity/icons'
 import { Badge, Box, Button, Flex, Stack, Text, TextInput } from '@sanity/ui'
-import type { FocusEvent, FormEvent } from 'react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import type { FormEvent } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import {
   getPublishedId,
   type ObjectFieldProps,
@@ -55,7 +55,6 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
   } = props
 
   const segments = useMemo(() => value?.current?.split('/').filter(Boolean) || [], [value])
-  const [folderLocked, setFolderLocked] = useState(segments.length > 1)
 
   const fullPathInputRef = useRef<HTMLInputElement>(null)
 
@@ -100,13 +99,6 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
     [handleChange],
   )
 
-  const handleBlur = useCallback(
-    (e: FocusEvent<HTMLInputElement>) => {
-      setFolderLocked(segments.length > 1)
-    },
-    [segments],
-  )
-
   const localizedPathname = getDocumentPath({
     ...document,
     slug: value?.current,
@@ -120,14 +112,13 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
             value={value?.current || ''}
             onChange={updateFullPath}
             ref={fullPathInputRef}
-            onBlur={handleBlur}
             disabled={readOnly}
             style={{ width: '100%' }}
           />
         </Box>
       </Stack>
     )
-  }, [value, updateFullPath, handleBlur, readOnly])
+  }, [value, updateFullPath, readOnly])
 
   return (
     <Stack space={3}>
