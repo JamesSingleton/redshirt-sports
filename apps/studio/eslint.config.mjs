@@ -7,6 +7,9 @@ import tseslint from 'typescript-eslint'
 /** @type {import('eslint').Linter.Config} */
 
 export default [
+  {
+    ignores: ['dist/**', 'node_modules/**', '.sanity/**', 'functions/**/.build/**'],
+  },
   ...sanityStudio,
   {
     plugins: {
@@ -18,12 +21,10 @@ export default [
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        // Remove project option since this file isn't included in tsconfig
         ecmaVersion: 'latest',
         sourceType: 'module',
       },
     },
-    ignores: ['dist', 'node_modules', '.sanity'],
     rules: {
       'prettier/prettier': 'error',
       'simple-import-sort/imports': 'error',
