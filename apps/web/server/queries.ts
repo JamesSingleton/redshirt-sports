@@ -115,7 +115,7 @@ export async function getWeekBySport(
   sportId: string,
   year: number,
   week: number,
-  seasonType = SEASON_TYPE_CODES.REGULAR_SEASON,
+  seasonType: number,
 ) {
   return db.query.seasonsTable.findFirst({
     where: (model, { eq, and }) => and(eq(model.sportId, sportId), eq(model.year, year)),
@@ -146,7 +146,23 @@ export async function getFinalRankingsForWeekAndYearFromDb({
   const sportId = await getSportIdBySlug(sport)
   if (!sportId) throw new Error(`Unable to find sport by slug. Slug: ${sport}`)
 
-  const dbSeason = await getWeekBySport(sportId, year, week)
+  let seasonTypeCode, effectiveWeek
+  switch (week) {
+    case 0:
+      seasonTypeCode = SEASON_TYPE_CODES.PRESEASON
+      effectiveWeek = 1
+      break
+    case 999:
+      seasonTypeCode = SEASON_TYPE_CODES.POSTSEASON
+      effectiveWeek = 1
+      break
+    default:
+      seasonTypeCode = SEASON_TYPE_CODES.REGULAR_SEASON
+      effectiveWeek = week
+      break
+  }
+
+  const dbSeason = await getWeekBySport(sportId, year, effectiveWeek, seasonTypeCode)
   if (!dbSeason) throw new Error('Unable to find season or week for rankings')
 
   const dbWeek = dbSeason?.seasonTypes[0]?.weeks[0]

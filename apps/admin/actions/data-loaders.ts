@@ -399,8 +399,25 @@ export async function fetchAndTransformRankings() {
   if (!legacyRankings) return
 
   for (const jsonRanking of legacyRankings) {
-    const seasonTypeCode =
-      jsonRanking.week === 0 ? SEASON_TYPE_CODES.PRESEASON : SEASON_TYPE_CODES.REGULAR_SEASON
+    let seasonTypeCode, weekForQuery
+
+    // this is largely a hack for the time being
+    // we just want one of the preseason/postseason weeks to associate with
+    // there is currently only one ballot for either of those season types
+    switch (jsonRanking.week) {
+      case 0:
+        seasonTypeCode = SEASON_TYPE_CODES.PRESEASON
+        weekForQuery = 1
+        break
+      case 999:
+        seasonTypeCode = SEASON_TYPE_CODES.POSTSEASON
+        weekForQuery = 1
+        break
+      default:
+        seasonTypeCode = SEASON_TYPE_CODES.REGULAR_SEASON
+        weekForQuery = jsonRanking.week
+        break
+    }
 
     const season = await db.query.seasonsTable.findFirst({
       where: (model, { eq, and }) =>
@@ -410,7 +427,7 @@ export async function fetchAndTransformRankings() {
           where: (seasonType, { eq }) => eq(seasonType.type, seasonTypeCode),
           with: {
             weeks: {
-              where: (week, { eq }) => eq(week.number, jsonRanking.week),
+              where: (week, { eq }) => eq(week.number, weekForQuery),
             },
           },
         },
@@ -419,15 +436,34 @@ export async function fetchAndTransformRankings() {
 
     const division = await db.query.divisionsTable.findFirst({
       where: (model, { eq }) => eq(model.slug, jsonRanking.division),
-    })
-    const divisionSport = await db.query.divisionSportsTable.findFirst({
-      where: (model, { eq, and }) =>
-        and(eq(model.divisionId, division?.id || ''), eq(model.sportId, jsonRanking.sportId || '')),
+      with: {
+        divisionSports: {
+          where: (divisionSport, { eq }) => eq(divisionSport.sportId, jsonRanking.sportId || ''),
+        },
+      },
     })
 
     const staticFields = {
-      divisionSportId: divisionSport?.id,
+      divisionSportId: division?.divisionSports[0]?.id || '',
       weekId: season?.seasonTypes[0]?.weeks[0]?.id || '',
+    }
+
+    if (!staticFields.divisionSportId || !staticFields.weekId) {
+      console.log('missing divisionSport or week, moving on')
+      continue
+    }
+
+    const rankingsExist = await db.query.weeklyRankings.findMany({
+      where: (model, { eq, and }) =>
+        and(
+          eq(model.divisionSportId, staticFields.divisionSportId),
+          eq(model.weekId, staticFields.weekId),
+        ),
+    })
+
+    if (rankingsExist.length) {
+      console.log('rankings exist for this week, moving on')
+      continue
     }
 
     const transformedRankings = []

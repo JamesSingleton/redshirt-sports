@@ -1,6 +1,6 @@
 export * from './voting'
 import 'server-only'
-import { eq, and } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { sportsTable, SEASON_TYPE_CODES, divisionsTable } from '../schema'
 
 import { primaryDb as db } from '../client'
@@ -61,10 +61,8 @@ export async function getFinalRankingsForWeekAndYearFromDb({
       ),
   })
 
-  console.log({ divisionSport })
-
   const rankings = await db.query.weeklyRankings.findMany({
-    where: (model, { eq }) =>
+    where: (model, { eq, and }) =>
       and(eq(model.weekId, dbWeek?.id || ''), eq(model.divisionSportId, divisionSport?.id || '')),
     with: {
       school: true,

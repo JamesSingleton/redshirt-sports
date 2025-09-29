@@ -5,8 +5,7 @@
   "compilerOptions": {
     "types": ["node"],
     "baseUrl": ".",
-    "paths": {
-      "@db/*": ["./src/*"]
-    }
+    "module": "EsNext",
+    "moduleResolution": "bundler"
   }
 }
