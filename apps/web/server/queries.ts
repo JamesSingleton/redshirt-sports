@@ -1,7 +1,13 @@
 import 'server-only'
 import { auth } from '@clerk/nextjs/server'
 import { desc, eq, and, sql } from 'drizzle-orm'
-import { weeklyFinalRankings, voterBallots, sportsTable } from './db/schema'
+import {
+  weeklyFinalRankings,
+  voterBallots,
+  sportsTable,
+  SEASON_TYPE_CODES,
+  divisionsTable,
+} from './db/schema'
 
 import { db } from '@/server/db'
 import { client } from '@/lib/sanity/client'
@@ -103,6 +109,91 @@ export async function getVotedWeeks(year: number) {
   })
 
   return weeks
+}
+
+export async function getWeekBySport(
+  sportId: string,
+  year: number,
+  week: number,
+  seasonType: number,
+) {
+  return db.query.seasonsTable.findFirst({
+    where: (model, { eq, and }) => and(eq(model.sportId, sportId), eq(model.year, year)),
+    with: {
+      seasonTypes: {
+        where: (s, { eq }) => eq(s.type, seasonType),
+        with: {
+          weeks: {
+            where: (w, { eq }) => eq(w.number, week),
+          },
+        },
+      },
+    },
+  })
+}
+
+export async function getFinalRankingsForWeekAndYearFromDb({
+  year,
+  week,
+  division,
+  sport,
+}: {
+  year: number
+  week: number
+  division: string
+  sport: SportParam
+}): Promise<any> {
+  const sportId = await getSportIdBySlug(sport)
+  if (!sportId) throw new Error(`Unable to find sport by slug. Slug: ${sport}`)
+
+  let seasonTypeCode, effectiveWeek
+  switch (week) {
+    case 0:
+      seasonTypeCode = SEASON_TYPE_CODES.PRESEASON
+      effectiveWeek = 1
+      break
+    case 999:
+      seasonTypeCode = SEASON_TYPE_CODES.POSTSEASON
+      effectiveWeek = 1
+      break
+    default:
+      seasonTypeCode = SEASON_TYPE_CODES.REGULAR_SEASON
+      effectiveWeek = week
+      break
+  }
+
+  const dbSeason = await getWeekBySport(sportId, year, effectiveWeek, seasonTypeCode)
+  if (!dbSeason) throw new Error('Unable to find season or week for rankings')
+
+  const dbWeek = dbSeason?.seasonTypes[0]?.weeks[0]
+
+  const subdivisionSport = await db.query.divisionSportsTable.findFirst({
+    where: (model, { eq, and }) =>
+      and(
+        eq(model.sportId, sportId),
+        eq(
+          model.divisionId,
+          db
+            .select({ id: divisionsTable.id })
+            .from(divisionsTable)
+            .where(eq(divisionsTable.slug, division)),
+        ),
+      ),
+  })
+
+  const rankings = await db.query.weeklyRankings.findMany({
+    where: (model, { eq }) =>
+      and(
+        eq(model.weekId, dbWeek?.id || ''),
+        eq(model.divisionSportId, subdivisionSport?.id || ''),
+      ),
+    with: {
+      school: true,
+    },
+    orderBy: (model, { asc }) => asc(model.ranking),
+  })
+
+  return rankings
 }
 
 export async function getFinalRankingsForWeekAndYear({

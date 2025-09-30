@@ -6,7 +6,7 @@ import {
   fetchAndLoadSchools,
   fetchAndLoadSports,
   fetchAndLoadSubdivisions,
-  // fetchAndTransformRankings,
+  fetchAndTransformRankings,
 } from '@/actions/data-loaders'
 
 import { useActionState } from 'react'
@@ -86,10 +86,10 @@ const configuredLoaders = [
     description: 'This loader will fetch and load school info.',
     loader: fetchAndLoadSchools,
   },
-  // {
-  //   label: 'Rankings',
-  //   loader: fetchAndTransformRankings,
-  // },
+  {
+    label: 'Rankings',
+    loader: fetchAndTransformRankings,
+  },
 ]
 
 export default function Development() {
