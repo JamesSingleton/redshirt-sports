@@ -4,18 +4,77 @@ import z from 'zod'
 import { CardHeader, CardTitle, CardContent, Card } from '@redshirt-sports/ui/components/card'
 
 import Top25 from '@/components/forms/top-25'
-import { getLatestVoterBallotWithSchools, hasVoterVoted, getSportIdBySlug } from '@/server/queries'
+import { hasVoterVoted, getSportIdBySlug, getLatestVoterBallot } from '@redshirt-sports/db/queries'
 import { getCurrentWeek, SportSchema, getCurrentSeason, SportParam } from '@/utils/espn'
 import { sanityFetch } from '@/lib/sanity/live'
 import CustomImage from '@/components/sanity-image'
 import { schoolsBySportAndSubgroupingStringQuery } from '@/lib/sanity/query'
 
 import { type Metadata } from 'next'
+import { client } from '@/lib/sanity/client'
 
 const ParamsSchema = z.object({
   sport: SportSchema,
   division: z.string(), // Add more specific validation if needed
 })
+
+type VoterBallotWithSchool = {
+  id: number
+  userId: string
+  division: string
+  week: number
+  year: number
+  createdAt: Date
+  teamId: string
+  rank: number
+  points: number
+  schoolName: string
+  schoolShortName: string
+  schoolAbbreviation: string
+  schoolNickname: string
+  schoolImageUrl: string
+}
+
+async function getLatestVoterBallotWithSchools(
+  userId: string,
+  division: string,
+  sport: SportParam,
+  currentYear: number,
+): Promise<VoterBallotWithSchool[]> {
+  const ballots = await getLatestVoterBallot(userId, division, sport, currentYear)
+  // Fetch school information from Sanity
+  const schoolIds = ballots.map((ballot) => ballot.teamId)
+  const schoolsQuery = `*[_type == "school" && _id in $schoolIds]{
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    nickname,
+    image{
+      ...,
+      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
+      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
+    }
+  }`
+  const schools = await client.fetch(schoolsQuery, { schoolIds })
+
+  // Combine the ballot data with school information
+  const ballotsWithSchools: VoterBallotWithSchool[] = ballots.map((ballot) => {
+    const school = schools.find((s: any) => s._id === ballot.teamId)
+    return {
+      ...ballot,
+      schoolName: school?.name || '',
+      schoolShortName: school?.shortName || '',
+      schoolAbbreviation: school?.abbreviation || '',
+      schoolNickname: school?.nickname || '',
+      schoolImageUrl: school?.image || '',
+    }
+  })
+
+  return ballotsWithSchools
+}
 
 async function fetchSchoolsByDivision(sport: string, division: string) {
   return await sanityFetch({
@@ -64,12 +123,19 @@ const divisionHeader = [
 export default async function VotePage({ params }: PageProps<'/vote/college/[sport]/[division]'>) {
   const rawParams = await params
   const validationResult = ParamsSchema.safeParse(rawParams)
-  if (!validationResult.success) {
+  const { userId } = await auth()
+  if (!validationResult.success || !userId) {
     console.error('Invalid params:', validationResult.error)
     notFound()
   }
 
   const { sport, division } = validationResult.data
+
+  const sportId = await getSportIdBySlug(sport as SportParam)
+  const { data: schools } = await fetchSchoolsByDivision(sport, division)
+  if (!schools) {
+    notFound()
+  }
 
   const [votingWeek, { year }] = await Promise.all([
     getCurrentWeek(sport as SportParam),
@@ -77,23 +143,16 @@ export default async function VotePage({ params }: PageProps<'/vote/college/[spo
   ])
 
   // Get sport ID for more precise vote checking
-  const sportId = await getSportIdBySlug(sport as SportParam)
   const hasVoted = await hasVoterVoted({
     year,
     week: votingWeek,
     division,
     sportId: sportId || '',
+    userId,
   })
-  const { userId } = await auth()
-
-  const { data: schools } = await fetchSchoolsByDivision(sport, division)
 
   if (hasVoted) {
     redirect(`/vote/college/${sport}/${division}/confirmation`)
-  }
-
-  if (!schools || !userId) {
-    notFound()
   }
 
   const latestBallot = await getLatestVoterBallotWithSchools(userId, division, sport, year)

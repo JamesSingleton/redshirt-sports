@@ -1,7 +1,14 @@
-export * from './voting'
 import 'server-only'
-import { eq } from 'drizzle-orm'
-import { sportsTable, SEASON_TYPE_CODES, divisionsTable } from '../schema'
+
+export * from './voting'
+import { desc, eq, and } from 'drizzle-orm'
+import {
+  sportsTable,
+  SEASON_TYPE_CODES,
+  divisionsTable,
+  weeklyFinalRankings,
+  voterBallots,
+} from '../schema'
 
 import { primaryDb as db } from '../client'
 
@@ -73,6 +80,334 @@ export async function getFinalRankingsForWeekAndYearFromDb({
   return rankings
 }
 
+export async function getAllLegacyWeeklyRankings() {
+  return db.query.weeklyFinalRankings.findMany()
+}
+
+export async function getAllWeeklyRankings() {
+  return db.query.weeklyRankings.findMany()
+}
+
+interface GetUsersVote {
+  year: number
+  week: number
+  division: string
+  sportId: string
+  userId: string
+}
+
+type FinalRankings = {
+  id: number
+  division: string
+  week: number
+  year: number
+  rankings: {
+    _id: string
+    _points: number
+    name: string
+    shortName: string
+    abbreviation: string
+    image: any
+    rank: number
+    firstPlaceVotes: number
+    isTie: boolean
+  }[]
+}
+
+export async function hasVoterVoted({ year, week, division, sportId, userId }: GetUsersVote) {
+  const conditions = [
+    eq(voterBallots.userId, userId),
+    eq(voterBallots.year, year),
+    eq(voterBallots.week, week),
+  ]
+
+  if (division) {
+    conditions.push(eq(voterBallots.division, division))
+  }
+
+  if (sportId) {
+    conditions.push(eq(voterBallots.sportId, sportId))
+  }
+
+  const vote = await db.query.voterBallots.findFirst({
+    where: (model, { eq, and }) => and(...conditions),
+  })
+
+  return !!vote
+}
+
+export async function getVoterBallots({ year, week, division, sportId, userId }: GetUsersVote) {
+  const conditions = [
+    eq(voterBallots.userId, userId),
+    eq(voterBallots.year, year),
+    eq(voterBallots.week, week),
+    eq(voterBallots.division, division),
+    eq(voterBallots.sportId, sportId),
+  ]
+
+  const votes = await db.query.voterBallots.findMany({
+    where: (model, { eq, and }) => and(...conditions),
+  })
+
+  return votes
+}
+
+export async function getBallotsByWeekYearDivisionAndSport({
+  year,
+  week,
+  division,
+  sportId,
+}: GetUsersVote) {
+  const votes = await db.query.voterBallots.findMany({
+    where: (model, { eq, and }) =>
+      and(
+        eq(model.year, year),
+        eq(model.week, week),
+        eq(model.division, division),
+        eq(model.sportId, sportId),
+      ),
+  })
+
+  return votes
+}
+
+// given a year, return the weeks that have been voted on
+export async function getVotedWeeks(year: number) {
+  const weeks = await db.query.voterBallots.findMany({
+    where: (model, { eq }) => eq(model.year, year),
+  })
+
+  return weeks
+}
+
+export async function getFinalRankingsForWeekAndYear({
+  year,
+  week,
+  division,
+}: {
+  year: number
+  week: number
+  division: string
+}): Promise<FinalRankings> {
+  const rankings = await db.query.weeklyFinalRankings.findFirst({
+    where: (model, { eq, and }) =>
+      and(eq(model.year, year), eq(model.week, week), eq(model.division, division)),
+  })
+
+  if (!rankings) {
+    throw new Error('Rankings not found')
+  }
+
+  return rankings as FinalRankings
+}
+
+export async function getYearsThatHaveVotes({ division }: { division: string }) {
+  const distinctYearsWithVotes = await db
+    .selectDistinctOn([weeklyFinalRankings.year])
+    .from(weeklyFinalRankings)
+    .where(eq(weeklyFinalRankings.division, division))
+    .orderBy(desc(weeklyFinalRankings.year))
+
+  return distinctYearsWithVotes
+}
+
+export async function getWeeksThatHaveVotes({
+  year,
+  division,
+}: {
+  year: number
+  division: string
+}) {
+  const weeksWithVotes = await db.query.weeklyFinalRankings.findMany({
+    columns: {
+      week: true,
+    },
+    where: (model, { eq, and }) => and(eq(model.year, year), eq(model.division, division)),
+  })
+
+  return weeksWithVotes.sort((a, b) => a.week - b.week)
+}
+
+export async function getVotesForWeekAndYearByVoter({
+  year,
+  week,
+  division,
+  sportId,
+}: {
+  year: number
+  week: number
+  division: string
+  sportId: string
+}) {
+  const allVotes = await db.query.voterBallots.findMany({
+    where: (model, { eq, and }) =>
+      and(
+        eq(model.year, year),
+        eq(model.week, week),
+        eq(model.division, division),
+        eq(model.sportId, sportId),
+      ),
+  })
+
+  if (allVotes.length === 0) {
+    return {}
+  }
+
+  const uniqueUserIds = Array.from(new Set(allVotes.map((vote) => vote.userId)))
+
+  const allUsers = await db.query.usersTable.findMany({
+    where: (model, { inArray }) => inArray(model.id, uniqueUserIds),
+    columns: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      organization: true,
+      organizationRole: true,
+    },
+  })
+
+  const userMap = new Map(allUsers.map((user) => [user.id, user]))
+
+  const userBallots: { [key: string]: any } = {}
+
+  for (const vote of allVotes) {
+    if (!userBallots[vote.userId]) {
+      userBallots[vote.userId] = {
+        votes: [],
+        userData: userMap.get(vote.userId),
+      }
+    }
+    userBallots[vote.userId].votes.push(vote)
+  }
+
+  return userBallots
+}
+export async function getCurrentSeasonStartAndEnd({
+  sportId,
+  year,
+}: {
+  sportId: string
+  year: number
+}) {
+  const season = await db.query.seasonsTable.findFirst({
+    where: (model, { eq }) => and(eq(model.year, year), eq(model.sportId, sportId)),
+  })
+
+  return season
+}
+
+// get the years that have been voted on along with the weeks and the divisions
+export async function getYearsWithVotes() {
+  const years = await db.query.weeklyFinalRankings.findMany({
+    columns: {
+      year: true,
+      week: true,
+      division: true,
+    },
+  })
+
+  return years
+}
+
+// get the last weeklyFinalRankings for a given division & return the division, week, and year
+export async function getLatestFinalRankings({ division }: { division: string }) {
+  const latestWeeklyRankings = await db.query.weeklyFinalRankings.findFirst({
+    where: (model, { eq }) => eq(model.division, division),
+    columns: {
+      division: true,
+      week: true,
+      year: true,
+    },
+    orderBy: (model) => [desc(model.year), desc(model.week)],
+  })
+
+  return latestWeeklyRankings
+}
+
+export async function getLatestFinalRankingsBySportSlug(sportSlug: string) {
+  // Use DISTINCT ON to get the latest ranking for each division in a single query
+  const results = await db
+    .selectDistinctOn([weeklyFinalRankings.division], {
+      division: weeklyFinalRankings.division,
+      week: weeklyFinalRankings.week,
+      year: weeklyFinalRankings.year,
+    })
+    .from(weeklyFinalRankings)
+    .innerJoin(sportsTable, eq(weeklyFinalRankings.sportId, sportsTable.id))
+    .where(eq(sportsTable.slug, sportSlug))
+    .orderBy(
+      weeklyFinalRankings.division,
+      desc(weeklyFinalRankings.year),
+      desc(weeklyFinalRankings.week),
+    )
+
+  return results
+}
+
+export async function getLatestVoterBallot(
+  userId: string,
+  division: string,
+  sport: SportParam,
+  currentYear: number,
+) {
+  // First, fetch the latest ballot metadata for the current season and sport
+  const latestBallotMeta = await db
+    .select({
+      week: voterBallots.week,
+      year: voterBallots.year,
+      createdAt: voterBallots.createdAt,
+    })
+    .from(voterBallots)
+    .innerJoin(sportsTable, eq(voterBallots.sportId, sportsTable.id))
+    .where(
+      and(
+        eq(voterBallots.userId, userId),
+        eq(voterBallots.division, division),
+        eq(sportsTable.slug, sport), // Filter by sport slug
+        eq(voterBallots.year, currentYear),
+      ),
+    )
+    .orderBy(desc(voterBallots.createdAt))
+    .limit(1)
+
+  if (latestBallotMeta.length === 0) {
+    return [] // No ballot found for current season/sport
+  }
+
+  const { week, year } = latestBallotMeta[0]!
+
+  // Fetch all 25 entries for the latest ballot
+  return db
+    .select({
+      // Select only the ballot fields we need
+      id: voterBallots.id,
+      userId: voterBallots.userId,
+      division: voterBallots.division,
+      week: voterBallots.week,
+      year: voterBallots.year,
+      createdAt: voterBallots.createdAt,
+      teamId: voterBallots.teamId,
+      rank: voterBallots.rank,
+      points: voterBallots.points,
+      sportId: voterBallots.sportId,
+    })
+    .from(voterBallots)
+    .innerJoin(sportsTable, eq(voterBallots.sportId, sportsTable.id))
+    .where(
+      and(
+        eq(voterBallots.userId, userId),
+        eq(voterBallots.division, division),
+        eq(sportsTable.slug, sport),
+        eq(voterBallots.week, week),
+        eq(voterBallots.year, year),
+      ),
+    )
+    .orderBy(voterBallots.rank)
+
+  // split into two functions and call from a service
+  // here down
+}
+
 export async function getSportIdBySlug(slug: SportParam): Promise<string | null> {
   const result = await db
     .select({ id: sportsTable.id })
@@ -81,12 +416,4 @@ export async function getSportIdBySlug(slug: SportParam): Promise<string | null>
     .limit(1)
 
   return result[0]?.id || null
-}
-
-export async function getAllLegacyWeeklyRankings() {
-  return db.query.weeklyFinalRankings.findMany()
-}
-
-export async function getAllWeeklyRankings() {
-  return db.query.weeklyRankings.findMany()
 }
