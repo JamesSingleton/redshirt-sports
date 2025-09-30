@@ -12,7 +12,7 @@ import {
 import { ScrollArea } from '@redshirt-sports/ui/components/scroll-area'
 import { SearchBar } from './search-bar'
 import SmallLogo from './small-logo'
-import { getLatestFinalRankings } from '@/server/queries'
+import { getLatestFinalRankings } from '@redshirt-sports/db/queries'
 import MegaMobileNav from './mega-mobile-nav'
 import { ModeToggle } from './mode-toggle'
 

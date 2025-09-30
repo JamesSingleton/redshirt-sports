@@ -5,7 +5,7 @@ import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
 } from '@/lib/sanity/sanity.types'
-import { getLatestFinalRankingsBySportSlug } from '@/server/queries'
+import { getLatestFinalRankingsBySportSlug } from '@redshirt-sports/db/queries'
 import { client } from '@/lib/sanity/client'
 import { Logo } from './logo'
 import { NavbarClient, NavbarSkeletonResponsive } from './navbar-client'

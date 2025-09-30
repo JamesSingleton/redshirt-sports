@@ -1,5 +1,5 @@
 import { getBaseUrl } from '@/lib/get-base-url'
-import { getYearsWithVotes } from '@/server/queries'
+import { getYearsWithVotes } from '@redshirt-sports/db/queries'
 
 import type { MetadataRoute } from 'next'
 

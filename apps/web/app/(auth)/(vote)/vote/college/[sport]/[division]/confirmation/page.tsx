@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { buttonVariants } from '@redshirt-sports/ui/components/button'
 
-import { getVoterBallots, getSportIdBySlug } from '@/server/queries'
+import { getVoterBallots, getSportIdBySlug } from '@redshirt-sports/db/queries'
 import CustomImage from '@/components/sanity-image'
 import { getCurrentWeek, SportParam, getCurrentSeason } from '@/utils/espn'
 import { transformBallotToTeamIds } from '@/utils/process-ballots'
@@ -71,6 +71,7 @@ export default async function VoteConfirmationPage({
     week: votingWeek,
     division,
     sportId: sportId || '',
+    userId: user.userId,
   })
 
   if (user.userId && !ballot.length) {

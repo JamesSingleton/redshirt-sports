@@ -2,9 +2,9 @@ import * as Sentry from '@sentry/nextjs'
 import { z } from 'zod'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/server/db'
-import { voterBallots } from '@/server/db/schema'
+import { voterBallots } from '@redshirt-sports/db/schema'
 import { getSeasonInfo, type SportParam } from '@/utils/espn'
-import { getSportIdBySlug } from '@/server/queries'
+import { getSportIdBySlug } from '@redshirt-sports/db/queries'
 
 // Validation schemas - both sport and division come from request body
 const VoteRequestSchema = z.object({

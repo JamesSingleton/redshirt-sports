@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/nextjs'
 
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/server/db'
-import { voterBallots } from '@/server/db/schema'
+import { voterBallots } from '@redshirt-sports/db/schema'
 
 import { getSeasonInfo } from '@/utils/espn'
 
