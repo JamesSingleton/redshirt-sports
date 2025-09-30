@@ -1,4 +1,6 @@
 'use client'
+import { Button } from '@redshirt-sports/ui/components/button'
+
 import {
   fetchAndLoadAllSeasons,
   fetchAndLoadConferences,
@@ -34,15 +36,11 @@ function LoaderAction({ label, loader, description }: LoaderActionProps) {
     <form action={runAction} className="w-full">
       <p className="font-semibold mb-2 ">{label}</p>
       {description && <p className="text-sm mb-4">{description}</p>}
-      <button
-        type="submit"
-        disabled={isPending}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed mb-2"
-      >
+      <Button type="submit" disabled={isPending}>
         Run
-      </button>
+      </Button>
       {isPending && <span className="text-sm ml-2">Loading...</span>}
-      {state.error && <span className="block text-sm text-red-600 mt-2">{state.error}</span>}
+      {state.error && <span className="block text-sm mt-2 text-destructive">{state.error}</span>}
       {state.success && !state.error && (
         <span className="block text-sm text-green-600 mt-2">Success!</span>
       )}
