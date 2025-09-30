@@ -26,21 +26,15 @@ import {
   useSidebar,
 } from '@redshirt-sports/ui/components/sidebar'
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
+export function NavUser() {
   const { user: clerkUser, isLoaded } = useUser()
 
   const { isMobile } = useSidebar()
 
   // TODO: Implement a skeleton for this
   if (!isLoaded) return null
+
+  const initials = `${clerkUser?.firstName?.charAt(0)}${clerkUser?.lastName?.charAt(0)}`
 
   return (
     <SidebarMenu>
@@ -53,7 +47,7 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={clerkUser?.imageUrl} alt={clerkUser?.fullName || 'User'} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{clerkUser?.fullName}</span>
@@ -74,7 +68,7 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={clerkUser?.imageUrl} alt={clerkUser?.fullName || 'User'} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{clerkUser?.fullName}</span>

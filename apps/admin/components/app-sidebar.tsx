@@ -7,7 +7,6 @@ import {
   IconFileAi,
   IconFileDescription,
   IconHelp,
-  IconInnerShadowTop,
   IconSearch,
   IconSettings,
 } from '@tabler/icons-react'
@@ -27,11 +26,6 @@ import {
 import Image from 'next/image'
 
 const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
   navMain: [
     {
       title: 'Development',
@@ -133,7 +127,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )
