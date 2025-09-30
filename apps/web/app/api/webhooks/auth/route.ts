@@ -4,7 +4,7 @@ import { Webhook } from 'svix'
 import { eq } from 'drizzle-orm'
 
 import { db } from '@/server/db'
-import { usersTable } from '@/server/db/schema'
+import { usersTable } from '@redshirt-sports/db/schema'
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET

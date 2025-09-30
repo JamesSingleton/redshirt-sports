@@ -35,23 +35,42 @@ type CreateSingleTon = {
   S: StructureBuilder
 } & Base<SingletonType>
 
-const incomingReferences = (S: StructureBuilder) =>
+const postReferences = (S: StructureBuilder) =>
   S.view
     .component(DocumentsPane)
     .options({
-      query: `*[references($id)] | order(_createdAt desc)`,
+      query: `*[_type == 'post' && references($id)] | order(_createdAt desc)`,
       params: { id: `_id` },
       useDraft: false,
     })
-    .title('Incoming References')
+    .title('Post References')
+    .icon(LinkIcon)
+
+const schoolReferences = (S: StructureBuilder) =>
+  S.view
+    .component(DocumentsPane)
+    .options({
+      query: `*[_type == 'school' && references($id)] | order(_createdAt desc)`,
+      params: { id: `_id` },
+      useDraft: false,
+    })
+    .title('School References')
     .icon(LinkIcon)
 
 export const getDefaultDocumentNode: DefaultDocumentNodeResolver = (S, { schemaType }) => {
   switch (schemaType) {
     case 'post':
-      return S.document().views([S.view.form().icon(ComposeIcon), incomingReferences(S)])
+      return S.document().views([S.view.form().icon(ComposeIcon), postReferences(S)])
+    case 'conference':
+      return S.document().views([
+        S.view.form().icon(ComposeIcon),
+        postReferences(S),
+        schoolReferences(S),
+      ])
+    case 'school':
+      return S.document().views([S.view.form().icon(ComposeIcon), postReferences(S)])
     default:
-      return S.document().views([S.view.form(), incomingReferences(S)])
+      return S.document().views([S.view.form()])
   }
 }
 

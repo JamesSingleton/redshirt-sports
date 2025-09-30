@@ -12,10 +12,11 @@ import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { media, mediaAssetSource } from 'sanity-plugin-media'
 
-import { BlockContentInput } from './components/block-content-input'
+import { CharacterCountInputPTE } from './components/character-count'
 import { Logo } from './components/logo'
 import { schemaTypes } from './schemaTypes'
 import { getDefaultDocumentNode, structure } from './structure'
+import { createCustomPostDuplicateAction } from './utils/actions'
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? ''
 const dataset = process.env.SANITY_STUDIO_DATASET
@@ -55,7 +56,7 @@ export default defineConfig({
     components: {
       input: (props) => {
         if (props.schemaType.name === 'blockContent') {
-          return BlockContentInput(props as PortableTextInputProps)
+          return CharacterCountInputPTE(props as PortableTextInputProps)
         }
 
         return props.renderDefault(props)
@@ -83,6 +84,14 @@ export default defineConfig({
       }
       return prev
     },
+    actions: (actions, context) =>
+      context.schemaType === 'post'
+        ? actions.map((actionItem) =>
+            actionItem.action === 'duplicate'
+              ? createCustomPostDuplicateAction(actionItem)
+              : actionItem,
+          )
+        : actions,
   },
   schema: {
     types: schemaTypes,

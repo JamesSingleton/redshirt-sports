@@ -1,6 +1,6 @@
 import { defineField, defineType } from 'sanity'
 
-import { TextInputWithLimits } from '../../components/text-input-with-limits'
+import { CharacterCountInput } from '../../components/character-count'
 import { createSlug, isUnique } from '../../utils/slug'
 
 export const division = defineType({
@@ -56,7 +56,7 @@ export const division = defineType({
       description:
         'This will be used for article snippets in social media and Google searches. Ideally between 110 and 160 characters.',
       components: {
-        input: TextInputWithLimits,
+        input: CharacterCountInput,
       },
       validation: (rule) => [
         rule

@@ -1,14 +1,14 @@
-import { sanityFetch } from '@/lib/sanity/live'
+import { memo } from 'react'
+
 import { globalNavigationQuery, queryGlobalSeoSettings } from '@/lib/sanity/query'
 import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
 } from '@/lib/sanity/sanity.types'
-import { memo } from 'react'
-
+import { getLatestFinalRankingsBySportSlug } from '@redshirt-sports/db/queries'
+import { client } from '@/lib/sanity/client'
 import { Logo } from './logo'
 import { NavbarClient, NavbarSkeletonResponsive } from './navbar-client'
-import { getLatestFinalRankingsBySportSlug } from '@/server/queries'
 
 export interface RankingPeriod {
   division: string
@@ -28,8 +28,26 @@ export type Top25RankingsData = SportRankings[]
 export async function NavbarServer() {
   const [navbarData, settingsData, latestFootballRankings, latestMensBasketballRankings] =
     await Promise.all([
-      sanityFetch({ query: globalNavigationQuery }),
-      sanityFetch({ query: queryGlobalSeoSettings }),
+      client.fetch(
+        globalNavigationQuery,
+        {},
+        {
+          cache: 'force-cache',
+          next: {
+            revalidate: 604800,
+          },
+        },
+      ),
+      client.fetch(
+        queryGlobalSeoSettings,
+        {},
+        {
+          cache: 'force-cache',
+          next: {
+            revalidate: 604800,
+          },
+        },
+      ),
       getLatestFinalRankingsBySportSlug('football'),
       getLatestFinalRankingsBySportSlug('mens-basketball'),
     ])
@@ -47,8 +65,8 @@ export async function NavbarServer() {
 
   return (
     <MemoizedNavbar
-      navbarData={navbarData.data}
-      settingsData={settingsData.data}
+      navbarData={navbarData}
+      settingsData={settingsData}
       latestRankings={latestRankings}
     />
   )

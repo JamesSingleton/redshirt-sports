@@ -1,10 +1,13 @@
 import { ImageIcon, TwitterIcon } from '@sanity/icons'
 import { defineArrayMember, defineType } from 'sanity'
 
+import { warnWhenHeadingOrBlockIsAllBold } from '../../utils/portable-text-validations'
+
 const richTextMembers = [
   defineArrayMember({
     name: 'block',
     type: 'block',
+    validation: (rule) => [warnWhenHeadingOrBlockIsAllBold(rule)],
     marks: {
       annotations: [
         {

@@ -1,10 +1,10 @@
 import { defineArrayMember, defineField, defineType } from 'sanity'
 
+import { CharacterCountInput } from '../../components/character-count'
 import { PathnameFieldComponent } from '../../components/slug-field-component'
-import { StringInputWithLimits } from '../../components/string-input-with-limits'
-import { TextInputWithLimits } from '../../components/text-input-with-limits'
 import { GROUP, GROUPS } from '../../utils/constant'
 import { ogFields } from '../../utils/og-fields'
+import { validateH2IsFirst, validateHeadingOrder } from '../../utils/portable-text-validations'
 import { seoFields } from '../../utils/seo-fields'
 import { createSlug, isUnique } from '../../utils/slug'
 
@@ -25,7 +25,7 @@ export const post = defineType({
       group: GROUP.MAIN_CONTENT,
       validation: (rule) => rule.required(),
       components: {
-        input: StringInputWithLimits,
+        input: CharacterCountInput,
       },
     }),
     defineField({
@@ -78,7 +78,7 @@ export const post = defineType({
           validation: (rule) => rule.required(),
         }),
       ],
-      validation: (rule) => [rule.required(), rule.unique()],
+      validation: (rule) => rule.required().unique(),
       group: GROUP.MAIN_CONTENT,
     }),
     defineField({
@@ -86,7 +86,8 @@ export const post = defineType({
       type: 'datetime',
       title: 'Published At',
       group: GROUP.MAIN_CONTENT,
-      validation: (rule) => rule.required(),
+      readOnly: true,
+      description: 'This will be automatically generated when the post is published.',
     }),
     defineField({
       name: 'mainImage',
@@ -219,21 +220,19 @@ export const post = defineType({
       description:
         'This will be used for article snippets in social media and Google searches. Ideally between 140 and 160 characters.',
       group: GROUP.MAIN_CONTENT,
-      validation: (rule) => [
-        rule.required(),
+      validation: (rule) =>
         rule
+          .required()
           .min(140)
           .warning(
             'Excerpt should be at least 140 characters for optimal SEO visibility in search results.',
-          ),
-        rule
+          )
           .max(160)
           .warning(
-            'Excerpt should not exceed 160 characters as it will be truncated in search results.',
+            'Excerpt should be at most 160 characters for optimal SEO visibility in search results.',
           ),
-      ],
       components: {
-        input: TextInputWithLimits,
+        input: CharacterCountInput,
       },
     }),
     defineField({
@@ -241,7 +240,8 @@ export const post = defineType({
       title: 'Body',
       type: 'blockContent',
       group: GROUP.MAIN_CONTENT,
-      validation: (rule) => rule.required(),
+      // @ts-ignore not sure why there's a type error here
+      validation: (rule) => [validateH2IsFirst(rule), validateHeadingOrder(rule), rule.required()],
     }),
     ...seoFields,
     ...ogFields,

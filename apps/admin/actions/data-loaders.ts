@@ -1,12 +1,14 @@
-import { sanityFetch } from '@/lib/sanity/live'
+'use server'
+
+import { sanityFetch } from '@redshirt-sports/sanity/live'
 import {
   conferencesQuery,
   divisionsQuery,
   schoolsQuery,
   sportInfoQuery,
   subdivisionsQuery,
-} from '@/lib/sanity/query'
-import { db } from '@/server/db'
+} from '@redshirt-sports/sanity/queries'
+import { primaryDb as db } from '@redshirt-sports/db/client'
 import {
   conferenceSportsTable,
   conferencesTable,
@@ -23,8 +25,14 @@ import {
   sportsTable,
   divisionSportsTable,
   weeksTable,
-} from '@/server/db/schema'
-import { fetchWeeksFromSportsUrl, getMultipleSeasonsData, SportParam } from './espn'
+  weeklyRankings,
+  SEASON_TYPE_CODES,
+} from '@redshirt-sports/db/schema'
+import {
+  fetchWeeksFromSportsUrl,
+  getMultipleSeasonsData,
+  SportParam,
+} from '@redshirt-sports/clients/espn'
 
 interface BaseSanityObject {
   _id: string
@@ -76,6 +84,14 @@ interface SanitySubdivision extends BaseSanityObjectWithName {
   slug: string
   parentDivisionId: string
   applicableSports: string[]
+}
+
+export async function fetchAndLoadAllSeasons() {
+  await Promise.all(
+    ['football', 'mens-basketball', 'womens-basketball'].map((sport) =>
+      fetchAndLoadSeasons(sport as SportParam, 2023),
+    ),
+  )
 }
 
 export async function fetchAndLoadSeasons(
@@ -196,7 +212,7 @@ export async function fetchAndLoadSports() {
     updatedAt: new Date(d._updatedAt),
   }))
 
-  return db.insert(sportsTable).values(mappedSports)
+  await db.insert(sportsTable).values(mappedSports)
 }
 
 export async function fetchAndLoadDivisions() {
@@ -214,7 +230,7 @@ export async function fetchAndLoadDivisions() {
     updatedAt: new Date(d._updatedAt),
   }))
 
-  return db.insert(divisionsTable).values(mappedDivisions)
+  await db.insert(divisionsTable).values(mappedDivisions)
 }
 
 export async function fetchAndLoadSchools() {
@@ -269,7 +285,7 @@ export async function fetchAndLoadSchools() {
     }
   })
 
-  return db
+  await db
     .insert(schoolConferenceAffiliationsTable)
     .values(schoolConferenceAffiliations as unknown as InsertSchoolConferenceAffiliations)
 }
@@ -323,7 +339,7 @@ export async function fetchAndLoadConferences() {
     }
   })
 
-  return db
+  await db
     .insert(conferenceSportsTable)
     .values(conferenceSportMappings as unknown as InsertConferenceSports)
 }
@@ -373,7 +389,108 @@ export async function fetchAndLoadSubdivisions() {
     }
   })
 
-  return db
+  await db
     .insert(divisionSportsTable)
     .values(divisionSportMappings as unknown as InsertDivisionSports)
+}
+
+export async function fetchAndTransformRankings() {
+  const legacyRankings = await db.query.weeklyFinalRankings.findMany()
+  if (!legacyRankings) return
+
+  for (const jsonRanking of legacyRankings) {
+    let seasonTypeCode, weekForQuery
+
+    // this is largely a hack for the time being
+    // we just want one of the preseason/postseason weeks to associate with
+    // there is currently only one ballot for either of those season types
+    switch (jsonRanking.week) {
+      case 0:
+        seasonTypeCode = SEASON_TYPE_CODES.PRESEASON
+        weekForQuery = 1
+        break
+      case 999:
+        seasonTypeCode = SEASON_TYPE_CODES.POSTSEASON
+        weekForQuery = 1
+        break
+      default:
+        seasonTypeCode = SEASON_TYPE_CODES.REGULAR_SEASON
+        weekForQuery = jsonRanking.week
+        break
+    }
+
+    const season = await db.query.seasonsTable.findFirst({
+      where: (model, { eq, and }) =>
+        and(eq(model.sportId, jsonRanking.sportId || ''), eq(model.year, jsonRanking.year)),
+      with: {
+        seasonTypes: {
+          where: (seasonType, { eq }) => eq(seasonType.type, seasonTypeCode),
+          with: {
+            weeks: {
+              where: (week, { eq }) => eq(week.number, weekForQuery),
+            },
+          },
+        },
+      },
+    })
+
+    const division = await db.query.divisionsTable.findFirst({
+      where: (model, { eq }) => eq(model.slug, jsonRanking.division),
+      with: {
+        divisionSports: {
+          where: (divisionSport, { eq }) => eq(divisionSport.sportId, jsonRanking.sportId || ''),
+        },
+      },
+    })
+
+    const staticFields = {
+      divisionSportId: division?.divisionSports[0]?.id || '',
+      weekId: season?.seasonTypes[0]?.weeks[0]?.id || '',
+    }
+
+    if (!staticFields.divisionSportId || !staticFields.weekId) {
+      console.log('missing divisionSport or week, moving on')
+      continue
+    }
+
+    const rankingsExist = await db.query.weeklyRankings.findMany({
+      where: (model, { eq, and }) =>
+        and(
+          eq(model.divisionSportId, staticFields.divisionSportId),
+          eq(model.weekId, staticFields.weekId),
+        ),
+    })
+
+    if (rankingsExist.length) {
+      console.log('rankings exist for this week, moving on')
+      continue
+    }
+
+    const transformedRankings = []
+    for (const r of jsonRanking.rankings as any) {
+      const school = await schoolBySanityId(r._id)
+      if (!school) {
+        console.log('no team found')
+      } else {
+        transformedRankings.push({
+          ...staticFields,
+          schoolId: school!.id,
+          ranking: r.rank,
+          isTie: r.isTie ?? false,
+          points: r._points,
+          firstPlaceVotes: r.firstPlaceVotes,
+        })
+      }
+    }
+
+    try {
+      await db.insert(weeklyRankings).values(transformedRankings)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+}
+
+async function schoolBySanityId(sanityId: string) {
+  return db.query.schoolsTable.findFirst({ where: (model, { eq }) => eq(model.sanityId, sanityId) })
 }

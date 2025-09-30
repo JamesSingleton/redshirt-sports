@@ -26,7 +26,7 @@ const CustomImage = ({
 
   return (
     <SanityImage
-      id={image.asset._ref}
+      id={image.asset._ref ?? image.asset._id}
       projectId={projectId}
       dataset={dataset}
       hotspot={image.hotspot}

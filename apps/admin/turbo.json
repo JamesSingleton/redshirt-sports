@@ -3,7 +3,19 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "env": ["CLERK_SECRET_KEY"]
+      "env": [
+        "CLERK_SECRET_KEY",
+        "POSTGRES_HOST",
+        "POSTGRES_PASSWORD",
+        "SUPABASE_ANON_KEY",
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "SUPABASE_JWT_SECRET",
+        "POSTGRES_URL",
+        "POSTGRES_PRISMA_URL",
+        "POSTGRES_URL_NON_POOLING",
+        "POSTGRES_USER"
+      ]
     }
   }
 }

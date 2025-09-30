@@ -297,8 +297,8 @@ export type Redirect = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  source: string
-  destination: string
+  source: Slug
+  destination: Slug
   permanent?: boolean
 }
 
@@ -334,7 +334,7 @@ export type Post = {
     _key: string
     [internalGroqTypeReferenceTo]?: 'author'
   }>
-  publishedAt: string
+  publishedAt?: string
   mainImage: {
     asset?: {
       _ref: string
@@ -1068,7 +1068,7 @@ export type QueryPostSlugDataResult = {
       threads?: string
     }
   }>
-  publishedAt: string
+  publishedAt?: string
   mainImage: {
     asset?: {
       _ref: string
@@ -1258,7 +1258,7 @@ export type QueryPostSlugDataResult = {
   relatedPosts: Array<{
     _id: string
     title: string
-    publishedAt: string
+    publishedAt: string | null
     mainImage: {
       asset?: {
         _ref: string
@@ -1515,7 +1515,7 @@ export type QueryHomePageDataResult = Array<{
     dominantColor: string | null
     credit: string
   }
-  publishedAt: string
+  publishedAt: string | null
   authors: Array<{
     _id: string
     _type: 'author'
@@ -1572,7 +1572,7 @@ export type QueryLatestArticlesResult = Array<{
   title: string
   excerpt: string
   slug: string
-  publishedAt: string
+  publishedAt: string | null
   mainImage: {
     asset?: {
       _ref: string
@@ -1665,7 +1665,7 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
     dominantColor: string | null
     credit: string
   }
-  publishedAt: string
+  publishedAt: string | null
   division: {
     name: string
     slug: string
@@ -1729,7 +1729,7 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
 export type QueryCollegeSportsArticlesForSitemapResult = Array<{
   _id: string
   _updatedAt: string
-  publishedAt: string
+  publishedAt: string | null
   slug: string
 }>
 // Variable: querySitemapData
@@ -2035,7 +2035,7 @@ export type RssFeedQueryResult = Array<{
   _id: string
   title: string
   slug: string
-  publishedAt: string
+  publishedAt: string | null
   excerpt: string
   mainImage: {
     asset?: {

@@ -1,71 +1,41 @@
-import type { SanityDocumentLike } from 'sanity'
 import { defineField, defineType } from 'sanity'
-
-function isValidInternalPath(value: string | undefined) {
-  if (!value) {
-    return 'Value is required'
-  } else if (!value.startsWith('/')) {
-    return 'Internal paths must start with /'
-  } else if (/[^a-zA-Z0-9\-_/:*]/.test(value)) {
-    return 'Source path contains invalid characters'
-  } else if (/:[^/]+:/.test(value)) {
-    return 'Parameters can only contain one : directly after /'
-  } else if (value.split('/').some((part) => part.includes(':') && !part.startsWith(':'))) {
-    return 'The : character can only appear directly after /'
-  }
-  return true
-}
-
-function isValidUrl(value: string | undefined) {
-  try {
-    new URL(value || '')
-    return true
-  } catch {
-    return 'Invalid URL'
-  }
-}
 
 export const redirect = defineType({
   name: 'redirect',
   title: 'Redirect',
   type: 'document',
-  validation: (rule) =>
-    rule.custom((doc: SanityDocumentLike | undefined) => {
-      if (doc && doc.source === doc.destination) {
-        return ['source', 'destination'].map((field) => ({
-          message: 'Source and desitination cannot be the same',
-          path: [field],
-        }))
-      }
-
-      return true
-    }),
+  description: 'Redirect for next.config.js',
   fields: [
     defineField({
       name: 'source',
-      type: 'string',
-      validation: (rule) => rule.required().custom(isValidInternalPath),
+      type: 'slug',
+      validation: (rule) =>
+        rule.required().custom((value) => {
+          if (!value || !value.current) return "Can't be blank"
+          if (!value.current.startsWith('/')) {
+            return 'The path must start with a /'
+          }
+          return true
+        }),
     }),
     defineField({
       name: 'destination',
-      type: 'string',
+      type: 'slug',
       validation: (rule) =>
-        rule.required().custom((value: string | undefined) => {
-          const urlValidation = isValidUrl(value)
-          const pathValidation = isValidInternalPath(value)
-
-          if (urlValidation === true || pathValidation === true) {
-            return true
+        rule.required().custom((value) => {
+          if (!value || !value.current) return "Can't be blank"
+          if (!value.current.startsWith('/')) {
+            return 'The path must start with a /'
           }
-
-          return typeof urlValidation === 'boolean' ? urlValidation : pathValidation
+          return true
         }),
     }),
     defineField({
       name: 'permanent',
-      description: 'Should the redirect be permanent (301) or temporary (302)',
       type: 'boolean',
-      initialValue: true,
     }),
   ],
+  initialValue: {
+    permanent: true,
+  },
 })

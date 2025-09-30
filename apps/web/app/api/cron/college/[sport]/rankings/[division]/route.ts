@@ -1,5 +1,5 @@
 import { db } from '@/server/db'
-import { weeklyFinalRankings } from '@/server/db/schema'
+import { weeklyFinalRankings } from '@redshirt-sports/db/schema'
 import { client } from '@/lib/sanity/client'
 import { schoolsByIdOrderedByPoints } from '@/lib/sanity.queries'
 import { token } from '@/lib/sanity/token'
@@ -7,7 +7,7 @@ import {
   getCurrentSeasonStartAndEnd,
   getSportIdBySlug,
   getBallotsByWeekYearDivisionAndSport,
-} from '@/server/queries'
+} from '@redshirt-sports/db/queries'
 
 import { type Ballot, SchoolLite } from '@/types'
 import { NextResponse } from 'next/server'

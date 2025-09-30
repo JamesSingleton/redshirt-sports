@@ -22,7 +22,8 @@ import {
   getWeeksThatHaveVotes,
   getVotesForWeekAndYearByVoter,
   getYearsThatHaveVotes,
-} from '@/server/queries'
+  getFinalRankingsForWeekAndYearFromDb,
+} from '@redshirt-sports/db/queries'
 import { processVoterBallots } from '@/utils/process-ballots'
 import { RankingsFilters } from '@/components/rankings/filters'
 import CustomImage from '@/components/sanity-image'
