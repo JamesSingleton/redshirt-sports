@@ -1,5 +1,5 @@
-import { ImageIcon, TwitterIcon } from '@sanity/icons'
-import { defineArrayMember, defineType } from 'sanity'
+import { ImageIcon, PlayIcon, TwitterIcon } from '@sanity/icons'
+import { defineArrayMember, defineField, defineType } from 'sanity'
 
 import { warnWhenHeadingOrBlockIsAllBold } from '../../utils/portable-text-validations'
 
@@ -111,6 +111,48 @@ const richTextMembers = [
     name: 'table',
     title: 'Table',
     type: 'table',
+  }),
+  defineArrayMember({
+    name: 'youtubeEmbed',
+    title: 'YouTube Embed',
+    type: 'object',
+    icon: PlayIcon,
+    fields: [
+      defineField({
+        name: 'url',
+        title: 'YouTube URL',
+        type: 'url',
+        description: 'Enter a YouTube video URL (e.g., https://youtube.com/watch?v=dQw4w9WgXcQ)',
+        validation: (Rule) =>
+          Rule.required()
+            .uri({
+              scheme: ['http', 'https'],
+            })
+            .custom((url) => {
+              if (!url) return 'YouTube URL is required'
+              const isYouTube = /(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i.test(url)
+              return isYouTube || 'Please enter a valid YouTube URL'
+            }),
+      }),
+    ],
+    preview: {
+      select: {
+        url: 'url',
+      },
+      prepare({ url }) {
+        // Extract video title from URL if possible, otherwise show URL
+        const videoId = url?.match(
+          /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+        )?.[1]
+        const title = videoId ? `YouTube Video (${videoId})` : 'YouTube Embed'
+
+        return {
+          title,
+          subtitle: `🎥 ${url}`,
+          media: PlayIcon,
+        }
+      },
+    },
   }),
 ]
 

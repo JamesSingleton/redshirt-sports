@@ -18,6 +18,7 @@ import {
 
 import { ReactTweet as Tweet } from '@/components/tweet'
 import CustomImage from '@/components/sanity-image'
+import { YouTubeEmbedComponent } from './youtube-embed'
 
 type TableType = {
   _type: 'table'
@@ -121,6 +122,9 @@ const components: Partial<PortableTextReactComponents> = {
           </Table>
         </div>
       )
+    },
+    youtubeEmbed: ({ value }) => {
+      return <YouTubeEmbedComponent {...value} />
     },
   },
 }
