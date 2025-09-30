@@ -1,5 +1,12 @@
 'use client'
 import { Button } from '@redshirt-sports/ui/components/button'
+import {
+  Card,
+  CardHeader,
+  CardDescription,
+  CardContent,
+  CardTitle,
+} from '@redshirt-sports/ui/components/card'
 
 import {
   fetchAndLoadAllSeasons,
@@ -14,12 +21,10 @@ import {
 import { useActionState } from 'react'
 
 interface LoaderActionProps {
-  label: string
   loader: (formData: FormData) => Promise<any>
-  description?: string
 }
 
-function LoaderAction({ label, loader, description }: LoaderActionProps) {
+function LoaderAction({ loader }: LoaderActionProps) {
   const [state, runAction, isPending] = useActionState(
     async (_prevState: { success: boolean; error: string | null }, formData: FormData) => {
       try {
@@ -34,8 +39,6 @@ function LoaderAction({ label, loader, description }: LoaderActionProps) {
 
   return (
     <form action={runAction} className="w-full">
-      <p className="font-semibold mb-2 ">{label}</p>
-      {description && <p className="text-sm mb-4">{description}</p>}
       <Button type="submit" disabled={isPending}>
         Run
       </Button>
@@ -96,16 +99,15 @@ export default function Development() {
       <h2 className="text-2xl font-bold mb-6">Data Loaders</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {configuredLoaders.map((loaderConfig) => (
-          <div
-            key={loaderConfig.label}
-            className="rounded-lg shadow-md p-6 flex flex-col items-start border border-gray-200"
-          >
-            <LoaderAction
-              label={loaderConfig.label}
-              loader={loaderConfig.loader}
-              description={loaderConfig.description}
-            />
-          </div>
+          <Card key={loaderConfig.label}>
+            <CardHeader>
+              <CardTitle>{loaderConfig.label}</CardTitle>
+              <CardDescription>{loaderConfig.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LoaderAction loader={loaderConfig.loader} />
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>
