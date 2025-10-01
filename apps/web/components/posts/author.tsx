@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 import CustomImage from '../sanity-image'
 
-import type { QueryPostSlugDataResult } from '@/lib/sanity/sanity.types'
+import type { QueryPostSlugDataResult } from '@redshirt-sports/sanity/types'
 
 type PostAuthor = NonNullable<QueryPostSlugDataResult>['authors'][0]
 

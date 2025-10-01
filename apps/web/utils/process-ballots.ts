@@ -1,6 +1,6 @@
-import { client } from '@/lib/sanity/client'
-import { token } from '@/lib/sanity/token'
-import { schoolWithVoteOrder } from '@/lib/sanity.queries'
+import { client } from '@redshirt-sports/sanity/client'
+import { token } from '@redshirt-sports/sanity/token'
+import { schoolWithVoteOrder } from '@redshirt-sports/sanity/queries'
 
 import type { BallotsByVoter, Ballot } from '@/types'
 

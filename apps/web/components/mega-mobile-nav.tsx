@@ -20,7 +20,7 @@ import {
 import SmallLogo from './small-logo'
 import { SearchBar } from './search-bar'
 
-import type { GlobalNavigationQueryResult } from '@/lib/sanity/sanity.types'
+import type { GlobalNavigationQueryResult } from '@redshirt-sports/sanity/types'
 
 export default function MegaMobileNav({
   sportsNav,

@@ -1,5 +1,5 @@
 import ArticleCard from '@/components/article-card'
-import { Post, Author } from '@/lib/sanity/sanity.types'
+import { Post, Author } from '@redshirt-sports/sanity/types'
 
 export default function ArticleFeed({ articles }: { articles: Post[] }) {
   return (

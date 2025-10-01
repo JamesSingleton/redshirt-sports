@@ -7,10 +7,10 @@ import { getVoterBallots, getSportIdBySlug } from '@redshirt-sports/db/queries'
 import CustomImage from '@/components/sanity-image'
 import { getCurrentWeek, SportParam, getCurrentSeason } from '@/utils/espn'
 import { transformBallotToTeamIds } from '@/utils/process-ballots'
-import { client } from '@/lib/sanity/client'
+import { client } from '@redshirt-sports/sanity/client'
 
 import { type Metadata } from 'next'
-import { schoolsByIdQuery } from '@/lib/sanity/query'
+import { schoolsByIdQuery } from '@redshirt-sports/sanity/queries'
 
 function generateConfirmationHeader(sport: string, division: string) {
   const sportNames = {

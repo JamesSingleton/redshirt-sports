@@ -1,4 +1,4 @@
-import { defineQuery } from 'next-sanity'
+import { defineQuery, groq } from 'next-sanity'
 
 const perPage = 12
 
@@ -743,3 +743,60 @@ export const subdivisionsQuery = defineQuery(/* groq */ `
     "applicableSports": applicableSports[]->_id
   }
 `)
+
+export const schoolsByIdOrderedByPoints = groq`
+*[_type == "school" && _id in $ids[].id]{
+  _id,
+  "_points": $ids[id == ^._id][0].totalPoints,
+  name,
+  shortName,
+  abbreviation,
+  image,
+} | order(_points desc)
+`
+
+export const schoolWithVoteOrder = groq`
+*[_type == "school" && _id in $ids[].teamId]{
+  _id,
+  "_order": $ids[teamId == ^._id][0].rank,
+  name,
+  shortName,
+  abbreviation,
+  image,
+} | order(_order)
+`
+
+export const postsSearchQuery = groq`
+*[_type == 'post' && (
+  title match "*" + $q + "*" ||
+  excerpt match "*" + $q + "*" ||
+  pt::text(body) match "*" + $q + "*" ||
+  authors[]->name match "*" + $q + "*" ||
+  conferences[]->name match "*" + $q + "*"
+)] | score(
+  boost(title match "*" + $q + "*", 5),
+  boost(excerpt match "*" + $q + "*", 3),
+  boost(pt::text(body) match "*" + $q + "*", 2),
+) | order(_score desc, publishedAt desc)[0...5]{
+  _id,
+  title,
+  _score,
+  "slug": slug.current,
+  publishedAt,
+  excerpt
+}`
+
+export const schoolsForVotesQuery = groq`*[_type == "school" && _id in $schoolIds]{
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    nickname,
+    image{
+      ...,
+      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
+      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
+    }
+  }`

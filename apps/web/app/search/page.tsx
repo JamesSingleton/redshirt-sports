@@ -8,8 +8,8 @@ import { getSEOMetadata } from '@/lib/seo'
 
 import { Post } from '@/types'
 import type { Metadata } from 'next'
-import { sanityFetch } from '@/lib/sanity/live'
-import { searchQuery } from '@/lib/sanity/query'
+import { sanityFetch } from '@redshirt-sports/sanity/live'
+import { searchQuery } from '@redshirt-sports/sanity/queries'
 
 async function fetchSearchResults(
   query: string,

@@ -8,7 +8,7 @@ import { Toaster } from '@redshirt-sports/ui/components/sonner'
 
 import { Providers } from '@/components/providers'
 import { FooterServer, FooterSkeleton } from '@/components/footer'
-import { SanityLive } from '@/lib/sanity/live'
+import { SanityLive } from '@redshirt-sports/sanity/live'
 import { CombinedJsonLd } from '@/components/json-ld'
 import { NavbarServer, NavbarSkeleton } from '@/components/navbar'
 

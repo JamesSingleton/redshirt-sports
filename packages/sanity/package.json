@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
+    "./api": "./src/api.ts",
     "./client": "./src/client.ts",
+    "./live": "./src/live.ts",
     "./queries": "./src/queries.ts",
-    "./live": "./src/live.ts"
+    "./types": "./src/types.ts",
+    "./token": "./src/token.ts"
   },
   "dependencies": {
     "@sanity/asset-utils": "^2.3.0",

@@ -18,7 +18,7 @@ import {
 } from '@redshirt-sports/ui/components/form'
 import { VirtualizedCombobox } from '../virtualized-combobox'
 
-import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@/lib/sanity/sanity.types'
+import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@redshirt-sports/sanity/types'
 
 const formSchema = z
   .object({

@@ -1,12 +1,12 @@
 import { memo } from 'react'
 
-import { globalNavigationQuery, queryGlobalSeoSettings } from '@/lib/sanity/query'
+import { globalNavigationQuery, queryGlobalSeoSettings } from '@redshirt-sports/sanity/queries'
 import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
-} from '@/lib/sanity/sanity.types'
+} from '@redshirt-sports/sanity/types'
 import { getLatestFinalRankingsBySportSlug } from '@redshirt-sports/db/queries'
-import { client } from '@/lib/sanity/client'
+import { client } from '@redshirt-sports/sanity/client'
 import { Logo } from './logo'
 import { NavbarClient, NavbarSkeletonResponsive } from './navbar-client'
 

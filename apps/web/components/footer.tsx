@@ -1,8 +1,11 @@
 import Link from 'next/link'
 
-import { sanityFetch } from '@/lib/sanity/live'
-import { queryFooterData, queryGlobalSeoSettings } from '@/lib/sanity/query'
-import type { QueryFooterDataResult, QueryGlobalSeoSettingsResult } from '@/lib/sanity/sanity.types'
+import { sanityFetch } from '@redshirt-sports/sanity/live'
+import { queryFooterData, queryGlobalSeoSettings } from '@redshirt-sports/sanity/queries'
+import type {
+  QueryFooterDataResult,
+  QueryGlobalSeoSettingsResult,
+} from '@redshirt-sports/sanity/types'
 import { BlueSkyIcon, Facebook, Instagram, ThreadsIcon, Twitter, YouTubeIcon } from './icons'
 import CustomImage from './sanity-image'
 
