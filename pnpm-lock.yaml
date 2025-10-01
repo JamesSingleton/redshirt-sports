@@ -196,6 +196,9 @@ importers:
       '@redshirt-sports/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@redshirt-sports/sanity':
+        specifier: workspace:*
+        version: link:../../packages/sanity
       '@redshirt-sports/ui':
         specifier: workspace:*
         version: link:../../packages/ui

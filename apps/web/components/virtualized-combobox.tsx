@@ -18,7 +18,7 @@ import { cn } from '@redshirt-sports/ui/lib/utils'
 
 import CustomImage from '@/components/sanity-image'
 
-import type { SchoolsByDivisionQueryResult } from '@/lib/sanity/sanity.types'
+import type { SchoolsByDivisionQueryResult } from '@redshirt-sports/sanity/types'
 
 interface VirtualizedCommandProps {
   height: string

@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { Feed } from 'feed'
 
-import { client } from '@/lib/sanity/client'
+import { client } from '@redshirt-sports/sanity/client'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { buildSafeImageUrl } from '@/components/json-ld'
-import { rssFeedQuery } from '@/lib/sanity/query'
+import { rssFeedQuery } from '@redshirt-sports/sanity/queries'
 
 const baseUrl = getBaseUrl()
 

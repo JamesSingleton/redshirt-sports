@@ -9,8 +9,8 @@ import {
   conferenceInfoBySlugQuery,
   queryArticlesBySportDivisionAndConference,
   sportInfoBySlug,
-} from '@/lib/sanity/query'
-import { sanityFetch } from '@/lib/sanity/live'
+} from '@redshirt-sports/sanity/queries'
+import { sanityFetch } from '@redshirt-sports/sanity/live'
 import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { getSEOMetadata } from '@/lib/seo'

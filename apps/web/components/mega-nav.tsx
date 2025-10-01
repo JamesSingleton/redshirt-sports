@@ -16,7 +16,7 @@ import { getLatestFinalRankings } from '@redshirt-sports/db/queries'
 import MegaMobileNav from './mega-mobile-nav'
 import { ModeToggle } from './mode-toggle'
 
-import type { GlobalNavigationQueryResult } from '@/lib/sanity/sanity.types'
+import type { GlobalNavigationQueryResult } from '@redshirt-sports/sanity/types'
 
 export async function MegaNav({ sportsNav }: { sportsNav: GlobalNavigationQueryResult }) {
   const latestFCSTop25 = await getLatestFinalRankings({

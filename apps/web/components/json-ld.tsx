@@ -1,8 +1,8 @@
 import { toPlainText } from 'next-sanity'
 
-import { urlFor, client } from '@/lib/sanity/client'
+import { urlFor, client } from '@redshirt-sports/sanity/client'
 import { getBaseUrl } from '@/lib/get-base-url'
-import { querySettingsData } from '@/lib/sanity/query'
+import { querySettingsData } from '@redshirt-sports/sanity/queries'
 
 import type {
   ContactPoint,

@@ -8,7 +8,8 @@ import { Button } from '@redshirt-sports/ui/components/button'
 import { Card } from '@redshirt-sports/ui/components/card'
 
 import { useDebounce } from '@/hooks/use-debounce'
-import { client } from '@/lib/sanity/client'
+import { client } from '@redshirt-sports/sanity/client'
+import { postsSearchQuery } from '@redshirt-sports/sanity/queries'
 
 interface SearchResult {
   _id: string
@@ -22,26 +23,6 @@ interface SearchBarProps {
   placeholder?: string
   className?: string
 }
-
-export const postsSearchQuery = /* groq */ `
-*[_type == 'post' && (
-  title match "*" + $q + "*" ||
-  excerpt match "*" + $q + "*" ||
-  pt::text(body) match "*" + $q + "*" ||
-  authors[]->name match "*" + $q + "*" ||
-  conferences[]->name match "*" + $q + "*"
-)] | score(
-  boost(title match "*" + $q + "*", 5),
-  boost(excerpt match "*" + $q + "*", 3),
-  boost(pt::text(body) match "*" + $q + "*", 2),
-) | order(_score desc, publishedAt desc)[0...5]{
-  _id,
-  title,
-  _score,
-  "slug": slug.current,
-  publishedAt,
-  excerpt
-}`
 
 const realSearch = async (query: string): Promise<any> => {
   if (!query.trim()) return []

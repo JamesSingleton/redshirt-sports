@@ -7,7 +7,7 @@ import FormatDate from '@/components/format-date'
 import ArticleCard from '@/components/article-card'
 import CustomImage from '@/components/sanity-image'
 
-import type { QueryLatestCollegeSportsArticlesResult, Author } from '@/lib/sanity/sanity.types'
+import type { QueryLatestCollegeSportsArticlesResult, Author } from '@redshirt-sports/sanity/types'
 
 interface ArticleSectionProps {
   title: string

@@ -1,4 +1,4 @@
-import type { SanityImageAsset } from '@/lib/sanity/sanity.types'
+import type { SanityImageAsset } from '@redshirt-sports/sanity/types'
 
 export type VoteWithExtraData = {
   name: string

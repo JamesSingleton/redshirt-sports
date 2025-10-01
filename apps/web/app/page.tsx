@@ -4,12 +4,12 @@ import { buttonVariants } from '@redshirt-sports/ui/components/button'
 import { cn } from '@redshirt-sports/ui/lib/utils'
 
 import Hero from '@/components/home/hero'
-import { sanityFetch } from '@/lib/sanity/live'
+import { sanityFetch } from '@redshirt-sports/sanity/live'
 import {
   queryHomePageData,
   queryLatestArticles,
   queryLatestCollegeSportsArticles,
-} from '@/lib/sanity/query'
+} from '@redshirt-sports/sanity/queries'
 import ArticleCard from '@/components/article-card'
 import ArticleSection from '@/components/article-section'
 import { WebPage, WithContext } from 'schema-dts'

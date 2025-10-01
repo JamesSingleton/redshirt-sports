@@ -28,7 +28,7 @@ import { useIsMobile } from '@/hooks/use-is-mobile'
 import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
-} from '@/lib/sanity/sanity.types'
+} from '@redshirt-sports/sanity/types'
 
 import { Logo } from './logo'
 import { ModeToggle } from './mode-toggle'

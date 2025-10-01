@@ -1,8 +1,8 @@
 import type { MetadataRoute } from 'next'
 
 import { getBaseUrl } from '@/lib/get-base-url'
-import { client } from '@/lib/sanity/client'
-import { querySitemapData } from '@/lib/sanity/query'
+import { client } from '@redshirt-sports/sanity/client'
+import { querySitemapData } from '@redshirt-sports/sanity/queries'
 
 const baseUrl = getBaseUrl()
 

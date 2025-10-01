@@ -1,7 +1,7 @@
 import { SanityImage } from 'sanity-image'
 import { getImageDimensions } from '@sanity/asset-utils'
 
-import { projectId, dataset } from '@/lib/sanity/api'
+import { projectId, dataset } from '@redshirt-sports/sanity/api'
 
 type CustomImageProps = {
   image: any

@@ -1,7 +1,7 @@
 import { type PortableTextBlock } from 'next-sanity'
 
 import { Conference } from './common'
-import type { SanityImageAsset, Author, Post } from '@/lib/sanity/sanity.types'
+import type { SanityImageAsset, Author, Post } from '@redshirt-sports/sanity/types'
 
 export interface AboutPagePayload {
   authors: Author[]

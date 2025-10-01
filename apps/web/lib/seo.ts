@@ -1,5 +1,5 @@
 import { getBaseUrl } from './get-base-url'
-import { urlFor } from './sanity/client'
+import { urlFor } from '@redshirt-sports/sanity/client'
 
 import type { Metadata } from 'next'
 

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 
-import { sanityFetch } from '@/lib/sanity/live'
-import { querySportsNews, sportInfoBySlug } from '@/lib/sanity/query'
+import { sanityFetch } from '@redshirt-sports/sanity/live'
+import { querySportsNews, sportInfoBySlug } from '@redshirt-sports/sanity/queries'
 import { perPage } from '@/lib/constants'
 import PageHeader from '@/components/page-header'
 import ArticleFeed from '@/components/article-feed'

@@ -4,8 +4,8 @@ import ArticleFeed from '@/components/article-feed'
 import PageHeader from '@/components/page-header'
 import PaginationControls from '@/components/pagination-controls'
 import { perPage } from '@/lib/constants'
-import { sanityFetch } from '@/lib/sanity/live'
-import { collegeNewsQuery } from '@/lib/sanity/query'
+import { sanityFetch } from '@redshirt-sports/sanity/live'
+import { collegeNewsQuery } from '@redshirt-sports/sanity/queries'
 import { getBaseUrl } from '@/lib/get-base-url'
 import { JsonLdScript, websiteId, organizationId } from '@/components/json-ld'
 import { getSEOMetadata } from '@/lib/seo'
@@ -13,7 +13,7 @@ import { validatePageIndex } from '@/utils/validate-page-index'
 
 import type { Metadata } from 'next'
 import type { WithContext, CollectionPage } from 'schema-dts'
-import { Post } from '@/lib/sanity/sanity.types'
+import { Post } from '@redshirt-sports/sanity/types'
 
 const baseUrl = getBaseUrl()
 

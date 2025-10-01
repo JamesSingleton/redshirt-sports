@@ -3,7 +3,7 @@ import Link from 'next/link'
 import FormatDate from '@/components/format-date'
 import ArticleCard from '@/components/article-card'
 import CustomImage from '../sanity-image'
-import { QueryHomePageDataResult } from '@/lib/sanity/sanity.types'
+import { QueryHomePageDataResult } from '@redshirt-sports/sanity/types'
 
 const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
   const heroArticle = heroPosts[0]!

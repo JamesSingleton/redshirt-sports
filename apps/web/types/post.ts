@@ -1,6 +1,6 @@
 import type { PortableTextBlock } from 'next-sanity'
 
-import type { SanityImageAsset, Author } from '@/lib/sanity/sanity.types'
+import type { SanityImageAsset, Author } from '@redshirt-sports/sanity/types'
 
 export type AuthorPosts = {
   posts: Post[]

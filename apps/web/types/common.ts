@@ -1,7 +1,7 @@
 import { Division } from '@/types'
 import type { PropsWithChildren } from 'react'
 
-import type { SanityImageAsset } from '@/lib/sanity/sanity.types'
+import type { SanityImageAsset } from '@redshirt-sports/sanity/types'
 
 export type WithChildren<T = {}> = T & PropsWithChildren<{}>
 

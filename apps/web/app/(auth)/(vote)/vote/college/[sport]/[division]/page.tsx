@@ -6,12 +6,15 @@ import { CardHeader, CardTitle, CardContent, Card } from '@redshirt-sports/ui/co
 import Top25 from '@/components/forms/top-25'
 import { hasVoterVoted, getSportIdBySlug, getLatestVoterBallot } from '@redshirt-sports/db/queries'
 import { getCurrentWeek, SportSchema, getCurrentSeason, SportParam } from '@/utils/espn'
-import { sanityFetch } from '@/lib/sanity/live'
+import { sanityFetch } from '@redshirt-sports/sanity/live'
 import CustomImage from '@/components/sanity-image'
-import { schoolsBySportAndSubgroupingStringQuery } from '@/lib/sanity/query'
+import {
+  schoolsBySportAndSubgroupingStringQuery,
+  schoolsForVotesQuery,
+} from '@redshirt-sports/sanity/queries'
 
 import { type Metadata } from 'next'
-import { client } from '@/lib/sanity/client'
+import { client } from '@redshirt-sports/sanity/client'
 
 const ParamsSchema = z.object({
   sport: SportSchema,
@@ -44,21 +47,8 @@ async function getLatestVoterBallotWithSchools(
   const ballots = await getLatestVoterBallot(userId, division, sport, currentYear)
   // Fetch school information from Sanity
   const schoolIds = ballots.map((ballot) => ballot.teamId)
-  const schoolsQuery = `*[_type == "school" && _id in $schoolIds]{
-    _id,
-    name,
-    shortName,
-    abbreviation,
-    nickname,
-    image{
-      ...,
-      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
-      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-    }
-  }`
-  const schools = await client.fetch(schoolsQuery, { schoolIds })
+
+  const schools = await client.fetch(schoolsForVotesQuery, { schoolIds })
 
   // Combine the ballot data with school information
   const ballotsWithSchools: VoterBallotWithSchool[] = ballots.map((ballot) => {

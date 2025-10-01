@@ -1,8 +1,8 @@
 import { db } from '@/server/db'
 import { weeklyFinalRankings } from '@redshirt-sports/db/schema'
-import { client } from '@/lib/sanity/client'
-import { schoolsByIdOrderedByPoints } from '@/lib/sanity.queries'
-import { token } from '@/lib/sanity/token'
+import { client } from '@redshirt-sports/sanity/client'
+import { schoolsByIdOrderedByPoints } from '@redshirt-sports/sanity/queries'
+import { token } from '@redshirt-sports/sanity/token'
 import {
   getCurrentSeasonStartAndEnd,
   getSportIdBySlug,

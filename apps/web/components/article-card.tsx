@@ -4,7 +4,7 @@ import { Separator } from '@redshirt-sports/ui/components/separator'
 import CustomImage from './sanity-image'
 import FormatDate from '@/components/format-date'
 
-import type { Slug } from '@/lib/sanity/sanity.types'
+import type { Slug } from '@redshirt-sports/sanity/types'
 
 export default function ArticleCard({
   title,
