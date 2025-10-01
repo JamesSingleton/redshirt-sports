@@ -307,7 +307,7 @@ export async function fetchAndLoadConferences() {
 
   for (const conference of data) {
     const existingConference = await db.query.conferencesTable.findFirst({
-      where: (model, { eq }) => eq(model.sanityId, conference.sanityId),
+      where: (model, { eq }) => eq(model.sanityId, conference._id),
     })
 
     if (existingConference) {
