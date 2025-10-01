@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.32.2",
+    "@clerk/nextjs": "^6.33.1",
     "@redshirt-sports/clients": "workspace:*",
     "@redshirt-sports/db": "workspace:*",
     "@redshirt-sports/sanity": "workspace:*",
@@ -24,12 +24,12 @@
   "devDependencies": {
     "@redshirt-sports/eslint-config": "workspace:^",
     "@redshirt-sports/typescript-config": "workspace:*",
-    "@types/node": "^24.5.2",
-    "@types/react": "^19.1.13",
+    "@types/node": "^24.6.1",
+    "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "babel-plugin-react-compiler": "19.1.0-rc.3",
     "eslint": "^9.36.0",
     "tailwindcss": "^4.1.13",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   }
 }
