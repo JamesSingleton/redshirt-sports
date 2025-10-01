@@ -303,31 +303,43 @@ export async function fetchAndLoadConferences() {
   const { data } = await sanityFetch({ query: conferencesQuery })
   let conferenceSportMappings: Record<string, string>[] = []
 
-  const mappedConferences = data.map((conference: SanityConference) => {
-    const divisionId = divisions.find((division) => division.sanityId === conference.divisionId)?.id
+  const mappedConferences = []
 
-    if (!divisionId) {
-      throw new Error(`Unable to find a division for conference ${conference.name}`)
-    }
+  for (const conference of data) {
+    const existingConference = await db.query.conferencesTable.findFirst({
+      where: (model, { eq }) => eq(model.sanityId, conference.sanityId),
+    })
 
-    if (conference?.sports?.length) {
-      conference.sports.forEach((sport) =>
-        conferenceSportMappings.push({ sportId: sport, conferenceName: conference.name }),
-      )
-    }
+    if (existingConference) {
+      console.log('existing conference found, skipping')
+    } else {
+      const divisionId = divisions.find(
+        (division) => division.sanityId === conference.divisionId,
+      )?.id
 
-    return {
-      sanityId: conference._id,
-      name: conference.name,
-      divisionId,
-      shortName: conference.shortName,
-      abbreviation: conference.abbreviation,
-      slug: conference.slug,
-      logo: conference.logo,
-      createdAt: new Date(conference._createdAt),
-      updatedAt: new Date(conference._updatedAt),
+      if (!divisionId) {
+        throw new Error(`Unable to find a division for conference ${conference.name}`)
+      }
+
+      if (conference?.sports?.length) {
+        conference.sports.forEach((sport: string) =>
+          conferenceSportMappings.push({ sportId: sport, conferenceName: conference.name }),
+        )
+      }
+
+      mappedConferences.push({
+        sanityId: conference._id,
+        name: conference.name,
+        divisionId,
+        shortName: conference.shortName,
+        abbreviation: conference.abbreviation,
+        slug: conference.slug,
+        logo: conference.logo,
+        createdAt: new Date(conference._createdAt),
+        updatedAt: new Date(conference._updatedAt),
+      })
     }
-  })
+  }
 
   const dbConferences = await db.insert(conferencesTable).values(mappedConferences).returning()
 
