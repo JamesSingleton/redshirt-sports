@@ -14,7 +14,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio --verbose",
     "db:push": "drizzle-kit push",
-    "check:types": "tsc --noEmit"
+    "check:types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.33.1",
