@@ -1,6 +1,11 @@
 import { eq, desc } from 'drizzle-orm'
 
-import { divisionsTable, sportsTable, weeklyFinalRankings } from '../schema'
+import {
+  divisionsTable,
+  sportsTable,
+  weeklyFinalRankings,
+  type SelectWeeklyRankings,
+} from '../schema'
 import { primaryDb as db } from '../client'
 
 import { getSportIdBySlug, SportParam } from './sports'

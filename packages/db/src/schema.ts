@@ -350,3 +350,6 @@ export const SEASON_TYPE_CODES = {
   POSTSEASON: 3,
   OFF_SEASON: 4,
 } as const
+
+export type SelectWeeklyRankings = typeof weeklyRankings.$inferSelect
+export type SelectSchool = typeof schoolsTable.$inferSelect
