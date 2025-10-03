@@ -5,6 +5,7 @@ import { primaryDb as db } from '../client'
 
 import { getSportIdBySlug, SportParam } from './sports'
 import { getWeekBySport } from './seasons'
+import { type FinalRankingWithSchool } from '../types/rankings'
 
 type FinalRankings = {
   id: number
@@ -42,7 +43,7 @@ export async function getFinalRankingsForWeekAndYearFromDb({
   week: number
   division: string
   sport: SportParam
-}): Promise<any> {
+}): Promise<FinalRankingWithSchool[]> {
   const sportId = await getSportIdBySlug(sport)
   if (!sportId) throw new Error(`Unable to find sport by slug. Slug: ${sport}`)
 
