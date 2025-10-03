@@ -7,7 +7,7 @@ import {
 } from '@sanity/dashboard'
 import { table } from '@sanity/table'
 import { visionTool } from '@sanity/vision'
-import type { PortableTextInputProps } from 'sanity'
+import type { InputProps, PortableTextInputProps } from 'sanity'
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { media, mediaAssetSource } from 'sanity-plugin-media'
@@ -54,7 +54,7 @@ export default defineConfig({
       },
     },
     components: {
-      input: (props) => {
+      input: (props: InputProps) => {
         if (props.schemaType.name === 'blockContent') {
           return CharacterCountInputPTE(props as PortableTextInputProps)
         }

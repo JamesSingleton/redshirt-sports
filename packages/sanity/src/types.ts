@@ -1320,100 +1320,58 @@ export type QueryFooterDataResult = {
   }> | null
 } | null
 // Variable: queryGlobalSeoSettings
-// Query: *[_type == "settings"][0]{    _id,    _type,    siteBrand,    siteTitle,    siteDescription,    logo{      ...,      ...asset->{        "alt": coalesce(altText, originalFilename, "no-alt"),        "blurData": metadata.lqip,        "dominantColor": metadata.palette.dominant.background      }    },    footerLogo{      ...,      ...asset->{        "alt": coalesce(altText, originalFilename, "no-alt"),        "blurData": metadata.lqip,        "dominantColor": metadata.palette.dominant.background      }    },    footerLogoDarkMode{      ...,      ...asset->{        "alt": coalesce(altText, originalFilename, "no-alt"),        "blurData": metadata.lqip,        "dominantColor": metadata.palette.dominant.background      }    },    "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",    socialLinks{      facebook,      twitter,      youtube,      instagram,      bluesky,      threads    }  }
+// Query: *[_type == "settings"][0]{    _id,    _type,    siteBrand,    siteTitle,    siteDescription,      logo{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    footerLogo{      ...,      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    footerLogoDarkMode{      ...,      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",    socialLinks{      facebook,      twitter,      youtube,      instagram,      bluesky,      threads    }  }
 export type QueryGlobalSeoSettingsResult = {
   _id: string
   _type: 'settings'
   siteBrand: string
   siteTitle: string
   siteDescription: string
-  logo:
-    | {
-        asset?: {
-          _ref: string
-          _type: 'reference'
-          _weak?: boolean
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-        }
-        media?: unknown
-        hotspot?: SanityImageHotspot
-        crop?: SanityImageCrop
-        _type: 'image'
-        alt: string | 'no-alt'
-        blurData: string | null
-        dominantColor: string | null
-      }
-    | {
-        asset?: {
-          _ref: string
-          _type: 'reference'
-          _weak?: boolean
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-        }
-        media?: unknown
-        hotspot?: SanityImageHotspot
-        crop?: SanityImageCrop
-        _type: 'image'
-      }
-    | null
-  footerLogo:
-    | {
-        asset?: {
-          _ref: string
-          _type: 'reference'
-          _weak?: boolean
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-        }
-        media?: unknown
-        hotspot?: SanityImageHotspot
-        crop?: SanityImageCrop
-        _type: 'image'
-        alt: string | 'no-alt'
-        blurData: string | null
-        dominantColor: string | null
-      }
-    | {
-        asset?: {
-          _ref: string
-          _type: 'reference'
-          _weak?: boolean
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-        }
-        media?: unknown
-        hotspot?: SanityImageHotspot
-        crop?: SanityImageCrop
-        _type: 'image'
-      }
-    | null
-  footerLogoDarkMode:
-    | {
-        asset?: {
-          _ref: string
-          _type: 'reference'
-          _weak?: boolean
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-        }
-        media?: unknown
-        hotspot?: SanityImageHotspot
-        crop?: SanityImageCrop
-        _type: 'image'
-        alt: string | 'no-alt'
-        blurData: string | null
-        dominantColor: string | null
-      }
-    | {
-        asset?: {
-          _ref: string
-          _type: 'reference'
-          _weak?: boolean
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-        }
-        media?: unknown
-        hotspot?: SanityImageHotspot
-        crop?: SanityImageCrop
-        _type: 'image'
-      }
-    | null
+  logo: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+    alt: string | 'Image-Broken'
+    blurData: string | null
+    dominantColor: string | null
+  } | null
+  footerLogo: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+    alt: string | 'Image-Broken'
+    blurData: string | null
+    dominantColor: string | null
+  } | null
+  footerLogoDarkMode: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+    alt: string | 'Image-Broken'
+    blurData: string | null
+    dominantColor: string | null
+  } | null
   defaultOpenGraphImage: string | null
   socialLinks: {
     facebook: string | null
@@ -2243,7 +2201,7 @@ declare module '@sanity/client' {
     '\n  *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50]{"slug": slug.current}\n': QueryPostPathsResult
     '\n  *[_type == "author" && defined(slug.current) && archived == false]| order(_createdAt desc)[0...20]{"slug": slug.current}\n': QueryAuthorPathsResult
     '\n  *[_type == "footer" && _id == "footer"][0]{\n    _id,\n    subtitle,\n    columns[]{\n      _key,\n      title,\n      links[]{\n        _key,\n        name,\n        "openInNewTab": url.openInNewTab,\n        "href": select(\n          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,\n          url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n          url.type == "external" => url.external,\n          url.href\n        )\n      }\n    },\n  }\n': QueryFooterDataResult
-    '\n  *[_type == "settings"][0]{\n    _id,\n    _type,\n    siteBrand,\n    siteTitle,\n    siteDescription,\n    logo{\n      ...,\n      ...asset->{\n        "alt": coalesce(altText, originalFilename, "no-alt"),\n        "blurData": metadata.lqip,\n        "dominantColor": metadata.palette.dominant.background\n      }\n    },\n    footerLogo{\n      ...,\n      ...asset->{\n        "alt": coalesce(altText, originalFilename, "no-alt"),\n        "blurData": metadata.lqip,\n        "dominantColor": metadata.palette.dominant.background\n      }\n    },\n    footerLogoDarkMode{\n      ...,\n      ...asset->{\n        "alt": coalesce(altText, originalFilename, "no-alt"),\n        "blurData": metadata.lqip,\n        "dominantColor": metadata.palette.dominant.background\n      }\n    },\n    "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",\n    socialLinks{\n      facebook,\n      twitter,\n      youtube,\n      instagram,\n      bluesky,\n      threads\n    }\n  }\n': QueryGlobalSeoSettingsResult
+    '\n  *[_type == "settings"][0]{\n    _id,\n    _type,\n    siteBrand,\n    siteTitle,\n    siteDescription,\n    \n  logo{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n    footerLogo{\n      ...,\n      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    },\n    footerLogoDarkMode{\n      ...,\n      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    },\n    "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",\n    socialLinks{\n      facebook,\n      twitter,\n      youtube,\n      instagram,\n      bluesky,\n      threads\n    }\n  }\n': QueryGlobalSeoSettingsResult
     '\n  *[_type == "navbar" && _id == "navbar"][0]{\n    _id,\n    columns[]{\n      _key,\n      _type == "navbarColumn" => {\n        "type": "column",\n        title,\n        links[]{\n          _key,\n          name,\n          icon,\n          description,\n          "openInNewTab": url.openInNewTab,\n          "href": select(\n            url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,\n            url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n            url.type == "external" => url.external,\n            url.href\n          )\n        }\n      },\n      _type == "navbarLink" => {\n        "type": "link",\n        name,\n        description,\n        "openInNewTab": url.openInNewTab,\n        "href": select(\n          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,\n          url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n          url.type == "external" => url.external,\n          url.href\n        )\n      }\n    },\n    "logo": *[_type == "settings"][0].logo.asset->url + "?w=70&h=40&dpr=3&fit=max",\n    "siteTitle": *[_type == "settings"][0].siteTitle,\n  }\n': QueryNavbarDataResult
     '\n  *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{\n    _id,\n    _type,\n    title,\n    excerpt,\n    "slug": slug.current,\n    mainImage{\n      ...,\n      "alt": coalesce(caption,asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    publishedAt,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n\n  }\n': QueryHomePageDataResult
     '\n *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    publishedAt,\n    mainImage{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n\n  }\n': QueryLatestArticlesResult

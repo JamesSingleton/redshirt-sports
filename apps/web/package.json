@@ -14,7 +14,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio --verbose",
     "db:push": "drizzle-kit push",
-    "check:types": "tsc --noEmit"
+    "check:types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.33.1",
@@ -45,8 +45,8 @@
     "next-sanity": "^11.4.2",
     "next-themes": "0.4.6",
     "postgres": "^3.4.7",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "react-hook-form": "^7.63.0",
     "react-player": "^3.3.3",
     "react-tweet": "^3.2.2",
@@ -61,9 +61,9 @@
     "@redshirt-sports/eslint-config": "workspace:^",
     "@redshirt-sports/typescript-config": "workspace:*",
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^24.6.1",
-    "@types/react": "19.1.16",
-    "@types/react-dom": "19.1.9",
+    "@types/node": "^24.6.2",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
     "babel-plugin-react-compiler": "19.1.0-rc.3",
     "drizzle-kit": "^0.31.5",
     "eslint": "^9.36.0",

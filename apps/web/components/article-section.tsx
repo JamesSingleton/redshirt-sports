@@ -72,7 +72,7 @@ export default function ArticleSection({
                   />
                   {firstArticle.authors[0]?.name}
                 </Link>
-                <FormatDate dateString={firstArticle.publishedAt} />
+                {firstArticle.publishedAt && <FormatDate dateString={firstArticle.publishedAt} />}
               </div>
             </div>
           </div>

@@ -54,7 +54,12 @@ export async function getBallotsByWeekYearDivisionAndSport({
   week,
   division,
   sportId,
-}: GetUsersVote) {
+}: {
+  year: number
+  week: number
+  division: string
+  sportId: string
+}) {
   const votes = await db.query.voterBallots.findMany({
     where: (model, { eq, and }) =>
       and(

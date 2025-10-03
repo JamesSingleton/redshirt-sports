@@ -26,8 +26,8 @@
     "@sanity/ui": "^3.1.8",
     "@sanity/vision": "^4.10.2",
     "lucide-react": "^0.544.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "sanity": "4.10.2",
     "sanity-plugin-documents-pane": "^3.0.0",
     "sanity-plugin-media": "^4.0.0",
@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^5.0.2",
+    "@types/node": "^24.6.2",
     "@types/react": "^19.1.16",
     "eslint": "^9.36.0",
     "eslint-plugin-import": "^2.32.0",

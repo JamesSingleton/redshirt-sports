@@ -222,29 +222,18 @@ export const queryGlobalSeoSettings = defineQuery(/* groq */ `
     siteBrand,
     siteTitle,
     siteDescription,
-    logo{
-      ...,
-      ...asset->{
-        "alt": coalesce(altText, originalFilename, "no-alt"),
-        "blurData": metadata.lqip,
-        "dominantColor": metadata.palette.dominant.background
-      }
-    },
+    ${logoFragment},
     footerLogo{
       ...,
-      ...asset->{
-        "alt": coalesce(altText, originalFilename, "no-alt"),
-        "blurData": metadata.lqip,
-        "dominantColor": metadata.palette.dominant.background
-      }
+      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
     },
     footerLogoDarkMode{
       ...,
-      ...asset->{
-        "alt": coalesce(altText, originalFilename, "no-alt"),
-        "blurData": metadata.lqip,
-        "dominantColor": metadata.palette.dominant.background
-      }
+      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
     },
     "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",
     socialLinks{

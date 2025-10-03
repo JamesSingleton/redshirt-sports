@@ -41,7 +41,7 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
                   />
                   <span className="text-primary">{heroArticle.authors[0]?.name}</span>
                 </Link>
-                <FormatDate dateString={heroArticle.publishedAt} />
+                {heroArticle.publishedAt && <FormatDate dateString={heroArticle.publishedAt} />}
               </div>
             </div>
           </div>

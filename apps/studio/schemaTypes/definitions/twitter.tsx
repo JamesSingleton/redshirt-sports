@@ -23,7 +23,7 @@ export const twitter = defineType({
   ],
   preview: {
     select: {
-      tweetId: 'id',
+      title: 'id',
     },
   },
   components: {

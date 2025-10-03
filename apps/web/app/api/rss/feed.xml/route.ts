@@ -36,7 +36,7 @@ export async function GET() {
       title: post.title,
       link: `${baseUrl}/${post.slug}`,
       description: post.excerpt,
-      date: new Date(post.publishedAt),
+      date: post.publishedAt ? new Date(post.publishedAt) : new Date(),
       image: buildSafeImageUrl(post.mainImage),
     })
   })

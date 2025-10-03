@@ -122,7 +122,7 @@ export default async function HomePage() {
     },
     inLanguage: 'en-US',
     datePublished: '2021-12-13T00:00:00-07:00',
-    dateModified: homePageData[0]?.publishedAt,
+    dateModified: homePageData[0]?.publishedAt || new Date().toISOString(),
     breadcrumb: {
       '@type': 'BreadcrumbList',
       itemListElement: [
