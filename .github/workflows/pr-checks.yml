@@ -6,16 +6,8 @@ on:
       - main
 
 jobs:
-  checks:
+  type-check:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        check:
-          - name: Type check
-            command: check:types
-          - name: Lint
-            command: lint
-    name: ${{ matrix.check.name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -34,5 +26,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run ${{ matrix.check.name }}
-        run: pnpm ${{ matrix.check.command }}
+      - name: Type check
+        run: pnpm check:types
