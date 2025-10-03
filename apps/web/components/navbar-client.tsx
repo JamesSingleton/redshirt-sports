@@ -244,7 +244,9 @@ export const DesktopNavbar = memo(function DesktopNavbar({
                               href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? 'final-rankings' : ranking?.week}`}
                               className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
                             >
-                              {divisionDisplayNames[ranking?.division] ?? ranking?.division}{' '}
+                              {ranking?.division && divisionDisplayNames[ranking.division]
+                                ? divisionDisplayNames[ranking.division]
+                                : ranking?.division}{' '}
                               Football Rankings
                             </Link>
                           ))}

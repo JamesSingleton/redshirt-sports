@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { Maybe } from '@/types'
-import type { SanityImageAsset } from '@redshirt-sports/sanity/types'
+import type { QueryGlobalSeoSettingsResult } from '@redshirt-sports/sanity/types'
 
 import CustomImage from './sanity-image'
 
@@ -11,7 +11,7 @@ const LOGO_URL =
 
 interface LogoProps {
   src?: Maybe<string>
-  image?: Maybe<SanityImageAsset>
+  image?: Maybe<NonNullable<QueryGlobalSeoSettingsResult>['logo']>
   alt?: Maybe<string>
   width?: number
   height?: number

@@ -20,7 +20,7 @@ export default function ArticleCard({
   imagePriority?: boolean
   slug: Slug | string
   author: string
-  date: string
+  date?: string | null
   headingLevel?: 'h2' | 'h3' | 'h4'
 }) {
   const Heading = headingLevel
@@ -47,7 +47,7 @@ export default function ArticleCard({
         <div className="text-muted-foreground flex items-center space-x-2 text-sm">
           <div>{author}</div>
           <Separator orientation="vertical" className="h-4" />
-          <FormatDate dateString={date} />
+          {date && <FormatDate dateString={date} />}
         </div>
       </div>
     </div>

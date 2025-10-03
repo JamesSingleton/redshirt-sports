@@ -171,7 +171,7 @@ export default async function PostPage({ params }: PageProps<'/[slug]'>) {
               {data.sport && (data.division || data.conferences) && (
                 <span className="text-sm">•</span>
               )}
-              <FormatDate dateString={data.publishedAt} />
+              {data.publishedAt && <FormatDate dateString={data.publishedAt} />}
             </div>
           </div>
         </section>

@@ -18,11 +18,11 @@ import { cn } from '@redshirt-sports/ui/lib/utils'
 
 import CustomImage from '@/components/sanity-image'
 
-import type { SchoolsByDivisionQueryResult } from '@redshirt-sports/sanity/types'
+import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@redshirt-sports/sanity/types'
 
 interface VirtualizedCommandProps {
   height: string
-  options: SchoolsByDivisionQueryResult
+  options: SchoolsBySportAndSubgroupingStringQueryResult
   placeholder: string
   selectedOption: string
   selectedOptions: string[]
@@ -43,7 +43,7 @@ const VirtualizedCommand = ({
   )
 
   const [filteredOptions, setFilteredOptions] =
-    React.useState<SchoolsByDivisionQueryResult>(availableOptions)
+    React.useState<SchoolsBySportAndSubgroupingStringQueryResult>(availableOptions)
   const [searchValue, setSearchValue] = React.useState('')
   const parentRef = React.useRef(null)
 
@@ -153,7 +153,7 @@ const VirtualizedCommand = ({
 }
 
 interface VirtualizedComboboxProps {
-  options: SchoolsByDivisionQueryResult
+  options: SchoolsBySportAndSubgroupingStringQueryResult
   searchPlaceholder?: string
   width?: string
   height?: string

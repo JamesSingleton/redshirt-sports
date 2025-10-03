@@ -247,7 +247,7 @@ export async function POST(
       return new Response(
         JSON.stringify({
           error: 'Invalid request data',
-          details: error.errors,
+          details: error,
         }),
         {
           status: 400,
