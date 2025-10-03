@@ -6,7 +6,7 @@ export async function getWeekBySport(
   sportId: string,
   year: number,
   week: number,
-  seasonType = SEASON_TYPE_CODES.REGULAR_SEASON,
+  seasonType: number,
 ) {
   return db.query.seasonsTable.findFirst({
     where: (model, { eq, and }) => and(eq(model.sportId, sportId), eq(model.year, year)),

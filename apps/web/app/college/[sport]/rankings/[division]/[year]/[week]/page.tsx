@@ -72,19 +72,24 @@ export default async function CollegeFootballRankingsPage({
   const weekNumber = parseWeekNumber(week)
   const titleWeek = getWeekTitle(weekNumber)
 
-  const [yearsWithVotesResult, weeksWithVotesResult, finalRankingsResult, sportIdResult] =
+  const sportId = await getSportIdBySlug(sport as SportParam)
+  const [yearsWithVotesResult, weeksWithVotesResult, finalRankingsResult, finalRankings2Result] =
     await Promise.allSettled([
       getYearsThatHaveVotes({ division }),
       getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
       getFinalRankingsForWeekAndYear({ year: parseInt(year, 10), week: weekNumber, division }),
-      getSportIdBySlug(sport as SportParam),
+      getFinalRankingsForWeekAndYearFromDb({
+        year: parseInt(year, 10),
+        division,
+        week: weekNumber,
+        sport: sport as SportParam,
+      }),
     ])
 
   const yearsWithVotes =
     yearsWithVotesResult.status === 'fulfilled' ? yearsWithVotesResult.value : []
   const weeksWithVotes =
     weeksWithVotesResult.status === 'fulfilled' ? weeksWithVotesResult.value : []
-  const sportId = sportIdResult.status === 'fulfilled' ? sportIdResult.value : null
 
   if (
     !yearsWithVotes.length ||
@@ -97,6 +102,10 @@ export default async function CollegeFootballRankingsPage({
 
   const finalRankings = finalRankingsResult.value
   const { rankings } = finalRankings
+
+  const rankings2 = finalRankings2Result.status === 'fulfilled' ? finalRankings2Result.value : []
+  const top252 = rankings2.filter((entry) => entry.ranking <= TOP_25)
+  const outsideTop252 = rankings2.filter((entry) => entry.ranking >= TOP_25)
 
   const votesForWeekAndYearByVoter = await getVotesForWeekAndYearByVoter({
     year: parseInt(year, 10),
@@ -194,6 +203,45 @@ export default async function CollegeFootballRankingsPage({
                         </div>
                       </TableCell>
                       <TableCell>{team._points}</TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          )}
+          {top252.length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Rank</TableHead>
+                  <TableHead>School (1st Place Votes)</TableHead>
+                  <TableHead>Points</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {top252.map((rank) => {
+                  const { school } = rank
+                  return (
+                    <TableRow key={school.id}>
+                      <TableCell>{rank.isTie ? `T-${rank.ranking}` : rank.ranking}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <CustomImage
+                            image={school.image}
+                            width={40}
+                            height={40}
+                            className="mr-2 size-10 shrink-0 object-contain"
+                            mode="contain"
+                          />
+                          {school.shortName ?? school.abbreviation ?? school.name}
+                          {rank.firstPlaceVotes ? (
+                            <span className="text-muted-foreground ml-2 tracking-wider">
+                              ({rank.firstPlaceVotes})
+                            </span>
+                          ) : null}
+                        </div>
+                      </TableCell>
+                      <TableCell>{rank.points}</TableCell>
                     </TableRow>
                   )
                 })}

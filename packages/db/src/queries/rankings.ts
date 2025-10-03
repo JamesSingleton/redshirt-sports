@@ -1,6 +1,6 @@
 import { eq, desc } from 'drizzle-orm'
 
-import { divisionsTable, sportsTable, weeklyFinalRankings } from '../schema'
+import { divisionsTable, SEASON_TYPE_CODES, sportsTable, weeklyFinalRankings } from '../schema'
 import { primaryDb as db } from '../client'
 
 import { getSportIdBySlug, SportParam } from './sports'
@@ -46,7 +46,27 @@ export async function getFinalRankingsForWeekAndYearFromDb({
   const sportId = await getSportIdBySlug(sport)
   if (!sportId) throw new Error(`Unable to find sport by slug. Slug: ${sport}`)
 
-  const dbSeason = await getWeekBySport(sportId, year, week)
+  let seasonTypeCode, weekForQuery
+
+  // this is largely a hack for the time being
+  // we just want one of the preseason/postseason weeks to associate with
+  // there is currently only one ballot for either of those season types
+  switch (week) {
+    case 0:
+      seasonTypeCode = SEASON_TYPE_CODES.PRESEASON
+      weekForQuery = 1
+      break
+    case 999:
+      seasonTypeCode = SEASON_TYPE_CODES.POSTSEASON
+      weekForQuery = 1
+      break
+    default:
+      seasonTypeCode = SEASON_TYPE_CODES.REGULAR_SEASON
+      weekForQuery = week
+      break
+  }
+
+  const dbSeason = await getWeekBySport(sportId, year, weekForQuery, seasonTypeCode)
   if (!dbSeason) throw new Error('Unable to find season or week for rankings')
 
   const dbWeek = dbSeason?.seasonTypes[0]?.weeks[0]
