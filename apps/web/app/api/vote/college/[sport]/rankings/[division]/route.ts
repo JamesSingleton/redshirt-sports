@@ -247,7 +247,7 @@ export async function POST(
       return new Response(
         JSON.stringify({
           error: 'Invalid request data',
-          details: error,
+          details: error instanceof z.ZodError ? error.format() : undefined,
         }),
         {
           status: 400,
