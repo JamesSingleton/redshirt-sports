@@ -99,11 +99,36 @@ const createList = ({ S, type, icon, title, id }: CreateList) => {
     .icon(icon ?? Folder)
 }
 
-export const structure = (S: StructureBuilder, context: StructureResolverContext) => {
-  const { currentUser } = context
+const createSportFilteredList = (S: StructureBuilder, sportId: string, sportName: string) => {
+  return S.listItem()
+    .title(`${sportName} Articles`)
+    .icon(FileText)
+    .id(`${sportId}-articles`)
+    .child(
+      S.documentList()
+        .title(`${sportName} Articles`)
+        .filter('_type == "post" && sport._ref == $sportId')
+        .apiVersion('2025-06-11')
+        .params({ sportId })
+        .defaultOrdering([{ field: '_createdAt', direction: 'desc' }])
+        .initialValueTemplates([S.initialValueTemplateItem('post-by-sport', { sportId })]),
+    )
+}
+
+export const structure = async (S: StructureBuilder, context: StructureResolverContext) => {
+  const { currentUser, getClient } = context
+  const client = getClient({ apiVersion: '2025-06-11' })
+  const sports = await client.fetch<Array<{ _id: string; title: string }>>(
+    `*[_type == 'sport'] | order(title asc) {
+        _id,
+        title
+      }`,
+  )
+
   const items = [
     S.divider().title('Articles'),
     createList({ S, type: 'post', title: 'All Articles', icon: FileText, id: 'all-articles' }),
+    ...sports.map((sport) => createSportFilteredList(S, sport._id, sport.title)),
     S.divider().title('Sports Organizational Structure'),
     createList({
       S,
