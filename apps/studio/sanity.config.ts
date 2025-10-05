@@ -95,5 +95,17 @@ export default defineConfig({
   },
   schema: {
     types: schemaTypes,
+    templates: (prev) => [
+      ...prev,
+      {
+        id: 'post-by-sport',
+        title: 'Post by Sport',
+        schemaType: 'post',
+        parameters: [{ name: 'sportId', type: 'string' }],
+        value: ({ sportId }: { sportId: string }) => ({
+          sport: { _type: 'reference', _ref: sportId },
+        }),
+      },
+    ],
   },
 })
