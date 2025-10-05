@@ -175,9 +175,10 @@ export default async function Page({ params, searchParams }: PageProps<'/authors
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <CustomImage
                 image={author.image}
-                className="h-20 w-20 shrink-0 rounded-full object-contain"
+                className="size-20 shrink-0 rounded-full"
                 width={80}
                 height={80}
+                mode="cover"
               />
               <div>
                 <span className="text-brand-500 dark:text-brand-400 block text-base font-semibold">
