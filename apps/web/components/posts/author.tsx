@@ -18,17 +18,15 @@ export const AuthorItem = (author: PostAuthor) => {
       />
       <div className="flex flex-col items-stretch justify-start gap-0.5">
         {author.archived ? (
-          <p className="mr-1 text-sm font-semibold tracking-[-.01em] whitespace-nowrap">
-            {author.name}
-          </p>
+          <p className="mr-1 text-sm font-semibold tracking-[-.01em]">{author.name}</p>
         ) : (
           <Link href={`/authors/${author.slug}`} prefetch={false}>
-            <p className="mr-1 text-sm font-semibold tracking-[-.01em] whitespace-nowrap hover:underline">
+            <p className="mr-1 text-sm font-semibold tracking-[-.01em] hover:underline">
               {author.name}
             </p>
           </Link>
         )}
-        <p className="text-muted-foreground min-h-4 text-sm/4 font-normal tracking-[-.01em] whitespace-nowrap">
+        <p className="text-muted-foreground min-h-4 text-sm/4 font-normal tracking-[-.01em]">
           {author.roles.join(', ')}
         </p>
       </div>
