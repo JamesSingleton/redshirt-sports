@@ -79,6 +79,13 @@ const divisionFragment = /* groq */ `
   }
 `
 
+const sportSubgroupingFragment = /* groq */ `
+  sportSubgrouping->{
+    ...,
+    "slug": slug.current,
+  }
+`
+
 const conferencesFragment = /* groq */ `
   conferences[]->{
     _id,
@@ -132,6 +139,7 @@ export const queryPostSlugData = defineQuery(/* groq */ `
       title
     },
     ${divisionFragment},
+    ${sportSubgroupingFragment},
     ${conferencesFragment},
     ${postAuthorFragment},
     ${postImageFragment},
