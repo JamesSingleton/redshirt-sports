@@ -138,8 +138,32 @@ export default async function PostPage({ params }: PageProps<'/[slug]'>) {
               {data.excerpt}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              {data.sport && (data.division || data.conferences) && (
+              {data.sport && (data.division || data.sportSubgrouping || data.conferences) && (
                 <div className="flex flex-wrap items-center gap-3">
+                  <Link
+                    href={`/college/${data.sport.slug}/news`}
+                    className={badgeVariants({ variant: 'default' })}
+                    prefetch={false}
+                  >
+                    {data.sport.title}
+                  </Link>
+
+                  {data.division && (
+                    <Link
+                      href={`/college/${data.sport.slug}/news/${
+                        data.division.name === 'D1' && data.sportSubgrouping
+                          ? data.sportSubgrouping.slug
+                          : data.division.slug
+                      }`}
+                      className={badgeVariants({ variant: 'default' })}
+                      prefetch={false}
+                    >
+                      {data.division.name === 'D1' && data.sportSubgrouping
+                        ? data.sportSubgrouping.shortName
+                        : data.division.name}
+                    </Link>
+                  )}
+
                   {data.sport &&
                     data.conferences &&
                     data.conferences.map((conference) => {
