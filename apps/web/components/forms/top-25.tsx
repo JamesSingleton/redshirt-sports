@@ -19,23 +19,7 @@ import {
 import { VirtualizedCombobox } from '../virtualized-combobox'
 
 import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@redshirt-sports/sanity/types'
-
-type VoterBallotWithSchool = {
-  id: number
-  userId: string
-  division: string
-  week: number
-  year: number
-  createdAt: Date
-  teamId: string
-  rank: number
-  points: number
-  schoolName: string
-  schoolShortName: string
-  schoolAbbreviation: string
-  schoolNickname: string
-  schoolImageUrl: string
-}
+import type { VoterBallotWithSchool } from '@/types/votes'
 
 export type Top25FormRef = {
   populateWithPreviousBallot: () => void

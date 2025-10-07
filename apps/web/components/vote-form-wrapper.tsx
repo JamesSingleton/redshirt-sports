@@ -7,22 +7,7 @@ import Top25, { type Top25FormRef } from './forms/top-25'
 import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@redshirt-sports/sanity/types'
 import CustomImage from './sanity-image'
 
-type VoterBallotWithSchool = {
-  id: number
-  userId: string
-  division: string
-  week: number
-  year: number
-  createdAt: Date
-  teamId: string
-  rank: number
-  points: number
-  schoolName: string
-  schoolShortName: string
-  schoolAbbreviation: string
-  schoolNickname: string
-  schoolImageUrl: string
-}
+import type { VoterBallotWithSchool } from '@/types/votes'
 
 type VoteFormWrapperProps = {
   schools: SchoolsBySportAndSubgroupingStringQueryResult
