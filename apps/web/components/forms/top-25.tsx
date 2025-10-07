@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useImperativeHandle, forwardRef } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -19,6 +19,11 @@ import {
 import { VirtualizedCombobox } from '../virtualized-combobox'
 
 import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@redshirt-sports/sanity/types'
+import type { VoterBallotWithSchool } from '@/types/votes'
+
+export type Top25FormRef = {
+  populateWithPreviousBallot: () => void
+}
 
 const formSchema = z
   .object({
@@ -145,7 +150,13 @@ const formSchema = z
     }
   })
 
-const Top25 = ({ schools }: { schools: SchoolsBySportAndSubgroupingStringQueryResult }) => {
+const Top25 = forwardRef<
+  Top25FormRef,
+  {
+    schools: SchoolsBySportAndSubgroupingStringQueryResult
+    previousBallot?: VoterBallotWithSchool[]
+  }
+>(({ schools, previousBallot }, ref) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
@@ -161,8 +172,25 @@ const Top25 = ({ schools }: { schools: SchoolsBySportAndSubgroupingStringQueryRe
   }
   const router = useRouter()
 
+  useImperativeHandle(ref, () => ({
+    populateWithPreviousBallot,
+  }))
+
+  function populateWithPreviousBallot() {
+    if (!previousBallot || previousBallot.length === 0) return
+
+    previousBallot.forEach((ballot) => {
+      form.setValue(`rank_${ballot.rank}` as keyof z.infer<typeof formSchema>, ballot.teamId, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      })
+    })
+
+    toast.success('Form populated with your previous ballot')
+  }
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // update the values to include the division
     values = { ...values, division, sport }
 
     toast.promise(
@@ -205,6 +233,7 @@ const Top25 = ({ schools }: { schools: SchoolsBySportAndSubgroupingStringQueryRe
                 <FormControl>
                   <VirtualizedCombobox
                     options={schools}
+                    value={field.value}
                     onChange={field.onChange}
                     selectedOptions={selectedValues}
                   />
@@ -230,6 +259,8 @@ const Top25 = ({ schools }: { schools: SchoolsBySportAndSubgroupingStringQueryRe
       </form>
     </Form>
   )
-}
+})
+
+Top25.displayName = 'Top25'
 
 export default Top25

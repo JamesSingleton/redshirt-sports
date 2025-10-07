@@ -45,3 +45,20 @@ export type Voter = {
   organizationRole?: string
   ballot: Vote[] // expected length 25
 }
+
+export type VoterBallotWithSchool = {
+  id: number
+  userId: string
+  division: string
+  week: number
+  year: number
+  createdAt: Date
+  teamId: string
+  rank: number
+  points: number
+  schoolName: string
+  schoolShortName: string
+  schoolAbbreviation: string
+  schoolNickname: string
+  schoolImageUrl: string
+}
