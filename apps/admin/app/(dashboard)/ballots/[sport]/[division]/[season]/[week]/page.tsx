@@ -1,9 +1,11 @@
+import { processBallotsForm } from '@/actions/process-ballots'
 import {
   getBallotsByWeekYearDivisionAndSport,
   getSportIdBySlug,
   getVotersWithVotingStatusForWeek,
   SportParam,
 } from '@redshirt-sports/db/queries'
+import { Button } from '@redshirt-sports/ui/components/button'
 
 export default async function BallotsSportDivisionSeasonWeekPage({
   params,
@@ -20,10 +22,16 @@ export default async function BallotsSportDivisionSeasonWeekPage({
     year: Number(seasonParam),
   })
 
-  console.log(usersWithVotingStatus)
   return (
     <p>
       Ballots Page - {sportParam}: {division} - Season {seasonParam}, week {weekParam}
+      <form action={processBallotsForm}>
+        <input type="text" value={sportId} name="sportId" hidden />
+        <input type="text" value={division} name="division" hidden />
+        <input type="number" value={weekParam} name="week" hidden />
+        <input type="number" value={seasonParam} name="season" hidden />
+        <Button>Process Ballots</Button>
+      </form>
       {usersWithVotingStatus.map((user) => (
         <div>
           <p>

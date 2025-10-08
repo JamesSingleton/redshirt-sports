@@ -259,3 +259,50 @@ export async function getVotersWithVotingStatusForWeek({ sportId, division, year
     }
   })
 }
+
+type TeamRanking = {
+  _id: string
+  name: string
+  rank: number
+  image: {
+    _type: 'image'
+    asset: {
+      _ref: string
+      _type: 'reference'
+    }
+    caption: string
+  }
+  isTie: boolean
+  _points: number
+  shortName: string
+  abbreviation: string
+  firstPlaceVotes: number
+}
+
+export async function upsertWeeklyFinalRankings({
+  division,
+  year,
+  week,
+  rankings,
+  sportId,
+}: {
+  division: string
+  year: number
+  week: number
+  rankings: TeamRanking[]
+  sportId: string
+}) {
+  return db
+    .insert(weeklyFinalRankings)
+    .values({
+      division,
+      year,
+      week,
+      rankings,
+      sportId,
+    })
+    .onConflictDoUpdate({
+      target: [weeklyFinalRankings.division, weeklyFinalRankings.year, weeklyFinalRankings.week],
+      set: { rankings },
+    })
+}
