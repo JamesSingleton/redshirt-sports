@@ -1,21 +1,13 @@
+"use server";
+
 import {
   getBallotsByWeekYearDivisionAndSport,
-  getSeasonByYearAndSportId,
-  getSportIdBySlug,
+  upsertWeeklyFinalRankings,
 } from "@redshirt-sports/db/queries";
-import { weeklyFinalRankings } from "@redshirt-sports/db/schema";
 import { client } from "@redshirt-sports/sanity/client";
 import { schoolsByIdOrderedByPoints } from "@redshirt-sports/sanity/queries";
 import { token } from "@redshirt-sports/sanity/token";
-import { NextResponse } from "next/server";
-
-import { db } from "@/server/db";
-import type { Ballot, SchoolLite } from "@/types";
-import {
-  getCurrentSeason,
-  getCurrentWeek,
-  type SportParam,
-} from "@/utils/espn";
+import type { SanityImageAsset } from "@redshirt-sports/sanity/types";
 
 interface TeamPoint {
   id: string;
@@ -23,6 +15,27 @@ interface TeamPoint {
   firstPlaceVotes: number;
   rank?: number;
   isTie?: boolean;
+}
+
+export interface Ballot {
+  id: number;
+  userId: string;
+  division: string;
+  week: number;
+  year: number;
+  createdAt: Date;
+  teamId: string;
+  rank: number;
+  points: number;
+}
+
+export interface SchoolLite {
+  _id: string;
+  name: string;
+  image: SanityImageAsset;
+  abbreviation: string;
+  shortName: string;
+  _points: number;
 }
 
 function teamPointsReducer(acc: TeamPoint[], vote: Ballot): TeamPoint[] {
@@ -71,6 +84,7 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
       } else {
         currentRank = index + 1; // Update rank if points or firstPlaceVotes differ
         wasPreviousTeamTied = false; // Reset tie tracker since this team isn't tied with the next
+        team.isTie = false;
       }
     } else {
       team.isTie = false; // First team can't be in a tie
@@ -82,58 +96,30 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
   return teamPoints;
 }
 
-type Params = Promise<{ sport: SportParam; division: string }>;
+interface ProcessBallotsInput {
+  sportId: string; // uuid
+  division: string; // fcs/fbs/etc
+  seasonYear: number; // 2025
+  weekNumber: number; // 3
+}
 
-// Cron job to calculate rankings and store them in the database
-// Runs once a week on Sunday at 11:59 PM PST
-export async function GET(request: Request, segmentData: { params: Params }) {
-  const { sport, division: divisionParam } = await segmentData.params;
-  const currentDate = new Date();
-  const sportId = await getSportIdBySlug(sport);
-  if (!sportId) {
-    return NextResponse.json(
-      {
-        error: `Invalid sport: ${sport}`,
-      },
-      {
-        status: 400,
-      },
-    );
-  }
-
-  const season = await getSeasonByYearAndSportId({
-    sportId: sportId,
-    year: currentDate.getFullYear(),
-  });
-
-  // Return early if the current date is not within the season as there is no use calculating rankings
-  if (
-    season &&
-    (season.startDate > currentDate || season.endDate < currentDate)
-  ) {
-    return NextResponse.json({
-      response: "Current date is not within the season",
-    });
-  }
-
-  const [currentSeason, currentWeek] = await Promise.all([
-    await getCurrentSeason(),
-    await getCurrentWeek(),
-  ]);
-
+async function processBallots({
+  sportId,
+  division,
+  seasonYear,
+  weekNumber,
+}: ProcessBallotsInput) {
   try {
-    const division = divisionParam;
     const votes: Ballot[] = await getBallotsByWeekYearDivisionAndSport({
-      year: currentSeason.year,
-      week: currentWeek,
+      year: seasonYear,
+      week: weekNumber,
       division,
       sportId: sportId || "",
     });
 
     if (!votes.length) {
-      return NextResponse.json({
-        response: "No votes found for the current week",
-      });
+      console.error("no votes");
+      return;
     }
 
     const teamPoints = processTeamPoints(votes);
@@ -147,35 +133,38 @@ export async function GET(request: Request, segmentData: { params: Params }) {
       const teamPoint = teamPoints.find((tp) => tp.id === team._id);
       return {
         ...team,
-        rank: teamPoint?.rank,
-        firstPlaceVotes: teamPoint?.firstPlaceVotes,
-        isTie: teamPoint?.isTie,
+        rank: teamPoint?.rank ?? 0,
+        firstPlaceVotes: teamPoint?.firstPlaceVotes ?? 0,
+        isTie: teamPoint?.isTie ?? false,
       };
     });
 
-    await db
-      .insert(weeklyFinalRankings)
-      .values({
-        division,
-        year: currentSeason.year,
-        week: currentWeek,
-        rankings: rankedTeams,
-        sportId,
-      })
-      .onConflictDoUpdate({
-        target: [
-          weeklyFinalRankings.division,
-          weeklyFinalRankings.year,
-          weeklyFinalRankings.week,
-        ],
-        set: { rankings: rankedTeams },
-      });
-
-    return NextResponse.json({
-      response: "Rankings calculated and stored in the database",
+    await upsertWeeklyFinalRankings({
+      division,
+      year: seasonYear,
+      week: weekNumber,
+      rankings: rankedTeams,
+      sportId,
     });
   } catch (error) {
     console.error(error);
-    return NextResponse.error();
   }
+}
+
+export async function processBallotsForm(formData: FormData) {
+  const sportId = formData.get("sportId");
+  const division = formData.get("division");
+  const season = formData.get("season");
+  const week = formData.get("week");
+
+  if (!sportId || !division || !season || !week) {
+    return;
+  }
+
+  await processBallots({
+    sportId: String(sportId),
+    division: String(division),
+    seasonYear: Number(season),
+    weekNumber: Number(week),
+  });
 }
