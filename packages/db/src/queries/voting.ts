@@ -3,11 +3,14 @@ import { sportsTable, voterBallots, weeklyFinalRankings } from '../schema'
 import { primaryDb as db } from '../client'
 import { SportParam } from './sports'
 
-interface GetUsersVote {
+interface GetVote {
   year: number
   week: number
   division: string
   sportId: string
+}
+
+interface GetUsersVote extends GetVote {
   userId: string
 }
 
@@ -54,12 +57,7 @@ export async function getBallotsByWeekYearDivisionAndSport({
   week,
   division,
   sportId,
-}: {
-  year: number
-  week: number
-  division: string
-  sportId: string
-}) {
+}: GetVote) {
   const votes = await db.query.voterBallots.findMany({
     where: (model, { eq, and }) =>
       and(
@@ -235,7 +233,29 @@ export async function getLatestVoterBallot(
       ),
     )
     .orderBy(voterBallots.rank)
+}
 
-  // split into two functions and call from a service
-  // here down
+export async function getVotersWithVotingStatusForWeek({ sportId, division, year, week }: GetVote) {
+  const voters = await db.query.usersTable.findMany({
+    where: (model, { eq }) => eq(model.isVoter, true),
+    with: {
+      voterBallots: {
+        where: (model, { eq, and }) =>
+          and(
+            eq(model.year, year),
+            eq(model.sportId, sportId),
+            eq(model.division, division),
+            eq(model.week, week),
+          ),
+      },
+    },
+  })
+
+  return voters.map((voter) => {
+    const { voterBallots, ...rest } = voter
+    return {
+      ...rest,
+      hasVoted: !!voterBallots.length,
+    }
+  })
 }

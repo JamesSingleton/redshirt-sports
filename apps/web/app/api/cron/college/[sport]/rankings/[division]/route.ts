@@ -4,7 +4,7 @@ import { client } from '@redshirt-sports/sanity/client'
 import { schoolsByIdOrderedByPoints } from '@redshirt-sports/sanity/queries'
 import { token } from '@redshirt-sports/sanity/token'
 import {
-  getCurrentSeasonStartAndEnd,
+  getSeasonByYearAndSportId,
   getSportIdBySlug,
   getBallotsByWeekYearDivisionAndSport,
 } from '@redshirt-sports/db/queries'
@@ -97,7 +97,7 @@ export async function GET(request: Request, segmentData: { params: Params }) {
     )
   }
 
-  const season = await getCurrentSeasonStartAndEnd({
+  const season = await getSeasonByYearAndSportId({
     sportId: sportId,
     year: currentDate.getFullYear(),
   })
