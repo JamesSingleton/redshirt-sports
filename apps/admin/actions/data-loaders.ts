@@ -40,50 +40,9 @@ interface BaseSanityObject {
   _updatedAt: string
 }
 
-interface BaseSanityObjectWithName {
-  _createdAt: string
-  _id: string
-  _updatedAt: string
-  name: string
-}
-
 interface SanitySport extends BaseSanityObject {
   slug: string
   title: string
-}
-
-interface SanityConference extends BaseSanityObjectWithName {
-  divisionId: string
-  shortName: string
-  abbreviation: string
-  slug: string
-  logo: Record<string, any>
-  sports: string[]
-}
-
-interface SanityDivision extends BaseSanityObjectWithName {
-  title: string
-  heading: string
-  longName: string
-  slug: string
-  description: string
-  logo: Record<string, any>
-}
-
-interface SanitySchool extends BaseSanityObjectWithName {
-  shortName: string
-  abbreviation: string
-  nickname: string
-  top25VotingEligible: boolean
-  image: Record<string, any>
-  conferenceAffiliations: Record<'conferenceId' | 'sportId', string>[]
-}
-
-interface SanitySubdivision extends BaseSanityObjectWithName {
-  shortName: string
-  slug: string
-  parentDivisionId: string
-  applicableSports: string[]
 }
 
 export async function fetchAndLoadAllSeasons() {
@@ -217,7 +176,7 @@ export async function fetchAndLoadSports() {
 
 export async function fetchAndLoadDivisions() {
   const { data } = await sanityFetch({ query: divisionsQuery })
-  const mappedDivisions = data.map((d: SanityDivision) => ({
+  const mappedDivisions = data.map((d) => ({
     sanityId: d._id,
     name: d.name,
     title: d.title,
@@ -246,7 +205,7 @@ export async function fetchAndLoadSchools() {
   const { data } = await sanityFetch({ query: schoolsQuery })
 
   let schoolConferenceAffiliations: Record<string, string>[] = []
-  const mappedSchools = data.map((d: SanitySchool) => {
+  const mappedSchools = data.map((d) => {
     d.conferenceAffiliations?.forEach((affiliation) => {
       const conference = conferences.find((c) => c.sanityId === affiliation.conferenceId)
       if (conference) {
@@ -370,11 +329,11 @@ export async function fetchAndLoadSubdivisions() {
 
   let divisionSportMappings: Record<string, string>[] = []
 
-  const subdivisions = data.map((d: SanitySubdivision) => {
+  const subdivisions = data.map((d) => {
     const division = divisions.find((div) => div.sanityId === d.parentDivisionId)
     d.applicableSports.forEach((sport: string) =>
       divisionSportMappings.push({
-        subdivisionName: d.shortName,
+        subdivisionName: d.shortName || '',
         sportId: sport,
       }),
     )
@@ -385,7 +344,7 @@ export async function fetchAndLoadSubdivisions() {
       longName: d.name,
       sanityId: d._id,
       slug: d.slug,
-      isSubdivision: true,
+      isSubdivision: 'true',
     }
   })
 
