@@ -24,7 +24,7 @@ import type { WithContext, WebPage } from 'schema-dts'
 
 // cache page for a week
 export const revalidate = 604800
-export const dynamic = 'force-static'
+export const dynamic = 'auto'
 
 const baseUrl = getBaseUrl()
 

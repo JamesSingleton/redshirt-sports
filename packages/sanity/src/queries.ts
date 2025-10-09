@@ -148,14 +148,15 @@ export const queryPostSlugData = defineQuery(/* groq */ `
       _type == "post"
       && _id != ^._id
       && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)
-    ] | order(publishedAt desc, _createdAt desc) {
+    ] | order(publishedAt desc, _id desc)[0...3] {
       _id,
       title,
       publishedAt,
       ${postImageFragment},
       "slug": slug.current,
       ${postAuthorFragment}
-    }[0...3]
+    }
+
   }
 `)
 
