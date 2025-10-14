@@ -5,6 +5,10 @@ import { primaryDb as db } from '../client'
 
 export type SportParam = 'football' | 'mens-basketball' | 'womens-basketball'
 
+export async function getSports() {
+  return db.query.sportsTable.findMany()
+}
+
 export async function getSportIdBySlug(slug: SportParam): Promise<string | null> {
   const result = await db
     .select({ id: sportsTable.id })

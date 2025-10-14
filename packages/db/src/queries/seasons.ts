@@ -23,7 +23,7 @@ export async function getWeekBySport(
   })
 }
 
-export async function getCurrentSeasonStartAndEnd({
+export async function getSeasonByYearAndSportId({
   sportId,
   year,
 }: {
@@ -35,4 +35,29 @@ export async function getCurrentSeasonStartAndEnd({
   })
 
   return season
+}
+
+export async function getSeasonWithTypesByYearAndSportId({
+  sportId,
+  year,
+}: {
+  sportId: string
+  year: number
+}) {
+  const season = await db.query.seasonsTable.findFirst({
+    where: (model, { eq, and }) => and(eq(model.year, year), eq(model.sportId, sportId)),
+    with: {
+      seasonTypes: {
+        with: {
+          weeks: true,
+        },
+      },
+    },
+  })
+
+  return season
+}
+
+export async function getSeasonsForSport(sportId: string) {
+  return db.query.seasonsTable.findMany({ where: (model, { eq }) => eq(model.sportId, sportId) })
 }
