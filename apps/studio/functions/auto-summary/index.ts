@@ -19,7 +19,7 @@ export const handler = documentEventHandler(async ({ context, event }) => {
           path: 'body',
         },
       },
-      instruction: `Based on the $content, write a summary no more than 250 words.`,
+      instruction: `Based on the $content, write a summary no more than 160 characters.`,
       target: {
         path: 'excerpt',
       },
