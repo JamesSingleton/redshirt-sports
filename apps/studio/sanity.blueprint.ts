@@ -26,5 +26,17 @@ export default defineBlueprint({
         projection: "{'beforeSlug': before().slug.current, 'slug': after().slug.current}",
       },
     }),
+    defineDocumentFunction({
+      type: 'sanity.function.document',
+      src: './functions/auto-summary',
+      memory: 2,
+      timeout: 30,
+      name: 'auto-summary',
+      event: {
+        on: ['create', 'update'],
+        filter: "_type == 'post' && delta::changedAny(content)",
+        projection: '{_id}',
+      },
+    }),
   ],
 })
