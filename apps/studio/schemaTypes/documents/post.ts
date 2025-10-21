@@ -217,8 +217,7 @@ export const post = defineType({
       name: 'excerpt',
       title: 'Article Excerpt',
       type: 'text',
-      description:
-        'This will be used for article snippets in social media and Google searches. Ideally between 140 and 160 characters.',
+      description: 'Excerpt will be automatically generated when you publish a post',
       group: GROUP.MAIN_CONTENT,
       validation: (rule) =>
         rule
