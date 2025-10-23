@@ -17,7 +17,7 @@
     "check:types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.33.7",
+    "@clerk/nextjs": "^6.34.0",
     "@hookform/resolvers": "^5.2.2",
     "@portabletext/react": "^4.0.3",
     "@portabletext/to-html": "^3.0.0",
@@ -27,7 +27,7 @@
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/client": "^7.12.0",
     "@sanity/image-url": "^1.2.0",
-    "@sentry/nextjs": "^10.20.0",
+    "@sentry/nextjs": "^10.21.0",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tanstack/react-virtual": "^3.13.12",
     "@upstash/ratelimit": "^2.0.6",
@@ -35,14 +35,14 @@
     "@vercel/speed-insights": "^1.2.0",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
-    "drizzle-orm": "^0.44.6",
+    "drizzle-orm": "^0.44.7",
     "feed": "^5.1.0",
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.546.0",
-    "next": "15.5.6",
+    "next": "16.0.0",
     "next-plausible": "^3.12.4",
-    "next-sanity": "^11.5.5",
+    "next-sanity": "^11.5.7",
     "next-themes": "0.4.6",
     "postgres": "^3.4.7",
     "react": "^19.2.0",
@@ -54,7 +54,7 @@
     "schema-dts": "^1.1.5",
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
-    "svix": "^1.77.0",
+    "svix": "^1.79.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -68,7 +68,7 @@
     "drizzle-kit": "^0.31.5",
     "eslint": "^9.38.0",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.15",
+    "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3"
   }
 }

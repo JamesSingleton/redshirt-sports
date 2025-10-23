@@ -10,7 +10,7 @@
     "./utils/health": "./src/utils/health.ts"
   },
   "dependencies": {
-    "drizzle-orm": "^0.44.6",
+    "drizzle-orm": "^0.44.7",
     "postgres": "^3.4.7"
   },
   "devDependencies": {
