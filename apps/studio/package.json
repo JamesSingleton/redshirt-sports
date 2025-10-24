@@ -15,7 +15,7 @@
   "dependencies": {
     "@portabletext/react": "^4.0.3",
     "@sanity/asset-utils": "^2.3.0",
-    "@sanity/assist": "^5.0.0",
+    "@sanity/assist": "^5.0.1",
     "@sanity/blueprints": "^0.3.0",
     "@sanity/client": "^7.12.0",
     "@sanity/dashboard": "^5.0.0",
@@ -25,7 +25,7 @@
     "@sanity/table": "^2.0.0",
     "@sanity/ui": "^3.1.11",
     "@sanity/vision": "^4.11.0",
-    "lucide-react": "^0.546.0",
+    "lucide-react": "^0.547.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "sanity": "4.11.0",
