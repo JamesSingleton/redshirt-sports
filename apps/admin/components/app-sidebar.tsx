@@ -3,6 +3,7 @@
 import * as React from 'react'
 import {
   IconCamera,
+  IconCheck,
   IconDeviceLaptop,
   IconFileAi,
   IconFileDescription,
@@ -31,6 +32,11 @@ const data = {
       title: 'Development',
       url: '/development',
       icon: IconDeviceLaptop,
+    },
+    {
+      title: 'Ballots',
+      url: '/ballots',
+      icon: IconCheck,
     },
   ],
   navClouds: [

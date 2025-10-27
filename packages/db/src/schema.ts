@@ -72,6 +72,10 @@ export const voterBallotsRelations = relations(voterBallots, ({ one }) => ({
     fields: [voterBallots.sportId],
     references: [sportsTable.id],
   }),
+  user: one(usersTable, {
+    fields: [voterBallots.userId],
+    references: [usersTable.id],
+  }),
 }))
 
 export const weeklyFinalRankings = pgTable(
@@ -104,6 +108,10 @@ export const usersTable = pgTable('users_table', {
   isAdmin: boolean('isAdmin').default(false).notNull(),
   isVoter: boolean('isVoter').default(false).notNull(),
 })
+
+export const usersTableRelations = relations(usersTable, ({ many }) => ({
+  voterBallots: many(voterBallots),
+}))
 
 export const seasonsTable = pgTable(
   'seasons',
