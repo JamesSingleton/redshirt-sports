@@ -1,5 +1,14 @@
-import { getDivisionsBySportId, getSportIdBySlug, SportParam } from '@redshirt-sports/db/queries'
 import Link from 'next/link'
+import { getDivisionsBySportId, getSportIdBySlug, SportParam } from '@redshirt-sports/db/queries'
+
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@redshirt-sports/ui/components/table'
 
 export default async function BallotsSportPage({ params }: PageProps<'/ballots/[sport]'>) {
   const { sport: sportParam } = await params
@@ -12,11 +21,22 @@ export default async function BallotsSportPage({ params }: PageProps<'/ballots/[
 
   return (
     <div>
-      {divisions.map(({ division }) => (
-        <div>
-          <Link href={`/ballots/${sportParam}/${division.slug}`}>{division.name}</Link>
-        </div>
-      ))}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Division</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {divisions.map(({ division }) => (
+            <TableRow key={division.slug}>
+              <TableCell>
+                <Link href={`/ballots/${sportParam}/${division.slug}`}>{division.name}</Link>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }

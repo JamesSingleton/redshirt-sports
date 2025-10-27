@@ -6,6 +6,14 @@ import {
   SportParam,
 } from '@redshirt-sports/db/queries'
 import { Button } from '@redshirt-sports/ui/components/button'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@redshirt-sports/ui/components/table'
 
 export default async function BallotsSportDivisionSeasonWeekPage({
   params,
@@ -23,8 +31,25 @@ export default async function BallotsSportDivisionSeasonWeekPage({
   })
 
   return (
-    <p>
-      Ballots Page - {sportParam}: {division} - Season {seasonParam}, week {weekParam}
+    <div className="w-full">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {usersWithVotingStatus.map((user) => (
+            <TableRow key={user.id}>
+              <TableCell>
+                {user.firstName} {user.lastName}
+              </TableCell>
+              <TableCell>{user.hasVoted ? 'Submitted' : 'Not Yet Submitted'}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <form action={processBallotsForm}>
         <input type="text" value={sportId} name="sportId" hidden />
         <input type="text" value={division} name="division" hidden />
@@ -32,13 +57,6 @@ export default async function BallotsSportDivisionSeasonWeekPage({
         <input type="number" value={seasonParam} name="season" hidden />
         <Button>Process Ballots</Button>
       </form>
-      {usersWithVotingStatus.map((user) => (
-        <div>
-          <p>
-            {user.firstName} {user.lastName} | {user.hasVoted ? 'Submitted' : 'Not Yet Submitted'}
-          </p>
-        </div>
-      ))}
-    </p>
+    </div>
   )
 }
