@@ -10,14 +10,14 @@
     "check:types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.34.0",
+    "@clerk/nextjs": "^6.34.1",
     "@redshirt-sports/clients": "workspace:*",
     "@redshirt-sports/db": "workspace:*",
     "@redshirt-sports/sanity": "workspace:*",
     "@redshirt-sports/ui": "workspace:*",
     "@tabler/icons-react": "^3.35.0",
-    "lucide-react": "^0.547.0",
-    "next": "16.0.0",
+    "lucide-react": "^0.552.0",
+    "next": "16.0.1",
     "next-themes": "^0.4.6",
     "react": "19.2.0",
     "react-dom": "19.2.0"
@@ -25,11 +25,11 @@
   "devDependencies": {
     "@redshirt-sports/eslint-config": "workspace:^",
     "@redshirt-sports/typescript-config": "workspace:*",
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.9.2",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9.38.0",
+    "eslint": "^9.39.0",
     "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3"
   }
