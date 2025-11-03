@@ -34,7 +34,7 @@ export default defineBlueprint({
       name: 'auto-summary',
       event: {
         on: ['create', 'update'],
-        filter: "_type == 'post' && delta::changedAny(content)",
+        filter: "_type == 'post' && (delta::changedAny(content) || delta::operation() == 'create')",
         projection: '{_id}',
       },
     }),

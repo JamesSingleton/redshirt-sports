@@ -57,8 +57,8 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  reactCompiler: true,
   experimental: {
-    reactCompiler: true,
     inlineCss: true,
   },
   logging: {
