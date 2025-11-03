@@ -15,12 +15,12 @@
     "@sanity/client": "^7.12.0",
     "@sanity/image-url": "^1.2.0",
     "next-sanity": "^11.6.3",
-    "sanity": "4.12.0",
+    "sanity": "4.13.0",
     "sanity-image": "^1.0.0"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
-    "@types/node": "^24.9.2",
+    "@types/node": "^24.10.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2"
   }
