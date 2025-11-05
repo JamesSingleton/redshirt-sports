@@ -10,7 +10,7 @@
     "check:types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.34.1",
+    "@clerk/nextjs": "^6.34.3",
     "@redshirt-sports/clients": "workspace:*",
     "@redshirt-sports/db": "workspace:*",
     "@redshirt-sports/sanity": "workspace:*",
@@ -29,7 +29,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9.39.0",
+    "eslint": "^9.39.1",
     "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3"
   }
