@@ -13,11 +13,11 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
-    "@portabletext/react": "^4.0.3",
+    "@portabletext/react": "^5.0.0",
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/assist": "^5.0.2",
     "@sanity/blueprints": "^0.4.0",
-    "@sanity/client": "^7.12.0",
+    "@sanity/client": "^7.12.1",
     "@sanity/dashboard": "^5.0.0",
     "@sanity/functions": "^1.1.0",
     "@sanity/icons": "^3.7.4",
@@ -29,7 +29,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "sanity": "4.13.0",
-    "sanity-plugin-documents-pane": "^3.0.0",
+    "sanity-plugin-documents-pane": "^3.0.1",
     "sanity-plugin-media": "^4.0.0",
     "slugify": "^1.6.6",
     "styled-components": "^6.1.19"
@@ -38,7 +38,7 @@
     "@sanity/eslint-config-studio": "^5.0.2",
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.2",
-    "eslint": "^9.39.0",
+    "eslint": "^9.39.1",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
