@@ -798,3 +798,16 @@ export const schoolsForVotesQuery = groq`*[_type == "school" && _id in $schoolId
       "dominantColor": asset->metadata.palette.dominant.background,
     }
   }`
+
+export const postsForSitemapQuery = groq`
+  *[_type == "post" && defined(publishedAt) && defined(slug.current)][$start...$end]{
+    _id,
+    "slug": slug.current,
+    publishedAt,
+    _updatedAt
+  }
+`
+
+export const countOfPostsQuery = groq`
+  count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])
+  `
