@@ -374,10 +374,6 @@ export const querySitemapData = defineQuery(/* groq */ `{
     "slug": slug.current,
     "lastModified": _updatedAt
   },
-  "sports": *[_type == "sport" && defined(slug.current) && count(*[_type == "post" && references(^._id)]) > 0] {
-    "slug": slug.current,
-    "lastModified": _updatedAt
-  }
 }`)
 
 export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ `
