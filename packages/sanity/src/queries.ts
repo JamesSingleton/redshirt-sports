@@ -370,10 +370,6 @@ export const queryCollegeSportsArticlesForSitemap = defineQuery(/* groq */ `
 `)
 
 export const querySitemapData = defineQuery(/* groq */ `{
-  "posts": *[_type == "post" && defined(slug.current)] {
-    "slug": slug.current,
-    "lastModified": _updatedAt
-  },
   "authors": *[_type == "author" && defined(slug.current) && archived == false] {
     "slug": slug.current,
     "lastModified": _updatedAt
