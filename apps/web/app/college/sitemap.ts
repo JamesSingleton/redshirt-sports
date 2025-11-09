@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 const baseUrl = getBaseUrl()
 
-const POSTS_QUERY = `*[_type == "post" && defined(sport->slug.current)]| order(publishedAt desc){
+const POSTS_QUERY = `*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){
   "sport": sport->slug.current,
   "division": division->slug.current,
   "sportSubgrouping": sportSubgrouping->slug.current,
@@ -28,10 +28,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         urls.set(url1, post._updatedAt)
       }
 
+      const divisionLower = post.division?.toLowerCase()
+
       // Check for Division I/D1 and require sportSubgrouping
-      const isD1 =
-        post.division &&
-        (post.division.toLowerCase() === 'division-i' || post.division.toLowerCase() === 'd1')
+      const isD1 = post.division && (divisionLower === 'division-i' || divisionLower === 'd1')
 
       let divisionSegment = post.division
       if (isD1) {
