@@ -803,3 +803,12 @@ export const postsForSitemapQuery = groq`
 export const countOfPostsQuery = groq`
   count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])
   `
+
+export const queryForCollegeSitemap = groq`
+*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){
+  "sport": sport->slug.current,
+  "division": division->slug.current,
+  "sportSubgrouping": sportSubgrouping->slug.current,
+  "conferences": conferences[]->slug.current,
+  _updatedAt
+}`

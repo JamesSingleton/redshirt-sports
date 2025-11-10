@@ -1,4 +1,5 @@
 import { client } from '@redshirt-sports/sanity/client'
+import { queryForCollegeSitemap } from '@redshirt-sports/sanity/queries'
 import { getBaseUrl } from '@/lib/get-base-url'
 
 import type { MetadataRoute } from 'next'
@@ -7,16 +8,8 @@ export const dynamic = 'force-dynamic'
 
 const baseUrl = getBaseUrl()
 
-const POSTS_QUERY = `*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){
-  "sport": sport->slug.current,
-  "division": division->slug.current,
-  "sportSubgrouping": sportSubgrouping->slug.current,
-  "conferences": conferences[]->slug.current,
-  _updatedAt
-}`
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await client.fetch(POSTS_QUERY)
+  const posts = await client.fetch(queryForCollegeSitemap)
   const urls = new Map<string, string>()
 
   posts.forEach((post) => {
