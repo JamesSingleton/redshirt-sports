@@ -374,10 +374,6 @@ export const querySitemapData = defineQuery(/* groq */ `{
     "slug": slug.current,
     "lastModified": _updatedAt
   },
-  "sports": *[_type == "sport" && defined(slug.current) && count(*[_type == "post" && references(^._id)]) > 0] {
-    "slug": slug.current,
-    "lastModified": _updatedAt
-  }
 }`)
 
 export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ `
@@ -807,3 +803,12 @@ export const postsForSitemapQuery = groq`
 export const countOfPostsQuery = groq`
   count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])
   `
+
+export const queryForCollegeSitemap = groq`
+*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){
+  "sport": sport->slug.current,
+  "division": division->slug.current,
+  "sportSubgrouping": sportSubgrouping->slug.current,
+  "conferences": conferences[]->slug.current,
+  _updatedAt
+}`
