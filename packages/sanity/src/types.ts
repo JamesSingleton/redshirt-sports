@@ -1673,13 +1673,9 @@ export type QueryCollegeSportsArticlesForSitemapResult = Array<{
   slug: string
 }>
 // Variable: querySitemapData
-// Query: {  "authors": *[_type == "author" && defined(slug.current) && archived == false] {    "slug": slug.current,    "lastModified": _updatedAt  },  "sports": *[_type == "sport" && defined(slug.current) && count(*[_type == "post" && references(^._id)]) > 0] {    "slug": slug.current,    "lastModified": _updatedAt  }}
+// Query: {  "authors": *[_type == "author" && defined(slug.current) && archived == false] {    "slug": slug.current,    "lastModified": _updatedAt  },}
 export type QuerySitemapDataResult = {
   authors: Array<{
-    slug: string
-    lastModified: string
-  }>
-  sports: Array<{
     slug: string
     lastModified: string
   }>
@@ -2215,6 +2211,15 @@ export type PostsForSitemapQueryResult = Array<{
 // Variable: countOfPostsQuery
 // Query: count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])
 export type CountOfPostsQueryResult = number
+// Variable: queryForCollegeSitemap
+// Query: *[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){  "sport": sport->slug.current,  "division": division->slug.current,  "sportSubgrouping": sportSubgrouping->slug.current,  "conferences": conferences[]->slug.current,  _updatedAt}
+export type QueryForCollegeSitemapResult = Array<{
+  sport: string | null
+  division: string | null
+  sportSubgrouping: string | null
+  conferences: Array<string> | null
+  _updatedAt: string
+}>
 
 // Query TypeMap
 import '@sanity/client'
@@ -2231,7 +2236,7 @@ declare module '@sanity/client' {
     '\n *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    publishedAt,\n    mainImage{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n\n  }\n': QueryLatestArticlesResult
     '\n  *[_type == "post" && (division->name == $division || sportSubgrouping->name == $division) && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    mainImage{\n      ...,\n      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    },\n    publishedAt,\n    division->{\n      name,\n      "slug": slug.current\n    },\n    conferences[]->{\n      name,\n      "slug": slug.current,\n      shortName\n    },\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n\n  }\n\n  }\n': QueryLatestCollegeSportsArticlesResult
     '\n  *[_type == "post" && defined(slug.current) && sport->title match $sport] | order(publishedAt desc){\n    _id,\n    _updatedAt,\n    publishedAt,\n    "slug": slug.current,\n  }\n': QueryCollegeSportsArticlesForSitemapResult
-    '{\n  "authors": *[_type == "author" && defined(slug.current) && archived == false] {\n    "slug": slug.current,\n    "lastModified": _updatedAt\n  },\n  "sports": *[_type == "sport" && defined(slug.current) && count(*[_type == "post" && references(^._id)]) > 0] {\n    "slug": slug.current,\n    "lastModified": _updatedAt\n  }\n}': QuerySitemapDataResult
+    '{\n  "authors": *[_type == "author" && defined(slug.current) && archived == false] {\n    "slug": slug.current,\n    "lastModified": _updatedAt\n  },\n}': QuerySitemapDataResult
     '\n*[_type == "sport" && slug.current == $slug][0]{\n  _id,\n  title,\n}': SportInfoBySlugResult
     '\n  *[_type == "author" && slug.current == $slug && archived == false][0]{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n    "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n    "blurData": asset->metadata.lqip,\n    "dominantColor": asset->metadata.palette.dominant.background,\n  }\n,\n  }\n': AuthorBySlugResult
     '\n  *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {\n    _id,\n    name,\n    roles,\n    "slug": slug.current,\n    image{\n      ...,\n      "alt": coalesce(asset->altText, ^.name, asset->originalFilename, "Image-Broken"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    },\n    socialLinks\n  }\n': AuthorsListNotArchivedResult
@@ -2253,5 +2258,6 @@ declare module '@sanity/client' {
     '*[_type == "school" && _id in $schoolIds]{\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    image{\n      ...,\n      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    }\n  }': SchoolsForVotesQueryResult
     '\n  *[_type == "post" && defined(publishedAt) && defined(slug.current)][$start...$end]{\n    _id,\n    "slug": slug.current,\n    publishedAt,\n    _updatedAt\n  }\n': PostsForSitemapQueryResult
     '\n  count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])\n  ': CountOfPostsQueryResult
+    '\n*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){\n  "sport": sport->slug.current,\n  "division": division->slug.current,\n  "sportSubgrouping": sportSubgrouping->slug.current,\n  "conferences": conferences[]->slug.current,\n  _updatedAt\n}': QueryForCollegeSitemapResult
   }
 }
