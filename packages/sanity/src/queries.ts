@@ -370,18 +370,10 @@ export const queryCollegeSportsArticlesForSitemap = defineQuery(/* groq */ `
 `)
 
 export const querySitemapData = defineQuery(/* groq */ `{
-  "posts": *[_type == "post" && defined(slug.current)] {
-    "slug": slug.current,
-    "lastModified": _updatedAt
-  },
   "authors": *[_type == "author" && defined(slug.current) && archived == false] {
     "slug": slug.current,
     "lastModified": _updatedAt
   },
-  "sports": *[_type == "sport" && defined(slug.current) && count(*[_type == "post" && references(^._id)]) > 0] {
-    "slug": slug.current,
-    "lastModified": _updatedAt
-  }
 }`)
 
 export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ `
@@ -798,3 +790,25 @@ export const schoolsForVotesQuery = groq`*[_type == "school" && _id in $schoolId
       "dominantColor": asset->metadata.palette.dominant.background,
     }
   }`
+
+export const postsForSitemapQuery = groq`
+  *[_type == "post" && defined(publishedAt) && defined(slug.current)][$start...$end]{
+    _id,
+    "slug": slug.current,
+    publishedAt,
+    _updatedAt
+  }
+`
+
+export const countOfPostsQuery = groq`
+  count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])
+  `
+
+export const queryForCollegeSitemap = groq`
+*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){
+  "sport": sport->slug.current,
+  "division": division->slug.current,
+  "sportSubgrouping": sportSubgrouping->slug.current,
+  "conferences": conferences[]->slug.current,
+  _updatedAt
+}`
