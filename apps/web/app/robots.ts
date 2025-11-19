@@ -12,6 +12,8 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: [
       `${HOME_DOMAIN}/sitemap.xml`,
       `${HOME_DOMAIN}/college/football/rankings/sitemap/0.xml`,
+      `${HOME_DOMAIN}/college/sitemap.xml`,
+      `${HOME_DOMAIN}/college/news/sitemap/0.xml`,
     ],
   }
 }
