@@ -44,16 +44,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           urls.set(url2, post._updatedAt)
         }
         if (post.conferences && post.conferences.length > 0) {
-          post.conferences.forEach((conference) => {
-            if (conference) {
+          // Filter conferences by matching subgrouping for this sport and divisionSegment
+          post.conferences
+            .filter((conference) => {
+              if (!conference || !conference.subgroupings) return false
+              return conference.subgroupings.some(
+                (sg) => sg.sport === post.sport && sg.subgrouping === divisionSegment,
+              )
+            })
+            .forEach((conference) => {
               // /college/[sport]/news/[division or sportSubgrouping]/[conference]
-              const url3 = `${baseUrl}/college/${post.sport}/news/${divisionSegment}/${conference}`
+              const url3 = `${baseUrl}/college/${post.sport}/news/${divisionSegment}/${conference.slug}`
               const currentTimestamp3 = urls.get(url3)
               if (!currentTimestamp3 || new Date(post._updatedAt) > new Date(currentTimestamp3)) {
                 urls.set(url3, post._updatedAt)
               }
-            }
-          })
+            })
         }
       }
     }

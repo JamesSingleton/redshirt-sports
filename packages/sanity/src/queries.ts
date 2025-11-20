@@ -809,6 +809,13 @@ export const queryForCollegeSitemap = groq`
   "sport": sport->slug.current,
   "division": division->slug.current,
   "sportSubgrouping": sportSubgrouping->slug.current,
-  "conferences": conferences[]->slug.current,
+  "conferences": conferences[]->{
+      "slug": slug.current,
+      "division": division->slug.current,
+      "subgroupings": sportSubdivisionAffiliations[]{
+        "sport": sport->slug.current,
+        "subgrouping": subgrouping->slug.current
+      }
+    },
   _updatedAt
 }`
