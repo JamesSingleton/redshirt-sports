@@ -27,7 +27,7 @@
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/client": "^7.13.0",
     "@sanity/image-url": "^1.2.0",
-    "@sentry/nextjs": "^10.25.0",
+    "@sentry/nextjs": "^10.27.0",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tanstack/react-virtual": "^3.13.12",
     "@upstash/ratelimit": "^2.0.7",
