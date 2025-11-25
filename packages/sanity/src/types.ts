@@ -29,6 +29,41 @@ export type SocialLinks = {
   threads?: string
 }
 
+export type CustomUrl = {
+  _type: 'customUrl'
+  type: 'internal' | 'external'
+  openInNewTab?: boolean
+  external?: string
+  href?: string
+  internalType?: 'reference' | 'custom'
+  internal?:
+    | {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'post'
+      }
+    | {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'division'
+      }
+    | {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'conference'
+      }
+    | {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'legal'
+      }
+  internalUrl?: string
+}
+
 export type BlockContent = Array<
   | {
       children?: Array<{
@@ -159,6 +194,22 @@ export type Settings = {
   }
 }
 
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop'
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot'
+  x: number
+  y: number
+  height: number
+  width: number
+}
+
 export type Navbar = {
   _id: string
   _type: 'navbar'
@@ -209,41 +260,6 @@ export type Footer = {
   }>
 }
 
-export type CustomUrl = {
-  _type: 'customUrl'
-  type: 'internal' | 'external'
-  openInNewTab?: boolean
-  external?: string
-  href?: string
-  internalType?: 'reference' | 'custom'
-  internal?:
-    | {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'post'
-      }
-    | {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'division'
-      }
-    | {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'conference'
-      }
-    | {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'legal'
-      }
-  internalUrl?: string
-}
-
 export type Tag = {
   _id: string
   _type: 'tag'
@@ -252,6 +268,12 @@ export type Tag = {
   _rev: string
   name: string
   slug: Slug
+}
+
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
 }
 
 export type School = {
@@ -579,6 +601,16 @@ export type SanityVideoMetadataPlayback = {
   policy?: string
 }
 
+export type SanityVideoMetadata = {
+  _type: 'sanity.videoMetadata'
+  duration?: number
+  framerate?: number
+  aspectRatio?: number
+  hasAudio?: boolean
+  codec?: string
+  bitrate?: number
+}
+
 export type SanityVideoAsset = {
   _id: string
   _type: 'sanity.videoAsset'
@@ -600,16 +632,6 @@ export type SanityVideoAsset = {
   uploadId?: string
   path?: string
   url?: string
-}
-
-export type SanityVideoMetadata = {
-  _type: 'sanity.videoMetadata'
-  duration?: number
-  framerate?: number
-  aspectRatio?: number
-  hasAudio?: boolean
-  codec?: string
-  bitrate?: number
 }
 
 export type SanityVideo = {
@@ -802,20 +824,15 @@ export type SanityImageDimensions = {
   aspectRatio: number
 }
 
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot'
-  x: number
-  y: number
-  height: number
-  width: number
-}
-
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop'
-  top: number
-  bottom: number
-  left: number
-  right: number
+export type SanityImageMetadata = {
+  _type: 'sanity.imageMetadata'
+  location?: Geopoint
+  dimensions?: SanityImageDimensions
+  palette?: SanityImagePalette
+  lqip?: string
+  blurHash?: string
+  hasAlpha?: boolean
+  isOpaque?: boolean
 }
 
 export type SanityFileAsset = {
@@ -838,6 +855,13 @@ export type SanityFileAsset = {
   path?: string
   url?: string
   source?: SanityAssetSourceData
+}
+
+export type SanityAssetSourceData = {
+  _type: 'sanity.assetSourceData'
+  name?: string
+  id?: string
+  url?: string
 }
 
 export type SanityImageAsset = {
@@ -863,17 +887,6 @@ export type SanityImageAsset = {
   source?: SanityAssetSourceData
 }
 
-export type SanityImageMetadata = {
-  _type: 'sanity.imageMetadata'
-  location?: Geopoint
-  dimensions?: SanityImageDimensions
-  palette?: SanityImagePalette
-  lqip?: string
-  blurHash?: string
-  hasAlpha?: boolean
-  isOpaque?: boolean
-}
-
 export type Geopoint = {
   _type: 'geopoint'
   lat?: number
@@ -881,28 +894,18 @@ export type Geopoint = {
   alt?: number
 }
 
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
-}
-
-export type SanityAssetSourceData = {
-  _type: 'sanity.assetSourceData'
-  name?: string
-  id?: string
-  url?: string
-}
-
 export type AllSanitySchemaTypes =
   | Twitter
   | SocialLinks
+  | CustomUrl
   | BlockContent
   | Settings
+  | SanityImageCrop
+  | SanityImageHotspot
   | Navbar
   | Footer
-  | CustomUrl
   | Tag
+  | Slug
   | School
   | Redirect
   | Legal
@@ -913,8 +916,8 @@ export type AllSanitySchemaTypes =
   | Division
   | Author
   | SanityVideoMetadataPlayback
-  | SanityVideoAsset
   | SanityVideoMetadata
+  | SanityVideoAsset
   | SanityVideo
   | Table
   | TableRow
@@ -934,14 +937,11 @@ export type AllSanitySchemaTypes =
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions
-  | SanityImageHotspot
-  | SanityImageCrop
-  | SanityFileAsset
-  | SanityImageAsset
   | SanityImageMetadata
-  | Geopoint
-  | Slug
+  | SanityFileAsset
   | SanityAssetSourceData
+  | SanityImageAsset
+  | Geopoint
 export declare const internalGroqTypeReferenceTo: unique symbol
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: querySettingsData
@@ -2212,12 +2212,19 @@ export type PostsForSitemapQueryResult = Array<{
 // Query: count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])
 export type CountOfPostsQueryResult = number
 // Variable: queryForCollegeSitemap
-// Query: *[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){  "sport": sport->slug.current,  "division": division->slug.current,  "sportSubgrouping": sportSubgrouping->slug.current,  "conferences": conferences[]->slug.current,  _updatedAt}
+// Query: *[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){  "sport": sport->slug.current,  "division": division->slug.current,  "sportSubgrouping": sportSubgrouping->slug.current,  "conferences": conferences[]->{      "slug": slug.current,      "division": division->slug.current,      "subgroupings": sportSubdivisionAffiliations[]{        "sport": sport->slug.current,        "subgrouping": subgrouping->slug.current      }    },  _updatedAt}
 export type QueryForCollegeSitemapResult = Array<{
   sport: string | null
   division: string | null
   sportSubgrouping: string | null
-  conferences: Array<string> | null
+  conferences: Array<{
+    slug: string
+    division: string
+    subgroupings: Array<{
+      sport: string
+      subgrouping: string | null
+    }> | null
+  }> | null
   _updatedAt: string
 }>
 
@@ -2258,6 +2265,6 @@ declare module '@sanity/client' {
     '*[_type == "school" && _id in $schoolIds]{\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    image{\n      ...,\n      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),\n      "credit": coalesce(asset->creditLine, attribution, "Unknown"),\n      "blurData": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background,\n    }\n  }': SchoolsForVotesQueryResult
     '\n  *[_type == "post" && defined(publishedAt) && defined(slug.current)][$start...$end]{\n    _id,\n    "slug": slug.current,\n    publishedAt,\n    _updatedAt\n  }\n': PostsForSitemapQueryResult
     '\n  count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])\n  ': CountOfPostsQueryResult
-    '\n*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){\n  "sport": sport->slug.current,\n  "division": division->slug.current,\n  "sportSubgrouping": sportSubgrouping->slug.current,\n  "conferences": conferences[]->slug.current,\n  _updatedAt\n}': QueryForCollegeSitemapResult
+    '\n*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){\n  "sport": sport->slug.current,\n  "division": division->slug.current,\n  "sportSubgrouping": sportSubgrouping->slug.current,\n  "conferences": conferences[]->{\n      "slug": slug.current,\n      "division": division->slug.current,\n      "subgroupings": sportSubdivisionAffiliations[]{\n        "sport": sport->slug.current,\n        "subgrouping": subgrouping->slug.current\n      }\n    },\n  _updatedAt\n}': QueryForCollegeSitemapResult
   }
 }
