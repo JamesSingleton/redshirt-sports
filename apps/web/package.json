@@ -17,7 +17,7 @@
     "check:types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.35.2",
+    "@clerk/nextjs": "^6.35.5",
     "@hookform/resolvers": "^5.2.2",
     "@portabletext/react": "^5.0.0",
     "@portabletext/to-html": "^4.0.1",
@@ -40,9 +40,9 @@
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.554.0",
-    "next": "16.0.3",
+    "next": "16.0.4",
     "next-plausible": "^3.12.5",
-    "next-sanity": "^11.6.7",
+    "next-sanity": "^11.6.9",
     "next-themes": "0.4.6",
     "postgres": "^3.4.7",
     "react": "^19.2.0",
@@ -55,14 +55,14 @@
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
     "svix": "^1.81.0",
-    "zod": "^4.1.12"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@redshirt-sports/eslint-config": "workspace:^",
     "@redshirt-sports/typescript-config": "workspace:*",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^24.10.1",
-    "@types/react": "19.2.6",
+    "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "babel-plugin-react-compiler": "1.0.0",
     "drizzle-kit": "^0.31.7",

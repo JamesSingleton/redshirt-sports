@@ -6,7 +6,7 @@
     "./espn": "./src/espn.ts"
   },
   "dependencies": {
-    "zod": "^4.1.12"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*"
