@@ -1,8 +1,9 @@
-import type { SanityImageSource } from '@sanity/asset-utils'
-import createImageUrlBuilder from '@sanity/image-url'
+import { createImageUrlBuilder } from '@sanity/image-url'
 import { createClient } from 'next-sanity'
 
 import { apiVersion, dataset, projectId } from './api'
+
+import type { SanityImageSource } from '@sanity/image-url'
 
 export const client = createClient({
   projectId,
