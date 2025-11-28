@@ -13,7 +13,7 @@
   "dependencies": {
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/client": "^7.13.1",
-    "@sanity/image-url": "^2.0.0",
+    "@sanity/image-url": "^2.0.1",
     "next-sanity": "^11.6.10",
     "sanity": "4.19.0",
     "sanity-image": "^1.0.0"
