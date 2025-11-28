@@ -26,7 +26,7 @@
     "@redshirt-sports/ui": "workspace:*",
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/client": "^7.13.1",
-    "@sanity/image-url": "^2.0.0",
+    "@sanity/image-url": "^2.0.1",
     "@sentry/nextjs": "^10.27.0",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tanstack/react-virtual": "^3.13.12",
