@@ -30,9 +30,12 @@ async function fetchAuthorInfo(slug: string) {
 }
 
 async function fetchAuthorPosts(slug: string, pageIndex: number) {
+  const from = (pageIndex - 1) * perPage
+  const to = pageIndex * perPage
+
   return await sanityFetch({
     query: postsByAuthor,
-    params: { slug, pageIndex },
+    params: { slug, from, to },
   })
 }
 
