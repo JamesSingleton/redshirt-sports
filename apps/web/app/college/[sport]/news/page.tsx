@@ -12,11 +12,15 @@ import { validatePageIndex } from '@/utils/validate-page-index'
 import type { Metadata } from 'next'
 
 async function fetchSportsNews({ sport, pageIndex }: { sport: string; pageIndex: number }) {
+  const from = (pageIndex - 1) * perPage
+  const to = pageIndex * perPage
+
   return await sanityFetch({
     query: querySportsNews,
     params: {
       sport,
-      pageIndex,
+      from,
+      to,
     },
   })
 }

@@ -15,9 +15,12 @@ async function fetchSearchResults(
   query: string,
   page: number,
 ): Promise<{ data: { posts: Post[]; totalPosts: number } }> {
+  const from = (page - 1) * perPage
+  const to = page * perPage
+
   return await sanityFetch({
     query: searchQuery,
-    params: { q: query, pageIndex: page },
+    params: { q: query, from, to },
   })
 }
 

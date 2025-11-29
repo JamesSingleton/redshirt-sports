@@ -13,15 +13,19 @@ import { validatePageIndex } from '@/utils/validate-page-index'
 
 import type { Metadata } from 'next'
 import type { WithContext, CollectionPage } from 'schema-dts'
-import { Post } from '@redshirt-sports/sanity/types'
+import { type Post } from '@redshirt-sports/sanity/types'
 
 const baseUrl = getBaseUrl()
 
 async function fetchCollegeNews({ pageIndex }: { pageIndex: number }) {
+  const from = (pageIndex - 1) * perPage
+  const to = pageIndex * perPage
+
   return await sanityFetch({
     query: collegeNewsQuery,
     params: {
-      pageIndex,
+      from,
+      to,
     },
   })
 }

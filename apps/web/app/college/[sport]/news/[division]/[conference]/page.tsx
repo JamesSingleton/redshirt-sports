@@ -40,13 +40,17 @@ async function fetchSportNewsForDivisionAndConference({
   conference: string
   pageIndex: number
 }) {
+  const from = (pageIndex - 1) * perPage
+  const to = pageIndex * perPage
+
   return await sanityFetch({
     query: queryArticlesBySportDivisionAndConference,
     params: {
       sport,
       division,
       conference,
-      pageIndex,
+      from,
+      to,
     },
   })
 }
