@@ -19,7 +19,7 @@ const ContentSecurityPolicy = `
     media-src 'none';
     connect-src * https://clerk.redshirtsports.xyz https://electric-alien-91.clerk.accounts.dev;
     font-src 'self' fonts.gstatic.com;
-    frame-src 'self' https://challenges.cloudflare.com https://vercel.live;
+    frame-src 'self' https://challenges.cloudflare.com https://vercel.live https://www.youtube.com;
     worker-src 'self' blob:;
 `
 
