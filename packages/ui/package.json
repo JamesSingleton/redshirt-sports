@@ -39,7 +39,7 @@
     "@redshirt-sports/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4.1.17",
     "@tailwindcss/typography": "^0.5.19",
-    "@turbo/gen": "^2.6.2",
+    "@turbo/gen": "^2.6.3",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
