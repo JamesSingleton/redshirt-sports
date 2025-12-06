@@ -17,7 +17,7 @@
     "check:types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.35.6",
+    "@clerk/nextjs": "^6.36.0",
     "@hookform/resolvers": "^5.2.2",
     "@portabletext/react": "^5.0.0",
     "@portabletext/to-html": "^4.0.1",
@@ -39,7 +39,7 @@
     "feed": "^5.1.0",
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
-    "lucide-react": "^0.555.0",
+    "lucide-react": "^0.556.0",
     "next": "16.0.7",
     "next-plausible": "^3.12.5",
     "next-sanity": "^11.6.10",
