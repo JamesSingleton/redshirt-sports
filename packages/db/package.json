@@ -10,12 +10,12 @@
     "./utils/health": "./src/utils/health.ts"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.0",
+    "drizzle-orm": "^0.45.1",
     "postgres": "^3.4.7"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.0.0",
     "drizzle-kit": "^0.31.8"
   }
 }
