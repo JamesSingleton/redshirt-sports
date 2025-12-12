@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
-    "@types/node": "^25.0.0",
+    "@types/node": "^25.0.1",
     "drizzle-kit": "^0.31.8"
   }
 }
