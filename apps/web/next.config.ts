@@ -126,8 +126,6 @@ export default withSentryConfig(nextConfig, {
   project: 'redshirt-sports',
   silent: !process.env.CI,
   telemetry: false,
-  disableLogger: true,
-  automaticVercelMonitors: true,
   sourcemaps: {
     deleteSourcemapsAfterUpload: true,
   },
