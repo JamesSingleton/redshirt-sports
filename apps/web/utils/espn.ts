@@ -96,7 +96,12 @@ export async function getSeasonData(
   const url = `${ESPN_BASE_SITE_URL}/${sportPath}/seasons?startingseason=${year}`
   const espnBody: ESPNBody = await fetchESPNData(url)
 
-  return espnBody.seasons[0]!
+  const season = espnBody.seasons.find((s) => s.year === year)
+  if (!season) {
+    throw new Error(`Unable to find a season for year ${year}`)
+  }
+
+  return season
 }
 
 /**
@@ -117,7 +122,6 @@ export async function getMultipleSeasonsData(sport: SportParam = 'football', sta
 export async function getCurrentWeek(sport: SportParam = 'football'): Promise<number> {
   const currentDate = new Date()
   const currentSeasonData = await getSeasonData(sport)
-  const currentSeasonEndDate = new Date(currentSeasonData.endDate)
 
   if (!currentSeasonData.types.length) {
     return 0
@@ -130,15 +134,11 @@ export async function getCurrentWeek(sport: SportParam = 'football'): Promise<nu
     return 0
   }
 
-  const isPreseason =
-    currentDate >= new Date(preseason.startDate) && currentDate <= new Date(preseason.endDate)
-
   const isRegularSeason =
     currentDate >= new Date(regularSeason.startDate) &&
     currentDate <= new Date(regularSeason.endDate)
 
-  const isPostseason =
-    currentDate >= new Date(regularSeason.endDate) && currentDate <= currentSeasonEndDate
+  const isPostseason = currentDate >= new Date(regularSeason.endDate) && !isRegularSeason
 
   if (isRegularSeason) {
     const currentWeek = regularSeason.weeks?.find(
