@@ -9,7 +9,8 @@
     "zod": "^4.3.5"
   },
   "scripts": {
-    "test": "vitest"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",

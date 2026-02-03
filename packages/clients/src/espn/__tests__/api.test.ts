@@ -20,26 +20,14 @@ import {
   footballWeek2Detail,
 } from './fixtures'
 
-// ---------------------------------------------------------------------------
-// Derived constants — pulled from the fixture so test dates stay in sync
-// ---------------------------------------------------------------------------
-
 const season2026 = footballSeasonsBody.seasons[0]!
 const preseason2026 = season2026.types.find((t) => t.type === 1)!
 const regularSeason2026 = season2026.types.find((t) => t.type === 2)!
 const postseason2026 = season2026.types.find((t) => t.type === 3)!
 
-// ---------------------------------------------------------------------------
-// Helper
-// ---------------------------------------------------------------------------
-
 function mockJsonResponse(data: unknown, ok = true) {
   return { ok, statusText: ok ? 'OK' : 'Not Found', json: () => Promise.resolve(data) }
 }
-
-// ---------------------------------------------------------------------------
-// SportSchema
-// ---------------------------------------------------------------------------
 
 describe('SportSchema', () => {
   it('accepts all valid sport values', () => {
@@ -56,10 +44,6 @@ describe('SportSchema', () => {
     expect(() => SportSchema.parse('')).toThrow()
   })
 })
-
-// ---------------------------------------------------------------------------
-// isDateInSeasonPeriod  (pure)
-// ---------------------------------------------------------------------------
 
 describe('isDateInSeasonPeriod', () => {
   // 2026 regular season: Aug 29 07:00 … Dec 12 07:59 UTC
@@ -91,10 +75,6 @@ describe('isDateInSeasonPeriod', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// getWeekForDate  (pure)
-// ---------------------------------------------------------------------------
-
 describe('getWeekForDate', () => {
   // 2026 weeks: 1 (Aug 29–Sep 8), 2 (Sep 8–Sep 14), 3 (Sep 14–Sep 21), …
 
@@ -116,10 +96,6 @@ describe('getWeekForDate', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Async functions — fetch is stubbed for every test below
-// ---------------------------------------------------------------------------
-
 let mockFetch: ReturnType<typeof vi.fn>
 
 beforeEach(() => {
@@ -131,10 +107,6 @@ afterEach(() => {
   vi.unstubAllGlobals()
   vi.useRealTimers()
 })
-
-// ---------------------------------------------------------------------------
-// getCurrentSeason
-// ---------------------------------------------------------------------------
 
 describe('getCurrentSeason', () => {
   it('constructs the correct URL for each sport and returns the response', async () => {
@@ -172,10 +144,6 @@ describe('getCurrentSeason', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// getSeasonData
-// ---------------------------------------------------------------------------
-
 describe('getSeasonData', () => {
   it('fetches directly when a year is provided (single fetch)', async () => {
     mockFetch.mockResolvedValueOnce(mockJsonResponse(footballSeasonsBody))
@@ -207,10 +175,6 @@ describe('getSeasonData', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// getMultipleSeasonsData
-// ---------------------------------------------------------------------------
-
 describe('getMultipleSeasonsData', () => {
   it('returns the full seasons array', async () => {
     mockFetch.mockResolvedValueOnce(mockJsonResponse(footballSeasonsBody))
@@ -224,10 +188,6 @@ describe('getMultipleSeasonsData', () => {
     expect(result).toHaveLength(3) // 2026, 2025, 2024
   })
 })
-
-// ---------------------------------------------------------------------------
-// getCurrentWeek  (date-sensitive — uses fake timers)
-// ---------------------------------------------------------------------------
 
 describe('getCurrentWeek', () => {
   // getCurrentWeek → getSeasonData(sport) without year → 2 fetches
@@ -296,10 +256,6 @@ describe('getCurrentWeek', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// getSeasonInfo  (date-sensitive — uses fake timers)
-// ---------------------------------------------------------------------------
-
 describe('getSeasonInfo', () => {
   function stubSeasonData(season = season2026) {
     mockFetch
@@ -367,10 +323,6 @@ describe('getSeasonInfo', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// getSeasonWeeks
-// ---------------------------------------------------------------------------
-
 describe('getSeasonWeeks', () => {
   it('organizes weeks by season phase', async () => {
     // year provided → getSeasonData makes only 1 fetch
@@ -399,10 +351,6 @@ describe('getSeasonWeeks', () => {
     expect(result).toEqual({ preseason: [], regularSeason: [], postseason: [] })
   })
 })
-
-// ---------------------------------------------------------------------------
-// fetchWeeksFromSportsUrl
-// ---------------------------------------------------------------------------
 
 describe('fetchWeeksFromSportsUrl', () => {
   it('fetches the week list then fetches each week detail', async () => {

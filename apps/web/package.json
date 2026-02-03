@@ -15,7 +15,8 @@
     "db:studio": "drizzle-kit studio --verbose",
     "db:push": "drizzle-kit push",
     "check:types": "next typegen && tsc --noEmit",
-    "test": "vitest"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.8",
