@@ -3,12 +3,12 @@ import { createClient } from '@sanity/client'
 
 import type { NextConfig } from 'next'
 
-const client = createClient({
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  useCdn: process.env.NODE_ENV === 'production',
-  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2025-02-06',
-})
+// const client = createClient({
+//   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+//   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+//   useCdn: process.env.NODE_ENV === 'production',
+//   apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2025-02-06',
+// })
 
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
@@ -112,12 +112,12 @@ const nextConfig: NextConfig = {
       },
     ]
   },
-  async redirects() {
-    const query =
-      '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}'
-    const results = await client.fetch(query)
-    return results
-  },
+  // async redirects() {
+  //   const query =
+  //     '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}'
+  //   const results = await client.fetch(query)
+  //   return results
+  // },
 }
 
 /** @type {import('next').NextConfig} */
