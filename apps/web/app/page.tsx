@@ -140,6 +140,31 @@ export default async function HomePage() {
     <>
       <JsonLdScript data={webPageJson} id="home-webpage-json-ld" />
       <Hero heroPosts={homePageData} />
+      
+      {/* Transfer Portal Feature Banner */}
+      <section className="bg-gradient-to-r from-[#FF4500] to-[#FF6347] py-12">
+        <div className="container">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+            <div className="text-center md:text-left">
+              <h2 className="mb-2 text-3xl font-bold text-white">College Football Transfer Portal</h2>
+              <p className="text-lg text-white/90">
+                Track all transfer portal entries, commitments, and player movements in real-time
+              </p>
+            </div>
+            <Link
+              href="/transfer-portal"
+              prefetch={false}
+              className={cn(
+                buttonVariants({ variant: 'default', size: 'lg' }),
+                'bg-white text-[#FF4500] hover:bg-white/90',
+              )}
+            >
+              View Transfer Portal
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {latestArticles.length > 0 && (
         <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
           <div className="container">
