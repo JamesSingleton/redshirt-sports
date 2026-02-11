@@ -6,7 +6,7 @@
     "./espn": "./src/espn.ts"
   },
   "dependencies": {
-    "zod": "^4.3.5"
+    "zod": "^4.3.6"
   },
   "scripts": {
     "test": "vitest run",
