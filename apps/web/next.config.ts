@@ -13,11 +13,11 @@ const client = createClient({
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
     default-src 'self' vercel.live;
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live https://electric-alien-91.clerk.accounts.dev https://clerk.redshirtsports.xyz https://challenges.cloudflare.com https://va.vercel-scripts.com;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live https://electric-alien-91.clerk.accounts.dev https://clerk.redshirtsports.xyz https://challenges.cloudflare.com https://va.vercel-scripts.com https://us-assets.i.posthog.com;
     style-src 'self' 'unsafe-inline';
     img-src * blob: data: https://img.clerk.com https://cdn.sanity.io;
     media-src 'none';
-    connect-src * https://clerk.redshirtsports.xyz https://electric-alien-91.clerk.accounts.dev;
+    connect-src * https://clerk.redshirtsports.xyz https://electric-alien-91.clerk.accounts.dev https://us.i.posthog.com https://us.posthog.com;
     font-src 'self' fonts.gstatic.com;
     frame-src 'self' https://challenges.cloudflare.com https://vercel.live https://www.youtube.com;
     worker-src 'self' blob:;
@@ -118,6 +118,20 @@ const nextConfig: NextConfig = {
     const results = await client.fetch(query)
     return results
   },
+  async rewrites() {
+    return [
+      {
+        source: '/ingest/static/:path*',
+        destination: 'https://us-assets.i.posthog.com/static/:path*',
+      },
+      {
+        source: '/ingest/:path*',
+        destination: 'https://us.i.posthog.com/:path*',
+      },
+    ]
+  },
+  // This is required to support PostHog trailing slash API requests
+  skipTrailingSlashRedirect: true,
 }
 
 /** @type {import('next').NextConfig} */
