@@ -3,7 +3,8 @@
   "include": ["src"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["vitest/globals"]
     // "paths": {
     //   "@db/*": ["./src/*"]
     // }
