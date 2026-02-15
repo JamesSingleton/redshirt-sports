@@ -12,18 +12,18 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
   const filteredBreadcrumbPages = breadCrumbPages.filter((page) => page !== null)
   return (
     <nav aria-label="breadcrumb" title="breadcrumb" className="flex">
-      <ol className="flex shrink-0 flex-wrap items-center gap-2">
+      <ol className="flex shrink-0 flex-wrap items-center gap-1.5">
         <li title="Home">
-          <Link href="/" prefetch={false} className="text-muted-foreground hover:text-foreground">
+          <Link href="/" prefetch={false} className="text-muted-foreground transition-colors hover:text-foreground">
             <span className="sr-only">Home</span>
-            <HomeIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
+            <HomeIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
           </Link>
         </li>
         {filteredBreadcrumbPages.map((page, index: number) => (
           <li key={page.title} title={page.title}>
             <div className="flex items-center">
               <ChevronRight
-                className="h-5 w-5 flex-shrink-0"
+                className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/60"
                 aria-hidden="true"
                 strokeWidth={1.5}
               />
@@ -32,10 +32,10 @@ const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
                 href={page.href}
                 prefetch={false}
                 className={cn(
-                  'ml-2 text-base font-semibold',
+                  'ml-1.5 text-sm font-medium',
                   index === filteredBreadcrumbPages.length - 1
-                    ? 'text-brand-500 dark:text-brand-400 w-32 truncate sm:w-64 lg:w-full'
-                    : 'text-muted-foreground hover:text-foreground',
+                    ? 'w-32 truncate text-primary sm:w-64 lg:w-full'
+                    : 'text-muted-foreground transition-colors hover:text-foreground',
                 )}
               >
                 {page.title}

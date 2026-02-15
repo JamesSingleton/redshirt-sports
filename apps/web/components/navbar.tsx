@@ -85,9 +85,9 @@ const MemoizedNavbar = memo(function Navbar({
   const { siteTitle: settingsSiteTitle, logo } = settingsData ?? {}
 
   return (
-    <header className="py-3 md:border-b">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-[auto_1fr] items-center gap-4">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80">
+      <div className="container">
+        <div className="grid grid-cols-[auto_1fr] items-center gap-6 py-2">
           {logo && <Logo alt={settingsSiteTitle} priority image={logo} />}
           <NavbarClient
             navbarData={navbarData}
@@ -104,9 +104,9 @@ export { MemoizedNavbar as Navbar }
 
 export function NavbarSkeleton() {
   return (
-    <header className="h-[65px] py-4 md:border-b">
-      <div className="container mx-auto px-4 md:px-6">
-        <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
+    <header className="sticky top-0 z-50 border-b border-border bg-background">
+      <div className="container">
+        <nav className="grid grid-cols-[auto_1fr] items-center gap-6 py-2">
           <div className="bg-muted h-[40px] w-[170px] animate-pulse rounded" />
           <NavbarSkeletonResponsive />
         </nav>

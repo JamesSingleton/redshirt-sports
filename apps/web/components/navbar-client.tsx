@@ -175,8 +175,7 @@ const MobileNavbar = memo(function MobileNavbar({
 
           <Link
             href="/transfer-portal"
-            className="hover:bg-muted flex items-center px-4 py-3 text-base font-bold transition-colors"
-            style={{ color: '#FF4500' }}
+            className="flex items-center px-4 py-3 text-base font-bold text-primary transition-colors hover:bg-muted"
             onClick={() => setIsOpen(false)}
             prefetch={false}
           >
@@ -285,9 +284,8 @@ export const DesktopNavbar = memo(function DesktopNavbar({
 
           <NavigationMenuItem>
             <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
+              className={`${navigationMenuTriggerStyle()} font-semibold text-primary hover:text-primary`}
               href="/transfer-portal"
-              style={{ color: '#FF4500', fontWeight: 600 }}
             >
               Transfer Portal
             </NavigationMenuLink>

@@ -1,35 +1,45 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { cn } from '@redshirt-sports/ui/lib/utils'
+
+const navItems = [
+  { label: 'News', href: '/transfer-portal/news' },
+  { label: 'NCAA Transfer Portal', href: '/transfer-portal' },
+  { label: 'Player Rankings', href: '/transfer-portal/player-rankings' },
+  { label: 'Team Rankings', href: '/transfer-portal/team-rankings' },
+]
 
 export function TransferPortalHeader() {
+  const pathname = usePathname()
+
   return (
-    <div className="border-b bg-white">
+    <div className="border-b border-border bg-card">
       <div className="container">
-        <div className="flex items-center justify-between py-4">
-          <div className="flex items-center gap-8">
-            <Link href="/transfer-portal" className="text-lg font-bold tracking-wider text-[#FF4500]">
-              TRANSFER PORTAL
-            </Link>
-            <nav className="flex items-center space-x-6 text-sm">
-              <Link href="/transfer-portal/news" className="text-gray-600 hover:text-[#FF4500]">
-                News
-              </Link>
-              <Link href="/transfer-portal" className="font-medium text-[#FF4500]">
-                NCAA Transfer Portal
-              </Link>
+        <div className="flex items-center gap-8 overflow-x-auto py-3">
+          <Link
+            href="/transfer-portal"
+            className="flex-shrink-0 text-base font-extrabold uppercase tracking-widest text-primary"
+          >
+            Transfer Portal
+          </Link>
+          <nav className="flex items-center gap-1">
+            {navItems.map((item) => (
               <Link
-                href="/transfer-portal/player-rankings"
-                className="text-gray-600 hover:text-[#FF4500]"
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'flex-shrink-0 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                  pathname === item.href
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                )}
               >
-                Player Rankings
+                {item.label}
               </Link>
-              <Link
-                href="/transfer-portal/team-rankings"
-                className="text-gray-600 hover:text-[#FF4500]"
-              >
-                Team Rankings
-              </Link>
-            </nav>
-          </div>
+            ))}
+          </nav>
         </div>
       </div>
     </div>

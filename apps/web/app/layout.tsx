@@ -38,6 +38,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
         className={`${fontSans.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
       >
         <Providers>
+          <div className="h-1 w-full bg-primary" aria-hidden="true" />
           <Suspense fallback={<NavbarSkeleton />}>
             <NavbarServer />
           </Suspense>

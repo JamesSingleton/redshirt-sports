@@ -55,7 +55,7 @@ export default function PaginationControls({ totalPosts }: { totalPosts: number 
   const showEllipsis = totalPages > 3 && (currentPage < totalPages - 1 || currentPage > 2)
 
   return (
-    <Pagination className="mt-12">
+    <Pagination>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious

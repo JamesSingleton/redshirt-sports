@@ -140,14 +140,16 @@ export default async function HomePage() {
     <>
       <JsonLdScript data={webPageJson} id="home-webpage-json-ld" />
       <Hero heroPosts={homePageData} />
-      
+
       {/* Transfer Portal Feature Banner */}
-      <section className="bg-gradient-to-r from-[#FF4500] to-[#FF6347] py-12">
+      <section className="bg-primary py-8 lg:py-10">
         <div className="container">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+          <div className="flex flex-col items-center justify-between gap-5 md:flex-row">
             <div className="text-center md:text-left">
-              <h2 className="mb-2 text-3xl font-bold text-white">College Football Transfer Portal</h2>
-              <p className="text-lg text-white/90">
+              <h2 className="mb-1 text-2xl font-extrabold tracking-tight text-primary-foreground lg:text-3xl">
+                College Football Transfer Portal
+              </h2>
+              <p className="text-sm text-primary-foreground/80 lg:text-base">
                 Track all transfer portal entries, commitments, and player movements in real-time
               </p>
             </div>
@@ -155,49 +157,51 @@ export default async function HomePage() {
               href="/transfer-portal"
               prefetch={false}
               className={cn(
-                buttonVariants({ variant: 'default', size: 'lg' }),
-                'bg-white text-[#FF4500] hover:bg-white/90',
+                buttonVariants({ variant: 'secondary', size: 'lg' }),
+                'font-bold',
               )}
             >
               View Transfer Portal
+              <ChevronRight className="ml-1 h-4 w-4" />
             </Link>
           </div>
         </div>
       </section>
 
+      {/* Latest News */}
       {latestArticles.length > 0 && (
-        <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
+        <section className="py-10 lg:py-14">
           <div className="container">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Latest News</h2>
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="inline-block h-5 w-1 rounded-full bg-primary" aria-hidden="true" />
+                <h2 className="text-lg font-bold uppercase tracking-wide text-foreground">Latest News</h2>
+              </div>
               <Link
                 href="/college/news"
                 prefetch={false}
-                className={cn(
-                  buttonVariants({ variant: 'default' }),
-                  'flex items-center space-x-2',
-                )}
+                className="group flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary/80"
               >
-                <span className="text-sm">View All</span>
-                <ChevronRight className="h-4 w-4" />
+                View All
+                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {latestArticles &&
-                latestArticles.map((article) => (
-                  <ArticleCard
-                    title={article.title}
-                    date={article.publishedAt}
-                    image={article.mainImage}
-                    slug={article.slug}
-                    key={article._id}
-                    author={article.authors[0]!.name}
-                  />
-                ))}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {latestArticles.map((article) => (
+                <ArticleCard
+                  title={article.title}
+                  date={article.publishedAt}
+                  image={article.mainImage}
+                  slug={article.slug}
+                  key={article._id}
+                  author={article.authors[0]!.name}
+                />
+              ))}
             </div>
           </div>
         </section>
       )}
+
       {sectionOrder.map((key) => {
         const section = divisionsWithArticles.find((d) => d.key === key)
         if (!section || section.articles === undefined) return null

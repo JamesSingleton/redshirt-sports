@@ -10,42 +10,60 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
   const recentArticles = heroPosts.slice(1)
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
+    <section className="pt-6 pb-10 lg:pt-8 lg:pb-14">
       <div className="container">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mb-6 flex items-center gap-3">
+          <span className="inline-block h-5 w-1 rounded-full bg-primary" aria-hidden="true" />
+          <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
+            Top Stories
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Featured Hero Article */}
           <div className="lg:col-span-2">
-            <div className="relative aspect-[2/1] overflow-hidden rounded-lg shadow-md">
-              <CustomImage
-                image={heroArticle.mainImage}
-                className="h-full w-full object-cover object-top"
-              />
-            </div>
-            <div className="mt-4 space-y-2">
-              <h1 className="text-2xl font-bold lg:text-5xl">
-                <Link href={`/${heroArticle.slug}`} prefetch={false}>
-                  {heroArticle.title}
-                </Link>
-              </h1>
-              <p className="text-muted-foreground line-clamp-2">{heroArticle.excerpt}</p>
-              <div className="text-muted-foreground flex flex-wrap items-center space-x-2 text-base">
-                <Link
-                  href={`/authors/${heroArticle.authors[0]?.slug}`}
-                  className="flex items-center gap-2"
-                  prefetch={false}
-                >
-                  <CustomImage
-                    image={heroArticle.authors[0]?.image}
-                    width={32}
-                    height={32}
-                    className="size-8 rounded-full"
-                  />
-                  <span className="text-primary">{heroArticle.authors[0]?.name}</span>
-                </Link>
-                {heroArticle.publishedAt && <FormatDate dateString={heroArticle.publishedAt} />}
+            <Link
+              href={`/${heroArticle.slug}`}
+              prefetch={false}
+              className="group block"
+            >
+              <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
+                <CustomImage
+                  image={heroArticle.mainImage}
+                  className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-6 lg:p-8">
+                  <h1 className="mb-2 text-balance text-2xl font-extrabold tracking-tight text-white drop-shadow-lg lg:text-4xl">
+                    {heroArticle.title}
+                  </h1>
+                  <p className="mb-3 line-clamp-2 text-sm text-white/85 lg:text-base">
+                    {heroArticle.excerpt}
+                  </p>
+                  <div className="flex items-center gap-3 text-sm text-white/80">
+                    <div className="flex items-center gap-2">
+                      <CustomImage
+                        image={heroArticle.authors[0]?.image}
+                        width={28}
+                        height={28}
+                        className="size-7 rounded-full ring-2 ring-white/30"
+                      />
+                      <span className="font-medium">{heroArticle.authors[0]?.name}</span>
+                    </div>
+                    {heroArticle.publishedAt && (
+                      <>
+                        <span className="text-white/50" aria-hidden="true">{'|'}</span>
+                        <FormatDate dateString={heroArticle.publishedAt} />
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-0 lg:grid-cols-1">
+
+          {/* Sidebar Recent Articles */}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-1">
             {recentArticles.map((article) => (
               <ArticleCard
                 title={article.title}
@@ -56,6 +74,7 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
                 author={article.authors[0]!.name}
                 key={article._id}
                 headingLevel="h2"
+                variant="compact"
               />
             ))}
           </div>

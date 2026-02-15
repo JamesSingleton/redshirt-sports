@@ -126,20 +126,12 @@ export default async function PostPage({ params }: PageProps<'/[slug]'>) {
       <ArticleJsonLd article={data} />
       <JsonLdScript data={webPageJsonLd} id={`article-webpage-json-ld-${data.slug}`} />
       <Suspense fallback={<ArticleLoadingSkeleton />}>
-        <section className="mt-8 pb-8">
+        <section className="border-b border-border bg-muted/30 pt-8 pb-8">
           <div className="container">
-            <h1
-              id="article-title"
-              className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl"
-            >
-              {data.title}
-            </h1>
-            <p id="article-excerpt" className="mt-4 text-lg font-normal lg:text-xl">
-              {data.excerpt}
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            {/* Tags row */}
+            <div className="mb-4 flex flex-wrap items-center gap-2">
               {data.sport && (data.division || data.sportSubgrouping || data.conferences) && (
-                <div className="flex flex-wrap items-center gap-3">
+                <>
                   <Link
                     href={`/college/${data.sport.slug}/news`}
                     className={badgeVariants({ variant: 'default' })}
@@ -189,28 +181,36 @@ export default async function PostPage({ params }: PageProps<'/[slug]'>) {
                         </Link>
                       )
                     })}
-                </div>
+                </>
               )}
+            </div>
 
-              {data.sport && (data.division || data.conferences) && (
-                <span className="text-sm">•</span>
-              )}
+            <h1
+              id="article-title"
+              className="text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
+            >
+              {data.title}
+            </h1>
+            <p id="article-excerpt" className="mt-4 text-lg leading-relaxed text-muted-foreground lg:text-xl">
+              {data.excerpt}
+            </p>
+            <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
               {data.publishedAt && <FormatDate dateString={data.publishedAt} />}
             </div>
           </div>
         </section>
-        <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
+        <section className="py-10 lg:py-14">
           <div className="container">
-            <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
-              <div className="lg:w-64 lg:shrink-0">
-                <div className="hidden lg:sticky lg:top-24 lg:left-0 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
+            <div className="flex flex-col gap-8 lg:flex-row lg:gap-16">
+              <div className="lg:w-60 lg:shrink-0">
+                <div className="hidden lg:sticky lg:top-20 lg:left-0 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
                   <AuthorSection authors={data.authors} />
                   <LargeArticleSocialShare slug={data.slug} title={data.title} />
                 </div>
                 <MobileAuthorSection authors={data.authors} />
               </div>
-              <article className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
-                <figure className="mb-8 space-y-1.5">
+              <article className="max-w-full space-y-8 lg:flex-1">
+                <figure className="space-y-2">
                   <CustomImage
                     image={data.mainImage}
                     width={1600}
@@ -218,25 +218,28 @@ export default async function PostPage({ params }: PageProps<'/[slug]'>) {
                     className="h-auto w-full rounded-lg"
                     loading="eager"
                   />
-                  <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
-                    <CameraIcon className="h-4 w-4" />
+                  <figcaption className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <CameraIcon className="h-3.5 w-3.5" />
                     <span>Source: {data.mainImage.credit}</span>
                   </figcaption>
                 </figure>
-                <RichText richText={data.body} />
+                <div className="prose prose-lg dark:prose-invert max-w-none">
+                  <RichText richText={data.body} />
+                </div>
               </article>
             </div>
           </div>
         </section>
         {data.relatedPosts.length > 0 && (
-          <section className="border-border border-y py-12 sm:py-16 lg:py-20 xl:py-24">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+          <section className="border-t border-border bg-muted/30 py-10 lg:py-14">
+            <div className="container">
+              <div className="mb-6 flex items-center gap-3">
+                <span className="inline-block h-5 w-1 rounded-full bg-primary" aria-hidden="true" />
+                <h2 className="text-lg font-bold uppercase tracking-wide text-foreground">
                   You Might Also Like
                 </h2>
               </div>
-              <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-3 lg:mt-12 xl:gap-16">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                 {data.relatedPosts.map((morePost: any) => (
                   <ArticleCard
                     key={morePost._id}

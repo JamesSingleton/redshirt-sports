@@ -132,9 +132,13 @@ export default async function CollegeSportsNews({ searchParams }: PageProps<'/co
     <>
       <JsonLdScript data={newsJsonLd} id="college-sports-news-json-ld" />
       <PageHeader title="College Sports News" breadcrumbs={breadcrumbItems} />
-      <section className="container pb-12">
+      <section className="container py-8 pb-14">
         <ArticleFeed articles={posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={totalPosts} />}
+        {totalPages > 1 && (
+          <div className="mt-10">
+            <PaginationControls totalPosts={totalPosts} />
+          </div>
+        )}
       </section>
     </>
   )
