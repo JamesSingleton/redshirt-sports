@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import {
   Card,
   CardTitle,
@@ -11,6 +10,7 @@ import PageHeader from '@/components/page-header'
 import { getSEOMetadata } from '@/lib/seo'
 import { JsonLdScript, websiteId } from '@/components/json-ld'
 import { getBaseUrl } from '@/lib/get-base-url'
+import { ContactEmailLink } from '@/components/contact-email-link'
 
 import type { Metadata } from 'next'
 import type { WithContext, ContactPage } from 'schema-dts'
@@ -97,13 +97,8 @@ export default function Page() {
                 <CardTitle className="text-lg sm:text-xl">{title}</CardTitle>
                 <CardDescription className="text-sm sm:text-base">{description}</CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-grow items-end">
-                <Link
-                  href={`mailto:${email}`}
-                  className="text-primary text-sm break-all hover:underline sm:text-base"
-                >
-                  {email}
-                </Link>
+              <CardContent className="flex grow items-end">
+                <ContactEmailLink email={email} category={title} />
               </CardContent>
             </Card>
           ))}

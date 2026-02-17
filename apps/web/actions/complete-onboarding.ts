@@ -1,5 +1,6 @@
 'use server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
+import { getPostHogClient } from '@/lib/posthog-server'
 
 export const completeOnboarding = async (formData: FormData) => {
   const { userId } = await auth()
@@ -18,6 +19,18 @@ export const completeOnboarding = async (formData: FormData) => {
         organizationRole: formData.get('organizationRole'),
       },
     })
+
+    // Capture onboarding_completed event with PostHog
+    const posthog = getPostHogClient()
+    posthog.capture({
+      distinctId: userId,
+      event: 'onboarding_completed',
+      properties: {
+        organization: formData.get('organizationName'),
+        organization_role: formData.get('organizationRole'),
+      },
+    })
+
     return { message: res.publicMetadata }
   } catch (error) {
     const errorMessage =

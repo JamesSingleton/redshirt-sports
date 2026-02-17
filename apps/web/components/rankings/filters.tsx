@@ -1,5 +1,6 @@
 'use client'
 import { useRouter, useParams } from 'next/navigation'
+import posthog from 'posthog-js'
 import {
   Select,
   SelectTrigger,
@@ -21,10 +22,23 @@ export const RankingsFilters = ({ years, weeks }: { years: Year[]; weeks: Week[]
   const { division, year, week, sport } = useParams()
 
   const handleYearChange = (e: string) => {
+    posthog.capture('rankings_filter_changed', {
+      filter_type: 'year',
+      new_value: e,
+      sport,
+      division,
+    })
     router.push(`/college/${sport}/rankings/${division}/${e}/0`)
   }
 
   const handleWeekChange = (e: string) => {
+    posthog.capture('rankings_filter_changed', {
+      filter_type: 'week',
+      new_value: e,
+      sport,
+      division,
+      year,
+    })
     router.push(`/college/${sport}/rankings/${division}/${year}/${e}`)
   }
 

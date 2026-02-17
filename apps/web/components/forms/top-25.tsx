@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import { useParams, useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import posthog from 'posthog-js'
 import { Button } from '@redshirt-sports/ui/components/button'
 import {
   Form,
@@ -203,7 +204,14 @@ const Top25 = forwardRef<
       }).then(async (res) => {
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
-          throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`)
+          const errorMessage = errorData.error || `HTTP ${res.status}: ${res.statusText}`
+          posthog.capture('ballot_submission_error', {
+            sport,
+            division,
+            error_message: errorMessage,
+            status_code: res.status,
+          })
+          throw new Error(errorMessage)
         }
 
         const data = await res.json()

@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm'
 
 import { db } from '@/server/db'
 import { usersTable } from '@redshirt-sports/db/schema'
+import { getPostHogClient } from '@/lib/posthog-server'
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
@@ -48,6 +49,8 @@ export async function POST(req: Request) {
 
   const { type, data } = evt
 
+  const posthog = getPostHogClient()
+
   try {
     switch (type) {
       case 'user.created':
@@ -56,6 +59,23 @@ export async function POST(req: Request) {
           id: data.id,
           firstName: data.first_name,
           lastName: data.last_name,
+        })
+
+        // Capture user_created event and identify user in PostHog
+        posthog.capture({
+          distinctId: data.id,
+          event: 'user_created',
+          properties: {
+            source: 'clerk_webhook',
+          },
+        })
+        posthog.identify({
+          distinctId: data.id,
+          properties: {
+            first_name: data.first_name,
+            last_name: data.last_name,
+            created_at: new Date().toISOString(),
+          },
         })
         break
       case 'user.updated':
@@ -70,6 +90,29 @@ export async function POST(req: Request) {
             isVoter: data.public_metadata.isVoter as boolean,
           })
           .where(eq(usersTable.id, data.id))
+
+        // Capture user_updated event in PostHog
+        posthog.capture({
+          distinctId: data.id,
+          event: 'user_updated',
+          properties: {
+            source: 'clerk_webhook',
+            is_admin: data.public_metadata.isAdmin,
+            is_voter: data.public_metadata.isVoter,
+            organization: data.public_metadata.organization,
+          },
+        })
+        posthog.identify({
+          distinctId: data.id,
+          properties: {
+            first_name: data.first_name,
+            last_name: data.last_name,
+            organization: data.public_metadata.organization,
+            organization_role: data.public_metadata.organizationRole,
+            is_admin: data.public_metadata.isAdmin,
+            is_voter: data.public_metadata.isVoter,
+          },
+        })
         break
       default:
         return new Response('', { status: 501 })

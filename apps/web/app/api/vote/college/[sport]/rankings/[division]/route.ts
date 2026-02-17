@@ -5,6 +5,7 @@ import { db } from '@/server/db'
 import { voterBallots } from '@redshirt-sports/db/schema'
 import { getSeasonInfo, type SportParam } from '@/utils/espn'
 import { getSportIdBySlug } from '@redshirt-sports/db/queries'
+import { getPostHogClient } from '@/lib/posthog-server'
 
 // Validation schemas - both sport and division come from request body
 const VoteRequestSchema = z.object({
@@ -223,6 +224,25 @@ export async function POST(
 
     // Insert ballot into database
     await db.insert(voterBallots).values(ballot)
+
+    // Capture ballot_submitted event with PostHog
+    const posthog = getPostHogClient()
+    posthog.capture({
+      distinctId: user.userId,
+      event: 'ballot_submitted',
+      properties: {
+        sport: validatedSport,
+        division: validatedBody.division || validatedDivision,
+        week: votingWeek,
+        year,
+        vote_count: ballot.length,
+        season_type: seasonInfo.isPreseason
+          ? 'preseason'
+          : seasonInfo.isPostseason
+            ? 'postseason'
+            : 'regular_season',
+      },
+    })
 
     return new Response(
       JSON.stringify({
