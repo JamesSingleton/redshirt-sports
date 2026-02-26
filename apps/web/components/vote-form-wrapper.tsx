@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import posthog from 'posthog-js'
 import { Button } from '@redshirt-sports/ui/components/button'
 import { CardHeader, CardTitle, CardContent, Card } from '@redshirt-sports/ui/components/card'
 import Top25, { type Top25FormRef } from './forms/top-25'
@@ -19,6 +20,9 @@ export default function VoteFormWrapper({ schools, previousBallot }: VoteFormWra
 
   const handlePopulateForm = () => {
     formRef.current?.populateWithPreviousBallot()
+    posthog.capture('previous_ballot_populated', {
+      previous_ballot_count: previousBallot?.length ?? 0,
+    })
   }
 
   return (
