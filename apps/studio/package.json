@@ -16,33 +16,33 @@
     "@portabletext/react": "^6.0.2",
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/assist": "^5.0.4",
-    "@sanity/blueprints": "^0.12.0",
-    "@sanity/client": "^7.14.1",
+    "@sanity/blueprints": "^0.12.2",
+    "@sanity/client": "^7.16.0",
     "@sanity/dashboard": "^5.0.1",
     "@sanity/functions": "^1.2.0",
     "@sanity/icons": "^3.7.4",
     "@sanity/image-url": "^2.0.3",
     "@sanity/table": "^2.0.1",
-    "@sanity/ui": "^3.1.11",
-    "@sanity/vision": "^5.9.0",
-    "lucide-react": "^0.563.0",
+    "@sanity/ui": "^3.1.13",
+    "@sanity/vision": "^5.12.0",
+    "lucide-react": "^0.575.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "sanity": "5.9.0",
+    "sanity": "5.12.0",
     "sanity-plugin-documents-pane": "^3.0.2",
     "sanity-plugin-media": "^4.1.1",
     "slugify": "^1.6.6",
-    "styled-components": "^6.3.9"
+    "styled-components": "^6.3.11"
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^6.0.0",
-    "@types/node": "^25.2.3",
-    "@types/react": "^19.2.13",
+    "@types/node": "^25.3.0",
+    "@types/react": "^19.2.14",
     "eslint": "^10.0.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "typescript-eslint": "^8.55.0"
+    "typescript-eslint": "^8.56.1"
   }
 }
