@@ -1,64 +1,64 @@
-import type { SanityImageAsset } from '@redshirt-sports/sanity/types'
+import type { SanityImageAsset } from "@redshirt-sports/sanity/types";
 
 export type VoteWithExtraData = {
-  name: string
-  shortName: string
-  abbreviation: string
-  image: SanityImageAsset
-  _id: string
-  _order: number
-}
+  name: string;
+  shortName: string;
+  abbreviation: string;
+  image: SanityImageAsset;
+  _id: string;
+  _order: number;
+};
 
 export type VoterData = {
-  id: string
-  firstName: string
-  lastName: string
-  organization: string
-  organizationRole: string
-}
+  id: string;
+  firstName: string;
+  lastName: string;
+  organization: string;
+  organizationRole: string;
+};
 
 export type BallotAndVoterData = {
-  votes: VoteWithExtraData[]
-  userData: VoterData
-}
+  votes: VoteWithExtraData[];
+  userData: VoterData;
+};
 
 export type BallotsByVoter = {
-  [key: string]: BallotAndVoterData
-}
+  [key: string]: BallotAndVoterData;
+};
 
 export type VoterBreakdown = {
-  name: string
-  organization: string
-  organizationRole: string
-  ballot: VoteWithExtraData[]
-}
+  name: string;
+  organization: string;
+  organizationRole: string;
+  ballot: VoteWithExtraData[];
+};
 
 export type Vote = {
-  _id: string
-  image?: string
-  teamName?: string
-}
+  _id: string;
+  image?: string;
+  teamName?: string;
+};
 
 export type Voter = {
-  name: string
-  organization: string
-  organizationRole?: string
-  ballot: Vote[] // expected length 25
-}
+  name: string;
+  organization: string;
+  organizationRole?: string;
+  ballot: Vote[]; // expected length 25
+};
 
 export type VoterBallotWithSchool = {
-  id: number
-  userId: string
-  division: string
-  week: number
-  year: number
-  createdAt: Date
-  teamId: string
-  rank: number
-  points: number
-  schoolName: string
-  schoolShortName: string
-  schoolAbbreviation: string
-  schoolNickname: string
-  schoolImageUrl: string
-}
+  id: number;
+  userId: string;
+  division: string;
+  week: number;
+  year: number;
+  createdAt: Date;
+  teamId: string;
+  rank: number;
+  points: number;
+  schoolName: string;
+  schoolShortName: string;
+  schoolAbbreviation: string;
+  schoolNickname: string;
+  schoolImageUrl: string;
+};

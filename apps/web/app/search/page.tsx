@@ -1,54 +1,56 @@
-import { Suspense } from 'react'
+import { sanityFetch } from "@redshirt-sports/sanity/live";
+import { searchQuery } from "@redshirt-sports/sanity/queries";
+import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import PageHeader from '@/components/page-header'
-import ArticleCard from '@/components/article-card'
-import PaginationControls from '@/components/pagination-controls'
-import { perPage } from '@/lib/constants'
-import { getSEOMetadata } from '@/lib/seo'
-
-import { Post } from '@/types'
-import type { Metadata } from 'next'
-import { sanityFetch } from '@redshirt-sports/sanity/live'
-import { searchQuery } from '@redshirt-sports/sanity/queries'
+import ArticleCard from "@/components/article-card";
+import PageHeader from "@/components/page-header";
+import PaginationControls from "@/components/pagination-controls";
+import { perPage } from "@/lib/constants";
+import { getSEOMetadata } from "@/lib/seo";
+import type { Post } from "@/types";
 
 async function fetchSearchResults(
   query: string,
   page: number,
 ): Promise<{ data: { posts: Post[]; totalPosts: number } }> {
-  const from = (page - 1) * perPage
-  const to = page * perPage
+  const from = (page - 1) * perPage;
+  const to = page * perPage;
 
   return await sanityFetch({
     query: searchQuery,
     params: { q: query, from, to },
-  })
+  });
 }
 
 export async function generateMetadata(): Promise<Metadata> {
   return getSEOMetadata({
     title: `Search Results | ${process.env.NEXT_PUBLIC_APP_NAME}`,
     description: `Explore the latest articles, news, and analysis on college football. Find what you're looking for across FCS, FBS, D2, D3, and NAIA at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
-    slug: '/search',
-  })
+    slug: "/search",
+  });
 }
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string }>
+  searchParams: Promise<{ [key: string]: string }>;
 }) {
-  const { q: query, page } = await searchParams
-  const pageIndex = page !== undefined ? parseInt(page) : 1
-  const subheadingText = query ? `Search results for "${query}"` : null
+  const { q: query, page } = await searchParams;
+  const pageIndex = page !== undefined ? Number.parseInt(page, 10) : 1;
+  const subheadingText = query ? `Search results for "${query}"` : null;
 
-  let searchResults: { posts: Post[]; totalPosts: number } = { posts: [], totalPosts: 0 }
+  let searchResults: { posts: Post[]; totalPosts: number } = {
+    posts: [],
+    totalPosts: 0,
+  };
 
   if (query) {
-    const { data } = await fetchSearchResults(query, pageIndex)
-    searchResults = data
+    const { data } = await fetchSearchResults(query, pageIndex);
+    searchResults = data;
   }
 
-  const totalPages = Math.ceil(searchResults.totalPosts / perPage)
+  const totalPages = Math.ceil(searchResults.totalPosts / perPage);
 
   return (
     <>
@@ -72,7 +74,8 @@ export default async function Page({
           <div className="mt-8 text-center">
             <h2 className="text-3xl font-bold">No results found.</h2>
             <p className="text-muted-foreground mt-4 text-lg">
-              Try searching for something else or check out our latest articles below.
+              Try searching for something else or check out our latest articles
+              below.
             </p>
           </div>
         )}
@@ -83,5 +86,5 @@ export default async function Page({
         )}
       </section>
     </>
-  )
+  );
 }

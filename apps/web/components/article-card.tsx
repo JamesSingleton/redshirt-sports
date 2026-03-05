@@ -1,10 +1,9 @@
-import Link from 'next/link'
-import { Separator } from '@redshirt-sports/ui/components/separator'
+import type { Slug } from "@redshirt-sports/sanity/types";
+import { Separator } from "@redshirt-sports/ui/components/separator";
+import Link from "next/link";
 
-import CustomImage from './sanity-image'
-import FormatDate from '@/components/format-date'
-
-import type { Slug } from '@redshirt-sports/sanity/types'
+import FormatDate from "@/components/format-date";
+import CustomImage from "./sanity-image";
 
 export default function ArticleCard({
   title,
@@ -13,17 +12,17 @@ export default function ArticleCard({
   slug,
   author,
   date,
-  headingLevel = 'h3',
+  headingLevel = "h3",
 }: {
-  title: string
-  image: any
-  imagePriority?: boolean
-  slug: Slug | string
-  author: string
-  date?: string | null
-  headingLevel?: 'h2' | 'h3' | 'h4'
+  title: string;
+  image: any;
+  imagePriority?: boolean;
+  slug: Slug | string;
+  author: string;
+  date?: string | null;
+  headingLevel?: "h2" | "h3" | "h4";
 }) {
-  const Heading = headingLevel
+  const Heading = headingLevel;
 
   return (
     <div className="border-border overflow-hidden rounded-lg border shadow-lg">
@@ -32,7 +31,7 @@ export default function ArticleCard({
         width={600}
         height={400}
         className="h-48 w-full object-cover object-top"
-        loading={imagePriority ? 'eager' : 'lazy'}
+        loading={imagePriority ? "eager" : "lazy"}
       />
       <div className="bg-background p-4">
         <Heading className="mb-2 text-lg font-semibold">
@@ -51,5 +50,5 @@ export default function ArticleCard({
         </div>
       </div>
     </div>
-  )
+  );
 }

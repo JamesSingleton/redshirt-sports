@@ -1,76 +1,76 @@
-'use client'
+"use client";
 
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useUser } from '@clerk/nextjs'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { Button } from '@redshirt-sports/ui/components/button'
+import { useUser } from "@clerk/nextjs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@redshirt-sports/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@redshirt-sports/ui/components/card";
 import {
   Form,
-  FormField,
   FormControl,
   FormDescription,
+  FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@redshirt-sports/ui/components/form'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '@redshirt-sports/ui/components/card'
-import { Input } from '@redshirt-sports/ui/components/input'
+} from "@redshirt-sports/ui/components/form";
+import { Input } from "@redshirt-sports/ui/components/input";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
-import { completeOnboarding } from '@/actions/complete-onboarding'
+import { completeOnboarding } from "@/actions/complete-onboarding";
 
 const FormSchema = z.object({
   organizationName: z.string().min(2, {
-    error: 'Organization Name must be at least 2 characters',
+    error: "Organization Name must be at least 2 characters",
   }),
   organizationRole: z.string().min(2, {
-    error: 'Organization Role must be at least 2 characters',
+    error: "Organization Role must be at least 2 characters",
   }),
-})
+});
 
 export default function Onboarding() {
-  const { user } = useUser()
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const { user } = useUser();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      organizationName: '',
-      organizationRole: '',
+      organizationName: "",
+      organizationRole: "",
     },
-  })
+  });
 
   const handleSubmit = async (formData: FormData) => {
-    const res = await completeOnboarding(formData)
+    const res = await completeOnboarding(formData);
     if (res?.error) {
-      toast.error(res.error)
+      toast.error(res.error);
     }
     if (res?.message) {
-      await user?.reload()
-      toast.success('Onboarding completed successfully!')
-      const redirectUrl = searchParams.get('redirect_url')
+      await user?.reload();
+      toast.success("Onboarding completed successfully!");
+      const redirectUrl = searchParams.get("redirect_url");
       if (redirectUrl) {
-        router.push(redirectUrl)
+        router.push(redirectUrl);
       }
     }
-  }
+  };
 
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
         <CardTitle>Organization Details</CardTitle>
         <CardDescription>
-          Please provide information about what organization you represent and your role and that
-          organization.
+          Please provide information about what organization you represent and
+          your role and that organization.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -83,10 +83,14 @@ export default function Onboarding() {
                 <FormItem>
                   <FormLabel>Organization Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your organization's name" {...field} />
+                    <Input
+                      placeholder="Enter your organization's name"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
-                    Please provide the name of the organization you are representing.
+                    Please provide the name of the organization you are
+                    representing.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -99,10 +103,14 @@ export default function Onboarding() {
                 <FormItem>
                   <FormLabel>Organization Role</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your job title or role" {...field} />
+                    <Input
+                      placeholder="Enter your job title or role"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
-                    Please provide your job title or role within the organization.
+                    Please provide your job title or role within the
+                    organization.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -113,5 +121,5 @@ export default function Onboarding() {
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }

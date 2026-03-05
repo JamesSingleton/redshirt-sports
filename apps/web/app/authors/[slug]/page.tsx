@@ -1,69 +1,72 @@
-import { Suspense } from 'react'
-import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
+import { sanityFetch } from "@redshirt-sports/sanity/live";
+import { authorBySlug, postsByAuthor } from "@redshirt-sports/sanity/queries";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { Suspense } from "react";
+import type { Graph } from "schema-dts";
 
-import { Twitter, Facebook, YouTubeIcon } from '@/components/icons'
-import ArticleCard from '@/components/article-card'
-import PaginationControls from '@/components/pagination-controls'
-import { perPage } from '@/lib/constants'
-import { sanityFetch } from '@redshirt-sports/sanity/live'
-import CustomImage from '@/components/sanity-image'
-import { buildSafeImageUrl, organizationId, websiteId } from '@/components/json-ld'
-import { getSEOMetadata } from '@/lib/seo'
-import { getBaseUrl } from '@/lib/get-base-url'
-import { JsonLdScript } from '@/components/json-ld'
-import { authorBySlug, postsByAuthor } from '@redshirt-sports/sanity/queries'
-
-import type { Metadata } from 'next'
-import type { Graph } from 'schema-dts'
-import { validatePageIndex } from '@/utils/validate-page-index'
+import ArticleCard from "@/components/article-card";
+import { Facebook, Twitter, YouTubeIcon } from "@/components/icons";
+import {
+  buildSafeImageUrl,
+  JsonLdScript,
+  organizationId,
+  websiteId,
+} from "@/components/json-ld";
+import PaginationControls from "@/components/pagination-controls";
+import CustomImage from "@/components/sanity-image";
+import { perPage } from "@/lib/constants";
+import { getBaseUrl } from "@/lib/get-base-url";
+import { getSEOMetadata } from "@/lib/seo";
+import { validatePageIndex } from "@/utils/validate-page-index";
 
 // cache for 48 hours
-export const revalidate = 172800
-export const dynamicParams = true
+export const revalidate = 172800;
+export const dynamicParams = true;
 
 async function fetchAuthorInfo(slug: string) {
   return await sanityFetch({
     query: authorBySlug,
     params: { slug },
-  })
+  });
 }
 
 async function fetchAuthorPosts(slug: string, pageIndex: number) {
-  const from = (pageIndex - 1) * perPage
-  const to = pageIndex * perPage
+  const from = (pageIndex - 1) * perPage;
+  const to = pageIndex * perPage;
 
   return await sanityFetch({
     query: postsByAuthor,
     params: { slug, from, to },
-  })
+  });
 }
 
 export async function generateMetadata({
   params,
   searchParams,
-}: PageProps<'/authors/[slug]'>): Promise<Metadata> {
-  const { slug } = await params
-  const { page } = await searchParams
+}: PageProps<"/authors/[slug]">): Promise<Metadata> {
+  const { slug } = await params;
+  const { page } = await searchParams;
 
-  const { data: author } = await fetchAuthorInfo(slug)
+  const { data: author } = await fetchAuthorInfo(slug);
 
   if (!author) {
-    return {}
+    return {};
   }
 
-  const roles = author.roles.join(', ')
-  let canonical = `/authors/${slug}`
+  const roles = author.roles.join(", ");
+  let canonical = `/authors/${slug}`;
 
-  let title = `${author.name} - ${roles}`
-  let description = `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`
+  let title = `${author.name} - ${roles}`;
+  let description = `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`;
 
-  if (page && typeof page === 'string') {
-    const pageNum = validatePageIndex(page)
+  if (page && typeof page === "string") {
+    const pageNum = validatePageIndex(page);
     if (pageNum > 1) {
-      canonical = `/authors/${slug}?page=${pageNum}`
-      title = `${author.name} - ${roles} (Page ${pageNum})`
-      description = `Page ${pageNum} of articles by ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Discover their latest insights into college football.`
+      canonical = `/authors/${slug}?page=${pageNum}`;
+      title = `${author.name} - ${roles} (Page ${pageNum})`;
+      description = `Page ${pageNum} of articles by ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Discover their latest insights into college football.`;
     }
   }
 
@@ -72,105 +75,108 @@ export async function generateMetadata({
     description: description,
     slug: canonical,
     image: author.image,
-    ogType: 'profile',
-  })
+    ogType: "profile",
+  });
 }
 
-export default async function Page({ params, searchParams }: PageProps<'/authors/[slug]'>) {
-  const { slug } = await params
-  const { page } = await searchParams
-  const pageIndex = validatePageIndex(page)
-  const baseUrl = getBaseUrl()
+export default async function Page({
+  params,
+  searchParams,
+}: PageProps<"/authors/[slug]">) {
+  const { slug } = await params;
+  const { page } = await searchParams;
+  const pageIndex = validatePageIndex(page);
+  const baseUrl = getBaseUrl();
 
   if (page && pageIndex === 1) {
-    return redirect(`/authors/${slug}`)
+    return redirect(`/authors/${slug}`);
   }
 
-  const { data: author } = await fetchAuthorInfo(slug)
-  const { data: authorPosts } = await fetchAuthorPosts(slug, pageIndex)
+  const { data: author } = await fetchAuthorInfo(slug);
+  const { data: authorPosts } = await fetchAuthorPosts(slug, pageIndex);
 
   if (!author) {
-    return notFound()
+    return notFound();
   }
 
-  const totalPages = Math.ceil(authorPosts.totalPosts / perPage)
+  const totalPages = Math.ceil(authorPosts.totalPosts / perPage);
 
   const authorJsonLd: Graph = {
-    '@context': 'https://schema.org',
-    '@graph': [
+    "@context": "https://schema.org",
+    "@graph": [
       {
-        '@type': 'ProfilePage',
-        '@id': `${baseUrl}/authors/${slug}#profile`,
+        "@type": "ProfilePage",
+        "@id": `${baseUrl}/authors/${slug}#profile`,
         url: `${baseUrl}/authors/${slug}`,
         name: author.name,
         description: author.biography,
         breadcrumb: {
-          '@type': 'BreadcrumbList',
+          "@type": "BreadcrumbList",
           name: `${author.name} breadcrumbs`,
           itemListElement: [
             {
-              '@type': 'ListItem',
+              "@type": "ListItem",
               position: 1,
-              name: 'Home',
+              name: "Home",
               item: `${baseUrl}/`,
             },
             {
-              '@type': 'ListItem',
+              "@type": "ListItem",
               position: 2,
               name: author.name,
               item: `${baseUrl}/authors/${slug}`,
             },
           ],
         },
-        inLanguage: 'en-US',
+        inLanguage: "en-US",
         isPartOf: {
-          '@type': 'WebSite',
-          '@id': websiteId,
+          "@type": "WebSite",
+          "@id": websiteId,
         },
         primaryImageOfPage: {
-          '@type': 'ImageObject',
-          '@id': `${baseUrl}/authors/${slug}#image`,
+          "@type": "ImageObject",
+          "@id": `${baseUrl}/authors/${slug}#image`,
           url: buildSafeImageUrl(author.image),
-          width: '1200',
-          height: '630',
+          width: "1200",
+          height: "630",
           contentUrl: buildSafeImageUrl(author.image),
           caption: author.image.alt,
-          inLanguage: 'en-US',
+          inLanguage: "en-US",
         },
         mainEntity: {
-          '@id': `${baseUrl}/authors/${slug}#person`,
+          "@id": `${baseUrl}/authors/${slug}#person`,
         },
       },
       {
-        '@type': 'Person',
-        '@id': `${baseUrl}/authors/${slug}#person`,
+        "@type": "Person",
+        "@id": `${baseUrl}/authors/${slug}#person`,
         name: author.name,
         url: `${baseUrl}/authors/${slug}`,
         image: {
-          '@type': 'ImageObject',
-          '@id': `${baseUrl}/authors/${slug}#image`,
+          "@type": "ImageObject",
+          "@id": `${baseUrl}/authors/${slug}#image`,
           url: buildSafeImageUrl(author.image),
-          width: '1200',
-          height: '630',
+          width: "1200",
+          height: "630",
           contentUrl: buildSafeImageUrl(author.image),
           caption: author.image.alt,
-          inLanguage: 'en-US',
+          inLanguage: "en-US",
         },
-        jobTitle: author.roles.join(', '),
+        jobTitle: author.roles.join(", "),
         sameAs: [...Object.values(author?.socialLinks || {})],
         worksFor: {
-          '@type': 'Organization',
-          '@id': organizationId,
+          "@type": "Organization",
+          "@id": organizationId,
         },
       },
     ],
-  }
+  };
 
   return (
     <>
       <JsonLdScript
         data={authorJsonLd}
-        id={`${author.name.toLowerCase().replace(/\s+/g, '-')}-json-ld`}
+        id={`${author.name.toLowerCase().replace(/\s+/g, "-")}-json-ld`}
       />
       <section className="py-8">
         <div className="container mx-auto">
@@ -185,7 +191,7 @@ export default async function Page({ params, searchParams }: PageProps<'/authors
               />
               <div>
                 <span className="text-brand-500 dark:text-brand-400 block text-base font-semibold">
-                  {author.roles.join(', ')}
+                  {author.roles.join(", ")}
                 </span>
                 <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
                   {author.name}
@@ -252,7 +258,9 @@ export default async function Page({ params, searchParams }: PageProps<'/authors
       {authorPosts && authorPosts.posts.length > 0 && (
         <section className="container mx-auto">
           <div>
-            <h2 className="mb-6 text-2xl font-bold tracking-tight">Articles by {author.name}</h2>
+            <h2 className="mb-6 text-2xl font-bold tracking-tight">
+              Articles by {author.name}
+            </h2>
             <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {authorPosts.posts.map((post: any) => (
                 <ArticleCard
@@ -274,5 +282,5 @@ export default async function Page({ params, searchParams }: PageProps<'/authors
         </section>
       )}
     </>
-  )
+  );
 }

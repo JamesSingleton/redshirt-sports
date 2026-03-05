@@ -4,9 +4,13 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "lint": "eslint .",
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "check:types": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -37,7 +41,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@redshirt-sports/eslint-config": "workspace:*",
     "@redshirt-sports/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4.2.1",
     "@tailwindcss/typography": "^0.5.19",
@@ -50,7 +53,6 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "^10.4.27",
-    "eslint": "^10.0.0",
     "happy-dom": "^20.8.3",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.1",

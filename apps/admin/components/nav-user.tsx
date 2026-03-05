@@ -1,15 +1,11 @@
-'use client'
+"use client";
 
-import { useUser } from '@clerk/nextjs'
+import { useUser } from "@clerk/nextjs";
 import {
-  IconCreditCard,
-  IconDotsVertical,
-  IconLogout,
-  IconNotification,
-  IconUserCircle,
-} from '@tabler/icons-react'
-
-import { Avatar, AvatarFallback, AvatarImage } from '@redshirt-sports/ui/components/avatar'
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@redshirt-sports/ui/components/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,23 +14,30 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@redshirt-sports/ui/components/dropdown-menu'
+} from "@redshirt-sports/ui/components/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@redshirt-sports/ui/components/sidebar'
+} from "@redshirt-sports/ui/components/sidebar";
+import {
+  IconCreditCard,
+  IconDotsVertical,
+  IconLogout,
+  IconNotification,
+  IconUserCircle,
+} from "@tabler/icons-react";
 
 export function NavUser() {
-  const { user: clerkUser, isLoaded } = useUser()
+  const { user: clerkUser, isLoaded } = useUser();
 
-  const { isMobile } = useSidebar()
+  const { isMobile } = useSidebar();
 
   // TODO: Implement a skeleton for this
-  if (!isLoaded) return null
+  if (!isLoaded) return null;
 
-  const initials = `${clerkUser?.firstName?.charAt(0)}${clerkUser?.lastName?.charAt(0)}`
+  const initials = `${clerkUser?.firstName?.charAt(0)}${clerkUser?.lastName?.charAt(0)}`;
 
   return (
     <SidebarMenu>
@@ -46,11 +49,18 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={clerkUser?.imageUrl} alt={clerkUser?.fullName || 'User'} />
-                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                <AvatarImage
+                  src={clerkUser?.imageUrl}
+                  alt={clerkUser?.fullName || "User"}
+                />
+                <AvatarFallback className="rounded-lg">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{clerkUser?.fullName}</span>
+                <span className="truncate font-medium">
+                  {clerkUser?.fullName}
+                </span>
                 <span className="text-muted-foreground truncate text-xs">
                   {clerkUser?.primaryEmailAddress?.emailAddress}
                 </span>
@@ -60,18 +70,25 @@ export function NavUser() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? 'bottom' : 'right'}
+            side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={clerkUser?.imageUrl} alt={clerkUser?.fullName || 'User'} />
-                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                  <AvatarImage
+                    src={clerkUser?.imageUrl}
+                    alt={clerkUser?.fullName || "User"}
+                  />
+                  <AvatarFallback className="rounded-lg">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{clerkUser?.fullName}</span>
+                  <span className="truncate font-medium">
+                    {clerkUser?.fullName}
+                  </span>
                   <span className="text-muted-foreground truncate text-xs">
                     {clerkUser?.primaryEmailAddress?.emailAddress}
                   </span>
@@ -102,5 +119,5 @@ export function NavUser() {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

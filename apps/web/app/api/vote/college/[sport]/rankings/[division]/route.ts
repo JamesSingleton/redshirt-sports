@@ -1,15 +1,18 @@
-import * as Sentry from '@sentry/nextjs'
-import { z } from 'zod'
-import { auth } from '@clerk/nextjs/server'
-import { db } from '@/server/db'
-import { voterBallots } from '@redshirt-sports/db/schema'
-import { getSeasonInfo, type SportParam } from '@/utils/espn'
-import { getSportIdBySlug } from '@redshirt-sports/db/queries'
-import { getPostHogClient } from '@/lib/posthog-server'
+import { auth } from "@clerk/nextjs/server";
+import { getSportIdBySlug } from "@redshirt-sports/db/queries";
+import { voterBallots } from "@redshirt-sports/db/schema";
+import * as Sentry from "@sentry/nextjs";
+import { z } from "zod";
+
+import { getPostHogClient } from "@/lib/posthog-server";
+import { db } from "@/server/db";
+import { getSeasonInfo, type SportParam } from "@/utils/espn";
 
 // Validation schemas - both sport and division come from request body
 const VoteRequestSchema = z.object({
-  division: z.enum(['fbs', 'fcs', 'd2', 'd3', 'mid-major', 'power-conferences']).optional(),
+  division: z
+    .enum(["fbs", "fcs", "d2", "d3", "mid-major", "power-conferences"])
+    .optional(),
   sport: z.string().optional(),
   rank_1: z.string().optional(),
   rank_2: z.string().optional(),
@@ -36,20 +39,27 @@ const VoteRequestSchema = z.object({
   rank_23: z.string().optional(),
   rank_24: z.string().optional(),
   rank_25: z.string().optional(),
-})
+});
 
-type VoteRequest = z.infer<typeof VoteRequestSchema>
+type VoteRequest = z.infer<typeof VoteRequestSchema>;
 
 // Sport mapping for URL parameters
 const SPORT_SLUG_MAP: Record<string, SportParam> = {
-  football: 'football',
-  'mens-basketball': 'mens-basketball',
-  'womens-basketball': 'womens-basketball',
-}
+  football: "football",
+  "mens-basketball": "mens-basketball",
+  "womens-basketball": "womens-basketball",
+};
 
 // Division validation
-const VALID_DIVISIONS = ['fbs', 'fcs', 'd2', 'd3', 'mid-major', 'power-conferences'] as const
-type ValidDivision = (typeof VALID_DIVISIONS)[number]
+const VALID_DIVISIONS = [
+  "fbs",
+  "fcs",
+  "d2",
+  "d3",
+  "mid-major",
+  "power-conferences",
+] as const;
+type ValidDivision = (typeof VALID_DIVISIONS)[number];
 
 /**
  * Process ballot data and return array of ballot entries
@@ -62,13 +72,13 @@ function processBallotData(
   year: number,
   week: number,
 ) {
-  const ballot = []
+  const ballot = [];
 
   for (let i = 1; i <= 25; i++) {
-    const rankKey = `rank_${i}` as keyof VoteRequest
-    const teamId = body[rankKey]
+    const rankKey = `rank_${i}` as keyof VoteRequest;
+    const teamId = body[rankKey];
 
-    if (teamId && typeof teamId === 'string') {
+    if (teamId && typeof teamId === "string") {
       ballot.push({
         userId,
         sportId,
@@ -78,24 +88,24 @@ function processBallotData(
         teamId,
         rank: i,
         points: 26 - i,
-      })
+      });
     }
   }
 
-  return ballot
+  return ballot;
 }
 
 /**
  * Validate sport parameter
  */
 function validateSport(sport: string): SportParam {
-  const validSport = SPORT_SLUG_MAP[sport]
+  const validSport = SPORT_SLUG_MAP[sport];
   if (!validSport) {
     throw new Error(
-      `Invalid sport: ${sport}. Must be one of: ${Object.keys(SPORT_SLUG_MAP).join(', ')}`,
-    )
+      `Invalid sport: ${sport}. Must be one of: ${Object.keys(SPORT_SLUG_MAP).join(", ")}`,
+    );
   }
-  return validSport
+  return validSport;
 }
 
 /**
@@ -103,20 +113,22 @@ function validateSport(sport: string): SportParam {
  */
 function validateDivision(division: string): ValidDivision {
   if (!VALID_DIVISIONS.includes(division as ValidDivision)) {
-    throw new Error(`Invalid division: ${division}. Must be one of: ${VALID_DIVISIONS.join(', ')}`)
+    throw new Error(
+      `Invalid division: ${division}. Must be one of: ${VALID_DIVISIONS.join(", ")}`,
+    );
   }
-  return division as ValidDivision
+  return division as ValidDivision;
 }
 
 /**
  * Get sport ID from database
  */
 async function getSportId(sportSlug: string): Promise<string> {
-  const sportId = await getSportIdBySlug(sportSlug as SportParam)
+  const sportId = await getSportIdBySlug(sportSlug as SportParam);
   if (!sportId) {
-    throw new Error(`Sport not found: ${sportSlug}`)
+    throw new Error(`Sport not found: ${sportSlug}`);
   }
-  return sportId
+  return sportId;
 }
 
 export async function POST(
@@ -125,19 +137,19 @@ export async function POST(
 ) {
   try {
     // Parse and validate parameters
-    const { sport: sportSlug, division } = await params
-    const validatedSport = validateSport(sportSlug)
-    const validatedDivision = validateDivision(division)
+    const { sport: sportSlug, division } = await params;
+    const validatedSport = validateSport(sportSlug);
+    const validatedDivision = validateDivision(division);
 
     // Authenticate user
-    const user = await auth()
+    const user = await auth();
     if (!user.userId) {
-      return new Response('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
     // Validate request body
-    const body = await req.json()
-    const validatedBody = VoteRequestSchema.parse(body)
+    const body = await req.json();
+    const validatedBody = VoteRequestSchema.parse(body);
 
     // Validate that request body matches URL parameters
     if (validatedBody.sport && validatedBody.sport !== validatedSport) {
@@ -147,42 +159,50 @@ export async function POST(
         }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         },
-      )
+      );
     }
 
-    if (validatedBody.division && validatedBody.division !== validatedDivision) {
+    if (
+      validatedBody.division &&
+      validatedBody.division !== validatedDivision
+    ) {
       return new Response(
         JSON.stringify({
           error: `Division mismatch: URL has '${validatedDivision}' but request has '${validatedBody.division}'`,
         }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         },
-      )
+      );
     }
 
     // Get sport ID from database
-    const sportId = await getSportId(validatedSport)
+    const sportId = await getSportId(validatedSport);
 
     // Get current season info for the specific sport
-    const seasonInfo = await getSeasonInfo(validatedSport)
-    const { year, currentWeek: votingWeek } = seasonInfo
+    const seasonInfo = await getSeasonInfo(validatedSport);
+    const { year, currentWeek: votingWeek } = seasonInfo;
 
     // Validate that we're in a voting period (preseason, regular season, or postseason)
-    if (!seasonInfo.isPreseason && !seasonInfo.isRegularSeason && !seasonInfo.isPostseason) {
+    if (
+      !seasonInfo.isPreseason &&
+      !seasonInfo.isRegularSeason &&
+      !seasonInfo.isPostseason
+    ) {
       return new Response(
         JSON.stringify({
-          error: 'Voting is only allowed during preseason, regular season, or postseason',
-          currentPeriod: 'off-season',
+          error:
+            "Voting is only allowed during preseason, regular season, or postseason",
+          currentPeriod: "off-season",
         }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         },
-      )
+      );
     }
 
     // Process ballot data - use division from request body with fallback to URL params
@@ -193,14 +213,17 @@ export async function POST(
       validatedBody.division || validatedDivision, // Use request body division with fallback
       year,
       votingWeek,
-    )
+    );
 
     // Validate that we have at least one vote
     if (ballot.length === 0) {
-      return new Response(JSON.stringify({ error: 'At least one team must be ranked' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return new Response(
+        JSON.stringify({ error: "At least one team must be ranked" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Check for duplicate votes (same user, sport, division, week, year)
@@ -213,23 +236,26 @@ export async function POST(
           eq(model.week, votingWeek),
           eq(model.year, year),
         ),
-    })
+    });
 
     if (existingVote) {
-      return new Response(JSON.stringify({ error: 'You have already voted for this week' }), {
-        status: 409,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return new Response(
+        JSON.stringify({ error: "You have already voted for this week" }),
+        {
+          status: 409,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Insert ballot into database
-    await db.insert(voterBallots).values(ballot)
+    await db.insert(voterBallots).values(ballot);
 
     // Capture ballot_submitted event with PostHog
-    const posthog = getPostHogClient()
+    const posthog = getPostHogClient();
     posthog.capture({
       distinctId: user.userId,
-      event: 'ballot_submitted',
+      event: "ballot_submitted",
       properties: {
         sport: validatedSport,
         division: validatedBody.division || validatedDivision,
@@ -237,17 +263,17 @@ export async function POST(
         year,
         vote_count: ballot.length,
         season_type: seasonInfo.isPreseason
-          ? 'preseason'
+          ? "preseason"
           : seasonInfo.isPostseason
-            ? 'postseason'
-            : 'regular_season',
+            ? "postseason"
+            : "regular_season",
       },
-    })
+    });
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Vote submitted successfully',
+        message: "Vote submitted successfully",
         sport: validatedSport,
         division: validatedBody.division || validatedDivision,
         week: votingWeek,
@@ -256,38 +282,38 @@ export async function POST(
       }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       },
-    )
+    );
   } catch (error) {
-    Sentry.captureException(error)
+    Sentry.captureException(error);
 
     // Handle validation errors
     if (error instanceof z.ZodError) {
       return new Response(
         JSON.stringify({
-          error: 'Invalid request data',
+          error: "Invalid request data",
           details: error instanceof z.ZodError ? error.format() : undefined,
         }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         },
-      )
+      );
     }
 
     // Handle other known errors
     if (error instanceof Error) {
       return new Response(JSON.stringify({ error: error.message }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      })
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
 
@@ -297,22 +323,22 @@ export async function GET(
 ) {
   try {
     // Parse and validate parameters
-    const { sport: sportSlug, division } = await params
-    const validatedSport = validateSport(sportSlug)
-    const validatedDivision = validateDivision(division)
+    const { sport: sportSlug, division } = await params;
+    const validatedSport = validateSport(sportSlug);
+    const validatedDivision = validateDivision(division);
 
     // Authenticate user
-    const user = await auth()
+    const user = await auth();
     if (!user.userId) {
-      return new Response('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
     // Get sport ID from database
-    const sportId = await getSportId(validatedSport)
+    const sportId = await getSportId(validatedSport);
 
     // Get current season info
-    const seasonInfo = await getSeasonInfo(validatedSport)
-    const { year, currentWeek: votingWeek } = seasonInfo
+    const seasonInfo = await getSeasonInfo(validatedSport);
+    const { year, currentWeek: votingWeek } = seasonInfo;
 
     // Get user's existing vote for this week
     const existingVote = await db.query.voterBallots.findMany({
@@ -325,7 +351,7 @@ export async function GET(
           eq(model.year, year),
         ),
       orderBy: (model, { asc }) => [asc(model.rank)],
-    })
+    });
 
     return new Response(
       JSON.stringify({
@@ -344,23 +370,23 @@ export async function GET(
       }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       },
-    )
+    );
   } catch (error) {
-    Sentry.captureException(error)
-    console.error('Vote retrieval error:', error)
+    Sentry.captureException(error);
+    console.error("Vote retrieval error:", error);
 
     if (error instanceof Error) {
       return new Response(JSON.stringify({ error: error.message }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      })
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

@@ -1,23 +1,23 @@
 import {
   Card,
-  CardHeader,
   CardContent,
-  CardTitle,
   CardDescription,
-} from '@redshirt-sports/ui/components/card'
+  CardHeader,
+  CardTitle,
+} from "@redshirt-sports/ui/components/card";
+import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 import {
   Table,
-  TableHeader,
-  TableRow,
-  TableHead,
   TableBody,
   TableCell,
-} from '@redshirt-sports/ui/components/table'
-import { Skeleton } from '@redshirt-sports/ui/components/skeleton'
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@redshirt-sports/ui/components/table";
 
 export default function Loading() {
-  const cols = Array.from({ length: 25 })
-  const rows = Array.from({ length: 8 })
+  const cols = Array.from({ length: 25 });
+  const rows = Array.from({ length: 8 });
 
   return (
     <div className="container mx-auto gap-8 px-4 py-8">
@@ -125,7 +125,10 @@ export default function Loading() {
           <div className="block md:hidden">
             <ul className="space-y-3">
               {rows.map((_, r) => (
-                <li key={r} className="bg-card text-card-foreground rounded-md border p-3">
+                <li
+                  key={r}
+                  className="bg-card text-card-foreground rounded-md border p-3"
+                >
                   <div className="mb-2 space-y-2">
                     <Skeleton className="h-4 w-40" />
                     <Skeleton className="h-3 w-56" />
@@ -147,7 +150,10 @@ export default function Loading() {
                       <div className="overflow-x-auto">
                         <div className="flex items-center gap-3">
                           {cols.map((_, i) => (
-                            <div key={i} className="flex shrink-0 flex-col items-center gap-1">
+                            <div
+                              key={i}
+                              className="flex shrink-0 flex-col items-center gap-1"
+                            >
                               <Skeleton className="h-3 w-6" />
                               <Skeleton className="h-9 w-9 rounded-sm" />
                             </div>
@@ -172,5 +178,5 @@ export default function Loading() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

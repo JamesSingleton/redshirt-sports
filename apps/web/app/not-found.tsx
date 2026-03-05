@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { buttonVariants } from '@redshirt-sports/ui/components/button'
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
@@ -12,5 +12,5 @@ export default function NotFound() {
         Return Home
       </Link>
     </div>
-  )
+  );
 }

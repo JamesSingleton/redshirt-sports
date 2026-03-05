@@ -1,35 +1,39 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { LinkIcon } from 'lucide-react'
-import { Card, CardContent, CardHeader } from '@redshirt-sports/ui/components/card'
-import { Button } from '@redshirt-sports/ui/components/button'
-import { Input } from '@redshirt-sports/ui/components/input'
-import { Label } from '@redshirt-sports/ui/components/label'
+import { Button } from "@redshirt-sports/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@redshirt-sports/ui/components/card";
+import { Input } from "@redshirt-sports/ui/components/input";
+import { Label } from "@redshirt-sports/ui/components/label";
+import { LinkIcon } from "lucide-react";
+import { useState } from "react";
 
-import { Facebook, Twitter } from '@/components/icons'
-import { HOME_DOMAIN } from '@/lib/constants'
+import { Facebook, Twitter } from "@/components/icons";
+import { HOME_DOMAIN } from "@/lib/constants";
 
 const shareArticle = ({
   platform,
   url,
   title,
 }: {
-  platform: 'facebook' | 'twitter'
-  url: string
-  title: string
+  platform: "facebook" | "twitter";
+  url: string;
+  title: string;
 }) => {
-  let shareUrl = ''
+  let shareUrl = "";
   switch (platform) {
-    case 'facebook':
-      shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
-      break
-    case 'twitter':
-      shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`
-      break
+    case "facebook":
+      shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+      break;
+    case "twitter":
+      shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+      break;
   }
-  window.open(shareUrl, '_blank', 'noopener,noreferrer')
-}
+  window.open(shareUrl, "_blank", "noopener,noreferrer");
+};
 
 const ShareButtons = ({ url, title }: { url: string; title: string }) => (
   <>
@@ -38,7 +42,7 @@ const ShareButtons = ({ url, title }: { url: string; title: string }) => (
       size="icon"
       onClick={() =>
         shareArticle({
-          platform: 'twitter',
+          platform: "twitter",
           url,
           title,
         })
@@ -52,7 +56,7 @@ const ShareButtons = ({ url, title }: { url: string; title: string }) => (
       size="icon"
       onClick={() =>
         shareArticle({
-          platform: 'facebook',
+          platform: "facebook",
           url,
           title,
         })
@@ -62,18 +66,24 @@ const ShareButtons = ({ url, title }: { url: string; title: string }) => (
       <span className="sr-only">Share on Facebook</span>
     </Button>
   </>
-)
+);
 
-export const LargeArticleSocialShare = ({ slug, title }: { slug: string; title: string }) => {
-  const [copied, setCopied] = useState(false)
-  const articleUrl = `${HOME_DOMAIN}/${slug}`
+export const LargeArticleSocialShare = ({
+  slug,
+  title,
+}: {
+  slug: string;
+  title: string;
+}) => {
+  const [copied, setCopied] = useState(false);
+  const articleUrl = `${HOME_DOMAIN}/${slug}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(articleUrl).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
-  }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   return (
     <Card className="mt-8 hidden w-full lg:block">
@@ -91,7 +101,7 @@ export const LargeArticleSocialShare = ({ slug, title }: { slug: string; title: 
             <Input id="card-article-url" value={articleUrl} readOnly />
             <Button onClick={copyToClipboard}>
               <LinkIcon className="mr-2 h-4 w-4" />
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? "Copied!" : "Copy"}
             </Button>
           </div>
         </div>
@@ -100,19 +110,25 @@ export const LargeArticleSocialShare = ({ slug, title }: { slug: string; title: 
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export const SmallArticleSocialShare = ({ slug, title }: { slug: string; title: string }) => {
-  const [copied, setCopied] = useState(false)
-  const articleUrl = `${HOME_DOMAIN}/${slug}`
+export const SmallArticleSocialShare = ({
+  slug,
+  title,
+}: {
+  slug: string;
+  title: string;
+}) => {
+  const [copied, setCopied] = useState(false);
+  const articleUrl = `${HOME_DOMAIN}/${slug}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(articleUrl).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
-  }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   return (
     <div className="mt-8 w-full lg:hidden">
@@ -124,7 +140,7 @@ export const SmallArticleSocialShare = ({ slug, title }: { slug: string; title: 
             <Input id="inline-article-url" value={articleUrl} readOnly />
             <Button onClick={copyToClipboard}>
               <LinkIcon className="mr-2 h-4 w-4" />
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? "Copied!" : "Copy"}
             </Button>
           </div>
         </div>
@@ -133,5 +149,5 @@ export const SmallArticleSocialShare = ({ slug, title }: { slug: string; title: 
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

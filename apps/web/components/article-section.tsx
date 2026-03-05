@@ -1,19 +1,21 @@
-import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
-import { cn } from '@redshirt-sports/ui/lib/utils'
-import { buttonVariants } from '@redshirt-sports/ui/components/button'
+import type {
+  Author,
+  QueryLatestCollegeSportsArticlesResult,
+} from "@redshirt-sports/sanity/types";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
+import { cn } from "@redshirt-sports/ui/lib/utils";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 
-import FormatDate from '@/components/format-date'
-import ArticleCard from '@/components/article-card'
-import CustomImage from '@/components/sanity-image'
-
-import type { QueryLatestCollegeSportsArticlesResult, Author } from '@redshirt-sports/sanity/types'
+import ArticleCard from "@/components/article-card";
+import FormatDate from "@/components/format-date";
+import CustomImage from "@/components/sanity-image";
 
 interface ArticleSectionProps {
-  title: string
-  slug: string
-  articles: QueryLatestCollegeSportsArticlesResult
-  imageFirst?: boolean
+  title: string;
+  slug: string;
+  articles: QueryLatestCollegeSportsArticlesResult;
+  imageFirst?: boolean;
 }
 
 export default function ArticleSection({
@@ -22,8 +24,8 @@ export default function ArticleSection({
   articles,
   imageFirst = false,
 }: ArticleSectionProps) {
-  const firstArticle = articles[0]!
-  const remainingArticles = articles.slice(1)!
+  const firstArticle = articles[0]!;
+  const remainingArticles = articles.slice(1)!;
 
   return (
     <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
@@ -32,7 +34,10 @@ export default function ArticleSection({
           <h2 className="text-2xl font-semibold">{title}</h2>
           <Link
             href={slug}
-            className={cn(buttonVariants({ variant: 'default' }), 'flex items-center space-x-2')}
+            className={cn(
+              buttonVariants({ variant: "default" }),
+              "flex items-center space-x-2",
+            )}
             prefetch={false}
           >
             <span className="text-sm">View All</span>
@@ -43,8 +48,8 @@ export default function ArticleSection({
         <div className="flex flex-col gap-4 pt-4 md:flex-row">
           <div
             className={cn(
-              'order-1 md:flex md:w-1/2 md:items-center xl:w-1/3',
-              imageFirst ? 'md:order-2' : 'md:order-1',
+              "order-1 md:flex md:w-1/2 md:items-center xl:w-1/3",
+              imageFirst ? "md:order-2" : "md:order-1",
             )}
           >
             <div className="space-y-2 md:flex-1">
@@ -72,11 +77,18 @@ export default function ArticleSection({
                   />
                   {firstArticle.authors[0]?.name}
                 </Link>
-                {firstArticle.publishedAt && <FormatDate dateString={firstArticle.publishedAt} />}
+                {firstArticle.publishedAt && (
+                  <FormatDate dateString={firstArticle.publishedAt} />
+                )}
               </div>
             </div>
           </div>
-          <div className={cn('md:w-1/2 xl:w-2/3', imageFirst ? 'md:order-1' : 'md:order-2')}>
+          <div
+            className={cn(
+              "md:w-1/2 xl:w-2/3",
+              imageFirst ? "md:order-1" : "md:order-2",
+            )}
+          >
             <CustomImage
               image={firstArticle.mainImage}
               width={860}
@@ -99,5 +111,5 @@ export default function ArticleSection({
         </div>
       </div>
     </section>
-  )
+  );
 }

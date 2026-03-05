@@ -1,12 +1,13 @@
-import { defineConfig } from 'drizzle-kit'
-import { env } from '@/app/env'
+import { defineConfig } from "drizzle-kit";
+
+import { env } from "@/app/env";
 
 export default defineConfig({
-  dialect: 'postgresql',
+  dialect: "postgresql",
   // schema: './server/db/schema.ts',
-  schema: '../../packages/db/src/schema.ts',
-  out: './supabase/migrations',
+  schema: "../../packages/db/src/schema.ts",
+  out: "./supabase/migrations",
   dbCredentials: {
     url: env.POSTGRES_URL,
   },
-})
+});

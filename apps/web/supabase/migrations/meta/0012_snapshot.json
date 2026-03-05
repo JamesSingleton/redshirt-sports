@@ -40,9 +40,7 @@
         "seasons_year_unique": {
           "name": "seasons_year_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "year"
-          ]
+          "columns": ["year"]
         }
       },
       "policies": {},
@@ -106,9 +104,7 @@
         "sports_slug_unique": {
           "name": "sports_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -245,12 +241,8 @@
           "name": "voter_ballot_sport_id_sports_id_fk",
           "tableFrom": "voter_ballot",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -328,12 +320,8 @@
           "name": "weekly_final_rankings_sport_id_sports_id_fk",
           "tableFrom": "weekly_final_rankings",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -343,11 +331,7 @@
         "weekly_final_rankings_division_year_week_unique": {
           "name": "weekly_final_rankings_division_year_week_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "division",
-            "year",
-            "week"
-          ]
+          "columns": ["division", "year", "week"]
         }
       },
       "policies": {},
@@ -395,12 +379,8 @@
           "name": "weeks_seasonId_seasons_id_fk",
           "tableFrom": "weeks",
           "tableTo": "seasons",
-          "columnsFrom": [
-            "seasonId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["seasonId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -410,10 +390,7 @@
         "weeks_seasonId_week_unique": {
           "name": "weeks_seasonId_week_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "seasonId",
-            "week"
-          ]
+          "columns": ["seasonId", "week"]
         }
       },
       "policies": {},

@@ -1,18 +1,17 @@
-'use client'
+"use client";
 
-import { useTheme } from 'next-themes'
-import { Sun, Moon, Laptop } from 'lucide-react'
-
-import { Button } from '@redshirt-sports/ui/components/button'
+import { Button } from "@redshirt-sports/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@redshirt-sports/ui/components/dropdown-menu'
+} from "@redshirt-sports/ui/components/dropdown-menu";
+import { Laptop, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export function ModeToggle() {
-  const { setTheme } = useTheme()
+  const { setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -24,19 +23,19 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')}>
+        <DropdownMenuItem onClick={() => setTheme("light")}>
           <Sun className="mr-2 h-4 w-4" />
           <span>Light</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
           <Moon className="mr-2 h-4 w-4" />
           <span>Dark</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
           <Laptop className="mr-2 h-4 w-4" />
           <span>System</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

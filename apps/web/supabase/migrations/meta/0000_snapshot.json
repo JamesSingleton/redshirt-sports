@@ -210,11 +210,7 @@
         "ballots_userId_year_week_unique": {
           "name": "ballots_userId_year_week_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "userId",
-            "year",
-            "week"
-          ]
+          "columns": ["userId", "year", "week"]
         }
       }
     }

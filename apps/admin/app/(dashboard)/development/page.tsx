@@ -1,12 +1,13 @@
-'use client'
-import { Button } from '@redshirt-sports/ui/components/button'
+"use client";
+import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Card,
-  CardHeader,
-  CardDescription,
   CardContent,
+  CardDescription,
+  CardHeader,
   CardTitle,
-} from '@redshirt-sports/ui/components/card'
+} from "@redshirt-sports/ui/components/card";
+import { useActionState } from "react";
 
 import {
   fetchAndLoadAllSeasons,
@@ -16,26 +17,27 @@ import {
   fetchAndLoadSports,
   fetchAndLoadSubdivisions,
   fetchAndTransformRankings,
-} from '@/actions/data-loaders'
-
-import { useActionState } from 'react'
+} from "@/actions/data-loaders";
 
 interface LoaderActionProps {
-  loader: (formData: FormData) => Promise<any>
+  loader: (formData: FormData) => Promise<any>;
 }
 
 function LoaderAction({ loader }: LoaderActionProps) {
   const [state, runAction, isPending] = useActionState(
-    async (_prevState: { success: boolean; error: string | null }, formData: FormData) => {
+    async (
+      _prevState: { success: boolean; error: string | null },
+      formData: FormData,
+    ) => {
       try {
-        await loader(formData)
-        return { success: true, error: null }
+        await loader(formData);
+        return { success: true, error: null };
       } catch (error: any) {
-        return { success: false, error: error?.message || 'Unknown error' }
+        return { success: false, error: error?.message || "Unknown error" };
       }
     },
     { success: false, error: null },
-  )
+  );
 
   return (
     <form action={runAction} className="w-full">
@@ -43,55 +45,59 @@ function LoaderAction({ loader }: LoaderActionProps) {
         Run
       </Button>
       {isPending && <span className="text-sm ml-2">Loading...</span>}
-      {state.error && <span className="block text-sm mt-2 text-destructive">{state.error}</span>}
+      {state.error && (
+        <span className="block text-sm mt-2 text-destructive">
+          {state.error}
+        </span>
+      )}
       {state.success && !state.error && (
         <span className="block text-sm text-green-600 mt-2">Success!</span>
       )}
     </form>
-  )
+  );
 }
 
 const configuredLoaders = [
   {
-    label: 'Sports',
+    label: "Sports",
     description:
-      'This loader will pull sports from Sanity and load them. It should be the first loader run on a fresh db.',
+      "This loader will pull sports from Sanity and load them. It should be the first loader run on a fresh db.",
     loader: fetchAndLoadSports,
   },
   {
-    label: 'Seasons, Season Types, and Weeks',
+    label: "Seasons, Season Types, and Weeks",
     description:
-      'This loader will fetch season info along with season types and weeks for the three sports currently supported (football, mens basketball, and womens basketball) and insert it into the db. Season info going back to 2023 will be loaded.',
+      "This loader will fetch season info along with season types and weeks for the three sports currently supported (football, mens basketball, and womens basketball) and insert it into the db. Season info going back to 2023 will be loaded.",
     loader: fetchAndLoadAllSeasons,
   },
   {
-    label: 'Divisions',
+    label: "Divisions",
     description:
-      'This loader will fetch and load division info (D1, D2, NAIA, etc). It should be run before conferences or subdivisions.',
+      "This loader will fetch and load division info (D1, D2, NAIA, etc). It should be run before conferences or subdivisions.",
     loader: fetchAndLoadDivisions,
   },
   {
-    label: 'Conferences',
+    label: "Conferences",
     description:
-      'This loader will fetch and load conference info (MVFC, UAC, etc). This should be run before schools in order for school conference affiliations to be created.',
+      "This loader will fetch and load conference info (MVFC, UAC, etc). This should be run before schools in order for school conference affiliations to be created.",
     loader: fetchAndLoadConferences,
   },
   {
-    label: 'Subdivisions',
+    label: "Subdivisions",
     description:
-      'This loader will fetch subdivisions (FCS, FBS, etc) for the sports that support it. It should run before schools.',
+      "This loader will fetch subdivisions (FCS, FBS, etc) for the sports that support it. It should run before schools.",
     loader: fetchAndLoadSubdivisions,
   },
   {
-    label: 'Schools',
-    description: 'This loader will fetch and load school info.',
+    label: "Schools",
+    description: "This loader will fetch and load school info.",
     loader: fetchAndLoadSchools,
   },
   {
-    label: 'Rankings',
+    label: "Rankings",
     loader: fetchAndTransformRankings,
   },
-]
+];
 
 export default function Development() {
   return (
@@ -111,5 +117,5 @@ export default function Development() {
         ))}
       </div>
     </div>
-  )
+  );
 }

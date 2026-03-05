@@ -1,19 +1,5 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import {
-  IconCamera,
-  IconDeviceLaptop,
-  IconFileAi,
-  IconFileDescription,
-  IconHelp,
-  IconSearch,
-  IconSettings,
-} from '@tabler/icons-react'
-
-import { NavMain } from '@/components/nav-main'
-import { NavSecondary } from '@/components/nav-secondary'
-import { NavUser } from '@/components/nav-user'
 import {
   Sidebar,
   SidebarContent,
@@ -22,82 +8,96 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@redshirt-sports/ui/components/sidebar'
-import Image from 'next/image'
+} from "@redshirt-sports/ui/components/sidebar";
+import {
+  IconCamera,
+  IconDeviceLaptop,
+  IconFileAi,
+  IconFileDescription,
+  IconHelp,
+  IconSearch,
+  IconSettings,
+} from "@tabler/icons-react";
+import Image from "next/image";
+import type * as React from "react";
+
+import { NavMain } from "@/components/nav-main";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 
 const data = {
   navMain: [
     {
-      title: 'Development',
-      url: '/development',
+      title: "Development",
+      url: "/development",
       icon: IconDeviceLaptop,
     },
   ],
   navClouds: [
     {
-      title: 'Capture',
+      title: "Capture",
       icon: IconCamera,
-      url: '#',
+      url: "#",
       items: [
         {
-          title: 'Active Proposals',
-          url: '#',
+          title: "Active Proposals",
+          url: "#",
         },
         {
-          title: 'Archived',
-          url: '#',
+          title: "Archived",
+          url: "#",
         },
       ],
     },
     {
-      title: 'Proposal',
+      title: "Proposal",
       icon: IconFileDescription,
-      url: '#',
+      url: "#",
       items: [
         {
-          title: 'Active Proposals',
-          url: '#',
+          title: "Active Proposals",
+          url: "#",
         },
         {
-          title: 'Archived',
-          url: '#',
+          title: "Archived",
+          url: "#",
         },
       ],
     },
     {
-      title: 'Prompts',
+      title: "Prompts",
       icon: IconFileAi,
-      url: '#',
+      url: "#",
       items: [
         {
-          title: 'Active Proposals',
-          url: '#',
+          title: "Active Proposals",
+          url: "#",
         },
         {
-          title: 'Archived',
-          url: '#',
+          title: "Archived",
+          url: "#",
         },
       ],
     },
   ],
   navSecondary: [
     {
-      title: 'Settings',
-      url: '#',
+      title: "Settings",
+      url: "#",
       icon: IconSettings,
     },
     {
-      title: 'Get Help',
-      url: '#',
+      title: "Get Help",
+      url: "#",
       icon: IconHelp,
     },
     {
-      title: 'Search',
-      url: '#',
+      title: "Search",
+      url: "#",
       icon: IconSearch,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -105,8 +105,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
-              <a href="#">
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
+            >
+              <a href="/">
                 {/*<IconInnerShadowTop className="!size-5" />*/}
                 <Image
                   src="https://cdn.sanity.io/images/8pbt9f8w/production/6ed24cde242b41912e2d06bf2ca7da9abdf97c06-4347x2855.svg"
@@ -130,5 +133,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

@@ -1,48 +1,53 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 type UserMetadata = {
-  isVoter?: boolean
-  isAdmin?: boolean
-}
+  isVoter?: boolean;
+  isAdmin?: boolean;
+};
 
-const isOnboardingRoute = createRouteMatcher(['/onboarding'])
-const isProtectedRoute = createRouteMatcher(['/admin(.*)', '/vote(.*)'])
+const isOnboardingRoute = createRouteMatcher(["/onboarding"]);
+const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/vote(.*)"]);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const { userId, sessionClaims, redirectToSignIn } = await auth()
+  const { userId, sessionClaims, redirectToSignIn } = await auth();
   if (isProtectedRoute(req)) {
-    await auth.protect()
-    const { isVoter, isAdmin } = sessionClaims?.metadata as UserMetadata
+    await auth.protect();
+    const { isVoter, isAdmin } = sessionClaims?.metadata as UserMetadata;
 
-    if (!isAdmin && req.nextUrl.pathname.startsWith('/admin')) {
-      return NextResponse.error()
+    if (!isAdmin && req.nextUrl.pathname.startsWith("/admin")) {
+      return NextResponse.error();
     }
 
     if (!isVoter) {
-      return NextResponse.redirect(new URL('/', req.url))
+      return NextResponse.redirect(new URL("/", req.url));
     }
   }
 
   if (userId && isOnboardingRoute(req)) {
-    return NextResponse.next()
+    return NextResponse.next();
   }
 
   if (!userId && isProtectedRoute(req)) {
-    return redirectToSignIn({ returnBackUrl: req.url })
+    return redirectToSignIn({ returnBackUrl: req.url });
   }
 
   if (userId && !sessionClaims?.metadata?.onboardingComplete) {
-    const onboardingUrl = new URL('/onboarding', req.url)
-    onboardingUrl.searchParams.set('redirect_url', req.url)
-    return NextResponse.redirect(onboardingUrl)
+    const onboardingUrl = new URL("/onboarding", req.url);
+    onboardingUrl.searchParams.set("redirect_url", req.url);
+    return NextResponse.redirect(onboardingUrl);
   }
 
   if (userId && isProtectedRoute(req)) {
-    return NextResponse.next()
+    return NextResponse.next();
   }
-})
+});
 
 export const config = {
-  matcher: ['/admin/:path*', '/vote/:path*', '/onboarding/:path*', '/api/vote/:path*'],
-}
+  matcher: [
+    "/admin/:path*",
+    "/vote/:path*",
+    "/onboarding/:path*",
+    "/api/vote/:path*",
+  ],
+};
