@@ -1,46 +1,52 @@
-'use client'
-import { useRouter, useParams } from 'next/navigation'
-import posthog from 'posthog-js'
+"use client";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
-} from '@redshirt-sports/ui/components/select'
+  SelectTrigger,
+  SelectValue,
+} from "@redshirt-sports/ui/components/select";
+import { useParams, useRouter } from "next/navigation";
+import posthog from "posthog-js";
 
 type Week = {
-  week: number
-}
+  week: number;
+};
 
 type Year = {
-  year: number
-}
+  year: number;
+};
 
-export const RankingsFilters = ({ years, weeks }: { years: Year[]; weeks: Week[] }) => {
-  const router = useRouter()
-  const { division, year, week, sport } = useParams()
+export const RankingsFilters = ({
+  years,
+  weeks,
+}: {
+  years: Year[];
+  weeks: Week[];
+}) => {
+  const router = useRouter();
+  const { division, year, week, sport } = useParams();
 
   const handleYearChange = (e: string) => {
-    posthog.capture('rankings_filter_changed', {
-      filter_type: 'year',
+    posthog.capture("rankings_filter_changed", {
+      filter_type: "year",
       new_value: e,
       sport,
       division,
-    })
-    router.push(`/college/${sport}/rankings/${division}/${e}/0`)
-  }
+    });
+    router.push(`/college/${sport}/rankings/${division}/${e}/0`);
+  };
 
   const handleWeekChange = (e: string) => {
-    posthog.capture('rankings_filter_changed', {
-      filter_type: 'week',
+    posthog.capture("rankings_filter_changed", {
+      filter_type: "week",
       new_value: e,
       sport,
       division,
       year,
-    })
-    router.push(`/college/${sport}/rankings/${division}/${year}/${e}`)
-  }
+    });
+    router.push(`/college/${sport}/rankings/${division}/${year}/${e}`);
+  };
 
   return (
     <>
@@ -64,15 +70,21 @@ export const RankingsFilters = ({ years, weeks }: { years: Year[]; weeks: Week[]
           {weeks.map(({ week }: Week) => (
             <SelectItem
               key={week}
-              value={week.toString() === '999' ? 'final-rankings' : week.toString()}
+              value={
+                week.toString() === "999" ? "final-rankings" : week.toString()
+              }
             >
               {/* {week === 0 ? 'Preseason' : `Week ${week}`} */}
               {/* if week === 0 then Preseason, if week is 999 Final Rankings else `Week ${week}` */}
-              {week === 0 ? 'Preseason' : week === 999 ? 'Final Rankings' : `Week ${week}`}
+              {week === 0
+                ? "Preseason"
+                : week === 999
+                  ? "Final Rankings"
+                  : `Week ${week}`}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
     </>
-  )
-}
+  );
+};

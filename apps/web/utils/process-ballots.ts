@@ -1,37 +1,37 @@
-import { client } from '@redshirt-sports/sanity/client'
-import { token } from '@redshirt-sports/sanity/token'
-import { schoolWithVoteOrder } from '@redshirt-sports/sanity/queries'
+import { client } from "@redshirt-sports/sanity/client";
+import { schoolWithVoteOrder } from "@redshirt-sports/sanity/queries";
+import { token } from "@redshirt-sports/sanity/token";
 
-import type { BallotsByVoter, Ballot } from '@/types'
+import type { Ballot, BallotsByVoter } from "@/types";
 
 export async function processVoterBallots(userBallots: BallotsByVoter) {
-  const voterBallot = []
+  const voterBallot = [];
 
   for (const userId in userBallots) {
-    const userBallot = userBallots[userId]
+    const userBallot = userBallots[userId];
 
-    if (!userBallot) continue
+    if (!userBallot) continue;
 
-    const { votes, userData } = userBallot
+    const { votes, userData } = userBallot;
     const votesWithMoreData = await client.fetch(
       schoolWithVoteOrder,
       {
         ids: votes,
       },
-      { token, perspective: 'published' },
-    )
+      { token, perspective: "published" },
+    );
 
     voterBallot.push({
       name: `${userData.firstName} ${userData.lastName}`,
       organization: userData.organization,
       organizationRole: userData.organizationRole,
       ballot: votesWithMoreData,
-    })
+    });
   }
 
-  return voterBallot
+  return voterBallot;
 }
 
 export const transformBallotToTeamIds = (ballot: Ballot[]) => {
-  return ballot.map((b: Ballot) => ({ id: b.teamId, rank: b.rank }))
-}
+  return ballot.map((b: Ballot) => ({ id: b.teamId, rank: b.rank }));
+};

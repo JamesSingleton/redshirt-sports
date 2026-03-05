@@ -1,35 +1,34 @@
-'use client'
-import { useState } from 'react'
-import Link from 'next/link'
-import { Menu, ChevronDown, ChevronRight } from 'lucide-react'
+"use client";
+import type { GlobalNavigationQueryResult } from "@redshirt-sports/sanity/types";
+import { Button } from "@redshirt-sports/ui/components/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@redshirt-sports/ui/components/collapsible";
+import { ScrollArea } from "@redshirt-sports/ui/components/scroll-area";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@redshirt-sports/ui/components/sheet'
-import { Button } from '@redshirt-sports/ui/components/button'
-import { ScrollArea } from '@redshirt-sports/ui/components/scroll-area'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@redshirt-sports/ui/components/collapsible'
+} from "@redshirt-sports/ui/components/sheet";
+import { ChevronDown, ChevronRight, Menu } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
-import SmallLogo from './small-logo'
-import { SearchBar } from './search-bar'
-
-import type { GlobalNavigationQueryResult } from '@redshirt-sports/sanity/types'
+import { SearchBar } from "./search-bar";
+import SmallLogo from "./small-logo";
 
 export default function MegaMobileNav({
   sportsNav,
   latestFCSTop25,
 }: {
-  sportsNav: GlobalNavigationQueryResult
-  latestFCSTop25: any
+  sportsNav: GlobalNavigationQueryResult;
+  latestFCSTop25: any;
 }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   return (
     <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
       <SheetTrigger asChild>
@@ -100,7 +99,7 @@ export default function MegaMobileNav({
                   <CollapsibleContent className="px-2 pb-1">
                     <div className="mt-1 grid grid-cols-1 gap-0.5">
                       <Link
-                        href={`/college/football/rankings/${latestFCSTop25?.division}/${latestFCSTop25?.year}/${latestFCSTop25?.week === 999 ? 'final-rankings' : latestFCSTop25?.week}`}
+                        href={`/college/football/rankings/${latestFCSTop25?.division}/${latestFCSTop25?.year}/${latestFCSTop25?.week === 999 ? "final-rankings" : latestFCSTop25?.week}`}
                         className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
                         onClick={() => setMobileMenuOpen(false)}
                       >
@@ -170,5 +169,5 @@ export default function MegaMobileNav({
         </ScrollArea>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

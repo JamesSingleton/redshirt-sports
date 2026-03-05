@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import posthog from 'posthog-js'
+import Link from "next/link";
+import posthog from "posthog-js";
 
 type ContactEmailLinkProps = {
-  email: string
-  category: string
-}
+  email: string;
+  category: string;
+};
 
 export function ContactEmailLink({ email, category }: ContactEmailLinkProps) {
   const handleClick = () => {
-    posthog.capture('contact_email_clicked', {
+    posthog.capture("contact_email_clicked", {
       email_category: category,
       email_address: email,
-    })
-  }
+    });
+  };
 
   return (
     <Link
@@ -24,5 +24,5 @@ export function ContactEmailLink({ email, category }: ContactEmailLinkProps) {
     >
       {email}
     </Link>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-import * as React from 'react'
-import Link from 'next/link'
+import { getLatestFinalRankings } from "@redshirt-sports/db/queries";
+import type { GlobalNavigationQueryResult } from "@redshirt-sports/sanity/types";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -8,20 +8,23 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from '@redshirt-sports/ui/components/navigation-menu'
-import { ScrollArea } from '@redshirt-sports/ui/components/scroll-area'
-import { SearchBar } from './search-bar'
-import SmallLogo from './small-logo'
-import { getLatestFinalRankings } from '@redshirt-sports/db/queries'
-import MegaMobileNav from './mega-mobile-nav'
-import { ModeToggle } from './mode-toggle'
+} from "@redshirt-sports/ui/components/navigation-menu";
+import { ScrollArea } from "@redshirt-sports/ui/components/scroll-area";
+import Link from "next/link";
 
-import type { GlobalNavigationQueryResult } from '@redshirt-sports/sanity/types'
+import MegaMobileNav from "./mega-mobile-nav";
+import { ModeToggle } from "./mode-toggle";
+import { SearchBar } from "./search-bar";
+import SmallLogo from "./small-logo";
 
-export async function MegaNav({ sportsNav }: { sportsNav: GlobalNavigationQueryResult }) {
+export async function MegaNav({
+  sportsNav,
+}: {
+  sportsNav: GlobalNavigationQueryResult;
+}) {
   const latestFCSTop25 = await getLatestFinalRankings({
-    division: 'fcs',
-  })
+    division: "fcs",
+  });
 
   return (
     <header className="bg-background sticky top-0 z-50 w-full border-b shadow-sm">
@@ -50,7 +53,7 @@ export async function MegaNav({ sportsNav }: { sportsNav: GlobalNavigationQueryR
                               {grouping?.name}
                             </h3>
                             <ScrollArea
-                              className="h-[280px] pr-4"
+                              className="h-87.5 pr-4"
                               scrollHideDelay={0}
                               type="always"
                             >
@@ -68,7 +71,7 @@ export async function MegaNav({ sportsNav }: { sportsNav: GlobalNavigationQueryR
                               </div>
                             </ScrollArea>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   </div>
@@ -79,7 +82,7 @@ export async function MegaNav({ sportsNav }: { sportsNav: GlobalNavigationQueryR
             <NavigationMenuItem>
               <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
               <NavigationMenuContent>
-                <div className="w-[600px] p-4">
+                <div className="w-[600px] p-4 w-">
                   <div className="grid gap-6">
                     <div className="space-y-3">
                       <h3 className="border-b pb-1 text-base font-medium">
@@ -87,7 +90,7 @@ export async function MegaNav({ sportsNav }: { sportsNav: GlobalNavigationQueryR
                       </h3>
                       <div className="space-y-1.5">
                         <Link
-                          href={`/college/football/rankings/${latestFCSTop25?.division}/${latestFCSTop25?.year}/${latestFCSTop25?.week === 999 ? 'final-rankings' : latestFCSTop25?.week}`}
+                          href={`/college/football/rankings/${latestFCSTop25?.division}/${latestFCSTop25?.year}/${latestFCSTop25?.week === 999 ? "final-rankings" : latestFCSTop25?.week}`}
                           className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
                         >
                           FCS College Football Rankings
@@ -131,7 +134,10 @@ export async function MegaNav({ sportsNav }: { sportsNav: GlobalNavigationQueryR
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()} href="/college/news">
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                href="/college/news"
+              >
                 News
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -147,5 +153,5 @@ export async function MegaNav({ sportsNav }: { sportsNav: GlobalNavigationQueryR
         </div>
       </div>
     </header>
-  )
+  );
 }

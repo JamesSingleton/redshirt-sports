@@ -1,13 +1,13 @@
-import Link from 'next/link'
+import type { QueryHomePageDataResult } from "@redshirt-sports/sanity/types";
+import Link from "next/link";
 
-import FormatDate from '@/components/format-date'
-import ArticleCard from '@/components/article-card'
-import CustomImage from '../sanity-image'
-import { QueryHomePageDataResult } from '@redshirt-sports/sanity/types'
+import ArticleCard from "@/components/article-card";
+import FormatDate from "@/components/format-date";
+import CustomImage from "../sanity-image";
 
 const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
-  const heroArticle = heroPosts[0]!
-  const recentArticles = heroPosts.slice(1)
+  const heroArticle = heroPosts[0]!;
+  const recentArticles = heroPosts.slice(1);
 
   return (
     <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
@@ -26,7 +26,9 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
                   {heroArticle.title}
                 </Link>
               </h1>
-              <p className="text-muted-foreground line-clamp-2">{heroArticle.excerpt}</p>
+              <p className="text-muted-foreground line-clamp-2">
+                {heroArticle.excerpt}
+              </p>
               <div className="text-muted-foreground flex flex-wrap items-center space-x-2 text-base">
                 <Link
                   href={`/authors/${heroArticle.authors[0]?.slug}`}
@@ -39,9 +41,13 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
                     height={32}
                     className="size-8 rounded-full"
                   />
-                  <span className="text-primary">{heroArticle.authors[0]?.name}</span>
+                  <span className="text-primary">
+                    {heroArticle.authors[0]?.name}
+                  </span>
                 </Link>
-                {heroArticle.publishedAt && <FormatDate dateString={heroArticle.publishedAt} />}
+                {heroArticle.publishedAt && (
+                  <FormatDate dateString={heroArticle.publishedAt} />
+                )}
               </div>
             </div>
           </div>
@@ -62,7 +68,7 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Hero
+export default Hero;

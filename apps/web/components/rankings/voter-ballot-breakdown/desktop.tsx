@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Table,
   TableBody,
@@ -8,21 +8,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@redshirt-sports/ui/components/table'
-import { Button } from '@redshirt-sports/ui/components/button'
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
-import { TeamLogo } from './team-logo'
-import type { Voter } from '@/types/votes'
+} from "@redshirt-sports/ui/components/table";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
+import * as React from "react";
+
+import type { Voter } from "@/types/votes";
+import { TeamLogo } from "./team-logo";
 
 type Props = {
-  rows: Voter[]
-  page: number
-  pageCount: number
-  onFirstAction: () => void
-  onPrevAction: () => void
-  onNextAction: () => void
-  onLastAction: () => void
-}
+  rows: Voter[];
+  page: number;
+  pageCount: number;
+  onFirstAction: () => void;
+  onPrevAction: () => void;
+  onNextAction: () => void;
+  onLastAction: () => void;
+};
 
 export default function VoterBreakdownDesktop({
   rows,
@@ -33,7 +39,7 @@ export default function VoterBreakdownDesktop({
   onNextAction,
   onLastAction,
 }: Props) {
-  const scrollRef = React.useRef<HTMLDivElement>(null)
+  const scrollRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <div className="hidden md:block">
@@ -42,7 +48,9 @@ export default function VoterBreakdownDesktop({
           <Table className="min-w-max">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="bg-background sticky left-0 z-20">Voter</TableHead>
+                <TableHead className="bg-background sticky left-0 z-20">
+                  Voter
+                </TableHead>
                 {Array.from({ length: 25 }, (_, i) => (
                   <TableHead key={i} className="min-w-12 text-center">
                     {i + 1}
@@ -57,11 +65,16 @@ export default function VoterBreakdownDesktop({
                     <div className="font-medium">{voter.name}</div>
                     <div className="text-muted-foreground text-sm italic">
                       {voter.organization}
-                      {voter.organizationRole ? ` (${voter.organizationRole})` : ''}
+                      {voter.organizationRole
+                        ? ` (${voter.organizationRole})`
+                        : ""}
                     </div>
                   </TableCell>
                   {voter.ballot?.slice(0, 25).map((vote, i) => (
-                    <TableCell key={`${vote?._id ?? 'na'}-${i}`} className="py-1">
+                    <TableCell
+                      key={`${vote?._id ?? "na"}-${i}`}
+                      className="py-1"
+                    >
                       <div className="flex items-center justify-center">
                         {vote ? (
                           <TeamLogo vote={vote} size={40} />
@@ -125,5 +138,5 @@ export default function VoterBreakdownDesktop({
         </Button>
       </div>
     </div>
-  )
+  );
 }

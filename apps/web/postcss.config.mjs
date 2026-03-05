@@ -1,1 +1,1 @@
-export { default } from '@redshirt-sports/ui/postcss.config'
+export { default } from "@redshirt-sports/ui/postcss.config";

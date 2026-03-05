@@ -1,20 +1,20 @@
-import { parseISO, format } from 'date-fns'
-import { toZonedTime } from 'date-fns-tz'
+import { format, parseISO } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 
-import type { WithClassName } from '@/types'
+import type { WithClassName } from "@/types";
 
 interface DateProps extends WithClassName {
-  dateString: string
+  dateString: string;
 }
 
-const timeZone = 'America/Phoenix'
+const timeZone = "America/Phoenix";
 
 export default function FormatDate({ dateString, className }: DateProps) {
-  const date = parseISO(dateString)
+  const date = parseISO(dateString);
 
   return (
     <time dateTime={dateString} className={className} suppressHydrationWarning>
-      {format(toZonedTime(date, timeZone), 'LLL d, yyyy')}
+      {format(toZonedTime(date, timeZone), "LLL d, yyyy")}
     </time>
-  )
+  );
 }

@@ -17,13 +17,16 @@
     "SANITY_STUDIO_PRESENTATION_URL"
   ],
   "tasks": {
+    "topo": {
+      "dependsOn": ["^topo"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**", ".sanity/**"]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^topo"]
     },
     "check:types": {
       "dependsOn": ["^check:types"]

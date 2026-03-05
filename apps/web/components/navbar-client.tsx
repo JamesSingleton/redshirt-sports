@@ -1,17 +1,15 @@
-'use client'
+"use client";
 
-import { useEffect, useState, memo, useMemo } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Menu, ChevronDown, ChevronRight } from 'lucide-react'
-
-import { ScrollArea } from '@redshirt-sports/ui/components/scroll-area'
+import type {
+  GlobalNavigationQueryResult,
+  QueryGlobalSeoSettingsResult,
+} from "@redshirt-sports/sanity/types";
+import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@redshirt-sports/ui/components/collapsible'
-import { Button } from '@redshirt-sports/ui/components/button'
+} from "@redshirt-sports/ui/components/collapsible";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -20,52 +18,59 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from '@redshirt-sports/ui/components/navigation-menu'
-import { SheetContent, SheetHeader, SheetTitle } from '@redshirt-sports/ui/components/sheet'
-import { Sheet, SheetTrigger } from '@redshirt-sports/ui/components/sheet'
+} from "@redshirt-sports/ui/components/navigation-menu";
+import { ScrollArea } from "@redshirt-sports/ui/components/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@redshirt-sports/ui/components/sheet";
+import { ChevronDown, ChevronRight, Menu } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { memo, useEffect, useMemo, useState } from "react";
 
-import { useIsMobile } from '@/hooks/use-is-mobile'
-import type {
-  GlobalNavigationQueryResult,
-  QueryGlobalSeoSettingsResult,
-} from '@redshirt-sports/sanity/types'
-
-import { Logo } from './logo'
-import { ModeToggle } from './mode-toggle'
-import { SearchBar } from './search-bar'
-import { Top25RankingsData } from './navbar'
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { Logo } from "./logo";
+import { ModeToggle } from "./mode-toggle";
+import type { Top25RankingsData } from "./navbar";
+import { SearchBar } from "./search-bar";
 
 const divisionDisplayNames: Record<string, string> = {
-  fbs: 'FBS',
-  fcs: 'FCS',
-  d2: 'Division II',
-  d3: 'Division III',
-  naia: 'NAIA',
-  'power-conference': 'Power Conference',
-  'mid-major': 'Mid-Major',
-}
+  fbs: "FBS",
+  fcs: "FCS",
+  d2: "Division II",
+  d3: "Division III",
+  naia: "NAIA",
+  "power-conference": "Power Conference",
+  "mid-major": "Mid-Major",
+};
 
 const MobileNavbar = memo(function MobileNavbar({
   navbarData,
   settingsData,
   latestRankings,
 }: {
-  navbarData: GlobalNavigationQueryResult
-  settingsData: QueryGlobalSeoSettingsResult
-  latestRankings: Top25RankingsData
+  navbarData: GlobalNavigationQueryResult;
+  settingsData: QueryGlobalSeoSettingsResult;
+  latestRankings: Top25RankingsData;
 }) {
-  const { siteTitle, logo } = settingsData ?? {}
-  const [isOpen, setIsOpen] = useState(false)
+  const { siteTitle, logo } = settingsData ?? {};
+  const [isOpen, setIsOpen] = useState(false);
   const footballRankings = useMemo(
-    () => latestRankings.find((sportData) => sportData.sport === 'football')?.divisions || [],
+    () =>
+      latestRankings.find((sportData) => sportData.sport === "football")
+        ?.divisions || [],
     [latestRankings],
-  )
+  );
 
-  const path = usePathname()
+  const path = usePathname();
 
   useEffect(() => {
-    setIsOpen(false)
-  }, [path])
+    setIsOpen(false);
+  }, [path]);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -79,7 +84,9 @@ const MobileNavbar = memo(function MobileNavbar({
       </div>
       <SheetContent className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{logo && <Logo alt={siteTitle} image={logo} />}</SheetTitle>
+          <SheetTitle>
+            {logo && <Logo alt={siteTitle} image={logo} />}
+          </SheetTitle>
         </SheetHeader>
         <div className="my-4 flex flex-col gap-4">
           <div className="border-b px-4 py-3">
@@ -136,12 +143,13 @@ const MobileNavbar = memo(function MobileNavbar({
                         {footballRankings.map((ranking: any) => (
                           <Link
                             key={`${ranking?.division}-${ranking?.year}-${ranking?.week}-mobile`}
-                            href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? 'final-rankings' : ranking?.week}`}
+                            href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? "final-rankings" : ranking?.week}`}
                             className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
                             onClick={() => setIsOpen(false)}
                           >
-                            {divisionDisplayNames[ranking?.division] ?? ranking?.division} Football
-                            Rankings
+                            {divisionDisplayNames[ranking?.division] ??
+                              ranking?.division}{" "}
+                            Football Rankings
                           </Link>
                         ))}
                       </div>
@@ -156,7 +164,9 @@ const MobileNavbar = memo(function MobileNavbar({
                   </CollapsibleTrigger>
                   <CollapsibleContent className="px-2 pb-1">
                     <div className="mt-1 grid grid-cols-1 gap-0.5">
-                      <span className="text-muted-foreground py-1 text-sm">Coming Soon...</span>
+                      <span className="text-muted-foreground py-1 text-sm">
+                        Coming Soon...
+                      </span>
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
@@ -175,20 +185,22 @@ const MobileNavbar = memo(function MobileNavbar({
         </div>
       </SheetContent>
     </Sheet>
-  )
-})
+  );
+});
 
 export const DesktopNavbar = memo(function DesktopNavbar({
   navbarData,
   latestRankings,
 }: {
-  navbarData: GlobalNavigationQueryResult
-  latestRankings: Top25RankingsData
+  navbarData: GlobalNavigationQueryResult;
+  latestRankings: Top25RankingsData;
 }) {
   const footballRankings = useMemo(
-    () => latestRankings.find((sportData) => sportData.sport === 'football')?.divisions || [],
+    () =>
+      latestRankings.find((sportData) => sportData.sport === "football")
+        ?.divisions || [],
     [latestRankings],
-  )
+  );
 
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-8">
@@ -203,8 +215,14 @@ export const DesktopNavbar = memo(function DesktopNavbar({
                     {sport.groupings.map((grouping) => {
                       return (
                         <div className="space-y-3" key={grouping?._id}>
-                          <h3 className="border-b pb-1 text-base font-medium">{grouping?.name}</h3>
-                          <ScrollArea className="h-[280px] pr-4" scrollHideDelay={0} type="always">
+                          <h3 className="border-b pb-1 text-base font-medium">
+                            {grouping?.name}
+                          </h3>
+                          <ScrollArea
+                            className="h-[280px] pr-4"
+                            scrollHideDelay={0}
+                            type="always"
+                          >
                             <div className="space-y-1.5">
                               {grouping?.conferences.map((conference) => (
                                 <Link
@@ -220,7 +238,7 @@ export const DesktopNavbar = memo(function DesktopNavbar({
                             </div>
                           </ScrollArea>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
@@ -236,17 +254,20 @@ export const DesktopNavbar = memo(function DesktopNavbar({
                   <div className="grid grid-cols-2 gap-6">
                     {footballRankings && (
                       <div className="space-y-3">
-                        <h3 className="border-b pb-1 text-base font-medium">College Football</h3>
+                        <h3 className="border-b pb-1 text-base font-medium">
+                          College Football
+                        </h3>
                         <div className="space-y-1.5">
                           {footballRankings.map((ranking) => (
                             <Link
                               key={`${ranking?.division}-${ranking?.year}-${ranking?.week}`}
-                              href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? 'final-rankings' : ranking?.week}`}
+                              href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? "final-rankings" : ranking?.week}`}
                               className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
                             >
-                              {ranking?.division && divisionDisplayNames[ranking.division]
+                              {ranking?.division &&
+                              divisionDisplayNames[ranking.division]
                                 ? divisionDisplayNames[ranking.division]
-                                : ranking?.division}{' '}
+                                : ranking?.division}{" "}
                               Football Rankings
                             </Link>
                           ))}
@@ -258,7 +279,9 @@ export const DesktopNavbar = memo(function DesktopNavbar({
                         Men&apos;s College Basketball
                       </h3>
                       <div className="space-y-1.5">
-                        <span className="text-muted-foreground py-1 text-sm">Coming Soon...</span>
+                        <span className="text-muted-foreground py-1 text-sm">
+                          Coming Soon...
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -268,7 +291,10 @@ export const DesktopNavbar = memo(function DesktopNavbar({
           )}
 
           <NavigationMenuItem>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()} href="/college/news">
+            <NavigationMenuLink
+              className={navigationMenuTriggerStyle()}
+              href="/college/news"
+            >
               News
             </NavigationMenuLink>
           </NavigationMenuItem>
@@ -280,23 +306,23 @@ export const DesktopNavbar = memo(function DesktopNavbar({
         <ModeToggle />
       </div>
     </div>
-  )
-})
+  );
+});
 
 const ClientSideNavbar = memo(function ClientSideNavbar({
   navbarData,
   settingsData,
   latestRankings,
 }: {
-  navbarData: GlobalNavigationQueryResult
-  settingsData: QueryGlobalSeoSettingsResult
-  latestRankings: Top25RankingsData
+  navbarData: GlobalNavigationQueryResult;
+  settingsData: QueryGlobalSeoSettingsResult;
+  latestRankings: Top25RankingsData;
 }) {
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
 
   // Show skeleton during initial render/hydration to prevent mismatch
   if (isMobile === null) {
-    return <NavbarSkeletonResponsive />
+    return <NavbarSkeletonResponsive />;
   }
 
   return isMobile ? (
@@ -307,8 +333,8 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
     />
   ) : (
     <DesktopNavbar navbarData={navbarData} latestRankings={latestRankings} />
-  )
-})
+  );
+});
 
 function SkeletonMobileNavbar() {
   return (
@@ -317,7 +343,7 @@ function SkeletonMobileNavbar() {
         <div className="bg-muted h-10 w-10 animate-pulse rounded-md" />
       </div>
     </div>
-  )
+  );
 }
 
 function SkeletonDesktopNavbar() {
@@ -343,7 +369,7 @@ function SkeletonDesktopNavbar() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export function NavbarSkeletonResponsive() {
@@ -352,8 +378,8 @@ export function NavbarSkeletonResponsive() {
       <SkeletonMobileNavbar />
       <SkeletonDesktopNavbar />
     </>
-  )
+  );
 }
 
 // Export the client navbar directly - now SSR-friendly with proper hydration handling
-export const NavbarClient = ClientSideNavbar
+export const NavbarClient = ClientSideNavbar;

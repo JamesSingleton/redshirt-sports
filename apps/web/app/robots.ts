@@ -1,13 +1,20 @@
-import { HOME_DOMAIN } from '@/lib/constants'
+import type { MetadataRoute } from "next";
 
-import type { MetadataRoute } from 'next'
+import { HOME_DOMAIN } from "@/lib/constants";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
-      userAgent: '*',
-      allow: ['/'],
-      disallow: ['/api/cron/', '/api/vote/', '/api/webhooks/', '/vote/', '/sign-in/', '/sign-up/'],
+      userAgent: "*",
+      allow: ["/"],
+      disallow: [
+        "/api/cron/",
+        "/api/vote/",
+        "/api/webhooks/",
+        "/vote/",
+        "/sign-in/",
+        "/sign-up/",
+      ],
     },
     sitemap: [
       `${HOME_DOMAIN}/sitemap.xml`,
@@ -15,5 +22,5 @@ export default function robots(): MetadataRoute.Robots {
       `${HOME_DOMAIN}/college/sitemap.xml`,
       `${HOME_DOMAIN}/college/news/sitemap/0.xml`,
     ],
-  }
+  };
 }

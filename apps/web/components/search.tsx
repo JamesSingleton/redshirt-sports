@@ -1,31 +1,31 @@
-'use client'
+"use client";
 
-import { useCallback, ChangeEvent } from 'react'
-import { useRouter } from 'next/navigation'
-import debounce from 'lodash.debounce'
-import posthog from 'posthog-js'
-import { Input } from '@redshirt-sports/ui/components/input'
+import { Input } from "@redshirt-sports/ui/components/input";
+import debounce from "lodash.debounce";
+import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
+import { type ChangeEvent, useCallback } from "react";
 
-export default function Search({ defaultValue = '' }) {
-  const router = useRouter()
+export default function Search({ defaultValue = "" }) {
+  const router = useRouter();
 
   const debouncedSearch = debounce((value: string) => {
     if (value) {
-      posthog.capture('search_performed', {
+      posthog.capture("search_performed", {
         search_query: value,
         query_length: value.length,
-      })
+      });
     }
-    router.push(`/search${value ? `?q=${encodeURIComponent(value)}` : ''}`)
-  }, 500)
+    router.push(`/search${value ? `?q=${encodeURIComponent(value)}` : ""}`);
+  }, 500);
 
   const handleSearchChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target
-      debouncedSearch(value)
+      const { value } = e.target;
+      debouncedSearch(value);
     },
     [debouncedSearch],
-  )
+  );
 
   return (
     <Input
@@ -34,5 +34,5 @@ export default function Search({ defaultValue = '' }) {
       onChange={handleSearchChange}
       placeholder={`Search ${process.env.NEXT_PUBLIC_APP_NAME}...`}
     />
-  )
+  );
 }

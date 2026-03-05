@@ -1,5 +1,5 @@
-import { Skeleton } from '@redshirt-sports/ui/components/skeleton'
-import { Separator } from '@redshirt-sports/ui/components/separator'
+import { Separator } from "@redshirt-sports/ui/components/separator";
+import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 
 export function LoadingArticle() {
   return (
@@ -20,5 +20,5 @@ export function LoadingArticle() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -59,8 +59,8 @@ export const validateHeadingOrder = (Rule: ArrayRule<PortableTextBlock[] | unkno
           const next = headings[i + 1]
 
           if (current.style && next.style) {
-            const currentLevel = parseInt(current.style.replace('h', ''))
-            const nextLevel = parseInt(next.style.replace('h', ''))
+            const currentLevel = parseInt(current.style.replace('h', ''), 10)
+            const nextLevel = parseInt(next.style.replace('h', ''), 10)
 
             if (currentLevel < nextLevel && nextLevel - currentLevel > 1) {
               return {

@@ -1,161 +1,179 @@
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { buttonVariants } from '@redshirt-sports/ui/components/button'
-import {
-  Card,
-  CardHeader,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from '@redshirt-sports/ui/components/card'
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from '@redshirt-sports/ui/components/table'
 import {
   getFinalRankingsForWeekAndYear,
   getSportIdBySlug,
-  getWeeksThatHaveVotes,
   getVotesForWeekAndYearByVoter,
+  getWeeksThatHaveVotes,
   getYearsThatHaveVotes,
-  getFinalRankingsForWeekAndYearFromDb,
-} from '@redshirt-sports/db/queries'
-import { processVoterBallots } from '@/utils/process-ballots'
-import { RankingsFilters } from '@/components/rankings/filters'
-import CustomImage from '@/components/sanity-image'
-import { getSEOMetadata } from '@/lib/seo'
-import { JsonLdScript, websiteId } from '@/components/json-ld'
-import { getBaseUrl } from '@/lib/get-base-url'
-import VoterBallotBreakdown from '@/components/rankings/voter-ballot-breakdown'
-import { FINAL_RANKINGS_WEEK, PRESEASON_WEEK, TOP_25 } from '@/lib/constants'
+} from "@redshirt-sports/db/queries";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from "@redshirt-sports/ui/components/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@redshirt-sports/ui/components/table";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type { Graph } from "schema-dts";
 
-import type { Metadata } from 'next'
-import type { Graph } from 'schema-dts'
-import { SportParam } from '@/utils/espn'
+import { JsonLdScript, websiteId } from "@/components/json-ld";
+import { RankingsFilters } from "@/components/rankings/filters";
+import VoterBallotBreakdown from "@/components/rankings/voter-ballot-breakdown";
+import CustomImage from "@/components/sanity-image";
+import { FINAL_RANKINGS_WEEK, PRESEASON_WEEK, TOP_25 } from "@/lib/constants";
+import { getBaseUrl } from "@/lib/get-base-url";
+import { getSEOMetadata } from "@/lib/seo";
+import type { SportParam } from "@/utils/espn";
+import { processVoterBallots } from "@/utils/process-ballots";
 
-const baseUrl = getBaseUrl()
+const baseUrl = getBaseUrl();
 
 function getWeekTitle(weekNumber: number): string {
-  if (weekNumber === PRESEASON_WEEK) return 'Preseason'
-  if (weekNumber === FINAL_RANKINGS_WEEK) return 'Postseason'
-  return `Week ${weekNumber}`
+  if (weekNumber === PRESEASON_WEEK) return "Preseason";
+  if (weekNumber === FINAL_RANKINGS_WEEK) return "Postseason";
+  return `Week ${weekNumber}`;
 }
 
 function parseWeekNumber(week: string): number {
-  if (week === 'final-rankings') return FINAL_RANKINGS_WEEK
-  return parseInt(week, 10)
+  if (week === "final-rankings") return FINAL_RANKINGS_WEEK;
+  return parseInt(week, 10);
 }
 
 export async function generateMetadata({
   params,
-}: PageProps<'/college/[sport]/rankings/[division]/[year]/[week]'>): Promise<Metadata> {
-  const { division, year, week, sport } = await params
-  const weekNumber = parseWeekNumber(week)
-  const titleWeek = getWeekTitle(weekNumber)
+}: PageProps<"/college/[sport]/rankings/[division]/[year]/[week]">): Promise<Metadata> {
+  const { division, year, week, sport } = await params;
+  const weekNumber = parseWeekNumber(week);
+  const titleWeek = getWeekTitle(weekNumber);
 
   return getSEOMetadata({
     title: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings`,
     description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
     slug: `/college/${sport}/rankings/${division}/${year}/${week}`,
-  })
+  });
 }
 
 export default async function CollegeFootballRankingsPage({
   params,
-}: PageProps<'/college/[sport]/rankings/[division]/[year]/[week]'>) {
-  const { division, year, week, sport } = await params
+}: PageProps<"/college/[sport]/rankings/[division]/[year]/[week]">) {
+  const { division, year, week, sport } = await params;
 
-  const weekNumber = parseWeekNumber(week)
-  const titleWeek = getWeekTitle(weekNumber)
+  const weekNumber = parseWeekNumber(week);
+  const titleWeek = getWeekTitle(weekNumber);
 
-  const [yearsWithVotesResult, weeksWithVotesResult, finalRankingsResult, sportIdResult] =
-    await Promise.allSettled([
-      getYearsThatHaveVotes({ division }),
-      getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
-      getFinalRankingsForWeekAndYear({ year: parseInt(year, 10), week: weekNumber, division }),
-      getSportIdBySlug(sport as SportParam),
-    ])
+  const [
+    yearsWithVotesResult,
+    weeksWithVotesResult,
+    finalRankingsResult,
+    sportIdResult,
+  ] = await Promise.allSettled([
+    getYearsThatHaveVotes({ division }),
+    getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
+    getFinalRankingsForWeekAndYear({
+      year: parseInt(year, 10),
+      week: weekNumber,
+      division,
+    }),
+    getSportIdBySlug(sport as SportParam),
+  ]);
 
   const yearsWithVotes =
-    yearsWithVotesResult.status === 'fulfilled' ? yearsWithVotesResult.value : []
+    yearsWithVotesResult.status === "fulfilled"
+      ? yearsWithVotesResult.value
+      : [];
   const weeksWithVotes =
-    weeksWithVotesResult.status === 'fulfilled' ? weeksWithVotesResult.value : []
-  const sportId = sportIdResult.status === 'fulfilled' ? sportIdResult.value : null
+    weeksWithVotesResult.status === "fulfilled"
+      ? weeksWithVotesResult.value
+      : [];
+  const sportId =
+    sportIdResult.status === "fulfilled" ? sportIdResult.value : null;
 
   if (
     !yearsWithVotes.length ||
     !weeksWithVotes.length ||
-    finalRankingsResult.status === 'rejected' ||
+    finalRankingsResult.status === "rejected" ||
     !sportId
   ) {
-    notFound()
+    notFound();
   }
 
-  const finalRankings = finalRankingsResult.value
-  const { rankings } = finalRankings
+  const finalRankings = finalRankingsResult.value;
+  const { rankings } = finalRankings;
 
   const votesForWeekAndYearByVoter = await getVotesForWeekAndYearByVoter({
     year: parseInt(year, 10),
     week: weekNumber,
     division,
     sportId,
-  })
+  });
 
-  const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter)
+  const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter);
 
-  const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25)
-  const outsideTop25 = rankings.filter((team) => !team.rank || team.rank > TOP_25)
+  const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25);
+  const outsideTop25 = rankings.filter(
+    (team) => !team.rank || team.rank > TOP_25,
+  );
 
   const jsonLd: Graph = {
-    '@context': 'https://schema.org',
-    '@graph': [
+    "@context": "https://schema.org",
+    "@graph": [
       {
-        '@type': 'WebPage',
-        '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,
+        "@type": "WebPage",
+        "@id": `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,
         url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
         name: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings | ${process.env.NEXT_PUBLIC_APP_NAME}`,
         description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
         isPartOf: {
-          '@type': 'WebSite',
-          '@id': websiteId,
+          "@type": "WebSite",
+          "@id": websiteId,
         },
-        inLanguage: 'en-US',
+        inLanguage: "en-US",
         mainEntity: {
-          '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
+          "@id": `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
         },
       },
       {
-        '@type': 'ItemList',
-        '@id': `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
+        "@type": "ItemList",
+        "@id": `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
         url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
         numberOfItems: top25.length,
-        itemListOrder: 'https://schema.org/ItemListOrderAscending',
+        itemListOrder: "https://schema.org/ItemListOrderAscending",
         itemListElement: top25.map((team) => ({
-          '@type': 'ListItem',
+          "@type": "ListItem",
           position: team.rank,
           item: {
-            '@type': 'SportsTeam',
+            "@type": "SportsTeam",
             name: team.shortName,
             sport: sport,
           },
         })),
       },
     ],
-  }
+  };
 
   return (
     <div className="container mx-auto gap-8 px-4 py-8">
-      <JsonLdScript data={jsonLd} id={`json-ld-${sport}-${division}-${year}-${week}`} />
+      <JsonLdScript
+        data={jsonLd}
+        id={`json-ld-${sport}-${division}-${year}-${week}`}
+      />
       <Card>
         <CardHeader>
           <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
           <CardDescription>
-            Our {division.toUpperCase()} Top 25 uses a point system: 25 points for a first-place
-            vote down to 1 point for a 25th-place vote. Total points determine the final rankings.
+            Our {division.toUpperCase()} Top 25 uses a point system: 25 points
+            for a first-place vote down to 1 point for a 25th-place vote. Total
+            points determine the final rankings.
           </CardDescription>
           <CardDescription className="flex items-center space-x-4 pt-4">
             <RankingsFilters years={yearsWithVotes} weeks={weeksWithVotes} />
@@ -175,7 +193,9 @@ export default async function CollegeFootballRankingsPage({
                 {top25.map((team, index) => {
                   return (
                     <TableRow key={index}>
-                      <TableCell>{team.isTie ? `T-${team.rank}` : team.rank}</TableCell>
+                      <TableCell>
+                        {team.isTie ? `T-${team.rank}` : team.rank}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center">
                           <CustomImage
@@ -195,7 +215,7 @@ export default async function CollegeFootballRankingsPage({
                       </TableCell>
                       <TableCell>{team._points}</TableCell>
                     </TableRow>
-                  )
+                  );
                 })}
               </TableBody>
             </Table>
@@ -206,8 +226,8 @@ export default async function CollegeFootballRankingsPage({
                 Top 25 Poll Not Found
               </h2>
               <p className="text-muted-foreground mt-4">
-                We&apos;re sorry, but the selected Top 25 poll could not be found. Please try again
-                or check back later.
+                We&apos;re sorry, but the selected Top 25 poll could not be
+                found. Please try again or check back later.
               </p>
               <div className="mt-6">
                 <Link href="/" className={buttonVariants()} prefetch={false}>
@@ -221,8 +241,10 @@ export default async function CollegeFootballRankingsPage({
           {outsideTop25.length > 0 && (
             <div className="mt-4">
               <p>
-                <strong>Others receiving votes:</strong>{' '}
-                {outsideTop25.map((team) => `${team.shortName} ${team._points}`).join(', ')}
+                <strong>Others receiving votes:</strong>{" "}
+                {outsideTop25
+                  .map((team) => `${team.shortName} ${team._points}`)
+                  .join(", ")}
               </p>
             </div>
           )}
@@ -234,5 +256,5 @@ export default async function CollegeFootballRankingsPage({
         </div>
       )}
     </div>
-  )
+  );
 }

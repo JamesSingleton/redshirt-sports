@@ -1,24 +1,23 @@
-import '@redshirt-sports/ui/globals.css'
-import { Geist, Geist_Mono } from 'next/font/google'
-import { ClerkProvider } from '@clerk/nextjs'
+import "@redshirt-sports/ui/globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 
-import { Providers } from '@/components/providers'
-
-import type { Metadata } from 'next'
+import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-})
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
 const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
-  title: 'Redshirt Sports Admin Portal',
-  description: 'Admin Portal for Redshirt Sports',
+  title: "Redshirt Sports Admin Portal",
+  description: "Admin Portal for Redshirt Sports",
   robots: {
     index: false,
     follow: false,
@@ -27,22 +26,24 @@ export const metadata: Metadata = {
       follow: false,
     },
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <ClerkProvider>
       <Providers>
         <html lang="en" suppressHydrationWarning>
-          <body className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}>
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
+          >
             {children}
           </body>
         </html>
       </Providers>
     </ClerkProvider>
-  )
+  );
 }
