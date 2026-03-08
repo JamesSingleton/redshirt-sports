@@ -15,11 +15,11 @@
   "dependencies": {
     "@portabletext/react": "^6.0.3",
     "@sanity/asset-utils": "^2.3.0",
-    "@sanity/assist": "^5.0.4",
-    "@sanity/blueprints": "^0.12.3",
+    "@sanity/assist": "^6.0.1",
+    "@sanity/blueprints": "^0.13.1",
     "@sanity/client": "^7.16.0",
     "@sanity/dashboard": "^5.0.1",
-    "@sanity/functions": "^1.2.0",
+    "@sanity/functions": "^1.2.1",
     "@sanity/icons": "^3.7.4",
     "@sanity/image-url": "^2.0.3",
     "@sanity/table": "^2.0.1",
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^6.0.0",
-    "@types/node": "^25.3.3",
+    "@types/node": "^25.3.5",
     "@types/react": "^19.2.14",
     "eslint": "^10.0.0",
     "eslint-plugin-import": "^2.32.0",

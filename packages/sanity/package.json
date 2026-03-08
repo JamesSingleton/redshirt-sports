@@ -14,13 +14,13 @@
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/client": "^7.16.0",
     "@sanity/image-url": "^2.0.3",
-    "next-sanity": "^12.1.0",
+    "next-sanity": "^12.1.1",
     "sanity": "5.13.0",
     "sanity-image": "^1.1.0"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
-    "@types/node": "^25.3.3",
+    "@types/node": "^25.3.5",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3"
   }

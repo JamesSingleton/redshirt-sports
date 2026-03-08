@@ -17,10 +17,9 @@
     "check:types": "turbo check:types"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.5",
-    "@redshirt-sports/eslint-config": "workspace:*",
+    "@biomejs/biome": "^2.4.6",
     "@redshirt-sports/typescript-config": "workspace:*",
-    "turbo": "^2.8.13",
+    "turbo": "^2.8.14",
     "typescript": "^5.9.3"
   }
 }
