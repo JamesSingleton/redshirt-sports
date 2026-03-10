@@ -3,9 +3,9 @@ import type { PropsWithChildren } from "react";
 
 import type { Division } from "@/types";
 
-export type WithChildren<T = {}> = T & PropsWithChildren<{}>;
+export type WithChildren<T = object> = T & PropsWithChildren;
 
-export type WithClassName<T = {}> = T & {
+export type WithClassName<T = object> = T & {
   className?: string;
 };
 

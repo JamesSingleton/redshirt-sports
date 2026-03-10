@@ -60,7 +60,7 @@ export type SeasonType = {
   startDate: string;
   endDate: string;
   weeks?: WeekDetail[];
-  week: Week | {};
+  week: Week | Record<string, never>;
 };
 
 export type Season = {

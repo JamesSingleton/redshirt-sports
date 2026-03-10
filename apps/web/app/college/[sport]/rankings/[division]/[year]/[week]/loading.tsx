@@ -16,8 +16,8 @@ import {
 } from "@redshirt-sports/ui/components/table";
 
 export default function Loading() {
-  const cols = Array.from({ length: 25 });
-  const rows = Array.from({ length: 8 });
+  const cols = Array.from({ length: 25 }, (_, i) => i + 1);
+  const rows = Array.from({ length: 8 }, (_, i) => i + 1);
 
   return (
     <div className="container mx-auto gap-8 px-4 py-8">
@@ -39,8 +39,8 @@ export default function Loading() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {[...Array(25)].map((_, index) => (
-                <TableRow key={index}>
+              {cols.map((rank) => (
+                <TableRow key={`ranking-${rank}`}>
                   <TableCell>
                     <Skeleton className="h-6 w-6" />
                   </TableCell>
@@ -91,24 +91,27 @@ export default function Loading() {
                     <th className="bg-background sticky left-0 z-20 p-2 text-left">
                       <Skeleton className="h-4 w-20" />
                     </th>
-                    {cols.map((_, i) => (
-                      <th key={i} className="min-w-12 p-2 text-center">
+                    {cols.map((col) => (
+                      <th
+                        key={`col-${col}`}
+                        className="min-w-12 p-2 text-center"
+                      >
                         <Skeleton className="mx-auto h-3 w-6" />
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((_, r) => (
-                    <tr key={r} className="border-t">
+                  {rows.map((row) => (
+                    <tr key={`row-${row}`} className="border-t">
                       <td className="bg-background sticky left-0 z-10 min-w-48 p-2 align-middle">
                         <div className="space-y-2">
                           <Skeleton className="h-4 w-40" />
                           <Skeleton className="h-3 w-56" />
                         </div>
                       </td>
-                      {cols.map((_, c) => (
-                        <td key={c} className="p-2">
+                      {cols.map((col) => (
+                        <td key={`cell-${col}`} className="p-2">
                           <div className="flex items-center justify-center">
                             <Skeleton className="h-10 w-10 rounded-sm" />
                           </div>
@@ -124,9 +127,9 @@ export default function Loading() {
           {/* Mobile skeleton cards with single horizontal scroll row */}
           <div className="block md:hidden">
             <ul className="space-y-3">
-              {rows.map((_, r) => (
+              {rows.map((row) => (
                 <li
-                  key={r}
+                  key={`mobile-row-${row}`}
                   className="bg-card text-card-foreground rounded-md border p-3"
                 >
                   <div className="mb-2 space-y-2">
@@ -149,9 +152,9 @@ export default function Loading() {
                       />
                       <div className="overflow-x-auto">
                         <div className="flex items-center gap-3">
-                          {cols.map((_, i) => (
+                          {cols.map((col) => (
                             <div
-                              key={i}
+                              key={`mobile-col-${col}`}
                               className="flex shrink-0 flex-col items-center gap-1"
                             >
                               <Skeleton className="h-3 w-6" />

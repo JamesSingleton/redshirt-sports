@@ -190,9 +190,9 @@ export default async function CollegeFootballRankingsPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {top25.map((team, index) => {
+                {top25.map((team) => {
                   return (
-                    <TableRow key={index}>
+                    <TableRow key={team._id}>
                       <TableCell>
                         {team.isTie ? `T-${team.rank}` : team.rank}
                       </TableCell>

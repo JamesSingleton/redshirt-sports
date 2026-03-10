@@ -173,6 +173,7 @@ export function SearchBar({
               <div className="flex-1 overflow-y-auto">
                 {results.map((result, index) => (
                   <button
+                    type="button"
                     key={result._id}
                     className={`hover:bg-muted border-border w-full border-b px-4 py-3 text-left transition-colors last:border-b-0 ${
                       index === selectedIndex ? "bg-muted" : ""
@@ -191,6 +192,7 @@ export function SearchBar({
               {query.trim() && (
                 <div className="border-border bg-background border-t">
                   <button
+                    type="button"
                     className="hover:bg-muted text-muted-foreground w-full px-4 py-3 text-left text-sm transition-colors"
                     onClick={handleSubmit}
                   >

@@ -181,14 +181,14 @@ function Footer({ data, settingsData }: FooterProps) {
             </div>
             {Array.isArray(columns) && columns?.length > 0 && (
               <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-12">
-                {columns.map((column, index) => (
-                  <div key={`column-${column?._key}-${index}`}>
+                {columns.map((column) => (
+                  <div key={`column-${column?._key}`}>
                     <h3 className="mb-6 font-semibold">{column?.title}</h3>
                     {column?.links && column?.links?.length > 0 && (
                       <ul className="text-muted-foreground space-y-4 text-sm">
-                        {column?.links?.map((link, index) => (
+                        {column?.links?.map((link) => (
                           <li
-                            key={`${link?._key}-${index}-column-${column?._key}`}
+                            key={`${link?._key}-column-${column?._key}`}
                             className="hover:text-primary font-medium"
                           >
                             <Link

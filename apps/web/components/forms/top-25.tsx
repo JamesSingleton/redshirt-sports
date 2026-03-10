@@ -295,15 +295,15 @@ const Top25 = forwardRef<
         onSubmit={form.handleSubmit(onSubmit)}
         className="mx-auto space-y-6"
       >
-        {Array.from({ length: 25 }).map((_, index) => (
+        {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => (
           <FormField
-            key={index}
+            key={`rank-${rank}`}
             control={form.control}
             // @ts-expect-error zodResolver doesn't support this
-            name={`rank_${index + 1}`}
+            name={`rank_${rank}`}
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Rank {index + 1}</FormLabel>
+                <FormLabel>Rank {rank}</FormLabel>
                 <FormControl>
                   <VirtualizedCombobox
                     options={schools}

@@ -115,10 +115,9 @@ const components: Partial<PortableTextReactComponents> = {
           <Table>
             <TableHeader>
               <TableRow>
-                {headerRow &&
-                  headerRow.cells.map((cell) => (
-                    <TableHead key={cell}>{cell}</TableHead>
-                  ))}
+                {headerRow?.cells.map((cell) => (
+                  <TableHead key={cell}>{cell}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>

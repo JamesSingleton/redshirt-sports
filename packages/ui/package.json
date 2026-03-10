@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
-    "lint": "biome .",
+    "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "test": "vitest run",

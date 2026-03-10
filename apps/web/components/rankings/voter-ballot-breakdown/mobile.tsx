@@ -44,17 +44,16 @@ export default function VoterBreakdownMobile({
                 aria-label="Voter ballot horizontal scroller"
               >
                 <div className="flex snap-x snap-mandatory items-center gap-3">
-                  {Array.from({ length: 25 }).map((_, i) => {
-                    const r = i + 1;
-                    const vote = voter.ballot?.[i];
+                  {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => {
+                    const vote = voter.ballot?.[rank - 1];
                     return (
                       <div
-                        key={`${vote?._id ?? "na"}-${i}`}
+                        key={vote?._id ?? `rank-${rank}`}
                         className="flex shrink-0 snap-start flex-col items-center gap-1"
-                        aria-label={`Rank ${r}${vote?.teamName ? `: ${vote.teamName}` : ""}`}
+                        aria-label={`Rank ${rank}${vote?.teamName ? `: ${vote.teamName}` : ""}`}
                       >
                         <div className="text-muted-foreground text-[10px] leading-none">
-                          {r}
+                          {rank}
                         </div>
                         {vote ? (
                           <TeamLogo vote={vote} size={36} />

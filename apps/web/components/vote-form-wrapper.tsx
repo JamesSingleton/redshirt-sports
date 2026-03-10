@@ -52,9 +52,9 @@ export default function VoteFormWrapper({
             <p className="text-muted-foreground mb-4 text-center text-sm">
               Click to populate the form with your previous ballot selections
             </p>
-            {previousBallot.map((team, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <span className="w-8 text-right font-bold">{index + 1}.</span>
+            {previousBallot.map((team) => (
+              <div key={team.teamId} className="flex items-center space-x-2">
+                <span className="w-8 text-right font-bold">{team.rank}.</span>
                 <div className="flex flex-grow items-center space-x-2">
                   <CustomImage
                     image={team.schoolImageUrl}

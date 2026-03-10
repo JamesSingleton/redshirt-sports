@@ -51,16 +51,19 @@ export default function VoterBreakdownDesktop({
                 <TableHead className="bg-background sticky left-0 z-20">
                   Voter
                 </TableHead>
-                {Array.from({ length: 25 }, (_, i) => (
-                  <TableHead key={i} className="min-w-12 text-center">
-                    {i + 1}
+                {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => (
+                  <TableHead
+                    key={`rank-${rank}`}
+                    className="min-w-12 text-center"
+                  >
+                    {rank}
                   </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((voter, idx) => (
-                <TableRow key={`${voter.name}-${idx}`}>
+              {rows.map((voter) => (
+                <TableRow key={voter.name}>
                   <TableCell className="bg-background sticky left-0 z-10 min-w-48">
                     <div className="font-medium">{voter.name}</div>
                     <div className="text-muted-foreground text-sm italic">
@@ -70,20 +73,20 @@ export default function VoterBreakdownDesktop({
                         : ""}
                     </div>
                   </TableCell>
-                  {voter.ballot?.slice(0, 25).map((vote, i) => (
-                    <TableCell
-                      key={`${vote?._id ?? "na"}-${i}`}
-                      className="py-1"
-                    >
-                      <div className="flex items-center justify-center">
-                        {vote ? (
-                          <TeamLogo vote={vote} size={40} />
-                        ) : (
-                          <div className="bg-muted/30 h-10 w-10 rounded-sm" />
-                        )}
-                      </div>
-                    </TableCell>
-                  ))}
+                  {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => {
+                    const vote = voter.ballot?.[rank - 1];
+                    return (
+                      <TableCell key={`ballot-rank-${rank}`} className="py-1">
+                        <div className="flex items-center justify-center">
+                          {vote ? (
+                            <TeamLogo vote={vote} size={40} />
+                          ) : (
+                            <div className="bg-muted/30 h-10 w-10 rounded-sm" />
+                          )}
+                        </div>
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableBody>

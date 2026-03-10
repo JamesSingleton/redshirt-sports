@@ -2,7 +2,7 @@ import { sanityFetch } from "@redshirt-sports/sanity/live";
 import { authorsListNotArchived } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
-import type { AboutPage, WithContext } from "schema-dts";
+import type { AboutPage as AboutPageSchema, WithContext } from "schema-dts";
 
 import { Facebook, Twitter, YouTubeIcon } from "@/components/icons";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const aboutPageJsonLd: WithContext<AboutPage> = {
+const aboutPageJsonLd: WithContext<AboutPageSchema> = {
   "@context": "https://schema.org",
   "@type": "AboutPage",
   "@id": `${getBaseUrl()}/about`,
