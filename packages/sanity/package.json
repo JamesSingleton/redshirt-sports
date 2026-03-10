@@ -12,16 +12,16 @@
   },
   "dependencies": {
     "@sanity/asset-utils": "^2.3.0",
-    "@sanity/client": "^7.17.0",
+    "@sanity/client": "catalog:",
     "@sanity/image-url": "^2.0.3",
-    "next-sanity": "^12.1.1",
-    "sanity": "5.14.1",
+    "next-sanity": "catalog:",
+    "sanity": "catalog:",
     "sanity-image": "^1.1.0"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
-    "@types/node": "^25.4.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3"
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
   }
 }

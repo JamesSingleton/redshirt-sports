@@ -20,6 +20,6 @@
     "@biomejs/biome": "^2.4.6",
     "@redshirt-sports/typescript-config": "workspace:*",
     "turbo": "^2.8.15",
-    "typescript": "^5.9.3"
+    "typescript": "catalog:"
   }
 }

@@ -7,7 +7,7 @@
     "./espn": "./src/espn.ts"
   },
   "dependencies": {
-    "zod": "^4.3.6"
+    "zod": "catalog:"
   },
   "scripts": {
     "test": "vitest run",
@@ -15,6 +15,6 @@
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
-    "vitest": "^4.0.18"
+    "vitest": "catalog:"
   }
 }
