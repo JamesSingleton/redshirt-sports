@@ -1,6 +1,5 @@
-'use client'
+"use client";
 
-import { useSearchParams, usePathname } from 'next/navigation'
 import {
   Pagination,
   PaginationContent,
@@ -9,30 +8,35 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@redshirt-sports/ui/components/pagination'
+} from "@redshirt-sports/ui/components/pagination";
+import { usePathname, useSearchParams } from "next/navigation";
 
-import { perPage } from '@/lib/constants'
+import { perPage } from "@/lib/constants";
 
-export default function PaginationControls({ totalPosts }: { totalPosts: number }) {
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
-  const currentPage = parseInt(searchParams.get('page') || '1')
-  const totalPages = Math.ceil(totalPosts / perPage)
+export default function PaginationControls({
+  totalPosts,
+}: {
+  totalPosts: number;
+}) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
+  const totalPages = Math.ceil(totalPosts / perPage);
 
   const createPageUrl = (pageNumber: number | string) => {
-    const params = new URLSearchParams(searchParams ?? '')
-    params.set('page', pageNumber.toString())
+    const params = new URLSearchParams(searchParams ?? "");
+    params.set("page", pageNumber.toString());
     if (pageNumber === 1 || pageNumber === 0) {
-      params.delete('page')
+      params.delete("page");
     }
 
-    const pageUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`
+    const pageUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ""}`;
 
-    return pageUrl
-  }
+    return pageUrl;
+  };
 
   const showPages = () => {
-    const pages: React.ReactElement[] = []
+    const pages: React.ReactElement[] = [];
     for (let i = currentPage - 1; i <= currentPage + 1; i++) {
       if (i > 0 && i <= totalPages) {
         pages.push(
@@ -43,26 +47,31 @@ export default function PaginationControls({ totalPosts }: { totalPosts: number 
           >
             {i}
           </PaginationLink>,
-        )
+        );
       }
     }
-    return pages
-  }
+    return pages;
+  };
 
-  const isPreviousDisabled = currentPage <= 1
-  const isNextDisabled = currentPage >= totalPages
+  const isPreviousDisabled = currentPage <= 1;
+  const isNextDisabled = currentPage >= totalPages;
 
-  const showEllipsis = totalPages > 3 && (currentPage < totalPages - 1 || currentPage > 2)
+  const showEllipsis =
+    totalPages > 3 && (currentPage < totalPages - 1 || currentPage > 2);
 
   return (
     <Pagination className="mt-12">
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            href={isPreviousDisabled ? undefined : createPageUrl(currentPage - 1)}
+            href={
+              isPreviousDisabled ? undefined : createPageUrl(currentPage - 1)
+            }
             aria-disabled={isPreviousDisabled}
             tabIndex={isPreviousDisabled ? -1 : undefined}
-            className={isPreviousDisabled ? 'pointer-events-none opacity-50' : undefined}
+            className={
+              isPreviousDisabled ? "pointer-events-none opacity-50" : undefined
+            }
           />
         </PaginationItem>
         <PaginationItem>{showPages()}</PaginationItem>
@@ -76,10 +85,12 @@ export default function PaginationControls({ totalPosts }: { totalPosts: number 
             href={isNextDisabled ? undefined : createPageUrl(currentPage + 1)}
             aria-disabled={isNextDisabled}
             tabIndex={isNextDisabled ? -1 : undefined}
-            className={isNextDisabled ? 'pointer-events-none opacity-50' : undefined}
+            className={
+              isNextDisabled ? "pointer-events-none opacity-50" : undefined
+            }
           />
         </PaginationItem>
       </PaginationContent>
     </Pagination>
-  )
+  );
 }

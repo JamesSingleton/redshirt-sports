@@ -1,19 +1,27 @@
-import { notFound } from 'next/navigation'
+import { sanityFetch } from "@redshirt-sports/sanity/live";
+import {
+  querySportsNews,
+  sportInfoBySlug,
+} from "@redshirt-sports/sanity/queries";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
-import { sanityFetch } from '@redshirt-sports/sanity/live'
-import { querySportsNews, sportInfoBySlug } from '@redshirt-sports/sanity/queries'
-import { perPage } from '@/lib/constants'
-import PageHeader from '@/components/page-header'
-import ArticleFeed from '@/components/article-feed'
-import PaginationControls from '@/components/pagination-controls'
-import { getSEOMetadata } from '@/lib/seo'
-import { validatePageIndex } from '@/utils/validate-page-index'
+import ArticleFeed from "@/components/article-feed";
+import PageHeader from "@/components/page-header";
+import PaginationControls from "@/components/pagination-controls";
+import { perPage } from "@/lib/constants";
+import { getSEOMetadata } from "@/lib/seo";
+import { validatePageIndex } from "@/utils/validate-page-index";
 
-import type { Metadata } from 'next'
-
-async function fetchSportsNews({ sport, pageIndex }: { sport: string; pageIndex: number }) {
-  const from = (pageIndex - 1) * perPage
-  const to = pageIndex * perPage
+async function fetchSportsNews({
+  sport,
+  pageIndex,
+}: {
+  sport: string;
+  pageIndex: number;
+}) {
+  const from = (pageIndex - 1) * perPage;
+  const to = pageIndex * perPage;
 
   return await sanityFetch({
     query: querySportsNews,
@@ -22,7 +30,7 @@ async function fetchSportsNews({ sport, pageIndex }: { sport: string; pageIndex:
       from,
       to,
     },
-  })
+  });
 }
 
 async function fetchSportTitle(sport: string) {
@@ -31,82 +39,88 @@ async function fetchSportTitle(sport: string) {
     params: {
       slug: sport,
     },
-  })
+  });
 }
 
 export async function generateMetadata({
   params,
   searchParams,
-}: PageProps<'/college/[sport]/news'>): Promise<Metadata> {
-  const { sport } = await params
-  const { page } = await searchParams
-  const pageIndex = validatePageIndex(page)
+}: PageProps<"/college/[sport]/news">): Promise<Metadata> {
+  const { sport } = await params;
+  const { page } = await searchParams;
+  const pageIndex = validatePageIndex(page);
 
-  const { data: sportData } = await fetchSportTitle(sport)
+  const { data: sportData } = await fetchSportTitle(sport);
 
   if (!sportData || !sportData.title) {
-    return {}
+    return {};
   }
 
-  const sportTitle = sportData.title
-  let title: string
-  let description: string
-  let canonicalUrl = `/college/${sport}/news`
+  const sportTitle = sportData.title;
+  let title: string;
+  let description: string;
+  let canonicalUrl = `/college/${sport}/news`;
 
   if (pageIndex > 1) {
-    title = `College ${sportTitle} News & Updates - Page ${pageIndex}`
-    description = `Continue exploring comprehensive college ${sportTitle} news, game analysis, and feature stories. This is page ${page} of our in-depth coverage.`
-    canonicalUrl = `${canonicalUrl}?page=${page}`
+    title = `College ${sportTitle} News & Updates - Page ${pageIndex}`;
+    description = `Continue exploring comprehensive college ${sportTitle} news, game analysis, and feature stories. This is page ${page} of our in-depth coverage.`;
+    canonicalUrl = `${canonicalUrl}?page=${page}`;
   } else {
-    title = `College ${sportTitle} News & Updates`
-    description = `Find comprehensive college ${sportTitle} news, detailed game results, expert analysis, and valuable insights. Your trusted source for NCAA ${sportTitle} information.`
+    title = `College ${sportTitle} News & Updates`;
+    description = `Find comprehensive college ${sportTitle} news, detailed game results, expert analysis, and valuable insights. Your trusted source for NCAA ${sportTitle} information.`;
   }
 
   return getSEOMetadata({
     title,
     description,
     slug: canonicalUrl,
-  })
+  });
 }
 
-export default async function Page({ params, searchParams }: PageProps<'/college/[sport]/news'>) {
-  const { sport } = await params
+export default async function Page({
+  params,
+  searchParams,
+}: PageProps<"/college/[sport]/news">) {
+  const { sport } = await params;
 
-  const { page } = await searchParams
-  const pageIndex = validatePageIndex(page)
+  const { page } = await searchParams;
+  const pageIndex = validatePageIndex(page);
 
   const [newsResponse, sportInfoResponse] = await Promise.all([
     fetchSportsNews({ sport, pageIndex }),
     fetchSportTitle(sport),
-  ])
+  ]);
 
-  const news = newsResponse.data
-  const sportInfo = sportInfoResponse?.data
+  const news = newsResponse.data;
+  const sportInfo = sportInfoResponse?.data;
 
   if (!news || !news.posts || !news.posts.length) {
-    notFound()
+    notFound();
   }
 
-  const totalPages = Math.ceil(news.totalPosts / perPage)
+  const totalPages = Math.ceil(news.totalPosts / perPage);
 
   const breadcrumbItems = [
     {
-      title: 'News',
-      href: '/college/news',
+      title: "News",
+      href: "/college/news",
     },
     {
       title: sportInfo!.title,
       href: `/college/${sport}/news`,
     },
-  ]
+  ];
 
   return (
     <>
-      <PageHeader title={`College ${sportInfo?.title} News`} breadcrumbs={breadcrumbItems} />
+      <PageHeader
+        title={`College ${sportInfo?.title} News`}
+        breadcrumbs={breadcrumbItems}
+      />
       <section className="container pb-12">
         <ArticleFeed articles={news.posts} />
         {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
       </section>
     </>
-  )
+  );
 }

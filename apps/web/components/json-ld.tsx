@@ -1,9 +1,6 @@
-import { toPlainText } from 'next-sanity'
-
-import { urlFor, client } from '@redshirt-sports/sanity/client'
-import { getBaseUrl } from '@/lib/get-base-url'
-import { querySettingsData } from '@redshirt-sports/sanity/queries'
-
+import { client, urlFor } from "@redshirt-sports/sanity/client";
+import { querySettingsData } from "@redshirt-sports/sanity/queries";
+import { toPlainText } from "next-sanity";
 import type {
   ContactPoint,
   ImageObject,
@@ -13,53 +10,55 @@ import type {
   WebPage,
   WebSite,
   WithContext,
-} from 'schema-dts'
+} from "schema-dts";
 
-const baseUrl = getBaseUrl()
+import { getBaseUrl } from "@/lib/get-base-url";
 
-export const organizationId = `${baseUrl}/#organization`
-export const websiteId = `${baseUrl}/#website`
+const baseUrl = getBaseUrl();
+
+export const organizationId = `${baseUrl}/#organization`;
+export const websiteId = `${baseUrl}/#website`;
 
 export function JsonLdScript<T>({ data, id }: { data: T; id: string }) {
   return (
     <script type="application/ld+json" id={id}>
       {JSON.stringify(data, null, 0)}
     </script>
-  )
+  );
 }
 
 export function buildSafeImageUrl(image?: { asset?: { _ref: string } }) {
   if (!image?.asset?._ref) {
-    return undefined
+    return undefined;
   }
   return urlFor({ ...image, _id: image.asset?._ref })
     .size(1920, 1080)
     .dpr(2)
-    .auto('format')
+    .auto("format")
     .quality(80)
-    .url()
+    .url();
 }
 
 export function ArticleJsonLd({ article }: { article: any }) {
-  if (!article) return null
+  if (!article) return null;
 
-  const plainText = toPlainText(article.body)
+  const plainText = toPlainText(article.body);
 
-  const articleUrl = `${baseUrl}/${article.slug}`
-  const imageUrl = buildSafeImageUrl(article.mainImage)
+  const articleUrl = `${baseUrl}/${article.slug}`;
+  const imageUrl = buildSafeImageUrl(article.mainImage);
 
   const articleJsonLd: WithContext<NewsArticle> = {
-    '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
-    '@id': `${articleUrl}#article`,
-    isPartOf: { '@id': articleUrl },
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "@id": `${articleUrl}#article`,
+    isPartOf: { "@id": articleUrl },
     author: article.authors
       ? article.authors.map((author: any) => {
           return {
-            '@type': 'Person',
+            "@type": "Person",
             name: author.name,
             url: author.slug ? `${baseUrl}/authors/${author.slug}` : undefined,
-          } as Person
+          } as Person;
         })
       : [],
     headline: article.title,
@@ -67,121 +66,123 @@ export function ArticleJsonLd({ article }: { article: any }) {
     dateModified: article._updatedAt,
     description: article.excerpt,
     mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': articleUrl,
+      "@type": "WebPage",
+      "@id": articleUrl,
     } as WebPage,
     wordCount: plainText.split(/\s+/).filter(Boolean).length,
-    publisher: { '@id': organizationId },
+    publisher: { "@id": organizationId },
     image: [
       {
-        '@type': 'ImageObject',
+        "@type": "ImageObject",
         url: imageUrl,
         contentUrl: imageUrl,
         caption: article.mainImage.alt,
-        width: '1920',
-        height: '1080',
+        width: "1920",
+        height: "1080",
       } as ImageObject,
     ],
     thumbnailUrl: imageUrl,
     url: articleUrl,
-    inLanguage: 'en-US',
+    inLanguage: "en-US",
     copyrightYear: 2025,
-    copyrightHolder: { '@id': organizationId },
+    copyrightHolder: { "@id": organizationId },
     potentialAction: [
       {
-        '@type': 'ReadAction',
+        "@type": "ReadAction",
         target: [articleUrl],
       },
     ],
-  }
+  };
 
-  return <JsonLdScript data={articleJsonLd} id={`article-json-ld-${article.slug}`} />
+  return (
+    <JsonLdScript data={articleJsonLd} id={`article-json-ld-${article.slug}`} />
+  );
 }
 
 export function OrganizationJsonLd({ settings }: { settings: any }) {
-  if (!settings) return null
+  if (!settings) return null;
 
-  const baseUrl = getBaseUrl()
+  const baseUrl = getBaseUrl();
 
   const socialLinks = settings.socialLinks
     ? (Object.values(settings.socialLinks).filter(Boolean) as string[])
-    : undefined
+    : undefined;
 
   const organizationJsonLd: WithContext<Organization> = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: settings.name || 'Redshirt Sports',
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: settings.name || "Redshirt Sports",
     description: settings.siteDescription || undefined,
     url: baseUrl,
     logo: settings.logo
       ? ({
-          '@type': 'ImageObject',
+          "@type": "ImageObject",
           url: settings.logo,
         } as ImageObject)
       : undefined,
     contactPoint: settings.contactEmail
       ? ({
-          '@type': 'ContactPoint',
+          "@type": "ContactPoint",
           email: settings.contactEmail,
-          contactType: 'general',
+          contactType: "general",
         } as ContactPoint)
       : undefined,
     sameAs: socialLinks?.length ? socialLinks : undefined,
-  }
+  };
 
-  return <JsonLdScript data={organizationJsonLd} id="organization-json-ld" />
+  return <JsonLdScript data={organizationJsonLd} id="organization-json-ld" />;
 }
 
 export function WebSiteJsonLd({ settings }: { settings: any }) {
-  if (!settings) return null
+  if (!settings) return null;
 
-  const baseUrl = getBaseUrl()
+  const baseUrl = getBaseUrl();
 
   const webSiteJsonLd: WithContext<WebSite> = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    '@id': websiteId,
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": websiteId,
     url: baseUrl,
     name: settings.siteTitle,
     description: settings.siteDescription || undefined,
     publisher: {
-      '@id': organizationId,
+      "@id": organizationId,
     },
     potentialAction: [
       {
-        '@type': 'SearchAction',
+        "@type": "SearchAction",
         target: {
-          '@type': 'EntryPoint',
+          "@type": "EntryPoint",
           urlTemplate: `${baseUrl}/search?q={search_term_string}`,
         },
         // @ts-expect-error query-input is a valid property
-        'query-input': {
-          '@type': 'PropertyValueSpecification',
+        "query-input": {
+          "@type": "PropertyValueSpecification",
           valueRequired: true,
-          valueName: 'search_term_string',
+          valueName: "search_term_string",
         },
       },
     ],
-  }
+  };
 
-  return <JsonLdScript data={webSiteJsonLd} id="website-json-ld" />
+  return <JsonLdScript data={webSiteJsonLd} id="website-json-ld" />;
 }
 
 export function WebPageJsonLd() {
   const webPageJsonLd: WithContext<WebPage> = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-  }
-  return <JsonLdScript data={webPageJsonLd} id="webpage-json-ld" />
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+  };
+  return <JsonLdScript data={webPageJsonLd} id="webpage-json-ld" />;
 }
 
 export async function CombinedJsonLd() {
-  const res = await client.fetch(querySettingsData)
+  const res = await client.fetch(querySettingsData);
 
   return (
     <>
       <OrganizationJsonLd settings={res} />
       <WebSiteJsonLd settings={res} />
     </>
-  )
+  );
 }

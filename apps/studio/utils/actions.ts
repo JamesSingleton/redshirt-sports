@@ -1,4 +1,4 @@
-import { type DuplicateDocumentActionComponent } from 'sanity'
+import type { DuplicateDocumentActionComponent } from "sanity";
 
 export function createCustomPostDuplicateAction(
   originalAction: DuplicateDocumentActionComponent,
@@ -7,6 +7,6 @@ export function createCustomPostDuplicateAction(
     return originalAction({
       ...props,
       mapDocument: ({ slug, publishedAt, ...document }) => document,
-    })
-  }
+    });
+  };
 }

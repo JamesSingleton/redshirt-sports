@@ -1,14 +1,19 @@
-import React from 'react'
-import { BreadcrumbProps } from '@/types'
-import BreadCrumbs from './breadcrumbs'
+import type React from "react";
+
+import type { BreadcrumbProps } from "@/types";
+import BreadCrumbs from "./breadcrumbs";
 
 type PageHeaderProps = {
-  title: string
-  subtitle?: string | React.ReactNode
-  breadcrumbs?: BreadcrumbProps
-}
+  title: string;
+  subtitle?: string | React.ReactNode;
+  breadcrumbs?: BreadcrumbProps;
+};
 
-export default function PageHeader({ title, subtitle, breadcrumbs }: PageHeaderProps) {
+export default function PageHeader({
+  title,
+  subtitle,
+  breadcrumbs,
+}: PageHeaderProps) {
   return (
     <section className="py-12">
       <div className="container">
@@ -21,5 +26,5 @@ export default function PageHeader({ title, subtitle, breadcrumbs }: PageHeaderP
         </div>
       </div>
     </section>
-  )
+  );
 }

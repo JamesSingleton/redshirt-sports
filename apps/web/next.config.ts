@@ -1,14 +1,13 @@
-import { withSentryConfig } from '@sentry/nextjs'
-import { createClient } from '@sanity/client'
-
-import type { NextConfig } from 'next'
+import { createClient } from "@sanity/client";
+import { withSentryConfig } from "@sentry/nextjs";
+import type { NextConfig } from "next";
 
 const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  useCdn: process.env.NODE_ENV === 'production',
-  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2025-02-06',
-})
+  useCdn: process.env.NODE_ENV === "production",
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2025-02-06",
+});
 
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
@@ -21,40 +20,40 @@ const ContentSecurityPolicy = `
     font-src 'self' fonts.gstatic.com;
     frame-src 'self' https://challenges.cloudflare.com https://vercel.live https://www.youtube.com;
     worker-src 'self' blob:;
-`
+`;
 
 const securityHeaders = [
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
   {
-    key: 'Content-Security-Policy',
-    value: ContentSecurityPolicy.replace(/\n/g, ''),
+    key: "Content-Security-Policy",
+    value: ContentSecurityPolicy.replace(/\n/g, ""),
   },
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
   {
-    key: 'Referrer-Policy',
-    value: 'origin-when-cross-origin',
+    key: "Referrer-Policy",
+    value: "origin-when-cross-origin",
   },
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
   {
-    key: 'X-Frame-Options',
-    value: 'SAMEORIGIN',
+    key: "X-Frame-Options",
+    value: "SAMEORIGIN",
   },
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
   {
-    key: 'X-Content-Type-Options',
-    value: 'nosniff',
+    key: "X-Content-Type-Options",
+    value: "nosniff",
   },
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control
   {
-    key: 'X-DNS-Prefetch-Control',
-    value: 'on',
+    key: "X-DNS-Prefetch-Control",
+    value: "on",
   },
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
   {
-    key: 'Strict-Transport-Security',
-    value: 'max-age=31536000; includeSubDomains; preload',
+    key: "Strict-Transport-Security",
+    value: "max-age=31536000; includeSubDomains; preload",
   },
-]
+];
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
@@ -70,77 +69,77 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: true,
   reactStrictMode: true,
   images: {
-    formats: ['image/avif', 'image/webp'],
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
-      { protocol: 'https', hostname: 'pbs.twimg.com' },
-      { protocol: 'https', hostname: 'abs.twimg.com' },
-      { protocol: 'https', hostname: 'cdn.sanity.io' },
+      { protocol: "https", hostname: "pbs.twimg.com" },
+      { protocol: "https", hostname: "abs.twimg.com" },
+      { protocol: "https", hostname: "cdn.sanity.io" },
     ],
   },
   async headers() {
     return [
       {
         // Apply these headers to all routes in your application.
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'x-robots-tag',
-            value: 'all',
+            key: "x-robots-tag",
+            value: "all",
           },
         ],
       },
       {
         // Exclude https://clerk.redshirtsports.xyz from robots
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'x-robots-tag',
-            value: 'noindex, nofollow',
+            key: "x-robots-tag",
+            value: "noindex, nofollow",
           },
         ],
         has: [
           {
-            type: 'host',
-            value: 'clerk.redshirtsports.xyz',
+            type: "host",
+            value: "clerk.redshirtsports.xyz",
           },
         ],
       },
       {
         // Apply these headers to all routes in your application.
-        source: '/:path*',
+        source: "/:path*",
         headers: securityHeaders,
       },
-    ]
+    ];
   },
   async redirects() {
     const query =
-      '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}'
-    const results = await client.fetch(query)
-    return results
+      '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}';
+    const results = await client.fetch(query);
+    return results;
   },
   async rewrites() {
     return [
       {
-        source: '/ingest/static/:path*',
-        destination: 'https://us-assets.i.posthog.com/static/:path*',
+        source: "/ingest/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
       },
       {
-        source: '/ingest/:path*',
-        destination: 'https://us.i.posthog.com/:path*',
+        source: "/ingest/:path*",
+        destination: "https://us.i.posthog.com/:path*",
       },
-    ]
+    ];
   },
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
-}
+};
 
 /** @type {import('next').NextConfig} */
 export default withSentryConfig(nextConfig, {
-  org: 'james-singleton',
-  project: 'redshirt-sports',
+  org: "james-singleton",
+  project: "redshirt-sports",
   silent: !process.env.CI,
   telemetry: false,
   sourcemaps: {
     deleteSourcemapsAfterUpload: true,
   },
-})
+});

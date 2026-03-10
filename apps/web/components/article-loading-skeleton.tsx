@@ -1,6 +1,10 @@
-import { CameraIcon } from 'lucide-react'
-import { Skeleton } from '@redshirt-sports/ui/components/skeleton'
-import { Card, CardContent, CardHeader } from '@redshirt-sports/ui/components/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@redshirt-sports/ui/components/card";
+import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
+import { CameraIcon } from "lucide-react";
 
 export default function ArticlePageSkeleton() {
   return (
@@ -34,7 +38,9 @@ export default function ArticlePageSkeleton() {
             {/* Desktop Sidebar */}
             <div className="lg:w-64 lg:shrink-0">
               <div className="hidden lg:sticky lg:top-24 lg:left-0 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
-                <p className="text-muted-foreground text-sm font-normal">Written By</p>
+                <p className="text-muted-foreground text-sm font-normal">
+                  Written By
+                </p>
 
                 {/* Author info skeleton */}
                 <div className="flex min-h-10 flex-row items-center justify-start gap-3 p-0">
@@ -69,7 +75,9 @@ export default function ArticlePageSkeleton() {
 
               {/* Mobile author section */}
               <div className="lg:hidden">
-                <p className="text-muted-foreground text-sm font-normal">Written By</p>
+                <p className="text-muted-foreground text-sm font-normal">
+                  Written By
+                </p>
                 <div className="border-border relative -mx-6 mt-3 flex overflow-x-auto border-b px-6">
                   <div className="flex-1 pb-4">
                     <div className="flex flex-row items-stretch justify-start gap-4">
@@ -184,5 +192,5 @@ export default function ArticlePageSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }

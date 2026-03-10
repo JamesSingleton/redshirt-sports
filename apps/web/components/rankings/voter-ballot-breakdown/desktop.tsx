@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Table,
   TableBody,
@@ -8,21 +8,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@redshirt-sports/ui/components/table'
-import { Button } from '@redshirt-sports/ui/components/button'
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
-import { TeamLogo } from './team-logo'
-import type { Voter } from '@/types/votes'
+} from "@redshirt-sports/ui/components/table";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
+import * as React from "react";
+
+import type { Voter } from "@/types/votes";
+import { TeamLogo } from "./team-logo";
 
 type Props = {
-  rows: Voter[]
-  page: number
-  pageCount: number
-  onFirstAction: () => void
-  onPrevAction: () => void
-  onNextAction: () => void
-  onLastAction: () => void
-}
+  rows: Voter[];
+  page: number;
+  pageCount: number;
+  onFirstAction: () => void;
+  onPrevAction: () => void;
+  onNextAction: () => void;
+  onLastAction: () => void;
+};
 
 export default function VoterBreakdownDesktop({
   rows,
@@ -33,7 +39,7 @@ export default function VoterBreakdownDesktop({
   onNextAction,
   onLastAction,
 }: Props) {
-  const scrollRef = React.useRef<HTMLDivElement>(null)
+  const scrollRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <div className="hidden md:block">
@@ -42,35 +48,45 @@ export default function VoterBreakdownDesktop({
           <Table className="min-w-max">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="bg-background sticky left-0 z-20">Voter</TableHead>
-                {Array.from({ length: 25 }, (_, i) => (
-                  <TableHead key={i} className="min-w-12 text-center">
-                    {i + 1}
+                <TableHead className="bg-background sticky left-0 z-20">
+                  Voter
+                </TableHead>
+                {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => (
+                  <TableHead
+                    key={`rank-${rank}`}
+                    className="min-w-12 text-center"
+                  >
+                    {rank}
                   </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((voter, idx) => (
-                <TableRow key={`${voter.name}-${idx}`}>
+              {rows.map((voter) => (
+                <TableRow key={voter.name}>
                   <TableCell className="bg-background sticky left-0 z-10 min-w-48">
                     <div className="font-medium">{voter.name}</div>
                     <div className="text-muted-foreground text-sm italic">
                       {voter.organization}
-                      {voter.organizationRole ? ` (${voter.organizationRole})` : ''}
+                      {voter.organizationRole
+                        ? ` (${voter.organizationRole})`
+                        : ""}
                     </div>
                   </TableCell>
-                  {voter.ballot?.slice(0, 25).map((vote, i) => (
-                    <TableCell key={`${vote?._id ?? 'na'}-${i}`} className="py-1">
-                      <div className="flex items-center justify-center">
-                        {vote ? (
-                          <TeamLogo vote={vote} size={40} />
-                        ) : (
-                          <div className="bg-muted/30 h-10 w-10 rounded-sm" />
-                        )}
-                      </div>
-                    </TableCell>
-                  ))}
+                  {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => {
+                    const vote = voter.ballot?.[rank - 1];
+                    return (
+                      <TableCell key={`ballot-rank-${rank}`} className="py-1">
+                        <div className="flex items-center justify-center">
+                          {vote ? (
+                            <TeamLogo vote={vote} size={40} />
+                          ) : (
+                            <div className="bg-muted/30 h-10 w-10 rounded-sm" />
+                          )}
+                        </div>
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableBody>
@@ -125,5 +141,5 @@ export default function VoterBreakdownDesktop({
         </Button>
       </div>
     </div>
-  )
+  );
 }

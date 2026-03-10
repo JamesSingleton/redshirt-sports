@@ -1,21 +1,31 @@
-import Link from 'next/link'
-
-import { sanityFetch } from '@redshirt-sports/sanity/live'
-import { queryFooterData, queryGlobalSeoSettings } from '@redshirt-sports/sanity/queries'
+import { sanityFetch } from "@redshirt-sports/sanity/live";
+import {
+  queryFooterData,
+  queryGlobalSeoSettings,
+} from "@redshirt-sports/sanity/queries";
 import type {
   QueryFooterDataResult,
   QueryGlobalSeoSettingsResult,
-} from '@redshirt-sports/sanity/types'
-import { BlueSkyIcon, Facebook, Instagram, ThreadsIcon, Twitter, YouTubeIcon } from './icons'
-import CustomImage from './sanity-image'
+} from "@redshirt-sports/sanity/types";
+import Link from "next/link";
+
+import {
+  BlueSkyIcon,
+  Facebook,
+  Instagram,
+  ThreadsIcon,
+  Twitter,
+  YouTubeIcon,
+} from "./icons";
+import CustomImage from "./sanity-image";
 
 interface SocialLinksProps {
-  data: NonNullable<QueryGlobalSeoSettingsResult>['socialLinks']
+  data: NonNullable<QueryGlobalSeoSettingsResult>["socialLinks"];
 }
 
 interface FooterProps {
-  data: NonNullable<QueryFooterDataResult>
-  settingsData: NonNullable<QueryGlobalSeoSettingsResult>
+  data: NonNullable<QueryFooterDataResult>;
+  settingsData: NonNullable<QueryGlobalSeoSettingsResult>;
 }
 
 export async function FooterServer() {
@@ -26,41 +36,41 @@ export async function FooterServer() {
     sanityFetch({
       query: queryGlobalSeoSettings,
     }),
-  ])
+  ]);
 
-  if (!response?.data || !settingsResponse?.data) return <FooterSkeleton />
-  return <Footer data={response.data} settingsData={settingsResponse.data} />
+  if (!response?.data || !settingsResponse?.data) return <FooterSkeleton />;
+  return <Footer data={response.data} settingsData={settingsResponse.data} />;
 }
 
 function SocialLinks({ data }: SocialLinksProps) {
-  if (!data) return null
+  if (!data) return null;
 
-  const { facebook, twitter, youtube, instagram, bluesky, threads } = data
+  const { facebook, twitter, youtube, instagram, bluesky, threads } = data;
 
   const socialLinks = [
-    { url: facebook, Icon: Facebook, label: 'Follow us on Facebook' },
-    { url: twitter, Icon: Twitter, label: 'Follow us on Twitter' },
+    { url: facebook, Icon: Facebook, label: "Follow us on Facebook" },
+    { url: twitter, Icon: Twitter, label: "Follow us on Twitter" },
     {
       url: youtube,
       Icon: YouTubeIcon,
-      label: 'Subscribe to our YouTube channel',
+      label: "Subscribe to our YouTube channel",
     },
     {
       url: instagram,
       Icon: Instagram,
-      label: 'Follow us on Instagram',
+      label: "Follow us on Instagram",
     },
     {
       url: bluesky,
       Icon: BlueSkyIcon,
-      label: 'Follow us on Bluesky',
+      label: "Follow us on Bluesky",
     },
     {
       url: threads,
       Icon: ThreadsIcon,
-      label: 'Follow us on Threads',
+      label: "Follow us on Threads",
     },
-  ].filter((link) => link.url)
+  ].filter((link) => link.url);
 
   return (
     <ul className="text-muted-foreground flex items-center space-x-6">
@@ -70,7 +80,7 @@ function SocialLinks({ data }: SocialLinksProps) {
           className="hover:text-primary font-medium"
         >
           <Link
-            href={url ?? '#'}
+            href={url ?? "#"}
             target="_blank"
             prefetch={false}
             rel="noopener noreferrer"
@@ -82,7 +92,7 @@ function SocialLinks({ data }: SocialLinksProps) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
 export function FooterSkeleton() {
@@ -100,7 +110,10 @@ export function FooterSkeleton() {
               </div>
               <div className="flex items-center space-x-6">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="bg-muted h-6 w-6 animate-pulse rounded" />
+                  <div
+                    key={i}
+                    className="bg-muted h-6 w-6 animate-pulse rounded"
+                  />
                 ))}
               </div>
             </div>
@@ -110,7 +123,10 @@ export function FooterSkeleton() {
                   <div className="bg-muted mb-6 h-6 w-24 animate-pulse rounded" />
                   <div className="space-y-4">
                     {[1, 2, 3, 4].map((item) => (
-                      <div key={item} className="bg-muted h-4 w-full animate-pulse rounded" />
+                      <div
+                        key={item}
+                        className="bg-muted h-4 w-full animate-pulse rounded"
+                      />
                     ))}
                   </div>
                 </div>
@@ -127,12 +143,13 @@ export function FooterSkeleton() {
         </footer>
       </div>
     </section>
-  )
+  );
 }
 
 function Footer({ data, settingsData }: FooterProps) {
-  const { subtitle, columns } = data
-  const { siteTitle, footerLogo, footerLogoDarkMode, socialLinks } = settingsData
+  const { subtitle, columns } = data;
+  const { siteTitle, footerLogo, footerLogoDarkMode, socialLinks } =
+    settingsData;
 
   return (
     <footer className="mt-20 pb-8" aria-labelledby="footer-heading">
@@ -145,8 +162,14 @@ function Footer({ data, settingsData }: FooterProps) {
             <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
               <div>
                 <span className="flex items-center justify-center gap-4 lg:justify-start">
-                  <CustomImage image={footerLogo} className="block dark:hidden" />
-                  <CustomImage image={footerLogoDarkMode} className="hidden dark:block" />
+                  <CustomImage
+                    image={footerLogo}
+                    className="block dark:hidden"
+                  />
+                  <CustomImage
+                    image={footerLogoDarkMode}
+                    className="hidden dark:block"
+                  />
                 </span>
                 {subtitle && (
                   <p className="text-muted-foreground mt-6 text-sm dark:text-zinc-400">
@@ -158,20 +181,24 @@ function Footer({ data, settingsData }: FooterProps) {
             </div>
             {Array.isArray(columns) && columns?.length > 0 && (
               <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-12">
-                {columns.map((column, index) => (
-                  <div key={`column-${column?._key}-${index}`}>
+                {columns.map((column) => (
+                  <div key={`column-${column?._key}`}>
                     <h3 className="mb-6 font-semibold">{column?.title}</h3>
                     {column?.links && column?.links?.length > 0 && (
                       <ul className="text-muted-foreground space-y-4 text-sm">
-                        {column?.links?.map((link, index) => (
+                        {column?.links?.map((link) => (
                           <li
-                            key={`${link?._key}-${index}-column-${column?._key}`}
+                            key={`${link?._key}-column-${column?._key}`}
                             className="hover:text-primary font-medium"
                           >
                             <Link
-                              href={link.href ?? '#'}
-                              target={link.openInNewTab ? '_blank' : undefined}
-                              rel={link.openInNewTab ? 'noopener noreferrer' : undefined}
+                              href={link.href ?? "#"}
+                              target={link.openInNewTab ? "_blank" : undefined}
+                              rel={
+                                link.openInNewTab
+                                  ? "noopener noreferrer"
+                                  : undefined
+                              }
                             >
                               {link.name}
                             </Link>
@@ -192,5 +219,5 @@ function Footer({ data, settingsData }: FooterProps) {
         </section>
       </div>
     </footer>
-  )
+  );
 }

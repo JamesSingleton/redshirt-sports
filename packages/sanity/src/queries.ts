@@ -1,6 +1,6 @@
-import { defineQuery, groq } from 'next-sanity'
+import { defineQuery, groq } from "next-sanity";
 
-const perPage = 12
+const perPage = 12;
 
 export const querySettingsData = defineQuery(/* groq */ `
   *[_type == "settings"][0]{
@@ -12,7 +12,7 @@ export const querySettingsData = defineQuery(/* groq */ `
     "socialLinks": socialLinks,
     "contactEmail": contactEmail,
   }
-`)
+`);
 
 const markDefsFragment = /* groq */ `
   markDefs[]{
@@ -25,7 +25,7 @@ const markDefsFragment = /* groq */ `
       )
     }
   }
-`
+`;
 
 const imageFragment = /* groq */ `
   image{
@@ -35,7 +35,7 @@ const imageFragment = /* groq */ `
     "blurData": asset->metadata.lqip,
     "dominantColor": asset->metadata.palette.dominant.background,
   }
-`
+`;
 
 // same as imageFragment but with a logo key and no credit
 const logoFragment = /* groq */ `
@@ -45,7 +45,7 @@ const logoFragment = /* groq */ `
     "blurData": asset->metadata.lqip,
     "dominantColor": asset->metadata.palette.dominant.background,
   }
-`
+`;
 
 const postAuthorFragment = /* groq */ `
   authors[]->{
@@ -53,7 +53,7 @@ const postAuthorFragment = /* groq */ `
     "slug": slug.current,
     ${imageFragment}
   }
-`
+`;
 
 const postImageFragment = /* groq */ `
   mainImage{
@@ -63,7 +63,7 @@ const postImageFragment = /* groq */ `
     "blurData": asset->metadata.lqip,
     "dominantColor": asset->metadata.palette.dominant.background,
   }
-`
+`;
 
 const divisionFragment = /* groq */ `
   division->{
@@ -77,14 +77,14 @@ const divisionFragment = /* groq */ `
       "dominantColor": asset->metadata.palette.dominant.background,
     }
   }
-`
+`;
 
 const sportSubgroupingFragment = /* groq */ `
   sportSubgrouping->{
     ...,
     "slug": slug.current,
   }
-`
+`;
 
 const conferencesFragment = /* groq */ `
   conferences[]->{
@@ -113,7 +113,7 @@ const conferencesFragment = /* groq */ `
         }
       }
   }
-`
+`;
 
 const richTextFragment = /* groq */ `
   body[]{
@@ -127,7 +127,7 @@ const richTextFragment = /* groq */ `
       "dominantColor": asset->metadata.palette.dominant.background,
     },
   }
-`
+`;
 
 export const queryPostSlugData = defineQuery(/* groq */ `
   *[_type == "post" && slug.current == $slug][0]{
@@ -158,15 +158,15 @@ export const queryPostSlugData = defineQuery(/* groq */ `
     }
 
   }
-`)
+`);
 
 export const queryPostPaths = defineQuery(/* groq */ `
   *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50]{"slug": slug.current}
-`)
+`);
 
 export const queryAuthorPaths = defineQuery(/* groq */ `
   *[_type == "author" && defined(slug.current) && archived == false]| order(_createdAt desc)[0...20]{"slug": slug.current}
-`)
+`);
 
 export const querySportsNews = defineQuery(/* groq */ `
   {
@@ -178,7 +178,7 @@ export const querySportsNews = defineQuery(/* groq */ `
     },
     "totalPosts": count(*[_type == "post" && sport->slug.current == $sport])
   }
-`)
+`);
 
 export const querySportsAndDivisionNews = defineQuery(/* groq */ `
   {
@@ -200,7 +200,7 @@ export const querySportsAndDivisionNews = defineQuery(/* groq */ `
       $division != "d1"
     ])
   }
-`)
+`);
 
 export const queryFooterData = defineQuery(/* groq */ `
   *[_type == "footer" && _id == "footer"][0]{
@@ -222,7 +222,7 @@ export const queryFooterData = defineQuery(/* groq */ `
       }
     },
   }
-`)
+`);
 
 export const queryGlobalSeoSettings = defineQuery(/* groq */ `
   *[_type == "settings"][0]{
@@ -254,7 +254,7 @@ export const queryGlobalSeoSettings = defineQuery(/* groq */ `
       threads
     }
   }
-`)
+`);
 
 export const queryNavbarData = defineQuery(/* groq */ `
   *[_type == "navbar" && _id == "navbar"][0]{
@@ -294,7 +294,7 @@ export const queryNavbarData = defineQuery(/* groq */ `
     "logo": *[_type == "settings"][0].logo.asset->url + "?w=70&h=40&dpr=3&fit=max",
     "siteTitle": *[_type == "settings"][0].siteTitle,
   }
-`)
+`);
 
 export const queryHomePageData = defineQuery(/* groq */ `
   *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{
@@ -313,7 +313,7 @@ export const queryHomePageData = defineQuery(/* groq */ `
     publishedAt,
     ${postAuthorFragment}
   }
-`)
+`);
 
 export const queryLatestArticles = defineQuery(/* groq */ `
  *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{
@@ -331,7 +331,7 @@ export const queryLatestArticles = defineQuery(/* groq */ `
     },
     ${postAuthorFragment}
   }
-`)
+`);
 
 export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
   *[_type == "post" && (division->name == $division || sportSubgrouping->name == $division) && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{
@@ -358,7 +358,7 @@ export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
     },
     ${postAuthorFragment}
   }
-`)
+`);
 
 export const queryCollegeSportsArticlesForSitemap = defineQuery(/* groq */ `
   *[_type == "post" && defined(slug.current) && sport->title match $sport] | order(publishedAt desc){
@@ -367,16 +367,17 @@ export const queryCollegeSportsArticlesForSitemap = defineQuery(/* groq */ `
     publishedAt,
     "slug": slug.current,
   }
-`)
+`);
 
 export const querySitemapData = defineQuery(/* groq */ `{
   "authors": *[_type == "author" && defined(slug.current) && archived == false] {
     "slug": slug.current,
     "lastModified": _updatedAt
   },
-}`)
+}`);
 
-export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ `
+export const queryArticlesBySportDivisionAndConference =
+  defineQuery(/* groq */ `
   {
     "posts": *[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (
       sportSubgrouping->slug.current == $division || division->slug.current == $division
@@ -395,7 +396,7 @@ export const queryArticlesBySportDivisionAndConference = defineQuery(/* groq */ 
       sportSubgrouping->slug.current == $division || division->slug.current == $division
     ) && $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current]),
   }
-`)
+`);
 
 export const searchQuery = defineQuery(/* groq */ `
 {
@@ -413,13 +414,13 @@ export const searchQuery = defineQuery(/* groq */ `
   },
   "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])
 }
-`)
+`);
 
 export const sportInfoBySlug = defineQuery(/* groq */ `
 *[_type == "sport" && slug.current == $slug][0]{
   _id,
   title,
-}`)
+}`);
 
 export const authorBySlug = defineQuery(/* groq */ `
   *[_type == "author" && slug.current == $slug && archived == false][0]{
@@ -427,7 +428,7 @@ export const authorBySlug = defineQuery(/* groq */ `
     "slug": slug.current,
     ${imageFragment},
   }
-`)
+`);
 
 export const postsByAuthor = defineQuery(/* groq */ `
   *[_type == "author" && slug.current == $slug && archived == false][0]{
@@ -439,7 +440,7 @@ export const postsByAuthor = defineQuery(/* groq */ `
     },
     "totalPosts": count(*[_type == "post" && references(^._id)])
   }
-`)
+`);
 
 export const authorsListNotArchived = defineQuery(/* groq */ `
   *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {
@@ -455,11 +456,11 @@ export const authorsListNotArchived = defineQuery(/* groq */ `
     },
     socialLinks
   }
-`)
+`);
 
 export const privacyPolicyQuery = defineQuery(/* groq */ `
   *[_type == "legal" && slug.current == "privacy-policy"][0]
-`)
+`);
 
 export const schoolsByDivisionQuery = defineQuery(/* groq */ `
   *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){
@@ -473,7 +474,7 @@ export const schoolsByDivisionQuery = defineQuery(/* groq */ `
     shortName
   }
 }
-`)
+`);
 
 export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
   *[_type == "school"
@@ -517,7 +518,7 @@ export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
       }
     }
   }
-`)
+`);
 
 export const collegeNewsQuery = defineQuery(/* groq */ `
   {
@@ -531,11 +532,11 @@ export const collegeNewsQuery = defineQuery(/* groq */ `
     },
     "totalPosts": count(*[_type == "post"])
   }
-`)
+`);
 
 export const conferenceInfoBySlugQuery = defineQuery(/* groq */ `
   *[_type == "conference" && slug.current == $slug][0]
-`)
+`);
 
 export const globalNavigationQuery = defineQuery(/* groq */ `
   *[_type == "sport" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc) {
@@ -635,7 +636,7 @@ export const globalNavigationQuery = defineQuery(/* groq */ `
       )[defined(conferences) && count(conferences) > 0]
     )
   }
-`)
+`);
 
 export const rssFeedQuery = defineQuery(
   /* groq */
@@ -648,7 +649,7 @@ export const rssFeedQuery = defineQuery(
   ${postImageFragment},
 }
 `,
-)
+);
 
 export const schoolsByIdQuery = defineQuery(
   /* groq */
@@ -660,7 +661,7 @@ export const schoolsByIdQuery = defineQuery(
     abbreviation,
     image,
   }| order(_order)`,
-)
+);
 
 export const sportInfoQuery = defineQuery(
   /* groq */
@@ -671,7 +672,7 @@ export const sportInfoQuery = defineQuery(
     title,
     "slug": slug.current,
   }`,
-)
+);
 
 export const divisionsQuery = defineQuery(/* groq */ `
   *[_type == "division"]{
@@ -686,7 +687,7 @@ export const divisionsQuery = defineQuery(/* groq */ `
     description,
     ${logoFragment}
   }
-  `)
+  `);
 
 export const conferencesQuery = defineQuery(/* groq */ `
   *[_type == "conference"]{
@@ -701,7 +702,7 @@ export const conferencesQuery = defineQuery(/* groq */ `
     ${logoFragment},
     "sports": sports[]->_id
   }
-  `)
+  `);
 
 export const schoolsQuery = defineQuery(/* groq */ `
   *[_type == "school"]{
@@ -719,7 +720,7 @@ export const schoolsQuery = defineQuery(/* groq */ `
       "sportId": sport->_id,
     }
   }
-  `)
+  `);
 
 export const subdivisionsQuery = defineQuery(/* groq */ `
     *[_type == "sportSubgrouping"]{
@@ -732,7 +733,7 @@ export const subdivisionsQuery = defineQuery(/* groq */ `
     "parentDivisionId": parentDivision->id,
     "applicableSports": applicableSports[]->_id
   }
-`)
+`);
 
 export const schoolsByIdOrderedByPoints = groq`
 *[_type == "school" && _id in $ids[].id]{
@@ -743,7 +744,7 @@ export const schoolsByIdOrderedByPoints = groq`
   abbreviation,
   image,
 } | order(_points desc)
-`
+`;
 
 export const schoolWithVoteOrder = groq`
 *[_type == "school" && _id in $ids[].teamId]{
@@ -754,7 +755,7 @@ export const schoolWithVoteOrder = groq`
   abbreviation,
   image,
 } | order(_order)
-`
+`;
 
 export const postsSearchQuery = groq`
 *[_type == 'post' && (
@@ -774,7 +775,7 @@ export const postsSearchQuery = groq`
   "slug": slug.current,
   publishedAt,
   excerpt
-}`
+}`;
 
 export const schoolsForVotesQuery = groq`*[_type == "school" && _id in $schoolIds]{
     _id,
@@ -789,7 +790,7 @@ export const schoolsForVotesQuery = groq`*[_type == "school" && _id in $schoolId
       "blurData": asset->metadata.lqip,
       "dominantColor": asset->metadata.palette.dominant.background,
     }
-  }`
+  }`;
 
 export const postsForSitemapQuery = groq`
   *[_type == "post" && defined(publishedAt) && defined(slug.current)][$start...$end]{
@@ -798,11 +799,11 @@ export const postsForSitemapQuery = groq`
     publishedAt,
     _updatedAt
   }
-`
+`;
 
 export const countOfPostsQuery = groq`
   count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])
-  `
+  `;
 
 export const queryForCollegeSitemap = groq`
 *[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){
@@ -818,4 +819,4 @@ export const queryForCollegeSitemap = groq`
       }
     },
   _updatedAt
-}`
+}`;

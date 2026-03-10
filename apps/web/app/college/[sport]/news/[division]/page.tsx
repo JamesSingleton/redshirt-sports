@@ -1,32 +1,33 @@
-import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
+import { sanityFetch } from "@redshirt-sports/sanity/live";
+import {
+  querySportsAndDivisionNews,
+  sportInfoBySlug,
+} from "@redshirt-sports/sanity/queries";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import type { CollectionPage, WithContext } from "schema-dts";
 
-import ArticleFeed from '@/components/article-feed'
-import PageHeader from '@/components/page-header'
-import PaginationControls from '@/components/pagination-controls'
-import { sanityFetch } from '@redshirt-sports/sanity/live'
-import { querySportsAndDivisionNews, sportInfoBySlug } from '@redshirt-sports/sanity/queries'
-import { perPage } from '@/lib/constants'
-import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
-import { getBaseUrl } from '@/lib/get-base-url'
-import { getSEOMetadata } from '@/lib/seo'
-import { validatePageIndex } from '@/utils/validate-page-index'
-
-import type { Metadata } from 'next'
-import type { Post } from '@/types'
-import type { CollectionPage, WithContext } from 'schema-dts'
+import ArticleFeed from "@/components/article-feed";
+import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
+import PageHeader from "@/components/page-header";
+import PaginationControls from "@/components/pagination-controls";
+import { perPage } from "@/lib/constants";
+import { getBaseUrl } from "@/lib/get-base-url";
+import { getSEOMetadata } from "@/lib/seo";
+import { validatePageIndex } from "@/utils/validate-page-index";
 
 async function fetchSportsAndDivisionNews({
   sport,
   division,
   pageIndex,
 }: {
-  sport: string
-  division: string
-  pageIndex: number
+  sport: string;
+  division: string;
+  pageIndex: number;
 }) {
-  const from = (pageIndex - 1) * perPage
-  const to = pageIndex * perPage
+  const from = (pageIndex - 1) * perPage;
+  const to = pageIndex * perPage;
 
   return await sanityFetch({
     query: querySportsAndDivisionNews,
@@ -36,7 +37,7 @@ async function fetchSportsAndDivisionNews({
       from,
       to,
     },
-  })
+  });
 }
 
 async function fetchSportInfoBySlug(slug: string) {
@@ -45,10 +46,12 @@ async function fetchSportInfoBySlug(slug: string) {
     params: {
       slug,
     },
-  })
+  });
 }
 
-export async function getDivisionOrSubgroupingDisplayName(slugOrShortName: string) {
+export async function getDivisionOrSubgroupingDisplayName(
+  slugOrShortName: string,
+) {
   return await sanityFetch({
     query: `
       *[
@@ -63,140 +66,141 @@ export async function getDivisionOrSubgroupingDisplayName(slugOrShortName: strin
       }
     `,
     params: { slugOrShortName },
-  })
+  });
 }
 
 export async function generateMetadata({
   params,
   searchParams,
-}: PageProps<'/college/[sport]/news/[division]'>): Promise<Metadata> {
-  const { sport, division } = await params
-  const { page } = await searchParams
-  const pageIndex = validatePageIndex(page)
+}: PageProps<"/college/[sport]/news/[division]">): Promise<Metadata> {
+  const { sport, division } = await params;
+  const { page } = await searchParams;
+  const pageIndex = validatePageIndex(page);
 
   const [sportInfoResponse, divisionDisplayName] = await Promise.all([
     fetchSportInfoBySlug(sport),
     getDivisionOrSubgroupingDisplayName(division),
-  ])
+  ]);
 
-  const sportTitle = sportInfoResponse?.data?.title
-  const divisionName = divisionDisplayName.data?.displayName
+  const sportTitle = sportInfoResponse?.data?.title;
+  const divisionName = divisionDisplayName.data?.displayName;
 
   if (!sportTitle || !divisionName) {
     return {
       title: `Sports News | ${process.env.NEXT_PUBLIC_APP_NAME}`,
       description: `Stay updated with the latest sports news and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
-    }
+    };
   }
 
-  const baseTitle = `${divisionName} ${sportTitle} News, Updates & Analysis`
-  const baseDescription = `Complete ${divisionName} ${sportTitle} coverage including breaking news, game analysis, player spotlights, and coaching updates. Your go-to source for ${sportTitle} insights.`
+  const baseTitle = `${divisionName} ${sportTitle} News, Updates & Analysis`;
+  const baseDescription = `Complete ${divisionName} ${sportTitle} coverage including breaking news, game analysis, player spotlights, and coaching updates. Your go-to source for ${sportTitle} insights.`;
 
-  const baseCanonical = `/college/${sport}/news/${division}`
+  const baseCanonical = `/college/${sport}/news/${division}`;
 
-  const isFirstPage = !page || pageIndex <= 1
+  const isFirstPage = !page || pageIndex <= 1;
 
-  let title: string
-  let description: string
-  let canonical: string
+  let title: string;
+  let description: string;
+  let canonical: string;
 
   if (isFirstPage) {
-    title = baseTitle
-    description = baseDescription
-    canonical = baseCanonical
+    title = baseTitle;
+    description = baseDescription;
+    canonical = baseCanonical;
   } else {
-    title = `${baseTitle} - Page ${pageIndex}`
-    description = `More ${divisionName} ${sportTitle} stories on Page ${pageIndex}. Continued coverage of recruiting updates, game previews, injury reports, and in-depth team analysis.`
-    canonical = `${baseCanonical}?page=${pageIndex}`
+    title = `${baseTitle} - Page ${pageIndex}`;
+    description = `More ${divisionName} ${sportTitle} stories on Page ${pageIndex}. Continued coverage of recruiting updates, game previews, injury reports, and in-depth team analysis.`;
+    canonical = `${baseCanonical}?page=${pageIndex}`;
   }
 
   return getSEOMetadata({
     title,
     description,
     slug: canonical,
-  })
+  });
 }
 
 export default async function Page({
   params,
   searchParams,
-}: PageProps<'/college/[sport]/news/[division]'>) {
-  const { sport, division } = await params
-  const { page } = await searchParams
-  const pageIndex = validatePageIndex(page)
-  const baseUrl = getBaseUrl()
+}: PageProps<"/college/[sport]/news/[division]">) {
+  const { sport, division } = await params;
+  const { page } = await searchParams;
+  const pageIndex = validatePageIndex(page);
+  const baseUrl = getBaseUrl();
 
-  const [newsResponse, sportInfoResponse, divisionNameResponse] = await Promise.all([
-    fetchSportsAndDivisionNews({ sport, division, pageIndex }),
-    fetchSportInfoBySlug(sport),
-    getDivisionOrSubgroupingDisplayName(division),
-  ])
+  const [newsResponse, sportInfoResponse, divisionNameResponse] =
+    await Promise.all([
+      fetchSportsAndDivisionNews({ sport, division, pageIndex }),
+      fetchSportInfoBySlug(sport),
+      getDivisionOrSubgroupingDisplayName(division),
+    ]);
 
-  const news = newsResponse.data
-  const sportInfo = sportInfoResponse.data
-  const divisionOrSubgroupingName = divisionNameResponse?.data.displayName
+  const news = newsResponse.data;
+  const sportInfo = sportInfoResponse.data;
+  const divisionOrSubgroupingName = divisionNameResponse?.data.displayName;
 
   if (!news || !news.posts || !news.posts.length) {
-    notFound()
+    notFound();
   }
 
-  const sportTitle = sportInfo?.title
-  const divisionTitle = divisionOrSubgroupingName
+  const sportTitle = sportInfo?.title;
+  const divisionTitle = divisionOrSubgroupingName;
 
-  const totalPages = Math.ceil(news.totalPosts / perPage)
+  const totalPages = Math.ceil(news.totalPosts / perPage);
 
   const collectionPageJsonLd: WithContext<CollectionPage> = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
     name: `${divisionTitle} ${sportTitle} News`,
     description: `Stay informed with breaking ${divisionOrSubgroupingName} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
-    url: `${baseUrl}/college/${sport}/news/${division}${page ? `?page=${page}` : ''}`,
-    isPartOf: { '@id': websiteId, '@type': 'WebSite' },
-    publisher: { '@id': organizationId, '@type': 'Organization' },
+    url: `${baseUrl}/college/${sport}/news/${division}${page ? `?page=${page}` : ""}`,
+    isPartOf: { "@id": websiteId, "@type": "WebSite" },
+    publisher: { "@id": organizationId, "@type": "Organization" },
     mainEntity: {
-      '@type': 'ItemList',
-      itemListElement: news.posts.map((post: Post, index: number) => ({
-        '@id': `${baseUrl}/${post.slug}#article`,
+      "@type": "ItemList",
+      itemListElement: news.posts.map((post, index: number) => ({
+        "@id": `${baseUrl}/${post.slug}#article`,
         position: index + 1,
       })),
       numberOfItems: news.totalPosts,
       url: `${baseUrl}/college/${sport}/news/${division}`,
     },
     breadcrumb: {
-      '@type': 'BreadcrumbList',
+      "@type": "BreadcrumbList",
       itemListElement: [
         {
-          '@type': 'ListItem',
+          "@type": "ListItem",
           position: 1,
-          name: 'Home',
+          name: "Home",
           item: baseUrl,
         },
         {
-          '@type': 'ListItem',
+          "@type": "ListItem",
           position: 2,
-          name: 'News',
+          name: "News",
           item: `${baseUrl}/college/news`,
         },
         {
-          '@type': 'ListItem',
+          "@type": "ListItem",
           position: 3,
           name: sportTitle,
           item: `${baseUrl}/college/${sport}/news`,
         },
         {
-          '@type': 'ListItem',
+          "@type": "ListItem",
           position: 4,
           name: divisionTitle,
           item: `${baseUrl}/college/${sport}/news/${division}`,
         },
       ],
     },
-  }
+  };
 
   const breadcrumbItems = [
     {
-      title: 'News',
-      href: '/college/news',
+      title: "News",
+      href: "/college/news",
     },
     {
       title: sportInfo?.title,
@@ -206,11 +210,14 @@ export default async function Page({
       title: divisionOrSubgroupingName,
       href: `/college/${sport}/news/${division}`,
     },
-  ]
+  ];
 
   return (
     <>
-      <JsonLdScript data={collectionPageJsonLd} id={`collection-page-${sport}-${division}`} />
+      <JsonLdScript
+        data={collectionPageJsonLd}
+        id={`collection-page-${sport}-${division}`}
+      />
       <PageHeader
         title={`${divisionOrSubgroupingName} ${sportInfo?.title} News`}
         breadcrumbs={breadcrumbItems}
@@ -224,5 +231,5 @@ export default async function Page({
         )}
       </section>
     </>
-  )
+  );
 }

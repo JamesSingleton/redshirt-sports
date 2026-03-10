@@ -4,7 +4,10 @@
     "baseUrl": ".",
     "paths": {
       "@redshirt-sports/ui/*": ["./src/*"]
-    }
+    },
+    "types": ["vitest/globals"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
   "include": ["."],
   "exclude": ["node_modules", "dist"]

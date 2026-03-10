@@ -59,12 +59,8 @@
           "name": "season_types_season_id_seasons_id_fk",
           "tableFrom": "season_types",
           "tableTo": "seasons",
-          "columnsFrom": [
-            "season_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["season_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -74,10 +70,7 @@
         "season_types_season_id_type_unique": {
           "name": "season_types_season_id_type_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "season_id",
-            "type"
-          ]
+          "columns": ["season_id", "type"]
         }
       },
       "policies": {},
@@ -145,12 +138,8 @@
           "name": "seasons_sport_id_sports_id_fk",
           "tableFrom": "seasons",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -160,10 +149,7 @@
         "seasons_sport_id_year_unique": {
           "name": "seasons_sport_id_year_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "sport_id",
-            "year"
-          ]
+          "columns": ["sport_id", "year"]
         }
       },
       "policies": {},
@@ -227,9 +213,7 @@
         "sports_slug_unique": {
           "name": "sports_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -366,12 +350,8 @@
           "name": "voter_ballot_sport_id_sports_id_fk",
           "tableFrom": "voter_ballot",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -449,12 +429,8 @@
           "name": "weekly_final_rankings_sport_id_sports_id_fk",
           "tableFrom": "weekly_final_rankings",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -464,11 +440,7 @@
         "weekly_final_rankings_division_year_week_unique": {
           "name": "weekly_final_rankings_division_year_week_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "division",
-            "year",
-            "week"
-          ]
+          "columns": ["division", "year", "week"]
         }
       },
       "policies": {},
@@ -536,12 +508,8 @@
           "name": "weeks_season_type_id_season_types_id_fk",
           "tableFrom": "weeks",
           "tableTo": "season_types",
-          "columnsFrom": [
-            "season_type_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["season_type_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -551,10 +519,7 @@
         "weeks_season_type_id_number_unique": {
           "name": "weeks_season_type_id_number_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "season_type_id",
-            "number"
-          ]
+          "columns": ["season_type_id", "number"]
         }
       },
       "policies": {},

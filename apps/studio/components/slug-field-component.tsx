@@ -1,23 +1,27 @@
-import { CopyIcon, WarningOutlineIcon } from '@sanity/icons'
-import { Badge, Box, Button, Flex, Stack, Text, TextInput } from '@sanity/ui'
-import type { FormEvent } from 'react'
-import { useCallback, useMemo, useRef } from 'react'
+import { CopyIcon, WarningOutlineIcon } from "@sanity/icons";
+import { Badge, Box, Button, Flex, Stack, Text, TextInput } from "@sanity/ui";
+import type { FormEvent } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   getPublishedId,
   type ObjectFieldProps,
   type SanityDocument,
-  set,
   type SlugValue,
+  set,
   unset,
   useFormValue,
   useValidationStatus,
-} from 'sanity'
-import slugify from 'slugify'
-import { styled } from 'styled-components'
+} from "sanity";
+import slugify from "slugify";
+import { styled } from "styled-components";
 
-import { getDocumentPath, getPresentationUrl, stringToPathname } from '../utils/helper'
+import {
+  getDocumentPath,
+  getPresentationUrl,
+  stringToPathname,
+} from "../utils/helper";
 
-const presentationOriginUrl = getPresentationUrl()
+const presentationOriginUrl = getPresentationUrl();
 
 const CopyButton = styled(Button)`
   margin-left: auto;
@@ -29,96 +33,103 @@ const CopyButton = styled(Button)`
     height: 100%;
     box-sizing: border-box;
   }
-`
+`;
 
 const GenerateButton = styled(Button)`
   margin-left: auto;
   cursor: pointer;
-`
+`;
 
 export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
-  const document = useFormValue([]) as SanityDocument
-  const publishedId = getPublishedId(document?._id as string)
-  const validation = useValidationStatus(publishedId, document?._type)
+  const document = useFormValue([]) as SanityDocument;
+  const publishedId = getPublishedId(document?._id as string);
+  const validation = useValidationStatus(publishedId, document?._type, false);
 
   const slugValidationError = useMemo(
     () =>
       validation.validation.find(
-        (v) => (v?.path.includes('current') || v?.path.includes('slug')) && v.message,
+        (v) =>
+          (v?.path.includes("current") || v?.path.includes("slug")) &&
+          v.message,
       ),
     [validation.validation],
-  )
+  );
   const {
     inputProps: { onChange, value, readOnly },
     title,
     description,
-  } = props
+  } = props;
 
-  const segments = useMemo(() => value?.current?.split('/').filter(Boolean) || [], [value])
+  const segments = useMemo(
+    () => value?.current?.split("/").filter(Boolean) || [],
+    [value],
+  );
 
-  const fullPathInputRef = useRef<HTMLInputElement>(null)
+  const fullPathInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = useCallback(
     (value?: string) => {
-      const finalValue = value ? stringToPathname(value, { allowTrailingSlash: true }) : undefined
+      const finalValue = value
+        ? stringToPathname(value, { allowTrailingSlash: true })
+        : undefined;
       onChange(
-        typeof value === 'string'
+        typeof value === "string"
           ? set({
               current: finalValue,
-              _type: 'slug',
+              _type: "slug",
             })
           : unset(),
-      )
+      );
     },
     [onChange],
-  )
+  );
 
   const handleGenerate = useCallback(() => {
-    const title = document?.title as string | undefined
+    const title = document?.title as string | undefined;
     if (title) {
-      const newSegments = [...segments]
+      const newSegments = [...segments];
       if (newSegments.length > 1) {
         newSegments[newSegments.length - 1] = slugify(title, {
           lower: true,
           remove: /[^a-zA-Z0-9 ]/g,
-        })
+        });
       } else {
         newSegments[0] = slugify(title, {
           lower: true,
           remove: /[^a-zA-Z0-9 ]/g,
-        })
+        });
       }
-      handleChange(newSegments.join('/'))
+      handleChange(newSegments.join("/"));
     }
-  }, [document?.title, handleChange, segments])
+  }, [document?.title, handleChange, segments]);
 
   const updateFullPath = useCallback(
     (e: FormEvent<HTMLInputElement>) => {
-      handleChange(e.currentTarget.value)
+      handleChange(e.currentTarget.value);
     },
     [handleChange],
-  )
+  );
 
   const localizedPathname = getDocumentPath({
     ...document,
     slug: value?.current,
-  })
+  });
 
   const pathInput = useMemo(() => {
     return (
-      <Stack space={2} style={{ flex: 1, width: '100%' }}>
+      <Stack space={2} style={{ flex: 1, width: "100%" }}>
         <Box width="100%">
           <TextInput
-            value={value?.current || ''}
+            value={value?.current || ""}
             onChange={updateFullPath}
             ref={fullPathInputRef}
             disabled={readOnly}
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
           />
         </Box>
       </Stack>
-    )
-  }, [value, updateFullPath, readOnly])
+    );
+  }, [value, updateFullPath, readOnly]);
 
   return (
     <Stack space={3}>
@@ -129,24 +140,26 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
         {description && <Text size={1}>{description}</Text>}
       </Stack>
 
-      {typeof value?.current === 'string' && (
+      {typeof value?.current === "string" && (
         <Flex direction="column" gap={2}>
           <Flex align="center">
             <p
               style={{
-                textOverflow: 'ellipsis',
+                textOverflow: "ellipsis",
                 margin: 0,
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                color: 'var(--card-muted-fg-color)',
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                color: "var(--card-muted-fg-color)",
               }}
             >
-              {`${presentationOriginUrl ?? ''}${localizedPathname}`}
+              {`${presentationOriginUrl ?? ""}${localizedPathname}`}
             </p>
             <CopyButton
               icon={CopyIcon}
               onClick={() =>
-                navigator.clipboard.writeText(`${presentationOriginUrl ?? ''}${localizedPathname}`)
+                navigator.clipboard.writeText(
+                  `${presentationOriginUrl ?? ""}${localizedPathname}`,
+                )
               }
               title="Copy link"
               mode="bleed"
@@ -180,7 +193,7 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
           tone="critical"
           padding={4}
           style={{
-            borderRadius: 'var(--card-radius)',
+            borderRadius: "var(--card-radius)",
           }}
         >
           <Flex gap={4} align="center">
@@ -192,5 +205,5 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
         </Badge>
       ) : null}
     </Stack>
-  )
+  );
 }

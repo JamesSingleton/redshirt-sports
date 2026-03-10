@@ -8,18 +8,18 @@
   },
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "clean": "git clean -xdf node_modules",
+    "clean:workspaces": "turbo clean",
+    "dev": "turbo dev --parallel",
+    "test": "turbo test --parallel",
     "lint": "turbo lint",
-    "check:types": "turbo check:types",
-    "test": "turbo test",
-    "check:format": "prettier --check \"**/*.{ts,tsx,md}\""
+    "format": "biome format --write .",
+    "check:types": "turbo check:types"
   },
   "devDependencies": {
-    "@redshirt-sports/eslint-config": "workspace:*",
+    "@biomejs/biome": "^2.4.6",
     "@redshirt-sports/typescript-config": "workspace:*",
-    "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
-    "turbo": "^2.8.11",
+    "turbo": "^2.8.14",
     "typescript": "^5.9.3"
   }
 }

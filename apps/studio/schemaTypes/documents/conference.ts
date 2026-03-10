@@ -1,39 +1,39 @@
-import { defineArrayMember, defineField, defineType } from 'sanity'
+import { defineArrayMember, defineField, defineType } from "sanity";
 
-import { createSlug, isUnique } from '../../utils/slug'
+import { createSlug, isUnique } from "../../utils/slug";
 
 export const conference = defineType({
-  name: 'conference',
-  title: 'Conference',
-  type: 'document',
+  name: "conference",
+  title: "Conference",
+  type: "document",
   fields: [
     defineField({
-      title: 'Name',
-      name: 'name',
-      type: 'string',
-      description: 'The name of the conference.',
+      title: "Name",
+      name: "name",
+      type: "string",
+      description: "The name of the conference.",
       validation: (rule) => rule.required(),
     }),
     defineField({
-      title: 'Short Name',
-      name: 'shortName',
-      type: 'string',
-      description: 'The short name of the conference.',
+      title: "Short Name",
+      name: "shortName",
+      type: "string",
+      description: "The short name of the conference.",
       validation: (rule) => rule.required(),
     }),
     defineField({
-      title: 'Abbreviation',
-      name: 'abbreviation',
-      type: 'string',
+      title: "Abbreviation",
+      name: "abbreviation",
+      type: "string",
       description: 'The abbreviation of the conference (e.g., "SEC", "ACC").',
       validation: (rule) => rule.required(),
     }),
     defineField({
-      title: 'Slug',
-      name: 'slug',
-      type: 'slug',
+      title: "Slug",
+      name: "slug",
+      type: "slug",
       options: {
-        source: 'name',
+        source: "name",
         maxLength: 96,
         slugify: createSlug,
         isUnique,
@@ -41,40 +41,40 @@ export const conference = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      title: 'Logo',
-      name: 'logo',
-      type: 'image',
+      title: "Logo",
+      name: "logo",
+      type: "image",
       options: {
         hotspot: true,
-        metadata: ['blurhash', 'lqip'],
+        metadata: ["blurhash", "lqip"],
       },
-      description: 'Please provide a logo for the conference.',
+      description: "Please provide a logo for the conference.",
       fields: [
         defineField({
-          name: 'alt',
-          title: 'Alt Text',
-          type: 'string',
-          description: 'Just a brief description of the image.',
+          name: "alt",
+          title: "Alt Text",
+          type: "string",
+          description: "Just a brief description of the image.",
         }),
       ],
     }),
     defineField({
-      title: 'Division',
-      name: 'division',
-      type: 'reference',
-      to: { type: 'division' },
+      title: "Division",
+      name: "division",
+      type: "reference",
+      to: { type: "division" },
       validation: (rule) => rule.required(),
     }),
     defineField({
-      title: 'Sports',
-      name: 'sports',
-      description: 'The sports that this conference sponsors.',
+      title: "Sports",
+      name: "sports",
+      description: "The sports that this conference sponsors.",
       // validation: (rule) => rule.required(),
-      type: 'array',
+      type: "array",
       of: [
         defineArrayMember({
-          type: 'reference',
-          to: { type: 'sport' },
+          type: "reference",
+          to: { type: "sport" },
           options: {
             disableNew: true,
           },
@@ -82,76 +82,85 @@ export const conference = defineType({
       ],
     }),
     defineField({
-      title: 'Sport Subgrouping Affiliations',
-      name: 'sportSubdivisionAffiliations',
-      type: 'array',
+      title: "Sport Subgrouping Affiliations",
+      name: "sportSubdivisionAffiliations",
+      type: "array",
       description:
-        'For each sport this conference participates in, select the relevant subgrouping (e.g., for Football, select FBS or FCS; for Basketball, select Power 5 or Mid-Major).',
+        "For each sport this conference participates in, select the relevant subgrouping (e.g., for Football, select FBS or FCS; for Basketball, select Power 5 or Mid-Major).",
       of: [
         defineArrayMember({
-          type: 'object',
-          name: 'sportSubgroupingAffiliation',
+          type: "object",
+          name: "sportSubgroupingAffiliation",
           fields: [
             defineField({
-              name: 'sport',
-              title: 'Sport',
-              type: 'reference',
+              name: "sport",
+              title: "Sport",
+              type: "reference",
               description:
-                'Select the sport and then the subgrouping that applies to this conference.',
-              to: [{ type: 'sport' }],
+                "Select the sport and then the subgrouping that applies to this conference.",
+              to: [{ type: "sport" }],
               validation: (rule) => rule.required(),
               options: {
                 disableNew: true,
                 filter: ({ document }) => {
                   const conferenceSportsRefs = Array.isArray(document?.sports)
                     ? document.sports
-                    : []
+                    : [];
 
-                  const conferenceSportIds = conferenceSportsRefs.map((s) => s._ref)
+                  const conferenceSportIds = conferenceSportsRefs.map(
+                    (s) => s._ref,
+                  );
 
                   if (conferenceSportIds.length === 0) {
-                    return { filter: 'false' }
+                    return { filter: "false" };
                   }
 
                   return {
-                    filter: '_id in $conferenceSportIds',
+                    filter: "_id in $conferenceSportIds",
                     params: { conferenceSportIds: conferenceSportIds },
-                  }
+                  };
                 },
               },
             }),
             defineField({
-              name: 'subgrouping',
-              title: 'Subgrouping',
-              type: 'reference',
-              to: [{ type: 'sportSubgrouping' }],
+              name: "subgrouping",
+              title: "Subgrouping",
+              type: "reference",
+              to: [{ type: "sportSubgrouping" }],
               validation: (rule) => rule.required(),
-              description: 'Select the subgrouping that applies to this sport for this conference.',
+              description:
+                "Select the subgrouping that applies to this sport for this conference.",
               options: {
                 disableNew: true,
                 filter: ({ parent }) => {
                   const sportRef =
-                    parent && !Array.isArray(parent) && typeof parent === 'object'
+                    parent &&
+                    !Array.isArray(parent) &&
+                    typeof parent === "object"
                       ? (parent as { sport?: { _ref?: string } }).sport?._ref
-                      : undefined
+                      : undefined;
                   if (!sportRef) {
-                    return { filter: 'false' }
+                    return { filter: "false" };
                   }
                   return {
-                    filter: '$sportId in applicableSports[]._ref',
+                    filter: "$sportId in applicableSports[]._ref",
                     params: { sportId: sportRef },
-                  }
+                  };
                 },
               },
             }),
           ],
           preview: {
             select: {
-              sportTitle: 'sport.title',
-              subgroupingName: 'subgrouping.name',
-              subgroupingShortName: 'subgrouping.shortName',
+              sportTitle: "sport.title",
+              subgroupingName: "subgrouping.name",
+              subgroupingShortName: "subgrouping.shortName",
             },
-            prepare: ({ sportTitle, subgroupingName, subgroupingShortName }) => ({
+            prepare: ({
+              sportTitle,
+              subgroupingName,
+              subgroupingShortName,
+            }) => ({
               title: sportTitle,
               subtitle: subgroupingShortName || subgroupingName,
             }),
@@ -159,14 +168,17 @@ export const conference = defineType({
         }),
       ],
       validation: (rule) =>
-        rule.unique().min(1).error('At least one sport subgrouping affiliation is required.'),
+        rule
+          .unique()
+          .min(1)
+          .error("At least one sport subgrouping affiliation is required."),
     }),
   ],
   preview: {
     select: {
-      title: 'name',
-      subtitle: 'division.title',
-      media: 'logo',
+      title: "name",
+      subtitle: "division.title",
+      media: "logo",
     },
     prepare: ({ title, subtitle, media }) => ({
       title: title,
@@ -174,4 +186,4 @@ export const conference = defineType({
       media,
     }),
   },
-})
+});

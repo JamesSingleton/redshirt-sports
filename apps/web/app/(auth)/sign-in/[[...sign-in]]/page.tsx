@@ -1,9 +1,8 @@
-import { SignIn } from '@clerk/nextjs'
-
-import { type Metadata } from 'next'
+import { SignIn } from "@clerk/nextjs";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Sign Up | Redshirt Sports',
+  title: "Sign Up | Redshirt Sports",
   robots: {
     index: false,
     follow: false,
@@ -12,12 +11,12 @@ export const metadata: Metadata = {
       follow: false,
     },
   },
-}
+};
 
 export default function Page() {
   return (
     <div className="flex justify-center py-24">
       <SignIn />
     </div>
-  )
+  );
 }

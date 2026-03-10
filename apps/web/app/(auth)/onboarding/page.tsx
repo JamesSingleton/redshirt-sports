@@ -1,5 +1,6 @@
-import { Suspense } from 'react'
-import Onboarding from '@/components/forms/onboarding'
+import { Suspense } from "react";
+
+import Onboarding from "@/components/forms/onboarding";
 
 export default async function OnboardingPage() {
   return (
@@ -8,5 +9,5 @@ export default async function OnboardingPage() {
         <Onboarding />
       </Suspense>
     </div>
-  )
+  );
 }

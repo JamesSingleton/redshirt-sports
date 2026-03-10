@@ -1,10 +1,6 @@
-'use client'
-import * as React from 'react'
-import { useVirtualizer } from '@tanstack/react-virtual'
-import { Check, ChevronsUpDown } from 'lucide-react'
-import Fuse from 'fuse.js'
-
-import { Button } from '@redshirt-sports/ui/components/button'
+"use client";
+import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sports/sanity/types";
+import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -12,21 +8,27 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@redshirt-sports/ui/components/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@redshirt-sports/ui/components/popover'
-import { cn } from '@redshirt-sports/ui/lib/utils'
+} from "@redshirt-sports/ui/components/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@redshirt-sports/ui/components/popover";
+import { cn } from "@redshirt-sports/ui/lib/utils";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import Fuse from "fuse.js";
+import { Check, ChevronsUpDown } from "lucide-react";
+import * as React from "react";
 
-import CustomImage from '@/components/sanity-image'
-
-import type { SchoolsBySportAndSubgroupingStringQueryResult } from '@redshirt-sports/sanity/types'
+import CustomImage from "@/components/sanity-image";
 
 interface VirtualizedCommandProps {
-  height: string
-  options: SchoolsBySportAndSubgroupingStringQueryResult
-  placeholder: string
-  selectedOption: string
-  selectedOptions: string[]
-  onSelectOption?: (option: string) => void
+  height: string;
+  options: SchoolsBySportAndSubgroupingStringQueryResult;
+  placeholder: string;
+  selectedOption: string;
+  selectedOptions: string[];
+  onSelectOption?: (option: string) => void;
 }
 
 const VirtualizedCommand = ({
@@ -40,52 +42,54 @@ const VirtualizedCommand = ({
   const availableOptions = React.useMemo(
     () => options.filter((option) => !selectedOptions.includes(option._id)),
     [options, selectedOptions],
-  )
+  );
 
   const [filteredOptions, setFilteredOptions] =
-    React.useState<SchoolsBySportAndSubgroupingStringQueryResult>(availableOptions)
-  const [searchValue, setSearchValue] = React.useState('')
-  const parentRef = React.useRef(null)
+    React.useState<SchoolsBySportAndSubgroupingStringQueryResult>(
+      availableOptions,
+    );
+  const [searchValue, setSearchValue] = React.useState("");
+  const parentRef = React.useRef(null);
 
   const fuse = React.useMemo(
     () =>
       new Fuse(availableOptions, {
-        keys: ['name', 'shortName', 'abbreviation'],
+        keys: ["name", "shortName", "abbreviation"],
       }),
     [availableOptions],
-  )
+  );
 
   const virtualizer = useVirtualizer({
     count: filteredOptions.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 35,
     overscan: 5,
-  })
+  });
 
-  const virtualOptions = virtualizer.getVirtualItems()
+  const virtualOptions = virtualizer.getVirtualItems();
 
   const handleSearch = React.useCallback(
     (search: string) => {
-      setSearchValue(search)
+      setSearchValue(search);
 
       // If search is empty, show all available options
-      if (!search || search.trim() === '') {
-        setFilteredOptions(availableOptions)
-        return
+      if (!search || search.trim() === "") {
+        setFilteredOptions(availableOptions);
+        return;
       }
 
-      const searchResults = fuse.search(search).map((result) => result.item)
-      setFilteredOptions(searchResults)
+      const searchResults = fuse.search(search).map((result) => result.item);
+      setFilteredOptions(searchResults);
     },
     [availableOptions, fuse],
-  )
+  );
 
   // Reset filtered options when options or selectedOptions change
   React.useEffect(() => {
     if (!searchValue) {
-      setFilteredOptions(availableOptions)
+      setFilteredOptions(availableOptions);
     }
-  }, [availableOptions, searchValue])
+  }, [availableOptions, searchValue]);
 
   return (
     <Command shouldFilter={false}>
@@ -96,30 +100,30 @@ const VirtualizedCommand = ({
           ref={parentRef}
           style={{
             height: height,
-            width: '100%',
-            overflow: 'auto',
+            width: "100%",
+            overflow: "auto",
           }}
         >
           <div
             style={{
               height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
+              width: "100%",
+              position: "relative",
             }}
           >
             {virtualOptions.map((virtualOption) => {
-              const option = filteredOptions[virtualOption.index]
+              const option = filteredOptions[virtualOption.index];
               if (!option) {
-                return null
+                return null;
               }
 
               return (
                 <CommandItem
                   style={{
-                    position: 'absolute',
+                    position: "absolute",
                     top: 0,
                     left: 0,
-                    width: '100%',
+                    width: "100%",
                     height: `${virtualOption.size}px`,
                     transform: `translateY(${virtualOption.start}px)`,
                   }}
@@ -129,8 +133,10 @@ const VirtualizedCommand = ({
                 >
                   <Check
                     className={cn(
-                      'mr-2 size-4',
-                      selectedOption === option._id ? 'opacity-100' : 'opacity-0',
+                      "mr-2 size-4",
+                      selectedOption === option._id
+                        ? "opacity-100"
+                        : "opacity-0",
                     )}
                   />
                   <div className="flex items-center">
@@ -143,70 +149,74 @@ const VirtualizedCommand = ({
                     {option.shortName}
                   </div>
                 </CommandItem>
-              )
+              );
             })}
           </div>
         </CommandGroup>
       </CommandList>
     </Command>
-  )
-}
+  );
+};
 
 interface VirtualizedComboboxProps {
-  options: SchoolsBySportAndSubgroupingStringQueryResult
-  searchPlaceholder?: string
-  width?: string
-  height?: string
-  value?: string
-  onChange?: (value: string) => void
-  selectedOptions: string[]
+  options: SchoolsBySportAndSubgroupingStringQueryResult;
+  searchPlaceholder?: string;
+  width?: string;
+  height?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  selectedOptions: string[];
 }
 
 export function VirtualizedCombobox({
   options,
-  searchPlaceholder = 'Select a school...',
+  searchPlaceholder = "Select a school...",
   // width = '350px',
-  height = '400px',
+  height = "400px",
   value,
   onChange,
   selectedOptions,
 }: VirtualizedComboboxProps) {
-  const [open, setOpen] = React.useState<boolean>(false)
-  const [selectedOption, setSelectedOption] = React.useState<string>(value || '')
-  const triggerRef = React.useRef<HTMLButtonElement>(null)
-  const [triggerWidth, setTriggerWidth] = React.useState<number | undefined>(undefined)
+  const [open, setOpen] = React.useState<boolean>(false);
+  const [selectedOption, setSelectedOption] = React.useState<string>(
+    value || "",
+  );
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const [triggerWidth, setTriggerWidth] = React.useState<number | undefined>(
+    undefined,
+  );
 
   const availableOptions = React.useMemo(
     () => options.filter((option) => !selectedOptions.includes(option._id)),
     [options, selectedOptions],
-  )
+  );
 
   const selectedSchool = React.useMemo(
     () => options.find((option) => option._id === selectedOption),
     [options, selectedOption],
-  )
+  );
 
   // Sync internal state with external value
   React.useEffect(() => {
-    setSelectedOption(value || '')
-  }, [value])
+    setSelectedOption(value || "");
+  }, [value]);
 
   // Update trigger width when popover opens
   React.useEffect(() => {
     if (open && triggerRef.current) {
-      setTriggerWidth(triggerRef.current.offsetWidth)
+      setTriggerWidth(triggerRef.current.offsetWidth);
     }
-  }, [open])
+  }, [open]);
 
   const handleSelectOption = React.useCallback(
     (currentValue: string) => {
-      const newValue = currentValue === selectedOption ? '' : currentValue
-      setSelectedOption(newValue)
-      onChange?.(newValue)
-      setOpen(false)
+      const newValue = currentValue === selectedOption ? "" : currentValue;
+      setSelectedOption(newValue);
+      onChange?.(newValue);
+      setOpen(false);
     },
     [selectedOption, onChange],
-  )
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -236,7 +246,7 @@ export function VirtualizedCombobox({
       </PopoverTrigger>
       <PopoverContent
         className="p-0"
-        style={{ width: triggerWidth ? `${triggerWidth}px` : '100%' }}
+        style={{ width: triggerWidth ? `${triggerWidth}px` : "100%" }}
       >
         <VirtualizedCommand
           height={height}
@@ -248,5 +258,5 @@ export function VirtualizedCombobox({
         />
       </PopoverContent>
     </Popover>
-  )
+  );
 }

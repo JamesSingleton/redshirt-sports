@@ -1,6 +1,6 @@
-import { PostHog } from 'posthog-node'
+import { PostHog } from "posthog-node";
 
-let posthogClient: PostHog | null = null
+let posthogClient: PostHog | null = null;
 
 export function getPostHogClient() {
   if (!posthogClient) {
@@ -8,13 +8,13 @@ export function getPostHogClient() {
       host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
       flushAt: 1,
       flushInterval: 0,
-    })
+    });
   }
-  return posthogClient
+  return posthogClient;
 }
 
 export async function shutdownPostHog() {
   if (posthogClient) {
-    await posthogClient.shutdown()
+    await posthogClient.shutdown();
   }
 }

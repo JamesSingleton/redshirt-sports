@@ -1,17 +1,16 @@
-import { SanityImage } from 'sanity-image'
-import { getImageDimensions } from '@sanity/asset-utils'
-
-import { projectId, dataset } from '@redshirt-sports/sanity/api'
+import { dataset, projectId } from "@redshirt-sports/sanity/api";
+import { getImageDimensions } from "@sanity/asset-utils";
+import { SanityImage } from "sanity-image";
 
 type CustomImageProps = {
-  image: any
-  width?: number
-  height?: number
-  className?: string
-  loading?: 'lazy' | 'eager'
-  mode?: 'cover' | 'contain'
-  quality?: number
-}
+  image: any;
+  width?: number;
+  height?: number;
+  className?: string;
+  loading?: "lazy" | "eager";
+  mode?: "cover" | "contain";
+  quality?: number;
+};
 
 const CustomImage = ({
   image,
@@ -19,10 +18,10 @@ const CustomImage = ({
   height,
   className,
   loading,
-  mode = 'contain',
+  mode = "contain",
   quality = 75,
 }: CustomImageProps) => {
-  const dimensions = getImageDimensions(image.asset)
+  const dimensions = getImageDimensions(image.asset);
 
   return (
     <SanityImage
@@ -42,7 +41,7 @@ const CustomImage = ({
         q: quality,
       }}
     />
-  )
-}
+  );
+};
 
-export default CustomImage
+export default CustomImage;

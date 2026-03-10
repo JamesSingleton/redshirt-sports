@@ -1,34 +1,33 @@
-import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
-import { buttonVariants } from '@redshirt-sports/ui/components/button'
-import { cn } from '@redshirt-sports/ui/lib/utils'
-
-import Hero from '@/components/home/hero'
-import { sanityFetch } from '@redshirt-sports/sanity/live'
+import { sanityFetch } from "@redshirt-sports/sanity/live";
 import {
   queryHomePageData,
   queryLatestArticles,
   queryLatestCollegeSportsArticles,
-} from '@redshirt-sports/sanity/queries'
-import ArticleCard from '@/components/article-card'
-import ArticleSection from '@/components/article-section'
-import { WebPage, WithContext } from 'schema-dts'
-import { JsonLdScript, organizationId, websiteId } from '@/components/json-ld'
-import { getBaseUrl } from '@/lib/get-base-url'
-import { getSEOMetadata } from '@/lib/seo'
+} from "@redshirt-sports/sanity/queries";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
+import { cn } from "@redshirt-sports/ui/lib/utils";
+import { ChevronRight } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import type { WebPage, WithContext } from "schema-dts";
 
-import type { Metadata } from 'next'
+import ArticleCard from "@/components/article-card";
+import ArticleSection from "@/components/article-section";
+import Hero from "@/components/home/hero";
+import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
+import { getBaseUrl } from "@/lib/get-base-url";
+import { getSEOMetadata } from "@/lib/seo";
 
 async function fetchHomePageData() {
   return await sanityFetch({
     query: queryHomePageData,
-  })
+  });
 }
 
 async function fetchLatestArticles() {
   return await sanityFetch({
     query: queryLatestArticles,
-  })
+  });
 }
 
 async function fetchLatestCollegeSportsArticles({
@@ -36,105 +35,107 @@ async function fetchLatestCollegeSportsArticles({
   sport,
   articleIds,
 }: {
-  division: string
-  sport: string
-  articleIds: string[]
+  division: string;
+  sport: string;
+  articleIds: string[];
 }) {
   return await sanityFetch({
     query: queryLatestCollegeSportsArticles,
     params: { division, sport, articleIds },
-  })
+  });
 }
 
 const divisions = [
   {
-    key: 'fbs',
-    division: 'Football Bowl Subdivision',
-    title: 'FBS College Football News',
-    slug: '/college/football/news/fbs',
+    key: "fbs",
+    division: "Football Bowl Subdivision",
+    title: "FBS College Football News",
+    slug: "/college/football/news/fbs",
     imageFirst: false,
   },
   {
-    key: 'fcs',
-    division: 'Football Championship Subdivision',
-    title: 'FCS College Football News',
-    slug: '/college/football/news/fcs',
+    key: "fcs",
+    division: "Football Championship Subdivision",
+    title: "FCS College Football News",
+    slug: "/college/football/news/fcs",
     imageFirst: false,
   },
   {
-    key: 'd2',
-    division: 'D2',
-    title: 'Division II Football News',
-    slug: '/college/football/news/d2',
+    key: "d2",
+    division: "D2",
+    title: "Division II Football News",
+    slug: "/college/football/news/d2",
     imageFirst: false,
   },
   {
-    key: 'd3',
-    division: 'D3',
-    title: 'Division III Football News',
-    slug: '/college/football/news/d3',
+    key: "d3",
+    division: "D3",
+    title: "Division III Football News",
+    slug: "/college/football/news/d3",
     imageFirst: true,
   },
-]
+];
 
-const baseUrl = getBaseUrl()
+const baseUrl = getBaseUrl();
 
 export async function generateMetadata(): Promise<Metadata> {
-  return getSEOMetadata()
+  return getSEOMetadata();
 }
 
 export default async function HomePage() {
   const [{ data: homePageData }, { data: latestArticles }] = await Promise.all([
     fetchHomePageData(),
     fetchLatestArticles(),
-  ])
+  ]);
 
-  const articleIds = [...homePageData, ...latestArticles].map((article) => article._id)
+  const articleIds = [...homePageData, ...latestArticles].map(
+    (article) => article._id,
+  );
 
   const collegeSportsResults = await Promise.all(
     divisions.map(({ division }) =>
       fetchLatestCollegeSportsArticles({
         division,
-        sport: 'Football',
+        sport: "Football",
         articleIds,
       }),
     ),
-  )
+  );
 
   const divisionsWithArticles = divisions.map((division, index) => ({
     ...division,
     articles: collegeSportsResults[index]?.data,
-  }))
+  }));
 
-  const sectionOrder = ['fbs', 'fcs', 'd2', 'd3']
+  const sectionOrder = ["fbs", "fcs", "d2", "d3"];
 
   const webPageJson: WithContext<WebPage> = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': baseUrl,
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": baseUrl,
     url: baseUrl,
     isPartOf: {
-      '@type': 'WebSite',
-      '@id': websiteId,
+      "@type": "WebSite",
+      "@id": websiteId,
     },
     about: {
-      '@id': organizationId,
+      "@id": organizationId,
     },
-    inLanguage: 'en-US',
-    datePublished: '2021-12-13T00:00:00-07:00',
+    inLanguage: "en-US",
+    datePublished: "2021-12-13T00:00:00-07:00",
     dateModified: homePageData[0]?.publishedAt || new Date().toISOString(),
     breadcrumb: {
-      '@type': 'BreadcrumbList',
+      "@type": "BreadcrumbList",
       itemListElement: [
         {
-          '@type': 'ListItem',
+          "@type": "ListItem",
           position: 1,
-          name: 'Home',
+          name: "Home",
           item: baseUrl,
         },
       ],
     },
-  }
+  };
 
   return (
     <>
@@ -149,8 +150,8 @@ export default async function HomePage() {
                 href="/college/news"
                 prefetch={false}
                 className={cn(
-                  buttonVariants({ variant: 'default' }),
-                  'flex items-center space-x-2',
+                  buttonVariants({ variant: "default" }),
+                  "flex items-center space-x-2",
                 )}
               >
                 <span className="text-sm">View All</span>
@@ -158,24 +159,23 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {latestArticles &&
-                latestArticles.map((article) => (
-                  <ArticleCard
-                    title={article.title}
-                    date={article.publishedAt}
-                    image={article.mainImage}
-                    slug={article.slug}
-                    key={article._id}
-                    author={article.authors[0]!.name}
-                  />
-                ))}
+              {latestArticles?.map((article) => (
+                <ArticleCard
+                  title={article.title}
+                  date={article.publishedAt}
+                  image={article.mainImage}
+                  slug={article.slug}
+                  key={article._id}
+                  author={article.authors[0]!.name}
+                />
+              ))}
             </div>
           </div>
         </section>
       )}
       {sectionOrder.map((key) => {
-        const section = divisionsWithArticles.find((d) => d.key === key)
-        if (!section || section.articles === undefined) return null
+        const section = divisionsWithArticles.find((d) => d.key === key);
+        if (!section || section.articles === undefined) return null;
 
         return (
           <ArticleSection
@@ -185,8 +185,8 @@ export default async function HomePage() {
             articles={section.articles}
             imageFirst={section.imageFirst}
           />
-        )
+        );
       })}
     </>
-  )
+  );
 }

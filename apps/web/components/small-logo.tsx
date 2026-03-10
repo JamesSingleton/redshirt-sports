@@ -1,4 +1,4 @@
-import React from 'react'
+import type React from "react";
 
 const SmallLogo = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -7,7 +7,7 @@ const SmallLogo = (props: React.SVGProps<SVGSVGElement>) => (
     xmlSpace="preserve"
     {...props}
   >
-    <style>{'.st25{fill:#dc2727}'}</style>
+    <style>{".st25{fill:#dc2727}"}</style>
     <g>
       <path
         className="st25"
@@ -23,6 +23,6 @@ const SmallLogo = (props: React.SVGProps<SVGSVGElement>) => (
       />
     </g>
   </svg>
-)
+);
 
-export default SmallLogo
+export default SmallLogo;

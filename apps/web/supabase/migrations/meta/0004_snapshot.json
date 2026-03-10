@@ -146,10 +146,7 @@
         "weekly_final_rankings_year_week_unique": {
           "name": "weekly_final_rankings_year_week_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "year",
-            "week"
-          ]
+          "columns": ["year", "week"]
         }
       }
     }

@@ -1,80 +1,79 @@
 import {
   Card,
-  CardTitle,
-  CardDescription,
   CardContent,
+  CardDescription,
   CardHeader,
-} from '@redshirt-sports/ui/components/card'
+  CardTitle,
+} from "@redshirt-sports/ui/components/card";
+import type { Metadata } from "next";
+import type { ContactPage, WithContext } from "schema-dts";
 
-import PageHeader from '@/components/page-header'
-import { getSEOMetadata } from '@/lib/seo'
-import { JsonLdScript, websiteId } from '@/components/json-ld'
-import { getBaseUrl } from '@/lib/get-base-url'
-import { ContactEmailLink } from '@/components/contact-email-link'
-
-import type { Metadata } from 'next'
-import type { WithContext, ContactPage } from 'schema-dts'
+import { ContactEmailLink } from "@/components/contact-email-link";
+import { JsonLdScript, websiteId } from "@/components/json-ld";
+import PageHeader from "@/components/page-header";
+import { getBaseUrl } from "@/lib/get-base-url";
+import { getSEOMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getSEOMetadata({
-    title: 'Contact Us',
+    title: "Contact Us",
     description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for collaboration, advertising, or general inquiries. We're here to assist with any questions about our college sports coverage.`,
-    slug: '/contact',
-  })
+    slug: "/contact",
+  });
 }
 
 const contactDetails = [
   {
-    title: 'Collaborate',
-    description: 'For partnership and collaboration inquiries',
-    email: 'editors@redshirtsports.xyz',
+    title: "Collaborate",
+    description: "For partnership and collaboration inquiries",
+    email: "editors@redshirtsports.xyz",
   },
   {
-    title: 'Advertising',
-    description: 'For advertising and sponsorship opportunities',
-    email: 'advertising@redshirtsports.xyz',
+    title: "Advertising",
+    description: "For advertising and sponsorship opportunities",
+    email: "advertising@redshirtsports.xyz",
   },
   {
-    title: 'General Inquiries',
-    description: 'For all other questions and information',
-    email: 'contact@redshirtsports.xyz',
+    title: "General Inquiries",
+    description: "For all other questions and information",
+    email: "contact@redshirtsports.xyz",
   },
-]
+];
 
-const baseUrl = getBaseUrl()
+const baseUrl = getBaseUrl();
 
 const contactPageJsonLd: WithContext<ContactPage> = {
-  '@context': 'https://schema.org',
-  '@type': 'ContactPage',
-  '@id': `${baseUrl}/contact`,
-  name: 'Contact Us',
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "@id": `${baseUrl}/contact`,
+  name: "Contact Us",
   description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for collaboration, advertising, or general inquiries. We're here to assist with any questions about our college sports coverage.`,
   url: `${baseUrl}/contact`,
   isPartOf: {
-    '@type': 'WebSite',
-    '@id': websiteId,
+    "@type": "WebSite",
+    "@id": websiteId,
   },
-  inLanguage: 'en-us',
+  inLanguage: "en-us",
   breadcrumb: {
-    '@type': 'BreadcrumbList',
-    '@id': `${baseUrl}/contact#breadcrumb`,
-    name: 'Contact Breadcrumbs',
+    "@type": "BreadcrumbList",
+    "@id": `${baseUrl}/contact#breadcrumb`,
+    name: "Contact Breadcrumbs",
     itemListElement: [
       {
-        '@type': 'ListItem',
+        "@type": "ListItem",
         position: 1,
-        name: 'Home',
+        name: "Home",
         item: `${baseUrl}`,
       },
       {
-        '@type': 'ListItem',
+        "@type": "ListItem",
         position: 2,
-        name: 'Contact Us',
+        name: "Contact Us",
         item: `${baseUrl}/contact`,
       },
     ],
   },
-}
+};
 
 export default function Page() {
   return (
@@ -84,8 +83,8 @@ export default function Page() {
         title="Contact Us"
         subtitle={
           <p className="mt-4 text-lg font-normal lg:text-xl">
-            Interested in collaborating or advertising with us? We&apos;re all ears! Let&apos;s
-            explore exciting possibilities together!
+            Interested in collaborating or advertising with us? We&apos;re all
+            ears! Let&apos;s explore exciting possibilities together!
           </p>
         }
       />
@@ -95,7 +94,9 @@ export default function Page() {
             <Card key={title} className="flex flex-col">
               <CardHeader>
                 <CardTitle className="text-lg sm:text-xl">{title}</CardTitle>
-                <CardDescription className="text-sm sm:text-base">{description}</CardDescription>
+                <CardDescription className="text-sm sm:text-base">
+                  {description}
+                </CardDescription>
               </CardHeader>
               <CardContent className="flex grow items-end">
                 <ContactEmailLink email={email} category={title} />
@@ -105,5 +106,5 @@ export default function Page() {
         </div>
       </section>
     </>
-  )
+  );
 }

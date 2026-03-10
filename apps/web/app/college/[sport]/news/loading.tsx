@@ -1,6 +1,6 @@
-import { Skeleton } from '@redshirt-sports/ui/components/skeleton'
+import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 
-import { LoadingArticle } from '@/components/loading-article'
+import { LoadingArticle } from "@/components/loading-article";
 
 export default function Loading() {
   return (
@@ -22,5 +22,5 @@ export default function Loading() {
         </div>
       </section>
     </>
-  )
+  );
 }

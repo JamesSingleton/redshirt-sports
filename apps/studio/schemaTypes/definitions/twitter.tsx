@@ -1,8 +1,8 @@
 // import React from 'react'
 // import type { PreviewProps } from 'sanity'
-import { defineField, defineType } from 'sanity'
+import { defineField, defineType } from "sanity";
 
-import TweetPreview from '../../components/tweet'
+import TweetPreview from "../../components/tweet";
 
 // const Preview = (props: PreviewProps & { id?: string }) => {
 //   const tweetId = props.id!
@@ -11,22 +11,22 @@ import TweetPreview from '../../components/tweet'
 // }
 
 export const twitter = defineType({
-  name: 'twitter',
-  type: 'object',
-  title: 'Twitter Embed',
+  name: "twitter",
+  type: "object",
+  title: "Twitter Embed",
   fields: [
     defineField({
-      name: 'id',
-      type: 'string',
-      title: 'Twitter tweet ID',
+      name: "id",
+      type: "string",
+      title: "Twitter tweet ID",
     }),
   ],
   preview: {
     select: {
-      title: 'id',
+      title: "id",
     },
   },
   components: {
     preview: TweetPreview,
   },
-})
+});
