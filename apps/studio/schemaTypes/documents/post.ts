@@ -149,25 +149,23 @@ export const post = defineType({
       description:
         'Select a subgrouping related to the chosen sport (e.g., "FBS" for "Football", "Mid-Major" for "Basketball").',
       group: GROUP.MAIN_CONTENT,
-      // @ts-expect-error `_ref` actually does exist on the document
       hidden: ({ document }) =>
-        !document?.sport || document?.division?._ref !== DIVISION_1_ID,
+        !document?.sport ||
+        (document?.division as { _ref?: string } | undefined)?._ref !==
+          DIVISION_1_ID,
       options: {
         disableNew: true,
         filter: ({ document }) => {
-          // @ts-expect-error `_ref` actually does exist on the document
-          if (
-            !document.sport?._ref ||
-            document.division?._ref !== DIVISION_1_ID
-          ) {
+          const division = document.division as { _ref?: string } | undefined;
+          const sport = document.sport as { _ref?: string } | undefined;
+          if (!sport?._ref || division?._ref !== DIVISION_1_ID) {
             return {
               filter: `_id == null`,
             };
           }
           return {
             filter: "references($sportId)",
-            // @ts-expect-error `_ref` actually does exist on the document
-            params: { sportId: document.sport._ref },
+            params: { sportId: sport._ref },
           };
         },
       },

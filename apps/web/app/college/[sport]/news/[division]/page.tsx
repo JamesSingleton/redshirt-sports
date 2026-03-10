@@ -15,7 +15,6 @@ import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getSEOMetadata } from "@/lib/seo";
-import type { Post } from "@/types";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
 async function fetchSportsAndDivisionNews({
@@ -160,7 +159,7 @@ export default async function Page({
     publisher: { "@id": organizationId, "@type": "Organization" },
     mainEntity: {
       "@type": "ItemList",
-      itemListElement: news.posts.map((post: Post, index: number) => ({
+      itemListElement: news.posts.map((post, index: number) => ({
         "@id": `${baseUrl}/${post.slug}#article`,
         position: index + 1,
       })),

@@ -99,7 +99,7 @@ export default async function Page({
     return notFound();
   }
 
-  const totalPages = Math.ceil(authorPosts.totalPosts / perPage);
+  const totalPages = Math.ceil((authorPosts?.totalPosts ?? 0) / perPage);
 
   const authorJsonLd: Graph = {
     "@context": "https://schema.org",

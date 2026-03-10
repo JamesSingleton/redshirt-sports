@@ -3,6 +3,7 @@ import {
   countOfPostsQuery,
   postsForSitemapQuery,
 } from "@redshirt-sports/sanity/queries";
+import type { PostsForSitemapQueryResult } from "@redshirt-sports/sanity/types";
 import type { MetadataRoute } from "next";
 
 import { getBaseUrl } from "@/lib/get-base-url";
@@ -26,10 +27,10 @@ export default async function sitemap(props: {
   const start = id * urlsPerSitemap;
   const end = start + urlsPerSitemap;
 
-  const posts = await client.fetch(postsForSitemapQuery, {
-    start,
-    end,
-  });
+  const posts = await client.fetch<PostsForSitemapQueryResult>(
+    postsForSitemapQuery,
+    { start, end },
+  );
 
   return posts.map((post) => ({
     url: `${baseUrl}/${post.slug}`,

@@ -1,5 +1,6 @@
 import { sanityFetch } from "@redshirt-sports/sanity/live";
 import { searchQuery } from "@redshirt-sports/sanity/queries";
+import type { SearchQueryResult } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
@@ -8,12 +9,8 @@ import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { getSEOMetadata } from "@/lib/seo";
-import type { Post } from "@/types";
 
-async function fetchSearchResults(
-  query: string,
-  page: number,
-): Promise<{ data: { posts: Post[]; totalPosts: number } }> {
+async function fetchSearchResults(query: string, page: number) {
   const from = (page - 1) * perPage;
   const to = page * perPage;
 
@@ -40,7 +37,7 @@ export default async function Page({
   const pageIndex = page !== undefined ? Number.parseInt(page, 10) : 1;
   const subheadingText = query ? `Search results for "${query}"` : null;
 
-  let searchResults: { posts: Post[]; totalPosts: number } = {
+  let searchResults: SearchQueryResult = {
     posts: [],
     totalPosts: 0,
   };
@@ -58,14 +55,14 @@ export default async function Page({
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         {searchResults.posts.length > 0 && (
           <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-            {searchResults.posts.map((post: Post) => (
+            {searchResults.posts.map((post) => (
               <ArticleCard
                 key={post._id}
                 title={post.title}
                 date={post.publishedAt}
                 image={post.mainImage}
                 slug={post.slug}
-                author={post.authors[0]?.name || post.author.name}
+                author={post.authors[0]?.name ?? ""}
               />
             ))}
           </div>

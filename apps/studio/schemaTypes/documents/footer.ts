@@ -47,7 +47,7 @@ const footerColumnLink = defineField({
 
       const newTabIndicator = openInNewTab ? " ↗" : "";
       const truncatedUrl =
-        url?.length > 30 ? `${url.substring(0, 30)}...` : url;
+        url && url.length > 30 ? `${url.substring(0, 30)}...` : url;
 
       return {
         title: title || "Untitled Link",

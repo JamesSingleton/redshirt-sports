@@ -3,7 +3,6 @@ import { defineBlueprint, defineDocumentFunction } from "@sanity/blueprints";
 export default defineBlueprint({
   resources: [
     defineDocumentFunction({
-      type: "sanity.function.document",
       name: "published-at",
       src: "./functions/published-at",
       memory: 1,
@@ -15,7 +14,6 @@ export default defineBlueprint({
       },
     }),
     defineDocumentFunction({
-      type: "sanity.function.document",
       name: "auto-redirect",
       src: "./functions/auto-redirect",
       memory: 2,
@@ -28,7 +26,6 @@ export default defineBlueprint({
       },
     }),
     defineDocumentFunction({
-      type: "sanity.function.document",
       src: "./functions/auto-summary",
       memory: 2,
       timeout: 30,

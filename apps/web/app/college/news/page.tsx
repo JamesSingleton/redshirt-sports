@@ -1,6 +1,5 @@
 import { sanityFetch } from "@redshirt-sports/sanity/live";
 import { collegeNewsQuery } from "@redshirt-sports/sanity/queries";
-import type { Post } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { CollectionPage, WithContext } from "schema-dts";
@@ -104,7 +103,7 @@ export default async function CollegeSportsNews({
     },
     mainEntity: {
       "@type": "ItemList",
-      itemListElement: posts.map((post: Post, index: number) => ({
+      itemListElement: posts.map((post, index: number) => ({
         "@id": `${baseUrl}/${post.slug}#article`,
         position: index + 1,
       })),

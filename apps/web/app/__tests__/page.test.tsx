@@ -1,6 +1,7 @@
 import { sanityFetch } from "@redshirt-sports/sanity/live";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
+import type { Mock } from "vitest";
 
 import HomePage from "../page";
 
@@ -64,7 +65,7 @@ vi.mock("@/lib/seo", () => ({
   getSEOMetadata: () => ({}),
 }));
 
-const mockFetch = sanityFetch as vi.Mock;
+const mockFetch = sanityFetch as Mock;
 
 beforeEach(() => {
   mockFetch.mockResolvedValue({ data: [] });

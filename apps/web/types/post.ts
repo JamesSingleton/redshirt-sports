@@ -26,10 +26,8 @@ export type Post = {
   featuredArticle: boolean;
   excerpt: string;
   body: PortableTextBlock[];
-  estimatedReadingTime: number;
   author: Author;
   authors: Author[];
   mainImage: SanityImageAsset;
-  wordCount: number;
   sport: string;
 };

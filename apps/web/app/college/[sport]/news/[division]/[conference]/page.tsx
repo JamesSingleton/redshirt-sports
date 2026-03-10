@@ -16,7 +16,6 @@ import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getSEOMetadata } from "@/lib/seo";
-import type { Post } from "@/types";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
 async function fetchConferenceInfo(slug: string) {
@@ -153,7 +152,7 @@ export default async function Page({
   const sportInfo = sportInfoResponse.data;
   const divisionOrSubgroupingName = divisionNameResponse?.data.displayName;
 
-  if (!news || !news.posts || !news.posts.length) {
+  if (!news || !news.posts || !news.posts.length || !news.conferenceInfo) {
     notFound();
   }
 
@@ -175,7 +174,7 @@ export default async function Page({
     publisher: { "@id": organizationId, "@type": "Organization" },
     mainEntity: {
       "@type": "ItemList",
-      itemListElement: news.posts.map((post: Post, index: number) => ({
+      itemListElement: news.posts.map((post, index: number) => ({
         "@id": `${baseUrl}/${post.slug}#article`,
         position: index + 1,
       })),
