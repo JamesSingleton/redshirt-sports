@@ -1,43 +1,43 @@
-import { ImageIcon, PlayIcon, TwitterIcon } from '@sanity/icons'
-import { defineArrayMember, defineField, defineType } from 'sanity'
+import { ImageIcon, PlayIcon, TwitterIcon } from "@sanity/icons";
+import { defineArrayMember, defineField, defineType } from "sanity";
 
-import { warnWhenHeadingOrBlockIsAllBold } from '../../utils/portable-text-validations'
+import { warnWhenHeadingOrBlockIsAllBold } from "../../utils/portable-text-validations";
 
 const richTextMembers = [
   defineArrayMember({
-    name: 'block',
-    type: 'block',
+    name: "block",
+    type: "block",
     validation: (rule) => [warnWhenHeadingOrBlockIsAllBold(rule)],
     marks: {
       annotations: [
         {
-          title: 'URL',
-          name: 'link',
-          type: 'object',
+          title: "URL",
+          name: "link",
+          type: "object",
           fields: [
             {
-              title: 'URL',
-              name: 'href',
-              type: 'url',
+              title: "URL",
+              name: "href",
+              type: "url",
               description: `Only use this if you are linking to a website outside of ${process.env.NEXT_PUBLIC_APP_NAME}. If you are linking to a ${process.env.NEXT_PUBLIC_APP_NAME} page, use the internal link option.`,
               validation: (rule) =>
                 rule.uri({
-                  scheme: ['https', 'mailto', 'tel'],
+                  scheme: ["https", "mailto", "tel"],
                 }),
             },
             {
-              title: 'Open in new tab',
-              name: 'blank',
-              description: 'Read https://css-tricks.com/use-target_blank/',
-              type: 'boolean',
+              title: "Open in new tab",
+              name: "blank",
+              description: "Read https://css-tricks.com/use-target_blank/",
+              type: "boolean",
               initialValue: true,
             },
           ],
         },
         {
-          name: 'internalLink',
-          title: 'Internal Link',
-          type: 'object',
+          name: "internalLink",
+          title: "Internal Link",
+          type: "object",
           icon: () => (
             <svg
               width={12}
@@ -46,8 +46,18 @@ const richTextMembers = [
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                <g id="sanity-logo-s-(1)" fill="currentColor" fillRule="nonzero">
+              <g
+                id="Page-1"
+                stroke="none"
+                strokeWidth="1"
+                fill="none"
+                fillRule="evenodd"
+              >
+                <g
+                  id="sanity-logo-s-(1)"
+                  fill="currentColor"
+                  fillRule="nonzero"
+                >
                   <path
                     d="M343.36,744.64 C251.78,744.64 187.08,704.35 159.98,630.86 L0.46,630.86 C34.6,780.14 162,868.65 344.77,868.65 C453.44,868.65 546.21,830.93 600.45,764.96 C598.22,697.56 576,647.43 529,609.34 C513.78,693.66 445.35,744.64 343.36,744.64 Z"
                     id="Path"
@@ -66,10 +76,10 @@ const richTextMembers = [
           ),
           fields: [
             {
-              title: 'Reference',
-              name: 'reference',
-              type: 'reference',
-              to: [{ type: 'post' }],
+              title: "Reference",
+              name: "reference",
+              type: "reference",
+              to: [{ type: "post" }],
             },
           ],
         },
@@ -77,87 +87,89 @@ const richTextMembers = [
     },
   }),
   defineArrayMember({
-    name: 'image',
-    title: 'Image',
-    type: 'image',
+    name: "image",
+    title: "Image",
+    type: "image",
     icon: ImageIcon,
     options: {
       hotspot: true,
-      metadata: ['blurhash', 'lqip'],
+      metadata: ["blurhash", "lqip"],
     },
     fields: [
       {
-        name: 'caption',
-        type: 'string',
-        title: 'Caption',
+        name: "caption",
+        type: "string",
+        title: "Caption",
         description:
-          'Just a brief description of the image as this will be used for alt text for accessibility.',
+          "Just a brief description of the image as this will be used for alt text for accessibility.",
         validation: (rule) => rule.required(),
       },
       {
-        name: 'attribution',
-        type: 'string',
-        title: 'Attribution',
-        description: 'Where did the photo come from?',
+        name: "attribution",
+        type: "string",
+        title: "Attribution",
+        description: "Where did the photo come from?",
         validation: (rule) => rule.required(),
       },
     ],
   }),
   defineArrayMember({
-    type: 'twitter',
+    type: "twitter",
     icon: TwitterIcon,
   }),
   defineArrayMember({
-    name: 'table',
-    title: 'Table',
-    type: 'table',
+    name: "table",
+    title: "Table",
+    type: "table",
   }),
   defineArrayMember({
-    name: 'youtubeEmbed',
-    title: 'YouTube Embed',
-    type: 'object',
+    name: "youtubeEmbed",
+    title: "YouTube Embed",
+    type: "object",
     icon: PlayIcon,
     fields: [
       defineField({
-        name: 'url',
-        title: 'YouTube URL',
-        type: 'url',
-        description: 'Enter a YouTube video URL (e.g., https://youtube.com/watch?v=dQw4w9WgXcQ)',
+        name: "url",
+        title: "YouTube URL",
+        type: "url",
+        description:
+          "Enter a YouTube video URL (e.g., https://youtube.com/watch?v=dQw4w9WgXcQ)",
         validation: (Rule) =>
           Rule.required()
             .uri({
-              scheme: ['http', 'https'],
+              scheme: ["http", "https"],
             })
             .custom((url) => {
-              if (!url) return 'YouTube URL is required'
-              const isYouTube = /(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i.test(url)
-              return isYouTube || 'Please enter a valid YouTube URL'
+              if (!url) return "YouTube URL is required";
+              const isYouTube =
+                /(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i.test(url);
+              return isYouTube || "Please enter a valid YouTube URL";
             }),
       }),
     ],
     preview: {
       select: {
-        url: 'url',
+        url: "url",
       },
       prepare({ url }) {
         // Extract video title from URL if possible, otherwise show URL
         const videoId = url?.match(
           /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-        )?.[1]
-        const title = videoId ? `YouTube Video (${videoId})` : 'YouTube Embed'
+        )?.[1];
+        const title = videoId ? `YouTube Video (${videoId})` : "YouTube Embed";
 
         return {
           title,
           subtitle: `🎥 ${url}`,
           media: PlayIcon,
-        }
+        };
       },
     },
   }),
-]
+];
 
 export const blockContent = defineType({
-  name: 'blockContent',
-  type: 'array',
+  name: "blockContent",
+  type: "array",
   of: richTextMembers,
-})
+});

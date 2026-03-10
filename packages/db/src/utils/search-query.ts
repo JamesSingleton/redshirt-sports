@@ -3,5 +3,5 @@ export const buildSearchQuery = (input: string) => {
     .trim()
     .split(/\s+/)
     .map((term) => `${term.toLowerCase()}:*`)
-    .join(' & ')
-}
+    .join(" & ");
+};

@@ -1,7 +1,7 @@
-import { defineCliConfig } from 'sanity/cli'
+import { defineCliConfig } from "sanity/cli";
 
-const projectId = process.env.SANITY_STUDIO_PROJECT_ID
-const dataset = process.env.SANITY_STUDIO_DATASET
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID;
+const dataset = process.env.SANITY_STUDIO_DATASET;
 
 export default defineCliConfig({
   api: {
@@ -9,9 +9,9 @@ export default defineCliConfig({
     dataset: dataset,
   },
   typegen: {
-    path: '../../packages/sanity/src/*.{ts,tsx,js,jsx}',
-    schema: 'schema.json',
-    generates: '../../packages/sanity/src/types.ts',
+    path: "../../packages/sanity/src/*.{ts,tsx,js,jsx}",
+    schema: "schema.json",
+    generates: "../../packages/sanity/src/types.ts",
     overloadClientMethods: true,
   },
-})
+});

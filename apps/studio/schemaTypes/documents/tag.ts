@@ -1,25 +1,26 @@
-import { defineField, defineType } from 'sanity'
+import { defineField, defineType } from "sanity";
 
-import { createSlug, isUnique } from '../../utils/slug'
+import { createSlug, isUnique } from "../../utils/slug";
 
 export const tag = defineType({
-  name: 'tag',
-  title: 'Tag',
-  type: 'document',
+  name: "tag",
+  title: "Tag",
+  type: "document",
   fields: [
     defineField({
-      name: 'name',
-      title: 'Name',
-      type: 'string',
+      name: "name",
+      title: "Name",
+      type: "string",
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      description: 'Press generate to generate the slug automatically, do not manually input slug.',
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      description:
+        "Press generate to generate the slug automatically, do not manually input slug.",
       options: {
-        source: 'name',
+        source: "name",
         slugify: createSlug,
         isUnique,
       },
@@ -27,4 +28,4 @@ export const tag = defineType({
       validation: (rule) => rule.required(),
     }),
   ],
-})
+});

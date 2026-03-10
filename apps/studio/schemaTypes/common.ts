@@ -1,6 +1,6 @@
-import { defineField } from 'sanity'
+import { defineField } from "sanity";
 
 export const richTextField = defineField({
-  name: 'richText',
-  type: 'richText',
-})
+  name: "richText",
+  type: "richText",
+});

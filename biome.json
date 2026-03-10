@@ -27,7 +27,10 @@
       "!**/.next",
       "!**/.react-email",
       "!**/.wrangler",
-      "!**/.clerk"
+      "!**/.clerk",
+      "!**/coverage",
+      "!**/.build",
+      "!**/.sanity"
     ]
   },
   "css": {
