@@ -1,4 +1,5 @@
 import {
+  getFinalRankingsForWeekAndYear,
   getSportIdBySlug,
   getVotersWithVotingStatusForWeek,
   type SportParam,
@@ -13,7 +14,10 @@ import {
   TableRow,
 } from "@redshirt-sports/ui/components/table";
 
-import { processBallotsForm } from "@/actions/process-ballots";
+import {
+  computeRankingsFromBallots,
+  processBallotsForm,
+} from "@/actions/process-ballots";
 
 export default async function BallotsSportDivisionSeasonWeekPage({
   params,
@@ -28,15 +32,26 @@ export default async function BallotsSportDivisionSeasonWeekPage({
   if (!sportId) {
     throw new Error("Invalid sport!");
   }
-  const usersWithVotingStatus = await getVotersWithVotingStatusForWeek({
-    sportId,
-    division,
-    week: Number(weekParam),
-    year: Number(seasonParam),
-  });
+
+  const year = Number(seasonParam);
+  const week = Number(weekParam);
+
+  const [usersWithVotingStatus, computedRankings, storedRankings] =
+    await Promise.all([
+      getVotersWithVotingStatusForWeek({ sportId, division, week, year }),
+      computeRankingsFromBallots({
+        sportId,
+        division,
+        seasonYear: year,
+        weekNumber: week,
+      }),
+      getFinalRankingsForWeekAndYear({ year, week, division }).catch(
+        () => null,
+      ),
+    ]);
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-8">
       <Table>
         <TableHeader>
           <TableRow>
@@ -57,6 +72,71 @@ export default async function BallotsSportDivisionSeasonWeekPage({
           ))}
         </TableBody>
       </Table>
+
+      <div className="grid grid-cols-2 gap-6">
+        <div>
+          <h2 className="mb-2 text-lg font-semibold">Computed from Ballots</h2>
+          {computedRankings.length === 0 ? (
+            <p className="text-muted-foreground text-sm">No ballots found</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Rank</TableHead>
+                  <TableHead>Team</TableHead>
+                  <TableHead>Points</TableHead>
+                  <TableHead>1st Place</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {computedRankings.map((team) => (
+                  <TableRow key={team._id}>
+                    <TableCell>
+                      {team.isTie ? `T-${team.rank}` : team.rank}
+                    </TableCell>
+                    <TableCell>{team.name}</TableCell>
+                    <TableCell>{team._points}</TableCell>
+                    <TableCell>{team.firstPlaceVotes || "-"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+
+        <div>
+          <h2 className="mb-2 text-lg font-semibold">Stored in DB</h2>
+          {!storedRankings || storedRankings.rankings.length === 0 ? (
+            <p className="text-muted-foreground text-sm">
+              No rankings found in DB
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Rank</TableHead>
+                  <TableHead>Team</TableHead>
+                  <TableHead>Points</TableHead>
+                  <TableHead>1st Place</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {storedRankings.rankings.map((team) => (
+                  <TableRow key={team._id}>
+                    <TableCell>
+                      {team.isTie ? `T-${team.rank}` : team.rank}
+                    </TableCell>
+                    <TableCell>{team.name}</TableCell>
+                    <TableCell>{team._points}</TableCell>
+                    <TableCell>{team.firstPlaceVotes || "-"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </div>
+
       <form action={processBallotsForm}>
         <input type="text" value={sportId} name="sportId" hidden />
         <input type="text" value={division} name="division" hidden />
