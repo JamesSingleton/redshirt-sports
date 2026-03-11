@@ -96,7 +96,7 @@ function processTeamPoints(votes: Ballot[]): TeamPoint[] {
   return teamPoints;
 }
 
-interface ProcessBallotsInput {
+export interface ProcessBallotsInput {
   sportId: string; // uuid
   division: string; // fcs/fbs/etc
   seasonYear: number; // 2025
@@ -129,7 +129,7 @@ async function processBallots({
       { token, perspective: "published" },
     );
 
-    const rankedTeams = teams.map((team) => {
+    const rankedTeams = teams.map((team: SchoolLite) => {
       const teamPoint = teamPoints.find((tp) => tp.id === team._id);
       return {
         ...team,
@@ -166,5 +166,40 @@ export async function processBallotsForm(formData: FormData) {
     division: String(division),
     seasonYear: Number(season),
     weekNumber: Number(week),
+  });
+}
+
+export async function computeRankingsFromBallots({
+  sportId,
+  division,
+  seasonYear,
+  weekNumber,
+}: ProcessBallotsInput) {
+  const votes: Ballot[] = await getBallotsByWeekYearDivisionAndSport({
+    year: seasonYear,
+    week: weekNumber,
+    division,
+    sportId: sportId || "",
+  });
+
+  if (!votes.length) {
+    return [];
+  }
+
+  const teamPoints = processTeamPoints(votes);
+  const teams = await client.fetch<SchoolLite[]>(
+    schoolsByIdOrderedByPoints,
+    { ids: teamPoints },
+    { token, perspective: "published" },
+  );
+
+  return teams.map((team: SchoolLite) => {
+    const teamPoint = teamPoints.find((tp) => tp.id === team._id);
+    return {
+      ...team,
+      rank: teamPoint?.rank ?? 0,
+      firstPlaceVotes: teamPoint?.firstPlaceVotes ?? 0,
+      isTie: teamPoint?.isTie ?? false,
+    };
   });
 }
