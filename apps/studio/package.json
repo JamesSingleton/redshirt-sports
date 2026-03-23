@@ -15,7 +15,7 @@
   "dependencies": {
     "@portabletext/react": "^6.0.3",
     "@sanity/asset-utils": "^2.3.0",
-    "@sanity/assist": "^6.0.3",
+    "@sanity/assist": "^6.0.4",
     "@sanity/blueprints": "^0.13.1",
     "@sanity/client": "catalog:",
     "@sanity/dashboard": "^5.0.1",
@@ -32,7 +32,7 @@
     "sanity-plugin-documents-pane": "^3.0.2",
     "sanity-plugin-media": "^4.1.1",
     "slugify": "^1.6.8",
-    "styled-components": "^6.3.11"
+    "styled-components": "^6.3.12"
   },
   "devDependencies": {
     "@types/node": "catalog:",

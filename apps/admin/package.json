@@ -14,7 +14,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.0.5",
+    "@clerk/nextjs": "^7.0.6",
     "@redshirt-sports/clients": "workspace:*",
     "@redshirt-sports/db": "workspace:*",
     "@redshirt-sports/sanity": "workspace:*",
@@ -37,7 +37,7 @@
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-react-compiler": "1.0.0",
     "happy-dom": "^20.8.4",
-    "tailwindcss": "^4.2.1",
+    "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
     "vitest": "catalog:"
   }
