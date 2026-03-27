@@ -11,6 +11,7 @@ import {
 } from "@redshirt-sports/ui/components/sidebar";
 import {
   IconCamera,
+  IconCheck,
   IconDeviceLaptop,
   IconFileAi,
   IconFileDescription,
@@ -31,6 +32,11 @@ const data = {
       title: "Development",
       url: "/development",
       icon: IconDeviceLaptop,
+    },
+    {
+      title: "Ballots",
+      url: "/ballots",
+      icon: IconCheck,
     },
   ],
   navClouds: [

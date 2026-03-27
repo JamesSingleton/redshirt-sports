@@ -67,23 +67,23 @@ interface SanityDivision extends BaseSanityObjectWithName {
   heading: string;
   longName: string;
   slug: string;
-  description: string;
-  logo: Record<string, any>;
+  description: string | null;
+  logo: Record<string, any> | null;
 }
 
 interface SanitySchool extends BaseSanityObjectWithName {
-  shortName: string;
-  abbreviation: string;
-  nickname: string;
-  top25VotingEligible: boolean;
+  shortName: string | null;
+  abbreviation: string | null;
+  nickname: string | null;
+  top25VotingEligible: boolean | null;
   image: Record<string, any>;
-  conferenceAffiliations: Record<"conferenceId" | "sportId", string>[];
+  conferenceAffiliations: Record<"conferenceId" | "sportId", string>[] | null;
 }
 
 interface SanitySubdivision extends BaseSanityObjectWithName {
-  shortName: string;
-  slug: string;
-  parentDivisionId: string;
+  shortName: string | null;
+  slug: string | null;
+  parentDivisionId: string | null;
   applicableSports: string[];
 }
 
@@ -357,12 +357,12 @@ export async function fetchAndLoadConferences() {
       }
 
       if (conference?.sports?.length) {
-        conference.sports.forEach((sport: string) =>
+        conference.sports.forEach((sport: string) => {
           conferenceSportMappings.push({
             sportId: sport,
             conferenceName: conference.name,
-          }),
-        );
+          });
+        });
       }
 
       mappedConferences.push({
@@ -421,12 +421,12 @@ export async function fetchAndLoadSubdivisions() {
     const division = divisions.find(
       (div) => div.sanityId === d.parentDivisionId,
     );
-    d.applicableSports.forEach((sport: string) =>
+    d.applicableSports.forEach((sport: string) => {
       divisionSportMappings.push({
-        subdivisionName: d.shortName,
+        subdivisionName: d.shortName || "",
         sportId: sport,
-      }),
-    );
+      });
+    });
 
     return {
       divisionId: division?.id,
@@ -434,7 +434,7 @@ export async function fetchAndLoadSubdivisions() {
       longName: d.name,
       sanityId: d._id,
       slug: d.slug,
-      isSubdivision: true,
+      isSubdivision: "true",
     };
   });
 
@@ -463,7 +463,8 @@ export async function fetchAndTransformRankings() {
   if (!legacyRankings) return;
 
   for (const jsonRanking of legacyRankings) {
-    let seasonTypeCode, weekForQuery;
+    let seasonTypeCode: number;
+    let weekForQuery: number;
 
     // this is largely a hack for the time being
     // we just want one of the preseason/postseason weeks to associate with
