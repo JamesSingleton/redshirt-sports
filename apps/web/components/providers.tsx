@@ -16,7 +16,7 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <PHProvider client={posthog}>
-      <PlausibleProvider domain="redshirtsports.xyz">
+      <PlausibleProvider src="https://plausible.io/js/pa-UT66DP3cChsMGSbfVqOGV.js">
         <NextThemesProvider
           attribute="class"
           defaultTheme="system"
