@@ -1,7 +1,6 @@
 {
   "extends": "@redshirt-sports/typescript-config/nextjs.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
       "@redshirt-sports/ui/*": ["../../packages/ui/src/*"]
