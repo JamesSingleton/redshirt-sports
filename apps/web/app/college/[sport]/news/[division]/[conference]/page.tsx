@@ -152,7 +152,7 @@ export default async function Page({
   const sportInfo = sportInfoResponse.data;
   const divisionOrSubgroupingName = divisionNameResponse?.data.displayName;
 
-  if (!news || !news.posts || !news.posts.length || !news.conferenceInfo) {
+  if (!news?.posts?.length || !news.conferenceInfo) {
     notFound();
   }
 

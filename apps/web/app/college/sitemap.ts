@@ -58,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           // Filter conferences by matching subgrouping for this sport and divisionSegment
           post.conferences
             .filter((conference) => {
-              if (!conference || !conference.subgroupings) return false;
+              if (!conference?.subgroupings) return false;
               return conference.subgroupings.some(
                 (sg) =>
                   sg.sport === post.sport && sg.subgrouping === divisionSegment,
