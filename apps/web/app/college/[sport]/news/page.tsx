@@ -52,7 +52,7 @@ export async function generateMetadata({
 
   const { data: sportData } = await fetchSportTitle(sport);
 
-  if (!sportData || !sportData.title) {
+  if (!sportData?.title) {
     return {};
   }
 
@@ -94,7 +94,7 @@ export default async function Page({
   const news = newsResponse.data;
   const sportInfo = sportInfoResponse?.data;
 
-  if (!news || !news.posts || !news.posts.length) {
+  if (!news?.posts?.length) {
     notFound();
   }
 

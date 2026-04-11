@@ -178,8 +178,7 @@ export default async function PostPage({ params }: PageProps<"/[slug]">) {
                     )}
 
                     {data.sport &&
-                      data.conferences &&
-                      data.conferences.map((conference) => {
+                      data.conferences?.map((conference) => {
                         const articleSportId = data.sport?._id;
 
                         const matchingAffiliation =
