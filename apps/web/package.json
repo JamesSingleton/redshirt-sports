@@ -19,7 +19,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.0.12",
+    "@clerk/nextjs": "^7.2.1",
     "@hookform/resolvers": "^5.2.2",
     "@portabletext/react": "^6.0.3",
     "@portabletext/to-html": "^5.0.2",
