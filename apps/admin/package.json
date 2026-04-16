@@ -14,7 +14,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.0.12",
+    "@clerk/nextjs": "^7.2.1",
     "@redshirt-sports/clients": "workspace:*",
     "@redshirt-sports/db": "workspace:*",
     "@redshirt-sports/sanity": "workspace:*",
