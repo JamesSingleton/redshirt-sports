@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@sanity/asset-utils": "^2.3.0",
-    "@sanity/client": "catalog:",
+    "@sanity/client": "^7.21.0",
     "@sanity/image-url": "^2.1.1",
-    "next-sanity": "catalog:",
-    "sanity": "catalog:",
+    "next-sanity": "^12.3.0",
+    "sanity": "^5.22.0",
     "sanity-image": "^1.1.0"
   },
   "devDependencies": {
