@@ -115,7 +115,7 @@ export const warnWhenHeadingOrBlockIsAllBold = (Rule: BlockRule) =>
       // if the block is styled as strong and the child is a span, add a warning
       if (strong && childIsSpan && !isHeading) {
         locations.push({
-          span: value[0] as PortableTextSpan,
+          span: value.children[0] as PortableTextSpan,
           matchText: "",
           path: path.concat(["children", { _key: value._key }]),
           offset: 0,
@@ -127,7 +127,7 @@ export const warnWhenHeadingOrBlockIsAllBold = (Rule: BlockRule) =>
       // if block is heading and strong, warn to remove strong
       if (strong && childIsSpan && isHeading) {
         locations.push({
-          span: value[0] as PortableTextSpan,
+          span: value.children[0] as PortableTextSpan,
           matchText: "",
           path: path.concat(["children", { _key: value._key }]),
           offset: 0,
@@ -171,7 +171,7 @@ export const warnWhenBlockIsAllBold = (Rule: BlockRule) =>
       // if the block is styled as strong and the child is a span, add a warning
       if (strong && childIsSpan && !isHeading) {
         locations.push({
-          span: value[0] as PortableTextSpan,
+          span: value.children[0] as PortableTextSpan,
           matchText: "",
           path: path.concat(["children", { _key: value._key }]),
           offset: 0,
