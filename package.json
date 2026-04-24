@@ -17,7 +17,7 @@
     "check:types": "turbo check:types"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.12",
+    "@biomejs/biome": "^2.4.13",
     "@redshirt-sports/typescript-config": "workspace:*",
     "turbo": "^2.9.6",
     "typescript": "^6.0.3"
