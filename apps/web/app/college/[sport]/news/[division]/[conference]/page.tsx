@@ -2,6 +2,7 @@ import { sanityFetch } from "@redshirt-sports/sanity/live";
 import {
   conferenceInfoBySlugQuery,
   queryArticlesBySportDivisionAndConference,
+  queryDivisionOrSubgroupingDisplayName,
   sportInfoBySlug,
 } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
@@ -66,18 +67,7 @@ export async function getDivisionOrSubgroupingDisplayName(
   slugOrShortName: string,
 ) {
   return await sanityFetch({
-    query: `
-      *[
-        (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||
-        (_type == "division" && slug.current == $slugOrShortName)
-      ][0]{
-        _type,
-        "displayName": select(
-          _type == "sportSubgrouping" => shortName,
-          _type == "division" => title
-        )
-      }
-    `,
+    query: queryDivisionOrSubgroupingDisplayName,
     params: { slugOrShortName },
   });
 }
@@ -150,7 +140,7 @@ export default async function Page({
 
   const news = newsResponse.data;
   const sportInfo = sportInfoResponse.data;
-  const divisionOrSubgroupingName = divisionNameResponse?.data.displayName;
+  const divisionOrSubgroupingName = divisionNameResponse.data?.displayName;
 
   if (!news?.posts?.length || !news.conferenceInfo) {
     notFound();
@@ -205,7 +195,7 @@ export default async function Page({
         {
           "@type": "ListItem",
           position: 4,
-          name: divisionOrSubgroupingName,
+          name: divisionOrSubgroupingName || "",
           item: `${baseUrl}/college/${sport}/news/${division}`,
         },
         {
@@ -228,7 +218,7 @@ export default async function Page({
       href: `/college/${sport}/news`,
     },
     {
-      title: divisionOrSubgroupingName,
+      title: divisionOrSubgroupingName || "",
       href: `/college/${sport}/news/${division}`,
     },
     {
@@ -243,6 +233,7 @@ export default async function Page({
         data={collectionPageJsonLd}
         id={`collection-page-${sport}-${division}-${conference}`}
       />
+      {/* @ts-expect-error for some reason it doesn't like the type */}
       <PageHeader title={title} breadcrumbs={breadcrumbItems} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <ArticleFeed articles={news.posts} />

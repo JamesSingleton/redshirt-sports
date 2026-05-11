@@ -2580,6 +2580,20 @@ export type QueryForCollegeSitemapResult = Array<{
   _updatedAt: string;
 }>;
 
+// Source: ../../packages/sanity/src/queries.ts
+// Variable: queryDivisionOrSubgroupingDisplayName
+// Query: *[    (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||    (_type == "division" && slug.current == $slugOrShortName)  ][0]{    _type,    "displayName": select(      _type == "sportSubgrouping" => shortName,      _type == "division" => title    )  }
+export type QueryDivisionOrSubgroupingDisplayNameResult =
+  | {
+      _type: "division";
+      displayName: string;
+    }
+  | {
+      _type: "sportSubgrouping";
+      displayName: string | null;
+    }
+  | null;
+
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
@@ -2624,5 +2638,6 @@ declare module "@sanity/client" {
     '\n  *[_type == "post" && defined(publishedAt) && defined(slug.current)][$start...$end]{\n    _id,\n    "slug": slug.current,\n    publishedAt,\n    _updatedAt\n  }\n': PostsForSitemapQueryResult;
     '\n  count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])\n  ': CountOfPostsQueryResult;
     '\n*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){\n  "sport": sport->slug.current,\n  "division": division->slug.current,\n  "sportSubgrouping": sportSubgrouping->slug.current,\n  "conferences": conferences[]->{\n      "slug": slug.current,\n      "division": division->slug.current,\n      "subgroupings": sportSubdivisionAffiliations[]{\n        "sport": sport->slug.current,\n        "subgrouping": subgrouping->slug.current\n      }\n    },\n  _updatedAt\n}': QueryForCollegeSitemapResult;
+    '\n  *[\n    (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||\n    (_type == "division" && slug.current == $slugOrShortName)\n  ][0]{\n    _type,\n    "displayName": select(\n      _type == "sportSubgrouping" => shortName,\n      _type == "division" => title\n    )\n  }\n': QueryDivisionOrSubgroupingDisplayNameResult;
   }
 }

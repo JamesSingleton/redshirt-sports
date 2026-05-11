@@ -1,5 +1,6 @@
 import { sanityFetch } from "@redshirt-sports/sanity/live";
 import {
+  queryDivisionOrSubgroupingDisplayName,
   querySportsAndDivisionNews,
   sportInfoBySlug,
 } from "@redshirt-sports/sanity/queries";
@@ -53,18 +54,7 @@ export async function getDivisionOrSubgroupingDisplayName(
   slugOrShortName: string,
 ) {
   return await sanityFetch({
-    query: `
-      *[
-        (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||
-        (_type == "division" && slug.current == $slugOrShortName)
-      ][0]{
-        _type,
-        "displayName": select(
-          _type == "sportSubgrouping" => shortName,
-          _type == "division" => title
-        )
-      }
-    `,
+    query: queryDivisionOrSubgroupingDisplayName,
     params: { slugOrShortName },
   });
 }
@@ -138,7 +128,7 @@ export default async function Page({
 
   const news = newsResponse.data;
   const sportInfo = sportInfoResponse.data;
-  const divisionOrSubgroupingName = divisionNameResponse?.data.displayName;
+  const divisionOrSubgroupingName = divisionNameResponse.data?.displayName;
 
   if (!news?.posts?.length) {
     notFound();
@@ -190,7 +180,7 @@ export default async function Page({
         {
           "@type": "ListItem",
           position: 4,
-          name: divisionTitle,
+          name: divisionTitle || "",
           item: `${baseUrl}/college/${sport}/news/${division}`,
         },
       ],
@@ -220,6 +210,7 @@ export default async function Page({
       />
       <PageHeader
         title={`${divisionOrSubgroupingName} ${sportInfo?.title} News`}
+        // @ts-expect-error for some reason it's not liking the types
         breadcrumbs={breadcrumbItems}
       />
       <section className="container pb-12">
