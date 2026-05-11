@@ -12,7 +12,19 @@
  * ---------------------------------------------------------------------------------
  */
 
+export declare const internalGroqTypeReferenceTo: unique symbol;
+
 // Source: schema.json
+export type SocialLinks1 = {
+  twitter?: string;
+  facebook?: string;
+  youtube?: string;
+  instagram?: string;
+  linkedin?: string;
+  bluesky?: string;
+  threads?: string;
+};
+
 export type Twitter = {
   _type: "twitter";
   id?: string;
@@ -29,6 +41,34 @@ export type SocialLinks = {
   threads?: string;
 };
 
+export type PostReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "post";
+};
+
+export type DivisionReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "division";
+};
+
+export type ConferenceReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "conference";
+};
+
+export type LegalReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "legal";
+};
+
 export type CustomUrl = {
   _type: "customUrl";
   type: "internal" | "external";
@@ -37,31 +77,18 @@ export type CustomUrl = {
   href?: string;
   internalType?: "reference" | "custom";
   internal?:
-    | {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "post";
-      }
-    | {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "division";
-      }
-    | {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "conference";
-      }
-    | {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "legal";
-      };
+    | PostReference
+    | DivisionReference
+    | ConferenceReference
+    | LegalReference;
   internalUrl?: string;
+};
+
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
 };
 
 export type BlockContent = Array<
@@ -82,12 +109,7 @@ export type BlockContent = Array<
             _key: string;
           }
         | {
-            reference?: {
-              _ref: string;
-              _type: "reference";
-              _weak?: boolean;
-              [internalGroqTypeReferenceTo]?: "post";
-            };
+            reference?: PostReference;
             _type: "internalLink";
             _key: string;
           }
@@ -97,12 +119,7 @@ export type BlockContent = Array<
       _key: string;
     }
   | {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -135,63 +152,35 @@ export type Settings = {
   siteTitle: string;
   siteDescription: string;
   logo?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
   };
   footerLogo?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
   };
   footerLogoDarkMode?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
   };
   defaultOpenGraphImage?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
   };
   contactEmail?: string;
-  socialLinks?: {
-    twitter?: string;
-    facebook?: string;
-    youtube?: string;
-    instagram?: string;
-    linkedin?: string;
-    bluesky?: string;
-    threads?: string;
-  };
+  socialLinks?: SocialLinks1;
 };
 
 export type SanityImageCrop = {
@@ -276,6 +265,13 @@ export type Slug = {
   source?: string;
 };
 
+export type SportReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sport";
+};
+
 export type School = {
   _id: string;
   _type: "school";
@@ -287,12 +283,7 @@ export type School = {
   abbreviation?: string;
   nickname?: string;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -301,18 +292,8 @@ export type School = {
   };
   top25VotingEligible?: boolean;
   conferenceAffiliations?: Array<{
-    sport: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sport";
-    };
-    conference: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "conference";
-    };
+    sport: SportReference;
+    conference: ConferenceReference;
     _type: "conferenceAffiliation";
     _key: string;
   }>;
@@ -340,6 +321,34 @@ export type Legal = {
   body: BlockContent;
 };
 
+export type AuthorReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "author";
+};
+
+export type SportSubgroupingReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sportSubgrouping";
+};
+
+export type SchoolReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "school";
+};
+
+export type TagReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "tag";
+};
+
 export type Post = {
   _id: string;
   _type: "post";
@@ -348,27 +357,15 @@ export type Post = {
   _rev: string;
   title: string;
   slug: Slug;
-  author?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "author";
-  };
-  authors: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "author";
-  }>;
+  author?: AuthorReference;
+  authors: Array<
+    {
+      _key: string;
+    } & AuthorReference
+  >;
   publishedAt?: string;
   mainImage: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -376,57 +373,31 @@ export type Post = {
     attribution: string;
     _type: "image";
   };
-  sport?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "sport";
-  };
-  division?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "division";
-  };
-  sportSubgrouping?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "sportSubgrouping";
-  };
-  conferences?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "conference";
-  }>;
-  teams?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "school";
-  }>;
-  tags?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "tag";
-  }>;
+  sport?: SportReference;
+  division?: DivisionReference;
+  sportSubgrouping?: SportSubgroupingReference;
+  conferences?: Array<
+    {
+      _key: string;
+    } & ConferenceReference
+  >;
+  teams?: Array<
+    {
+      _key: string;
+    } & SchoolReference
+  >;
+  tags?: Array<
+    {
+      _key: string;
+    } & TagReference
+  >;
   featuredArticle?: boolean;
   excerpt: string;
   body: BlockContent;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -447,44 +418,22 @@ export type Conference = {
   abbreviation: string;
   slug: Slug;
   logo?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
     _type: "image";
   };
-  division: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "division";
-  };
-  sports?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "sport";
-  }>;
+  division: DivisionReference;
+  sports?: Array<
+    {
+      _key: string;
+    } & SportReference
+  >;
   sportSubdivisionAffiliations?: Array<{
-    sport: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sport";
-    };
-    subgrouping: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sportSubgrouping";
-    };
+    sport: SportReference;
+    subgrouping: SportSubgroupingReference;
     _type: "sportSubgroupingAffiliation";
     _key: string;
   }>;
@@ -499,19 +448,12 @@ export type SportSubgrouping = {
   name: string;
   shortName?: string;
   slug?: Slug;
-  applicableSports: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "sport";
-  }>;
-  parentDivision: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "division";
-  };
+  applicableSports: Array<
+    {
+      _key: string;
+    } & SportReference
+  >;
+  parentDivision: DivisionReference;
 };
 
 export type Sport = {
@@ -537,12 +479,7 @@ export type Division = {
   slug: Slug;
   description?: string;
   logo?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -573,27 +510,14 @@ export type Author = {
     | "Transfer Portal Analyst"
   >;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
   };
   biography: string;
-  socialLinks?: {
-    twitter?: string;
-    facebook?: string;
-    youtube?: string;
-    instagram?: string;
-    linkedin?: string;
-    bluesky?: string;
-    threads?: string;
-  };
+  socialLinks?: SocialLinks1;
 };
 
 export type SanityVideoMetadataPlayback = {
@@ -701,14 +625,16 @@ export type SanityAssistOutputField = {
   path?: string;
 };
 
+export type AssistInstructionContextReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "assist.instruction.context";
+};
+
 export type SanityAssistInstructionContext = {
   _type: "sanity.assist.instruction.context";
-  reference: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "assist.instruction.context";
-  };
+  reference: AssistInstructionContextReference;
 };
 
 export type AssistInstructionContext = {
@@ -831,6 +757,7 @@ export type SanityImageMetadata = {
   palette?: SanityImagePalette;
   lqip?: string;
   blurHash?: string;
+  thumbHash?: string;
   hasAlpha?: boolean;
   isOpaque?: boolean;
 };
@@ -846,14 +773,14 @@ export type SanityFileAsset = {
   title?: string;
   description?: string;
   altText?: string;
-  sha1hash?: string;
-  extension?: string;
-  mimeType?: string;
-  size?: number;
-  assetId?: string;
+  sha1hash: string;
+  extension: string;
+  mimeType: string;
+  size: number;
+  assetId: string;
   uploadId?: string;
-  path?: string;
-  url?: string;
+  path: string;
+  url: string;
   source?: SanityAssetSourceData;
 };
 
@@ -875,14 +802,14 @@ export type SanityImageAsset = {
   title?: string;
   description?: string;
   altText?: string;
-  sha1hash?: string;
-  extension?: string;
-  mimeType?: string;
-  size?: number;
-  assetId?: string;
+  sha1hash: string;
+  extension: string;
+  mimeType: string;
+  size: number;
+  assetId: string;
   uploadId?: string;
-  path?: string;
-  url?: string;
+  path: string;
+  url: string;
   metadata?: SanityImageMetadata;
   source?: SanityAssetSourceData;
 };
@@ -895,9 +822,15 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+  | SocialLinks1
   | Twitter
   | SocialLinks
+  | PostReference
+  | DivisionReference
+  | ConferenceReference
+  | LegalReference
   | CustomUrl
+  | SanityImageAssetReference
   | BlockContent
   | Settings
   | SanityImageCrop
@@ -906,9 +839,14 @@ export type AllSanitySchemaTypes =
   | Footer
   | Tag
   | Slug
+  | SportReference
   | School
   | Redirect
   | Legal
+  | AuthorReference
+  | SportSubgroupingReference
+  | SchoolReference
+  | TagReference
   | Post
   | Conference
   | SportSubgrouping
@@ -927,6 +865,7 @@ export type AllSanitySchemaTypes =
   | SanityAssistSchemaTypeAnnotations
   | SanityAssistOutputType
   | SanityAssistOutputField
+  | AssistInstructionContextReference
   | SanityAssistInstructionContext
   | AssistInstructionContext
   | SanityAssistInstructionUserInput
@@ -942,7 +881,7 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint;
-export declare const internalGroqTypeReferenceTo: unique symbol;
+
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: querySettingsData
 // Query: *[_type == "settings"][0]{    _id,    _type,    siteTitle,    siteDescription,    "logo": logo.asset->url + "?w=80&h=40&dpr=3&fit=max",    "socialLinks": socialLinks,    "contactEmail": contactEmail,  }
@@ -952,17 +891,11 @@ export type QuerySettingsDataResult = {
   siteTitle: string;
   siteDescription: string;
   logo: string | null;
-  socialLinks: {
-    twitter?: string;
-    facebook?: string;
-    youtube?: string;
-    instagram?: string;
-    linkedin?: string;
-    bluesky?: string;
-    threads?: string;
-  } | null;
+  socialLinks: SocialLinks1 | null;
   contactEmail: string | null;
 } | null;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryPostSlugData
 // Query: *[_type == "post" && slug.current == $slug][0]{    ...,    "slug": slug.current,    sport->{      _id,      "slug": slug.current,      title    },      division->{    _id,    name,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    }  },      sportSubgrouping->{    ...,    "slug": slug.current,  },      conferences[]->{    _id,    name,    shortName,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    division->{      "slug": slug.current,    },    sportSubdivisionAffiliations[]{        _key,        sport->{          _id, // Need this _id for client-side comparison        },        subgrouping->{          "slug": slug.current,          name,          shortName        }      }  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  },      mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      body[]{    ...,      markDefs[]{    ...,    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),      "credit": coalesce(asset->creditLine, attribution, "Unknown"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },  },    "relatedPosts": *[      _type == "post"      && _id != ^._id      && (count(conferences[@._ref in ^.^.conferences[]._ref]) > 0 || count(tags[@._ref in ^.^.tags[]._ref]) > 0)    ] | order(publishedAt desc, _id desc)[0...3] {      _id,      title,      publishedAt,        mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      "slug": slug.current,        authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }    }  }
 export type QueryPostSlugDataResult = {
@@ -973,12 +906,7 @@ export type QueryPostSlugDataResult = {
   _rev: string;
   title: string;
   slug: string;
-  author?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "author";
-  };
+  author?: AuthorReference;
   authors: Array<{
     _id: string;
     _type: "author";
@@ -1001,12 +929,7 @@ export type QueryPostSlugDataResult = {
       | "Transfer Portal Analyst"
     >;
     image: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1017,24 +940,11 @@ export type QueryPostSlugDataResult = {
       dominantColor: string | null;
     };
     biography: string;
-    socialLinks?: {
-      twitter?: string;
-      facebook?: string;
-      youtube?: string;
-      instagram?: string;
-      linkedin?: string;
-      bluesky?: string;
-      threads?: string;
-    };
+    socialLinks?: SocialLinks1;
   }>;
   publishedAt?: string;
   mainImage: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -1056,12 +966,7 @@ export type QueryPostSlugDataResult = {
     name: string;
     slug: string;
     logo: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1080,19 +985,12 @@ export type QueryPostSlugDataResult = {
     name: string;
     shortName?: string;
     slug: string | null;
-    applicableSports: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "sport";
-    }>;
-    parentDivision: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "division";
-    };
+    applicableSports: Array<
+      {
+        _key: string;
+      } & SportReference
+    >;
+    parentDivision: DivisionReference;
   } | null;
   conferences: Array<{
     _id: string;
@@ -1100,12 +998,7 @@ export type QueryPostSlugDataResult = {
     shortName: string;
     slug: string;
     logo: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1129,20 +1022,16 @@ export type QueryPostSlugDataResult = {
       };
     }> | null;
   }> | null;
-  teams?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "school";
-  }>;
-  tags?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "tag";
-  }>;
+  teams?: Array<
+    {
+      _key: string;
+    } & SchoolReference
+  >;
+  tags?: Array<
+    {
+      _key: string;
+    } & TagReference
+  >;
   featuredArticle?: boolean;
   excerpt: string;
   body: Array<
@@ -1165,12 +1054,7 @@ export type QueryPostSlugDataResult = {
         listItem?: "bullet" | "number";
         markDefs: Array<
           | {
-              reference?: {
-                _ref: string;
-                _type: "reference";
-                _weak?: boolean;
-                [internalGroqTypeReferenceTo]?: "post";
-              };
+              reference?: PostReference;
               _type: "internalLink";
               _key: string;
               href: string | "#" | null;
@@ -1187,12 +1071,7 @@ export type QueryPostSlugDataResult = {
         _key: string;
       }
     | {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
+        asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
@@ -1232,12 +1111,7 @@ export type QueryPostSlugDataResult = {
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -1250,12 +1124,7 @@ export type QueryPostSlugDataResult = {
     title: string;
     publishedAt: string | null;
     mainImage: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1290,12 +1159,7 @@ export type QueryPostSlugDataResult = {
         | "Transfer Portal Analyst"
       >;
       image: {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
+        asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
@@ -1306,28 +1170,26 @@ export type QueryPostSlugDataResult = {
         dominantColor: string | null;
       };
       biography: string;
-      socialLinks?: {
-        twitter?: string;
-        facebook?: string;
-        youtube?: string;
-        instagram?: string;
-        linkedin?: string;
-        bluesky?: string;
-        threads?: string;
-      };
+      socialLinks?: SocialLinks1;
     }>;
   }>;
 } | null;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryPostPaths
 // Query: *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50]{"slug": slug.current}
 export type QueryPostPathsResult = Array<{
   slug: string;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryAuthorPaths
 // Query: *[_type == "author" && defined(slug.current) && archived == false]| order(_createdAt desc)[0...20]{"slug": slug.current}
 export type QueryAuthorPathsResult = Array<{
   slug: string;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: querySportsNews
 // Query: {    "posts": *[_type == "post" && sport->slug.current == $sport] | order(publishedAt desc)[$from...$to]{      ...,        mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      "slug": slug.current,        authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }    },    "totalPosts": count(*[_type == "post" && sport->slug.current == $sport])  }
 export type QuerySportsNewsResult = {
@@ -1339,12 +1201,7 @@ export type QuerySportsNewsResult = {
     _rev: string;
     title: string;
     slug: string;
-    author?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "author";
-    };
+    author?: AuthorReference;
     authors: Array<{
       _id: string;
       _type: "author";
@@ -1367,12 +1224,7 @@ export type QuerySportsNewsResult = {
         | "Transfer Portal Analyst"
       >;
       image: {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
+        asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
@@ -1383,24 +1235,11 @@ export type QuerySportsNewsResult = {
         dominantColor: string | null;
       };
       biography: string;
-      socialLinks?: {
-        twitter?: string;
-        facebook?: string;
-        youtube?: string;
-        instagram?: string;
-        linkedin?: string;
-        bluesky?: string;
-        threads?: string;
-      };
+      socialLinks?: SocialLinks1;
     }>;
     publishedAt?: string;
     mainImage: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1412,57 +1251,31 @@ export type QuerySportsNewsResult = {
       blurData: string | null;
       dominantColor: string | null;
     };
-    sport?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sport";
-    };
-    division?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "division";
-    };
-    sportSubgrouping?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sportSubgrouping";
-    };
-    conferences?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "conference";
-    }>;
-    teams?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "school";
-    }>;
-    tags?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "tag";
-    }>;
+    sport?: SportReference;
+    division?: DivisionReference;
+    sportSubgrouping?: SportSubgroupingReference;
+    conferences?: Array<
+      {
+        _key: string;
+      } & ConferenceReference
+    >;
+    teams?: Array<
+      {
+        _key: string;
+      } & SchoolReference
+    >;
+    tags?: Array<
+      {
+        _key: string;
+      } & TagReference
+    >;
     featuredArticle?: boolean;
     excerpt: string;
     body: BlockContent;
     seoTitle?: string;
     seoDescription?: string;
     seoImage?: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1473,6 +1286,8 @@ export type QuerySportsNewsResult = {
   }>;
   totalPosts: number;
 };
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: querySportsAndDivisionNews
 // Query: {    "posts": *[      _type == "post" &&      sport->slug.current == $sport &&      (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&      $division != "d1"    ] | order(publishedAt desc)[$from...$to]{      ...,        mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      "slug": slug.current,        authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }    },    "totalPosts": count(*[      _type == "post" &&      sport->slug.current == $sport &&      (division->slug.current == $division || sportSubgrouping->slug.current == $division) &&      $division != "d1"    ])  }
 export type QuerySportsAndDivisionNewsResult = {
@@ -1484,12 +1299,7 @@ export type QuerySportsAndDivisionNewsResult = {
     _rev: string;
     title: string;
     slug: string;
-    author?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "author";
-    };
+    author?: AuthorReference;
     authors: Array<{
       _id: string;
       _type: "author";
@@ -1512,12 +1322,7 @@ export type QuerySportsAndDivisionNewsResult = {
         | "Transfer Portal Analyst"
       >;
       image: {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
+        asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
@@ -1528,24 +1333,11 @@ export type QuerySportsAndDivisionNewsResult = {
         dominantColor: string | null;
       };
       biography: string;
-      socialLinks?: {
-        twitter?: string;
-        facebook?: string;
-        youtube?: string;
-        instagram?: string;
-        linkedin?: string;
-        bluesky?: string;
-        threads?: string;
-      };
+      socialLinks?: SocialLinks1;
     }>;
     publishedAt?: string;
     mainImage: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1557,57 +1349,31 @@ export type QuerySportsAndDivisionNewsResult = {
       blurData: string | null;
       dominantColor: string | null;
     };
-    sport?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sport";
-    };
-    division?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "division";
-    };
-    sportSubgrouping?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sportSubgrouping";
-    };
-    conferences?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "conference";
-    }>;
-    teams?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "school";
-    }>;
-    tags?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "tag";
-    }>;
+    sport?: SportReference;
+    division?: DivisionReference;
+    sportSubgrouping?: SportSubgroupingReference;
+    conferences?: Array<
+      {
+        _key: string;
+      } & ConferenceReference
+    >;
+    teams?: Array<
+      {
+        _key: string;
+      } & SchoolReference
+    >;
+    tags?: Array<
+      {
+        _key: string;
+      } & TagReference
+    >;
     featuredArticle?: boolean;
     excerpt: string;
     body: BlockContent;
     seoTitle?: string;
     seoDescription?: string;
     seoImage?: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1618,10 +1384,12 @@ export type QuerySportsAndDivisionNewsResult = {
   }>;
   totalPosts: number;
 };
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryFooterData
 // Query: *[_type == "footer" && _id == "footer"][0]{    _id,    subtitle,    columns[]{      _key,      title,      links[]{        _key,        name,        "openInNewTab": url.openInNewTab,        "href": select(          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,          url.type == "internal" && url.internalType == "custom" => url.internalUrl,          url.type == "external" => url.external,          url.href        )      }    },  }
 export type QueryFooterDataResult = {
-  _id: string;
+  _id: "footer";
   subtitle: string | null;
   columns: Array<{
     _key: string;
@@ -1634,6 +1402,8 @@ export type QueryFooterDataResult = {
     }> | null;
   }> | null;
 } | null;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryGlobalSeoSettings
 // Query: *[_type == "settings"][0]{    _id,    _type,    siteBrand,    siteTitle,    siteDescription,      logo{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    footerLogo{      ...,      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    footerLogoDarkMode{      ...,      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",    socialLinks{      facebook,      twitter,      youtube,      instagram,      bluesky,      threads    }  }
 export type QueryGlobalSeoSettingsResult = {
@@ -1643,12 +1413,7 @@ export type QueryGlobalSeoSettingsResult = {
   siteTitle: string;
   siteDescription: string;
   logo: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -1658,12 +1423,7 @@ export type QueryGlobalSeoSettingsResult = {
     dominantColor: string | null;
   } | null;
   footerLogo: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -1673,12 +1433,7 @@ export type QueryGlobalSeoSettingsResult = {
     dominantColor: string | null;
   } | null;
   footerLogoDarkMode: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -1697,10 +1452,12 @@ export type QueryGlobalSeoSettingsResult = {
     threads: string | null;
   } | null;
 } | null;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryNavbarData
 // Query: *[_type == "navbar" && _id == "navbar"][0]{    _id,    columns[]{      _key,      _type == "navbarColumn" => {        "type": "column",        title,        links[]{          _key,          name,          icon,          description,          "openInNewTab": url.openInNewTab,          "href": select(            url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,            url.type == "internal" && url.internalType == "custom" => url.internalUrl,            url.type == "external" => url.external,            url.href          )        }      },      _type == "navbarLink" => {        "type": "link",        name,        description,        "openInNewTab": url.openInNewTab,        "href": select(          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,          url.type == "internal" && url.internalType == "custom" => url.internalUrl,          url.type == "external" => url.external,          url.href        )      }    },    "logo": *[_type == "settings"][0].logo.asset->url + "?w=70&h=40&dpr=3&fit=max",    "siteTitle": *[_type == "settings"][0].siteTitle,  }
 export type QueryNavbarDataResult = {
-  _id: string;
+  _id: "navbar";
   columns: Array<
     | {
         _key: string;
@@ -1727,6 +1484,8 @@ export type QueryNavbarDataResult = {
   logo: string | null;
   siteTitle: string | null;
 } | null;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryHomePageData
 // Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{    _id,    _type,    title,    excerpt,    "slug": slug.current,    mainImage{      ...,      "alt": coalesce(caption,asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,      "credit": coalesce(asset->creditLine, attribution, "Unknown"),    },    publishedAt,      authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }  }
 export type QueryHomePageDataResult = Array<{
@@ -1736,12 +1495,7 @@ export type QueryHomePageDataResult = Array<{
   excerpt: string;
   slug: string;
   mainImage: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -1776,12 +1530,7 @@ export type QueryHomePageDataResult = Array<{
       | "Transfer Portal Analyst"
     >;
     image: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1792,17 +1541,11 @@ export type QueryHomePageDataResult = Array<{
       dominantColor: string | null;
     };
     biography: string;
-    socialLinks?: {
-      twitter?: string;
-      facebook?: string;
-      youtube?: string;
-      instagram?: string;
-      linkedin?: string;
-      bluesky?: string;
-      threads?: string;
-    };
+    socialLinks?: SocialLinks1;
   }>;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryLatestArticles
 // Query: *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{    _id,    title,    excerpt,    "slug": slug.current,    publishedAt,    mainImage{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,      "credit": coalesce(asset->creditLine, attribution, "Unknown"),    },      authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }  }
 export type QueryLatestArticlesResult = Array<{
@@ -1812,12 +1555,7 @@ export type QueryLatestArticlesResult = Array<{
   slug: string;
   publishedAt: string | null;
   mainImage: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -1851,12 +1589,7 @@ export type QueryLatestArticlesResult = Array<{
       | "Transfer Portal Analyst"
     >;
     image: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1867,17 +1600,11 @@ export type QueryLatestArticlesResult = Array<{
       dominantColor: string | null;
     };
     biography: string;
-    socialLinks?: {
-      twitter?: string;
-      facebook?: string;
-      youtube?: string;
-      instagram?: string;
-      linkedin?: string;
-      bluesky?: string;
-      threads?: string;
-    };
+    socialLinks?: SocialLinks1;
   }>;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryLatestCollegeSportsArticles
 // Query: *[_type == "post" && (division->name == $division || sportSubgrouping->name == $division) && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{    _id,    title,    excerpt,    "slug": slug.current,    mainImage{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,      "credit": coalesce(asset->creditLine, attribution, "Unknown"),    },    publishedAt,    division->{      name,      "slug": slug.current    },    conferences[]->{      name,      "slug": slug.current,      shortName    },      authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }  }
 export type QueryLatestCollegeSportsArticlesResult = Array<{
@@ -1886,12 +1613,7 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
   excerpt: string;
   slug: string;
   mainImage: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -1935,12 +1657,7 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
       | "Transfer Portal Analyst"
     >;
     image: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -1951,17 +1668,11 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
       dominantColor: string | null;
     };
     biography: string;
-    socialLinks?: {
-      twitter?: string;
-      facebook?: string;
-      youtube?: string;
-      instagram?: string;
-      linkedin?: string;
-      bluesky?: string;
-      threads?: string;
-    };
+    socialLinks?: SocialLinks1;
   }>;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryCollegeSportsArticlesForSitemap
 // Query: *[_type == "post" && defined(slug.current) && sport->title match $sport] | order(publishedAt desc){    _id,    _updatedAt,    publishedAt,    "slug": slug.current,  }
 export type QueryCollegeSportsArticlesForSitemapResult = Array<{
@@ -1970,6 +1681,8 @@ export type QueryCollegeSportsArticlesForSitemapResult = Array<{
   publishedAt: string | null;
   slug: string;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: querySitemapData
 // Query: {  "authors": *[_type == "author" && defined(slug.current) && archived == false] {    "slug": slug.current,    "lastModified": _updatedAt  },}
 export type QuerySitemapDataResult = {
@@ -1978,6 +1691,8 @@ export type QuerySitemapDataResult = {
     lastModified: string;
   }>;
 };
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryArticlesBySportDivisionAndConference
 // Query: {    "posts": *[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (      sportSubgrouping->slug.current == $division || division->slug.current == $division    ) && $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current] | order(publishedAt desc) [$from...$to]{      ...,        mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },      "slug": slug.current,        authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }    },    "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))][0]{      _id,      name,      shortName    },    "totalPosts": count(*[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (      sportSubgrouping->slug.current == $division || division->slug.current == $division    ) && $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current]),  }
 export type QueryArticlesBySportDivisionAndConferenceResult = {
@@ -1989,12 +1704,7 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
     _rev: string;
     title: string;
     slug: string;
-    author?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "author";
-    };
+    author?: AuthorReference;
     authors: Array<{
       _id: string;
       _type: "author";
@@ -2017,12 +1727,7 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
         | "Transfer Portal Analyst"
       >;
       image: {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
+        asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
@@ -2033,24 +1738,11 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
         dominantColor: string | null;
       };
       biography: string;
-      socialLinks?: {
-        twitter?: string;
-        facebook?: string;
-        youtube?: string;
-        instagram?: string;
-        linkedin?: string;
-        bluesky?: string;
-        threads?: string;
-      };
+      socialLinks?: SocialLinks1;
     }>;
     publishedAt?: string;
     mainImage: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -2062,57 +1754,31 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
       blurData: string | null;
       dominantColor: string | null;
     };
-    sport?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sport";
-    };
-    division?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "division";
-    };
-    sportSubgrouping?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sportSubgrouping";
-    };
-    conferences?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "conference";
-    }>;
-    teams?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "school";
-    }>;
-    tags?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "tag";
-    }>;
+    sport?: SportReference;
+    division?: DivisionReference;
+    sportSubgrouping?: SportSubgroupingReference;
+    conferences?: Array<
+      {
+        _key: string;
+      } & ConferenceReference
+    >;
+    teams?: Array<
+      {
+        _key: string;
+      } & SchoolReference
+    >;
+    tags?: Array<
+      {
+        _key: string;
+      } & TagReference
+    >;
     featuredArticle?: boolean;
     excerpt: string;
     body: BlockContent;
     seoTitle?: string;
     seoDescription?: string;
     seoImage?: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -2128,6 +1794,8 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
   } | null;
   totalPosts: number;
 };
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: searchQuery
 // Query: {  "posts": *[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")] | score(    boost(title match $q, 4),    boost(excerpt match $q, 3),    boost(pt::text(body) match $q, 2),  ) | order(publishedAt desc, _score desc)[$from...$to]{    ...,    "slug": slug.current,      division->{    _id,    name,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    }  },      conferences[]->{    _id,    name,    shortName,    "slug": slug.current,    logo{      ...,      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    division->{      "slug": slug.current,    },    sportSubdivisionAffiliations[]{        _key,        sport->{          _id, // Need this _id for client-side comparison        },        subgrouping->{          "slug": slug.current,          name,          shortName        }      }  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  },    "sport": sport->title,  },  "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])}
 export type SearchQueryResult = {
@@ -2139,12 +1807,7 @@ export type SearchQueryResult = {
     _rev: string;
     title: string;
     slug: string;
-    author?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "author";
-    };
+    author?: AuthorReference;
     authors: Array<{
       _id: string;
       _type: "author";
@@ -2167,12 +1830,7 @@ export type SearchQueryResult = {
         | "Transfer Portal Analyst"
       >;
       image: {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
+        asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
@@ -2183,24 +1841,11 @@ export type SearchQueryResult = {
         dominantColor: string | null;
       };
       biography: string;
-      socialLinks?: {
-        twitter?: string;
-        facebook?: string;
-        youtube?: string;
-        instagram?: string;
-        linkedin?: string;
-        bluesky?: string;
-        threads?: string;
-      };
+      socialLinks?: SocialLinks1;
     }>;
     publishedAt?: string;
     mainImage: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -2214,12 +1859,7 @@ export type SearchQueryResult = {
       name: string;
       slug: string;
       logo: {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
+        asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
@@ -2229,24 +1869,14 @@ export type SearchQueryResult = {
         dominantColor: string | null;
       } | null;
     } | null;
-    sportSubgrouping?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sportSubgrouping";
-    };
+    sportSubgrouping?: SportSubgroupingReference;
     conferences: Array<{
       _id: string;
       name: string;
       shortName: string;
       slug: string;
       logo: {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
+        asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
@@ -2270,32 +1900,23 @@ export type SearchQueryResult = {
         };
       }> | null;
     }> | null;
-    teams?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "school";
-    }>;
-    tags?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "tag";
-    }>;
+    teams?: Array<
+      {
+        _key: string;
+      } & SchoolReference
+    >;
+    tags?: Array<
+      {
+        _key: string;
+      } & TagReference
+    >;
     featuredArticle?: boolean;
     excerpt: string;
     body: BlockContent;
     seoTitle?: string;
     seoDescription?: string;
     seoImage?: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -2306,12 +1927,16 @@ export type SearchQueryResult = {
   }>;
   totalPosts: number;
 };
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: sportInfoBySlug
 // Query: *[_type == "sport" && slug.current == $slug][0]{  _id,  title,}
 export type SportInfoBySlugResult = {
   _id: string;
   title: string;
 } | null;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: authorBySlug
 // Query: *[_type == "author" && slug.current == $slug && archived == false][0]{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },  }
 export type AuthorBySlugResult = {
@@ -2336,12 +1961,7 @@ export type AuthorBySlugResult = {
     | "Transfer Portal Analyst"
   >;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -2352,16 +1972,10 @@ export type AuthorBySlugResult = {
     dominantColor: string | null;
   };
   biography: string;
-  socialLinks?: {
-    twitter?: string;
-    facebook?: string;
-    youtube?: string;
-    instagram?: string;
-    linkedin?: string;
-    bluesky?: string;
-    threads?: string;
-  };
+  socialLinks?: SocialLinks1;
 } | null;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: postsByAuthor
 // Query: *[_type == "author" && slug.current == $slug && archived == false][0]{    "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[$from...$to]{      ...,      "slug": slug.current,        mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },        authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  },    },    "totalPosts": count(*[_type == "post" && references(^._id)])  }
 export type PostsByAuthorResult = {
@@ -2373,12 +1987,7 @@ export type PostsByAuthorResult = {
     _rev: string;
     title: string;
     slug: string;
-    author?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "author";
-    };
+    author?: AuthorReference;
     authors: Array<{
       _id: string;
       _type: "author";
@@ -2401,12 +2010,7 @@ export type PostsByAuthorResult = {
         | "Transfer Portal Analyst"
       >;
       image: {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
+        asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
@@ -2417,24 +2021,11 @@ export type PostsByAuthorResult = {
         dominantColor: string | null;
       };
       biography: string;
-      socialLinks?: {
-        twitter?: string;
-        facebook?: string;
-        youtube?: string;
-        instagram?: string;
-        linkedin?: string;
-        bluesky?: string;
-        threads?: string;
-      };
+      socialLinks?: SocialLinks1;
     }>;
     publishedAt?: string;
     mainImage: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -2446,57 +2037,31 @@ export type PostsByAuthorResult = {
       blurData: string | null;
       dominantColor: string | null;
     };
-    sport?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sport";
-    };
-    division?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "division";
-    };
-    sportSubgrouping?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sportSubgrouping";
-    };
-    conferences?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "conference";
-    }>;
-    teams?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "school";
-    }>;
-    tags?: Array<{
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      _key: string;
-      [internalGroqTypeReferenceTo]?: "tag";
-    }>;
+    sport?: SportReference;
+    division?: DivisionReference;
+    sportSubgrouping?: SportSubgroupingReference;
+    conferences?: Array<
+      {
+        _key: string;
+      } & ConferenceReference
+    >;
+    teams?: Array<
+      {
+        _key: string;
+      } & SchoolReference
+    >;
+    tags?: Array<
+      {
+        _key: string;
+      } & TagReference
+    >;
     featuredArticle?: boolean;
     excerpt: string;
     body: BlockContent;
     seoTitle?: string;
     seoDescription?: string;
     seoImage?: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -2507,6 +2072,8 @@ export type PostsByAuthorResult = {
   }>;
   totalPosts: number;
 } | null;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: authorsListNotArchived
 // Query: *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {    _id,    name,    roles,    "slug": slug.current,    image{      ...,      "alt": coalesce(asset->altText, ^.name, asset->originalFilename, "Image-Broken"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    },    socialLinks  }
 export type AuthorsListNotArchivedResult = Array<{
@@ -2526,12 +2093,7 @@ export type AuthorsListNotArchivedResult = Array<{
   >;
   slug: string;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -2540,16 +2102,10 @@ export type AuthorsListNotArchivedResult = Array<{
     blurData: string | null;
     dominantColor: string | null;
   };
-  socialLinks: {
-    twitter?: string;
-    facebook?: string;
-    youtube?: string;
-    instagram?: string;
-    linkedin?: string;
-    bluesky?: string;
-    threads?: string;
-  } | null;
+  socialLinks: SocialLinks1 | null;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: privacyPolicyQuery
 // Query: *[_type == "legal" && slug.current == "privacy-policy"][0]
 export type PrivacyPolicyQueryResult = {
@@ -2562,6 +2118,8 @@ export type PrivacyPolicyQueryResult = {
   slug: Slug;
   body: BlockContent;
 } | null;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsByDivisionQuery
 // Query: *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){  _id,  name,  shortName,  abbreviation,  image,  conference->{    name,    shortName  }}
 export type SchoolsByDivisionQueryResult = Array<{
@@ -2570,12 +2128,7 @@ export type SchoolsByDivisionQueryResult = Array<{
   shortName: string | null;
   abbreviation: string | null;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -2584,6 +2137,8 @@ export type SchoolsByDivisionQueryResult = Array<{
   };
   conference: null;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsBySportAndSubgroupingStringQuery
 // Query: *[_type == "school"  ] {    _id,    name,    shortName,    abbreviation,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    conferenceAffiliations,    "relevantAffiliation": conferenceAffiliations[sport->slug.current == $sport][0]  }[defined(relevantAffiliation)] {    _id,    name,    shortName,    abbreviation,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    relevantAffiliation,    "conferenceDetails": *[_type == "conference" && _id == ^.relevantAffiliation.conference._ref][0] {      name,      shortName,      abbreviation,      sportSubdivisionAffiliations    }  }[    count(conferenceDetails.sportSubdivisionAffiliations[      sport->slug.current == $sport &&      subgrouping->slug.current == $subgrouping    ]) > 0  ] | order(shortName asc) {    _id,    name,    shortName,    abbreviation,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    "conferenceInfo": {      "conference": conferenceDetails {        name,        shortName,        abbreviation      }    }  }
 export type SchoolsBySportAndSubgroupingStringQueryResult = Array<{
@@ -2592,12 +2147,7 @@ export type SchoolsBySportAndSubgroupingStringQueryResult = Array<{
   shortName: string | null;
   abbreviation: string | null;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -2616,6 +2166,8 @@ export type SchoolsBySportAndSubgroupingStringQueryResult = Array<{
     } | null;
   };
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: collegeNewsQuery
 // Query: {    "posts": *[_type == "post"] | order(publishedAt desc)[$from...$to] {      _id,      title,      "slug": slug.current,      publishedAt,        authors[]->{    ...,    "slug": slug.current,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  },        mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }    },    "totalPosts": count(*[_type == "post"])  }
 export type CollegeNewsQueryResult = {
@@ -2646,12 +2198,7 @@ export type CollegeNewsQueryResult = {
         | "Transfer Portal Analyst"
       >;
       image: {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
+        asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
@@ -2662,23 +2209,10 @@ export type CollegeNewsQueryResult = {
         dominantColor: string | null;
       };
       biography: string;
-      socialLinks?: {
-        twitter?: string;
-        facebook?: string;
-        youtube?: string;
-        instagram?: string;
-        linkedin?: string;
-        bluesky?: string;
-        threads?: string;
-      };
+      socialLinks?: SocialLinks1;
     }>;
     mainImage: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -2693,6 +2227,8 @@ export type CollegeNewsQueryResult = {
   }>;
   totalPosts: number;
 };
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: conferenceInfoBySlugQuery
 // Query: *[_type == "conference" && slug.current == $slug][0]
 export type ConferenceInfoBySlugQueryResult = {
@@ -2706,48 +2242,28 @@ export type ConferenceInfoBySlugQueryResult = {
   abbreviation: string;
   slug: Slug;
   logo?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
     _type: "image";
   };
-  division: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "division";
-  };
-  sports?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "sport";
-  }>;
+  division: DivisionReference;
+  sports?: Array<
+    {
+      _key: string;
+    } & SportReference
+  >;
   sportSubdivisionAffiliations?: Array<{
-    sport: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sport";
-    };
-    subgrouping: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sportSubgrouping";
-    };
+    sport: SportReference;
+    subgrouping: SportSubgroupingReference;
     _type: "sportSubgroupingAffiliation";
     _key: string;
   }>;
 } | null;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: globalNavigationQuery
 // Query: *[_type == "sport" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc) {    _id,    "name": title,    "slug": slug.current,    "groupings": select(      slug.current == "football" => [        // FBS Subgrouping        *[_type == "sportSubgrouping" && shortName == "FBS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{          _id,          "name": coalesce(shortName, name),          "slug": slug.current,          "type": "subgrouping",          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {            _id,            name,            "slug": slug.current,            shortName          }        },        // FCS Subgrouping        *[_type == "sportSubgrouping" && shortName == "FCS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{          _id,          "name": coalesce(shortName, name),          "slug": slug.current,          "type": "subgrouping",          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {            _id,            name,            "slug": slug.current,            shortName          }        },        // Division II        *[_type == "division" && title == "Division II" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{          _id,          "name": name,          "slug": slug.current,          "type": "division",          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {            _id,            name,            "slug": slug.current,            shortName          }        },        // Division III        *[_type == "division" && title == "Division III" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{          _id,          "name": name,          "slug": slug.current,          "type": "division",          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {            _id,            name,            "slug": slug.current,            shortName          }        }      ],      true => (        // Generic subgroupings        *[_type == "sportSubgrouping" && ^._id in applicableSports[]._ref] | order(name asc) {          _id,          "name": coalesce(shortName, name),          "slug": slug.current,          "type": "subgrouping",          "conferences": *[_type == "conference" && count(sportSubdivisionAffiliations[subgrouping._ref == ^.^._id && sport._ref == ^.^.^._id]) > 0 && count(*[_type == "post" && references(^._id) && sport._ref == ^.^.^._id]) > 0] | order(name asc) {            _id,            name,            shortName,            "slug": slug.current          }        } +        // Generic divisions (excluding specific football and basketball divisions)        *[_type == "division"          && !(title == "FBS" || title == "FCS")          && !(            (title == "Division I")            && (              ^.slug.current == "mens-basketball" || ^.slug.current == "womens-basketball"            )          )        ] | order(name asc) {          _id,          "name": title,          "slug": slug.current,          "type": "division",          "conferences": *[_type == "conference" && division._ref == ^.^._id && count(*[_type == "post" && references(^._id) && sport->slug.current == ^.^.slug.current]) > 0] | order(name asc) {            _id,            name,            shortName,            "slug": slug.current          }        }      )[defined(conferences) && count(conferences) > 0]    )  }
 export type GlobalNavigationQueryResult = Array<{
@@ -2809,6 +2325,8 @@ export type GlobalNavigationQueryResult = Array<{
           }
       >;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: rssFeedQuery
 // Query: *[_type == "post"][0..50] | order(publishedAt desc) {  _id,  title,  "slug": slug.current,  publishedAt,  excerpt,    mainImage{    ...,    "alt": coalesce(asset->altText, caption, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },}
 export type RssFeedQueryResult = Array<{
@@ -2818,12 +2336,7 @@ export type RssFeedQueryResult = Array<{
   publishedAt: string | null;
   excerpt: string;
   mainImage: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -2836,6 +2349,8 @@ export type RssFeedQueryResult = Array<{
     dominantColor: string | null;
   };
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsByIdQuery
 // Query: *[_type == "school" && _id in $ids[].id]{    _id,    "_order": $ids[id == ^._id][0].rank,    name,    shortName,    abbreviation,    image,  }| order(_order)
 export type SchoolsByIdQueryResult = Array<{
@@ -2845,12 +2360,7 @@ export type SchoolsByIdQueryResult = Array<{
   shortName: string | null;
   abbreviation: string | null;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -2858,6 +2368,8 @@ export type SchoolsByIdQueryResult = Array<{
     _type: "image";
   };
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: sportInfoQuery
 // Query: *[_type == "sport" && defined(slug.current)]{    _id,    _createdAt,    _updatedAt,    title,    "slug": slug.current,  }
 export type SportInfoQueryResult = Array<{
@@ -2867,6 +2379,8 @@ export type SportInfoQueryResult = Array<{
   title: string;
   slug: string;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: divisionsQuery
 // Query: *[_type == "division"]{    _id,    _createdAt,    _updatedAt,    name,    title,    heading,    longName,    "slug": slug.current,    description,      logo{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  }  }
 export type DivisionsQueryResult = Array<{
@@ -2880,12 +2394,7 @@ export type DivisionsQueryResult = Array<{
   slug: string;
   description: string | null;
   logo: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -2895,6 +2404,8 @@ export type DivisionsQueryResult = Array<{
     dominantColor: string | null;
   } | null;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: conferencesQuery
 // Query: *[_type == "conference"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    abbreviation,    "slug": slug->current,    "divisionId": division->_id,      logo{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    "sports": sports[]->_id  }
 export type ConferencesQueryResult = Array<{
@@ -2907,12 +2418,7 @@ export type ConferencesQueryResult = Array<{
   slug: null;
   divisionId: string;
   logo: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -2923,6 +2429,8 @@ export type ConferencesQueryResult = Array<{
   } | null;
   sports: Array<string> | null;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsQuery
 // Query: *[_type == "school"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    abbreviation,    nickname,    top25VotingEligible,      image{    ...,    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),    "credit": coalesce(asset->creditLine, attribution, "Unknown"),    "blurData": asset->metadata.lqip,    "dominantColor": asset->metadata.palette.dominant.background,  },    conferenceAffiliations[] {      "conferenceId": conference->_id,      "sportId": sport->_id,    }  }
 export type SchoolsQueryResult = Array<{
@@ -2935,12 +2443,7 @@ export type SchoolsQueryResult = Array<{
   nickname: string | null;
   top25VotingEligible: boolean | null;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -2956,6 +2459,8 @@ export type SchoolsQueryResult = Array<{
     sportId: string;
   }> | null;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: subdivisionsQuery
 // Query: *[_type == "sportSubgrouping"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    "slug": slug.current,    "parentDivisionId": parentDivision->id,    "applicableSports": applicableSports[]->_id  }
 export type SubdivisionsQueryResult = Array<{
@@ -2968,6 +2473,8 @@ export type SubdivisionsQueryResult = Array<{
   parentDivisionId: null;
   applicableSports: Array<string>;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsByIdOrderedByPoints
 // Query: *[_type == "school" && _id in $ids[].id]{  _id,  "_points": $ids[id == ^._id][0].totalPoints,  name,  shortName,  abbreviation,  image,} | order(_points desc)
 export type SchoolsByIdOrderedByPointsResult = Array<{
@@ -2977,12 +2484,7 @@ export type SchoolsByIdOrderedByPointsResult = Array<{
   shortName: string | null;
   abbreviation: string | null;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -2990,6 +2492,8 @@ export type SchoolsByIdOrderedByPointsResult = Array<{
     _type: "image";
   };
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolWithVoteOrder
 // Query: *[_type == "school" && _id in $ids[].teamId]{  _id,  "_order": $ids[teamId == ^._id][0].rank,  name,  shortName,  abbreviation,  image,} | order(_order)
 export type SchoolWithVoteOrderResult = Array<{
@@ -2999,12 +2503,7 @@ export type SchoolWithVoteOrderResult = Array<{
   shortName: string | null;
   abbreviation: string | null;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -3012,6 +2511,8 @@ export type SchoolWithVoteOrderResult = Array<{
     _type: "image";
   };
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: postsSearchQuery
 // Query: *[_type == 'post' && (  title match "*" + $q + "*" ||  excerpt match "*" + $q + "*" ||  pt::text(body) match "*" + $q + "*" ||  authors[]->name match "*" + $q + "*" ||  conferences[]->name match "*" + $q + "*")] | score(  boost(title match "*" + $q + "*", 5),  boost(excerpt match "*" + $q + "*", 3),  boost(pt::text(body) match "*" + $q + "*", 2),) | order(_score desc, publishedAt desc)[0...5]{  _id,  title,  _score,  "slug": slug.current,  publishedAt,  excerpt}
 export type PostsSearchQueryResult = Array<{
@@ -3022,6 +2523,8 @@ export type PostsSearchQueryResult = Array<{
   publishedAt: string | null;
   excerpt: string;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsForVotesQuery
 // Query: *[_type == "school" && _id in $schoolIds]{    _id,    name,    shortName,    abbreviation,    nickname,    image{      ...,      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),      "credit": coalesce(asset->creditLine, attribution, "Unknown"),      "blurData": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background,    }  }
 export type SchoolsForVotesQueryResult = Array<{
@@ -3031,12 +2534,7 @@ export type SchoolsForVotesQueryResult = Array<{
   abbreviation: string | null;
   nickname: string | null;
   image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -3048,17 +2546,23 @@ export type SchoolsForVotesQueryResult = Array<{
     dominantColor: string | null;
   };
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: postsForSitemapQuery
 // Query: *[_type == "post" && defined(publishedAt) && defined(slug.current)][$start...$end]{    _id,    "slug": slug.current,    publishedAt,    _updatedAt  }
 export type PostsForSitemapQueryResult = Array<{
   _id: string;
   slug: string;
-  publishedAt: string | null;
+  publishedAt: string;
   _updatedAt: string;
 }>;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: countOfPostsQuery
 // Query: count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])
 export type CountOfPostsQueryResult = number;
+
+// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryForCollegeSitemap
 // Query: *[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){  "sport": sport->slug.current,  "division": division->slug.current,  "sportSubgrouping": sportSubgrouping->slug.current,  "conferences": conferences[]->{      "slug": slug.current,      "division": division->slug.current,      "subgroupings": sportSubdivisionAffiliations[]{        "sport": sport->slug.current,        "subgrouping": subgrouping->slug.current      }    },  _updatedAt}
 export type QueryForCollegeSitemapResult = Array<{
