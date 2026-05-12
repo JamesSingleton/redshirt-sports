@@ -7,8 +7,8 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@sentry/nextjs": "^10.52.0",
-    "@t3-oss/env-nextjs": "^0.13.10",
+    "@sentry/nextjs": "^10.53.1",
+    "@t3-oss/env-nextjs": "^0.13.11",
     "react": "catalog:",
     "server-only": "^0.0.1",
     "zod": "catalog:"

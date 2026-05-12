@@ -29,7 +29,7 @@
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/client": "catalog:",
     "@sanity/image-url": "^2.1.1",
-    "@sentry/nextjs": "^10.52.0",
+    "@sentry/nextjs": "^10.53.1",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tanstack/react-virtual": "^3.13.24",
     "@upstash/ratelimit": "^2.0.8",
@@ -47,8 +47,8 @@
     "next-sanity": "^12.4.5",
     "next-themes": "catalog:",
     "postgres": "^3.4.9",
-    "posthog-js": "^1.372.10",
-    "posthog-node": "^5.33.4",
+    "posthog-js": "^1.373.4",
+    "posthog-node": "^5.34.1",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-hook-form": "^7.75.0",
@@ -77,6 +77,6 @@
     "postcss": "^8.5.14",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.6"
   }
 }
