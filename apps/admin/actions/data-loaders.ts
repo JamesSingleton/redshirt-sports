@@ -222,9 +222,8 @@ async function sportBySlug(slug: string) {
 }
 
 export async function fetchAndLoadSports() {
-  const { data } = (await sanityFetch({ query: sportInfoQuery })) as {
-    data: SportInfoQueryResult;
-  };
+  const { data } = await sanityFetch({ query: sportInfoQuery });
+
   const mappedSports = data.map((d: SanitySport) => ({
     id: d._id,
     slug: d.slug,
@@ -238,9 +237,8 @@ export async function fetchAndLoadSports() {
 }
 
 export async function fetchAndLoadDivisions() {
-  const { data } = (await sanityFetch({ query: divisionsQuery })) as {
-    data: DivisionsQueryResult;
-  };
+  const { data } = await sanityFetch({ query: divisionsQuery });
+
   const mappedDivisions = data.map((d) => ({
     sanityId: d._id,
     name: d.name,
