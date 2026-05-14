@@ -820,3 +820,19 @@ export const queryForCollegeSitemap = groq`
     },
   _updatedAt
 }`;
+
+export const queryDivisionOrSubgroupingDisplayName = defineQuery(
+  /* groq */
+  `
+  *[
+    (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||
+    (_type == "division" && slug.current == $slugOrShortName)
+  ][0]{
+    _type,
+    "displayName": select(
+      _type == "sportSubgrouping" => shortName,
+      _type == "division" => title
+    )
+  }
+`,
+);

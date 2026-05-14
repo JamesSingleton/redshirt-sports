@@ -1,10 +1,12 @@
+import { config, withAnalyzer } from "@redshirt-sports/next-config";
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  reactCompiler: true,
-  experimental: {
-    inlineCss: true,
-  },
-};
+import { env } from "@/env";
+
+let nextConfig: NextConfig = config;
+
+if (env.ANALYZE === "true") {
+  nextConfig = withAnalyzer(nextConfig);
+}
 
 export default nextConfig;

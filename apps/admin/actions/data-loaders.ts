@@ -33,6 +33,10 @@ import {
   sportInfoQuery,
   subdivisionsQuery,
 } from "@redshirt-sports/sanity/queries";
+import type {
+  DivisionsQueryResult,
+  SportInfoQueryResult,
+} from "@redshirt-sports/sanity/types";
 
 interface BaseSanityObject {
   _id: string;
@@ -219,6 +223,7 @@ async function sportBySlug(slug: string) {
 
 export async function fetchAndLoadSports() {
   const { data } = await sanityFetch({ query: sportInfoQuery });
+
   const mappedSports = data.map((d: SanitySport) => ({
     id: d._id,
     slug: d.slug,
@@ -233,7 +238,8 @@ export async function fetchAndLoadSports() {
 
 export async function fetchAndLoadDivisions() {
   const { data } = await sanityFetch({ query: divisionsQuery });
-  const mappedDivisions = data.map((d: SanityDivision) => ({
+
+  const mappedDivisions = data.map((d) => ({
     sanityId: d._id,
     name: d.name,
     title: d.title,
@@ -266,7 +272,7 @@ export async function fetchAndLoadSchools() {
   const { data } = await sanityFetch({ query: schoolsQuery });
 
   let schoolConferenceAffiliations: Record<string, string>[] = [];
-  const mappedSchools = data.map((d: SanitySchool) => {
+  const mappedSchools = data.map((d) => {
     d.conferenceAffiliations?.forEach((affiliation) => {
       const conference = conferences.find(
         (c) => c.sanityId === affiliation.conferenceId,
@@ -417,13 +423,13 @@ export async function fetchAndLoadSubdivisions() {
 
   let divisionSportMappings: Record<string, string>[] = [];
 
-  const subdivisions = data.map((d: SanitySubdivision) => {
+  const subdivisions = data.map((d) => {
     const division = divisions.find(
       (div) => div.sanityId === d.parentDivisionId,
     );
     d.applicableSports.forEach((sport: string) =>
       divisionSportMappings.push({
-        subdivisionName: d.shortName,
+        subdivisionName: d.shortName!,
         sportId: sport,
       }),
     );
@@ -440,6 +446,7 @@ export async function fetchAndLoadSubdivisions() {
 
   const dbSubdivisions = await db
     .insert(divisionsTable)
+    // @ts-expect-error - need to look at this later
     .values(subdivisions)
     .returning();
 
