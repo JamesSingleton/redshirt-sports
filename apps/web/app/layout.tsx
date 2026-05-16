@@ -17,11 +17,6 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 });
 
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-});
-
 export const viewport: Viewport = {
   themeColor: "#E80022",
 };
