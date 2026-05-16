@@ -1,10 +1,16 @@
 import "@redshirt-sports/ui/globals.css";
-
 import { SanityLive } from "@redshirt-sports/sanity/live";
 import { Toaster } from "@redshirt-sports/ui/components/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
-import { Manrope, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Manrope } from "next/font/google";
+import { Suspense } from "react";
+import { preconnect, prefetchDNS } from "react-dom";
+
+import { FooterServer, FooterSkeleton } from "@/components/footer";
+import { CombinedJsonLd } from "@/components/json-ld";
+import { NavbarServer, NavbarSkeleton } from "@/components/navbar";
+import { Providers } from "@/components/providers";
 
 const fontSans = Manrope({
   subsets: ["latin"],
