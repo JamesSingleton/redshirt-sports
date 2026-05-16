@@ -24,7 +24,7 @@
     "@sanity/image-url": "^2.1.1",
     "@sanity/table": "^2.0.1",
     "@sanity/ui": "^3.2.0",
-    "@sanity/vision": "^5.25.0",
+    "@sanity/vision": "^5.25.1",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",

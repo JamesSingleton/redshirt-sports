@@ -2,7 +2,7 @@
   "name": "@redshirt-sports/root",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.32.0",
+  "packageManager": "pnpm@10.33.4",
   "engines": {
     "node": ">=20"
   },
@@ -19,7 +19,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
     "@redshirt-sports/typescript-config": "workspace:*",
-    "turbo": "^2.9.12",
+    "turbo": "^2.9.14",
     "typescript": "^6.0.3"
   }
 }
