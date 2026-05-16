@@ -4,8 +4,10 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     "types": ["node"],
-    "baseUrl": ".",
     "module": "EsNext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "paths": {
+      "@db/*": ["./src/*"]
+    }
   }
 }

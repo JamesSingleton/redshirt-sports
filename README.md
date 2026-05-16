@@ -62,7 +62,7 @@ This will start all applications and packages in the monorepo.
 - `pnpm dev` - Runs all apps and packages in development mode
 - `pnpm build` - Builds all apps and packages for production
 - `pnpm lint` - Runs ESLint across all workspaces
-- `pnpm check:types` - Runs type checks across all workspaces
+- `pnpm typecheck` - Runs type checks across all workspaces
 - `pnpm check:format` - Runs prettier --check on all the files
 
 ## 📁 Project Structure
@@ -100,7 +100,7 @@ Please feel free to submit issues and pull requests.
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes (ensure they work across the monorepo)
-4. Run type checks and linting: `pnpm check:types && pnpm lint`
+4. Run type checks and linting: `pnpm typecheck && pnpm lint`
 5. Commit your changes (`git commit -m 'featu: add some amazing feature'`)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request

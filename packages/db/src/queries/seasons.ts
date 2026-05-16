@@ -1,5 +1,4 @@
 import { primaryDb as db } from "../client";
-
 import { SEASON_TYPE_CODES } from "../schema";
 
 export async function getWeekBySport(

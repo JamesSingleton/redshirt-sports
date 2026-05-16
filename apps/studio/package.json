@@ -10,7 +10,7 @@
     "build": "sanity build && sanity schema deploy --manifest-dir ./dist/static",
     "deploy": "sanity deploy",
     "type": "sanity schema extract --enforce-required-fields && sanity typegen generate",
-    "check:types": "tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@portabletext/react": "^6.2.0",

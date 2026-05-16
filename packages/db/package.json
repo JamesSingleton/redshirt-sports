@@ -9,9 +9,15 @@
     "./utils/search-query": "./src/utils/search-query.ts",
     "./utils/health": "./src/utils/health.ts"
   },
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "drizzle-orm": "catalog:",
-    "postgres": "^3.4.9"
+    "postgres": "^3.4.9",
+    "server-only": "0.0.1"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",

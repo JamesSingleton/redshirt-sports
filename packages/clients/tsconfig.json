@@ -1,12 +1,8 @@
 {
-  "extends": "@redshirt-sports/typescript-config/base.json",
+  "extends": "@redshirt-sports/typescript-config/nextjs.json",
   "include": ["src"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "baseUrl": ".",
     "types": ["vitest/globals"]
-    // "paths": {
-    //   "@db/*": ["./src/*"]
-    // }
   }
 }

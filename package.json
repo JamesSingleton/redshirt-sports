@@ -14,11 +14,12 @@
     "test": "turbo test --parallel",
     "lint": "turbo lint",
     "format": "biome format --write .",
-    "check:types": "turbo check:types"
+    "typecheck": "turbo typecheck"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
     "@redshirt-sports/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
     "turbo": "^2.9.14",
     "typescript": "^6.0.3"
   }

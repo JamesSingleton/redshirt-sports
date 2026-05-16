@@ -1,17 +1,17 @@
-import { sql, relations } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
+import { relations, sql } from "drizzle-orm";
 import {
-  pgTable,
-  serial,
-  varchar,
-  timestamp,
-  integer,
-  unique,
-  jsonb,
-  text,
   boolean,
   index,
+  integer,
+  jsonb,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  unique,
+  varchar,
 } from "drizzle-orm/pg-core";
-import { randomUUID } from "node:crypto";
 
 const timestamps = {
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),

@@ -74,6 +74,9 @@ importers:
       '@redshirt-sports/typescript-config':
         specifier: workspace:*
         version: link:packages/typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.8.0
       turbo:
         specifier: ^2.9.14
         version: 2.9.14
@@ -429,6 +432,9 @@ importers:
       postgres:
         specifier: ^3.4.9
         version: 3.4.9
+      server-only:
+        specifier: 0.0.1
+        version: 0.0.1
     devDependencies:
       '@redshirt-sports/typescript-config':
         specifier: workspace:*

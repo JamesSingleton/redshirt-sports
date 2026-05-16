@@ -1,7 +1,8 @@
-import { eq, desc, and } from "drizzle-orm";
-import { sportsTable, voterBallots, weeklyFinalRankings } from "../schema";
+import { and, desc, eq } from "drizzle-orm";
+
 import { primaryDb as db } from "../client";
-import { SportParam } from "./sports";
+import { sportsTable, voterBallots, weeklyFinalRankings } from "../schema";
+import type { SportParam } from "./sports";
 
 interface GetUsersVote {
   year: number;
