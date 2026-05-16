@@ -30,85 +30,94 @@ export default function ArticleSection({
   const remainingArticles = articles.slice(1)!;
 
   return (
-    <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
+    <section className="pb-16 lg:pb-20">
       <div className="container">
         <SectionHeader title={title} viewAllHref={slug} />
-        <div className="flex flex-col gap-6 md:flex-row">
-          <div
-            className={cn(
-              "order-1 md:flex md:w-1/2 md:items-center xl:w-1/3",
-              imageFirst ? "md:order-2" : "md:order-1",
-            )}
-          >
-            <div className="space-y-3 md:flex-1">
-              {division && <DivisionBadge division={division} size="md" />}
-              <h3 className="text-2xl font-bold lg:text-3xl leading-tight">
-                <Link
-                  href={`/${firstArticle.slug}`}
-                  className="hover:text-primary transition-colors"
-                  prefetch={false}
-                >
-                  {firstArticle.title}
-                </Link>
-              </h3>
-              <p className="text-muted-foreground line-clamp-3">{firstArticle.excerpt}</p>
-              <div className="flex items-center gap-3 text-sm">
-                <Link
-                  href={`/authors/${firstArticle.authors[0]?.slug}`}
-                  className="flex items-center gap-2"
-                  prefetch={false}
-                >
-                  <CustomImage
-                    image={firstArticle.authors[0]?.image}
-                    width={32}
-                    height={32}
-                    className="size-8 rounded-full"
-                  />
-                  <span className="font-semibold text-primary hover:underline">
-                    {firstArticle.authors[0]?.name}
-                  </span>
-                </Link>
-                {firstArticle.publishedAt && (
-                  <span className="text-muted-foreground">
-                    <FormatDate dateString={firstArticle.publishedAt} />
-                  </span>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          {/* Featured Article */}
+          <div className={cn(
+            "lg:col-span-7",
+            imageFirst && "lg:order-2"
+          )}>
+            <article className="group">
+              <div className="relative overflow-hidden">
+                <CustomImage
+                  image={firstArticle.mainImage}
+                  width={860}
+                  height={573}
+                  className="aspect-[3/2] w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                />
+                {division && (
+                  <div className="absolute top-0 left-0">
+                    <DivisionBadge division={division} size="md" />
+                  </div>
                 )}
               </div>
-            </div>
-          </div>
-          <div
-            className={cn(
-              "md:w-1/2 xl:w-2/3",
-              imageFirst ? "md:order-1" : "md:order-2",
-            )}
-          >
-            <div className="relative overflow-hidden rounded-lg">
-              <CustomImage
-                image={firstArticle.mainImage}
-                width={860}
-                height={573}
-                className="w-full overflow-hidden rounded-lg shadow-md"
-              />
-              {division && (
-                <div className="absolute top-4 left-4">
-                  <DivisionBadge division={division} size="md" />
+              <div className="pt-5">
+                <h3 className="text-xl font-extrabold leading-tight lg:text-2xl">
+                  <Link
+                    href={`/${firstArticle.slug}`}
+                    className="hover:text-primary transition-colors"
+                    prefetch={false}
+                  >
+                    {firstArticle.title}
+                  </Link>
+                </h3>
+                <p className="mt-3 text-muted-foreground line-clamp-2">{firstArticle.excerpt}</p>
+                <div className="mt-3 flex items-center gap-3 text-sm">
+                  <span className="font-bold">{firstArticle.authors[0]?.name}</span>
+                  {firstArticle.publishedAt && (
+                    <>
+                      <span className="text-primary">|</span>
+                      <span className="text-muted-foreground">
+                        <FormatDate dateString={firstArticle.publishedAt} />
+                      </span>
+                    </>
+                  )}
                 </div>
-              )}
+              </div>
+            </article>
+          </div>
+          
+          {/* Secondary Articles */}
+          <div className={cn(
+            "lg:col-span-5",
+            imageFirst && "lg:order-1"
+          )}>
+            <div className="flex flex-col divide-y divide-border">
+              {remainingArticles.map((article) => (
+                <article key={article._id} className="group flex gap-4 py-4 first:pt-0 last:pb-0">
+                  <div className="relative w-32 h-24 flex-shrink-0 overflow-hidden">
+                    <CustomImage
+                      image={article.mainImage}
+                      width={128}
+                      height={96}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {division && (
+                      <div className="absolute top-0 left-0">
+                        <DivisionBadge division={division} size="sm" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col justify-center min-w-0">
+                    <h4 className="text-sm font-bold leading-snug line-clamp-2">
+                      <Link
+                        href={`/${article.slug}`}
+                        className="hover:text-primary transition-colors"
+                        prefetch={false}
+                      >
+                        {article.title}
+                      </Link>
+                    </h4>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {(article.authors[0] as unknown as Author)?.name}
+                    </p>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
-        </div>
-        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {remainingArticles.map((article) => (
-            <ArticleCard
-              title={article.title}
-              date={article.publishedAt}
-              image={article.mainImage}
-              slug={article.slug}
-              author={(article.authors[0] as unknown as Author)?.name}
-              key={article._id}
-              division={division}
-            />
-          ))}
         </div>
       </div>
     </section>

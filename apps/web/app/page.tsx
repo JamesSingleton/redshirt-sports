@@ -4,17 +4,14 @@ import {
   queryLatestArticles,
   queryLatestCollegeSportsArticles,
 } from "@redshirt-sports/sanity/queries";
-import { buttonVariants } from "@redshirt-sports/ui/components/button";
-import { cn } from "@redshirt-sports/ui/lib/utils";
-import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { WebPage, WithContext } from "schema-dts";
 
 import ArticleCard from "@/components/article-card";
 import ArticleSection from "@/components/article-section";
 import Hero from "@/components/home/hero";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
+import { SectionHeader } from "@/components/section-header";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getSEOMetadata } from "@/lib/seo";
 
@@ -142,24 +139,11 @@ export default async function HomePage() {
       <JsonLdScript data={webPageJson} id="home-webpage-json-ld" />
       <Hero heroPosts={homePageData} />
       {latestArticles.length > 0 && (
-        <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
+        <section className="pb-12 sm:pb-16 lg:pb-20">
           <div className="container">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Latest News</h2>
-              <Link
-                href="/college/news"
-                prefetch={false}
-                className={cn(
-                  buttonVariants({ variant: "default" }),
-                  "flex items-center space-x-2",
-                )}
-              >
-                <span className="text-sm">View All</span>
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {latestArticles?.map((article) => (
+            <SectionHeader title="Latest News" viewAllHref="/college/news" />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {latestArticles?.map((article, index) => (
                 <ArticleCard
                   title={article.title}
                   date={article.publishedAt}
@@ -167,6 +151,7 @@ export default async function HomePage() {
                   slug={article.slug}
                   key={article._id}
                   author={article.authors[0]!.name}
+                  division={index % 4 === 0 ? "fbs" : index % 4 === 1 ? "fcs" : index % 4 === 2 ? "d2" : "d3"}
                 />
               ))}
             </div>
@@ -184,6 +169,7 @@ export default async function HomePage() {
             slug={section.slug}
             articles={section.articles}
             imageFirst={section.imageFirst}
+            division={section.key}
           />
         );
       })}

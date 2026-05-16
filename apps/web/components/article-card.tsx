@@ -28,23 +28,23 @@ export default function ArticleCard({
   const Heading = headingLevel;
 
   return (
-    <div className="group overflow-hidden rounded-lg border border-border bg-card shadow-sm hover:shadow-md transition-shadow">
-      <div className="relative">
+    <article className="group">
+      <div className="relative overflow-hidden">
         <CustomImage
           image={image}
           width={600}
           height={400}
-          className="h-48 w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+          className="aspect-[3/2] w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
           loading={imagePriority ? "eager" : "lazy"}
         />
         {division && (
-          <div className="absolute top-3 left-3">
-            <DivisionBadge division={division} />
+          <div className="absolute top-0 left-0">
+            <DivisionBadge division={division} size="sm" />
           </div>
         )}
       </div>
-      <div className="p-4">
-        <Heading className="mb-2 text-lg font-bold leading-tight">
+      <div className="pt-4">
+        <Heading className="text-base font-bold leading-snug tracking-tight">
           <Link
             href={`/${slug}`}
             className="hover:text-primary transition-colors"
@@ -53,16 +53,16 @@ export default function ArticleCard({
             {title}
           </Link>
         </Heading>
-        <div className="text-muted-foreground flex items-center text-sm">
-          <span className="font-medium">{author}</span>
+        <div className="mt-2 flex items-center text-xs text-muted-foreground">
+          <span className="font-semibold">{author}</span>
           {date && (
             <>
-              <Separator orientation="vertical" className="mx-2 h-4" />
+              <Separator orientation="vertical" className="mx-2 h-3" />
               <FormatDate dateString={date} />
             </>
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

@@ -16,21 +16,21 @@ export function SectionHeader({
   className,
 }: SectionHeaderProps) {
   return (
-    <div className={cn("flex items-center justify-between mb-6", className)}>
+    <div className={cn("flex items-center justify-between mb-8 border-b border-border pb-4", className)}>
       <div className="flex items-center gap-3">
-        <div className="w-1 h-6 bg-primary rounded-full" />
-        <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">
+        <div className="w-1 h-8 bg-primary" />
+        <h2 className="text-lg font-extrabold uppercase tracking-wider text-foreground">
           {title}
         </h2>
       </div>
       {viewAllHref && (
         <Link
           href={viewAllHref}
-          className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary transition-colors"
+          className="group flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
           prefetch={false}
         >
           {viewAllLabel}
-          <ArrowRight className="size-3" />
+          <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
         </Link>
       )}
     </div>
