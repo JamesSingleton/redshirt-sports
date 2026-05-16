@@ -73,11 +73,11 @@ function SocialLinks({ data }: SocialLinksProps) {
   ].filter((link) => link.url);
 
   return (
-    <ul className="text-muted-foreground flex items-center space-x-6">
+    <ul className="flex items-center space-x-6">
       {socialLinks.map(({ url, Icon, label }, index) => (
         <li
           key={`social-link-${url}-${index.toString()}`}
-          className="hover:text-primary font-medium"
+          className="text-white/60 hover:text-primary font-medium"
         >
           <Link
             href={url ?? "#"}
@@ -86,7 +86,7 @@ function SocialLinks({ data }: SocialLinksProps) {
             rel="noopener noreferrer"
             aria-label={label}
           >
-            <Icon className="fill-muted-foreground hover:fill-primary size-6" />
+            <Icon className="fill-white/60 hover:fill-primary size-6 transition-colors" />
             <span className="sr-only">{label}</span>
           </Link>
         </li>
@@ -97,22 +97,22 @@ function SocialLinks({ data }: SocialLinksProps) {
 
 export function FooterSkeleton() {
   return (
-    <section className="mt-16 pb-8">
+    <section className="mt-16 pb-8 bg-black">
       <div className="container mx-auto px-4 md:px-6">
         <footer className="h-[500px] lg:h-auto">
           <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left">
             <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 lg:items-start">
               <div>
                 <span className="flex items-center justify-center gap-4 lg:justify-start">
-                  <div className="bg-muted h-[40px] w-[80px] animate-pulse rounded" />
+                  <div className="bg-white/20 h-[40px] w-[80px] animate-pulse rounded" />
                 </span>
-                <div className="bg-muted mt-6 h-16 w-full animate-pulse rounded" />
+                <div className="bg-white/20 mt-6 h-16 w-full animate-pulse rounded" />
               </div>
               <div className="flex items-center space-x-6">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div
                     key={i}
-                    className="bg-muted h-6 w-6 animate-pulse rounded"
+                    className="bg-white/20 h-6 w-6 animate-pulse rounded"
                   />
                 ))}
               </div>
@@ -120,12 +120,12 @@ export function FooterSkeleton() {
             <div className="grid grid-cols-3 gap-6 lg:gap-20">
               {[1, 2, 3].map((col) => (
                 <div key={col}>
-                  <div className="bg-muted mb-6 h-6 w-24 animate-pulse rounded" />
+                  <div className="bg-white/20 mb-6 h-6 w-24 animate-pulse rounded" />
                   <div className="space-y-4">
                     {[1, 2, 3, 4].map((item) => (
                       <div
                         key={item}
-                        className="bg-muted h-4 w-full animate-pulse rounded"
+                        className="bg-white/20 h-4 w-full animate-pulse rounded"
                       />
                     ))}
                   </div>
@@ -133,11 +133,11 @@ export function FooterSkeleton() {
               ))}
             </div>
           </div>
-          <div className="mt-20 flex flex-col justify-between gap-4 border-t pt-8 text-center lg:flex-row lg:items-center lg:text-left">
-            <div className="bg-muted h-4 w-48 animate-pulse rounded" />
+          <div className="mt-20 flex flex-col justify-between gap-4 border-t border-white/20 pt-8 text-center lg:flex-row lg:items-center lg:text-left">
+            <div className="bg-white/20 h-4 w-48 animate-pulse rounded" />
             <div className="flex justify-center gap-4 lg:justify-start">
-              <div className="bg-muted h-4 w-32 animate-pulse rounded" />
-              <div className="bg-muted h-4 w-24 animate-pulse rounded" />
+              <div className="bg-white/20 h-4 w-32 animate-pulse rounded" />
+              <div className="bg-white/20 h-4 w-24 animate-pulse rounded" />
             </div>
           </div>
         </footer>
@@ -152,12 +152,12 @@ function Footer({ data, settingsData }: FooterProps) {
     settingsData;
 
   return (
-    <footer className="mt-20 pb-8" aria-labelledby="footer-heading">
+    <footer className="mt-20 pb-8 bg-black" aria-labelledby="footer-heading">
       <h2 className="sr-only" id="footer-heading">
         Footer Navigation and Information
       </h2>
       <div className="container mx-auto">
-        <section className="h-[500px] lg:h-auto">
+        <section className="h-[500px] lg:h-auto pt-12">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-10 px-4 text-center md:px-6 lg:flex-row lg:text-left">
             <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
               <div>
@@ -172,7 +172,7 @@ function Footer({ data, settingsData }: FooterProps) {
                   />
                 </span>
                 {subtitle && (
-                  <p className="text-muted-foreground mt-6 text-sm dark:text-zinc-400">
+                  <p className="text-white/60 mt-6 text-sm">
                     {subtitle}
                   </p>
                 )}
@@ -183,13 +183,13 @@ function Footer({ data, settingsData }: FooterProps) {
               <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-12">
                 {columns.map((column) => (
                   <div key={`column-${column?._key}`}>
-                    <h3 className="mb-6 font-semibold">{column?.title}</h3>
+                    <h3 className="mb-6 font-semibold text-white">{column?.title}</h3>
                     {column?.links && column?.links?.length > 0 && (
-                      <ul className="text-muted-foreground space-y-4 text-sm">
+                      <ul className="text-white/60 space-y-4 text-sm">
                         {column?.links?.map((link) => (
                           <li
                             key={`${link?._key}-column-${column?._key}`}
-                            className="hover:text-primary font-medium"
+                            className="hover:text-primary font-medium transition-colors"
                           >
                             <Link
                               href={link.href ?? "#"}
@@ -211,8 +211,8 @@ function Footer({ data, settingsData }: FooterProps) {
               </div>
             )}
           </div>
-          <div className="mt-20 border-t pt-8">
-            <div className="text-muted-foreground mx-auto flex max-w-7xl flex-col justify-between gap-4 px-4 text-center text-sm font-normal md:px-6 lg:flex-row lg:items-center lg:text-left">
+          <div className="mt-20 border-t border-white/20 pt-8">
+            <div className="text-white/60 mx-auto flex max-w-7xl flex-col justify-between gap-4 px-4 text-center text-sm font-normal md:px-6 lg:flex-row lg:items-center lg:text-left">
               <p>© 2025 {siteTitle}. All rights reserved.</p>
             </div>
           </div>

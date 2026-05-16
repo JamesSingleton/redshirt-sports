@@ -1,10 +1,9 @@
 import "@redshirt-sports/ui/globals.css";
-
 import { SanityLive } from "@redshirt-sports/sanity/live";
 import { Toaster } from "@redshirt-sports/ui/components/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Manrope } from "next/font/google";
 import { Suspense } from "react";
 import { preconnect, prefetchDNS } from "react-dom";
 
@@ -13,9 +12,10 @@ import { CombinedJsonLd } from "@/components/json-ld";
 import { NavbarServer, NavbarSkeleton } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 
-const fontSans = Geist({
+const fontSans = Manrope({
   subsets: ["latin"],
   variable: "--font-sans",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const fontMono = Geist_Mono({
@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   prefetchDNS("https://cdn.sanity.io");
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="bg-background">
       <body
         className={`${fontSans.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
       >

@@ -2,20 +2,21 @@ import type {
   Author,
   QueryLatestCollegeSportsArticlesResult,
 } from "@redshirt-sports/sanity/types";
-import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import { cn } from "@redshirt-sports/ui/lib/utils";
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import ArticleCard from "@/components/article-card";
+import { DivisionBadge, type DivisionSlug } from "@/components/division-badge";
 import FormatDate from "@/components/format-date";
 import CustomImage from "@/components/sanity-image";
+import { SectionHeader } from "@/components/section-header";
 
 interface ArticleSectionProps {
   title: string;
   slug: string;
   articles: QueryLatestCollegeSportsArticlesResult;
   imageFirst?: boolean;
+  division?: DivisionSlug | string;
 }
 
 export default function ArticleSection({
@@ -23,91 +24,100 @@ export default function ArticleSection({
   slug,
   articles,
   imageFirst = false,
+  division,
 }: ArticleSectionProps) {
   const firstArticle = articles[0]!;
   const remainingArticles = articles.slice(1)!;
 
   return (
-    <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
+    <section className="pb-16 lg:pb-20">
       <div className="container">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">{title}</h2>
-          <Link
-            href={slug}
-            className={cn(
-              buttonVariants({ variant: "default" }),
-              "flex items-center space-x-2",
-            )}
-            prefetch={false}
-          >
-            <span className="text-sm">View All</span>
-            <span className="sr-only">the {title}</span>
-            <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <div className="flex flex-col gap-4 pt-4 md:flex-row">
-          <div
-            className={cn(
-              "order-1 md:flex md:w-1/2 md:items-center xl:w-1/3",
-              imageFirst ? "md:order-2" : "md:order-1",
-            )}
-          >
-            <div className="space-y-2 md:flex-1">
-              <h3 className="text-3xl font-semibold lg:text-4xl">
-                <Link
-                  href={`/${firstArticle.slug}`}
-                  className="hover:underline hover:decoration-2 hover:underline-offset-1"
-                  prefetch={false}
-                >
-                  {firstArticle.title}
-                </Link>
-              </h3>
-              <p className="text-muted-foreground">{firstArticle.excerpt}</p>
-              <div className="text-muted-foreground flex items-center gap-2">
-                <Link
-                  href={`/authors/${firstArticle.authors[0]?.slug}`}
-                  className="text-primary flex items-center gap-2"
-                  prefetch={false}
-                >
-                  <CustomImage
-                    image={firstArticle.authors[0]?.image}
-                    width={32}
-                    height={32}
-                    className="mr-2 size-8 rounded-full"
-                  />
-                  {firstArticle.authors[0]?.name}
-                </Link>
-                {firstArticle.publishedAt && (
-                  <FormatDate dateString={firstArticle.publishedAt} />
+        <SectionHeader title={title} viewAllHref={slug} />
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          {/* Featured Article */}
+          <div className={cn(
+            "lg:col-span-7",
+            imageFirst && "lg:order-2"
+          )}>
+            <article className="group">
+              <div className="relative overflow-hidden">
+                <CustomImage
+                  image={firstArticle.mainImage}
+                  width={860}
+                  height={573}
+                  className="aspect-[3/2] w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                />
+                {division && (
+                  <div className="absolute top-0 left-0">
+                    <DivisionBadge division={division} size="md" />
+                  </div>
                 )}
               </div>
+              <div className="pt-5">
+                <h3 className="text-xl font-extrabold leading-tight lg:text-2xl">
+                  <Link
+                    href={`/${firstArticle.slug}`}
+                    className="hover:text-primary transition-colors"
+                    prefetch={false}
+                  >
+                    {firstArticle.title}
+                  </Link>
+                </h3>
+                <p className="mt-3 text-muted-foreground line-clamp-2">{firstArticle.excerpt}</p>
+                <div className="mt-3 flex items-center gap-3 text-sm">
+                  <span className="font-bold">{firstArticle.authors[0]?.name}</span>
+                  {firstArticle.publishedAt && (
+                    <>
+                      <span className="text-primary">|</span>
+                      <span className="text-muted-foreground">
+                        <FormatDate dateString={firstArticle.publishedAt} />
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </article>
+          </div>
+          
+          {/* Secondary Articles */}
+          <div className={cn(
+            "lg:col-span-5",
+            imageFirst && "lg:order-1"
+          )}>
+            <div className="flex flex-col divide-y divide-border">
+              {remainingArticles.map((article) => (
+                <article key={article._id} className="group flex gap-4 py-4 first:pt-0 last:pb-0">
+                  <div className="relative w-32 h-24 flex-shrink-0 overflow-hidden">
+                    <CustomImage
+                      image={article.mainImage}
+                      width={128}
+                      height={96}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {division && (
+                      <div className="absolute top-0 left-0">
+                        <DivisionBadge division={division} size="sm" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col justify-center min-w-0">
+                    <h4 className="text-sm font-bold leading-snug line-clamp-2">
+                      <Link
+                        href={`/${article.slug}`}
+                        className="hover:text-primary transition-colors"
+                        prefetch={false}
+                      >
+                        {article.title}
+                      </Link>
+                    </h4>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {(article.authors[0] as unknown as Author)?.name}
+                    </p>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
-          <div
-            className={cn(
-              "md:w-1/2 xl:w-2/3",
-              imageFirst ? "md:order-1" : "md:order-2",
-            )}
-          >
-            <CustomImage
-              image={firstArticle.mainImage}
-              width={860}
-              height={573}
-              className="w-full overflow-hidden rounded-lg shadow-md"
-            />
-          </div>
-        </div>
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {remainingArticles.map((article) => (
-            <ArticleCard
-              title={article.title}
-              date={article.publishedAt}
-              image={article.mainImage}
-              slug={article.slug}
-              author={(article.authors[0] as unknown as Author)?.name}
-              key={article._id}
-            />
-          ))}
         </div>
       </div>
     </section>

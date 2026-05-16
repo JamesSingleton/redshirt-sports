@@ -6,20 +6,24 @@ import type { BreadcrumbProps } from "@/types";
 
 type BreadCrumbPages = {
   breadCrumbPages: BreadcrumbProps;
+  className?: string;
 };
 
-const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
+const BreadCrumbs = ({ breadCrumbPages, className }: BreadCrumbPages) => {
   const filteredBreadcrumbPages = breadCrumbPages.filter(
     (page) => page !== null,
   );
   return (
-    <nav aria-label="breadcrumb" title="breadcrumb" className="flex">
+    <nav aria-label="breadcrumb" title="breadcrumb" className={cn("flex", className)}>
       <ol className="flex shrink-0 flex-wrap items-center gap-2">
         <li title="Home">
           <Link
             href="/"
             prefetch={false}
-            className="text-muted-foreground hover:text-foreground"
+            className={cn(
+              "hover:text-foreground transition-colors",
+              className ? className : "text-muted-foreground"
+            )}
           >
             <span className="sr-only">Home</span>
             <HomeIcon className="h-5 w-5 shrink-0" aria-hidden="true" />

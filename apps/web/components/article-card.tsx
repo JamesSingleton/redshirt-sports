@@ -2,6 +2,7 @@ import type { Slug } from "@redshirt-sports/sanity/types";
 import { Separator } from "@redshirt-sports/ui/components/separator";
 import Link from "next/link";
 
+import { DivisionBadge, type DivisionSlug } from "@/components/division-badge";
 import FormatDate from "@/components/format-date";
 import CustomImage from "./sanity-image";
 
@@ -13,6 +14,7 @@ export default function ArticleCard({
   author,
   date,
   headingLevel = "h3",
+  division,
 }: {
   title: string;
   image: any;
@@ -21,34 +23,46 @@ export default function ArticleCard({
   author: string;
   date?: string | null;
   headingLevel?: "h2" | "h3" | "h4";
+  division?: DivisionSlug | string;
 }) {
   const Heading = headingLevel;
 
   return (
-    <div className="border-border overflow-hidden rounded-lg border shadow-lg">
-      <CustomImage
-        image={image}
-        width={600}
-        height={400}
-        className="h-48 w-full object-cover object-top"
-        loading={imagePriority ? "eager" : "lazy"}
-      />
-      <div className="bg-background p-4">
-        <Heading className="mb-2 text-lg font-semibold">
+    <article className="group">
+      <div className="relative overflow-hidden">
+        <CustomImage
+          image={image}
+          width={600}
+          height={400}
+          className="aspect-[3/2] w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+          loading={imagePriority ? "eager" : "lazy"}
+        />
+        {division && (
+          <div className="absolute top-0 left-0">
+            <DivisionBadge division={division} size="sm" />
+          </div>
+        )}
+      </div>
+      <div className="pt-4">
+        <Heading className="text-base font-bold leading-snug tracking-tight">
           <Link
             href={`/${slug}`}
-            className="hover:underline hover:decoration-2 hover:underline-offset-1"
+            className="hover:text-primary transition-colors"
             prefetch={false}
           >
             {title}
           </Link>
         </Heading>
-        <div className="text-muted-foreground flex items-center space-x-2 text-sm">
-          <div>{author}</div>
-          <Separator orientation="vertical" className="h-4" />
-          {date && <FormatDate dateString={date} />}
+        <div className="mt-2 flex items-center text-xs text-muted-foreground">
+          <span className="font-semibold">{author}</span>
+          {date && (
+            <>
+              <Separator orientation="vertical" className="mx-2 h-3" />
+              <FormatDate dateString={date} />
+            </>
+          )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }
