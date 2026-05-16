@@ -1,6 +1,5 @@
 import { sanityFetch } from "@redshirt-sports/sanity/live";
 import { queryPostSlugData } from "@redshirt-sports/sanity/queries";
-import { badgeVariants } from "@redshirt-sports/ui/components/badge";
 import { CameraIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -11,6 +10,7 @@ import type { WebPage, WithContext } from "schema-dts";
 
 import ArticleCard from "@/components/article-card";
 import ArticleLoadingSkeleton from "@/components/article-loading-skeleton";
+import { DivisionBadge } from "@/components/division-badge";
 import FormatDate from "@/components/format-date";
 import {
   ArticleJsonLd,
@@ -22,6 +22,7 @@ import { LargeArticleSocialShare } from "@/components/posts/article-share";
 import { AuthorSection, MobileAuthorSection } from "@/components/posts/author";
 import { RichText } from "@/components/rich-text";
 import CustomImage from "@/components/sanity-image";
+import { SectionHeader } from "@/components/section-header";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getSEOMetadata } from "@/lib/seo";
@@ -135,81 +136,63 @@ export default async function PostPage({ params }: PageProps<"/[slug]">) {
       <Suspense fallback={<ArticleLoadingSkeleton />}>
         <section className="mt-8 pb-8">
           <div className="container">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              {data.sport && data.division && (
+                <DivisionBadge 
+                  division={
+                    data.division.name === "D1" && data.sportSubgrouping
+                      ? data.sportSubgrouping.slug
+                      : data.division.slug
+                  } 
+                  size="md" 
+                />
+              )}
+              {data.sport && (
+                <Link
+                  href={`/college/${data.sport.slug}/news`}
+                  className="text-xs font-semibold text-muted-foreground hover:text-primary transition-colors uppercase tracking-wide"
+                  prefetch={false}
+                >
+                  {data.sport.title}
+                </Link>
+              )}
+              {data.conferences?.map((conference) => {
+                const articleSportId = data.sport?._id;
+                const matchingAffiliation =
+                  conference.sportSubdivisionAffiliations?.find(
+                    (affiliation) =>
+                      affiliation.sport._id === articleSportId,
+                  );
+                const divisionPathSegment =
+                  matchingAffiliation?.subgrouping.slug ||
+                  conference.division.slug;
+                const conferenceHref = `/college/${data.sport?.slug}/news/${divisionPathSegment}/${conference.slug}`;
+
+                return (
+                  <Link
+                    key={conference.slug}
+                    href={conferenceHref}
+                    className="text-xs font-semibold text-muted-foreground hover:text-primary transition-colors uppercase tracking-wide"
+                    prefetch={false}
+                  >
+                    {conference.shortName ?? conference.name}
+                  </Link>
+                );
+              })}
+            </div>
             <h1
               id="article-title"
-              className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl"
+              className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-balance"
             >
               {data.title}
             </h1>
             <p
               id="article-excerpt"
-              className="mt-4 text-lg font-normal lg:text-xl"
+              className="mt-4 text-lg text-muted-foreground lg:text-xl"
             >
               {data.excerpt}
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              {data.sport &&
-                (data.division ||
-                  data.sportSubgrouping ||
-                  data.conferences) && (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <Link
-                      href={`/college/${data.sport.slug}/news`}
-                      className={badgeVariants({ variant: "default" })}
-                      prefetch={false}
-                    >
-                      {data.sport.title}
-                    </Link>
-
-                    {data.division && (
-                      <Link
-                        href={`/college/${data.sport.slug}/news/${
-                          data.division.name === "D1" && data.sportSubgrouping
-                            ? data.sportSubgrouping.slug
-                            : data.division.slug
-                        }`}
-                        className={badgeVariants({ variant: "default" })}
-                        prefetch={false}
-                      >
-                        {data.division.name === "D1" && data.sportSubgrouping
-                          ? data.sportSubgrouping.shortName
-                          : data.division.name}
-                      </Link>
-                    )}
-
-                    {data.sport &&
-                      data.conferences?.map((conference) => {
-                        const articleSportId = data.sport?._id;
-
-                        const matchingAffiliation =
-                          conference.sportSubdivisionAffiliations?.find(
-                            (affiliation) =>
-                              affiliation.sport._id === articleSportId,
-                          );
-
-                        const divisionPathSegment =
-                          matchingAffiliation?.subgrouping.slug ||
-                          conference.division.slug;
-
-                        const conferenceHref = `/college/${data.sport?.slug}/news/${divisionPathSegment}/${conference.slug}`;
-
-                        return (
-                          <Link
-                            key={conference.slug}
-                            href={conferenceHref}
-                            className={badgeVariants({ variant: "default" })}
-                            prefetch={false}
-                          >
-                            {conference.shortName ?? conference.name}
-                          </Link>
-                        );
-                      })}
-                  </div>
-                )}
-
-              {data.sport && (data.division || data.conferences) && (
-                <span className="text-sm">•</span>
-              )}
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               {data.publishedAt && <FormatDate dateString={data.publishedAt} />}
             </div>
           </div>
@@ -247,14 +230,10 @@ export default async function PostPage({ params }: PageProps<"/[slug]">) {
           </div>
         </section>
         {data.relatedPosts.length > 0 && (
-          <section className="border-border border-y py-12 sm:py-16 lg:py-20 xl:py-24">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-                  You Might Also Like
-                </h2>
-              </div>
-              <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-3 lg:mt-12 xl:gap-16">
+          <section className="border-t border-border py-12 sm:py-16 lg:py-20">
+            <div className="container">
+              <SectionHeader title="You Might Also Like" />
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {data.relatedPosts.map((morePost: any) => (
                   <ArticleCard
                     key={morePost._id}

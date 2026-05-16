@@ -2,6 +2,7 @@ import type { QueryHomePageDataResult } from "@redshirt-sports/sanity/types";
 import Link from "next/link";
 
 import ArticleCard from "@/components/article-card";
+import { DivisionBadge } from "@/components/division-badge";
 import FormatDate from "@/components/format-date";
 import CustomImage from "../sanity-image";
 
@@ -10,26 +11,33 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
   const recentArticles = heroPosts.slice(1);
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
+    <section className="py-8 sm:py-12 lg:py-16">
       <div className="container">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <div className="relative aspect-[2/1] overflow-hidden rounded-lg shadow-md">
+            <div className="relative aspect-[2/1] overflow-hidden rounded-lg shadow-lg">
               <CustomImage
                 image={heroArticle.mainImage}
                 className="h-full w-full object-cover object-top"
               />
+              <div className="absolute top-4 left-4">
+                <DivisionBadge division="fbs" size="md" />
+              </div>
             </div>
-            <div className="mt-4 space-y-2">
-              <h1 className="text-2xl font-bold lg:text-5xl">
-                <Link href={`/${heroArticle.slug}`} prefetch={false}>
+            <div className="mt-4 space-y-3">
+              <h1 className="text-2xl font-extrabold leading-tight lg:text-4xl text-balance">
+                <Link 
+                  href={`/${heroArticle.slug}`} 
+                  prefetch={false}
+                  className="hover:text-primary transition-colors"
+                >
                   {heroArticle.title}
                 </Link>
               </h1>
-              <p className="text-muted-foreground line-clamp-2">
+              <p className="text-muted-foreground line-clamp-2 text-lg">
                 {heroArticle.excerpt}
               </p>
-              <div className="text-muted-foreground flex flex-wrap items-center space-x-2 text-base">
+              <div className="flex flex-wrap items-center gap-3 text-sm">
                 <Link
                   href={`/authors/${heroArticle.authors[0]?.slug}`}
                   className="flex items-center gap-2"
@@ -41,17 +49,19 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
                     height={32}
                     className="size-8 rounded-full"
                   />
-                  <span className="text-primary">
+                  <span className="font-semibold text-primary hover:underline">
                     {heroArticle.authors[0]?.name}
                   </span>
                 </Link>
                 {heroArticle.publishedAt && (
-                  <FormatDate dateString={heroArticle.publishedAt} />
+                  <span className="text-muted-foreground">
+                    <FormatDate dateString={heroArticle.publishedAt} />
+                  </span>
                 )}
               </div>
             </div>
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-0 lg:grid-cols-1">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-0 lg:grid-cols-1">
             {recentArticles.map((article) => (
               <ArticleCard
                 title={article.title}

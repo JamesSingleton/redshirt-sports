@@ -7,13 +7,6 @@ import {
 } from "@redshirt-sports/db/queries";
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-} from "@redshirt-sports/ui/components/card";
-import {
   Table,
   TableBody,
   TableCell,
@@ -21,11 +14,13 @@ import {
   TableHeader,
   TableRow,
 } from "@redshirt-sports/ui/components/table";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Graph } from "schema-dts";
 
+import { DivisionBadge } from "@/components/division-badge";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { RankingsFilters } from "@/components/rankings/filters";
 import VoterBallotBreakdown from "@/components/rankings/voter-ballot-breakdown";
@@ -162,99 +157,132 @@ export default async function CollegeFootballRankingsPage({
   };
 
   return (
-    <div className="container mx-auto gap-8 px-4 py-8">
+    <>
       <JsonLdScript
         data={jsonLd}
         id={`json-ld-${sport}-${division}-${year}-${week}`}
       />
-      <Card>
-        <CardHeader>
-          <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
-          <CardDescription>
-            Our {division.toUpperCase()} Top 25 uses a point system: 25 points
-            for a first-place vote down to 1 point for a 25th-place vote. Total
-            points determine the final rankings.
-          </CardDescription>
-          <CardDescription className="flex items-center space-x-4 pt-4">
-            <RankingsFilters years={yearsWithVotes} weeks={weeksWithVotes} />
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {top25.length > 0 && (
+      
+      {/* Dark Masthead */}
+      <section className="bg-black border-b-2 border-primary py-8 md:py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-4">
+              <DivisionBadge division={division} size="md" />
+              <div>
+                <h1 className="text-2xl font-extrabold text-white md:text-3xl lg:text-4xl">
+                  TOP 25
+                </h1>
+                <p className="text-white/70 text-sm md:text-base">
+                  {titleWeek} {year} College Football Rankings
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <RankingsFilters years={yearsWithVotes} weeks={weeksWithVotes} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-8">
+        {top25.length > 0 ? (
+          <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <p className="text-muted-foreground text-sm">
+                Our {division.toUpperCase()} Top 25 uses a point system: 25 points
+                for a first-place vote down to 1 point for a 25th-place vote.
+              </p>
+            </div>
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Rank</TableHead>
-                  <TableHead>School (1st Place Votes)</TableHead>
-                  <TableHead>Points</TableHead>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="w-16 font-bold">Rank</TableHead>
+                  <TableHead className="font-bold">School (1st Place Votes)</TableHead>
+                  <TableHead className="w-24 text-right font-bold">Points</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {top25.map((team) => {
+                {top25.map((team, index) => {
+                  const isTop3 = team.rank && team.rank <= 3;
                   return (
-                    <TableRow key={team._id}>
-                      <TableCell>
-                        {team.isTie ? `T-${team.rank}` : team.rank}
+                    <TableRow 
+                      key={team._id}
+                      className={cn(
+                        isTop3 && "bg-primary/5"
+                      )}
+                    >
+                      <TableCell className="font-bold">
+                        <span className={cn(
+                          "text-lg",
+                          isTop3 && "text-primary"
+                        )}>
+                          {team.isTie ? `T-${team.rank}` : team.rank}
+                        </span>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-3">
                           <CustomImage
                             image={team.image}
                             width={40}
                             height={40}
-                            className="mr-2 size-10 shrink-0 object-contain"
+                            className="size-10 shrink-0 object-contain"
                             mode="contain"
                           />
-                          {team.shortName ?? team.abbreviation ?? team.name}
+                          <span className="font-semibold">
+                            {team.shortName ?? team.abbreviation ?? team.name}
+                          </span>
                           {team.firstPlaceVotes ? (
-                            <span className="text-muted-foreground ml-2 tracking-wider">
+                            <span className="text-muted-foreground text-sm">
                               ({team.firstPlaceVotes})
                             </span>
                           ) : null}
                         </div>
                       </TableCell>
-                      <TableCell>{team._points}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        {team._points}
+                      </TableCell>
                     </TableRow>
                   );
                 })}
               </TableBody>
             </Table>
-          )}
-          {top25.length === 0 && (
-            <div className="mx-auto max-w-md text-center">
-              <h2 className="text-foreground mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
-                Top 25 Poll Not Found
-              </h2>
-              <p className="text-muted-foreground mt-4">
-                We&apos;re sorry, but the selected Top 25 poll could not be
-                found. Please try again or check back later.
-              </p>
-              <div className="mt-6">
-                <Link href="/" className={buttonVariants()} prefetch={false}>
-                  Go back Home
-                </Link>
+            {outsideTop25.length > 0 && (
+              <div className="p-4 border-t border-border bg-muted/30">
+                <p className="text-sm">
+                  <strong>Others receiving votes:</strong>{" "}
+                  <span className="text-muted-foreground">
+                    {outsideTop25
+                      .map((team) => `${team.shortName} ${team._points}`)
+                      .join(", ")}
+                  </span>
+                </p>
               </div>
+            )}
+          </div>
+        ) : (
+          <div className="mx-auto max-w-md text-center py-16">
+            <h2 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">
+              Top 25 Poll Not Found
+            </h2>
+            <p className="text-muted-foreground mt-4">
+              We&apos;re sorry, but the selected Top 25 poll could not be
+              found. Please try again or check back later.
+            </p>
+            <div className="mt-6">
+              <Link href="/" className={buttonVariants()} prefetch={false}>
+                Go back Home
+              </Link>
             </div>
-          )}
-        </CardContent>
-        <CardFooter>
-          {outsideTop25.length > 0 && (
-            <div className="mt-4">
-              <p>
-                <strong>Others receiving votes:</strong>{" "}
-                {outsideTop25
-                  .map((team) => `${team.shortName} ${team._points}`)
-                  .join(", ")}
-              </p>
-            </div>
-          )}
-        </CardFooter>
-      </Card>
-      {top25.length > 0 && voterBreakdown.length > 0 && (
-        <div className="mt-8">
-          <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
-        </div>
-      )}
-    </div>
+          </div>
+        )}
+        
+        {top25.length > 0 && voterBreakdown.length > 0 && (
+          <div className="mt-8">
+            <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
+          </div>
+        )}
+      </div>
+    </>
   );
 }

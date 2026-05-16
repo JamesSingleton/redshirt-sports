@@ -17,7 +17,6 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@redshirt-sports/ui/components/navigation-menu";
 import { ScrollArea } from "@redshirt-sports/ui/components/scroll-area";
 import {
@@ -33,6 +32,7 @@ import { usePathname } from "next/navigation";
 import { memo, useEffect, useMemo, useState } from "react";
 
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import { Logo } from "./logo";
 import { ModeToggle } from "./mode-toggle";
 import type { Top25RankingsData } from "./navbar";
@@ -76,32 +76,32 @@ const MobileNavbar = memo(function MobileNavbar({
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <div className="flex justify-end">
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon">
+          <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
             <Menu className="size-5" />
             <span className="sr-only">Open menu</span>
           </Button>
         </SheetTrigger>
       </div>
-      <SheetContent className="overflow-y-auto">
+      <SheetContent className="overflow-y-auto bg-black border-l-0">
         <SheetHeader>
           <SheetTitle>
             {logo && <Logo alt={siteTitle} image={logo} />}
           </SheetTitle>
         </SheetHeader>
         <div className="my-4 flex flex-col gap-4">
-          <div className="border-b px-4 py-3">
+          <div className="border-b border-white/20 px-4 py-3">
             <SearchBar placeholder="Search articles..." className="w-full" />
           </div>
           {navbarData.map((sport) => (
             <Collapsible key={sport._id}>
-              <CollapsibleTrigger className="hover:bg-muted flex w-full items-center justify-between px-4 py-3 text-left font-medium transition-colors">
+              <CollapsibleTrigger className="hover:bg-white/10 flex w-full items-center justify-between px-4 py-3 text-left font-medium text-white transition-colors">
                 {sport.name}
                 <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-2">
                 {sport.groupings.map((grouping) => (
                   <Collapsible key={grouping?._id}>
-                    <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left font-medium transition-colors">
+                    <CollapsibleTrigger className="text-white/70 hover:bg-white/5 flex w-full items-center justify-between rounded px-2 py-2 text-left font-medium transition-colors">
                       {grouping?.name} ({grouping?.conferences.length})
                       <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
                     </CollapsibleTrigger>
@@ -111,7 +111,7 @@ const MobileNavbar = memo(function MobileNavbar({
                           <Link
                             key={conference._id}
                             href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}
-                            className="hover:bg-muted block rounded px-2 py-1 transition-colors"
+                            className="hover:bg-white/10 text-white/80 hover:text-white block rounded px-2 py-1 transition-colors"
                             onClick={() => setIsOpen(false)}
                             prefetch={false}
                           >
@@ -127,14 +127,14 @@ const MobileNavbar = memo(function MobileNavbar({
           ))}
           {latestRankings && (
             <Collapsible>
-              <CollapsibleTrigger className="hover:bg-muted flex w-full items-center justify-between px-4 py-3 text-left font-medium transition-colors">
+              <CollapsibleTrigger className="hover:bg-white/10 flex w-full items-center justify-between px-4 py-3 text-left font-medium text-white transition-colors">
                 Rankings
                 <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-2">
                 {footballRankings && (
                   <Collapsible>
-                    <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
+                    <CollapsibleTrigger className="text-white/70 hover:bg-white/5 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
                       College Football
                       <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
                     </CollapsibleTrigger>
@@ -144,7 +144,7 @@ const MobileNavbar = memo(function MobileNavbar({
                           <Link
                             key={`${ranking?.division}-${ranking?.year}-${ranking?.week}-mobile`}
                             href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? "final-rankings" : ranking?.week}`}
-                            className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
+                            className="hover:bg-white/10 text-white/80 hover:text-white block rounded px-2 py-1 text-xs transition-colors"
                             onClick={() => setIsOpen(false)}
                           >
                             {divisionDisplayNames[ranking?.division] ??
@@ -158,13 +158,13 @@ const MobileNavbar = memo(function MobileNavbar({
                 )}
 
                 <Collapsible>
-                  <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
+                  <CollapsibleTrigger className="text-white/70 hover:bg-white/5 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
                     Men&apos;s Basketball
                     <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="px-2 pb-1">
                     <div className="mt-1 grid grid-cols-1 gap-0.5">
-                      <span className="text-muted-foreground py-1 text-sm">
+                      <span className="text-white/50 py-1 text-sm">
                         Coming Soon...
                       </span>
                     </div>
@@ -176,12 +176,18 @@ const MobileNavbar = memo(function MobileNavbar({
 
           <Link
             href="/college/news"
-            className="hover:bg-muted flex items-center px-4 py-3 text-base font-medium transition-colors"
+            className="hover:bg-white/10 flex items-center px-4 py-3 text-base font-medium text-white transition-colors"
             onClick={() => setIsOpen(false)}
             prefetch={false}
           >
             News
           </Link>
+          
+          <div className="px-4 pt-4 border-t border-white/20">
+            <Button asChild className="w-full bg-primary hover:bg-primary/90 text-white font-semibold">
+              <Link href="/subscribe">Subscribe</Link>
+            </Button>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
@@ -208,14 +214,16 @@ export const DesktopNavbar = memo(function DesktopNavbar({
         <NavigationMenuList>
           {navbarData.map((sport) => (
             <NavigationMenuItem key={sport.slug}>
-              <NavigationMenuTrigger>{sport.name}</NavigationMenuTrigger>
+              <NavigationMenuTrigger className="bg-transparent text-white hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 focus:bg-white/10 focus:text-white">
+                {sport.name}
+              </NavigationMenuTrigger>
               <NavigationMenuContent key={sport.slug}>
                 <div className="w-[850px] p-4">
                   <div className="grid grid-cols-4 gap-6">
                     {sport.groupings.map((grouping) => {
                       return (
                         <div className="space-y-3" key={grouping?._id}>
-                          <h3 className="border-b pb-1 text-base font-medium">
+                          <h3 className="border-b pb-1 text-base font-bold">
                             {grouping?.name}
                           </h3>
                           <ScrollArea
@@ -248,13 +256,15 @@ export const DesktopNavbar = memo(function DesktopNavbar({
 
           {latestRankings && (
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
+              <NavigationMenuTrigger className="bg-transparent text-white hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 focus:bg-white/10 focus:text-white">
+                Rankings
+              </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <div className="w-[600px] p-4">
                   <div className="grid grid-cols-2 gap-6">
                     {footballRankings && (
                       <div className="space-y-3">
-                        <h3 className="border-b pb-1 text-base font-medium">
+                        <h3 className="border-b pb-1 text-base font-bold">
                           College Football
                         </h3>
                         <div className="space-y-1.5">
@@ -275,7 +285,7 @@ export const DesktopNavbar = memo(function DesktopNavbar({
                       </div>
                     )}
                     <div className="space-y-3">
-                      <h3 className="border-b pb-1 text-base font-medium">
+                      <h3 className="border-b pb-1 text-base font-bold">
                         Men&apos;s College Basketball
                       </h3>
                       <div className="space-y-1.5">
@@ -292,7 +302,7 @@ export const DesktopNavbar = memo(function DesktopNavbar({
 
           <NavigationMenuItem>
             <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
+              className="bg-transparent text-white hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors"
               href="/college/news"
             >
               News
@@ -303,6 +313,9 @@ export const DesktopNavbar = memo(function DesktopNavbar({
 
       <div className="flex items-center gap-4 justify-self-end">
         <SearchBar placeholder="Search articles..." />
+        <Button asChild className="bg-primary hover:bg-primary/90 text-white font-semibold hidden sm:inline-flex">
+          <Link href="/subscribe">Subscribe</Link>
+        </Button>
         <ModeToggle />
       </div>
     </div>
@@ -340,7 +353,7 @@ function SkeletonMobileNavbar() {
   return (
     <div className="md:hidden">
       <div className="flex justify-end">
-        <div className="bg-muted h-10 w-10 animate-pulse rounded-md" />
+        <div className="bg-white/20 h-10 w-10 animate-pulse rounded-md" />
       </div>
     </div>
   );
@@ -353,7 +366,7 @@ function SkeletonDesktopNavbar() {
         {Array.from({ length: 2 }).map((_, index) => (
           <div
             key={`nav-item-skeleton-${index.toString()}`}
-            className="bg-muted h-10 w-32 animate-pulse rounded"
+            className="bg-white/20 h-10 w-32 animate-pulse rounded"
           />
         ))}
       </div>
@@ -363,7 +376,7 @@ function SkeletonDesktopNavbar() {
           {Array.from({ length: 2 }).map((_, index) => (
             <div
               key={`nav-button-skeleton-${index.toString()}`}
-              className="bg-muted h-10 w-32 animate-pulse rounded-[10px]"
+              className="bg-white/20 h-10 w-32 animate-pulse rounded-[10px]"
             />
           ))}
         </div>
