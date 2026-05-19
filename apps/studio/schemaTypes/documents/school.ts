@@ -1,4 +1,4 @@
-import { defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from "sanity";
 
 export const school = defineType({
   name: "school",
@@ -58,6 +58,44 @@ export const school = defineType({
       type: "boolean",
       description: "Is this school eligible to be voted on in the Top 25?",
       initialValue: true,
+    }),
+    defineField({
+      name: "conferenceAffiliationsBySport",
+      title: "Conference Affiliations by Sport",
+      type: "array",
+      description:
+        "Map which conference this school belongs to on a per-sport basis.",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({
+              name: "sport",
+              type: "reference",
+              to: [{ type: "sport" }],
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: "conference",
+              type: "reference",
+              to: [{ type: "conference" }],
+              validation: (rule) => rule.required(),
+            }),
+          ],
+          preview: {
+            select: {
+              sportTitle: "sport.title",
+              conferenceName: "conference.name",
+            },
+            prepare({ sportTitle, conferenceName }) {
+              return {
+                title: sportTitle || "Select Sport...",
+                subtitle: conferenceName || "Select Conference...",
+              };
+            },
+          },
+        }),
+      ],
     }),
     defineField({
       name: "conferenceAffiliations",
@@ -149,11 +187,19 @@ export const school = defineType({
   preview: {
     select: {
       title: "name",
+      abbreviation: "abbreviation",
+      nickname: "nickname",
       media: "image",
     },
-    prepare: ({ title, media }) => ({
-      title,
-      media,
-    }),
+    prepare: ({ title, abbreviation, nickname, media }) => {
+      // Combines whatever fields are available, ignoring missing ones safely
+      const subtitle = [abbreviation, nickname].filter(Boolean).join(" • ");
+
+      return {
+        title,
+        subtitle: subtitle || "No abbreviation or nickname set",
+        media,
+      };
+    },
   },
 });

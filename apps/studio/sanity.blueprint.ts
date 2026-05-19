@@ -33,7 +33,18 @@ export default defineBlueprint({
       event: {
         on: ["create", "update"],
         filter:
-          "_type == 'post' && (delta::changedAny(content) || delta::operation() == 'create')",
+          "_type == 'post' && (delta::changedAny(body) || (delta::operation() == 'create' && defined(body)))",
+        projection: "{_id}",
+      },
+    }),
+    defineDocumentFunction({
+      name: "featured-enforcer",
+      src: "./functions/featured-enforcer",
+      memory: 2,
+      timeout: 30,
+      event: {
+        on: ["create", "update"],
+        filter: "_type == 'post' && featuredArticle == true",
         projection: "{_id}",
       },
     }),

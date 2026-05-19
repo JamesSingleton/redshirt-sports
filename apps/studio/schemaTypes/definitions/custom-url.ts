@@ -92,7 +92,8 @@ export const customUrl = defineType({
       name: "internalUrl",
       type: "string",
       title: "Custom URL",
-      description: "Enter a relative URL (e.g., /about, /blog/post-1)",
+      description:
+        "Enter a relative URL (e.g., /spring-preview-vmi-rebuilds-entire-team)",
       hidden: ({ parent }) =>
         parent?.type !== "internal" || parent?.internalType !== "custom",
       validation: (rule) => [

@@ -1,3 +1,4 @@
+import path from "node:path";
 import { defineCliConfig } from "sanity/cli";
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID;
@@ -13,5 +14,12 @@ export default defineCliConfig({
     schema: "schema.json",
     generates: "../../packages/sanity/src/types.ts",
     overloadClientMethods: true,
+  },
+  vite: {
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "."),
+      },
+    },
   },
 });
