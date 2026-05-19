@@ -38,6 +38,7 @@ export const documentSlugField = (
     validation: (rule) => {
       const config = getDocumentTypeConfig(documentType);
       return [
+        rule.required(),
         rule.custom(createSlugErrorValidator(config)),
         rule.custom(createSlugWarningValidator(config)).warning(),
       ];

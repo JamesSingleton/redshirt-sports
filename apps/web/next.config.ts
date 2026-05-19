@@ -62,10 +62,7 @@ const nextConfig: NextConfig = {
     instantNavigationDevToolsToggle: true,
   },
   logging: {
-    fetches: {
-      fullUrl: true,
-      hmrRefreshes: true,
-    },
+    fetches: {},
   },
   typescript: {
     ignoreBuildErrors: true,
