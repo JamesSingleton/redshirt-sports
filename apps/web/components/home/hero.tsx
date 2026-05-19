@@ -14,7 +14,7 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
       <div className="container">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <div className="relative aspect-[2/1] overflow-hidden rounded-lg shadow-md">
+            <div className="relative aspect-2/1 overflow-hidden rounded-lg shadow-md">
               <CustomImage
                 image={heroArticle.mainImage}
                 className="h-full w-full object-cover object-top"
