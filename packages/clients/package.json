@@ -18,6 +18,6 @@
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
-    "vitest": "^4.1.6"
+    "vitest": "catalog:"
   }
 }

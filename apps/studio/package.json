@@ -24,7 +24,7 @@
     "@sanity/image-url": "^2.1.1",
     "@sanity/table": "^2.0.1",
     "@sanity/ui": "^3.2.0",
-    "@sanity/vision": "^5.25.1",
+    "@sanity/vision": "^5.26.0",
     "copy-to-clipboard": "^4.0.2",
     "lucide-react": "catalog:",
     "react": "catalog:",
@@ -34,11 +34,11 @@
     "sanity-plugin-media": "^4.3.0",
     "sanity-plugin-workflow": "^3.0.15",
     "slugify": "^1.6.9",
-    "styled-components": "^6.4.1"
+    "styled-components": "^6.4.2"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "vite": "^8.0.13"
+    "vite": "^8.0.14"
   }
 }
