@@ -65,6 +65,7 @@ const postImageFragment = /* groq */ `
   }
 `;
 
+/** @deprecated Legacy division document — use classificationOnPostFragment on posts. */
 const divisionFragment = /* groq */ `
   division->{
     _id,
@@ -78,6 +79,32 @@ const divisionFragment = /* groq */ `
     }
   }
 `;
+
+const classificationOnPostFragment = /* groq */ `
+  classification->{
+    _id,
+    name,
+    shortName,
+    "slug": slug.current,
+    governingBody->{
+      _id,
+      abbreviation,
+      name
+    }
+  }
+`;
+
+/** Matches /college/[sport]/news/[segment] for division listing pages ($division = URL segment). */
+export const postMatchesNewsSegmentFilter = /* groq */ `(
+  sportSubgrouping->slug.current == $division ||
+  (classification->slug.current == $division && !defined(sportSubgrouping))
+)`;
+
+/** Conference document is valid for /news/[segment]/[conference] ($division = URL segment). */
+export const conferenceMatchesNewsSegmentFilter = /* groq */ `(
+  count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 ||
+  (primaryClassification->slug.current == $division && $sport in sports[]->slug.current)
+)`;
 
 const sportSubgroupingFragment = /* groq */ `
   sportSubgrouping->{
@@ -98,13 +125,20 @@ const conferencesFragment = /* groq */ `
       "blurData": asset->metadata.lqip,
       "dominantColor": asset->metadata.palette.dominant.background,
     },
+    primaryClassification->{
+      _id,
+      name,
+      shortName,
+      "slug": slug.current,
+    },
     division->{
       "slug": slug.current,
     },
     sportSubdivisionAffiliations[]{
         _key,
         sport->{
-          _id, // Need this _id for client-side comparison
+          _id,
+          "slug": slug.current,
         },
         subgrouping->{
           "slug": slug.current,
@@ -138,7 +172,7 @@ export const queryPostSlugData = defineQuery(/* groq */ `
       "slug": slug.current,
       title
     },
-    ${divisionFragment},
+    ${classificationOnPostFragment},
     ${sportSubgroupingFragment},
     ${conferencesFragment},
     ${postAuthorFragment},
@@ -185,8 +219,7 @@ export const querySportsAndDivisionNews = defineQuery(/* groq */ `
     "posts": *[
       _type == "post" &&
       sport->slug.current == $sport &&
-      (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&
-      $division != "d1"
+      ${postMatchesNewsSegmentFilter}
     ] | order(publishedAt desc)[$from...$to]{
       ...,
       ${postImageFragment},
@@ -196,8 +229,7 @@ export const querySportsAndDivisionNews = defineQuery(/* groq */ `
     "totalPosts": count(*[
       _type == "post" &&
       sport->slug.current == $sport &&
-      (division->slug.current == $division || sportSubgrouping->slug.current == $division) &&
-      $division != "d1"
+      ${postMatchesNewsSegmentFilter}
     ])
   }
 `);
@@ -334,7 +366,12 @@ export const queryLatestArticles = defineQuery(/* groq */ `
 `);
 
 export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
-  *[_type == "post" && (division->name == $division || sportSubgrouping->name == $division) && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{
+  *[
+    _type == "post" &&
+    sport->title match $sport &&
+    !(_id in $articleIds) &&
+    ${postMatchesNewsSegmentFilter}
+  ] | order(publishedAt desc)[0..4]{
     _id,
     title,
     excerpt,
@@ -347,8 +384,14 @@ export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
       "credit": coalesce(asset->creditLine, attribution, "Unknown"),
     },
     publishedAt,
-    division->{
+    classification->{
       name,
+      shortName,
+      "slug": slug.current
+    },
+    sportSubgrouping->{
+      name,
+      shortName,
       "slug": slug.current
     },
     conferences[]->{
@@ -379,22 +422,40 @@ export const querySitemapData = defineQuery(/* groq */ `{
 export const queryArticlesBySportDivisionAndConference =
   defineQuery(/* groq */ `
   {
-    "posts": *[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (
-      sportSubgrouping->slug.current == $division || division->slug.current == $division
-    ) && $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current] | order(publishedAt desc) [$from...$to]{
+    "posts": *[
+      _type == "post" &&
+      sport->slug.current == $sport &&
+      $conference in conferences[]->slug.current &&
+      count(*[
+        _type == "conference" &&
+        slug.current == $conference &&
+        ${conferenceMatchesNewsSegmentFilter}
+      ]) > 0
+    ] | order(publishedAt desc) [$from...$to]{
       ...,
       ${postImageFragment},
       "slug": slug.current,
       ${postAuthorFragment}
     },
-    "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))][0]{
+    "conferenceInfo": *[
+      _type == "conference" &&
+      slug.current == $conference &&
+      ${conferenceMatchesNewsSegmentFilter}
+    ][0]{
       _id,
       name,
       shortName
     },
-    "totalPosts": count(*[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (
-      sportSubgrouping->slug.current == $division || division->slug.current == $division
-    ) && $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current]),
+    "totalPosts": count(*[
+      _type == "post" &&
+      sport->slug.current == $sport &&
+      $conference in conferences[]->slug.current &&
+      count(*[
+        _type == "conference" &&
+        slug.current == $conference &&
+        ${conferenceMatchesNewsSegmentFilter}
+      ]) > 0
+    ]),
   }
 `);
 
@@ -407,10 +468,15 @@ export const searchQuery = defineQuery(/* groq */ `
   ) | order(publishedAt desc, _score desc)[$from...$to]{
     ...,
     "slug": slug.current,
-    ${divisionFragment},
+    ${classificationOnPostFragment},
+    ${sportSubgroupingFragment},
     ${conferencesFragment},
     ${postAuthorFragment},
-    "sport": sport->title,
+    "sport": sport->{
+      _id,
+      title,
+      "slug": slug.current
+    },
   },
   "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])
 }
@@ -421,6 +487,34 @@ export const sportInfoBySlug = defineQuery(/* groq */ `
   _id,
   title,
 }`);
+
+/** Slugs used by generateStaticParams for /college/[sport]/news/[[...slug]]. */
+/** True when this sport has FBS/FCS/Mid-Major-style subgroupings (bare "d1" URLs are invalid). */
+export const querySportUsesSubgroupings = defineQuery(/* groq */ `
+  count(*[_type == "sportSubgrouping" && $sport in applicableSports[]->slug.current]) > 0
+`);
+
+export const queryNewsRouteSlugsBySport = defineQuery(/* groq */ `
+  *[_type == "post" && sport->slug.current == $sport]{
+    "sportSubgrouping": sportSubgrouping->slug.current,
+    "classification": classification->slug.current,
+    "conferences": conferences[]->{
+      "slug": slug.current,
+      "primaryClassification": primaryClassification->slug.current,
+      "subgroupings": sportSubdivisionAffiliations[]{
+        "sport": sport->slug.current,
+        "subgrouping": subgrouping->slug.current
+      }
+    }
+  }
+`);
+
+/** Subgroupings a conference is affiliated with for a given sport (e.g. resolve d1 → fbs). */
+export const queryConferenceSubgroupingsForSport = defineQuery(/* groq */ `
+  *[_type == "conference" && slug.current == $conference][0]{
+    "subgroupings": sportSubdivisionAffiliations[sport->slug.current == $sport].subgrouping->slug.current
+  }
+`);
 
 export const authorBySlug = defineQuery(/* groq */ `
   *[_type == "author" && slug.current == $slug && archived == false][0]{
@@ -536,6 +630,21 @@ export const collegeNewsQuery = defineQuery(/* groq */ `
 
 export const conferenceInfoBySlugQuery = defineQuery(/* groq */ `
   *[_type == "conference" && slug.current == $slug][0]
+`);
+
+export const queryConferenceInfoForSportAndSubgrouping = defineQuery(/* groq */ `
+  *[
+    _type == "conference" &&
+    slug.current == $conference &&
+    (
+      count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $subgrouping]) > 0 ||
+      (primaryClassification->slug.current == $subgrouping && $sport in sports[]->slug.current)
+    )
+  ][0]{
+    _id,
+    name,
+    shortName
+  }
 `);
 
 export const globalNavigationQuery = defineQuery(/* groq */ `
@@ -808,11 +917,11 @@ export const countOfPostsQuery = groq`
 export const queryForCollegeSitemap = groq`
 *[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){
   "sport": sport->slug.current,
-  "division": division->slug.current,
+  "classification": classification->slug.current,
   "sportSubgrouping": sportSubgrouping->slug.current,
   "conferences": conferences[]->{
       "slug": slug.current,
-      "division": division->slug.current,
+      "primaryClassification": primaryClassification->slug.current,
       "subgroupings": sportSubdivisionAffiliations[]{
         "sport": sport->slug.current,
         "subgrouping": subgrouping->slug.current
@@ -821,18 +930,22 @@ export const queryForCollegeSitemap = groq`
   _updatedAt
 }`;
 
-export const queryDivisionOrSubgroupingDisplayName = defineQuery(
+/** Display label for a /news/[segment] URL slug (sportSubgrouping or classification). */
+export const queryNewsSegmentDisplayName = defineQuery(
   /* groq */
   `
   *[
-    (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||
-    (_type == "division" && slug.current == $slugOrShortName)
+    (_type == "sportSubgrouping" && (slug.current == $slugOrShortName || lower(shortName) == lower($slugOrShortName))) ||
+    (_type == "classification" && slug.current == $slugOrShortName)
   ][0]{
     _type,
     "displayName": select(
-      _type == "sportSubgrouping" => shortName,
-      _type == "division" => title
+      _type == "sportSubgrouping" => coalesce(shortName, name),
+      _type == "classification" => shortName
     )
   }
 `,
 );
+
+/** @deprecated Use queryNewsSegmentDisplayName */
+export const queryDivisionOrSubgroupingDisplayName = queryNewsSegmentDisplayName;

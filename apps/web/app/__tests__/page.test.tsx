@@ -72,16 +72,15 @@ beforeEach(() => {
 });
 
 describe("HomePage", () => {
-  it("renders the hero and four division sections when no articles exist", async () => {
+  it("renders the hero without division sections when no articles exist", async () => {
     const page = await HomePage();
     render(page);
 
     expect(screen.getByTestId("hero")).toBeInTheDocument();
     expect(screen.queryByText("Latest News")).not.toBeInTheDocument();
-    expect(screen.getByText("FBS College Football News")).toBeInTheDocument();
-    expect(screen.getByText("FCS College Football News")).toBeInTheDocument();
-    expect(screen.getByText("Division II Football News")).toBeInTheDocument();
-    expect(screen.getByText("Division III Football News")).toBeInTheDocument();
+    expect(
+      screen.queryByText("FBS College Football News"),
+    ).not.toBeInTheDocument();
   });
 
   it("renders the Latest News section and article cards when articles exist", async () => {
@@ -94,10 +93,15 @@ describe("HomePage", () => {
       authors: [{ name: "Test Author" }],
     };
 
+    const divisionArticle = {
+      ...article,
+      excerpt: "Excerpt",
+    };
+
     mockFetch
       .mockResolvedValueOnce({ data: [article] }) // homePageData
-      .mockResolvedValueOnce({ data: [article] }); // latestArticles
-    // remaining 4 division calls fall through to the beforeEach default
+      .mockResolvedValueOnce({ data: [article] }) // latestArticles
+      .mockResolvedValue({ data: [divisionArticle] }); // division sections
 
     const page = await HomePage();
     render(page);

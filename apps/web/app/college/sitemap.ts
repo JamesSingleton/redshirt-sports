@@ -1,8 +1,15 @@
 import { client } from "@redshirt-sports/sanity/client";
-import { queryForCollegeSitemap } from "@redshirt-sports/sanity/queries";
-import type { QueryForCollegeSitemapResult } from "@redshirt-sports/sanity/types";
+import {
+  queryForCollegeSitemap,
+  querySportUsesSubgroupings,
+} from "@redshirt-sports/sanity/queries";
 import type { MetadataRoute } from "next";
 
+import {
+  conferenceMatchesNewsSegment,
+  resolveNewsRouteSegment,
+  type NewsRouteSlugPost,
+} from "@/lib/college-news-segments";
 import { getBaseUrl } from "@/lib/get-base-url";
 
 export const dynamic = "force-dynamic";
@@ -10,75 +17,75 @@ export const dynamic = "force-dynamic";
 const baseUrl = getBaseUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await client.fetch<QueryForCollegeSitemapResult>(
-    queryForCollegeSitemap,
+  const posts = await client.fetch<
+    Array<
+      NewsRouteSlugPost & {
+        sport: string | null;
+        _updatedAt: string;
+      }
+    >
+  >(queryForCollegeSitemap);
+
+  const sports = [...new Set(posts.map((p) => p.sport).filter(Boolean))] as string[];
+  const subgroupingBySport = new Map<string, boolean>();
+
+  await Promise.all(
+    sports.map(async (sport) => {
+      const uses = await client.fetch(querySportUsesSubgroupings, { sport });
+      subgroupingBySport.set(sport, Boolean(uses));
+    }),
   );
+
   const urls = new Map<string, string>();
 
-  posts.forEach((post) => {
-    if (post.sport) {
-      // /college/[sport]/news
-      const url1 = `${baseUrl}/college/${post.sport}/news`;
-      const currentTimestamp1 = urls.get(url1);
+  for (const post of posts) {
+    if (!post.sport) continue;
+
+    const sportUsesSubgroupings =
+      subgroupingBySport.get(post.sport) ?? false;
+
+    const url1 = `${baseUrl}/college/${post.sport}/news`;
+    const currentTimestamp1 = urls.get(url1);
+    if (
+      !currentTimestamp1 ||
+      new Date(post._updatedAt) > new Date(currentTimestamp1)
+    ) {
+      urls.set(url1, post._updatedAt);
+    }
+
+    const segment = resolveNewsRouteSegment(
+      post.sportSubgrouping,
+      post.classification,
+      sportUsesSubgroupings,
+    );
+
+    if (!segment) continue;
+
+    const url2 = `${baseUrl}/college/${post.sport}/news/${segment}`;
+    const currentTimestamp2 = urls.get(url2);
+    if (
+      !currentTimestamp2 ||
+      new Date(post._updatedAt) > new Date(currentTimestamp2)
+    ) {
+      urls.set(url2, post._updatedAt);
+    }
+
+    for (const conference of post.conferences ?? []) {
+      if (!conference?.slug) continue;
+      if (!conferenceMatchesNewsSegment(conference, post.sport, segment)) {
+        continue;
+      }
+
+      const url3 = `${baseUrl}/college/${post.sport}/news/${segment}/${conference.slug}`;
+      const currentTimestamp3 = urls.get(url3);
       if (
-        !currentTimestamp1 ||
-        new Date(post._updatedAt) > new Date(currentTimestamp1)
+        !currentTimestamp3 ||
+        new Date(post._updatedAt) > new Date(currentTimestamp3)
       ) {
-        urls.set(url1, post._updatedAt);
-      }
-
-      const divisionLower = post.division?.toLowerCase();
-
-      // Check for Division I/D1 and require sportSubgrouping
-      const isD1 =
-        post.division &&
-        (divisionLower === "division-i" || divisionLower === "d1");
-
-      let divisionSegment = post.division;
-      if (isD1) {
-        if (post.sportSubgrouping) {
-          divisionSegment = post.sportSubgrouping;
-        } else {
-          // Skip this post for division-level and conference-level URLs
-          return;
-        }
-      }
-
-      if (divisionSegment) {
-        // /college/[sport]/news/[division or sportSubgrouping]
-        const url2 = `${baseUrl}/college/${post.sport}/news/${divisionSegment}`;
-        const currentTimestamp2 = urls.get(url2);
-        if (
-          !currentTimestamp2 ||
-          new Date(post._updatedAt) > new Date(currentTimestamp2)
-        ) {
-          urls.set(url2, post._updatedAt);
-        }
-        if (post.conferences && post.conferences.length > 0) {
-          // Filter conferences by matching subgrouping for this sport and divisionSegment
-          post.conferences
-            .filter((conference) => {
-              if (!conference?.subgroupings) return false;
-              return conference.subgroupings.some(
-                (sg) =>
-                  sg.sport === post.sport && sg.subgrouping === divisionSegment,
-              );
-            })
-            .forEach((conference) => {
-              // /college/[sport]/news/[division or sportSubgrouping]/[conference]
-              const url3 = `${baseUrl}/college/${post.sport}/news/${divisionSegment}/${conference.slug}`;
-              const currentTimestamp3 = urls.get(url3);
-              if (
-                !currentTimestamp3 ||
-                new Date(post._updatedAt) > new Date(currentTimestamp3)
-              ) {
-                urls.set(url3, post._updatedAt);
-              }
-            });
-        }
+        urls.set(url3, post._updatedAt);
       }
     }
-  });
+  }
 
   return Array.from(urls.entries()).map(([url, lastModified]) => ({
     url,

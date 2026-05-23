@@ -23,6 +23,7 @@ import { AuthorSection, MobileAuthorSection } from "@/components/posts/author";
 import { RichText } from "@/components/rich-text";
 import CustomImage from "@/components/sanity-image";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
+import { resolveConferenceNewsPathSegment } from "@/lib/college-news-segments";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getSEOMetadata } from "@/lib/seo";
 
@@ -149,7 +150,7 @@ export default async function PostPage({ params }: PageProps<"/[slug]">) {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               {data.sport &&
-                (data.division ||
+                (data.classification ||
                   data.sportSubgrouping ||
                   data.conferences) && (
                   <div className="flex flex-wrap items-center gap-3">
@@ -161,53 +162,63 @@ export default async function PostPage({ params }: PageProps<"/[slug]">) {
                       {data.sport.title}
                     </Link>
 
-                    {data.division && (
+                    {data.classification && (
                       <Link
                         href={`/college/${data.sport.slug}/news/${
-                          data.division.name === "D1" && data.sportSubgrouping
-                            ? data.sportSubgrouping.slug
-                            : data.division.slug
+                          data.sportSubgrouping?.slug ?? data.classification.slug
                         }`}
                         className={badgeVariants({ variant: "default" })}
                         prefetch={false}
                       >
-                        {data.division.name === "D1" && data.sportSubgrouping
-                          ? data.sportSubgrouping.shortName
-                          : data.division.name}
+                        {data.sportSubgrouping
+                          ? (data.sportSubgrouping.shortName ??
+                            data.sportSubgrouping.name)
+                          : data.classification.shortName}
                       </Link>
                     )}
 
                     {data.sport &&
-                      data.conferences?.map((conference) => {
-                        const articleSportId = data.sport?._id;
+                      data.conferences
+                        ?.filter(
+                          (conference): conference is NonNullable<typeof conference> =>
+                            conference != null &&
+                            Boolean(conference.slug) &&
+                            Boolean(conference.name ?? conference.shortName),
+                        )
+                        .map((conference) => {
+                          const sport = data.sport;
+                          if (!sport) return null;
 
-                        const matchingAffiliation =
-                          conference.sportSubdivisionAffiliations?.find(
-                            (affiliation) =>
-                              affiliation.sport._id === articleSportId,
+                          const newsPathSegment =
+                            resolveConferenceNewsPathSegment(conference, {
+                              sportSlug: sport.slug,
+                              sportId: sport._id,
+                              articleSportSubgroupingSlug:
+                                data.sportSubgrouping?.slug,
+                            });
+
+                          if (!newsPathSegment || !conference.slug) return null;
+
+                          const conferenceHref = `/college/${sport.slug}/news/${newsPathSegment}/${conference.slug}`;
+
+                          return (
+                            <Link
+                              key={conference._id ?? conference.slug}
+                              href={conferenceHref}
+                              className={badgeVariants({ variant: "default" })}
+                              prefetch={false}
+                            >
+                              {conference.shortName ?? conference.name}
+                            </Link>
                           );
-
-                        const divisionPathSegment =
-                          matchingAffiliation?.subgrouping.slug ||
-                          conference.division.slug;
-
-                        const conferenceHref = `/college/${data.sport?.slug}/news/${divisionPathSegment}/${conference.slug}`;
-
-                        return (
-                          <Link
-                            key={conference.slug}
-                            href={conferenceHref}
-                            className={badgeVariants({ variant: "default" })}
-                            prefetch={false}
-                          >
-                            {conference.shortName ?? conference.name}
-                          </Link>
-                        );
-                      })}
+                        })}
                   </div>
                 )}
 
-              {data.sport && (data.division || data.conferences) && (
+              {data.sport &&
+                (data.classification ||
+                  data.sportSubgrouping ||
+                  data.conferences) && (
                 <span className="text-sm">•</span>
               )}
               {data.publishedAt && <FormatDate dateString={data.publishedAt} />}

@@ -6,8 +6,14 @@ import FormatDate from "@/components/format-date";
 import CustomImage from "../sanity-image";
 
 const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
-  const heroArticle = heroPosts[0]!;
-  const recentArticles = heroPosts.slice(1);
+  const postsWithSlug = heroPosts.filter((post) => post.slug);
+  const heroArticle = postsWithSlug[0];
+
+  if (!heroArticle?.slug) {
+    return null;
+  }
+
+  const recentArticles = postsWithSlug.slice(1);
 
   return (
     <section className="py-12 sm:py-16 lg:py-20 xl:py-24">

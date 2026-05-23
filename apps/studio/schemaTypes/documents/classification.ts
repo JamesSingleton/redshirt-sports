@@ -7,7 +7,7 @@
  * schema change or deployment.
  *
  * Slug conventions (must match your Next.js route segments):
- *   NCAA Division I    → d1       (kept short; guarded by $division != "d1")
+ *   NCAA Division I    → d1       (use sportSubgrouping in URLs when applicable; bare d1 for sports without subgroupings)
  *   NCAA Division II   → d2
  *   NCAA Division III  → d3
  *   NAIA               → naia

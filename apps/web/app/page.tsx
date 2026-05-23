@@ -31,45 +31,46 @@ async function fetchLatestArticles() {
 }
 
 async function fetchLatestCollegeSportsArticles({
-  division,
+  segment,
   sport,
   articleIds,
 }: {
-  division: string;
+  /** News route segment: sportSubgrouping slug (fbs, fcs) or classification slug (d2, d3). */
+  segment: string;
   sport: string;
   articleIds: string[];
 }) {
   return await sanityFetch({
     query: queryLatestCollegeSportsArticles,
-    params: { division, sport, articleIds },
+    params: { division: segment, sport, articleIds },
   });
 }
 
 const divisions = [
   {
     key: "fbs",
-    division: "Football Bowl Subdivision",
+    segment: "fbs",
     title: "FBS College Football News",
     slug: "/college/football/news/fbs",
     imageFirst: false,
   },
   {
     key: "fcs",
-    division: "Football Championship Subdivision",
+    segment: "fcs",
     title: "FCS College Football News",
     slug: "/college/football/news/fcs",
     imageFirst: false,
   },
   {
     key: "d2",
-    division: "D2",
+    segment: "d2",
     title: "Division II Football News",
     slug: "/college/football/news/d2",
     imageFirst: false,
   },
   {
     key: "d3",
-    division: "D3",
+    segment: "d3",
     title: "Division III Football News",
     slug: "/college/football/news/d3",
     imageFirst: true,
@@ -93,9 +94,9 @@ export default async function HomePage() {
   );
 
   const collegeSportsResults = await Promise.all(
-    divisions.map(({ division }) =>
+    divisions.map(({ segment }) =>
       fetchLatestCollegeSportsArticles({
-        division,
+        segment,
         sport: "Football",
         articleIds,
       }),
@@ -159,23 +160,25 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {latestArticles?.map((article) => (
-                <ArticleCard
-                  title={article.title}
-                  date={article.publishedAt}
-                  image={article.mainImage}
-                  slug={article.slug}
-                  key={article._id}
-                  author={article.authors[0]!.name}
-                />
-              ))}
+              {latestArticles
+                ?.filter((article) => article.slug)
+                .map((article) => (
+                  <ArticleCard
+                    title={article.title}
+                    date={article.publishedAt}
+                    image={article.mainImage}
+                    slug={article.slug}
+                    key={article._id}
+                    author={article.authors[0]!.name}
+                  />
+                ))}
             </div>
           </div>
         </section>
       )}
       {sectionOrder.map((key) => {
         const section = divisionsWithArticles.find((d) => d.key === key);
-        if (!section || section.articles === undefined) return null;
+        if (!section?.articles?.length) return null;
 
         return (
           <ArticleSection

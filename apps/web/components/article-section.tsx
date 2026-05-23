@@ -24,8 +24,13 @@ export default function ArticleSection({
   articles,
   imageFirst = false,
 }: ArticleSectionProps) {
-  const firstArticle = articles[0]!;
-  const remainingArticles = articles.slice(1)!;
+  const withSlug = articles.filter((article) => article.slug);
+  const firstArticle = withSlug[0];
+  const remainingArticles = withSlug.slice(1);
+
+  if (!firstArticle?.slug) {
+    return null;
+  }
 
   return (
     <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
