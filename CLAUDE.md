@@ -12,7 +12,7 @@ Redshirt Sports is a college sports news website built as a Turborepo monorepo w
 - `pnpm dev` - Start all apps in development mode (web on port 3000, admin on 3001, studio on default Sanity port)
 - `pnpm build` - Build all apps and packages for production
 - `pnpm lint` - Run ESLint across all workspaces
-- `pnpm check:types` - Run TypeScript type checks across all workspaces
+- `pnpm typecheck` - Run TypeScript type checks across all workspaces
 - `pnpm check:format` - Run Prettier check on all files
 - `pnpm test` - Run tests across all workspaces using Vitest
 
@@ -26,7 +26,7 @@ Redshirt Sports is a college sports news website built as a Turborepo monorepo w
 - `pnpm db:migrate` - Run Drizzle migrations
 - `pnpm db:push` - Push schema changes to database
 - `pnpm db:studio` - Open Drizzle Studio
-- `pnpm check:types` - Run Next.js typegen and TypeScript check
+- `pnpm typecheck` - Run Next.js typegen and TypeScript check
 
 **Admin App** (`apps/admin`):
 - `pnpm dev` - Next.js dev server on port 3001
@@ -37,7 +37,7 @@ Redshirt Sports is a college sports news website built as a Turborepo monorepo w
 - `pnpm dev` - Start Sanity Studio in development mode
 - `pnpm build` - Build Sanity Studio and deploy schema
 - `pnpm type` - Extract schema and generate TypeScript types
-- `pnpm check:types` - TypeScript check
+- `pnpm typecheck` - TypeScript check
 
 **Packages**:
 - `packages/ui` - Run `pnpm test` or `pnpm test:watch` for component tests

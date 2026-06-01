@@ -297,7 +297,7 @@ export const queryNavbarData = defineQuery(/* groq */ `
 `);
 
 export const queryHomePageData = defineQuery(/* groq */ `
-  *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{
+  *[_type == "post"] | order(publishedAt desc)[0...3]{
     _id,
     _type,
     title,
@@ -316,7 +316,7 @@ export const queryHomePageData = defineQuery(/* groq */ `
 `);
 
 export const queryLatestArticles = defineQuery(/* groq */ `
- *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{
+ *[_type == "post"] | order(publishedAt desc)[3..6]{
     _id,
     title,
     excerpt,

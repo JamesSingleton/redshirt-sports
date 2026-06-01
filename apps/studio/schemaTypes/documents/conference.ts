@@ -58,11 +58,14 @@ export const conference = defineType({
         }),
       ],
     }),
+
     defineField({
-      title: "Division",
-      name: "division",
+      name: "primaryClassification",
+      title: "Primary Classification",
       type: "reference",
-      to: { type: "division" },
+      to: [{ type: "classification" }], // Select: "NCAA Division I"
+      description:
+        "The level of competition this conference belongs to (e.g., NCAA D1, NAIA).",
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -80,6 +83,78 @@ export const conference = defineType({
           },
         }),
       ],
+    }),
+    defineField({
+      name: "sportSubdivisions",
+      title: "Sport-Specific Subdivisions",
+      description:
+        "Define subdivisions for specific sports if they deviate from the broad primary classification (e.g., Football -> FCS).",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          name: "sportSubdivisionAssignment",
+          fields: [
+            defineField({
+              name: "sport",
+              title: "Sport",
+              type: "reference",
+              to: [{ type: "sport" }],
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: "subdivision",
+              title: "Subdivision",
+              type: "reference",
+              to: [{ type: "sportSubgrouping" }], // Points to your subgrouping documents
+              validation: (rule) => rule.required(),
+
+              // 🧠 DOUBLE FILTERING MAGIC:
+              options: {
+                filter: ({ document, parent }) => {
+                  // 1. Get the Primary Classification from the parent Conference document
+                  const classRef = (
+                    document?.primaryClassification as { _ref?: string }
+                  )?._ref;
+
+                  // 2. Get the Sport selected in this specific row/line-item
+                  const sportRef = (parent as { sport?: { _ref?: string } })
+                    ?.sport?._ref;
+
+                  // If the editor hasn't picked a sport yet, hide everything to force the correct order
+                  if (!classRef || !sportRef) {
+                    return { filter: "_id == null" };
+                  }
+
+                  return {
+                    // Enforce that the subdivision belongs to this division AND includes this sport
+                    filter:
+                      "parentClassification._ref == $classRef && $sportRef in applicableSports[]._ref",
+                    params: { classRef, sportRef },
+                  };
+                },
+              },
+            }),
+          ],
+          preview: {
+            select: {
+              sport: "sport.title",
+              subdivision: "subdivision.shortName",
+            },
+            prepare: ({ sport, subdivision }) => ({
+              title: `${sport || "Select Sport..."} → ${subdivision || "Select Subdivision..."}`,
+            }),
+          },
+        }),
+      ],
+    }),
+
+    defineField({
+      title: "Division",
+      name: "division",
+      type: "reference",
+      to: { type: "division" },
+      validation: (rule) => rule.required(),
     }),
     defineField({
       title: "Sport Subgrouping Affiliations",
@@ -177,7 +252,7 @@ export const conference = defineType({
   preview: {
     select: {
       title: "name",
-      subtitle: "division.title",
+      subtitle: "primaryClassification.name",
       media: "logo",
     },
     prepare: ({ title, subtitle, media }) => ({

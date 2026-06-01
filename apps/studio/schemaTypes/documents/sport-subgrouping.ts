@@ -4,7 +4,7 @@ import { createSlug, isUnique } from "../../utils/slug";
 
 export const sportSubgrouping = defineType({
   name: "sportSubgrouping",
-  title: "Sport Subgrouping",
+  title: "Sport Subdivision / Subgrouping",
   type: "document",
   description:
     "A subgrouping of a sport, such as 'Football Bowl Subdivision', 'Football Championship Subdivision', 'Mid-Major', or 'Power 5'.",
@@ -34,6 +34,15 @@ export const sportSubgrouping = defineType({
       },
     }),
     defineField({
+      name: "parentClassification",
+      title: "Parent Classification",
+      type: "reference",
+      to: { type: "classification" },
+      validation: (rule) => rule.required(),
+      description:
+        "The classification this subgrouping applies to (e.g., NCAA D1).",
+    }),
+    defineField({
       name: "applicableSports",
       title: "Applicable Sports",
       type: "array",
@@ -54,18 +63,11 @@ export const sportSubgrouping = defineType({
           .min(1)
           .error("At least one applicable sport is required."),
     }),
-    defineField({
-      name: "parentDivision",
-      title: "Parent Division",
-      type: "reference",
-      to: { type: "division" },
-      validation: (rule) => rule.required(),
-    }),
   ],
   preview: {
     select: {
       title: "name",
-      subtitle: "parentDivision.title",
+      subtitle: "parentClassification.name",
     },
     prepare: ({ title, subtitle }) => ({
       title,

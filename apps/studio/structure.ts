@@ -1,4 +1,4 @@
-import { ComposeIcon, LinkIcon } from "@sanity/icons";
+import { CheckmarkCircleIcon, ComposeIcon, LinkIcon } from "@sanity/icons";
 import {
   CogIcon,
   FileText,
@@ -20,8 +20,11 @@ import type {
 } from "sanity/structure";
 import DocumentsPane from "sanity-plugin-documents-pane";
 
+import { PublishingChecklistView } from "./components/publishing-checklist";
 import type { SchemaType, SingletonType } from "./schemaTypes";
 import { getTitleCase } from "./utils/helper";
+
+const API_VERSION = "2025-06-11";
 
 type Base<T = SchemaType> = {
   id?: string;
@@ -35,11 +38,13 @@ type CreateSingleTon = {
   S: StructureBuilder;
 } & Base<SingletonType>;
 
+// ─── Shared Reference Panes ───────────────────────────────────────────────────
+
 const postReferences = (S: StructureBuilder) =>
   S.view
     .component(DocumentsPane)
     .options({
-      query: `*[_type == 'post' && references($id)] | order(_createdAt desc)`,
+      query: `*[_type == 'post' && references($id)] | order(publishedAt desc)`,
       params: { id: `_id` },
       useDraft: false,
     })
@@ -57,6 +62,8 @@ const schoolReferences = (S: StructureBuilder) =>
     .title("School References")
     .icon(LinkIcon);
 
+// ─── Default Document Node ─────────────────────────────────────────────────
+
 export const getDefaultDocumentNode: DefaultDocumentNodeResolver = (
   S,
   { schemaType },
@@ -64,7 +71,11 @@ export const getDefaultDocumentNode: DefaultDocumentNodeResolver = (
   switch (schemaType) {
     case "post":
       return S.document().views([
-        S.view.form().icon(ComposeIcon),
+        S.view.form().icon(ComposeIcon).title("Edit"),
+        S.view
+          .component(PublishingChecklistView)
+          .title("Publishing Checklist")
+          .icon(CheckmarkCircleIcon),
         postReferences(S),
       ]);
     case "conference":
@@ -83,6 +94,8 @@ export const getDefaultDocumentNode: DefaultDocumentNodeResolver = (
   }
 };
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 const createSingleTon = ({ S, type, title, icon }: CreateSingleTon) => {
   const newTitle = title ?? getTitleCase(type);
   return S.listItem()
@@ -95,11 +108,6 @@ type CreateList = {
   S: StructureBuilder;
 } & Base;
 
-// This function creates a list item for a type. It takes a StructureBuilder instance (S),
-// a type, an icon, and a title as parameters. It generates a title for the type if not provided,
-// and uses a default icon if not provided. It then returns a list item with the generated or
-// provided title and icon.
-
 const createList = ({ S, type, icon, title, id }: CreateList) => {
   const newTitle = title ?? getTitleCase(type);
   return S.documentTypeListItem(type)
@@ -108,73 +116,104 @@ const createList = ({ S, type, icon, title, id }: CreateList) => {
     .icon(icon ?? Folder);
 };
 
+const defaultPostTemplates = (S: StructureBuilder) => [
+  S.initialValueTemplateItem("post-college-wide"),
+  S.initialValueTemplateItem("post-recruiting"),
+  S.initialValueTemplateItem("post-transfer"),
+  S.initialValueTemplateItem("post-analysis"),
+  S.initialValueTemplateItem("post-opinion"),
+  S.initialValueTemplateItem("post-podcast-notes"),
+];
+
+type PostListOptions = {
+  id: string;
+  title: string;
+  filter: string;
+  params?: Record<string, unknown>;
+  templates?: ReturnType<typeof defaultPostTemplates>;
+};
+
+const createPostList = (
+  S: StructureBuilder,
+  { id, title, filter, params, templates }: PostListOptions,
+) =>
+  S.listItem()
+    .title(title)
+    .icon(FileText)
+    .id(id)
+    .child(
+      S.documentList()
+        .title(title)
+        .schemaType("post")
+        .filter(filter)
+        .apiVersion(API_VERSION)
+        .params(params ?? {})
+        .defaultOrdering([{ field: "publishedAt", direction: "desc" }])
+        .initialValueTemplates(templates ?? defaultPostTemplates(S)),
+    );
+
 const createSportFilteredList = (
   S: StructureBuilder,
   sportId: string,
   sportName: string,
-) => {
-  return S.listItem()
-    .title(`${sportName} Articles`)
+) =>
+  S.listItem()
+    .title(sportName)
     .icon(FileText)
     .id(`${sportId}-articles`)
     .child(
       S.documentList()
         .title(`${sportName} Articles`)
+        .schemaType("post")
         .filter('_type == "post" && sport._ref == $sportId')
-        .apiVersion("2025-06-11")
+        .apiVersion(API_VERSION)
         .params({ sportId })
-        .defaultOrdering([{ field: "_createdAt", direction: "desc" }])
+        .defaultOrdering([{ field: "publishedAt", direction: "desc" }])
         .initialValueTemplates([
           S.initialValueTemplateItem("post-by-sport", { sportId }),
+          S.initialValueTemplateItem("post-game-recap", { sportId }),
+          ...defaultPostTemplates(S),
         ]),
     );
-};
+
+// ─── Main Structure ────────────────────────────────────────────────────────────
 
 export const structure = async (
   S: StructureBuilder,
   context: StructureResolverContext,
 ) => {
   const { currentUser, getClient } = context;
-  const client = getClient({ apiVersion: "2025-06-11" });
+  const client = getClient({ apiVersion: API_VERSION });
+
   const sports = await client.fetch<Array<{ _id: string; title: string }>>(
-    `*[_type == 'sport'] | order(title asc) {
-        _id,
-        title
-      }`,
+    `*[_type == 'sport'] | order(title asc) { _id, title }`,
   );
 
   const items = [
-    S.divider().title("Articles"),
-    createList({
-      S,
-      type: "post",
-      title: "All Articles",
-      icon: FileText,
-      id: "all-articles",
+    S.divider().title("Newsroom"),
+
+    // Articles
+    createPostList(S, {
+      id: "newsroom-all-articles",
+      title: "All articles",
+      filter: '_type == "post"',
     }),
-    ...sports.map((sport) =>
-      createSportFilteredList(S, sport._id, sport.title),
-    ),
-    S.divider().title("Sports Organizational Structure"),
-    createList({
-      S,
-      type: "sport",
-      title: "Sports",
-    }),
-    createList({
-      S,
-      type: "division",
-      title: "Divisions",
-    }),
-    createList({
-      S,
-      type: "conference",
-      title: "Conferences",
-    }).child(
-      S.documentTypeList("conference")
-        .title("Conferences")
-        .defaultOrdering([{ field: "name", direction: "asc" }]),
-    ),
+    S.listItem()
+      .title("By sport")
+      .icon(Folder)
+      .id("newsroom-by-sport")
+      .child(
+        S.list()
+          .title("By sport")
+          .items(
+            sports.map((sport) =>
+              createSportFilteredList(S, sport._id, sport.title),
+            ),
+          ),
+      ),
+
+    S.divider().title("Sports Structure"),
+    createList({ S, type: "sport", title: "Sports" }),
     createList({
       S,
       type: "school",
@@ -187,17 +226,29 @@ export const structure = async (
     ),
     createList({
       S,
-      type: "sportSubgrouping",
-      title: "Sport Subgroupings",
-    }),
-    S.divider().title("Labeling"),
+      type: "conference",
+      title: "Conferences",
+    }).child(
+      S.documentTypeList("conference")
+        .title("Conferences")
+        .defaultOrdering([{ field: "name", direction: "asc" }]),
+    ),
     createList({
       S,
-      type: "tag",
-      title: "Tags",
-      icon: TagIcon,
+      type: "sportSubgrouping",
+      title: "FBS, FCS & groupings",
     }),
-    S.divider().title("Team"),
+    createList({
+      S,
+      type: "classification",
+      title: "Competition levels",
+    }),
+    createList({
+      S,
+      type: "governingBody",
+      title: "Associations (NCAA, NAIA…)",
+    }),
+    createList({ S, type: "tag", title: "Tags", icon: TagIcon }),
     createList({ S, type: "author", title: "Authors", icon: User }),
   ];
 
@@ -207,20 +258,25 @@ export const structure = async (
       createList({
         S,
         type: "legal",
-        title: "Legal Documents",
+        title: "Legal documents",
         icon: GavelIcon,
       }),
     );
     items.push(
-      createList({ S, type: "redirect", title: "Redirects", icon: RefreshCcw }),
+      createList({
+        S,
+        type: "redirect",
+        title: "Redirects",
+        icon: RefreshCcw,
+      }),
     );
     items.push(
       S.listItem()
-        .title("Site Configuration")
+        .title("Site configuration")
         .icon(Settings2)
         .child(
           S.list()
-            .title("Site Configuration")
+            .title("Site configuration")
             .items([
               createSingleTon({
                 S,
@@ -237,7 +293,7 @@ export const structure = async (
               createSingleTon({
                 S,
                 type: "settings",
-                title: "Global Settings",
+                title: "Global settings",
                 icon: CogIcon,
               }),
             ]),

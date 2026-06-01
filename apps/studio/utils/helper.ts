@@ -292,39 +292,6 @@ export function stringToPathname(input: string, options?: PathnameOptions) {
   return `${withoutTrailingSlash}`.replace(/\/+/g, "/");
 }
 
-export function createPageTemplate() {
-  const pages = [
-    {
-      title: "Page",
-      type: "page",
-    },
-    {
-      title: "Blog",
-      type: "blog",
-    },
-  ];
-  return pages.map((page) => {
-    return {
-      schemaType: page.type,
-      id: getTemplateName(page.type),
-      title: `${page.title} with slug`,
-      value: (props: { slug?: string }) => {
-        return {
-          ...(props.slug
-            ? { slug: { current: props.slug, _type: "slug" } }
-            : {}),
-        };
-      },
-      parameters: [
-        {
-          name: "slug",
-          type: "string",
-        },
-      ],
-    };
-  });
-}
-
 /**
  * Determines the presentation URL based on the current environment.
  * Uses localhost:3000 for development.

@@ -36,7 +36,7 @@ export type SeasonType = {
   startDate: string;
   endDate: string;
   weeks?: WeekDetail[];
-  week: Week | {};
+  week: Week | object;
 };
 
 export type Season = {

@@ -1,11 +1,12 @@
 import z from "zod";
+
 import type {
+  ESPNBody,
+  ESPNWeekResponse,
+  ESPNWeeksResponse,
   Season,
   SeasonType,
-  ESPNBody,
   WeekDetail,
-  ESPNWeeksResponse,
-  ESPNWeekResponse,
 } from "./types";
 
 export const SportSchema = z.enum([

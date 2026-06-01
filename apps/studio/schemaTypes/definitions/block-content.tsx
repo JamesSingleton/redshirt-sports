@@ -100,15 +100,22 @@ const richTextMembers = [
         name: "caption",
         type: "string",
         title: "Caption",
-        description:
-          "Just a brief description of the image as this will be used for alt text for accessibility.",
+        description: "Displayed below the image in the article.",
         validation: (rule) => rule.required(),
+      },
+      {
+        name: "alt",
+        type: "string",
+        title: "Alt Text",
+        description:
+          "Describes the image for screen readers and search engines. Leave blank to use the caption as a fallback — only fill this in if a better description than the caption exists.",
       },
       {
         name: "attribution",
         type: "string",
         title: "Attribution",
-        description: "Where did the photo come from?",
+        description:
+          "Photo credit — photographer, wire service, or image source.",
         validation: (rule) => rule.required(),
       },
     ],

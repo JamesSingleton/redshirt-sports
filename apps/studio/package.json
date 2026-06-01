@@ -10,12 +10,12 @@
     "build": "sanity build && sanity schema deploy --manifest-dir ./dist/static",
     "deploy": "sanity deploy",
     "type": "sanity schema extract --enforce-required-fields && sanity typegen generate",
-    "check:types": "tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@portabletext/react": "^6.2.0",
     "@sanity/asset-utils": "^2.3.0",
-    "@sanity/assist": "^6.0.5",
+    "@sanity/assist": "^6.0.7",
     "@sanity/blueprints": "^0.18.0",
     "@sanity/client": "catalog:",
     "@sanity/dashboard": "^5.0.1",
@@ -24,18 +24,21 @@
     "@sanity/image-url": "^2.1.1",
     "@sanity/table": "^2.0.1",
     "@sanity/ui": "^3.2.0",
-    "@sanity/vision": "^5.25.0",
+    "@sanity/vision": "^5.28.0",
+    "copy-to-clipboard": "^4.0.2",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "sanity": "catalog:",
     "sanity-plugin-documents-pane": "^3.0.2",
     "sanity-plugin-media": "^4.3.0",
+    "sanity-plugin-workflow": "^3.0.16",
     "slugify": "^1.6.9",
-    "styled-components": "^6.4.1"
+    "styled-components": "^6.4.2"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@types/react": "catalog:"
+    "@types/react": "catalog:",
+    "vite": "^8.0.14"
   }
 }

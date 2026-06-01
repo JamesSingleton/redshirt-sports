@@ -124,6 +124,7 @@ export type BlockContent = Array<
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
       caption: string;
+      alt?: string;
       attribution: string;
       _type: "image";
       _key: string;
@@ -291,6 +292,11 @@ export type School = {
     _type: "image";
   };
   top25VotingEligible?: boolean;
+  conferenceAffiliationsBySport?: Array<{
+    sport: SportReference;
+    conference: ConferenceReference;
+    _key: string;
+  }>;
   conferenceAffiliations?: Array<{
     sport: SportReference;
     conference: ConferenceReference;
@@ -326,6 +332,13 @@ export type AuthorReference = {
   _type: "reference";
   _weak?: boolean;
   [internalGroqTypeReferenceTo]?: "author";
+};
+
+export type ClassificationReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "classification";
 };
 
 export type SportSubgroupingReference = {
@@ -374,7 +387,7 @@ export type Post = {
     _type: "image";
   };
   sport?: SportReference;
-  division?: DivisionReference;
+  classification?: ClassificationReference;
   sportSubgrouping?: SportSubgroupingReference;
   conferences?: Array<
     {
@@ -425,45 +438,25 @@ export type Conference = {
     alt?: string;
     _type: "image";
   };
-  division: DivisionReference;
+  primaryClassification: ClassificationReference;
   sports?: Array<
     {
       _key: string;
     } & SportReference
   >;
+  sportSubdivisions?: Array<{
+    sport: SportReference;
+    subdivision: SportSubgroupingReference;
+    _type: "sportSubdivisionAssignment";
+    _key: string;
+  }>;
+  division: DivisionReference;
   sportSubdivisionAffiliations?: Array<{
     sport: SportReference;
     subgrouping: SportSubgroupingReference;
     _type: "sportSubgroupingAffiliation";
     _key: string;
   }>;
-};
-
-export type SportSubgrouping = {
-  _id: string;
-  _type: "sportSubgrouping";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name: string;
-  shortName?: string;
-  slug?: Slug;
-  applicableSports: Array<
-    {
-      _key: string;
-    } & SportReference
-  >;
-  parentDivision: DivisionReference;
-};
-
-export type Sport = {
-  _id: string;
-  _type: "sport";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title: string;
-  slug: Slug;
 };
 
 export type Division = {
@@ -486,6 +479,74 @@ export type Division = {
     alt: string;
     _type: "image";
   };
+};
+
+export type SportSubgrouping = {
+  _id: string;
+  _type: "sportSubgrouping";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  shortName?: string;
+  slug?: Slug;
+  parentClassification: ClassificationReference;
+  applicableSports: Array<
+    {
+      _key: string;
+    } & SportReference
+  >;
+};
+
+export type Sport = {
+  _id: string;
+  _type: "sport";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  slug: Slug;
+};
+
+export type GoverningBodyReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "governingBody";
+};
+
+export type Classification = {
+  _id: string;
+  _type: "classification";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  governingBody: GoverningBodyReference;
+  name: string;
+  shortName: string;
+  slug: Slug;
+};
+
+export type GoverningBody = {
+  _id: string;
+  _type: "governingBody";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  abbreviation: string;
+  name: string;
+  slug: Slug;
+  description?: string;
+  website?: string;
+  logo?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt: string;
+    _type: "image";
+  };
+  active?: boolean;
 };
 
 export type Author = {
@@ -844,14 +905,18 @@ export type AllSanitySchemaTypes =
   | Redirect
   | Legal
   | AuthorReference
+  | ClassificationReference
   | SportSubgroupingReference
   | SchoolReference
   | TagReference
   | Post
   | Conference
+  | Division
   | SportSubgrouping
   | Sport
-  | Division
+  | GoverningBodyReference
+  | Classification
+  | GoverningBody
   | Author
   | SanityVideoMetadataPlayback
   | SanityVideoMetadata
@@ -961,21 +1026,7 @@ export type QueryPostSlugDataResult = {
     slug: string;
     title: string;
   } | null;
-  division: {
-    _id: string;
-    name: string;
-    slug: string;
-    logo: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      alt: string | "Image-Broken";
-      _type: "image";
-      blurData: string | null;
-      dominantColor: string | null;
-    } | null;
-  } | null;
+  classification?: ClassificationReference;
   sportSubgrouping: {
     _id: string;
     _type: "sportSubgrouping";
@@ -985,12 +1036,12 @@ export type QueryPostSlugDataResult = {
     name: string;
     shortName?: string;
     slug: string | null;
+    parentClassification: ClassificationReference;
     applicableSports: Array<
       {
         _key: string;
       } & SportReference
     >;
-    parentDivision: DivisionReference;
   } | null;
   conferences: Array<{
     _id: string;
@@ -1076,11 +1127,11 @@ export type QueryPostSlugDataResult = {
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
         caption: string;
+        alt: string;
         attribution: string;
         _type: "image";
         _key: string;
         markDefs: null;
-        alt: string;
         credit: string;
         blurData: string | null;
         dominantColor: string | null;
@@ -1119,6 +1170,7 @@ export type QueryPostSlugDataResult = {
   };
   ogTitle?: string;
   ogDescription?: string;
+  division: null;
   relatedPosts: Array<{
     _id: string;
     title: string;
@@ -1252,7 +1304,7 @@ export type QuerySportsNewsResult = {
       dominantColor: string | null;
     };
     sport?: SportReference;
-    division?: DivisionReference;
+    classification?: ClassificationReference;
     sportSubgrouping?: SportSubgroupingReference;
     conferences?: Array<
       {
@@ -1350,7 +1402,7 @@ export type QuerySportsAndDivisionNewsResult = {
       dominantColor: string | null;
     };
     sport?: SportReference;
-    division?: DivisionReference;
+    classification?: ClassificationReference;
     sportSubgrouping?: SportSubgroupingReference;
     conferences?: Array<
       {
@@ -1626,10 +1678,7 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
     credit: string;
   };
   publishedAt: string | null;
-  division: {
-    name: string;
-    slug: string;
-  } | null;
+  division: null;
   conferences: Array<{
     name: string;
     slug: string;
@@ -1755,7 +1804,7 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
       dominantColor: string | null;
     };
     sport?: SportReference;
-    division?: DivisionReference;
+    classification?: ClassificationReference;
     sportSubgrouping?: SportSubgroupingReference;
     conferences?: Array<
       {
@@ -1854,21 +1903,7 @@ export type SearchQueryResult = {
       _type: "image";
     };
     sport: string | null;
-    division: {
-      _id: string;
-      name: string;
-      slug: string;
-      logo: {
-        asset?: SanityImageAssetReference;
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        alt: string | "Image-Broken";
-        _type: "image";
-        blurData: string | null;
-        dominantColor: string | null;
-      } | null;
-    } | null;
+    classification?: ClassificationReference;
     sportSubgrouping?: SportSubgroupingReference;
     conferences: Array<{
       _id: string;
@@ -1924,6 +1959,7 @@ export type SearchQueryResult = {
     };
     ogTitle?: string;
     ogDescription?: string;
+    division: null;
   }>;
   totalPosts: number;
 };
@@ -2038,7 +2074,7 @@ export type PostsByAuthorResult = {
       dominantColor: string | null;
     };
     sport?: SportReference;
-    division?: DivisionReference;
+    classification?: ClassificationReference;
     sportSubgrouping?: SportSubgroupingReference;
     conferences?: Array<
       {
@@ -2249,12 +2285,19 @@ export type ConferenceInfoBySlugQueryResult = {
     alt?: string;
     _type: "image";
   };
-  division: DivisionReference;
+  primaryClassification: ClassificationReference;
   sports?: Array<
     {
       _key: string;
     } & SportReference
   >;
+  sportSubdivisions?: Array<{
+    sport: SportReference;
+    subdivision: SportSubgroupingReference;
+    _type: "sportSubdivisionAssignment";
+    _key: string;
+  }>;
+  division: DivisionReference;
   sportSubdivisionAffiliations?: Array<{
     sport: SportReference;
     subgrouping: SportSubgroupingReference;
@@ -2567,7 +2610,7 @@ export type CountOfPostsQueryResult = number;
 // Query: *[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){  "sport": sport->slug.current,  "division": division->slug.current,  "sportSubgrouping": sportSubgrouping->slug.current,  "conferences": conferences[]->{      "slug": slug.current,      "division": division->slug.current,      "subgroupings": sportSubdivisionAffiliations[]{        "sport": sport->slug.current,        "subgrouping": subgrouping->slug.current      }    },  _updatedAt}
 export type QueryForCollegeSitemapResult = Array<{
   sport: string | null;
-  division: string | null;
+  division: null;
   sportSubgrouping: string | null;
   conferences: Array<{
     slug: string;

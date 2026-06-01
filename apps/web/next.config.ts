@@ -59,6 +59,7 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   experimental: {
     inlineCss: true,
+    instantNavigationDevToolsToggle: true,
   },
   logging: {
     fetches: {},

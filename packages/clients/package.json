@@ -10,11 +10,14 @@
     "zod": "catalog:"
   },
   "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
-    "vitest": "^4.1.6"
+    "vitest": "catalog:"
   }
 }

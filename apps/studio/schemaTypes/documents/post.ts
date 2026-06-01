@@ -10,15 +10,38 @@ import {
 } from "../../utils/portable-text-validations";
 import { seoFields } from "../../utils/seo-fields";
 import { createSlug, isUnique } from "../../utils/slug";
+import { documentSlugField } from "../common";
 
-const DIVISION_1_ID = "329c4f4f-bb7c-459e-872d-eb1a57deb196"; // Assuming this is the ID for Division 1
+const NCAA_D1_CLASSIFICATION_ID = "1574eb35-c770-4cd4-a164-444045196cc9";
+
+const ARTICLE_TYPES = [
+  { title: "News", value: "news" },
+  { title: "Analysis", value: "analysis" },
+  { title: "Opinion", value: "opinion" },
+  { title: "Recruiting", value: "recruiting" },
+  { title: "Transfer portal", value: "transfer" },
+  { title: "Game recap", value: "game-recap" },
+  { title: "Podcast notes", value: "podcast-notes" },
+] as const;
 
 export const post = defineType({
   name: "post",
-  title: "Post",
+  title: "Article",
   type: "document",
   groups: GROUPS,
   fields: [
+    defineField({
+      name: "articleType",
+      title: "Article type",
+      type: "string",
+      options: {
+        list: [...ARTICLE_TYPES],
+        layout: "dropdown",
+      },
+      initialValue: "news",
+      group: GROUP.MAIN_CONTENT,
+      // validation: (rule) => rule.required(),
+    }),
     defineField({
       name: "title",
       title: "Title",
@@ -31,20 +54,8 @@ export const post = defineType({
         input: CharacterCountInput,
       },
     }),
-    defineField({
-      name: "slug",
-      type: "slug",
-      title: "URL",
+    documentSlugField("post", {
       group: GROUP.MAIN_CONTENT,
-      components: {
-        field: PathnameFieldComponent,
-      },
-      options: {
-        source: "title",
-        slugify: createSlug,
-        isUnique,
-      },
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "author",
@@ -124,7 +135,8 @@ export const post = defineType({
     defineField({
       title: "Sport",
       name: "sport",
-      description: "What sport is this article about?",
+      description:
+        "Optional. Leave empty for college-wide stories (e.g. athletic department news) — those appear on /college/news.",
       type: "reference",
       to: [{ type: "sport" }],
       group: GROUP.MAIN_CONTENT,
@@ -133,14 +145,24 @@ export const post = defineType({
       },
     }),
     defineField({
-      title: "Division",
-      name: "division",
+      title: "Classification",
+      name: "classification",
       description:
-        "What's the primary division this article is about? If it's FCS, FBS, Mid-Major, or Power 5, select Division I.",
+        "The governing body and level this article covers. Select NCAA Division I for FBS, FCS, Power 4, or Mid-Major content. Select NAIA, NJCAA, or NCCAA for those associations.",
       type: "reference",
-      to: [{ type: "division" }],
+      to: [{ type: "classification" }],
       group: GROUP.MAIN_CONTENT,
+      hidden: ({ document }) => !document?.sport,
     }),
+    // defineField({
+    //   title: "Division",
+    //   name: "division",
+    //   description:
+    //     "What's the primary division this article is about? If it's FCS, FBS, Mid-Major, or Power 5, select Division I.",
+    //   type: "reference",
+    //   to: [{ type: "division" }],
+    //   group: GROUP.MAIN_CONTENT,
+    // }),
     defineField({
       name: "sportSubgrouping",
       title: "Sport Subgrouping",
@@ -151,14 +173,19 @@ export const post = defineType({
       group: GROUP.MAIN_CONTENT,
       hidden: ({ document }) =>
         !document?.sport ||
-        (document?.division as { _ref?: string } | undefined)?._ref !==
-          DIVISION_1_ID,
+        (document?.classification as { _ref?: string } | undefined)?._ref !==
+          NCAA_D1_CLASSIFICATION_ID,
       options: {
         disableNew: true,
         filter: ({ document }) => {
-          const division = document.division as { _ref?: string } | undefined;
+          const classification = document.classification as
+            | { _ref?: string }
+            | undefined;
           const sport = document.sport as { _ref?: string } | undefined;
-          if (!sport?._ref || division?._ref !== DIVISION_1_ID) {
+          if (
+            !sport?._ref ||
+            classification?._ref !== NCAA_D1_CLASSIFICATION_ID
+          ) {
             return {
               filter: `_id == null`,
             };
@@ -181,7 +208,7 @@ export const post = defineType({
           to: [{ type: "conference" }],
         }),
       ],
-      hidden: ({ document }) => !document?.division,
+      hidden: ({ document }) => !document?.classification,
       group: GROUP.MAIN_CONTENT,
     }),
     defineField({
@@ -209,15 +236,6 @@ export const post = defineType({
           to: [{ type: "tag" }],
         }),
       ],
-      group: GROUP.MAIN_CONTENT,
-    }),
-    defineField({
-      title: "Is this a featured article?",
-      description:
-        "Only select Featured if it has been discussed with everyone on the team.",
-      name: "featuredArticle",
-      type: "boolean",
-      initialValue: false,
       group: GROUP.MAIN_CONTENT,
     }),
     defineField({
@@ -262,21 +280,23 @@ export const post = defineType({
       title: "title",
       media: "mainImage",
       date: "publishedAt",
+      articleType: "articleType",
+      sport: "sport.title",
     },
-    prepare: ({ title, media, date }) => ({
-      title,
-      media,
-      // add subtitle to preview but only if it's defined
-      subtitle: date
-        ? `on ${
-            date &&
-            new Date(date).toLocaleString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
-          }`
-        : "Missing publish date",
-    }),
+    prepare: ({ title, media, date, articleType, sport }) => {
+      const dateLabel = date
+        ? new Date(date).toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+        : "Unpublished";
+
+      return {
+        title,
+        media,
+        subtitle: [articleType, sport, dateLabel].filter(Boolean).join(" · "),
+      };
+    },
   },
 });
