@@ -33,7 +33,6 @@ export interface PostPayload {
   authors: Author[];
   excerpt: string;
   body: PortableTextBlock[];
-  featuredArticle: boolean;
   estimatedReadingTime: number;
   wordCount: number;
   relatedArticles: Post[];

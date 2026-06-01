@@ -37,16 +37,5 @@ export default defineBlueprint({
         projection: "{_id}",
       },
     }),
-    defineDocumentFunction({
-      name: "featured-enforcer",
-      src: "./functions/featured-enforcer",
-      memory: 2,
-      timeout: 30,
-      event: {
-        on: ["create", "update"],
-        filter: "_type == 'post' && featuredArticle == true",
-        projection: "{_id}",
-      },
-    }),
   ],
 });

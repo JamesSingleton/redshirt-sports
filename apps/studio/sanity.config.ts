@@ -14,6 +14,7 @@ import { media, mediaAssetSource } from "sanity-plugin-media";
 
 import { CharacterCountInputPTE } from "./components/character-count";
 import { Logo } from "./components/logo";
+import { postTemplates } from "./schema/templates/post-templates";
 import { schemaTypes } from "./schemaTypes";
 import { getDefaultDocumentNode, structure } from "./structure";
 import { createCustomPostDuplicateAction } from "./utils/actions";
@@ -104,17 +105,6 @@ export default defineConfig({
   },
   schema: {
     types: schemaTypes,
-    templates: (prev) => [
-      ...prev,
-      {
-        id: "post-by-sport",
-        title: "Post by Sport",
-        schemaType: "post",
-        parameters: [{ name: "sportId", type: "string" }],
-        value: ({ sportId }: { sportId: string }) => ({
-          sport: { _type: "reference", _ref: sportId },
-        }),
-      },
-    ],
+    templates: (prev) => [...prev, ...postTemplates],
   },
 });

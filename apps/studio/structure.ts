@@ -1,11 +1,4 @@
-import {
-  CheckmarkCircleIcon,
-  ClockIcon,
-  ComposeIcon,
-  EditIcon,
-  LinkIcon,
-  PublishIcon,
-} from "@sanity/icons";
+import { CheckmarkCircleIcon, ComposeIcon, LinkIcon } from "@sanity/icons";
 import {
   CogIcon,
   FileText,
@@ -30,6 +23,8 @@ import DocumentsPane from "sanity-plugin-documents-pane";
 import { PublishingChecklistView } from "./components/publishing-checklist";
 import type { SchemaType, SingletonType } from "./schemaTypes";
 import { getTitleCase } from "./utils/helper";
+
+const API_VERSION = "2025-06-11";
 
 type Base<T = SchemaType> = {
   id?: string;
@@ -77,8 +72,6 @@ export const getDefaultDocumentNode: DefaultDocumentNodeResolver = (
     case "post":
       return S.document().views([
         S.view.form().icon(ComposeIcon).title("Edit"),
-        // Publishing checklist gives writers a single-glance readiness check
-        // without digging through validation errors.
         S.view
           .component(PublishingChecklistView)
           .title("Publishing Checklist")
@@ -123,55 +116,64 @@ const createList = ({ S, type, icon, title, id }: CreateList) => {
     .icon(icon ?? Folder);
 };
 
-// ─── Sport-Filtered Article Lists ─────────────────────────────────────────────
+const defaultPostTemplates = (S: StructureBuilder) => [
+  S.initialValueTemplateItem("post-college-wide"),
+  S.initialValueTemplateItem("post-recruiting"),
+  S.initialValueTemplateItem("post-transfer"),
+  S.initialValueTemplateItem("post-analysis"),
+  S.initialValueTemplateItem("post-opinion"),
+  S.initialValueTemplateItem("post-podcast-notes"),
+];
+
+type PostListOptions = {
+  id: string;
+  title: string;
+  filter: string;
+  params?: Record<string, unknown>;
+  templates?: ReturnType<typeof defaultPostTemplates>;
+};
+
+const createPostList = (
+  S: StructureBuilder,
+  { id, title, filter, params, templates }: PostListOptions,
+) =>
+  S.listItem()
+    .title(title)
+    .icon(FileText)
+    .id(id)
+    .child(
+      S.documentList()
+        .title(title)
+        .schemaType("post")
+        .filter(filter)
+        .apiVersion(API_VERSION)
+        .params(params ?? {})
+        .defaultOrdering([{ field: "publishedAt", direction: "desc" }])
+        .initialValueTemplates(templates ?? defaultPostTemplates(S)),
+    );
 
 const createSportFilteredList = (
   S: StructureBuilder,
   sportId: string,
   sportName: string,
-) => {
-  return S.listItem()
-    .title(`${sportName}`)
+) =>
+  S.listItem()
+    .title(sportName)
     .icon(FileText)
     .id(`${sportId}-articles`)
     .child(
       S.documentList()
         .title(`${sportName} Articles`)
+        .schemaType("post")
         .filter('_type == "post" && sport._ref == $sportId')
-        .apiVersion("2025-06-11")
+        .apiVersion(API_VERSION)
         .params({ sportId })
         .defaultOrdering([{ field: "publishedAt", direction: "desc" }])
         .initialValueTemplates([
           S.initialValueTemplateItem("post-by-sport", { sportId }),
+          S.initialValueTemplateItem("post-game-recap", { sportId }),
+          ...defaultPostTemplates(S),
         ]),
-    );
-};
-
-// ─── Workflow Panes ────────────────────────────────────────────────────────────
-//
-// These filtered lists are what makes Sanity feel like a real editorial CMS.
-// Editors can move straight from "In Review" to "Ready to Publish" without
-// hunting through all articles.
-//
-
-const workflowPane = (
-  S: StructureBuilder,
-  title: string,
-  status: string,
-  icon: any,
-  id: string,
-) =>
-  S.listItem()
-    .title(title)
-    .icon(icon)
-    .id(id)
-    .child(
-      S.documentList()
-        .title(title)
-        .filter('_type == "post" && status == $status')
-        .apiVersion("2025-06-11")
-        .params({ status })
-        .defaultOrdering([{ field: "_updatedAt", direction: "desc" }]),
     );
 
 // ─── Main Structure ────────────────────────────────────────────────────────────
@@ -181,29 +183,28 @@ export const structure = async (
   context: StructureResolverContext,
 ) => {
   const { currentUser, getClient } = context;
-  const client = getClient({ apiVersion: "2025-06-11" });
+  const client = getClient({ apiVersion: API_VERSION });
 
   const sports = await client.fetch<Array<{ _id: string; title: string }>>(
     `*[_type == 'sport'] | order(title asc) { _id, title }`,
   );
 
   const items = [
-    // ── All Articles + by Sport ─────────────────────────────────────────────
-    S.divider().title("Articles"),
-    createList({
-      S,
-      type: "post",
-      title: "All Articles",
-      icon: FileText,
-      id: "all-articles",
+    S.divider().title("Newsroom"),
+
+    // Articles
+    createPostList(S, {
+      id: "newsroom-all-articles",
+      title: "All articles",
+      filter: '_type == "post"',
     }),
     S.listItem()
-      .title("By Sport")
+      .title("By sport")
       .icon(Folder)
-      .id("articles-by-sport")
+      .id("newsroom-by-sport")
       .child(
         S.list()
-          .title("Articles by Sport")
+          .title("By sport")
           .items(
             sports.map((sport) =>
               createSportFilteredList(S, sport._id, sport.title),
@@ -211,20 +212,8 @@ export const structure = async (
           ),
       ),
 
-    // ── Sports Organizational Structure ────────────────────────────────────
     S.divider().title("Sports Structure"),
     createList({ S, type: "sport", title: "Sports" }),
-    createList({ S, type: "governingBody", title: "Governing Bodies" }),
-    createList({ S, type: "classification", title: "Classifications" }),
-    createList({
-      S,
-      type: "conference",
-      title: "Conferences",
-    }).child(
-      S.documentTypeList("conference")
-        .title("Conferences")
-        .defaultOrdering([{ field: "name", direction: "asc" }]),
-    ),
     createList({
       S,
       type: "school",
@@ -237,27 +226,39 @@ export const structure = async (
     ),
     createList({
       S,
+      type: "conference",
+      title: "Conferences",
+    }).child(
+      S.documentTypeList("conference")
+        .title("Conferences")
+        .defaultOrdering([{ field: "name", direction: "asc" }]),
+    ),
+    createList({
+      S,
       type: "sportSubgrouping",
-      title: "Sport Subdivision / Subgrouping",
+      title: "FBS, FCS & groupings",
     }),
-
-    // ── Labeling ───────────────────────────────────────────────────────────
-    S.divider().title("Labeling"),
+    createList({
+      S,
+      type: "classification",
+      title: "Competition levels",
+    }),
+    createList({
+      S,
+      type: "governingBody",
+      title: "Associations (NCAA, NAIA…)",
+    }),
     createList({ S, type: "tag", title: "Tags", icon: TagIcon }),
-
-    // ── Team ───────────────────────────────────────────────────────────────
-    S.divider().title("Team"),
     createList({ S, type: "author", title: "Authors", icon: User }),
   ];
 
-  // ── Admin-only ─────────────────────────────────────────────────────────────
   if (currentUser?.roles?.find(({ name }) => name === "administrator")) {
     items.push(S.divider().title("Admin"));
     items.push(
       createList({
         S,
         type: "legal",
-        title: "Legal Documents",
+        title: "Legal documents",
         icon: GavelIcon,
       }),
     );
@@ -271,11 +272,11 @@ export const structure = async (
     );
     items.push(
       S.listItem()
-        .title("Site Configuration")
+        .title("Site configuration")
         .icon(Settings2)
         .child(
           S.list()
-            .title("Site Configuration")
+            .title("Site configuration")
             .items([
               createSingleTon({
                 S,
@@ -292,7 +293,7 @@ export const structure = async (
               createSingleTon({
                 S,
                 type: "settings",
-                title: "Global Settings",
+                title: "Global settings",
                 icon: CogIcon,
               }),
             ]),

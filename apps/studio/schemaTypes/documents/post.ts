@@ -14,12 +14,34 @@ import { documentSlugField } from "../common";
 
 const NCAA_D1_CLASSIFICATION_ID = "1574eb35-c770-4cd4-a164-444045196cc9";
 
+const ARTICLE_TYPES = [
+  { title: "News", value: "news" },
+  { title: "Analysis", value: "analysis" },
+  { title: "Opinion", value: "opinion" },
+  { title: "Recruiting", value: "recruiting" },
+  { title: "Transfer portal", value: "transfer" },
+  { title: "Game recap", value: "game-recap" },
+  { title: "Podcast notes", value: "podcast-notes" },
+] as const;
+
 export const post = defineType({
   name: "post",
-  title: "Post",
+  title: "Article",
   type: "document",
   groups: GROUPS,
   fields: [
+    defineField({
+      name: "articleType",
+      title: "Article type",
+      type: "string",
+      options: {
+        list: [...ARTICLE_TYPES],
+        layout: "dropdown",
+      },
+      initialValue: "news",
+      group: GROUP.MAIN_CONTENT,
+      // validation: (rule) => rule.required(),
+    }),
     defineField({
       name: "title",
       title: "Title",
@@ -35,21 +57,6 @@ export const post = defineType({
     documentSlugField("post", {
       group: GROUP.MAIN_CONTENT,
     }),
-    // defineField({
-    //   name: "slug",
-    //   type: "slug",
-    //   title: "URL",
-    //   group: GROUP.MAIN_CONTENT,
-    //   components: {
-    //     field: PathnameFieldComponent,
-    //   },
-    //   options: {
-    //     source: "title",
-    //     slugify: createSlug,
-    //     isUnique,
-    //   },
-    //   validation: (rule) => rule.required(),
-    // }),
     defineField({
       name: "author",
       title: "Author",
@@ -128,7 +135,8 @@ export const post = defineType({
     defineField({
       title: "Sport",
       name: "sport",
-      description: "What sport is this article about?",
+      description:
+        "Optional. Leave empty for college-wide stories (e.g. athletic department news) — those appear on /college/news.",
       type: "reference",
       to: [{ type: "sport" }],
       group: GROUP.MAIN_CONTENT,
@@ -231,15 +239,6 @@ export const post = defineType({
       group: GROUP.MAIN_CONTENT,
     }),
     defineField({
-      title: "Is this a featured article?",
-      description:
-        "Only select Featured if it has been discussed with everyone on the team.",
-      name: "featuredArticle",
-      type: "boolean",
-      initialValue: false,
-      group: GROUP.MAIN_CONTENT,
-    }),
-    defineField({
       name: "excerpt",
       title: "Article Excerpt",
       type: "text",
@@ -281,21 +280,23 @@ export const post = defineType({
       title: "title",
       media: "mainImage",
       date: "publishedAt",
+      articleType: "articleType",
+      sport: "sport.title",
     },
-    prepare: ({ title, media, date }) => ({
-      title,
-      media,
-      // add subtitle to preview but only if it's defined
-      subtitle: date
-        ? `on ${
-            date &&
-            new Date(date).toLocaleString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
-          }`
-        : "Missing publish date",
-    }),
+    prepare: ({ title, media, date, articleType, sport }) => {
+      const dateLabel = date
+        ? new Date(date).toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+        : "Unpublished";
+
+      return {
+        title,
+        media,
+        subtitle: [articleType, sport, dateLabel].filter(Boolean).join(" · "),
+      };
+    },
   },
 });
