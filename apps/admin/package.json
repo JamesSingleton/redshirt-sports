@@ -14,7 +14,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.3.3",
+    "@clerk/nextjs": "^7.4.3",
     "@redshirt-sports/clients": "workspace:*",
     "@redshirt-sports/db": "workspace:*",
     "@redshirt-sports/next-config": "workspace:*",
@@ -23,7 +23,7 @@
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tabler/icons-react": "^3.44.0",
     "lucide-react": "catalog:",
-    "next": "^16.2.6",
+    "next": "^16.2.7",
     "next-themes": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
@@ -38,9 +38,9 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-react-compiler": "1.0.0",
-    "happy-dom": "^20.9.0",
+    "happy-dom": "^20.10.1",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.6"
+    "vitest": "catalog:"
   }
 }
