@@ -2,7 +2,8 @@ import { User } from "lucide-react";
 import { defineField, defineType } from "sanity";
 
 import { CharacterCountInput } from "../../components/character-count";
-import { createSlug } from "../../utils/slug";
+import { createSlug, isUnique } from "../../utils/slug";
+import { documentSlugField } from "../common";
 import { socialLinks } from "../definitions/social-links";
 
 export const author = defineType({
@@ -17,16 +18,17 @@ export const author = defineType({
       type: "string",
       validation: (rule) => rule.required().error("Author name is required"),
     }),
-    defineField({
-      name: "slug",
-      title: "Slug",
-      type: "slug",
-      options: {
+    documentSlugField("author", {
+      title: "Author URL",
+      description:
+        "The web address for this author's profile page (automatically created from name)",
+      required: true,
+      slugOptions: {
         source: "name",
         maxLength: 96,
         slugify: createSlug,
+        isUnique,
       },
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "archived",

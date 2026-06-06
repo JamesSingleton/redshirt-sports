@@ -35,9 +35,17 @@ const richTextMembers = [
           ],
         },
         {
+          name: "customUrl",
+          title: "Site Link",
+          type: "customUrl",
+          description:
+            "Preferred for linking to posts, schools, authors, or full archive paths (e.g. /college/football/news/fbs/sec).",
+        },
+        {
           name: "internalLink",
-          title: "Internal Link",
+          title: "Internal Link (legacy)",
           type: "object",
+          description: "Deprecated — use Site Link instead. Existing links still work.",
           icon: () => (
             <svg
               width={12}
@@ -79,7 +87,7 @@ const richTextMembers = [
               title: "Reference",
               name: "reference",
               type: "reference",
-              to: [{ type: "post" }],
+              to: [{ type: "post" }, { type: "school" }, { type: "author" }],
             },
           ],
         },

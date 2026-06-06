@@ -1,4 +1,3 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
 import {
   conferenceInfoBySlugQuery,
   queryArticlesBySportDivisionAndConference,
@@ -16,61 +15,13 @@ import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { getBaseUrl } from "@/lib/get-base-url";
+import {
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+  sanityFetchPage,
+} from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
-
-async function fetchConferenceInfo(slug: string) {
-  return await sanityFetch({
-    query: conferenceInfoBySlugQuery,
-    params: {
-      slug,
-    },
-  });
-}
-
-async function fetchSportNewsForDivisionAndConference({
-  sport,
-  division,
-  conference,
-  pageIndex,
-}: {
-  sport: string;
-  division: string;
-  conference: string;
-  pageIndex: number;
-}) {
-  const from = (pageIndex - 1) * perPage;
-  const to = pageIndex * perPage;
-
-  return await sanityFetch({
-    query: queryArticlesBySportDivisionAndConference,
-    params: {
-      sport,
-      division,
-      conference,
-      from,
-      to,
-    },
-  });
-}
-
-async function fetchSportInfoBySlug(slug: string) {
-  return await sanityFetch({
-    query: sportInfoBySlug,
-    params: {
-      slug,
-    },
-  });
-}
-
-export async function getDivisionOrSubgroupingDisplayName(
-  slugOrShortName: string,
-) {
-  return await sanityFetch({
-    query: queryDivisionOrSubgroupingDisplayName,
-    params: { slugOrShortName },
-  });
-}
 
 export async function generateMetadata({
   params,
@@ -80,10 +31,23 @@ export async function generateMetadata({
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
 
+  const { perspective } = await getDynamicFetchOptions();
   const [divisionDisplayName, conferenceInfo, sportTitle] = await Promise.all([
-    getDivisionOrSubgroupingDisplayName(division),
-    fetchConferenceInfo(conference),
-    fetchSportInfoBySlug(sport),
+    sanityFetchMetadata({
+      query: queryDivisionOrSubgroupingDisplayName,
+      params: { slugOrShortName: division },
+      perspective,
+    }),
+    sanityFetchMetadata({
+      query: conferenceInfoBySlugQuery,
+      params: { slug: conference },
+      perspective,
+    }),
+    sanityFetchMetadata({
+      query: sportInfoBySlug,
+      params: { slug: sport },
+      perspective,
+    }),
   ]);
 
   if (
@@ -126,16 +90,27 @@ export default async function Page({
   const pageIndex = validatePageIndex(page);
   const baseUrl = getBaseUrl();
 
+  const fetchOptions = await getDynamicFetchOptions();
+  const from = (pageIndex - 1) * perPage;
+  const to = pageIndex * perPage;
+
   const [newsResponse, sportInfoResponse, divisionNameResponse] =
     await Promise.all([
-      fetchSportNewsForDivisionAndConference({
-        sport,
-        division,
-        conference,
-        pageIndex,
+      sanityFetchPage({
+        query: queryArticlesBySportDivisionAndConference,
+        params: { sport, division, conference, from, to },
+        ...fetchOptions,
       }),
-      fetchSportInfoBySlug(sport),
-      getDivisionOrSubgroupingDisplayName(division),
+      sanityFetchPage({
+        query: sportInfoBySlug,
+        params: { slug: sport },
+        ...fetchOptions,
+      }),
+      sanityFetchPage({
+        query: queryDivisionOrSubgroupingDisplayName,
+        params: { slugOrShortName: division },
+        ...fetchOptions,
+      }),
     ]);
 
   const news = newsResponse.data;

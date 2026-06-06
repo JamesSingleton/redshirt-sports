@@ -17,14 +17,36 @@ export const querySettingsData = defineQuery(/* groq */ `
 const markDefsFragment = /* groq */ `
   markDefs[]{
     ...,
+    _type == "customUrl" => {
+      ...,
+      "href": select(
+        type == "external" => external,
+        type == "internal" && internal->_type == "post" => "/" + internal->slug.current,
+        type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,
+        type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,
+        href
+      )
+    },
     _type == "internalLink" => {
       ...,
       "href": select(
         reference->_type == "post" => "/" + reference->slug.current,
+        reference->_type == "school" => "/college/teams/" + reference->slug.current,
+        reference->_type == "author" => "/authors/" + reference->slug.current,
         "#"
       )
     }
   }
+`;
+
+const customUrlHrefFragment = /* groq */ `
+  "href": select(
+    url.type == "external" => url.external,
+    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,
+    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,
+    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,
+    url.href
+  )
 `;
 
 const imageFragment = /* groq */ `
@@ -144,6 +166,19 @@ export const queryPostSlugData = defineQuery(/* groq */ `
     ${postAuthorFragment},
     ${postImageFragment},
     ${richTextFragment},
+    teams[]->{
+      _id,
+      name,
+      shortName,
+      nickname,
+      "slug": slug.current,
+      image{
+        ...,
+        "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
+        "blurData": asset->metadata.lqip,
+        "dominantColor": asset->metadata.palette.dominant.background,
+      }
+    },
     "relatedPosts": *[
       _type == "post"
       && _id != ^._id
@@ -213,12 +248,7 @@ export const queryFooterData = defineQuery(/* groq */ `
         _key,
         name,
         "openInNewTab": url.openInNewTab,
-        "href": select(
-          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,
-          url.type == "internal" && url.internalType == "custom" => url.internalUrl,
-          url.type == "external" => url.external,
-          url.href
-        )
+        ${customUrlHrefFragment}
       }
     },
   }
@@ -270,12 +300,7 @@ export const queryNavbarData = defineQuery(/* groq */ `
           icon,
           description,
           "openInNewTab": url.openInNewTab,
-          "href": select(
-            url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,
-            url.type == "internal" && url.internalType == "custom" => url.internalUrl,
-            url.type == "external" => url.external,
-            url.href
-          )
+          ${customUrlHrefFragment}
         }
       },
       _type == "navbarLink" => {
@@ -283,12 +308,7 @@ export const queryNavbarData = defineQuery(/* groq */ `
         name,
         description,
         "openInNewTab": url.openInNewTab,
-        "href": select(
-          url.type == "internal" && url.internalType == "reference" => url.internal->slug.current,
-          url.type == "internal" && url.internalType == "custom" => url.internalUrl,
-          url.type == "external" => url.external,
-          url.href
-        )
+        ${customUrlHrefFragment}
       }
     },
     "logo": *[_type == "settings"][0].logo.asset->url + "?w=70&h=40&dpr=3&fit=max",
@@ -297,7 +317,7 @@ export const queryNavbarData = defineQuery(/* groq */ `
 `);
 
 export const queryHomePageData = defineQuery(/* groq */ `
-  *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[0...3]{
+  *[_type == "post"] | order(publishedAt desc)[0...3]{
     _id,
     _type,
     title,
@@ -316,7 +336,7 @@ export const queryHomePageData = defineQuery(/* groq */ `
 `);
 
 export const queryLatestArticles = defineQuery(/* groq */ `
- *[_type == "post" && featuredArticle != true] | order(publishedAt desc)[3..6]{
+ *[_type == "post"] | order(publishedAt desc)[3..6]{
     _id,
     title,
     excerpt,
@@ -373,6 +393,13 @@ export const querySitemapData = defineQuery(/* groq */ `{
   "authors": *[_type == "author" && defined(slug.current) && archived == false] {
     "slug": slug.current,
     "lastModified": _updatedAt
+  },
+  "schools": *[_type == "school" && defined(slug.current)] {
+    "slug": slug.current,
+    "lastModified": _updatedAt
+  },
+  "sports": *[_type == "sport" && defined(slug.current)] {
+    "slug": slug.current
   },
 }`);
 
@@ -836,3 +863,116 @@ export const queryDivisionOrSubgroupingDisplayName = defineQuery(
   }
 `,
 );
+
+export const schoolBySlugQuery = defineQuery(/* groq */ `
+  *[_type == "school" && slug.current == $slug][0]{
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    nickname,
+    "slug": slug.current,
+    overview,
+    websiteUrl,
+    socialLinks,
+    seoTitle,
+    seoDescription,
+    seoImage,
+    ogTitle,
+    ogDescription,
+    image{
+      ...,
+      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
+      "blurData": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background,
+    },
+    conferenceAffiliations[]{
+      _key,
+      sport->{
+        _id,
+        title,
+        "slug": slug.current
+      },
+      conference->{
+        _id,
+        name,
+        shortName,
+        "slug": slug.current
+      }
+    }
+  }
+`);
+
+export const postsBySchoolQuery = defineQuery(/* groq */ `
+  {
+    "posts": *[
+      _type == "post" &&
+      defined(publishedAt) &&
+      $schoolId in teams[]._ref
+    ] | order(publishedAt desc)[$from...$to]{
+      _id,
+      title,
+      excerpt,
+      storyType,
+      publishedAt,
+      "slug": slug.current,
+      ${postImageFragment},
+      ${postAuthorFragment}
+    },
+    "totalPosts": count(*[
+      _type == "post" &&
+      defined(publishedAt) &&
+      $schoolId in teams[]._ref
+    ])
+  }
+`);
+
+export const postsBySchoolAndStoryTypeQuery = defineQuery(/* groq */ `
+  *[
+    _type == "post" &&
+    defined(publishedAt) &&
+    storyType == $storyType &&
+    $schoolId in teams[]._ref
+  ] | order(publishedAt desc)[0...6]{
+    _id,
+    title,
+    excerpt,
+    publishedAt,
+    "slug": slug.current,
+    ${postImageFragment},
+    ${postAuthorFragment}
+  }
+`);
+
+export const postsByStoryTypeQuery = defineQuery(/* groq */ `
+  {
+    "posts": *[
+      _type == "post" &&
+      defined(publishedAt) &&
+      storyType == $storyType &&
+      ($sport == "" || sport->slug.current == $sport)
+    ] | order(publishedAt desc)[$from...$to]{
+      _id,
+      title,
+      excerpt,
+      storyType,
+      publishedAt,
+      "slug": slug.current,
+      ${postImageFragment},
+      ${postAuthorFragment}
+    },
+    "totalPosts": count(*[
+      _type == "post" &&
+      defined(publishedAt) &&
+      storyType == $storyType &&
+      ($sport == "" || sport->slug.current == $sport)
+    ])
+  }
+`);
+
+export const schoolSlugsForSitemapQuery = groq`
+  *[_type == "school" && defined(slug.current)]{
+    "slug": slug.current,
+    _updatedAt
+  }
+`;

@@ -11,7 +11,10 @@ import {
 } from "sanity";
 
 import { ValidationMessages } from "@/components/url-slug/validation-messages";
-import { generateSlugFromTitle } from "@/utils/slug-validation";
+import {
+  generateSlugFromTitle,
+  getSlugPreviewPath,
+} from "@/utils/slug-validation";
 import ButtonAssetCopy from "./button-asset-copy";
 
 const presentationOriginUrl = process.env.SANITY_STUDIO_PRESENTATION_URL;
@@ -50,9 +53,7 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
     [validation],
   );
 
-  const localizedPathname = currentSlug.startsWith("/")
-    ? currentSlug
-    : `/${currentSlug}`;
+  const localizedPathname = getSlugPreviewPath(document?._type, currentSlug);
   const fullUrl = `${presentationOriginUrl ?? ""}${localizedPathname}`;
 
   const handleChange = useCallback(
@@ -79,7 +80,9 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
 
   const handleGenerate = useCallback(() => {
     try {
-      const documentTitle = document?.title as string | undefined;
+      const documentTitle = (document?.title ?? document?.name) as
+        | string
+        | undefined;
       const documentType = document?._type;
 
       if (!(documentTitle?.trim() && documentType)) {
@@ -94,10 +97,12 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
     } catch {
       // Silently handle errors
     }
-  }, [document?.title, document?._type, currentSlug, handleChange]);
+  }, [document?.title, document?.name, document?._type, handleChange]);
 
-  const generateDisabled =
-    !(typeof document?.title === "string" && document.title.trim()) || readOnly;
+  const generateSource =
+    (typeof document?.title === "string" && document.title.trim()) ||
+    (typeof document?.name === "string" && document.name.trim());
+  const generateDisabled = !generateSource || readOnly;
 
   return (
     <Stack gap={4}>

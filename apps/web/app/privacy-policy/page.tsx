@@ -1,4 +1,3 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
 import { privacyPolicyQuery } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import type { WebPage, WithContext } from "schema-dts";
@@ -8,13 +7,11 @@ import { JsonLdScript, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import { RichText } from "@/components/rich-text";
 import { getBaseUrl } from "@/lib/get-base-url";
+import {
+  getDynamicFetchOptions,
+  sanityFetchPage,
+} from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
-
-async function fetchPrivacyPolicy() {
-  return await sanityFetch({
-    query: privacyPolicyQuery,
-  });
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   return getSEOMetadata({
@@ -58,7 +55,11 @@ const privacyPolicyJsonLd: WithContext<WebPage> = {
 };
 
 export default async function PrivacyPolicyPage() {
-  const { data: privacyPolicy } = await fetchPrivacyPolicy();
+  const fetchOptions = await getDynamicFetchOptions();
+  const { data: privacyPolicy } = await sanityFetchPage({
+    query: privacyPolicyQuery,
+    ...fetchOptions,
+  });
 
   return (
     <>

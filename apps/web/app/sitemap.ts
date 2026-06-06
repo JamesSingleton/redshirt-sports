@@ -7,7 +7,28 @@ import { getBaseUrl } from "@/lib/get-base-url";
 const baseUrl = getBaseUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { authors } = await client.fetch(querySitemapData);
+  const { authors, schools, sports } = await client.fetch(querySitemapData);
+
+  const recruitingUrls: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/recruiting`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/transfer-portal`,
+      lastModified: new Date(),
+    },
+    ...(sports ?? []).flatMap((sport: { slug: string }) => [
+      {
+        url: `${baseUrl}/recruiting/${sport.slug}/news`,
+        lastModified: new Date(),
+      },
+      {
+        url: `${baseUrl}/transfer-portal/${sport.slug}/news`,
+        lastModified: new Date(),
+      },
+    ]),
+  ];
 
   return [
     {
@@ -30,7 +51,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/college/news`,
       lastModified: new Date(),
     },
-    ...authors.map((author) => ({
+    ...recruitingUrls,
+    ...(schools ?? []).map((school: { slug: string; lastModified: string }) => ({
+      url: `${baseUrl}/college/teams/${school.slug}`,
+      lastModified: new Date(school.lastModified),
+    })),
+    ...authors.map((author: { slug: string; lastModified: string }) => ({
       url: `${baseUrl}/authors/${author.slug}`,
       lastModified: new Date(author.lastModified),
     })),

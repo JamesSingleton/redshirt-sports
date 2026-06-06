@@ -1,5 +1,5 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
 import { queryPostSlugData } from "@redshirt-sports/sanity/queries";
+import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
 import { badgeVariants } from "@redshirt-sports/ui/components/badge";
 import { CameraIcon } from "lucide-react";
 import type { Metadata } from "next";
@@ -23,29 +23,43 @@ import { AuthorSection, MobileAuthorSection } from "@/components/posts/author";
 import { RichText } from "@/components/rich-text";
 import CustomImage from "@/components/sanity-image";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
+import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getSEOMetadata } from "@/lib/seo";
+import {
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+  sanityFetchPage,
+} from "@/lib/sanity-fetch";
 
 // cache page for a week
 export const revalidate = 604800;
-export const dynamic = "force-static";
 
 const baseUrl = getBaseUrl();
 
-async function fetchPostSlugData(slug: string) {
-  return await sanityFetch({
-    query: queryPostSlugData,
-    params: { slug },
-  });
-}
+const STORY_TYPE_LABELS: Record<string, string> = {
+  news: "News",
+  recruiting: "Recruiting",
+  transfer: "Transfer Portal",
+  analysis: "Analysis",
+  opinion: "Opinion",
+  "game-recap": "Game Recap",
+};
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const { data } = await fetchPostSlugData(slug);
+  const [{ slug }, { perspective }] = await Promise.all([
+    params,
+    getDynamicFetchOptions(),
+  ]);
+  const { data } = (await sanityFetchMetadata({
+    query: queryPostSlugData,
+    params: { slug },
+    perspective,
+  })) as { data: QueryPostSlugDataResult | null };
 
   if (!data) {
     return {};
@@ -54,20 +68,37 @@ export async function generateMetadata({
   const plainText = toPlainText(data.body);
   const wordCount = plainText.split(/\s+/).filter(Boolean).length;
 
+  const settings = await fetchGlobalSeoSettings();
+
   return getSEOMetadata({
     ogType: "article",
-    image: data.mainImage,
+    seoTitle: data.seoTitle ?? undefined,
+    seoDescription: data.seoDescription ?? undefined,
+    ogTitle: data.ogTitle ?? undefined,
+    ogDescription: data.ogDescription ?? undefined,
+    seoImage: data.seoImage ?? undefined,
+    image: data.mainImage ?? undefined,
     authors: data.authors,
     title: data.title,
-    description: data.excerpt,
+    description: data.excerpt ?? undefined,
     slug: data.slug,
     readingTime: Math.ceil(wordCount / WORDS_PER_MINUTE),
+    articleSection: data.storyType,
+    defaultOpenGraphImage: settings?.defaultOpenGraphImage ?? undefined,
+    siteBrand: settings?.siteBrand ?? undefined,
   });
 }
 
 export default async function PostPage({ params }: PageProps<"/[slug]">) {
-  const { slug } = await params;
-  const { data } = await fetchPostSlugData(slug);
+  const [{ slug }, fetchOptions] = await Promise.all([
+    params,
+    getDynamicFetchOptions(),
+  ]);
+  const { data } = (await sanityFetchPage({
+    query: queryPostSlugData,
+    params: { slug },
+    ...fetchOptions,
+  })) as { data: QueryPostSlugDataResult | null };
 
   if (!data) {
     notFound();
@@ -148,6 +179,23 @@ export default async function PostPage({ params }: PageProps<"/[slug]">) {
               {data.excerpt}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
+              {data.storyType && data.storyType !== "news" && (
+                <span className={badgeVariants({ variant: "secondary" })}>
+                  {STORY_TYPE_LABELS[data.storyType] ?? data.storyType}
+                </span>
+              )}
+              {data.teams?.map((team) =>
+                team.slug ? (
+                  <Link
+                    key={team._id}
+                    href={`/college/teams/${team.slug}`}
+                    className={badgeVariants({ variant: "outline" })}
+                    prefetch={false}
+                  >
+                    {team.shortName ?? team.name}
+                  </Link>
+                ) : null,
+              )}
               {data.sport &&
                 (data.division ||
                   data.sportSubgrouping ||

@@ -1,4 +1,3 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
 import {
   querySportsNews,
   sportInfoBySlug,
@@ -10,37 +9,13 @@ import ArticleFeed from "@/components/article-feed";
 import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
+import {
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+  sanityFetchPage,
+} from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
-
-async function fetchSportsNews({
-  sport,
-  pageIndex,
-}: {
-  sport: string;
-  pageIndex: number;
-}) {
-  const from = (pageIndex - 1) * perPage;
-  const to = pageIndex * perPage;
-
-  return await sanityFetch({
-    query: querySportsNews,
-    params: {
-      sport,
-      from,
-      to,
-    },
-  });
-}
-
-async function fetchSportTitle(sport: string) {
-  return await sanityFetch({
-    query: sportInfoBySlug,
-    params: {
-      slug: sport,
-    },
-  });
-}
 
 export async function generateMetadata({
   params,
@@ -49,8 +24,13 @@ export async function generateMetadata({
   const { sport } = await params;
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
+  const { perspective } = await getDynamicFetchOptions();
 
-  const { data: sportData } = await fetchSportTitle(sport);
+  const { data: sportData } = await sanityFetchMetadata({
+    query: sportInfoBySlug,
+    params: { slug: sport },
+    perspective,
+  });
 
   if (!sportData?.title) {
     return {};
@@ -82,13 +62,23 @@ export default async function Page({
   searchParams,
 }: PageProps<"/college/[sport]/news">) {
   const { sport } = await params;
-
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
+  const fetchOptions = await getDynamicFetchOptions();
+  const from = (pageIndex - 1) * perPage;
+  const to = pageIndex * perPage;
 
   const [newsResponse, sportInfoResponse] = await Promise.all([
-    fetchSportsNews({ sport, pageIndex }),
-    fetchSportTitle(sport),
+    sanityFetchPage({
+      query: querySportsNews,
+      params: { sport, from, to },
+      ...fetchOptions,
+    }),
+    sanityFetchPage({
+      query: sportInfoBySlug,
+      params: { slug: sport },
+      ...fetchOptions,
+    }),
   ]);
 
   const news = newsResponse.data;

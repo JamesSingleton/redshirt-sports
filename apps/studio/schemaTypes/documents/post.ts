@@ -1,15 +1,14 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 import { CharacterCountInput } from "../../components/character-count";
-import { PathnameFieldComponent } from "../../components/slug-field-component";
-import { GROUP, GROUPS } from "../../utils/constant";
+import { GROUP, GROUPS, STORY_TYPES } from "../../utils/constant";
 import { ogFields } from "../../utils/og-fields";
 import {
   validateH2IsFirst,
   validateHeadingOrder,
 } from "../../utils/portable-text-validations";
 import { seoFields } from "../../utils/seo-fields";
-import { createSlug, isUnique } from "../../utils/slug";
+import { documentSlugField } from "../common";
 
 const DIVISION_1_ID = "329c4f4f-bb7c-459e-872d-eb1a57deb196"; // Assuming this is the ID for Division 1
 
@@ -31,19 +30,21 @@ export const post = defineType({
         input: CharacterCountInput,
       },
     }),
-    defineField({
-      name: "slug",
-      type: "slug",
-      title: "URL",
+    documentSlugField("post", {
       group: GROUP.MAIN_CONTENT,
-      components: {
-        field: PathnameFieldComponent,
-      },
+    }),
+    defineField({
+      name: "storyType",
+      title: "Story Type",
+      type: "string",
+      description:
+        "Classifies this article for desk organization and on-site badges.",
+      group: GROUP.MAIN_CONTENT,
       options: {
-        source: "title",
-        slugify: createSlug,
-        isUnique,
+        list: [...STORY_TYPES],
+        layout: "radio",
       },
+      initialValue: "news",
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -212,15 +213,6 @@ export const post = defineType({
       group: GROUP.MAIN_CONTENT,
     }),
     defineField({
-      title: "Is this a featured article?",
-      description:
-        "Only select Featured if it has been discussed with everyone on the team.",
-      name: "featuredArticle",
-      type: "boolean",
-      initialValue: false,
-      group: GROUP.MAIN_CONTENT,
-    }),
-    defineField({
       name: "excerpt",
       title: "Article Excerpt",
       type: "text",
@@ -262,21 +254,24 @@ export const post = defineType({
       title: "title",
       media: "mainImage",
       date: "publishedAt",
+      storyType: "storyType",
     },
-    prepare: ({ title, media, date }) => ({
-      title,
-      media,
-      // add subtitle to preview but only if it's defined
-      subtitle: date
-        ? `on ${
-            date &&
-            new Date(date).toLocaleString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
-          }`
-        : "Missing publish date",
-    }),
+    prepare: ({ title, media, date, storyType }) => {
+      const typeLabel =
+        STORY_TYPES.find((t) => t.value === storyType)?.title ?? "News";
+      const dateLabel = date
+        ? new Date(date).toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+        : "Missing publish date";
+
+      return {
+        title,
+        media,
+        subtitle: `${typeLabel} · ${dateLabel}`,
+      };
+    },
   },
 });

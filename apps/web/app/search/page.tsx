@@ -1,4 +1,3 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
 import { searchQuery } from "@redshirt-sports/sanity/queries";
 import type { SearchQueryResult } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
@@ -8,17 +7,11 @@ import ArticleCard from "@/components/article-card";
 import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
+import {
+  getDynamicFetchOptions,
+  sanityFetchPage,
+} from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
-
-async function fetchSearchResults(query: string, page: number) {
-  const from = (page - 1) * perPage;
-  const to = page * perPage;
-
-  return await sanityFetch({
-    query: searchQuery,
-    params: { q: query, from, to },
-  });
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   return getSEOMetadata({
@@ -43,7 +36,14 @@ export default async function Page({
   };
 
   if (query) {
-    const { data } = await fetchSearchResults(query, pageIndex);
+    const fetchOptions = await getDynamicFetchOptions();
+    const from = (pageIndex - 1) * perPage;
+    const to = pageIndex * perPage;
+    const { data } = await sanityFetchPage({
+      query: searchQuery,
+      params: { q: query, from, to },
+      ...fetchOptions,
+    });
     searchResults = data;
   }
 

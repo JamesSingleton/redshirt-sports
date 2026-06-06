@@ -1,4 +1,3 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
 import { authorBySlug, postsByAuthor } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -18,6 +17,11 @@ import PaginationControls from "@/components/pagination-controls";
 import CustomImage from "@/components/sanity-image";
 import { perPage } from "@/lib/constants";
 import { getBaseUrl } from "@/lib/get-base-url";
+import {
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+  sanityFetchPage,
+} from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
@@ -25,31 +29,19 @@ import { validatePageIndex } from "@/utils/validate-page-index";
 export const revalidate = 172800;
 export const dynamicParams = true;
 
-async function fetchAuthorInfo(slug: string) {
-  return await sanityFetch({
-    query: authorBySlug,
-    params: { slug },
-  });
-}
-
-async function fetchAuthorPosts(slug: string, pageIndex: number) {
-  const from = (pageIndex - 1) * perPage;
-  const to = pageIndex * perPage;
-
-  return await sanityFetch({
-    query: postsByAuthor,
-    params: { slug, from, to },
-  });
-}
-
 export async function generateMetadata({
   params,
   searchParams,
 }: PageProps<"/authors/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const { page } = await searchParams;
+  const { perspective } = await getDynamicFetchOptions();
 
-  const { data: author } = await fetchAuthorInfo(slug);
+  const { data: author } = await sanityFetchMetadata({
+    query: authorBySlug,
+    params: { slug },
+    perspective,
+  });
 
   if (!author) {
     return {};
@@ -92,8 +84,22 @@ export default async function Page({
     return redirect(`/authors/${slug}`);
   }
 
-  const { data: author } = await fetchAuthorInfo(slug);
-  const { data: authorPosts } = await fetchAuthorPosts(slug, pageIndex);
+  const fetchOptions = await getDynamicFetchOptions();
+  const from = (pageIndex - 1) * perPage;
+  const to = pageIndex * perPage;
+
+  const [{ data: author }, { data: authorPosts }] = await Promise.all([
+    sanityFetchPage({
+      query: authorBySlug,
+      params: { slug },
+      ...fetchOptions,
+    }),
+    sanityFetchPage({
+      query: postsByAuthor,
+      params: { slug, from, to },
+      ...fetchOptions,
+    }),
+  ]);
 
   if (!author) {
     return notFound();

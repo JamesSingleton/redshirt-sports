@@ -1,7 +1,7 @@
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { createClient } from "next-sanity";
 
-import { apiVersion, dataset, projectId } from "./api";
+import { apiVersion, dataset, projectId, studioUrl } from "./api";
 
 import type { SanityImageSource } from "@sanity/image-url";
 
@@ -11,6 +11,9 @@ export const client = createClient({
   apiVersion,
   useCdn: process.env.NODE_ENV === "production",
   perspective: "published",
+  stega: {
+    studioUrl,
+  },
 });
 
 const imageBuilder = createImageUrlBuilder({

@@ -203,6 +203,24 @@ export function cleanSlug(slug: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Build the public path shown in slug field previews. */
+export function getSlugPreviewPath(
+  documentType: string | undefined,
+  slug: string,
+): string {
+  const segment = slug.replace(/^\//, "");
+
+  switch (documentType) {
+    case "author":
+      return `/authors/${segment}`;
+    case "school":
+      return `/college/teams/${segment}`;
+    case "post":
+    default:
+      return slug.startsWith("/") ? slug : `/${segment}`;
+  }
+}
+
 /** Generate a slug from a document title using doc type conventions. */
 export function generateSlugFromTitle(title: string): string {
   if (!title?.trim()) return "";

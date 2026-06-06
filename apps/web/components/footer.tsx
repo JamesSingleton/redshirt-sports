@@ -1,4 +1,3 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
 import {
   queryFooterData,
   queryGlobalSeoSettings,
@@ -17,6 +16,11 @@ import {
   Twitter,
   YouTubeIcon,
 } from "./icons";
+import {
+  getDynamicFetchOptions,
+  sanityFetchPage,
+} from "@/lib/sanity-fetch";
+
 import CustomImage from "./sanity-image";
 
 interface SocialLinksProps {
@@ -29,12 +33,15 @@ interface FooterProps {
 }
 
 export async function FooterServer() {
+  const fetchOptions = await getDynamicFetchOptions();
   const [response, settingsResponse] = await Promise.all([
-    sanityFetch({
+    sanityFetchPage({
       query: queryFooterData,
+      ...fetchOptions,
     }),
-    sanityFetch({
+    sanityFetchPage({
       query: queryGlobalSeoSettings,
+      ...fetchOptions,
     }),
   ]);
 

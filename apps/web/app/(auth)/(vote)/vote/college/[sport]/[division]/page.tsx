@@ -5,7 +5,6 @@ import {
   hasVoterVoted,
 } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
-import { sanityFetch } from "@redshirt-sports/sanity/live";
 import {
   schoolsBySportAndSubgroupingStringQuery,
   schoolsForVotesQuery,
@@ -15,6 +14,10 @@ import { notFound, redirect } from "next/navigation";
 import z from "zod";
 
 import VoteFormWrapper from "@/components/vote-form-wrapper";
+import {
+  getDynamicFetchOptions,
+  sanityFetchPage,
+} from "@/lib/sanity-fetch";
 import {
   getCurrentSeason,
   getCurrentWeek,
@@ -79,12 +82,6 @@ async function getLatestVoterBallotWithSchools(
   return ballotsWithSchools;
 }
 
-async function fetchSchoolsByDivision(sport: string, division: string) {
-  return await sanityFetch({
-    query: schoolsBySportAndSubgroupingStringQuery,
-    params: { sport, subgrouping: division },
-  });
-}
 
 export const metadata: Metadata = {
   title: `College Football Top 25 Voting | ${process.env.NEXT_PUBLIC_APP_NAME}`,
@@ -138,7 +135,12 @@ export default async function VotePage({
   const { sport, division } = validationResult.data;
 
   const sportId = await getSportIdBySlug(sport as SportParam);
-  const { data: schools } = await fetchSchoolsByDivision(sport, division);
+  const fetchOptions = await getDynamicFetchOptions();
+  const { data: schools } = await sanityFetchPage({
+    query: schoolsBySportAndSubgroupingStringQuery,
+    params: { sport, subgrouping: division },
+    ...fetchOptions,
+  });
   if (!schools) {
     notFound();
   }

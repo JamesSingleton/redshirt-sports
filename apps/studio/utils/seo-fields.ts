@@ -1,5 +1,6 @@
 import { defineField } from "sanity";
 
+import { CharacterCountInput } from "../components/character-count";
 import { GROUP } from "./constant";
 
 export const seoFields = [
@@ -11,6 +12,9 @@ export const seoFields = [
     type: "string",
     validation: (rule) => rule.warning("A page title is required"),
     group: GROUP.SEO,
+    components: {
+      input: CharacterCountInput,
+    },
   }),
   defineField({
     name: "seoDescription",
@@ -24,6 +28,9 @@ export const seoFields = [
       rule.max(160).warning("No more than 160 characters"),
     ],
     group: GROUP.SEO,
+    components: {
+      input: CharacterCountInput,
+    },
   }),
   defineField({
     name: "seoImage",

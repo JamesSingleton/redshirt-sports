@@ -1,4 +1,3 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
 import { collegeNewsQuery } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -10,23 +9,14 @@ import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { getBaseUrl } from "@/lib/get-base-url";
+import {
+  getDynamicFetchOptions,
+  sanityFetchPage,
+} from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
 const baseUrl = getBaseUrl();
-
-async function fetchCollegeNews({ pageIndex }: { pageIndex: number }) {
-  const from = (pageIndex - 1) * perPage;
-  const to = pageIndex * perPage;
-
-  return await sanityFetch({
-    query: collegeNewsQuery,
-    params: {
-      from,
-      to,
-    },
-  });
-}
 
 export async function generateMetadata({
   searchParams,
@@ -77,9 +67,16 @@ export default async function CollegeSportsNews({
 }: PageProps<"/college/news">) {
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
+  const fetchOptions = await getDynamicFetchOptions();
+  const from = (pageIndex - 1) * perPage;
+  const to = pageIndex * perPage;
   const {
     data: { posts, totalPosts },
-  } = await fetchCollegeNews({ pageIndex });
+  } = await sanityFetchPage({
+    query: collegeNewsQuery,
+    params: { from, to },
+    ...fetchOptions,
+  });
 
   if (posts.length === 0) {
     notFound();

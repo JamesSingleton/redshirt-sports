@@ -9,11 +9,15 @@ import { table } from "@sanity/table";
 import { visionTool } from "@sanity/vision";
 import type { InputProps, PortableTextInputProps } from "sanity";
 import { defineConfig } from "sanity";
+import { presentationTool } from "sanity/presentation";
 import { structureTool } from "sanity/structure";
 import { media, mediaAssetSource } from "sanity-plugin-media";
 
 import { CharacterCountInputPTE } from "@/components/character-count";
 import { Logo } from "@/components/logo";
+import { EditorialHealthWidget } from "@/plugins/editorial-health-widget";
+import { presentationUrl } from "@/plugins/presentation-url";
+import { resolve } from "@/presentation/resolve";
 import { schemaTypes } from "@/schemaTypes";
 import { getDefaultDocumentNode, structure } from "@/structure";
 import { createCustomPostDuplicateAction } from "@/utils/actions";
@@ -21,6 +25,8 @@ import { createCustomPostDuplicateAction } from "@/utils/actions";
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? "";
 const dataset = process.env.SANITY_STUDIO_DATASET;
 const title = process.env.SANITY_STUDIO_TITLE;
+const presentationUrlOrigin =
+  process.env.SANITY_STUDIO_PRESENTATION_URL ?? "http://localhost:3000";
 
 export default defineConfig({
   title: title ?? "Redshirt Sports Studio",
@@ -32,6 +38,16 @@ export default defineConfig({
   },
   plugins: [
     assist(),
+    presentationTool({
+      resolve,
+      previewUrl: {
+        origin: presentationUrlOrigin,
+        previewMode: {
+          enable: "/api/draft-mode/enable",
+        },
+      },
+    }),
+    presentationUrl(),
     structureTool({
       structure,
       defaultDocumentNode: getDefaultDocumentNode,
@@ -40,6 +56,11 @@ export default defineConfig({
     dashboardTool({
       widgets: [
         sanityTutorialsWidget(),
+        {
+          name: "editorial-health",
+          component: EditorialHealthWidget,
+          layout: { width: "medium" },
+        },
         projectInfoWidget(),
         projectUsersWidget(),
       ],
@@ -113,6 +134,24 @@ export default defineConfig({
         value: ({ sportId }: { sportId: string }) => ({
           sport: { _type: "reference", _ref: sportId },
         }),
+      },
+      {
+        id: "post-recruiting",
+        title: "Recruiting Article",
+        schemaType: "post",
+        value: { storyType: "recruiting" },
+      },
+      {
+        id: "post-transfer",
+        title: "Transfer Portal Article",
+        schemaType: "post",
+        value: { storyType: "transfer" },
+      },
+      {
+        id: "post-game-recap",
+        title: "Game Recap",
+        schemaType: "post",
+        value: { storyType: "game-recap" },
       },
     ],
   },
