@@ -25,6 +25,7 @@
     "@sanity/table": "^2.0.1",
     "@sanity/ui": "^3.2.0",
     "@sanity/vision": "^5.30.0",
+    "copy-to-clipboard": "^4.0.2",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@types/react": "catalog:"
+    "@types/react": "catalog:",
+    "vite": "^8.0.16"
   }
 }

@@ -20,8 +20,8 @@ import type {
 } from "sanity/structure";
 import DocumentsPane from "sanity-plugin-documents-pane";
 
-import type { SchemaType, SingletonType } from "./schemaTypes";
-import { getTitleCase } from "./utils/helper";
+import type { SchemaType, SingletonType } from "@/schemaTypes";
+import { getTitleCase } from "@/utils/helper";
 
 type Base<T = SchemaType> = {
   id?: string;
