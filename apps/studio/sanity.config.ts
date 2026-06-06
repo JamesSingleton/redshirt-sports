@@ -12,11 +12,11 @@ import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { media, mediaAssetSource } from "sanity-plugin-media";
 
-import { CharacterCountInputPTE } from "./components/character-count";
-import { Logo } from "./components/logo";
-import { schemaTypes } from "./schemaTypes";
-import { getDefaultDocumentNode, structure } from "./structure";
-import { createCustomPostDuplicateAction } from "./utils/actions";
+import { CharacterCountInputPTE } from "@/components/character-count";
+import { Logo } from "@/components/logo";
+import { schemaTypes } from "@/schemaTypes";
+import { getDefaultDocumentNode, structure } from "@/structure";
+import { createCustomPostDuplicateAction } from "@/utils/actions";
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? "";
 const dataset = process.env.SANITY_STUDIO_DATASET;
