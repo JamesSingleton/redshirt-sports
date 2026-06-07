@@ -1,10 +1,13 @@
-import { Button } from "@redshirt-sports/ui/components/button";
 import { Separator } from "@redshirt-sports/ui/components/separator";
 import Link from "next/link";
 
 import CustomImage from "@/components/sanity-image";
 
-import { TeamSportCategory, type TeamPost } from "./team-post-card";
+import {
+  TeamRelativeDate,
+  TeamSportCategory,
+  type TeamPost,
+} from "./team-post-card";
 
 function formatFeedDate(iso: string) {
   const date = new Date(iso);
@@ -54,9 +57,10 @@ function TeamArticleFeedItem({ post }: { post: TeamPost }) {
             )
           ) : null}
           {post.publishedAt ? (
-            <time dateTime={post.publishedAt}>
-              {formatFeedDate(post.publishedAt)}
-            </time>
+            <>
+              <span className="mx-1">·</span>
+              <TeamRelativeDate dateString={post.publishedAt} />
+            </>
           ) : null}
         </div>
       </div>
@@ -97,10 +101,8 @@ export function TeamFeedList({
   if (posts.length === 0 && !footerLinks?.length) return null;
 
   return (
-    <section className="mb-10">
-      <header className="mb-5 border-b border-border pb-3">
-        <h2 className="text-xl font-bold tracking-tight">{title}</h2>
-      </header>
+    <section className="mb-8">
+      <h2 className="mb-5 text-[22px] font-bold text-foreground">{title}</h2>
       {posts.length > 0 ? (
         <ul className="flex flex-col" data-feed-list>
           {posts.map((post, index) => (
@@ -112,16 +114,15 @@ export function TeamFeedList({
         </ul>
       ) : null}
       {footerLinks && footerLinks.length > 0 ? (
-        <footer className="mt-5 flex flex-wrap gap-6 border-t border-border pt-4">
+        <footer className="mt-5 flex flex-wrap gap-6">
           {footerLinks.map((link) => (
-            <Button
+            <Link
               key={link.href}
-              variant="link"
-              asChild
-              className="h-auto p-0"
+              href={link.href}
+              className="text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
             >
-              <Link href={link.href}>{link.label}</Link>
-            </Button>
+              {link.label}
+            </Link>
           ))}
         </footer>
       ) : null}

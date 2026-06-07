@@ -15,15 +15,6 @@ import type {
   PostsBySchoolQueryResult,
   SchoolBySlugQueryResult,
 } from "@redshirt-sports/sanity/types";
-import { Button } from "@redshirt-sports/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@redshirt-sports/ui/components/card";
-import { Separator } from "@redshirt-sports/ui/components/separator";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -31,7 +22,6 @@ import { notFound } from "next/navigation";
 import CustomImage from "@/components/sanity-image";
 import { TeamConnectWidget } from "@/components/teams/team-connect-widget";
 import { TeamFeedList } from "@/components/teams/team-feed-list";
-import { TeamPlayerSearch } from "@/components/teams/team-player-search";
 import {
   TeamFeaturedArticle,
   TeamNewsItem,
@@ -142,16 +132,16 @@ async function renderSchoolTeamPage(
   ];
 
   return (
-    <div className="bg-background">
+    <div className="min-h-screen bg-background">
       <TeamNavBar
         teamName={school.shortName ?? school.name ?? "Team"}
         schoolImage={school.image}
       />
 
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-8 lg:grid-cols-[1fr_300px]">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8 lg:p-6">
         <section className="min-w-0">
           {featuredPosts.length > 0 ? (
-            <section className="mb-10 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-3">
+            <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
               {featuredPosts.map((post) => (
                 <TeamFeaturedArticle key={post._id} post={post} />
               ))}
@@ -165,33 +155,36 @@ async function renderSchoolTeamPage(
           />
 
           {recruitingPosts && recruitingPosts.length > 0 ? (
-            <section className="mb-10">
-              <header className="mb-5 border-b border-border pb-3">
-                <h2 className="text-xl font-bold tracking-tight">
-                  {teamShortName} Recruiting
-                </h2>
-              </header>
-              <ul className="flex flex-col">
-                {recruitingPosts.map((post, index) => (
+            <section className="mb-8">
+              <h2 className="mb-5 text-[22px] font-bold text-foreground">
+                {teamShortName} Recruiting
+              </h2>
+              <ul className="flex flex-col gap-5">
+                {recruitingPosts.map((post) => (
                   <li key={post._id}>
                     <TeamNewsItem post={post} />
-                    {index < recruitingPosts.length - 1 ? <Separator /> : null}
                   </li>
                 ))}
               </ul>
-              <footer className="mt-5 flex flex-wrap gap-6 border-t border-border pt-4">
-                <Button variant="link" asChild className="h-auto p-0">
-                  <Link href="/recruiting">View All Recruiting</Link>
-                </Button>
-                <Button variant="link" asChild className="h-auto p-0">
-                  <Link href="/transfer-portal">View All Transfers</Link>
-                </Button>
+              <footer className="mt-5 flex flex-wrap gap-6">
+                <Link
+                  href="/recruiting"
+                  className="text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
+                >
+                  View All Recruiting
+                </Link>
+                <Link
+                  href="/transfer-portal"
+                  className="text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
+                >
+                  View All Transfers
+                </Link>
               </footer>
             </section>
           ) : null}
         </section>
 
-        <aside className="min-w-0">
+        <aside className="hidden min-w-0 lg:block">
           {/* <NilWidget teamShortName={teamShortName} /> */}
           <TeamConnectWidget
             schoolName={teamShortName}
@@ -228,20 +221,22 @@ function TeamNavBar({
   schoolImage: NonNullable<SchoolBySlugQueryResult>["image"];
 }) {
   return (
-    <nav className="border-b border-border bg-card">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center">
-        <div className="flex items-center gap-3">
+    <nav className="sticky top-0 z-40 border-b border-border bg-card">
+      <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-4 overflow-x-auto px-4 [-webkit-overflow-scrolling:touch]">
+        <div className="flex shrink-0 items-center gap-2.5">
           {schoolImage ? (
             <CustomImage
               image={schoolImage}
-              width={40}
-              height={40}
-              className="size-10 shrink-0"
+              width={28}
+              height={28}
+              className="flex size-7 shrink-0 items-center justify-center"
             />
           ) : (
-            <div className="size-10 shrink-0 rounded-full bg-muted" />
+            <div className="size-7 shrink-0 rounded-full bg-muted" />
           )}
-          <h1 className="text-lg font-bold tracking-tight">{teamName}</h1>
+          <h1 className="text-sm font-bold tracking-wide whitespace-nowrap">
+            {teamName}
+          </h1>
         </div>
       </div>
     </nav>
@@ -250,43 +245,45 @@ function TeamNavBar({
 
 function NilWidget({ teamShortName }: { teamShortName: string }) {
   return (
-    <Card className="gap-4 py-4">
-      <CardHeader className="flex flex-row items-center justify-between px-4 pb-0">
-        <CardTitle className="text-base">{teamShortName} NIL 100</CardTitle>
-        <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-          Coming Soon
+    <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <div className="flex items-center gap-1 border-b border-border px-4 py-3">
+        <h3 className="text-base font-bold italic">{teamShortName} NIL 100</h3>
+        <span className="rounded bg-destructive-foreground px-2 py-0.5 text-sm font-bold text-white">
+          Soon
         </span>
-      </CardHeader>
-      <CardContent className="px-4">
-        <p className="text-sm text-muted-foreground">
-          NIL rankings for {teamShortName} athletes will be available here.
-        </p>
-      </CardContent>
-      <CardFooter className="border-t px-4 pt-4">
-        <Button variant="link" asChild className="h-auto p-0">
-          <Link href="#">View Full NIL 100</Link>
-        </Button>
-      </CardFooter>
-    </Card>
+      </div>
+      <p className="px-4 py-3 text-sm text-muted-foreground">
+        NIL rankings for {teamShortName} athletes will be available here.
+      </p>
+      <div className="flex gap-4 bg-muted/50 px-4 py-3">
+        <Link
+          href="#"
+          className="text-[11px] font-bold tracking-wide text-destructive-foreground uppercase"
+        >
+          View Full NIL 100
+        </Link>
+      </div>
+    </div>
   );
 }
 
 function CommitmentsWidget({ teamShortName }: { teamShortName: string }) {
   return (
-    <Card className="mt-6 gap-4 py-4">
-      <CardHeader className="px-4 pb-0">
-        <CardTitle className="text-base">{teamShortName} Commitments</CardTitle>
-      </CardHeader>
-      <CardContent className="px-4">
-        <p className="text-sm text-muted-foreground">
-          Recruiting commitments for {teamShortName} will be displayed here.
-        </p>
-      </CardContent>
-      <CardFooter className="border-t px-4 pt-4">
-        <Button variant="link" asChild className="h-auto p-0">
-          <Link href="/recruiting">View All Commitments</Link>
-        </Button>
-      </CardFooter>
-    </Card>
+    <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
+      <h3 className="border-b border-border px-4 py-3 text-base font-bold">
+        {teamShortName} Commitments
+      </h3>
+      <p className="px-4 py-3 text-sm text-muted-foreground">
+        Recruiting commitments for {teamShortName} will be displayed here.
+      </p>
+      <div className="flex gap-4 bg-muted/50 px-4 py-3">
+        <Link
+          href="/recruiting"
+          className="text-[11px] font-bold tracking-wide text-destructive-foreground uppercase"
+        >
+          View All Commitments
+        </Link>
+      </div>
+    </div>
   );
 }

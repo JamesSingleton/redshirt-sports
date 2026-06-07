@@ -45,7 +45,10 @@ export function TeamSportCategory({
   return (
     <Link
       href={href}
-      className={cn("team-sport-category hover:underline", className)}
+      className={cn(
+        "mb-1.5 block text-[11px] font-semibold tracking-wide text-destructive uppercase hover:underline dark:text-destructive-foreground",
+        className,
+      )}
       prefetch={false}
     >
       <span>{label}</span>
@@ -79,7 +82,7 @@ function TeamPostImage({
   );
 }
 
-function TeamRelativeDate({ dateString }: { dateString: string }) {
+export function TeamRelativeDate({ dateString }: { dateString: string }) {
   const date = toZonedTime(parseISO(dateString), TIME_ZONE);
 
   return (
@@ -93,7 +96,7 @@ export function TeamFeaturedArticle({ post }: { post: TeamPost }) {
   const href = post.slug ? `/${post.slug}` : null;
 
   const image = (
-    <div className="team-featured-image">
+    <div className="relative aspect-video overflow-hidden bg-muted">
       <TeamPostImage
         image={post.mainImage}
         width={400}
@@ -104,17 +107,17 @@ export function TeamFeaturedArticle({ post }: { post: TeamPost }) {
   );
 
   return (
-    <article className="team-featured-card">
+    <article className="relative flex h-full flex-col overflow-hidden rounded-lg">
       {href ? (
-        <Link href={href} className="team-featured-link" prefetch={false}>
+        <Link href={href} className="block" prefetch={false}>
           {image}
         </Link>
       ) : (
-        <div className="team-featured-link">{image}</div>
+        <div className="block">{image}</div>
       )}
-      <div className="team-featured-content">
+      <div className="flex flex-1 flex-col py-3">
         <TeamSportCategory post={post} />
-        <h2 className="team-featured-title">
+        <h2 className="mb-2 line-clamp-3 overflow-hidden text-[15px] leading-snug font-bold">
           {href ? (
             <Link href={href} prefetch={false}>
               {post.title}
@@ -133,8 +136,8 @@ export function TeamNewsItem({ post }: { post: TeamPost }) {
   const href = post.slug ? `/${post.slug}` : null;
 
   return (
-    <article className="team-news-item">
-      <div className="team-news-image">
+    <article className="flex gap-4 border-b border-border pb-5">
+      <div className="h-[90px] w-[140px] shrink-0 overflow-hidden rounded bg-muted md:h-[110px] md:w-[180px]">
         <TeamPostImage
           image={post.mainImage}
           width={180}
@@ -142,9 +145,9 @@ export function TeamNewsItem({ post }: { post: TeamPost }) {
           className="h-full w-full object-cover"
         />
       </div>
-      <div className="team-news-content">
+      <div className="min-w-0 flex-1">
         <TeamSportCategory post={post} />
-        <h3 className="team-news-title">
+        <h3 className="mb-2 text-base leading-snug font-bold text-foreground">
           {href ? (
             <Link href={href} prefetch={false}>
               {post.title}
@@ -153,7 +156,7 @@ export function TeamNewsItem({ post }: { post: TeamPost }) {
             post.title
           )}
         </h3>
-        <TeamPostMeta post={post} />
+        <TeamPostMeta post={post} className="text-xs" />
       </div>
     </article>
   );

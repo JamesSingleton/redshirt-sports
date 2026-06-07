@@ -1,9 +1,3 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@redshirt-sports/ui/components/card";
 import type {
   QueryGlobalSeoSettingsResult,
   SchoolBySlugQueryResult,
@@ -17,11 +11,11 @@ import {
   Twitter,
   YouTubeIcon,
 } from "@/components/icons";
+import Link from "next/link";
 
 type SchoolSocialLinks = NonNullable<SchoolBySlugQueryResult>["socialLinks"];
-type GlobalSocialLinks = NonNullable<
-  QueryGlobalSeoSettingsResult
->["socialLinks"];
+type GlobalSocialLinks =
+  NonNullable<QueryGlobalSeoSettingsResult>["socialLinks"];
 type SocialLinks = SchoolSocialLinks | GlobalSocialLinks;
 
 function hasSocialLinks(links?: SocialLinks | null) {
@@ -86,28 +80,26 @@ export function TeamConnectWidget({
   if (links.length === 0) return null;
 
   return (
-    <Card className="gap-4 py-4">
-      <CardHeader className="px-4 pb-0">
-        <CardTitle className="text-base">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3 px-4">
+    <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <h3 className="border-b px-4 py-3 text-base font-bold">{title}</h3>
+      <div className="flex flex-col px-4 py-3">
         {links.map(({ url, Icon }) => {
           if (!url) return null;
 
           return (
-            <a
+            <Link
               key={url}
               href={url}
-              className="flex items-center gap-2 text-sm text-foreground hover:text-primary"
+              className="flex items-center gap-2.5 py-2"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Icon className="size-4 shrink-0" />
+              <Icon className="size-5 shrink-0 text-center" />
               <span>{socialHandle(url)}</span>
-            </a>
+            </Link>
           );
         })}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
