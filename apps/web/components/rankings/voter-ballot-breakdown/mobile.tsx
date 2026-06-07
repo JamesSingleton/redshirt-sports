@@ -2,12 +2,12 @@
 import { Button } from "@redshirt-sports/ui/components/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import type { Voter } from "@/types/votes";
+import type { VoterBreakdown } from "@/types/votes";
 import { SyncedScroll } from "./synced-scroll";
 import { TeamLogo } from "./team-logo";
 
 type Props = {
-  rows: Voter[];
+  rows: VoterBreakdown[];
   page: number;
   pageCount: number;
   onPrevAction: () => void;
@@ -50,7 +50,7 @@ export default function VoterBreakdownMobile({
                       <div
                         key={vote?._id ?? `rank-${rank}`}
                         className="flex shrink-0 snap-start flex-col items-center gap-1"
-                        aria-label={`Rank ${rank}${vote?.teamName ? `: ${vote.teamName}` : ""}`}
+                        aria-label={`Rank ${rank}${vote ? `: ${vote.shortName ?? vote.name}` : ""}`}
                       >
                         <div className="text-muted-foreground text-[10px] leading-none">
                           {rank}

@@ -21,7 +21,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useDebounce } from "@/hooks/use-debounce";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import type { Voter } from "@/types/votes";
+import type { VoterBreakdown } from "@/types/votes";
 
 const VoterBreakdownDesktop = dynamic(() => import("./desktop"), {
   ssr: false,
@@ -29,7 +29,7 @@ const VoterBreakdownDesktop = dynamic(() => import("./desktop"), {
 const VoterBreakdownMobile = dynamic(() => import("./mobile"), { ssr: false });
 
 type Props = {
-  voterBreakdown: Voter[];
+  voterBreakdown: VoterBreakdown[];
 };
 
 export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
