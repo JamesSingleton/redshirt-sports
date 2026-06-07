@@ -49,9 +49,32 @@ const customUrlHrefFragment = /* groq */ `
   )
 `;
 
+const imageFields = /* groq */ `
+  "id": asset._ref,
+  "preview": asset->metadata.lqip,
+  "alt": coalesce(
+    alt,
+    asset->altText,
+    caption,
+    asset->originalFilename,
+    "untitled"
+  ),
+  hotspot {
+    x,
+    y
+  },
+  crop {
+    bottom,
+    left,
+    right,
+    top
+  }
+`;
+
 const imageFragment = /* groq */ `
   image{
     ...,
+    ${imageFields},
     "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
     "credit": coalesce(asset->creditLine, attribution, "Unknown"),
     "blurData": asset->metadata.lqip,
@@ -86,6 +109,20 @@ const postImageFragment = /* groq */ `
     "dominantColor": asset->metadata.palette.dominant.background,
   }
 `;
+
+const postSportFragment = /* groq */ `
+  sport->{
+    _id,
+    "slug": slug.current,
+    title
+  }
+`;
+
+export const queryImageType = defineQuery(`
+  *[_type == "post" && defined(mainImage)][0]{
+    ${imageFragment}
+  }.mainImage
+`);
 
 const divisionFragment = /* groq */ `
   division->{
@@ -926,6 +963,7 @@ export const postsBySchoolQuery = defineQuery(/* groq */ `
       storyType,
       publishedAt,
       "slug": slug.current,
+      ${postSportFragment},
       ${postImageFragment},
       ${postAuthorFragment}
     },
@@ -949,6 +987,7 @@ export const postsBySchoolAndStoryTypeQuery = defineQuery(/* groq */ `
     excerpt,
     publishedAt,
     "slug": slug.current,
+    ${postSportFragment},
     ${postImageFragment},
     ${postAuthorFragment}
   }

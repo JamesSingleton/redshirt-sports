@@ -10,16 +10,35 @@ import {
   querySchoolPaths,
   schoolBySlugQuery,
 } from "@redshirt-sports/sanity/queries";
-import { badgeVariants } from "@redshirt-sports/ui/components/badge";
+import type {
+  PostsBySchoolAndStoryTypeQueryResult,
+  PostsBySchoolQueryResult,
+  SchoolBySlugQueryResult,
+} from "@redshirt-sports/sanity/types";
+import { Button } from "@redshirt-sports/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@redshirt-sports/ui/components/card";
+import { Separator } from "@redshirt-sports/ui/components/separator";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import ArticleCard from "@/components/article-card";
 import CustomImage from "@/components/sanity-image";
+import { TeamConnectWidget } from "@/components/teams/team-connect-widget";
+import { TeamFeedList } from "@/components/teams/team-feed-list";
+import { TeamPlayerSearch } from "@/components/teams/team-player-search";
+import {
+  TeamFeaturedArticle,
+  TeamNewsItem,
+} from "@/components/teams/team-post-card";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
-import { getBaseUrl } from "@/lib/get-base-url";
 import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
+import { getBaseUrl } from "@/lib/get-base-url";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 
@@ -81,196 +100,107 @@ async function renderSchoolTeamPage(
   { perspective, stega }: DynamicFetchOptions,
 ) {
   "use cache";
-  const { data: school } = await sanityFetchPage({
+  const { data: school } = (await sanityFetchPage({
     query: schoolBySlugQuery,
     params: { slug },
     perspective,
     stega,
-  });
+  })) as { data: SchoolBySlugQueryResult | null };
 
   if (!school) {
     notFound();
   }
 
-  const [
-    { data: newsData },
-    { data: recruitingPosts },
-    { data: transferPosts },
-  ] = await Promise.all([
-    sanityFetchPage({
-      query: postsBySchoolQuery,
-      params: { schoolId: school._id, from: 0, to: 8 },
-      perspective,
-      stega,
-    }),
-    sanityFetchPage({
-      query: postsBySchoolAndStoryTypeQuery,
-      params: { schoolId: school._id, storyType: "recruiting" },
-      perspective,
-      stega,
-    }),
-    sanityFetchPage({
-      query: postsBySchoolAndStoryTypeQuery,
-      params: { schoolId: school._id, storyType: "transfer" },
-      perspective,
-      stega,
-    }),
-  ]);
+  const [{ data: newsData }, { data: recruitingPosts }, globalSettings] =
+    await Promise.all([
+      sanityFetchPage({
+        query: postsBySchoolQuery,
+        params: { schoolId: school._id, from: 0, to: 8 },
+        perspective,
+        stega,
+      }) as Promise<{ data: PostsBySchoolQueryResult | null }>,
+      sanityFetchPage({
+        query: postsBySchoolAndStoryTypeQuery,
+        params: { schoolId: school._id, storyType: "recruiting" },
+        perspective,
+        stega,
+      }) as Promise<{ data: PostsBySchoolAndStoryTypeQueryResult | null }>,
+      fetchGlobalSeoSettings(perspective),
+    ]);
 
+  const posts = newsData?.posts ?? [];
+  const featuredPosts = posts.slice(0, 3);
+  const sportsPosts = posts.slice(3, 8);
+
+  const teamShortName = school.shortName ?? school.name ?? "Team";
   const baseUrl = getBaseUrl();
   const teamUrl = `${baseUrl}/college/teams/${slug}`;
 
+  const sportsFooterLinks = [
+    { label: "View All Football", href: "/college/football/news" },
+    { label: "View All Basketball", href: "/college/mens-basketball/news" },
+  ];
+
   return (
-    <div className="container py-10">
-      <header className="flex flex-col gap-6 border-b pb-10 md:flex-row md:items-start md:gap-10">
-        {school.image && (
-          <CustomImage
-            image={school.image}
-            width={120}
-            height={120}
-            className="h-24 w-24 rounded-lg object-contain"
+    <div className="bg-background">
+      <TeamNavBar
+        teamName={school.shortName ?? school.name ?? "Team"}
+        schoolImage={school.image}
+      />
+
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-8 lg:grid-cols-[1fr_300px]">
+        <section className="min-w-0">
+          {featuredPosts.length > 0 ? (
+            <section className="mb-10 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-3">
+              {featuredPosts.map((post) => (
+                <TeamFeaturedArticle key={post._id} post={post} />
+              ))}
+            </section>
+          ) : null}
+
+          <TeamFeedList
+            title={`${teamShortName} Sports`}
+            posts={sportsPosts}
+            footerLinks={sportsFooterLinks}
           />
-        )}
-        <div className="space-y-3">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            {school.shortName ?? school.name}
-            {school.nickname ? ` ${school.nickname}` : ""}
-          </h1>
-          {school.overview && (
-            <p className="text-muted-foreground max-w-3xl text-lg">
-              {school.overview}
-            </p>
-          )}
-          <div className="flex flex-wrap gap-2">
-            {school.conferenceAffiliations?.map((affiliation) => (
-              <span
-                key={affiliation._key}
-                className={badgeVariants({ variant: "secondary" })}
-              >
-                {affiliation.sport?.title}:{" "}
-                {affiliation.conference?.shortName ??
-                  affiliation.conference?.name}
-              </span>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-4 text-sm">
-            {school.websiteUrl && (
-              <a
-                href={school.websiteUrl}
-                className="underline underline-offset-2"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                Athletics website
-              </a>
-            )}
-            {school.socialLinks?.twitter && (
-              <a
-                href={school.socialLinks.twitter}
-                className="underline underline-offset-2"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                X / Twitter
-              </a>
-            )}
-            {school.socialLinks?.instagram && (
-              <a
-                href={school.socialLinks.instagram}
-                className="underline underline-offset-2"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                Instagram
-              </a>
-            )}
-          </div>
-        </div>
-      </header>
 
-      <section className="mt-12 space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Latest News</h2>
-          <Link
-            href="/college/news"
-            className="text-sm underline underline-offset-2"
-          >
-            All college news
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {newsData?.posts?.map((post) => (
-            <ArticleCard
-              key={post._id}
-              title={post.title}
-              image={post.mainImage}
-              slug={post.slug}
-              author={post.authors?.[0]?.name ?? "Redshirt Sports"}
-              date={post.publishedAt}
-            />
-          ))}
-        </div>
-      </section>
-
-      {recruitingPosts && recruitingPosts.length > 0 && (
-        <section className="mt-12 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Recruiting News</h2>
-            <Link
-              href="/recruiting"
-              className="text-sm underline underline-offset-2"
-            >
-              Recruiting hub
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {recruitingPosts.map((post) => (
-              <ArticleCard
-                key={post._id}
-                title={post.title}
-                image={post.mainImage}
-                slug={post.slug}
-                author={post.authors?.[0]?.name ?? "Redshirt Sports"}
-                date={post.publishedAt}
-              />
-            ))}
-          </div>
+          {recruitingPosts && recruitingPosts.length > 0 ? (
+            <section className="mb-10">
+              <header className="mb-5 border-b border-border pb-3">
+                <h2 className="text-xl font-bold tracking-tight">
+                  {teamShortName} Recruiting
+                </h2>
+              </header>
+              <ul className="flex flex-col">
+                {recruitingPosts.map((post, index) => (
+                  <li key={post._id}>
+                    <TeamNewsItem post={post} />
+                    {index < recruitingPosts.length - 1 ? <Separator /> : null}
+                  </li>
+                ))}
+              </ul>
+              <footer className="mt-5 flex flex-wrap gap-6 border-t border-border pt-4">
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href="/recruiting">View All Recruiting</Link>
+                </Button>
+                <Button variant="link" asChild className="h-auto p-0">
+                  <Link href="/transfer-portal">View All Transfers</Link>
+                </Button>
+              </footer>
+            </section>
+          ) : null}
         </section>
-      )}
 
-      {transferPosts && transferPosts.length > 0 && (
-        <section className="mt-12 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Transfer Portal News</h2>
-            <Link
-              href="/transfer-portal"
-              className="text-sm underline underline-offset-2"
-            >
-              Transfer portal hub
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {transferPosts.map((post) => (
-              <ArticleCard
-                key={post._id}
-                title={post.title}
-                image={post.mainImage}
-                slug={post.slug}
-                author={post.authors?.[0]?.name ?? "Redshirt Sports"}
-                date={post.publishedAt}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="mt-12 rounded-lg border border-dashed p-8 text-center">
-        <h2 className="text-lg font-semibold">Latest Commitments</h2>
-        <p className="text-muted-foreground mt-2 text-sm">
-          Player commitment data will appear here once the recruiting database
-          is populated.
-        </p>
-      </section>
+        <aside className="min-w-0">
+          {/* <NilWidget teamShortName={teamShortName} /> */}
+          <TeamConnectWidget
+            schoolName={teamShortName}
+            schoolSocialLinks={school.socialLinks}
+            globalSocialLinks={globalSettings?.socialLinks}
+          />
+          {/* <CommitmentsWidget teamShortName={teamShortName} /> */}
+        </aside>
+      </div>
 
       <script
         type="application/ld+json"
@@ -287,5 +217,76 @@ async function renderSchoolTeamPage(
         }}
       />
     </div>
+  );
+}
+
+function TeamNavBar({
+  teamName,
+  schoolImage,
+}: {
+  teamName: string;
+  schoolImage: NonNullable<SchoolBySlugQueryResult>["image"];
+}) {
+  return (
+    <nav className="border-b border-border bg-card">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center">
+        <div className="flex items-center gap-3">
+          {schoolImage ? (
+            <CustomImage
+              image={schoolImage}
+              width={40}
+              height={40}
+              className="size-10 shrink-0"
+            />
+          ) : (
+            <div className="size-10 shrink-0 rounded-full bg-muted" />
+          )}
+          <h1 className="text-lg font-bold tracking-tight">{teamName}</h1>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function NilWidget({ teamShortName }: { teamShortName: string }) {
+  return (
+    <Card className="gap-4 py-4">
+      <CardHeader className="flex flex-row items-center justify-between px-4 pb-0">
+        <CardTitle className="text-base">{teamShortName} NIL 100</CardTitle>
+        <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+          Coming Soon
+        </span>
+      </CardHeader>
+      <CardContent className="px-4">
+        <p className="text-sm text-muted-foreground">
+          NIL rankings for {teamShortName} athletes will be available here.
+        </p>
+      </CardContent>
+      <CardFooter className="border-t px-4 pt-4">
+        <Button variant="link" asChild className="h-auto p-0">
+          <Link href="#">View Full NIL 100</Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
+function CommitmentsWidget({ teamShortName }: { teamShortName: string }) {
+  return (
+    <Card className="mt-6 gap-4 py-4">
+      <CardHeader className="px-4 pb-0">
+        <CardTitle className="text-base">{teamShortName} Commitments</CardTitle>
+      </CardHeader>
+      <CardContent className="px-4">
+        <p className="text-sm text-muted-foreground">
+          Recruiting commitments for {teamShortName} will be displayed here.
+        </p>
+      </CardContent>
+      <CardFooter className="border-t px-4 pt-4">
+        <Button variant="link" asChild className="h-auto p-0">
+          <Link href="/recruiting">View All Commitments</Link>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
