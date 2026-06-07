@@ -1,3 +1,4 @@
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { authorsListNotArchived } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -7,9 +8,8 @@ import { Facebook, Twitter, YouTubeIcon } from "@/components/icons";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import CustomImage from "@/components/sanity-image";
-import { getBaseUrl } from "@/lib/get-base-url";
-import { type DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { draftAwarePage } from "@/lib/draft-cache";
+import { getBaseUrl } from "@/lib/get-base-url";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 

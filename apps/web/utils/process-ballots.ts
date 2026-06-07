@@ -1,9 +1,14 @@
 import { client } from "@redshirt-sports/sanity/client";
 import { schoolsByIdsQuery } from "@redshirt-sports/sanity/queries";
-import type { SanityImageAsset } from "@redshirt-sports/sanity/types";
 import { token } from "@redshirt-sports/sanity/token";
+import type { SanityImageAsset } from "@redshirt-sports/sanity/types";
 
-import type { Ballot, BallotsByVoter, VoteWithExtraData, VoterBreakdown } from "@/types";
+import type {
+  Ballot,
+  BallotsByVoter,
+  VoterBreakdown,
+  VoteWithExtraData,
+} from "@/types";
 
 type SchoolRecord = {
   _id: string;

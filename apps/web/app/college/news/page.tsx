@@ -1,3 +1,7 @@
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { collegeNewsQuery } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -9,10 +13,6 @@ import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
-import {
-  getDynamicFetchOptions,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";

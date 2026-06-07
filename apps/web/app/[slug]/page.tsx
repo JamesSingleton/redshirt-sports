@@ -1,11 +1,14 @@
-import { queryPostPaths, queryPostSlugData } from "@redshirt-sports/sanity/queries";
-import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
 import {
+  type DynamicFetchOptions,
   getDynamicFetchOptions,
   sanityFetchMetadata,
   sanityFetchStaticParams,
-  type DynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
+import {
+  queryPostPaths,
+  queryPostSlugData,
+} from "@redshirt-sports/sanity/queries";
+import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
 import { badgeVariants } from "@redshirt-sports/ui/components/badge";
 import { CameraIcon } from "lucide-react";
 import type { Metadata } from "next";
@@ -29,8 +32,8 @@ import { RichText } from "@/components/rich-text";
 import CustomImage from "@/components/sanity-image";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
-import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 
@@ -211,9 +214,7 @@ async function renderPostPage(
               ) : null,
             )}
             {data.sport &&
-              (data.division ||
-                data.sportSubgrouping ||
-                data.conferences) && (
+              (data.division || data.sportSubgrouping || data.conferences) && (
                 <div className="flex flex-wrap items-center gap-3">
                   <Link
                     href={`/college/${data.sport.slug}/news`}
@@ -282,10 +283,7 @@ async function renderPostPage(
             <div className="lg:w-64 lg:shrink-0">
               <div className="hidden lg:sticky lg:top-24 lg:left-0 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
                 <AuthorSection authors={data.authors} />
-                <LargeArticleSocialShare
-                  slug={data.slug}
-                  title={data.title}
-                />
+                <LargeArticleSocialShare slug={data.slug} title={data.title} />
               </div>
               <MobileAuthorSection authors={data.authors} />
             </div>

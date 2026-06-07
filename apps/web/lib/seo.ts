@@ -81,7 +81,11 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
     ? `@${authors[0]?.socialLinks?.twitter.split("/").pop()}`
     : twitterHandle;
 
-  const metaTitle = seoTitle ?? ogTitle ?? title ?? "College Sports News & Analysis at All Levels";
+  const metaTitle =
+    seoTitle ??
+    ogTitle ??
+    title ??
+    "College Sports News & Analysis at All Levels";
   const metaDescription =
     seoDescription ??
     ogDescription ??
@@ -94,8 +98,7 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
     resolveImageUrl(ogImage, defaultOpenGraphImage) ??
     resolveImageUrl(image, defaultOpenGraphImage);
 
-  const imageAlt =
-    seoImage?.alt ?? ogImage?.alt ?? image?.alt ?? brandName;
+  const imageAlt = seoImage?.alt ?? ogImage?.alt ?? image?.alt ?? brandName;
 
   return {
     title: `${metaTitle} | ${brandName}`,
@@ -149,7 +152,9 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
         : undefined,
       ...(authors &&
         authors.length > 0 && {
-          authors: authors.map((author) => author.name).filter(Boolean) as string[],
+          authors: authors
+            .map((author) => author.name)
+            .filter(Boolean) as string[],
         }),
       ...(articleSection && { section: articleSection }),
     },

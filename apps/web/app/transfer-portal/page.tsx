@@ -1,3 +1,7 @@
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { postsByStoryTypeQuery } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -7,10 +11,6 @@ import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
-import {
-  getDynamicFetchOptions,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
 import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
@@ -85,10 +85,16 @@ async function cachedRenderTransferPortalPage({
         }
       />
       <div className="mb-8 flex flex-wrap gap-3 text-sm">
-        <Link href="/transfer-portal/football/news" className="underline underline-offset-2">
+        <Link
+          href="/transfer-portal/football/news"
+          className="underline underline-offset-2"
+        >
           Football transfer portal
         </Link>
-        <Link href="/transfer-portal/mens-basketball/news" className="underline underline-offset-2">
+        <Link
+          href="/transfer-portal/mens-basketball/news"
+          className="underline underline-offset-2"
+        >
           Men&apos;s basketball transfer portal
         </Link>
       </div>

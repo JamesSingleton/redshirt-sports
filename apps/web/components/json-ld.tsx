@@ -1,4 +1,8 @@
 import { urlFor } from "@redshirt-sports/sanity/client";
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { querySettingsData } from "@redshirt-sports/sanity/queries";
 import { toPlainText } from "next-sanity";
 import type {
@@ -13,10 +17,6 @@ import type {
 } from "schema-dts";
 
 import { getBaseUrl } from "@/lib/get-base-url";
-import {
-  getDynamicFetchOptions,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 const baseUrl = getBaseUrl();

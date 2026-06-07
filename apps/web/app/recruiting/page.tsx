@@ -1,3 +1,7 @@
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { postsByStoryTypeQuery } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -7,10 +11,6 @@ import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
-import {
-  getDynamicFetchOptions,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
 import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
@@ -48,9 +48,7 @@ export default function RecruitingPage({
   return searchParamsPage(null, () => renderRecruitingPage(searchParams));
 }
 
-async function renderRecruitingPage(
-  searchParams: Promise<{ page?: string }>,
-) {
+async function renderRecruitingPage(searchParams: Promise<{ page?: string }>) {
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
   const { perspective, stega } = await getDynamicFetchOptions();
@@ -84,13 +82,22 @@ async function cachedRenderRecruitingPage({
         }
       />
       <div className="mb-8 flex flex-wrap gap-3 text-sm">
-        <Link href="/recruiting/football/news" className="underline underline-offset-2">
+        <Link
+          href="/recruiting/football/news"
+          className="underline underline-offset-2"
+        >
           Football recruiting
         </Link>
-        <Link href="/recruiting/mens-basketball/news" className="underline underline-offset-2">
+        <Link
+          href="/recruiting/mens-basketball/news"
+          className="underline underline-offset-2"
+        >
           Men&apos;s basketball recruiting
         </Link>
-        <Link href="/recruiting/womens-basketball/news" className="underline underline-offset-2">
+        <Link
+          href="/recruiting/womens-basketball/news"
+          className="underline underline-offset-2"
+        >
           Women&apos;s basketball recruiting
         </Link>
       </div>

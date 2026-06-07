@@ -209,9 +209,7 @@ export const structure = async (
       .child(
         S.documentList()
           .title("Analysis & Opinion")
-          .filter(
-            '_type == "post" && storyType in ["analysis", "opinion"]',
-          )
+          .filter('_type == "post" && storyType in ["analysis", "opinion"]')
           .apiVersion("2025-06-11")
           .defaultOrdering([{ field: "publishedAt", direction: "desc" }]),
       ),

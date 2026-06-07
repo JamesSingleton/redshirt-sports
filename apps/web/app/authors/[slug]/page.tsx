@@ -1,3 +1,8 @@
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
 import { authorBySlug, postsByAuthor } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -15,11 +20,6 @@ import {
 import PaginationControls from "@/components/pagination-controls";
 import CustomImage from "@/components/sanity-image";
 import { perPage } from "@/lib/constants";
-import {
-  getDynamicFetchOptions,
-  sanityFetchMetadata,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { sanityFetchPage } from "@/lib/sanity-fetch";

@@ -1,5 +1,9 @@
 import { getLatestFinalRankingsBySportSlug } from "@redshirt-sports/db/queries";
 import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
+import {
   globalNavigationQuery,
   queryGlobalSeoSettings,
 } from "@redshirt-sports/sanity/queries";
@@ -9,13 +13,9 @@ import type {
 } from "@redshirt-sports/sanity/types";
 import { memo } from "react";
 
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { Logo } from "./logo";
 import { NavbarClient, NavbarSkeletonResponsive } from "./navbar-client";
-import {
-  getDynamicFetchOptions,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
-import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export interface RankingPeriod {
   division: string;

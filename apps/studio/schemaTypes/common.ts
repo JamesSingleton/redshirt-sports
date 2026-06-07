@@ -1,11 +1,17 @@
+import type { ComponentType } from "react";
+import {
+  defineField,
+  type ObjectFieldProps,
+  type SlugOptions,
+  type SlugValue,
+} from "sanity";
+
 import { PathnameFieldComponent } from "@/components/slug-field-component";
 import {
   createSlugErrorValidator,
   createSlugWarningValidator,
   getDocumentTypeConfig,
 } from "@/utils/slug-validation";
-import type { ComponentType } from "react";
-import { defineField, type ObjectFieldProps, type SlugOptions, type SlugValue } from "sanity";
 
 export const richTextField = defineField({
   name: "richText",

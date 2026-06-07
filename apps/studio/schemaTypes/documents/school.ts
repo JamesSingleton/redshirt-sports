@@ -3,8 +3,11 @@ import { defineField, defineType } from "sanity";
 import { SchoolSlugFieldComponent } from "../../components/school-slug-field-component";
 import { GROUP, GROUPS } from "../../utils/constant";
 import { ogFields } from "../../utils/og-fields";
+import {
+  createSchoolSlug,
+  createSchoolSlugSource,
+} from "../../utils/school-slug";
 import { seoFields } from "../../utils/seo-fields";
-import { createSchoolSlug, createSchoolSlugSource } from "../../utils/school-slug";
 import { isUnique } from "../../utils/slug";
 import { documentSlugField } from "../common";
 import { socialLinks } from "../definitions/social-links";
@@ -43,7 +46,8 @@ export const school = defineType({
     defineField({
       name: "nickname",
       title: "Nickname",
-      description: "The nickname of the college or university. i.e. Black Knights",
+      description:
+        "The nickname of the college or university. i.e. Black Knights",
       type: "string",
       group: GROUP.MAIN_CONTENT,
     }),
@@ -180,9 +184,8 @@ export const school = defineType({
           const sports = new Set<string>();
 
           for (const affiliation of affiliations) {
-            const sportRef = (
-              affiliation as { sport?: { _ref?: string } }
-            )?.sport?._ref;
+            const sportRef = (affiliation as { sport?: { _ref?: string } })
+              ?.sport?._ref;
             if (sportRef) {
               if (sports.has(sportRef)) {
                 return "Each sport can only have one conference affiliation";

@@ -1,6 +1,6 @@
 import { config, withAnalyzer } from "@redshirt-sports/next-config";
-import { sanity } from "next-sanity/live/cache-life";
 import type { NextConfig } from "next";
+import { sanity } from "next-sanity/live/cache-life";
 
 import { env } from "@/env";
 

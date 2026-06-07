@@ -1,15 +1,15 @@
 import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+  sanityFetchStaticParams,
+} from "@redshirt-sports/sanity/live";
+import {
   postsBySchoolAndStoryTypeQuery,
   postsBySchoolQuery,
   querySchoolPaths,
   schoolBySlugQuery,
 } from "@redshirt-sports/sanity/queries";
-import {
-  getDynamicFetchOptions,
-  sanityFetchMetadata,
-  sanityFetchStaticParams,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
 import { badgeVariants } from "@redshirt-sports/ui/components/badge";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -18,8 +18,8 @@ import { notFound } from "next/navigation";
 import ArticleCard from "@/components/article-card";
 import CustomImage from "@/components/sanity-image";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
-import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 
@@ -51,7 +51,9 @@ export async function generateMetadata({
   if (!data) return {};
 
   return getSEOMetadata({
-    title: data.seoTitle ?? `${data.shortName ?? data.name} ${data.nickname ?? ""}`.trim(),
+    title:
+      data.seoTitle ??
+      `${data.shortName ?? data.name} ${data.nickname ?? ""}`.trim(),
     description:
       data.seoDescription ??
       data.overview ??
@@ -90,27 +92,30 @@ async function renderSchoolTeamPage(
     notFound();
   }
 
-  const [{ data: newsData }, { data: recruitingPosts }, { data: transferPosts }] =
-    await Promise.all([
-      sanityFetchPage({
-        query: postsBySchoolQuery,
-        params: { schoolId: school._id, from: 0, to: 8 },
-        perspective,
-        stega,
-      }),
-      sanityFetchPage({
-        query: postsBySchoolAndStoryTypeQuery,
-        params: { schoolId: school._id, storyType: "recruiting" },
-        perspective,
-        stega,
-      }),
-      sanityFetchPage({
-        query: postsBySchoolAndStoryTypeQuery,
-        params: { schoolId: school._id, storyType: "transfer" },
-        perspective,
-        stega,
-      }),
-    ]);
+  const [
+    { data: newsData },
+    { data: recruitingPosts },
+    { data: transferPosts },
+  ] = await Promise.all([
+    sanityFetchPage({
+      query: postsBySchoolQuery,
+      params: { schoolId: school._id, from: 0, to: 8 },
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: postsBySchoolAndStoryTypeQuery,
+      params: { schoolId: school._id, storyType: "recruiting" },
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: postsBySchoolAndStoryTypeQuery,
+      params: { schoolId: school._id, storyType: "transfer" },
+      perspective,
+      stega,
+    }),
+  ]);
 
   const baseUrl = getBaseUrl();
   const teamUrl = `${baseUrl}/college/teams/${slug}`;
@@ -142,7 +147,9 @@ async function renderSchoolTeamPage(
                 key={affiliation._key}
                 className={badgeVariants({ variant: "secondary" })}
               >
-                {affiliation.sport?.title}: {affiliation.conference?.shortName ?? affiliation.conference?.name}
+                {affiliation.sport?.title}:{" "}
+                {affiliation.conference?.shortName ??
+                  affiliation.conference?.name}
               </span>
             ))}
           </div>
@@ -158,12 +165,22 @@ async function renderSchoolTeamPage(
               </a>
             )}
             {school.socialLinks?.twitter && (
-              <a href={school.socialLinks.twitter} className="underline underline-offset-2" target="_blank" rel="noreferrer noopener">
+              <a
+                href={school.socialLinks.twitter}
+                className="underline underline-offset-2"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
                 X / Twitter
               </a>
             )}
             {school.socialLinks?.instagram && (
-              <a href={school.socialLinks.instagram} className="underline underline-offset-2" target="_blank" rel="noreferrer noopener">
+              <a
+                href={school.socialLinks.instagram}
+                className="underline underline-offset-2"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
                 Instagram
               </a>
             )}
@@ -174,7 +191,10 @@ async function renderSchoolTeamPage(
       <section className="mt-12 space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Latest News</h2>
-          <Link href="/college/news" className="text-sm underline underline-offset-2">
+          <Link
+            href="/college/news"
+            className="text-sm underline underline-offset-2"
+          >
             All college news
           </Link>
         </div>
@@ -196,7 +216,10 @@ async function renderSchoolTeamPage(
         <section className="mt-12 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Recruiting News</h2>
-            <Link href="/recruiting" className="text-sm underline underline-offset-2">
+            <Link
+              href="/recruiting"
+              className="text-sm underline underline-offset-2"
+            >
               Recruiting hub
             </Link>
           </div>
@@ -219,7 +242,10 @@ async function renderSchoolTeamPage(
         <section className="mt-12 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Transfer Portal News</h2>
-            <Link href="/transfer-portal" className="text-sm underline underline-offset-2">
+            <Link
+              href="/transfer-portal"
+              className="text-sm underline underline-offset-2"
+            >
               Transfer portal hub
             </Link>
           </div>
@@ -241,7 +267,8 @@ async function renderSchoolTeamPage(
       <section className="mt-12 rounded-lg border border-dashed p-8 text-center">
         <h2 className="text-lg font-semibold">Latest Commitments</h2>
         <p className="text-muted-foreground mt-2 text-sm">
-          Player commitment data will appear here once the recruiting database is populated.
+          Player commitment data will appear here once the recruiting database
+          is populated.
         </p>
       </section>
 
@@ -253,7 +280,9 @@ async function renderSchoolTeamPage(
             "@type": "SportsTeam",
             name: school.name,
             url: teamUrl,
-            sport: school.conferenceAffiliations?.map((a) => a.sport?.title).filter(Boolean),
+            sport: school.conferenceAffiliations
+              ?.map((a) => a.sport?.title)
+              .filter(Boolean),
           }),
         }}
       />

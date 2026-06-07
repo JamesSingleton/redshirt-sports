@@ -11,8 +11,8 @@ import {
 } from "sanity";
 
 import { ValidationMessages } from "@/components/url-slug/validation-messages";
-import { cleanSlug } from "@/utils/slug-validation";
 import { createSchoolSlugSource } from "@/utils/school-slug";
+import { cleanSlug } from "@/utils/slug-validation";
 import ButtonAssetCopy from "./button-asset-copy";
 
 const presentationOriginUrl = process.env.SANITY_STUDIO_PRESENTATION_URL;

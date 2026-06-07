@@ -1,7 +1,7 @@
 import { createClient } from "@sanity/client";
 import { withSentryConfig } from "@sentry/nextjs";
-import { sanity } from "next-sanity/live/cache-life";
 import type { NextConfig } from "next";
+import { sanity } from "next-sanity/live/cache-life";
 
 const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
@@ -14,9 +14,7 @@ const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 const sanityStudioOrigins = [
   "'self'",
   "http://localhost:3333",
-  ...(sanityProjectId
-    ? [`https://${sanityProjectId}.sanity.studio`]
-    : []),
+  ...(sanityProjectId ? [`https://${sanityProjectId}.sanity.studio`] : []),
 ].join(" ");
 
 // https://nextjs.org/docs/advanced-features/security-headers

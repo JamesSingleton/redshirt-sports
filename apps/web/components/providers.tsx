@@ -1,8 +1,8 @@
 "use client";
 
 import PlausibleProvider from "next-plausible";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useIsPresentationTool } from "next-sanity/hooks";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 import { type ReactNode, useEffect } from "react";

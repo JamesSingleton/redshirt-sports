@@ -1,4 +1,8 @@
 import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
+import {
   queryFooterData,
   queryGlobalSeoSettings,
 } from "@redshirt-sports/sanity/queries";
@@ -8,6 +12,7 @@ import type {
 } from "@redshirt-sports/sanity/types";
 import Link from "next/link";
 
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import {
   BlueSkyIcon,
   Facebook,
@@ -17,11 +22,6 @@ import {
   YouTubeIcon,
 } from "./icons";
 import CustomImage from "./sanity-image";
-import {
-  getDynamicFetchOptions,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
-import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 interface SocialLinksProps {
   data: NonNullable<QueryGlobalSeoSettingsResult>["socialLinks"];

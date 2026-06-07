@@ -1,4 +1,9 @@
 import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
+import {
   postsByStoryTypeQuery,
   sportInfoBySlug,
 } from "@redshirt-sports/sanity/queries";
@@ -9,11 +14,6 @@ import ArticleFeed from "@/components/article-feed";
 import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
-import {
-  getDynamicFetchOptions,
-  sanityFetchMetadata,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";

@@ -1,3 +1,7 @@
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { searchQuery } from "@redshirt-sports/sanity/queries";
 import type { SearchQueryResult } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
@@ -6,10 +10,6 @@ import ArticleCard from "@/components/article-card";
 import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
-import {
-  getDynamicFetchOptions,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";

@@ -1,8 +1,8 @@
-import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { Mock } from "vitest";
 
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import HomePage from "../page";
 
 vi.mock("next/headers", () => ({

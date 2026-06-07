@@ -1,4 +1,9 @@
 import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
+import {
   conferenceInfoBySlugQuery,
   queryArticlesBySportDivisionAndConference,
   queryDivisionOrSubgroupingDisplayName,
@@ -13,11 +18,6 @@ import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
-import {
-  getDynamicFetchOptions,
-  sanityFetchMetadata,
-  type DynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
@@ -253,9 +253,7 @@ async function cachedRenderConferenceNewsPage({
       <PageHeader title={title} breadcrumbs={breadcrumbItems} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <ArticleFeed articles={news.posts} />
-        {totalPages > 1 && (
-          <PaginationControls totalPosts={news.totalPosts} />
-        )}
+        {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
       </section>
     </>
   );

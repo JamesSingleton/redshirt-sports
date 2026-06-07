@@ -73,7 +73,9 @@ async function PlayerProfileContent({
           />
         )}
         <div className="space-y-3">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{name}</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            {name}
+          </h1>
           <p className="text-muted-foreground text-lg">
             {[player.position, player.sportName, player.hometown]
               .filter(Boolean)
@@ -107,7 +109,10 @@ async function PlayerProfileContent({
               <li key={event.id} className="relative">
                 <span className="font-medium">{event.label}</span>
                 {event.schoolName && (
-                  <span className="text-muted-foreground"> — {event.schoolName}</span>
+                  <span className="text-muted-foreground">
+                    {" "}
+                    — {event.schoolName}
+                  </span>
                 )}
               </li>
             ))}
@@ -122,7 +127,9 @@ async function PlayerProfileContent({
             {player.commitments.map((commitment) => (
               <li key={commitment.id}>
                 {commitment.schoolName}
-                {commitment.classYear ? ` (Class of ${commitment.classYear})` : ""}
+                {commitment.classYear
+                  ? ` (Class of ${commitment.classYear})`
+                  : ""}
               </li>
             ))}
           </ul>
@@ -132,7 +139,8 @@ async function PlayerProfileContent({
       <section className="mt-12 rounded-lg border border-dashed p-8 text-center">
         <h2 className="text-lg font-semibold">Latest News</h2>
         <p className="text-muted-foreground mt-2 text-sm">
-          Related articles will be linked here once player-to-post associations are configured.
+          Related articles will be linked here once player-to-post associations
+          are configured.
         </p>
       </section>
     </div>

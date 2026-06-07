@@ -1,3 +1,4 @@
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import {
   queryHomePageData,
   queryLatestArticles,
@@ -14,9 +15,8 @@ import ArticleCard from "@/components/article-card";
 import ArticleSection from "@/components/article-section";
 import Hero from "@/components/home/hero";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
-import { getBaseUrl } from "@/lib/get-base-url";
-import { type DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { draftAwarePage } from "@/lib/draft-cache";
+import { getBaseUrl } from "@/lib/get-base-url";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 
@@ -61,10 +61,7 @@ export default async function HomePage() {
   return draftAwarePage(null, renderHomePage);
 }
 
-async function renderHomePage({
-  perspective,
-  stega,
-}: DynamicFetchOptions) {
+async function renderHomePage({ perspective, stega }: DynamicFetchOptions) {
   "use cache";
 
   const [{ data: homePageData }, { data: latestArticles }] = await Promise.all([

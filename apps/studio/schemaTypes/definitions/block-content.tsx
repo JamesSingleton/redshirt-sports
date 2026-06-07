@@ -45,7 +45,8 @@ const richTextMembers = [
           name: "internalLink",
           title: "Internal Link (legacy)",
           type: "object",
-          description: "Deprecated — use Site Link instead. Existing links still work.",
+          description:
+            "Deprecated — use Site Link instead. Existing links still work.",
           icon: () => (
             <svg
               width={12}

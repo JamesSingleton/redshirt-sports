@@ -1,6 +1,6 @@
 import {
-  sanityFetch,
   type DynamicFetchOptions,
+  sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import type { QueryParams } from "next-sanity";
 

@@ -90,7 +90,13 @@ export const customUrl = defineType({
       internalType: "internal._type",
       openInNewTab: "openInNewTab",
     },
-    prepare({ externalUrl, urlType, internalSlug, internalType, openInNewTab }) {
+    prepare({
+      externalUrl,
+      urlType,
+      internalSlug,
+      internalType,
+      openInNewTab,
+    }) {
       const internalPaths: Record<string, string> = {
         post: `/${internalSlug}`,
         school: `/college/teams/${internalSlug}`,

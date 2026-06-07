@@ -1,3 +1,4 @@
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { privacyPolicyQuery } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import type { WebPage, WithContext } from "schema-dts";
@@ -6,7 +7,6 @@ import FormatDate from "@/components/format-date";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import { RichText } from "@/components/rich-text";
-import { type DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { sanityFetchPage } from "@/lib/sanity-fetch";

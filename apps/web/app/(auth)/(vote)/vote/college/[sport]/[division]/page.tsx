@@ -5,6 +5,7 @@ import {
   hasVoterVoted,
 } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import {
   schoolsBySportAndSubgroupingStringQuery,
   schoolsForVotesQuery,
@@ -16,7 +17,6 @@ import { Suspense } from "react";
 import z from "zod";
 
 import VoteFormWrapper from "@/components/vote-form-wrapper";
-import { type DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import {

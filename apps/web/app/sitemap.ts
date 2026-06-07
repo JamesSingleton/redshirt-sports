@@ -52,10 +52,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
     },
     ...recruitingUrls,
-    ...(schools ?? []).map((school: { slug: string; lastModified: string }) => ({
-      url: `${baseUrl}/college/teams/${school.slug}`,
-      lastModified: new Date(school.lastModified),
-    })),
+    ...(schools ?? []).map(
+      (school: { slug: string; lastModified: string }) => ({
+        url: `${baseUrl}/college/teams/${school.slug}`,
+        lastModified: new Date(school.lastModified),
+      }),
+    ),
     ...authors.map((author: { slug: string; lastModified: string }) => ({
       url: `${baseUrl}/authors/${author.slug}`,
       lastModified: new Date(author.lastModified),

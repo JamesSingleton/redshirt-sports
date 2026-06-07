@@ -1,10 +1,9 @@
-import { draftMode } from "next/headers";
-import { Suspense, type ReactNode } from "react";
-
 import {
-  getDynamicFetchOptions,
   type DynamicFetchOptions,
+  getDynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
+import { draftMode } from "next/headers";
+import { type ReactNode, Suspense } from "react";
 
 async function DraftDynamic({
   render,
