@@ -12,6 +12,7 @@ import {
 import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { Suspense } from "react";
 import z from "zod";
 
 import VoteFormWrapper from "@/components/vote-form-wrapper";
@@ -148,11 +149,9 @@ async function renderVotePage(
   }
 
   return (
-    <VotePageAuth
-      sport={sport}
-      division={division}
-      schools={schools}
-    />
+    <Suspense>
+      <VotePageAuth sport={sport} division={division} schools={schools} />
+    </Suspense>
   );
 }
 

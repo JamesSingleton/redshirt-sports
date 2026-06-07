@@ -1836,7 +1836,7 @@
           "type": "inline",
           "name": "slug"
         },
-        "optional": false
+        "optional": true
       },
       "storyType": {
         "type": "objectAttribute",

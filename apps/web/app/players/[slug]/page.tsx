@@ -1,10 +1,9 @@
 import { getPlayerBySlug } from "@redshirt-sports/db/queries/players";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { getSEOMetadata } from "@/lib/seo";
-
-export const revalidate = 3600;
 
 export async function generateMetadata({
   params,
@@ -35,7 +34,19 @@ function formatHeight(inches: number | null) {
   return `${feet}-${remaining}`;
 }
 
-export default async function PlayerProfilePage({
+export default function PlayerProfilePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  return (
+    <Suspense>
+      <PlayerProfileContent params={params} />
+    </Suspense>
+  );
+}
+
+async function PlayerProfileContent({
   params,
 }: {
   params: Promise<{ slug: string }>;

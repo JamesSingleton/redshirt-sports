@@ -45,6 +45,17 @@ async function DraftParamsDynamic<P>({
   return render(resolved, options);
 }
 
+async function PublishedParamsDynamic<P>({
+  params,
+  render,
+}: {
+  params: Promise<P>;
+  render: (resolved: P, options: DynamicFetchOptions) => Promise<ReactNode>;
+}) {
+  const resolved = await params;
+  return render(resolved, { perspective: "published", stega: false });
+}
+
 /** Layer 1 branch for routes with dynamic `params`. */
 export async function draftAwareParamsPage<P>(
   params: Promise<P>,
@@ -59,8 +70,11 @@ export async function draftAwareParamsPage<P>(
       </Suspense>
     );
   }
-  const resolved = await params;
-  return render(resolved, { perspective: "published", stega: false });
+  return (
+    <Suspense fallback={fallback}>
+      <PublishedParamsDynamic params={params} render={render} />
+    </Suspense>
+  );
 }
 
 async function SearchParamsDynamic({
