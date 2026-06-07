@@ -2,9 +2,9 @@ import type {
   PostsBySchoolAndStoryTypeQueryResult,
   PostsBySchoolQueryResult,
 } from "@redshirt-sports/sanity/types";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { cn } from "@redshirt-sports/ui/lib/utils";
 import Link from "next/link";
 
 import CustomImage from "@/components/sanity-image";

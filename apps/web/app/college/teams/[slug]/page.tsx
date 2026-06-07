@@ -27,8 +27,8 @@ import {
   TeamNewsItem,
 } from "@/components/teams/team-post-card";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
-import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 

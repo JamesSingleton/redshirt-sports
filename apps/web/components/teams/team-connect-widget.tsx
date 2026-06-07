@@ -2,6 +2,7 @@ import type {
   QueryGlobalSeoSettingsResult,
   SchoolBySlugQueryResult,
 } from "@redshirt-sports/sanity/types";
+import Link from "next/link";
 
 import {
   BlueSkyIcon,
@@ -11,7 +12,6 @@ import {
   Twitter,
   YouTubeIcon,
 } from "@/components/icons";
-import Link from "next/link";
 
 type SchoolSocialLinks = NonNullable<SchoolBySlugQueryResult>["socialLinks"];
 type GlobalSocialLinks =

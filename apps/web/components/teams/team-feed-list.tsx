@@ -2,20 +2,11 @@ import { Separator } from "@redshirt-sports/ui/components/separator";
 import Link from "next/link";
 
 import CustomImage from "@/components/sanity-image";
-
 import {
+  type TeamPost,
   TeamRelativeDate,
   TeamSportCategory,
-  type TeamPost,
 } from "./team-post-card";
-
-function formatFeedDate(iso: string) {
-  const date = new Date(iso);
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const year = String(date.getFullYear()).slice(-2);
-  return `${month}/${day}/${year}`;
-}
 
 function TeamArticleFeedItem({ post }: { post: TeamPost }) {
   const href = post.slug ? `/${post.slug}` : null;
