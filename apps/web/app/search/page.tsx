@@ -1,7 +1,6 @@
 import { searchQuery } from "@redshirt-sports/sanity/queries";
 import type { SearchQueryResult } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
-import { Suspense } from "react";
 
 import ArticleCard from "@/components/article-card";
 import PageHeader from "@/components/page-header";
@@ -9,8 +8,10 @@ import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import {
   getDynamicFetchOptions,
-  sanityFetchPage,
-} from "@/lib/sanity-fetch";
+  type DynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
+import { searchParamsPage } from "@/lib/draft-cache";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,13 +22,30 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function Page({
+export default function Page({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string }>;
 }) {
+  return searchParamsPage(null, () => renderSearchPage(searchParams));
+}
+
+async function renderSearchPage(
+  searchParams: Promise<{ [key: string]: string }>,
+) {
   const { q: query, page } = await searchParams;
   const pageIndex = page !== undefined ? Number.parseInt(page, 10) : 1;
+  const { perspective, stega } = await getDynamicFetchOptions();
+  return cachedRenderSearchPage({ query, pageIndex, perspective, stega });
+}
+
+async function cachedRenderSearchPage({
+  query,
+  pageIndex,
+  perspective,
+  stega,
+}: DynamicFetchOptions & { query?: string; pageIndex: number }) {
+  "use cache";
   const subheadingText = query ? `Search results for "${query}"` : null;
 
   let searchResults: SearchQueryResult = {
@@ -36,13 +54,13 @@ export default async function Page({
   };
 
   if (query) {
-    const fetchOptions = await getDynamicFetchOptions();
     const from = (pageIndex - 1) * perPage;
     const to = pageIndex * perPage;
     const { data } = await sanityFetchPage({
       query: searchQuery,
       params: { q: query, from, to },
-      ...fetchOptions,
+      perspective,
+      stega,
     });
     searchResults = data;
   }
@@ -77,9 +95,7 @@ export default async function Page({
           </div>
         )}
         {totalPages > 1 && (
-          <Suspense fallback={<>Loading...</>}>
-            <PaginationControls totalPosts={searchResults.totalPosts} />
-          </Suspense>
+          <PaginationControls totalPosts={searchResults.totalPosts} />
         )}
       </section>
     </>

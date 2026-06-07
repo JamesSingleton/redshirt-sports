@@ -15,10 +15,9 @@ import ArticleSection from "@/components/article-section";
 import Hero from "@/components/home/hero";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import { getBaseUrl } from "@/lib/get-base-url";
-import {
-  getDynamicFetchOptions,
-  sanityFetchPage,
-} from "@/lib/sanity-fetch";
+import { type DynamicFetchOptions } from "@redshirt-sports/sanity/live";
+import { draftAwarePage } from "@/lib/draft-cache";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 
 const divisions = [
@@ -59,11 +58,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const fetchOptions = await getDynamicFetchOptions();
+  return draftAwarePage(null, renderHomePage);
+}
+
+async function renderHomePage({
+  perspective,
+  stega,
+}: DynamicFetchOptions) {
+  "use cache";
 
   const [{ data: homePageData }, { data: latestArticles }] = await Promise.all([
-    sanityFetchPage({ query: queryHomePageData, ...fetchOptions }),
-    sanityFetchPage({ query: queryLatestArticles, ...fetchOptions }),
+    sanityFetchPage({ query: queryHomePageData, perspective, stega }),
+    sanityFetchPage({ query: queryLatestArticles, perspective, stega }),
   ]);
 
   const articleIds = [...homePageData, ...latestArticles].map(
@@ -75,7 +81,8 @@ export default async function HomePage() {
       sanityFetchPage({
         query: queryLatestCollegeSportsArticles,
         params: { division, sport: "Football", articleIds },
-        ...fetchOptions,
+        perspective,
+        stega,
       }),
     ),
   );

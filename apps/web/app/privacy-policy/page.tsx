@@ -6,11 +6,10 @@ import FormatDate from "@/components/format-date";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import { RichText } from "@/components/rich-text";
+import { type DynamicFetchOptions } from "@redshirt-sports/sanity/live";
+import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
-import {
-  getDynamicFetchOptions,
-  sanityFetchPage,
-} from "@/lib/sanity-fetch";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -55,10 +54,18 @@ const privacyPolicyJsonLd: WithContext<WebPage> = {
 };
 
 export default async function PrivacyPolicyPage() {
-  const fetchOptions = await getDynamicFetchOptions();
+  return draftAwarePage(null, renderPrivacyPolicyPage);
+}
+
+async function renderPrivacyPolicyPage({
+  perspective,
+  stega,
+}: DynamicFetchOptions) {
+  "use cache";
   const { data: privacyPolicy } = await sanityFetchPage({
     query: privacyPolicyQuery,
-    ...fetchOptions,
+    perspective,
+    stega,
   });
 
   return (

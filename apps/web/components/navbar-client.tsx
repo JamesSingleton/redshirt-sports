@@ -182,7 +182,7 @@ const MobileNavbar = memo(function MobileNavbar({
           >
             News
           </Link>
-          <Link
+          {/* <Link
             href="/recruiting"
             className="hover:bg-muted flex items-center px-4 py-3 text-base font-medium transition-colors"
             onClick={() => setIsOpen(false)}
@@ -197,7 +197,7 @@ const MobileNavbar = memo(function MobileNavbar({
             prefetch={false}
           >
             Transfer Portal
-          </Link>
+          </Link> */}
         </div>
       </SheetContent>
     </Sheet>
@@ -314,7 +314,7 @@ export const DesktopNavbar = memo(function DesktopNavbar({
               News
             </NavigationMenuLink>
           </NavigationMenuItem>
-          <NavigationMenuItem>
+          {/* <NavigationMenuItem>
             <NavigationMenuLink
               className={navigationMenuTriggerStyle()}
               href="/recruiting"
@@ -329,7 +329,7 @@ export const DesktopNavbar = memo(function DesktopNavbar({
             >
               Transfer Portal
             </NavigationMenuLink>
-          </NavigationMenuItem>
+          </NavigationMenuItem> */}
         </NavigationMenuList>
       </NavigationMenu>
 

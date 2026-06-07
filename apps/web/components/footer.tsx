@@ -16,12 +16,12 @@ import {
   Twitter,
   YouTubeIcon,
 } from "./icons";
+import CustomImage from "./sanity-image";
 import {
   getDynamicFetchOptions,
-  sanityFetchPage,
-} from "@/lib/sanity-fetch";
-
-import CustomImage from "./sanity-image";
+  type DynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 interface SocialLinksProps {
   data: NonNullable<QueryGlobalSeoSettingsResult>["socialLinks"];
@@ -32,16 +32,26 @@ interface FooterProps {
   settingsData: NonNullable<QueryGlobalSeoSettingsResult>;
 }
 
-export async function FooterServer() {
-  const fetchOptions = await getDynamicFetchOptions();
+export async function DynamicFooterServer() {
+  const { perspective, stega } = await getDynamicFetchOptions();
+  return <CachedFooterServer perspective={perspective} stega={stega} />;
+}
+
+export async function CachedFooterServer({
+  perspective,
+  stega,
+}: DynamicFetchOptions) {
+  "use cache";
   const [response, settingsResponse] = await Promise.all([
     sanityFetchPage({
       query: queryFooterData,
-      ...fetchOptions,
+      perspective,
+      stega,
     }),
     sanityFetchPage({
       query: queryGlobalSeoSettings,
-      ...fetchOptions,
+      perspective,
+      stega,
     }),
   ]);
 

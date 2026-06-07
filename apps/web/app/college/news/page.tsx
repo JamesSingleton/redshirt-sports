@@ -8,11 +8,13 @@ import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
-import { getBaseUrl } from "@/lib/get-base-url";
+import { searchParamsPage } from "@/lib/draft-cache";
 import {
   getDynamicFetchOptions,
-  sanityFetchPage,
-} from "@/lib/sanity-fetch";
+  type DynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
+import { getBaseUrl } from "@/lib/get-base-url";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
@@ -62,12 +64,27 @@ const breadcrumbItems = [
   },
 ];
 
-export default async function CollegeSportsNews({
+export default function CollegeSportsNews({
   searchParams,
 }: PageProps<"/college/news">) {
+  return searchParamsPage(null, () => renderCollegeSportsNews(searchParams));
+}
+
+async function renderCollegeSportsNews(
+  searchParams: PageProps<"/college/news">["searchParams"],
+) {
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
-  const fetchOptions = await getDynamicFetchOptions();
+  const { perspective, stega } = await getDynamicFetchOptions();
+  return cachedRenderCollegeSportsNews({ pageIndex, perspective, stega });
+}
+
+async function cachedRenderCollegeSportsNews({
+  pageIndex,
+  perspective,
+  stega,
+}: DynamicFetchOptions & { pageIndex: number }) {
+  "use cache";
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
   const {
@@ -75,7 +92,8 @@ export default async function CollegeSportsNews({
   } = await sanityFetchPage({
     query: collegeNewsQuery,
     params: { from, to },
-    ...fetchOptions,
+    perspective,
+    stega,
   });
 
   if (posts.length === 0) {

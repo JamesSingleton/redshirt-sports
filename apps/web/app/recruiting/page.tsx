@@ -6,12 +6,15 @@ import ArticleFeed from "@/components/article-feed";
 import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
+import { searchParamsPage } from "@/lib/draft-cache";
+import {
+  getDynamicFetchOptions,
+  type DynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
-import { getDynamicFetchOptions, sanityFetchPage } from "@/lib/sanity-fetch";
 import { validatePageIndex } from "@/utils/validate-page-index";
-
-export const revalidate = 604800;
 
 export async function generateMetadata({
   searchParams,
@@ -37,21 +40,37 @@ export async function generateMetadata({
   });
 }
 
-export default async function RecruitingPage({
+export default function RecruitingPage({
   searchParams,
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  return searchParamsPage(null, () => renderRecruitingPage(searchParams));
+}
+
+async function renderRecruitingPage(
+  searchParams: Promise<{ page?: string }>,
+) {
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
+  const { perspective, stega } = await getDynamicFetchOptions();
+  return cachedRenderRecruitingPage({ pageIndex, perspective, stega });
+}
+
+async function cachedRenderRecruitingPage({
+  pageIndex,
+  perspective,
+  stega,
+}: DynamicFetchOptions & { pageIndex: number }) {
+  "use cache";
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
 
-  const fetchOptions = await getDynamicFetchOptions();
   const { data } = await sanityFetchPage({
     query: postsByStoryTypeQuery,
     params: { storyType: "recruiting", sport: "", from, to },
-    ...fetchOptions,
+    perspective,
+    stega,
   });
 
   return (

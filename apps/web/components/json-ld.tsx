@@ -1,4 +1,4 @@
-import { client, urlFor } from "@redshirt-sports/sanity/client";
+import { urlFor } from "@redshirt-sports/sanity/client";
 import { querySettingsData } from "@redshirt-sports/sanity/queries";
 import { toPlainText } from "next-sanity";
 import type {
@@ -13,6 +13,11 @@ import type {
 } from "schema-dts";
 
 import { getBaseUrl } from "@/lib/get-base-url";
+import {
+  getDynamicFetchOptions,
+  type DynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 const baseUrl = getBaseUrl();
 
@@ -176,8 +181,21 @@ export function WebPageJsonLd() {
   return <JsonLdScript data={webPageJsonLd} id="webpage-json-ld" />;
 }
 
-export async function CombinedJsonLd() {
-  const res = await client.fetch(querySettingsData);
+export async function DynamicCombinedJsonLd() {
+  const { perspective, stega } = await getDynamicFetchOptions();
+  return <CachedCombinedJsonLd perspective={perspective} stega={stega} />;
+}
+
+export async function CachedCombinedJsonLd({
+  perspective,
+  stega,
+}: DynamicFetchOptions) {
+  "use cache";
+  const { data: res } = await sanityFetchPage({
+    query: querySettingsData,
+    perspective,
+    stega,
+  });
 
   return (
     <>

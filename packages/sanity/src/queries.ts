@@ -199,8 +199,8 @@ export const queryPostPaths = defineQuery(/* groq */ `
   *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50]{"slug": slug.current}
 `);
 
-export const queryAuthorPaths = defineQuery(/* groq */ `
-  *[_type == "author" && defined(slug.current) && archived == false]| order(_createdAt desc)[0...20]{"slug": slug.current}
+export const querySchoolPaths = defineQuery(/* groq */ `
+  *[_type == "school" && defined(slug.current)] | order(_updatedAt desc) [0...100]{"slug": slug.current}
 `);
 
 export const querySportsNews = defineQuery(/* groq */ `
@@ -782,6 +782,16 @@ export const schoolWithVoteOrder = groq`
   abbreviation,
   image,
 } | order(_order)
+`;
+
+export const schoolsByIdsQuery = groq`
+*[_type == "school" && _id in $ids]{
+  _id,
+  name,
+  shortName,
+  abbreviation,
+  image,
+}
 `;
 
 export const postsSearchQuery = groq`

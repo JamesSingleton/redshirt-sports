@@ -44,7 +44,7 @@
     "lucide-react": "catalog:",
     "next": "^16.2.7",
     "next-plausible": "^4.0.0",
-    "next-sanity": "^12.4.5",
+    "next-sanity": "catalog:",
     "next-themes": "catalog:",
     "postgres": "^3.4.9",
     "posthog-js": "^1.381.0",

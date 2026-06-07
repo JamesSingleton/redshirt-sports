@@ -12,8 +12,10 @@ import { perPage } from "@/lib/constants";
 import {
   getDynamicFetchOptions,
   sanityFetchMetadata,
-  sanityFetchPage,
-} from "@/lib/sanity-fetch";
+  type DynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
+import { searchParamsPage } from "@/lib/draft-cache";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
@@ -57,14 +59,37 @@ export async function generateMetadata({
   });
 }
 
-export default async function Page({
+export default function Page({
   params,
   searchParams,
 }: PageProps<"/college/[sport]/news">) {
-  const { sport } = await params;
-  const { page } = await searchParams;
+  return searchParamsPage(null, () =>
+    renderSportNewsPage({ params, searchParams }),
+  );
+}
+
+async function renderSportNewsPage({
+  params,
+  searchParams,
+}: Pick<PageProps<"/college/[sport]/news">, "params" | "searchParams">) {
+  const [{ sport }, { page }] = await Promise.all([params, searchParams]);
   const pageIndex = validatePageIndex(page);
-  const fetchOptions = await getDynamicFetchOptions();
+  const { perspective, stega } = await getDynamicFetchOptions();
+  return cachedRenderSportNewsPage({
+    sport,
+    pageIndex,
+    perspective,
+    stega,
+  });
+}
+
+async function cachedRenderSportNewsPage({
+  sport,
+  pageIndex,
+  perspective,
+  stega,
+}: DynamicFetchOptions & { sport: string; pageIndex: number }) {
+  "use cache";
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
 
@@ -72,12 +97,14 @@ export default async function Page({
     sanityFetchPage({
       query: querySportsNews,
       params: { sport, from, to },
-      ...fetchOptions,
+      perspective,
+      stega,
     }),
     sanityFetchPage({
       query: sportInfoBySlug,
       params: { slug: sport },
-      ...fetchOptions,
+      perspective,
+      stega,
     }),
   ]);
 

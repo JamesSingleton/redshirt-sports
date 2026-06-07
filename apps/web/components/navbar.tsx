@@ -1,5 +1,4 @@
 import { getLatestFinalRankingsBySportSlug } from "@redshirt-sports/db/queries";
-import { client } from "@redshirt-sports/sanity/client";
 import {
   globalNavigationQuery,
   queryGlobalSeoSettings,
@@ -12,6 +11,11 @@ import { memo } from "react";
 
 import { Logo } from "./logo";
 import { NavbarClient, NavbarSkeletonResponsive } from "./navbar-client";
+import {
+  getDynamicFetchOptions,
+  type DynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export interface RankingPeriod {
   division: string;
@@ -28,33 +32,32 @@ export interface SportRankings {
 
 export type Top25RankingsData = SportRankings[];
 
-export async function NavbarServer() {
+export async function DynamicNavbarServer() {
+  const { perspective, stega } = await getDynamicFetchOptions();
+  return <CachedNavbarServer perspective={perspective} stega={stega} />;
+}
+
+export async function CachedNavbarServer({
+  perspective,
+  stega,
+}: DynamicFetchOptions) {
+  "use cache";
   const [
-    navbarData,
-    settingsData,
+    { data: navbarData },
+    { data: settingsData },
     latestFootballRankings,
     latestMensBasketballRankings,
   ] = await Promise.all([
-    client.fetch(
-      globalNavigationQuery,
-      {},
-      {
-        cache: "force-cache",
-        next: {
-          revalidate: 604800,
-        },
-      },
-    ),
-    client.fetch(
-      queryGlobalSeoSettings,
-      {},
-      {
-        cache: "force-cache",
-        next: {
-          revalidate: 604800,
-        },
-      },
-    ),
+    sanityFetchPage({
+      query: globalNavigationQuery,
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: queryGlobalSeoSettings,
+      perspective,
+      stega,
+    }),
     getLatestFinalRankingsBySportSlug("football"),
     getLatestFinalRankingsBySportSlug("mens-basketball"),
   ]);

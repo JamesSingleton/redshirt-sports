@@ -1,8 +1,15 @@
 import {
   postsBySchoolAndStoryTypeQuery,
   postsBySchoolQuery,
+  querySchoolPaths,
   schoolBySlugQuery,
 } from "@redshirt-sports/sanity/queries";
+import {
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+  sanityFetchStaticParams,
+  type DynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { badgeVariants } from "@redshirt-sports/ui/components/badge";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -10,16 +17,18 @@ import { notFound } from "next/navigation";
 
 import ArticleCard from "@/components/article-card";
 import CustomImage from "@/components/sanity-image";
+import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
-import {
-  getDynamicFetchOptions,
-  sanityFetchMetadata,
-  sanityFetchPage,
-} from "@/lib/sanity-fetch";
 
-export const revalidate = 604800;
+export async function generateStaticParams() {
+  const { data } = await sanityFetchStaticParams({
+    query: querySchoolPaths,
+  });
+  return data?.map(({ slug }) => ({ slug })) ?? [];
+}
 
 export async function generateMetadata({
   params,
@@ -36,7 +45,7 @@ export async function generateMetadata({
       params: { slug },
       perspective,
     }),
-    fetchGlobalSeoSettings(),
+    fetchGlobalSeoSettings(perspective),
   ]);
 
   if (!data) return {};
@@ -62,14 +71,19 @@ export default async function SchoolTeamPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const [{ slug }, fetchOptions] = await Promise.all([
-    params,
-    getDynamicFetchOptions(),
-  ]);
+  return draftAwareParamsPage(params, null, renderSchoolTeamPage);
+}
+
+async function renderSchoolTeamPage(
+  { slug }: { slug: string },
+  { perspective, stega }: DynamicFetchOptions,
+) {
+  "use cache";
   const { data: school } = await sanityFetchPage({
     query: schoolBySlugQuery,
     params: { slug },
-    ...fetchOptions,
+    perspective,
+    stega,
   });
 
   if (!school) {
@@ -81,17 +95,20 @@ export default async function SchoolTeamPage({
       sanityFetchPage({
         query: postsBySchoolQuery,
         params: { schoolId: school._id, from: 0, to: 8 },
-        ...fetchOptions,
+        perspective,
+        stega,
       }),
       sanityFetchPage({
         query: postsBySchoolAndStoryTypeQuery,
         params: { schoolId: school._id, storyType: "recruiting" },
-        ...fetchOptions,
+        perspective,
+        stega,
       }),
       sanityFetchPage({
         query: postsBySchoolAndStoryTypeQuery,
         params: { schoolId: school._id, storyType: "transfer" },
-        ...fetchOptions,
+        perspective,
+        stega,
       }),
     ]);
 

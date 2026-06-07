@@ -1,5 +1,6 @@
 import { createClient } from "@sanity/client";
 import { withSentryConfig } from "@sentry/nextjs";
+import { sanity } from "next-sanity/live/cache-life";
 import type { NextConfig } from "next";
 
 const client = createClient({
@@ -62,6 +63,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
+  cacheLife: { default: sanity },
   reactCompiler: true,
   experimental: {
     inlineCss: true,

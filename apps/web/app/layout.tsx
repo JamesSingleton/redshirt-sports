@@ -11,9 +11,20 @@ import { Suspense } from "react";
 import { preconnect, prefetchDNS } from "react-dom";
 
 import { DisableDraftMode } from "@/components/disable-draft-mode";
-import { FooterServer, FooterSkeleton } from "@/components/footer";
-import { CombinedJsonLd } from "@/components/json-ld";
-import { NavbarServer, NavbarSkeleton } from "@/components/navbar";
+import {
+  CachedFooterServer,
+  DynamicFooterServer,
+  FooterSkeleton,
+} from "@/components/footer";
+import {
+  CachedCombinedJsonLd,
+  DynamicCombinedJsonLd,
+} from "@/components/json-ld";
+import {
+  CachedNavbarServer,
+  DynamicNavbarServer,
+  NavbarSkeleton,
+} from "@/components/navbar";
 import { Providers } from "@/components/providers";
 
 const fontSans = Geist({
@@ -42,24 +53,38 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         className={`${fontSans.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
       >
         <Providers draftModeEnabled={isDraftMode}>
-          <Suspense fallback={<NavbarSkeleton />}>
-            <NavbarServer />
-          </Suspense>
+          {isDraftMode ? (
+            <Suspense fallback={<NavbarSkeleton />}>
+              <DynamicNavbarServer />
+            </Suspense>
+          ) : (
+            <CachedNavbarServer perspective="published" stega={false} />
+          )}
           <main className="flex-1">{children}</main>
-          <Suspense fallback={<FooterSkeleton />}>
-            <FooterServer />
-          </Suspense>
+          {isDraftMode ? (
+            <Suspense fallback={<FooterSkeleton />}>
+              <DynamicFooterServer />
+            </Suspense>
+          ) : (
+            <CachedFooterServer perspective="published" stega={false} />
+          )}
         </Providers>
         <SpeedInsights />
         <Toaster />
-        <SanityLive />
+        <SanityLive includeDrafts={isDraftMode} />
         {isDraftMode && (
           <>
             <VisualEditing />
             <DisableDraftMode />
           </>
         )}
-        <CombinedJsonLd />
+        {isDraftMode ? (
+          <Suspense>
+            <DynamicCombinedJsonLd />
+          </Suspense>
+        ) : (
+          <CachedCombinedJsonLd perspective="published" stega={false} />
+        )}
       </body>
     </html>
   );

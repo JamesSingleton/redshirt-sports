@@ -8,10 +8,9 @@ import { JsonLdScript, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import CustomImage from "@/components/sanity-image";
 import { getBaseUrl } from "@/lib/get-base-url";
-import {
-  getDynamicFetchOptions,
-  sanityFetchPage,
-} from "@/lib/sanity-fetch";
+import { type DynamicFetchOptions } from "@redshirt-sports/sanity/live";
+import { draftAwarePage } from "@/lib/draft-cache";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -53,10 +52,15 @@ const aboutPageJsonLd: WithContext<AboutPageSchema> = {
 };
 
 export default async function AboutPage() {
-  const fetchOptions = await getDynamicFetchOptions();
+  return draftAwarePage(null, renderAboutPage);
+}
+
+async function renderAboutPage({ perspective, stega }: DynamicFetchOptions) {
+  "use cache";
   const { data: authors } = await sanityFetchPage({
     query: authorsListNotArchived,
-    ...fetchOptions,
+    perspective,
+    stega,
   });
 
   return (
