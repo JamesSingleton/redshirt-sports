@@ -2,20 +2,26 @@ import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { Mock } from "vitest";
 
-import { sanityFetchPage } from "@/lib/sanity-fetch";
 import HomePage from "../page";
+
+const { mockSanityFetchPage } = vi.hoisted(() => ({
+  mockSanityFetchPage: vi.fn(),
+}));
 
 vi.mock("next/headers", () => ({
   draftMode: vi.fn().mockResolvedValue({ isEnabled: false }),
 }));
 
-vi.mock("@/lib/sanity-fetch", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/sanity-fetch")>();
-  return {
-    ...actual,
-    sanityFetchPage: vi.fn(),
-  };
-});
+vi.mock("@/lib/draft-cache", () => ({
+  draftAwarePage: async (
+    _fallback: ReactNode,
+    render: (options: { perspective: string; stega: boolean }) => Promise<ReactNode>,
+  ) => render({ perspective: "published", stega: false }),
+}));
+
+vi.mock("@/lib/sanity-fetch", () => ({
+  sanityFetchPage: mockSanityFetchPage,
+}));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
   queryHomePageData: "mock-home",
@@ -73,7 +79,7 @@ vi.mock("@/lib/seo", () => ({
   getSEOMetadata: () => ({}),
 }));
 
-const mockFetch = sanityFetchPage as Mock;
+const mockFetch = mockSanityFetchPage as Mock;
 
 beforeEach(() => {
   mockFetch.mockResolvedValue({ data: [] });

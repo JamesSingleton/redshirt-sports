@@ -10,6 +10,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),
+      "server-only": path.resolve(
+        __dirname,
+        "app/__tests__/mocks/server-only.ts",
+      ),
     },
   },
   test: {
