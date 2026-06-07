@@ -15,7 +15,10 @@ vi.mock("next/headers", () => ({
 vi.mock("@/lib/draft-cache", () => ({
   draftAwarePage: async (
     _fallback: ReactNode,
-    render: (options: { perspective: string; stega: boolean }) => Promise<ReactNode>,
+    render: (options: {
+      perspective: string;
+      stega: boolean;
+    }) => Promise<ReactNode>,
   ) => render({ perspective: "published", stega: false }),
 }));
 
