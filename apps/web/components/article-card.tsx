@@ -17,12 +17,14 @@ export default function ArticleCard({
   title: string;
   image: any;
   imagePriority?: boolean;
-  slug: Slug | string;
+  slug: Slug | string | null;
   author: string;
   date?: string | null;
   headingLevel?: "h2" | "h3" | "h4";
 }) {
   const Heading = headingLevel;
+  const slugPath =
+    slug == null ? null : typeof slug === "string" ? slug : slug.current;
 
   return (
     <div className="border-border overflow-hidden rounded-lg border shadow-lg">
@@ -35,13 +37,17 @@ export default function ArticleCard({
       />
       <div className="bg-background p-4">
         <Heading className="mb-2 text-lg font-semibold">
-          <Link
-            href={`/${slug}`}
-            className="hover:underline hover:decoration-2 hover:underline-offset-1"
-            prefetch={false}
-          >
-            {title}
-          </Link>
+          {slugPath ? (
+            <Link
+              href={`/${slugPath}`}
+              className="hover:underline hover:decoration-2 hover:underline-offset-1"
+              prefetch={false}
+            >
+              {title}
+            </Link>
+          ) : (
+            title
+          )}
         </Heading>
         <div className="text-muted-foreground flex items-center space-x-2 text-sm">
           <div>{author}</div>

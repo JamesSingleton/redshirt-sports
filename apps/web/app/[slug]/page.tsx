@@ -90,7 +90,7 @@ export async function generateMetadata({
     authors: data.authors,
     title: data.title,
     description: data.excerpt ?? undefined,
-    slug: data.slug,
+    slug: data.slug ?? undefined,
     readingTime: Math.ceil(wordCount / WORDS_PER_MINUTE),
     articleSection: data.storyType,
     defaultOpenGraphImage: settings?.defaultOpenGraphImage ?? undefined,
@@ -283,7 +283,7 @@ async function renderPostPage(
             <div className="lg:w-64 lg:shrink-0">
               <div className="hidden lg:sticky lg:top-24 lg:left-0 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
                 <AuthorSection authors={data.authors} />
-                <LargeArticleSocialShare slug={data.slug} title={data.title} />
+                <LargeArticleSocialShare slug={slug} title={data.title} />
               </div>
               <MobileAuthorSection authors={data.authors} />
             </div>

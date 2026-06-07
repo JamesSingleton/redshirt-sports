@@ -66,7 +66,9 @@ export default function VoteConfirmationPage({
 
 async function VoteConfirmationContent({
   params,
-}: PageProps<"/vote/college/[sport]/[division]/confirmation">) {
+}: {
+  params: PageProps<"/vote/college/[sport]/[division]/confirmation">["params"];
+}) {
   const { sport, division } = await params;
   const header = generateConfirmationHeader(sport, division);
   const user = await auth();
