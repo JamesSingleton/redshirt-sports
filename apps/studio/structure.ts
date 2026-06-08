@@ -4,6 +4,8 @@ import {
   FileText,
   Folder,
   GavelIcon,
+  Globe,
+  GraduationCap,
   type LucideIcon,
   PanelBottomIcon,
   PanelTopDashedIcon,
@@ -219,6 +221,7 @@ export const structure = async (
     S.divider().title("People"),
     createList({ S, type: "author", title: "Authors", icon: User }),
     S.divider().title("Teams & Taxonomy"),
+
     createList({
       S,
       type: "school",
@@ -230,6 +233,16 @@ export const structure = async (
         .defaultOrdering([{ field: "name", direction: "asc" }]),
     ),
     createList({ S, type: "sport", title: "Sports" }),
+    createList({
+      S,
+      type: "governingBody",
+      title: "Governing Bodies",
+    }),
+    createList({
+      S,
+      type: "classification",
+      title: "Classifications",
+    }),
     createList({ S, type: "division", title: "Divisions" }),
     createList({ S, type: "conference", title: "Conferences" }).child(
       S.documentTypeList("conference")

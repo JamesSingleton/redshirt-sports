@@ -11,6 +11,8 @@ import { settings } from "./settings";
 import { sport } from "./sport";
 import { sportSubgrouping } from "./sport-subgrouping";
 import { tag } from "./tag";
+import { classification } from "./classification";
+import { governingBody } from "./governing-body";
 
 export const singletons = [footer, navbar, settings];
 
@@ -18,6 +20,8 @@ export const documents = [
   author,
   conference,
   division,
+  classification,
+  governingBody,
   legal,
   post,
   redirect,
