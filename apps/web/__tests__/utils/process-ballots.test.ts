@@ -170,10 +170,7 @@ describe("processVoterBallots", () => {
           organization: "ESPN",
           organizationRole: "Analyst",
         },
-        votes: [
-          createVote("school-1", 1),
-          createVote("missing-school", 2),
-        ],
+        votes: [createVote("school-1", 1), createVote("missing-school", 2)],
       },
     };
 
