@@ -1,6 +1,7 @@
 import { client } from "@redshirt-sports/sanity/client";
+import type { Mock } from "vitest";
 
-import type { BallotsByVoter } from "@/types";
+import type { Ballot, BallotsByVoter } from "@/types";
 import {
   processVoterBallots,
   transformBallotToTeamIds,
@@ -12,13 +13,27 @@ vi.mock("@redshirt-sports/sanity/client", () => ({
   },
 }));
 
-const mockFetch = vi.mocked(client.fetch);
+const mockFetch = client.fetch as Mock;
+
+function createVote(teamId: string, rank: number): Ballot {
+  return {
+    id: rank,
+    userId: "user-1",
+    division: "fbs",
+    week: 1,
+    year: 2025,
+    createdAt: new Date("2026-01-01T00:00:00Z"),
+    teamId,
+    rank,
+    points: 26 - rank,
+  };
+}
 
 describe("transformBallotToTeamIds", () => {
   it("maps ballot entries to id and rank pairs", () => {
     const result = transformBallotToTeamIds([
-      { teamId: "team-a", rank: 1 },
-      { teamId: "team-b", rank: 2 },
+      createVote("team-a", 1),
+      createVote("team-b", 2),
     ]);
 
     expect(result).toEqual([
@@ -67,10 +82,7 @@ describe("processVoterBallots", () => {
           organization: "ESPN",
           organizationRole: "Analyst",
         },
-        votes: [
-          { teamId: "school-2", rank: 2 },
-          { teamId: "school-1", rank: 1 },
-        ],
+        votes: [createVote("school-2", 2), createVote("school-1", 1)],
       },
     };
 
@@ -115,7 +127,7 @@ describe("processVoterBallots", () => {
           organization: "ESPN",
           organizationRole: "Analyst",
         },
-        votes: [{ teamId: "school-1", rank: 1 }],
+        votes: [createVote("school-1", 1)],
       },
       voter2: {
         userData: {
@@ -125,7 +137,7 @@ describe("processVoterBallots", () => {
           organization: "CBS",
           organizationRole: "Writer",
         },
-        votes: [{ teamId: "school-2", rank: 1 }],
+        votes: [createVote("school-2", 1)],
       },
     };
 
@@ -159,8 +171,8 @@ describe("processVoterBallots", () => {
           organizationRole: "Analyst",
         },
         votes: [
-          { teamId: "school-1", rank: 1 },
-          { teamId: "missing-school", rank: 2 },
+          createVote("school-1", 1),
+          createVote("missing-school", 2),
         ],
       },
     };

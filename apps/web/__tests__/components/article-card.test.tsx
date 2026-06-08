@@ -43,10 +43,9 @@ describe("ArticleCard", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Big Game Preview" })).toHaveAttribute(
-      "href",
-      "/big-game-preview",
-    );
+    expect(
+      screen.getByRole("link", { name: "Big Game Preview" }),
+    ).toHaveAttribute("href", "/big-game-preview");
     expect(screen.getByText("Jane Doe")).toBeInTheDocument();
     expect(screen.getByText("2026-01-15T20:00:00.000Z")).toBeInTheDocument();
   });
@@ -61,10 +60,9 @@ describe("ArticleCard", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Recruiting Update" })).toHaveAttribute(
-      "href",
-      "/recruiting-update",
-    );
+    expect(
+      screen.getByRole("link", { name: "Recruiting Update" }),
+    ).toHaveAttribute("href", "/recruiting-update");
   });
 
   it("renders an unlinked title when slug is null", () => {
@@ -77,7 +75,9 @@ describe("ArticleCard", () => {
       />,
     );
 
-    expect(screen.queryByRole("link", { name: "Draft Article" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Draft Article" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Draft Article")).toBeInTheDocument();
   });
 
@@ -106,6 +106,8 @@ describe("ArticleCard", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 2, name: "Headline" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Headline" }),
+    ).toBeInTheDocument();
   });
 });

@@ -30,12 +30,16 @@ describe("BreadCrumbs", () => {
       />,
     );
 
-    expect(screen.getByRole("navigation", { name: "breadcrumb" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: "College Football" })).toHaveAttribute(
+    expect(
+      screen.getByRole("navigation", { name: "breadcrumb" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute(
       "href",
-      "/college/football/news",
+      "/",
     );
+    expect(
+      screen.getByRole("link", { name: "College Football" }),
+    ).toHaveAttribute("href", "/college/football/news");
     expect(screen.getByRole("link", { name: "FBS" })).toHaveAttribute(
       "href",
       "/college/football/news/fbs",
@@ -57,6 +61,8 @@ describe("BreadCrumbs", () => {
     );
 
     expect(screen.getAllByRole("link")).toHaveLength(2);
-    expect(screen.queryByRole("link", { name: "null" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "null" }),
+    ).not.toBeInTheDocument();
   });
 });

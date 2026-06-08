@@ -69,14 +69,20 @@ describe("ArticleSection", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 2, name: "FBS News" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Lead Story" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "FBS News" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Lead Story" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Lead excerpt")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /View All/ })).toHaveAttribute(
       "href",
       "/college/football/news/fbs",
     );
-    expect(screen.getByTestId("article-card")).toHaveTextContent("Secondary Story");
+    expect(screen.getByTestId("article-card")).toHaveTextContent(
+      "Secondary Story",
+    );
   });
 
   it("applies imageFirst ordering classes", () => {

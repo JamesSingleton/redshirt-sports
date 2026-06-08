@@ -1,6 +1,17 @@
 import { render, screen } from "@testing-library/react";
 
 import ArticleFeed from "@/components/article-feed";
+import type { ArticleFeedItem } from "@/types/article";
+
+const testMainImage = {
+  caption: "",
+  attribution: "",
+  _type: "image" as const,
+  alt: "Test image",
+  credit: "Unknown",
+  blurData: null,
+  dominantColor: null,
+};
 
 vi.mock("@/components/article-card", () => ({
   __esModule: true,
@@ -11,7 +22,10 @@ vi.mock("@/components/article-card", () => ({
     title: string;
     imagePriority?: boolean;
   }) => (
-    <div data-testid="article-card" data-priority={String(imagePriority ?? false)}>
+    <div
+      data-testid="article-card"
+      data-priority={String(imagePriority ?? false)}
+    >
       {title}
     </div>
   ),
@@ -21,7 +35,9 @@ const articles = [
   {
     _id: "1",
     title: "First Article",
-    mainImage: null,
+    excerpt: "First excerpt",
+    storyType: "news",
+    mainImage: testMainImage,
     slug: "first-article",
     publishedAt: "2026-01-01T00:00:00Z",
     authors: [{ name: "Jane Doe" }],
@@ -29,12 +45,14 @@ const articles = [
   {
     _id: "2",
     title: "Second Article",
-    mainImage: null,
+    excerpt: "Second excerpt",
+    storyType: "news",
+    mainImage: testMainImage,
     slug: "second-article",
     publishedAt: "2026-01-02T00:00:00Z",
     authors: [{ name: "John Smith" }],
   },
-];
+] as ArticleFeedItem[];
 
 describe("ArticleFeed", () => {
   it("renders article cards for each article", () => {
@@ -49,11 +67,13 @@ describe("ArticleFeed", () => {
     const manyArticles = Array.from({ length: 5 }, (_, i) => ({
       _id: String(i),
       title: `Article ${i}`,
-      mainImage: null,
+      excerpt: `Excerpt ${i}`,
+      storyType: "news" as const,
+      mainImage: testMainImage,
       slug: `article-${i}`,
       publishedAt: "2026-01-01T00:00:00Z",
       authors: [{ name: "Author" }],
-    }));
+    })) as ArticleFeedItem[];
 
     render(<ArticleFeed articles={manyArticles} />);
 

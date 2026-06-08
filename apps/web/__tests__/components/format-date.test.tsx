@@ -13,10 +13,7 @@ describe("FormatDate", () => {
 
   it("applies a custom className", () => {
     render(
-      <FormatDate
-        dateString="2026-01-15T20:00:00.000Z"
-        className="text-sm"
-      />,
+      <FormatDate dateString="2026-01-15T20:00:00.000Z" className="text-sm" />,
     );
 
     expect(screen.getByRole("time")).toHaveClass("text-sm");

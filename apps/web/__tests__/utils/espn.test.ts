@@ -163,10 +163,14 @@ describe("ESPN API helpers", () => {
 
   it("fetches multiple seasons from a starting year", async () => {
     fetchMock.mockResolvedValueOnce(
-      mockFetchResponse({ seasons: [mockSeason, { ...mockSeason, year: 2024 }] }),
+      mockFetchResponse({
+        seasons: [mockSeason, { ...mockSeason, year: 2024 }],
+      }),
     );
 
-    await expect(getMultipleSeasonsData("football", 2024)).resolves.toHaveLength(2);
+    await expect(
+      getMultipleSeasonsData("football", 2024),
+    ).resolves.toHaveLength(2);
   });
 
   it("fetches week details from the sports core API", async () => {
@@ -185,14 +189,16 @@ describe("ESPN API helpers", () => {
         }),
       );
 
-    await expect(fetchWeeksFromSportsUrl("football", 2025, 2)).resolves.toEqual([
-      {
-        number: 1,
-        startDate: "2025-08-30T00:00:00Z",
-        endDate: "2025-09-07T00:00:00Z",
-        text: "Week 1",
-      },
-    ]);
+    await expect(fetchWeeksFromSportsUrl("football", 2025, 2)).resolves.toEqual(
+      [
+        {
+          number: 1,
+          startDate: "2025-08-30T00:00:00Z",
+          endDate: "2025-09-07T00:00:00Z",
+          text: "Week 1",
+        },
+      ],
+    );
   });
 
   function mockCurrentSeasonFlow(season: Season) {
@@ -271,9 +277,9 @@ describe("ESPN API helpers", () => {
   });
 
   it("throws for unsupported sports at runtime", async () => {
-    await expect(getCurrentSeason("invalid-sport" as "football")).rejects.toThrow(
-      "Unsupported sport: invalid-sport",
-    );
+    await expect(
+      getCurrentSeason("invalid-sport" as "football"),
+    ).rejects.toThrow("Unsupported sport: invalid-sport");
   });
 
   it("supports basketball sport mappings", async () => {

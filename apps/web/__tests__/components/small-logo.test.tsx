@@ -7,6 +7,8 @@ describe("SmallLogo", () => {
     const { container } = render(<SmallLogo data-testid="small-logo" />);
 
     expect(container.querySelector("svg")).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="small-logo"]')).toBeInTheDocument();
+    expect(
+      container.querySelector('[data-testid="small-logo"]'),
+    ).toBeInTheDocument();
   });
 });

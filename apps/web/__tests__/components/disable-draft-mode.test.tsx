@@ -14,10 +14,9 @@ describe("DisableDraftMode", () => {
 
     render(<DisableDraftMode />);
 
-    expect(screen.getByRole("link", { name: "Disable Draft Mode" })).toHaveAttribute(
-      "href",
-      "/api/draft-mode/disable",
-    );
+    expect(
+      screen.getByRole("link", { name: "Disable Draft Mode" }),
+    ).toHaveAttribute("href", "/api/draft-mode/disable");
   });
 
   it("returns null inside the presentation tool", () => {

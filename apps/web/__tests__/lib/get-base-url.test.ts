@@ -23,8 +23,6 @@ describe("getBaseUrl", () => {
     process.env.VERCEL_ENV = "preview";
     process.env.VERCEL_URL = "redshirt-sports-git-feature.vercel.app";
 
-    expect(getBaseUrl()).toBe(
-      "https://redshirt-sports-git-feature.vercel.app",
-    );
+    expect(getBaseUrl()).toBe("https://redshirt-sports-git-feature.vercel.app");
   });
 });

@@ -1,4 +1,22 @@
+import type { Metadata } from "next";
+
 import { getSEOMetadata } from "@/lib/seo";
+
+type TestOpenGraph = {
+  type?: string;
+  section?: string;
+  authors?: string[];
+  images?: Array<{ url?: string | URL; alt?: string }>;
+};
+
+function getOpenGraph(metadata: Metadata): TestOpenGraph {
+  return (metadata.openGraph ?? {}) as TestOpenGraph;
+}
+
+function getFirstOgImage(metadata: Metadata) {
+  const images = getOpenGraph(metadata).images;
+  return Array.isArray(images) ? images[0] : images;
+}
 
 vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "https://redshirtsports.com",
@@ -20,7 +38,9 @@ describe("getSEOMetadata", () => {
       "College Sports News & Analysis at All Levels | Redshirt Sports",
     );
     expect(metadata.description).toContain("Redshirt Sports");
-    expect(metadata.metadataBase?.toString()).toBe("https://redshirtsports.com/");
+    expect(metadata.metadataBase?.toString()).toBe(
+      "https://redshirtsports.com/",
+    );
   });
 
   it("prefers seoTitle over title and ogTitle", () => {
@@ -37,7 +57,9 @@ describe("getSEOMetadata", () => {
   it("builds canonical URL from slug", () => {
     const metadata = getSEOMetadata({ slug: "about" });
 
-    expect(metadata.alternates?.canonical).toBe("https://redshirtsports.com/about");
+    expect(metadata.alternates?.canonical).toBe(
+      "https://redshirtsports.com/about",
+    );
   });
 
   it("normalizes slug that already starts with a slash", () => {
@@ -50,7 +72,9 @@ describe("getSEOMetadata", () => {
 
   it("uses author twitter handle when available", () => {
     const metadata = getSEOMetadata({
-      authors: [{ name: "Jane Doe", socialLinks: { twitter: "https://x.com/janedoe" } }],
+      authors: [
+        { name: "Jane Doe", socialLinks: { twitter: "https://x.com/janedoe" } },
+      ],
     });
 
     expect(metadata.twitter?.creator).toBe("@janedoe");
@@ -72,9 +96,10 @@ describe("getSEOMetadata", () => {
       authors: [{ name: "Jane Doe" }],
     });
 
-    expect(metadata.openGraph?.type).toBe("article");
-    expect(metadata.openGraph?.section).toBe("College Football");
-    expect(metadata.openGraph?.authors).toEqual(["Jane Doe"]);
+    const openGraph = getOpenGraph(metadata);
+    expect(openGraph.type).toBe("article");
+    expect(openGraph.section).toBe("College Football");
+    expect(openGraph.authors).toEqual(["Jane Doe"]);
   });
 
   it("resolves open graph images from Sanity assets", () => {
@@ -82,10 +107,10 @@ describe("getSEOMetadata", () => {
       seoImage: { asset: { _ref: "image-ref" }, alt: "SEO image" },
     });
 
-    expect(metadata.openGraph?.images?.[0]?.url).toBe(
+    expect(getFirstOgImage(metadata)?.url).toBe(
       "https://cdn.sanity.io/test-image.jpg",
     );
-    expect(metadata.openGraph?.images?.[0]?.alt).toBe("SEO image");
+    expect(getFirstOgImage(metadata)?.alt).toBe("SEO image");
   });
 
   it("falls back to defaultOpenGraphImage when no asset is present", () => {
@@ -93,7 +118,7 @@ describe("getSEOMetadata", () => {
       defaultOpenGraphImage: "https://example.com/default.jpg",
     });
 
-    expect(metadata.openGraph?.images?.[0]?.url).toBe(
+    expect(getFirstOgImage(metadata)?.url).toBe(
       "https://example.com/default.jpg",
     );
   });
@@ -105,6 +130,6 @@ describe("getSEOMetadata", () => {
       image: { asset: { _ref: "main" }, alt: "Main" },
     });
 
-    expect(metadata.openGraph?.images?.[0]?.alt).toBe("SEO");
+    expect(getFirstOgImage(metadata)?.alt).toBe("SEO");
   });
 });

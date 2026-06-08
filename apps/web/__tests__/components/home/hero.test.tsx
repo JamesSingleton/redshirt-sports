@@ -1,3 +1,4 @@
+import type { QueryHomePageDataResult } from "@redshirt-sports/sanity/types";
 import { render, screen } from "@testing-library/react";
 
 import Hero from "@/components/home/hero";
@@ -73,14 +74,20 @@ const heroPosts = [
 
 describe("Hero", () => {
   it("renders the lead story and recent article cards", () => {
-    render(<Hero heroPosts={heroPosts} />);
+    render(
+      <Hero heroPosts={heroPosts as unknown as QueryHomePageDataResult} />,
+    );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Hero Story" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Hero Story" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Lead story excerpt")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Jane Doe/ })).toHaveAttribute(
       "href",
       "/authors/jane-doe",
     );
-    expect(screen.getByTestId("article-card")).toHaveTextContent("Secondary Story");
+    expect(screen.getByTestId("article-card")).toHaveTextContent(
+      "Secondary Story",
+    );
   });
 });

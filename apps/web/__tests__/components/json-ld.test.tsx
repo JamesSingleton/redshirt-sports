@@ -1,7 +1,4 @@
-const {
-  mockGetDynamicFetchOptions,
-  mockSanityFetchPage,
-} = vi.hoisted(() => ({
+const { mockGetDynamicFetchOptions, mockSanityFetchPage } = vi.hoisted(() => ({
   mockGetDynamicFetchOptions: vi.fn(),
   mockSanityFetchPage: vi.fn(),
 }));
@@ -57,7 +54,9 @@ describe("JsonLdScript", () => {
       name: "Home",
     };
 
-    const { container } = render(<JsonLdScript data={data} id="test-json-ld" />);
+    const { container } = render(
+      <JsonLdScript data={data} id="test-json-ld" />,
+    );
 
     const script = container.querySelector("#test-json-ld");
     expect(script).toHaveAttribute("type", "application/ld+json");
@@ -72,9 +71,9 @@ describe("buildSafeImageUrl", () => {
   });
 
   it("returns a Sanity image URL when a reference is present", () => {
-    expect(
-      buildSafeImageUrl({ asset: { _ref: "image-123" } }),
-    ).toBe("https://cdn.sanity.io/test.jpg");
+    expect(buildSafeImageUrl({ asset: { _ref: "image-123" } })).toBe(
+      "https://cdn.sanity.io/test.jpg",
+    );
   });
 });
 
@@ -106,7 +105,9 @@ describe("ArticleJsonLd", () => {
     expect(data["@type"]).toBe("NewsArticle");
     expect(data.headline).toBe("Test Article");
     expect(data.wordCount).toBe(4);
-    expect(data.author[0].url).toBe("https://redshirtsports.com/authors/jane-doe");
+    expect(data.author[0].url).toBe(
+      "https://redshirtsports.com/authors/jane-doe",
+    );
   });
 
   it("renders with an empty authors list when authors are missing", () => {
