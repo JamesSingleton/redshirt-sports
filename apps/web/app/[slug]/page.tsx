@@ -196,23 +196,6 @@ async function renderPostPage(
             {data.excerpt}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            {data.storyType && data.storyType !== "news" && (
-              <span className={badgeVariants({ variant: "secondary" })}>
-                {STORY_TYPE_LABELS[data.storyType] ?? data.storyType}
-              </span>
-            )}
-            {data.teams?.map((team) =>
-              team.slug ? (
-                <Link
-                  key={team._id}
-                  href={`/college/teams/${team.slug}`}
-                  className={badgeVariants({ variant: "outline" })}
-                  prefetch={false}
-                >
-                  {team.shortName ?? team.name}
-                </Link>
-              ) : null,
-            )}
             {data.sport &&
               (data.division || data.sportSubgrouping || data.conferences) && (
                 <div className="flex flex-wrap items-center gap-3">
