@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { Mock } from "vitest";
 
-import HomePage from "../page";
+import HomePage, { generateMetadata } from "@/app/page";
 
 const { mockSanityFetchPage } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
@@ -78,8 +78,12 @@ vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "http://localhost",
 }));
 
+const { mockGetSEOMetadata } = vi.hoisted(() => ({
+  mockGetSEOMetadata: vi.fn(() => ({})),
+}));
+
 vi.mock("@/lib/seo", () => ({
-  getSEOMetadata: () => ({}),
+  getSEOMetadata: mockGetSEOMetadata,
 }));
 
 const mockFetch = mockSanityFetchPage as Mock;
@@ -89,6 +93,12 @@ beforeEach(() => {
 });
 
 describe("HomePage", () => {
+  it("generateMetadata delegates to getSEOMetadata", async () => {
+    await generateMetadata();
+
+    expect(mockGetSEOMetadata).toHaveBeenCalled();
+  });
+
   it("renders the hero and four division sections when no articles exist", async () => {
     const page = await HomePage();
     render(page);
@@ -125,5 +135,66 @@ describe("HomePage", () => {
       "href",
       "/college/news",
     );
+  });
+
+  it("passes hero posts to the Hero component", async () => {
+    const heroArticle = {
+      _id: "hero",
+      title: "Hero Article",
+      publishedAt: "2026-01-01T00:00:00Z",
+      mainImage: null,
+      slug: "hero-article",
+      authors: [{ name: "Hero Author" }],
+    };
+
+    mockFetch.mockResolvedValueOnce({ data: [heroArticle] });
+
+    const page = await HomePage();
+    render(page);
+
+    expect(screen.getByTestId("hero")).toBeInTheDocument();
+  });
+
+  it("renders division article sections when division data is returned", async () => {
+    const divisionArticle = {
+      _id: "division-1",
+      title: "FBS Article",
+      publishedAt: "2026-01-01T00:00:00Z",
+      mainImage: null,
+      slug: "fbs-article",
+      authors: [{ name: "Division Author" }],
+    };
+
+    mockFetch
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [divisionArticle] })
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [] });
+
+    const page = await HomePage();
+    render(page);
+
+    expect(screen.getByText("FBS College Football News")).toBeInTheDocument();
+    expect(screen.getAllByTestId("article-section")).toHaveLength(4);
+  });
+
+  it("skips division sections when article data is missing", async () => {
+    mockFetch
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [] });
+
+    const page = await HomePage();
+    render(page);
+
+    expect(
+      screen.queryByText("FBS College Football News"),
+    ).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("article-section")).toHaveLength(3);
   });
 });
