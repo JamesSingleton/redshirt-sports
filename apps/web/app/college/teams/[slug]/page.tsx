@@ -5,6 +5,7 @@ import {
   sanityFetchStaticParams,
 } from "@redshirt-sports/sanity/live";
 import {
+  MIN_TEAM_PAGE_POSTS,
   postsBySchoolAndStoryTypeQuery,
   postsBySchoolQuery,
   querySchoolPaths,
@@ -32,9 +33,28 @@ import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 
+function defaultTeamPageTitle({
+  name,
+  shortName,
+  nickname,
+}: {
+  name: string;
+  shortName: string | null;
+  nickname: string | null;
+}) {
+  const teamName = [shortName ?? name, nickname].filter(Boolean).join(" ");
+
+  return `${teamName} Sports Coverage, Recruiting News & Updates`;
+}
+
+function defaultTeamPageDescription(schoolName: string) {
+  return `Your source for ${schoolName} news, recruiting updates, transfer portal coverage, game previews, recaps, analysis, and more.`;
+}
+
 export async function generateStaticParams() {
   const { data } = await sanityFetchStaticParams({
     query: querySchoolPaths,
+    params: { minPosts: MIN_TEAM_PAGE_POSTS },
   });
   return data?.map(({ slug }) => ({ slug })) ?? [];
 }
@@ -48,30 +68,30 @@ export async function generateMetadata({
     params,
     getDynamicFetchOptions(),
   ]);
-  const [{ data }, settings] = await Promise.all([
+  const [{ data: school }, settings] = await Promise.all([
     sanityFetchMetadata({
       query: schoolBySlugQuery,
-      params: { slug },
+      params: { slug, minPosts: MIN_TEAM_PAGE_POSTS },
       perspective,
     }),
     fetchGlobalSeoSettings(perspective),
   ]);
 
-  if (!data) return {};
+  if (!school) {
+    notFound();
+  }
 
   return getSEOMetadata({
-    title:
-      data.seoTitle ??
-      `${data.shortName ?? data.name} ${data.nickname ?? ""}`.trim(),
+    title: school.seoTitle ?? defaultTeamPageTitle(school),
     description:
-      data.seoDescription ??
-      data.overview ??
-      `Latest news, recruiting, and transfer coverage for ${data.name}.`,
-    seoImage: data.seoImage ?? undefined,
-    image: data.image ?? undefined,
+      school.seoDescription ??
+      school.overview ??
+      defaultTeamPageDescription(school.name),
+    seoImage: school.seoImage ?? undefined,
+    image: school.image ?? undefined,
     slug: `/college/teams/${slug}`,
-    ogTitle: data.ogTitle ?? undefined,
-    ogDescription: data.ogDescription ?? undefined,
+    ogTitle: school.ogTitle ?? undefined,
+    ogDescription: school.ogDescription ?? undefined,
     defaultOpenGraphImage: settings?.defaultOpenGraphImage ?? undefined,
     siteBrand: settings?.siteBrand ?? undefined,
   });
@@ -92,7 +112,7 @@ async function renderSchoolTeamPage(
   "use cache";
   const { data: school } = (await sanityFetchPage({
     query: schoolBySlugQuery,
-    params: { slug },
+    params: { slug, minPosts: MIN_TEAM_PAGE_POSTS },
     perspective,
     stega,
   })) as { data: SchoolBySlugQueryResult | null };
@@ -105,7 +125,7 @@ async function renderSchoolTeamPage(
     await Promise.all([
       sanityFetchPage({
         query: postsBySchoolQuery,
-        params: { schoolId: school._id, from: 0, to: 8 },
+        params: { schoolId: school._id, from: 0, to: MIN_TEAM_PAGE_POSTS },
         perspective,
         stega,
       }) as Promise<{ data: PostsBySchoolQueryResult | null }>,

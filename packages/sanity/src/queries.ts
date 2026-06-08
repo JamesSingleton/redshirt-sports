@@ -236,8 +236,27 @@ export const queryPostPaths = defineQuery(/* groq */ `
   *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50]{"slug": slug.current}
 `);
 
+/** Minimum published posts tagging a school before its team page is exposed. */
+export const MIN_TEAM_PAGE_POSTS = 8;
+
+const publishedPostsTaggingSchoolFilter = /* groq */ `
+  _type == "post" &&
+  defined(publishedAt) &&
+  $schoolId in teams[]._ref
+`;
+
+const publishedPostsTaggingSchoolFromParentFilter = /* groq */ `
+  _type == "post" &&
+  defined(publishedAt) &&
+  ^._id in teams[]._ref
+`;
+
 export const querySchoolPaths = defineQuery(/* groq */ `
-  *[_type == "school" && defined(slug.current)] | order(_updatedAt desc) [0...100]{"slug": slug.current}
+  *[
+    _type == "school" &&
+    defined(slug.current) &&
+    count(*[${publishedPostsTaggingSchoolFromParentFilter}]) >= $minPosts
+  ] | order(_updatedAt desc) [0...100]{"slug": slug.current}
 `);
 
 export const querySportsNews = defineQuery(/* groq */ `
@@ -912,7 +931,11 @@ export const queryDivisionOrSubgroupingDisplayName = defineQuery(
 );
 
 export const schoolBySlugQuery = defineQuery(/* groq */ `
-  *[_type == "school" && slug.current == $slug][0]{
+  *[
+    _type == "school" &&
+    slug.current == $slug &&
+    count(*[${publishedPostsTaggingSchoolFromParentFilter}]) >= $minPosts
+  ][0]{
     _id,
     name,
     shortName,
@@ -952,11 +975,7 @@ export const schoolBySlugQuery = defineQuery(/* groq */ `
 
 export const postsBySchoolQuery = defineQuery(/* groq */ `
   {
-    "posts": *[
-      _type == "post" &&
-      defined(publishedAt) &&
-      $schoolId in teams[]._ref
-    ] | order(publishedAt desc)[$from...$to]{
+    "posts": *[${publishedPostsTaggingSchoolFilter}] | order(publishedAt desc)[$from...$to]{
       _id,
       title,
       excerpt,
@@ -967,20 +986,14 @@ export const postsBySchoolQuery = defineQuery(/* groq */ `
       ${postImageFragment},
       ${postAuthorFragment}
     },
-    "totalPosts": count(*[
-      _type == "post" &&
-      defined(publishedAt) &&
-      $schoolId in teams[]._ref
-    ])
+    "totalPosts": count(*[${publishedPostsTaggingSchoolFilter}])
   }
 `);
 
 export const postsBySchoolAndStoryTypeQuery = defineQuery(/* groq */ `
   *[
-    _type == "post" &&
-    defined(publishedAt) &&
-    storyType == $storyType &&
-    $schoolId in teams[]._ref
+    ${publishedPostsTaggingSchoolFilter} &&
+    storyType == $storyType
   ] | order(publishedAt desc)[0...6]{
     _id,
     title,
