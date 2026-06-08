@@ -1,7 +1,9 @@
 import { author } from "./author";
+import { classification } from "./classification";
 import { conference } from "./conference";
 import { division } from "./division";
 import { footer } from "./footer";
+import { governingBody } from "./governing-body";
 import { legal } from "./legal";
 import { navbar } from "./navbar";
 import { post } from "./post";
@@ -11,8 +13,6 @@ import { settings } from "./settings";
 import { sport } from "./sport";
 import { sportSubgrouping } from "./sport-subgrouping";
 import { tag } from "./tag";
-import { classification } from "./classification";
-import { governingBody } from "./governing-body";
 
 export const singletons = [footer, navbar, settings];
 
