@@ -16,7 +16,12 @@ import { cleanSlug } from "@/utils/slug-validation";
 import ButtonAssetCopy from "./button-asset-copy";
 
 const presentationOriginUrl = process.env.SANITY_STUDIO_PRESENTATION_URL;
-const monoStyle = { fontFamily: "monospace" } as const;
+const monoStyle = {
+  fontFamily: "monospace",
+  overflowWrap: "anywhere",
+} as const;
+
+const flexGrowMinWidth0 = { flex: 1, minWidth: 0 } as const;
 
 export function SchoolSlugFieldComponent(props: ObjectFieldProps<SlugValue>) {
   const {
@@ -114,8 +119,8 @@ export function SchoolSlugFieldComponent(props: ObjectFieldProps<SlugValue>) {
           <Text size={1} weight="medium">
             Team URL slug
           </Text>
-          <Flex align="center" gap={2}>
-            <Box flex={1}>
+          <Flex align="center" gap={2} wrap="wrap">
+            <Box style={flexGrowMinWidth0}>
               <TextInput
                 disabled={readOnly}
                 fontSize={1}
@@ -143,13 +148,22 @@ export function SchoolSlugFieldComponent(props: ObjectFieldProps<SlugValue>) {
             <Text size={1} weight="medium">
               Preview
             </Text>
-            <Flex align="center" gap={2}>
-              <Card border flex={1} padding={3} radius={2} tone="transparent">
+            <Flex align="stretch" gap={2} wrap="wrap">
+              <Card
+                border
+                flex={1}
+                padding={3}
+                radius={2}
+                style={flexGrowMinWidth0}
+                tone="transparent"
+              >
                 <Text muted size={1} style={monoStyle}>
                   {fullUrl}
                 </Text>
               </Card>
-              <ButtonAssetCopy disabled={!currentSlug} url={fullUrl} />
+              <Box flex="none">
+                <ButtonAssetCopy disabled={!currentSlug} url={fullUrl} />
+              </Box>
             </Flex>
           </Stack>
         )}
