@@ -1,4 +1,4 @@
-import { ImageIcon, PlayIcon, TwitterIcon } from "@sanity/icons";
+import { ImageIcon, LinkIcon, PlayIcon, TwitterIcon } from "@sanity/icons";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 import { warnWhenHeadingOrBlockIsAllBold } from "../../utils/portable-text-validations";
@@ -11,7 +11,19 @@ const richTextMembers = [
     marks: {
       annotations: [
         {
-          title: "URL",
+          name: "customLink",
+          type: "object",
+          title: "Internal/External Link",
+          icon: LinkIcon,
+          fields: [
+            defineField({
+              name: "customLink",
+              type: "customUrl",
+            }),
+          ],
+        },
+        {
+          title: "URL (Legacy)",
           name: "link",
           type: "object",
           fields: [
@@ -34,13 +46,7 @@ const richTextMembers = [
             },
           ],
         },
-        {
-          name: "customUrl",
-          title: "Site Link",
-          type: "customUrl",
-          description:
-            "Preferred for linking to posts, schools, authors, or full archive paths (e.g. /college/football/news/fbs/sec).",
-        },
+
         {
           name: "internalLink",
           title: "Internal Link (legacy)",

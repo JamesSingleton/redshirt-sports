@@ -14,18 +14,37 @@ export const querySettingsData = defineQuery(/* groq */ `
   }
 `);
 
+const customUrlHrefSelect = /* groq */ `
+  select(
+    type == "external" => external,
+    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,
+    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,
+    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,
+    href
+  )
+`;
+
+const customLinkMarkFragment = /* groq */ `
+  "openInNewTab": customLink.openInNewTab,
+  "href": select(
+    customLink.type == "external" => customLink.external,
+    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,
+    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,
+    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,
+    customLink.href
+  )
+`;
+
 const markDefsFragment = /* groq */ `
   markDefs[]{
     ...,
+    _type == "customLink" => {
+      ...,
+      ${customLinkMarkFragment}
+    },
     _type == "customUrl" => {
       ...,
-      "href": select(
-        type == "external" => external,
-        type == "internal" && internal->_type == "post" => "/" + internal->slug.current,
-        type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,
-        type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,
-        href
-      )
+      "href": ${customUrlHrefSelect}
     },
     _type == "internalLink" => {
       ...,
