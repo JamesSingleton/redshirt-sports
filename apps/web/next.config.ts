@@ -14,6 +14,7 @@ const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 const sanityStudioOrigins = [
   "'self'",
   "http://localhost:3333",
+  "https://studio.redshirtsports.xyz",
   ...(sanityProjectId ? [`https://${sanityProjectId}.sanity.studio`] : []),
 ].join(" ");
 
