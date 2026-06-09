@@ -132,4 +132,16 @@ describe("getSEOMetadata", () => {
 
     expect(getFirstOgImage(metadata)?.alt).toBe("SEO");
   });
+
+  it("prefers mainImage over defaultOpenGraphImage when seoImage is absent", () => {
+    const metadata = getSEOMetadata({
+      image: { asset: { _ref: "main" }, alt: "Main" },
+      defaultOpenGraphImage: "https://example.com/default.jpg",
+    });
+
+    expect(getFirstOgImage(metadata)?.url).toBe(
+      "https://cdn.sanity.io/test-image.jpg",
+    );
+    expect(getFirstOgImage(metadata)?.alt).toBe("Main");
+  });
 });

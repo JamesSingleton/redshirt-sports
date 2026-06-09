@@ -43,13 +43,12 @@ function buildPageUrl({ baseUrl, slug }: { baseUrl: string; slug: string }) {
 
 function resolveImageUrl(
   image: MetaDataInput["image"],
-  defaultOpenGraphImage?: string,
 ): string | undefined {
   if (image?.asset) {
     return urlFor(image).size(1200, 630).url();
   }
 
-  return defaultOpenGraphImage;
+  return undefined;
 }
 
 export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
@@ -94,9 +93,10 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
 
   const brandName = siteBrand ?? "Redshirt Sports";
   const resolvedImage =
-    resolveImageUrl(seoImage, defaultOpenGraphImage) ??
-    resolveImageUrl(ogImage, defaultOpenGraphImage) ??
-    resolveImageUrl(image, defaultOpenGraphImage);
+    resolveImageUrl(seoImage) ??
+    resolveImageUrl(ogImage) ??
+    resolveImageUrl(image) ??
+    defaultOpenGraphImage;
 
   const imageAlt = seoImage?.alt ?? ogImage?.alt ?? image?.alt ?? brandName;
 
