@@ -14,7 +14,6 @@ const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 const sanityStudioOrigins = [
   "'self'",
   "http://localhost:3333",
-  "https://studio.redshirtsports.xyz",
   ...(sanityProjectId ? [`https://${sanityProjectId}.sanity.studio`] : []),
 ].join(" ");
 
@@ -112,11 +111,11 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      {
-        // Apply these headers to all routes in your application.
-        source: "/:path*",
-        headers: securityHeaders,
-      },
+      // {
+      //   // Apply these headers to all routes in your application.
+      //   source: "/:path*",
+      //   headers: securityHeaders,
+      // },
     ];
   },
   async redirects() {
