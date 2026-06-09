@@ -17,11 +17,11 @@ import {
 } from "lucide-react";
 import * as React from "react";
 
-import type { Voter } from "@/types/votes";
+import type { VoterBreakdown } from "@/types/votes";
 import { TeamLogo } from "./team-logo";
 
 type Props = {
-  rows: Voter[];
+  rows: VoterBreakdown[];
   page: number;
   pageCount: number;
   onFirstAction: () => void;

@@ -28,6 +28,10 @@
     "lint": {
       "dependsOn": ["^topo"]
     },
+    "lint:fix": {
+      "dependsOn": ["^topo"],
+      "cache": false
+    },
     "check:types": {
       "dependsOn": ["^check:types"]
     },

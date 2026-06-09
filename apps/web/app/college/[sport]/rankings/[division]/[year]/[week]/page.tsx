@@ -1,10 +1,3 @@
-import {
-  getFinalRankingsForWeekAndYear,
-  getSportIdBySlug,
-  getVotesForWeekAndYearByVoter,
-  getWeeksThatHaveVotes,
-  getYearsThatHaveVotes,
-} from "@redshirt-sports/db/queries";
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import {
   Card,
@@ -24,17 +17,23 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import type { Graph } from "schema-dts";
 
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { RankingsFilters } from "@/components/rankings/filters";
-import VoterBallotBreakdown from "@/components/rankings/voter-ballot-breakdown";
+import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
+import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-skeleton";
 import CustomImage from "@/components/sanity-image";
 import { FINAL_RANKINGS_WEEK, PRESEASON_WEEK, TOP_25 } from "@/lib/constants";
 import { getBaseUrl } from "@/lib/get-base-url";
+import {
+  getCachedFinalRankings,
+  getCachedWeeksThatHaveVotes,
+  getCachedYearsThatHaveVotes,
+} from "@/lib/rankings-data";
 import { getSEOMetadata } from "@/lib/seo";
 import type { SportParam } from "@/utils/espn";
-import { processVoterBallots } from "@/utils/process-ballots";
 
 const baseUrl = getBaseUrl();
 
@@ -70,22 +69,18 @@ export default async function CollegeFootballRankingsPage({
 
   const weekNumber = parseWeekNumber(week);
   const titleWeek = getWeekTitle(weekNumber);
+  const yearNumber = parseInt(year, 10);
 
-  const [
-    yearsWithVotesResult,
-    weeksWithVotesResult,
-    finalRankingsResult,
-    sportIdResult,
-  ] = await Promise.allSettled([
-    getYearsThatHaveVotes({ division }),
-    getWeeksThatHaveVotes({ year: parseInt(year, 10), division }),
-    getFinalRankingsForWeekAndYear({
-      year: parseInt(year, 10),
-      week: weekNumber,
-      division,
-    }),
-    getSportIdBySlug(sport as SportParam),
-  ]);
+  const [yearsWithVotesResult, weeksWithVotesResult, finalRankingsResult] =
+    await Promise.allSettled([
+      getCachedYearsThatHaveVotes({ division }),
+      getCachedWeeksThatHaveVotes({ year: yearNumber, division }),
+      getCachedFinalRankings({
+        year: yearNumber,
+        week: weekNumber,
+        division,
+      }),
+    ]);
 
   const yearsWithVotes =
     yearsWithVotesResult.status === "fulfilled"
@@ -95,29 +90,16 @@ export default async function CollegeFootballRankingsPage({
     weeksWithVotesResult.status === "fulfilled"
       ? weeksWithVotesResult.value
       : [];
-  const sportId =
-    sportIdResult.status === "fulfilled" ? sportIdResult.value : null;
 
   if (
     !yearsWithVotes.length ||
     !weeksWithVotes.length ||
-    finalRankingsResult.status === "rejected" ||
-    !sportId
+    finalRankingsResult.status === "rejected"
   ) {
     notFound();
   }
 
-  const finalRankings = finalRankingsResult.value;
-  const { rankings } = finalRankings;
-
-  const votesForWeekAndYearByVoter = await getVotesForWeekAndYearByVoter({
-    year: parseInt(year, 10),
-    week: weekNumber,
-    division,
-    sportId,
-  });
-
-  const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter);
+  const { rankings } = finalRankingsResult.value;
 
   const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25);
   const outsideTop25 = rankings.filter(
@@ -250,10 +232,15 @@ export default async function CollegeFootballRankingsPage({
           )}
         </CardFooter>
       </Card>
-      {top25.length > 0 && voterBreakdown.length > 0 && (
-        <div className="mt-8">
-          <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
-        </div>
+      {top25.length > 0 && (
+        <Suspense fallback={<VoterBreakdownSkeleton />}>
+          <RankingsVoterBreakdown
+            division={division}
+            year={yearNumber}
+            week={weekNumber}
+            sport={sport as SportParam}
+          />
+        </Suspense>
       )}
     </div>
   );

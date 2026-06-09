@@ -1,5 +1,6 @@
 import { SignIn } from "@clerk/nextjs";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Sign Up | Redshirt Sports",
@@ -16,7 +17,9 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <div className="flex justify-center py-24">
-      <SignIn />
+      <Suspense>
+        <SignIn />
+      </Suspense>
     </div>
   );
 }

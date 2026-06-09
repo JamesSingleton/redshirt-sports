@@ -1,4 +1,8 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
 import {
   conferenceInfoBySlugQuery,
   queryArticlesBySportDivisionAndConference,
@@ -7,7 +11,6 @@ import {
 } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import type { CollectionPage, WithContext } from "schema-dts";
 
 import ArticleFeed from "@/components/article-feed";
@@ -15,62 +18,11 @@ import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
+import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
-
-async function fetchConferenceInfo(slug: string) {
-  return await sanityFetch({
-    query: conferenceInfoBySlugQuery,
-    params: {
-      slug,
-    },
-  });
-}
-
-async function fetchSportNewsForDivisionAndConference({
-  sport,
-  division,
-  conference,
-  pageIndex,
-}: {
-  sport: string;
-  division: string;
-  conference: string;
-  pageIndex: number;
-}) {
-  const from = (pageIndex - 1) * perPage;
-  const to = pageIndex * perPage;
-
-  return await sanityFetch({
-    query: queryArticlesBySportDivisionAndConference,
-    params: {
-      sport,
-      division,
-      conference,
-      from,
-      to,
-    },
-  });
-}
-
-async function fetchSportInfoBySlug(slug: string) {
-  return await sanityFetch({
-    query: sportInfoBySlug,
-    params: {
-      slug,
-    },
-  });
-}
-
-export async function getDivisionOrSubgroupingDisplayName(
-  slugOrShortName: string,
-) {
-  return await sanityFetch({
-    query: queryDivisionOrSubgroupingDisplayName,
-    params: { slugOrShortName },
-  });
-}
 
 export async function generateMetadata({
   params,
@@ -80,10 +32,23 @@ export async function generateMetadata({
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
 
+  const { perspective } = await getDynamicFetchOptions();
   const [divisionDisplayName, conferenceInfo, sportTitle] = await Promise.all([
-    getDivisionOrSubgroupingDisplayName(division),
-    fetchConferenceInfo(conference),
-    fetchSportInfoBySlug(sport),
+    sanityFetchMetadata({
+      query: queryDivisionOrSubgroupingDisplayName,
+      params: { slugOrShortName: division },
+      perspective,
+    }),
+    sanityFetchMetadata({
+      query: conferenceInfoBySlugQuery,
+      params: { slug: conference },
+      perspective,
+    }),
+    sanityFetchMetadata({
+      query: sportInfoBySlug,
+      params: { slug: sport },
+      perspective,
+    }),
   ]);
 
   if (
@@ -117,25 +82,76 @@ export async function generateMetadata({
   });
 }
 
-export default async function Page({
+export default function Page({
   params,
   searchParams,
 }: PageProps<"/college/[sport]/news/[division]/[conference]">) {
-  const { sport, division, conference } = await params;
-  const { page } = await searchParams;
+  return searchParamsPage(null, () =>
+    renderConferenceNewsPage({ params, searchParams }),
+  );
+}
+
+async function renderConferenceNewsPage({
+  params,
+  searchParams,
+}: Pick<
+  PageProps<"/college/[sport]/news/[division]/[conference]">,
+  "params" | "searchParams"
+>) {
+  const [{ sport, division, conference }, { page }] = await Promise.all([
+    params,
+    searchParams,
+  ]);
   const pageIndex = validatePageIndex(page);
+  const { perspective, stega } = await getDynamicFetchOptions();
+  return cachedRenderConferenceNewsPage({
+    sport,
+    division,
+    conference,
+    pageIndex,
+    perspective,
+    stega,
+  });
+}
+
+async function cachedRenderConferenceNewsPage({
+  sport,
+  division,
+  conference,
+  pageIndex,
+  perspective,
+  stega,
+}: DynamicFetchOptions & {
+  sport: string;
+  division: string;
+  conference: string;
+  pageIndex: number;
+}) {
+  "use cache";
   const baseUrl = getBaseUrl();
+  const from = (pageIndex - 1) * perPage;
+  const to = pageIndex * perPage;
 
   const [newsResponse, sportInfoResponse, divisionNameResponse] =
     await Promise.all([
-      fetchSportNewsForDivisionAndConference({
-        sport,
-        division,
-        conference,
-        pageIndex,
+      sanityFetchPage({
+        query: queryArticlesBySportDivisionAndConference,
+        params: { sport, division, conference, from, to },
+        perspective,
+        stega,
       }),
-      fetchSportInfoBySlug(sport),
-      getDivisionOrSubgroupingDisplayName(division),
+      sanityFetchPage({
+        query: sportInfoBySlug,
+        params: { slug: sport },
+        perspective,
+        stega,
+      }),
+      sanityFetchPage({
+        query: queryDivisionOrSubgroupingDisplayName,
+        params: { slugOrShortName: division },
+        perspective,
+        stega,
+      }),
     ]);
 
   const news = newsResponse.data;
@@ -159,7 +175,7 @@ export default async function Page({
     "@type": "CollectionPage",
     name: title,
     description: `Stay informed with breaking ${news.conferenceInfo.shortName ?? news.conferenceInfo.name} ${divisionOrSubgroupingName} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
-    url: `${baseUrl}/college/${sport}/news/${division}/${conference}${page ? `?page=${page}` : ""}`,
+    url: `${baseUrl}/college/${sport}/news/${division}/${conference}${pageIndex > 1 ? `?page=${pageIndex}` : ""}`,
     isPartOf: { "@id": websiteId, "@type": "WebSite" },
     publisher: { "@id": organizationId, "@type": "Organization" },
     mainEntity: {
@@ -237,11 +253,7 @@ export default async function Page({
       <PageHeader title={title} breadcrumbs={breadcrumbItems} />
       <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
         <ArticleFeed articles={news.posts} />
-        {totalPages > 1 && (
-          <Suspense fallback={<>Loading...</>}>
-            <PaginationControls totalPosts={news.totalPosts} />
-          </Suspense>
-        )}
+        {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
       </section>
     </>
   );

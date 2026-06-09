@@ -1,5 +1,7 @@
 import type { SanityImageAsset } from "@redshirt-sports/sanity/types";
 
+import type { Ballot } from "./common";
+
 export type VoteWithExtraData = {
   name: string;
   shortName: string;
@@ -18,7 +20,7 @@ export type VoterData = {
 };
 
 export type BallotAndVoterData = {
-  votes: VoteWithExtraData[];
+  votes: Ballot[];
   userData: VoterData;
 };
 
@@ -35,7 +37,7 @@ export type VoterBreakdown = {
 
 export type Vote = {
   _id: string;
-  image?: string;
+  image?: SanityImageAsset;
   teamName?: string;
 };
 

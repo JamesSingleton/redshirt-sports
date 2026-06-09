@@ -1,9 +1,22 @@
 import { defineField, defineType } from "sanity";
 
+import { SchoolSlugFieldComponent } from "../../components/school-slug-field-component";
+import { GROUP, GROUPS } from "../../utils/constant";
+import { ogFields } from "../../utils/og-fields";
+import {
+  createSchoolSlug,
+  createSchoolSlugSource,
+} from "../../utils/school-slug";
+import { seoFields } from "../../utils/seo-fields";
+import { isUnique } from "../../utils/slug";
+import { documentSlugField } from "../common";
+import { socialLinks } from "../definitions/social-links";
+
 export const school = defineType({
   name: "school",
   title: "School",
   type: "document",
+  groups: GROUPS,
   fields: [
     defineField({
       name: "name",
@@ -12,6 +25,7 @@ export const school = defineType({
       validation: (rule) => rule.required(),
       description:
         "The name of the college or university. i.e. Virginia Military Institute",
+      group: GROUP.MAIN_CONTENT,
     }),
     defineField({
       name: "shortName",
@@ -19,6 +33,7 @@ export const school = defineType({
       type: "string",
       description:
         "The short name of the college or university. i.e. Virginia Tech",
+      group: GROUP.MAIN_CONTENT,
     }),
     defineField({
       name: "abbreviation",
@@ -26,12 +41,29 @@ export const school = defineType({
       type: "string",
       description:
         "The abbreviation or shorter version of the college or university. i.e. VMI",
+      group: GROUP.MAIN_CONTENT,
     }),
     defineField({
       name: "nickname",
       title: "Nickname",
-      description: "The nickname of the college or university. i.e. Keydets",
+      description:
+        "The nickname of the college or university. i.e. Black Knights",
       type: "string",
+      group: GROUP.MAIN_CONTENT,
+    }),
+    documentSlugField("school", {
+      group: GROUP.MAIN_CONTENT,
+      title: "Team URL",
+      description:
+        "Public team hub URL slug (school-nickname), e.g. army-black-knights",
+      component: SchoolSlugFieldComponent,
+      required: true,
+      slugOptions: {
+        source: (doc) =>
+          createSchoolSlugSource(doc as Record<string, unknown> | undefined),
+        slugify: createSchoolSlug,
+        isUnique,
+      },
     }),
     defineField({
       name: "image",
@@ -43,6 +75,7 @@ export const school = defineType({
       },
       validation: (rule) => rule.required(),
       description: "The logo of the college or university",
+      group: GROUP.MAIN_CONTENT,
       fields: [
         defineField({
           name: "caption",
@@ -53,17 +86,38 @@ export const school = defineType({
       ],
     }),
     defineField({
+      name: "overview",
+      title: "Overview",
+      type: "text",
+      rows: 4,
+      description: "Editorial intro copy for the public team hub page.",
+      group: GROUP.MAIN_CONTENT,
+    }),
+    defineField({
+      name: "websiteUrl",
+      title: "Athletics Website",
+      type: "url",
+      description: "Official athletics department website.",
+      group: GROUP.MAIN_CONTENT,
+    }),
+    defineField({
+      ...socialLinks,
+      group: GROUP.MAIN_CONTENT,
+    }),
+    defineField({
       name: "top25VotingEligible",
       title: "Top 25 Voting Eligible",
       type: "boolean",
       description: "Is this school eligible to be voted on in the Top 25?",
       initialValue: true,
+      group: GROUP.MAIN_CONTENT,
     }),
     defineField({
       name: "conferenceAffiliations",
       title: "Conference Affiliations",
       type: "array",
       description: "What conferences is this school in for each sport?",
+      group: GROUP.MAIN_CONTENT,
       of: [
         {
           type: "object",
@@ -89,7 +143,6 @@ export const school = defineType({
               options: {
                 disableNew: true,
                 filter: ({ parent }) => {
-                  // Get the selected sport from this affiliation
                   const sportRef =
                     parent &&
                     !Array.isArray(parent) &&
@@ -98,11 +151,9 @@ export const school = defineType({
                       : undefined;
 
                   if (!sportRef) {
-                    // If no sport selected yet, show all conferences
                     return { filter: "true" };
                   }
 
-                  // Show conferences that sponsor the selected sport
                   return {
                     filter: "$sportId in sports[]._ref",
                     params: {
@@ -125,34 +176,39 @@ export const school = defineType({
         },
       ],
       validation: (rule) =>
-        rule.custom((affiliations: any) => {
-          if (!affiliations || affiliations.length === 0) {
-            return true; // Allow empty array
+        rule.custom((affiliations: unknown) => {
+          if (!affiliations || !Array.isArray(affiliations)) {
+            return true;
           }
 
-          // Check for duplicate sport entries (each sport can only have one conference)
-          const sports = new Set();
+          const sports = new Set<string>();
 
           for (const affiliation of affiliations) {
-            if (affiliation.sport?._ref) {
-              if (sports.has(affiliation.sport._ref)) {
+            const sportRef = (affiliation as { sport?: { _ref?: string } })
+              ?.sport?._ref;
+            if (sportRef) {
+              if (sports.has(sportRef)) {
                 return "Each sport can only have one conference affiliation";
               }
-              sports.add(affiliation.sport._ref);
+              sports.add(sportRef);
             }
           }
 
           return true;
         }),
     }),
+    ...seoFields,
+    ...ogFields,
   ],
   preview: {
     select: {
       title: "name",
+      subtitle: "slug.current",
       media: "image",
     },
-    prepare: ({ title, media }) => ({
+    prepare: ({ title, subtitle, media }) => ({
       title,
+      subtitle: subtitle ? `/college/teams/${subtitle}` : "No slug",
       media,
     }),
   },

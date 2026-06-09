@@ -11,12 +11,20 @@ import {
 } from "sanity";
 
 import { ValidationMessages } from "@/components/url-slug/validation-messages";
-import { generateSlugFromTitle } from "@/utils/slug-validation";
+import {
+  generateSlugFromTitle,
+  getSlugPreviewPath,
+} from "@/utils/slug-validation";
 import ButtonAssetCopy from "./button-asset-copy";
 
 const presentationOriginUrl = process.env.SANITY_STUDIO_PRESENTATION_URL;
 
-const monoStyle = { fontFamily: "monospace" } as const;
+const monoStyle = {
+  fontFamily: "monospace",
+  overflowWrap: "anywhere",
+} as const;
+
+const flexGrowMinWidth0 = { flex: 1, minWidth: 0 } as const;
 
 export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
   const {
@@ -50,9 +58,7 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
     [validation],
   );
 
-  const localizedPathname = currentSlug.startsWith("/")
-    ? currentSlug
-    : `/${currentSlug}`;
+  const localizedPathname = getSlugPreviewPath(document?._type, currentSlug);
   const fullUrl = `${presentationOriginUrl ?? ""}${localizedPathname}`;
 
   const handleChange = useCallback(
@@ -79,7 +85,9 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
 
   const handleGenerate = useCallback(() => {
     try {
-      const documentTitle = document?.title as string | undefined;
+      const documentTitle = (document?.title ?? document?.name) as
+        | string
+        | undefined;
       const documentType = document?._type;
 
       if (!(documentTitle?.trim() && documentType)) {
@@ -94,10 +102,12 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
     } catch {
       // Silently handle errors
     }
-  }, [document?.title, document?._type, currentSlug, handleChange]);
+  }, [document?.title, document?.name, document?._type, handleChange]);
 
-  const generateDisabled =
-    !(typeof document?.title === "string" && document.title.trim()) || readOnly;
+  const generateSource =
+    (typeof document?.title === "string" && document.title.trim()) ||
+    (typeof document?.name === "string" && document.name.trim());
+  const generateDisabled = !generateSource || readOnly;
 
   return (
     <Stack gap={4}>
@@ -121,8 +131,8 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
           <Text size={1} weight="medium">
             URL Path
           </Text>
-          <Flex align="center" gap={2}>
-            <Box flex={1}>
+          <Flex align="center" gap={2} wrap="wrap">
+            <Box style={flexGrowMinWidth0}>
               <TextInput
                 disabled={readOnly}
                 fontSize={1}
@@ -154,14 +164,23 @@ export function PathnameFieldComponent(props: ObjectFieldProps<SlugValue>) {
             <Text size={1} weight="medium">
               Preview
             </Text>
-            <Flex align="center" gap={2}>
-              <Card border flex={1} padding={3} radius={2} tone="transparent">
+            <Flex align="stretch" gap={2} wrap="wrap">
+              <Card
+                border
+                flex={1}
+                padding={3}
+                radius={2}
+                style={flexGrowMinWidth0}
+                tone="transparent"
+              >
                 <Text muted size={1} style={monoStyle}>
                   {fullUrl}
                 </Text>
               </Card>
 
-              <ButtonAssetCopy disabled={!currentSlug} url={fullUrl} />
+              <Box flex="none">
+                <ButtonAssetCopy disabled={!currentSlug} url={fullUrl} />
+              </Box>
             </Flex>
           </Stack>
         )}

@@ -1,15 +1,7 @@
 import type { Author } from "@redshirt-sports/sanity/types";
 
 import ArticleCard from "@/components/article-card";
-
-type ArticleFeedItem = {
-  _id: string;
-  title: string;
-  mainImage: any;
-  slug: string;
-  authors: unknown[];
-  publishedAt?: string | null;
-};
+import type { ArticleFeedItem } from "@/types/article";
 
 export default function ArticleFeed({
   articles,

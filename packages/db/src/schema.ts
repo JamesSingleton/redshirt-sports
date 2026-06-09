@@ -385,3 +385,113 @@ export const SEASON_TYPE_CODES = {
 
 export type SelectWeeklyRankings = typeof weeklyRankings.$inferSelect;
 export type SelectSchool = typeof schoolsTable.$inferSelect;
+
+export const playersTable = pgTable(
+  "players",
+  {
+    ...defaultColumns,
+    slug: varchar("slug", { length: 200 }).notNull().unique(),
+    firstName: text("first_name").notNull(),
+    lastName: text("last_name").notNull(),
+    displayName: text("display_name"),
+    sportId: text("sport_id").references(() => sportsTable.id),
+    position: varchar("position", { length: 50 }),
+    classYear: integer("class_year"),
+    heightInches: integer("height_inches"),
+    weightLbs: integer("weight_lbs"),
+    headshotUrl: text("headshot_url"),
+    hometown: text("hometown"),
+    highSchool: text("high_school"),
+    currentStatus: varchar("current_status", { length: 32 }),
+    committedSchoolId: text("committed_school_id").references(
+      () => schoolsTable.id,
+    ),
+    bio: text("bio"),
+    socialLinks: jsonb("social_links"),
+  },
+  (table) => [index().on(table.slug), index().on(table.sportId)],
+);
+
+export const playersTableRelations = relations(playersTable, ({ one, many }) => ({
+  sport: one(sportsTable, {
+    fields: [playersTable.sportId],
+    references: [sportsTable.id],
+  }),
+  committedSchool: one(schoolsTable, {
+    fields: [playersTable.committedSchoolId],
+    references: [schoolsTable.id],
+  }),
+  timeline: many(playerTimelineTable),
+  commitments: many(playerCommitmentsTable),
+}));
+
+export const playerTimelineTable = pgTable(
+  "player_timeline",
+  {
+    ...defaultColumns,
+    playerId: text("player_id")
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    eventType: varchar("event_type", { length: 50 }).notNull(),
+    label: text("label").notNull(),
+    schoolId: text("school_id").references(() => schoolsTable.id),
+    sportId: text("sport_id").references(() => sportsTable.id),
+    startDate: timestamp("start_date"),
+    endDate: timestamp("end_date"),
+  },
+  (table) => [index().on(table.playerId)],
+);
+
+export const playerTimelineTableRelations = relations(
+  playerTimelineTable,
+  ({ one }) => ({
+    player: one(playersTable, {
+      fields: [playerTimelineTable.playerId],
+      references: [playersTable.id],
+    }),
+    school: one(schoolsTable, {
+      fields: [playerTimelineTable.schoolId],
+      references: [schoolsTable.id],
+    }),
+    sport: one(sportsTable, {
+      fields: [playerTimelineTable.sportId],
+      references: [sportsTable.id],
+    }),
+  }),
+);
+
+export const playerCommitmentsTable = pgTable(
+  "player_commitments",
+  {
+    ...defaultColumns,
+    playerId: text("player_id")
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    schoolId: text("school_id").references(() => schoolsTable.id),
+    sportId: text("sport_id").references(() => sportsTable.id),
+    committedAt: timestamp("committed_at"),
+    classYear: integer("class_year"),
+  },
+  (table) => [index().on(table.playerId), index().on(table.schoolId)],
+);
+
+export const playerCommitmentsTableRelations = relations(
+  playerCommitmentsTable,
+  ({ one }) => ({
+    player: one(playersTable, {
+      fields: [playerCommitmentsTable.playerId],
+      references: [playersTable.id],
+    }),
+    school: one(schoolsTable, {
+      fields: [playerCommitmentsTable.schoolId],
+      references: [schoolsTable.id],
+    }),
+    sport: one(sportsTable, {
+      fields: [playerCommitmentsTable.sportId],
+      references: [sportsTable.id],
+    }),
+  }),
+);
+
+export type SelectPlayer = typeof playersTable.$inferSelect;
+export type InsertPlayer = typeof playersTable.$inferInsert;

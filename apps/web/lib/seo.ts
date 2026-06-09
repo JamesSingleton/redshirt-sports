@@ -8,34 +8,68 @@ interface MetaDataInput {
   _id?: string;
   seoTitle?: string;
   seoDescription?: string;
+  ogTitle?: string;
+  ogDescription?: string;
   title?: string;
   description?: string;
   slug?: string;
-  authors?: any[];
+  authors?: Array<{
+    name?: string;
+    socialLinks?: { twitter?: string };
+  }>;
   ogType?: Extract<Metadata["openGraph"], { type: string }>["type"];
-  image?: any;
+  image?: {
+    alt?: string;
+    asset?: { _ref?: string };
+  };
+  seoImage?: {
+    alt?: string;
+    asset?: { _ref?: string };
+  };
+  ogImage?: {
+    alt?: string;
+    asset?: { _ref?: string };
+  };
+  defaultOpenGraphImage?: string;
+  siteBrand?: string;
   readingTime?: number;
+  articleSection?: string;
 }
-
-const defaultOpenGraphImage =
-  "https://cdn.sanity.io/images/8pbt9f8w/production/6d97679ef6ed2b82dafaf9227080944158b4263d-1200x630.png";
 
 function buildPageUrl({ baseUrl, slug }: { baseUrl: string; slug: string }) {
   const normalizedSlug = slug.startsWith("/") ? slug : `/${slug}`;
   return `${baseUrl}${normalizedSlug}`;
 }
 
+function resolveImageUrl(
+  image: MetaDataInput["image"],
+  defaultOpenGraphImage?: string,
+): string | undefined {
+  if (image?.asset) {
+    return urlFor(image).size(1200, 630).url();
+  }
+
+  return defaultOpenGraphImage;
+}
+
 export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
   const {
     seoDescription,
     seoTitle,
+    ogTitle,
+    ogDescription,
     slug = "/",
     title,
     description,
     authors,
     ogType,
     image,
+    seoImage,
+    ogImage,
+    defaultOpenGraphImage,
+    siteBrand,
     readingTime,
+    articleSection,
   } = data ?? {};
 
   const baseUrl = getBaseUrl();
@@ -47,19 +81,28 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
     ? `@${authors[0]?.socialLinks?.twitter.split("/").pop()}`
     : twitterHandle;
 
-  const meta = {
-    title: `${seoTitle ?? title ?? "College Sports News & Analysis at All Levels"}`,
-    description:
-      seoDescription ??
-      description ??
-      "Redshirt Sports is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.",
-  };
+  const metaTitle =
+    seoTitle ??
+    ogTitle ??
+    title ??
+    "College Sports News & Analysis at All Levels";
+  const metaDescription =
+    seoDescription ??
+    ogDescription ??
+    description ??
+    "Redshirt Sports is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.";
 
-  const brandName = "Redshirt Sports";
+  const brandName = siteBrand ?? "Redshirt Sports";
+  const resolvedImage =
+    resolveImageUrl(seoImage, defaultOpenGraphImage) ??
+    resolveImageUrl(ogImage, defaultOpenGraphImage) ??
+    resolveImageUrl(image, defaultOpenGraphImage);
+
+  const imageAlt = seoImage?.alt ?? ogImage?.alt ?? image?.alt ?? brandName;
 
   return {
-    title: `${meta.title} | ${brandName}`,
-    description: meta.description,
+    title: `${metaTitle} | ${brandName}`,
+    description: metaDescription,
     metadataBase: new URL(baseUrl),
     creator: brandName,
     icons: {
@@ -76,13 +119,11 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
     },
     twitter: {
       card: "summary_large_image",
-      images: [
-        image ? urlFor(image).size(1200, 630).url() : defaultOpenGraphImage,
-      ],
+      images: resolvedImage ? [resolvedImage] : undefined,
       site: twitterHandle,
       creator: authorTwitterHandle,
-      title: meta.title,
-      description: meta.description,
+      title: metaTitle,
+      description: metaDescription,
     },
     alternates: {
       canonical: pageUrl,
@@ -93,28 +134,29 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
     openGraph: {
       type: ogType ?? "website",
       countryName: "en_US",
-      description: meta.description,
-      title: meta.title,
+      description: metaDescription,
+      title: metaTitle,
       url: pageUrl,
       siteName: brandName,
-      images: [
-        {
-          url: image
-            ? urlFor(image).size(1200, 630).url()
-            : defaultOpenGraphImage,
-          width: 1200,
-          height: 630,
-          alt: image ? image.alt : brandName,
-          secureUrl: image
-            ? urlFor(image).size(1200, 630).url()
-            : defaultOpenGraphImage,
-          type: "image/jpeg",
-        },
-      ],
+      images: resolvedImage
+        ? [
+            {
+              url: resolvedImage,
+              width: 1200,
+              height: 630,
+              alt: imageAlt,
+              secureUrl: resolvedImage,
+              type: "image/jpeg",
+            },
+          ]
+        : undefined,
       ...(authors &&
         authors.length > 0 && {
-          authors: authors.map((author) => author.name),
+          authors: authors
+            .map((author) => author.name)
+            .filter(Boolean) as string[],
         }),
+      ...(articleSection && { section: articleSection }),
     },
     robots: {
       index: true,

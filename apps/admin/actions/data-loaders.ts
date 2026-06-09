@@ -222,7 +222,11 @@ async function sportBySlug(slug: string) {
 }
 
 export async function fetchAndLoadSports() {
-  const { data } = await sanityFetch({ query: sportInfoQuery });
+  const { data } = await sanityFetch({
+    query: sportInfoQuery,
+    perspective: "published",
+    stega: false,
+  });
 
   const mappedSports = data.map((d: SanitySport) => ({
     id: d._id,
@@ -237,7 +241,11 @@ export async function fetchAndLoadSports() {
 }
 
 export async function fetchAndLoadDivisions() {
-  const { data } = await sanityFetch({ query: divisionsQuery });
+  const { data } = await sanityFetch({
+    query: divisionsQuery,
+    perspective: "published",
+    stega: false,
+  });
 
   const mappedDivisions = data.map((d) => ({
     sanityId: d._id,
@@ -269,7 +277,11 @@ export async function fetchAndLoadSchools() {
     );
   }
 
-  const { data } = await sanityFetch({ query: schoolsQuery });
+  const { data } = await sanityFetch({
+    query: schoolsQuery,
+    perspective: "published",
+    stega: false,
+  });
 
   let schoolConferenceAffiliations: Record<string, string>[] = [];
   const mappedSchools = data.map((d) => {
@@ -339,7 +351,11 @@ export async function fetchAndLoadConferences() {
     );
   }
 
-  const { data } = await sanityFetch({ query: conferencesQuery });
+  const { data } = await sanityFetch({
+    query: conferencesQuery,
+    perspective: "published",
+    stega: false,
+  });
   let conferenceSportMappings: Record<string, string>[] = [];
 
   const mappedConferences = [];
@@ -419,7 +435,11 @@ export async function fetchAndLoadSubdivisions() {
       "No divisions found. Divisions must be loaded prior to conferences.",
     );
   }
-  const { data } = await sanityFetch({ query: subdivisionsQuery });
+  const { data } = await sanityFetch({
+    query: subdivisionsQuery,
+    perspective: "published",
+    stega: false,
+  });
 
   let divisionSportMappings: Record<string, string>[] = [];
 

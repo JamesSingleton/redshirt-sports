@@ -31,6 +31,42 @@ type TableType = {
   markDefs: any;
 };
 
+type SiteLinkMarkValue = {
+  _type: string;
+  href?: string;
+  openInNewTab?: boolean;
+};
+
+function SiteLinkMark({
+  children,
+  value,
+}: PortableTextMarkComponentProps<SiteLinkMarkValue>) {
+  const href = value?.href;
+  const openInNewTab = value?.openInNewTab;
+  if (!href) return <>{children}</>;
+  if (openInNewTab) {
+    return (
+      <a
+        href={href}
+        rel="noreferrer noopener"
+        target="_blank"
+        className="hover:text-muted-foreground underline"
+      >
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link
+      href={href}
+      prefetch={false}
+      className="hover:text-muted-foreground underline"
+    >
+      {children}
+    </Link>
+  );
+}
+
 const components: Partial<PortableTextReactComponents> = {
   block: {
     h2: ({ children }) => {
@@ -50,6 +86,8 @@ const components: Partial<PortableTextReactComponents> = {
     },
   },
   marks: {
+    customLink: SiteLinkMark,
+    customUrl: SiteLinkMark,
     internalLink: ({ children, value }: PortableTextMarkComponentProps) => {
       return (
         <Link

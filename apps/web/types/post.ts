@@ -23,7 +23,7 @@ export type Post = {
     shortName: string;
     slug: string;
   }[];
-  featuredArticle: boolean;
+  storyType?: string;
   excerpt: string;
   body: PortableTextBlock[];
   author: Author;

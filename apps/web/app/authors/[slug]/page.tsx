@@ -1,9 +1,12 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
 import { authorBySlug, postsByAuthor } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Suspense } from "react";
 import type { Graph } from "schema-dts";
 
 import ArticleCard from "@/components/article-card";
@@ -17,30 +20,11 @@ import {
 import PaginationControls from "@/components/pagination-controls";
 import CustomImage from "@/components/sanity-image";
 import { perPage } from "@/lib/constants";
+import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
-
-// cache for 48 hours
-export const revalidate = 172800;
-export const dynamicParams = true;
-
-async function fetchAuthorInfo(slug: string) {
-  return await sanityFetch({
-    query: authorBySlug,
-    params: { slug },
-  });
-}
-
-async function fetchAuthorPosts(slug: string, pageIndex: number) {
-  const from = (pageIndex - 1) * perPage;
-  const to = pageIndex * perPage;
-
-  return await sanityFetch({
-    query: postsByAuthor,
-    params: { slug, from, to },
-  });
-}
 
 export async function generateMetadata({
   params,
@@ -48,8 +32,13 @@ export async function generateMetadata({
 }: PageProps<"/authors/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const { page } = await searchParams;
+  const { perspective } = await getDynamicFetchOptions();
 
-  const { data: author } = await fetchAuthorInfo(slug);
+  const { data: author } = await sanityFetchMetadata({
+    query: authorBySlug,
+    params: { slug },
+    perspective,
+  });
 
   if (!author) {
     return {};
@@ -79,24 +68,58 @@ export async function generateMetadata({
   });
 }
 
-export default async function Page({
+export default function Page({
   params,
   searchParams,
 }: PageProps<"/authors/[slug]">) {
-  const { slug } = await params;
-  const { page } = await searchParams;
+  return searchParamsPage(null, () =>
+    renderAuthorPage({ params, searchParams }),
+  );
+}
+
+async function renderAuthorPage({
+  params,
+  searchParams,
+}: Pick<PageProps<"/authors/[slug]">, "params" | "searchParams">) {
+  const [{ slug }, { page }] = await Promise.all([params, searchParams]);
   const pageIndex = validatePageIndex(page);
-  const baseUrl = getBaseUrl();
 
   if (page && pageIndex === 1) {
-    return redirect(`/authors/${slug}`);
+    redirect(`/authors/${slug}`);
   }
 
-  const { data: author } = await fetchAuthorInfo(slug);
-  const { data: authorPosts } = await fetchAuthorPosts(slug, pageIndex);
+  const { perspective, stega } = await getDynamicFetchOptions();
+  return cachedRenderAuthorPage({ slug, pageIndex, perspective, stega });
+}
+
+async function cachedRenderAuthorPage({
+  slug,
+  pageIndex,
+  perspective,
+  stega,
+}: DynamicFetchOptions & { slug: string; pageIndex: number }) {
+  "use cache";
+  const baseUrl = getBaseUrl();
+  const from = (pageIndex - 1) * perPage;
+  const to = pageIndex * perPage;
+
+  const [{ data: author }, { data: authorPosts }] = await Promise.all([
+    sanityFetchPage({
+      query: authorBySlug,
+      params: { slug },
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: postsByAuthor,
+      params: { slug, from, to },
+      perspective,
+      stega,
+    }),
+  ]);
 
   if (!author) {
-    return notFound();
+    notFound();
   }
 
   const totalPages = Math.ceil((authorPosts?.totalPosts ?? 0) / perPage);
@@ -274,9 +297,7 @@ export default async function Page({
               ))}
             </div>
             {totalPages > 1 ? (
-              <Suspense fallback={<>Loading...</>}>
-                <PaginationControls totalPosts={authorPosts.totalPosts} />
-              </Suspense>
+              <PaginationControls totalPosts={authorPosts.totalPosts} />
             ) : null}
           </div>
         </section>

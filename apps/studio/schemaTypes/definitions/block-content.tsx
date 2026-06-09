@@ -1,4 +1,4 @@
-import { ImageIcon, PlayIcon, TwitterIcon } from "@sanity/icons";
+import { ImageIcon, LinkIcon, PlayIcon, TwitterIcon } from "@sanity/icons";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 import { warnWhenHeadingOrBlockIsAllBold } from "../../utils/portable-text-validations";
@@ -11,7 +11,19 @@ const richTextMembers = [
     marks: {
       annotations: [
         {
-          title: "URL",
+          name: "customLink",
+          type: "object",
+          title: "Internal/External Link",
+          icon: LinkIcon,
+          fields: [
+            defineField({
+              name: "customLink",
+              type: "customUrl",
+            }),
+          ],
+        },
+        {
+          title: "URL (Legacy)",
           name: "link",
           type: "object",
           fields: [
@@ -34,10 +46,13 @@ const richTextMembers = [
             },
           ],
         },
+
         {
           name: "internalLink",
-          title: "Internal Link",
+          title: "Internal Link (legacy)",
           type: "object",
+          description:
+            "Deprecated — use Site Link instead. Existing links still work.",
           icon: () => (
             <svg
               width={12}
@@ -79,7 +94,7 @@ const richTextMembers = [
               title: "Reference",
               name: "reference",
               type: "reference",
-              to: [{ type: "post" }],
+              to: [{ type: "post" }, { type: "school" }, { type: "author" }],
             },
           ],
         },

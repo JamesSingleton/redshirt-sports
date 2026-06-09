@@ -5,16 +5,20 @@ import {
   hasVoterVoted,
 } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
-import { sanityFetch } from "@redshirt-sports/sanity/live";
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import {
   schoolsBySportAndSubgroupingStringQuery,
   schoolsForVotesQuery,
 } from "@redshirt-sports/sanity/queries";
+import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { Suspense } from "react";
 import z from "zod";
 
 import VoteFormWrapper from "@/components/vote-form-wrapper";
+import { draftAwareParamsPage } from "@/lib/draft-cache";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import {
   getCurrentSeason,
   getCurrentWeek,
@@ -24,7 +28,7 @@ import {
 
 const ParamsSchema = z.object({
   sport: SportSchema,
-  division: z.string(), // Add more specific validation if needed
+  division: z.string(),
 });
 
 type VoterBallotWithSchool = {
@@ -56,12 +60,10 @@ async function getLatestVoterBallotWithSchools(
     sport,
     currentYear,
   );
-  // Fetch school information from Sanity
   const schoolIds = ballots.map((ballot) => ballot.teamId);
 
   const schools = await client.fetch(schoolsForVotesQuery, { schoolIds });
 
-  // Combine the ballot data with school information
   const ballotsWithSchools: VoterBallotWithSchool[] = ballots.map((ballot) => {
     const school = schools.find(
       (s: { _id: string }) => s._id === ballot.teamId,
@@ -77,13 +79,6 @@ async function getLatestVoterBallotWithSchools(
   });
 
   return ballotsWithSchools;
-}
-
-async function fetchSchoolsByDivision(sport: string, division: string) {
-  return await sanityFetch({
-    query: schoolsBySportAndSubgroupingStringQuery,
-    params: { sport, subgrouping: division },
-  });
 }
 
 export const metadata: Metadata = {
@@ -127,28 +122,60 @@ const divisionHeader = [
 export default async function VotePage({
   params,
 }: PageProps<"/vote/college/[sport]/[division]">) {
-  const rawParams = await params;
-  const validationResult = ParamsSchema.safeParse(rawParams);
-  const { userId } = await auth();
-  if (!validationResult.success || !userId) {
-    console.error("Invalid params:", validationResult.error);
+  return draftAwareParamsPage(params, null, renderVotePage);
+}
+
+async function renderVotePage(
+  resolved: { sport: string; division: string },
+  { perspective, stega }: DynamicFetchOptions,
+) {
+  "use cache";
+  const validationResult = ParamsSchema.safeParse(resolved);
+  if (!validationResult.success) {
     notFound();
   }
 
   const { sport, division } = validationResult.data;
 
-  const sportId = await getSportIdBySlug(sport as SportParam);
-  const { data: schools } = await fetchSchoolsByDivision(sport, division);
+  const { data: schools } = await sanityFetchPage({
+    query: schoolsBySportAndSubgroupingStringQuery,
+    params: { sport, subgrouping: division },
+    perspective,
+    stega,
+  });
+
   if (!schools) {
     notFound();
   }
 
+  return (
+    <Suspense>
+      <VotePageAuth sport={sport} division={division} schools={schools} />
+    </Suspense>
+  );
+}
+
+async function VotePageAuth({
+  sport,
+  division,
+  schools,
+}: {
+  sport: SportParam;
+  division: string;
+  schools: NonNullable<SchoolsBySportAndSubgroupingStringQueryResult>;
+}) {
+  const { userId } = await auth();
+  if (!userId) {
+    notFound();
+  }
+
+  const sportId = await getSportIdBySlug(sport);
+
   const [votingWeek, { year }] = await Promise.all([
-    getCurrentWeek(sport as SportParam),
-    getCurrentSeason(sport as SportParam),
+    getCurrentWeek(sport),
+    getCurrentSeason(sport),
   ]);
 
-  // Get sport ID for more precise vote checking
   const hasVoted = await hasVoterVoted({
     year,
     week: votingWeek,

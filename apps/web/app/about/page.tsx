@@ -1,4 +1,4 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { authorsListNotArchived } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -8,14 +8,10 @@ import { Facebook, Twitter, YouTubeIcon } from "@/components/icons";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import CustomImage from "@/components/sanity-image";
+import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
-
-async function fetchAuthors() {
-  return await sanityFetch({
-    query: authorsListNotArchived,
-  });
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   return getSEOMetadata({
@@ -56,7 +52,16 @@ const aboutPageJsonLd: WithContext<AboutPageSchema> = {
 };
 
 export default async function AboutPage() {
-  const { data: authors } = await fetchAuthors();
+  return draftAwarePage(null, renderAboutPage);
+}
+
+async function renderAboutPage({ perspective, stega }: DynamicFetchOptions) {
+  "use cache";
+  const { data: authors } = await sanityFetchPage({
+    query: authorsListNotArchived,
+    perspective,
+    stega,
+  });
 
   return (
     <>

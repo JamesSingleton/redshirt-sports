@@ -4,6 +4,8 @@ import {
   FileText,
   Folder,
   GavelIcon,
+  Globe,
+  GraduationCap,
   type LucideIcon,
   PanelBottomIcon,
   PanelTopDashedIcon,
@@ -95,17 +97,31 @@ type CreateList = {
   S: StructureBuilder;
 } & Base;
 
-// This function creates a list item for a type. It takes a StructureBuilder instance (S),
-// a type, an icon, and a title as parameters. It generates a title for the type if not provided,
-// and uses a default icon if not provided. It then returns a list item with the generated or
-// provided title and icon.
-
 const createList = ({ S, type, icon, title, id }: CreateList) => {
   const newTitle = title ?? getTitleCase(type);
   return S.documentTypeListItem(type)
     .id(id ?? type)
     .title(newTitle)
     .icon(icon ?? Folder);
+};
+
+const createStoryTypeFilteredList = (
+  S: StructureBuilder,
+  storyType: string,
+  title: string,
+) => {
+  return S.listItem()
+    .title(title)
+    .icon(FileText)
+    .id(`posts-${storyType}`)
+    .child(
+      S.documentList()
+        .title(title)
+        .filter('_type == "post" && storyType == $storyType')
+        .apiVersion("2025-06-11")
+        .params({ storyType })
+        .defaultOrdering([{ field: "publishedAt", direction: "desc" }]),
+    );
 };
 
 const createSportFilteredList = (
@@ -130,6 +146,28 @@ const createSportFilteredList = (
     );
 };
 
+const createWorkflowList = (
+  S: StructureBuilder,
+  id: string,
+  title: string,
+  filter: string,
+  params?: Record<string, unknown>,
+) => {
+  return S.listItem()
+    .title(title)
+    .icon(FileText)
+    .id(id)
+    .child(
+      S.documentList()
+        .title(title)
+        .schemaType("post")
+        .filter(filter)
+        .apiVersion("2025-06-11")
+        .params(params ?? {})
+        .defaultOrdering([{ field: "_updatedAt", direction: "desc" }]),
+    );
+};
+
 export const structure = async (
   S: StructureBuilder,
   context: StructureResolverContext,
@@ -144,7 +182,7 @@ export const structure = async (
   );
 
   const items = [
-    S.divider().title("Articles"),
+    S.divider().title("Editorial"),
     createList({
       S,
       type: "post",
@@ -152,29 +190,38 @@ export const structure = async (
       icon: FileText,
       id: "all-articles",
     }),
+    createWorkflowList(
+      S,
+      "drafts",
+      "Drafts",
+      '_type == "post" && !defined(publishedAt)',
+    ),
+    createWorkflowList(
+      S,
+      "published-today",
+      "Published Today",
+      '_type == "post" && defined(publishedAt) && dateTime(publishedAt) > dateTime(now()) - 60*60*24',
+    ),
+    createStoryTypeFilteredList(S, "recruiting", "Recruiting"),
+    createStoryTypeFilteredList(S, "transfer", "Transfer Portal"),
+    S.listItem()
+      .title("Analysis & Opinion")
+      .icon(FileText)
+      .id("posts-analysis-opinion")
+      .child(
+        S.documentList()
+          .title("Analysis & Opinion")
+          .filter('_type == "post" && storyType in ["analysis", "opinion"]')
+          .apiVersion("2025-06-11")
+          .defaultOrdering([{ field: "publishedAt", direction: "desc" }]),
+      ),
     ...sports.map((sport) =>
       createSportFilteredList(S, sport._id, sport.title),
     ),
-    S.divider().title("Sports Organizational Structure"),
-    createList({
-      S,
-      type: "sport",
-      title: "Sports",
-    }),
-    createList({
-      S,
-      type: "division",
-      title: "Divisions",
-    }),
-    createList({
-      S,
-      type: "conference",
-      title: "Conferences",
-    }).child(
-      S.documentTypeList("conference")
-        .title("Conferences")
-        .defaultOrdering([{ field: "name", direction: "asc" }]),
-    ),
+    S.divider().title("People"),
+    createList({ S, type: "author", title: "Authors", icon: User }),
+    S.divider().title("Teams & Taxonomy"),
+
     createList({
       S,
       type: "school",
@@ -183,6 +230,23 @@ export const structure = async (
     }).child(
       S.documentTypeList("school")
         .title("Schools")
+        .defaultOrdering([{ field: "name", direction: "asc" }]),
+    ),
+    createList({ S, type: "sport", title: "Sports" }),
+    createList({
+      S,
+      type: "governingBody",
+      title: "Governing Bodies",
+    }),
+    createList({
+      S,
+      type: "classification",
+      title: "Classifications",
+    }),
+    createList({ S, type: "division", title: "Divisions" }),
+    createList({ S, type: "conference", title: "Conferences" }).child(
+      S.documentTypeList("conference")
+        .title("Conferences")
         .defaultOrdering([{ field: "name", direction: "asc" }]),
     ),
     createList({
@@ -197,12 +261,10 @@ export const structure = async (
       title: "Tags",
       icon: TagIcon,
     }),
-    S.divider().title("Team"),
-    createList({ S, type: "author", title: "Authors", icon: User }),
   ];
 
   if (currentUser?.roles?.find(({ name }) => name === "administrator")) {
-    items.push(S.divider().title("Admin"));
+    items.push(S.divider().title("Site"));
     items.push(
       createList({
         S,

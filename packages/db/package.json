@@ -5,6 +5,7 @@
   "exports": {
     "./client": "./src/client.ts",
     "./queries": "./src/queries/index.ts",
+    "./queries/players": "./src/queries/players.ts",
     "./schema": "./src/schema.ts",
     "./utils/search-query": "./src/utils/search-query.ts",
     "./utils/health": "./src/utils/health.ts"

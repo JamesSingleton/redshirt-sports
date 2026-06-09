@@ -6,6 +6,7 @@ import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import CustomImage from "@/components/sanity-image";
 import {
@@ -53,9 +54,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function VoteConfirmationPage({
+export default function VoteConfirmationPage({
   params,
 }: PageProps<"/vote/college/[sport]/[division]/confirmation">) {
+  return (
+    <Suspense>
+      <VoteConfirmationContent params={params} />
+    </Suspense>
+  );
+}
+
+async function VoteConfirmationContent({
+  params,
+}: {
+  params: PageProps<"/vote/college/[sport]/[division]/confirmation">["params"];
+}) {
   const { sport, division } = await params;
   const header = generateConfirmationHeader(sport, division);
   const user = await auth();

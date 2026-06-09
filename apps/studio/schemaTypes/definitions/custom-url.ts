@@ -4,18 +4,21 @@ import { createRadioListLayout, isValidUrl } from "../../utils/helper";
 
 const allLinkableTypes = [
   { type: "post" },
-  { type: "division" },
-  { type: "conference" },
-  { type: "legal" },
+  { type: "school" },
+  { type: "author" },
 ];
 
 export const customUrl = defineType({
   name: "customUrl",
   type: "object",
+  description:
+    "Configure a link that can point to either an internal page or external website",
   fields: [
     defineField({
       name: "type",
       type: "string",
+      description:
+        "Choose whether this link points to another page on your site (internal) or to a different website (external)",
       options: createRadioListLayout(["internal", "external"]),
       initialValue: () => "external",
       validation: (Rule) => Rule.required(),
@@ -24,21 +27,28 @@ export const customUrl = defineType({
       name: "openInNewTab",
       title: "Open in new tab",
       type: "boolean",
-      description: "If checked, the link will open in a new tab.",
+      description:
+        "When enabled, clicking this link will open the destination in a new browser tab instead of navigating away from the current page",
       initialValue: () => false,
     }),
     defineField({
       name: "external",
       type: "string",
       title: "URL",
+      description:
+        "Enter a full https:// URL for external sites, or a site path starting with / (e.g. /college/football/news/fbs/sec for conference archives)",
       hidden: ({ parent }) => parent?.type !== "external",
       validation: (Rule) => [
         Rule.custom((value, { parent }) => {
           const type = (parent as { type?: string })?.type;
           if (type === "external") {
-            if (!value) return "Url can't be empty";
+            if (!value) {
+              return "URL can't be empty";
+            }
             const isValid = isValidUrl(value);
-            if (!isValid) return "Invalid URL";
+            if (!isValid) {
+              return "Invalid URL";
+            }
           }
           return true;
         }),
@@ -47,62 +57,25 @@ export const customUrl = defineType({
     defineField({
       name: "href",
       type: "string",
+      description:
+        "Technical field used internally to store the complete URL - you don't need to modify this",
       initialValue: () => "#",
       hidden: true,
       readOnly: true,
     }),
     defineField({
-      name: "internalType",
-      type: "string",
-      title: "Internal Link Type",
-      hidden: ({ parent }) => parent?.type !== "internal",
-      options: {
-        list: [
-          { title: "Document Reference", value: "reference" },
-          { title: "Custom URL", value: "custom" },
-        ],
-        layout: "radio",
-      },
-      initialValue: "reference",
-    }),
-    defineField({
       name: "internal",
       type: "reference",
-      title: "Document Reference",
+      description:
+        "Select which page on your website this link should point to",
       options: { disableNew: true },
-      hidden: ({ parent }) =>
-        parent?.type !== "internal" || parent?.internalType !== "reference",
+      hidden: ({ parent }) => parent?.type !== "internal",
       to: allLinkableTypes,
       validation: (rule) => [
         rule.custom((value, { parent }) => {
           const type = (parent as { type?: string })?.type;
-          const internalType = (parent as { internalType?: string })
-            ?.internalType;
-          if (
-            type === "internal" &&
-            internalType === "reference" &&
-            !value?._ref
-          )
-            return "Document reference can't be empty";
-          return true;
-        }),
-      ],
-    }),
-    defineField({
-      name: "internalUrl",
-      type: "string",
-      title: "Custom URL",
-      description: "Enter a relative URL (e.g., /about, /blog/post-1)",
-      hidden: ({ parent }) =>
-        parent?.type !== "internal" || parent?.internalType !== "custom",
-      validation: (rule) => [
-        rule.custom((value, { parent }) => {
-          const type = (parent as { type?: string })?.type;
-          const internalType = (parent as { internalType?: string })
-            ?.internalType;
-          if (type === "internal" && internalType === "custom") {
-            if (!value) return "URL can't be empty";
-            if (!value.startsWith("/")) return "Internal URL must start with /";
+          if (type === "internal" && !value?._ref) {
+            return "internal can't be empty";
           }
           return true;
         }),
@@ -113,36 +86,30 @@ export const customUrl = defineType({
     select: {
       externalUrl: "external",
       urlType: "type",
-      internalType: "internalType",
-      internalDocUrl: "internal.slug.current",
-      internalCustomUrl: "internalUrl",
+      internalSlug: "internal.slug.current",
+      internalType: "internal._type",
       openInNewTab: "openInNewTab",
     },
     prepare({
       externalUrl,
       urlType,
+      internalSlug,
       internalType,
-      internalDocUrl,
-      internalCustomUrl,
       openInNewTab,
     }) {
-      let url = "";
-
-      if (urlType === "external") {
-        url = externalUrl;
-      } else if (internalType === "reference") {
-        url = `/${internalDocUrl}`;
-      } else {
-        url = internalCustomUrl;
-      }
-
+      const internalPaths: Record<string, string> = {
+        post: `/${internalSlug}`,
+        school: `/college/teams/${internalSlug}`,
+        author: `/authors/${internalSlug}`,
+      };
+      const url =
+        urlType === "external"
+          ? externalUrl
+          : (internalPaths[internalType as string] ?? internalSlug);
       const newTabIndicator = openInNewTab ? " ↗" : "";
-      const truncatedUrl =
-        url?.length > 30 ? `${url.substring(0, 30)}...` : url;
-
       return {
         title: `${urlType === "external" ? "External" : "Internal"} Link`,
-        subtitle: `${truncatedUrl}${newTabIndicator}`,
+        subtitle: `${url}${newTabIndicator}`,
       };
     },
   },

@@ -1,6 +1,7 @@
 import { createClient } from "@sanity/client";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
+import { sanity } from "next-sanity/live/cache-life";
 
 const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
@@ -8,6 +9,13 @@ const client = createClient({
   useCdn: process.env.NODE_ENV === "production",
   apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2025-02-06",
 });
+
+const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const sanityStudioOrigins = [
+  "'self'",
+  "http://localhost:3333",
+  ...(sanityProjectId ? [`https://${sanityProjectId}.sanity.studio`] : []),
+].join(" ");
 
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
@@ -19,6 +27,7 @@ const ContentSecurityPolicy = `
     connect-src * https://clerk.redshirtsports.xyz https://electric-alien-91.clerk.accounts.dev https://us.i.posthog.com https://us.posthog.com;
     font-src 'self' fonts.gstatic.com;
     frame-src 'self' https://challenges.cloudflare.com https://vercel.live https://www.youtube.com;
+    frame-ancestors ${sanityStudioOrigins};
     worker-src 'self' blob:;
 `;
 
@@ -33,11 +42,7 @@ const securityHeaders = [
     key: "Referrer-Policy",
     value: "origin-when-cross-origin",
   },
-  // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
-  {
-    key: "X-Frame-Options",
-    value: "SAMEORIGIN",
-  },
+  // Framing is controlled via CSP frame-ancestors (allows Sanity Presentation iframe).
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
   {
     key: "X-Content-Type-Options",
@@ -56,6 +61,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
+  cacheLife: { default: sanity },
   reactCompiler: true,
   experimental: {
     inlineCss: true,

@@ -1,4 +1,4 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import {
   queryHomePageData,
   queryLatestArticles,
@@ -15,35 +15,10 @@ import ArticleCard from "@/components/article-card";
 import ArticleSection from "@/components/article-section";
 import Hero from "@/components/home/hero";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
+import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
-
-async function fetchHomePageData() {
-  return await sanityFetch({
-    query: queryHomePageData,
-  });
-}
-
-async function fetchLatestArticles() {
-  return await sanityFetch({
-    query: queryLatestArticles,
-  });
-}
-
-async function fetchLatestCollegeSportsArticles({
-  division,
-  sport,
-  articleIds,
-}: {
-  division: string;
-  sport: string;
-  articleIds: string[];
-}) {
-  return await sanityFetch({
-    query: queryLatestCollegeSportsArticles,
-    params: { division, sport, articleIds },
-  });
-}
 
 const divisions = [
   {
@@ -83,9 +58,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
+  return draftAwarePage(null, renderHomePage);
+}
+
+async function renderHomePage({ perspective, stega }: DynamicFetchOptions) {
+  "use cache";
+
   const [{ data: homePageData }, { data: latestArticles }] = await Promise.all([
-    fetchHomePageData(),
-    fetchLatestArticles(),
+    sanityFetchPage({ query: queryHomePageData, perspective, stega }),
+    sanityFetchPage({ query: queryLatestArticles, perspective, stega }),
   ]);
 
   const articleIds = [...homePageData, ...latestArticles].map(
@@ -94,10 +75,11 @@ export default async function HomePage() {
 
   const collegeSportsResults = await Promise.all(
     divisions.map(({ division }) =>
-      fetchLatestCollegeSportsArticles({
-        division,
-        sport: "Football",
-        articleIds,
+      sanityFetchPage({
+        query: queryLatestCollegeSportsArticles,
+        params: { division, sport: "Football", articleIds },
+        perspective,
+        stega,
       }),
     ),
   );

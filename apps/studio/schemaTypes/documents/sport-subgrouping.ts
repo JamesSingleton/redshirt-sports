@@ -1,6 +1,6 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
-import { createSlug, isUnique } from "../../utils/slug";
+import { createSlug, isUnique } from "@/utils/slug";
 
 export const sportSubgrouping = defineType({
   name: "sportSubgrouping",
@@ -34,6 +34,15 @@ export const sportSubgrouping = defineType({
       },
     }),
     defineField({
+      name: "parentClassification",
+      title: "Parent Classification",
+      type: "reference",
+      to: { type: "classification" },
+      validation: (rule) => rule.required(),
+      description:
+        "The classification this subgrouping applies to (e.g., NCAA D1).",
+    }),
+    defineField({
       name: "applicableSports",
       title: "Applicable Sports",
       type: "array",
@@ -65,7 +74,7 @@ export const sportSubgrouping = defineType({
   preview: {
     select: {
       title: "name",
-      subtitle: "parentDivision.title",
+      subtitle: "parentClassification.name",
     },
     prepare: ({ title, subtitle }) => ({
       title,

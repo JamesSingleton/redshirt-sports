@@ -5,12 +5,26 @@ import { Toaster } from "@redshirt-sports/ui/components/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { draftMode } from "next/headers";
+import { VisualEditing } from "next-sanity/visual-editing";
 import { Suspense } from "react";
 import { preconnect, prefetchDNS } from "react-dom";
 
-import { FooterServer, FooterSkeleton } from "@/components/footer";
-import { CombinedJsonLd } from "@/components/json-ld";
-import { NavbarServer, NavbarSkeleton } from "@/components/navbar";
+import { DisableDraftMode } from "@/components/disable-draft-mode";
+import {
+  CachedFooterServer,
+  DynamicFooterServer,
+  FooterSkeleton,
+} from "@/components/footer";
+import {
+  CachedCombinedJsonLd,
+  DynamicCombinedJsonLd,
+} from "@/components/json-ld";
+import {
+  CachedNavbarServer,
+  DynamicNavbarServer,
+  NavbarSkeleton,
+} from "@/components/navbar";
 import { Providers } from "@/components/providers";
 
 const fontSans = Geist({
@@ -31,24 +45,46 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   preconnect("https://cdn.sanity.io");
   prefetchDNS("https://cdn.sanity.io");
 
+  const isDraftMode = (await draftMode()).isEnabled;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${fontSans.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
       >
-        <Providers>
-          <Suspense fallback={<NavbarSkeleton />}>
-            <NavbarServer />
-          </Suspense>
+        <Providers draftModeEnabled={isDraftMode}>
+          {isDraftMode ? (
+            <Suspense fallback={<NavbarSkeleton />}>
+              <DynamicNavbarServer />
+            </Suspense>
+          ) : (
+            <CachedNavbarServer perspective="published" stega={false} />
+          )}
           <main className="flex-1">{children}</main>
-          <Suspense fallback={<FooterSkeleton />}>
-            <FooterServer />
-          </Suspense>
+          {isDraftMode ? (
+            <Suspense fallback={<FooterSkeleton />}>
+              <DynamicFooterServer />
+            </Suspense>
+          ) : (
+            <CachedFooterServer perspective="published" stega={false} />
+          )}
         </Providers>
         <SpeedInsights />
         <Toaster />
-        <SanityLive />
-        <CombinedJsonLd />
+        <SanityLive includeDrafts={isDraftMode} />
+        {isDraftMode && (
+          <>
+            <VisualEditing />
+            <DisableDraftMode />
+          </>
+        )}
+        {isDraftMode ? (
+          <Suspense>
+            <DynamicCombinedJsonLd />
+          </Suspense>
+        ) : (
+          <CachedCombinedJsonLd perspective="published" stega={false} />
+        )}
       </body>
     </html>
   );

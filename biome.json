@@ -30,7 +30,9 @@
       "!**/.clerk",
       "!**/coverage",
       "!**/.build",
-      "!**/.sanity"
+      "!**/.sanity",
+      "!**/.pnpm-store",
+      "!**/.agents"
     ]
   },
   "css": {

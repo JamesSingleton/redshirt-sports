@@ -1,4 +1,7 @@
-import { sanityFetch } from "@redshirt-sports/sanity/live";
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { collegeNewsQuery } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -9,24 +12,13 @@ import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
+import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
 const baseUrl = getBaseUrl();
-
-async function fetchCollegeNews({ pageIndex }: { pageIndex: number }) {
-  const from = (pageIndex - 1) * perPage;
-  const to = pageIndex * perPage;
-
-  return await sanityFetch({
-    query: collegeNewsQuery,
-    params: {
-      from,
-      to,
-    },
-  });
-}
 
 export async function generateMetadata({
   searchParams,
@@ -72,14 +64,37 @@ const breadcrumbItems = [
   },
 ];
 
-export default async function CollegeSportsNews({
+export default function CollegeSportsNews({
   searchParams,
 }: PageProps<"/college/news">) {
+  return searchParamsPage(null, () => renderCollegeSportsNews(searchParams));
+}
+
+async function renderCollegeSportsNews(
+  searchParams: PageProps<"/college/news">["searchParams"],
+) {
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
+  const { perspective, stega } = await getDynamicFetchOptions();
+  return cachedRenderCollegeSportsNews({ pageIndex, perspective, stega });
+}
+
+async function cachedRenderCollegeSportsNews({
+  pageIndex,
+  perspective,
+  stega,
+}: DynamicFetchOptions & { pageIndex: number }) {
+  "use cache";
+  const from = (pageIndex - 1) * perPage;
+  const to = pageIndex * perPage;
   const {
     data: { posts, totalPosts },
-  } = await fetchCollegeNews({ pageIndex });
+  } = await sanityFetchPage({
+    query: collegeNewsQuery,
+    params: { from, to },
+    perspective,
+    stega,
+  });
 
   if (posts.length === 0) {
     notFound();
