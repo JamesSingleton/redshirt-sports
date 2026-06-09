@@ -11,8 +11,10 @@
     "./utils/health": "./src/utils/health.ts"
   },
   "dependencies": {
+    "@t3-oss/env-nextjs": "^0.13.11",
     "drizzle-orm": "catalog:",
-    "postgres": "^3.4.9"
+    "postgres": "^3.4.9",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
