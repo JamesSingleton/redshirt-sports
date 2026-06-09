@@ -10,11 +10,11 @@ const client = createClient({
   apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2025-02-06",
 });
 
-const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const sanityStudioUrl = process.env.NEXT_PUBLIC_SANITY_STUDIO_URL;
 const sanityStudioOrigins = [
   "'self'",
   "http://localhost:3333",
-  ...(sanityProjectId ? [`https://${sanityProjectId}.sanity.studio`] : []),
+  ...(sanityStudioUrl ? [sanityStudioUrl] : []),
 ].join(" ");
 
 // https://nextjs.org/docs/advanced-features/security-headers
@@ -111,11 +111,11 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // {
-      //   // Apply these headers to all routes in your application.
-      //   source: "/:path*",
-      //   headers: securityHeaders,
-      // },
+      {
+        // Apply these headers to all routes in your application.
+        source: "/:path*",
+        headers: securityHeaders,
+      },
     ];
   },
   async redirects() {
