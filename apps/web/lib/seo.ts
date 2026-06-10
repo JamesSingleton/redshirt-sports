@@ -41,9 +41,7 @@ function buildPageUrl({ baseUrl, slug }: { baseUrl: string; slug: string }) {
   return `${baseUrl}${normalizedSlug}`;
 }
 
-function resolveImageUrl(
-  image: MetaDataInput["image"],
-): string | undefined {
+function resolveImageUrl(image: MetaDataInput["image"]): string | undefined {
   if (image?.asset) {
     return urlFor(image).size(1200, 630).url();
   }
