@@ -1,4 +1,4 @@
-import { getPlayerBySlug } from "@redshirt-sports/db/queries/players";
+import { getPlayerByPublicId } from "@redshirt-sports/db/queries/players";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -11,27 +11,21 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const player = await getPlayerBySlug(slug);
+  const player = await getPlayerByPublicId(slug);
 
   if (!player) return {};
 
   const name =
     player.displayName ?? `${player.firstName} ${player.lastName}`.trim();
+  const primaryProfile = player.sportProfiles[0];
 
   return getSEOMetadata({
     title: name,
     description:
       player.bio ??
-      `${name} — ${player.position ?? "Player"}${player.sportName ? `, ${player.sportName}` : ""}.`,
+      `${name} — ${primaryProfile?.primaryPosition ?? "Player"}${primaryProfile?.sportName ? `, ${primaryProfile.sportName}` : ""}.`,
     slug: `/players/${slug}`,
   });
-}
-
-function formatHeight(inches: number | null) {
-  if (!inches) return null;
-  const feet = Math.floor(inches / 12);
-  const remaining = inches % 12;
-  return `${feet}-${remaining}`;
 }
 
 export default function PlayerProfilePage({
@@ -52,7 +46,7 @@ async function PlayerProfileContent({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const player = await getPlayerBySlug(slug);
+  const player = await getPlayerByPublicId(slug);
 
   if (!player) {
     notFound();
@@ -60,6 +54,7 @@ async function PlayerProfileContent({
 
   const name =
     player.displayName ?? `${player.firstName} ${player.lastName}`.trim();
+  const primaryProfile = player.sportProfiles[0];
 
   return (
     <div className="container py-10">
@@ -77,59 +72,63 @@ async function PlayerProfileContent({
             {name}
           </h1>
           <p className="text-muted-foreground text-lg">
-            {[player.position, player.sportName, player.hometown]
+            {[
+              primaryProfile?.primaryPosition,
+              primaryProfile?.sportName,
+              player.hometownCity,
+            ]
               .filter(Boolean)
               .join(" · ")}
           </p>
           <div className="flex flex-wrap gap-4 text-sm">
-            {formatHeight(player.heightInches) && (
-              <span>HT: {formatHeight(player.heightInches)}</span>
+            {player.heightDisplay && <span>HT: {player.heightDisplay}</span>}
+            {player.weight && <span>WT: {player.weight}</span>}
+            {primaryProfile?.classStanding && (
+              <span className="capitalize">
+                {primaryProfile.classStanding.replace(/_/g, " ")}
+              </span>
             )}
-            {player.weightLbs && <span>WT: {player.weightLbs}</span>}
-            {player.classYear && <span>Class: {player.classYear}</span>}
-            {player.currentStatus && (
-              <span className="capitalize">{player.currentStatus}</span>
+            {primaryProfile?.isGraduateTransfer && (
+              <span>Graduate Transfer</span>
             )}
           </div>
-          {player.schoolShortName && (
-            <p className="font-medium">
-              {player.currentStatus === "committed" ? "Committed to " : ""}
-              {player.schoolShortName ?? player.schoolName}
-            </p>
+          {player.highSchoolDisplay && (
+            <p className="text-muted-foreground">{player.highSchoolDisplay}</p>
           )}
           {player.bio && <p className="max-w-3xl">{player.bio}</p>}
         </div>
       </header>
 
-      {player.timeline.length > 0 && (
+      {player.collegeAffiliations.length > 0 && (
         <section className="mt-12 space-y-4">
-          <h2 className="text-2xl font-bold">The Journey</h2>
+          <h2 className="text-2xl font-bold">College History</h2>
           <ol className="space-y-3 border-l pl-6">
-            {player.timeline.map((event) => (
-              <li key={event.id} className="relative">
-                <span className="font-medium">{event.label}</span>
-                {event.schoolName && (
-                  <span className="text-muted-foreground">
-                    {" "}
-                    — {event.schoolName}
-                  </span>
-                )}
+            {player.collegeAffiliations.map((affiliation) => (
+              <li key={affiliation.id} className="relative">
+                <span className="font-medium">
+                  {affiliation.schoolShortName ?? affiliation.schoolName}
+                </span>
+                <span className="text-muted-foreground">
+                  {" "}
+                  ({affiliation.startYear}
+                  {affiliation.endYear
+                    ? `–${affiliation.endYear}`
+                    : "–present"}
+                  )
+                </span>
               </li>
             ))}
           </ol>
         </section>
       )}
 
-      {player.commitments.length > 0 && (
+      {player.portalHistory.length > 0 && (
         <section className="mt-12 space-y-4">
-          <h2 className="text-2xl font-bold">Commitments</h2>
+          <h2 className="text-2xl font-bold">Transfer Portal</h2>
           <ul className="space-y-2">
-            {player.commitments.map((commitment) => (
-              <li key={commitment.id}>
-                {commitment.schoolName}
-                {commitment.classYear
-                  ? ` (Class of ${commitment.classYear})`
-                  : ""}
+            {player.portalHistory.map((entry) => (
+              <li key={entry.id} className="capitalize">
+                {entry.status.replace(/_/g, " ")} — {entry.fromSchoolName}
               </li>
             ))}
           </ul>

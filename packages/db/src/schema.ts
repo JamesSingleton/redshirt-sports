@@ -10,8 +10,12 @@ import {
   text,
   boolean,
   index,
+  char,
+  date,
 } from "drizzle-orm/pg-core";
 import { randomUUID } from "node:crypto";
+
+import { createPublicId } from "./utils/create-public-id";
 
 const timestamps = {
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
@@ -35,13 +39,16 @@ export const sportsTable = pgTable("sports", {
   updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const sportsTableRelations = relations(sportsTable, ({ one, many }) => ({
+export const sportsTableRelations = relations(sportsTable, ({ many }) => ({
   seasons: many(seasonsTable),
   conferenceSports: many(conferenceSportsTable),
   schoolConferenceAffiliations: many(schoolConferenceAffiliationsTable),
   divisionSports: many(divisionSportsTable),
   voterBallots: many(voterBallots),
   weeklyFinalRankings: many(weeklyFinalRankings),
+  playerSportProfiles: many(playerSportProfilesTable),
+  playerCollegeAffiliations: many(playerCollegeAffiliationsTable),
+  transferPortalCycles: many(transferPortalCyclesTable),
 }));
 
 export const voterBallots = pgTable(
@@ -209,6 +216,13 @@ export const schoolsTable = pgTable(
 
 export const schoolsTableRelations = relations(schoolsTable, ({ many }) => ({
   schoolConferenceAffiliations: many(schoolConferenceAffiliationsTable),
+  playerCollegeAffiliations: many(playerCollegeAffiliationsTable),
+  transferPortalEntriesFrom: many(transferPortalEntriesTable, {
+    relationName: "fromSchool",
+  }),
+  transferPortalEntriesCommitted: many(transferPortalEntriesTable, {
+    relationName: "committedSchool",
+  }),
 }));
 
 export const conferencesTable = pgTable(
@@ -386,112 +400,283 @@ export const SEASON_TYPE_CODES = {
 export type SelectWeeklyRankings = typeof weeklyRankings.$inferSelect;
 export type SelectSchool = typeof schoolsTable.$inferSelect;
 
+export const TRANSFER_PORTAL_STATUS = {
+  ENTERED: "entered",
+  COMMITTED: "committed",
+  SIGNED: "signed",
+  ENROLLED: "enrolled",
+  WITHDRAWN: "withdrawn",
+} as const;
+
+export type TransferPortalStatus =
+  (typeof TRANSFER_PORTAL_STATUS)[keyof typeof TRANSFER_PORTAL_STATUS];
+
+export const CLASS_STANDING = {
+  FRESHMAN: "freshman",
+  REDSHIRT_FRESHMAN: "redshirt_freshman",
+  SOPHOMORE: "sophomore",
+  REDSHIRT_SOPHOMORE: "redshirt_sophomore",
+  JUNIOR: "junior",
+  REDSHIRT_JUNIOR: "redshirt_junior",
+  SENIOR: "senior",
+  REDSHIRT_SENIOR: "redshirt_senior",
+} as const;
+
+export type ClassStanding = (typeof CLASS_STANDING)[keyof typeof CLASS_STANDING];
+
+export const highSchoolsTable = pgTable(
+  "high_schools",
+  {
+    ...defaultColumns,
+    name: text("name").notNull(),
+    city: text("city"),
+    state: varchar("state", { length: 2 }),
+    countryCode: char("country_code", { length: 2 }).notNull().default("US"),
+    slug: varchar("slug", { length: 200 }).notNull().unique(),
+  },
+  (table) => [
+    index().on(table.name),
+    index().on(table.state, table.countryCode),
+  ],
+);
+
+export const highSchoolsTableRelations = relations(
+  highSchoolsTable,
+  ({ many }) => ({
+    players: many(playersTable),
+  }),
+);
+
 export const playersTable = pgTable(
   "players",
   {
     ...defaultColumns,
-    slug: varchar("slug", { length: 200 }).notNull().unique(),
+    publicId: text("public_id")
+      .notNull()
+      .unique()
+      .$defaultFn(() => createPublicId()),
     firstName: text("first_name").notNull(),
     lastName: text("last_name").notNull(),
     displayName: text("display_name"),
-    sportId: text("sport_id").references(() => sportsTable.id),
-    position: varchar("position", { length: 50 }),
-    classYear: integer("class_year"),
-    heightInches: integer("height_inches"),
-    weightLbs: integer("weight_lbs"),
-    headshotUrl: text("headshot_url"),
-    hometown: text("hometown"),
-    highSchool: text("high_school"),
-    currentStatus: varchar("current_status", { length: 32 }),
-    committedSchoolId: text("committed_school_id").references(
-      () => schoolsTable.id,
-    ),
+    dateOfBirth: date("date_of_birth"),
+    hometownCity: text("hometown_city"),
+    hometownState: varchar("hometown_state", { length: 2 }),
+    hometownCountryCode: char("hometown_country_code", { length: 2 })
+      .notNull()
+      .default("US"),
+    highSchoolId: text("high_school_id").references(() => highSchoolsTable.id),
+    highSchoolNameOverride: text("high_school_name_override"),
+    height: integer("height"),
+    weight: integer("weight"),
+    headshotBucket: text("headshot_bucket").default("player-headshots"),
+    headshotPath: text("headshot_path"),
     bio: text("bio"),
     socialLinks: jsonb("social_links"),
   },
-  (table) => [index().on(table.slug), index().on(table.sportId)],
+  (table) => [
+    index().on(table.publicId),
+    index().on(table.highSchoolId),
+    index("players_headshot_path_idx")
+      .on(table.headshotPath)
+      .where(sql`${table.headshotPath} IS NOT NULL`),
+  ],
 );
 
 export const playersTableRelations = relations(playersTable, ({ one, many }) => ({
-  sport: one(sportsTable, {
-    fields: [playersTable.sportId],
-    references: [sportsTable.id],
+  highSchool: one(highSchoolsTable, {
+    fields: [playersTable.highSchoolId],
+    references: [highSchoolsTable.id],
   }),
-  committedSchool: one(schoolsTable, {
-    fields: [playersTable.committedSchoolId],
-    references: [schoolsTable.id],
-  }),
-  timeline: many(playerTimelineTable),
-  commitments: many(playerCommitmentsTable),
+  sportProfiles: many(playerSportProfilesTable),
+  collegeAffiliations: many(playerCollegeAffiliationsTable),
+  transferPortalEntries: many(transferPortalEntriesTable),
 }));
 
-export const playerTimelineTable = pgTable(
-  "player_timeline",
+export const playerSportProfilesTable = pgTable(
+  "player_sport_profiles",
   {
     ...defaultColumns,
     playerId: text("player_id")
       .notNull()
       .references(() => playersTable.id, { onDelete: "cascade" }),
-    eventType: varchar("event_type", { length: 50 }).notNull(),
-    label: text("label").notNull(),
-    schoolId: text("school_id").references(() => schoolsTable.id),
-    sportId: text("sport_id").references(() => sportsTable.id),
-    startDate: timestamp("start_date"),
-    endDate: timestamp("end_date"),
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id),
+    primaryPosition: varchar("primary_position", { length: 50 }),
+    classStanding: varchar("class_standing", { length: 32 }),
+    isGraduateTransfer: boolean("is_graduate_transfer").default(false),
+    jerseyNumber: varchar("jersey_number", { length: 10 }),
   },
-  (table) => [index().on(table.playerId)],
+  (table) => [
+    unique().on(table.playerId, table.sportId),
+    index().on(table.playerId),
+    index().on(table.sportId),
+    index().on(table.primaryPosition),
+  ],
 );
 
-export const playerTimelineTableRelations = relations(
-  playerTimelineTable,
+export const playerSportProfilesTableRelations = relations(
+  playerSportProfilesTable,
   ({ one }) => ({
     player: one(playersTable, {
-      fields: [playerTimelineTable.playerId],
+      fields: [playerSportProfilesTable.playerId],
       references: [playersTable.id],
     }),
-    school: one(schoolsTable, {
-      fields: [playerTimelineTable.schoolId],
-      references: [schoolsTable.id],
-    }),
     sport: one(sportsTable, {
-      fields: [playerTimelineTable.sportId],
+      fields: [playerSportProfilesTable.sportId],
       references: [sportsTable.id],
     }),
   }),
 );
 
-export const playerCommitmentsTable = pgTable(
-  "player_commitments",
+export const playerCollegeAffiliationsTable = pgTable(
+  "player_college_affiliations",
   {
     ...defaultColumns,
     playerId: text("player_id")
       .notNull()
       .references(() => playersTable.id, { onDelete: "cascade" }),
-    schoolId: text("school_id").references(() => schoolsTable.id),
-    sportId: text("sport_id").references(() => sportsTable.id),
-    committedAt: timestamp("committed_at"),
-    classYear: integer("class_year"),
+    schoolId: text("school_id")
+      .notNull()
+      .references(() => schoolsTable.id),
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id),
+    startYear: integer("start_year").notNull(),
+    endYear: integer("end_year"),
+    isTransfer: boolean("is_transfer").default(false),
+    sortOrder: integer("sort_order").notNull().default(0),
   },
-  (table) => [index().on(table.playerId), index().on(table.schoolId)],
+  (table) => [
+    index().on(table.playerId),
+    index().on(table.schoolId, table.sportId),
+    index("player_college_affiliations_current_idx")
+      .on(table.playerId)
+      .where(sql`${table.endYear} IS NULL`),
+  ],
 );
 
-export const playerCommitmentsTableRelations = relations(
-  playerCommitmentsTable,
+export const playerCollegeAffiliationsTableRelations = relations(
+  playerCollegeAffiliationsTable,
   ({ one }) => ({
     player: one(playersTable, {
-      fields: [playerCommitmentsTable.playerId],
+      fields: [playerCollegeAffiliationsTable.playerId],
       references: [playersTable.id],
     }),
     school: one(schoolsTable, {
-      fields: [playerCommitmentsTable.schoolId],
+      fields: [playerCollegeAffiliationsTable.schoolId],
       references: [schoolsTable.id],
     }),
     sport: one(sportsTable, {
-      fields: [playerCommitmentsTable.sportId],
+      fields: [playerCollegeAffiliationsTable.sportId],
       references: [sportsTable.id],
+    }),
+  }),
+);
+
+export const transferPortalCyclesTable = pgTable(
+  "transfer_portal_cycles",
+  {
+    ...defaultColumns,
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id),
+    portalYear: integer("portal_year").notNull(),
+    name: text("name").notNull(),
+    opensAt: timestamp("opens_at", { withTimezone: true }),
+    closesAt: timestamp("closes_at", { withTimezone: true }),
+  },
+  (table) => [
+    unique().on(table.sportId, table.portalYear),
+    index().on(table.sportId),
+  ],
+);
+
+export const transferPortalCyclesTableRelations = relations(
+  transferPortalCyclesTable,
+  ({ one, many }) => ({
+    sport: one(sportsTable, {
+      fields: [transferPortalCyclesTable.sportId],
+      references: [sportsTable.id],
+    }),
+    entries: many(transferPortalEntriesTable),
+  }),
+);
+
+export const transferPortalEntriesTable = pgTable(
+  "transfer_portal_entries",
+  {
+    ...defaultColumns,
+    playerId: text("player_id")
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    cycleId: text("cycle_id")
+      .notNull()
+      .references(() => transferPortalCyclesTable.id, { onDelete: "cascade" }),
+    sequenceInCycle: integer("sequence_in_cycle").notNull().default(1),
+    fromSchoolId: text("from_school_id")
+      .notNull()
+      .references(() => schoolsTable.id),
+    status: varchar("status", { length: 32 }).notNull(),
+    statusDate: timestamp("status_date", { withTimezone: true }).notNull(),
+    enteredAt: timestamp("entered_at", { withTimezone: true }).notNull(),
+    withdrawnAt: timestamp("withdrawn_at", { withTimezone: true }),
+    committedSchoolId: text("committed_school_id").references(
+      () => schoolsTable.id,
+    ),
+    committedAt: timestamp("committed_at", { withTimezone: true }),
+    lastDecommittedAt: timestamp("last_decommitted_at", { withTimezone: true }),
+    signedAt: timestamp("signed_at", { withTimezone: true }),
+    enrolledAt: timestamp("enrolled_at", { withTimezone: true }),
+    exitedAt: timestamp("exited_at", { withTimezone: true }),
+    isGraduateTransfer: boolean("is_graduate_transfer").default(false),
+    enteredSanityPostId: text("entered_sanity_post_id"),
+    committedSanityPostId: text("committed_sanity_post_id"),
+  },
+  (table) => [
+    unique().on(table.playerId, table.cycleId, table.sequenceInCycle),
+    index().on(table.playerId),
+    index().on(table.cycleId),
+    index().on(table.fromSchoolId),
+    index().on(table.committedSchoolId),
+    index().on(table.cycleId, table.statusDate),
+    index("transfer_portal_entries_active_idx")
+      .on(table.cycleId, table.status)
+      .where(sql`${table.status} = 'entered'`),
+  ],
+);
+
+export const transferPortalEntriesTableRelations = relations(
+  transferPortalEntriesTable,
+  ({ one }) => ({
+    player: one(playersTable, {
+      fields: [transferPortalEntriesTable.playerId],
+      references: [playersTable.id],
+    }),
+    cycle: one(transferPortalCyclesTable, {
+      fields: [transferPortalEntriesTable.cycleId],
+      references: [transferPortalCyclesTable.id],
+    }),
+    fromSchool: one(schoolsTable, {
+      fields: [transferPortalEntriesTable.fromSchoolId],
+      references: [schoolsTable.id],
+      relationName: "fromSchool",
+    }),
+    committedSchool: one(schoolsTable, {
+      fields: [transferPortalEntriesTable.committedSchoolId],
+      references: [schoolsTable.id],
+      relationName: "committedSchool",
     }),
   }),
 );
 
 export type SelectPlayer = typeof playersTable.$inferSelect;
 export type InsertPlayer = typeof playersTable.$inferInsert;
+export type SelectHighSchool = typeof highSchoolsTable.$inferSelect;
+export type InsertHighSchool = typeof highSchoolsTable.$inferInsert;
+export type SelectPlayerSportProfile =
+  typeof playerSportProfilesTable.$inferSelect;
+export type SelectTransferPortalEntry =
+  typeof transferPortalEntriesTable.$inferSelect;
+export type SelectTransferPortalCycle =
+  typeof transferPortalCyclesTable.$inferSelect;

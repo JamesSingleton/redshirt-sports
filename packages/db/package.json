@@ -6,11 +6,18 @@
     "./client": "./src/client.ts",
     "./queries": "./src/queries/index.ts",
     "./queries/players": "./src/queries/players.ts",
+    "./queries/transfer-portal": "./src/queries/transfer-portal.ts",
+    "./queries/high-schools": "./src/queries/high-schools.ts",
     "./schema": "./src/schema.ts",
+    "./storage/player-headshots": "./src/storage/player-headshots.ts",
+    "./utils/create-public-id": "./src/utils/create-public-id.ts",
+    "./utils/player-profile-path": "./src/utils/player-profile-path.ts",
     "./utils/search-query": "./src/utils/search-query.ts",
     "./utils/health": "./src/utils/health.ts"
   },
   "dependencies": {
+    "@paralleldrive/cuid2": "^3.3.0",
+    "@supabase/supabase-js": "^2.98.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "drizzle-orm": "catalog:",
     "postgres": "^3.4.9",
