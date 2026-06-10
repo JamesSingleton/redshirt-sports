@@ -38,6 +38,10 @@ export default defineConfig({
   },
   plugins: [
     assist(),
+    structureTool({
+      structure,
+      defaultDocumentNode: getDefaultDocumentNode,
+    }),
     presentationTool({
       resolve,
       previewUrl: {
@@ -48,10 +52,6 @@ export default defineConfig({
       },
     }),
     presentationUrl(),
-    structureTool({
-      structure,
-      defaultDocumentNode: getDefaultDocumentNode,
-    }),
     visionTool(),
     dashboardTool({
       widgets: [
