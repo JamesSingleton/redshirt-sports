@@ -86,6 +86,7 @@ export default async function CollegeFootballRankingsPage({
     yearsWithVotesResult.status === "fulfilled"
       ? yearsWithVotesResult.value
       : [];
+
   const weeksWithVotes =
     weeksWithVotesResult.status === "fulfilled"
       ? weeksWithVotesResult.value
