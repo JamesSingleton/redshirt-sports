@@ -1,4 +1,8 @@
-import { defineBlueprint, defineDocumentFunction } from "@sanity/blueprints";
+import {
+  defineBlueprint,
+  defineDocumentFunction,
+  defineSyncTagInvalidateFunction,
+} from "@sanity/blueprints";
 
 export default defineBlueprint({
   resources: [
@@ -37,5 +41,15 @@ export default defineBlueprint({
         projection: "{_id}",
       },
     }),
+    defineSyncTagInvalidateFunction({ name: "cache-invalidate" }),
+    // defineSyncTagInvalidateFunction({
+    //   name: "cache-invalidate",
+    //   event: {
+    //     resource: {
+    //       type: 'dataset',
+    //       id: `${process.env.SANITY_STUDIO_PROJECT_ID}.${process.env.SANITY_STUDIO_DATASET}`
+    //     }
+    //   }
+    // })
   ],
 });

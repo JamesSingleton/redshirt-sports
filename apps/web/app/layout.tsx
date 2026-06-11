@@ -71,7 +71,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         </Providers>
         <SpeedInsights />
         <Toaster />
-        <SanityLive includeDrafts={isDraftMode} />
+        <SanityLive
+          includeDrafts={isDraftMode}
+          waitFor={
+            process.env.VERCEL_ENV === "production" ? "function" : undefined
+          }
+        />
         {isDraftMode && (
           <>
             <VisualEditing />
