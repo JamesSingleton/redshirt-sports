@@ -18,16 +18,8 @@ export const handler = documentEventHandler(async ({ context, event }) => {
           type: "field",
           path: "body",
         },
-        tagsUsedInOtherPosts: {
-          type: "groq",
-          query:
-            "array::unique(*[_type == 'post' && _id != $id && defined(tags)].tags[]->name)",
-          params: {
-            id: data._id,
-          },
-        },
       },
-      instruction: `Based on the $content, create 3 relevant tags for the tags field. Attempt to use $tagsUsedInOtherPosts first when they fit the context. Prefer references to existing tag documents with matching names. Tags should be simple lowercase words with no brackets.`,
+      instruction: `Based on the $content, select up to 3 relevant tags that best fit the content.`,
       target: {
         path: "tags",
       },

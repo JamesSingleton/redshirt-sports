@@ -196,6 +196,11 @@ export const post = defineType({
         defineArrayMember({
           type: "reference",
           to: [{ type: "tag" }],
+          options: {
+            aiAssist: {
+              embeddingsIndex: "tags",
+            },
+          },
         }),
       ],
       group: GROUP.MAIN_CONTENT,

@@ -4,11 +4,11 @@ import { documentEventHandler } from "@sanity/functions";
 export const handler = documentEventHandler(async ({ context, event }) => {
   const client = createClient({
     ...context.clientOptions,
-    apiVersion: "2026-06-12",
+    apiVersion: "vX",
     useCdn: false,
   });
   const { data } = event;
-  const { local } = context; // local is true when running locally
+  const { local } = context;
 
   try {
     const result = await client.agent.action.generate({
