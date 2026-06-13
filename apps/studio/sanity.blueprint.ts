@@ -12,7 +12,7 @@ export default defineBlueprint({
       memory: 1,
       timeout: 10,
       event: {
-        on: ["publish"],
+        on: ["create", "update"],
         filter: "_type == 'post' && !defined(publishedAt)",
         projection: "{_id}",
       },
@@ -23,10 +23,11 @@ export default defineBlueprint({
       memory: 2,
       timeout: 30,
       event: {
-        on: ["publish"],
-        filter: "_type == 'post' && delta::changedAny(slug.current)",
+        on: ["create", "update"],
+        filter:
+          "(_type == 'post' || _type == 'author' || _type == 'school') && delta::changedAny(slug.current)",
         projection:
-          "{'beforeSlug': before().slug.current, 'slug': after().slug.current}",
+          "{_type, 'beforeSlug': before().slug.current, 'slug': after().slug.current}",
       },
     }),
     defineDocumentFunction({
@@ -37,7 +38,19 @@ export default defineBlueprint({
       event: {
         on: ["create", "update"],
         filter:
-          "_type == 'post' && (delta::changedAny(content) || delta::operation() == 'create')",
+          "_type == 'post' && (delta::changedAny(body) || (delta::operation() == 'create' && defined(body)))",
+        projection: "{_id}",
+      },
+    }),
+    defineDocumentFunction({
+      name: "auto-tag",
+      src: "./functions/auto-tag",
+      memory: 2,
+      timeout: 30,
+      event: {
+        on: ["create", "update"],
+        filter:
+          "_type == 'post' && (delta::changedAny(body) || (delta::operation() == 'create' && defined(body)))",
         projection: "{_id}",
       },
     }),

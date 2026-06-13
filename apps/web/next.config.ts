@@ -120,9 +120,27 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     const query =
-      '*[_type == "redirect" && !(_id in path("drafts.**"))]{source,destination,permanent}';
-    const results = await client.fetch(query);
-    return results;
+      '*[_type == "redirect" && !(_id in path("drafts.**")) && defined(source.current) && defined(destination.current)]{source,destination,permanent}';
+    const results =
+      await client.fetch<
+        Array<{
+          source: { current: string };
+          destination: { current: string };
+          permanent?: boolean;
+        }>
+      >(query);
+
+    return results
+      .filter(
+        (redirect) =>
+          redirect.source.current.startsWith("/") &&
+          redirect.destination.current.startsWith("/"),
+      )
+      .map((redirect) => ({
+        source: redirect.source.current,
+        destination: redirect.destination.current,
+        permanent: redirect.permanent === true,
+      }));
   },
   async rewrites() {
     return [

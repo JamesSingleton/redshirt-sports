@@ -48,18 +48,6 @@ export const post = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "author",
-      title: "Author",
-      type: "reference",
-      to: { type: "author" },
-      options: {
-        filter: "archived != true",
-        disableNew: true,
-      },
-      group: GROUP.MAIN_CONTENT,
-      hidden: true,
-    }),
-    defineField({
       name: "authors",
       title: "Authors",
       type: "array",

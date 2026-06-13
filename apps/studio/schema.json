@@ -1887,14 +1887,6 @@
         },
         "optional": false
       },
-      "author": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "inline",
-          "name": "author.reference"
-        },
-        "optional": true
-      },
       "authors": {
         "type": "objectAttribute",
         "value": {

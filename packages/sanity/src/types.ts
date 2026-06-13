@@ -337,7 +337,6 @@ export type Post = {
     | "analysis"
     | "opinion"
     | "game-recap";
-  author?: AuthorReference;
   authors: Array<
     {
       _key: string;
@@ -995,7 +994,6 @@ export type QueryPostSlugDataResult = {
     | "opinion"
     | "recruiting"
     | "transfer";
-  author?: AuthorReference;
   authors: Array<{
     _id: string;
     _type: "author";
@@ -1331,7 +1329,6 @@ export type QuerySportsNewsResult = {
       | "opinion"
       | "recruiting"
       | "transfer";
-    author?: AuthorReference;
     authors: Array<{
       _id: string;
       _type: "author";
@@ -1439,7 +1436,6 @@ export type QuerySportsAndDivisionNewsResult = {
       | "opinion"
       | "recruiting"
       | "transfer";
-    author?: AuthorReference;
     authors: Array<{
       _id: string;
       _type: "author";
@@ -1891,7 +1887,6 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
       | "opinion"
       | "recruiting"
       | "transfer";
-    author?: AuthorReference;
     authors: Array<{
       _id: string;
       _type: "author";
@@ -2004,7 +1999,6 @@ export type SearchQueryResult = {
       | "opinion"
       | "recruiting"
       | "transfer";
-    author?: AuthorReference;
     authors: Array<{
       _id: string;
       _type: "author";
@@ -2204,7 +2198,6 @@ export type PostsByAuthorResult = {
       | "opinion"
       | "recruiting"
       | "transfer";
-    author?: AuthorReference;
     authors: Array<{
       _id: string;
       _type: "author";
