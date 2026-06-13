@@ -1,0 +1,24 @@
+{
+  "name": "@redshirt-sports/analytics",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@t3-oss/env-nextjs": "^0.13.11",
+    "next-plausible": "^4.0.0",
+    "posthog-js": "^1.386.6",
+    "posthog-node": "^5.37.0",
+    "react": "catalog:",
+    "server-only": "^0.0.1",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@redshirt-sports/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
+  }
+}
