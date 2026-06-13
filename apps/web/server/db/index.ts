@@ -2,7 +2,7 @@ import * as schema from "@redshirt-sports/db/schema";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
-import { env } from "@/app/env";
+import { env } from "@/env";
 
 const connectionString = env.POSTGRES_URL;
 const client = postgres(connectionString, { prepare: false });

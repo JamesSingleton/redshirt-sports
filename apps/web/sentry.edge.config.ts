@@ -1,8 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
+import { initializeSentry } from "@redshirt-sports/observability/edge";
 
-Sentry.init({
-  dsn: "https://0345d0cacda34590b6139082a4521911@o1192929.ingest.us.sentry.io/6314703",
-  tracesSampleRate: 1,
-  maxValueLength: 500,
-  debug: false,
-});
+initializeSentry();

@@ -1,5 +1,6 @@
 import { createClient } from "@sanity/client";
 import { withSentryConfig } from "@sentry/nextjs";
+import { withSentry } from "@redshirt-sports/observability/next-config";
 import type { NextConfig } from "next";
 import { sanity } from "next-sanity/live/cache-life";
 
@@ -121,14 +122,13 @@ const nextConfig: NextConfig = {
   async redirects() {
     const query =
       '*[_type == "redirect" && !(_id in path("drafts.**")) && defined(source.current) && defined(destination.current)]{source,destination,permanent}';
-    const results =
-      await client.fetch<
-        Array<{
-          source: { current: string };
-          destination: { current: string };
-          permanent?: boolean;
-        }>
-      >(query);
+    const results = await client.fetch<
+      Array<{
+        source: { current: string };
+        destination: { current: string };
+        permanent?: boolean;
+      }>
+    >(query);
 
     return results
       .filter(

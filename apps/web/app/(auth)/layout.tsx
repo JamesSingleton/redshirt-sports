@@ -1,9 +1,9 @@
-import { ClerkProvider } from "@clerk/nextjs";
+import { AuthProvider } from "@redshirt-sports/auth/provider";
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <ClerkProvider>{children}</ClerkProvider>;
+  return <AuthProvider>{children}</AuthProvider>;
 }

@@ -3,6 +3,7 @@ packages:
   - "packages/*"
 
 catalog:
+  "@clerk/nextjs": "^7.5.2"
   "@sanity/client": "^7.22.1"
   "@testing-library/jest-dom": "^6.9.1"
   "@testing-library/react": "^16.3.2"
