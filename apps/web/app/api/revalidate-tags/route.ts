@@ -1,40 +1,43 @@
 import { revalidateTag } from "next/cache";
-// import { timingSafeEqual } from "node:crypto";
+import type { NextRequest } from "next/server";
 
-export async function POST(request: Request) {
-  // const expectedSecret = process.env.SANITY_REVALIDATE_TAGS_SECRET;
-  // const secret = new URL(request.url).searchParams.get("secret");
+const expireTagsSecret = process.env.SANITY_REVALIDATE_SECRET;
 
-  // if (!expectedSecret) {
-  //   return Response.json(
-  //     { error: "Server configuration error" },
-  //     { status: 500 },
-  //   );
-  // }
-
-  // const expectedSecretBuffer = Buffer.from(expectedSecret);
-  // const secretBuffer = Buffer.from(secret ?? "");
-
-  // if (
-  //   expectedSecretBuffer.length !== secretBuffer.length ||
-  //   !timingSafeEqual(expectedSecretBuffer, secretBuffer)
-  // ) {
-  //   return Response.json({ error: "Unauthorized" }, { status: 401 });
-  // }
-
-  const { tags } = (await request.json()) as { tags?: string[] };
-
-  if (!Array.isArray(tags) || !tags.every((tag) => typeof tag === "string")) {
-    return Response.json(
-      { error: "`tags` must be an array of strings" },
-      { status: 400 },
-    );
+export async function POST(request: NextRequest) {
+  if (!expireTagsSecret) {
+    console.error("SANITY_REVALIDATE_SECRET environment variable is required");
+    return Response.json({ error: "Unexpected error" }, { status: 500 });
   }
 
+  let secret: string | null = null;
+  let tags: string[] = [];
+
+  try {
+    const body = await request.json();
+    if (!secret && body.secret) secret = body.secret;
+    if (tags.length === 0 && Array.isArray(body.tags)) tags = body.tags;
+  } catch {
+    // no valid JSON body
+  }
+
+  if (secret !== expireTagsSecret) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (tags.length === 0) {
+    return Response.json({ error: "No tags provided" }, { status: 400 });
+  }
+
+  console.info("Expiring tags from expirator service", tags);
+
   for (const tag of tags) {
-    // `sanityFetch` returned by `defineLive` from `next-sanity/live` prefixes its `cacheTag` calls with `sanity:`, so we need to add the same prefix here
+    // The `expire: 0` option makes revalidation behave as `updateTag` in a server action, it will be guaranteed to be fresh when visitors call `refresh()`.
+    // The trade-off is that the app has `<Link>` prefetch disabled to avoid https://github.com/vercel/next.js/issues/93210
     revalidateTag(`sanity:${tag}`, { expire: 0 });
   }
 
-  return Response.json({ revalidated: tags });
+  return Response.json({
+    service: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    tags,
+  });
 }

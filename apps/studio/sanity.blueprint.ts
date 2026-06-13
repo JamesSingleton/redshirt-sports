@@ -41,15 +41,14 @@ export default defineBlueprint({
         projection: "{_id}",
       },
     }),
-    defineSyncTagInvalidateFunction({ name: "cache-invalidate" }),
-    // defineSyncTagInvalidateFunction({
-    //   name: "cache-invalidate",
-    //   event: {
-    //     resource: {
-    //       type: 'dataset',
-    //       id: `${process.env.SANITY_STUDIO_PROJECT_ID}.${process.env.SANITY_STUDIO_DATASET}`
-    //     }
-    //   }
-    // })
+    defineSyncTagInvalidateFunction({
+      event: {
+        resource: {
+          id: "8pbt9f8w.production",
+          type: "dataset",
+        },
+      },
+      name: "cache-invalidate",
+    }),
   ],
 });
