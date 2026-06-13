@@ -1,6 +1,20 @@
 import { createClient } from "@sanity/client";
 import { documentEventHandler } from "@sanity/functions";
 
+function toPublicPath(documentType: string, slug: string): string {
+  const segment = slug.replace(/^\//, "");
+
+  switch (documentType) {
+    case "author":
+      return `/authors/${segment}`;
+    case "school":
+      return `/college/teams/${segment}`;
+    case "post":
+    default:
+      return slug.startsWith("/") ? slug : `/${segment}`;
+  }
+}
+
 export const handler = documentEventHandler(async ({ context, event }) => {
   const client = createClient({
     ...context.clientOptions,
@@ -8,39 +22,48 @@ export const handler = documentEventHandler(async ({ context, event }) => {
     useCdn: false,
   });
 
-  const { beforeSlug, slug } = event.data;
+  const { beforeSlug, slug, _type: documentType } = event.data;
 
-  if (!slug || !beforeSlug) {
-    console.log("No slug or beforeSlug");
+  if (!slug || !beforeSlug || !documentType) {
+    console.log("Missing slug, beforeSlug, or document type");
     return;
   }
-  if (slug === beforeSlug) {
-    console.log("Slug did not change");
+
+  const source = toPublicPath(documentType, beforeSlug);
+  const destination = toPublicPath(documentType, slug);
+
+  if (source === destination) {
+    console.log("Slug path did not change");
     return;
   }
-  // check if redirect already exists
+
   const existingRedirect = await client.fetch(
-    `*[_type == "redirect" && source.current == "${beforeSlug}"][0]`,
+    `*[_type == "redirect" && source.current == $source][0]`,
+    { source },
   );
   if (existingRedirect) {
-    console.log(`Redirect already exists for source ${beforeSlug}`);
+    console.log(`Redirect already exists for source ${source}`);
     return;
   }
-  // check for loops
+
   const loopRedirect = await client.fetch(
-    `*[_type == "redirect" && source.current == "${slug}" && destination.current == "${beforeSlug}"][0]`,
+    `*[_type == "redirect" && source.current == $destination && destination.current == $source][0]`,
+    { destination, source },
   );
   if (loopRedirect) {
     console.log("Redirect loop detected");
     return;
   }
+
   const redirect = {
     _type: "redirect",
     source: {
-      current: beforeSlug,
+      _type: "slug",
+      current: source,
     },
     destination: {
-      current: slug,
+      _type: "slug",
+      current: destination,
     },
     permanent: true,
   };
@@ -48,9 +71,9 @@ export const handler = documentEventHandler(async ({ context, event }) => {
   try {
     const res = await client.create(redirect);
     console.log(
-      `🔗 Redirect from ${beforeSlug} to ${slug} was created ${JSON.stringify(res)}`,
+      `Redirect from ${source} to ${destination} was created ${JSON.stringify(res)}`,
     );
   } catch (error) {
-    console.log(error);
+    console.error("Failed to create redirect:", error);
   }
 });

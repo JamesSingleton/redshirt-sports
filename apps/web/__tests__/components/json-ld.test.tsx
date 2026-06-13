@@ -15,9 +15,13 @@ vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "https://redshirtsports.com",
 }));
 
-vi.mock("next-sanity", () => ({
-  toPlainText: () => "one two three four",
-}));
+vi.mock("next-sanity", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next-sanity")>();
+  return {
+    ...actual,
+    toPlainText: () => "one two three four",
+  };
+});
 
 vi.mock("@redshirt-sports/sanity/client", () => ({
   urlFor: () => ({

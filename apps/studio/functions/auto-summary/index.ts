@@ -4,7 +4,7 @@ import { documentEventHandler } from "@sanity/functions";
 export const handler = documentEventHandler(async ({ context, event }) => {
   const client = createClient({
     ...context.clientOptions,
-    apiVersion: "vX",
+    apiVersion: "2026-06-12",
     useCdn: false,
   });
   const { data } = event;
@@ -12,14 +12,14 @@ export const handler = documentEventHandler(async ({ context, event }) => {
 
   try {
     const result = await client.agent.action.generate({
-      noWrite: !!local, // if local is true, we don't want to write to the document, just return the result for logging
+      noWrite: !!local,
       instructionParams: {
         content: {
           type: "field",
           path: "body",
         },
       },
-      instruction: `Based on the $content, write a summary no more than 160 characters.`,
+      instruction: `Based on the $content, write a summary that is between 140 and 160 characters.`,
       target: {
         path: "excerpt",
       },
@@ -27,6 +27,7 @@ export const handler = documentEventHandler(async ({ context, event }) => {
       schemaId: "_.schemas.default",
       forcePublishedWrite: true,
     });
+
     console.log(
       local
         ? "Generated summary (LOCAL TEST MODE - Content Lake not updated):"
