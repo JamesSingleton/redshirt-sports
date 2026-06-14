@@ -4,7 +4,7 @@ import postgres from "postgres";
 
 import { env } from "@/env";
 
-const connectionString = env.POSTGRES_URL;
+const connectionString = env.DATABASE_URL;
 const client = postgres(connectionString, { prepare: false });
 
 // Use this object to send drizzle queries to your DB

@@ -21,6 +21,7 @@
         "SENTRY_ORG",
         "SENTRY_PROJECT",
         "CLERK_SECRET_KEY",
+        "DATABASE_URL",
         "POSTGRES_URL",
         "POSTGRES_PRISMA_URL",
         "POSTGRES_URL_NON_POOLING",

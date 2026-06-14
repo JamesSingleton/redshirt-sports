@@ -6,13 +6,16 @@ export const config: NextConfig = {
     inlineCss: true,
   },
   reactCompiler: true,
+  logging: {
+    fetches: {},
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "img.clerk.com",
-      },
+      { protocol: "https", hostname: "img.clerk.com" },
+      { protocol: "https", hostname: "pbs.twimg.com" },
+      { protocol: "https", hostname: "abs.twimg.com" },
+      { protocol: "https", hostname: "cdn.sanity.io" },
     ],
   },
 };

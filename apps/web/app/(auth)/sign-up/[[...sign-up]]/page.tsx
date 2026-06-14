@@ -1,4 +1,4 @@
-import { SignUp } from "@clerk/nextjs";
+import { SignUp } from "@redshirt-sports/auth/components/sign-up";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 

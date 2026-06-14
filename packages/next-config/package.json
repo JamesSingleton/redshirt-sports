@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
     "next": "catalog:"
   }
 }

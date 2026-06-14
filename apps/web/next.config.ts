@@ -1,4 +1,4 @@
-import { withAnalyzer } from "@redshirt-sports/next-config";
+import { config, withAnalyzer } from "@redshirt-sports/next-config";
 import { withSentry } from "@redshirt-sports/observability/next-config";
 import { createClient } from "@sanity/client";
 import type { NextConfig } from "next";
@@ -64,28 +64,9 @@ const securityHeaders = [
 ];
 
 let nextConfig: NextConfig = {
+  ...config,
   cacheComponents: true,
   cacheLife: { default: sanity },
-  reactCompiler: true,
-  experimental: {
-    inlineCss: true,
-  },
-  logging: {
-    fetches: {},
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  productionBrowserSourceMaps: true,
-  reactStrictMode: true,
-  images: {
-    formats: ["image/avif", "image/webp"],
-    remotePatterns: [
-      { protocol: "https", hostname: "pbs.twimg.com" },
-      { protocol: "https", hostname: "abs.twimg.com" },
-      { protocol: "https", hostname: "cdn.sanity.io" },
-    ],
-  },
   async headers() {
     return [
       {
@@ -124,13 +105,14 @@ let nextConfig: NextConfig = {
   async redirects() {
     const query =
       '*[_type == "redirect" && !(_id in path("drafts.**")) && defined(source.current) && defined(destination.current)]{source,destination,permanent}';
-    const results = await client.fetch<
-      Array<{
-        source: { current: string };
-        destination: { current: string };
-        permanent?: boolean;
-      }>
-    >(query);
+    const results =
+      await client.fetch<
+        Array<{
+          source: { current: string };
+          destination: { current: string };
+          permanent?: boolean;
+        }>
+      >(query);
 
     return results
       .filter(
@@ -144,20 +126,6 @@ let nextConfig: NextConfig = {
         permanent: redirect.permanent === true,
       }));
   },
-  async rewrites() {
-    return [
-      {
-        source: "/ingest/static/:path*",
-        destination: "https://us-assets.i.posthog.com/static/:path*",
-      },
-      {
-        source: "/ingest/:path*",
-        destination: "https://us.i.posthog.com/:path*",
-      },
-    ];
-  },
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
 };
 
 if (env.VERCEL) {

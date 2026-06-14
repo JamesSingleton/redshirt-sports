@@ -14,5 +14,11 @@ export const initializeAnalytics = () => {
     capture_dead_clicks: true,
     capture_exceptions: true,
     debug: process.env.NODE_ENV === "development",
+    // Opt out of capturing by default in development
+    loaded: (ph) => {
+      if (process.env.NODE_ENV === "development") {
+        ph.opt_out_capturing();
+      }
+    },
   });
 };

@@ -1,10 +1,12 @@
 import type { Config } from "drizzle-kit";
 
+import { keys } from "./keys";
+
 export default {
   schema: "./src/schema.ts",
   out: "../../apps/web/supabase/migrations",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.POSTGRES_URL!,
+    url: keys().DATABASE_URL,
   },
 } satisfies Config;

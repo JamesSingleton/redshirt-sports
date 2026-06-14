@@ -13,6 +13,11 @@ type AuthProviderProperties = ComponentProps<typeof ClerkProvider> & {
   helpUrl?: string;
 };
 
+const DARK_MODE_LOGO_URL =
+  "https://cdn.sanity.io/images/8pbt9f8w/production/14baf184e4e1f99f2e8fd0e8029ac5f58201912c-2931x485.svg";
+const LIGHT_MODE_LOGO_URL =
+  "https://cdn.sanity.io/images/8pbt9f8w/production/0fb1b413878e0f29d10721fbbb5a5fbe95072d45-2931x485.svg";
+
 export const AuthProvider = ({
   privacyUrl,
   termsUrl,
@@ -48,12 +53,18 @@ export const AuthProvider = ({
     privacyPageUrl: privacyUrl,
     termsPageUrl: termsUrl,
     helpPageUrl: helpUrl,
+    logoImageUrl: isDark ? DARK_MODE_LOGO_URL : LIGHT_MODE_LOGO_URL,
   };
 
   return (
     <ClerkProvider
       {...properties}
-      appearance={{ options, theme: shadcn, elements, variables }}
+      appearance={{
+        options,
+        theme: shadcn,
+        elements,
+        variables,
+      }}
     />
   );
 };
