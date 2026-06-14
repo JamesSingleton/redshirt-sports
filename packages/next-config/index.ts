@@ -6,6 +6,7 @@ export const config: NextConfig = {
     inlineCss: true,
   },
   reactCompiler: true,
+  typedRoutes: true,
   logging: {
     fetches: {},
   },
