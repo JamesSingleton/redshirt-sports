@@ -95,24 +95,23 @@ let nextConfig: NextConfig = {
           },
         ],
       },
-      {
-        // Apply these headers to all routes in your application.
-        source: "/:path*",
-        headers: securityHeaders,
-      },
+      // {
+      //   // Apply these headers to all routes in your application.
+      //   source: "/:path*",
+      //   headers: securityHeaders,
+      // },
     ];
   },
   async redirects() {
     const query =
       '*[_type == "redirect" && !(_id in path("drafts.**")) && defined(source.current) && defined(destination.current)]{source,destination,permanent}';
-    const results =
-      await client.fetch<
-        Array<{
-          source: { current: string };
-          destination: { current: string };
-          permanent?: boolean;
-        }>
-      >(query);
+    const results = await client.fetch<
+      Array<{
+        source: { current: string };
+        destination: { current: string };
+        permanent?: boolean;
+      }>
+    >(query);
 
     return results
       .filter(
