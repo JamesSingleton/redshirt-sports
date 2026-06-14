@@ -56,7 +56,9 @@ export const metadata: Metadata = {
 
 export default function VoteConfirmationPage({
   params,
-}: PageProps<"/vote/college/[sport]/[division]/confirmation">) {
+}: {
+  params: Promise<{ sport: string; division: string }>;
+}) {
   return (
     <Suspense>
       <VoteConfirmationContent params={params} />
@@ -67,7 +69,7 @@ export default function VoteConfirmationPage({
 async function VoteConfirmationContent({
   params,
 }: {
-  params: PageProps<"/vote/college/[sport]/[division]/confirmation">["params"];
+  params: Promise<{ sport: string; division: string }>;
 }) {
   const { sport, division } = await params;
   const header = generateConfirmationHeader(sport, division);

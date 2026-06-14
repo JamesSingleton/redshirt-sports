@@ -26,7 +26,10 @@ import { validatePageIndex } from "@/utils/validate-page-index";
 export async function generateMetadata({
   params,
   searchParams,
-}: PageProps<"/college/[sport]/news/[division]">): Promise<Metadata> {
+}: {
+  params: Promise<{ sport: string; division: string }>;
+  searchParams: Promise<{ page?: string }>;
+}): Promise<Metadata> {
   const { sport, division } = await params;
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
@@ -86,7 +89,10 @@ export async function generateMetadata({
 export default function Page({
   params,
   searchParams,
-}: PageProps<"/college/[sport]/news/[division]">) {
+}: {
+  params: Promise<{ sport: string; division: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
   return searchParamsPage(null, () =>
     renderDivisionNewsPage({ params, searchParams }),
   );
@@ -95,10 +101,10 @@ export default function Page({
 async function renderDivisionNewsPage({
   params,
   searchParams,
-}: Pick<
-  PageProps<"/college/[sport]/news/[division]">,
-  "params" | "searchParams"
->) {
+}: {
+  params: Promise<{ sport: string; division: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
   const [{ sport, division }, { page }] = await Promise.all([
     params,
     searchParams,

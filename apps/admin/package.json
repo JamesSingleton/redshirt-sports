@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "check:types": "next typegen && tsc --noEmit",
+    "check:types": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },

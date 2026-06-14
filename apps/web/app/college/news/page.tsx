@@ -66,12 +66,14 @@ const breadcrumbItems = [
 
 export default function CollegeSportsNews({
   searchParams,
-}: PageProps<"/college/news">) {
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   return searchParamsPage(null, () => renderCollegeSportsNews(searchParams));
 }
 
 async function renderCollegeSportsNews(
-  searchParams: PageProps<"/college/news">["searchParams"],
+  searchParams: Promise<{ page?: string }>,
 ) {
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);

@@ -120,7 +120,9 @@ const divisionHeader = [
 
 export default async function VotePage({
   params,
-}: PageProps<"/vote/college/[sport]/[division]">) {
+}: {
+  params: Promise<{ sport: string; division: string }>;
+}) {
   return draftAwareParamsPage(params, null, renderVotePage);
 }
 

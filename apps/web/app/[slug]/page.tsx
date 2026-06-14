@@ -98,7 +98,11 @@ export async function generateMetadata({
   });
 }
 
-export default async function PostPage({ params }: PageProps<"/[slug]">) {
+export default async function PostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   return draftAwareParamsPage(
     params,
     <ArticleLoadingSkeleton />,
