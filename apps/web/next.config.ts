@@ -1,8 +1,10 @@
-import { createClient } from "@sanity/client";
-import { withSentryConfig } from "@sentry/nextjs";
+import { withAnalyzer } from "@redshirt-sports/next-config";
 import { withSentry } from "@redshirt-sports/observability/next-config";
+import { createClient } from "@sanity/client";
 import type { NextConfig } from "next";
 import { sanity } from "next-sanity/live/cache-life";
+
+import { env } from "@/env";
 
 const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
@@ -61,7 +63,7 @@ const securityHeaders = [
   },
 ];
 
-const nextConfig: NextConfig = {
+let nextConfig: NextConfig = {
   cacheComponents: true,
   cacheLife: { default: sanity },
   reactCompiler: true,
@@ -122,13 +124,14 @@ const nextConfig: NextConfig = {
   async redirects() {
     const query =
       '*[_type == "redirect" && !(_id in path("drafts.**")) && defined(source.current) && defined(destination.current)]{source,destination,permanent}';
-    const results = await client.fetch<
-      Array<{
-        source: { current: string };
-        destination: { current: string };
-        permanent?: boolean;
-      }>
-    >(query);
+    const results =
+      await client.fetch<
+        Array<{
+          source: { current: string };
+          destination: { current: string };
+          permanent?: boolean;
+        }>
+      >(query);
 
     return results
       .filter(
@@ -158,13 +161,12 @@ const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
 };
 
-/** @type {import('next').NextConfig} */
-export default withSentryConfig(nextConfig, {
-  org: "james-singleton",
-  project: "redshirt-sports",
-  silent: !process.env.CI,
-  telemetry: false,
-  sourcemaps: {
-    deleteSourcemapsAfterUpload: true,
-  },
-});
+if (env.VERCEL) {
+  nextConfig = withSentry(nextConfig);
+}
+
+if (env.ANALYZE === "true") {
+  nextConfig = withAnalyzer(nextConfig);
+}
+
+export default nextConfig;

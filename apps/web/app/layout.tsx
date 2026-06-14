@@ -1,9 +1,9 @@
 import "@redshirt-sports/ui/globals.css";
 
+import { AnalyticsProvider } from "@redshirt-sports/analytics/provider";
 import { SanityLive } from "@redshirt-sports/sanity/live";
 import { Toaster } from "@redshirt-sports/ui/components/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { AnalyticsProvider } from "@redshirt-sports/analytics/provider";
 import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { draftMode } from "next/headers";
