@@ -10,7 +10,7 @@ const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   useCdn: process.env.NODE_ENV === "production",
-  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2025-02-06",
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2026-06-12",
 });
 
 const sanityStudioUrl = process.env.NEXT_PUBLIC_SANITY_STUDIO_URL;
@@ -124,14 +124,13 @@ let nextConfig: NextConfig = {
   async redirects() {
     const query =
       '*[_type == "redirect" && !(_id in path("drafts.**")) && defined(source.current) && defined(destination.current)]{source,destination,permanent}';
-    const results =
-      await client.fetch<
-        Array<{
-          source: { current: string };
-          destination: { current: string };
-          permanent?: boolean;
-        }>
-      >(query);
+    const results = await client.fetch<
+      Array<{
+        source: { current: string };
+        destination: { current: string };
+        permanent?: boolean;
+      }>
+    >(query);
 
     return results
       .filter(
