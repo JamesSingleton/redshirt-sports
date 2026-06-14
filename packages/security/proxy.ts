@@ -22,7 +22,7 @@ const contentSecurityPolicy: Options["contentSecurityPolicy"] = {
     ],
     connectSrc: [
       ...noseconeDefaults.contentSecurityPolicy.directives.connectSrc,
-      "*",
+      "https://*.sanity.io",
       "https://*.clerk.accounts.dev",
       "https://clerk-telemetry.com",
       "https://*.posthog.com",
