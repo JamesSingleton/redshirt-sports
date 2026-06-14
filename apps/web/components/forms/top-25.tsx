@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { analytics } from "@redshirt-sports/analytics";
 import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sports/sanity/types";
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
@@ -13,7 +14,6 @@ import {
 } from "@redshirt-sports/ui/components/form";
 import { Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import posthog from "posthog-js";
 import { forwardRef, useImperativeHandle, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -267,7 +267,7 @@ const Top25 = forwardRef<
             .catch(() => ({ error: "Unknown error" }));
           const errorMessage =
             errorData.error || `HTTP ${res.status}: ${res.statusText}`;
-          posthog.capture("ballot_submission_error", {
+          analytics?.capture("ballot_submission_error", {
             sport,
             division,
             error_message: errorMessage,

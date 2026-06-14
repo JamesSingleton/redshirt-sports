@@ -1,7 +1,6 @@
 "use server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-
-import { getPostHogClient } from "@/lib/posthog-server";
+import { analytics } from "@redshirt-sports/analytics/server";
 
 export const completeOnboarding = async (formData: FormData) => {
   const { userId } = await auth();
@@ -22,8 +21,7 @@ export const completeOnboarding = async (formData: FormData) => {
     });
 
     // Capture onboarding_completed event with PostHog
-    const posthog = getPostHogClient();
-    posthog.capture({
+    analytics?.capture({
       distinctId: userId,
       event: "onboarding_completed",
       properties: {

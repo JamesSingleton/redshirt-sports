@@ -5,8 +5,8 @@ import { ContactEmailLink } from "@/components/contact-email-link";
 
 const mockCapture = vi.fn();
 
-vi.mock("posthog-js", () => ({
-  default: { capture: (...args: unknown[]) => mockCapture(...args) },
+vi.mock("@redshirt-sports/analytics", () => ({
+  analytics: { capture: (...args: unknown[]) => mockCapture(...args) },
 }));
 
 vi.mock("next/link", () => ({

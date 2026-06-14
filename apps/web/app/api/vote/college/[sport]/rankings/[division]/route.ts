@@ -1,10 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
+import { analytics } from "@redshirt-sports/analytics/server";
 import { getSportIdBySlug } from "@redshirt-sports/db/queries";
 import { voterBallots } from "@redshirt-sports/db/schema";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
-import { getPostHogClient } from "@/lib/posthog-server";
 import { db } from "@/server/db";
 import { getSeasonInfo, type SportParam } from "@/utils/espn";
 
@@ -252,8 +252,7 @@ export async function POST(
     await db.insert(voterBallots).values(ballot);
 
     // Capture ballot_submitted event with PostHog
-    const posthog = getPostHogClient();
-    posthog.capture({
+    analytics?.capture({
       distinctId: user.userId,
       event: "ballot_submitted",
       properties: {

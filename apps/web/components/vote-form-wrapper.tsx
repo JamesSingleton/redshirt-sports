@@ -1,5 +1,6 @@
 "use client";
 
+import { analytics } from "@redshirt-sports/analytics";
 import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sports/sanity/types";
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
@@ -8,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@redshirt-sports/ui/components/card";
-import posthog from "posthog-js";
 import { useRef } from "react";
 
 import type { VoterBallotWithSchool } from "@/types/votes";
@@ -28,7 +28,7 @@ export default function VoteFormWrapper({
 
   const handlePopulateForm = () => {
     formRef.current?.populateWithPreviousBallot();
-    posthog.capture("previous_ballot_populated", {
+    analytics?.capture("previous_ballot_populated", {
       previous_ballot_count: previousBallot?.length ?? 0,
     });
   };
