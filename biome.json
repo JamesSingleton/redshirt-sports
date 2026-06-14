@@ -32,7 +32,8 @@
       "!**/.build",
       "!**/.sanity",
       "!**/.pnpm-store",
-      "!**/.agents"
+      "!**/.agents",
+      "!**/*.svg"
     ]
   },
   "css": {

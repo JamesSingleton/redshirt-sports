@@ -9,8 +9,8 @@
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.13.11",
     "next-plausible": "^4.0.0",
-    "posthog-js": "^1.386.6",
-    "posthog-node": "^5.37.0",
+    "posthog-js": "catalog:",
+    "posthog-node": "catalog:",
     "react": "catalog:",
     "server-only": "^0.0.1",
     "zod": "catalog:"
