@@ -1,4 +1,4 @@
-import { primaryDb } from "@db/client";
+import { primaryDb } from "../client";
 import { sql } from "drizzle-orm";
 
 export async function checkHealth() {
