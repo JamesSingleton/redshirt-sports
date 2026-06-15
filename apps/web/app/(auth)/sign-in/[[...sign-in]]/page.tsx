@@ -1,9 +1,9 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignIn } from "@redshirt-sports/auth/components/sign-in";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Sign Up | Redshirt Sports",
+  title: "Sign In | Redshirt Sports",
   robots: {
     index: false,
     follow: false,

@@ -1,13 +1,16 @@
+import { config, withAnalyzer } from "@redshirt-sports/next-config";
+import { withSentry } from "@redshirt-sports/observability/next-config";
 import { createClient } from "@sanity/client";
-import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 import { sanity } from "next-sanity/live/cache-life";
+
+import { env } from "@/env";
 
 const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   useCdn: process.env.NODE_ENV === "production",
-  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2025-02-06",
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2026-06-12",
 });
 
 const sanityStudioUrl = process.env.NEXT_PUBLIC_SANITY_STUDIO_URL;
@@ -60,29 +63,10 @@ const securityHeaders = [
   },
 ];
 
-const nextConfig: NextConfig = {
+let nextConfig: NextConfig = {
+  ...config,
   cacheComponents: true,
   cacheLife: { default: sanity },
-  reactCompiler: true,
-  experimental: {
-    inlineCss: true,
-  },
-  logging: {
-    fetches: {},
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  productionBrowserSourceMaps: true,
-  reactStrictMode: true,
-  images: {
-    formats: ["image/avif", "image/webp"],
-    remotePatterns: [
-      { protocol: "https", hostname: "pbs.twimg.com" },
-      { protocol: "https", hostname: "abs.twimg.com" },
-      { protocol: "https", hostname: "cdn.sanity.io" },
-    ],
-  },
   async headers() {
     return [
       {
@@ -142,29 +126,14 @@ const nextConfig: NextConfig = {
         permanent: redirect.permanent === true,
       }));
   },
-  async rewrites() {
-    return [
-      {
-        source: "/ingest/static/:path*",
-        destination: "https://us-assets.i.posthog.com/static/:path*",
-      },
-      {
-        source: "/ingest/:path*",
-        destination: "https://us.i.posthog.com/:path*",
-      },
-    ];
-  },
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
 };
 
-/** @type {import('next').NextConfig} */
-export default withSentryConfig(nextConfig, {
-  org: "james-singleton",
-  project: "redshirt-sports",
-  silent: !process.env.CI,
-  telemetry: false,
-  sourcemaps: {
-    deleteSourcemapsAfterUpload: true,
-  },
-});
+if (env.VERCEL) {
+  nextConfig = withSentry(nextConfig);
+}
+
+if (env.ANALYZE === "true") {
+  nextConfig = withAnalyzer(nextConfig);
+}
+
+export default nextConfig;

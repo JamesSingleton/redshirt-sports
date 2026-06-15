@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
+import { keys } from "../keys";
 
 const connectionConfig = {
   prepare: false,
@@ -10,7 +11,7 @@ const connectionConfig = {
   connect_timeout: 10,
 };
 
-const primaryPool = postgres(process.env.POSTGRES_URL!, connectionConfig);
+const primaryPool = postgres(keys().DATABASE_URL, connectionConfig);
 
 export const primaryDb = drizzle(primaryPool, {
   schema,

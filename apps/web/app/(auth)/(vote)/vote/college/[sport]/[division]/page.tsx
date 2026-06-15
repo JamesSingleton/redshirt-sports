@@ -10,7 +10,6 @@ import {
   schoolsBySportAndSubgroupingStringQuery,
   schoolsForVotesQuery,
 } from "@redshirt-sports/sanity/queries";
-import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -121,15 +120,16 @@ const divisionHeader = [
 
 export default async function VotePage({
   params,
-}: PageProps<"/vote/college/[sport]/[division]">) {
+}: {
+  params: Promise<{ sport: string; division: string }>;
+}) {
   return draftAwareParamsPage(params, null, renderVotePage);
 }
 
 async function renderVotePage(
   resolved: { sport: string; division: string },
-  { perspective, stega }: DynamicFetchOptions,
+  options: DynamicFetchOptions,
 ) {
-  "use cache";
   const validationResult = ParamsSchema.safeParse(resolved);
   if (!validationResult.success) {
     notFound();
@@ -137,20 +137,9 @@ async function renderVotePage(
 
   const { sport, division } = validationResult.data;
 
-  const { data: schools } = await sanityFetchPage({
-    query: schoolsBySportAndSubgroupingStringQuery,
-    params: { sport, subgrouping: division },
-    perspective,
-    stega,
-  });
-
-  if (!schools) {
-    notFound();
-  }
-
   return (
     <Suspense>
-      <VotePageAuth sport={sport} division={division} schools={schools} />
+      <VotePageAuth sport={sport} division={division} options={options} />
     </Suspense>
   );
 }
@@ -158,14 +147,24 @@ async function renderVotePage(
 async function VotePageAuth({
   sport,
   division,
-  schools,
+  options,
 }: {
   sport: SportParam;
   division: string;
-  schools: NonNullable<SchoolsBySportAndSubgroupingStringQueryResult>;
+  options: DynamicFetchOptions;
 }) {
   const { userId } = await auth();
   if (!userId) {
+    notFound();
+  }
+
+  const { data: schools } = await sanityFetchPage({
+    query: schoolsBySportAndSubgroupingStringQuery,
+    params: { sport, subgrouping: division },
+    ...options,
+  });
+
+  if (!schools) {
     notFound();
   }
 

@@ -5,6 +5,7 @@ import { keys } from "./keys";
 export const sentryConfig: Parameters<typeof withSentryConfig>[1] = {
   org: keys().SENTRY_ORG,
   project: keys().SENTRY_PROJECT,
+  authToken: keys().SENTRY_AUTH_TOKEN,
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,

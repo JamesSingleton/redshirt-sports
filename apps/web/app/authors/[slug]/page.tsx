@@ -29,7 +29,10 @@ import { validatePageIndex } from "@/utils/validate-page-index";
 export async function generateMetadata({
   params,
   searchParams,
-}: PageProps<"/authors/[slug]">): Promise<Metadata> {
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const { page } = await searchParams;
   const { perspective } = await getDynamicFetchOptions();
@@ -71,7 +74,10 @@ export async function generateMetadata({
 export default function Page({
   params,
   searchParams,
-}: PageProps<"/authors/[slug]">) {
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
   return searchParamsPage(null, () =>
     renderAuthorPage({ params, searchParams }),
   );
@@ -80,7 +86,10 @@ export default function Page({
 async function renderAuthorPage({
   params,
   searchParams,
-}: Pick<PageProps<"/authors/[slug]">, "params" | "searchParams">) {
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
   const [{ slug }, { page }] = await Promise.all([params, searchParams]);
   const pageIndex = validatePageIndex(page);
 

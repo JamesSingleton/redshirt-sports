@@ -22,7 +22,10 @@ import { validatePageIndex } from "@/utils/validate-page-index";
 export async function generateMetadata({
   params,
   searchParams,
-}: PageProps<"/college/[sport]/news">): Promise<Metadata> {
+}: {
+  params: Promise<{ sport: string }>;
+  searchParams: Promise<{ page?: string }>;
+}): Promise<Metadata> {
   const { sport } = await params;
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
@@ -62,7 +65,10 @@ export async function generateMetadata({
 export default function Page({
   params,
   searchParams,
-}: PageProps<"/college/[sport]/news">) {
+}: {
+  params: Promise<{ sport: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
   return searchParamsPage(null, () =>
     renderSportNewsPage({ params, searchParams }),
   );
@@ -71,7 +77,10 @@ export default function Page({
 async function renderSportNewsPage({
   params,
   searchParams,
-}: Pick<PageProps<"/college/[sport]/news">, "params" | "searchParams">) {
+}: {
+  params: Promise<{ sport: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
   const [{ sport }, { page }] = await Promise.all([params, searchParams]);
   const pageIndex = validatePageIndex(page);
   const { perspective, stega } = await getDynamicFetchOptions();

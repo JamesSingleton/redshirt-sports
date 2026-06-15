@@ -1,9 +1,9 @@
 "use client";
 
+import { analytics } from "@redshirt-sports/analytics";
 import { Input } from "@redshirt-sports/ui/components/input";
 import debounce from "lodash.debounce";
 import { useRouter } from "next/navigation";
-import posthog from "posthog-js";
 import { type ChangeEvent, useCallback } from "react";
 
 export default function Search({ defaultValue = "" }) {
@@ -11,7 +11,7 @@ export default function Search({ defaultValue = "" }) {
 
   const debouncedSearch = debounce((value: string) => {
     if (value) {
-      posthog.capture("search_performed", {
+      analytics?.capture("search_performed", {
         search_query: value,
         query_length: value.length,
       });

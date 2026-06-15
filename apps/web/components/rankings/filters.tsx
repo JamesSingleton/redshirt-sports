@@ -1,4 +1,5 @@
 "use client";
+import { analytics } from "@redshirt-sports/analytics";
 import {
   Select,
   SelectContent,
@@ -7,7 +8,6 @@ import {
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
 import { useParams, useRouter } from "next/navigation";
-import posthog from "posthog-js";
 
 type Week = {
   week: number;
@@ -28,7 +28,7 @@ export const RankingsFilters = ({
   const { division, year, week, sport } = useParams();
 
   const handleYearChange = (e: string) => {
-    posthog.capture("rankings_filter_changed", {
+    analytics?.capture("rankings_filter_changed", {
       filter_type: "year",
       new_value: e,
       sport,
@@ -38,7 +38,7 @@ export const RankingsFilters = ({
   };
 
   const handleWeekChange = (e: string) => {
-    posthog.capture("rankings_filter_changed", {
+    analytics?.capture("rankings_filter_changed", {
       filter_type: "week",
       new_value: e,
       sport,

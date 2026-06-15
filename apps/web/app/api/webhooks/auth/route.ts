@@ -1,10 +1,10 @@
 import type { WebhookEvent } from "@clerk/nextjs/server";
+import { analytics } from "@redshirt-sports/analytics/server";
 import { usersTable } from "@redshirt-sports/db/schema";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { Webhook } from "svix";
 
-import { getPostHogClient } from "@/lib/posthog-server";
 import { db } from "@/server/db";
 
 export async function POST(req: Request) {
@@ -51,8 +51,6 @@ export async function POST(req: Request) {
 
   const { type, data } = evt;
 
-  const posthog = getPostHogClient();
-
   try {
     switch (type) {
       case "user.created":
@@ -64,14 +62,14 @@ export async function POST(req: Request) {
         });
 
         // Capture user_created event and identify user in PostHog
-        posthog.capture({
+        analytics?.capture({
           distinctId: data.id,
           event: "user_created",
           properties: {
             source: "clerk_webhook",
           },
         });
-        posthog.identify({
+        analytics?.identify({
           distinctId: data.id,
           properties: {
             first_name: data.first_name,
@@ -94,7 +92,7 @@ export async function POST(req: Request) {
           .where(eq(usersTable.id, data.id));
 
         // Capture user_updated event in PostHog
-        posthog.capture({
+        analytics?.capture({
           distinctId: data.id,
           event: "user_updated",
           properties: {
@@ -104,7 +102,7 @@ export async function POST(req: Request) {
             organization: data.public_metadata.organization,
           },
         });
-        posthog.identify({
+        analytics?.identify({
           distinctId: data.id,
           properties: {
             first_name: data.first_name,

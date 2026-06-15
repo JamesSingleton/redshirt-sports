@@ -2,9 +2,9 @@ import * as schema from "@redshirt-sports/db/schema";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
-import { env } from "@/app/env";
+import { env } from "@/env";
 
-const connectionString = env.POSTGRES_URL;
+const connectionString = env.DATABASE_URL;
 const client = postgres(connectionString, { prepare: false });
 
 // Use this object to send drizzle queries to your DB

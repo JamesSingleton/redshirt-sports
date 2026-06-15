@@ -1,5 +1,6 @@
 import "@redshirt-sports/ui/globals.css";
 
+import { AnalyticsProvider } from "@redshirt-sports/analytics/provider";
 import { SanityLive } from "@redshirt-sports/sanity/live";
 import { Toaster } from "@redshirt-sports/ui/components/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -41,7 +42,11 @@ export const viewport: Viewport = {
   themeColor: "#E80022",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   preconnect("https://cdn.sanity.io");
   prefetchDNS("https://cdn.sanity.io");
 
@@ -49,48 +54,50 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${fontSans.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
-      >
-        <Providers draftModeEnabled={isDraftMode}>
+      <AnalyticsProvider>
+        <body
+          className={`${fontSans.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
+        >
+          <Providers>
+            {isDraftMode ? (
+              <Suspense fallback={<NavbarSkeleton />}>
+                <DynamicNavbarServer />
+              </Suspense>
+            ) : (
+              <CachedNavbarServer perspective="published" stega={false} />
+            )}
+            <main className="flex-1">{children}</main>
+            {isDraftMode ? (
+              <Suspense fallback={<FooterSkeleton />}>
+                <DynamicFooterServer />
+              </Suspense>
+            ) : (
+              <CachedFooterServer perspective="published" stega={false} />
+            )}
+          </Providers>
+          <SpeedInsights />
+          <Toaster />
+          <SanityLive
+            includeDrafts={isDraftMode}
+            waitFor={
+              process.env.VERCEL_ENV === "production" ? "function" : undefined
+            }
+          />
+          {isDraftMode && (
+            <>
+              <VisualEditing />
+              <DisableDraftMode />
+            </>
+          )}
           {isDraftMode ? (
-            <Suspense fallback={<NavbarSkeleton />}>
-              <DynamicNavbarServer />
+            <Suspense>
+              <DynamicCombinedJsonLd />
             </Suspense>
           ) : (
-            <CachedNavbarServer perspective="published" stega={false} />
+            <CachedCombinedJsonLd perspective="published" stega={false} />
           )}
-          <main className="flex-1">{children}</main>
-          {isDraftMode ? (
-            <Suspense fallback={<FooterSkeleton />}>
-              <DynamicFooterServer />
-            </Suspense>
-          ) : (
-            <CachedFooterServer perspective="published" stega={false} />
-          )}
-        </Providers>
-        <SpeedInsights />
-        <Toaster />
-        <SanityLive
-          includeDrafts={isDraftMode}
-          waitFor={
-            process.env.VERCEL_ENV === "production" ? "function" : undefined
-          }
-        />
-        {isDraftMode && (
-          <>
-            <VisualEditing />
-            <DisableDraftMode />
-          </>
-        )}
-        {isDraftMode ? (
-          <Suspense>
-            <DynamicCombinedJsonLd />
-          </Suspense>
-        ) : (
-          <CachedCombinedJsonLd perspective="published" stega={false} />
-        )}
-      </body>
+        </body>
+      </AnalyticsProvider>
     </html>
   );
 }
