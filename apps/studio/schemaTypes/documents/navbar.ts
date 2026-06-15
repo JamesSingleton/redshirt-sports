@@ -1,6 +1,38 @@
 import { LayoutPanelLeft, Link, PanelTop } from "lucide-react";
 import { defineField, defineType } from "sanity";
 
+import {
+  type CustomUrlPreviewInput,
+  formatCustomUrlLinkSubtitle,
+  nestedCustomUrlPreviewSelect,
+  resolveCustomUrlPreview,
+} from "../../utils/custom-url-preview";
+
+const navbarLinkPreview = {
+  select: {
+    title: "name",
+    ...nestedCustomUrlPreviewSelect("url"),
+  },
+  prepare: ({
+    title,
+    ...urlFields
+  }: {
+    title?: string;
+  } & CustomUrlPreviewInput) => {
+    const url = resolveCustomUrlPreview(urlFields);
+
+    return {
+      title: title || "Untitled Link",
+      subtitle: formatCustomUrlLinkSubtitle({
+        urlType: urlFields.urlType,
+        url,
+        openInNewTab: urlFields.openInNewTab,
+      }),
+      media: Link,
+    };
+  },
+};
+
 const navbarLink = defineField({
   name: "navbarLink",
   type: "object",
@@ -21,27 +53,7 @@ const navbarLink = defineField({
       description: "The URL that this link will navigate to when clicked",
     }),
   ],
-  preview: {
-    select: {
-      title: "name",
-      externalUrl: "url.external",
-      urlType: "url.type",
-      internalUrl: "url.internal.slug.current",
-      openInNewTab: "url.openInNewTab",
-    },
-    prepare({ title, externalUrl, urlType, internalUrl, openInNewTab }) {
-      const url = urlType === "external" ? externalUrl : internalUrl;
-      const newTabIndicator = openInNewTab ? " ↗" : "";
-      const truncatedUrl =
-        url?.length > 30 ? `${url.substring(0, 30)}...` : url;
-
-      return {
-        title: title || "Untitled Link",
-        subtitle: `${urlType === "external" ? "External" : "Internal"} • ${truncatedUrl}${newTabIndicator}`,
-        media: Link,
-      };
-    },
-  },
+  preview: navbarLinkPreview,
 });
 
 const navbarColumnLink = defineField({
@@ -70,27 +82,7 @@ const navbarColumnLink = defineField({
       description: "The URL that this link will navigate to when clicked",
     }),
   ],
-  preview: {
-    select: {
-      title: "name",
-      externalUrl: "url.external",
-      urlType: "url.type",
-      internalUrl: "url.internal.slug.current",
-      openInNewTab: "url.openInNewTab",
-    },
-    prepare({ title, externalUrl, urlType, internalUrl, openInNewTab }) {
-      const url = urlType === "external" ? externalUrl : internalUrl;
-      const newTabIndicator = openInNewTab ? " ↗" : "";
-      const truncatedUrl =
-        url?.length > 30 ? `${url.substring(0, 30)}...` : url;
-
-      return {
-        title: title || "Untitled Link",
-        subtitle: `${urlType === "external" ? "External" : "Internal"} • ${truncatedUrl}${newTabIndicator}`,
-        media: Link,
-      };
-    },
-  },
+  preview: navbarLinkPreview,
 });
 
 const navbarColumn = defineField({

@@ -159,6 +159,196 @@
     }
   },
   {
+    "type": "type",
+    "name": "sport.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "sport"
+    }
+  },
+  {
+    "type": "type",
+    "name": "division.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "division"
+    }
+  },
+  {
+    "type": "type",
+    "name": "sportSubgrouping.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "sportSubgrouping"
+    }
+  },
+  {
+    "type": "type",
+    "name": "conference.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "conference"
+    }
+  },
+  {
+    "name": "sportNewsLink",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "sportNewsLink"
+          }
+        },
+        "sport": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "sport.reference"
+          },
+          "optional": false
+        },
+        "routeDepth": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "sportNews"
+              },
+              {
+                "type": "string",
+                "value": "divisionNews"
+              },
+              {
+                "type": "string",
+                "value": "conferenceNews"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "segment": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "inline",
+                "name": "division.reference"
+              },
+              {
+                "type": "inline",
+                "name": "sportSubgrouping.reference"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "conference": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "conference.reference"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
     "name": "socialLinks",
     "type": "type",
     "value": {
@@ -314,6 +504,36 @@
     }
   },
   {
+    "type": "type",
+    "name": "legal.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "legal"
+    }
+  },
+  {
     "name": "customUrl",
     "type": "type",
     "value": {
@@ -364,6 +584,27 @@
           },
           "optional": true
         },
+        "internalType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "reference"
+              },
+              {
+                "type": "string",
+                "value": "custom"
+              },
+              {
+                "type": "string",
+                "value": "sportNews"
+              }
+            ]
+          },
+          "optional": true
+        },
         "internal": {
           "type": "objectAttribute",
           "value": {
@@ -380,8 +621,27 @@
               {
                 "type": "inline",
                 "name": "author.reference"
+              },
+              {
+                "type": "inline",
+                "name": "legal.reference"
               }
             ]
+          },
+          "optional": true
+        },
+        "internalUrl": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "sportNewsLink": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "sportNewsLink"
           },
           "optional": true
         }
@@ -1652,126 +1912,6 @@
         },
         "optional": false
       }
-    }
-  },
-  {
-    "type": "type",
-    "name": "sport.reference",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_ref": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          }
-        },
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "reference"
-          }
-        },
-        "_weak": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "boolean"
-          },
-          "optional": true
-        }
-      },
-      "dereferencesTo": "sport"
-    }
-  },
-  {
-    "type": "type",
-    "name": "division.reference",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_ref": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          }
-        },
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "reference"
-          }
-        },
-        "_weak": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "boolean"
-          },
-          "optional": true
-        }
-      },
-      "dereferencesTo": "division"
-    }
-  },
-  {
-    "type": "type",
-    "name": "sportSubgrouping.reference",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_ref": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          }
-        },
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "reference"
-          }
-        },
-        "_weak": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "boolean"
-          },
-          "optional": true
-        }
-      },
-      "dereferencesTo": "sportSubgrouping"
-    }
-  },
-  {
-    "type": "type",
-    "name": "conference.reference",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_ref": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          }
-        },
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "reference"
-          }
-        },
-        "_weak": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "boolean"
-          },
-          "optional": true
-        }
-      },
-      "dereferencesTo": "conference"
     }
   },
   {

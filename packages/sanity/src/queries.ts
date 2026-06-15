@@ -17,9 +17,17 @@ export const querySettingsData = defineQuery(/* groq */ `
 const customUrlHrefSelect = /* groq */ `
   select(
     type == "external" => external,
+    type == "internal" && internalType == "custom" => internalUrl,
+    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>
+      "/college/" + sportNewsLink.sport->slug.current + "/news",
+    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>
+      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,
+    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>
+      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,
     type == "internal" && internal->_type == "post" => "/" + internal->slug.current,
     type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,
     type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,
+    type == "internal" && internal->_type == "legal" => "/" + internal->slug.current,
     href
   )
 `;
@@ -28,9 +36,17 @@ const customLinkMarkFragment = /* groq */ `
   "openInNewTab": customLink.openInNewTab,
   "href": select(
     customLink.type == "external" => customLink.external,
+    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,
+    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>
+      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",
+    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>
+      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,
+    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>
+      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,
     customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,
     customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,
     customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,
+    customLink.type == "internal" && customLink.internal->_type == "legal" => "/" + customLink.internal->slug.current,
     customLink.href
   )
 `;
@@ -61,9 +77,17 @@ const markDefsFragment = /* groq */ `
 const customUrlHrefFragment = /* groq */ `
   "href": select(
     url.type == "external" => url.external,
+    url.type == "internal" && url.internalType == "custom" => url.internalUrl,
+    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>
+      "/college/" + url.sportNewsLink.sport->slug.current + "/news",
+    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>
+      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,
+    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>
+      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,
     url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,
     url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,
     url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,
+    url.type == "internal" && url.internal->_type == "legal" => "/" + url.internal->slug.current,
     url.href
   )
 `;

@@ -1,6 +1,13 @@
 import { LayoutPanelLeft, Link, PanelBottom } from "lucide-react";
 import { defineField, defineType } from "sanity";
 
+import {
+  type CustomUrlPreviewInput,
+  formatCustomUrlLinkSubtitle,
+  nestedCustomUrlPreviewSelect,
+  resolveCustomUrlPreview,
+} from "../../utils/custom-url-preview";
+
 const footerColumnLink = defineField({
   name: "footerColumnLink",
   type: "object",
@@ -20,38 +27,21 @@ const footerColumnLink = defineField({
   preview: {
     select: {
       title: "name",
-      externalUrl: "url.external",
-      urlType: "url.type",
-      internalType: "url.internalType",
-      internalDocUrl: "url.internal.slug.current",
-      internalCustomUrl: "url.internalUrl",
-      openInNewTab: "url.openInNewTab",
+      ...nestedCustomUrlPreviewSelect("url"),
     },
     prepare: ({
       title,
-      externalUrl,
-      urlType,
-      internalType,
-      internalDocUrl,
-      internalCustomUrl,
-      openInNewTab,
-    }) => {
-      let url: string | undefined;
-      if (urlType === "external") {
-        url = externalUrl;
-      } else if (internalType === "reference") {
-        url = internalDocUrl;
-      } else if (internalType === "custom") {
-        url = internalCustomUrl;
-      }
-
-      const newTabIndicator = openInNewTab ? " ↗" : "";
-      const truncatedUrl =
-        url && url.length > 30 ? `${url.substring(0, 30)}...` : url;
+      ...urlFields
+    }: { title?: string } & CustomUrlPreviewInput) => {
+      const url = resolveCustomUrlPreview(urlFields);
 
       return {
         title: title || "Untitled Link",
-        subtitle: `${urlType === "external" ? "External" : "Internal"} • ${truncatedUrl}${newTabIndicator}`,
+        subtitle: formatCustomUrlLinkSubtitle({
+          urlType: urlFields.urlType,
+          url,
+          openInNewTab: urlFields.openInNewTab,
+        }),
         media: Link,
       };
     },
