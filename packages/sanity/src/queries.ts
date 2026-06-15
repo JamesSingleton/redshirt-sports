@@ -469,13 +469,6 @@ export const querySitemapData = defineQuery(/* groq */ `{
     "slug": slug.current,
     "lastModified": _updatedAt
   },
-  "schools": *[_type == "school" && defined(slug.current)] {
-    "slug": slug.current,
-    "lastModified": _updatedAt
-  },
-  "sports": *[_type == "sport" && defined(slug.current)] {
-    "slug": slug.current
-  },
 }`);
 
 export const queryArticlesBySportDivisionAndConference =
@@ -1052,7 +1045,7 @@ export const postsByStoryTypeQuery = defineQuery(/* groq */ `
 `);
 
 export const schoolSlugsForSitemapQuery = groq`
-  *[_type == "school" && defined(slug.current)]{
+  *[_type == "school" && defined(slug.current) && count(*[${publishedPostsTaggingSchoolFromParentFilter}]) >= $minPosts]{
     "slug": slug.current,
     _updatedAt
   }
