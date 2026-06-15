@@ -1,0 +1,20 @@
+{
+  "name": "@redshirt-sports/security",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "check:types": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@nosecone/next": "1.5.0",
+    "@t3-oss/env-nextjs": "^0.13.11",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@redshirt-sports/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

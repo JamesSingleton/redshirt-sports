@@ -20,6 +20,7 @@
     "@redshirt-sports/db": "workspace:*",
     "@redshirt-sports/next-config": "workspace:*",
     "@redshirt-sports/sanity": "workspace:*",
+    "@redshirt-sports/security": "workspace:*",
     "@redshirt-sports/ui": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tabler/icons-react": "^3.44.0",
