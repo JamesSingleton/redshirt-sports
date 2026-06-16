@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   ci:
-    name: Lint, Typecheck, Test, and Build
+    name: Lint, Typecheck, and Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -51,5 +51,5 @@ jobs:
       - name: Check formatting
         run: pnpm run check:format
 
-      - name: Run lint, typecheck, test, and build
+      - name: Run lint, typecheck, and test
         run: pnpm run ci

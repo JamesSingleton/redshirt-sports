@@ -15,7 +15,7 @@ Redshirt Sports is a college sports news website built as a Turborepo monorepo w
 - `pnpm check:types` - Run TypeScript type checks across all workspaces
 - `pnpm check:format` - Run Biome format and lint checks on all files
 - `pnpm test` - Run tests across all workspaces using Vitest
-- `pnpm ci` - Run affected lint, typecheck, test, and build via Turborepo
+- `pnpm ci` - Run affected lint, typecheck, and test via Turborepo
 
 ### Workspace-Specific Commands
 

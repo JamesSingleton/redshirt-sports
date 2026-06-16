@@ -65,7 +65,7 @@ This will start all applications and packages in the monorepo.
 - `pnpm check:types` - Runs type checks across all workspaces
 - `pnpm check:format` - Runs Biome format and lint checks on all files
 - `pnpm test` - Runs tests across all workspaces
-- `pnpm ci` - Runs affected lint, typecheck, test, and build via Turborepo
+- `pnpm ci` - Runs affected lint, typecheck, and test via Turborepo
 
 ## 📁 Project Structure
 

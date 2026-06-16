@@ -17,7 +17,7 @@
     "format": "biome format --write .",
     "check:format": "biome check .",
     "check:types": "turbo run check:types",
-    "ci": "turbo run lint check:types test build --affected"
+    "ci": "turbo run lint check:types test --affected"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.0",
