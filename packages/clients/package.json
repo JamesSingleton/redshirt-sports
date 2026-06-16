@@ -10,11 +10,15 @@
     "zod": "catalog:"
   },
   "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "check:types": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
+    "typescript": "catalog:",
     "vitest": "catalog:"
   }
 }

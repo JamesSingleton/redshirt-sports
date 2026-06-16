@@ -19,7 +19,7 @@ Redshirt Sports is a modern college sports news website built with Next.js and p
 
 ### Prerequisites
 
-- Node.js (version 20 or higher)
+- Node.js (version 22 or higher)
 - pnpm (version 10 or higher)
 
 ### Installation
@@ -61,9 +61,11 @@ This will start all applications and packages in the monorepo.
 
 - `pnpm dev` - Runs all apps and packages in development mode
 - `pnpm build` - Builds all apps and packages for production
-- `pnpm lint` - Runs ESLint across all workspaces
+- `pnpm lint` - Runs Biome lint checks across all workspaces
 - `pnpm check:types` - Runs type checks across all workspaces
-- `pnpm check:format` - Runs prettier --check on all the files
+- `pnpm check:format` - Runs Biome format and lint checks on all files
+- `pnpm test` - Runs tests across all workspaces
+- `pnpm ci` - Runs affected lint, typecheck, test, and build via Turborepo
 
 ## 📁 Project Structure
 
@@ -71,13 +73,19 @@ This will start all applications and packages in the monorepo.
 redshirt-sports/
 ├── apps/                   # Applications
 │   ├── web/                # Main website (Next.js)
-│   ├── studio/             # Sanity Studio
+│   ├── admin/              # Admin dashboard (Next.js)
+│   └── studio/             # Sanity Studio
 ├── packages/               # Shared packages
 │   ├── ui/                 # Shared UI components (ShadCN)
-│   ├── eslint-config/      # Shared eslint configuration
+│   ├── db/                 # Drizzle ORM schema and queries
+│   ├── sanity/             # Sanity client and GROQ queries
+│   ├── clients/            # External API clients
+│   ├── auth/               # Clerk authentication
+│   ├── analytics/          # Analytics integrations
+│   ├── observability/      # Sentry monitoring
+│   ├── next-config/        # Shared Next.js config
 │   └── typescript-config/  # TypeScript configurations
-├── .env.example            # Environment variables example
-├── .gitignore              # Git ignore file
+├── biome.json              # Biome lint and format config
 ├── package.json            # Root package.json
 ├── turbo.json              # Turborepo configuration
 └── README.md               # This file
@@ -100,7 +108,7 @@ Please feel free to submit issues and pull requests.
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes (ensure they work across the monorepo)
-4. Run type checks and linting: `pnpm check:types && pnpm lint`
+4. Run type checks, linting, and formatting: `pnpm check:types && pnpm lint && pnpm check:format`
 5. Commit your changes (`git commit -m 'featu: add some amazing feature'`)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request

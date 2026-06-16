@@ -1,5 +1,6 @@
 import "server-only";
 import { PostHog } from "posthog-node";
+
 import { keys } from "./keys";
 
 const { NEXT_PUBLIC_POSTHOG_KEY, NEXT_PUBLIC_POSTHOG_HOST } = keys();

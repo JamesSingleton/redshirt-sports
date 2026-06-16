@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+
 import { keys } from "./keys";
 
 export const initializeAnalytics = () => {

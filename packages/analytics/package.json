@@ -2,8 +2,17 @@
   "name": "@redshirt-sports/analytics",
   "version": "0.0.1",
   "private": true,
+  "exports": {
+    ".": "./index.ts",
+    "./instrumentation-client": "./instrumentation-client.ts",
+    "./keys": "./keys.ts",
+    "./provider": "./provider.tsx",
+    "./server": "./server.ts"
+  },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "check:types": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {

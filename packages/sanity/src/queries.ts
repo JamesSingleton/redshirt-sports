@@ -1,7 +1,5 @@
 import { defineQuery, groq } from "next-sanity";
 
-const perPage = 12;
-
 export const querySettingsData = defineQuery(/* groq */ `
   *[_type == "settings"][0]{
     _id,

@@ -1,16 +1,15 @@
-import { eq, desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
+import { primaryDb as db } from "../client";
 import {
   divisionsTable,
+  type SelectWeeklyRankings,
   sportsTable,
   weeklyFinalRankings,
-  type SelectWeeklyRankings,
 } from "../schema";
-import { primaryDb as db } from "../client";
-
-import { getSportIdBySlug, SportParam } from "./sports";
+import type { FinalRankingWithSchool } from "../types/rankings";
 import { getWeekBySport } from "./seasons";
-import { type FinalRankingWithSchool } from "../types/rankings";
+import { getSportIdBySlug, type SportParam } from "./sports";
 
 type FinalRankings = {
   id: number;

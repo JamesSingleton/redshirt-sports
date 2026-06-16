@@ -63,7 +63,10 @@ export async function getPlayerBySlug(slug: string) {
         sportName: sportsTable.name,
       })
       .from(playerCommitmentsTable)
-      .leftJoin(schoolsTable, eq(playerCommitmentsTable.schoolId, schoolsTable.id))
+      .leftJoin(
+        schoolsTable,
+        eq(playerCommitmentsTable.schoolId, schoolsTable.id),
+      )
       .leftJoin(sportsTable, eq(playerCommitmentsTable.sportId, sportsTable.id))
       .where(eq(playerCommitmentsTable.playerId, player.id))
       .orderBy(playerCommitmentsTable.committedAt),

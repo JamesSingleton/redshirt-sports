@@ -1,4 +1,16 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "extends": ["//"]
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "env": [
+        "SANITY_STUDIO_PROJECT_ID",
+        "SANITY_STUDIO_DATASET",
+        "SANITY_STUDIO_TITLE",
+        "SANITY_STUDIO_PRESENTATION_URL",
+        "SANITY_DEPLOY_TOKEN",
+        "SANITY_REVALIDATE_SECRET"
+      ]
+    }
+  }
 }
