@@ -9,7 +9,8 @@
     "lint:fix": "biome check --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "sanity build && sanity schema deploy --manifest-dir ./dist/static",
+    "build": "sanity build",
+    "deploy:schema": "sanity schema deploy --manifest-dir ./dist/static",
     "deploy": "sanity deploy",
     "type": "sanity schema extract --enforce-required-fields && sanity typegen generate",
     "check:types": "tsc --noEmit"

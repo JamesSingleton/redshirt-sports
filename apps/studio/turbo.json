@@ -11,6 +11,11 @@
         "SANITY_DEPLOY_TOKEN",
         "SANITY_REVALIDATE_SECRET"
       ]
+    },
+    "deploy:schema": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "env": ["SANITY_DEPLOY_TOKEN"]
     }
   }
 }
