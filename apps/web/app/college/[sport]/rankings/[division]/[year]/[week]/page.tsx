@@ -27,12 +27,12 @@ import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-sk
 import CustomImage from "@/components/sanity-image";
 import { FINAL_RANKINGS_WEEK, PRESEASON_WEEK, TOP_25 } from "@/lib/constants";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
   getCachedFinalRankings,
   getCachedWeeksThatHaveVotes,
   getCachedYearsThatHaveVotes,
 } from "@/lib/rankings-data";
-import { getSEOMetadata } from "@/lib/seo";
 import type { SportParam } from "@/utils/espn";
 
 const baseUrl = getBaseUrl();
@@ -62,7 +62,7 @@ export async function generateMetadata({
   const weekNumber = parseWeekNumber(week);
   const titleWeek = getWeekTitle(weekNumber);
 
-  return getSEOMetadata({
+  return getPageMetadata({
     title: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings`,
     description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
     slug: `/college/${sport}/rankings/${division}/${year}/${week}`,

@@ -6,6 +6,7 @@ export const querySettingsData = defineQuery(/* groq */ `
   *[_type == "settings"][0]{
     _id,
     _type,
+    siteBrand,
     siteTitle,
     siteDescription,
     "logo": logo.asset->url + "?w=80&h=40&dpr=3&fit=max",

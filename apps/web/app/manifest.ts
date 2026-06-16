@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: process.env.NEXT_PUBLIC_APP_NAME,
     short_name: process.env.NEXT_PUBLIC_APP_NAME,
-    description: `${process.env.NEXT_PUBLIC_APP_NAME} Sports is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.`,
+    description: `${process.env.NEXT_PUBLIC_APP_NAME} is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.`,
     start_url: "/",
     display: "standalone",
     background_color: "#FAFBFF",

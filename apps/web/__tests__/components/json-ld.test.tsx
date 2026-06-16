@@ -150,6 +150,30 @@ describe("ArticleJsonLd", () => {
 
     expect(data.author[0].url).toBeUndefined();
   });
+
+  it("uses dynamic copyright year from publishedAt", () => {
+    const { container } = render(
+      <ArticleJsonLd
+        article={{
+          slug: "copyright-year",
+          title: "Test Article",
+          publishedAt: "2024-03-15T00:00:00Z",
+          _updatedAt: "2024-03-16T00:00:00Z",
+          excerpt: "Excerpt",
+          body: [],
+          authors: [{ name: "Jane Doe", slug: "jane-doe" }],
+          mainImage: { alt: "Hero", asset: { _ref: "image-123" } },
+        }}
+      />,
+    );
+
+    const data = JSON.parse(
+      container.querySelector("#article-json-ld-copyright-year")?.textContent ??
+        "{}",
+    );
+
+    expect(data.copyrightYear).toBe(2024);
+  });
 });
 
 describe("OrganizationJsonLd", () => {
@@ -175,7 +199,7 @@ describe("OrganizationJsonLd", () => {
     const { container } = render(
       <OrganizationJsonLd
         settings={{
-          name: "Redshirt Sports",
+          siteBrand: "Redshirt Sports",
           siteDescription: "College sports coverage",
           logo: "https://redshirtsports.com/logo.png",
           contactEmail: "hello@redshirtsports.com",

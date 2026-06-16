@@ -89,7 +89,9 @@ export function ArticleJsonLd({ article }: { article: any }) {
     thumbnailUrl: imageUrl,
     url: articleUrl,
     inLanguage: "en-US",
-    copyrightYear: 2025,
+    copyrightYear: article.publishedAt
+      ? new Date(article.publishedAt).getFullYear()
+      : new Date().getFullYear(),
     copyrightHolder: { "@id": organizationId },
     potentialAction: [
       {
@@ -116,7 +118,7 @@ export function OrganizationJsonLd({ settings }: { settings: any }) {
   const organizationJsonLd: WithContext<Organization> = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: settings.name || "Redshirt Sports",
+    name: settings.siteBrand || "Redshirt Sports",
     description: settings.siteDescription || undefined,
     url: baseUrl,
     logo: settings.logo

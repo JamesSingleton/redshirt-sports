@@ -14,8 +14,8 @@ import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
 const baseUrl = getBaseUrl();
@@ -50,7 +50,7 @@ export async function generateMetadata({
     canonical = `${baseCanonical}?page=${pageNumber}`;
   }
 
-  return getSEOMetadata({
+  return getPageMetadata({
     title,
     description,
     slug: canonical,

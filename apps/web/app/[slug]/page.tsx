@@ -33,20 +33,10 @@ import CustomImage from "@/components/sanity-image";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
-import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 
 const baseUrl = getBaseUrl();
-
-const STORY_TYPE_LABELS: Record<string, string> = {
-  news: "News",
-  recruiting: "Recruiting",
-  transfer: "Transfer Portal",
-  analysis: "Analysis",
-  opinion: "Opinion",
-  "game-recap": "Game Recap",
-};
 
 export async function generateStaticParams() {
   const { data } = await sanityFetchStaticParams({
@@ -71,31 +61,32 @@ export async function generateMetadata({
   })) as { data: QueryPostSlugDataResult | null };
 
   if (!data) {
-    return {};
+    notFound();
   }
 
   const plainText = toPlainText(data.body);
   const wordCount = plainText.split(/\s+/).filter(Boolean).length;
 
-  const settings = await fetchGlobalSeoSettings(perspective);
-
-  return getSEOMetadata({
-    ogType: "article",
-    seoTitle: data.seoTitle ?? undefined,
-    seoDescription: data.seoDescription ?? undefined,
-    ogTitle: data.ogTitle ?? undefined,
-    ogDescription: data.ogDescription ?? undefined,
-    seoImage: data.seoImage ?? undefined,
-    image: data.mainImage ?? undefined,
-    authors: data.authors,
-    title: data.title,
-    description: data.excerpt ?? undefined,
-    slug: data.slug ?? undefined,
-    readingTime: Math.ceil(wordCount / WORDS_PER_MINUTE),
-    articleSection: data.storyType,
-    defaultOpenGraphImage: settings?.defaultOpenGraphImage ?? undefined,
-    siteBrand: settings?.siteBrand ?? undefined,
-  });
+  return getPageMetadata(
+    {
+      ogType: "article",
+      seoTitle: data.seoTitle ?? undefined,
+      seoDescription: data.seoDescription ?? undefined,
+      ogTitle: data.ogTitle ?? undefined,
+      ogDescription: data.ogDescription ?? undefined,
+      seoImage: data.seoImage ?? undefined,
+      image: data.mainImage ?? undefined,
+      authors: data.authors,
+      title: data.title,
+      description: data.excerpt ?? undefined,
+      slug: data.slug ?? undefined,
+      readingTime: Math.ceil(wordCount / WORDS_PER_MINUTE),
+      articleSection: data.storyType,
+      publishedTime: data.publishedAt ?? undefined,
+      modifiedTime: data._updatedAt ?? undefined,
+    },
+    perspective,
+  );
 }
 
 export default async function PostPage({

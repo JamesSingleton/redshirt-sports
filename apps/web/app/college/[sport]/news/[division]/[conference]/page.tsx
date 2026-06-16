@@ -20,8 +20,8 @@ import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
 export async function generateMetadata({
@@ -59,7 +59,7 @@ export async function generateMetadata({
     !sportTitle.data?.title ||
     !divisionDisplayName?.data
   ) {
-    return {};
+    notFound();
   }
 
   const conferenceName =
@@ -78,11 +78,14 @@ export async function generateMetadata({
     canonical = `/college/${sport}/news/${division}/${conference}?page=${pageIndex}`;
   }
 
-  return getSEOMetadata({
-    title: finalTitle,
-    description: finalDescription,
-    slug: canonical,
-  });
+  return getPageMetadata(
+    {
+      title: finalTitle,
+      description: finalDescription,
+      slug: canonical,
+    },
+    perspective,
+  );
 }
 
 export default function Page({

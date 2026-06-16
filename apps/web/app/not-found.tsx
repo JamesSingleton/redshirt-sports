@@ -1,5 +1,13 @@
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
+import type { Metadata } from "next";
 import Link from "next/link";
+
+import { noIndexRobots } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: "Page Not Found",
+  robots: noIndexRobots,
+};
 
 export default function NotFound() {
   return (

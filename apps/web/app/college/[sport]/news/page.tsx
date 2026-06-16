@@ -15,8 +15,8 @@ import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
 export async function generateMetadata({
@@ -38,7 +38,7 @@ export async function generateMetadata({
   });
 
   if (!sportData?.title) {
-    return {};
+    notFound();
   }
 
   const sportTitle = sportData.title;
@@ -55,11 +55,14 @@ export async function generateMetadata({
     description = `Find comprehensive college ${sportTitle} news, detailed game results, expert analysis, and valuable insights. Your trusted source for NCAA ${sportTitle} information.`;
   }
 
-  return getSEOMetadata({
-    title,
-    description,
-    slug: canonicalUrl,
-  });
+  return getPageMetadata(
+    {
+      title,
+      description,
+      slug: canonicalUrl,
+    },
+    perspective,
+  );
 }
 
 export default function Page({

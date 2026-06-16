@@ -1,12 +1,27 @@
 import type { Metadata } from "next";
 
-import { getSEOMetadata } from "@/lib/seo";
+import {
+  DEFAULT_META_TITLE,
+  getRootMetadata,
+  getSEOMetadata,
+  OG_COUNTRY_NAME,
+  OG_LOCALE,
+  SITE_BRAND,
+} from "@/lib/seo";
 
 type TestOpenGraph = {
   type?: string;
   section?: string;
   authors?: string[];
   images?: Array<{ url?: string | URL; alt?: string }>;
+  locale?: string;
+  countryName?: string;
+  siteName?: string;
+  url?: string | URL;
+  title?: string;
+  description?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
 };
 
 function getOpenGraph(metadata: Metadata): TestOpenGraph {
@@ -30,16 +45,36 @@ vi.mock("@redshirt-sports/sanity/client", () => ({
   }),
 }));
 
+describe("getRootMetadata", () => {
+  it("exports site-wide Open Graph defaults", () => {
+    const metadata = getRootMetadata();
+    const openGraph = getOpenGraph(metadata);
+
+    expect(metadata.metadataBase?.toString()).toBe(
+      "https://redshirtsports.com/",
+    );
+    expect(metadata.title).toEqual({
+      default: DEFAULT_META_TITLE,
+      template: `%s | ${SITE_BRAND}`,
+    });
+    expect(openGraph.type).toBe("website");
+    expect(openGraph.siteName).toBe(SITE_BRAND);
+    expect(openGraph.locale).toBe(OG_LOCALE);
+    expect(openGraph.countryName).toBe(OG_COUNTRY_NAME);
+    expect(openGraph.url).toBe("https://redshirtsports.com");
+    expect(openGraph.title).toBe(DEFAULT_META_TITLE);
+    expect(openGraph.description).toContain("Redshirt Sports");
+  });
+});
+
 describe("getSEOMetadata", () => {
   it("returns default title and description when no data is provided", () => {
     const metadata = getSEOMetadata(null as never);
 
-    expect(metadata.title).toBe(
-      "College Sports News & Analysis at All Levels | Redshirt Sports",
-    );
+    expect(metadata.title).toBe(DEFAULT_META_TITLE);
     expect(metadata.description).toContain("Redshirt Sports");
-    expect(metadata.metadataBase?.toString()).toBe(
-      "https://redshirtsports.com/",
+    expect(getOpenGraph(metadata).title).toBe(
+      `${DEFAULT_META_TITLE} | ${SITE_BRAND}`,
     );
   });
 
@@ -50,8 +85,21 @@ describe("getSEOMetadata", () => {
       title: "Page Title",
     });
 
-    expect(metadata.title).toBe("SEO Title | Redshirt Sports");
-    expect(metadata.openGraph?.title).toBe("SEO Title");
+    expect(metadata.title).toBe("SEO Title");
+    expect(getOpenGraph(metadata).title).toBe(`SEO Title | ${SITE_BRAND}`);
+  });
+
+  it("includes required Open Graph fields", () => {
+    const metadata = getSEOMetadata({ slug: "about" });
+    const openGraph = getOpenGraph(metadata);
+
+    expect(openGraph.type).toBe("website");
+    expect(openGraph.siteName).toBe(SITE_BRAND);
+    expect(openGraph.locale).toBe(OG_LOCALE);
+    expect(openGraph.countryName).toBe(OG_COUNTRY_NAME);
+    expect(openGraph.url).toBe("https://redshirtsports.com/about");
+    expect(openGraph.title).toBeTruthy();
+    expect(openGraph.description).toBeTruthy();
   });
 
   it("builds canonical URL from slug", () => {
@@ -80,13 +128,41 @@ describe("getSEOMetadata", () => {
     expect(metadata.twitter?.creator).toBe("@janedoe");
   });
 
-  it("includes reading time in twitter metadata when provided", () => {
-    const metadata = getSEOMetadata({ readingTime: 5 });
+  it("includes article twitter labels for author and reading time", () => {
+    const metadata = getSEOMetadata({
+      ogType: "article",
+      authors: [{ name: "Jane Doe" }],
+      readingTime: 5,
+    });
 
     expect(metadata.other).toEqual({
-      "twitter:label1": "Reading time",
-      "twitter:data1": "5 minutes",
+      "og:article:author": "Jane Doe",
+      "twitter:label1": "Written by",
+      "twitter:data1": "Jane Doe",
+      "twitter:label2": "Est. reading time",
+      "twitter:data2": "5 minutes",
     });
+  });
+
+  it("includes all article authors in og:article:author", () => {
+    const metadata = getSEOMetadata({
+      ogType: "article",
+      authors: [{ name: "Jane Doe" }, { name: "John Smith" }],
+    });
+
+    expect(metadata.other?.["og:article:author"]).toEqual([
+      "Jane Doe",
+      "John Smith",
+    ]);
+  });
+
+  it("does not include article twitter labels for non-article pages", () => {
+    const metadata = getSEOMetadata({
+      readingTime: 5,
+      authors: [{ name: "Jane Doe" }],
+    });
+
+    expect(metadata.other).toBeUndefined();
   });
 
   it("sets article open graph type and section when provided", () => {
@@ -94,12 +170,29 @@ describe("getSEOMetadata", () => {
       ogType: "article",
       articleSection: "College Football",
       authors: [{ name: "Jane Doe" }],
+      publishedTime: "2024-01-01T00:00:00.000Z",
+      modifiedTime: "2024-01-02T00:00:00.000Z",
     });
 
     const openGraph = getOpenGraph(metadata);
     expect(openGraph.type).toBe("article");
     expect(openGraph.section).toBe("College Football");
     expect(openGraph.authors).toEqual(["Jane Doe"]);
+    expect(openGraph.publishedTime).toBe("2024-01-01T00:00:00.000Z");
+    expect(openGraph.modifiedTime).toBe("2024-01-02T00:00:00.000Z");
+  });
+
+  it("sets noindex robots when requested", () => {
+    const metadata = getSEOMetadata({ noIndex: true });
+
+    expect(metadata.robots).toEqual({
+      index: false,
+      follow: false,
+      googleBot: {
+        index: false,
+        follow: false,
+      },
+    });
   });
 
   it("resolves open graph images from Sanity assets", () => {

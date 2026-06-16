@@ -12,10 +12,10 @@ import { ContactEmailLink } from "@/components/contact-email-link";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
 import { getBaseUrl } from "@/lib/get-base-url";
-import { getSEOMetadata } from "@/lib/seo";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return getSEOMetadata({
+  return getPageMetadata({
     title: "Contact Us",
     description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for collaboration, advertising, or general inquiries. We're here to assist with any questions about our college sports coverage.`,
     slug: "/contact",

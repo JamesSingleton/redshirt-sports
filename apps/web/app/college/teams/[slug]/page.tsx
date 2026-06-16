@@ -29,9 +29,11 @@ import {
 } from "@/components/teams/team-post-card";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
-import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
+import {
+  fetchGlobalSeoSettings,
+  getPageMetadata,
+} from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 
 function defaultTeamPageTitle({
   name,
@@ -68,33 +70,31 @@ export async function generateMetadata({
     params,
     getDynamicFetchOptions(),
   ]);
-  const [{ data: school }, settings] = await Promise.all([
-    sanityFetchMetadata({
-      query: schoolBySlugQuery,
-      params: { slug, minPosts: MIN_TEAM_PAGE_POSTS },
-      perspective,
-    }),
-    fetchGlobalSeoSettings(perspective),
-  ]);
+  const { data: school } = await sanityFetchMetadata({
+    query: schoolBySlugQuery,
+    params: { slug, minPosts: MIN_TEAM_PAGE_POSTS },
+    perspective,
+  });
 
   if (!school) {
     notFound();
   }
 
-  return getSEOMetadata({
-    title: school.seoTitle ?? defaultTeamPageTitle(school),
-    description:
-      school.seoDescription ??
-      school.overview ??
-      defaultTeamPageDescription(school.name),
-    seoImage: school.seoImage ?? undefined,
-    image: school.image ?? undefined,
-    slug: `/college/teams/${slug}`,
-    ogTitle: school.ogTitle ?? undefined,
-    ogDescription: school.ogDescription ?? undefined,
-    defaultOpenGraphImage: settings?.defaultOpenGraphImage ?? undefined,
-    siteBrand: settings?.siteBrand ?? undefined,
-  });
+  return getPageMetadata(
+    {
+      title: school.seoTitle ?? defaultTeamPageTitle(school),
+      description:
+        school.seoDescription ??
+        school.overview ??
+        defaultTeamPageDescription(school.name),
+      seoImage: school.seoImage ?? undefined,
+      image: school.image ?? undefined,
+      slug: `/college/teams/${slug}`,
+      ogTitle: school.ogTitle ?? undefined,
+      ogDescription: school.ogDescription ?? undefined,
+    },
+    perspective,
+  );
 }
 
 export default async function SchoolTeamPage({

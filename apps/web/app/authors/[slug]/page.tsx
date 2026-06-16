@@ -22,8 +22,8 @@ import CustomImage from "@/components/sanity-image";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
 export async function generateMetadata({
@@ -44,7 +44,7 @@ export async function generateMetadata({
   });
 
   if (!author) {
-    return {};
+    notFound();
   }
 
   const roles = author.roles.join(", ");
@@ -62,13 +62,16 @@ export async function generateMetadata({
     }
   }
 
-  return getSEOMetadata({
-    title: title,
-    description: description,
-    slug: canonical,
-    image: author.image,
-    ogType: "profile",
-  });
+  return getPageMetadata(
+    {
+      title: title,
+      description: description,
+      slug: canonical,
+      image: author.image,
+      ogType: "profile",
+    },
+    perspective,
+  );
 }
 
 export default function Page({

@@ -1,4 +1,7 @@
-import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import {
   queryHomePageData,
   queryLatestArticles,
@@ -17,8 +20,11 @@ import Hero from "@/components/home/hero";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import {
+  fetchGlobalSeoSettings,
+  getPageMetadata,
+} from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 
 const divisions = [
   {
@@ -54,7 +60,17 @@ const divisions = [
 const baseUrl = getBaseUrl();
 
 export async function generateMetadata(): Promise<Metadata> {
-  return getSEOMetadata();
+  const { perspective } = await getDynamicFetchOptions();
+  const settings = await fetchGlobalSeoSettings(perspective);
+
+  return getPageMetadata(
+    {
+      title: settings?.siteTitle,
+      description: settings?.siteDescription,
+      slug: "/",
+    },
+    perspective,
+  );
 }
 
 export default async function HomePage() {

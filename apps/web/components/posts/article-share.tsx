@@ -12,7 +12,7 @@ import { LinkIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Facebook, Twitter } from "@/components/icons";
-import { HOME_DOMAIN } from "@/lib/constants";
+import { getBaseUrl } from "@/lib/get-base-url";
 
 const shareArticle = ({
   platform,
@@ -76,7 +76,7 @@ export const LargeArticleSocialShare = ({
   title: string;
 }) => {
   const [copied, setCopied] = useState(false);
-  const articleUrl = `${HOME_DOMAIN}/${slug}`;
+  const articleUrl = `${getBaseUrl()}/${slug}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(articleUrl).then(() => {
@@ -121,7 +121,7 @@ export const SmallArticleSocialShare = ({
   title: string;
 }) => {
   const [copied, setCopied] = useState(false);
-  const articleUrl = `${HOME_DOMAIN}/${slug}`;
+  const articleUrl = `${getBaseUrl()}/${slug}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(articleUrl).then(() => {
