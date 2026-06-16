@@ -247,6 +247,10 @@ export const queryPostSlugData = defineQuery(/* groq */ `
     ${postAuthorFragment},
     ${postImageFragment},
     ${richTextFragment},
+    tags[]->{
+      _id,
+      name
+    },
     teams[]->{
       _id,
       name,

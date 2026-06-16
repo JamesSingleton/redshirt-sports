@@ -80,10 +80,12 @@ export default async function HomePage() {
 async function renderHomePage({ perspective, stega }: DynamicFetchOptions) {
   "use cache";
 
-  const [{ data: homePageData }, { data: latestArticles }] = await Promise.all([
-    sanityFetchPage({ query: queryHomePageData, perspective, stega }),
-    sanityFetchPage({ query: queryLatestArticles, perspective, stega }),
-  ]);
+  const [{ data: homePageData }, { data: latestArticles }, settings] =
+    await Promise.all([
+      sanityFetchPage({ query: queryHomePageData, perspective, stega }),
+      sanityFetchPage({ query: queryLatestArticles, perspective, stega }),
+      fetchGlobalSeoSettings(perspective),
+    ]);
 
   const articleIds = [...homePageData, ...latestArticles].map(
     (article) => article._id,
@@ -112,6 +114,8 @@ async function renderHomePage({ perspective, stega }: DynamicFetchOptions) {
     "@type": "WebPage",
     "@id": baseUrl,
     url: baseUrl,
+    name: settings?.siteTitle ?? process.env.NEXT_PUBLIC_APP_NAME,
+    description: settings?.siteDescription ?? undefined,
     isPartOf: {
       "@type": "WebSite",
       "@id": websiteId,

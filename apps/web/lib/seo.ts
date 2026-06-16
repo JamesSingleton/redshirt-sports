@@ -53,6 +53,7 @@ export interface PageMetadataInput {
   siteBrand?: string;
   readingTime?: number;
   articleSection?: string;
+  articleTags?: string[];
   publishedTime?: string;
   modifiedTime?: string;
   noIndex?: boolean;
@@ -160,6 +161,7 @@ export function getSEOMetadata(data: PageMetadataInput = {}): Metadata {
     siteBrand,
     readingTime,
     articleSection,
+    articleTags,
     publishedTime,
     modifiedTime,
     noIndex,
@@ -257,6 +259,18 @@ export function getSEOMetadata(data: PageMetadataInput = {}): Metadata {
         if (readingTime !== undefined && readingTime !== null) {
           articleOtherMeta["twitter:label2"] = "Est. reading time";
           articleOtherMeta["twitter:data2"] = `${readingTime} minutes`;
+        }
+
+        if (articleSection) {
+          articleOtherMeta["og:article:section"] = articleSection;
+        }
+
+        if (articleTags && articleTags.length > 0) {
+          const firstArticleTag = articleTags[0];
+          if (firstArticleTag) {
+            articleOtherMeta["og:article:tag"] =
+              articleTags.length === 1 ? firstArticleTag : articleTags;
+          }
         }
 
         return Object.keys(articleOtherMeta).length > 0

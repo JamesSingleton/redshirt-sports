@@ -144,7 +144,7 @@ async function cachedRenderAuthorPage({
         "@id": `${baseUrl}/authors/${slug}#profile`,
         url: `${baseUrl}/authors/${slug}`,
         name: author.name,
-        description: author.biography,
+        description: author.biography || undefined,
         breadcrumb: {
           "@type": "BreadcrumbList",
           name: `${author.name} breadcrumbs`,
@@ -187,6 +187,7 @@ async function cachedRenderAuthorPage({
         "@id": `${baseUrl}/authors/${slug}#person`,
         name: author.name,
         url: `${baseUrl}/authors/${slug}`,
+        description: author.biography || undefined,
         image: {
           "@type": "ImageObject",
           "@id": `${baseUrl}/authors/${slug}#image`,
@@ -198,7 +199,8 @@ async function cachedRenderAuthorPage({
           inLanguage: "en-US",
         },
         jobTitle: author.roles.join(", "),
-        sameAs: [...Object.values(author?.socialLinks || {})],
+        knowsAbout: author.roles,
+        sameAs: [...Object.values(author?.socialLinks || {})].filter(Boolean),
         worksFor: {
           "@type": "Organization",
           "@id": organizationId,

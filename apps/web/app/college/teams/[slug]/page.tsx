@@ -20,6 +20,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { TeamPageJsonLd } from "@/components/json-ld";
 import CustomImage from "@/components/sanity-image";
 import { TeamConnectWidget } from "@/components/teams/team-connect-widget";
 import { TeamFeedList } from "@/components/teams/team-feed-list";
@@ -28,7 +29,6 @@ import {
   TeamNewsItem,
 } from "@/components/teams/team-post-card";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
-import { getBaseUrl } from "@/lib/get-base-url";
 import {
   fetchGlobalSeoSettings,
   getPageMetadata,
@@ -143,8 +143,6 @@ async function renderSchoolTeamPage(
   const sportsPosts = posts.slice(3, 8);
 
   const teamShortName = school.shortName ?? school.name ?? "Team";
-  const baseUrl = getBaseUrl();
-  const teamUrl = `${baseUrl}/college/teams/${slug}`;
 
   const sportsFooterLinks = [
     { label: "View All Football", href: "/college/football/news" },
@@ -153,6 +151,7 @@ async function renderSchoolTeamPage(
 
   return (
     <div className="min-h-screen bg-background">
+      <TeamPageJsonLd school={school} />
       <TeamNavBar
         teamName={school.shortName ?? school.name ?? "Team"}
         schoolImage={school.image}
@@ -214,21 +213,6 @@ async function renderSchoolTeamPage(
           {/* <CommitmentsWidget teamShortName={teamShortName} /> */}
         </aside>
       </div>
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "SportsTeam",
-            name: school.name,
-            url: teamUrl,
-            sport: school.conferenceAffiliations
-              ?.map((a) => a.sport?.title)
-              .filter(Boolean),
-          }),
-        }}
-      />
     </div>
   );
 }

@@ -1,3 +1,18 @@
+import {
+  buildPostPageJsonLd,
+  buildSafeImageUrl,
+  buildTeamPageJsonLd,
+  CachedCombinedJsonLd,
+  DynamicCombinedJsonLd,
+  JsonLdScript,
+  OrganizationJsonLd,
+  organizationId,
+  PostPageJsonLd,
+  TeamPageJsonLd,
+  WebSiteJsonLd,
+  websiteId,
+} from "@/components/json-ld";
+
 const { mockGetDynamicFetchOptions, mockSanityFetchPage } = vi.hoisted(() => ({
   mockGetDynamicFetchOptions: vi.fn(),
   mockSanityFetchPage: vi.fn(),
@@ -39,16 +54,18 @@ vi.mock("@redshirt-sports/sanity/client", () => ({
 
 import { render } from "@testing-library/react";
 
-import {
-  ArticleJsonLd,
-  buildSafeImageUrl,
-  CachedCombinedJsonLd,
-  DynamicCombinedJsonLd,
-  JsonLdScript,
-  OrganizationJsonLd,
-  WebPageJsonLd,
-  WebSiteJsonLd,
-} from "@/components/json-ld";
+const sampleArticle = {
+  slug: "test-article",
+  title: "Test Article",
+  excerpt: "Excerpt",
+  publishedAt: "2026-01-01T00:00:00Z",
+  _updatedAt: "2026-01-02T00:00:00Z",
+  body: [],
+  authors: [{ name: "Jane Doe", slug: "jane-doe" }],
+  sport: { slug: "football", title: "Football" },
+  tags: [{ name: "Recruiting" }],
+  mainImage: { alt: "Hero", asset: { _ref: "image-123" } },
+};
 
 describe("JsonLdScript", () => {
   it("renders structured data as a JSON-LD script tag", () => {
@@ -81,98 +98,115 @@ describe("buildSafeImageUrl", () => {
   });
 });
 
-describe("ArticleJsonLd", () => {
+describe("buildPostPageJsonLd", () => {
+  it("builds a linked article graph with sport section and tags", () => {
+    const data = buildPostPageJsonLd(sampleArticle, {
+      siteBrand: "Redshirt Sports",
+      logo: "https://redshirtsports.com/logo.png",
+    });
+
+    const article = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "NewsArticle",
+    ) as Record<string, unknown> | undefined;
+    const webPage = data?.["@graph"]?.find(
+      (node) =>
+        typeof node === "object" &&
+        node?.["@type"] === "WebPage" &&
+        node?.["@id"] === "https://redshirtsports.com/test-article",
+    ) as Record<string, unknown> | undefined;
+
+    expect(article?.headline).toBe("Test Article");
+    expect(article?.articleSection).toBe("College Football");
+    expect(article?.keywords).toBe("Recruiting");
+    expect(article?.isPartOf).toEqual({ "@id": websiteId });
+    expect(article?.publisher).toMatchObject({
+      "@id": organizationId,
+      name: "Redshirt Sports",
+    });
+    expect(webPage?.speakable).toEqual({
+      "@type": "SpeakableSpecification",
+      cssSelector: ["#article-title", "#article-excerpt"],
+    });
+  });
+
+  it("omits image fields when the main image is missing", () => {
+    const data = buildPostPageJsonLd({
+      ...sampleArticle,
+      mainImage: { alt: "Hero" },
+    });
+    const article = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "NewsArticle",
+    ) as Record<string, unknown> | undefined;
+
+    expect(article?.image).toBeUndefined();
+    expect(article?.thumbnailUrl).toBeUndefined();
+  });
+});
+
+describe("PostPageJsonLd", () => {
   it("returns null when article is missing", () => {
-    const { container } = render(<ArticleJsonLd article={null} />);
+    const { container } = render(<PostPageJsonLd article={null} />);
     expect(container.firstChild).toBeNull();
   });
 
-  it("renders article structured data", () => {
-    const { container } = render(
-      <ArticleJsonLd
-        article={{
-          slug: "test-article",
-          title: "Test Article",
-          excerpt: "Excerpt",
-          publishedAt: "2026-01-01T00:00:00Z",
-          _updatedAt: "2026-01-02T00:00:00Z",
-          body: [],
-          authors: [{ name: "Jane Doe", slug: "jane-doe" }],
-          mainImage: { alt: "Hero", asset: { _ref: "image-123" } },
-        }}
-      />,
-    );
+  it("renders article structured data as a graph", () => {
+    const { container } = render(<PostPageJsonLd article={sampleArticle} />);
 
     const script = container.querySelector("#article-json-ld-test-article");
     const data = JSON.parse(script?.textContent ?? "{}");
 
-    expect(data["@type"]).toBe("NewsArticle");
-    expect(data.headline).toBe("Test Article");
-    expect(data.wordCount).toBe(4);
-    expect(data.author[0].url).toBe(
-      "https://redshirtsports.com/authors/jane-doe",
-    );
+    expect(data["@graph"]).toBeDefined();
+    expect(
+      data["@graph"].some(
+        (node: { ["@type"]?: string }) => node["@type"] === "NewsArticle",
+      ),
+    ).toBe(true);
   });
+});
 
-  it("renders with an empty authors list when authors are missing", () => {
+describe("buildTeamPageJsonLd", () => {
+  it("builds team, webpage, and breadcrumb nodes", () => {
+    const data = buildTeamPageJsonLd({
+      slug: "alabama",
+      name: "University of Alabama",
+      shortName: "Alabama",
+      nickname: "Crimson Tide",
+      websiteUrl: "https://rolltide.com",
+      socialLinks: { twitter: "https://x.com/rolltide" },
+      image: { alt: "Logo", asset: { _ref: "image-123" } },
+      conferenceAffiliations: [
+        {
+          sport: { title: "Football" },
+          conference: { shortName: "SEC" },
+        },
+      ],
+    });
+
+    const team = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "SportsTeam",
+    ) as Record<string, unknown> | undefined;
+
+    expect(team?.name).toBe("Alabama Crimson Tide");
+    expect(team?.sport).toBe("Football");
+    expect(team?.sameAs).toEqual([
+      "https://rolltide.com",
+      "https://x.com/rolltide",
+    ]);
+  });
+});
+
+describe("TeamPageJsonLd", () => {
+  it("renders team structured data", () => {
     const { container } = render(
-      <ArticleJsonLd
-        article={{
-          slug: "no-authors",
-          title: "Test Article",
-          body: [],
-          mainImage: { alt: "Hero" },
+      <TeamPageJsonLd
+        school={{
+          slug: "alabama",
+          name: "University of Alabama",
         }}
       />,
     );
 
-    const script = container.querySelector("#article-json-ld-no-authors");
-    const data = JSON.parse(script?.textContent ?? "{}");
-
-    expect(data.author).toEqual([]);
-  });
-
-  it("omits author URLs when slug is missing", () => {
-    const { container } = render(
-      <ArticleJsonLd
-        article={{
-          slug: "no-author-slug",
-          title: "Test Article",
-          body: [],
-          authors: [{ name: "Jane Doe" }],
-          mainImage: { alt: "Hero" },
-        }}
-      />,
-    );
-
-    const script = container.querySelector("#article-json-ld-no-author-slug");
-    const data = JSON.parse(script?.textContent ?? "{}");
-
-    expect(data.author[0].url).toBeUndefined();
-  });
-
-  it("uses dynamic copyright year from publishedAt", () => {
-    const { container } = render(
-      <ArticleJsonLd
-        article={{
-          slug: "copyright-year",
-          title: "Test Article",
-          publishedAt: "2024-03-15T00:00:00Z",
-          _updatedAt: "2024-03-16T00:00:00Z",
-          excerpt: "Excerpt",
-          body: [],
-          authors: [{ name: "Jane Doe", slug: "jane-doe" }],
-          mainImage: { alt: "Hero", asset: { _ref: "image-123" } },
-        }}
-      />,
-    );
-
-    const data = JSON.parse(
-      container.querySelector("#article-json-ld-copyright-year")?.textContent ??
-        "{}",
-    );
-
-    expect(data.copyrightYear).toBe(2024);
+    expect(container.querySelector("#team-json-ld-alabama")).toBeTruthy();
   });
 });
 
@@ -188,6 +222,7 @@ describe("OrganizationJsonLd", () => {
       container.querySelector("#organization-json-ld")?.textContent ?? "{}",
     );
 
+    expect(data["@id"]).toBe(organizationId);
     expect(data.name).toBe("Redshirt Sports");
     expect(data.description).toBeUndefined();
     expect(data.logo).toBeUndefined();
@@ -214,6 +249,7 @@ describe("OrganizationJsonLd", () => {
     const script = container.querySelector("#organization-json-ld");
     const data = JSON.parse(script?.textContent ?? "{}");
 
+    expect(data["@id"]).toBe(organizationId);
     expect(data.name).toBe("Redshirt Sports");
     expect(data.logo.url).toBe("https://redshirtsports.com/logo.png");
     expect(data.contactPoint.email).toBe("hello@redshirtsports.com");
@@ -255,16 +291,6 @@ describe("WebSiteJsonLd", () => {
     expect(data["@type"]).toBe("WebSite");
     expect(data.name).toBe("Redshirt Sports");
     expect(data.potentialAction[0].target.urlTemplate).toContain("/search?q=");
-  });
-});
-
-describe("WebPageJsonLd", () => {
-  it("renders a basic webpage schema", () => {
-    const { container } = render(<WebPageJsonLd />);
-    const script = container.querySelector("#webpage-json-ld");
-    const data = JSON.parse(script?.textContent ?? "{}");
-
-    expect(data["@type"]).toBe("WebPage");
   });
 });
 

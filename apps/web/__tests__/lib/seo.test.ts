@@ -169,6 +169,7 @@ describe("getSEOMetadata", () => {
     const metadata = getSEOMetadata({
       ogType: "article",
       articleSection: "College Football",
+      articleTags: ["Recruiting", "SEC"],
       authors: [{ name: "Jane Doe" }],
       publishedTime: "2024-01-01T00:00:00.000Z",
       modifiedTime: "2024-01-02T00:00:00.000Z",
@@ -180,6 +181,8 @@ describe("getSEOMetadata", () => {
     expect(openGraph.authors).toEqual(["Jane Doe"]);
     expect(openGraph.publishedTime).toBe("2024-01-01T00:00:00.000Z");
     expect(openGraph.modifiedTime).toBe("2024-01-02T00:00:00.000Z");
+    expect(metadata.other?.["og:article:section"]).toBe("College Football");
+    expect(metadata.other?.["og:article:tag"]).toEqual(["Recruiting", "SEC"]);
   });
 
   it("sets noindex robots when requested", () => {
