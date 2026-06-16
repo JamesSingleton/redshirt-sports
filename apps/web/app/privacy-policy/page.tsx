@@ -9,11 +9,11 @@ import PageHeader from "@/components/page-header";
 import { RichText } from "@/components/rich-text";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return getSEOMetadata({
+  return getPageMetadata({
     title: "Privacy Policy",
     description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
     slug: "/privacy-policy",

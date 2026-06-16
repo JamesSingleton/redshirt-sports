@@ -27,6 +27,7 @@ import {
   NavbarSkeleton,
 } from "@/components/navbar";
 import { Providers } from "@/components/providers";
+import { getRootMetadata } from "@/lib/seo";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -41,6 +42,8 @@ const fontMono = Geist_Mono({
 export const viewport: Viewport = {
   themeColor: "#E80022",
 };
+
+export const metadata = getRootMetadata();
 
 export default async function RootLayout({
   children,

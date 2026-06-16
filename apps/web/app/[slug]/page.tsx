@@ -15,38 +15,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { toPlainText } from "next-sanity";
-import type { WebPage, WithContext } from "schema-dts";
 
 import ArticleCard from "@/components/article-card";
 import ArticleLoadingSkeleton from "@/components/article-loading-skeleton";
 import FormatDate from "@/components/format-date";
-import {
-  ArticleJsonLd,
-  buildSafeImageUrl,
-  JsonLdScript,
-  websiteId,
-} from "@/components/json-ld";
+import { buildSafeImageUrl, PostPageJsonLd } from "@/components/json-ld";
 import { LargeArticleSocialShare } from "@/components/posts/article-share";
 import { AuthorSection, MobileAuthorSection } from "@/components/posts/author";
 import { RichText } from "@/components/rich-text";
 import CustomImage from "@/components/sanity-image";
+import { getArticleTagNames } from "@/lib/article-seo";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
-import { getBaseUrl } from "@/lib/get-base-url";
-import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
+import {
+  fetchGlobalSeoSettings,
+  getPageMetadata,
+} from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
-
-const baseUrl = getBaseUrl();
-
-const STORY_TYPE_LABELS: Record<string, string> = {
-  news: "News",
-  recruiting: "Recruiting",
-  transfer: "Transfer Portal",
-  analysis: "Analysis",
-  opinion: "Opinion",
-  "game-recap": "Game Recap",
-};
+import { getCollegeSportSection } from "@/lib/sport-section";
 
 export async function generateStaticParams() {
   const { data } = await sanityFetchStaticParams({
@@ -71,31 +57,34 @@ export async function generateMetadata({
   })) as { data: QueryPostSlugDataResult | null };
 
   if (!data) {
-    return {};
+    notFound();
   }
 
   const plainText = toPlainText(data.body);
   const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+  const articleTags = getArticleTagNames(data.tags);
 
-  const settings = await fetchGlobalSeoSettings(perspective);
-
-  return getSEOMetadata({
-    ogType: "article",
-    seoTitle: data.seoTitle ?? undefined,
-    seoDescription: data.seoDescription ?? undefined,
-    ogTitle: data.ogTitle ?? undefined,
-    ogDescription: data.ogDescription ?? undefined,
-    seoImage: data.seoImage ?? undefined,
-    image: data.mainImage ?? undefined,
-    authors: data.authors,
-    title: data.title,
-    description: data.excerpt ?? undefined,
-    slug: data.slug ?? undefined,
-    readingTime: Math.ceil(wordCount / WORDS_PER_MINUTE),
-    articleSection: data.storyType,
-    defaultOpenGraphImage: settings?.defaultOpenGraphImage ?? undefined,
-    siteBrand: settings?.siteBrand ?? undefined,
-  });
+  return getPageMetadata(
+    {
+      ogType: "article",
+      seoTitle: data.seoTitle ?? undefined,
+      seoDescription: data.seoDescription ?? undefined,
+      ogTitle: data.ogTitle ?? undefined,
+      ogDescription: data.ogDescription ?? undefined,
+      seoImage: data.seoImage ?? undefined,
+      image: data.mainImage ?? undefined,
+      authors: data.authors,
+      title: data.title,
+      description: data.excerpt ?? undefined,
+      slug: data.slug ?? undefined,
+      readingTime: Math.ceil(wordCount / WORDS_PER_MINUTE),
+      articleSection: getCollegeSportSection(data.sport),
+      articleTags,
+      publishedTime: data.publishedAt ?? undefined,
+      modifiedTime: data._updatedAt ?? undefined,
+    },
+    perspective,
+  );
 }
 
 export default async function PostPage({
@@ -115,75 +104,28 @@ async function renderPostPage(
   { perspective, stega }: DynamicFetchOptions,
 ) {
   "use cache";
-  const { data } = (await sanityFetchPage({
-    query: queryPostSlugData,
-    params: { slug },
-    perspective,
-    stega,
-  })) as { data: QueryPostSlugDataResult | null };
+  const [{ data }, settings] = await Promise.all([
+    sanityFetchPage({
+      query: queryPostSlugData,
+      params: { slug },
+      perspective,
+      stega,
+    }) as Promise<{ data: QueryPostSlugDataResult | null }>,
+    fetchGlobalSeoSettings(perspective),
+  ]);
 
   if (!data) {
     notFound();
   }
 
-  const articleUrl = `${baseUrl}/${data.slug}`;
-  const imageId = `${articleUrl}#primaryImage`;
-  const articleImageUrl = buildSafeImageUrl(data.mainImage);
-
-  const webPageJsonLd: WithContext<WebPage> = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "@id": articleUrl,
-    url: articleUrl,
-    name: `${data.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-    isPartOf: { "@id": websiteId },
-    primaryImageOfPage: {
-      "@type": "ImageObject",
-      "@id": imageId,
-      url: articleImageUrl,
-      contentUrl: articleImageUrl,
-      caption: data.mainImage.alt,
-      width: "1920",
-      height: "1080",
-    },
-    thumbnailUrl: articleImageUrl,
-    datePublished: data.publishedAt,
-    dateModified: data._updatedAt,
-    description: data.excerpt,
-    breadcrumb: {
-      "@type": "BreadcrumbList",
-      "@id": `${articleUrl}#breadcrumb`,
-      name: `${data.title} breadcrumbs`,
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: baseUrl,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: data.title,
-          item: articleUrl,
-        },
-      ],
-    },
-    inLanguage: "en-US",
-    potentialAction: [
-      {
-        "@type": "ReadAction",
-        target: [articleUrl],
-      },
-    ],
-  };
-
   return (
     <>
-      <ArticleJsonLd article={data} />
-      <JsonLdScript
-        data={webPageJsonLd}
-        id={`article-webpage-json-ld-${data.slug}`}
+      <PostPageJsonLd
+        article={data}
+        publisher={{
+          siteBrand: settings?.siteBrand,
+          logo: buildSafeImageUrl(settings?.logo),
+        }}
       />
       <section className="mt-8 pb-8">
         <div className="container">

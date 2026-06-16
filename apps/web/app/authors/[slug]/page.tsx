@@ -22,8 +22,8 @@ import CustomImage from "@/components/sanity-image";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
 export async function generateMetadata({
@@ -44,7 +44,7 @@ export async function generateMetadata({
   });
 
   if (!author) {
-    return {};
+    notFound();
   }
 
   const roles = author.roles.join(", ");
@@ -62,13 +62,16 @@ export async function generateMetadata({
     }
   }
 
-  return getSEOMetadata({
-    title: title,
-    description: description,
-    slug: canonical,
-    image: author.image,
-    ogType: "profile",
-  });
+  return getPageMetadata(
+    {
+      title: title,
+      description: description,
+      slug: canonical,
+      image: author.image,
+      ogType: "profile",
+    },
+    perspective,
+  );
 }
 
 export default function Page({
@@ -141,7 +144,7 @@ async function cachedRenderAuthorPage({
         "@id": `${baseUrl}/authors/${slug}#profile`,
         url: `${baseUrl}/authors/${slug}`,
         name: author.name,
-        description: author.biography,
+        description: author.biography || undefined,
         breadcrumb: {
           "@type": "BreadcrumbList",
           name: `${author.name} breadcrumbs`,
@@ -184,6 +187,7 @@ async function cachedRenderAuthorPage({
         "@id": `${baseUrl}/authors/${slug}#person`,
         name: author.name,
         url: `${baseUrl}/authors/${slug}`,
+        description: author.biography || undefined,
         image: {
           "@type": "ImageObject",
           "@id": `${baseUrl}/authors/${slug}#image`,
@@ -195,7 +199,8 @@ async function cachedRenderAuthorPage({
           inLanguage: "en-US",
         },
         jobTitle: author.roles.join(", "),
-        sameAs: [...Object.values(author?.socialLinks || {})],
+        knowsAbout: author.roles,
+        sameAs: [...Object.values(author?.socialLinks || {})].filter(Boolean),
         worksFor: {
           "@type": "Organization",
           "@id": organizationId,

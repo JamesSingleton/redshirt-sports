@@ -1,8 +1,10 @@
 import type { MetadataRoute } from "next";
 
-import { HOME_DOMAIN } from "@/lib/constants";
+import { getBaseUrl } from "@/lib/get-base-url";
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = getBaseUrl();
+
   return {
     rules: {
       userAgent: "*",
@@ -14,14 +16,16 @@ export default function robots(): MetadataRoute.Robots {
         "/vote/",
         "/sign-in/",
         "/sign-up/",
+        "/search/",
+        "/onboarding/",
       ],
     },
     sitemap: [
-      `${HOME_DOMAIN}/sitemap.xml`,
-      `${HOME_DOMAIN}/college/football/rankings/sitemap/0.xml`,
-      `${HOME_DOMAIN}/college/sitemap.xml`,
-      `${HOME_DOMAIN}/college/news/sitemap/0.xml`,
-      `${HOME_DOMAIN}/college/teams/sitemap.xml`,
+      `${baseUrl}/sitemap.xml`,
+      `${baseUrl}/college/football/rankings/sitemap/0.xml`,
+      `${baseUrl}/college/sitemap.xml`,
+      `${baseUrl}/college/news/sitemap/0.xml`,
+      `${baseUrl}/college/teams/sitemap.xml`,
     ],
   };
 }

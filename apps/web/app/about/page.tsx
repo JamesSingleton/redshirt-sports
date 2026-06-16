@@ -10,11 +10,11 @@ import PageHeader from "@/components/page-header";
 import CustomImage from "@/components/sanity-image";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return getSEOMetadata({
+  return getPageMetadata({
     title: "About Us",
     description: `Meet the team at ${process.env.NEXT_PUBLIC_APP_NAME}! We're dedicated to bringing you comprehensive coverage of college sports at every level, sharing our mission and expertise.`,
     slug: "/about",

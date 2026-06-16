@@ -78,12 +78,26 @@ vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "http://localhost",
 }));
 
-const { mockGetSEOMetadata } = vi.hoisted(() => ({
-  mockGetSEOMetadata: vi.fn(() => ({})),
+const { mockFetchGlobalSeoSettings, mockGetPageMetadata } = vi.hoisted(() => ({
+  mockFetchGlobalSeoSettings: vi.fn().mockResolvedValue({
+    siteTitle: "College Sports News",
+    siteDescription: "Default site description from CMS.",
+    siteBrand: "Redshirt Sports",
+    defaultOpenGraphImage: "https://cdn.sanity.io/default-og.jpg",
+  }),
+  mockGetPageMetadata: vi.fn(() => ({})),
 }));
 
-vi.mock("@/lib/seo", () => ({
-  getSEOMetadata: mockGetSEOMetadata,
+vi.mock("@/lib/global-seo-settings", () => ({
+  fetchGlobalSeoSettings: mockFetchGlobalSeoSettings,
+  getPageMetadata: mockGetPageMetadata,
+}));
+
+vi.mock("@redshirt-sports/sanity/live", () => ({
+  getDynamicFetchOptions: vi.fn().mockResolvedValue({
+    perspective: "published",
+    stega: false,
+  }),
 }));
 
 const mockFetch = mockSanityFetchPage as Mock;
@@ -93,10 +107,18 @@ beforeEach(() => {
 });
 
 describe("HomePage", () => {
-  it("generateMetadata delegates to getSEOMetadata", async () => {
+  it("generateMetadata passes homepage fields to getPageMetadata", async () => {
     await generateMetadata();
 
-    expect(mockGetSEOMetadata).toHaveBeenCalled();
+    expect(mockFetchGlobalSeoSettings).toHaveBeenCalledWith("published");
+    expect(mockGetPageMetadata).toHaveBeenCalledWith(
+      {
+        title: "College Sports News",
+        description: "Default site description from CMS.",
+        slug: "/",
+      },
+      "published",
+    );
   });
 
   it("renders the hero and four division sections when no articles exist", async () => {
@@ -122,9 +144,8 @@ describe("HomePage", () => {
     };
 
     mockFetch
-      .mockResolvedValueOnce({ data: [article] }) // homePageData
-      .mockResolvedValueOnce({ data: [article] }); // latestArticles
-    // remaining 4 division calls fall through to the beforeEach default
+      .mockResolvedValueOnce({ data: [article] })
+      .mockResolvedValueOnce({ data: [article] });
 
     const page = await HomePage();
     render(page);

@@ -19,8 +19,8 @@ import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { getSEOMetadata } from "@/lib/seo";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
 export async function generateMetadata({
@@ -52,10 +52,7 @@ export async function generateMetadata({
   const divisionName = divisionDisplayName.data?.displayName;
 
   if (!sportTitle || !divisionName) {
-    return {
-      title: `Sports News | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-      description: `Stay updated with the latest sports news and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
-    };
+    notFound();
   }
 
   const baseTitle = `${divisionName} ${sportTitle} News, Updates & Analysis`;
@@ -79,11 +76,14 @@ export async function generateMetadata({
     canonical = `${baseCanonical}?page=${pageIndex}`;
   }
 
-  return getSEOMetadata({
-    title,
-    description,
-    slug: canonical,
-  });
+  return getPageMetadata(
+    {
+      title,
+      description,
+      slug: canonical,
+    },
+    perspective,
+  );
 }
 
 export default function Page({

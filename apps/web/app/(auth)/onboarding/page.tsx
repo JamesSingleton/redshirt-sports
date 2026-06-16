@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import Onboarding from "@/components/forms/onboarding";
+import { noIndexRobots } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: "Onboarding",
+  robots: noIndexRobots,
+};
 
 export default async function OnboardingPage() {
   return (

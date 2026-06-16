@@ -3,7 +3,26 @@ import type { Metadata } from "next";
 
 import { getBaseUrl } from "./get-base-url";
 
-interface MetaDataInput {
+export const SITE_BRAND = "Redshirt Sports";
+export const DEFAULT_META_TITLE =
+  "College Sports News & Analysis at All Levels";
+export const DEFAULT_META_DESCRIPTION =
+  "Redshirt Sports is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.";
+export const OG_LOCALE = "en_US";
+export const OG_COUNTRY_NAME = "United States";
+
+const TWITTER_HANDLE = "@_redshirtsports";
+
+export const noIndexRobots: Metadata["robots"] = {
+  index: false,
+  follow: false,
+  googleBot: {
+    index: false,
+    follow: false,
+  },
+};
+
+export interface PageMetadataInput {
   _type?: string;
   _id?: string;
   seoTitle?: string;
@@ -34,6 +53,10 @@ interface MetaDataInput {
   siteBrand?: string;
   readingTime?: number;
   articleSection?: string;
+  articleTags?: string[];
+  publishedTime?: string;
+  modifiedTime?: string;
+  noIndex?: boolean;
 }
 
 function buildPageUrl({ baseUrl, slug }: { baseUrl: string; slug: string }) {
@@ -41,7 +64,9 @@ function buildPageUrl({ baseUrl, slug }: { baseUrl: string; slug: string }) {
   return `${baseUrl}${normalizedSlug}`;
 }
 
-function resolveImageUrl(image: MetaDataInput["image"]): string | undefined {
+function resolveImageUrl(
+  image: PageMetadataInput["image"],
+): string | undefined {
   if (image?.asset) {
     return urlFor(image).size(1200, 630).url();
   }
@@ -49,7 +74,76 @@ function resolveImageUrl(image: MetaDataInput["image"]): string | undefined {
   return undefined;
 }
 
-export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
+function buildOpenGraphSiteDefaults(brandName: string) {
+  return {
+    siteName: brandName,
+    locale: OG_LOCALE,
+    countryName: OG_COUNTRY_NAME,
+  };
+}
+
+const robotsDefaults: Metadata["robots"] = {
+  index: true,
+  follow: true,
+  "max-image-preview": "large",
+  "max-snippet": -1,
+  "max-video-preview": -1,
+  googleBot: {
+    index: true,
+    follow: true,
+    noimageindex: false,
+    "max-snippet": -1,
+    "max-video-preview": -1,
+    "max-image-preview": "large",
+  },
+};
+
+/** Site-wide defaults merged into every page via the root layout. */
+export function getRootMetadata(): Metadata {
+  const baseUrl = getBaseUrl();
+
+  return {
+    metadataBase: new URL(baseUrl),
+    title: {
+      default: DEFAULT_META_TITLE,
+      template: `%s | ${SITE_BRAND}`,
+    },
+    description: DEFAULT_META_DESCRIPTION,
+    creator: SITE_BRAND,
+    icons: {
+      icon: [
+        {
+          url: "/icon1.png",
+          sizes: "16x16",
+        },
+        {
+          url: "/icon2.png",
+          sizes: "32x32",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: TWITTER_HANDLE,
+      creator: TWITTER_HANDLE,
+    },
+    alternates: {
+      types: {
+        "application/rss+xml": `${baseUrl}/api/rss/feed.xml`,
+      },
+    },
+    openGraph: {
+      type: "website",
+      ...buildOpenGraphSiteDefaults(SITE_BRAND),
+      title: DEFAULT_META_TITLE,
+      description: DEFAULT_META_DESCRIPTION,
+      url: baseUrl,
+    },
+    robots: robotsDefaults,
+  };
+}
+
+export function getSEOMetadata(data: PageMetadataInput = {}): Metadata {
   const {
     seoDescription,
     seoTitle,
@@ -67,29 +161,25 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
     siteBrand,
     readingTime,
     articleSection,
+    articleTags,
+    publishedTime,
+    modifiedTime,
+    noIndex,
   } = data ?? {};
 
   const baseUrl = getBaseUrl();
   const pageUrl = buildPageUrl({ baseUrl, slug });
 
-  const twitterHandle = "@_redshirtsports";
-
   const authorTwitterHandle = authors?.[0]?.socialLinks?.twitter
     ? `@${authors[0]?.socialLinks?.twitter.split("/").pop()}`
-    : twitterHandle;
+    : TWITTER_HANDLE;
 
-  const metaTitle =
-    seoTitle ??
-    ogTitle ??
-    title ??
-    "College Sports News & Analysis at All Levels";
+  const metaTitle = seoTitle ?? ogTitle ?? title ?? DEFAULT_META_TITLE;
   const metaDescription =
-    seoDescription ??
-    ogDescription ??
-    description ??
-    "Redshirt Sports is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.";
+    seoDescription ?? ogDescription ?? description ?? DEFAULT_META_DESCRIPTION;
 
-  const brandName = siteBrand ?? "Redshirt Sports";
+  const brandName = siteBrand ?? SITE_BRAND;
+  const fullTitle = `${metaTitle} | ${brandName}`;
   const resolvedImage =
     resolveImageUrl(seoImage) ??
     resolveImageUrl(ogImage) ??
@@ -97,45 +187,29 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
     defaultOpenGraphImage;
 
   const imageAlt = seoImage?.alt ?? ogImage?.alt ?? image?.alt ?? brandName;
+  const resolvedOgType = ogType ?? "website";
 
   return {
-    title: `${metaTitle} | ${brandName}`,
+    title: metaTitle,
     description: metaDescription,
-    metadataBase: new URL(baseUrl),
-    creator: brandName,
-    icons: {
-      icon: [
-        {
-          url: "/icon1.png",
-          sizes: "16x16",
-        },
-        {
-          url: "/icon2.png",
-          sizes: "32x32",
-        },
-      ],
+    alternates: {
+      canonical: pageUrl,
     },
+    ...(noIndex && { robots: noIndexRobots }),
     twitter: {
       card: "summary_large_image",
       images: resolvedImage ? [resolvedImage] : undefined,
-      site: twitterHandle,
+      site: TWITTER_HANDLE,
       creator: authorTwitterHandle,
-      title: metaTitle,
+      title: fullTitle,
       description: metaDescription,
-    },
-    alternates: {
-      canonical: pageUrl,
-      types: {
-        "application/rss+xml": `${baseUrl}/api/rss/feed.xml`,
-      },
     },
     openGraph: {
-      type: ogType ?? "website",
-      countryName: "en_US",
+      type: resolvedOgType,
+      ...buildOpenGraphSiteDefaults(brandName),
       description: metaDescription,
-      title: metaTitle,
+      title: fullTitle,
       url: pageUrl,
-      siteName: brandName,
       images: resolvedImage
         ? [
             {
@@ -148,7 +222,14 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
             },
           ]
         : undefined,
-      ...(authors &&
+      ...(resolvedOgType === "article" && publishedTime
+        ? { publishedTime }
+        : undefined),
+      ...(resolvedOgType === "article" && modifiedTime
+        ? { modifiedTime }
+        : undefined),
+      ...(resolvedOgType === "article" &&
+        authors &&
         authors.length > 0 && {
           authors: authors
             .map((author) => author.name)
@@ -156,27 +237,45 @@ export function getSEOMetadata(data: MetaDataInput = {}): Metadata {
         }),
       ...(articleSection && { section: articleSection }),
     },
-    robots: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-      googleBot: {
-        index: true,
-        follow: true,
-        noimageindex: false,
-        "max-snippet": -1,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-      },
-    },
-    ...(readingTime !== undefined &&
-      readingTime !== null && {
-        other: {
-          "twitter:label1": "Reading time",
-          "twitter:data1": `${readingTime} minutes`,
-        },
-      }),
+    ...(resolvedOgType === "article" &&
+      (() => {
+        const articleOtherMeta: Record<string, string | string[]> = {};
+        const articleAuthorNames =
+          authors
+            ?.map((author) => author.name)
+            .filter((name): name is string => Boolean(name)) ?? [];
+
+        const firstAuthorName = articleAuthorNames[0];
+        if (firstAuthorName) {
+          articleOtherMeta["og:article:author"] =
+            articleAuthorNames.length === 1
+              ? firstAuthorName
+              : articleAuthorNames;
+
+          articleOtherMeta["twitter:label1"] = "Written by";
+          articleOtherMeta["twitter:data1"] = firstAuthorName;
+        }
+
+        if (readingTime !== undefined && readingTime !== null) {
+          articleOtherMeta["twitter:label2"] = "Est. reading time";
+          articleOtherMeta["twitter:data2"] = `${readingTime} minutes`;
+        }
+
+        if (articleSection) {
+          articleOtherMeta["og:article:section"] = articleSection;
+        }
+
+        if (articleTags && articleTags.length > 0) {
+          const firstArticleTag = articleTags[0];
+          if (firstArticleTag) {
+            articleOtherMeta["og:article:tag"] =
+              articleTags.length === 1 ? firstArticleTag : articleTags;
+          }
+        }
+
+        return Object.keys(articleOtherMeta).length > 0
+          ? { other: articleOtherMeta }
+          : {};
+      })()),
   };
 }
