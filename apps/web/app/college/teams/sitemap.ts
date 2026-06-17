@@ -1,4 +1,4 @@
-import { client } from "@redshirt-sports/sanity/client";
+import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
 import {
   MIN_TEAM_PAGE_POSTS,
   schoolSlugsForSitemapQuery,
@@ -11,9 +11,12 @@ import { getBaseUrl } from "@/lib/get-base-url";
 const baseUrl = getBaseUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const schools = (await client.fetch(schoolSlugsForSitemapQuery, {
-    minPosts: MIN_TEAM_PAGE_POSTS,
-  })) as SchoolSlugsForSitemapQueryResult;
+  const { data } = (await sanityFetchMetadata({
+    query: schoolSlugsForSitemapQuery,
+    params: { minPosts: MIN_TEAM_PAGE_POSTS },
+    perspective: "published",
+  })) as { data: SchoolSlugsForSitemapQueryResult | null };
+  const schools = data ?? [];
 
   return schools.map((school) => ({
     url: `${baseUrl}/college/teams/${school.slug}`,

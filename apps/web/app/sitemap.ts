@@ -1,4 +1,4 @@
-import { client } from "@redshirt-sports/sanity/client";
+import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
 import { querySitemapData } from "@redshirt-sports/sanity/queries";
 import type { MetadataRoute } from "next";
 
@@ -7,7 +7,11 @@ import { getBaseUrl } from "@/lib/get-base-url";
 const baseUrl = getBaseUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { authors } = await client.fetch(querySitemapData);
+  const { data } = await sanityFetchMetadata({
+    query: querySitemapData,
+    perspective: "published",
+  });
+  const authors = data?.authors ?? [];
 
   return [
     {
