@@ -18,8 +18,7 @@ export function conferenceMatchesDivisionSegment(
   if (hasSubgroupingMatch) return true;
 
   const segmentLower = divisionSegment.toLowerCase();
-  const isD1Segment =
-    segmentLower === "d1" || segmentLower === "division-i";
+  const isD1Segment = segmentLower === "d1" || segmentLower === "division-i";
 
   if (isD1Segment) return false;
 

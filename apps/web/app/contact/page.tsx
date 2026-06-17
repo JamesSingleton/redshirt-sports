@@ -1,3 +1,4 @@
+import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import {
   Card,
   CardContent,
@@ -5,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@redshirt-sports/ui/components/card";
-import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import type { ContactPage, WithContext } from "schema-dts";
 
