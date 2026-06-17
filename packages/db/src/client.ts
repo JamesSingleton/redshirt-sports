@@ -1,7 +1,8 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "./schema";
+
 import { keys } from "../keys";
+import * as schema from "./schema";
 
 const connectionConfig = {
   prepare: false,

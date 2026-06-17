@@ -1,3 +1,4 @@
+import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import {
   Card,
@@ -58,15 +59,21 @@ export async function generateMetadata({
     week: string;
   }>;
 }): Promise<Metadata> {
-  const { division, year, week, sport } = await params;
+  const [{ division, year, week, sport }, { perspective }] = await Promise.all([
+    params,
+    getDynamicFetchOptions(),
+  ]);
   const weekNumber = parseWeekNumber(week);
   const titleWeek = getWeekTitle(weekNumber);
 
-  return getPageMetadata({
-    title: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings`,
-    description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
-    slug: `/college/${sport}/rankings/${division}/${year}/${week}`,
-  });
+  return getPageMetadata(
+    {
+      title: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings`,
+      description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
+      slug: `/college/${sport}/rankings/${division}/${year}/${week}`,
+    },
+    perspective,
+  );
 }
 
 export default async function CollegeFootballRankingsPage({

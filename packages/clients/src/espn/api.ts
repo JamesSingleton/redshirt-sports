@@ -1,11 +1,12 @@
 import z from "zod";
+
 import type {
+  ESPNBody,
+  ESPNWeekResponse,
+  ESPNWeeksResponse,
   Season,
   SeasonType,
-  ESPNBody,
   WeekDetail,
-  ESPNWeeksResponse,
-  ESPNWeekResponse,
 } from "./types";
 
 export const SportSchema = z.enum([
@@ -100,7 +101,7 @@ export async function getSeasonData(
   }
 
   const url = `${ESPN_BASE_SITE_URL}/${sportPath}/seasons?startingseason=${year}`;
-  const espnBody: ESPNBody = await fetchESPNData(url);
+  const espnBody = await fetchESPNData<ESPNBody>(url);
 
   return espnBody.seasons[0]!;
 }
@@ -115,7 +116,7 @@ export async function getMultipleSeasonsData(
   const sportPath = getSportPath(sport);
 
   const url = `${ESPN_BASE_SITE_URL}/${sportPath}/seasons?startingseason=${startingYear}`;
-  const espnBody: ESPNBody = await fetchESPNData(url);
+  const espnBody = await fetchESPNData<ESPNBody>(url);
 
   return espnBody.seasons!;
 }

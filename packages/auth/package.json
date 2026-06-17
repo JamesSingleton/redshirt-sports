@@ -3,8 +3,19 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "exports": {
+    "./client": "./client.ts",
+    "./components/sign-in": "./components/sign-in.tsx",
+    "./components/sign-up": "./components/sign-up.tsx",
+    "./keys": "./keys.ts",
+    "./provider": "./provider.tsx",
+    "./proxy": "./proxy.ts",
+    "./server": "./server.ts"
+  },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "check:types": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {

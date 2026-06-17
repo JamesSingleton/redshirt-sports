@@ -11,10 +11,11 @@ Redshirt Sports is a college sports news website built as a Turborepo monorepo w
 ### Building and Running
 - `pnpm dev` - Start all apps in development mode (web on port 3000, admin on 3001, studio on default Sanity port)
 - `pnpm build` - Build all apps and packages for production
-- `pnpm lint` - Run ESLint across all workspaces
+- `pnpm lint` - Run Biome lint checks across all workspaces
 - `pnpm check:types` - Run TypeScript type checks across all workspaces
-- `pnpm check:format` - Run Prettier check on all files
+- `pnpm check:format` - Run Biome format and lint checks on all files
 - `pnpm test` - Run tests across all workspaces using Vitest
+- `pnpm ci` - Run affected lint, typecheck, and test via Turborepo
 
 ### Workspace-Specific Commands
 
@@ -60,7 +61,7 @@ pnpm --filter @redshirt-sports/clients test
 
 ### Monorepo Structure
 
-This is a Turborepo monorepo with three applications and six shared packages:
+This is a Turborepo monorepo with three applications and shared packages:
 
 **Applications** (`apps/`):
 - `web` - Main public-facing Next.js website
@@ -72,7 +73,10 @@ This is a Turborepo monorepo with three applications and six shared packages:
 - `db` - Drizzle ORM schema, client, and queries for Postgres
 - `sanity` - Sanity client, queries, and TypeScript types
 - `clients` - External API clients (ESPN, etc.)
-- `eslint-config` - Shared ESLint configuration
+- `auth` - Clerk authentication components and utilities
+- `analytics` - PostHog and Plausible analytics integration
+- `observability` - Sentry error monitoring
+- `next-config` - Shared Next.js configuration
 - `typescript-config` - Shared TypeScript configurations
 
 ### Data Layer Architecture
@@ -173,7 +177,7 @@ When one workspace needs another, reference it in package.json:
 
 ## Important Notes
 
-- **Node Version**: Requires Node.js 20 or higher (see `package.json` engines field)
+- **Node Version**: Requires Node.js 22 or higher (see `package.json` engines field)
 - **Package Manager**: Uses pnpm 10+ (see `packageManager` field)
 - **Git Workflow**: Main branch is `main` - create feature branches for new work
 - **License**: AGPL-3.0 - modifications must be made available under the same license

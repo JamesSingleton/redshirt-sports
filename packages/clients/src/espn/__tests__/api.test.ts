@@ -1,23 +1,23 @@
 import {
-  SportSchema,
-  isDateInSeasonPeriod,
-  getWeekForDate,
+  fetchWeeksFromSportsUrl,
   getCurrentSeason,
-  getSeasonData,
-  getMultipleSeasonsData,
   getCurrentWeek,
+  getMultipleSeasonsData,
+  getSeasonData,
   getSeasonInfo,
   getSeasonWeeks,
-  fetchWeeksFromSportsUrl,
+  getWeekForDate,
+  isDateInSeasonPeriod,
+  SportSchema,
 } from "../api";
 import {
   footballCurrentSeason,
-  mensBasketballCurrentSeason,
-  womensBasketballCurrentSeason,
-  footballSeasonsBody,
   footballRegularSeasonWeeksList,
+  footballSeasonsBody,
   footballWeek1Detail,
   footballWeek2Detail,
+  mensBasketballCurrentSeason,
+  womensBasketballCurrentSeason,
 } from "./fixtures";
 
 const season2026 = footballSeasonsBody.seasons[0]!;

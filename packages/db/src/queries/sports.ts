@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
-import { sportsTable } from "../schema";
 import { primaryDb as db } from "../client";
+import { sportsTable } from "../schema";
 
 export type SportParam = "football" | "mens-basketball" | "womens-basketball";
 

@@ -2,8 +2,19 @@
   "name": "@redshirt-sports/observability",
   "version": "0.0.0",
   "private": true,
+  "exports": {
+    "./client": "./client.ts",
+    "./edge": "./edge.ts",
+    "./error": "./error.ts",
+    "./instrumentation": "./instrumentation.ts",
+    "./keys": "./keys.ts",
+    "./next-config": "./next-config.ts",
+    "./server": "./server.ts"
+  },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "check:types": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {

@@ -25,7 +25,10 @@ export async function generateMetadata({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
-  const params = await searchParams;
+  const [params, { perspective }] = await Promise.all([
+    searchParams,
+    getDynamicFetchOptions(),
+  ]);
   const page = params.page;
 
   const pageNumber = typeof page === "string" ? parseInt(page, 10) : 1;
@@ -50,11 +53,14 @@ export async function generateMetadata({
     canonical = `${baseCanonical}?page=${pageNumber}`;
   }
 
-  return getPageMetadata({
-    title,
-    description,
-    slug: canonical,
-  });
+  return getPageMetadata(
+    {
+      title,
+      description,
+      slug: canonical,
+    },
+    perspective,
+  );
 }
 
 const breadcrumbItems = [

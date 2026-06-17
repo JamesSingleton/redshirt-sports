@@ -1,11 +1,10 @@
+import { cookies, draftMode } from "next/headers";
+import type { QueryParams } from "next-sanity";
 import {
   defineLive,
   type LivePerspective,
   resolvePerspectiveFromCookies,
 } from "next-sanity/live";
-import type { QueryParams } from "next-sanity";
-
-import { cookies, draftMode } from "next/headers";
 
 import { client } from "./client";
 import { token } from "./token";

@@ -10,8 +10,7 @@
     "jsx": "preserve",
     "noEmit": true,
     "paths": {
-      "@/*": ["./*"],
-      "@redshirt-sports/*": ["../../packages/*"]
+      "@/*": ["./*"]
     },
     "types": ["node"]
   }

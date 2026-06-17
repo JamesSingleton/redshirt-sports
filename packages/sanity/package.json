@@ -2,6 +2,11 @@
   "name": "@redshirt-sports/sanity",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "check:types": "tsc --noEmit"
+  },
   "exports": {
     "./api": "./src/api.ts",
     "./client": "./src/client.ts",
@@ -16,13 +21,15 @@
     "@sanity/image-url": "^2.1.1",
     "next-sanity": "catalog:",
     "sanity": "catalog:",
-    "sanity-image": "^1.1.0"
+    "sanity-image": "^1.1.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "next": "catalog:"
+    "next": "catalog:",
+    "typescript": "catalog:"
   }
 }

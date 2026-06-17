@@ -1,4 +1,7 @@
-import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { authorsListNotArchived } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -14,11 +17,15 @@ import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return getPageMetadata({
-    title: "About Us",
-    description: `Meet the team at ${process.env.NEXT_PUBLIC_APP_NAME}! We're dedicated to bringing you comprehensive coverage of college sports at every level, sharing our mission and expertise.`,
-    slug: "/about",
-  });
+  const { perspective } = await getDynamicFetchOptions();
+  return getPageMetadata(
+    {
+      title: "About Us",
+      description: `Meet the team at ${process.env.NEXT_PUBLIC_APP_NAME}! We're dedicated to bringing you comprehensive coverage of college sports at every level, sharing our mission and expertise.`,
+      slug: "/about",
+    },
+    perspective,
+  );
 }
 
 const aboutPageJsonLd: WithContext<AboutPageSchema> = {
