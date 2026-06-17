@@ -53,8 +53,29 @@ describe("getBaseUrl", () => {
     expect(getBaseUrl()).toBe("https://redshirt-sports-git-feature.vercel.app");
   });
 
-  it("uses configured public URL in the browser when available", () => {
-    globalThis.window = originalWindow;
+  it("uses the browser origin on localhost even when NEXT_PUBLIC_SITE_URL is set", () => {
+    globalThis.window = {
+      ...originalWindow,
+      location: {
+        ...originalWindow.location,
+        hostname: "localhost",
+        origin: "http://localhost:3000",
+      },
+    } as Window & typeof globalThis;
+    process.env.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.xyz";
+
+    expect(getBaseUrl()).toBe("http://localhost:3000");
+  });
+
+  it("uses configured public URL in the browser on production hostnames", () => {
+    globalThis.window = {
+      ...originalWindow,
+      location: {
+        ...originalWindow.location,
+        hostname: "www.redshirtsports.xyz",
+        origin: "https://www.redshirtsports.xyz",
+      },
+    } as Window & typeof globalThis;
     process.env.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.xyz";
 
     expect(getBaseUrl()).toBe("https://www.redshirtsports.xyz");

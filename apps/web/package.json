@@ -60,6 +60,7 @@
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
     "svix": "^1.95.2",
+    "url-sheriff": "^1.0.1",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -18,7 +18,6 @@ import ArticleCard from "@/components/article-card";
 import ArticleSection from "@/components/article-section";
 import Hero from "@/components/home/hero";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
-import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import {
   fetchGlobalSeoSettings,
@@ -74,10 +73,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  return draftAwarePage(null, renderHomePage);
+  const { perspective, stega } = await getDynamicFetchOptions();
+
+  return <CachedHomePage perspective={perspective} stega={stega} />;
 }
 
-async function renderHomePage({ perspective, stega }: DynamicFetchOptions) {
+export async function CachedHomePage({
+  perspective,
+  stega,
+}: DynamicFetchOptions) {
   "use cache";
 
   const [{ data: homePageData }, { data: latestArticles }, settings] =

@@ -32,8 +32,17 @@ function resolveServerProductionUrl() {
   return undefined;
 }
 
+function isLocalDevHost(hostname: string) {
+  return hostname === "localhost" || hostname === "127.0.0.1";
+}
+
 export const getBaseUrl = () => {
   if (typeof window !== "undefined") {
+    // Local dev should always use the browser origin (share links, JSON-LD, etc.)
+    if (isLocalDevHost(window.location.hostname)) {
+      return window.location.origin;
+    }
+
     return resolveConfiguredPublicUrl() ?? window.location.origin;
   }
 

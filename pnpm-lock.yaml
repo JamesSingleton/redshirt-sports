@@ -397,6 +397,9 @@ importers:
       svix:
         specifier: ^1.95.2
         version: 1.95.2
+      url-sheriff:
+        specifier: ^1.0.1
+        version: 1.0.1
       zod:
         specifier: 'catalog:'
         version: 4.4.3
@@ -7303,6 +7306,10 @@ packages:
   invariant@2.2.4:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
 
+  ipaddr.js@2.4.0:
+    resolution: {integrity: sha512-9VGk3HGanVE6JoZXHiCpnGy5X0jYDnN4EA4lntFPj+1vIWlFhIylq2CrrCOJH9EAhc5CYhq18F2Av2tgoAPsYQ==}
+    engines: {node: '>= 10'}
+
   is-alphabetical@2.0.1:
     resolution: {integrity: sha512-FWyyY60MeTNyeSRpkM2Iry0G9hpr7/9kD40mD/cGQEuilcZYS4okz8SN2Q6rLCJ8gbCt6fN+rC+6tMGS99LaxQ==}
 
@@ -9497,6 +9504,10 @@ packages:
     hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
+
+  url-sheriff@1.0.1:
+    resolution: {integrity: sha512-Mb+7ikEa+C2m85RZlulNG7HLAcw/9WzrRuyJKkkwA8/L2JzoDxqhZKXuKngfQVKrkSPCx5NkauMBaw6P/zpggw==}
+    engines: {node: '>=24.0.0', npm: '>=11.10.0'}
 
   urlpattern-polyfill@10.1.0:
     resolution: {integrity: sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw==}
@@ -16825,6 +16836,8 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
 
+  ipaddr.js@2.4.0: {}
+
   is-alphabetical@2.0.1: {}
 
   is-alphanumerical@2.0.1:
@@ -19337,6 +19350,10 @@ snapshots:
       browserslist: 4.28.2
       escalade: 3.2.0
       picocolors: 1.1.1
+
+  url-sheriff@1.0.1:
+    dependencies:
+      ipaddr.js: 2.4.0
 
   urlpattern-polyfill@10.1.0: {}
 

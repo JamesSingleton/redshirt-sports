@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { Mock } from "vitest";
 
-import HomePage, { generateMetadata } from "@/app/page";
+import { CachedHomePage, generateMetadata } from "@/app/page";
 
 const { mockSanityFetchPage } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
@@ -10,16 +10,6 @@ const { mockSanityFetchPage } = vi.hoisted(() => ({
 
 vi.mock("next/headers", () => ({
   draftMode: vi.fn().mockResolvedValue({ isEnabled: false }),
-}));
-
-vi.mock("@/lib/draft-cache", () => ({
-  draftAwarePage: async (
-    _fallback: ReactNode,
-    render: (options: {
-      perspective: string;
-      stega: boolean;
-    }) => Promise<ReactNode>,
-  ) => render({ perspective: "published", stega: false }),
 }));
 
 vi.mock("@/lib/sanity-fetch", () => ({
@@ -122,7 +112,10 @@ describe("HomePage", () => {
   });
 
   it("renders the hero and four division sections when no articles exist", async () => {
-    const page = await HomePage();
+    const page = await CachedHomePage({
+      perspective: "published",
+      stega: false,
+    });
     render(page);
 
     expect(screen.getByTestId("hero")).toBeInTheDocument();
@@ -147,7 +140,10 @@ describe("HomePage", () => {
       .mockResolvedValueOnce({ data: [article] })
       .mockResolvedValueOnce({ data: [article] });
 
-    const page = await HomePage();
+    const page = await CachedHomePage({
+      perspective: "published",
+      stega: false,
+    });
     render(page);
 
     expect(screen.getByText("Latest News")).toBeInTheDocument();
@@ -170,7 +166,10 @@ describe("HomePage", () => {
 
     mockFetch.mockResolvedValueOnce({ data: [heroArticle] });
 
-    const page = await HomePage();
+    const page = await CachedHomePage({
+      perspective: "published",
+      stega: false,
+    });
     render(page);
 
     expect(screen.getByTestId("hero")).toBeInTheDocument();
@@ -194,7 +193,10 @@ describe("HomePage", () => {
       .mockResolvedValueOnce({ data: [] })
       .mockResolvedValueOnce({ data: [] });
 
-    const page = await HomePage();
+    const page = await CachedHomePage({
+      perspective: "published",
+      stega: false,
+    });
     render(page);
 
     expect(screen.getByText("FBS College Football News")).toBeInTheDocument();
@@ -210,7 +212,10 @@ describe("HomePage", () => {
       .mockResolvedValueOnce({ data: [] })
       .mockResolvedValueOnce({ data: [] });
 
-    const page = await HomePage();
+    const page = await CachedHomePage({
+      perspective: "published",
+      stega: false,
+    });
     render(page);
 
     expect(
