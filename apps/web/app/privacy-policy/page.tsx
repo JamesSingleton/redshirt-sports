@@ -1,4 +1,7 @@
-import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { privacyPolicyQuery } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import type { WebPage, WithContext } from "schema-dts";
@@ -13,11 +16,15 @@ import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return getPageMetadata({
-    title: "Privacy Policy",
-    description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
-    slug: "/privacy-policy",
-  });
+  const { perspective } = await getDynamicFetchOptions();
+  return getPageMetadata(
+    {
+      title: "Privacy Policy",
+      description: `Review ${process.env.NEXT_PUBLIC_APP_NAME}' Privacy Policy to see how we handle your data, ensure security, and maintain your privacy.`,
+      slug: "/privacy-policy",
+    },
+    perspective,
+  );
 }
 
 const baseUrl = getBaseUrl();

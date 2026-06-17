@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@redshirt-sports/ui/components/card";
+import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import type { ContactPage, WithContext } from "schema-dts";
 
@@ -15,11 +16,15 @@ import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return getPageMetadata({
-    title: "Contact Us",
-    description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for collaboration, advertising, or general inquiries. We're here to assist with any questions about our college sports coverage.`,
-    slug: "/contact",
-  });
+  const { perspective } = await getDynamicFetchOptions();
+  return getPageMetadata(
+    {
+      title: "Contact Us",
+      description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for collaboration, advertising, or general inquiries. We're here to assist with any questions about our college sports coverage.`,
+      slug: "/contact",
+    },
+    perspective,
+  );
 }
 
 const contactDetails = [
