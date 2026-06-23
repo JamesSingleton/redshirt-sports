@@ -17,7 +17,12 @@ vi.mock("@/components/sanity-image", () => ({
   }: {
     image?: { alt?: string };
     priority?: boolean;
-  }) => <img alt={image?.alt ?? "article"} data-priority={String(priority ?? false)} />,
+  }) => (
+    <img
+      alt={image?.alt ?? "article"}
+      data-priority={String(priority ?? false)}
+    />
+  ),
   IMAGE_SIZES: {
     articleCard: "test",
   },
