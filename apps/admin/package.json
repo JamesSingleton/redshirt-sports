@@ -40,7 +40,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-react-compiler": "1.0.0",
-    "happy-dom": "^20.10.3",
+    "happy-dom": "^20.10.6",
     "tailwindcss": "catalog:",
     "typescript": "^6.0.3",
     "vite": "catalog:",
