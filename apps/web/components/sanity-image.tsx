@@ -1,47 +1,94 @@
-import { dataset, projectId } from "@redshirt-sports/sanity/api";
-import { getImageDimensions } from "@sanity/asset-utils";
-import { SanityImage } from "sanity-image";
+"use client";
+import {
+  processImageData,
+  SANITY_BASE_URL,
+  type SanityImageProps,
+} from "@redshirt-sports/sanity/image";
+import {
+  SanityImage as BaseSanityImage,
+  type WrapperProps,
+} from "sanity-image";
 
-type CustomImageProps = {
-  image: any;
-  width?: number;
-  height?: number;
-  className?: string;
-  loading?: "lazy" | "eager";
-  mode?: "cover" | "contain";
+export const IMAGE_SIZES = {
+  articleCard:
+    "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw",
+  articleHero: "(max-width: 1024px) 100vw, min(1200px, 70vw)",
+  homeHero: "(max-width: 1024px) 100vw, 66vw",
+  articleInline: "(max-width: 1024px) 100vw, min(720px, 70vw)",
+  teamFeatured: "(max-width: 768px) 100vw, 50vw",
+  teamThumbnail: "180px",
+} as const;
+
+type CustomSanityImageProps = SanityImageProps & {
   quality?: number;
+  priority?: boolean;
 };
 
-const CustomImage = ({
+function ImageWrapper(props: WrapperProps<"img">) {
+  return <BaseSanityImage baseUrl={SANITY_BASE_URL} {...props} />;
+}
+
+function warnMissingAlt(id: string, alt: string) {
+  if (process.env.NODE_ENV === "development" && !alt) {
+    console.warn(`[SanityImage] Missing alt text for image: ${id}`);
+  }
+}
+
+export function SanityImage({
   image,
+  quality = 75,
+  priority = false,
+  queryParams,
+  alt,
   width,
   height,
   className,
   loading,
-  mode = "contain",
-  quality = 75,
-}: CustomImageProps) => {
-  const dimensions = getImageDimensions(image.asset);
+  sizes,
+  ...props
+}: CustomSanityImageProps) {
+  if (typeof image === "string") {
+    if (!image) {
+      return null;
+    }
+
+    return (
+      <img
+        src={image}
+        alt={alt ?? ""}
+        width={width}
+        height={height}
+        className={className}
+        loading={priority ? "eager" : loading}
+        fetchPriority={priority ? "high" : undefined}
+        sizes={sizes}
+      />
+    );
+  }
+
+  const processedImageData = processImageData(image);
+
+  if (!processedImageData) {
+    return null;
+  }
+
+  const resolvedAlt = alt ?? processedImageData.alt;
+  warnMissingAlt(processedImageData.id, resolvedAlt);
 
   return (
-    <SanityImage
-      id={image.asset._ref ?? image.asset._id}
-      projectId={projectId}
-      dataset={dataset}
-      hotspot={image.hotspot}
-      crop={image.crop}
-      width={width ?? dimensions.width}
-      height={height ?? dimensions.height}
+    <ImageWrapper
+      {...props}
+      width={width ?? processedImageData.width}
+      height={height ?? processedImageData.height}
       className={className}
-      alt={image.alt ?? image.caption}
-      loading={loading}
-      mode={mode}
-      // sizes="(max-width: 640px) 75vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-      queryParams={{
-        q: quality,
-      }}
+      loading={priority ? "eager" : loading}
+      fetchPriority={priority ? "high" : undefined}
+      sizes={sizes}
+      {...processedImageData}
+      alt={resolvedAlt}
+      queryParams={{ ...queryParams, q: quality }}
     />
   );
-};
+}
 
-export default CustomImage;
+export default SanityImage;

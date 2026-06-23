@@ -91,16 +91,13 @@ const customUrlHrefFragment = /* groq */ `
   )
 `;
 
-const imageFields = /* groq */ `
+const coreImageMetadataProjection = /* groq */ `
   "id": asset._ref,
   "preview": asset->metadata.lqip,
-  "alt": coalesce(
-    alt,
-    asset->altText,
-    caption,
-    asset->originalFilename,
-    "untitled"
-  ),
+  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),
+  "width": asset->metadata.dimensions.width,
+  "height": asset->metadata.dimensions.height,
+  "dominantColor": asset->metadata.palette.dominant.background,
   hotspot {
     x,
     y
@@ -113,24 +110,58 @@ const imageFields = /* groq */ `
   }
 `;
 
+const imageMetadataProjection = /* groq */ `
+  ${coreImageMetadataProjection},
+  "credit": coalesce(asset->creditLine, attribution, "Unknown")
+`;
+
 const imageFragment = /* groq */ `
   image{
     ...,
-    ${imageFields},
-    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
-    "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-    "blurData": asset->metadata.lqip,
-    "dominantColor": asset->metadata.palette.dominant.background,
+    ${imageMetadataProjection}
   }
 `;
 
-// same as imageFragment but with a logo key and no credit
 const logoFragment = /* groq */ `
   logo{
     ...,
-    "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
-    "blurData": asset->metadata.lqip,
-    "dominantColor": asset->metadata.palette.dominant.background,
+    ${coreImageMetadataProjection}
+  }
+`;
+
+const schoolImageFragment = /* groq */ `
+  image{
+    ...,
+    ${coreImageMetadataProjection}
+  }
+`;
+
+const postImageFragment = /* groq */ `
+  mainImage{
+    ...,
+    ${imageMetadataProjection}
+  }
+`;
+
+const footerLogoFragment = /* groq */ `
+  footerLogo{
+    ...,
+    ${coreImageMetadataProjection}
+  }
+`;
+
+const footerLogoDarkModeFragment = /* groq */ `
+  footerLogoDarkMode{
+    ...,
+    ${coreImageMetadataProjection}
+  }
+`;
+
+const authorListImageFragment = /* groq */ `
+  image{
+    ...,
+    ${coreImageMetadataProjection},
+    "alt": coalesce(caption, asset->altText, ^.name, asset->originalFilename, "Image-Broken"),
   }
 `;
 
@@ -139,16 +170,6 @@ const postAuthorFragment = /* groq */ `
     ...,
     "slug": slug.current,
     ${imageFragment}
-  }
-`;
-
-const postImageFragment = /* groq */ `
-  mainImage{
-    ...,
-    "alt": coalesce(asset->altText, caption, "Image-Broken"),
-    "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-    "blurData": asset->metadata.lqip,
-    "dominantColor": asset->metadata.palette.dominant.background,
   }
 `;
 
@@ -162,7 +183,7 @@ const postSportFragment = /* groq */ `
 
 export const queryImageType = defineQuery(`
   *[_type == "post" && defined(mainImage)][0]{
-    ${imageFragment}
+    ${postImageFragment}
   }.mainImage
 `);
 
@@ -171,12 +192,7 @@ const divisionFragment = /* groq */ `
     _id,
     name,
     "slug": slug.current,
-    logo{
-      ...,
-      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-    }
+    ${logoFragment}
   }
 `;
 
@@ -193,12 +209,7 @@ const conferencesFragment = /* groq */ `
     name,
     shortName,
     "slug": slug.current,
-    logo{
-      ...,
-      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-    },
+    ${logoFragment},
     division->{
       "slug": slug.current,
     },
@@ -222,10 +233,7 @@ const richTextFragment = /* groq */ `
     ${markDefsFragment},
     _type == 'image' => {
       ...,
-      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
-      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
+      ${imageMetadataProjection}
     },
   }
 `;
@@ -255,12 +263,7 @@ export const queryPostSlugData = defineQuery(/* groq */ `
       shortName,
       nickname,
       "slug": slug.current,
-      image{
-        ...,
-        "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
-        "blurData": asset->metadata.lqip,
-        "dominantColor": asset->metadata.palette.dominant.background,
-      }
+      ${schoolImageFragment}
     },
     "relatedPosts": *[
       _type == "post"
@@ -364,18 +367,8 @@ export const queryGlobalSeoSettings = defineQuery(/* groq */ `
     siteTitle,
     siteDescription,
     ${logoFragment},
-    footerLogo{
-      ...,
-      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-    },
-    footerLogoDarkMode{
-      ...,
-      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-    },
+    ${footerLogoFragment},
+    ${footerLogoDarkModeFragment},
     "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",
     socialLinks{
       facebook,
@@ -425,13 +418,7 @@ export const queryHomePageData = defineQuery(/* groq */ `
     title,
     excerpt,
     "slug": slug.current,
-    mainImage{
-      ...,
-      "alt": coalesce(caption,asset->altText, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-    },
+    ${postImageFragment},
     publishedAt,
     ${postAuthorFragment}
   }
@@ -444,13 +431,7 @@ export const queryLatestArticles = defineQuery(/* groq */ `
     excerpt,
     "slug": slug.current,
     publishedAt,
-    mainImage{
-      ...,
-      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-    },
+    ${postImageFragment},
     ${postAuthorFragment}
   }
 `);
@@ -461,13 +442,7 @@ export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
     title,
     excerpt,
     "slug": slug.current,
-    mainImage{
-      ...,
-      "alt": coalesce(asset->altText, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-    },
+    ${postImageFragment},
     publishedAt,
     division->{
       name,
@@ -570,12 +545,7 @@ export const authorsListNotArchived = defineQuery(/* groq */ `
     name,
     roles,
     "slug": slug.current,
-    image{
-      ...,
-      "alt": coalesce(asset->altText, ^.name, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-    },
+    ${authorListImageFragment},
     socialLinks
   }
 `);
@@ -590,7 +560,7 @@ export const schoolsByDivisionQuery = defineQuery(/* groq */ `
   name,
   shortName,
   abbreviation,
-  image,
+  ${schoolImageFragment},
   conference->{
     name,
     shortName
@@ -781,7 +751,7 @@ export const schoolsByIdQuery = defineQuery(
     name,
     shortName,
     abbreviation,
-    image,
+    ${schoolImageFragment},
   }| order(_order)`,
 );
 
@@ -819,7 +789,7 @@ export const conferencesQuery = defineQuery(/* groq */ `
     name,
     shortName,
     abbreviation,
-    "slug": slug->current,
+    "slug": slug.current,
     "divisionId": division->_id,
     ${logoFragment},
     "sports": sports[]->_id
@@ -852,7 +822,7 @@ export const subdivisionsQuery = defineQuery(/* groq */ `
     name,
     shortName,
     "slug": slug.current,
-    "parentDivisionId": parentDivision->id,
+    "parentDivisionId": parentDivision->_id,
     "applicableSports": applicableSports[]->_id
   }
 `);
@@ -864,7 +834,7 @@ export const schoolsByIdOrderedByPoints = groq`
   name,
   shortName,
   abbreviation,
-  image,
+  ${schoolImageFragment},
 } | order(_points desc)
 `;
 
@@ -875,7 +845,7 @@ export const schoolWithVoteOrder = groq`
   name,
   shortName,
   abbreviation,
-  image,
+  ${schoolImageFragment},
 } | order(_order)
 `;
 
@@ -885,7 +855,7 @@ export const schoolsByIdsQuery = groq`
   name,
   shortName,
   abbreviation,
-  image,
+  ${schoolImageFragment},
 }
 `;
 
@@ -915,13 +885,7 @@ export const schoolsForVotesQuery = groq`*[_type == "school" && _id in $schoolId
     shortName,
     abbreviation,
     nickname,
-    image{
-      ...,
-      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
-      "credit": coalesce(asset->creditLine, attribution, "Unknown"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-    }
+    ${schoolImageFragment}
   }`;
 
 export const postsForSitemapQuery = groq`
@@ -989,12 +953,7 @@ export const schoolBySlugQuery = defineQuery(/* groq */ `
     seoImage,
     ogTitle,
     ogDescription,
-    image{
-      ...,
-      "alt": coalesce(asset->altText, caption, asset->originalFilename, "Image-Broken"),
-      "blurData": asset->metadata.lqip,
-      "dominantColor": asset->metadata.palette.dominant.background,
-    },
+    ${schoolImageFragment},
     conferenceAffiliations[]{
       _key,
       sport->{

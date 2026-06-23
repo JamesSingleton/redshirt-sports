@@ -9,7 +9,7 @@ import Link from "next/link";
 
 import ArticleCard from "@/components/article-card";
 import FormatDate from "@/components/format-date";
-import CustomImage from "@/components/sanity-image";
+import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 
 interface ArticleSectionProps {
   title: string;
@@ -91,9 +91,13 @@ export default function ArticleSection({
           >
             <CustomImage
               image={firstArticle.mainImage}
-              width={860}
-              height={573}
+              width={720}
+              height={480}
               className="w-full overflow-hidden rounded-lg shadow-md"
+              mode="cover"
+              priority
+              quality={70}
+              sizes={IMAGE_SIZES.articleInline}
             />
           </div>
         </div>

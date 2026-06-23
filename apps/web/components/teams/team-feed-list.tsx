@@ -1,7 +1,7 @@
 import { Separator } from "@redshirt-sports/ui/components/separator";
 import Link from "next/link";
 
-import CustomImage from "@/components/sanity-image";
+import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import {
   type TeamPost,
   TeamRelativeDate,
@@ -71,6 +71,8 @@ function FeedPostImage({ image }: { image: TeamPost["mainImage"] }) {
       height={100}
       className="size-full object-cover"
       mode="cover"
+      quality={62}
+      sizes={IMAGE_SIZES.teamThumbnail}
     />
   );
 }

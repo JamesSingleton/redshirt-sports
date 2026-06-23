@@ -13,11 +13,19 @@ vi.mock("@/components/sanity-image", () => ({
   __esModule: true,
   default: ({
     image,
-    loading,
+    priority,
   }: {
     image?: { alt?: string };
-    loading?: "eager" | "lazy";
-  }) => <img alt={image?.alt ?? "article"} data-loading={loading} />,
+    priority?: boolean;
+  }) => (
+    <img
+      alt={image?.alt ?? "article"}
+      data-priority={String(priority ?? false)}
+    />
+  ),
+  IMAGE_SIZES: {
+    articleCard: "test",
+  },
 }));
 
 vi.mock("next/link", () => ({
@@ -81,7 +89,7 @@ describe("ArticleCard", () => {
     expect(screen.getByText("Draft Article")).toBeInTheDocument();
   });
 
-  it("loads images eagerly when imagePriority is enabled", () => {
+  it("prioritizes images when imagePriority is enabled", () => {
     render(
       <ArticleCard
         title="Priority Article"
@@ -92,7 +100,7 @@ describe("ArticleCard", () => {
       />,
     );
 
-    expect(screen.getByRole("img")).toHaveAttribute("data-loading", "eager");
+    expect(screen.getByRole("img")).toHaveAttribute("data-priority", "true");
   });
 
   it("uses the requested heading level", () => {
