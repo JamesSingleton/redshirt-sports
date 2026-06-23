@@ -789,7 +789,7 @@ export const conferencesQuery = defineQuery(/* groq */ `
     name,
     shortName,
     abbreviation,
-    "slug": slug->current,
+    "slug": slug.current,
     "divisionId": division->_id,
     ${logoFragment},
     "sports": sports[]->_id
@@ -822,7 +822,7 @@ export const subdivisionsQuery = defineQuery(/* groq */ `
     name,
     shortName,
     "slug": slug.current,
-    "parentDivisionId": parentDivision->id,
+    "parentDivisionId": parentDivision->_id,
     "applicableSports": applicableSports[]->_id
   }
 `);

@@ -2966,7 +2966,7 @@ export type DivisionsQueryResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: conferencesQuery
-// Query: *[_type == "conference"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    abbreviation,    "slug": slug->current,    "divisionId": division->_id,      logo{    ...,      "id": asset._ref,  "preview": asset->metadata.lqip,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  "dominantColor": asset->metadata.palette.dominant.background,  hotspot {    x,    y  },  crop {    bottom,    left,    right,    top  }  },    "sports": sports[]->_id  }
+// Query: *[_type == "conference"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    abbreviation,    "slug": slug.current,    "divisionId": division->_id,      logo{    ...,      "id": asset._ref,  "preview": asset->metadata.lqip,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  "dominantColor": asset->metadata.palette.dominant.background,  hotspot {    x,    y  },  crop {    bottom,    left,    right,    top  }  },    "sports": sports[]->_id  }
 export type ConferencesQueryResult = Array<{
   _id: string;
   _createdAt: string;
@@ -2974,7 +2974,7 @@ export type ConferencesQueryResult = Array<{
   name: string;
   shortName: string;
   abbreviation: string;
-  slug: null;
+  slug: string;
   divisionId: string;
   logo: {
     asset?: SanityImageAssetReference;
@@ -3043,7 +3043,7 @@ export type SchoolsQueryResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: subdivisionsQuery
-// Query: *[_type == "sportSubgrouping"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    "slug": slug.current,    "parentDivisionId": parentDivision->id,    "applicableSports": applicableSports[]->_id  }
+// Query: *[_type == "sportSubgrouping"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    "slug": slug.current,    "parentDivisionId": parentDivision->_id,    "applicableSports": applicableSports[]->_id  }
 export type SubdivisionsQueryResult = Array<{
   _id: string;
   _createdAt: string;
@@ -3051,7 +3051,7 @@ export type SubdivisionsQueryResult = Array<{
   name: string;
   shortName: string | null;
   slug: string | null;
-  parentDivisionId: null;
+  parentDivisionId: string;
   applicableSports: Array<string>;
 }>;
 
@@ -3625,9 +3625,9 @@ declare module "@sanity/client" {
     '*[_type == "school" && _id in $ids[].id]{\n    _id,\n    "_order": $ids[id == ^._id][0].rank,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  hotspot {\n    x,\n    y\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n  }| order(_order)': SchoolsByIdQueryResult;
     '*[_type == "sport" && defined(slug.current)]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    title,\n    "slug": slug.current,\n  }': SportInfoQueryResult;
     '\n  *[_type == "division"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    title,\n    heading,\n    longName,\n    "slug": slug.current,\n    description,\n    \n  logo{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  hotspot {\n    x,\n    y\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n\n  }\n  ': DivisionsQueryResult;
-    '\n  *[_type == "conference"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    "slug": slug->current,\n    "divisionId": division->_id,\n    \n  logo{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  hotspot {\n    x,\n    y\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    "sports": sports[]->_id\n  }\n  ': ConferencesQueryResult;
+    '\n  *[_type == "conference"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    "slug": slug.current,\n    "divisionId": division->_id,\n    \n  logo{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  hotspot {\n    x,\n    y\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    "sports": sports[]->_id\n  }\n  ': ConferencesQueryResult;
     '\n  *[_type == "school"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    top25VotingEligible,\n    \n  image{\n    ...,\n    \n  \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  hotspot {\n    x,\n    y\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "credit": coalesce(asset->creditLine, attribution, "Unknown")\n\n  }\n,\n    conferenceAffiliations[] {\n      "conferenceId": conference->_id,\n      "sportId": sport->_id,\n    }\n  }\n  ': SchoolsQueryResult;
-    '\n    *[_type == "sportSubgrouping"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    "slug": slug.current,\n    "parentDivisionId": parentDivision->id,\n    "applicableSports": applicableSports[]->_id\n  }\n': SubdivisionsQueryResult;
+    '\n    *[_type == "sportSubgrouping"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    "slug": slug.current,\n    "parentDivisionId": parentDivision->_id,\n    "applicableSports": applicableSports[]->_id\n  }\n': SubdivisionsQueryResult;
     '\n*[_type == "school" && _id in $ids[].id]{\n  _id,\n  "_points": $ids[id == ^._id][0].totalPoints,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  hotspot {\n    x,\n    y\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n} | order(_points desc)\n': SchoolsByIdOrderedByPointsResult;
     '\n*[_type == "school" && _id in $ids[].teamId]{\n  _id,\n  "_order": $ids[teamId == ^._id][0].rank,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  hotspot {\n    x,\n    y\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n} | order(_order)\n': SchoolWithVoteOrderResult;
     '\n*[_type == "school" && _id in $ids]{\n  _id,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  hotspot {\n    x,\n    y\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n}\n': SchoolsByIdsQueryResult;

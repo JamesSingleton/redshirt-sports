@@ -28,7 +28,7 @@ export const resolve: PresentationPluginOptions["resolve"] = {
       select: {
         title: "title",
         slug: "slug.current",
-        sportSlug: "sport.slug.current",
+        sportSlug: "sport->slug.current",
       },
       resolve: (doc) => {
         const locations = [
