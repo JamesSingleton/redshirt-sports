@@ -1,5 +1,4 @@
 "use client";
-
 import {
   processImageData,
   SANITY_BASE_URL,
@@ -22,15 +21,23 @@ export const IMAGE_SIZES = {
 
 type CustomSanityImageProps = SanityImageProps & {
   quality?: number;
+  priority?: boolean;
 };
 
 function ImageWrapper(props: WrapperProps<"img">) {
   return <BaseSanityImage baseUrl={SANITY_BASE_URL} {...props} />;
 }
 
+function warnMissingAlt(id: string, alt: string) {
+  if (process.env.NODE_ENV === "development" && !alt) {
+    console.warn(`[SanityImage] Missing alt text for image: ${id}`);
+  }
+}
+
 export function SanityImage({
   image,
   quality = 75,
+  priority = false,
   queryParams,
   alt,
   width,
@@ -52,7 +59,8 @@ export function SanityImage({
         width={width}
         height={height}
         className={className}
-        loading={loading}
+        loading={priority ? "eager" : loading}
+        fetchPriority={priority ? "high" : undefined}
         sizes={sizes}
       />
     );
@@ -64,16 +72,20 @@ export function SanityImage({
     return null;
   }
 
+  const resolvedAlt = alt ?? processedImageData.alt;
+  warnMissingAlt(processedImageData.id, resolvedAlt);
+
   return (
     <ImageWrapper
       {...props}
-      width={width}
-      height={height}
+      width={width ?? processedImageData.width}
+      height={height ?? processedImageData.height}
       className={className}
-      loading={loading}
+      loading={priority ? "eager" : loading}
+      fetchPriority={priority ? "high" : undefined}
       sizes={sizes}
       {...processedImageData}
-      alt={alt ?? processedImageData.alt}
+      alt={resolvedAlt}
       queryParams={{ ...queryParams, q: quality }}
     />
   );

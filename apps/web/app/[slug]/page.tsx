@@ -223,7 +223,7 @@ async function renderPostPage(
                   width={1200}
                   height={675}
                   className="h-auto w-full rounded-lg"
-                  loading="eager"
+                  priority
                   mode="cover"
                   sizes={IMAGE_SIZES.articleHero}
                 />

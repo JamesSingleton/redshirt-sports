@@ -20,7 +20,7 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
                 width={1200}
                 height={600}
                 className="h-full w-full object-cover object-top"
-                loading="eager"
+                priority
                 mode="cover"
                 sizes={IMAGE_SIZES.homeHero}
               />

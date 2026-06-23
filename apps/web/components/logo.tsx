@@ -33,7 +33,7 @@ export function Logo({
           width={width}
           className="h-10 w-auto"
           height={height}
-          loading="eager"
+          priority={priority}
           quality={100}
         />
       ) : (

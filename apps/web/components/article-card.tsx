@@ -33,7 +33,7 @@ export default function ArticleCard({
         width={400}
         height={267}
         className="h-48 w-full object-cover object-top"
-        loading={imagePriority ? "eager" : "lazy"}
+        priority={imagePriority}
         mode="cover"
         quality={62}
         sizes={IMAGE_SIZES.articleCard}

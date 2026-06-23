@@ -7,10 +7,13 @@ const testMainImage = {
   caption: "",
   attribution: "",
   _type: "image" as const,
+  id: "image-test",
   alt: "Test image",
   credit: "Unknown",
-  blurData: null,
+  preview: null,
   dominantColor: null,
+  width: 1200,
+  height: 675,
 };
 
 vi.mock("@/components/article-card", () => ({

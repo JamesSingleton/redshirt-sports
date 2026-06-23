@@ -95,6 +95,7 @@ export default function ArticleSection({
               height={480}
               className="w-full overflow-hidden rounded-lg shadow-md"
               mode="cover"
+              priority
               quality={70}
               sizes={IMAGE_SIZES.articleInline}
             />

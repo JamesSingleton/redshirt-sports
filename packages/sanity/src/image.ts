@@ -1,5 +1,7 @@
 import type { WrapperProps } from "sanity-image";
 
+import { dataset, projectId } from "./api";
+
 type SanityImageAssetReference = {
   readonly _ref?: string | null;
   readonly _id?: string | null;
@@ -11,8 +13,12 @@ export type SanityImageData = {
   readonly alt?: string | null;
   readonly altText?: string | null;
   readonly caption?: string | null;
+  readonly credit?: string | null;
+  readonly attribution?: string | null;
   readonly preview?: string | null;
-  readonly blurData?: string | null;
+  readonly width?: number | null;
+  readonly height?: number | null;
+  readonly dominantColor?: string | null;
   readonly asset?: SanityImageAssetReference | null;
   readonly hotspot?: { readonly x: number; readonly y: number } | null;
   readonly crop?: {
@@ -25,7 +31,6 @@ export type SanityImageData = {
 
 export type SanityImageInput = SanityImageData | string | null | undefined;
 
-// Types
 type ImageHotspot = {
   readonly x: number;
   readonly y: number;
@@ -42,6 +47,8 @@ type ProcessedImageData = {
   readonly id: string;
   readonly alt: string;
   readonly preview?: string;
+  readonly width?: number;
+  readonly height?: number;
   readonly hotspot?: ImageHotspot;
   readonly crop?: ImageCrop;
 };
@@ -50,11 +57,9 @@ export type SanityImageProps = {
   readonly image: SanityImageInput;
 } & Omit<WrapperProps<"img">, "id">;
 
-// Base URL construction
 export const SANITY_BASE_URL =
-  `https://cdn.sanity.io/images/${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}/${process.env.NEXT_PUBLIC_SANITY_DATASET}/` as const;
+  `https://cdn.sanity.io/images/${projectId}/${dataset}/` as const;
 
-// Type guards
 function isValidNumber(value: unknown): value is number {
   return typeof value === "number" && !Number.isNaN(value);
 }
@@ -80,7 +85,6 @@ function isValidCrop(crop: unknown): crop is ImageCrop {
   );
 }
 
-// Pure functions for data processing
 function extractHotspot(image: SanityImageData): ImageHotspot | undefined {
   if (!isValidHotspot(image?.hotspot)) {
     return;
@@ -124,19 +128,32 @@ function extractImageId(image: SanityImageData): string | null {
   return null;
 }
 
-function extractPreview(image: SanityImageData): string | undefined {
-  if (hasPreview(image.preview)) {
-    return image.preview;
+function extractAlt(image: SanityImageData): string {
+  if (typeof image.alt === "string" && image.alt.length > 0) {
+    return image.alt;
   }
 
-  if (hasPreview(image.blurData)) {
-    return image.blurData;
+  if (typeof image.caption === "string" && image.caption.length > 0) {
+    return image.caption;
   }
 
-  return undefined;
+  if (typeof image.altText === "string" && image.altText.length > 0) {
+    return image.altText;
+  }
+
+  return "";
 }
 
-// Main image processing function
+function extractDimensions(image: SanityImageData): {
+  width?: number;
+  height?: number;
+} {
+  const width = isValidNumber(image.width) ? image.width : undefined;
+  const height = isValidNumber(image.height) ? image.height : undefined;
+
+  return { width, height };
+}
+
 export function processImageData(
   image: SanityImageInput,
 ): ProcessedImageData | null {
@@ -146,19 +163,21 @@ export function processImageData(
 
   const id = extractImageId(image);
 
-  // Early return for invalid image data
   if (!id) {
     return null;
   }
 
   const hotspot = extractHotspot(image);
   const crop = extractCrop(image);
-  const preview = extractPreview(image);
+  const preview = hasPreview(image.preview) ? image.preview : undefined;
+  const { width, height } = extractDimensions(image);
 
   return {
     id,
-    alt: image.alt ?? image.caption ?? image.altText ?? "",
+    alt: extractAlt(image),
     ...(preview && { preview }),
+    ...(width && { width }),
+    ...(height && { height }),
     ...(hotspot && { hotspot }),
     ...(crop && { crop }),
   };
