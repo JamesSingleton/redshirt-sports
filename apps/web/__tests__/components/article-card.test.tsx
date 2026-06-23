@@ -18,6 +18,9 @@ vi.mock("@/components/sanity-image", () => ({
     image?: { alt?: string };
     loading?: "eager" | "lazy";
   }) => <img alt={image?.alt ?? "article"} data-loading={loading} />,
+  IMAGE_SIZES: {
+    articleCard: "test",
+  },
 }));
 
 vi.mock("next/link", () => ({

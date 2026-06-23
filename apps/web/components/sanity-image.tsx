@@ -1,47 +1,82 @@
-import { dataset, projectId } from "@redshirt-sports/sanity/api";
-import { getImageDimensions } from "@sanity/asset-utils";
-import { SanityImage } from "sanity-image";
+"use client";
 
-type CustomImageProps = {
-  image: any;
-  width?: number;
-  height?: number;
-  className?: string;
-  loading?: "lazy" | "eager";
-  mode?: "cover" | "contain";
+import {
+  processImageData,
+  SANITY_BASE_URL,
+  type SanityImageProps,
+} from "@redshirt-sports/sanity/image";
+import {
+  SanityImage as BaseSanityImage,
+  type WrapperProps,
+} from "sanity-image";
+
+export const IMAGE_SIZES = {
+  articleCard:
+    "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw",
+  articleHero: "(max-width: 1024px) 100vw, min(1200px, 70vw)",
+  homeHero: "(max-width: 1024px) 100vw, 66vw",
+  articleInline: "(max-width: 1024px) 100vw, min(720px, 70vw)",
+  teamFeatured: "(max-width: 768px) 100vw, 50vw",
+  teamThumbnail: "180px",
+} as const;
+
+type CustomSanityImageProps = SanityImageProps & {
   quality?: number;
 };
 
-const CustomImage = ({
+function ImageWrapper(props: WrapperProps<"img">) {
+  return <BaseSanityImage baseUrl={SANITY_BASE_URL} {...props} />;
+}
+
+export function SanityImage({
   image,
+  quality = 75,
+  queryParams,
+  alt,
   width,
   height,
   className,
   loading,
-  mode = "contain",
-  quality = 75,
-}: CustomImageProps) => {
-  const dimensions = getImageDimensions(image.asset);
+  sizes,
+  ...props
+}: CustomSanityImageProps) {
+  if (typeof image === "string") {
+    if (!image) {
+      return null;
+    }
+
+    return (
+      <img
+        src={image}
+        alt={alt ?? ""}
+        width={width}
+        height={height}
+        className={className}
+        loading={loading}
+        sizes={sizes}
+      />
+    );
+  }
+
+  const processedImageData = processImageData(image);
+
+  if (!processedImageData) {
+    return null;
+  }
 
   return (
-    <SanityImage
-      id={image.asset._ref ?? image.asset._id}
-      projectId={projectId}
-      dataset={dataset}
-      hotspot={image.hotspot}
-      crop={image.crop}
-      width={width ?? dimensions.width}
-      height={height ?? dimensions.height}
+    <ImageWrapper
+      {...props}
+      width={width}
+      height={height}
       className={className}
-      alt={image.alt ?? image.caption}
       loading={loading}
-      mode={mode}
-      // sizes="(max-width: 640px) 75vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-      queryParams={{
-        q: quality,
-      }}
+      sizes={sizes}
+      {...processedImageData}
+      alt={alt ?? processedImageData.alt}
+      queryParams={{ ...queryParams, q: quality }}
     />
   );
-};
+}
 
-export default CustomImage;
+export default SanityImage;

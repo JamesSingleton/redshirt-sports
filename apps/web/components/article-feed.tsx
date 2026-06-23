@@ -21,7 +21,7 @@ export default function ArticleFeed({
             author={authorName}
             date={article.publishedAt}
             headingLevel="h2"
-            imagePriority={index < 4}
+            imagePriority={index < 2}
           />
         );
       })}

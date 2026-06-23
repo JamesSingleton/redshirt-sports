@@ -63,7 +63,7 @@ describe("ArticleFeed", () => {
     expect(screen.getAllByTestId("article-card")).toHaveLength(2);
   });
 
-  it("prioritizes images for the first four articles", () => {
+  it("prioritizes images for the first two articles", () => {
     const manyArticles = Array.from({ length: 5 }, (_, i) => ({
       _id: String(i),
       title: `Article ${i}`,
@@ -79,7 +79,7 @@ describe("ArticleFeed", () => {
 
     const cards = screen.getAllByTestId("article-card");
     expect(cards[0]).toHaveAttribute("data-priority", "true");
-    expect(cards[3]).toHaveAttribute("data-priority", "true");
-    expect(cards[4]).toHaveAttribute("data-priority", "false");
+    expect(cards[1]).toHaveAttribute("data-priority", "true");
+    expect(cards[2]).toHaveAttribute("data-priority", "false");
   });
 });

@@ -7,7 +7,7 @@ import { formatDistanceToNow, parseISO } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import Link from "next/link";
 
-import CustomImage from "@/components/sanity-image";
+import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 
 export type TeamPost =
   | PostsBySchoolQueryResult["posts"][number]
@@ -61,11 +61,15 @@ function TeamPostImage({
   width,
   height,
   className,
+  quality = 62,
+  sizes,
 }: {
   image: TeamPost["mainImage"];
   width: number;
   height: number;
   className?: string;
+  quality?: number;
+  sizes?: string;
 }) {
   if (!image?.asset) {
     return <div className={className} aria-hidden />;
@@ -78,6 +82,8 @@ function TeamPostImage({
       height={height}
       className={className}
       mode="cover"
+      quality={quality}
+      sizes={sizes}
     />
   );
 }
@@ -102,6 +108,7 @@ export function TeamFeaturedArticle({ post }: { post: TeamPost }) {
         width={400}
         height={225}
         className="h-full w-full object-cover"
+        sizes={IMAGE_SIZES.teamFeatured}
       />
     </div>
   );
@@ -143,6 +150,7 @@ export function TeamNewsItem({ post }: { post: TeamPost }) {
           width={180}
           height={110}
           className="h-full w-full object-cover"
+          sizes={IMAGE_SIZES.teamThumbnail}
         />
       </div>
       <div className="min-w-0 flex-1">

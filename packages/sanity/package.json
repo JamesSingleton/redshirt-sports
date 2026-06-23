@@ -13,7 +13,8 @@
     "./live": "./src/live.ts",
     "./queries": "./src/queries.ts",
     "./types": "./src/types.ts",
-    "./token": "./src/token.ts"
+    "./token": "./src/token.ts",
+    "./image": "./src/image.ts"
   },
   "dependencies": {
     "@sanity/asset-utils": "^2.3.0",

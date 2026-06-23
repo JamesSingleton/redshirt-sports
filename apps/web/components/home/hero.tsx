@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import ArticleCard from "@/components/article-card";
 import FormatDate from "@/components/format-date";
-import CustomImage from "../sanity-image";
+import CustomImage, { IMAGE_SIZES } from "../sanity-image";
 
 const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
   const heroArticle = heroPosts[0]!;
@@ -17,7 +17,12 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
             <div className="relative aspect-2/1 overflow-hidden rounded-lg shadow-md">
               <CustomImage
                 image={heroArticle.mainImage}
+                width={1200}
+                height={600}
                 className="h-full w-full object-cover object-top"
+                loading="eager"
+                mode="cover"
+                sizes={IMAGE_SIZES.homeHero}
               />
             </div>
             <div className="mt-4 space-y-2">
@@ -52,12 +57,12 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
             </div>
           </div>
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-0 lg:grid-cols-1">
-            {recentArticles.map((article) => (
+            {recentArticles.map((article, index) => (
               <ArticleCard
                 title={article.title}
                 date={article.publishedAt}
                 image={article.mainImage}
-                imagePriority={true}
+                imagePriority={index === 0}
                 slug={article.slug}
                 author={article.authors[0]!.name}
                 key={article._id}

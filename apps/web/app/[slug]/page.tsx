@@ -23,7 +23,7 @@ import { buildSafeImageUrl, PostPageJsonLd } from "@/components/json-ld";
 import { LargeArticleSocialShare } from "@/components/posts/article-share";
 import { AuthorSection, MobileAuthorSection } from "@/components/posts/author";
 import { RichText } from "@/components/rich-text";
-import CustomImage from "@/components/sanity-image";
+import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { getArticleTagNames } from "@/lib/article-seo";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
@@ -220,10 +220,12 @@ async function renderPostPage(
               <figure className="mb-8 space-y-1.5">
                 <CustomImage
                   image={data.mainImage}
-                  width={1600}
-                  height={900}
+                  width={1200}
+                  height={675}
                   className="h-auto w-full rounded-lg"
                   loading="eager"
+                  mode="cover"
+                  sizes={IMAGE_SIZES.articleHero}
                 />
                 <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
                   <CameraIcon className="h-4 w-4" />

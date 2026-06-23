@@ -16,7 +16,7 @@ import {
   type PortableTextReactComponents,
 } from "next-sanity";
 
-import CustomImage from "@/components/sanity-image";
+import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { ReactTweet as Tweet } from "@/components/tweet";
 import { YouTubeEmbedComponent } from "./youtube-embed";
 
@@ -134,6 +134,8 @@ const components: Partial<PortableTextReactComponents> = {
             width={720}
             height={379}
             className="rounded-lg"
+            mode="cover"
+            sizes={IMAGE_SIZES.articleInline}
           />
           {(value.attribution || value.credit) && (
             <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">

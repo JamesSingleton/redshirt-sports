@@ -19,6 +19,9 @@ vi.mock("@/components/format-date", () => ({
 vi.mock("@/components/sanity-image", () => ({
   __esModule: true,
   default: () => <img alt="section" />,
+  IMAGE_SIZES: {
+    articleInline: "test",
+  },
 }));
 
 vi.mock("next/link", () => ({

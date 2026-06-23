@@ -3,7 +3,7 @@ import { Separator } from "@redshirt-sports/ui/components/separator";
 import Link from "next/link";
 
 import FormatDate from "@/components/format-date";
-import CustomImage from "./sanity-image";
+import CustomImage, { IMAGE_SIZES } from "./sanity-image";
 
 export default function ArticleCard({
   title,
@@ -30,10 +30,13 @@ export default function ArticleCard({
     <div className="border-border overflow-hidden rounded-lg border shadow-lg">
       <CustomImage
         image={image}
-        width={600}
-        height={400}
+        width={400}
+        height={267}
         className="h-48 w-full object-cover object-top"
         loading={imagePriority ? "eager" : "lazy"}
+        mode="cover"
+        quality={62}
+        sizes={IMAGE_SIZES.articleCard}
       />
       <div className="bg-background p-4">
         <Heading className="mb-2 text-lg font-semibold">
