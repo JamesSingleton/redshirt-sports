@@ -217,21 +217,23 @@ async function renderPostPage(
               <MobileAuthorSection authors={data.authors} />
             </div>
             <article className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
-              <figure className="mb-8 space-y-1.5">
-                <CustomImage
-                  image={data.image}
-                  width={1200}
-                  height={675}
-                  className="h-auto w-full rounded-lg"
-                  priority
-                  mode="cover"
-                  sizes={IMAGE_SIZES.articleHero}
-                />
-                <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
-                  <CameraIcon className="h-4 w-4" />
-                  <span>Source: {data.image.credit}</span>
-                </figcaption>
-              </figure>
+              {data.image && (
+                <figure className="mb-8 space-y-1.5">
+                  <CustomImage
+                    image={data.image}
+                    width={1200}
+                    height={675}
+                    className="h-auto w-full rounded-lg"
+                    priority
+                    mode="cover"
+                    sizes={IMAGE_SIZES.articleHero}
+                  />
+                  <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <CameraIcon className="h-4 w-4" />
+                    <span>Source: {data.image.credit}</span>
+                  </figcaption>
+                </figure>
+              )}
               <RichText richText={data.body} />
             </article>
           </div>
