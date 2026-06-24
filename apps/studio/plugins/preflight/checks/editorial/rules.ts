@@ -132,7 +132,8 @@ function validateSlug(document: PostDocument): EditorialRuleResult {
 }
 
 function validateImage(document: PostDocument): EditorialRuleResult {
-  const image = document.image;
+  const image =
+    document.image ?? (document as { mainImage?: unknown }).mainImage;
 
   if (!image) {
     return {

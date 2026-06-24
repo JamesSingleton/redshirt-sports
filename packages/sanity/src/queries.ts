@@ -137,7 +137,7 @@ const schoolImageFragment = /* groq */ `
 `;
 
 const postImageFragment = /* groq */ `
-  image{
+  "image": coalesce(image, mainImage){
     ...,
     ${imageMetadataProjection}
   }
@@ -182,7 +182,7 @@ const postSportFragment = /* groq */ `
 `;
 
 export const queryImageType = defineQuery(`
-  *[_type == "post" && defined(image)][0]{
+  *[_type == "post" && defined(coalesce(image, mainImage))][0]{
     ${postImageFragment}
   }.image
 `);

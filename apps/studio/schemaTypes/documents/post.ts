@@ -109,7 +109,31 @@ export const post = defineType({
       options: {
         hotspot: true,
       },
-      validation: (rule) => rule.required(),
+      validation: (rule) =>
+        rule.custom((image, context) => {
+          const mainImage = (context.document as { mainImage?: unknown })
+            ?.mainImage;
+          if (image || mainImage) {
+            return true;
+          }
+          return "Image is required";
+        }),
+      fields: postImageSubfields,
+    }),
+    defineField({
+      name: "mainImage",
+      title: "Image (Deprecated)",
+      type: "image",
+      deprecated: {
+        reason: 'Renamed to "image". Will be removed after migration.',
+      },
+      readOnly: true,
+      hidden: ({ value }) => value === undefined,
+      initialValue: undefined,
+      group: GROUP.MAIN_CONTENT,
+      options: {
+        hotspot: true,
+      },
       fields: postImageSubfields,
     }),
     defineField({
