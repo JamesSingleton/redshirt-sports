@@ -16,7 +16,7 @@ export default function ArticleFeed({
           <ArticleCard
             key={article._id}
             title={article.title}
-            image={article.mainImage}
+            image={article.image}
             slug={article.slug}
             author={authorName}
             date={article.publishedAt}

@@ -37,7 +37,7 @@ type PostArticle = {
   _updatedAt?: string | null;
   body?: unknown;
   authors?: Array<{ name?: string | null; slug?: string | null } | null> | null;
-  mainImage?: {
+  image?: {
     alt?: string | null;
     asset?: { _ref?: string };
   } | null;
@@ -145,7 +145,7 @@ export function buildPostPageJsonLd(
     (article.body ?? []) as Parameters<typeof toPlainText>[0],
   );
   const wordCount = plainText.split(/\s+/).filter(Boolean).length;
-  const imageUrl = buildSafeImageUrl(article.mainImage ?? undefined);
+  const imageUrl = buildSafeImageUrl(article.image ?? undefined);
   const articleSection = getCollegeSportSection(article.sport);
   const tagNames = getArticleTagNames(article.tags);
   const pageName = article.title
@@ -233,7 +233,7 @@ export function buildPostPageJsonLd(
           image: [
             buildImageObject({
               imageUrl,
-              alt: article.mainImage?.alt,
+              alt: article.image?.alt,
               id: imageId,
             }),
           ],
@@ -264,7 +264,7 @@ export function buildPostPageJsonLd(
       ? [
           buildImageObject({
             imageUrl,
-            alt: article.mainImage?.alt,
+            alt: article.image?.alt,
             id: imageId,
           }),
         ]

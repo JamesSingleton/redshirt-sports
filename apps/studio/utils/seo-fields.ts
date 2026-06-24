@@ -36,7 +36,7 @@ export const seoFields = [
     name: "seoImage",
     title: "SEO image override",
     description:
-      "This will override the main image. If left blank it will inherit the image from the main image.",
+      "This will override the article image. If left blank it will inherit the image from the article.",
     type: "image",
     group: GROUP.SEO,
     options: {

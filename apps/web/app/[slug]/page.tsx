@@ -72,7 +72,7 @@ export async function generateMetadata({
       ogTitle: data.ogTitle ?? undefined,
       ogDescription: data.ogDescription ?? undefined,
       seoImage: data.seoImage ?? undefined,
-      image: data.mainImage ?? undefined,
+      image: data.image ?? undefined,
       authors: data.authors,
       title: data.title,
       description: data.excerpt ?? undefined,
@@ -219,7 +219,7 @@ async function renderPostPage(
             <article className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
               <figure className="mb-8 space-y-1.5">
                 <CustomImage
-                  image={data.mainImage}
+                  image={data.image}
                   width={1200}
                   height={675}
                   className="h-auto w-full rounded-lg"
@@ -229,7 +229,7 @@ async function renderPostPage(
                 />
                 <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
                   <CameraIcon className="h-4 w-4" />
-                  <span>Source: {data.mainImage.credit}</span>
+                  <span>Source: {data.image.credit}</span>
                 </figcaption>
               </figure>
               <RichText richText={data.body} />
@@ -251,7 +251,7 @@ async function renderPostPage(
                   key={morePost._id}
                   title={morePost.title}
                   date={morePost.publishedAt}
-                  image={morePost.mainImage}
+                  image={morePost.image}
                   slug={morePost.slug}
                   author={morePost.authors[0].name}
                 />

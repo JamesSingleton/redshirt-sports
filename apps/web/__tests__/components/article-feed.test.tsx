@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import ArticleFeed from "@/components/article-feed";
 import type { ArticleFeedItem } from "@/types/article";
 
-const testMainImage = {
+const testImage = {
   caption: "",
   attribution: "",
   _type: "image" as const,
@@ -40,7 +40,7 @@ const articles = [
     title: "First Article",
     excerpt: "First excerpt",
     storyType: "news",
-    mainImage: testMainImage,
+    image: testImage,
     slug: "first-article",
     publishedAt: "2026-01-01T00:00:00Z",
     authors: [{ name: "Jane Doe" }],
@@ -50,7 +50,7 @@ const articles = [
     title: "Second Article",
     excerpt: "Second excerpt",
     storyType: "news",
-    mainImage: testMainImage,
+    image: testImage,
     slug: "second-article",
     publishedAt: "2026-01-02T00:00:00Z",
     authors: [{ name: "John Smith" }],
@@ -72,7 +72,7 @@ describe("ArticleFeed", () => {
       title: `Article ${i}`,
       excerpt: `Excerpt ${i}`,
       storyType: "news" as const,
-      mainImage: testMainImage,
+      image: testImage,
       slug: `article-${i}`,
       publishedAt: "2026-01-01T00:00:00Z",
       authors: [{ name: "Author" }],

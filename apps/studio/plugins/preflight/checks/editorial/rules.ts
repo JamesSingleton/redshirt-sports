@@ -131,21 +131,21 @@ function validateSlug(document: PostDocument): EditorialRuleResult {
   };
 }
 
-function validateMainImage(document: PostDocument): EditorialRuleResult {
-  const mainImage = document.mainImage;
+function validateImage(document: PostDocument): EditorialRuleResult {
+  const image = document.image;
 
-  if (!mainImage) {
+  if (!image) {
     return {
-      id: "mainImage",
-      label: "Main image present",
+      id: "image",
+      label: "Image present",
       status: "error",
-      message: "Main image is required",
+      message: "Image is required",
     };
   }
 
   return {
-    id: "mainImage",
-    label: "Main image present",
+    id: "image",
+    label: "Image present",
     status: "success",
   };
 }
@@ -325,7 +325,7 @@ export function runEditorialRules(
     validateExcerpt(document),
     validateSeoDescription(document),
     validateSlug(document),
-    validateMainImage(document),
+    validateImage(document),
     validateBodyImageCaptions(body),
     validateFirstHeading(body),
     validateHeadingOrder(body),

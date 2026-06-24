@@ -85,7 +85,6 @@ export const governingBody = defineType({
       type: "image",
       options: {
         hotspot: true,
-        metadata: ["blurhash", "lqip"],
       },
       fields: [
         defineField({

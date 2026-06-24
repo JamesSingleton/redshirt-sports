@@ -28,6 +28,6 @@ export type Post = {
   body: PortableTextBlock[];
   author: Author;
   authors: Author[];
-  mainImage: SanityImageAsset;
+  image: SanityImageAsset;
   sport: string;
 };

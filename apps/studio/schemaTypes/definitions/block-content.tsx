@@ -108,7 +108,6 @@ const richTextMembers = [
     icon: ImageIcon,
     options: {
       hotspot: true,
-      metadata: ["blurhash", "lqip"],
     },
     fields: [
       {

@@ -90,7 +90,7 @@ export default function ArticleSection({
             )}
           >
             <CustomImage
-              image={firstArticle.mainImage}
+              image={firstArticle.image}
               width={720}
               height={480}
               className="w-full overflow-hidden rounded-lg shadow-md"
@@ -106,7 +106,7 @@ export default function ArticleSection({
             <ArticleCard
               title={article.title}
               date={article.publishedAt}
-              image={article.mainImage}
+              image={article.image}
               slug={article.slug}
               author={(article.authors[0] as unknown as Author)?.name}
               key={article._id}

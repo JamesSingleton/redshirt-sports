@@ -71,7 +71,6 @@ export const school = defineType({
       type: "image",
       options: {
         hotspot: true,
-        metadata: ["blurhash", "lqip"],
       },
       validation: (rule) => rule.required(),
       description: "The logo of the college or university",

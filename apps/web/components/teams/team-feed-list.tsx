@@ -21,11 +21,11 @@ function TeamArticleFeedItem({ post }: { post: TeamPost }) {
           className="relative block h-[100px] w-40 shrink-0 overflow-hidden rounded-md bg-muted"
           prefetch={false}
         >
-          <FeedPostImage image={post.mainImage} />
+          <FeedPostImage image={post.image} />
         </Link>
       ) : (
         <div className="relative block h-[100px] w-40 shrink-0 overflow-hidden rounded-md bg-muted">
-          <FeedPostImage image={post.mainImage} />
+          <FeedPostImage image={post.image} />
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -59,7 +59,7 @@ function TeamArticleFeedItem({ post }: { post: TeamPost }) {
   );
 }
 
-function FeedPostImage({ image }: { image: TeamPost["mainImage"] }) {
+function FeedPostImage({ image }: { image: TeamPost["image"] }) {
   if (!image?.asset) {
     return <div className="size-full bg-muted" aria-hidden />;
   }

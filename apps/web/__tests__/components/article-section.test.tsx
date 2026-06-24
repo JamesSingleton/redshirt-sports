@@ -41,7 +41,7 @@ const articles = [
     title: "Lead Story",
     excerpt: "Lead excerpt",
     slug: "lead-story",
-    mainImage: { alt: "Lead" },
+    image: { alt: "Lead" },
     publishedAt: "2026-01-15T20:00:00.000Z",
     authors: [
       {
@@ -56,7 +56,7 @@ const articles = [
     title: "Secondary Story",
     excerpt: "Secondary excerpt",
     slug: "secondary-story",
-    mainImage: null,
+    image: null,
     publishedAt: "2026-01-14T20:00:00.000Z",
     authors: [{ name: "John Smith" }],
   },

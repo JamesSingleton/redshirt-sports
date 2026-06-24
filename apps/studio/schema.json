@@ -2056,7 +2056,7 @@
         },
         "optional": true
       },
-      "mainImage": {
+      "image": {
         "type": "objectAttribute",
         "value": {
           "type": "object",

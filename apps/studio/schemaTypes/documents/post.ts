@@ -1,16 +1,33 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
-import { CharacterCountInput } from "../../components/character-count";
-import { GROUP, GROUPS, STORY_TYPES } from "../../utils/constant";
-import { ogFields } from "../../utils/og-fields";
+import { CharacterCountInput } from "@/components/character-count";
+import { documentSlugField } from "@/schemaTypes/common";
+import { GROUP, GROUPS, STORY_TYPES } from "@/utils/constant";
+import { ogFields } from "@/utils/og-fields";
 import {
   validateH2IsFirst,
   validateHeadingOrder,
-} from "../../utils/portable-text-validations";
-import { seoFields } from "../../utils/seo-fields";
-import { documentSlugField } from "../common";
+} from "@/utils/portable-text-validations";
+import { seoFields } from "@/utils/seo-fields";
 
 const DIVISION_1_ID = "329c4f4f-bb7c-459e-872d-eb1a57deb196"; // Assuming this is the ID for Division 1
+
+const postImageSubfields = [
+  defineField({
+    name: "caption",
+    title: "Caption",
+    type: "string",
+    description: "Just a brief description of the image.",
+    validation: (rule) => rule.required(),
+  }),
+  defineField({
+    name: "attribution",
+    type: "string",
+    title: "Attribution",
+    description: "Who took the photo or where did you get the photo?",
+    validation: (rule) => rule.required(),
+  }),
+];
 
 export const post = defineType({
   name: "post",
@@ -83,7 +100,7 @@ export const post = defineType({
         "This will be automatically generated when the post is published.",
     }),
     defineField({
-      name: "mainImage",
+      name: "image",
       title: "Image",
       type: "image",
       description:
@@ -93,22 +110,7 @@ export const post = defineType({
         hotspot: true,
       },
       validation: (rule) => rule.required(),
-      fields: [
-        defineField({
-          name: "caption",
-          title: "Caption",
-          type: "string",
-          description: "Just a brief description of the image.",
-          validation: (rule) => rule.required(),
-        }),
-        defineField({
-          name: "attribution",
-          type: "string",
-          title: "Attribution",
-          description: "Who took the photo or where did you get the photo?",
-          validation: (rule) => rule.required(),
-        }),
-      ],
+      fields: postImageSubfields,
     }),
     defineField({
       title: "Sport",
@@ -240,7 +242,7 @@ export const post = defineType({
   preview: {
     select: {
       title: "title",
-      media: "mainImage",
+      media: "image",
       date: "publishedAt",
       storyType: "storyType",
     },
