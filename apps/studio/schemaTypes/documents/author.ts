@@ -68,7 +68,6 @@ export const author = defineType({
       type: "image",
       options: {
         hotspot: true,
-        metadata: ["blurhash", "lqip"],
       },
       validation: (rule) => rule.required(),
     }),

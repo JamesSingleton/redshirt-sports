@@ -304,7 +304,7 @@ async function cachedRenderAuthorPage({
                   key={post._id}
                   title={post.title}
                   slug={post.slug}
-                  image={post.mainImage}
+                  image={post.image}
                   date={post.publishedAt}
                   author={post.authors[0].name}
                 />

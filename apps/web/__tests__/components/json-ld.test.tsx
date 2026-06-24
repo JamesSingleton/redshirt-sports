@@ -64,7 +64,7 @@ const sampleArticle = {
   authors: [{ name: "Jane Doe", slug: "jane-doe" }],
   sport: { slug: "football", title: "Football" },
   tags: [{ name: "Recruiting" }],
-  mainImage: { alt: "Hero", asset: { _ref: "image-123" } },
+  image: { alt: "Hero", asset: { _ref: "image-123" } },
 };
 
 describe("JsonLdScript", () => {
@@ -129,10 +129,10 @@ describe("buildPostPageJsonLd", () => {
     });
   });
 
-  it("omits image fields when the main image is missing", () => {
+  it("omits image fields when the image is missing", () => {
     const data = buildPostPageJsonLd({
       ...sampleArticle,
-      mainImage: { alt: "Hero" },
+      image: { alt: "Hero" },
     });
     const article = data?.["@graph"]?.find(
       (node) => typeof node === "object" && node?.["@type"] === "NewsArticle",

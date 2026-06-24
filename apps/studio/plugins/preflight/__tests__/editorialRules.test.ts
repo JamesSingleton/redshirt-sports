@@ -7,7 +7,7 @@ describe("runEditorialRules", () => {
     title: "A solid article title for testing purposes",
     excerpt: "A".repeat(150),
     slug: { current: "test-article" },
-    mainImage: { _type: "image" },
+    image: { _type: "image" },
     body: [],
   };
 

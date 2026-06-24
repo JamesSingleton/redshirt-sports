@@ -16,7 +16,7 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
           <div className="lg:col-span-2">
             <div className="relative aspect-2/1 overflow-hidden rounded-lg shadow-md">
               <CustomImage
-                image={heroArticle.mainImage}
+                image={heroArticle.image}
                 width={1200}
                 height={600}
                 className="h-full w-full object-cover object-top"
@@ -61,7 +61,7 @@ const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
               <ArticleCard
                 title={article.title}
                 date={article.publishedAt}
-                image={article.mainImage}
+                image={article.image}
                 imagePriority={index === 0}
                 slug={article.slug}
                 author={article.authors[0]!.name}

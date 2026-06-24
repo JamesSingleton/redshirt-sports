@@ -16,7 +16,7 @@ export function EditorialHealthWidget() {
     client
       .fetch<HealthCounts>(`{
         "missingStoryType": count(*[_type == "post" && !defined(storyType)]),
-        "missingImage": count(*[_type == "post" && !defined(mainImage)]),
+        "missingImage": count(*[_type == "post" && !defined(coalesce(image, mainImage))]),
         "missingSchoolSlug": count(*[_type == "school" && !defined(slug.current)])
       }`)
       .then(setCounts)

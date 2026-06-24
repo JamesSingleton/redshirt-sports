@@ -169,7 +169,7 @@ export async function CachedHomePage({
                 <ArticleCard
                   title={article.title}
                   date={article.publishedAt}
-                  image={article.mainImage}
+                  image={article.image}
                   slug={article.slug}
                   key={article._id}
                   author={article.authors[0]!.name}

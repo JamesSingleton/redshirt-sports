@@ -64,7 +64,7 @@ function TeamPostImage({
   quality = 62,
   sizes,
 }: {
-  image: TeamPost["mainImage"];
+  image: TeamPost["image"];
   width: number;
   height: number;
   className?: string;
@@ -104,7 +104,7 @@ export function TeamFeaturedArticle({ post }: { post: TeamPost }) {
   const image = (
     <div className="relative aspect-video overflow-hidden bg-muted">
       <TeamPostImage
-        image={post.mainImage}
+        image={post.image}
         width={400}
         height={225}
         className="h-full w-full object-cover"
@@ -146,7 +146,7 @@ export function TeamNewsItem({ post }: { post: TeamPost }) {
     <article className="flex gap-4 border-b border-border pb-5">
       <div className="h-[90px] w-[140px] shrink-0 overflow-hidden rounded bg-muted md:h-[110px] md:w-[180px]">
         <TeamPostImage
-          image={post.mainImage}
+          image={post.image}
           width={180}
           height={110}
           className="h-full w-full object-cover"

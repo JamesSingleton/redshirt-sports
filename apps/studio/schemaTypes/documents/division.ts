@@ -77,7 +77,6 @@ export const division = defineType({
       type: "image",
       options: {
         hotspot: true,
-        metadata: ["blurhash", "lqip"],
       },
       description: "Please provide a logo for the division.",
       fields: [

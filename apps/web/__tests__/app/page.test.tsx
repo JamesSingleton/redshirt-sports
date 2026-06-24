@@ -131,7 +131,7 @@ describe("HomePage", () => {
       _id: "1",
       title: "Test Article",
       publishedAt: "2026-01-01T00:00:00Z",
-      mainImage: null,
+      image: null,
       slug: "test-article",
       authors: [{ name: "Test Author" }],
     };
@@ -159,7 +159,7 @@ describe("HomePage", () => {
       _id: "hero",
       title: "Hero Article",
       publishedAt: "2026-01-01T00:00:00Z",
-      mainImage: null,
+      image: null,
       slug: "hero-article",
       authors: [{ name: "Hero Author" }],
     };
@@ -180,7 +180,7 @@ describe("HomePage", () => {
       _id: "division-1",
       title: "FBS Article",
       publishedAt: "2026-01-01T00:00:00Z",
-      mainImage: null,
+      image: null,
       slug: "fbs-article",
       authors: [{ name: "Division Author" }],
     };

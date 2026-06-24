@@ -16,7 +16,7 @@ export interface PostPayload {
   _updatedAt: string;
   title: string;
   publishedAt: string;
-  mainImage: SanityImageAsset;
+  image: SanityImageAsset;
   division: {
     name: string;
     slug: string;

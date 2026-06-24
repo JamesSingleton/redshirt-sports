@@ -83,7 +83,7 @@ async function cachedRenderSearchPage({
                 key={post._id}
                 title={post.title}
                 date={post.publishedAt}
-                image={post.mainImage}
+                image={post.image}
                 slug={post.slug}
                 author={post.authors[0]?.name ?? ""}
               />

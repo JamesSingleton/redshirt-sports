@@ -37,7 +37,7 @@ export async function GET() {
       link: `${baseUrl}/${post.slug}`,
       description: post.excerpt,
       date: post.publishedAt ? new Date(post.publishedAt) : new Date(),
-      image: buildSafeImageUrl(post.mainImage),
+      image: buildSafeImageUrl(post.image),
     });
   });
 

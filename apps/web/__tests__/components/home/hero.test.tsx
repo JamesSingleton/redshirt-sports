@@ -43,7 +43,7 @@ const heroPosts = [
     title: "Hero Story",
     excerpt: "Lead story excerpt",
     slug: "hero-story",
-    mainImage: { alt: "Hero image" },
+    image: { alt: "Hero image" },
     publishedAt: "2026-01-15T20:00:00.000Z",
     authors: [
       {
@@ -61,7 +61,7 @@ const heroPosts = [
     title: "Secondary Story",
     excerpt: "Another excerpt",
     slug: "secondary-story",
-    mainImage: { alt: "Secondary image" },
+    image: { alt: "Secondary image" },
     publishedAt: "2026-01-14T20:00:00.000Z",
     authors: [
       {
