@@ -33,7 +33,7 @@
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/client": "catalog:",
     "@sanity/image-url": "^2.1.1",
-    "@sentry/nextjs": "^10.59.0",
+    "@sentry/nextjs": "^10.60.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tanstack/react-virtual": "^3.14.3",
     "@upstash/ratelimit": "^2.0.8",

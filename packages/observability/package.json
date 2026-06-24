@@ -18,7 +18,7 @@
     "check:types": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@sentry/nextjs": "^10.59.0",
+    "@sentry/nextjs": "^10.60.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "react": "catalog:",
     "server-only": "^0.0.1",

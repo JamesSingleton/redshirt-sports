@@ -20,9 +20,9 @@
     "ci": "turbo run lint check:types test --affected"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.0",
+    "@biomejs/biome": "^2.5.1",
     "@redshirt-sports/typescript-config": "workspace:*",
-    "turbo": "^2.9.18",
+    "turbo": "^2.10.0",
     "typescript": "^6.0.3"
   }
 }
