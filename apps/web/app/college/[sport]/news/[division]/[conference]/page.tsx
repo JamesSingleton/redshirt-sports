@@ -13,10 +13,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { CollectionPage, WithContext } from "schema-dts";
 
-import ArticleFeed from "@/components/article-feed";
+import { CollegeNewsArticleList } from "@/components/college-news/college-news-article-list";
+import { CollegeNewsArticleListLoading } from "@/components/college-news/college-news-loading";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
-import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
+import {
+  getDivisionNewsDescription,
+  resolveDivisionRouteSlug,
+} from "@/lib/college-news-config";
+import { fetchCollegeNewsConferenceLayoutData } from "@/lib/college-news-layout-data";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
@@ -31,7 +36,8 @@ export async function generateMetadata({
   params: Promise<{ sport: string; division: string; conference: string }>;
   searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
-  const { sport, division, conference } = await params;
+  const { sport, division: divisionParam, conference } = await params;
+  const division = resolveDivisionRouteSlug(divisionParam);
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
 
@@ -64,25 +70,19 @@ export async function generateMetadata({
 
   const conferenceName =
     conferenceInfo.data?.shortName ?? conferenceInfo.data?.name;
-  let canonical = `/college/${sport}/news/${division}/${conference}`;
+  const canonical = `/college/${sport}/news/${division}/${conference}`;
 
-  const baseTitle = `${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} News, Updates & Analysis`;
-  const baseDescription = `Stay informed with breaking ${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`;
-
-  let finalTitle = baseTitle;
-  let finalDescription = baseDescription;
-
-  if (pageIndex && pageIndex > 1) {
-    finalTitle = `${baseTitle} - Page ${pageIndex}`;
-    finalDescription = `Continue exploring coverage of ${conferenceName} ${divisionDisplayName?.data.displayName} ${sportTitle.data.title} on Page ${pageIndex}. Find more detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}.`;
-    canonical = `/college/${sport}/news/${division}/${conference}?page=${pageIndex}`;
-  }
+  const baseTitle = `${conferenceName} ${divisionDisplayName.data.displayName} ${sportTitle.data.title} News, Updates & Analysis`;
+  const baseDescription = `Stay informed with breaking ${conferenceName} ${divisionDisplayName.data.displayName} ${sportTitle.data.title} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`;
 
   return getPageMetadata(
     {
-      title: finalTitle,
-      description: finalDescription,
-      slug: canonical,
+      title: pageIndex > 1 ? `${baseTitle} - Page ${pageIndex}` : baseTitle,
+      description:
+        pageIndex > 1
+          ? `Continue exploring coverage of ${conferenceName} ${divisionDisplayName.data.displayName} ${sportTitle.data.title} on Page ${pageIndex}.`
+          : baseDescription,
+      slug: pageIndex > 1 ? `${canonical}?page=${pageIndex}` : canonical,
     },
     perspective,
   );
@@ -95,25 +95,24 @@ export default function Page({
   params: Promise<{ sport: string; division: string; conference: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  return searchParamsPage(null, () =>
-    renderConferenceNewsPage({ params, searchParams }),
+  return searchParamsPage(<CollegeNewsArticleListLoading />, () =>
+    renderConferenceNewsFeed({ params, searchParams }),
   );
 }
 
-async function renderConferenceNewsPage({
+async function renderConferenceNewsFeed({
   params,
   searchParams,
 }: {
   params: Promise<{ sport: string; division: string; conference: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  const [{ sport, division, conference }, { page }] = await Promise.all([
-    params,
-    searchParams,
-  ]);
+  const [{ sport, division: divisionParam, conference }, { page }] =
+    await Promise.all([params, searchParams]);
+  const division = resolveDivisionRouteSlug(divisionParam);
   const pageIndex = validatePageIndex(page);
   const { perspective, stega } = await getDynamicFetchOptions();
-  return cachedRenderConferenceNewsPage({
+  return cachedConferenceNewsFeed({
     sport,
     division,
     conference,
@@ -123,7 +122,7 @@ async function renderConferenceNewsPage({
   });
 }
 
-async function cachedRenderConferenceNewsPage({
+async function cachedConferenceNewsFeed({
   sport,
   division,
   conference,
@@ -141,49 +140,37 @@ async function cachedRenderConferenceNewsPage({
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
 
-  const [newsResponse, sportInfoResponse, divisionNameResponse] =
-    await Promise.all([
-      sanityFetchPage({
-        query: queryArticlesBySportDivisionAndConference,
-        params: { sport, division, conference, from, to },
-        perspective,
-        stega,
-      }),
-      sanityFetchPage({
-        query: sportInfoBySlug,
-        params: { slug: sport },
-        perspective,
-        stega,
-      }),
-      sanityFetchPage({
-        query: queryDivisionOrSubgroupingDisplayName,
-        params: { slugOrShortName: division },
-        perspective,
-        stega,
-      }),
-    ]);
+  const [newsResponse, layoutData] = await Promise.all([
+    sanityFetchPage({
+      query: queryArticlesBySportDivisionAndConference,
+      params: { sport, division, conference, from, to },
+      perspective,
+      stega,
+    }),
+    fetchCollegeNewsConferenceLayoutData({
+      sport,
+      division,
+      conference,
+      perspective,
+      stega,
+    }),
+  ]);
 
   const news = newsResponse.data;
-  const sportInfo = sportInfoResponse.data;
-  const divisionOrSubgroupingName = divisionNameResponse.data?.displayName;
 
-  if (!news?.posts?.length || !news.conferenceInfo) {
+  if (!news?.posts?.length || !news.conferenceInfo || !layoutData) {
     notFound();
   }
 
+  const { sportTitle, divisionName, conferenceName } = layoutData;
+  const pageTitle = `${conferenceName} ${sportTitle} News`;
   const totalPages = Math.ceil(news.totalPosts / perPage);
-
-  const sportTitle = sportInfo?.title;
-
-  const title = news.conferenceInfo.shortName
-    ? `${news.conferenceInfo.shortName} ${sportTitle} News`
-    : `${news.conferenceInfo.name} ${sportTitle} News`;
 
   const collectionPageJsonLd: WithContext<CollectionPage> = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: title,
-    description: `Stay informed with breaking ${news.conferenceInfo.shortName ?? news.conferenceInfo.name} ${divisionOrSubgroupingName} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
+    name: pageTitle,
+    description: `Stay informed with breaking ${conferenceName} ${divisionName} ${sportTitle} news and in-depth analysis.`,
     url: `${baseUrl}/college/${sport}/news/${division}/${conference}${pageIndex > 1 ? `?page=${pageIndex}` : ""}`,
     isPartOf: { "@id": websiteId, "@type": "WebSite" },
     publisher: { "@id": organizationId, "@type": "Organization" },
@@ -208,49 +195,24 @@ async function cachedRenderConferenceNewsPage({
         {
           "@type": "ListItem",
           position: 2,
-          name: "News",
-          item: `${baseUrl}/college/news`,
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
           name: sportTitle,
           item: `${baseUrl}/college/${sport}/news`,
         },
         {
           "@type": "ListItem",
-          position: 4,
-          name: divisionOrSubgroupingName || "",
+          position: 3,
+          name: divisionName,
           item: `${baseUrl}/college/${sport}/news/${division}`,
         },
         {
           "@type": "ListItem",
-          position: 5,
-          name: news.conferenceInfo.shortName ?? news.conferenceInfo.name,
+          position: 4,
+          name: conferenceName,
           item: `${baseUrl}/college/${sport}/news/${division}/${conference}`,
         },
       ],
     },
   };
-
-  const breadcrumbItems = [
-    {
-      title: "News",
-      href: "/college/news",
-    },
-    {
-      title: sportInfo?.title,
-      href: `/college/${sport}/news`,
-    },
-    {
-      title: divisionOrSubgroupingName || "",
-      href: `/college/${sport}/news/${division}`,
-    },
-    {
-      title: news.conferenceInfo.shortName ?? news.conferenceInfo.name,
-      href: `/college/${sport}/news/${division}/${conference}`,
-    },
-  ];
 
   return (
     <>
@@ -258,12 +220,10 @@ async function cachedRenderConferenceNewsPage({
         data={collectionPageJsonLd}
         id={`collection-page-${sport}-${division}-${conference}`}
       />
-      {/* @ts-expect-error for some reason it doesn't like the type */}
-      <PageHeader title={title} breadcrumbs={breadcrumbItems} />
-      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <ArticleFeed articles={news.posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
-      </section>
+      <CollegeNewsArticleList articles={news.posts} />
+      {totalPages > 1 ? (
+        <PaginationControls totalPosts={news.totalPosts} />
+      ) : null}
     </>
   );
 }

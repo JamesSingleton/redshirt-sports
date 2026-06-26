@@ -3,34 +3,20 @@ import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
-import {
-  globalNavigationQuery,
-  queryGlobalSeoSettings,
-} from "@redshirt-sports/sanity/queries";
-import type {
-  GlobalNavigationQueryResult,
-  QueryGlobalSeoSettingsResult,
-} from "@redshirt-sports/sanity/types";
+import { queryGlobalSeoSettings } from "@redshirt-sports/sanity/queries";
+import type { QueryGlobalSeoSettingsResult } from "@redshirt-sports/sanity/types";
 import { memo } from "react";
 
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { Logo } from "./logo";
+import type { Top25RankingsData } from "./nav-types";
 import { NavbarClient, NavbarSkeletonResponsive } from "./navbar-client";
 
-export interface RankingPeriod {
-  division: string;
-  week: number;
-  year: number;
-}
-
-export type RankingPeriodOrUndefined = RankingPeriod | undefined;
-
-export interface SportRankings {
-  sport: string;
-  divisions: RankingPeriodOrUndefined[];
-}
-
-export type Top25RankingsData = SportRankings[];
+export type {
+  RankingPeriod,
+  SportRankings,
+  Top25RankingsData,
+} from "./nav-types";
 
 export async function DynamicNavbarServer() {
   const { perspective, stega } = await getDynamicFetchOptions();
@@ -43,16 +29,10 @@ export async function CachedNavbarServer({
 }: DynamicFetchOptions) {
   "use cache";
   const [
-    { data: navbarData },
     { data: settingsData },
     latestFootballRankings,
     latestMensBasketballRankings,
   ] = await Promise.all([
-    sanityFetchPage({
-      query: globalNavigationQuery,
-      perspective,
-      stega,
-    }),
     sanityFetchPage({
       query: queryGlobalSeoSettings,
       perspective,
@@ -75,7 +55,6 @@ export async function CachedNavbarServer({
 
   return (
     <MemoizedNavbar
-      navbarData={navbarData}
       settingsData={settingsData}
       latestRankings={latestRankings}
     />
@@ -84,23 +63,28 @@ export async function CachedNavbarServer({
 
 // Memoize the main Navbar component to prevent unnecessary re-renders
 const MemoizedNavbar = memo(function Navbar({
-  navbarData,
   settingsData,
   latestRankings,
 }: {
-  navbarData: GlobalNavigationQueryResult;
   settingsData: QueryGlobalSeoSettingsResult;
   latestRankings: Top25RankingsData | undefined;
 }) {
-  const { siteTitle: settingsSiteTitle, logo } = settingsData ?? {};
+  const {
+    siteTitle: settingsSiteTitle,
+    logo,
+    footerLogoDarkMode,
+  } = settingsData ?? {};
+  // The header is always a dark surface, so prefer the light/dark-mode logo.
+  const headerLogo = footerLogoDarkMode ?? logo;
 
   return (
-    <header className="py-3 md:border-b">
-      <div className="container mx-auto px-4 md:px-6">
+    <header className="bg-brand-surface text-brand-surface-foreground border-brand-surface-border sticky top-0 z-50 border-b">
+      <div className="container px-4 py-3">
         <div className="grid grid-cols-[auto_1fr] items-center gap-4">
-          {logo && <Logo alt={settingsSiteTitle} priority image={logo} />}
+          {headerLogo && (
+            <Logo alt={settingsSiteTitle} priority image={headerLogo} />
+          )}
           <NavbarClient
-            navbarData={navbarData}
             settingsData={settingsData}
             latestRankings={latestRankings || []}
           />
@@ -114,10 +98,10 @@ export { MemoizedNavbar as Navbar };
 
 export function NavbarSkeleton() {
   return (
-    <header className="h-[65px] py-4 md:border-b">
-      <div className="container mx-auto px-4 md:px-6">
+    <header className="bg-brand-surface text-brand-surface-foreground border-brand-surface-border sticky top-0 z-50 h-[65px] border-b py-3">
+      <div className="container px-4">
         <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
-          <div className="bg-muted h-[40px] w-[170px] animate-pulse rounded" />
+          <div className="h-[40px] w-[170px] animate-pulse rounded bg-white/10" />
           <NavbarSkeletonResponsive />
         </nav>
       </div>
