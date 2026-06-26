@@ -1,5 +1,5 @@
-import type { WithClassName } from "@/types";
 import { formatPublishDate } from "@/lib/format-publish-date";
+import type { WithClassName } from "@/types";
 
 interface RelativePublishDateProps extends WithClassName {
   dateString: string;

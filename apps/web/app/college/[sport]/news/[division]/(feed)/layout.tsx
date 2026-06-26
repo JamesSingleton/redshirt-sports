@@ -12,11 +12,7 @@ export default function DivisionNewsLayout({
     params,
     null,
     async ({ sport, division }, options) => (
-      <CollegeNewsDivisionLayout
-        sport={sport}
-        division={division}
-        {...options}
-      >
+      <CollegeNewsDivisionLayout sport={sport} division={division} {...options}>
         {children}
       </CollegeNewsDivisionLayout>
     ),

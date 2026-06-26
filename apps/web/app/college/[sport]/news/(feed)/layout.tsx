@@ -1,5 +1,5 @@
-import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { CollegeNewsSportLayout } from "@/components/college-news/college-news-sport-layout";
+import { draftAwareParamsPage } from "@/lib/draft-cache";
 
 export default function SportNewsLayout({
   params,

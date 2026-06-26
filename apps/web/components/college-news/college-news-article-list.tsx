@@ -24,7 +24,11 @@ export function CollegeNewsArticleList({
         return (
           <article key={article._id} className="py-4 first:pt-0">
             {href ? (
-              <Link href={href} prefetch={false} className="group flex items-start gap-4 sm:gap-5">
+              <Link
+                href={href}
+                prefetch={false}
+                className="group flex items-start gap-4 sm:gap-5"
+              >
                 <div className="relative h-20 w-[120px] shrink-0 overflow-hidden rounded bg-muted sm:h-[100px] sm:w-40 lg:h-[110px] lg:w-44">
                   <CustomImage
                     image={article.image}

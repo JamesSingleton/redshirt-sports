@@ -15,9 +15,9 @@ import {
   resolveDivisionRouteSlug,
 } from "@/lib/college-news-config";
 import {
+  type CollegeNewsPollWidgetData,
   getDivisionPollWidgetData,
   getSportPollWidgetData,
-  type CollegeNewsPollWidgetData,
 } from "@/lib/college-news-rankings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
@@ -54,7 +54,9 @@ export async function fetchCollegeNewsSportLayoutData({
   sport,
   perspective,
   stega,
-}: DynamicFetchOptions & { sport: string }): Promise<CollegeNewsSportLayoutData | null> {
+}: DynamicFetchOptions & {
+  sport: string;
+}): Promise<CollegeNewsSportLayoutData | null> {
   "use cache";
   const sportConfig = getSportNavConfig(sport);
   const [sportInfoResponse, divisionSlugsResponse, pollWidget] =

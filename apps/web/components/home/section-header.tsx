@@ -29,10 +29,7 @@ export function SectionHeader({
       )}
     >
       <div className="flex items-center gap-2">
-        <Heading
-          id={id}
-          className="text-lg font-bold text-foreground"
-        >
+        <Heading id={id} className="text-lg font-bold text-foreground">
           {title}
         </Heading>
         {badge ? (

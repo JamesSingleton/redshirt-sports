@@ -16,12 +16,12 @@ import { CollegeNewsArticleList } from "@/components/college-news/college-news-a
 import { CollegeNewsArticleListLoading } from "@/components/college-news/college-news-loading";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import PaginationControls from "@/components/pagination-controls";
-import { perPage } from "@/lib/constants";
 import {
   getDivisionNewsDescription,
   resolveDivisionRouteSlug,
 } from "@/lib/college-news-config";
 import { fetchCollegeNewsDivisionLayoutData } from "@/lib/college-news-layout-data";
+import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";

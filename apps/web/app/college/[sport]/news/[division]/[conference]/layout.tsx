@@ -1,5 +1,5 @@
-import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { CollegeNewsConferenceLayout } from "@/components/college-news/college-news-conference-layout";
+import { draftAwareParamsPage } from "@/lib/draft-cache";
 
 export default function ConferenceNewsLayout({
   params,

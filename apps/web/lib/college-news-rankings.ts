@@ -1,9 +1,9 @@
+import { mapNewsDivisionToRankingDivision } from "@/lib/college-news-config";
 import {
   fetchPollForDivision,
   getPollsForSport,
   type HomePollData,
 } from "@/lib/home-rankings";
-import { mapNewsDivisionToRankingDivision } from "@/lib/college-news-config";
 
 const FOOTBALL_TAB_ORDER = ["fcs", "fbs"] as const;
 

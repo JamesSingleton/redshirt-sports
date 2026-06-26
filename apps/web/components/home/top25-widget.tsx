@@ -158,11 +158,7 @@ export function Top25Widget({
     : `/college/${sportSlug}/news`;
 
   return (
-    <Tabs
-      value={activePoll}
-      onValueChange={setActivePoll}
-      className="gap-0"
-    >
+    <Tabs value={activePoll} onValueChange={setActivePoll} className="gap-0">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

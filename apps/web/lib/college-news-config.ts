@@ -1,7 +1,7 @@
 import {
-  sportNavConfigs,
   type NavLink,
   type SportNavConfig,
+  sportNavConfigs,
 } from "@/components/nav-config";
 
 const SPORT_NEWS_DESCRIPTIONS: Record<string, string> = {
@@ -53,10 +53,7 @@ export function mapNewsDivisionToRankingDivision(
     return null;
   }
 
-  if (
-    sportSlug === "mens-basketball" ||
-    sportSlug === "womens-basketball"
-  ) {
+  if (sportSlug === "mens-basketball" || sportSlug === "womens-basketball") {
     if (
       newsDivisionSlug === "division-i" ||
       newsDivisionSlug === "power-conference" ||

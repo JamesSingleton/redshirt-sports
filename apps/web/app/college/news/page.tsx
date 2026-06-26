@@ -11,8 +11,8 @@ import { CollegeNewsArticleList } from "@/components/college-news/college-news-a
 import { CollegeNewsArticleListLoading } from "@/components/college-news/college-news-loading";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import PaginationControls from "@/components/pagination-controls";
-import { perPage } from "@/lib/constants";
 import { COLLEGE_NEWS_DESCRIPTION } from "@/lib/college-news-config";
+import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
@@ -40,9 +40,7 @@ export async function generateMetadata({
 
   return getPageMetadata(
     {
-      title: isFirstPage
-        ? baseTitle
-        : `${baseTitle} - Page ${pageNumber}`,
+      title: isFirstPage ? baseTitle : `${baseTitle} - Page ${pageNumber}`,
       description: isFirstPage
         ? COLLEGE_NEWS_DESCRIPTION
         : `Continue reading more college sports news on Page ${pageNumber}.`,
@@ -57,9 +55,8 @@ export default function CollegeSportsNews({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  return searchParamsPage(
-    <CollegeNewsArticleListLoading />,
-    () => renderCollegeSportsNews(searchParams),
+  return searchParamsPage(<CollegeNewsArticleListLoading />, () =>
+    renderCollegeSportsNews(searchParams),
   );
 }
 
@@ -140,9 +137,7 @@ async function cachedRenderCollegeSportsNews({
     <>
       <JsonLdScript data={newsJsonLd} id="college-sports-news-json-ld" />
       <CollegeNewsArticleList articles={posts} />
-      {totalPages > 1 ? (
-        <PaginationControls totalPosts={totalPosts} />
-      ) : null}
+      {totalPages > 1 ? <PaginationControls totalPosts={totalPosts} /> : null}
     </>
   );
 }

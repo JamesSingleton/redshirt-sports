@@ -9,14 +9,16 @@ interface CollegeNewsBreadcrumbsProps {
   items: CollegeNewsBreadcrumb[];
 }
 
-export function CollegeNewsBreadcrumbs({
-  items,
-}: CollegeNewsBreadcrumbsProps) {
+export function CollegeNewsBreadcrumbs({ items }: CollegeNewsBreadcrumbsProps) {
   return (
     <nav aria-label="Breadcrumb" className="mb-6 border-border border-b pb-3">
       <ol className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <li>
-          <Link href="/" prefetch={false} className="transition-colors hover:text-primary">
+          <Link
+            href="/"
+            prefetch={false}
+            className="transition-colors hover:text-primary"
+          >
             Home
           </Link>
         </li>
@@ -24,7 +26,10 @@ export function CollegeNewsBreadcrumbs({
           const isLast = index === items.length - 1;
 
           return (
-            <li key={`${item.label}-${index}`} className="flex items-center gap-2">
+            <li
+              key={`${item.label}-${index}`}
+              className="flex items-center gap-2"
+            >
               <span aria-hidden="true">/</span>
               {isLast || !item.href ? (
                 <span

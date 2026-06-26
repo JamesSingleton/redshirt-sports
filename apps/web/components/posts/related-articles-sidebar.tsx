@@ -2,10 +2,7 @@ import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
 import Link from "next/link";
 
 import CustomImage from "@/components/sanity-image";
-import {
-  getStoryTypeHref,
-  getStoryTypeLabel,
-} from "@/lib/story-type-labels";
+import { getStoryTypeHref, getStoryTypeLabel } from "@/lib/story-type-labels";
 
 type PostData = NonNullable<QueryPostSlugDataResult>;
 type RelatedPost = PostData["relatedPosts"][number];

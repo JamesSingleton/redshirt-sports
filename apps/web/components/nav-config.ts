@@ -164,8 +164,14 @@ export const dropdownNavItems: DropdownNavConfig[] = [
  */
 export const quickNavLinks: QuickNavLink[] = [
   { label: "Recruiting Rankings", href: "/recruiting" },
-  { label: "CBB Transfer Portal", href: "/transfer-portal/wire/mens-basketball/2025" },
-  { label: "Team Rankings", href: "/college/football/rankings/fbs/2025/preseason" },
+  {
+    label: "CBB Transfer Portal",
+    href: "/transfer-portal/wire/mens-basketball/2025",
+  },
+  {
+    label: "Team Rankings",
+    href: "/college/football/rankings/fbs/2025/preseason",
+  },
   { label: "MegaBoard", href: "/" },
   { label: "College News", href: "/college/news" },
 ];
@@ -197,8 +203,7 @@ export function buildRankingHref(
   sportSlug: string,
   ranking: RankingPeriod,
 ): string {
-  const week =
-    ranking.week === 999 ? "final-rankings" : String(ranking.week);
+  const week = ranking.week === 999 ? "final-rankings" : String(ranking.week);
   return `/college/${sportSlug}/rankings/${ranking.division}/${ranking.year}/${week}`;
 }
 
