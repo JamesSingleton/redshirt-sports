@@ -150,7 +150,7 @@ async function renderSchoolTeamPage(
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <TeamPageJsonLd school={school} />
       <TeamNavBar
         teamName={school.shortName ?? school.name ?? "Team"}
@@ -213,7 +213,7 @@ async function renderSchoolTeamPage(
           {/* <CommitmentsWidget teamShortName={teamShortName} /> */}
         </aside>
       </div>
-    </div>
+    </>
   );
 }
 

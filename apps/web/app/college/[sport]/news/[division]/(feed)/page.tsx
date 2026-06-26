@@ -12,11 +12,16 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { CollectionPage, WithContext } from "schema-dts";
 
-import ArticleFeed from "@/components/article-feed";
+import { CollegeNewsArticleList } from "@/components/college-news/college-news-article-list";
+import { CollegeNewsArticleListLoading } from "@/components/college-news/college-news-loading";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
-import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
+import {
+  getDivisionNewsDescription,
+  resolveDivisionRouteSlug,
+} from "@/lib/college-news-config";
+import { fetchCollegeNewsDivisionLayoutData } from "@/lib/college-news-layout-data";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
@@ -30,7 +35,8 @@ export async function generateMetadata({
   params: Promise<{ sport: string; division: string }>;
   searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
-  const { sport, division } = await params;
+  const { sport, division: divisionParam } = await params;
+  const division = resolveDivisionRouteSlug(divisionParam);
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
 
@@ -56,31 +62,22 @@ export async function generateMetadata({
   }
 
   const baseTitle = `${divisionName} ${sportTitle} News, Updates & Analysis`;
-  const baseDescription = `Complete ${divisionName} ${sportTitle} coverage including breaking news, game analysis, player spotlights, and coaching updates. Your go-to source for ${sportTitle} insights.`;
+  const baseDescription = getDivisionNewsDescription(
+    division,
+    divisionName,
+    sportTitle,
+  );
 
   const baseCanonical = `/college/${sport}/news/${division}`;
-
   const isFirstPage = !page || pageIndex <= 1;
-
-  let title: string;
-  let description: string;
-  let canonical: string;
-
-  if (isFirstPage) {
-    title = baseTitle;
-    description = baseDescription;
-    canonical = baseCanonical;
-  } else {
-    title = `${baseTitle} - Page ${pageIndex}`;
-    description = `More ${divisionName} ${sportTitle} stories on Page ${pageIndex}. Continued coverage of recruiting updates, game previews, injury reports, and in-depth team analysis.`;
-    canonical = `${baseCanonical}?page=${pageIndex}`;
-  }
 
   return getPageMetadata(
     {
-      title,
-      description,
-      slug: canonical,
+      title: isFirstPage ? baseTitle : `${baseTitle} - Page ${pageIndex}`,
+      description: isFirstPage
+        ? baseDescription
+        : `More ${divisionName} ${sportTitle} stories on Page ${pageIndex}. Continued coverage of recruiting updates, game previews, injury reports, and in-depth team analysis.`,
+      slug: isFirstPage ? baseCanonical : `${baseCanonical}?page=${pageIndex}`,
     },
     perspective,
   );
@@ -93,25 +90,26 @@ export default function Page({
   params: Promise<{ sport: string; division: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  return searchParamsPage(null, () =>
-    renderDivisionNewsPage({ params, searchParams }),
+  return searchParamsPage(<CollegeNewsArticleListLoading />, () =>
+    renderDivisionNewsFeed({ params, searchParams }),
   );
 }
 
-async function renderDivisionNewsPage({
+async function renderDivisionNewsFeed({
   params,
   searchParams,
 }: {
   params: Promise<{ sport: string; division: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  const [{ sport, division }, { page }] = await Promise.all([
+  const [{ sport, division: divisionParam }, { page }] = await Promise.all([
     params,
     searchParams,
   ]);
+  const division = resolveDivisionRouteSlug(divisionParam);
   const pageIndex = validatePageIndex(page);
   const { perspective, stega } = await getDynamicFetchOptions();
-  return cachedRenderDivisionNewsPage({
+  return cachedDivisionNewsFeed({
     sport,
     division,
     pageIndex,
@@ -120,7 +118,7 @@ async function renderDivisionNewsPage({
   });
 }
 
-async function cachedRenderDivisionNewsPage({
+async function cachedDivisionNewsFeed({
   sport,
   division,
   pageIndex,
@@ -136,46 +134,35 @@ async function cachedRenderDivisionNewsPage({
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
 
-  const [newsResponse, sportInfoResponse, divisionNameResponse] =
-    await Promise.all([
-      sanityFetchPage({
-        query: querySportsAndDivisionNews,
-        params: { sport, division, from, to },
-        perspective,
-        stega,
-      }),
-      sanityFetchPage({
-        query: sportInfoBySlug,
-        params: { slug: sport },
-        perspective,
-        stega,
-      }),
-      sanityFetchPage({
-        query: queryDivisionOrSubgroupingDisplayName,
-        params: { slugOrShortName: division },
-        perspective,
-        stega,
-      }),
-    ]);
+  const [newsResponse, layoutData] = await Promise.all([
+    sanityFetchPage({
+      query: querySportsAndDivisionNews,
+      params: { sport, division, from, to },
+      perspective,
+      stega,
+    }),
+    fetchCollegeNewsDivisionLayoutData({
+      sport,
+      division,
+      perspective,
+      stega,
+    }),
+  ]);
 
   const news = newsResponse.data;
-  const sportInfo = sportInfoResponse.data;
-  const divisionOrSubgroupingName = divisionNameResponse.data?.displayName;
 
-  if (!news?.posts?.length) {
+  if (!news?.posts?.length || !layoutData) {
     notFound();
   }
 
-  const sportTitle = sportInfo?.title;
-  const divisionTitle = divisionOrSubgroupingName;
-
+  const { sportTitle, divisionName } = layoutData;
   const totalPages = Math.ceil(news.totalPosts / perPage);
 
   const collectionPageJsonLd: WithContext<CollectionPage> = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: `${divisionTitle} ${sportTitle} News`,
-    description: `Stay informed with breaking ${divisionOrSubgroupingName} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
+    name: `${divisionName} ${sportTitle} News`,
+    description: getDivisionNewsDescription(division, divisionName, sportTitle),
     url: `${baseUrl}/college/${sport}/news/${division}${pageIndex > 1 ? `?page=${pageIndex}` : ""}`,
     isPartOf: { "@id": websiteId, "@type": "WebSite" },
     publisher: { "@id": organizationId, "@type": "Organization" },
@@ -200,39 +187,18 @@ async function cachedRenderDivisionNewsPage({
         {
           "@type": "ListItem",
           position: 2,
-          name: "News",
-          item: `${baseUrl}/college/news`,
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
           name: sportTitle,
           item: `${baseUrl}/college/${sport}/news`,
         },
         {
           "@type": "ListItem",
-          position: 4,
-          name: divisionTitle || "",
+          position: 3,
+          name: divisionName,
           item: `${baseUrl}/college/${sport}/news/${division}`,
         },
       ],
     },
   };
-
-  const breadcrumbItems = [
-    {
-      title: "News",
-      href: "/college/news",
-    },
-    {
-      title: sportInfo?.title,
-      href: `/college/${sport}/news`,
-    },
-    {
-      title: divisionOrSubgroupingName,
-      href: `/college/${sport}/news/${division}`,
-    },
-  ];
 
   return (
     <>
@@ -240,15 +206,10 @@ async function cachedRenderDivisionNewsPage({
         data={collectionPageJsonLd}
         id={`collection-page-${sport}-${division}`}
       />
-      <PageHeader
-        title={`${divisionOrSubgroupingName} ${sportInfo?.title} News`}
-        // @ts-expect-error for some reason it's not liking the types
-        breadcrumbs={breadcrumbItems}
-      />
-      <section className="container pb-12">
-        <ArticleFeed articles={news.posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
-      </section>
+      <CollegeNewsArticleList articles={news.posts} />
+      {totalPages > 1 ? (
+        <PaginationControls totalPosts={news.totalPosts} />
+      ) : null}
     </>
   );
 }

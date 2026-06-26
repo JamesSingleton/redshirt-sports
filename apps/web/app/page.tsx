@@ -3,58 +3,81 @@ import {
   getDynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
 import {
-  queryHomePageData,
+  queryHomePostsByStoryType,
+  queryHomepageTeamAuthors,
   queryLatestArticles,
   queryLatestCollegeSportsArticles,
+  queryMegaboardArticles,
 } from "@redshirt-sports/sanity/queries";
-import { buttonVariants } from "@redshirt-sports/ui/components/button";
-import { cn } from "@redshirt-sports/ui/lib/utils";
-import { ChevronRight } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@redshirt-sports/ui/components/card";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { WebPage, WithContext } from "schema-dts";
 
-import ArticleCard from "@/components/article-card";
-import ArticleSection from "@/components/article-section";
-import Hero from "@/components/home/hero";
+import { HomeNewsSection } from "@/components/home/home-news-section";
+import { Megaboard } from "@/components/home/megaboard";
+import { OurTeamWidget } from "@/components/home/our-team-widget";
+import { Top25Widget } from "@/components/home/top25-widget";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
+import { NewsletterForm } from "@/components/newsletter-form";
 import { getBaseUrl } from "@/lib/get-base-url";
 import {
   fetchGlobalSeoSettings,
   getPageMetadata,
 } from "@/lib/global-seo-settings";
+import {
+  allocateArticles,
+  HOME_SECTION_LIMITS,
+} from "@/lib/home-article-allocation";
+import { getHomeFootballPolls } from "@/lib/home-rankings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
-const divisions = [
-  {
-    key: "fbs",
-    division: "Football Bowl Subdivision",
-    title: "FBS College Football News",
-    slug: "/college/football/news/fbs",
-    imageFirst: false,
-  },
+const footballDivisions = [
   {
     key: "fcs",
     division: "Football Championship Subdivision",
-    title: "FCS College Football News",
-    slug: "/college/football/news/fcs",
-    imageFirst: false,
+    title: "Division I FCS Football",
+    href: "/college/football/news/fcs",
+    badge: "FCS",
+    layout: "grid-2-plus-horizontal" as const,
+    description:
+      "The latest news, scores, rankings, and analysis from NCAA Division I Football Championship Subdivision (FCS) — covering the Missouri Valley, CAA, Big South, and more.",
+  },
+  {
+    key: "fbs",
+    division: "Football Bowl Subdivision",
+    title: "Division I FBS Football",
+    href: "/college/football/news/fbs",
+    badge: "FBS",
+    layout: "grid-3" as const,
+    description:
+      "Breaking news, recruiting updates, and game analysis from NCAA Division I Football Bowl Subdivision (FBS) programs — SEC, Big Ten, Big 12, ACC, Pac-12, and more.",
   },
   {
     key: "d2",
     division: "D2",
-    title: "Division II Football News",
-    slug: "/college/football/news/d2",
-    imageFirst: false,
+    title: "Division II Football",
+    href: "/college/football/news/d2",
+    layout: "grid-2-plus-horizontal" as const,
+    description:
+      "Coverage of NCAA Division II football — scores, standings, playoff updates, and player news from conferences like the GLIAC, MIAA, RMAC, and SIAC.",
   },
   {
     key: "d3",
     division: "D3",
-    title: "Division III Football News",
-    slug: "/college/football/news/d3",
-    imageFirst: true,
+    title: "Division III Football",
+    href: "/college/football/news/d3",
+    layout: "grid-3" as const,
+    description:
+      "News and highlights from NCAA Division III football — student-athlete stories, playoff results, and program updates from conferences like the NESCAC, CCIW, and UAA.",
   },
 ];
+
+const sectionOrder = ["fcs", "fbs", "d2", "d3"] as const;
 
 const baseUrl = getBaseUrl();
 
@@ -84,34 +107,124 @@ export async function CachedHomePage({
 }: DynamicFetchOptions) {
   "use cache";
 
-  const [{ data: homePageData }, { data: latestArticles }, settings] =
-    await Promise.all([
-      sanityFetchPage({ query: queryHomePageData, perspective, stega }),
-      sanityFetchPage({ query: queryLatestArticles, perspective, stega }),
-      fetchGlobalSeoSettings(perspective),
-    ]);
+  const [
+    { data: megaboardArticles },
+    { data: collegeSportsArticles },
+    { data: recruitingArticles },
+    { data: transferArticles },
+    { data: authors },
+    settings,
+    footballPolls,
+  ] = await Promise.all([
+    sanityFetchPage({
+      query: queryMegaboardArticles,
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: queryLatestArticles,
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: queryHomePostsByStoryType,
+      params: { storyType: "recruiting" },
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: queryHomePostsByStoryType,
+      params: { storyType: "transfer" },
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: queryHomepageTeamAuthors,
+      perspective,
+      stega,
+    }),
+    fetchGlobalSeoSettings(perspective),
+    getHomeFootballPolls(),
+  ]);
 
-  const articleIds = [...homePageData, ...latestArticles].map(
-    (article) => article._id,
+  const usedArticleIds = new Set<string>();
+
+  const megaboardPosts = allocateArticles(
+    megaboardArticles,
+    usedArticleIds,
+    HOME_SECTION_LIMITS.megaboard,
   );
 
-  const collegeSportsResults = await Promise.all(
-    divisions.map(({ division }) =>
+  const collegeSportsPosts = allocateArticles(
+    collegeSportsArticles,
+    usedArticleIds,
+    HOME_SECTION_LIMITS.collegeSports,
+  );
+
+  const recruitingPosts = allocateArticles(
+    recruitingArticles,
+    usedArticleIds,
+    HOME_SECTION_LIMITS.recruiting,
+  );
+
+  const transferPosts = allocateArticles(
+    transferArticles,
+    usedArticleIds,
+    HOME_SECTION_LIMITS.transfer,
+  );
+
+  const excludedArticleIds = [...usedArticleIds];
+
+  const footballDivisionResults = await Promise.all(
+    footballDivisions.map(({ division }) =>
       sanityFetchPage({
         query: queryLatestCollegeSportsArticles,
-        params: { division, sport: "Football", articleIds },
+        params: {
+          division,
+          sport: "Football",
+          articleIds: excludedArticleIds,
+        },
         perspective,
         stega,
       }),
     ),
   );
 
-  const divisionsWithArticles = divisions.map((division, index) => ({
+  const divisionArticleLimit = (
+    layout: (typeof footballDivisions)[number]["layout"],
+  ) => {
+    if (layout === "grid-3") return HOME_SECTION_LIMITS.grid3;
+    if (layout === "grid-2-plus-horizontal") {
+      return HOME_SECTION_LIMITS.grid2PlusHorizontal;
+    }
+    return HOME_SECTION_LIMITS.grid2;
+  };
+
+  const divisionsWithArticles = footballDivisions.map((division, index) => ({
     ...division,
-    articles: collegeSportsResults[index]?.data,
+    articles: allocateArticles(
+      footballDivisionResults[index]?.data,
+      usedArticleIds,
+      divisionArticleLimit(division.layout),
+    ),
   }));
 
-  const sectionOrder = ["fbs", "fcs", "d2", "d3"];
+  const { data: midMajorBasketballArticles } = await sanityFetchPage({
+    query: queryLatestCollegeSportsArticles,
+    params: {
+      division: "Mid-Major",
+      sport: "Men's Basketball",
+      articleIds: [...usedArticleIds],
+    },
+    perspective,
+    stega,
+  });
+
+  const midMajorPosts = allocateArticles(
+    midMajorBasketballArticles,
+    usedArticleIds,
+    HOME_SECTION_LIMITS.grid2PlusHorizontal,
+  );
 
   const webPageJson: WithContext<WebPage> = {
     "@context": "https://schema.org",
@@ -129,7 +242,7 @@ export async function CachedHomePage({
     },
     inLanguage: "en-US",
     datePublished: "2021-12-13T00:00:00-07:00",
-    dateModified: homePageData[0]?.publishedAt || new Date().toISOString(),
+    dateModified: megaboardPosts[0]?.publishedAt || new Date().toISOString(),
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [
@@ -146,53 +259,87 @@ export async function CachedHomePage({
   return (
     <>
       <JsonLdScript data={webPageJson} id="home-webpage-json-ld" />
-      <Hero heroPosts={homePageData} />
-      {latestArticles.length > 0 && (
-        <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-          <div className="container">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Latest News</h2>
-              <Link
-                href="/college/news"
-                prefetch={false}
-                className={cn(
-                  buttonVariants({ variant: "default" }),
-                  "flex items-center space-x-2",
-                )}
-              >
-                <span className="text-sm">View All</span>
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {latestArticles?.map((article) => (
-                <ArticleCard
-                  title={article.title}
-                  date={article.publishedAt}
-                  image={article.image}
-                  slug={article.slug}
-                  key={article._id}
-                  author={article.authors[0]!.name}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-      {sectionOrder.map((key) => {
-        const section = divisionsWithArticles.find((d) => d.key === key);
-        if (!section || section.articles === undefined) return null;
+      <Megaboard articles={megaboardPosts} />
 
-        return (
-          <ArticleSection
-            key={section.key}
-            title={section.title}
-            slug={section.slug}
-            articles={section.articles}
-            imageFirst={section.imageFirst}
-          />
-        );
-      })}
+      <div className="container px-4 py-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <div className="lg:col-span-8">
+            <HomeNewsSection
+              title="College Sports"
+              href="/college/news"
+              articles={collegeSportsPosts}
+            />
+
+            <HomeNewsSection
+              title="Recruiting"
+              href="/recruiting"
+              badge="HOT"
+              articles={recruitingPosts}
+              layout="grid-3"
+            />
+
+            <HomeNewsSection
+              title="Transfer Portal"
+              href="/transfer-portal/news"
+              badge="NEW"
+              articles={transferPosts}
+            />
+
+            {sectionOrder.map((key) => {
+              const section = divisionsWithArticles.find((d) => d.key === key);
+              if (!section?.articles.length) return null;
+
+              return (
+                <HomeNewsSection
+                  key={section.key}
+                  title={section.title}
+                  href={section.href}
+                  badge={section.badge}
+                  description={section.description}
+                  articles={section.articles}
+                  layout={section.layout}
+                  sectionId={`section-${section.key}-football`}
+                />
+              );
+            })}
+
+            <HomeNewsSection
+              title="Division I Mid-Major Men's Basketball"
+              href="/college/mens-basketball/news/mid-major"
+              description="Mid-major men's basketball coverage — recruiting, transfer portal moves, upsets, and deep-dive analysis from conferences like the MWC, A-10, WCC, American, and MAC."
+              articles={midMajorPosts}
+              layout="grid-2-plus-horizontal"
+              sectionId="section-mid-major-basketball"
+            />
+          </div>
+
+          <aside className="space-y-6 lg:col-span-4">
+            <Top25Widget sportSlug="football" polls={footballPolls} />
+            <OurTeamWidget authors={authors} />
+
+            <Card className="shadow-none">
+              <CardHeader>
+                <CardTitle className="text-base font-black tracking-tight uppercase">
+                  Newsletter
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-3 text-sm text-muted-foreground">
+                  Get the latest college sports news delivered to your inbox.
+                </p>
+                <NewsletterForm />
+              </CardContent>
+            </Card>
+
+            <div
+              className="flex h-[250px] items-center justify-center rounded-lg bg-muted text-sm text-muted-foreground"
+              aria-hidden="true"
+            >
+              Advertisement
+            </div>
+          </aside>
+        </div>
+      </div>
     </>
   );
 }
