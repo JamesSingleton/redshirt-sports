@@ -55,6 +55,12 @@
       "skillPath": "skills/seo-aeo-best-practices/SKILL.md",
       "computedHash": "edb99db85683ff99678fcb1bebc3a5653c3ea927eea9ee2534f19be86c7b8b81"
     },
+    "seo-audit": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/seo-audit/SKILL.md",
+      "computedHash": "f2dc52130189068981f21e1c0bdc4471ac7cd9b08d8a1320604411aa0f950385"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",

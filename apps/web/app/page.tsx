@@ -317,7 +317,7 @@ export async function CachedHomePage({
             />
           </div>
 
-          <aside className="space-y-6 lg:col-span-4">
+          <aside className="space-y-6 lg:sticky lg:top-24 lg:col-span-4 lg:self-start">
             <Top25Widget sportSlug="football" polls={footballPolls} />
             <OurTeamWidget authors={authors} />
 

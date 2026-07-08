@@ -3,6 +3,7 @@ import "@redshirt-sports/ui/globals.css";
 import { AnalyticsProvider } from "@redshirt-sports/analytics/provider";
 import { SanityLive } from "@redshirt-sports/sanity/live";
 import { Toaster } from "@redshirt-sports/ui/components/sonner";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -21,12 +22,11 @@ import {
   CachedCombinedJsonLd,
   DynamicCombinedJsonLd,
 } from "@/components/json-ld";
+import { Header } from "@/components/nav-test";
 import { Providers } from "@/components/providers";
-import { DynamicTestNav, TestNav } from "@/components/test-nav";
 import { getRootMetadata } from "@/lib/seo";
-import { cn } from "@redshirt-sports/ui/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -50,13 +50,18 @@ export default async function RootLayout({
   const isDraftMode = (await draftMode()).isEnabled;
 
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("font-sans", geist.variable)}
+    >
       <AnalyticsProvider>
         <body
           className={`${geist.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
         >
           <Providers>
-            {isDraftMode ? <DynamicTestNav /> : <TestNav />}
+            <Header />
+            {/* {isDraftMode ? <DynamicTestNav /> : <TestNav />} */}
             {/* {isDraftMode ? (
               <Suspense fallback={<NavbarSkeleton />}>
                 <DynamicNavbarServer />

@@ -1,26 +1,30 @@
 import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 
-import { LoadingArticle } from "@/components/loading-article";
+import { CollegeNewsArticleListLoading } from "@/components/college-news/college-news-loading";
 
 export default function Loading() {
   return (
-    <>
-      <section className="py-12">
-        <div className="container">
-          <div className="md:max-w-3xl xl:max-w-5xl">
-            <Skeleton className="mt-8 h-10 w-3/4 rounded" />
-            <Skeleton className="mt-2 h-6 w-3/4 rounded" />
-          </div>
+    <div className="container px-4 py-6">
+      <nav aria-label="Breadcrumb" className="mb-6 border-border border-b pb-3">
+        <Skeleton className="h-4 w-40" />
+      </nav>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div className="min-w-0 space-y-6 lg:col-span-8">
+          <header className="space-y-3">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-8 w-2/3 max-w-md" />
+            <Skeleton className="h-4 w-full max-w-2xl" />
+            <Skeleton className="mt-4 h-10 w-full max-w-xl rounded-md" />
+          </header>
+
+          <CollegeNewsArticleListLoading />
         </div>
-      </section>
-      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-          <LoadingArticle />
-          <LoadingArticle />
-          <LoadingArticle />
-          <LoadingArticle />
-        </div>
-      </section>
-    </>
+
+        <aside className="lg:col-span-4">
+          <Skeleton className="h-[250px] w-full rounded-lg" />
+        </aside>
+      </div>
+    </div>
   );
 }

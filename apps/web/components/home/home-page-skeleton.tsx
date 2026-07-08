@@ -170,7 +170,7 @@ export default function HomePageSkeleton() {
             <SectionSkeleton withDescription />
             <SectionSkeleton columns={3} withDescription />
           </div>
-          <aside className="space-y-6 lg:col-span-4">
+          <aside className="space-y-6 lg:sticky lg:top-24 lg:col-span-4 lg:self-start">
             <SidebarSkeleton />
           </aside>
         </div>
