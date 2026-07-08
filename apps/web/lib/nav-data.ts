@@ -1,8 +1,8 @@
 import type { QueryNavbarDataResult } from "@redshirt-sports/sanity/types";
 
+import type { Top25RankingsData } from "@/components/nav-types";
 import type { NavLink } from "@/lib/nav-rankings";
 import { resolveSportRankings } from "@/lib/nav-rankings";
-import type { Top25RankingsData } from "@/components/nav-types";
 
 type NavbarColumnItem = Extract<
   NonNullable<NonNullable<QueryNavbarDataResult>["columns"]>[number],

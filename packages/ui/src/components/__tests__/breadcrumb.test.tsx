@@ -64,9 +64,7 @@ describe("BreadcrumbLink", () => {
 
   it("renders the child element when render is provided", () => {
     render(
-      <BreadcrumbLink render={<button type="button" />}>
-        Home
-      </BreadcrumbLink>,
+      <BreadcrumbLink render={<button type="button" />}>Home</BreadcrumbLink>,
     );
     const button = screen.getByRole("button", { name: "Home" });
     expect(button.tagName).toBe("BUTTON");

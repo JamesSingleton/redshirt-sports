@@ -9,7 +9,10 @@ export default function TransferPortalLayout({
     <div>
       <div className="border-b border-border bg-muted/30">
         <div className="container max-w-6xl px-4 py-2 text-xs text-muted-foreground">
-          <Link href="/college/transfer-portal" className="hover:text-foreground">
+          <Link
+            href="/college/transfer-portal"
+            className="hover:text-foreground"
+          >
             Transfer Portal
           </Link>
         </div>

@@ -5,7 +5,11 @@ interface SportLink {
   title: string;
 }
 
-export function TransferPortalSportNewsLinks({ sports }: { sports: SportLink[] }) {
+export function TransferPortalSportNewsLinks({
+  sports,
+}: {
+  sports: SportLink[];
+}) {
   if (sports.length === 0) {
     return null;
   }

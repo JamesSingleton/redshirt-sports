@@ -1,10 +1,10 @@
 import { searchRecruitingPlayers } from "@redshirt-sports/db/queries/transfer-portal";
+import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { requireSportBySlug } from "@/lib/sport-by-slug";
-import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 
 export async function generateMetadata({
   params,
@@ -56,7 +56,10 @@ export default async function RecruitingPlayersPage({
         <h1 className="mt-2 text-3xl font-black tracking-tight uppercase sm:text-4xl">
           Recruit Search
         </h1>
-        <form className="mt-4 flex gap-2" action={`/recruiting/${sport}/players`}>
+        <form
+          className="mt-4 flex gap-2"
+          action={`/recruiting/${sport}/players`}
+        >
           <input
             name="q"
             defaultValue={q}

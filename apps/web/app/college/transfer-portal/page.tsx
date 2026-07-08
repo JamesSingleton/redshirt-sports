@@ -11,9 +11,9 @@ import { HomeNewsSection } from "@/components/home/home-news-section";
 import { Megaboard } from "@/components/home/megaboard";
 import { TransferPortalFeedSidebar } from "@/components/transfer-portal/feed-sidebar";
 import { TransferPortalSportNewsLinks } from "@/components/transfer-portal/sport-news-links";
-import { fetchAllSports } from "@/lib/sport-by-slug";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
+import { fetchAllSports } from "@/lib/sport-by-slug";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { perspective } = await getDynamicFetchOptions();
@@ -60,7 +60,10 @@ export default async function TransferPortalLandingPage() {
           News, commitments, and live player movement across college sports.
         </p>
         <div className="mt-4 flex flex-wrap gap-4 text-sm font-medium">
-          <Link href="/college/transfer-portal/news" className="text-primary hover:underline">
+          <Link
+            href="/college/transfer-portal/news"
+            className="text-primary hover:underline"
+          >
             All transfer news
           </Link>
         </div>

@@ -108,7 +108,7 @@ const navbarColumn = defineField({
       type: "string",
       title: "Sport (for live Top 25 rankings)",
       description:
-        'When set, the site injects current Top 25 ranking links into this dropdown',
+        "When set, the site injects current Top 25 ranking links into this dropdown",
       options: {
         list: [
           { title: "Football", value: "football" },
@@ -159,10 +159,7 @@ export const navbar = defineType({
       type: "array",
       title: "Navigation items",
       description: "Add dropdown columns or individual top-level links",
-      of: [
-        defineArrayMember(navbarColumn),
-        defineArrayMember(navbarLink),
-      ],
+      of: [defineArrayMember(navbarColumn), defineArrayMember(navbarLink)],
       options: { sortable: true },
     }),
   ],

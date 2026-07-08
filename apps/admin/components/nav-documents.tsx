@@ -54,7 +54,7 @@ export function NavDocuments({
                   />
                 }
               >
-                  <IconDots />
+                <IconDots />
                 <span className="sr-only">More</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent

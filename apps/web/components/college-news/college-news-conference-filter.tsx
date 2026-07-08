@@ -77,13 +77,13 @@ export function CollegeNewsConferenceFilter({
             />
           }
         >
-            <span className="truncate">
-              {selected ? selected.label : "All Conferences"}
-            </span>
-            <ChevronsUpDown
-              className="ml-2 size-3.5 shrink-0 text-muted-foreground"
-              aria-hidden="true"
-            />
+          <span className="truncate">
+            {selected ? selected.label : "All Conferences"}
+          </span>
+          <ChevronsUpDown
+            className="ml-2 size-3.5 shrink-0 text-muted-foreground"
+            aria-hidden="true"
+          />
         </PopoverTrigger>
         <PopoverContent className="w-[240px] p-0" align="start">
           <Command>

@@ -2,12 +2,12 @@ import {
   getPlayerBySlug,
   listPlayerSlugs,
 } from "@redshirt-sports/db/queries/players";
+import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PlayerProfileView } from "@/components/player/player-profile";
 import { getPageMetadata } from "@/lib/global-seo-settings";
-import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 
 export async function generateStaticParams() {
   try {

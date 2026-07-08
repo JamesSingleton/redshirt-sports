@@ -10,7 +10,6 @@ import {
 
 import { resolveNavbarItems } from "@/lib/nav-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-
 import type { Top25RankingsData } from "./nav-types";
 import { TestNavClient } from "./test-nav-client";
 
@@ -57,9 +56,7 @@ export async function CachedTestNav({
 
   const navItems = resolveNavbarItems(navbarData, latestRankings);
 
-  return (
-    <TestNavClient settingsData={settingsData} navItems={navItems} />
-  );
+  return <TestNavClient settingsData={settingsData} navItems={navItems} />;
 }
 
 export async function TestNav() {

@@ -1,7 +1,6 @@
+import type { TransferPortalEntryRow } from "@redshirt-sports/db/queries/transfer-portal";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import Link from "next/link";
-
-import type { TransferPortalEntryRow } from "@redshirt-sports/db/queries/transfer-portal";
 
 const STATUS_STYLES: Record<string, string> = {
   ENTERED: "bg-blue-50 text-blue-700 border-blue-200",

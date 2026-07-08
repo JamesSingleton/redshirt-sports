@@ -1,5 +1,8 @@
 import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
-import { querySitemapData, sportInfoQuery } from "@redshirt-sports/sanity/queries";
+import {
+  querySitemapData,
+  sportInfoQuery,
+} from "@redshirt-sports/sanity/queries";
 import type { MetadataRoute } from "next";
 
 import { getBaseUrl } from "@/lib/get-base-url";

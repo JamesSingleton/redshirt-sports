@@ -15,12 +15,9 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 
-import {
-  buildRankingHref,
-  getDivisionDisplayName,
-} from "@/lib/nav-rankings";
 import CustomImage from "@/components/sanity-image";
 import type { HomePollData } from "@/lib/home-rankings";
+import { buildRankingHref, getDivisionDisplayName } from "@/lib/nav-rankings";
 
 interface Top25WidgetProps {
   sportSlug: string;

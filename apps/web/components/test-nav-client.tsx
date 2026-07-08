@@ -45,18 +45,18 @@ function MegaMenuLink({ link }: { link: NavLink }) {
         />
       }
     >
-        <span className="flex items-center gap-1 font-medium">
-          {link.label}
-          <ArrowRight
-            aria-hidden
-            className="size-3 -translate-x-1 opacity-0 transition-all group-hover/link:translate-x-0 group-hover/link:opacity-100"
-          />
+      <span className="flex items-center gap-1 font-medium">
+        {link.label}
+        <ArrowRight
+          aria-hidden
+          className="size-3 -translate-x-1 opacity-0 transition-all group-hover/link:translate-x-0 group-hover/link:opacity-100"
+        />
+      </span>
+      {link.description ? (
+        <span className="text-xs leading-relaxed text-muted-foreground">
+          {link.description}
         </span>
-        {link.description ? (
-          <span className="text-xs leading-relaxed text-muted-foreground">
-            {link.description}
-          </span>
-        ) : null}
+      ) : null}
     </NavigationMenuLink>
   );
 }

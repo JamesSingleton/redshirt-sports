@@ -2,8 +2,8 @@ import { cn } from "@redshirt-sports/ui/lib/utils";
 import Link from "next/link";
 
 import { SectionHeader } from "@/components/home/section-header";
-import type { NavLink } from "@/lib/sport-division-config";
 import { getDivisionSlugFromHref } from "@/lib/college-news-config";
+import type { NavLink } from "@/lib/sport-division-config";
 
 interface CollegeNewsSidebarProps {
   divisions?: NavLink[];

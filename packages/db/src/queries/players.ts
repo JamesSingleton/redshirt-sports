@@ -93,8 +93,5 @@ export async function getPlayerBySlug(slug: string) {
 }
 
 export async function listPlayerSlugs(limit = 500) {
-  return db
-    .select({ slug: playersTable.slug })
-    .from(playersTable)
-    .limit(limit);
+  return db.select({ slug: playersTable.slug }).from(playersTable).limit(limit);
 }

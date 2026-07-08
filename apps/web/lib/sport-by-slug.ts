@@ -2,7 +2,10 @@ import {
   type DynamicFetchOptions,
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
-import { sportInfoBySlug, sportInfoQuery } from "@redshirt-sports/sanity/queries";
+import {
+  sportInfoBySlug,
+  sportInfoQuery,
+} from "@redshirt-sports/sanity/queries";
 import { notFound } from "next/navigation";
 
 export async function requireSportBySlug(

@@ -1,7 +1,7 @@
 import { getSchoolIdBySanityId } from "@redshirt-sports/db/queries/transfer-portal";
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
 import { schoolIdBySlugQuery } from "@redshirt-sports/sanity/queries";
-import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 
 export async function resolveSchoolIdBySanitySlug(
   slug: string,

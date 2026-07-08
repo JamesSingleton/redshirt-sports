@@ -4,6 +4,10 @@ import {
   type CustomUrlPreviewInput,
   resolveCustomUrlPreview,
 } from "@/utils/custom-url-preview";
+import {
+  resolveSiteLinkPreview,
+  type SiteLinkPreviewInput,
+} from "@/utils/site-link-preview";
 import type {
   CustomUrlObject,
   LinkFinding,
@@ -12,10 +16,6 @@ import type {
   SiteLinkObject,
 } from "../../types";
 import { normalizeLinkUrl } from "../../utils/linkUrl";
-import {
-  type SiteLinkPreviewInput,
-  resolveSiteLinkPreview,
-} from "@/utils/site-link-preview";
 
 const REF_QUERY = /* groq */ `
   *[_id in $ids]{

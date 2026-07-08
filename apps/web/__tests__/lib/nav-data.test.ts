@@ -1,8 +1,8 @@
+import type { QueryNavbarDataResult } from "@redshirt-sports/sanity/types";
 import { describe, expect, it } from "vitest";
 
-import { resolveNavbarItems } from "@/lib/nav-data";
 import type { Top25RankingsData } from "@/components/nav-types";
-import type { QueryNavbarDataResult } from "@redshirt-sports/sanity/types";
+import { resolveNavbarItems } from "@/lib/nav-data";
 
 const emptyRankings: Top25RankingsData = [];
 

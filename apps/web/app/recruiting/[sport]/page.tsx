@@ -1,10 +1,10 @@
 import { listRecruitingPlayersByClassYear } from "@redshirt-sports/db/queries/transfer-portal";
+import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { requireSportBySlug } from "@/lib/sport-by-slug";
-import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 
 const CLASS_YEARS = [2027, 2026, 2025] as const;
 
@@ -109,7 +109,9 @@ export default async function RecruitingSportPage({
                 </div>
                 <div className="text-right text-sm">
                   <p className="font-medium">
-                    {player.schoolShortName ?? player.schoolName ?? "Uncommitted"}
+                    {player.schoolShortName ??
+                      player.schoolName ??
+                      "Uncommitted"}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {player.currentStatus ?? "Prospect"}

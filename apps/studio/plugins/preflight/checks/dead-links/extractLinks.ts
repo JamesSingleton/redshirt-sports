@@ -1,6 +1,10 @@
 import { nestLists } from "@portabletext/toolkit";
 
-import type { CustomUrlObject, RawLinkFinding, SiteLinkObject } from "../../types";
+import type {
+  CustomUrlObject,
+  RawLinkFinding,
+  SiteLinkObject,
+} from "../../types";
 
 type TypedObject = {
   _type?: string;

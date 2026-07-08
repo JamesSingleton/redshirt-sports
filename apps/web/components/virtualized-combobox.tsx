@@ -231,20 +231,20 @@ export function VirtualizedCombobox({
           />
         }
       >
-          {selectedSchool?.image ? (
-            <span className="inline-flex items-center">
-              <CustomImage
-                image={selectedSchool.image}
-                width={32}
-                height={32}
-                className="mr-2 size-8"
-              />
-              {selectedSchool.shortName}
-            </span>
-          ) : (
-            searchPlaceholder
-          )}
-          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+        {selectedSchool?.image ? (
+          <span className="inline-flex items-center">
+            <CustomImage
+              image={selectedSchool.image}
+              width={32}
+              height={32}
+              className="mr-2 size-8"
+            />
+            {selectedSchool.shortName}
+          </span>
+        ) : (
+          searchPlaceholder
+        )}
+        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent
         className="p-0"

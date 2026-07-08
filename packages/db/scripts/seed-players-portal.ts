@@ -5,7 +5,6 @@
  *   pnpm --filter @redshirt-sports/web exec tsx ../../packages/db/scripts/seed-players-portal.ts
  */
 import { randomUUID } from "node:crypto";
-
 import { eq } from "drizzle-orm";
 
 import { primaryDb as db } from "../src/client";

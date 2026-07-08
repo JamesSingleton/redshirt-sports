@@ -8,7 +8,6 @@ import {
 } from "@redshirt-sports/sanity/queries";
 
 import type { CollegeNewsConferenceOption } from "@/components/college-news/college-news-conference-filter";
-import type { NavLink } from "@/lib/sport-division-config";
 import {
   filterSportDivisionsWithArticles,
   getSportNavConfig,
@@ -20,6 +19,7 @@ import {
   getSportPollWidgetData,
 } from "@/lib/college-news-rankings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
+import type { NavLink } from "@/lib/sport-division-config";
 
 function normalizeDivisionSlugs(
   slugs: Array<string | null> | null | undefined,

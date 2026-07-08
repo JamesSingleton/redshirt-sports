@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import type { getPlayerBySlug } from "@redshirt-sports/db/queries/players";
+import Link from "next/link";
 
 type PlayerProfile = NonNullable<Awaited<ReturnType<typeof getPlayerBySlug>>>;
 

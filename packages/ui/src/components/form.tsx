@@ -112,8 +112,7 @@ function FormControl({
     useFormField();
 
   const resolvedRender =
-    render ??
-    (React.isValidElement(children) ? children : undefined);
+    render ?? (React.isValidElement(children) ? children : undefined);
 
   return useRender({
     defaultTagName: "div",

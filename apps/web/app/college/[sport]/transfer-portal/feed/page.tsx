@@ -1,11 +1,11 @@
 import { getLatestPortalYear } from "@redshirt-sports/db/queries/transfer-portal";
+import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 
 import { TransferPortalFeedView } from "@/components/transfer-portal/transfer-portal-feed-view";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { requireSportBySlug } from "@/lib/sport-by-slug";
 import type { TransferPortalFeedSearchParams } from "@/lib/transfer-portal-feed-params";
-import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 
 export async function generateMetadata({
   params,

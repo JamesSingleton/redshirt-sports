@@ -1,3 +1,4 @@
+import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -5,7 +6,6 @@ import { TransferPortalFeedView } from "@/components/transfer-portal/transfer-po
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { requireSportBySlug } from "@/lib/sport-by-slug";
 import type { TransferPortalFeedSearchParams } from "@/lib/transfer-portal-feed-params";
-import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 
 export async function generateMetadata({
   params,

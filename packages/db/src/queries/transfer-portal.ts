@@ -1,13 +1,4 @@
-import {
-  and,
-  count,
-  desc,
-  eq,
-  ilike,
-  lt,
-  max,
-  or,
-} from "drizzle-orm";
+import { and, count, desc, eq, ilike, lt, max, or } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { primaryDb as db } from "../client";
@@ -69,7 +60,9 @@ export async function getTransferPortalEntries({
   limit?: number;
   cursor?: { eventDate: Date; id: string };
 }) {
-  const conditions = [eq(transferPortalEntriesTable.portalYear, filters.portalYear)];
+  const conditions = [
+    eq(transferPortalEntriesTable.portalYear, filters.portalYear),
+  ];
 
   if (filters.status && filters.status !== "all") {
     conditions.push(eq(transferPortalEntriesTable.status, filters.status));
@@ -138,9 +131,15 @@ export async function getTransferPortalEntries({
       toSchoolShortName: toSchool.shortName,
     })
     .from(transferPortalEntriesTable)
-    .innerJoin(playersTable, eq(transferPortalEntriesTable.playerId, playersTable.id))
+    .innerJoin(
+      playersTable,
+      eq(transferPortalEntriesTable.playerId, playersTable.id),
+    )
     .leftJoin(sportsTable, eq(playersTable.sportId, sportsTable.id))
-    .leftJoin(fromSchool, eq(transferPortalEntriesTable.fromSchoolId, fromSchool.id))
+    .leftJoin(
+      fromSchool,
+      eq(transferPortalEntriesTable.fromSchoolId, fromSchool.id),
+    )
     .leftJoin(toSchool, eq(transferPortalEntriesTable.toSchoolId, toSchool.id))
     .where(and(...conditions))
     .orderBy(
@@ -157,21 +156,20 @@ export async function getTransferPortalEntries({
     data,
     hasMore,
     nextCursor:
-      hasMore && last
-        ? { eventDate: last.eventDate, id: last.entryId }
-        : null,
+      hasMore && last ? { eventDate: last.eventDate, id: last.entryId } : null,
   };
 }
 
 export async function getLatestPortalYear(sportSlug?: string) {
-  const conditions = sportSlug
-    ? [eq(sportsTable.slug, sportSlug)]
-    : [];
+  const conditions = sportSlug ? [eq(sportsTable.slug, sportSlug)] : [];
 
   const query = db
     .select({ latestYear: max(transferPortalEntriesTable.portalYear) })
     .from(transferPortalEntriesTable)
-    .innerJoin(playersTable, eq(transferPortalEntriesTable.playerId, playersTable.id))
+    .innerJoin(
+      playersTable,
+      eq(transferPortalEntriesTable.playerId, playersTable.id),
+    )
     .leftJoin(sportsTable, eq(playersTable.sportId, sportsTable.id));
 
   const result = await (conditions.length
@@ -187,14 +185,15 @@ export async function getLatestPortalYear(sportSlug?: string) {
 }
 
 export async function getAvailablePortalYears(sportSlug?: string) {
-  const conditions = sportSlug
-    ? [eq(sportsTable.slug, sportSlug)]
-    : [];
+  const conditions = sportSlug ? [eq(sportsTable.slug, sportSlug)] : [];
 
   const query = db
     .selectDistinct({ portalYear: transferPortalEntriesTable.portalYear })
     .from(transferPortalEntriesTable)
-    .innerJoin(playersTable, eq(transferPortalEntriesTable.playerId, playersTable.id))
+    .innerJoin(
+      playersTable,
+      eq(transferPortalEntriesTable.playerId, playersTable.id),
+    )
     .leftJoin(sportsTable, eq(playersTable.sportId, sportsTable.id))
     .orderBy(desc(transferPortalEntriesTable.portalYear));
 
@@ -308,7 +307,10 @@ export async function listRecruitingPlayersByClassYear({
     .innerJoin(sportsTable, eq(playersTable.sportId, sportsTable.id))
     .leftJoin(schoolsTable, eq(playersTable.committedSchoolId, schoolsTable.id))
     .where(
-      and(eq(sportsTable.slug, sportSlug), eq(playersTable.classYear, classYear)),
+      and(
+        eq(sportsTable.slug, sportSlug),
+        eq(playersTable.classYear, classYear),
+      ),
     )
     .orderBy(playersTable.lastName, playersTable.firstName)
     .limit(limit);

@@ -103,7 +103,10 @@ async function CachedTransferPortalSportNews({
   return (
     <div className="container max-w-5xl px-4 py-8">
       <p className="mb-4 text-xs text-muted-foreground">
-        <Link href="/college/transfer-portal/news" className="hover:text-foreground">
+        <Link
+          href="/college/transfer-portal/news"
+          className="hover:text-foreground"
+        >
           All Transfer Portal News
         </Link>
       </p>

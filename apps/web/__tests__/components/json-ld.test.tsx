@@ -158,7 +158,7 @@ describe("PostPageJsonLd", () => {
     expect(data["@graph"]).toBeDefined();
     expect(
       data["@graph"].some(
-        (node: { ["@type"]?: string }) => node["@type"] === "NewsArticle",
+        (node: { "@type"?: string }) => node["@type"] === "NewsArticle",
       ),
     ).toBe(true);
   });

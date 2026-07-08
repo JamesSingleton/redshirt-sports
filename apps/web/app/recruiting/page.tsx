@@ -1,9 +1,9 @@
+import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { fetchAllSports } from "@/lib/sport-by-slug";
 import { getPageMetadata } from "@/lib/global-seo-settings";
-import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
+import { fetchAllSports } from "@/lib/sport-by-slug";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { perspective } = await getDynamicFetchOptions();
