@@ -1,6 +1,6 @@
 import { nestLists } from "@portabletext/toolkit";
 
-import type { RawLinkFinding } from "../../types";
+import type { CustomUrlObject, RawLinkFinding, SiteLinkObject } from "../../types";
 
 type TypedObject = {
   _type?: string;
@@ -283,4 +283,215 @@ export function extractLinks(body: unknown): RawLinkFinding[] {
 
 export function extractIncompleteLinks(body: unknown): RawLinkFinding[] {
   return extractLinks(body).filter((finding) => finding.incomplete);
+}
+
+type NavFooterLinkRow = {
+  _key?: string;
+  name?: string;
+  link?: SiteLinkObject;
+  url?: CustomUrlObject;
+};
+
+function addSiteLinkFinding(
+  findings: RawLinkFinding[],
+  seenIds: Set<string>,
+  {
+    id,
+    label,
+    siteLink,
+    url,
+  }: {
+    id: string;
+    label?: string;
+    siteLink?: SiteLinkObject;
+    url?: string;
+  },
+) {
+  if (seenIds.has(id)) {
+    return;
+  }
+  seenIds.add(id);
+
+  if (url && !shouldSkipUrl(url)) {
+    findings.push({
+      id,
+      url,
+      label,
+      source: "siteLink",
+    });
+    return;
+  }
+
+  if (!siteLink?.linkType) {
+    findings.push({
+      id,
+      label,
+      source: "siteLink",
+      incomplete: true,
+      incompleteMessage: "Incomplete link — missing destination",
+    });
+    return;
+  }
+
+  if (siteLink.linkType === "external" && siteLink.external) {
+    if (shouldSkipUrl(siteLink.external)) {
+      return;
+    }
+    findings.push({
+      id,
+      url: siteLink.external,
+      label,
+      source: "siteLink",
+    });
+    return;
+  }
+
+  if (siteLink.linkType === "sitePath" && siteLink.sitePath) {
+    if (shouldSkipUrl(siteLink.sitePath)) {
+      return;
+    }
+    findings.push({
+      id,
+      url: siteLink.sitePath,
+      label,
+      source: "siteLink",
+    });
+    return;
+  }
+
+  findings.push({
+    id,
+    label,
+    source: "siteLink",
+    siteLink,
+    refId: siteLink.document?._ref,
+  });
+}
+
+function extractLinkRow(
+  row: NavFooterLinkRow,
+  findings: RawLinkFinding[],
+  seenIds: Set<string>,
+  idPrefix: string,
+) {
+  const id = `${idPrefix}:${row._key ?? "unknown"}`;
+  const siteLink = row.link;
+  const legacyUrl = row.url;
+
+  if (legacyUrl) {
+    findings.push({
+      id,
+      label: row.name,
+      source: "customLink",
+      customUrl: legacyUrl,
+      refId: legacyUrl.internal?._ref,
+    });
+    return;
+  }
+
+  addSiteLinkFinding(findings, seenIds, {
+    id,
+    label: row.name,
+    siteLink,
+  });
+}
+
+export function extractNavFooterLinks(
+  document: Record<string, unknown> | undefined,
+): RawLinkFinding[] {
+  if (!document) {
+    return [];
+  }
+
+  const docType = document._type;
+  if (docType !== "navbar" && docType !== "footer") {
+    return [];
+  }
+
+  const findings: RawLinkFinding[] = [];
+  const seenIds = new Set<string>();
+  const columns = document.columns;
+
+  if (!Array.isArray(columns)) {
+    return findings;
+  }
+
+  for (const column of columns) {
+    if (!isTypedObject(column)) {
+      continue;
+    }
+
+    if (docType === "footer") {
+      const links = column.links;
+      if (!Array.isArray(links)) {
+        continue;
+      }
+      for (const link of links) {
+        if (!isTypedObject(link)) {
+          continue;
+        }
+        extractLinkRow(
+          link as NavFooterLinkRow,
+          findings,
+          seenIds,
+          `footer:${String(column._key)}`,
+        );
+      }
+      continue;
+    }
+
+    if (column._type === "navbarLink") {
+      extractLinkRow(
+        column as NavFooterLinkRow,
+        findings,
+        seenIds,
+        "navbar:link",
+      );
+      continue;
+    }
+
+    if (column._type === "navbarColumn") {
+      const links = column.links;
+      if (Array.isArray(links)) {
+        for (const link of links) {
+          if (!isTypedObject(link)) {
+            continue;
+          }
+          extractLinkRow(
+            link as NavFooterLinkRow,
+            findings,
+            seenIds,
+            `navbar:${String(column._key)}`,
+          );
+        }
+      }
+
+      const sections = column.sections;
+      if (Array.isArray(sections)) {
+        for (const section of sections) {
+          if (!isTypedObject(section) || !Array.isArray(section.links)) {
+            continue;
+          }
+          for (const link of section.links) {
+            if (!isTypedObject(link)) {
+              continue;
+            }
+            const legacyLink = link as NavFooterLinkRow & {
+              url?: CustomUrlObject;
+            };
+            if (legacyLink.url) {
+              extractLinkRow(
+                legacyLink,
+                findings,
+                seenIds,
+                `navbar:${String(column._key)}:legacy`,
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return findings;
 }

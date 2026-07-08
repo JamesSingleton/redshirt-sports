@@ -270,20 +270,24 @@ export async function CachedHomePage({
               articles={collegeSportsPosts}
             />
 
-            <HomeNewsSection
-              title="Recruiting"
-              href="/recruiting"
-              badge="HOT"
-              articles={recruitingPosts}
-              layout="grid-3"
-            />
+            {recruitingPosts.length > 0 ? (
+              <HomeNewsSection
+                title="Recruiting"
+                href="/recruiting"
+                badge="HOT"
+                articles={recruitingPosts}
+                layout="grid-3"
+              />
+            ) : null}
 
-            <HomeNewsSection
-              title="Transfer Portal"
-              href="/transfer-portal/news"
-              badge="NEW"
-              articles={transferPosts}
-            />
+            {transferPosts.length > 0 ? (
+              <HomeNewsSection
+                title="Transfer Portal"
+                href="/college/transfer-portal"
+                badge="NEW"
+                articles={transferPosts}
+              />
+            ) : null}
 
             {sectionOrder.map((key) => {
               const section = divisionsWithArticles.find((d) => d.key === key);

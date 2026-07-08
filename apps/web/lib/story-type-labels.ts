@@ -12,13 +12,18 @@ export function getStoryTypeLabel(storyType?: string | null): string | null {
   return STORY_TYPE_LABELS[storyType] ?? null;
 }
 
-export function getStoryTypeHref(storyType?: string | null): string {
+export function getStoryTypeHref(
+  storyType?: string | null,
+  sportSlug?: string | null,
+): string {
   switch (storyType) {
     case "recruiting":
-      return "/recruiting";
+      return sportSlug ? `/recruiting/${sportSlug}` : "/recruiting";
     case "transfer":
-      return "/transfer-portal/news";
+      return sportSlug
+        ? `/college/${sportSlug}/transfer-portal/news`
+        : "/college/transfer-portal/news";
     default:
-      return "/college/news";
+      return sportSlug ? `/college/${sportSlug}/news` : "/college/news";
   }
 }

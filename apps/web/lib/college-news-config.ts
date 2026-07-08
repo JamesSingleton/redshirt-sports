@@ -2,7 +2,7 @@ import {
   type NavLink,
   type SportNavConfig,
   sportNavConfigs,
-} from "@/components/nav-config";
+} from "@/lib/sport-division-config";
 
 const SPORT_NEWS_DESCRIPTIONS: Record<string, string> = {
   football:
@@ -71,7 +71,7 @@ export function getDivisionSlugFromHref(href: string): string {
   return resolveDivisionRouteSlug(href.split("/").pop() ?? href);
 }
 
-/** Keep nav-config division order/labels; drop divisions with no published posts. */
+/** Keep sport division order/labels; drop divisions with no published posts. */
 export function filterSportDivisionsWithArticles(
   sportConfig: SportNavConfig | undefined,
   divisionSlugs: string[] | null | undefined,

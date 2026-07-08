@@ -220,14 +220,17 @@ export function VirtualizedCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          ref={triggerRef}
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
+      <PopoverTrigger
+        render={
+          <Button
+            ref={triggerRef}
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+          />
+        }
+      >
           {selectedSchool?.image ? (
             <span className="inline-flex items-center">
               <CustomImage
@@ -242,7 +245,6 @@ export function VirtualizedCombobox({
             searchPlaceholder
           )}
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
-        </Button>
       </PopoverTrigger>
       <PopoverContent
         className="p-0"

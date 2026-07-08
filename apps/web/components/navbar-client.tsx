@@ -23,35 +23,27 @@ import { usePathname } from "next/navigation";
 import { memo, useEffect, useState } from "react";
 
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import {
+  flattenNavbarColumnLinks,
+  type ResolvedNavbarItem,
+} from "@/lib/nav-data";
 import { Logo } from "./logo";
 import { ModeToggle } from "./mode-toggle";
-import {
-  dropdownNavItems,
-  flattenSportNavLinks,
-  sportNavConfigs,
-  teamsNavLink,
-} from "./nav-config";
-import {
-  MobileNavSection,
-  SimpleDropdownPanel,
-  SportDropdownPanel,
-} from "./nav-menus";
-import type { Top25RankingsData } from "./nav-types";
+import { CmsNavColumnPanel, MobileNavSection } from "./nav-menus";
 import { SearchBar } from "./search-bar";
 
 const darkNavTriggerClass =
   "inline-flex h-auto w-max items-center justify-center gap-1 rounded-none border-0 bg-transparent px-4 py-4 text-sm font-medium text-brand-surface-foreground/80 shadow-none outline-none transition-colors hover:!bg-white/15 hover:!text-brand-surface-foreground focus:!bg-white/15 focus:!text-brand-surface-foreground focus-visible:ring-0 data-[state=open]:!bg-white/15 data-[state=open]:!text-brand-surface-foreground data-[state=open]:hover:!bg-white/15";
 
-/** Strip default NavigationMenuContent chrome (border, padding, popover bg). */
 const darkDropdownContentClass =
   "!mt-0 !rounded-none !border-0 !bg-transparent !p-0 !shadow-none";
 
 const MobileNavbar = memo(function MobileNavbar({
   settingsData,
-  latestRankings,
+  navItems,
 }: {
   settingsData: QueryGlobalSeoSettingsResult;
-  latestRankings: Top25RankingsData;
+  navItems: ResolvedNavbarItem[];
 }) {
   const { siteTitle, logo, footerLogoDarkMode } = settingsData ?? {};
   const sheetLogo = footerLogoDarkMode ?? logo;
@@ -67,15 +59,17 @@ const MobileNavbar = memo(function MobileNavbar({
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <div className="flex justify-end lg:hidden">
-        <SheetTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-brand-surface-foreground hover:bg-white/10 hover:text-brand-surface-foreground"
-          >
-            <Menu className="size-5" />
-            <span className="sr-only">Open menu</span>
-          </Button>
+        <SheetTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-brand-surface-foreground hover:bg-white/10 hover:text-brand-surface-foreground"
+            />
+          }
+        >
+          <Menu className="size-5" />
+          <span className="sr-only">Open menu</span>
         </SheetTrigger>
       </div>
       <SheetContent className="bg-brand-surface text-brand-surface-foreground border-brand-surface-border w-80 max-w-[85vw] overflow-y-auto p-0">
@@ -94,27 +88,27 @@ const MobileNavbar = memo(function MobileNavbar({
         </div>
 
         <nav aria-label="Mobile navigation">
-          <MobileNavSection
-            title="Teams"
-            links={[teamsNavLink]}
-            onNavigate={close}
-          />
-          {sportNavConfigs.map((config) => (
-            <MobileNavSection
-              key={config.slug}
-              title={config.label.toUpperCase()}
-              links={flattenSportNavLinks(config, latestRankings)}
-              onNavigate={close}
-            />
-          ))}
-          {dropdownNavItems.map((config) => (
-            <MobileNavSection
-              key={config.label}
-              title={config.label.toUpperCase()}
-              links={config.items}
-              onNavigate={close}
-            />
-          ))}
+          {navItems.map((item) => {
+            if (item.type === "link") {
+              return (
+                <MobileNavSection
+                  key={item._key}
+                  title={item.label.toUpperCase()}
+                  links={[item]}
+                  onNavigate={close}
+                />
+              );
+            }
+
+            return (
+              <MobileNavSection
+                key={item._key}
+                title={item.title.toUpperCase()}
+                links={flattenNavbarColumnLinks(item)}
+                onNavigate={close}
+              />
+            );
+          })}
         </nav>
       </SheetContent>
     </Sheet>
@@ -122,9 +116,9 @@ const MobileNavbar = memo(function MobileNavbar({
 });
 
 export const DesktopNavbar = memo(function DesktopNavbar({
-  latestRankings,
+  navItems,
 }: {
-  latestRankings: Top25RankingsData;
+  navItems: ResolvedNavbarItem[];
 }) {
   return (
     <div className="hidden grid-cols-[1fr_auto] items-center gap-6 lg:grid">
@@ -134,36 +128,39 @@ export const DesktopNavbar = memo(function DesktopNavbar({
         aria-label="Main navigation"
       >
         <NavigationMenuList className="gap-0">
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild className={darkNavTriggerClass}>
-              <Link href={teamsNavLink.href}>{teamsNavLink.label}</Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
+          {navItems.map((item) => {
+            if (item.type === "link") {
+              return (
+                <NavigationMenuItem key={item._key}>
+                  <NavigationMenuLink
+                    render={
+                      <Link
+                        href={item.href}
+                        target={item.openInNewTab ? "_blank" : undefined}
+                        rel={
+                          item.openInNewTab ? "noopener noreferrer" : undefined
+                        }
+                      />
+                    }
+                    className={darkNavTriggerClass}
+                  >
+                    {item.label}
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              );
+            }
 
-          {sportNavConfigs.map((config) => (
-            <NavigationMenuItem key={config.slug}>
-              <NavigationMenuTrigger className={darkNavTriggerClass}>
-                {config.label}
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className={darkDropdownContentClass}>
-                <SportDropdownPanel
-                  config={config}
-                  latestRankings={latestRankings}
-                />
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          ))}
-
-          {dropdownNavItems.map((config) => (
-            <NavigationMenuItem key={config.label}>
-              <NavigationMenuTrigger className={darkNavTriggerClass}>
-                {config.label}
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className={darkDropdownContentClass}>
-                <SimpleDropdownPanel config={config} />
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          ))}
+            return (
+              <NavigationMenuItem key={item._key}>
+                <NavigationMenuTrigger className={darkNavTriggerClass}>
+                  {item.title}
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className={darkDropdownContentClass}>
+                  <CmsNavColumnPanel column={item} />
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            );
+          })}
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -180,10 +177,10 @@ export const DesktopNavbar = memo(function DesktopNavbar({
 
 const ClientSideNavbar = memo(function ClientSideNavbar({
   settingsData,
-  latestRankings,
+  navItems,
 }: {
   settingsData: QueryGlobalSeoSettingsResult;
-  latestRankings: Top25RankingsData;
+  navItems: ResolvedNavbarItem[];
 }) {
   const isMobile = useIsMobile();
 
@@ -193,11 +190,8 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
 
   return (
     <>
-      <MobileNavbar
-        settingsData={settingsData}
-        latestRankings={latestRankings}
-      />
-      <DesktopNavbar latestRankings={latestRankings} />
+      <MobileNavbar settingsData={settingsData} navItems={navItems} />
+      <DesktopNavbar navItems={navItems} />
     </>
   );
 });

@@ -15,7 +15,6 @@ export const sportNewsLink = defineType({
       type: "reference",
       to: [{ type: "sport" }],
       options: { disableNew: true },
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "routeDepth",
@@ -28,7 +27,6 @@ export const sportNewsLink = defineType({
         { title: "Conference", value: "conferenceNews" },
       ]),
       initialValue: () => "sportNews",
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "segment",

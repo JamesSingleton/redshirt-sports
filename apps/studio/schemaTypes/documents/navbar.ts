@@ -1,32 +1,30 @@
 import { LayoutPanelLeft, Link, PanelTop } from "lucide-react";
-import { defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from "sanity";
 
 import {
-  type CustomUrlPreviewInput,
-  formatCustomUrlLinkSubtitle,
-  nestedCustomUrlPreviewSelect,
-  resolveCustomUrlPreview,
-} from "../../utils/custom-url-preview";
+  formatSiteLinkSubtitle,
+  nestedSiteLinkPreviewSelect,
+  resolveSiteLinkPreview,
+  type SiteLinkPreviewInput,
+} from "../../utils/site-link-preview";
 
-const navbarLinkPreview = {
+const siteLinkLinkPreview = {
   select: {
     title: "name",
-    ...nestedCustomUrlPreviewSelect("url"),
+    ...nestedSiteLinkPreviewSelect("link"),
   },
   prepare: ({
     title,
-    ...urlFields
-  }: {
-    title?: string;
-  } & CustomUrlPreviewInput) => {
-    const url = resolveCustomUrlPreview(urlFields);
+    ...linkFields
+  }: { title?: string } & SiteLinkPreviewInput) => {
+    const url = resolveSiteLinkPreview(linkFields);
 
     return {
       title: title || "Untitled Link",
-      subtitle: formatCustomUrlLinkSubtitle({
-        urlType: urlFields.urlType,
+      subtitle: formatSiteLinkSubtitle({
+        linkType: linkFields.linkType,
         url,
-        openInNewTab: urlFields.openInNewTab,
+        openInNewTab: linkFields.openInNewTab,
       }),
       media: Link,
     };
@@ -38,74 +36,93 @@ const navbarLink = defineField({
   type: "object",
   icon: Link,
   title: "Navigation Link",
-  description: "Individual navigation link with name and URL",
+  description: "Top-level link shown directly in the navigation bar",
   fields: [
     defineField({
       name: "name",
       type: "string",
-      title: "Link Text",
-      description: "The text that will be displayed for this navigation link",
+      title: "Link text",
+      validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "url",
-      type: "customUrl",
-      title: "Link URL",
-      description: "The URL that this link will navigate to when clicked",
+      name: "link",
+      type: "siteLink",
+      title: "Destination",
+      validation: (rule) => rule.required(),
     }),
   ],
-  preview: navbarLinkPreview,
+  preview: siteLinkLinkPreview,
 });
 
 const navbarColumnLink = defineField({
   name: "navbarColumnLink",
   type: "object",
   icon: LayoutPanelLeft,
-  title: "Navigation Column Link",
-  description: "A link within a navigation column",
+  title: "Dropdown link",
   fields: [
     defineField({
       name: "name",
       type: "string",
-      title: "Link Text",
-      description: "The text that will be displayed for this navigation link",
+      title: "Link text",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "groupLabel",
+      type: "string",
+      title: "Group label",
+      description:
+        'Optional heading for this link in the dropdown (e.g. "Browse by Division"). Consecutive links with the same label are grouped together.',
     }),
     defineField({
       name: "description",
       type: "string",
       title: "Description",
-      description: "The description for this navigation link",
+      description: "Optional subtitle shown below the link in dropdowns",
     }),
     defineField({
-      name: "url",
-      type: "customUrl",
-      title: "Link URL",
-      description: "The URL that this link will navigate to when clicked",
+      name: "link",
+      type: "siteLink",
+      title: "Destination",
+      validation: (rule) => rule.required(),
     }),
   ],
-  preview: navbarLinkPreview,
+  preview: siteLinkLinkPreview,
 });
 
 const navbarColumn = defineField({
   name: "navbarColumn",
   type: "object",
   icon: LayoutPanelLeft,
-  title: "Navigation Column",
-  description: "A column of navigation links with an optional title",
+  title: "Navigation Dropdown",
+  description: "A dropdown column in the navigation bar",
   fields: [
     defineField({
       name: "title",
       type: "string",
-      title: "Column Title",
+      title: "Dropdown label",
+      description: "Text shown on the navigation bar for this dropdown",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "sportSlug",
+      type: "string",
+      title: "Sport (for live Top 25 rankings)",
       description:
-        "The heading text displayed above this group of navigation links",
+        'When set, the site injects current Top 25 ranking links into this dropdown',
+      options: {
+        list: [
+          { title: "Football", value: "football" },
+          { title: "Men's Basketball", value: "mens-basketball" },
+          { title: "Women's Basketball", value: "womens-basketball" },
+        ],
+      },
     }),
     defineField({
       name: "links",
       type: "array",
-      title: "Column Links",
-      validation: (rule) => [rule.required(), rule.unique()],
-      description: "The list of navigation links to display in this column",
-      of: [navbarColumnLink],
+      title: "Dropdown links",
+      of: [defineArrayMember(navbarColumnLink)],
+      options: { sortable: true },
     }),
   ],
   preview: {
@@ -115,7 +132,7 @@ const navbarColumn = defineField({
     },
     prepare({ title, links = [] }) {
       return {
-        title: title || "Untitled Column",
+        title: title || "Untitled Dropdown",
         subtitle: `${links.length} link${links.length === 1 ? "" : "s"}`,
       };
     },
@@ -134,25 +151,31 @@ export const navbar = defineType({
       type: "string",
       initialValue: "Navbar",
       title: "Navigation Label",
-      description:
-        "Internal label to identify this navigation configuration in the CMS",
+      description: "Internal label for this configuration in the CMS",
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "columns",
       type: "array",
-      title: "Navigation Structure",
-      description:
-        "Build your navigation menu using columns and links. Add either a column of links or individual links.",
-      of: [navbarColumn, navbarLink],
+      title: "Navigation items",
+      description: "Add dropdown columns or individual top-level links",
+      of: [
+        defineArrayMember(navbarColumn),
+        defineArrayMember(navbarLink),
+      ],
+      options: { sortable: true },
     }),
   ],
   preview: {
     select: {
       title: "label",
+      columns: "columns",
     },
-    prepare: ({ title }) => ({
-      title: title || "Untitled Navigation",
-    }),
+    prepare({ title, columns = [] }) {
+      return {
+        title: title || "Site Navigation",
+        subtitle: `${columns.length} item${columns.length === 1 ? "" : "s"}`,
+      };
+    },
   },
 });

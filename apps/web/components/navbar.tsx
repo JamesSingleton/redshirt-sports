@@ -3,10 +3,17 @@ import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
-import { queryGlobalSeoSettings } from "@redshirt-sports/sanity/queries";
-import type { QueryGlobalSeoSettingsResult } from "@redshirt-sports/sanity/types";
+import {
+  queryGlobalSeoSettings,
+  queryNavbarData,
+} from "@redshirt-sports/sanity/queries";
+import type {
+  QueryGlobalSeoSettingsResult,
+  QueryNavbarDataResult,
+} from "@redshirt-sports/sanity/types";
 import { memo } from "react";
 
+import { resolveNavbarItems } from "@/lib/nav-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { Logo } from "./logo";
 import type { Top25RankingsData } from "./nav-types";
@@ -30,11 +37,17 @@ export async function CachedNavbarServer({
   "use cache";
   const [
     { data: settingsData },
+    { data: navbarData },
     latestFootballRankings,
     latestMensBasketballRankings,
   ] = await Promise.all([
     sanityFetchPage({
       query: queryGlobalSeoSettings,
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: queryNavbarData,
       perspective,
       stega,
     }),
@@ -56,6 +69,7 @@ export async function CachedNavbarServer({
   return (
     <MemoizedNavbar
       settingsData={settingsData}
+      navbarData={navbarData}
       latestRankings={latestRankings}
     />
   );
@@ -64,9 +78,11 @@ export async function CachedNavbarServer({
 // Memoize the main Navbar component to prevent unnecessary re-renders
 const MemoizedNavbar = memo(function Navbar({
   settingsData,
+  navbarData,
   latestRankings,
 }: {
   settingsData: QueryGlobalSeoSettingsResult;
+  navbarData: QueryNavbarDataResult;
   latestRankings: Top25RankingsData | undefined;
 }) {
   const {
@@ -76,6 +92,7 @@ const MemoizedNavbar = memo(function Navbar({
   } = settingsData ?? {};
   // The header is always a dark surface, so prefer the light/dark-mode logo.
   const headerLogo = footerLogoDarkMode ?? logo;
+  const navItems = resolveNavbarItems(navbarData, latestRankings || []);
 
   return (
     <header className="bg-brand-surface text-brand-surface-foreground border-brand-surface-border sticky top-0 z-50 border-b">
@@ -84,10 +101,7 @@ const MemoizedNavbar = memo(function Navbar({
           {headerLogo && (
             <Logo alt={settingsSiteTitle} priority image={headerLogo} />
           )}
-          <NavbarClient
-            settingsData={settingsData}
-            latestRankings={latestRankings || []}
-          />
+          <NavbarClient settingsData={settingsData} navItems={navItems} />
         </div>
       </div>
     </header>

@@ -1,12 +1,12 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "new-york",
+  "style": "base-nova",
   "rsc": true,
   "tsx": true,
   "tailwind": {
     "config": "",
     "css": "src/styles/globals.css",
-    "baseColor": "zinc",
+    "baseColor": "neutral",
     "cssVariables": true
   },
   "iconLibrary": "lucide",
@@ -16,5 +16,8 @@
     "hooks": "@redshirt-sports/ui/hooks",
     "lib": "@redshirt-sports/ui/lib",
     "ui": "@redshirt-sports/ui/components"
-  }
+  },
+  "menuColor": "default-translucent",
+  "menuAccent": "subtle",
+  "rtl": false
 }

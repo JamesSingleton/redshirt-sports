@@ -18,7 +18,7 @@ import { useState } from "react";
 import {
   buildRankingHref,
   getDivisionDisplayName,
-} from "@/components/nav-config";
+} from "@/lib/nav-rankings";
 import CustomImage from "@/components/sanity-image";
 import type { HomePollData } from "@/lib/home-rankings";
 

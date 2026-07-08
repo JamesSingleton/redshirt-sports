@@ -21,18 +21,12 @@ import {
   CachedCombinedJsonLd,
   DynamicCombinedJsonLd,
 } from "@/components/json-ld";
-import {
-  CachedNavbarServer,
-  DynamicNavbarServer,
-  NavbarSkeleton,
-} from "@/components/navbar";
 import { Providers } from "@/components/providers";
+import { DynamicTestNav, TestNav } from "@/components/test-nav";
 import { getRootMetadata } from "@/lib/seo";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 
-const fontSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -56,19 +50,20 @@ export default async function RootLayout({
   const isDraftMode = (await draftMode()).isEnabled;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <AnalyticsProvider>
         <body
-          className={`${fontSans.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
+          className={`${geist.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
         >
           <Providers>
-            {isDraftMode ? (
+            {isDraftMode ? <DynamicTestNav /> : <TestNav />}
+            {/* {isDraftMode ? (
               <Suspense fallback={<NavbarSkeleton />}>
                 <DynamicNavbarServer />
               </Suspense>
             ) : (
               <CachedNavbarServer perspective="published" stega={false} />
-            )}
+            )} */}
             <main className="flex-1">{children}</main>
             {isDraftMode ? (
               <Suspense fallback={<FooterSkeleton />}>

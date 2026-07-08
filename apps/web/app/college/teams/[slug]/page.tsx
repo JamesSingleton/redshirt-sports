@@ -121,33 +121,49 @@ async function renderSchoolTeamPage(
     notFound();
   }
 
-  const [{ data: newsData }, { data: recruitingPosts }, globalSettings] =
-    await Promise.all([
-      sanityFetchPage({
-        query: postsBySchoolQuery,
-        params: { schoolId: school._id, from: 0, to: MIN_TEAM_PAGE_POSTS },
-        perspective,
-        stega,
-      }) as Promise<{ data: PostsBySchoolQueryResult | null }>,
-      sanityFetchPage({
-        query: postsBySchoolAndStoryTypeQuery,
-        params: { schoolId: school._id, storyType: "recruiting" },
-        perspective,
-        stega,
-      }) as Promise<{ data: PostsBySchoolAndStoryTypeQueryResult | null }>,
-      fetchGlobalSeoSettings(perspective),
-    ]);
+  const [
+    { data: newsData },
+    { data: recruitingPosts },
+    { data: transferPosts },
+    globalSettings,
+  ] = await Promise.all([
+    sanityFetchPage({
+      query: postsBySchoolQuery,
+      params: { schoolId: school._id, from: 0, to: MIN_TEAM_PAGE_POSTS },
+      perspective,
+      stega,
+    }) as Promise<{ data: PostsBySchoolQueryResult | null }>,
+    sanityFetchPage({
+      query: postsBySchoolAndStoryTypeQuery,
+      params: { schoolId: school._id, storyType: "recruiting" },
+      perspective,
+      stega,
+    }) as Promise<{ data: PostsBySchoolAndStoryTypeQueryResult | null }>,
+    sanityFetchPage({
+      query: postsBySchoolAndStoryTypeQuery,
+      params: { schoolId: school._id, storyType: "transfer" },
+      perspective,
+      stega,
+    }) as Promise<{ data: PostsBySchoolAndStoryTypeQueryResult | null }>,
+    fetchGlobalSeoSettings(perspective),
+  ]);
 
   const posts = newsData?.posts ?? [];
   const featuredPosts = posts.slice(0, 3);
   const sportsPosts = posts.slice(3, 8);
 
   const teamShortName = school.shortName ?? school.name ?? "Team";
+  const primarySportSlug =
+    school.conferenceAffiliations?.[0]?.sport?.slug ?? "football";
+  const transferFeedHref = `/college/${primarySportSlug}/transfer-portal/feed?school=${slug}`;
 
   const sportsFooterLinks = [
     { label: "View All Football", href: "/college/football/news" },
     { label: "View All Basketball", href: "/college/mens-basketball/news" },
   ];
+
+  const hasRecruitingPosts = (recruitingPosts?.length ?? 0) > 0;
+  const hasTransferPosts = (transferPosts?.length ?? 0) > 0;
 
   return (
     <>
@@ -173,13 +189,13 @@ async function renderSchoolTeamPage(
             footerLinks={sportsFooterLinks}
           />
 
-          {recruitingPosts && recruitingPosts.length > 0 ? (
+          {hasRecruitingPosts ? (
             <section className="mb-8">
               <h2 className="mb-5 text-[22px] font-bold text-foreground">
                 {teamShortName} Recruiting
               </h2>
               <ul className="flex flex-col gap-5">
-                {recruitingPosts.map((post) => (
+                {(recruitingPosts ?? []).map((post) => (
                   <li key={post._id}>
                     <TeamNewsItem post={post} />
                   </li>
@@ -188,16 +204,18 @@ async function renderSchoolTeamPage(
               <footer className="mt-5 flex flex-wrap gap-6">
                 <Link
                   href="/recruiting"
-                  className="text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
+                  className="text-xs font-bold tracking-wide text-primary uppercase hover:underline"
                 >
                   View All Recruiting
                 </Link>
-                <Link
-                  href="/transfer-portal"
-                  className="text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
-                >
-                  View All Transfers
-                </Link>
+                {hasTransferPosts ? (
+                  <Link
+                    href={transferFeedHref}
+                    className="text-xs font-bold tracking-wide text-primary uppercase hover:underline"
+                  >
+                    View All Transfers
+                  </Link>
+                ) : null}
               </footer>
             </section>
           ) : null}
@@ -225,7 +243,7 @@ function TeamNavBar({
   schoolImage: NonNullable<SchoolBySlugQueryResult>["image"];
 }) {
   return (
-    <nav className="sticky top-0 z-40 border-b border-border bg-card">
+    <nav className="bg-brand-surface text-brand-surface-foreground border-brand-surface-border sticky top-[65px] z-40 border-b">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-4 overflow-x-auto px-4 [-webkit-overflow-scrolling:touch]">
         <div className="flex shrink-0 items-center gap-2.5">
           {schoolImage ? (

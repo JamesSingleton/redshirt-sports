@@ -3,9 +3,8 @@ import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-import type { DropdownNavConfig, NavLink, SportNavConfig } from "./nav-config";
-import { resolveSportRankings } from "./nav-config";
-import type { Top25RankingsData } from "./nav-types";
+import type { ResolvedNavbarColumn } from "@/lib/nav-data";
+import type { NavLink } from "@/lib/nav-rankings";
 
 const darkDropdownPanelClass =
   "min-w-[220px] bg-brand-surface p-0 text-brand-surface-foreground shadow-xl";
@@ -16,84 +15,51 @@ const darkDropdownLinkClass =
 const darkDropdownGroupLabelClass =
   "px-4 pt-2.5 pb-1 text-[11px] font-bold tracking-wider text-brand-surface-muted uppercase";
 
-interface SportDropdownPanelProps {
-  config: SportNavConfig;
-  latestRankings: Top25RankingsData;
+interface CmsNavColumnPanelProps {
+  column: ResolvedNavbarColumn;
   className?: string;
 }
 
-export function SportDropdownPanel({
-  config,
-  latestRankings,
+export function CmsNavColumnPanel({
+  column,
   className,
-}: SportDropdownPanelProps) {
-  const rankings = resolveSportRankings(config, latestRankings);
-
-  return (
-    <div className={cn(darkDropdownPanelClass, className)} role="menu">
-      <p className={darkDropdownGroupLabelClass}>Browse by Division</p>
-      <Link
-        href={config.allNewsHref}
-        className={darkDropdownLinkClass}
-        role="menuitem"
-      >
-        All {config.label} News
-      </Link>
-      {config.divisions.map((division) => (
-        <Link
-          key={division.href}
-          href={division.href}
-          className={darkDropdownLinkClass}
-          role="menuitem"
-        >
-          {division.label}
-        </Link>
-      ))}
-      {rankings.length > 0 && (
-        <>
-          <p className={darkDropdownGroupLabelClass}>Top 25 Rankings</p>
-          {rankings.map((ranking) => (
-            <Link
-              key={ranking.href}
-              href={ranking.href}
-              className={darkDropdownLinkClass}
-              role="menuitem"
-            >
-              {ranking.label}
-            </Link>
-          ))}
-        </>
-      )}
-    </div>
-  );
-}
-
-interface SimpleDropdownPanelProps {
-  config: DropdownNavConfig;
-  className?: string;
-}
-
-export function SimpleDropdownPanel({
-  config,
-  className,
-}: SimpleDropdownPanelProps) {
+}: CmsNavColumnPanelProps) {
   return (
     <div
       className={cn(darkDropdownPanelClass, className)}
       role="menu"
-      aria-label={`${config.label} navigation`}
+      aria-label={`${column.title} navigation`}
     >
-      {config.items.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={darkDropdownLinkClass}
-          role="menuitem"
-        >
-          {item.label}
-        </Link>
+      {column.sections.map((section) => (
+        <div key={section._key}>
+          {section.groupLabel ? (
+            <p className={darkDropdownGroupLabelClass}>{section.groupLabel}</p>
+          ) : null}
+          {section.links.map((link) => (
+            <NavDropdownLink key={link.href} link={link} />
+          ))}
+        </div>
       ))}
     </div>
+  );
+}
+
+function NavDropdownLink({ link }: { link: NavLink }) {
+  return (
+    <Link
+      href={link.href}
+      className={darkDropdownLinkClass}
+      role="menuitem"
+      target={link.openInNewTab ? "_blank" : undefined}
+      rel={link.openInNewTab ? "noopener noreferrer" : undefined}
+    >
+      <span>{link.label}</span>
+      {link.description ? (
+        <span className="mt-0.5 block text-xs text-brand-surface-muted">
+          {link.description}
+        </span>
+      ) : null}
+    </Link>
   );
 }
 
@@ -127,6 +93,8 @@ export function MobileNavSection({
           className="block py-2 text-[15px] transition-colors hover:text-primary"
           onClick={onNavigate}
           prefetch={false}
+          target={singleLink.openInNewTab ? "_blank" : undefined}
+          rel={singleLink.openInNewTab ? "noopener noreferrer" : undefined}
         >
           {singleLink.label}
         </Link>
@@ -169,6 +137,8 @@ export function MobileNavSection({
             className="block py-2 pl-1 text-[15px] transition-colors hover:text-primary"
             onClick={onNavigate}
             prefetch={false}
+            target={link.openInNewTab ? "_blank" : undefined}
+            rel={link.openInNewTab ? "noopener noreferrer" : undefined}
           >
             {link.label}
           </Link>

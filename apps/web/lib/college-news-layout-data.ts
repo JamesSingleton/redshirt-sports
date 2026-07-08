@@ -8,7 +8,7 @@ import {
 } from "@redshirt-sports/sanity/queries";
 
 import type { CollegeNewsConferenceOption } from "@/components/college-news/college-news-conference-filter";
-import type { NavLink } from "@/components/nav-config";
+import type { NavLink } from "@/lib/sport-division-config";
 import {
   filterSportDivisionsWithArticles,
   getSportNavConfig,

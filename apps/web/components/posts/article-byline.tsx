@@ -1,5 +1,6 @@
-import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
-import { Button } from "@redshirt-sports/ui/components/button";
+import type { QueryPostSlugPageResult } from "@redshirt-sports/sanity/types";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import { Mail } from "lucide-react";
 import Link from "next/link";
 
@@ -9,7 +10,7 @@ import { ArticleCopyLinkButton } from "@/components/posts/article-copy-link-butt
 import CustomImage from "@/components/sanity-image";
 import { getBaseUrl } from "@/lib/get-base-url";
 
-type PostAuthor = NonNullable<QueryPostSlugDataResult>["authors"][0];
+type PostAuthor = NonNullable<QueryPostSlugPageResult>["authors"][0];
 
 function getAuthorTwitterHandle(author: PostAuthor): string | null {
   const twitterUrl = author.socialLinks?.twitter;
@@ -54,52 +55,43 @@ function ArticleShareActions({
       role="group"
       aria-label="Share article"
     >
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-8 hover:text-primary sm:size-9"
-        asChild
+      <a
+        href={buildShareUrl("facebook", articleUrl, title)}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Share on Facebook"
+        className={cn(
+          buttonVariants({ variant: "ghost", size: "icon" }),
+          "size-8 hover:text-primary sm:size-9",
+        )}
       >
-        <a
-          href={buildShareUrl("facebook", articleUrl, title)}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Share on Facebook"
-        >
-          <Facebook className="size-4 text-muted-foreground" />
-          <span className="sr-only">Share on Facebook</span>
-        </a>
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-8 hover:text-primary sm:size-9"
-        asChild
+        <Facebook className="size-4 text-muted-foreground" />
+        <span className="sr-only">Share on Facebook</span>
+      </a>
+      <a
+        href={buildShareUrl("twitter", articleUrl, title)}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Share on X"
+        className={cn(
+          buttonVariants({ variant: "ghost", size: "icon" }),
+          "size-8 hover:text-primary sm:size-9",
+        )}
       >
-        <a
-          href={buildShareUrl("twitter", articleUrl, title)}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Share on X"
-        >
-          <Twitter className="size-4 text-muted-foreground" />
-          <span className="sr-only">Share on X</span>
-        </a>
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-8 hover:text-primary sm:size-9"
-        asChild
+        <Twitter className="size-4 text-muted-foreground" />
+        <span className="sr-only">Share on X</span>
+      </a>
+      <a
+        href={buildShareUrl("email", articleUrl, title)}
+        title="Share via Email"
+        className={cn(
+          buttonVariants({ variant: "ghost", size: "icon" }),
+          "size-8 hover:text-primary sm:size-9",
+        )}
       >
-        <a
-          href={buildShareUrl("email", articleUrl, title)}
-          title="Share via Email"
-        >
-          <Mail className="size-4 text-muted-foreground" />
-          <span className="sr-only">Share via Email</span>
-        </a>
-      </Button>
+        <Mail className="size-4 text-muted-foreground" />
+        <span className="sr-only">Share via Email</span>
+      </a>
       <ArticleCopyLinkButton url={articleUrl} />
     </div>
   );

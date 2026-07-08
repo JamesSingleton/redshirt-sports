@@ -59,17 +59,17 @@ export function TeamsIndex({ schools }: TeamsIndexProps) {
                 </Link>
                 <div className="flex shrink-0 items-center">
                   <Button
-                    asChild
+                    render={
+                      <Link
+                        href={`/college/teams/${school.slug}`}
+                        prefetch={false}
+                      />
+                    }
                     variant="outline"
                     size="sm"
                     className="text-xs uppercase"
                   >
-                    <Link
-                      href={`/college/teams/${school.slug}`}
-                      prefetch={false}
-                    >
-                      Hub
-                    </Link>
+                    Hub
                   </Button>
                 </div>
               </div>

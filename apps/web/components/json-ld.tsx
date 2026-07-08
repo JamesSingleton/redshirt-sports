@@ -29,7 +29,7 @@ const baseUrl = getBaseUrl();
 export const organizationId = `${baseUrl}/#organization`;
 export const websiteId = `${baseUrl}/#website`;
 
-type PostArticle = {
+export type PostArticleJsonLdInput = {
   slug?: string | null;
   title?: string | null;
   excerpt?: string | null;
@@ -129,7 +129,7 @@ function buildPublisher({
 }
 
 export function buildPostPageJsonLd(
-  article: PostArticle,
+  article: PostArticleJsonLdInput,
   publisher: PublisherSettings = {},
 ) {
   if (!article?.slug) {
@@ -281,7 +281,7 @@ export function PostPageJsonLd({
   article,
   publisher,
 }: {
-  article: PostArticle | null | undefined;
+  article: PostArticleJsonLdInput | null | undefined;
   publisher?: PublisherSettings;
 }) {
   if (!article) {

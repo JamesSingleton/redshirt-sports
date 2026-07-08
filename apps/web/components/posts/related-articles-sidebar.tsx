@@ -1,24 +1,26 @@
-import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
+import type { QueryPostSlugPageResult } from "@redshirt-sports/sanity/types";
 import Link from "next/link";
 
 import CustomImage from "@/components/sanity-image";
 import { getStoryTypeHref, getStoryTypeLabel } from "@/lib/story-type-labels";
 
-type PostData = NonNullable<QueryPostSlugDataResult>;
+type PostData = NonNullable<QueryPostSlugPageResult>;
 type RelatedPost = PostData["relatedPosts"][number];
 
 interface RelatedArticlesSidebarProps {
   articles: RelatedPost[];
   storyType?: PostData["storyType"] | null;
+  sportSlug?: string | null;
 }
 
 export function RelatedArticlesSidebar({
   articles,
   storyType,
+  sportSlug,
 }: RelatedArticlesSidebarProps) {
   if (articles.length === 0) return null;
 
-  const viewAllHref = getStoryTypeHref(storyType);
+  const viewAllHref = getStoryTypeHref(storyType, sportSlug);
 
   return (
     <aside

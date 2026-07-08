@@ -185,6 +185,38 @@ describe("HomePage", () => {
     ).toBeInTheDocument();
   });
 
+  it("hides recruiting and transfer sections when there are no articles", async () => {
+    mockFetch.mockReset();
+    const megaboard = createArticles(5, "megaboard");
+    const collegeSports = createArticles(12, "college");
+    const fcs = createArticles(6, "fcs");
+    const fbs = createArticles(6, "fbs");
+    const d2 = createArticles(6, "d2");
+    const d3 = createArticles(6, "d3");
+    const midMajor = createArticles(6, "mid-major");
+
+    mockFetch
+      .mockResolvedValueOnce({ data: megaboard })
+      .mockResolvedValueOnce({ data: collegeSports })
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: fcs })
+      .mockResolvedValueOnce({ data: fbs })
+      .mockResolvedValueOnce({ data: d2 })
+      .mockResolvedValueOnce({ data: d3 })
+      .mockResolvedValueOnce({ data: midMajor });
+
+    const page = await CachedHomePage({
+      perspective: "published",
+      stega: false,
+    });
+    render(page);
+
+    expect(screen.queryByText("Recruiting")).not.toBeInTheDocument();
+    expect(screen.queryByText("Transfer Portal")).not.toBeInTheDocument();
+  });
+
   it("renders sidebar widgets", async () => {
     const page = await CachedHomePage({
       perspective: "published",
@@ -202,8 +234,6 @@ describe("HomePage", () => {
     mockFetch.mockReset();
     const megaboard = createArticles(5, "megaboard");
     const collegeSports = createArticles(12, "college");
-    const recruiting = createArticles(6, "recruiting");
-    const transfer = createArticles(6, "transfer");
     const fbs = createArticles(6, "fbs");
     const d2 = createArticles(6, "d2");
     const d3 = createArticles(6, "d3");
@@ -212,8 +242,8 @@ describe("HomePage", () => {
     mockFetch
       .mockResolvedValueOnce({ data: megaboard })
       .mockResolvedValueOnce({ data: collegeSports })
-      .mockResolvedValueOnce({ data: recruiting })
-      .mockResolvedValueOnce({ data: transfer })
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [] })
       .mockResolvedValueOnce({ data: [] })
       .mockResolvedValueOnce({})
       .mockResolvedValueOnce({ data: fbs })
@@ -230,6 +260,6 @@ describe("HomePage", () => {
     expect(
       screen.queryByText("Division I FCS Football"),
     ).not.toBeInTheDocument();
-    expect(screen.getAllByTestId("home-news-section")).toHaveLength(7);
+    expect(screen.getAllByTestId("home-news-section")).toHaveLength(5);
   });
 });

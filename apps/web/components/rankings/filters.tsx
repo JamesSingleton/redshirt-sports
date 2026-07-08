@@ -27,25 +27,27 @@ export const RankingsFilters = ({
   const router = useRouter();
   const { division, year, week, sport } = useParams();
 
-  const handleYearChange = (e: string) => {
+  const handleYearChange = (value: string | null) => {
+    if (!value) return;
     analytics?.capture("rankings_filter_changed", {
       filter_type: "year",
-      new_value: e,
+      new_value: value,
       sport,
       division,
     });
-    router.push(`/college/${sport}/rankings/${division}/${e}/0`);
+    router.push(`/college/${sport}/rankings/${division}/${value}/0`);
   };
 
-  const handleWeekChange = (e: string) => {
+  const handleWeekChange = (value: string | null) => {
+    if (!value) return;
     analytics?.capture("rankings_filter_changed", {
       filter_type: "week",
-      new_value: e,
+      new_value: value,
       sport,
       division,
       year,
     });
-    router.push(`/college/${sport}/rankings/${division}/${year}/${e}`);
+    router.push(`/college/${sport}/rankings/${division}/${year}/${value}`);
   };
 
   return (

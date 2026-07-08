@@ -5,14 +5,16 @@ function MegaboardSkeleton() {
     <div className="py-4">
       <div className="container px-4">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch">
-          <Skeleton className="aspect-video w-full rounded-lg lg:aspect-auto lg:min-h-[320px] lg:flex-7" />
+          <div className="flex min-w-0 flex-col lg:flex-7">
+            <Skeleton className="aspect-video h-full min-h-0 w-full flex-1 rounded-lg lg:aspect-auto" />
+          </div>
           <div className="flex min-h-0 flex-col gap-3 lg:flex-5">
             {Array.from({ length: 4 }, (_, index) => (
               <div
                 key={index}
                 className="flex min-h-0 flex-1 gap-4 rounded-lg bg-card p-3 shadow"
               >
-                <Skeleton className="min-h-20 w-32 shrink-0 self-stretch rounded-md sm:min-h-24 sm:w-36" />
+                <Skeleton className="aspect-4/3 w-32 shrink-0 rounded-md sm:w-36" />
                 <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 py-1">
                   <Skeleton className="h-5 w-full" />
                   <Skeleton className="h-5 w-4/5" />

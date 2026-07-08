@@ -6,18 +6,25 @@ import {
 } from "@redshirt-sports/sanity/live";
 import {
   queryPostPaths,
-  queryPostSlugData,
+  queryPostSlugMetadata,
+  queryPostSlugPage,
 } from "@redshirt-sports/sanity/queries";
-import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
+import type {
+  QueryPostSlugMetadataResult,
+  QueryPostSlugPageResult,
+} from "@redshirt-sports/sanity/types";
 import { Badge } from "@redshirt-sports/ui/components/badge";
 import { CameraIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { toPlainText } from "next-sanity";
 
 import ArticleLoadingSkeleton from "@/components/article-loading-skeleton";
-import { buildSafeImageUrl, PostPageJsonLd } from "@/components/json-ld";
+import {
+  buildSafeImageUrl,
+  type PostArticleJsonLdInput,
+  PostPageJsonLd,
+} from "@/components/json-ld";
 import { ArticleByline } from "@/components/posts/article-byline";
 import { RelatedArticlesSidebar } from "@/components/posts/related-articles-sidebar";
 import { RichText } from "@/components/rich-text";
@@ -50,17 +57,15 @@ export async function generateMetadata({
     getDynamicFetchOptions(),
   ]);
   const { data } = (await sanityFetchMetadata({
-    query: queryPostSlugData,
+    query: queryPostSlugMetadata,
     params: { slug },
     perspective,
-  })) as { data: QueryPostSlugDataResult | null };
+  })) as { data: QueryPostSlugMetadataResult | null };
 
   if (!data) {
     notFound();
   }
 
-  const plainText = toPlainText(data.body);
-  const wordCount = plainText.split(/\s+/).filter(Boolean).length;
   const articleTags = getArticleTagNames(data.tags);
 
   return getPageMetadata(
@@ -70,13 +75,26 @@ export async function generateMetadata({
       seoDescription: data.seoDescription ?? undefined,
       ogTitle: data.ogTitle ?? undefined,
       ogDescription: data.ogDescription ?? undefined,
-      seoImage: data.seoImage ?? undefined,
-      image: data.image ?? undefined,
-      authors: data.authors,
+      seoImage: data.seoImage
+        ? {
+            alt: data.seoImage.alt,
+            asset: data.seoImage.asset ?? undefined,
+          }
+        : undefined,
+      image: data.image
+        ? {
+            alt: data.image.alt,
+            asset: data.image.asset ?? undefined,
+          }
+        : undefined,
+      authors: data.authors.map((author) => ({
+        name: author.name,
+        socialLinks: author.socialLinks ?? undefined,
+      })),
       title: data.title,
       description: data.excerpt ?? undefined,
       slug: data.slug ?? undefined,
-      readingTime: Math.ceil(wordCount / WORDS_PER_MINUTE),
+      readingTime: Math.ceil(data.wordCount / WORDS_PER_MINUTE),
       articleSection: getCollegeSportSection(data.sport),
       articleTags,
       publishedTime: data.publishedAt ?? undefined,
@@ -105,11 +123,11 @@ async function renderPostPage(
   "use cache";
   const [{ data }, settings] = await Promise.all([
     sanityFetchPage({
-      query: queryPostSlugData,
+      query: queryPostSlugPage,
       params: { slug },
       perspective,
       stega,
-    }) as Promise<{ data: QueryPostSlugDataResult | null }>,
+    }) as Promise<{ data: QueryPostSlugPageResult | null }>,
     fetchGlobalSeoSettings(perspective),
   ]);
 
@@ -118,11 +136,23 @@ async function renderPostPage(
   }
 
   const categoryBadge = getArticleCategoryBadge(data.sport, data.storyType);
+  const jsonLdArticle: PostArticleJsonLdInput = {
+    slug: data.slug,
+    title: data.title,
+    excerpt: data.excerpt,
+    publishedAt: data.publishedAt,
+    _updatedAt: data._updatedAt,
+    body: data.body,
+    authors: data.authors,
+    image: data.image,
+    sport: data.sport,
+    tags: data.tags,
+  };
 
   return (
     <>
       <PostPageJsonLd
-        article={data}
+        article={jsonLdArticle}
         publisher={{
           siteBrand: settings?.siteBrand,
           logo: buildSafeImageUrl(settings?.logo),
@@ -137,11 +167,9 @@ async function renderPostPage(
                   <Badge
                     variant="secondary"
                     className="text-xs uppercase tracking-widest"
-                    asChild
+                    render={<Link href={categoryBadge.href} prefetch={false} />}
                   >
-                    <Link href={categoryBadge.href} prefetch={false}>
-                      {categoryBadge.label}
-                    </Link>
+                    {categoryBadge.label}
                   </Badge>
                 ) : (
                   <Badge
@@ -196,6 +224,7 @@ async function renderPostPage(
           <RelatedArticlesSidebar
             articles={data.relatedPosts}
             storyType={data.storyType}
+            sportSlug={data.sport?.slug}
           />
         </article>
       </div>

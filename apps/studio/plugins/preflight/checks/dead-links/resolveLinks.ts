@@ -9,8 +9,13 @@ import type {
   LinkFinding,
   RawLinkFinding,
   RefDocument,
+  SiteLinkObject,
 } from "../../types";
 import { normalizeLinkUrl } from "../../utils/linkUrl";
+import {
+  type SiteLinkPreviewInput,
+  resolveSiteLinkPreview,
+} from "@/utils/site-link-preview";
 
 const REF_QUERY = /* groq */ `
   *[_id in $ids]{
@@ -47,6 +52,20 @@ function collectRefIds(findings: RawLinkFinding[]): string[] {
     }
     if (sportNews?.conference?._ref) {
       refIds.add(sportNews.conference._ref);
+    }
+
+    const siteLink = finding.siteLink;
+    if (siteLink?.document?._ref) {
+      refIds.add(siteLink.document._ref);
+    }
+    if (siteLink?.sport?._ref) {
+      refIds.add(siteLink.sport._ref);
+    }
+    if (siteLink?.segment?._ref) {
+      refIds.add(siteLink.segment._ref);
+    }
+    if (siteLink?.conference?._ref) {
+      refIds.add(siteLink.conference._ref);
     }
   }
 
@@ -192,6 +211,88 @@ function resolveCustomUrlObject(
   };
 }
 
+function resolveSiteLinkObject(
+  siteLink: SiteLinkObject,
+  refMap: Map<string, RefDocument>,
+): {
+  url?: string;
+  message?: string;
+  refId?: string;
+  checkViaHttp: boolean;
+  unpublished?: boolean;
+} {
+  if (siteLink.linkType === "external") {
+    return {
+      url: siteLink.external,
+      checkViaHttp: true,
+    };
+  }
+
+  if (siteLink.linkType === "sitePath") {
+    return {
+      url: siteLink.sitePath,
+      checkViaHttp: true,
+    };
+  }
+
+  if (siteLink.linkType === "document") {
+    const refId = siteLink.document?._ref;
+    if (!refId) {
+      return {
+        message: "Incomplete link — missing document reference",
+        checkViaHttp: false,
+      };
+    }
+
+    const resolved = resolveInternalLinkPath(refId, refMap);
+    return {
+      url: resolved.url,
+      message: resolved.message,
+      refId,
+      checkViaHttp: false,
+      unpublished: resolved.unpublished,
+    };
+  }
+
+  if (siteLink.linkType === "sportNews") {
+    const sportDoc = siteLink.sport?._ref
+      ? refMap.get(siteLink.sport._ref)
+      : undefined;
+    const segmentDoc = siteLink.segment?._ref
+      ? refMap.get(siteLink.segment._ref)
+      : undefined;
+    const conferenceDoc = siteLink.conference?._ref
+      ? refMap.get(siteLink.conference._ref)
+      : undefined;
+
+    const previewInput: SiteLinkPreviewInput = {
+      linkType: "sportNews",
+      sportSlug: sportDoc?.slug,
+      routeDepth: siteLink.routeDepth,
+      segmentSlug: segmentDoc?.slug,
+      conferenceSlug: conferenceDoc?.slug,
+    };
+
+    const url = resolveSiteLinkPreview(previewInput);
+    if (!url) {
+      return {
+        message: "Incomplete sport news archive link",
+        checkViaHttp: false,
+      };
+    }
+
+    return {
+      url,
+      checkViaHttp: true,
+    };
+  }
+
+  return {
+    message: "Incomplete link — missing destination",
+    checkViaHttp: false,
+  };
+}
+
 export async function resolveLinkFindings(
   findings: RawLinkFinding[],
   client: SanityClient,
@@ -237,6 +338,28 @@ export async function resolveLinkFindings(
 
     if (finding.customUrl) {
       const resolved = resolveCustomUrlObject(finding.customUrl, refMap);
+      const messages = [
+        resolved.message,
+        resolved.unpublished ? "Linked post is not published yet" : undefined,
+      ].filter(Boolean);
+
+      return {
+        id: finding.id,
+        url: normalizeLinkUrl(resolved.url),
+        label: finding.label,
+        source: finding.source,
+        status: resolved.url && !resolved.message ? "initial" : "warning",
+        message: messages.join(". ") || undefined,
+        refId: resolved.refId,
+        blockKey: finding.blockKey,
+        markKey: finding.markKey,
+        incomplete: !resolved.url,
+        checkViaHttp: resolved.checkViaHttp,
+      };
+    }
+
+    if (finding.siteLink) {
+      const resolved = resolveSiteLinkObject(finding.siteLink, refMap);
       const messages = [
         resolved.message,
         resolved.unpublished ? "Linked post is not published yet" : undefined,

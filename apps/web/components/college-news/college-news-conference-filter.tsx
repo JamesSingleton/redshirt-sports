@@ -65,15 +65,18 @@ export function CollegeNewsConferenceFilter({
       </span>
 
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            aria-labelledby="conference-filter-label"
-            aria-haspopup="listbox"
-            className="h-8 min-w-[200px] justify-between text-sm font-medium"
-          >
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              aria-labelledby="conference-filter-label"
+              aria-haspopup="listbox"
+              className="h-8 min-w-[200px] justify-between text-sm font-medium"
+            />
+          }
+        >
             <span className="truncate">
               {selected ? selected.label : "All Conferences"}
             </span>
@@ -81,7 +84,6 @@ export function CollegeNewsConferenceFilter({
               className="ml-2 size-3.5 shrink-0 text-muted-foreground"
               aria-hidden="true"
             />
-          </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[240px] p-0" align="start">
           <Command>

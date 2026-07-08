@@ -1,4 +1,4 @@
-import { CopyIcon } from "@sanity/icons";
+import { CopyIcon } from "@sanity/icons/Copy";
 import { Button, Popover, Text } from "@sanity/ui";
 import copy from "copy-to-clipboard";
 import { useEffect, useRef, useState } from "react";
