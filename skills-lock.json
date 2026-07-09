@@ -41,7 +41,7 @@
       "source": "sanity-io/agent-toolkit",
       "sourceType": "github",
       "skillPath": "skills/sanity-best-practices/SKILL.md",
-      "computedHash": "5635787e13f2e1fb95671e1e8e15c072a097393a88ef0bab6b37e4d721fc03f8"
+      "computedHash": "189a17cf67bae9ae1087d47e78156952d19312db02a6a75a7dc1f2da30cf1174"
     },
     "sanity-live-cache-components": {
       "source": "sanity-io/next-sanity",
