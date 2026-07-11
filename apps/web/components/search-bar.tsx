@@ -51,6 +51,12 @@ export function SearchBar({
   const debouncedQuery = useDebounce(query, 300);
   const searchRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputId = React.useId();
+  const listboxId = React.useId();
+  const selectedResultId =
+    selectedIndex >= 0 && results[selectedIndex]
+      ? `${listboxId}-option-${results[selectedIndex]._id}`
+      : undefined;
 
   React.useEffect(() => {
     if (debouncedQuery.trim()) {
@@ -136,9 +142,16 @@ export function SearchBar({
 
   return (
     <div ref={searchRef} className={`relative ${className}`}>
-      <form onSubmit={handleSubmit} className="relative">
-        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+      <form onSubmit={handleSubmit} className="relative" role="search">
+        <label htmlFor={inputId} className="sr-only">
+          Search articles
+        </label>
+        <Search
+          className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+          aria-hidden="true"
+        />
         <Input
+          id={inputId}
           ref={inputRef}
           type="text"
           placeholder={placeholder}
@@ -148,24 +161,38 @@ export function SearchBar({
           onKeyDown={handleKeyDown}
           className="pr-10 pl-10 text-sm md:text-base"
           autoComplete="off"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={showResults && results.length > 0}
+          aria-controls={listboxId}
+          aria-activedescendant={selectedResultId}
         />
-        {query && (
+        {query ? (
           <Button
             type="button"
             variant="ghost"
             size="icon"
             className="absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2"
             onClick={clearSearch}
+            aria-label="Clear search"
           >
-            <X className="h-3 w-3" />
+            <X className="h-3 w-3" aria-hidden="true" />
           </Button>
-        )}
+        ) : null}
       </form>
 
-      {showResults && (query.trim() || results.length > 0) && (
-        <Card className="absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden shadow-lg">
+      {showResults && (query.trim() || results.length > 0) ? (
+        <Card
+          id={listboxId}
+          role="listbox"
+          aria-label="Search suggestions"
+          className="absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden shadow-lg"
+        >
           {isLoading ? (
-            <div className="text-muted-foreground p-4 text-center text-sm">
+            <div
+              className="text-muted-foreground p-4 text-center text-sm"
+              role="status"
+            >
               Searching...
             </div>
           ) : results.length > 0 ? (
@@ -175,6 +202,9 @@ export function SearchBar({
                   <button
                     type="button"
                     key={result._id}
+                    id={`${listboxId}-option-${result._id}`}
+                    role="option"
+                    aria-selected={index === selectedIndex}
                     className={`hover:bg-muted border-border w-full border-b px-4 py-3 text-left transition-colors last:border-b-0 ${
                       index === selectedIndex ? "bg-muted" : ""
                     }`}
@@ -193,11 +223,13 @@ export function SearchBar({
                 <div className="border-border bg-background border-t">
                   <button
                     type="button"
+                    role="option"
+                    aria-selected={false}
                     className="hover:bg-muted text-muted-foreground w-full px-4 py-3 text-left text-sm transition-colors"
                     onClick={handleSubmit}
                   >
                     <div className="flex items-center gap-3">
-                      <Search className="h-4 w-4" />
+                      <Search className="h-4 w-4" aria-hidden="true" />
                       <span>Search for &quot;{query}&quot;</span>
                     </div>
                   </button>
@@ -210,7 +242,7 @@ export function SearchBar({
             </div>
           ) : null}
         </Card>
-      )}
+      ) : null}
     </div>
   );
 }

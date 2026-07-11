@@ -153,6 +153,7 @@ const components: Partial<PortableTextReactComponents> = {
       return (
         <div className="not-prose">
           <Table>
+            <caption className="sr-only">Article data table</caption>
             <TableHeader>
               <TableRow>
                 {headerRow?.cells.map((cell) => (

@@ -6,6 +6,7 @@ import {
   querySportNewsDivisionSlugsWithPosts,
   sportInfoBySlug,
 } from "@redshirt-sports/sanity/queries";
+import { cacheTag } from "next/cache";
 
 import type { CollegeNewsConferenceOption } from "@/components/college-news/college-news-conference-filter";
 import {
@@ -18,6 +19,7 @@ import {
   getDivisionPollWidgetData,
   getSportPollWidgetData,
 } from "@/lib/college-news-rankings";
+import { RANKINGS_CACHE_TAG } from "@/lib/rankings-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import type { NavLink } from "@/lib/sport-division-config";
 
@@ -58,6 +60,7 @@ export async function fetchCollegeNewsSportLayoutData({
   sport: string;
 }): Promise<CollegeNewsSportLayoutData | null> {
   "use cache";
+  cacheTag(RANKINGS_CACHE_TAG);
   const sportConfig = getSportNavConfig(sport);
   const [sportInfoResponse, divisionSlugsResponse, pollWidget] =
     await Promise.all([
@@ -106,6 +109,7 @@ export async function fetchCollegeNewsDivisionLayoutData({
   division: string;
 }): Promise<CollegeNewsDivisionLayoutData | null> {
   "use cache";
+  cacheTag(RANKINGS_CACHE_TAG);
   const resolvedDivision = resolveDivisionRouteSlug(division);
   const [sportLayout, divisionNameResponse, conferencesResponse, pollWidget] =
     await Promise.all([

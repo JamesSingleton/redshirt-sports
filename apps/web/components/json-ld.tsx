@@ -151,6 +151,15 @@ export function buildPostPageJsonLd(
   const pageName = article.title
     ? `${article.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`
     : undefined;
+  const sportCrumb =
+    article.sport?.slug && articleSection
+      ? {
+          "@type": "ListItem" as const,
+          position: 2,
+          name: articleSection,
+          item: `${resolvedBaseUrl}/college/${article.sport.slug}/news`,
+        }
+      : null;
 
   const breadcrumb: BreadcrumbList = {
     "@type": "BreadcrumbList",
@@ -165,9 +174,10 @@ export function buildPostPageJsonLd(
         name: "Home",
         item: resolvedBaseUrl,
       },
+      ...(sportCrumb ? [sportCrumb] : []),
       {
         "@type": "ListItem",
-        position: 2,
+        position: sportCrumb ? 3 : 2,
         name: article.title ?? "Article",
         item: articleUrl,
       },
@@ -446,21 +456,6 @@ export function WebSiteJsonLd({ settings }: { settings: any }) {
     publisher: {
       "@id": organizationId,
     },
-    potentialAction: [
-      {
-        "@type": "SearchAction",
-        target: {
-          "@type": "EntryPoint",
-          urlTemplate: `${resolvedBaseUrl}/search?q={search_term_string}`,
-        },
-        // @ts-expect-error query-input is a valid property
-        "query-input": {
-          "@type": "PropertyValueSpecification",
-          valueRequired: true,
-          valueName: "search_term_string",
-        },
-      },
-    ],
   };
 
   return <JsonLdScript data={webSiteJsonLd} id="website-json-ld" />;

@@ -88,12 +88,19 @@ export default async function RecruitingPlayersPage({
               player.displayName ?? `${player.firstName} ${player.lastName}`;
             return (
               <li key={player.id} className="px-4 py-3">
-                <Link
-                  href={`/player/${player.slug}`}
-                  className="font-semibold hover:text-primary"
-                >
-                  {name}
-                </Link>
+                <p className="font-semibold">
+                  {player.slug ? (
+                    <Link
+                      href={`/player/${player.slug}`}
+                      prefetch={false}
+                      className="hover:underline"
+                    >
+                      {name}
+                    </Link>
+                  ) : (
+                    name
+                  )}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {player.position ?? "—"} · {player.hometown ?? "—"}
                 </p>

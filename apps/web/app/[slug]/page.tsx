@@ -189,6 +189,15 @@ async function renderPostPage(
               {data.title}
             </h1>
 
+            {data.excerpt ? (
+              <p
+                id="article-excerpt"
+                className="mb-6 max-w-3xl text-lg leading-relaxed text-muted-foreground"
+              >
+                {data.excerpt}
+              </p>
+            ) : null}
+
             <ArticleByline
               authors={data.authors}
               publishedAt={data.publishedAt}

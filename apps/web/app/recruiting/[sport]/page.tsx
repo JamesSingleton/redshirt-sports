@@ -1,3 +1,8 @@
+import {
+  getRecruitingRankingsBySportAndClass,
+  getSportIdBySlug,
+  type SportParam,
+} from "@redshirt-sports/db/queries";
 import { listRecruitingPlayersByClassYear } from "@redshirt-sports/db/queries/transfer-portal";
 import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
@@ -7,6 +12,14 @@ import { getPageMetadata } from "@/lib/global-seo-settings";
 import { requireSportBySlug } from "@/lib/sport-by-slug";
 
 const CLASS_YEARS = [2027, 2026, 2025] as const;
+
+function playerDisplayName(player: {
+  displayName: string | null;
+  firstName: string;
+  lastName: string;
+}) {
+  return player.displayName ?? `${player.firstName} ${player.lastName}`.trim();
+}
 
 export async function generateMetadata({
   params,
@@ -41,11 +54,25 @@ export default async function RecruitingSportPage({
   const classYear = classYearParam
     ? Number.parseInt(classYearParam, 10)
     : CLASS_YEARS[0];
+  const resolvedClassYear = Number.isNaN(classYear)
+    ? CLASS_YEARS[0]
+    : classYear;
 
-  const players = await listRecruitingPlayersByClassYear({
-    sportSlug: sport,
-    classYear: Number.isNaN(classYear) ? CLASS_YEARS[0] : classYear,
-  });
+  const sportId = await getSportIdBySlug(sport as SportParam);
+  const rankings = sportId
+    ? await getRecruitingRankingsBySportAndClass({
+        sportId,
+        classYear: resolvedClassYear,
+      })
+    : [];
+
+  const players =
+    rankings.length > 0
+      ? null
+      : await listRecruitingPlayersByClassYear({
+          sportSlug: sport,
+          classYear: resolvedClassYear,
+        });
 
   return (
     <div className="container max-w-5xl px-4 py-8">
@@ -77,15 +104,60 @@ export default async function RecruitingSportPage({
         </nav>
       </header>
 
-      {players.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-muted-foreground">
-          No recruiting data yet for {sportInfo.title.toLowerCase()}.
-        </p>
-      ) : (
+      {rankings.length > 0 ? (
+        <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+          {rankings.map((player) => {
+            const name = playerDisplayName(player);
+            return (
+              <li
+                key={player.id}
+                className="flex items-center justify-between gap-4 px-4 py-3"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="w-8 text-sm font-bold text-muted-foreground tabular-nums">
+                    {player.nationalRank ?? "—"}
+                  </span>
+                  <div>
+                    <p className="font-semibold">
+                      {player.playerSlug ? (
+                        <Link
+                          href={`/player/${player.playerSlug}`}
+                          prefetch={false}
+                          className="hover:underline"
+                        >
+                          {name}
+                        </Link>
+                      ) : (
+                        name
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {player.position ?? "—"} · {player.hometown ?? "—"}
+                      {player.stars != null ? ` · ${player.stars}★` : ""}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right text-sm">
+                  <p className="font-medium">
+                    {player.committedSchoolShortName ??
+                      player.committedSchoolName ??
+                      "Uncommitted"}
+                  </p>
+                  {player.stars != null ? (
+                    <p className="text-xs text-muted-foreground">
+                      {player.stars} star
+                      {player.stars === 1 ? "" : "s"}
+                    </p>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      ) : players && players.length > 0 ? (
         <ul className="divide-y divide-border rounded-lg border border-border bg-card">
           {players.map((player, index) => {
-            const name =
-              player.displayName ?? `${player.firstName} ${player.lastName}`;
+            const name = playerDisplayName(player);
             return (
               <li
                 key={player.id}
@@ -96,12 +168,19 @@ export default async function RecruitingSportPage({
                     {index + 1}
                   </span>
                   <div>
-                    <Link
-                      href={`/player/${player.slug}`}
-                      className="font-semibold hover:text-primary"
-                    >
-                      {name}
-                    </Link>
+                    <p className="font-semibold">
+                      {player.slug ? (
+                        <Link
+                          href={`/player/${player.slug}`}
+                          prefetch={false}
+                          className="hover:underline"
+                        >
+                          {name}
+                        </Link>
+                      ) : (
+                        name
+                      )}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {player.position ?? "—"} · {player.hometown ?? "—"}
                     </p>
@@ -121,6 +200,10 @@ export default async function RecruitingSportPage({
             );
           })}
         </ul>
+      ) : (
+        <p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-muted-foreground">
+          No recruiting data yet for {sportInfo.title.toLowerCase()}.
+        </p>
       )}
     </div>
   );

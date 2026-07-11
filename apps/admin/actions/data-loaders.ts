@@ -38,6 +38,8 @@ import type {
   SportInfoQueryResult,
 } from "@redshirt-sports/sanity/types";
 
+import { requireAdmin } from "@/lib/require-admin";
+
 interface BaseSanityObject {
   _id: string;
   _createdAt: string;
@@ -92,6 +94,7 @@ interface SanitySubdivision extends BaseSanityObjectWithName {
 }
 
 export async function fetchAndLoadAllSeasons() {
+  await requireAdmin();
   await Promise.all(
     ["football", "mens-basketball", "womens-basketball"].map((sport) =>
       fetchAndLoadSeasons(sport as SportParam, 2023),
@@ -103,6 +106,7 @@ export async function fetchAndLoadSeasons(
   sport: SportParam,
   startingSeason = new Date().getFullYear() - 3,
 ) {
+  await requireAdmin();
   const espnSeasons = await getMultipleSeasonsData(sport, startingSeason);
 
   const dbSport = await sportBySlug(sport);
@@ -222,6 +226,7 @@ async function sportBySlug(slug: string) {
 }
 
 export async function fetchAndLoadSports() {
+  await requireAdmin();
   const { data } = await sanityFetch({
     query: sportInfoQuery,
     perspective: "published",
@@ -241,6 +246,7 @@ export async function fetchAndLoadSports() {
 }
 
 export async function fetchAndLoadDivisions() {
+  await requireAdmin();
   const { data } = await sanityFetch({
     query: divisionsQuery,
     perspective: "published",
@@ -264,6 +270,7 @@ export async function fetchAndLoadDivisions() {
 }
 
 export async function fetchAndLoadSchools() {
+  await requireAdmin();
   const sports = await db.query.sportsTable.findMany();
   if (!sports.length) {
     throw new Error(
@@ -338,6 +345,7 @@ export async function fetchAndLoadSchools() {
 }
 
 export async function fetchAndLoadConferences() {
+  await requireAdmin();
   const sports = await db.query.sportsTable.findMany();
   if (!sports.length) {
     throw new Error(
@@ -422,6 +430,7 @@ export async function fetchAndLoadConferences() {
 }
 
 export async function fetchAndLoadSubdivisions() {
+  await requireAdmin();
   const sports = await db.query.sportsTable.findMany();
   if (!sports.length) {
     throw new Error(
@@ -486,6 +495,7 @@ export async function fetchAndLoadSubdivisions() {
 }
 
 export async function fetchAndTransformRankings() {
+  await requireAdmin();
   const legacyRankings = await db.query.weeklyFinalRankings.findMany();
   if (!legacyRankings) return;
 

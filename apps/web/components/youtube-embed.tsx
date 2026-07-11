@@ -33,6 +33,7 @@ export function YouTubeEmbedComponent({
   url,
   autoplay = false,
   className = "",
+  title,
   height,
   width,
 }: YouTubeEmbedProps) {
@@ -116,6 +117,7 @@ export function YouTubeEmbedComponent({
             src={url}
             controls
             playing={autoplay}
+            title={title ?? "Embedded YouTube video"}
             style={{ aspectRatio: "16/9", height: "auto", width: "100%" }}
             width={width}
             height={height}

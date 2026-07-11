@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
     {
       title: "College Teams",
       description:
-        "Browse all college football and basketball teams — rosters, schedules, recruiting classes, transfer portal activity, and news.",
+        "Browse college teams with news coverage, recruiting updates, transfer portal activity, and player profiles.",
       slug: "/college/teams",
     },
     perspective,

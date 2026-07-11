@@ -1,11 +1,14 @@
 import { primaryDb as db } from "../client";
 import { SEASON_TYPE_CODES } from "../schema";
 
+type SeasonTypeCode =
+  (typeof SEASON_TYPE_CODES)[keyof typeof SEASON_TYPE_CODES];
+
 export async function getWeekBySport(
   sportId: string,
   year: number,
   week: number,
-  seasonType = SEASON_TYPE_CODES.REGULAR_SEASON,
+  seasonType: SeasonTypeCode = SEASON_TYPE_CODES.REGULAR_SEASON,
 ) {
   return db.query.seasonsTable.findFirst({
     where: (model, { eq, and }) =>

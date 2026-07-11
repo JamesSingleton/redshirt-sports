@@ -16,14 +16,17 @@ import {
   CardTitle,
 } from "@redshirt-sports/ui/components/card";
 import type { Metadata } from "next";
+import { cacheTag } from "next/cache";
 import type { WebPage, WithContext } from "schema-dts";
 
 import { HomeNewsSection } from "@/components/home/home-news-section";
+import HomePageSkeleton from "@/components/home/home-page-skeleton";
 import { Megaboard } from "@/components/home/megaboard";
 import { OurTeamWidget } from "@/components/home/our-team-widget";
 import { Top25Widget } from "@/components/home/top25-widget";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import { NewsletterForm } from "@/components/newsletter-form";
+import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import {
   fetchGlobalSeoSettings,
@@ -34,6 +37,7 @@ import {
   HOME_SECTION_LIMITS,
 } from "@/lib/home-article-allocation";
 import { getHomeFootballPolls } from "@/lib/home-rankings";
+import { RANKINGS_CACHE_TAG } from "@/lib/rankings-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 const footballDivisions = [
@@ -96,9 +100,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const { perspective, stega } = await getDynamicFetchOptions();
-
-  return <CachedHomePage perspective={perspective} stega={stega} />;
+  return draftAwarePage(<HomePageSkeleton />, CachedHomePage);
 }
 
 export async function CachedHomePage({
@@ -106,6 +108,7 @@ export async function CachedHomePage({
   stega,
 }: DynamicFetchOptions) {
   "use cache";
+  cacheTag(RANKINGS_CACHE_TAG);
 
   const [
     { data: megaboardArticles },
@@ -173,22 +176,36 @@ export async function CachedHomePage({
     HOME_SECTION_LIMITS.transfer,
   );
 
+  // Exclude only first-wave articles so football + mid-major can fetch in parallel.
   const excludedArticleIds = [...usedArticleIds];
 
-  const footballDivisionResults = await Promise.all(
-    footballDivisions.map(({ division }) =>
+  const [footballDivisionResults, { data: midMajorBasketballArticles }] =
+    await Promise.all([
+      Promise.all(
+        footballDivisions.map(({ division }) =>
+          sanityFetchPage({
+            query: queryLatestCollegeSportsArticles,
+            params: {
+              division,
+              sport: "Football",
+              articleIds: excludedArticleIds,
+            },
+            perspective,
+            stega,
+          }),
+        ),
+      ),
       sanityFetchPage({
         query: queryLatestCollegeSportsArticles,
         params: {
-          division,
-          sport: "Football",
+          division: "Mid-Major",
+          sport: "Men's Basketball",
           articleIds: excludedArticleIds,
         },
         perspective,
         stega,
       }),
-    ),
-  );
+    ]);
 
   const divisionArticleLimit = (
     layout: (typeof footballDivisions)[number]["layout"],
@@ -208,17 +225,6 @@ export async function CachedHomePage({
       divisionArticleLimit(division.layout),
     ),
   }));
-
-  const { data: midMajorBasketballArticles } = await sanityFetchPage({
-    query: queryLatestCollegeSportsArticles,
-    params: {
-      division: "Mid-Major",
-      sport: "Men's Basketball",
-      articleIds: [...usedArticleIds],
-    },
-    perspective,
-    stega,
-  });
 
   const midMajorPosts = allocateArticles(
     midMajorBasketballArticles,
@@ -259,6 +265,7 @@ export async function CachedHomePage({
   return (
     <>
       <JsonLdScript data={webPageJson} id="home-webpage-json-ld" />
+      <h1 className="sr-only">Redshirt Sports - College Sports News</h1>
       <Megaboard articles={megaboardPosts} />
 
       <div className="container px-4 py-8">

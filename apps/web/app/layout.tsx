@@ -60,16 +60,16 @@ export default async function RootLayout({
           className={`${geist.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
         >
           <Providers>
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-100 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:font-medium focus:text-foreground focus:shadow"
+            >
+              Skip to main content
+            </a>
             <Header />
-            {/* {isDraftMode ? <DynamicTestNav /> : <TestNav />} */}
-            {/* {isDraftMode ? (
-              <Suspense fallback={<NavbarSkeleton />}>
-                <DynamicNavbarServer />
-              </Suspense>
-            ) : (
-              <CachedNavbarServer perspective="published" stega={false} />
-            )} */}
-            <main className="flex-1">{children}</main>
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
             {isDraftMode ? (
               <Suspense fallback={<FooterSkeleton />}>
                 <DynamicFooterServer />

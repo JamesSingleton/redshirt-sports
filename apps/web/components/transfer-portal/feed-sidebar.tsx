@@ -7,6 +7,22 @@ function playerName(entry: TransferPortalEntryRow) {
   return entry.displayName ?? `${entry.firstName} ${entry.lastName}`.trim();
 }
 
+function PlayerNameLink({ entry }: { entry: TransferPortalEntryRow }) {
+  const name = playerName(entry);
+  if (!entry.playerSlug) {
+    return <span>{name}</span>;
+  }
+  return (
+    <Link
+      href={`/player/${entry.playerSlug}`}
+      prefetch={false}
+      className="hover:underline"
+    >
+      {name}
+    </Link>
+  );
+}
+
 export function TransferPortalFeedSidebar({
   entries,
   portalYear,
@@ -31,12 +47,9 @@ export function TransferPortalFeedSidebar({
             <p className="text-[11px] font-semibold text-primary uppercase">
               {entry.status}
             </p>
-            <Link
-              href={`/player/${entry.playerSlug}`}
-              className="mt-1 block font-semibold hover:text-primary"
-            >
-              {playerName(entry)}
-            </Link>
+            <p className="mt-1 font-semibold">
+              <PlayerNameLink entry={entry} />
+            </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {entry.fromSchoolShortName ?? entry.fromSchoolName ?? "—"} →{" "}
               {entry.toSchoolShortName ?? entry.toSchoolName ?? "—"}

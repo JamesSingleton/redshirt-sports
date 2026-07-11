@@ -21,6 +21,7 @@ Redshirt Sports is a modern college sports news website built with Next.js and p
 
 - Node.js (version 22 or higher)
 - pnpm (version 10 or higher)
+- Docker + [Supabase CLI](https://supabase.com/docs/guides/cli) for local Postgres (app data)
 
 ### Installation
 
@@ -40,16 +41,23 @@ pnpm install
 3. Set up environment variables:
 
 ```bash
-# Copy environment files for each workspace
 cp apps/web/.env.example apps/web/.env.local
-
-# Add your Sanity project configuration
-# NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
-# NEXT_PUBLIC_SANITY_DATASET=production
-# SANITY_API_TOKEN=your_api_token
+# Fill Sanity + Clerk keys. Keep DATABASE_URL pointed at local Supabase (see below).
 ```
 
-4. Run the development server:
+4. Start **local** Postgres (do not use production):
+
+```bash
+cd apps/web
+pnpm db:local:start
+pnpm db:local:reset   # migrations + seed
+# Confirm DATABASE_URL in .env.local is postgresql://postgres:postgres@127.0.0.1:54322/postgres
+cd ../..
+```
+
+See [apps/web/README.md](apps/web/README.md) for the full local DB workflow.
+
+5. Run the development server:
 
 ```bash
 pnpm dev

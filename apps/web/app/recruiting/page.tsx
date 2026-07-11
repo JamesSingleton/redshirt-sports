@@ -1,7 +1,9 @@
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { draftAwarePage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { fetchAllSports } from "@/lib/sport-by-slug";
 
@@ -12,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
     {
       title: "Recruiting",
       description:
-        "College recruiting rankings, commitments, and player profiles by sport.",
+        "College recruiting rankings, commitments, news, and player profiles by sport.",
       slug: "/recruiting",
     },
     perspective,
@@ -20,7 +22,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RecruitingIndexPage() {
-  const { perspective } = await getDynamicFetchOptions();
+  return draftAwarePage(null, renderRecruitingIndexPage);
+}
+
+async function renderRecruitingIndexPage({ perspective }: DynamicFetchOptions) {
+  "use cache";
   const sports = await fetchAllSports(perspective);
 
   return (
@@ -33,8 +39,16 @@ export default async function RecruitingIndexPage() {
           Recruiting Hub
         </h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
-          Rankings, commitments, and player search by sport.
+          Rankings, commitments, news, and player search by sport.
         </p>
+        <div className="mt-4">
+          <Link
+            href="/college/recruiting/news"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            All recruiting news
+          </Link>
+        </div>
       </header>
 
       {sports.length === 0 ? (

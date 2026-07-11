@@ -1,9 +1,11 @@
 "use client";
+
 import {
   processImageData,
   SANITY_BASE_URL,
-  type SanityImageProps,
+  type SanityImageProps as SharedSanityImageProps,
 } from "@redshirt-sports/sanity/image";
+import type { ElementType } from "react";
 import {
   SanityImage as BaseSanityImage,
   type WrapperProps,
@@ -19,49 +21,38 @@ export const IMAGE_SIZES = {
   teamThumbnail: "180px",
 } as const;
 
-type CustomSanityImageProps = SanityImageProps & {
+export type SanityImageProps = SharedSanityImageProps & {
   quality?: number;
   priority?: boolean;
 };
 
-function ImageWrapper(props: WrapperProps<"img">) {
-  return <BaseSanityImage baseUrl={SANITY_BASE_URL} {...props} />;
-}
-
-function warnMissingAlt(id: string, alt: string) {
-  if (process.env.NODE_ENV === "development" && !alt) {
-    console.warn(`[SanityImage] Missing alt text for image: ${id}`);
-  }
-}
+const ImageWrapper = <T extends ElementType = "img">(
+  props: WrapperProps<T>,
+) => <BaseSanityImage baseUrl={SANITY_BASE_URL} {...props} />;
 
 export function SanityImage({
   image,
-  quality = 75,
+  quality,
   priority = false,
   queryParams,
-  alt,
-  width,
-  height,
-  className,
   loading,
-  sizes,
+  alt,
   ...props
-}: CustomSanityImageProps) {
+}: SanityImageProps) {
   if (typeof image === "string") {
     if (!image) {
       return null;
     }
 
+    const { mode: _mode, ...imgProps } = props;
+
     return (
       <img
+        {...imgProps}
         src={image}
         alt={alt ?? ""}
-        width={width}
-        height={height}
-        className={className}
-        loading={priority ? "eager" : loading}
+        loading={priority ? "eager" : (loading ?? "lazy")}
         fetchPriority={priority ? "high" : undefined}
-        sizes={sizes}
       />
     );
   }
@@ -72,21 +63,23 @@ export function SanityImage({
     return null;
   }
 
-  const resolvedAlt = alt ?? processedImageData.alt;
-  warnMissingAlt(processedImageData.id, resolvedAlt);
-
   return (
     <ImageWrapper
       {...props}
-      width={width ?? processedImageData.width}
-      height={height ?? processedImageData.height}
-      className={className}
+      id={processedImageData.id}
+      alt={alt ?? processedImageData.alt}
+      {...(processedImageData.preview && {
+        preview: processedImageData.preview,
+      })}
+      {...(processedImageData.hotspot && {
+        hotspot: processedImageData.hotspot,
+      })}
+      {...(processedImageData.crop && { crop: processedImageData.crop })}
       loading={priority ? "eager" : loading}
-      fetchPriority={priority ? "high" : undefined}
-      sizes={sizes}
-      {...processedImageData}
-      alt={resolvedAlt}
-      queryParams={{ ...queryParams, q: quality }}
+      queryParams={{
+        ...queryParams,
+        ...(quality != null ? { q: quality } : {}),
+      }}
     />
   );
 }

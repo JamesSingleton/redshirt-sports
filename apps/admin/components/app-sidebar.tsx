@@ -10,13 +10,15 @@ import {
   SidebarMenuItem,
 } from "@redshirt-sports/ui/components/sidebar";
 import {
-  IconCamera,
+  IconArrowsExchange,
   IconDeviceLaptop,
-  IconFileAi,
-  IconFileDescription,
   IconHelp,
+  IconHome,
   IconSearch,
   IconSettings,
+  IconTrophy,
+  IconUserCheck,
+  IconUsers,
 } from "@tabler/icons-react";
 import Image from "next/image";
 import type * as React from "react";
@@ -28,56 +30,34 @@ import { NavUser } from "@/components/nav-user";
 const data = {
   navMain: [
     {
+      title: "Dashboard",
+      url: "/",
+      icon: IconHome,
+    },
+    {
+      title: "Rankings",
+      url: "/rankings",
+      icon: IconTrophy,
+    },
+    {
+      title: "Voters",
+      url: "/voters",
+      icon: IconUserCheck,
+    },
+    {
+      title: "Players",
+      url: "/players",
+      icon: IconUsers,
+    },
+    {
+      title: "Transfer Portal",
+      url: "/transfer-portal",
+      icon: IconArrowsExchange,
+    },
+    {
       title: "Development",
       url: "/development",
       icon: IconDeviceLaptop,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
     },
   ],
   navSecondary: [
@@ -109,7 +89,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               render={<a href="/" />}
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              {/*<IconInnerShadowTop className="!size-5" />*/}
               <Image
                 src="https://cdn.sanity.io/images/8pbt9f8w/production/6ed24cde242b41912e2d06bf2ca7da9abdf97c06-4347x2855.svg"
                 className="size-8"

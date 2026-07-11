@@ -1,7 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
 import {
   getLatestVoterBallot,
-  getSportIdBySlug,
+  hasVoterPollAssignment,
   hasVoterVoted,
 } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
@@ -16,7 +15,9 @@ import { Suspense } from "react";
 import z from "zod";
 
 import VoteFormWrapper from "@/components/vote-form-wrapper";
+import { getCachedSportIdBySlug } from "@/lib/cached-sport";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
+import { requireVoter } from "@/lib/require-voter";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import {
   getCurrentSeason,
@@ -153,9 +154,20 @@ async function VotePageAuth({
   division: string;
   options: DynamicFetchOptions;
 }) {
-  const { userId } = await auth();
-  if (!userId) {
+  const { userId } = await requireVoter();
+
+  const sportId = await getCachedSportIdBySlug(sport);
+  if (!sportId) {
     notFound();
+  }
+
+  const canVote = await hasVoterPollAssignment({
+    userId,
+    sportId,
+    division,
+  });
+  if (!canVote) {
+    redirect("/");
   }
 
   const { data: schools } = await sanityFetchPage({
@@ -168,8 +180,6 @@ async function VotePageAuth({
     notFound();
   }
 
-  const sportId = await getSportIdBySlug(sport);
-
   const [votingWeek, { year }] = await Promise.all([
     getCurrentWeek(sport),
     getCurrentSeason(sport),
@@ -179,7 +189,7 @@ async function VotePageAuth({
     year,
     week: votingWeek,
     division,
-    sportId: sportId || "",
+    sportId,
     userId,
   });
 

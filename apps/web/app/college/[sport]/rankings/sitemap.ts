@@ -1,9 +1,10 @@
-import { getYearsWithVotes } from "@redshirt-sports/db/queries";
+import {
+  getYearsWithVotes,
+  type SportParam,
+} from "@redshirt-sports/db/queries";
 import type { MetadataRoute } from "next";
 
 import { getBaseUrl } from "@/lib/get-base-url";
-
-export const dynamic = "force-dynamic";
 
 export function generateSitemaps() {
   return [{ id: 0 }];
@@ -11,10 +12,18 @@ export function generateSitemaps() {
 
 const baseUrl = getBaseUrl();
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const yearsWithVotes = await getYearsWithVotes();
+export default async function sitemap({
+  params,
+}: {
+  id?: number;
+  params?: Promise<{ sport?: SportParam }>;
+}): Promise<MetadataRoute.Sitemap> {
+  "use cache";
+  const { sport = "football" } = (await params) ?? {};
+  const yearsWithVotes = await getYearsWithVotes(sport);
+
   return yearsWithVotes.map(({ year, week, division }) => ({
-    url: `${baseUrl}/college/football/rankings/${division}/${year}/${week === 999 ? "final-rankings" : week}`,
+    url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week === 999 ? "final-rankings" : week}`,
     lastModified: new Date(),
     priority: 0.7,
   }));

@@ -14,7 +14,7 @@ import {
 } from "@redshirt-sports/ui/components/form";
 import { Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { forwardRef, useImperativeHandle, useMemo } from "react";
+import { type Ref, useImperativeHandle, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -206,13 +206,15 @@ const formSchema = z
     }
   });
 
-const Top25 = forwardRef<
-  Top25FormRef,
-  {
-    schools: SchoolsBySportAndSubgroupingStringQueryResult;
-    previousBallot?: VoterBallotWithSchool[];
-  }
->(({ schools, previousBallot }, ref) => {
+export default function Top25({
+  schools,
+  previousBallot,
+  ref,
+}: {
+  schools: SchoolsBySportAndSubgroupingStringQueryResult;
+  previousBallot?: VoterBallotWithSchool[];
+  ref?: Ref<Top25FormRef>;
+}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -334,8 +336,4 @@ const Top25 = forwardRef<
       </form>
     </Form>
   );
-});
-
-Top25.displayName = "Top25";
-
-export default Top25;
+}

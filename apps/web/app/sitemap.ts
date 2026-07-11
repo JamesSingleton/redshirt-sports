@@ -40,10 +40,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/college/news`,
     },
     {
+      url: `${baseUrl}/college/teams`,
+    },
+    {
       url: `${baseUrl}/college/transfer-portal`,
     },
     {
       url: `${baseUrl}/college/transfer-portal/news`,
+    },
+    {
+      url: `${baseUrl}/college/recruiting/news`,
     },
     {
       url: `${baseUrl}/recruiting`,

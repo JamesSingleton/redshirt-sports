@@ -1,3 +1,4 @@
+import { cache } from "react";
 import z from "zod";
 
 import type {
@@ -74,42 +75,42 @@ async function fetchESPNData<T>(url: string): Promise<T> {
 }
 
 /**
- * Get current season data for a specific sport
+ * Get current season data for a specific sport (deduped per request)
  */
-export async function getCurrentSeason(
-  sport: SportParam = "football",
-): Promise<Season> {
-  const sportPath = getSportPath(sport);
-  const url = `${ESPN_BASE_SITE_URL}/${sportPath}/season`;
+export const getCurrentSeason = cache(
+  async (sport: SportParam = "football"): Promise<Season> => {
+    const sportPath = getSportPath(sport);
+    const url = `${ESPN_BASE_SITE_URL}/${sportPath}/season`;
 
-  return fetchESPNData<Season>(url);
-}
+    return fetchESPNData<Season>(url);
+  },
+);
 
 /**
  * Get detailed season data including all season types (preseason, regular season, postseason)
  */
-export async function getSeasonData(
-  sport: SportParam = "football",
-  year?: number,
-): Promise<Season> {
-  const sportPath = getSportPath(sport);
+export const getSeasonData = cache(
+  async (sport: SportParam = "football", year?: number): Promise<Season> => {
+    const sportPath = getSportPath(sport);
 
-  // If no year provided, get current season first
-  if (!year) {
-    const currentSeason = await getCurrentSeason(sport);
-    year = currentSeason.year;
-  }
+    // If no year provided, get current season first
+    let resolvedYear = year;
+    if (!resolvedYear) {
+      const currentSeason = await getCurrentSeason(sport);
+      resolvedYear = currentSeason.year;
+    }
 
-  const url = `${ESPN_BASE_SITE_URL}/${sportPath}/seasons?startingseason=${year}`;
-  const espnBody: ESPNBody = await fetchESPNData(url);
+    const url = `${ESPN_BASE_SITE_URL}/${sportPath}/seasons?startingseason=${resolvedYear}`;
+    const espnBody: ESPNBody = await fetchESPNData(url);
 
-  const season = espnBody.seasons.find((s) => s.year === year);
-  if (!season) {
-    throw new Error(`Unable to find a season for year ${year}`);
-  }
+    const season = espnBody.seasons.find((s) => s.year === resolvedYear);
+    if (!season) {
+      throw new Error(`Unable to find a season for year ${resolvedYear}`);
+    }
 
-  return season;
-}
+    return season;
+  },
+);
 
 /**
  * Get multiple seasons worth of season data
@@ -173,62 +174,68 @@ export async function getCurrentWeek(
 /**
  * Get season information including current period and week
  */
-export async function getSeasonInfo(sport: SportParam = "football"): Promise<{
-  year: number;
-  currentWeek: number;
-  isPreseason: boolean;
-  isRegularSeason: boolean;
-  isPostseason: boolean;
-  preseason?: SeasonType;
-  regularSeason?: SeasonType;
-}> {
-  const currentDate = new Date();
-  const currentSeasonData = await getSeasonData(sport);
-  const currentSeasonEndDate = new Date(currentSeasonData.endDate);
+export const getSeasonInfo = cache(
+  async (
+    sport: SportParam = "football",
+  ): Promise<{
+    year: number;
+    currentWeek: number;
+    isPreseason: boolean;
+    isRegularSeason: boolean;
+    isPostseason: boolean;
+    preseason?: SeasonType;
+    regularSeason?: SeasonType;
+  }> => {
+    const currentDate = new Date();
+    const currentSeasonData = await getSeasonData(sport);
+    const currentSeasonEndDate = new Date(currentSeasonData.endDate);
 
-  const preseason = currentSeasonData.types.find((type) => type.type === 1);
-  const regularSeason = currentSeasonData.types.find((type) => type.type === 2);
-
-  const isPreseason = preseason
-    ? currentDate >= new Date(preseason.startDate) &&
-      currentDate <= new Date(preseason.endDate)
-    : false;
-
-  const isRegularSeason = regularSeason
-    ? currentDate >= new Date(regularSeason.startDate) &&
-      currentDate <= new Date(regularSeason.endDate)
-    : false;
-
-  const isPostseason = regularSeason
-    ? currentDate >= new Date(regularSeason.endDate) &&
-      currentDate <= currentSeasonEndDate
-    : false;
-
-  let currentWeek = 0;
-
-  if (isRegularSeason && regularSeason) {
-    const week = regularSeason.weeks?.find(
-      (week) =>
-        currentDate >= new Date(week.startDate) &&
-        currentDate <= new Date(week.endDate),
+    const preseason = currentSeasonData.types.find((type) => type.type === 1);
+    const regularSeason = currentSeasonData.types.find(
+      (type) => type.type === 2,
     );
-    if (week) {
-      currentWeek = week.number;
-    }
-  } else if (isPostseason) {
-    currentWeek = 999;
-  }
 
-  return {
-    year: currentSeasonData.year,
-    currentWeek,
-    isPreseason,
-    isRegularSeason,
-    isPostseason,
-    preseason,
-    regularSeason,
-  };
-}
+    const isPreseason = preseason
+      ? currentDate >= new Date(preseason.startDate) &&
+        currentDate <= new Date(preseason.endDate)
+      : false;
+
+    const isRegularSeason = regularSeason
+      ? currentDate >= new Date(regularSeason.startDate) &&
+        currentDate <= new Date(regularSeason.endDate)
+      : false;
+
+    const isPostseason = regularSeason
+      ? currentDate >= new Date(regularSeason.endDate) &&
+        currentDate <= currentSeasonEndDate
+      : false;
+
+    let currentWeek = 0;
+
+    if (isRegularSeason && regularSeason) {
+      const week = regularSeason.weeks?.find(
+        (week) =>
+          currentDate >= new Date(week.startDate) &&
+          currentDate <= new Date(week.endDate),
+      );
+      if (week) {
+        currentWeek = week.number;
+      }
+    } else if (isPostseason) {
+      currentWeek = 999;
+    }
+
+    return {
+      year: currentSeasonData.year,
+      currentWeek,
+      isPreseason,
+      isRegularSeason,
+      isPostseason,
+      preseason,
+      regularSeason,
+    };
+  },
+);
 
 /**
  * Get all available weeks for a season

@@ -2,6 +2,7 @@ import {
   getLatestPortalYear,
   getTransferPortalEntries,
 } from "@redshirt-sports/db/queries/transfer-portal";
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { queryTransferPortalMegaboard } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
@@ -11,6 +12,7 @@ import { HomeNewsSection } from "@/components/home/home-news-section";
 import { Megaboard } from "@/components/home/megaboard";
 import { TransferPortalFeedSidebar } from "@/components/transfer-portal/feed-sidebar";
 import { TransferPortalSportNewsLinks } from "@/components/transfer-portal/sport-news-links";
+import { draftAwarePage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { fetchAllSports } from "@/lib/sport-by-slug";
@@ -30,21 +32,32 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TransferPortalLandingPage() {
-  const { perspective, stega } = await getDynamicFetchOptions();
-  const portalYear = await getLatestPortalYear();
+  return draftAwarePage(null, renderTransferPortalLandingPage);
+}
 
+async function renderTransferPortalLandingPage({
+  perspective,
+  stega,
+}: DynamicFetchOptions) {
+  "use cache";
+
+  const portalYearPromise = getLatestPortalYear();
+  const articlesPromise = sanityFetchPage({
+    query: queryTransferPortalMegaboard,
+    perspective,
+    stega,
+  });
+  const sportsPromise = fetchAllSports(perspective);
+
+  const portalYear = await portalYearPromise;
   const [{ data: transferArticles }, feedEntriesResult, sports] =
     await Promise.all([
-      sanityFetchPage({
-        query: queryTransferPortalMegaboard,
-        perspective,
-        stega,
-      }),
+      articlesPromise,
       getTransferPortalEntries({
         filters: { portalYear },
         limit: 10,
       }),
-      fetchAllSports(perspective),
+      sportsPromise,
     ]);
 
   const megaboardPosts = transferArticles?.slice(0, 5) ?? [];

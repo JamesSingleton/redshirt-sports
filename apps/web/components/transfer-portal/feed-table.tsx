@@ -21,6 +21,22 @@ function playerName(entry: TransferPortalEntryRow) {
   return entry.displayName ?? `${entry.firstName} ${entry.lastName}`.trim();
 }
 
+function PlayerNameLink({ entry }: { entry: TransferPortalEntryRow }) {
+  const name = playerName(entry);
+  if (!entry.playerSlug) {
+    return <span>{name}</span>;
+  }
+  return (
+    <Link
+      href={`/player/${entry.playerSlug}`}
+      prefetch={false}
+      className="hover:underline"
+    >
+      {name}
+    </Link>
+  );
+}
+
 export function TransferPortalFeedTable({
   entries,
 }: {
@@ -38,6 +54,7 @@ export function TransferPortalFeedTable({
     <>
       <div className="hidden overflow-x-auto rounded-lg border border-border md:block">
         <table className="w-full min-w-[900px] text-sm">
+          <caption className="sr-only">Transfer portal activity</caption>
           <thead className="bg-muted/40 text-left text-xs font-bold tracking-wide uppercase">
             <tr>
               <th className="px-4 py-3">Player</th>
@@ -51,12 +68,9 @@ export function TransferPortalFeedTable({
             {entries.map((entry) => (
               <tr key={entry.entryId} className="border-t border-border">
                 <td className="px-4 py-3 font-medium">
-                  <Link
-                    href={`/player/${entry.playerSlug}`}
-                    className="hover:text-primary"
-                  >
-                    {playerName(entry)}
-                  </Link>
+                  <p>
+                    <PlayerNameLink entry={entry} />
+                  </p>
                   <div className="text-xs text-muted-foreground">
                     {formatHeight(entry.heightInches)}
                     {entry.weightLbs ? ` · ${entry.weightLbs} lbs` : null}
@@ -94,12 +108,9 @@ export function TransferPortalFeedTable({
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <Link
-                  href={`/player/${entry.playerSlug}`}
-                  className="font-semibold hover:text-primary"
-                >
-                  {playerName(entry)}
-                </Link>
+                <p className="font-semibold">
+                  <PlayerNameLink entry={entry} />
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {entry.position ?? "—"} · {formatHeight(entry.heightInches)}
                 </p>

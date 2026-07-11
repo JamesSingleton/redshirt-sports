@@ -1,7 +1,4 @@
-import {
-  getPlayerBySlug,
-  listPlayerSlugs,
-} from "@redshirt-sports/db/queries/players";
+import { getPlayerBySlug } from "@redshirt-sports/db/queries";
 import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -9,13 +6,19 @@ import { notFound } from "next/navigation";
 import { PlayerProfileView } from "@/components/player/player-profile";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 
-export async function generateStaticParams() {
-  try {
-    const slugs = await listPlayerSlugs();
-    return slugs.map(({ slug }) => ({ slug }));
-  } catch {
-    return [];
-  }
+function playerDisplayName(player: {
+  displayName: string | null;
+  firstName: string;
+  lastName: string;
+}) {
+  return player.displayName ?? `${player.firstName} ${player.lastName}`.trim();
+}
+
+function bioExcerpt(bio: string | null, fallback: string) {
+  if (!bio?.trim()) return fallback;
+  const trimmed = bio.trim();
+  if (trimmed.length <= 160) return trimmed;
+  return `${trimmed.slice(0, 157).trimEnd()}...`;
 }
 
 export async function generateMetadata({
@@ -33,14 +36,15 @@ export async function generateMetadata({
     return { title: "Player Not Found" };
   }
 
-  const name = player.displayName ?? `${player.firstName} ${player.lastName}`;
+  const name = playerDisplayName(player);
 
   return getPageMetadata(
     {
       title: `${name} — ${player.position ?? "Player"} Profile`,
-      description:
-        player.bio ??
+      description: bioExcerpt(
+        player.bio,
         `${name} college ${player.sportName ?? "sports"} profile, recruiting updates, and transfer portal history.`,
+      ),
       slug: `/player/${slug}`,
     },
     perspective,

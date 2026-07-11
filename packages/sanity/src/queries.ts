@@ -1312,6 +1312,38 @@ export const postsByStoryTypeQuery = defineQuery(/* groq */ `
   }
 `);
 
+export const tagBySlugQuery = defineQuery(/* groq */ `
+  *[_type == "tag" && slug.current == $slug][0]{
+    _id,
+    name,
+    "slug": slug.current
+  }
+`);
+
+export const postsByTagQuery = defineQuery(/* groq */ `
+  *[_type == "tag" && slug.current == $slug][0]{
+    "posts": *[
+      _type == "post" &&
+      defined(publishedAt) &&
+      references(^._id)
+    ] | order(publishedAt desc)[$from...$to]{
+      _id,
+      title,
+      excerpt,
+      storyType,
+      publishedAt,
+      "slug": slug.current,
+      ${postImageFragment},
+      ${postAuthorFragment}
+    },
+    "totalPosts": count(*[
+      _type == "post" &&
+      defined(publishedAt) &&
+      references(^._id)
+    ])
+  }
+`);
+
 export const schoolSlugsForSitemapQuery = groq`
   *[_type == "school" && defined(slug.current) && count(*[${publishedPostsTaggingSchoolFromParentFilter}]) >= $minPosts]{
     "slug": slug.current,
