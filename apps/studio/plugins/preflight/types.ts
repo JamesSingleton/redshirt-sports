@@ -11,7 +11,8 @@ export type LinkSource =
   | "customLink"
   | "legacyLink"
   | "internalLink"
-  | "youtube";
+  | "youtube"
+  | "siteLink";
 
 export type LinkFinding = {
   id: string;
@@ -62,6 +63,18 @@ export type CustomUrlObject = {
   };
 };
 
+export type SiteLinkObject = {
+  _type?: string;
+  linkType?: "sitePath" | "document" | "sportNews" | "external";
+  sitePath?: string;
+  external?: string;
+  document?: { _ref?: string; _type?: string };
+  sport?: { _ref?: string };
+  routeDepth?: string;
+  segment?: { _ref?: string };
+  conference?: { _ref?: string };
+};
+
 export type RawLinkFinding = {
   id: string;
   url?: string;
@@ -71,6 +84,7 @@ export type RawLinkFinding = {
   incompleteMessage?: string;
   refId?: string;
   customUrl?: CustomUrlObject;
+  siteLink?: SiteLinkObject;
   blockKey?: string;
   markKey?: string;
 };

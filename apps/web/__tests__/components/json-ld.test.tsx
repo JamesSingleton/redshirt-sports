@@ -127,6 +127,30 @@ describe("buildPostPageJsonLd", () => {
       "@type": "SpeakableSpecification",
       cssSelector: ["#article-title", "#article-excerpt"],
     });
+    const breadcrumb = data?.["@graph"]?.find(
+      (node) =>
+        typeof node === "object" && node?.["@type"] === "BreadcrumbList",
+    ) as Record<string, any> | undefined;
+    expect(breadcrumb?.itemListElement).toEqual([
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://redshirtsports.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "College Football",
+        item: "https://redshirtsports.com/college/football/news",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: "Test Article",
+        item: "https://redshirtsports.com/test-article",
+      },
+    ]);
   });
 
   it("omits image fields when the image is missing", () => {
@@ -158,7 +182,7 @@ describe("PostPageJsonLd", () => {
     expect(data["@graph"]).toBeDefined();
     expect(
       data["@graph"].some(
-        (node: { ["@type"]?: string }) => node["@type"] === "NewsArticle",
+        (node: { "@type"?: string }) => node["@type"] === "NewsArticle",
       ),
     ).toBe(true);
   });
@@ -290,7 +314,7 @@ describe("WebSiteJsonLd", () => {
 
     expect(data["@type"]).toBe("WebSite");
     expect(data.name).toBe("Redshirt Sports");
-    expect(data.potentialAction[0].target.urlTemplate).toContain("/search?q=");
+    expect(data.potentialAction).toBeUndefined();
   });
 });
 

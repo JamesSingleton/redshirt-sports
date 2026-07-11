@@ -297,7 +297,7 @@
             "type": "inline",
             "name": "sport.reference"
           },
-          "optional": false
+          "optional": true
         },
         "routeDepth": {
           "type": "objectAttribute",
@@ -318,7 +318,7 @@
               }
             ]
           },
-          "optional": false
+          "optional": true
         },
         "segment": {
           "type": "objectAttribute",
@@ -531,6 +531,147 @@
         }
       },
       "dereferencesTo": "legal"
+    }
+  },
+  {
+    "name": "siteLink",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "siteLink"
+          }
+        },
+        "linkType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "sitePath"
+              },
+              {
+                "type": "string",
+                "value": "document"
+              },
+              {
+                "type": "string",
+                "value": "sportNews"
+              },
+              {
+                "type": "string",
+                "value": "external"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "sitePath": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "document": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "inline",
+                "name": "post.reference"
+              },
+              {
+                "type": "inline",
+                "name": "school.reference"
+              },
+              {
+                "type": "inline",
+                "name": "author.reference"
+              },
+              {
+                "type": "inline",
+                "name": "legal.reference"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "sport": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "sport.reference"
+          },
+          "optional": true
+        },
+        "routeDepth": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "sportNews"
+              },
+              {
+                "type": "string",
+                "value": "divisionNews"
+              },
+              {
+                "type": "string",
+                "value": "conferenceNews"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "segment": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "inline",
+                "name": "division.reference"
+              },
+              {
+                "type": "inline",
+                "name": "sportSubgrouping.reference"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "conference": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "conference.reference"
+          },
+          "optional": true
+        },
+        "external": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "openInNewTab": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      }
     }
   },
   {
@@ -1460,6 +1601,27 @@
                     "value": {
                       "type": "string"
                     },
+                    "optional": false
+                  },
+                  "sportSlug": {
+                    "type": "objectAttribute",
+                    "value": {
+                      "type": "union",
+                      "of": [
+                        {
+                          "type": "string",
+                          "value": "football"
+                        },
+                        {
+                          "type": "string",
+                          "value": "mens-basketball"
+                        },
+                        {
+                          "type": "string",
+                          "value": "womens-basketball"
+                        }
+                      ]
+                    },
                     "optional": true
                   },
                   "links": {
@@ -1474,6 +1636,13 @@
                             "value": {
                               "type": "string"
                             },
+                            "optional": false
+                          },
+                          "groupLabel": {
+                            "type": "objectAttribute",
+                            "value": {
+                              "type": "string"
+                            },
                             "optional": true
                           },
                           "description": {
@@ -1483,13 +1652,13 @@
                             },
                             "optional": true
                           },
-                          "url": {
+                          "link": {
                             "type": "objectAttribute",
                             "value": {
                               "type": "inline",
-                              "name": "customUrl"
+                              "name": "siteLink"
                             },
-                            "optional": true
+                            "optional": false
                           },
                           "_type": {
                             "type": "objectAttribute",
@@ -1512,7 +1681,7 @@
                         }
                       }
                     },
-                    "optional": false
+                    "optional": true
                   },
                   "_type": {
                     "type": "objectAttribute",
@@ -1542,15 +1711,15 @@
                     "value": {
                       "type": "string"
                     },
-                    "optional": true
+                    "optional": false
                   },
-                  "url": {
+                  "link": {
                     "type": "objectAttribute",
                     "value": {
                       "type": "inline",
-                      "name": "customUrl"
+                      "name": "siteLink"
                     },
-                    "optional": true
+                    "optional": false
                   },
                   "_type": {
                     "type": "objectAttribute",
@@ -1640,7 +1809,7 @@
                 "value": {
                   "type": "string"
                 },
-                "optional": true
+                "optional": false
               },
               "links": {
                 "type": "objectAttribute",
@@ -1654,15 +1823,15 @@
                         "value": {
                           "type": "string"
                         },
-                        "optional": true
+                        "optional": false
                       },
-                      "url": {
+                      "link": {
                         "type": "objectAttribute",
                         "value": {
                           "type": "inline",
-                          "name": "customUrl"
+                          "name": "siteLink"
                         },
-                        "optional": true
+                        "optional": false
                       },
                       "_type": {
                         "type": "objectAttribute",

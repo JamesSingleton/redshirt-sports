@@ -1,11 +1,8 @@
-import * as schema from "@redshirt-sports/db/schema";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { primaryDb } from "@redshirt-sports/db/client";
 
-import { env } from "@/env";
-
-const connectionString = env.DATABASE_URL;
-const client = postgres(connectionString, { prepare: false });
-
-// Use this object to send drizzle queries to your DB
-export const db = drizzle(client, { schema });
+/**
+ * Shared Drizzle client for route handlers.
+ * Prefer `@redshirt-sports/db/queries` for reusable reads; use this for writes
+ * that need the same pooled connection as the rest of the app.
+ */
+export const db = primaryDb;

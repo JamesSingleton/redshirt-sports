@@ -6,6 +6,11 @@ import redis from "@/utils/redis";
 
 async function getAndCacheTweet(id: string): Promise<Tweet | undefined> {
   try {
+    const cached = await redis.get<Tweet>(`tweet:${id}`);
+    if (cached) {
+      return cached;
+    }
+
     const { data, tombstone, notFound } = await fetchTweet(id);
 
     if (data) {

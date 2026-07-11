@@ -7,7 +7,7 @@ import { StatusRow } from "../../components/StatusRow";
 import type { LinkFinding, PreflightCheckProps } from "../../types";
 import { isVisitableLinkUrl, normalizeLinkUrl } from "../../utils/linkUrl";
 import { checkLink, runWithConcurrency } from "./checkLink";
-import { extractLinks } from "./extractLinks";
+import { extractLinks, extractNavFooterLinks } from "./extractLinks";
 import { resolveLinkFindings } from "./resolveLinks";
 
 type DeadLinksConfig = {
@@ -39,7 +39,12 @@ function DeadLinksCheckBase({
 }: PreflightCheckProps & DeadLinksConfig) {
   const client = useClient({ apiVersion: "2025-06-11" });
   const body = document?.displayed?.[contentField];
-  const rawFindings = useMemo(() => extractLinks(body), [body]);
+  const displayed = document?.displayed;
+  const rawFindings = useMemo(() => {
+    const bodyLinks = extractLinks(body);
+    const navFooterLinks = extractNavFooterLinks(displayed);
+    return [...bodyLinks, ...navFooterLinks];
+  }, [body, displayed]);
   const [findings, setFindings] = useState<LinkFinding[]>([]);
   const [hasChecked, setHasChecked] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
@@ -178,7 +183,7 @@ function DeadLinksCheckBase({
       {findings.length === 0 ? (
         <Card padding={4} radius={2} tone="transparent">
           <Text muted size={1}>
-            No links found in this article&apos;s body.
+            No links found in this document.
           </Text>
         </Card>
       ) : (

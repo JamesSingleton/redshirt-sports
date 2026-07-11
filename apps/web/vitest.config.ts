@@ -26,11 +26,7 @@ export default defineConfig({
         "components/**/*.{ts,tsx}",
         "app/**/*.{ts,tsx}",
       ],
-      exclude: [
-        "app/__transfer-portal/**",
-        "app/__recruiting/**",
-        "app/__players/**",
-      ],
+      exclude: [],
       // TODO: Add thresholds when we have more coverage
       // thresholds: {
       //   statements: 100,

@@ -1,4 +1,7 @@
-import { ImageIcon, LinkIcon, PlayIcon, TwitterIcon } from "@sanity/icons";
+import { ImageIcon } from "@sanity/icons/Image";
+import { LinkIcon } from "@sanity/icons/Link";
+import { PlayIcon } from "@sanity/icons/Play";
+import { TwitterIcon } from "@sanity/icons/Twitter";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 import { warnWhenHeadingOrBlockIsAllBold } from "../../utils/portable-text-validations";

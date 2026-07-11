@@ -1,4 +1,4 @@
-import { TwitterIcon } from "@sanity/icons";
+import { TwitterIcon } from "@sanity/icons/Twitter";
 import type { PreviewProps } from "sanity";
 
 export default function TweetPreview(props: PreviewProps) {

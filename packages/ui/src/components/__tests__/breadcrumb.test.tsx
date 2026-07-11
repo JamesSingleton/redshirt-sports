@@ -62,11 +62,9 @@ describe("BreadcrumbLink", () => {
     expect(link).toHaveAttribute("data-slot", "breadcrumb-link");
   });
 
-  it("renders the child element when asChild is true", () => {
+  it("renders the child element when render is provided", () => {
     render(
-      <BreadcrumbLink asChild>
-        <button type="button">Home</button>
-      </BreadcrumbLink>,
+      <BreadcrumbLink render={<button type="button" />}>Home</BreadcrumbLink>,
     );
     const button = screen.getByRole("button", { name: "Home" });
     expect(button.tagName).toBe("BUTTON");

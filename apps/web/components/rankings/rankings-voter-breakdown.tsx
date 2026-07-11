@@ -1,9 +1,7 @@
-import {
-  getSportIdBySlug,
-  getVotesForWeekAndYearByVoter,
-} from "@redshirt-sports/db/queries";
+import { getVotesForWeekAndYearByVoter } from "@redshirt-sports/db/queries";
 
 import VoterBallotBreakdown from "@/components/rankings/voter-ballot-breakdown";
+import { getCachedSportIdBySlug } from "@/lib/cached-sport";
 import type { SportParam } from "@/utils/espn";
 import { processVoterBallots } from "@/utils/process-ballots";
 
@@ -20,7 +18,7 @@ export async function RankingsVoterBreakdown({
   week,
   sport,
 }: RankingsVoterBreakdownProps) {
-  const sportId = await getSportIdBySlug(sport);
+  const sportId = await getCachedSportIdBySlug(sport);
   if (!sportId) {
     return null;
   }

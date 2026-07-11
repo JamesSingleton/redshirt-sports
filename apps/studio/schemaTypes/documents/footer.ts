@@ -1,46 +1,49 @@
 import { LayoutPanelLeft, Link, PanelBottom } from "lucide-react";
-import { defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from "sanity";
 
 import {
-  type CustomUrlPreviewInput,
-  formatCustomUrlLinkSubtitle,
-  nestedCustomUrlPreviewSelect,
-  resolveCustomUrlPreview,
-} from "../../utils/custom-url-preview";
+  formatSiteLinkSubtitle,
+  nestedSiteLinkPreviewSelect,
+  resolveSiteLinkPreview,
+  type SiteLinkPreviewInput,
+} from "../../utils/site-link-preview";
 
 const footerColumnLink = defineField({
   name: "footerColumnLink",
   type: "object",
   icon: Link,
+  title: "Footer link",
   fields: [
     defineField({
       name: "name",
       type: "string",
-      title: "Name",
-      description: "The name of the link",
+      title: "Link text",
+      validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "url",
-      type: "customUrl",
+      name: "link",
+      type: "siteLink",
+      title: "Destination",
+      validation: (rule) => rule.required(),
     }),
   ],
   preview: {
     select: {
       title: "name",
-      ...nestedCustomUrlPreviewSelect("url"),
+      ...nestedSiteLinkPreviewSelect("link"),
     },
     prepare: ({
       title,
-      ...urlFields
-    }: { title?: string } & CustomUrlPreviewInput) => {
-      const url = resolveCustomUrlPreview(urlFields);
+      ...linkFields
+    }: { title?: string } & SiteLinkPreviewInput) => {
+      const url = resolveSiteLinkPreview(linkFields);
 
       return {
         title: title || "Untitled Link",
-        subtitle: formatCustomUrlLinkSubtitle({
-          urlType: urlFields.urlType,
+        subtitle: formatSiteLinkSubtitle({
+          linkType: linkFields.linkType,
           url,
-          openInNewTab: urlFields.openInNewTab,
+          openInNewTab: linkFields.openInNewTab,
         }),
         media: Link,
       };
@@ -52,19 +55,20 @@ const footerColumn = defineField({
   name: "footerColumn",
   type: "object",
   icon: LayoutPanelLeft,
+  title: "Footer column",
   fields: [
     defineField({
       name: "title",
       type: "string",
-      title: "Title",
-      description: "Title for the column",
+      title: "Column title",
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "links",
       type: "array",
       title: "Links",
-      description: "Links for the column",
-      of: [footerColumnLink],
+      of: [defineArrayMember(footerColumnLink)],
+      options: { sortable: true },
     }),
   ],
   preview: {
@@ -92,7 +96,7 @@ export const footer = defineType({
       type: "string",
       initialValue: "Footer",
       title: "Label",
-      description: "Label used to identify footer in the CMS",
+      description: "Internal label used to identify footer in the CMS",
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -100,14 +104,14 @@ export const footer = defineType({
       type: "text",
       rows: 2,
       title: "Subtitle",
-      description: "Subtitle that sits beneath the logo in the footer",
+      description: "Subtitle beneath the logo in the footer",
     }),
     defineField({
       name: "columns",
       type: "array",
       title: "Columns",
-      description: "Columns for the footer",
-      of: [footerColumn],
+      of: [defineArrayMember(footerColumn)],
+      options: { sortable: true },
     }),
   ],
   preview: {
@@ -115,7 +119,7 @@ export const footer = defineType({
       title: "label",
     },
     prepare: ({ title }) => ({
-      title: title || "Untitled Footer",
+      title: title || "Footer",
       media: PanelBottom,
     }),
   },

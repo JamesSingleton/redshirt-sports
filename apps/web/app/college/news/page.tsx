@@ -7,10 +7,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { CollectionPage, WithContext } from "schema-dts";
 
-import ArticleFeed from "@/components/article-feed";
+import { CollegeNewsArticleList } from "@/components/college-news/college-news-article-list";
+import { CollegeNewsArticleListLoading } from "@/components/college-news/college-news-loading";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
-import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
+import { COLLEGE_NEWS_DESCRIPTION } from "@/lib/college-news-config";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
@@ -34,48 +35,29 @@ export async function generateMetadata({
   const pageNumber = typeof page === "string" ? parseInt(page, 10) : 1;
   const isFirstPage = !page || pageNumber <= 1;
 
-  const appName = process.env.NEXT_PUBLIC_APP_NAME;
-
-  const baseTitle = `College Sports News`;
-  const baseCanonical = `/college/news`;
-
-  let title: string;
-  let description: string;
-  let canonical: string;
-
-  if (isFirstPage) {
-    title = baseTitle;
-    description = `Stay updated with comprehensive college sports coverage: breaking news, game highlights, recruiting, & in-depth analysis from across the NCAA. Get the latest from ${appName}.`;
-    canonical = baseCanonical;
-  } else {
-    title = `${baseTitle} - Page ${pageNumber}`;
-    description = `Continue reading more college sports news on Page ${pageNumber}. Find the latest updates, player features, and postseason analysis from ${appName}.`;
-    canonical = `${baseCanonical}?page=${pageNumber}`;
-  }
+  const baseTitle = "College Sports News";
+  const baseCanonical = "/college/news";
 
   return getPageMetadata(
     {
-      title,
-      description,
-      slug: canonical,
+      title: isFirstPage ? baseTitle : `${baseTitle} - Page ${pageNumber}`,
+      description: isFirstPage
+        ? COLLEGE_NEWS_DESCRIPTION
+        : `Continue reading more college sports news on Page ${pageNumber}.`,
+      slug: isFirstPage ? baseCanonical : `${baseCanonical}?page=${pageNumber}`,
     },
     perspective,
   );
 }
-
-const breadcrumbItems = [
-  {
-    title: "News",
-    href: "/college/news",
-  },
-];
 
 export default function CollegeSportsNews({
   searchParams,
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  return searchParamsPage(null, () => renderCollegeSportsNews(searchParams));
+  return searchParamsPage(<CollegeNewsArticleListLoading />, () =>
+    renderCollegeSportsNews(searchParams),
+  );
 }
 
 async function renderCollegeSportsNews(
@@ -115,7 +97,7 @@ async function cachedRenderCollegeSportsNews({
     "@type": "CollectionPage",
     name: "College Sports News",
     url: `${baseUrl}/college/news`,
-    description: `Stay updated with comprehensive college sports coverage: breaking news, game highlights, recruiting, & in-depth analysis from across the NCAA. Get the latest from ${process.env.NEXT_PUBLIC_APP_NAME}.`,
+    description: COLLEGE_NEWS_DESCRIPTION,
     isPartOf: {
       "@type": "WebSite",
       "@id": websiteId,
@@ -154,11 +136,8 @@ async function cachedRenderCollegeSportsNews({
   return (
     <>
       <JsonLdScript data={newsJsonLd} id="college-sports-news-json-ld" />
-      <PageHeader title="College Sports News" breadcrumbs={breadcrumbItems} />
-      <section className="container pb-12">
-        <ArticleFeed articles={posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={totalPosts} />}
-      </section>
+      <CollegeNewsArticleList articles={posts} />
+      {totalPages > 1 ? <PaginationControls totalPosts={totalPosts} /> : null}
     </>
   );
 }

@@ -10,6 +10,7 @@ import {
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -100,6 +101,7 @@ export default async function CollegeFootballRankingsPage({
         year: yearNumber,
         week: weekNumber,
         division,
+        sport,
       }),
     ]);
 
@@ -153,10 +155,10 @@ export default async function CollegeFootballRankingsPage({
         itemListOrder: "https://schema.org/ItemListOrderAscending",
         itemListElement: top25.map((team) => ({
           "@type": "ListItem",
-          position: team.rank,
+          position: team.rank ?? 0,
           item: {
             "@type": "SportsTeam",
-            name: team.shortName,
+            name: team.shortName ?? team.abbreviation ?? team.name ?? undefined,
             sport: sport,
           },
         })),
@@ -185,6 +187,7 @@ export default async function CollegeFootballRankingsPage({
         <CardContent>
           {top25.length > 0 && (
             <Table>
+              <TableCaption className="sr-only">{`${year} ${titleWeek} ${division.toUpperCase()} Top 25 rankings`}</TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead>Rank</TableHead>

@@ -1,9 +1,7 @@
-import {
-  CheckmarkCircleIcon,
-  CloseCircleIcon,
-  EllipsisHorizontalIcon,
-  WarningOutlineIcon,
-} from "@sanity/icons";
+import { CheckmarkCircleIcon } from "@sanity/icons/CheckmarkCircle";
+import { CloseCircleIcon } from "@sanity/icons/CloseCircle";
+import { EllipsisHorizontalIcon } from "@sanity/icons/EllipsisHorizontal";
+import { WarningOutlineIcon } from "@sanity/icons/WarningOutline";
 import { Spinner } from "@sanity/ui";
 
 import type { CheckStatus } from "../types";

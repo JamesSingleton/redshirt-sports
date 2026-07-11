@@ -86,13 +86,12 @@ export async function getBallotsByWeekYearDivisionAndSport({
   return votes;
 }
 
-// given a year, return the weeks that have been voted on
+// given a year, return the distinct weeks that have been voted on
 export async function getVotedWeeks(year: number) {
-  const weeks = await db.query.voterBallots.findMany({
-    where: (model, { eq }) => eq(model.year, year),
-  });
-
-  return weeks;
+  return db
+    .selectDistinct({ week: voterBallots.week })
+    .from(voterBallots)
+    .where(eq(voterBallots.year, year));
 }
 
 export async function getYearsThatHaveVotes({
@@ -185,16 +184,26 @@ export async function getVotesForWeekAndYearByVoter({
 }
 
 // get the years that have been voted on along with the weeks and the divisions
-export async function getYearsWithVotes() {
-  const years = await db.query.weeklyFinalRankings.findMany({
-    columns: {
-      year: true,
-      week: true,
-      division: true,
-    },
-  });
+export async function getYearsWithVotes(sport?: SportParam) {
+  if (!sport) {
+    return db.query.weeklyFinalRankings.findMany({
+      columns: {
+        year: true,
+        week: true,
+        division: true,
+      },
+    });
+  }
 
-  return years;
+  return db
+    .select({
+      year: weeklyFinalRankings.year,
+      week: weeklyFinalRankings.week,
+      division: weeklyFinalRankings.division,
+    })
+    .from(weeklyFinalRankings)
+    .innerJoin(sportsTable, eq(weeklyFinalRankings.sportId, sportsTable.id))
+    .where(eq(sportsTable.slug, sport));
 }
 export async function getLatestVoterBallot(
   userId: string,

@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 export const config: NextConfig = {
   experimental: {
     inlineCss: true,
+    optimizePackageImports: ["lucide-react"],
   },
   reactCompiler: true,
   typedRoutes: true,

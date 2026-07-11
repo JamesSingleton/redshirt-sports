@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { primaryDb as db } from "../client";
 import {
   playerCommitmentsTable,
+  playerOrganizationHistoryTable,
   playersTable,
   playerTimelineTable,
   schoolsTable,
@@ -40,7 +41,7 @@ export async function getPlayerBySlug(slug: string) {
 
   if (!player) return null;
 
-  const [timeline, commitments] = await Promise.all([
+  const [timeline, commitments, organizationHistory] = await Promise.all([
     db
       .select({
         id: playerTimelineTable.id,
@@ -70,7 +71,27 @@ export async function getPlayerBySlug(slug: string) {
       .leftJoin(sportsTable, eq(playerCommitmentsTable.sportId, sportsTable.id))
       .where(eq(playerCommitmentsTable.playerId, player.id))
       .orderBy(playerCommitmentsTable.committedAt),
+    db
+      .select({
+        id: playerOrganizationHistoryTable.id,
+        startYear: playerOrganizationHistoryTable.startYear,
+        endYear: playerOrganizationHistoryTable.endYear,
+        isTransfer: playerOrganizationHistoryTable.isTransfer,
+        schoolName: schoolsTable.name,
+        schoolShortName: schoolsTable.shortName,
+      })
+      .from(playerOrganizationHistoryTable)
+      .leftJoin(
+        schoolsTable,
+        eq(playerOrganizationHistoryTable.schoolId, schoolsTable.id),
+      )
+      .where(eq(playerOrganizationHistoryTable.playerId, player.id))
+      .orderBy(playerOrganizationHistoryTable.startYear),
   ]);
 
-  return { ...player, timeline, commitments };
+  return { ...player, timeline, commitments, organizationHistory };
+}
+
+export async function listPlayerSlugs(limit = 500) {
+  return db.select({ slug: playersTable.slug }).from(playersTable).limit(limit);
 }

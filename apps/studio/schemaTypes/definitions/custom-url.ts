@@ -162,12 +162,17 @@ export const customUrl = defineType({
           const type = (parent as { type?: string })?.type;
           const internalType = (parent as { internalType?: string })
             ?.internalType;
-          if (
-            type === "internal" &&
-            internalType === "sportNews" &&
-            !(value as { sport?: { _ref?: string } })?.sport?._ref
-          ) {
-            return "Sport news archive link is required";
+          if (type === "internal" && internalType === "sportNews") {
+            const sportNews = value as {
+              sport?: { _ref?: string };
+              routeDepth?: string;
+            };
+            if (!sportNews?.sport?._ref) {
+              return "Sport is required";
+            }
+            if (!sportNews?.routeDepth) {
+              return "Page depth is required";
+            }
           }
           return true;
         }),

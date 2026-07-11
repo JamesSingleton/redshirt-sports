@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default async function OnboardingPage() {
+  await auth.protect();
+
   return (
     <div className="container flex items-center justify-center">
       <Suspense fallback={<div>Loading...</div>}>

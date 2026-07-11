@@ -1,20 +1,27 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "new-york",
+  "style": "base-nova",
   "rsc": true,
   "tsx": true,
   "tailwind": {
     "config": "",
     "css": "../../packages/ui/src/styles/globals.css",
-    "baseColor": "zinc",
+    "baseColor": "neutral",
     "cssVariables": true
   },
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
-    "hooks": "@/hooks",
-    "lib": "@/lib",
     "utils": "@redshirt-sports/ui/lib/utils",
-    "ui": "@redshirt-sports/ui/components"
+    "ui": "@redshirt-sports/ui/components",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "rtl": false,
+  "menuColor": "default-translucent",
+  "menuAccent": "subtle",
+  "registries": {
+    "@shadcnblocks": "https://shadcnblocks.com/r/{name}.json",
+    "@fonttrio": "https://www.fonttrio.xyz/r/{name}.json"
   }
 }

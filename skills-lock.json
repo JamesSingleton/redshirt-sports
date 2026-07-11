@@ -13,6 +13,12 @@
       "skillPath": "skills/content-modeling-best-practices/SKILL.md",
       "computedHash": "9f0c62274cf8ccf41dd32fc2f2629f4c9a8e5a920826f30c2eb226d7e796b031"
     },
+    "migrate-radix-to-base": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "skillPath": "skills/migrate-radix-to-base/SKILL.md",
+      "computedHash": "e1f2030ee5059be3dff0812ca0e4b995ee9fa3132176f049ebe6c90346a6755e"
+    },
     "next-best-practices": {
       "source": "vercel/nextjs-skills",
       "sourceType": "github",
@@ -35,7 +41,7 @@
       "source": "sanity-io/agent-toolkit",
       "sourceType": "github",
       "skillPath": "skills/sanity-best-practices/SKILL.md",
-      "computedHash": "52c89395aa6ed847a92841574c6f65e24afae01e2e79f7a1d92a49a7294a6098"
+      "computedHash": "189a17cf67bae9ae1087d47e78156952d19312db02a6a75a7dc1f2da30cf1174"
     },
     "sanity-live-cache-components": {
       "source": "sanity-io/next-sanity",
@@ -49,29 +55,35 @@
       "skillPath": "skills/seo-aeo-best-practices/SKILL.md",
       "computedHash": "edb99db85683ff99678fcb1bebc3a5653c3ea927eea9ee2534f19be86c7b8b81"
     },
+    "seo-audit": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/seo-audit/SKILL.md",
+      "computedHash": "f2dc52130189068981f21e1c0bdc4471ac7cd9b08d8a1320604411aa0f950385"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
       "skillPath": "skills/shadcn/SKILL.md",
-      "computedHash": "ac9d0d69caac7de1d1e5647f3db3bcd2f13af355d6b3a78780fbf7fc80e8dca0"
+      "computedHash": "d81caa0f86aabab65b25e302d454f23a3328760386ed9078345584c0d5c8058e"
     },
     "supabase": {
       "source": "supabase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/supabase/SKILL.md",
-      "computedHash": "d414d598b9428b3e851c4ce61898649906b19e55aa7415bb42a286bd9ca2ab32"
+      "computedHash": "17a437f3de2371ec43ad8a17d3e858337695efb46ed4af5dd6426f330bb6d032"
     },
     "supabase-postgres-best-practices": {
       "source": "supabase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
-      "computedHash": "0d2c4857a7d6fdcd3fbc46e458fa4c497f029cab89a01548b3defce203003932"
+      "computedHash": "ec56a54fba0e97bee52c7f244ba603bb284bf8d1b739c66a5cc84ec3df709d9d"
     },
     "turborepo": {
       "source": "vercel/turborepo",
       "sourceType": "github",
       "skillPath": "skills/turborepo/SKILL.md",
-      "computedHash": "b7c3165ae67a2892d6195a5b2cba15c8d96341f5c64ddd0d3ce4225c94a2ae83"
+      "computedHash": "97f056f5d6a9c6083239191b7d935eb1ed0502bc2142c756e5bc03e75dab03c5"
     },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",

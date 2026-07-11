@@ -1,5 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
-import { getSportIdBySlug, getVoterBallots } from "@redshirt-sports/db/queries";
+import { getVoterBallots } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
 import { schoolsByIdQuery } from "@redshirt-sports/sanity/queries";
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
@@ -9,6 +8,8 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import CustomImage from "@/components/sanity-image";
+import { getCachedSportIdBySlug } from "@/lib/cached-sport";
+import { requireVoter } from "@/lib/require-voter";
 import {
   getCurrentSeason,
   getCurrentWeek,
@@ -73,16 +74,12 @@ async function VoteConfirmationContent({
 }) {
   const { sport, division } = await params;
   const header = generateConfirmationHeader(sport, division);
-  const user = await auth();
-
-  if (!user.userId) {
-    redirect("/");
-  }
+  const { userId } = await requireVoter();
 
   const [votingWeek, { year }, sportId] = await Promise.all([
     getCurrentWeek(sport as SportParam),
     getCurrentSeason(sport as SportParam),
-    getSportIdBySlug(sport as SportParam),
+    getCachedSportIdBySlug(sport as SportParam),
   ]);
 
   const ballot = await getVoterBallots({
@@ -90,10 +87,10 @@ async function VoteConfirmationContent({
     week: votingWeek,
     division,
     sportId: sportId || "",
-    userId: user.userId,
+    userId,
   });
 
-  if (user.userId && !ballot.length) {
+  if (!ballot.length) {
     redirect(`/vote/college/${sport}/${division}`);
   }
 
