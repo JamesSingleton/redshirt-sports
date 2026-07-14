@@ -1,4 +1,4 @@
-import { LaunchIcon } from "@sanity/icons";
+import { LaunchIcon } from "@sanity/icons/Launch";
 import { Box, Button, Card, Flex, Stack, Text } from "@sanity/ui";
 
 import type { CheckStatus } from "../types";

@@ -1,11 +1,11 @@
-import { ComposeIcon, LinkIcon, RocketIcon } from "@sanity/icons";
+import { ComposeIcon } from "@sanity/icons/Compose";
+import { LinkIcon } from "@sanity/icons/Link";
+import { RocketIcon } from "@sanity/icons/Rocket";
 import {
   CogIcon,
   FileText,
   Folder,
   GavelIcon,
-  Globe,
-  GraduationCap,
   type LucideIcon,
   PanelBottomIcon,
   PanelTopDashedIcon,

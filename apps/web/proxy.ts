@@ -13,7 +13,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { userId, sessionClaims, redirectToSignIn } = await auth();
   if (isProtectedRoute(req)) {
     await auth.protect();
-    const { isVoter, isAdmin } = sessionClaims?.metadata as UserMetadata;
+    const { isVoter, isAdmin } = (sessionClaims?.metadata ??
+      {}) as UserMetadata;
 
     if (!isAdmin && req.nextUrl.pathname.startsWith("/admin")) {
       return NextResponse.error();

@@ -1,4 +1,4 @@
-import { RefreshIcon } from "@sanity/icons";
+import { RefreshIcon } from "@sanity/icons/Refresh";
 import { Badge, Box, Button, Flex, Heading, Stack, Text } from "@sanity/ui";
 
 type SectionHeaderProps = {

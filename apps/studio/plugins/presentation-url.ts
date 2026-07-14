@@ -1,4 +1,4 @@
-import { EarthGlobeIcon } from "@sanity/icons";
+import { EarthGlobeIcon } from "@sanity/icons/EarthGlobe";
 import { useToast } from "@sanity/ui";
 import { useCallback } from "react";
 import {

@@ -12,7 +12,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { sessionClaims } = await auth();
   if (!isPublicRoute(req)) {
     await auth.protect();
-    const { isAdmin } = sessionClaims?.metadata as UserMetadata;
+    const { isAdmin } = (sessionClaims?.metadata ?? {}) as UserMetadata;
 
     if (!isAdmin) {
       return NextResponse.redirect(
