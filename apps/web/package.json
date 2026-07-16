@@ -59,7 +59,7 @@
     "schema-dts": "^2.0.0",
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
-    "svix": "^1.96.1",
+    "svix": "^1.97.0",
     "url-sheriff": "^1.0.1",
     "zod": "catalog:"
   },
