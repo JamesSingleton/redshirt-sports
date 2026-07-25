@@ -77,7 +77,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "drizzle-kit": "catalog:",
     "happy-dom": "^20.10.6",
-    "postcss": "^8.5.19",
+    "postcss": "^8.5.20",
     "tailwindcss": "catalog:",
     "typescript": "^6.0.3",
     "vite": "catalog:",
