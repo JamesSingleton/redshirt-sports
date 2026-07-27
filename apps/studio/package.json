@@ -16,33 +16,33 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
-    "@portabletext/react": "^6.2.0",
+    "@portabletext/react": "^7.0.1",
     "@portabletext/toolkit": "^5.0.2",
     "@sanity/asset-utils": "^2.3.0",
-    "@sanity/assist": "^6.1.12",
-    "@sanity/blueprints": "^0.22.0",
+    "@sanity/assist": "^6.1.17",
+    "@sanity/blueprints": "^0.23.0",
     "@sanity/client": "catalog:",
-    "@sanity/dashboard": "^6.0.10",
+    "@sanity/dashboard": "^6.0.14",
     "@sanity/functions": "^1.4.0",
-    "@sanity/icons": "^5.1.0",
+    "@sanity/icons": "^5.2.1",
     "@sanity/image-url": "^2.1.1",
-    "@sanity/table": "^3.1.8",
-    "@sanity/ui": "^3.3.5",
-    "@sanity/vision": "^6.5.0",
+    "@sanity/table": "^3.1.12",
+    "@sanity/ui": "^3.5.0",
+    "@sanity/vision": "^6.6.0",
     "copy-to-clipboard": "^4.0.2",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "sanity": "catalog:",
-    "sanity-plugin-documents-pane": "^4.1.10",
-    "sanity-plugin-media": "^6.0.1",
+    "sanity-plugin-documents-pane": "^4.1.15",
+    "sanity-plugin-media": "^6.0.7",
     "slugify": "^1.6.9",
-    "styled-components": "^6.4.3"
+    "styled-components": "^6.4.4"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "vite": "^8.1.4",
+    "vite": "^8.1.5",
     "vitest": "catalog:"
   }
 }
