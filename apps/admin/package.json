@@ -22,7 +22,7 @@
     "@redshirt-sports/sanity": "workspace:*",
     "@redshirt-sports/ui": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.11",
-    "@tabler/icons-react": "^3.45.0",
+    "@tabler/icons-react": "^3.46.0",
     "lucide-react": "catalog:",
     "next": "^16.2.12",
     "next-sanity": "catalog:",
