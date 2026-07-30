@@ -20,7 +20,12 @@ export type SanityImageData = {
   readonly height?: number | null;
   readonly dominantColor?: string | null;
   readonly asset?: SanityImageAssetReference | null;
-  readonly hotspot?: { readonly x: number; readonly y: number } | null;
+  readonly hotspot?: {
+    readonly x: number;
+    readonly y: number;
+    readonly height?: number;
+    readonly width?: number;
+  } | null;
   readonly crop?: {
     readonly top: number;
     readonly bottom: number;
@@ -34,6 +39,8 @@ export type SanityImageInput = SanityImageData | string | null | undefined;
 type ImageHotspot = {
   readonly x: number;
   readonly y: number;
+  readonly height: number;
+  readonly width: number;
 };
 
 type ImageCrop = {
@@ -69,7 +76,13 @@ function isValidHotspot(hotspot: unknown): hotspot is ImageHotspot {
     return false;
   }
   const h = hotspot as Record<string, unknown>;
-  return isValidNumber(h.x) && isValidNumber(h.y);
+  // x/y alone are not enough — @sanity/image-url needs height/width or it emits NaN in rect=
+  return (
+    isValidNumber(h.x) &&
+    isValidNumber(h.y) &&
+    isValidNumber(h.height) &&
+    isValidNumber(h.width)
+  );
 }
 
 function isValidCrop(crop: unknown): crop is ImageCrop {
@@ -92,6 +105,8 @@ function extractHotspot(image: SanityImageData): ImageHotspot | undefined {
   return {
     x: image.hotspot.x,
     y: image.hotspot.y,
+    height: image.hotspot.height,
+    width: image.hotspot.width,
   };
 }
 

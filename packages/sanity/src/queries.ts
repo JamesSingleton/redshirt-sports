@@ -98,9 +98,12 @@ const coreImageMetadataProjection = /* groq */ `
   "width": asset->metadata.dimensions.width,
   "height": asset->metadata.dimensions.height,
   "dominantColor": asset->metadata.palette.dominant.background,
+  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...
   hotspot {
     x,
-    y
+    y,
+    height,
+    width
   },
   crop {
     bottom,
