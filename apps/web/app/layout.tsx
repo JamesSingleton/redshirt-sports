@@ -4,7 +4,7 @@ import { AnalyticsProvider } from "@redshirt-sports/analytics/provider";
 import { SanityLive } from "@redshirt-sports/sanity/live";
 import { Toaster } from "@redshirt-sports/ui/components/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import type { Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
@@ -43,7 +43,7 @@ export const viewport: Viewport = {
   themeColor: "#E80022",
 };
 
-export const metadata = getRootMetadata();
+export const metadata: Metadata = getRootMetadata();
 
 export default async function RootLayout({
   children,
