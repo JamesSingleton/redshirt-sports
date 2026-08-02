@@ -6,6 +6,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+import { serverBeforeSend, serverIgnoreErrors } from "./filters";
 import { keys } from "./keys";
 
 export const initializeSentry = (): ReturnType<typeof Sentry.init> =>
@@ -20,6 +21,9 @@ export const initializeSentry = (): ReturnType<typeof Sentry.init> =>
 
     // Setting this option to true will print useful information to the console while you're setting up Sentry.
     debug: false,
+
+    ignoreErrors: serverIgnoreErrors,
+    beforeSend: serverBeforeSend,
 
     // Integrations for console logging
     integrations: [
