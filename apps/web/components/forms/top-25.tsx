@@ -282,8 +282,9 @@ const Top25 = forwardRef<
       }),
       {
         loading: "Submitting Ballot",
-        success: (data) => data?.message || "Ballot submitted successfully",
-        error: (err) =>
+        success: (data: { message?: string }) =>
+          data?.message || "Ballot submitted successfully",
+        error: (err: Error) =>
           err.message || "An error occurred while submitting your ballot",
       },
     );
