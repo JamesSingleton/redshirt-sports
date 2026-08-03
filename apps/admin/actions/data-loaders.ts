@@ -13,19 +13,16 @@ import {
   divisionsTable,
   type InsertConferenceSports,
   type InsertDivisionSports,
-  type InsertSchoolConferenceAffiliations,
   type InsertSeason,
   type InsertSeasonType,
-  SEASON_TYPE_CODES,
   schoolConferenceAffiliationsTable,
   schoolsTable,
   seasonsTable,
   seasonTypesTable,
   sportsTable,
-  weeklyRankings,
   weeksTable,
 } from "@redshirt-sports/db/schema";
-import { sanityFetch } from "@redshirt-sports/sanity/live";
+import { client } from "@redshirt-sports/sanity/client";
 import {
   conferencesQuery,
   divisionsQuery,
@@ -34,75 +31,93 @@ import {
   subdivisionsQuery,
 } from "@redshirt-sports/sanity/queries";
 import type {
+  ConferencesQueryResult,
   DivisionsQueryResult,
+  SchoolsQueryResult,
   SportInfoQueryResult,
+  SubdivisionsQueryResult,
 } from "@redshirt-sports/sanity/types";
+import { sql } from "drizzle-orm";
 
-interface BaseSanityObject {
-  _id: string;
-  _createdAt: string;
-  _updatedAt: string;
+import { requireAdmin } from "@/lib/require-admin";
+
+/** Plain client fetch — `defineLive` sanityFetch requires `"use cache"` (cacheTag). */
+const sanity = client.withConfig({
+  useCdn: false,
+  perspective: "published",
+  stega: false,
+});
+
+export type LoaderResult =
+  | { ok: true; message: string }
+  | { ok: false; error: string };
+
+function formatLoaderError(error: unknown): string {
+  const cause =
+    error && typeof error === "object" && "cause" in error
+      ? (
+          error as {
+            cause?: {
+              code?: string;
+              constraint_name?: string;
+            };
+          }
+        ).cause
+      : undefined;
+
+  if (cause?.code === "23505") {
+    return cause.constraint_name
+      ? `Already in the database (conflict on ${cause.constraint_name}).`
+      : "Some of these records already exist in the database.";
+  }
+
+  if (error instanceof Error) {
+    const { message } = error;
+    if (
+      !message.startsWith("Failed query:") &&
+      message.length > 0 &&
+      message.length <= 280
+    ) {
+      return message;
+    }
+  }
+
+  return "Loader failed. Check the admin server logs for details.";
 }
 
-interface BaseSanityObjectWithName {
-  _createdAt: string;
-  _id: string;
-  _updatedAt: string;
-  name: string;
-}
-
-interface SanitySport extends BaseSanityObject {
-  slug: string;
-  title: string;
-}
-
-// biome-ignore lint: could be used in the future
-interface SanityConference extends BaseSanityObjectWithName {
-  divisionId: string;
-  shortName: string;
-  abbreviation: string;
-  slug: string;
-  logo: Record<string, any>;
-  sports: string[];
-}
-
-interface SanityDivision extends BaseSanityObjectWithName {
-  title: string;
-  heading: string;
-  longName: string;
-  slug: string;
-  description: string;
-  logo: Record<string, any>;
-}
-
-interface SanitySchool extends BaseSanityObjectWithName {
-  shortName: string;
-  abbreviation: string;
-  nickname: string;
-  top25VotingEligible: boolean;
-  image: Record<string, any>;
-  conferenceAffiliations: Record<"conferenceId" | "sportId", string>[];
-}
-
-interface SanitySubdivision extends BaseSanityObjectWithName {
-  shortName: string;
-  slug: string;
-  parentDivisionId: string;
-  applicableSports: string[];
+async function runLoader(
+  name: string,
+  fn: () => Promise<string>,
+): Promise<LoaderResult> {
+  try {
+    const message = await fn();
+    return { ok: true, message };
+  } catch (error) {
+    console.error(`[data-loader:${name}]`, error);
+    return { ok: false, error: formatLoaderError(error) };
+  }
 }
 
 export async function fetchAndLoadAllSeasons() {
-  await Promise.all(
-    ["football", "mens-basketball", "womens-basketball"].map((sport) =>
-      fetchAndLoadSeasons(sport as SportParam, 2023),
-    ),
-  );
+  return runLoader("seasons", async () => {
+    await requireAdmin();
+
+    await Promise.all(
+      ["football", "mens-basketball", "womens-basketball"].map((sport) =>
+        fetchAndLoadSeasons(sport as SportParam, 2023),
+      ),
+    );
+
+    return "Loaded seasons, season types, and weeks.";
+  });
 }
 
 export async function fetchAndLoadSeasons(
   sport: SportParam,
   startingSeason = new Date().getFullYear() - 3,
 ) {
+  await requireAdmin();
+
   const espnSeasons = await getMultipleSeasonsData(sport, startingSeason);
 
   const dbSport = await sportBySlug(sport);
@@ -222,152 +237,216 @@ async function sportBySlug(slug: string) {
 }
 
 export async function fetchAndLoadSports() {
-  const { data } = await sanityFetch({
-    query: sportInfoQuery,
-    perspective: "published",
-    stega: false,
+  return runLoader("sports", async () => {
+    await requireAdmin();
+
+    const data = await sanity.fetch(sportInfoQuery);
+
+    const mappedSports = data.map((d: SportInfoQueryResult[number]) => ({
+      id: d._id,
+      slug: d.slug,
+      name: d.title,
+      displayName: d.title,
+      createdAt: new Date(d._createdAt),
+      updatedAt: new Date(d._updatedAt),
+    }));
+
+    await db
+      .insert(sportsTable)
+      .values(mappedSports)
+      .onConflictDoUpdate({
+        target: sportsTable.id,
+        set: {
+          slug: sql`excluded.slug`,
+          name: sql`excluded.name`,
+          displayName: sql`excluded.display_name`,
+          updatedAt: sql`excluded.updated_at`,
+        },
+      });
+
+    return `Upserted ${mappedSports.length} sports.`;
   });
-
-  const mappedSports = data.map((d: SanitySport) => ({
-    id: d._id,
-    slug: d.slug,
-    name: d.title,
-    displayName: d.title,
-    createdAt: new Date(d._createdAt),
-    updatedAt: new Date(d._updatedAt),
-  }));
-
-  await db.insert(sportsTable).values(mappedSports);
 }
 
 export async function fetchAndLoadDivisions() {
-  const { data } = await sanityFetch({
-    query: divisionsQuery,
-    perspective: "published",
-    stega: false,
+  return runLoader("divisions", async () => {
+    await requireAdmin();
+
+    const data = await sanity.fetch(divisionsQuery);
+
+    const mappedDivisions = data.map((d: DivisionsQueryResult[number]) => ({
+      sanityId: d._id,
+      name: d.name,
+      title: d.title,
+      description: d.description,
+      heading: d.heading,
+      longName: d.longName,
+      slug: d.slug,
+      logo: d.logo,
+      createdAt: new Date(d._createdAt),
+      updatedAt: new Date(d._updatedAt),
+    }));
+
+    await db
+      .insert(divisionsTable)
+      .values(mappedDivisions)
+      .onConflictDoUpdate({
+        target: divisionsTable.sanityId,
+        set: {
+          name: sql`excluded.name`,
+          title: sql`excluded.title`,
+          description: sql`excluded.description`,
+          heading: sql`excluded.heading`,
+          longName: sql`excluded.long_name`,
+          slug: sql`excluded.slug`,
+          logo: sql`excluded.logo`,
+          updatedAt: sql`excluded.updated_at`,
+        },
+      });
+
+    return `Upserted ${mappedDivisions.length} divisions.`;
   });
-
-  const mappedDivisions = data.map((d) => ({
-    sanityId: d._id,
-    name: d.name,
-    title: d.title,
-    description: d.description,
-    heading: d.heading,
-    longName: d.longName,
-    slug: d.slug,
-    logo: d.logo,
-    createdAt: new Date(d._createdAt),
-    updatedAt: new Date(d._updatedAt),
-  }));
-
-  await db.insert(divisionsTable).values(mappedDivisions);
 }
 
 export async function fetchAndLoadSchools() {
-  const sports = await db.query.sportsTable.findMany();
-  if (!sports.length) {
-    throw new Error(
-      "No sports found. Sports must be loaded prior to conferences.",
-    );
-  }
-  const conferences = await db.query.conferencesTable.findMany();
-  if (!conferences.length) {
-    throw new Error(
-      "No conferences found. conferences must be loaded prior to schools.",
-    );
-  }
+  return runLoader("schools", async () => {
+    await requireAdmin();
 
-  const { data } = await sanityFetch({
-    query: schoolsQuery,
-    perspective: "published",
-    stega: false,
-  });
-
-  let schoolConferenceAffiliations: Record<string, string>[] = [];
-  const mappedSchools = data.map((d) => {
-    d.conferenceAffiliations?.forEach((affiliation) => {
-      const conference = conferences.find(
-        (c) => c.sanityId === affiliation.conferenceId,
+    const sports = await db.query.sportsTable.findMany();
+    if (!sports.length) {
+      throw new Error(
+        "No sports found. Sports must be loaded prior to schools.",
       );
-      if (conference) {
-        schoolConferenceAffiliations.push({
-          schoolName: d.name,
-          conferenceId: conference?.id || "",
-          sportId: affiliation.sportId, // sport ids are mapped to sanity ids so we don't need to do any lookups
-        });
-      } else {
-        console.log("no conference found");
-      }
-    });
+    }
+    const conferences = await db.query.conferencesTable.findMany();
+    if (!conferences.length) {
+      throw new Error(
+        "No conferences found. Conferences must be loaded prior to schools.",
+      );
+    }
 
-    return {
-      sanityId: d._id,
-      name: d.name,
-      shortName: d.shortName,
-      abbreviation: d.abbreviation,
-      nickname: d.nickname,
-      top25Eligible: d.top25VotingEligible,
-      image: d.image,
-      createdAt: new Date(d._createdAt),
-      updatedAt: new Date(d._updatedAt),
-    };
-  });
+    const data = await sanity.fetch(schoolsQuery);
 
-  const dbSchools = await db
-    .insert(schoolsTable)
-    .values(mappedSchools)
-    .returning();
+    const schoolConferenceAffiliations: {
+      schoolSanityId: string;
+      conferenceId: string;
+      sportId: string;
+    }[] = [];
 
-  schoolConferenceAffiliations = schoolConferenceAffiliations.map(
-    (affiliation) => {
-      const school = dbSchools.find((s) => s.name === affiliation.schoolName);
+    const mappedSchools = data.map((d: SchoolsQueryResult[number]) => {
+      d.conferenceAffiliations?.forEach(
+        (
+          affiliation: NonNullable<
+            SchoolsQueryResult[number]["conferenceAffiliations"]
+          >[number],
+        ) => {
+          const conference = conferences.find(
+            (c) => c.sanityId === affiliation.conferenceId,
+          );
+          if (conference) {
+            schoolConferenceAffiliations.push({
+              schoolSanityId: d._id,
+              conferenceId: conference.id,
+              sportId: affiliation.sportId,
+            });
+          }
+        },
+      );
 
       return {
-        conferenceId: affiliation.conferenceId!,
-        schoolId: school?.id || "",
-        sportId: affiliation.sportId!,
+        sanityId: d._id,
+        name: d.name,
+        shortName: d.shortName,
+        abbreviation: d.abbreviation,
+        nickname: d.nickname,
+        top25Eligible: d.top25VotingEligible,
+        image: d.image,
+        createdAt: new Date(d._createdAt),
+        updatedAt: new Date(d._updatedAt),
       };
-    },
-  );
+    });
 
-  await db
-    .insert(schoolConferenceAffiliationsTable)
-    .values(
-      schoolConferenceAffiliations as unknown as InsertSchoolConferenceAffiliations,
+    const dbSchools = await db
+      .insert(schoolsTable)
+      .values(mappedSchools)
+      .onConflictDoUpdate({
+        target: schoolsTable.sanityId,
+        set: {
+          name: sql`excluded.name`,
+          shortName: sql`excluded.short_name`,
+          abbreviation: sql`excluded.abbreviation`,
+          nickname: sql`excluded.nickname`,
+          top25Eligible: sql`excluded.top_25_eligible`,
+          image: sql`excluded.image`,
+          updatedAt: sql`excluded.updated_at`,
+        },
+      })
+      .returning();
+
+    const schoolIdBySanityId = new Map(
+      dbSchools
+        .filter((school) => school.sanityId)
+        .map((school) => [school.sanityId as string, school.id]),
     );
+
+    const affiliationRows = schoolConferenceAffiliations.flatMap(
+      (affiliation) => {
+        const schoolId = schoolIdBySanityId.get(affiliation.schoolSanityId);
+        if (!schoolId) {
+          return [];
+        }
+        return [
+          {
+            schoolId,
+            conferenceId: affiliation.conferenceId,
+            sportId: affiliation.sportId,
+          },
+        ];
+      },
+    );
+
+    if (affiliationRows.length) {
+      await db
+        .insert(schoolConferenceAffiliationsTable)
+        .values(affiliationRows)
+        .onConflictDoNothing();
+    }
+
+    return `Upserted ${dbSchools.length} schools and synced ${affiliationRows.length} conference affiliations.`;
+  });
 }
 
 export async function fetchAndLoadConferences() {
-  const sports = await db.query.sportsTable.findMany();
-  if (!sports.length) {
-    throw new Error(
-      "No sports found. Sports must be loaded prior to conferences.",
-    );
-  }
-  const divisions = await db.query.divisionsTable.findMany();
-  if (!divisions.length) {
-    throw new Error(
-      "No divisions found. Divisions must be loaded prior to conferences.",
-    );
-  }
+  return runLoader("conferences", async () => {
+    await requireAdmin();
 
-  const { data } = await sanityFetch({
-    query: conferencesQuery,
-    perspective: "published",
-    stega: false,
-  });
-  let conferenceSportMappings: Record<string, string>[] = [];
+    const sports = await db.query.sportsTable.findMany();
+    if (!sports.length) {
+      throw new Error(
+        "No sports found. Sports must be loaded prior to conferences.",
+      );
+    }
+    const divisions = await db.query.divisionsTable.findMany();
+    if (!divisions.length) {
+      throw new Error(
+        "No divisions found. Divisions must be loaded prior to conferences.",
+      );
+    }
 
-  const mappedConferences = [];
+    const data = await sanity.fetch(conferencesQuery);
+    let conferenceSportMappings: Record<string, string>[] = [];
 
-  for (const conference of data) {
-    const existingConference = await db.query.conferencesTable.findFirst({
-      where: (model, { eq }) => eq(model.sanityId, conference._id),
-    });
+    const mappedConferences = [];
 
-    if (existingConference) {
-      console.log("existing conference found, skipping");
-    } else {
+    for (const conference of data as ConferencesQueryResult) {
+      const existingConference = await db.query.conferencesTable.findFirst({
+        where: (model, { eq }) => eq(model.sanityId, conference._id),
+      });
+
+      if (existingConference) {
+        continue;
+      }
+
       const divisionId = divisions.find(
         (division) => division.sanityId === conference.divisionId,
       )?.id;
@@ -399,195 +478,135 @@ export async function fetchAndLoadConferences() {
         updatedAt: new Date(conference._updatedAt),
       });
     }
-  }
 
-  const dbConferences = await db
-    .insert(conferencesTable)
-    .values(mappedConferences)
-    .returning();
+    if (!mappedConferences.length) {
+      return "No new conferences to load.";
+    }
 
-  conferenceSportMappings = conferenceSportMappings.map((mapping) => {
-    const conf = dbConferences.find(
-      (dbc) => dbc.name === mapping.conferenceName,
-    );
-    return {
-      sportId: mapping.sportId!,
-      conferenceId: conf?.id || "",
-    };
+    const dbConferences = await db
+      .insert(conferencesTable)
+      .values(mappedConferences)
+      .returning();
+
+    conferenceSportMappings = conferenceSportMappings.map((mapping) => {
+      const conf = dbConferences.find(
+        (dbc) => dbc.name === mapping.conferenceName,
+      );
+      return {
+        sportId: mapping.sportId!,
+        conferenceId: conf?.id || "",
+      };
+    });
+
+    if (conferenceSportMappings.length) {
+      await db
+        .insert(conferenceSportsTable)
+        .values(conferenceSportMappings as unknown as InsertConferenceSports)
+        .onConflictDoNothing();
+    }
+
+    return `Inserted ${dbConferences.length} conferences.`;
   });
-
-  await db
-    .insert(conferenceSportsTable)
-    .values(conferenceSportMappings as unknown as InsertConferenceSports);
 }
 
 export async function fetchAndLoadSubdivisions() {
-  const sports = await db.query.sportsTable.findMany();
-  if (!sports.length) {
-    throw new Error(
-      "No sports found. Sports must be loaded prior to subdivisions.",
-    );
-  }
+  return runLoader("subdivisions", async () => {
+    await requireAdmin();
 
-  const divisions = await db.query.divisionsTable.findMany();
-  if (!divisions.length) {
-    throw new Error(
-      "No divisions found. Divisions must be loaded prior to conferences.",
+    const sports = await db.query.sportsTable.findMany();
+    if (!sports.length) {
+      throw new Error(
+        "No sports found. Sports must be loaded prior to subdivisions.",
+      );
+    }
+
+    const divisions = await db.query.divisionsTable.findMany();
+    if (!divisions.length) {
+      throw new Error(
+        "No divisions found. Divisions must be loaded prior to subdivisions.",
+      );
+    }
+    const data = await sanity.fetch(subdivisionsQuery);
+
+    const divisionSportMappings: {
+      subdivisionSanityId: string;
+      sportId: string;
+    }[] = [];
+
+    const subdivisions = data.map((d: SubdivisionsQueryResult[number]) => {
+      const division = divisions.find(
+        (div) => div.sanityId === d.parentDivisionId,
+      );
+      d.applicableSports.forEach((sport: string) =>
+        divisionSportMappings.push({
+          subdivisionSanityId: d._id,
+          sportId: sport,
+        }),
+      );
+
+      return {
+        parentDivisionId: division?.id,
+        name: d.shortName,
+        longName: d.name,
+        sanityId: d._id,
+        slug: d.slug,
+        isSubdivision: "true",
+      };
+    });
+
+    const dbSubdivisions = await db
+      .insert(divisionsTable)
+      .values(subdivisions)
+      .onConflictDoUpdate({
+        target: divisionsTable.sanityId,
+        set: {
+          parentDivisionId: sql`excluded.parent_division_id`,
+          name: sql`excluded.name`,
+          longName: sql`excluded.long_name`,
+          slug: sql`excluded.slug`,
+          isSubdivision: sql`excluded.is_subdivision`,
+          updatedAt: sql`excluded.updated_at`,
+        },
+      })
+      .returning();
+
+    const subdivisionIdBySanityId = new Map(
+      dbSubdivisions
+        .filter((subdivision) => subdivision.sanityId)
+        .map((subdivision) => [subdivision.sanityId as string, subdivision.id]),
     );
-  }
-  const { data } = await sanityFetch({
-    query: subdivisionsQuery,
-    perspective: "published",
-    stega: false,
+
+    const sportRows = divisionSportMappings.flatMap((mapping) => {
+      const divisionId = subdivisionIdBySanityId.get(
+        mapping.subdivisionSanityId,
+      );
+      if (!divisionId) {
+        return [];
+      }
+      return [
+        {
+          sportId: mapping.sportId,
+          divisionId,
+        },
+      ];
+    });
+
+    if (sportRows.length) {
+      await db
+        .insert(divisionSportsTable)
+        .values(sportRows as unknown as InsertDivisionSports)
+        .onConflictDoNothing();
+    }
+
+    return `Upserted ${dbSubdivisions.length} subdivisions.`;
   });
-
-  let divisionSportMappings: Record<string, string>[] = [];
-
-  const subdivisions = data.map((d) => {
-    const division = divisions.find(
-      (div) => div.sanityId === d.parentDivisionId,
-    );
-    d.applicableSports.forEach((sport: string) =>
-      divisionSportMappings.push({
-        subdivisionName: d.shortName!,
-        sportId: sport,
-      }),
-    );
-
-    return {
-      divisionId: division?.id,
-      name: d.shortName,
-      longName: d.name,
-      sanityId: d._id,
-      slug: d.slug,
-      isSubdivision: true,
-    };
-  });
-
-  const dbSubdivisions = await db
-    .insert(divisionsTable)
-    // @ts-expect-error - need to look at this later
-    .values(subdivisions)
-    .returning();
-
-  divisionSportMappings = divisionSportMappings.map((mapping) => {
-    const subdivision = dbSubdivisions.find(
-      (subdivision) => subdivision.name === mapping.subdivisionName,
-    );
-    return {
-      sportId: mapping.sportId!,
-      divisionId: subdivision?.id || "",
-    };
-  });
-
-  await db
-    .insert(divisionSportsTable)
-    .values(divisionSportMappings as unknown as InsertDivisionSports);
 }
 
 export async function fetchAndTransformRankings() {
-  const legacyRankings = await db.query.weeklyFinalRankings.findMany();
-  if (!legacyRankings) return;
-
-  for (const jsonRanking of legacyRankings) {
-    let seasonTypeCode, weekForQuery;
-
-    // this is largely a hack for the time being
-    // we just want one of the preseason/postseason weeks to associate with
-    // there is currently only one ballot for either of those season types
-    switch (jsonRanking.week) {
-      case 0:
-        seasonTypeCode = SEASON_TYPE_CODES.PRESEASON;
-        weekForQuery = 1;
-        break;
-      case 999:
-        seasonTypeCode = SEASON_TYPE_CODES.POSTSEASON;
-        weekForQuery = 1;
-        break;
-      default:
-        seasonTypeCode = SEASON_TYPE_CODES.REGULAR_SEASON;
-        weekForQuery = jsonRanking.week;
-        break;
-    }
-
-    const season = await db.query.seasonsTable.findFirst({
-      where: (model, { eq, and }) =>
-        and(
-          eq(model.sportId, jsonRanking.sportId || ""),
-          eq(model.year, jsonRanking.year),
-        ),
-      with: {
-        seasonTypes: {
-          where: (seasonType, { eq }) => eq(seasonType.type, seasonTypeCode),
-          with: {
-            weeks: {
-              where: (week, { eq }) => eq(week.number, weekForQuery),
-            },
-          },
-        },
-      },
-    });
-
-    const division = await db.query.divisionsTable.findFirst({
-      where: (model, { eq }) => eq(model.slug, jsonRanking.division),
-      with: {
-        divisionSports: {
-          where: (divisionSport, { eq }) =>
-            eq(divisionSport.sportId, jsonRanking.sportId || ""),
-        },
-      },
-    });
-
-    const staticFields = {
-      divisionSportId: division?.divisionSports[0]?.id || "",
-      weekId: season?.seasonTypes[0]?.weeks[0]?.id || "",
-    };
-
-    if (!staticFields.divisionSportId || !staticFields.weekId) {
-      console.log("missing divisionSport or week, moving on");
-      continue;
-    }
-
-    const rankingsExist = await db.query.weeklyRankings.findMany({
-      where: (model, { eq, and }) =>
-        and(
-          eq(model.divisionSportId, staticFields.divisionSportId),
-          eq(model.weekId, staticFields.weekId),
-        ),
-    });
-
-    if (rankingsExist.length) {
-      console.log("rankings exist for this week, moving on");
-      continue;
-    }
-
-    const transformedRankings = [];
-    for (const r of jsonRanking.rankings as any) {
-      const school = await schoolBySanityId(r._id);
-      if (!school) {
-        console.log("no team found");
-      } else {
-        transformedRankings.push({
-          ...staticFields,
-          schoolId: school!.id,
-          ranking: r.rank,
-          isTie: r.isTie ?? false,
-          points: r._points,
-          firstPlaceVotes: r.firstPlaceVotes,
-        });
-      }
-    }
-
-    try {
-      await db.insert(weeklyRankings).values(transformedRankings);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-}
-
-async function schoolBySanityId(sanityId: string) {
-  return db.query.schoolsTable.findFirst({
-    where: (model, { eq }) => eq(model.sanityId, sanityId),
+  return runLoader("rankings", async () => {
+    await requireAdmin();
+    throw new Error(
+      "Deprecated: rankings now live in poll_rankings. Use Publish rankings in admin.",
+    );
   });
 }

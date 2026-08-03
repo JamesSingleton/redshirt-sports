@@ -17,6 +17,7 @@ import z from "zod";
 
 import VoteFormWrapper from "@/components/vote-form-wrapper";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
+import { userCanVoteOnPoll } from "@/lib/require-poll-voter";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import {
   getCurrentSeason,
@@ -31,7 +32,7 @@ const ParamsSchema = z.object({
 });
 
 type VoterBallotWithSchool = {
-  id: number;
+  id: string;
   userId: string;
   division: string;
   week: number;
@@ -40,6 +41,8 @@ type VoterBallotWithSchool = {
   teamId: string;
   rank: number;
   points: number;
+  sportId?: string;
+  schoolId?: string;
   schoolName: string;
   schoolShortName: string;
   schoolAbbreviation: string;
@@ -158,6 +161,20 @@ async function VotePageAuth({
     notFound();
   }
 
+  const sportId = await getSportIdBySlug(sport);
+  if (!sportId) {
+    notFound();
+  }
+
+  const canVote = await userCanVoteOnPoll({
+    userId,
+    sportId,
+    pollSlug: division,
+  });
+  if (!canVote) {
+    redirect("/");
+  }
+
   const { data: schools } = await sanityFetchPage({
     query: schoolsBySportAndSubgroupingStringQuery,
     params: { sport, subgrouping: division },
@@ -168,8 +185,6 @@ async function VotePageAuth({
     notFound();
   }
 
-  const sportId = await getSportIdBySlug(sport);
-
   const [votingWeek, { year }] = await Promise.all([
     getCurrentWeek(sport),
     getCurrentSeason(sport),
@@ -179,7 +194,7 @@ async function VotePageAuth({
     year,
     week: votingWeek,
     division,
-    sportId: sportId || "",
+    sportId,
     userId,
   });
 

@@ -4,6 +4,8 @@ import {
   getYearsThatHaveVotes,
 } from "@redshirt-sports/db/queries";
 
+import type { SportParam } from "@/utils/espn";
+
 export async function getCachedYearsThatHaveVotes({
   division,
 }: {
@@ -28,11 +30,13 @@ export async function getCachedFinalRankings({
   year,
   week,
   division,
+  sport,
 }: {
   year: number;
   week: number;
   division: string;
+  sport: SportParam;
 }) {
   "use cache";
-  return getFinalRankingsForWeekAndYear({ year, week, division });
+  return getFinalRankingsForWeekAndYear({ year, week, division, sport });
 }

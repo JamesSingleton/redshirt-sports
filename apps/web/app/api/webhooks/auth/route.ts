@@ -1,5 +1,6 @@
 import type { WebhookEvent } from "@clerk/nextjs/server";
 import { analytics } from "@redshirt-sports/analytics/server";
+import { revokeAssignmentsForNonVoters } from "@redshirt-sports/db/queries";
 import { usersTable } from "@redshirt-sports/db/schema";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -78,7 +79,9 @@ export async function POST(req: Request) {
           },
         });
         break;
-      case "user.updated":
+      case "user.updated": {
+        const isVoter = Boolean(data.public_metadata.isVoter);
+
         await db
           .update(usersTable)
           .set({
@@ -87,9 +90,15 @@ export async function POST(req: Request) {
             organization: data.public_metadata.organization as string,
             organizationRole: data.public_metadata.organizationRole as string,
             isAdmin: data.public_metadata.isAdmin as boolean,
-            isVoter: data.public_metadata.isVoter as boolean,
+            isVoter,
           })
           .where(eq(usersTable.id, data.id));
+
+        // Drop active poll assignments when voter credentials are removed.
+        // Historical ballots remain.
+        if (!isVoter) {
+          await revokeAssignmentsForNonVoters(data.id);
+        }
 
         // Capture user_updated event in PostHog
         analytics?.capture({
@@ -114,6 +123,7 @@ export async function POST(req: Request) {
           },
         });
         break;
+      }
       default:
         return new Response("", { status: 501 });
     }

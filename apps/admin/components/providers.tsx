@@ -1,11 +1,20 @@
 "use client";
 
-import { ThemeProvider as NextThemesProvider } from "next-themes";
-import type * as React from "react";
+import { Toaster } from "@redshirt-sports/ui/components/sonner";
+import { ThemeProvider } from "next-themes";
+import type { ComponentProps, ReactNode } from "react";
 
-export function Providers({ children }: { children: React.ReactNode }) {
+type ThemesProviderProps = ComponentProps<typeof ThemeProvider> & {
+  children: ReactNode;
+};
+
+function ThemesProvider({ children, ...props }: ThemesProviderProps) {
+  return <ThemeProvider {...props}>{children}</ThemeProvider>;
+}
+
+export function Providers({ children }: { children: ReactNode }) {
   return (
-    <NextThemesProvider
+    <ThemesProvider
       attribute="class"
       defaultTheme="system"
       enableSystem
@@ -13,6 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableColorScheme
     >
       {children}
-    </NextThemesProvider>
+      <Toaster />
+    </ThemesProvider>
   );
 }

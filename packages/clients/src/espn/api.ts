@@ -8,6 +8,10 @@ import type {
   SeasonType,
   WeekDetail,
 } from "./types";
+import {
+  LEGACY_FINAL_RANKINGS_WEEK,
+  LEGACY_PRESEASON_WEEK,
+} from "./week-url";
 
 export const SportSchema = z.enum([
   "football",
@@ -44,6 +48,15 @@ function getSportPathParts(sport: SportParam): string[] {
   return sportPath.split("/");
 }
 
+function espnErrorLocation(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return `${parsed.host}${parsed.pathname}`;
+  } catch {
+    return url;
+  }
+}
+
 export async function fetchWeeksFromSportsUrl(
   sport: SportParam,
   seasonYear: number,
@@ -54,10 +67,9 @@ export async function fetchWeeksFromSportsUrl(
 
   const weeksResponse = await fetchESPNData<ESPNWeeksResponse>(url);
 
-  const weekPromises = [];
-  for (const week of weeksResponse.items) {
-    weekPromises.push(fetchESPNData<ESPNWeekResponse>(week.$ref));
-  }
+  const weekPromises = weeksResponse.items.map((week) =>
+    fetchESPNData<ESPNWeekResponse>(week.$ref),
+  );
 
   return Promise.all(weekPromises);
 }
@@ -68,7 +80,9 @@ export async function fetchWeeksFromSportsUrl(
 async function fetchESPNData<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`ESPN API request failed: ${response.statusText}`);
+    throw new Error(
+      `ESPN API request failed: ${response.status} ${response.statusText} (${espnErrorLocation(url)})`,
+    );
   }
   return response.json();
 }
@@ -103,7 +117,12 @@ export async function getSeasonData(
   const url = `${ESPN_BASE_SITE_URL}/${sportPath}/seasons?startingseason=${year}`;
   const espnBody = await fetchESPNData<ESPNBody>(url);
 
-  return espnBody.seasons[0]!;
+  const season = espnBody.seasons.find((s) => s.year === year);
+  if (!season) {
+    throw new Error(`Unable to find a season for year ${year}`);
+  }
+
+  return season;
 }
 
 /**
@@ -122,37 +141,34 @@ export async function getMultipleSeasonsData(
 }
 
 /**
- * Get current week number for a specific sport
+ * Get current week number for a specific sport.
+ * Returns legacy week ints used at the app edge: `0` (preseason),
+ * regular week `N`, or `999` (postseason / final rankings).
  */
 export async function getCurrentWeek(
   sport: SportParam = "football",
 ): Promise<number> {
   const currentDate = new Date();
   const currentSeasonData = await getSeasonData(sport);
-  const currentSeasonEndDate = new Date(currentSeasonData.endDate);
 
   if (!currentSeasonData.types.length) {
-    return 0;
+    return LEGACY_PRESEASON_WEEK;
   }
 
   const preseason = currentSeasonData.types.find((type) => type.type === 1);
   const regularSeason = currentSeasonData.types.find((type) => type.type === 2);
 
   if (!preseason || !regularSeason) {
-    return 0;
+    return LEGACY_PRESEASON_WEEK;
   }
-
-  const isPreseason =
-    currentDate >= new Date(preseason.startDate) &&
-    currentDate <= new Date(preseason.endDate);
 
   const isRegularSeason =
     currentDate >= new Date(regularSeason.startDate) &&
     currentDate <= new Date(regularSeason.endDate);
 
+  // After regular season ends → postseason (do not require season endDate alone)
   const isPostseason =
-    currentDate >= new Date(regularSeason.endDate) &&
-    currentDate <= currentSeasonEndDate;
+    currentDate >= new Date(regularSeason.endDate) && !isRegularSeason;
 
   if (isRegularSeason) {
     const currentWeek = regularSeason.weeks?.find(
@@ -165,14 +181,15 @@ export async function getCurrentWeek(
       return currentWeek.number;
     }
   } else if (isPostseason) {
-    return 999; // Postseason indicator
+    return LEGACY_FINAL_RANKINGS_WEEK;
   }
 
-  return 0; // Preseason or no valid week found
+  return LEGACY_PRESEASON_WEEK;
 }
 
 /**
- * Get season information including current period and week
+ * Get season information including current period and week.
+ * `currentWeek` uses the same legacy ints as {@link getCurrentWeek}.
  */
 export async function getSeasonInfo(sport: SportParam = "football"): Promise<{
   year: number;
@@ -185,7 +202,6 @@ export async function getSeasonInfo(sport: SportParam = "football"): Promise<{
 }> {
   const currentDate = new Date();
   const currentSeasonData = await getSeasonData(sport);
-  const currentSeasonEndDate = new Date(currentSeasonData.endDate);
 
   const preseason = currentSeasonData.types.find((type) => type.type === 1);
   const regularSeason = currentSeasonData.types.find((type) => type.type === 2);
@@ -201,11 +217,10 @@ export async function getSeasonInfo(sport: SportParam = "football"): Promise<{
     : false;
 
   const isPostseason = regularSeason
-    ? currentDate >= new Date(regularSeason.endDate) &&
-      currentDate <= currentSeasonEndDate
+    ? currentDate >= new Date(regularSeason.endDate) && !isRegularSeason
     : false;
 
-  let currentWeek = 0;
+  let currentWeek = LEGACY_PRESEASON_WEEK;
 
   if (isRegularSeason && regularSeason) {
     const week = regularSeason.weeks?.find(
@@ -217,7 +232,7 @@ export async function getSeasonInfo(sport: SportParam = "football"): Promise<{
       currentWeek = week.number;
     }
   } else if (isPostseason) {
-    currentWeek = 999;
+    currentWeek = LEGACY_FINAL_RANKINGS_WEEK;
   }
 
   return {

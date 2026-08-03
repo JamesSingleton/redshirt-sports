@@ -17,7 +17,7 @@ const mockFetch = client.fetch as Mock;
 
 function createVote(teamId: string, rank: number): Ballot {
   return {
-    id: rank,
+    id: `entry-${rank}`,
     userId: "user-1",
     division: "fbs",
     week: 1,

@@ -25,9 +25,10 @@ const preseason2026 = season2026.types.find((t) => t.type === 1)!;
 const regularSeason2026 = season2026.types.find((t) => t.type === 2)!;
 const postseason2026 = season2026.types.find((t) => t.type === 3)!;
 
-function mockJsonResponse(data: unknown, ok = true) {
+function mockJsonResponse(data: unknown, ok = true, status = ok ? 200 : 404) {
   return {
     ok,
+    status,
     statusText: ok ? "OK" : "Not Found",
     json: () => Promise.resolve(data),
   };
@@ -177,13 +178,13 @@ describe("getCurrentSeason", () => {
   it("throws on a non-ok HTTP response", async () => {
     mockFetch.mockResolvedValueOnce(mockJsonResponse(null, false));
     await expect(getCurrentSeason()).rejects.toThrow(
-      "ESPN API request failed: Not Found",
+      "ESPN API request failed: 404 Not Found (site.api.espn.com/apis/common/v3/sports/football/college-football/season)",
     );
   });
 });
 
 describe("getSeasonData", () => {
-  it("fetches directly when a year is provided (single fetch)", async () => {
+  it("fetches directly when a year is provided and selects that year", async () => {
     mockFetch.mockResolvedValueOnce(mockJsonResponse(footballSeasonsBody));
 
     const result = await getSeasonData("football", 2024);
@@ -192,8 +193,18 @@ describe("getSeasonData", () => {
     expect(mockFetch).toHaveBeenCalledWith(
       "https://site.api.espn.com/apis/common/v3/sports/football/college-football/seasons?startingseason=2024",
     );
-    // ESPN returns seasons newest-first; the function takes [0]
-    expect(result).toEqual(season2026);
+    expect(result.year).toBe(2024);
+    expect(result).toEqual(
+      footballSeasonsBody.seasons.find((s) => s.year === 2024),
+    );
+  });
+
+  it("throws when the requested year is not in the response", async () => {
+    mockFetch.mockResolvedValueOnce(mockJsonResponse(footballSeasonsBody));
+
+    await expect(getSeasonData("football", 2010)).rejects.toThrow(
+      "Unable to find a season for year 2010",
+    );
   });
 
   it("fetches current season first to resolve the year when none is given", async () => {
@@ -363,10 +374,10 @@ describe("getSeasonInfo", () => {
 
 describe("getSeasonWeeks", () => {
   it("organizes weeks by season phase", async () => {
-    // year provided → getSeasonData makes only 1 fetch
+    // year provided → getSeasonData makes only 1 fetch; use 2026 to match season2026
     mockFetch.mockResolvedValueOnce(mockJsonResponse(footballSeasonsBody));
 
-    const result = await getSeasonWeeks("football", 2024);
+    const result = await getSeasonWeeks("football", 2026);
 
     expect(result).toEqual({
       preseason: preseason2026.weeks,
@@ -387,7 +398,7 @@ describe("getSeasonWeeks", () => {
     };
     mockFetch.mockResolvedValueOnce(mockJsonResponse(noWeeks));
 
-    const result = await getSeasonWeeks("football", 2024);
+    const result = await getSeasonWeeks("football", 2026);
 
     expect(result).toEqual({
       preseason: [],

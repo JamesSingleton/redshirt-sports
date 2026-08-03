@@ -1,5 +1,7 @@
-import type { SelectSchool, SelectWeeklyRankings } from "../schema";
+import type { SelectPollRanking, SelectSchool } from "../schema";
 
-export type FinalRankingWithSchool = SelectWeeklyRankings & {
+export type FinalRankingWithSchool = SelectPollRanking & {
   school: SelectSchool;
+  /** @deprecated alias for rank — kept for older callers */
+  ranking?: number | null;
 };

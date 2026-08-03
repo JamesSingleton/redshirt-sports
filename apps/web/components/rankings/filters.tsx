@@ -1,5 +1,6 @@
 "use client";
 import { analytics } from "@redshirt-sports/analytics";
+import { formatWeekSegment, weekTitle } from "@redshirt-sports/clients/espn";
 import {
   Select,
   SelectContent,
@@ -68,19 +69,8 @@ export const RankingsFilters = ({
         </SelectTrigger>
         <SelectContent>
           {weeks.map(({ week }: Week) => (
-            <SelectItem
-              key={week}
-              value={
-                week.toString() === "999" ? "final-rankings" : week.toString()
-              }
-            >
-              {/* {week === 0 ? 'Preseason' : `Week ${week}`} */}
-              {/* if week === 0 then Preseason, if week is 999 Final Rankings else `Week ${week}` */}
-              {week === 0
-                ? "Preseason"
-                : week === 999
-                  ? "Final Rankings"
-                  : `Week ${week}`}
+            <SelectItem key={week} value={formatWeekSegment(week)}>
+              {weekTitle(week)}
             </SelectItem>
           ))}
         </SelectContent>

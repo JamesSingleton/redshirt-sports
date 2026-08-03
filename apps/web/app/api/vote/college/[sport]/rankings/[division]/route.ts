@@ -1,14 +1,20 @@
 import { auth } from "@clerk/nextjs/server";
 import { analytics } from "@redshirt-sports/analytics/server";
-import { getSportIdBySlug } from "@redshirt-sports/db/queries";
-import { voterBallots } from "@redshirt-sports/db/schema";
+import {
+  getPollBySportAndSlug,
+  getSchoolIdsBySanityIds,
+  getSportIdBySlug,
+  getVoterBallots,
+  hasVoterVoted,
+  isUserAssignedToPoll,
+  resolveWeekIdForLegacyWeek,
+  submitBallot,
+} from "@redshirt-sports/db/queries";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
-import { db } from "@/server/db";
 import { getSeasonInfo, type SportParam } from "@/utils/espn";
 
-// Validation schemas - both sport and division come from request body
 const VoteRequestSchema = z.object({
   division: z
     .enum(["fbs", "fcs", "d2", "d3", "mid-major", "power-conferences"])
@@ -43,14 +49,12 @@ const VoteRequestSchema = z.object({
 
 type VoteRequest = z.infer<typeof VoteRequestSchema>;
 
-// Sport mapping for URL parameters
 const SPORT_SLUG_MAP: Record<string, SportParam> = {
   football: "football",
   "mens-basketball": "mens-basketball",
   "womens-basketball": "womens-basketball",
 };
 
-// Division validation
 const VALID_DIVISIONS = [
   "fbs",
   "fcs",
@@ -61,43 +65,23 @@ const VALID_DIVISIONS = [
 ] as const;
 type ValidDivision = (typeof VALID_DIVISIONS)[number];
 
-/**
- * Process ballot data and return array of ballot entries
- */
-function processBallotData(
-  body: VoteRequest,
-  userId: string,
-  sportId: string,
-  division: string,
-  year: number,
-  week: number,
-) {
-  const ballot = [];
-
+function processBallotSanityIds(body: VoteRequest) {
+  const entries: Array<{ sanityId: string; rank: number; points: number }> =
+    [];
   for (let i = 1; i <= 25; i++) {
     const rankKey = `rank_${i}` as keyof VoteRequest;
     const teamId = body[rankKey];
-
     if (teamId && typeof teamId === "string") {
-      ballot.push({
-        userId,
-        sportId,
-        division,
-        week,
-        year,
-        teamId,
+      entries.push({
+        sanityId: teamId,
         rank: i,
         points: 26 - i,
       });
     }
   }
-
-  return ballot;
+  return entries;
 }
 
-/**
- * Validate sport parameter
- */
 function validateSport(sport: string): SportParam {
   const validSport = SPORT_SLUG_MAP[sport];
   if (!validSport) {
@@ -108,9 +92,6 @@ function validateSport(sport: string): SportParam {
   return validSport;
 }
 
-/**
- * Validate division parameter
- */
 function validateDivision(division: string): ValidDivision {
   if (!VALID_DIVISIONS.includes(division as ValidDivision)) {
     throw new Error(
@@ -120,47 +101,29 @@ function validateDivision(division: string): ValidDivision {
   return division as ValidDivision;
 }
 
-/**
- * Get sport ID from database
- */
-async function getSportId(sportSlug: string): Promise<string> {
-  const sportId = await getSportIdBySlug(sportSlug as SportParam);
-  if (!sportId) {
-    throw new Error(`Sport not found: ${sportSlug}`);
-  }
-  return sportId;
-}
-
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ sport: string; division: string }> },
 ) {
   try {
-    // Parse and validate parameters
     const { sport: sportSlug, division } = await params;
     const validatedSport = validateSport(sportSlug);
     const validatedDivision = validateDivision(division);
 
-    // Authenticate user
     const user = await auth();
     if (!user.userId) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    // Validate request body
     const body = await req.json();
     const validatedBody = VoteRequestSchema.parse(body);
 
-    // Validate that request body matches URL parameters
     if (validatedBody.sport && validatedBody.sport !== validatedSport) {
       return new Response(
         JSON.stringify({
           error: `Sport mismatch: URL has '${validatedSport}' but request has '${validatedBody.sport}'`,
         }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -172,21 +135,43 @@ export async function POST(
         JSON.stringify({
           error: `Division mismatch: URL has '${validatedDivision}' but request has '${validatedBody.division}'`,
         }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
-    // Get sport ID from database
-    const sportId = await getSportId(validatedSport);
+    const sportId = await getSportIdBySlug(validatedSport);
+    if (!sportId) {
+      throw new Error(`Sport not found: ${validatedSport}`);
+    }
 
-    // Get current season info for the specific sport
+    const pollSlug = validatedBody.division || validatedDivision;
+    const poll = await getPollBySportAndSlug({
+      sportId,
+      slug: pollSlug,
+    });
+    if (!poll) {
+      return new Response(
+        JSON.stringify({ error: `Poll not found: ${pollSlug}` }),
+        { status: 404, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    const assigned = await isUserAssignedToPoll({
+      pollId: poll.id,
+      userId: user.userId,
+    });
+    if (!assigned) {
+      return new Response(
+        JSON.stringify({
+          error: "You are not assigned as a voter for this poll",
+        }),
+        { status: 403, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const seasonInfo = await getSeasonInfo(validatedSport);
     const { year, currentWeek: votingWeek } = seasonInfo;
 
-    // Validate that we're in a voting period (preseason, regular season, or postseason)
     if (
       !seasonInfo.isPreseason &&
       !seasonInfo.isRegularSeason &&
@@ -198,69 +183,84 @@ export async function POST(
             "Voting is only allowed during preseason, regular season, or postseason",
           currentPeriod: "off-season",
         }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
-    // Process ballot data - use division from request body with fallback to URL params
-    const ballot = processBallotData(
-      validatedBody,
-      user.userId,
+    const weekId = await resolveWeekIdForLegacyWeek({
       sportId,
-      validatedBody.division || validatedDivision, // Use request body division with fallback
       year,
-      votingWeek,
-    );
+      legacyWeek: votingWeek,
+    });
+    if (!weekId) {
+      return new Response(
+        JSON.stringify({
+          error: `Unable to resolve week for year=${year} week=${votingWeek}`,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
 
-    // Validate that we have at least one vote
-    if (ballot.length === 0) {
+    const sanityEntries = processBallotSanityIds(validatedBody);
+    if (sanityEntries.length === 0) {
       return new Response(
         JSON.stringify({ error: "At least one team must be ranked" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
-    // Check for duplicate votes (same user, sport, division, week, year)
-    const existingVote = await db.query.voterBallots.findFirst({
-      where: (model, { eq, and }) =>
-        and(
-          eq(model.userId, user.userId),
-          eq(model.sportId, sportId),
-          eq(model.division, validatedBody.division || validatedDivision),
-          eq(model.week, votingWeek),
-          eq(model.year, year),
-        ),
+    const alreadyVoted = await hasVoterVoted({
+      year,
+      week: votingWeek,
+      division: pollSlug,
+      sportId,
+      userId: user.userId,
     });
-
-    if (existingVote) {
+    if (alreadyVoted) {
       return new Response(
         JSON.stringify({ error: "You have already voted for this week" }),
-        {
-          status: 409,
-          headers: { "Content-Type": "application/json" },
-        },
+        { status: 409, headers: { "Content-Type": "application/json" } },
       );
     }
 
-    // Insert ballot into database
-    await db.insert(voterBallots).values(ballot);
+    const schoolBySanityId = await getSchoolIdsBySanityIds(
+      sanityEntries.map((e) => e.sanityId),
+    );
 
-    // Capture ballot_submitted event with PostHog
+    const entries = [];
+    for (const entry of sanityEntries) {
+      const schoolId = schoolBySanityId.get(entry.sanityId);
+      if (!schoolId) {
+        return new Response(
+          JSON.stringify({
+            error: `Unknown school id on ballot: ${entry.sanityId}`,
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      entries.push({
+        schoolId,
+        rank: entry.rank,
+        points: entry.points,
+      });
+    }
+
+    await submitBallot({
+      pollId: poll.id,
+      userId: user.userId,
+      weekId,
+      entries,
+    });
+
     analytics?.capture({
       distinctId: user.userId,
       event: "ballot_submitted",
       properties: {
         sport: validatedSport,
-        division: validatedBody.division || validatedDivision,
+        division: pollSlug,
         week: votingWeek,
         year,
-        vote_count: ballot.length,
+        vote_count: entries.length,
         season_type: seasonInfo.isPreseason
           ? "preseason"
           : seasonInfo.isPostseason
@@ -274,34 +274,26 @@ export async function POST(
         success: true,
         message: "Vote submitted successfully",
         sport: validatedSport,
-        division: validatedBody.division || validatedDivision,
+        division: pollSlug,
         week: votingWeek,
         year,
-        voteCount: ballot.length,
+        voteCount: entries.length,
       }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      },
+      { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
     Sentry.captureException(error);
 
-    // Handle validation errors
     if (error instanceof z.ZodError) {
       return new Response(
         JSON.stringify({
           error: "Invalid request data",
-          details: error instanceof z.ZodError ? error.format() : undefined,
+          details: error.format(),
         }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
-    // Handle other known errors
     if (error instanceof Error) {
       return new Response(JSON.stringify({ error: error.message }), {
         status: 400,
@@ -321,35 +313,53 @@ export async function GET(
   { params }: { params: Promise<{ sport: string; division: string }> },
 ) {
   try {
-    // Parse and validate parameters
     const { sport: sportSlug, division } = await params;
     const validatedSport = validateSport(sportSlug);
     const validatedDivision = validateDivision(division);
 
-    // Authenticate user
     const user = await auth();
     if (!user.userId) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    // Get sport ID from database
-    const sportId = await getSportId(validatedSport);
+    const sportId = await getSportIdBySlug(validatedSport);
+    if (!sportId) {
+      throw new Error(`Sport not found: ${validatedSport}`);
+    }
 
-    // Get current season info
+    const poll = await getPollBySportAndSlug({
+      sportId,
+      slug: validatedDivision,
+    });
+    if (!poll) {
+      return new Response(
+        JSON.stringify({ error: `Poll not found: ${validatedDivision}` }),
+        { status: 404, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    const assigned = await isUserAssignedToPoll({
+      pollId: poll.id,
+      userId: user.userId,
+    });
+    if (!assigned) {
+      return new Response(
+        JSON.stringify({
+          error: "You are not assigned as a voter for this poll",
+        }),
+        { status: 403, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const seasonInfo = await getSeasonInfo(validatedSport);
     const { year, currentWeek: votingWeek } = seasonInfo;
 
-    // Get user's existing vote for this week
-    const existingVote = await db.query.voterBallots.findMany({
-      where: (model, { eq, and }) =>
-        and(
-          eq(model.userId, user.userId),
-          eq(model.sportId, sportId),
-          eq(model.division, validatedDivision),
-          eq(model.week, votingWeek),
-          eq(model.year, year),
-        ),
-      orderBy: (model, { asc }) => [asc(model.rank)],
+    const existingVote = await getVoterBallots({
+      userId: user.userId,
+      sportId,
+      division: validatedDivision,
+      week: votingWeek,
+      year,
     });
 
     return new Response(
@@ -367,10 +377,7 @@ export async function GET(
           isPostseason: seasonInfo.isPostseason,
         },
       }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      },
+      { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
     Sentry.captureException(error);
