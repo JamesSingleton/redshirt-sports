@@ -4,11 +4,11 @@ import { primaryDb as db } from "../client";
 import {
   ballotEntriesTable,
   ballotsTable,
-  pollsTable,
   pollRankingsTable,
+  pollsTable,
   schoolsTable,
-  seasonTypesTable,
   seasonsTable,
+  seasonTypesTable,
   weeksTable,
 } from "../schema";
 import { getPollBySportAndSlug } from "./polls";
@@ -160,7 +160,10 @@ export async function getBallotsByWeekYearDivisionAndSport({
 
   const ballots = await db.query.ballotsTable.findMany({
     where: (model, { eq, and }) =>
-      and(eq(model.pollId, resolved.poll.id), eq(model.weekId, resolved.weekId)),
+      and(
+        eq(model.pollId, resolved.poll.id),
+        eq(model.weekId, resolved.weekId),
+      ),
     with: {
       entries: {
         with: { school: true },
@@ -394,10 +397,7 @@ export async function getLatestVoterBallot(
       teamId: schoolsTable.sanityId,
     })
     .from(ballotEntriesTable)
-    .innerJoin(
-      schoolsTable,
-      eq(ballotEntriesTable.schoolId, schoolsTable.id),
-    )
+    .innerJoin(schoolsTable, eq(ballotEntriesTable.schoolId, schoolsTable.id))
     .where(eq(ballotEntriesTable.ballotId, meta.ballotId))
     .orderBy(asc(ballotEntriesTable.rank));
 

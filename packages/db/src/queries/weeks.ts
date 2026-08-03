@@ -1,11 +1,7 @@
 import { and, eq } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
-import {
-  seasonTypesTable,
-  seasonsTable,
-  weeksTable,
-} from "../schema";
+import { seasonsTable, seasonTypesTable, weeksTable } from "../schema";
 import {
   legacyWeekToSeasonTypeAndNumber,
   seasonTypeAndNumberToLegacyWeek,

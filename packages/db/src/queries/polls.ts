@@ -282,10 +282,7 @@ export async function setUserIsVoter({
   userId: string;
   isVoter: boolean;
 }) {
-  await db
-    .update(usersTable)
-    .set({ isVoter })
-    .where(eq(usersTable.id, userId));
+  await db.update(usersTable).set({ isVoter }).where(eq(usersTable.id, userId));
 
   if (!isVoter) {
     await revokeAssignmentsForNonVoters(userId);

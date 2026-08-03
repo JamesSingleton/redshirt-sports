@@ -66,8 +66,7 @@ const VALID_DIVISIONS = [
 type ValidDivision = (typeof VALID_DIVISIONS)[number];
 
 function processBallotSanityIds(body: VoteRequest) {
-  const entries: Array<{ sanityId: string; rank: number; points: number }> =
-    [];
+  const entries: Array<{ sanityId: string; rank: number; points: number }> = [];
   for (let i = 1; i <= 25; i++) {
     const rankKey = `rank_${i}` as keyof VoteRequest;
     const teamId = body[rankKey];

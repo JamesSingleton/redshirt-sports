@@ -189,10 +189,7 @@ export const pollsTable = pgTable(
       () => divisionSportsTable.id,
     ),
   },
-  (table) => [
-    unique().on(table.sportId, table.slug),
-    index().on(table.slug),
-  ],
+  (table) => [unique().on(table.sportId, table.slug), index().on(table.slug)],
 );
 
 export const pollVotersTable = pgTable(

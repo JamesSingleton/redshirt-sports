@@ -33,6 +33,8 @@
       "!**/.sanity",
       "!**/.pnpm-store",
       "!**/.agents",
+      "!**/.temp",
+      "!**/.branches",
       "!**/*.svg"
     ]
   },

@@ -8,10 +8,7 @@ import type {
   SeasonType,
   WeekDetail,
 } from "./types";
-import {
-  LEGACY_FINAL_RANKINGS_WEEK,
-  LEGACY_PRESEASON_WEEK,
-} from "./week-url";
+import { LEGACY_FINAL_RANKINGS_WEEK, LEGACY_PRESEASON_WEEK } from "./week-url";
 
 export const SportSchema = z.enum([
   "football",

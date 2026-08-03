@@ -43,11 +43,7 @@ import {
   getMovement,
   getPreviousWeek,
 } from "@/lib/rankings-movement";
-import {
-  parseWeekSegment,
-  type SportParam,
-  weekTitle,
-} from "@/utils/espn";
+import { parseWeekSegment, type SportParam, weekTitle } from "@/utils/espn";
 
 const baseUrl = getBaseUrl();
 
@@ -310,8 +306,7 @@ export default async function CollegeFootballRankingsPage({
                   <strong>Dropped Out of Top 25:</strong>{" "}
                   {droppedOutOfTop25
                     .map(
-                      (team) =>
-                        `${displayName(team)} (${team.previousRank})`,
+                      (team) => `${displayName(team)} (${team.previousRank})`,
                     )
                     .join(", ")}
                 </p>

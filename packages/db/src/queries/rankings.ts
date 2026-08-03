@@ -2,11 +2,11 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
-  pollsTable,
   pollRankingsTable,
+  pollsTable,
   schoolsTable,
-  seasonTypesTable,
   seasonsTable,
+  seasonTypesTable,
   sportsTable,
   weeksTable,
 } from "../schema";
@@ -142,7 +142,10 @@ export async function getFinalRankingsForWeekAndYear({
     .from(pollRankingsTable)
     .innerJoin(schoolsTable, eq(pollRankingsTable.schoolId, schoolsTable.id))
     .where(
-      and(eq(pollRankingsTable.pollId, poll.id), eq(pollRankingsTable.weekId, weekId)),
+      and(
+        eq(pollRankingsTable.pollId, poll.id),
+        eq(pollRankingsTable.weekId, weekId),
+      ),
     )
     .orderBy(
       sql`${pollRankingsTable.rank} ASC NULLS LAST`,
