@@ -4,8 +4,6 @@ import type { MetadataRoute } from "next";
 
 import { getBaseUrl } from "@/lib/get-base-url";
 
-export const dynamic = "force-dynamic";
-
 export function generateSitemaps() {
   return [{ id: 0 }];
 }
