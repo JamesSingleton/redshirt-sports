@@ -35,7 +35,7 @@
     "react-dom": "catalog:",
     "sanity": "catalog:",
     "sanity-plugin-documents-pane": "^4.1.15",
-    "sanity-plugin-media": "^6.0.9",
+    "sanity-plugin-media": "^6.1.0",
     "slugify": "^1.6.9",
     "styled-components": "^6.4.4"
   },

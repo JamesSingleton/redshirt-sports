@@ -25,7 +25,7 @@
     "@tabler/icons-react": "^3.46.0",
     "drizzle-orm": "catalog:",
     "lucide-react": "catalog:",
-    "next": "^16.2.12",
+    "next": "catalog:",
     "next-sanity": "catalog:",
     "next-themes": "catalog:",
     "react": "catalog:",
@@ -44,7 +44,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "happy-dom": "^20.11.1",
     "tailwindcss": "catalog:",
-    "typescript": "^6.0.3",
+    "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   }
