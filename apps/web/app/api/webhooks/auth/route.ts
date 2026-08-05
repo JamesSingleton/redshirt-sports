@@ -1,5 +1,5 @@
-import type { WebhookEvent } from "@clerk/nextjs/server";
 import { analytics } from "@redshirt-sports/analytics/server";
+import type { WebhookEvent } from "@redshirt-sports/auth/server";
 import {
   createUser,
   revokeAssignmentsForNonVoters,

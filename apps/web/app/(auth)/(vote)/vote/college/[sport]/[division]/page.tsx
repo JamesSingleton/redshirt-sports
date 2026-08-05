@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@redshirt-sports/auth/server";
 import {
   getLatestVoterBallot,
   getSportIdBySlug,
@@ -156,10 +156,7 @@ async function VotePageAuth({
   division: string;
   options: DynamicFetchOptions;
 }) {
-  const { userId } = await auth();
-  if (!userId) {
-    notFound();
-  }
+  const { userId } = await auth.protect();
 
   const sportId = await getSportIdBySlug(sport);
   if (!sportId) {

@@ -1,46 +1,32 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { authMiddleware } from "@redshirt-sports/auth/proxy";
 import { type NextRequest, NextResponse } from "next/server";
 
-type UserMetadata = {
-  isVoter?: boolean;
-  isAdmin?: boolean;
-};
+function isOnboardingRoute(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  return pathname === "/onboarding" || pathname.startsWith("/onboarding/");
+}
 
-const isOnboardingRoute = createRouteMatcher(["/onboarding"]);
-const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/vote(.*)"]);
+function isProtectedRoute(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  return pathname.startsWith("/admin") || pathname.startsWith("/vote");
+}
 
-export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const { userId, sessionClaims, redirectToSignIn } = await auth();
+export default authMiddleware(async (auth, req: NextRequest) => {
+  const { userId, sessionClaims } = await auth();
+
   if (isProtectedRoute(req)) {
     await auth.protect();
-    const { isVoter, isAdmin } = (sessionClaims?.metadata ??
-      {}) as UserMetadata;
-
-    if (!isAdmin && req.nextUrl.pathname.startsWith("/admin")) {
-      return NextResponse.error();
-    }
-
-    if (!isVoter) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
   }
 
+  // Convenience redirect only — vote/API pages still enforce auth + poll access.
   if (userId && isOnboardingRoute(req)) {
     return NextResponse.next();
-  }
-
-  if (!userId && isProtectedRoute(req)) {
-    return redirectToSignIn({ returnBackUrl: req.url });
   }
 
   if (userId && !sessionClaims?.metadata?.onboardingComplete) {
     const onboardingUrl = new URL("/onboarding", req.url);
     onboardingUrl.searchParams.set("redirect_url", req.url);
     return NextResponse.redirect(onboardingUrl);
-  }
-
-  if (userId && isProtectedRoute(req)) {
-    return NextResponse.next();
   }
 });
 

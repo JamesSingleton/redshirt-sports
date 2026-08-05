@@ -1,5 +1,4 @@
 import "@redshirt-sports/ui/globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
@@ -38,9 +37,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
-        <ClerkProvider>
-          <Providers>{children}</Providers>
-        </ClerkProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

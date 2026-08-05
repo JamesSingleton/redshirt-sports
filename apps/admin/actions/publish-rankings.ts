@@ -1,6 +1,6 @@
 "use server";
 
-import { clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from "@redshirt-sports/auth/server";
 import {
   getPollRankingPublishPreview,
   listLegacyWeeksForSportYear,

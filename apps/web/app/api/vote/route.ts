@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@redshirt-sports/auth/server";
 
 /**
  * @deprecated Use POST /api/vote/college/[sport]/rankings/[division]

@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@redshirt-sports/auth/server";
 import { redirect } from "next/navigation";
 
 import { PUBLIC_SITE_URL } from "@/lib/site";

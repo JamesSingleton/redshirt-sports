@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthProvider } from "@redshirt-sports/auth/provider";
 import { Toaster } from "@redshirt-sports/ui/components/sonner";
 import { ThemeProvider } from "next-themes";
 import type { ComponentProps, ReactNode } from "react";
@@ -21,8 +22,10 @@ export function Providers({ children }: { children: ReactNode }) {
       disableTransitionOnChange
       enableColorScheme
     >
-      {children}
-      <Toaster />
+      <AuthProvider>
+        {children}
+        <Toaster />
+      </AuthProvider>
     </ThemesProvider>
   );
 }

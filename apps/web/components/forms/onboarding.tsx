@@ -1,7 +1,7 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useUser } from "@redshirt-sports/auth/client";
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Card,

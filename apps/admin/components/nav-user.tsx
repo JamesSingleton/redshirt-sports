@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "@redshirt-sports/auth/client";
 import {
   Avatar,
   AvatarFallback,

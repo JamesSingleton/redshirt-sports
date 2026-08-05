@@ -1,5 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
 import { analytics } from "@redshirt-sports/analytics/server";
+import { auth } from "@redshirt-sports/auth/server";
 import {
   getPollBySportAndSlug,
   getSchoolIdsBySanityIds,

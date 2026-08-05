@@ -1,8 +1,8 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { authMiddleware } from "@redshirt-sports/auth/proxy";
 
 // Auth checks live on resources (layouts / Server Actions via requireAdmin).
-// Keep clerkMiddleware so Clerk can hydrate the session.
-export default clerkMiddleware();
+// Keep authMiddleware so Clerk can hydrate the session.
+export default authMiddleware();
 
 export const config = {
   matcher: [
