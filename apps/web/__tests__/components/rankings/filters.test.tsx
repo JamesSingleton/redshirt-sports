@@ -40,6 +40,8 @@ vi.mock("@redshirt-sports/ui/components/select", () => ({
           // Year select has value === year param; week select has week segment
           if (value === mockParams.year) {
             onValueChange?.("2024");
+          } else if (value === "13") {
+            onValueChange?.("");
           } else {
             onValueChange?.("final-rankings");
           }
@@ -110,5 +112,22 @@ describe("RankingsFilters", () => {
     expect(mockPush).toHaveBeenCalledWith(
       "/college/football/rankings/fbs/2025/final-rankings",
     );
+  });
+
+  it("ignores empty week segment changes from the select", async () => {
+    mockParams.week = "13";
+    const user = userEvent.setup();
+    render(
+      <RankingsFilters
+        years={[{ year: 2025 }]}
+        weeks={[{ week: 13 }, { week: 999 }]}
+      />,
+    );
+
+    await user.click(screen.getByTestId("trigger-13"));
+
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockCapture).not.toHaveBeenCalled();
+    mockParams.week = "1";
   });
 });

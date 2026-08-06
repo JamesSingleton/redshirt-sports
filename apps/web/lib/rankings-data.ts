@@ -1,10 +1,38 @@
 import {
   getFinalRankingsForWeekAndYear,
+  getLatestFinalRankingsBySportSlug,
   getWeeksThatHaveVotes,
   getYearsThatHaveVotes,
 } from "@redshirt-sports/db/queries";
 
 import type { SportParam } from "@/utils/espn";
+
+export type NavbarLatestRanking = {
+  division: string;
+  week: number;
+  year: number;
+};
+
+export type NavbarLatestRankingsBySport = {
+  sport: string;
+  divisions: NavbarLatestRanking[];
+};
+
+export async function getCachedNavbarLatestRankings(): Promise<
+  NavbarLatestRankingsBySport[]
+> {
+  "use cache";
+  const [latestFootballRankings, latestMensBasketballRankings] =
+    await Promise.all([
+      getLatestFinalRankingsBySportSlug("football"),
+      getLatestFinalRankingsBySportSlug("mens-basketball"),
+    ]);
+
+  return [
+    { sport: "football", divisions: latestFootballRankings },
+    { sport: "mens-basketball", divisions: latestMensBasketballRankings },
+  ];
+}
 
 export async function getCachedYearsThatHaveVotes({
   division,

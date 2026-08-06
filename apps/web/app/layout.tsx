@@ -67,7 +67,9 @@ export default async function RootLayout({
                 <DynamicNavbarServer />
               </Suspense>
             ) : (
-              <CachedNavbarServer perspective="published" stega={false} />
+              <Suspense fallback={<NavbarSkeleton />}>
+                <CachedNavbarServer perspective="published" stega={false} />
+              </Suspense>
             )}
             <main className="flex-1">{children}</main>
             {isDraftMode ? (
