@@ -2,7 +2,14 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "stream",
   "globalEnv": ["NODE_ENV"],
-  "globalPassThroughEnv": ["SKIP_ENV_VALIDATION", "CI", "GITHUB_*"],
+  "globalPassThroughEnv": [
+    "SKIP_ENV_VALIDATION",
+    "CI",
+    "GITHUB_*",
+    "NEXT_PUBLIC_SANITY_DATASET",
+    "NEXT_PUBLIC_SANITY_PROJECT_ID",
+    "SANITY_API_READ_TOKEN"
+  ],
   "tasks": {
     "transit": {
       "dependsOn": ["^transit"]
