@@ -6,7 +6,7 @@
  */
 
 import { randomUUID } from "node:crypto";
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../src/client";
 import {
@@ -22,6 +22,8 @@ import {
   seasonTypesTable,
   sportsTable,
   usersTable,
+  voterBallots,
+  weeklyFinalRankings,
   weeksTable,
 } from "../src/schema";
 import { legacyWeekToSeasonTypeAndNumber } from "../src/utils/week-mapping";
@@ -29,19 +31,6 @@ import { legacyWeekToSeasonTypeAndNumber } from "../src/utils/week-mapping";
 const args = new Set(process.argv.slice(2));
 const DRY_RUN = args.has("--dry-run");
 const VERIFY_ONLY = args.has("--verify-only");
-
-function asRows<T>(result: unknown): T[] {
-  if (Array.isArray(result)) return result as T[];
-  if (
-    result &&
-    typeof result === "object" &&
-    "rows" in result &&
-    Array.isArray((result as { rows: unknown }).rows)
-  ) {
-    return (result as { rows: T[] }).rows;
-  }
-  return [];
-}
 
 type PollSeed = {
   sportSlug: string;
@@ -95,27 +84,6 @@ const POLL_SEEDS: PollSeed[] = [
     name: "Women's Basketball Division III Top 25",
   },
 ];
-
-type LegacyBallotRow = {
-  userId: string;
-  division: string;
-  week: number;
-  year: number;
-  createdAt: Date;
-  teamId: string;
-  rank: number;
-  points: number;
-  sportId: string | null;
-};
-
-type LegacyRankingRow = {
-  id: number;
-  division: string;
-  sportId: string | null;
-  week: number;
-  year: number;
-  rankings: unknown;
-};
 
 type RankingTeam = {
   _id?: string;
@@ -248,16 +216,13 @@ async function seedPollVoters(
 ) {
   console.log("\n=== Seed poll_voters from voter_ballot ===");
 
-  const pairs = asRows<{
-    userId: string;
-    sportId: string | null;
-    division: string;
-  }>(
-    await db.execute(sql`
-      SELECT DISTINCT "userId" AS "userId", sport_id AS "sportId", division
-      FROM voter_ballot
-    `),
-  );
+  const pairs = await db
+    .selectDistinct({
+      userId: voterBallots.userId,
+      sportId: voterBallots.sportId,
+      division: voterBallots.division,
+    })
+    .from(voterBallots);
 
   for (const pair of pairs) {
     let sportId = pair.sportId;
@@ -338,22 +303,25 @@ async function backfillBallots(
 ) {
   console.log("\n=== Backfill ballots + ballot_entries ===");
 
-  const rows = asRows<LegacyBallotRow>(
-    await db.execute(sql`
-      SELECT
-        "userId" AS "userId",
-        division,
-        week,
-        year,
-        created_at AS "createdAt",
-        team_id AS "teamId",
-        rank,
-        points,
-        sport_id AS "sportId"
-      FROM voter_ballot
-      ORDER BY year, week, "userId", rank
-    `),
-  );
+  const rows = await db
+    .select({
+      userId: voterBallots.userId,
+      division: voterBallots.division,
+      week: voterBallots.week,
+      year: voterBallots.year,
+      createdAt: voterBallots.createdAt,
+      teamId: voterBallots.teamId,
+      rank: voterBallots.rank,
+      points: voterBallots.points,
+      sportId: voterBallots.sportId,
+    })
+    .from(voterBallots)
+    .orderBy(
+      asc(voterBallots.year),
+      asc(voterBallots.week),
+      asc(voterBallots.userId),
+      asc(voterBallots.rank),
+    );
 
   const schoolRows = await db
     .select({ id: schoolsTable.id, sanityId: schoolsTable.sanityId })
@@ -494,19 +462,21 @@ async function backfillRankings(
 ) {
   console.log("\n=== Backfill poll_rankings from weekly_final_rankings ===");
 
-  const rows = asRows<LegacyRankingRow>(
-    await db.execute(sql`
-      SELECT
-        id,
-        division,
-        sport_id AS "sportId",
-        week,
-        year,
-        rankings
-      FROM weekly_final_rankings
-      ORDER BY year, week, division
-    `),
-  );
+  const rows = await db
+    .select({
+      id: weeklyFinalRankings.id,
+      division: weeklyFinalRankings.division,
+      sportId: weeklyFinalRankings.sportId,
+      week: weeklyFinalRankings.week,
+      year: weeklyFinalRankings.year,
+      rankings: weeklyFinalRankings.rankings,
+    })
+    .from(weeklyFinalRankings)
+    .orderBy(
+      asc(weeklyFinalRankings.year),
+      asc(weeklyFinalRankings.week),
+      asc(weeklyFinalRankings.division),
+    );
 
   const schoolRows = await db
     .select({ id: schoolsTable.id, sanityId: schoolsTable.sanityId })
@@ -620,39 +590,31 @@ async function backfillRankings(
 async function verify() {
   console.log("\n=== Verification ===");
 
-  const legacyBallotGroups = asRows<{ count: number }>(
-    await db.execute(sql`
-      SELECT COUNT(*)::int AS count FROM (
-        SELECT 1
-        FROM voter_ballot
-        GROUP BY "userId", COALESCE(sport_id, ''), division, year, week
-      ) t
-    `),
-  );
+  const [legacyBallotGroups] = await db
+    .select({
+      count: sql<number>`count(distinct (${voterBallots.userId}, coalesce(${voterBallots.sportId}, ''), ${voterBallots.division}, ${voterBallots.year}, ${voterBallots.week}))::int`,
+    })
+    .from(voterBallots);
 
   const [ballotCount] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(ballotsTable);
 
-  const legacyRankingWeeks = asRows<{ count: number }>(
-    await db.execute(sql`
-      SELECT COUNT(*)::int AS count FROM weekly_final_rankings
-    `),
-  );
+  const [legacyRankingWeeks] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(weeklyFinalRankings);
 
-  const rankingWeekRows = asRows<{ count: number }>(
-    await db.execute(sql`
-      SELECT COUNT(*)::int AS count FROM (
-        SELECT 1 FROM poll_rankings GROUP BY poll_id, week_id
-      ) t
-    `),
-  );
+  const [rankingWeekRows] = await db
+    .select({
+      count: sql<number>`count(distinct (${pollRankingsTable.pollId}, ${pollRankingsTable.weekId}))::int`,
+    })
+    .from(pollRankingsTable);
 
   console.log(
-    `  legacy ballot groups ≈ ${legacyBallotGroups[0]?.count ?? "?"} | ballots = ${ballotCount?.count ?? 0}`,
+    `  legacy ballot groups ≈ ${legacyBallotGroups?.count ?? "?"} | ballots = ${ballotCount?.count ?? 0}`,
   );
   console.log(
-    `  legacy ranking weeks = ${legacyRankingWeeks[0]?.count ?? "?"} | poll_rankings weeks = ${rankingWeekRows[0]?.count ?? 0}`,
+    `  legacy ranking weeks = ${legacyRankingWeeks?.count ?? "?"} | poll_rankings weeks = ${rankingWeekRows?.count ?? 0}`,
   );
 
   const pollCount = await db
