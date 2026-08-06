@@ -22,7 +22,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -53,3 +53,33 @@ jobs:
 
       - name: Run lint, typecheck, and test
         run: pnpm run ci
+
+      - name: Detect apps/web or packages/db changes
+        id: web_db_changes
+        if: github.event_name == 'pull_request'
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          if git diff --name-only "$BASE_SHA"...HEAD | grep -E '^(apps/web/|packages/db/)'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run full apps/web test suite
+        if: github.event_name == 'push' || steps.web_db_changes.outputs.changed == 'true'
+        run: pnpm --filter @redshirt-sports/web test
+
+      - name: Upload apps/web coverage
+        if: github.event_name == 'push' || steps.web_db_changes.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-coverage
+          path: apps/web/coverage/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Build apps/web
+        if: github.event_name == 'push' || steps.web_db_changes.outputs.changed == 'true'
+        run: pnpm --filter @redshirt-sports/web build
+        env:
+          SKIP_ENV_VALIDATION: true

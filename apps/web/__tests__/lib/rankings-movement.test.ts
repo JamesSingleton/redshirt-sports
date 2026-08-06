@@ -139,4 +139,14 @@ describe("displayName", () => {
       }),
     ).toBe("Montana State");
   });
+
+  it("falls back to Unknown when no name fields exist", () => {
+    expect(
+      displayName({
+        _id: "x",
+        rank: 1,
+        _points: 1,
+      }),
+    ).toBe("Unknown");
+  });
 });

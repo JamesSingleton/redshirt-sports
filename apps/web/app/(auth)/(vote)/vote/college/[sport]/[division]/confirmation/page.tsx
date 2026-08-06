@@ -66,7 +66,8 @@ export default function VoteConfirmationPage({
   );
 }
 
-async function VoteConfirmationContent({
+/** Exported for Vitest — confirmation body without Suspense wrapper. */
+export async function VoteConfirmationContent({
   params,
 }: {
   params: Promise<{ sport: string; division: string }>;

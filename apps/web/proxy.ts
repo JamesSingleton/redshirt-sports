@@ -11,7 +11,16 @@ function isProtectedRoute(req: NextRequest) {
   return pathname.startsWith("/admin") || pathname.startsWith("/vote");
 }
 
-export default authMiddleware(async (auth, req: NextRequest) => {
+type AuthFn = {
+  (): Promise<{
+    userId: string | null;
+    sessionClaims?: { metadata?: { onboardingComplete?: boolean } } | null;
+  }>;
+  protect: () => Promise<unknown>;
+};
+
+/** Inner middleware logic — exported for Vitest without Clerk wrapper. */
+export async function handleAuthProxy(auth: AuthFn, req: NextRequest) {
   const { userId, sessionClaims } = await auth();
 
   if (isProtectedRoute(req)) {
@@ -28,7 +37,9 @@ export default authMiddleware(async (auth, req: NextRequest) => {
     onboardingUrl.searchParams.set("redirect_url", req.url);
     return NextResponse.redirect(onboardingUrl);
   }
-});
+}
+
+export default authMiddleware(handleAuthProxy);
 
 export const config = {
   matcher: [

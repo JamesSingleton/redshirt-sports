@@ -13,7 +13,12 @@ import {
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
-import { getSeasonInfo, type SportParam } from "@/utils/espn";
+import {
+  processBallotSanityIds,
+  validateDivision,
+  validateSport,
+} from "@/lib/vote-ballot";
+import { getSeasonInfo } from "@/utils/espn";
 
 const VoteRequestSchema = z.object({
   division: z
@@ -46,59 +51,6 @@ const VoteRequestSchema = z.object({
   rank_24: z.string().optional(),
   rank_25: z.string().optional(),
 });
-
-type VoteRequest = z.infer<typeof VoteRequestSchema>;
-
-const SPORT_SLUG_MAP: Record<string, SportParam> = {
-  football: "football",
-  "mens-basketball": "mens-basketball",
-  "womens-basketball": "womens-basketball",
-};
-
-const VALID_DIVISIONS = [
-  "fbs",
-  "fcs",
-  "d2",
-  "d3",
-  "mid-major",
-  "power-conferences",
-] as const;
-type ValidDivision = (typeof VALID_DIVISIONS)[number];
-
-function processBallotSanityIds(body: VoteRequest) {
-  const entries: Array<{ sanityId: string; rank: number; points: number }> = [];
-  for (let i = 1; i <= 25; i++) {
-    const rankKey = `rank_${i}` as keyof VoteRequest;
-    const teamId = body[rankKey];
-    if (teamId && typeof teamId === "string") {
-      entries.push({
-        sanityId: teamId,
-        rank: i,
-        points: 26 - i,
-      });
-    }
-  }
-  return entries;
-}
-
-function validateSport(sport: string): SportParam {
-  const validSport = SPORT_SLUG_MAP[sport];
-  if (!validSport) {
-    throw new Error(
-      `Invalid sport: ${sport}. Must be one of: ${Object.keys(SPORT_SLUG_MAP).join(", ")}`,
-    );
-  }
-  return validSport;
-}
-
-function validateDivision(division: string): ValidDivision {
-  if (!VALID_DIVISIONS.includes(division as ValidDivision)) {
-    throw new Error(
-      `Invalid division: ${division}. Must be one of: ${VALID_DIVISIONS.join(", ")}`,
-    );
-  }
-  return division as ValidDivision;
-}
 
 export async function POST(
   req: Request,

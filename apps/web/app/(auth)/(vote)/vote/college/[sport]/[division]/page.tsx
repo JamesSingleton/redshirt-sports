@@ -147,7 +147,8 @@ async function renderVotePage(
   );
 }
 
-async function VotePageAuth({
+/** Exported for Vitest — wraps auth, poll access, and form render. */
+export async function VotePageAuth({
   sport,
   division,
   options,
