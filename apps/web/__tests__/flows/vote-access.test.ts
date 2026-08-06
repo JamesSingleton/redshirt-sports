@@ -72,7 +72,10 @@ describe("vote page access flow", () => {
   });
 
   it("shows form when assigned and has not voted", async () => {
-    mockGetPollBySportAndSlug.mockResolvedValue({ id: "poll-1" });
+    mockGetPollBySportAndSlug.mockResolvedValue({
+      id: "poll-1",
+      isActive: true,
+    });
     mockIsUserAssignedToPoll.mockResolvedValue(true);
     mockHasVoterVoted.mockResolvedValue(false);
 
@@ -88,7 +91,10 @@ describe("vote page access flow", () => {
   });
 
   it("redirects to confirmation when assigned and already voted", async () => {
-    mockGetPollBySportAndSlug.mockResolvedValue({ id: "poll-1" });
+    mockGetPollBySportAndSlug.mockResolvedValue({
+      id: "poll-1",
+      isActive: true,
+    });
     mockIsUserAssignedToPoll.mockResolvedValue(true);
     mockHasVoterVoted.mockResolvedValue(true);
 
@@ -106,8 +112,30 @@ describe("vote page access flow", () => {
     });
   });
 
+  it("redirects home when the poll is inactive", async () => {
+    mockGetPollBySportAndSlug.mockResolvedValue({
+      id: "poll-1",
+      isActive: false,
+    });
+
+    await expect(
+      resolveVoteAccess({
+        userId: "user-1",
+        sportId: "sport-1",
+        pollSlug: "fbs",
+        year: 2025,
+        week: 1,
+      }),
+    ).resolves.toEqual({ action: "redirect", to: "/" });
+    expect(mockIsUserAssignedToPoll).not.toHaveBeenCalled();
+    expect(mockHasVoterVoted).not.toHaveBeenCalled();
+  });
+
   it("redirects home when user is not assigned to the poll", async () => {
-    mockGetPollBySportAndSlug.mockResolvedValue({ id: "poll-1" });
+    mockGetPollBySportAndSlug.mockResolvedValue({
+      id: "poll-1",
+      isActive: true,
+    });
     mockIsUserAssignedToPoll.mockResolvedValue(false);
 
     await expect(

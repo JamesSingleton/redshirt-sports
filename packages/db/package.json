@@ -6,7 +6,10 @@
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "check:types": "tsc --noEmit --emitDeclarationOnly false"
+    "check:types": "tsc --noEmit --emitDeclarationOnly false",
+    "backfill-poll-engine": "tsx scripts/backfill-poll-engine.ts",
+    "backfill-poll-engine:dry-run": "tsx scripts/backfill-poll-engine.ts --dry-run",
+    "backfill-poll-engine:verify": "tsx scripts/backfill-poll-engine.ts --verify-only"
   },
   "exports": {
     "./client": "./src/client.ts",
@@ -28,6 +31,7 @@
     "@redshirt-sports/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "drizzle-kit": "catalog:",
+    "tsx": "^4.23.7",
     "typescript": "catalog:"
   }
 }

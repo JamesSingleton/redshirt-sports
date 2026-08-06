@@ -2,7 +2,7 @@ import { analytics } from "@redshirt-sports/analytics/server";
 import { auth } from "@redshirt-sports/auth/server";
 import {
   getPollBySportAndSlug,
-  getSchoolIdsBySanityIds,
+  getSchoolsBySanityIds,
   getSportIdBySlug,
   getVoterBallots,
   hasVoterVoted,
@@ -13,44 +13,25 @@ import {
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
+import { voteRequestSchema } from "@/lib/schemas/vote-ballot";
 import {
   processBallotSanityIds,
   validateDivision,
   validateSport,
 } from "@/lib/vote-ballot";
+import { ratelimit } from "@/server/ratelimit";
 import { getSeasonInfo } from "@/utils/espn";
 
-const VoteRequestSchema = z.object({
-  division: z
-    .enum(["fbs", "fcs", "d2", "d3", "mid-major", "power-conferences"])
-    .optional(),
-  sport: z.string().optional(),
-  rank_1: z.string().optional(),
-  rank_2: z.string().optional(),
-  rank_3: z.string().optional(),
-  rank_4: z.string().optional(),
-  rank_5: z.string().optional(),
-  rank_6: z.string().optional(),
-  rank_7: z.string().optional(),
-  rank_8: z.string().optional(),
-  rank_9: z.string().optional(),
-  rank_10: z.string().optional(),
-  rank_11: z.string().optional(),
-  rank_12: z.string().optional(),
-  rank_13: z.string().optional(),
-  rank_14: z.string().optional(),
-  rank_15: z.string().optional(),
-  rank_16: z.string().optional(),
-  rank_17: z.string().optional(),
-  rank_18: z.string().optional(),
-  rank_19: z.string().optional(),
-  rank_20: z.string().optional(),
-  rank_21: z.string().optional(),
-  rank_22: z.string().optional(),
-  rank_23: z.string().optional(),
-  rank_24: z.string().optional(),
-  rank_25: z.string().optional(),
-});
+function jsonError(
+  error: string,
+  status: number,
+  extra?: Record<string, unknown>,
+) {
+  return new Response(JSON.stringify({ error, ...extra }), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
 
 export async function POST(
   req: Request,
@@ -66,15 +47,23 @@ export async function POST(
       return new Response("Unauthorized", { status: 401 });
     }
 
+    const { success: withinRateLimit } = await ratelimit.limit(
+      `vote:${user.userId}`,
+    );
+    if (!withinRateLimit) {
+      return jsonError(
+        "Too many vote submissions. Please try again shortly.",
+        429,
+      );
+    }
+
     const body = await req.json();
-    const validatedBody = VoteRequestSchema.parse(body);
+    const validatedBody = voteRequestSchema.parse(body);
 
     if (validatedBody.sport && validatedBody.sport !== validatedSport) {
-      return new Response(
-        JSON.stringify({
-          error: `Sport mismatch: URL has '${validatedSport}' but request has '${validatedBody.sport}'`,
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+      return jsonError(
+        `Sport mismatch: URL has '${validatedSport}' but request has '${validatedBody.sport}'`,
+        400,
       );
     }
 
@@ -82,11 +71,9 @@ export async function POST(
       validatedBody.division &&
       validatedBody.division !== validatedDivision
     ) {
-      return new Response(
-        JSON.stringify({
-          error: `Division mismatch: URL has '${validatedDivision}' but request has '${validatedBody.division}'`,
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+      return jsonError(
+        `Division mismatch: URL has '${validatedDivision}' but request has '${validatedBody.division}'`,
+        400,
       );
     }
 
@@ -101,10 +88,10 @@ export async function POST(
       slug: pollSlug,
     });
     if (!poll) {
-      return new Response(
-        JSON.stringify({ error: `Poll not found: ${pollSlug}` }),
-        { status: 404, headers: { "Content-Type": "application/json" } },
-      );
+      return jsonError(`Poll not found: ${pollSlug}`, 404);
+    }
+    if (!poll.isActive) {
+      return jsonError("This poll is not currently accepting ballots", 403);
     }
 
     const assigned = await isUserAssignedToPoll({
@@ -112,12 +99,7 @@ export async function POST(
       userId: user.userId,
     });
     if (!assigned) {
-      return new Response(
-        JSON.stringify({
-          error: "You are not assigned as a voter for this poll",
-        }),
-        { status: 403, headers: { "Content-Type": "application/json" } },
-      );
+      return jsonError("You are not assigned as a voter for this poll", 403);
     }
 
     const seasonInfo = await getSeasonInfo(validatedSport);
@@ -128,13 +110,10 @@ export async function POST(
       !seasonInfo.isRegularSeason &&
       !seasonInfo.isPostseason
     ) {
-      return new Response(
-        JSON.stringify({
-          error:
-            "Voting is only allowed during preseason, regular season, or postseason",
-          currentPeriod: "off-season",
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+      return jsonError(
+        "Voting is only allowed during preseason, regular season, or postseason",
+        400,
+        { currentPeriod: "off-season" },
       );
     }
 
@@ -144,21 +123,13 @@ export async function POST(
       legacyWeek: votingWeek,
     });
     if (!weekId) {
-      return new Response(
-        JSON.stringify({
-          error: `Unable to resolve week for year=${year} week=${votingWeek}`,
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+      return jsonError(
+        `Unable to resolve week for year=${year} week=${votingWeek}`,
+        400,
       );
     }
 
     const sanityEntries = processBallotSanityIds(validatedBody);
-    if (sanityEntries.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "At least one team must be ranked" }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
-      );
-    }
 
     const alreadyVoted = await hasVoterVoted({
       year,
@@ -168,29 +139,27 @@ export async function POST(
       userId: user.userId,
     });
     if (alreadyVoted) {
-      return new Response(
-        JSON.stringify({ error: "You have already voted for this week" }),
-        { status: 409, headers: { "Content-Type": "application/json" } },
-      );
+      return jsonError("You have already voted for this week", 409);
     }
 
-    const schoolBySanityId = await getSchoolIdsBySanityIds(
+    const schoolBySanityId = await getSchoolsBySanityIds(
       sanityEntries.map((e) => e.sanityId),
     );
 
     const entries = [];
     for (const entry of sanityEntries) {
-      const schoolId = schoolBySanityId.get(entry.sanityId);
-      if (!schoolId) {
-        return new Response(
-          JSON.stringify({
-            error: `Unknown school id on ballot: ${entry.sanityId}`,
-          }),
-          { status: 400, headers: { "Content-Type": "application/json" } },
+      const school = schoolBySanityId.get(entry.sanityId);
+      if (!school) {
+        return jsonError(`Unknown school id on ballot: ${entry.sanityId}`, 400);
+      }
+      if (school.top25Eligible === false) {
+        return jsonError(
+          `School is not eligible for Top 25 voting: ${entry.sanityId}`,
+          400,
         );
       }
       entries.push({
-        schoolId,
+        schoolId: school.id,
         rank: entry.rank,
         points: entry.points,
       });
@@ -246,21 +215,15 @@ export async function POST(
     }
 
     if (error instanceof Error) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return jsonError(error.message, 400);
     }
 
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return jsonError("Internal server error", 500);
   }
 }
 
 export async function GET(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ sport: string; division: string }> },
 ) {
   try {
@@ -283,10 +246,10 @@ export async function GET(
       slug: validatedDivision,
     });
     if (!poll) {
-      return new Response(
-        JSON.stringify({ error: `Poll not found: ${validatedDivision}` }),
-        { status: 404, headers: { "Content-Type": "application/json" } },
-      );
+      return jsonError(`Poll not found: ${validatedDivision}`, 404);
+    }
+    if (!poll.isActive) {
+      return jsonError("This poll is not currently accepting ballots", 403);
     }
 
     const assigned = await isUserAssignedToPoll({
@@ -294,12 +257,7 @@ export async function GET(
       userId: user.userId,
     });
     if (!assigned) {
-      return new Response(
-        JSON.stringify({
-          error: "You are not assigned as a voter for this poll",
-        }),
-        { status: 403, headers: { "Content-Type": "application/json" } },
-      );
+      return jsonError("You are not assigned as a voter for this poll", 403);
     }
 
     const seasonInfo = await getSeasonInfo(validatedSport);
@@ -335,15 +293,9 @@ export async function GET(
     console.error("Vote retrieval error:", error);
 
     if (error instanceof Error) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return jsonError(error.message, 400);
     }
 
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return jsonError("Internal server error", 500);
   }
 }

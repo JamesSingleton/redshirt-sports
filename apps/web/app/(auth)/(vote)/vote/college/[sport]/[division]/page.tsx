@@ -112,12 +112,23 @@ const divisionHeader = [
   {
     division: "d2",
     title: "Division II",
-    subtitle: "Cast your vote for the top 25 Division II football teams.",
+    subtitle: "Cast your vote for the top 25 Division II teams.",
   },
   {
     division: "d3",
     title: "Division III",
-    subtitle: "Cast your vote for the top 25 Division III football teams.",
+    subtitle: "Cast your vote for the top 25 Division III teams.",
+  },
+  {
+    division: "power-conferences",
+    title: "Power Conferences",
+    subtitle:
+      "Cast your vote for the top 25 Power Conference basketball teams.",
+  },
+  {
+    division: "mid-major",
+    title: "Mid-Major",
+    subtitle: "Cast your vote for the top 25 Mid-Major basketball teams.",
   },
 ];
 

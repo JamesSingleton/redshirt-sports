@@ -155,6 +155,9 @@ export async function getPollRankingPublishPreview({
       and(eq(model.sportId, sportId), eq(model.slug, division)),
   });
   if (!poll) throw new Error(`Poll not found: ${sport}/${division}`);
+  if (!poll.isActive) {
+    throw new Error(`Poll is inactive: ${sport}/${division}`);
+  }
 
   const weekId = await resolveWeekIdForLegacyWeek({
     sportId,
@@ -273,6 +276,9 @@ export async function publishPollRankingsForWeek({
       and(eq(model.sportId, sportId), eq(model.slug, division)),
   });
   if (!poll) throw new Error(`Poll not found: ${sport}/${division}`);
+  if (!poll.isActive) {
+    throw new Error(`Poll is inactive: ${sport}/${division}`);
+  }
 
   const weekId = await resolveWeekIdForLegacyWeek({
     sportId,

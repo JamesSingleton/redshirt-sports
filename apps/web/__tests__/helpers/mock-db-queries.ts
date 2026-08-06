@@ -7,6 +7,7 @@ export type DbQueryMocks = {
   hasVoterVoted: Mock;
   resolveWeekIdForLegacyWeek: Mock;
   getSchoolIdsBySanityIds: Mock;
+  getSchoolsBySanityIds: Mock;
   submitBallot: Mock;
   getVoterBallots: Mock;
   getLatestVoterBallot: Mock;
@@ -32,6 +33,7 @@ export function createDbQueryMocks(): DbQueryMocks {
     hasVoterVoted: vi.fn(),
     resolveWeekIdForLegacyWeek: vi.fn(),
     getSchoolIdsBySanityIds: vi.fn(),
+    getSchoolsBySanityIds: vi.fn(),
     submitBallot: vi.fn(),
     getVoterBallots: vi.fn(),
     getLatestVoterBallot: vi.fn(),

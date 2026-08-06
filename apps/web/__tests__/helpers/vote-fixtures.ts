@@ -24,26 +24,42 @@ export const testPoll = {
   sportId: TEST_SPORT_ID,
   slug: "fbs",
   name: "FBS Top 25",
+  isActive: true,
 };
 
-/** Minimal ballot body with rank_1 and rank_2 Sanity school IDs. */
+/** Full Top 25 ballot body with unique Sanity school IDs. */
 export function ballotBody(overrides: Record<string, string> = {}) {
+  const ranks: Record<string, string> = {};
+  for (let i = 1; i <= 25; i++) {
+    ranks[`rank_${i}`] = `sanity-school-${i}`;
+  }
   return {
     sport: "football",
     division: "fbs",
-    rank_1: "sanity-school-1",
-    rank_2: "sanity-school-2",
+    ...ranks,
     ...overrides,
   };
 }
 
 export function schoolIdMap(
-  entries: Array<[string, string]> = [
-    ["sanity-school-1", "db-school-1"],
-    ["sanity-school-2", "db-school-2"],
-  ],
+  entries?: Array<[string, { id: string; top25Eligible: boolean | null }]>,
 ) {
-  return new Map(entries);
+  if (entries) return new Map(entries);
+  const map = new Map<string, { id: string; top25Eligible: boolean | null }>();
+  for (let i = 1; i <= 25; i++) {
+    map.set(`sanity-school-${i}`, {
+      id: `db-school-${i}`,
+      top25Eligible: true,
+    });
+  }
+  return map;
+}
+
+/** Legacy shape: sanityId → schoolId only (for older helpers). */
+export function schoolIdOnlyMap() {
+  return new Map(
+    [...schoolIdMap().entries()].map(([sanityId, s]) => [sanityId, s.id]),
+  );
 }
 
 export function voteParams(

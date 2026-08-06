@@ -17,7 +17,6 @@ import {
   fetchAndLoadSchools,
   fetchAndLoadSports,
   fetchAndLoadSubdivisions,
-  fetchAndTransformRankings,
   type LoaderResult,
 } from "@/actions/data-loaders";
 
@@ -108,12 +107,6 @@ const configuredLoaders = [
     description:
       "Fetch schools from Sanity and upsert them (safe to re-run). Also syncs conference affiliations.",
     loader: fetchAndLoadSchools,
-  },
-  {
-    label: "Rankings",
-    description:
-      "Deprecated — use the poll-engine backfill script against a local prod clone.",
-    loader: fetchAndTransformRankings,
   },
 ];
 

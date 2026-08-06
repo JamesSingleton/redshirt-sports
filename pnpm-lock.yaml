@@ -585,6 +585,9 @@ importers:
       drizzle-kit:
         specifier: 'catalog:'
         version: 0.31.10
+      tsx:
+        specifier: ^4.23.7
+        version: 4.23.7
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -16018,7 +16021,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 26.1.2
 
   '@types/deep-eql@4.0.2': {}
 
@@ -16117,7 +16120,7 @@ snapshots:
 
   '@types/ws@7.4.7':
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 26.1.2
 
   '@types/ws@8.18.1':
     dependencies:

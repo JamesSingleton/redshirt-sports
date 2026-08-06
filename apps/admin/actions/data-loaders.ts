@@ -601,12 +601,3 @@ export async function fetchAndLoadSubdivisions() {
     return `Upserted ${dbSubdivisions.length} subdivisions.`;
   });
 }
-
-export async function fetchAndTransformRankings() {
-  return runLoader("rankings", async () => {
-    await requireAdmin();
-    throw new Error(
-      "Deprecated: rankings now live in poll_rankings. Use Publish rankings in admin.",
-    );
-  });
-}

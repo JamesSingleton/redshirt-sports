@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
@@ -35,11 +35,6 @@ type FinalRankings = {
     isTie: boolean;
   }[];
 };
-
-export async function getAllLegacyWeeklyRankings() {
-  // Legacy jsonb table — kept only while old rows may still exist locally.
-  return db.execute(sql`SELECT * FROM weekly_final_rankings`);
-}
 
 export async function getAllWeeklyRankings() {
   return db.query.pollRankingsTable.findMany();

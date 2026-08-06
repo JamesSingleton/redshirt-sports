@@ -3,21 +3,43 @@ import { eq, inArray } from "drizzle-orm";
 import { primaryDb as db } from "../client";
 import { schoolsTable } from "../schema";
 
-export async function getSchoolIdsBySanityIds(sanityIds: string[]) {
-  if (sanityIds.length === 0) return new Map<string, string>();
+export type SchoolBySanityId = {
+  id: string;
+  top25Eligible: boolean | null;
+};
+
+export async function getSchoolsBySanityIds(sanityIds: string[]) {
+  if (sanityIds.length === 0) return new Map<string, SchoolBySanityId>();
 
   const schools = await db
     .select({
       id: schoolsTable.id,
       sanityId: schoolsTable.sanityId,
+      top25Eligible: schoolsTable.top25Eligible,
     })
     .from(schoolsTable)
     .where(inArray(schoolsTable.sanityId, sanityIds));
 
   return new Map(
     schools
-      .filter((s): s is { id: string; sanityId: string } => !!s.sanityId)
-      .map((s) => [s.sanityId, s.id]),
+      .filter(
+        (
+          s,
+        ): s is {
+          id: string;
+          sanityId: string;
+          top25Eligible: boolean | null;
+        } => !!s.sanityId,
+      )
+      .map((s) => [s.sanityId, { id: s.id, top25Eligible: s.top25Eligible }]),
+  );
+}
+
+/** @deprecated Prefer getSchoolsBySanityIds when eligibility is needed. */
+export async function getSchoolIdsBySanityIds(sanityIds: string[]) {
+  const schools = await getSchoolsBySanityIds(sanityIds);
+  return new Map(
+    [...schools.entries()].map(([sanityId, s]) => [sanityId, s.id]),
   );
 }
 

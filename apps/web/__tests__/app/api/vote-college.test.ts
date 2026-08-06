@@ -18,12 +18,13 @@ const {
   mockIsUserAssignedToPoll,
   mockHasVoterVoted,
   mockResolveWeekIdForLegacyWeek,
-  mockGetSchoolIdsBySanityIds,
+  mockGetSchoolsBySanityIds,
   mockSubmitBallot,
   mockGetVoterBallots,
   mockGetSeasonInfo,
   mockAnalyticsCapture,
   mockSentryCapture,
+  mockRatelimit,
 } = vi.hoisted(() => ({
   mockAuth: vi.fn(),
   mockGetSportIdBySlug: vi.fn(),
@@ -31,12 +32,13 @@ const {
   mockIsUserAssignedToPoll: vi.fn(),
   mockHasVoterVoted: vi.fn(),
   mockResolveWeekIdForLegacyWeek: vi.fn(),
-  mockGetSchoolIdsBySanityIds: vi.fn(),
+  mockGetSchoolsBySanityIds: vi.fn(),
   mockSubmitBallot: vi.fn(),
   mockGetVoterBallots: vi.fn(),
   mockGetSeasonInfo: vi.fn(),
   mockAnalyticsCapture: vi.fn(),
   mockSentryCapture: vi.fn(),
+  mockRatelimit: vi.fn(),
 }));
 
 vi.mock("@redshirt-sports/auth/server", () => ({
@@ -49,7 +51,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   isUserAssignedToPoll: mockIsUserAssignedToPoll,
   hasVoterVoted: mockHasVoterVoted,
   resolveWeekIdForLegacyWeek: mockResolveWeekIdForLegacyWeek,
-  getSchoolIdsBySanityIds: mockGetSchoolIdsBySanityIds,
+  getSchoolsBySanityIds: mockGetSchoolsBySanityIds,
   submitBallot: mockSubmitBallot,
   getVoterBallots: mockGetVoterBallots,
 }));
@@ -64,6 +66,10 @@ vi.mock("@redshirt-sports/analytics/server", () => ({
 
 vi.mock("@sentry/nextjs", () => ({
   captureException: mockSentryCapture,
+}));
+
+vi.mock("@/server/ratelimit", () => ({
+  ratelimit: { limit: mockRatelimit },
 }));
 
 import {
@@ -89,6 +95,14 @@ function getRequest() {
   );
 }
 
+function expectedEntries() {
+  return Array.from({ length: 25 }, (_, i) => ({
+    schoolId: `db-school-${i + 1}`,
+    rank: i + 1,
+    points: 25 - i,
+  }));
+}
+
 function resetHappyPathMocks() {
   mockAuth.mockReset().mockResolvedValue({ userId: TEST_USER_ID });
   mockGetSportIdBySlug.mockReset().mockResolvedValue("sport_football");
@@ -96,12 +110,13 @@ function resetHappyPathMocks() {
   mockIsUserAssignedToPoll.mockReset().mockResolvedValue(true);
   mockHasVoterVoted.mockReset().mockResolvedValue(false);
   mockResolveWeekIdForLegacyWeek.mockReset().mockResolvedValue(TEST_WEEK_ID);
-  mockGetSchoolIdsBySanityIds.mockReset().mockResolvedValue(schoolIdMap());
+  mockGetSchoolsBySanityIds.mockReset().mockResolvedValue(schoolIdMap());
   mockSubmitBallot.mockReset().mockResolvedValue(undefined);
   mockGetVoterBallots.mockReset().mockResolvedValue([]);
   mockGetSeasonInfo.mockReset().mockResolvedValue(seasonInfoInSeason);
   mockAnalyticsCapture.mockReset();
   mockSentryCapture.mockReset();
+  mockRatelimit.mockReset().mockResolvedValue({ success: true });
 }
 
 describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
@@ -115,6 +130,14 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
       params: voteParams(),
     });
     expect(res.status).toBe(401);
+  });
+
+  it("returns 429 when rate limited", async () => {
+    mockRatelimit.mockResolvedValue({ success: false });
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(429);
   });
 
   it("returns 400 for invalid sport in URL", async () => {
@@ -164,6 +187,19 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
     expect(body.error).toMatch(/Poll not found/);
   });
 
+  it("returns 403 when poll is inactive", async () => {
+    mockGetPollBySportAndSlug.mockResolvedValue({
+      ...testPoll,
+      isActive: false,
+    });
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(403);
+    const body = await res.json();
+    expect(body.error).toMatch(/not currently accepting/i);
+  });
+
   it("returns 403 when user is not assigned to the poll", async () => {
     mockIsUserAssignedToPoll.mockResolvedValue(false);
     const res = await POST(postRequest(ballotBody()), {
@@ -194,14 +230,24 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
     expect(body.error).toMatch(/Unable to resolve week/);
   });
 
-  it("returns 400 when ballot has no ranked teams", async () => {
+  it("returns 400 when ballot is incomplete", async () => {
     const res = await POST(
-      postRequest({ sport: "football", division: "fbs" }),
+      postRequest({ sport: "football", division: "fbs", rank_1: "a" }),
       { params: voteParams() },
     );
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toMatch(/At least one team/);
+    expect(body.error).toBe("Invalid request data");
+  });
+
+  it("returns 400 when ballot has duplicate teams", async () => {
+    const res = await POST(
+      postRequest(ballotBody({ rank_2: "sanity-school-1" })),
+      { params: voteParams() },
+    );
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe("Invalid request data");
   });
 
   it("returns 409 when user already voted", async () => {
@@ -215,13 +261,28 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
   });
 
   it("returns 400 for unknown Sanity school ids", async () => {
-    mockGetSchoolIdsBySanityIds.mockResolvedValue(new Map());
+    mockGetSchoolsBySanityIds.mockResolvedValue(new Map());
     const res = await POST(postRequest(ballotBody()), {
       params: voteParams(),
     });
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toMatch(/Unknown school id/);
+  });
+
+  it("returns 400 for ineligible schools", async () => {
+    const map = schoolIdMap();
+    map.set("sanity-school-1", {
+      id: "db-school-1",
+      top25Eligible: false,
+    });
+    mockGetSchoolsBySanityIds.mockResolvedValue(map);
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/not eligible/i);
   });
 
   it("submits ballot and returns 200 on happy path", async () => {
@@ -236,16 +297,13 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
       division: "fbs",
       week: 1,
       year: 2025,
-      voteCount: 2,
+      voteCount: 25,
     });
     expect(mockSubmitBallot).toHaveBeenCalledWith({
       pollId: TEST_POLL_ID,
       userId: TEST_USER_ID,
       weekId: TEST_WEEK_ID,
-      entries: [
-        { schoolId: "db-school-1", rank: 1, points: 25 },
-        { schoolId: "db-school-2", rank: 2, points: 24 },
-      ],
+      entries: expectedEntries(),
     });
     expect(mockAnalyticsCapture).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -284,6 +342,15 @@ describe("GET /api/vote/college/[sport]/rankings/[division]", () => {
     mockAuth.mockResolvedValue({ userId: null });
     const res = await GET(getRequest(), { params: voteParams() });
     expect(res.status).toBe(401);
+  });
+
+  it("returns 403 when poll is inactive", async () => {
+    mockGetPollBySportAndSlug.mockResolvedValue({
+      ...testPoll,
+      isActive: false,
+    });
+    const res = await GET(getRequest(), { params: voteParams() });
+    expect(res.status).toBe(403);
   });
 
   it("returns 403 when user is not assigned", async () => {

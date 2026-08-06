@@ -15,15 +15,25 @@ export const VALID_DIVISIONS = [
   "power-conferences",
 ] as const;
 
+export const BALLOT_SIZE = 25;
+
 export type ValidDivision = (typeof VALID_DIVISIONS)[number];
 
 export type VoteRankFields = {
-  [K in `rank_${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25}`]?: string;
+  [K in `rank_${number}`]?: string;
 };
 
-export function processBallotSanityIds(body: VoteRankFields) {
-  const entries: Array<{ sanityId: string; rank: number; points: number }> = [];
-  for (let i = 1; i <= 25; i++) {
+export type BallotSanityEntry = {
+  sanityId: string;
+  rank: number;
+  points: number;
+};
+
+export function processBallotSanityIds(
+  body: VoteRankFields,
+): BallotSanityEntry[] {
+  const entries: BallotSanityEntry[] = [];
+  for (let i = 1; i <= BALLOT_SIZE; i++) {
     const rankKey = `rank_${i}` as keyof VoteRankFields;
     const teamId = body[rankKey];
     if (teamId && typeof teamId === "string") {
@@ -35,6 +45,34 @@ export function processBallotSanityIds(body: VoteRankFields) {
     }
   }
   return entries;
+}
+
+/**
+ * Validates a processed ballot for production submit:
+ * exactly 25 ranks filled, no duplicate schools.
+ */
+export function validateBallotEntries(
+  entries: BallotSanityEntry[],
+): string | null {
+  if (entries.length !== BALLOT_SIZE) {
+    return `Ballot must rank exactly ${BALLOT_SIZE} teams (got ${entries.length})`;
+  }
+
+  const seen = new Set<string>();
+  for (const entry of entries) {
+    if (seen.has(entry.sanityId)) {
+      return `Duplicate team on ballot: ${entry.sanityId}`;
+    }
+    seen.add(entry.sanityId);
+  }
+
+  for (let rank = 1; rank <= BALLOT_SIZE; rank++) {
+    if (!entries.some((e) => e.rank === rank)) {
+      return `Missing rank ${rank} on ballot`;
+    }
+  }
+
+  return null;
 }
 
 export function validateSport(sport: string): SportParam {

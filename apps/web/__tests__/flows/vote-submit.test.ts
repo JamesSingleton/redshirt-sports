@@ -21,10 +21,11 @@ const {
   mockIsUserAssignedToPoll,
   mockHasVoterVoted,
   mockResolveWeekIdForLegacyWeek,
-  mockGetSchoolIdsBySanityIds,
+  mockGetSchoolsBySanityIds,
   mockSubmitBallot,
   mockGetVoterBallots,
   mockGetSeasonInfo,
+  mockRatelimit,
 } = vi.hoisted(() => ({
   mockAuth: vi.fn(),
   mockGetSportIdBySlug: vi.fn(),
@@ -32,10 +33,11 @@ const {
   mockIsUserAssignedToPoll: vi.fn(),
   mockHasVoterVoted: vi.fn(),
   mockResolveWeekIdForLegacyWeek: vi.fn(),
-  mockGetSchoolIdsBySanityIds: vi.fn(),
+  mockGetSchoolsBySanityIds: vi.fn(),
   mockSubmitBallot: vi.fn(),
   mockGetVoterBallots: vi.fn(),
   mockGetSeasonInfo: vi.fn(),
+  mockRatelimit: vi.fn(),
 }));
 
 vi.mock("@redshirt-sports/auth/server", () => ({
@@ -48,7 +50,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   isUserAssignedToPoll: mockIsUserAssignedToPoll,
   hasVoterVoted: mockHasVoterVoted,
   resolveWeekIdForLegacyWeek: mockResolveWeekIdForLegacyWeek,
-  getSchoolIdsBySanityIds: mockGetSchoolIdsBySanityIds,
+  getSchoolsBySanityIds: mockGetSchoolsBySanityIds,
   submitBallot: mockSubmitBallot,
   getVoterBallots: mockGetVoterBallots,
 }));
@@ -63,6 +65,10 @@ vi.mock("@redshirt-sports/analytics/server", () => ({
 
 vi.mock("@sentry/nextjs", () => ({
   captureException: vi.fn(),
+}));
+
+vi.mock("@/server/ratelimit", () => ({
+  ratelimit: { limit: mockRatelimit },
 }));
 
 import { POST } from "@/app/api/vote/college/[sport]/rankings/[division]/route";
@@ -86,13 +92,13 @@ describe("vote submit flow", () => {
     mockIsUserAssignedToPoll.mockReset().mockResolvedValue(true);
     mockHasVoterVoted.mockReset().mockResolvedValue(false);
     mockResolveWeekIdForLegacyWeek.mockReset().mockResolvedValue(TEST_WEEK_ID);
-    mockGetSchoolIdsBySanityIds.mockReset().mockResolvedValue(schoolIdMap());
+    mockGetSchoolsBySanityIds.mockReset().mockResolvedValue(schoolIdMap());
     mockSubmitBallot.mockReset().mockResolvedValue(undefined);
     mockGetSeasonInfo.mockReset().mockResolvedValue(seasonInfoInSeason);
+    mockRatelimit.mockReset().mockResolvedValue({ success: true });
   });
 
   it("accepts a Top25-shaped body and persists via submitBallot", async () => {
-    // Mirrors what components/forms/top-25.tsx POSTs
     const formBody = ballotBody();
     const res = await POST(postRequest(formBody), { params: voteParams() });
 
@@ -101,10 +107,11 @@ describe("vote submit flow", () => {
       pollId: TEST_POLL_ID,
       userId: TEST_USER_ID,
       weekId: TEST_WEEK_ID,
-      entries: [
-        { schoolId: "db-school-1", rank: 1, points: 25 },
-        { schoolId: "db-school-2", rank: 2, points: 24 },
-      ],
+      entries: Array.from({ length: 25 }, (_, i) => ({
+        schoolId: `db-school-${i + 1}`,
+        rank: i + 1,
+        points: 25 - i,
+      })),
     });
   });
 

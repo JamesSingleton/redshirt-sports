@@ -1,5 +1,6 @@
 import {
   processBallotSanityIds,
+  validateBallotEntries,
   validateDivision,
   validateSport,
 } from "@/lib/vote-ballot";
@@ -26,6 +27,43 @@ describe("processBallotSanityIds", () => {
 
   it("returns empty array when no ranks are set", () => {
     expect(processBallotSanityIds({})).toEqual([]);
+  });
+});
+
+describe("validateBallotEntries", () => {
+  function fullEntries(duplicateAt?: number) {
+    return Array.from({ length: 25 }, (_, i) => ({
+      sanityId:
+        duplicateAt != null && i + 1 === duplicateAt
+          ? "sanity-school-1"
+          : `sanity-school-${i + 1}`,
+      rank: i + 1,
+      points: 25 - i,
+    }));
+  }
+
+  it("accepts a complete unique ballot", () => {
+    expect(validateBallotEntries(fullEntries())).toBeNull();
+  });
+
+  it("rejects incomplete ballots", () => {
+    expect(validateBallotEntries(fullEntries().slice(0, 10))).toMatch(
+      /exactly 25/,
+    );
+  });
+
+  it("rejects duplicate schools", () => {
+    expect(validateBallotEntries(fullEntries(2))).toMatch(/Duplicate team/);
+  });
+
+  it("rejects ballots missing a rank number", () => {
+    const entries = fullEntries();
+    entries[24] = {
+      sanityId: "sanity-school-25",
+      rank: 26,
+      points: 1,
+    };
+    expect(validateBallotEntries(entries)).toMatch(/Missing rank 25/);
   });
 });
 

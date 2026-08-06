@@ -34,7 +34,7 @@ describe("userCanVoteOnPoll", () => {
   });
 
   it("returns true when the user is assigned to the poll", async () => {
-    mockGetPoll.mockResolvedValue({ id: "poll-1" });
+    mockGetPoll.mockResolvedValue({ id: "poll-1", isActive: true });
     mockIsAssigned.mockResolvedValue(true);
 
     await expect(
@@ -50,8 +50,21 @@ describe("userCanVoteOnPoll", () => {
     });
   });
 
+  it("returns false when the poll is inactive", async () => {
+    mockGetPoll.mockResolvedValue({ id: "poll-1", isActive: false });
+
+    await expect(
+      userCanVoteOnPoll({
+        userId: "user-1",
+        sportId: "sport-1",
+        pollSlug: "fbs",
+      }),
+    ).resolves.toBe(false);
+    expect(mockIsAssigned).not.toHaveBeenCalled();
+  });
+
   it("returns false when the user is not assigned", async () => {
-    mockGetPoll.mockResolvedValue({ id: "poll-1" });
+    mockGetPoll.mockResolvedValue({ id: "poll-1", isActive: true });
     mockIsAssigned.mockResolvedValue(false);
 
     await expect(

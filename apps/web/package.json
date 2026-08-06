@@ -14,6 +14,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio --verbose",
     "db:push": "drizzle-kit push",
+    "db:backfill-poll-engine": "pnpm --filter @redshirt-sports/db backfill-poll-engine",
+    "db:backfill-poll-engine:dry-run": "pnpm --filter @redshirt-sports/db backfill-poll-engine:dry-run",
+    "db:backfill-poll-engine:verify": "pnpm --filter @redshirt-sports/db backfill-poll-engine:verify",
     "check:types": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
