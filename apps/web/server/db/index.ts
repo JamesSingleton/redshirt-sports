@@ -4,18 +4,13 @@ import postgres from "postgres";
 
 import { env } from "@/env";
 
-/**
- * Keep in sync with `@redshirt-sports/db` serverlessPostgresOptions.
- * Short connect/idle timeouts avoid Vercel function hangs on stale sockets.
- * max_lifetime stays 0 — timer-based teardown races in-flight queries.
- */
+/** Keep in sync with `@redshirt-sports/db` client options. */
 const client = postgres(env.DATABASE_URL, {
   prepare: false,
   max: 2,
   idle_timeout: 20,
   max_lifetime: 0,
-  connect_timeout: 3,
+  connect_timeout: 10,
 });
 
-// Use this object to send drizzle queries to your DB
 export const db = drizzle(client, { schema });

@@ -1,4 +1,3 @@
-import { ensurePrimaryDbAlive } from "@redshirt-sports/db/client";
 import {
   countActivePollVotersByPollIds,
   countBallotsForPollWeeks,
@@ -27,7 +26,6 @@ function sportTitle(slug: string) {
 
 export async function getDashboardData() {
   await requireAdmin();
-  await ensurePrimaryDbAlive();
 
   const pollsPromise = listPolls();
   const snapshotPromise = Promise.all([
