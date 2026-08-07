@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@redshirt-sports/auth/server";
 import { getSportIdBySlug, getVoterBallots } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
 import { schoolsByIdQuery } from "@redshirt-sports/sanity/queries";
@@ -66,18 +66,15 @@ export default function VoteConfirmationPage({
   );
 }
 
-async function VoteConfirmationContent({
+/** Exported for Vitest — confirmation body without Suspense wrapper. */
+export async function VoteConfirmationContent({
   params,
 }: {
   params: Promise<{ sport: string; division: string }>;
 }) {
   const { sport, division } = await params;
   const header = generateConfirmationHeader(sport, division);
-  const user = await auth();
-
-  if (!user.userId) {
-    redirect("/");
-  }
+  const { userId } = await auth.protect();
 
   const [votingWeek, { year }, sportId] = await Promise.all([
     getCurrentWeek(sport as SportParam),
@@ -90,10 +87,10 @@ async function VoteConfirmationContent({
     week: votingWeek,
     division,
     sportId: sportId || "",
-    userId: user.userId,
+    userId: userId,
   });
 
-  if (user.userId && !ballot.length) {
+  if (userId && !ballot.length) {
     redirect(`/vote/college/${sport}/${division}`);
   }
 

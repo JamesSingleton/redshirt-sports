@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   ci:
@@ -17,12 +18,13 @@ jobs:
     env:
       NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
       NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+      SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
       SKIP_ENV_VALIDATION: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -52,4 +54,74 @@ jobs:
         run: pnpm run check:format
 
       - name: Run lint, typecheck, and test
-        run: pnpm run ci
+        run: pnpm exec turbo run lint check:types test
+
+      - name: Update PR comment
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const marker = "<!-- ci-report -->";
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+            const sha = context.payload.pull_request.head.sha.slice(0, 7);
+            const passed = "${{ job.status }}" === "success";
+
+            const fs = require("node:fs");
+            const coveragePath = "apps/web/coverage/coverage-summary.json";
+
+            let coverageSection = "_Coverage report unavailable (tests may not have reached apps/web)._";
+            if (fs.existsSync(coveragePath)) {
+              const summary = JSON.parse(fs.readFileSync(coveragePath, "utf8"));
+              const total = summary.total;
+              const row = (label, metric) =>
+                `| ${label} | ${metric.pct}% (${metric.covered}/${metric.total}) |`;
+
+              coverageSection = [
+                "| Metric | Coverage |",
+                "| --- | --- |",
+                row("Statements", total.statements),
+                row("Branches", total.branches),
+                row("Functions", total.functions),
+                row("Lines", total.lines),
+              ].join("\n");
+            }
+
+            const body = [
+              marker,
+              "## CI results",
+              "",
+              passed ? "✅ **Passed**" : "❌ **Failed**",
+              "",
+              `- Commit: \`${sha}\``,
+              `- [View workflow run](${runUrl})`,
+              "",
+              "### Coverage (`apps/web`)",
+              "",
+              coverageSection,
+            ].join("\n");
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+            });
+
+            const existing = comments.find((comment) => comment.body?.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }

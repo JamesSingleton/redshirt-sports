@@ -1,6 +1,6 @@
 "use server";
-import { auth, clerkClient } from "@clerk/nextjs/server";
 import { analytics } from "@redshirt-sports/analytics/server";
+import { auth, clerkClient } from "@redshirt-sports/auth/server";
 
 export const completeOnboarding = async (formData: FormData) => {
   const { userId } = await auth();

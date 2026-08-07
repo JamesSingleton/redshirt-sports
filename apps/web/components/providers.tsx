@@ -1,9 +1,19 @@
-import { ThemeProvider as NextThemesProvider } from "next-themes";
-import type { ReactNode } from "react";
+"use client";
+
+import { ThemeProvider } from "next-themes";
+import type { ComponentProps, ReactNode } from "react";
+
+type ThemesProviderProps = ComponentProps<typeof ThemeProvider> & {
+  children: ReactNode;
+};
+
+function ThemesProvider({ children, ...props }: ThemesProviderProps) {
+  return <ThemeProvider {...props}>{children}</ThemeProvider>;
+}
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <NextThemesProvider
+    <ThemesProvider
       attribute="class"
       defaultTheme="system"
       enableSystem
@@ -11,6 +21,6 @@ export function Providers({ children }: { children: ReactNode }) {
       enableColorScheme
     >
       {children}
-    </NextThemesProvider>
+    </ThemesProvider>
   );
 }

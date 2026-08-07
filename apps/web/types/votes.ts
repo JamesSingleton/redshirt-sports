@@ -15,13 +15,13 @@ export type VoterData = {
   id: string;
   firstName: string;
   lastName: string;
-  organization: string;
-  organizationRole: string;
+  organization: string | null;
+  organizationRole: string | null;
 };
 
 export type BallotAndVoterData = {
   votes: Ballot[];
-  userData: VoterData;
+  userData: VoterData | undefined;
 };
 
 export type BallotsByVoter = {
@@ -49,7 +49,7 @@ export type Voter = {
 };
 
 export type VoterBallotWithSchool = {
-  id: number;
+  id: string;
   userId: string;
   division: string;
   week: number;
@@ -58,6 +58,8 @@ export type VoterBallotWithSchool = {
   teamId: string;
   rank: number;
   points: number;
+  sportId?: string;
+  schoolId?: string;
   schoolName: string;
   schoolShortName: string;
   schoolAbbreviation: string;

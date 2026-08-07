@@ -51,7 +51,7 @@ export interface Top25FormProps {
 }
 
 export interface Ballot {
-  id: number;
+  id: string;
   userId: string;
   division: string;
   week: number;
@@ -60,4 +60,6 @@ export interface Ballot {
   teamId: string;
   rank: number;
   points: number;
+  sportId?: string;
+  schoolId?: string;
 }

@@ -42,3 +42,8 @@ npm-debug.log*
 
 # Local git worktrees
 .worktrees/
+
+# Prod DB dumps for local seeding (never commit)
+apps/web/supabase/seed/prod-data.sql
+apps/web/supabase/seed/*.dump
+*.dump

@@ -54,6 +54,18 @@ export default defineBlueprint({
         projection: "{_id}",
       },
     }),
+    defineDocumentFunction({
+      name: "sync-school",
+      src: "./functions/sync-school",
+      memory: 1,
+      timeout: 30,
+      event: {
+        on: ["create", "update"],
+        filter: "_type == 'school'",
+        projection:
+          "{_id, name, shortName, abbreviation, nickname, image, 'slug': slug.current, top25Eligible}",
+      },
+    }),
     defineSyncTagInvalidateFunction({
       event: {
         resource: {

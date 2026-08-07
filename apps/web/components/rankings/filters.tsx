@@ -1,6 +1,11 @@
 "use client";
 import { analytics } from "@redshirt-sports/analytics";
 import {
+  formatWeekSegment,
+  parseWeekSegment,
+  weekTitle,
+} from "@redshirt-sports/clients/espn";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -17,6 +22,11 @@ type Year = {
   year: number;
 };
 
+function paramValue(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
 export const RankingsFilters = ({
   years,
   weeks,
@@ -27,32 +37,58 @@ export const RankingsFilters = ({
   const router = useRouter();
   const { division, year, week, sport } = useParams();
 
-  const handleYearChange = (e: string) => {
+  const sportSlug = paramValue(sport);
+  const divisionSlug = paramValue(division);
+  const yearSlug = paramValue(year);
+  const weekSlug = paramValue(week);
+
+  const handleYearChange = (nextYear: string) => {
+    if (!nextYear || !sportSlug || !divisionSlug || nextYear === yearSlug) {
+      return;
+    }
+
     analytics?.capture("rankings_filter_changed", {
       filter_type: "year",
-      new_value: e,
-      sport,
-      division,
+      new_value: nextYear,
+      sport: sportSlug,
+      division: divisionSlug,
     });
-    router.push(`/college/${sport}/rankings/${division}/${e}/0`);
+    router.push(
+      `/college/${sportSlug}/rankings/${divisionSlug}/${nextYear}/${formatWeekSegment(0)}`,
+    );
   };
 
-  const handleWeekChange = (e: string) => {
+  const handleWeekChange = (segment: string) => {
+    if (!segment || !sportSlug || !divisionSlug || !yearSlug) {
+      return;
+    }
+    if (segment === weekSlug) {
+      return;
+    }
+
+    try {
+      parseWeekSegment(segment);
+    } catch {
+      return;
+    }
+
     analytics?.capture("rankings_filter_changed", {
       filter_type: "week",
-      new_value: e,
-      sport,
-      division,
-      year,
+      new_value: segment,
+      sport: sportSlug,
+      division: divisionSlug,
+      year: yearSlug,
     });
-    router.push(`/college/${sport}/rankings/${division}/${year}/${e}`);
+    router.push(
+      `/college/${sportSlug}/rankings/${divisionSlug}/${yearSlug}/${segment}`,
+    );
   };
 
   return (
     <>
-      <Select onValueChange={handleYearChange} value={year as string}>
+      <Select onValueChange={handleYearChange} value={yearSlug}>
         <SelectTrigger id="year" aria-label="Year">
-          <SelectValue placeholder={year} />
+          <SelectValue placeholder={yearSlug} />
         </SelectTrigger>
         <SelectContent>
           {years.map(({ year }: Year) => (
@@ -62,25 +98,18 @@ export const RankingsFilters = ({
           ))}
         </SelectContent>
       </Select>
-      <Select onValueChange={handleWeekChange} value={week as string}>
+      <Select
+        key={`${yearSlug}-${weekSlug}`}
+        onValueChange={handleWeekChange}
+        value={weekSlug}
+      >
         <SelectTrigger id="ranking" aria-label="Ranking">
           <SelectValue placeholder="Preseason" />
         </SelectTrigger>
         <SelectContent>
           {weeks.map(({ week }: Week) => (
-            <SelectItem
-              key={week}
-              value={
-                week.toString() === "999" ? "final-rankings" : week.toString()
-              }
-            >
-              {/* {week === 0 ? 'Preseason' : `Week ${week}`} */}
-              {/* if week === 0 then Preseason, if week is 999 Final Rankings else `Week ${week}` */}
-              {week === 0
-                ? "Preseason"
-                : week === 999
-                  ? "Final Rankings"
-                  : `Week ${week}`}
+            <SelectItem key={week} value={formatWeekSegment(week)}>
+              {weekTitle(week)}
             </SelectItem>
           ))}
         </SelectContent>

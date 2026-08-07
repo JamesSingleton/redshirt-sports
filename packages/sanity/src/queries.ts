@@ -115,7 +115,7 @@ const coreImageMetadataProjection = /* groq */ `
 
 const imageMetadataProjection = /* groq */ `
   ${coreImageMetadataProjection},
-  "credit": coalesce(asset->creditLine, attribution, "Unknown")
+  "credit": coalesce(asset->creditLine, attribution)
 `;
 
 const imageFragment = /* groq */ `
@@ -578,7 +578,7 @@ export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
     name,
     shortName,
     abbreviation,
-    ${imageFragment},
+    ${schoolImageFragment},
     conferenceAffiliations,
     "relevantAffiliation": conferenceAffiliations[sport->slug.current == $sport][0]
   }[defined(relevantAffiliation)] {
@@ -586,7 +586,7 @@ export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
     name,
     shortName,
     abbreviation,
-    ${imageFragment},
+    ${schoolImageFragment},
     relevantAffiliation,
     "conferenceDetails": *[_type == "conference" && _id == ^.relevantAffiliation.conference._ref][0] {
       name,
@@ -604,7 +604,7 @@ export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
     name,
     shortName,
     abbreviation,
-    ${imageFragment},
+    ${schoolImageFragment},
     "conferenceInfo": {
       "conference": conferenceDetails {
         name,
@@ -809,7 +809,7 @@ export const schoolsQuery = defineQuery(/* groq */ `
     abbreviation,
     nickname,
     top25VotingEligible,
-    ${imageFragment},
+    ${schoolImageFragment},
     conferenceAffiliations[] {
       "conferenceId": conference->_id,
       "sportId": sport->_id,

@@ -17,6 +17,7 @@ export default defineConfig({
     coverage: {
       enabled: true,
       provider: "v8",
+      reporter: ["text", "json-summary"],
       include: [
         "hooks/**/*.{ts,tsx}",
         "lib/**/*.{ts,tsx}",
@@ -25,19 +26,46 @@ export default defineConfig({
         "server/**/*.{ts,tsx}",
         "components/**/*.{ts,tsx}",
         "app/**/*.{ts,tsx}",
+        "proxy.ts",
       ],
       exclude: [
         "app/__transfer-portal/**",
         "app/__recruiting/**",
         "app/__players/**",
       ],
-      // TODO: Add thresholds when we have more coverage
-      // thresholds: {
-      //   statements: 100,
-      //   branches: 100,
-      //   functions: 100,
-      //   lines: 100,
-      // },
+      thresholds: {
+        // Soft floors for branch-critical modules; raise overall over time.
+        "lib/rankings-movement.ts": {
+          statements: 100,
+          branches: 100,
+          functions: 100,
+          lines: 100,
+        },
+        "lib/require-poll-voter.ts": {
+          statements: 100,
+          branches: 100,
+          functions: 100,
+          lines: 100,
+        },
+        "lib/vote-ballot.ts": {
+          statements: 100,
+          branches: 100,
+          functions: 100,
+          lines: 100,
+        },
+        "app/api/vote/**": {
+          statements: 85,
+          branches: 75,
+          functions: 85,
+          lines: 85,
+        },
+        "app/api/webhooks/**": {
+          statements: 80,
+          branches: 70,
+          functions: 80,
+          lines: 80,
+        },
+      },
     },
     globals: true,
     environment: "happy-dom",

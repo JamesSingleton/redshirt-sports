@@ -50,6 +50,8 @@ export async function processVoterBallots(
     if (!userBallot) continue;
 
     const { userData } = userBallot;
+    if (!userData) continue;
+
     const votesWithMoreData = userBallot.votes
       .map((vote) => {
         const school = schoolById.get(vote.teamId);
@@ -65,8 +67,8 @@ export async function processVoterBallots(
 
     voterBallot.push({
       name: `${userData.firstName} ${userData.lastName}`,
-      organization: userData.organization,
-      organizationRole: userData.organizationRole,
+      organization: userData.organization ?? "",
+      organizationRole: userData.organizationRole ?? "",
       ballot: votesWithMoreData,
     });
   }

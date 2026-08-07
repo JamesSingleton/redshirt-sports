@@ -25,8 +25,15 @@ const defaultColumns = {
   ...timestamps,
 };
 
+export const SEASON_TYPE_CODES = {
+  PRESEASON: 1,
+  REGULAR_SEASON: 2,
+  POSTSEASON: 3,
+  OFF_SEASON: 4,
+} as const;
+
 export const sportsTable = pgTable("sports", {
-  id: text("id").primaryKey(), // Sanity _id
+  id: text("id").primaryKey(),
   slug: varchar("slug", { length: 100 }).notNull().unique(),
   name: varchar("name", { length: 256 }).notNull(),
   displayName: varchar("display_name", { length: 256 }),
@@ -34,15 +41,6 @@ export const sportsTable = pgTable("sports", {
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
-
-export const sportsTableRelations = relations(sportsTable, ({ one, many }) => ({
-  seasons: many(seasonsTable),
-  conferenceSports: many(conferenceSportsTable),
-  schoolConferenceAffiliations: many(schoolConferenceAffiliationsTable),
-  divisionSports: many(divisionSportsTable),
-  voterBallots: many(voterBallots),
-  weeklyFinalRankings: many(weeklyFinalRankings),
-}));
 
 export const voterBallots = pgTable(
   "voter_ballot",
@@ -76,13 +74,6 @@ export const voterBallots = pgTable(
   ],
 );
 
-export const voterBallotsRelations = relations(voterBallots, ({ one }) => ({
-  sport: one(sportsTable, {
-    fields: [voterBallots.sportId],
-    references: [sportsTable.id],
-  }),
-}));
-
 export const weeklyFinalRankings = pgTable(
   "weekly_final_rankings",
   {
@@ -97,16 +88,6 @@ export const weeklyFinalRankings = pgTable(
     createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => [unique().on(table.division, table.year, table.week)],
-);
-
-export const weeklyFinalRankingsRelations = relations(
-  weeklyFinalRankings,
-  ({ one }) => ({
-    sport: one(sportsTable, {
-      fields: [weeklyFinalRankings.sportId],
-      references: [sportsTable.id],
-    }),
-  }),
 );
 
 export const usersTable = pgTable("users_table", {
@@ -134,17 +115,6 @@ export const seasonsTable = pgTable(
   (table) => [unique().on(table.sportId, table.year)],
 );
 
-export const seasonsTableRelations = relations(
-  seasonsTable,
-  ({ one, many }) => ({
-    sport: one(sportsTable, {
-      fields: [seasonsTable.sportId],
-      references: [sportsTable.id],
-    }),
-    seasonTypes: many(seasonTypesTable),
-  }),
-);
-
 export const seasonTypesTable = pgTable(
   "season_types",
   {
@@ -157,17 +127,6 @@ export const seasonTypesTable = pgTable(
       .references(() => seasonsTable.id, { onDelete: "cascade" }),
   },
   (table) => [unique().on(table.seasonId, table.type)],
-);
-
-export const seasonTypesTableRelations = relations(
-  seasonTypesTable,
-  ({ one, many }) => ({
-    season: one(seasonsTable, {
-      fields: [seasonTypesTable.seasonId],
-      references: [seasonsTable.id],
-    }),
-    weeks: many(weeksTable),
-  }),
 );
 
 export const weeksTable = pgTable(
@@ -185,13 +144,6 @@ export const weeksTable = pgTable(
   (table) => [unique().on(table.seasonTypeId, table.number)],
 );
 
-export const weeksTableRelations = relations(weeksTable, ({ one, many }) => ({
-  seasonType: one(seasonTypesTable, {
-    fields: [weeksTable.seasonTypeId],
-    references: [seasonTypesTable.id],
-  }),
-}));
-
 export const schoolsTable = pgTable(
   "schools",
   {
@@ -206,10 +158,6 @@ export const schoolsTable = pgTable(
   },
   (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
 );
-
-export const schoolsTableRelations = relations(schoolsTable, ({ many }) => ({
-  schoolConferenceAffiliations: many(schoolConferenceAffiliationsTable),
-}));
 
 export const conferencesTable = pgTable(
   "conferences",
@@ -226,14 +174,6 @@ export const conferencesTable = pgTable(
   (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
 );
 
-export const conferencesTableRelations = relations(
-  conferencesTable,
-  ({ many }) => ({
-    conferenceSports: many(conferenceSportsTable),
-    schoolConferenceAffiliations: many(schoolConferenceAffiliationsTable),
-  }),
-);
-
 export const conferenceSportsTable = pgTable(
   "conference_sports",
   {
@@ -242,20 +182,6 @@ export const conferenceSportsTable = pgTable(
     sportId: text("sport_id").notNull(),
   },
   (table) => [unique().on(table.conferenceId, table.sportId)],
-);
-
-export const conferenceSportsTableRelations = relations(
-  conferenceSportsTable,
-  ({ one }) => ({
-    conference: one(conferencesTable, {
-      fields: [conferenceSportsTable.conferenceId],
-      references: [conferencesTable.id],
-    }),
-    sport: one(sportsTable, {
-      fields: [conferenceSportsTable.sportId],
-      references: [sportsTable.id],
-    }),
-  }),
 );
 
 export const schoolConferenceAffiliationsTable = pgTable(
@@ -267,24 +193,6 @@ export const schoolConferenceAffiliationsTable = pgTable(
     conferenceId: text("conference_id").notNull(),
   },
   (table) => [unique().on(table.schoolId, table.sportId, table.conferenceId)],
-);
-
-export const schoolConferenceAffiliationsTableRelations = relations(
-  schoolConferenceAffiliationsTable,
-  ({ one }) => ({
-    school: one(schoolsTable, {
-      fields: [schoolConferenceAffiliationsTable.schoolId],
-      references: [schoolsTable.id],
-    }),
-    sport: one(sportsTable, {
-      fields: [schoolConferenceAffiliationsTable.sportId],
-      references: [sportsTable.id],
-    }),
-    conference: one(conferencesTable, {
-      fields: [schoolConferenceAffiliationsTable.conferenceId],
-      references: [conferencesTable.id],
-    }),
-  }),
 );
 
 export const divisionsTable = pgTable(
@@ -299,17 +207,10 @@ export const divisionsTable = pgTable(
     slug: text(),
     description: text(),
     logo: jsonb(),
-    parentDivisionId: text("parent_division_id"), // if this is not null, it is a subdivision
-    isSubdivision: text("is_subdivision"), // if this is not null, it is a subdivision
+    parentDivisionId: text("parent_division_id"),
+    isSubdivision: text("is_subdivision"),
   },
   (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
-);
-
-export const divisionsTableRelations = relations(
-  divisionsTable,
-  ({ many }) => ({
-    divisionSports: many(divisionSportsTable),
-  }),
 );
 
 export const divisionSportsTable = pgTable(
@@ -320,20 +221,6 @@ export const divisionSportsTable = pgTable(
     divisionId: text("division_id").notNull(),
   },
   (table) => [unique().on(table.sportId, table.divisionId)],
-);
-
-export const subdivisionSportsTableRelations = relations(
-  divisionSportsTable,
-  ({ one }) => ({
-    sport: one(sportsTable, {
-      fields: [divisionSportsTable.sportId],
-      references: [sportsTable.id],
-    }),
-    division: one(divisionsTable, {
-      fields: [divisionSportsTable.divisionId],
-      references: [divisionsTable.id],
-    }),
-  }),
 );
 
 export const weeklyRankings = pgTable(
@@ -351,40 +238,113 @@ export const weeklyRankings = pgTable(
   (table) => [unique().on(table.divisionSportId, table.schoolId, table.weekId)],
 );
 
-export const weeklyRankingsRelations = relations(weeklyRankings, ({ one }) => ({
-  school: one(schoolsTable, {
-    fields: [weeklyRankings.schoolId],
-    references: [schoolsTable.id],
-  }),
-  divisionSport: one(divisionSportsTable, {
-    fields: [weeklyRankings.divisionSportId],
-    references: [divisionSportsTable.id],
-  }),
-  week: one(weeksTable, {
-    fields: [weeklyRankings.weekId],
-    references: [weeksTable.id],
-  }),
-}));
+/** First-class poll (Sport + Browse Scope operational product). */
+export const pollsTable = pgTable(
+  "polls",
+  {
+    ...defaultColumns,
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id),
+    slug: varchar("slug", { length: 100 }).notNull(),
+    name: varchar("name", { length: 256 }).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    divisionSportId: text("division_sport_id").references(
+      () => divisionSportsTable.id,
+    ),
+  },
+  (table) => [unique().on(table.sportId, table.slug), index().on(table.slug)],
+);
 
-export type InsertUser = typeof usersTable.$inferInsert;
-export type SelectUser = typeof usersTable.$inferSelect;
-export type InsertSeason = typeof seasonsTable.$inferInsert;
-export type InsertSeasonType = typeof seasonTypesTable.$inferInsert;
-export type InsertWeeks = typeof weeksTable.$inferInsert;
-export type InsertSchoolConferenceAffiliations =
-  typeof schoolConferenceAffiliationsTable.$inferInsert;
-export type InsertConferenceSports = typeof conferenceSportsTable.$inferInsert;
-export type InsertDivisionSports = typeof divisionSportsTable.$inferInsert;
+export const pollVotersTable = pgTable(
+  "poll_voters",
+  {
+    ...defaultColumns,
+    pollId: text("poll_id")
+      .notNull()
+      .references(() => pollsTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => usersTable.id),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (table) => [
+    unique().on(table.pollId, table.userId),
+    index().on(table.userId),
+    index().on(table.pollId),
+  ],
+);
 
-export const SEASON_TYPE_CODES = {
-  PRESEASON: 1,
-  REGULAR_SEASON: 2,
-  POSTSEASON: 3,
-  OFF_SEASON: 4,
-} as const;
+export const ballotsTable = pgTable(
+  "ballots",
+  {
+    ...defaultColumns,
+    pollId: text("poll_id")
+      .notNull()
+      .references(() => pollsTable.id),
+    userId: text("user_id")
+      .notNull()
+      .references(() => usersTable.id),
+    weekId: text("week_id")
+      .notNull()
+      .references(() => weeksTable.id),
+    submittedAt: timestamp("submitted_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    unique().on(table.pollId, table.userId, table.weekId),
+    index().on(table.pollId, table.weekId),
+    index().on(table.userId, table.pollId),
+  ],
+);
 
-export type SelectWeeklyRankings = typeof weeklyRankings.$inferSelect;
-export type SelectSchool = typeof schoolsTable.$inferSelect;
+export const ballotEntriesTable = pgTable(
+  "ballot_entries",
+  {
+    ...defaultColumns,
+    ballotId: text("ballot_id")
+      .notNull()
+      .references(() => ballotsTable.id, { onDelete: "cascade" }),
+    schoolId: text("school_id")
+      .notNull()
+      .references(() => schoolsTable.id),
+    rank: integer("rank").notNull(),
+    points: integer("points").notNull(),
+  },
+  (table) => [
+    unique().on(table.ballotId, table.rank),
+    unique().on(table.ballotId, table.schoolId),
+    index().on(table.ballotId),
+    index().on(table.schoolId),
+  ],
+);
+
+/** Published Top 25 + others receiving votes. `rank` null = ORV only. */
+export const pollRankingsTable = pgTable(
+  "poll_rankings",
+  {
+    ...defaultColumns,
+    pollId: text("poll_id")
+      .notNull()
+      .references(() => pollsTable.id),
+    weekId: text("week_id")
+      .notNull()
+      .references(() => weeksTable.id),
+    schoolId: text("school_id")
+      .notNull()
+      .references(() => schoolsTable.id),
+    rank: integer("rank"),
+    points: integer("points").notNull(),
+    firstPlaceVotes: integer("first_place_votes").default(0).notNull(),
+    isTie: boolean("is_tie").default(false).notNull(),
+  },
+  (table) => [
+    unique().on(table.pollId, table.weekId, table.schoolId),
+    index().on(table.pollId, table.weekId),
+    index().on(table.schoolId, table.pollId, table.weekId),
+  ],
+);
 
 export const playersTable = pgTable(
   "players",
@@ -412,22 +372,6 @@ export const playersTable = pgTable(
   (table) => [index().on(table.slug), index().on(table.sportId)],
 );
 
-export const playersTableRelations = relations(
-  playersTable,
-  ({ one, many }) => ({
-    sport: one(sportsTable, {
-      fields: [playersTable.sportId],
-      references: [sportsTable.id],
-    }),
-    committedSchool: one(schoolsTable, {
-      fields: [playersTable.committedSchoolId],
-      references: [schoolsTable.id],
-    }),
-    timeline: many(playerTimelineTable),
-    commitments: many(playerCommitmentsTable),
-  }),
-);
-
 export const playerTimelineTable = pgTable(
   "player_timeline",
   {
@@ -443,6 +387,37 @@ export const playerTimelineTable = pgTable(
     endDate: timestamp("end_date"),
   },
   (table) => [index().on(table.playerId)],
+);
+
+export const playerCommitmentsTable = pgTable(
+  "player_commitments",
+  {
+    ...defaultColumns,
+    playerId: text("player_id")
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    schoolId: text("school_id").references(() => schoolsTable.id),
+    sportId: text("sport_id").references(() => sportsTable.id),
+    committedAt: timestamp("committed_at"),
+    classYear: integer("class_year"),
+  },
+  (table) => [index().on(table.playerId), index().on(table.schoolId)],
+);
+
+export const playersTableRelations = relations(
+  playersTable,
+  ({ one, many }) => ({
+    sport: one(sportsTable, {
+      fields: [playersTable.sportId],
+      references: [sportsTable.id],
+    }),
+    committedSchool: one(schoolsTable, {
+      fields: [playersTable.committedSchoolId],
+      references: [schoolsTable.id],
+    }),
+    timeline: many(playerTimelineTable),
+    commitments: many(playerCommitmentsTable),
+  }),
 );
 
 export const playerTimelineTableRelations = relations(
@@ -463,21 +438,6 @@ export const playerTimelineTableRelations = relations(
   }),
 );
 
-export const playerCommitmentsTable = pgTable(
-  "player_commitments",
-  {
-    ...defaultColumns,
-    playerId: text("player_id")
-      .notNull()
-      .references(() => playersTable.id, { onDelete: "cascade" }),
-    schoolId: text("school_id").references(() => schoolsTable.id),
-    sportId: text("sport_id").references(() => sportsTable.id),
-    committedAt: timestamp("committed_at"),
-    classYear: integer("class_year"),
-  },
-  (table) => [index().on(table.playerId), index().on(table.schoolId)],
-);
-
 export const playerCommitmentsTableRelations = relations(
   playerCommitmentsTable,
   ({ one }) => ({
@@ -496,5 +456,241 @@ export const playerCommitmentsTableRelations = relations(
   }),
 );
 
+export const sportsTableRelations = relations(sportsTable, ({ many }) => ({
+  seasons: many(seasonsTable),
+  conferenceSports: many(conferenceSportsTable),
+  schoolConferenceAffiliations: many(schoolConferenceAffiliationsTable),
+  divisionSports: many(divisionSportsTable),
+  voterBallots: many(voterBallots),
+  weeklyFinalRankings: many(weeklyFinalRankings),
+  polls: many(pollsTable),
+}));
+
+export const voterBallotsRelations = relations(voterBallots, ({ one }) => ({
+  sport: one(sportsTable, {
+    fields: [voterBallots.sportId],
+    references: [sportsTable.id],
+  }),
+}));
+
+export const weeklyFinalRankingsRelations = relations(
+  weeklyFinalRankings,
+  ({ one }) => ({
+    sport: one(sportsTable, {
+      fields: [weeklyFinalRankings.sportId],
+      references: [sportsTable.id],
+    }),
+  }),
+);
+
+export const seasonsTableRelations = relations(
+  seasonsTable,
+  ({ one, many }) => ({
+    sport: one(sportsTable, {
+      fields: [seasonsTable.sportId],
+      references: [sportsTable.id],
+    }),
+    seasonTypes: many(seasonTypesTable),
+  }),
+);
+
+export const seasonTypesTableRelations = relations(
+  seasonTypesTable,
+  ({ one, many }) => ({
+    season: one(seasonsTable, {
+      fields: [seasonTypesTable.seasonId],
+      references: [seasonsTable.id],
+    }),
+    weeks: many(weeksTable),
+  }),
+);
+
+export const weeksTableRelations = relations(weeksTable, ({ one, many }) => ({
+  seasonType: one(seasonTypesTable, {
+    fields: [weeksTable.seasonTypeId],
+    references: [seasonTypesTable.id],
+  }),
+  ballots: many(ballotsTable),
+  pollRankings: many(pollRankingsTable),
+  weeklyRankings: many(weeklyRankings),
+}));
+
+export const schoolsTableRelations = relations(schoolsTable, ({ many }) => ({
+  schoolConferenceAffiliations: many(schoolConferenceAffiliationsTable),
+  ballotEntries: many(ballotEntriesTable),
+  pollRankings: many(pollRankingsTable),
+}));
+
+export const conferencesTableRelations = relations(
+  conferencesTable,
+  ({ many }) => ({
+    conferenceSports: many(conferenceSportsTable),
+    schoolConferenceAffiliations: many(schoolConferenceAffiliationsTable),
+  }),
+);
+
+export const conferenceSportsTableRelations = relations(
+  conferenceSportsTable,
+  ({ one }) => ({
+    conference: one(conferencesTable, {
+      fields: [conferenceSportsTable.conferenceId],
+      references: [conferencesTable.id],
+    }),
+    sport: one(sportsTable, {
+      fields: [conferenceSportsTable.sportId],
+      references: [sportsTable.id],
+    }),
+  }),
+);
+
+export const schoolConferenceAffiliationsTableRelations = relations(
+  schoolConferenceAffiliationsTable,
+  ({ one }) => ({
+    school: one(schoolsTable, {
+      fields: [schoolConferenceAffiliationsTable.schoolId],
+      references: [schoolsTable.id],
+    }),
+    sport: one(sportsTable, {
+      fields: [schoolConferenceAffiliationsTable.sportId],
+      references: [sportsTable.id],
+    }),
+    conference: one(conferencesTable, {
+      fields: [schoolConferenceAffiliationsTable.conferenceId],
+      references: [conferencesTable.id],
+    }),
+  }),
+);
+
+export const divisionsTableRelations = relations(
+  divisionsTable,
+  ({ many }) => ({
+    divisionSports: many(divisionSportsTable),
+  }),
+);
+
+export const subdivisionSportsTableRelations = relations(
+  divisionSportsTable,
+  ({ one, many }) => ({
+    sport: one(sportsTable, {
+      fields: [divisionSportsTable.sportId],
+      references: [sportsTable.id],
+    }),
+    division: one(divisionsTable, {
+      fields: [divisionSportsTable.divisionId],
+      references: [divisionsTable.id],
+    }),
+    weeklyRankings: many(weeklyRankings),
+    polls: many(pollsTable),
+  }),
+);
+
+export const weeklyRankingsRelations = relations(weeklyRankings, ({ one }) => ({
+  school: one(schoolsTable, {
+    fields: [weeklyRankings.schoolId],
+    references: [schoolsTable.id],
+  }),
+  divisionSport: one(divisionSportsTable, {
+    fields: [weeklyRankings.divisionSportId],
+    references: [divisionSportsTable.id],
+  }),
+  week: one(weeksTable, {
+    fields: [weeklyRankings.weekId],
+    references: [weeksTable.id],
+  }),
+}));
+
+export const pollsTableRelations = relations(pollsTable, ({ one, many }) => ({
+  sport: one(sportsTable, {
+    fields: [pollsTable.sportId],
+    references: [sportsTable.id],
+  }),
+  divisionSport: one(divisionSportsTable, {
+    fields: [pollsTable.divisionSportId],
+    references: [divisionSportsTable.id],
+  }),
+  voters: many(pollVotersTable),
+  ballots: many(ballotsTable),
+  rankings: many(pollRankingsTable),
+}));
+
+export const pollVotersTableRelations = relations(
+  pollVotersTable,
+  ({ one }) => ({
+    poll: one(pollsTable, {
+      fields: [pollVotersTable.pollId],
+      references: [pollsTable.id],
+    }),
+    user: one(usersTable, {
+      fields: [pollVotersTable.userId],
+      references: [usersTable.id],
+    }),
+  }),
+);
+
+export const ballotsTableRelations = relations(
+  ballotsTable,
+  ({ one, many }) => ({
+    poll: one(pollsTable, {
+      fields: [ballotsTable.pollId],
+      references: [pollsTable.id],
+    }),
+    user: one(usersTable, {
+      fields: [ballotsTable.userId],
+      references: [usersTable.id],
+    }),
+    week: one(weeksTable, {
+      fields: [ballotsTable.weekId],
+      references: [weeksTable.id],
+    }),
+    entries: many(ballotEntriesTable),
+  }),
+);
+
+export const ballotEntriesTableRelations = relations(
+  ballotEntriesTable,
+  ({ one }) => ({
+    ballot: one(ballotsTable, {
+      fields: [ballotEntriesTable.ballotId],
+      references: [ballotsTable.id],
+    }),
+    school: one(schoolsTable, {
+      fields: [ballotEntriesTable.schoolId],
+      references: [schoolsTable.id],
+    }),
+  }),
+);
+
+export const pollRankingsTableRelations = relations(
+  pollRankingsTable,
+  ({ one }) => ({
+    poll: one(pollsTable, {
+      fields: [pollRankingsTable.pollId],
+      references: [pollsTable.id],
+    }),
+    week: one(weeksTable, {
+      fields: [pollRankingsTable.weekId],
+      references: [weeksTable.id],
+    }),
+    school: one(schoolsTable, {
+      fields: [pollRankingsTable.schoolId],
+      references: [schoolsTable.id],
+    }),
+  }),
+);
+
+export type InsertUser = typeof usersTable.$inferInsert;
+export type SelectUser = typeof usersTable.$inferSelect;
+export type InsertSeason = typeof seasonsTable.$inferInsert;
+export type InsertSeasonType = typeof seasonTypesTable.$inferInsert;
+export type InsertWeeks = typeof weeksTable.$inferInsert;
+export type InsertSchoolConferenceAffiliations =
+  typeof schoolConferenceAffiliationsTable.$inferInsert;
+export type InsertConferenceSports = typeof conferenceSportsTable.$inferInsert;
+export type InsertDivisionSports = typeof divisionSportsTable.$inferInsert;
+export type SelectSchool = typeof schoolsTable.$inferSelect;
+export type SelectWeeklyRankings = typeof weeklyRankings.$inferSelect;
+export type SelectPoll = typeof pollsTable.$inferSelect;
+export type SelectBallot = typeof ballotsTable.$inferSelect;
+export type SelectPollRanking = typeof pollRankingsTable.$inferSelect;
 export type SelectPlayer = typeof playersTable.$inferSelect;
 export type InsertPlayer = typeof playersTable.$inferInsert;

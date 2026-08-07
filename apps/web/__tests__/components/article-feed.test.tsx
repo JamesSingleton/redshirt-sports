@@ -5,15 +5,17 @@ import type { ArticleFeedItem } from "@/types/article";
 
 const testImage = {
   caption: "",
-  attribution: "",
+  attribution: "Test Attribution",
   _type: "image" as const,
   id: "image-test",
   alt: "Test image",
-  credit: "Unknown",
+  credit: "Test Attribution",
   preview: null,
   dominantColor: null,
   width: 1200,
   height: 675,
+  hotspot: null,
+  crop: null,
 };
 
 vi.mock("@/components/article-card", () => ({

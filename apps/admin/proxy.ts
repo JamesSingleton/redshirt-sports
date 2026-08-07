@@ -1,26 +1,8 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { type NextRequest, NextResponse } from "next/server";
+import { authMiddleware } from "@redshirt-sports/auth/proxy";
 
-type UserMetadata = {
-  isVoter?: boolean;
-  isAdmin?: boolean;
-};
-
-const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
-
-export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const { sessionClaims } = await auth();
-  if (!isPublicRoute(req)) {
-    await auth.protect();
-    const { isAdmin } = (sessionClaims?.metadata ?? {}) as UserMetadata;
-
-    if (!isAdmin) {
-      return NextResponse.redirect(
-        new URL("https://www.redshirtsports.xyz", req.url),
-      );
-    }
-  }
-});
+// Auth checks live on resources (layouts / Server Actions via requireAdmin).
+// Keep authMiddleware so Clerk can hydrate the session.
+export default authMiddleware();
 
 export const config = {
   matcher: [

@@ -1,5 +1,6 @@
 "use client";
 
+import { formatWeekSegment } from "@redshirt-sports/clients/espn";
 import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
@@ -143,7 +144,7 @@ const MobileNavbar = memo(function MobileNavbar({
                         {footballRankings.map((ranking: any) => (
                           <Link
                             key={`${ranking?.division}-${ranking?.year}-${ranking?.week}-mobile`}
-                            href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? "final-rankings" : ranking?.week}`}
+                            href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${formatWeekSegment(ranking?.week ?? 0)}`}
                             className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
                             onClick={() => setIsOpen(false)}
                           >
@@ -277,7 +278,7 @@ export const DesktopNavbar = memo(function DesktopNavbar({
                           {footballRankings.map((ranking) => (
                             <Link
                               key={`${ranking?.division}-${ranking?.year}-${ranking?.week}`}
-                              href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${ranking?.week === 999 ? "final-rankings" : ranking?.week}`}
+                              href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${formatWeekSegment(ranking?.week ?? 0)}`}
                               className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
                             >
                               {ranking?.division &&

@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Card,
@@ -16,27 +17,38 @@ import {
   fetchAndLoadSchools,
   fetchAndLoadSports,
   fetchAndLoadSubdivisions,
-  fetchAndTransformRankings,
+  type LoaderResult,
 } from "@/actions/data-loaders";
 
+type LoaderState = {
+  success: boolean;
+  message: string | null;
+  error: string | null;
+};
+
+const initialLoaderState: LoaderState = {
+  success: false,
+  message: null,
+  error: null,
+};
+
 interface LoaderActionProps {
-  loader: (formData: FormData) => Promise<any>;
+  loader: () => Promise<LoaderResult>;
 }
 
 function LoaderAction({ loader }: LoaderActionProps) {
   const [state, runAction, isPending] = useActionState(
     async (
-      _prevState: { success: boolean; error: string | null },
-      formData: FormData,
-    ) => {
-      try {
-        await loader(formData);
-        return { success: true, error: null };
-      } catch (error: any) {
-        return { success: false, error: error?.message || "Unknown error" };
+      _prevState: LoaderState,
+      _formData: FormData,
+    ): Promise<LoaderState> => {
+      const result = await loader();
+      if (!result.ok) {
+        return { success: false, message: null, error: result.error };
       }
+      return { success: true, message: result.message, error: null };
     },
-    { success: false, error: null },
+    initialLoaderState,
   );
 
   return (
@@ -44,15 +56,17 @@ function LoaderAction({ loader }: LoaderActionProps) {
       <Button type="submit" disabled={isPending}>
         Run
       </Button>
-      {isPending && <span className="text-sm ml-2">Loading...</span>}
-      {state.error && (
-        <span className="block text-sm mt-2 text-destructive">
+      {isPending ? <span className="ml-2 text-sm">Loading...</span> : null}
+      {state.error ? (
+        <span className="text-destructive mt-2 block text-sm">
           {state.error}
         </span>
-      )}
-      {state.success && !state.error && (
-        <span className="block text-sm text-green-600 mt-2">Success!</span>
-      )}
+      ) : null}
+      {state.success && state.message ? (
+        <span className="mt-2 block text-sm text-green-600">
+          {state.message}
+        </span>
+      ) : null}
     </form>
   );
 }
@@ -90,20 +104,17 @@ const configuredLoaders = [
   },
   {
     label: "Schools",
-    description: "This loader will fetch and load school info.",
+    description:
+      "Fetch schools from Sanity and upsert them (safe to re-run). Replaces conference affiliations from each school's Sanity data.",
     loader: fetchAndLoadSchools,
-  },
-  {
-    label: "Rankings",
-    loader: fetchAndTransformRankings,
   },
 ];
 
 export default function Development() {
   return (
     <div className="p-8">
-      <h2 className="text-2xl font-bold mb-6">Data Loaders</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <h2 className="mb-6 text-2xl font-bold">Data Loaders</h2>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {configuredLoaders.map((loaderConfig) => (
           <Card key={loaderConfig.label}>
             <CardHeader>

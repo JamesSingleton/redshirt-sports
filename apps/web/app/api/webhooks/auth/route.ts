@@ -1,11 +1,12 @@
-import type { WebhookEvent } from "@clerk/nextjs/server";
 import { analytics } from "@redshirt-sports/analytics/server";
-import { usersTable } from "@redshirt-sports/db/schema";
-import { eq } from "drizzle-orm";
+import type { WebhookEvent } from "@redshirt-sports/auth/server";
+import {
+  createUser,
+  revokeAssignmentsForNonVoters,
+  updateUser,
+} from "@redshirt-sports/db/queries";
 import { headers } from "next/headers";
 import { Webhook } from "svix";
-
-import { db } from "@/server/db";
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -54,11 +55,10 @@ export async function POST(req: Request) {
   try {
     switch (type) {
       case "user.created":
-        await db.insert(usersTable).values({
-          // @ts-expect-error Clerk doesn't provide types for the data
+        await createUser({
           id: data.id,
-          firstName: data.first_name,
-          lastName: data.last_name,
+          firstName: data.first_name ?? "",
+          lastName: data.last_name ?? "",
         });
 
         // Capture user_created event and identify user in PostHog
@@ -78,18 +78,26 @@ export async function POST(req: Request) {
           },
         });
         break;
-      case "user.updated":
-        await db
-          .update(usersTable)
-          .set({
-            firstName: data.first_name as string,
-            lastName: data.last_name as string,
-            organization: data.public_metadata.organization as string,
-            organizationRole: data.public_metadata.organizationRole as string,
-            isAdmin: data.public_metadata.isAdmin as boolean,
-            isVoter: data.public_metadata.isVoter as boolean,
-          })
-          .where(eq(usersTable.id, data.id));
+      case "user.updated": {
+        const isVoter = Boolean(data.public_metadata.isVoter);
+
+        await updateUser({
+          id: data.id,
+          firstName: data.first_name ?? "",
+          lastName: data.last_name ?? "",
+          organization: data.public_metadata.organization as string | undefined,
+          organizationRole: data.public_metadata.organizationRole as
+            | string
+            | undefined,
+          isAdmin: data.public_metadata.isAdmin as boolean | undefined,
+          isVoter,
+        });
+
+        // Drop active poll assignments when voter credentials are removed.
+        // Historical ballots remain.
+        if (!isVoter) {
+          await revokeAssignmentsForNonVoters(data.id);
+        }
 
         // Capture user_updated event in PostHog
         analytics?.capture({
@@ -114,11 +122,13 @@ export async function POST(req: Request) {
           },
         });
         break;
+      }
       default:
         return new Response("", { status: 501 });
     }
     return new Response("", { status: 200 });
-  } catch (error: any) {
-    return new Response(error?.message, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(message, { status: 500 });
   }
 }

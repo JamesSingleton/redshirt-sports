@@ -23,10 +23,11 @@ import type { Graph } from "schema-dts";
 
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { RankingsFilters } from "@/components/rankings/filters";
+import { RankMovement } from "@/components/rankings/rank-movement";
 import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
 import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-skeleton";
 import CustomImage from "@/components/sanity-image";
-import { FINAL_RANKINGS_WEEK, PRESEASON_WEEK, TOP_25 } from "@/lib/constants";
+import { TOP_25 } from "@/lib/constants";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
@@ -34,20 +35,17 @@ import {
   getCachedWeeksThatHaveVotes,
   getCachedYearsThatHaveVotes,
 } from "@/lib/rankings-data";
-import type { SportParam } from "@/utils/espn";
+import {
+  buildRankBySchoolId,
+  displayName,
+  getDroppedFromVotes,
+  getDroppedOutOfTop25,
+  getMovement,
+  getPreviousWeek,
+} from "@/lib/rankings-movement";
+import { parseWeekSegment, type SportParam, weekTitle } from "@/utils/espn";
 
 const baseUrl = getBaseUrl();
-
-function getWeekTitle(weekNumber: number): string {
-  if (weekNumber === PRESEASON_WEEK) return "Preseason";
-  if (weekNumber === FINAL_RANKINGS_WEEK) return "Postseason";
-  return `Week ${weekNumber}`;
-}
-
-function parseWeekNumber(week: string): number {
-  if (week === "final-rankings") return FINAL_RANKINGS_WEEK;
-  return parseInt(week, 10);
-}
 
 export async function generateMetadata({
   params,
@@ -63,8 +61,8 @@ export async function generateMetadata({
     params,
     getDynamicFetchOptions(),
   ]);
-  const weekNumber = parseWeekNumber(week);
-  const titleWeek = getWeekTitle(weekNumber);
+  const weekNumber = parseWeekSegment(week);
+  const titleWeek = weekTitle(weekNumber);
 
   return getPageMetadata(
     {
@@ -88,20 +86,17 @@ export default async function CollegeFootballRankingsPage({
 }) {
   const { division, year, week, sport } = await params;
 
-  const weekNumber = parseWeekNumber(week);
-  const titleWeek = getWeekTitle(weekNumber);
+  const weekNumber = parseWeekSegment(week);
+  const titleWeek = weekTitle(weekNumber);
   const yearNumber = parseInt(year, 10);
+  const sportParam = sport as SportParam;
 
-  const [yearsWithVotesResult, weeksWithVotesResult, finalRankingsResult] =
-    await Promise.allSettled([
+  const [yearsWithVotesResult, weeksWithVotesResult] = await Promise.allSettled(
+    [
       getCachedYearsThatHaveVotes({ division }),
       getCachedWeeksThatHaveVotes({ year: yearNumber, division }),
-      getCachedFinalRankings({
-        year: yearNumber,
-        week: weekNumber,
-        division,
-      }),
-    ]);
+    ],
+  );
 
   const yearsWithVotes =
     yearsWithVotesResult.status === "fulfilled"
@@ -112,20 +107,59 @@ export default async function CollegeFootballRankingsPage({
       ? weeksWithVotesResult.value
       : [];
 
-  if (
-    !yearsWithVotes.length ||
-    !weeksWithVotes.length ||
-    finalRankingsResult.status === "rejected"
-  ) {
+  if (!yearsWithVotes.length || !weeksWithVotes.length) {
+    notFound();
+  }
+
+  const previousWeek = getPreviousWeek(weeksWithVotes, weekNumber);
+
+  const [finalRankingsResult, previousRankingsResult] =
+    await Promise.allSettled([
+      getCachedFinalRankings({
+        year: yearNumber,
+        week: weekNumber,
+        division,
+        sport: sportParam,
+      }),
+      previousWeek != null
+        ? getCachedFinalRankings({
+            year: yearNumber,
+            week: previousWeek,
+            division,
+            sport: sportParam,
+          })
+        : Promise.resolve(null),
+    ]);
+
+  if (finalRankingsResult.status === "rejected") {
     notFound();
   }
 
   const { rankings } = finalRankingsResult.value;
+  const previousRankings =
+    previousRankingsResult.status === "fulfilled" &&
+    previousRankingsResult.value != null
+      ? previousRankingsResult.value.rankings
+      : null;
+
+  const previousRankById = previousRankings
+    ? buildRankBySchoolId(previousRankings)
+    : null;
 
   const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25);
   const outsideTop25 = rankings.filter(
     (team) => !team.rank || team.rank > TOP_25,
   );
+
+  const droppedOutOfTop25 = previousRankings
+    ? getDroppedOutOfTop25(previousRankings, rankings)
+    : [];
+  const droppedOutIds = new Set(droppedOutOfTop25.map((t) => t._id));
+  const noLongerReceivingVotes = previousRankings
+    ? getDroppedFromVotes(previousRankings, rankings).filter(
+        (t) => !droppedOutIds.has(t._id),
+      )
+    : [];
 
   const jsonLd: Graph = {
     "@context": "https://schema.org",
@@ -151,15 +185,21 @@ export default async function CollegeFootballRankingsPage({
         url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
         numberOfItems: top25.length,
         itemListOrder: "https://schema.org/ItemListOrderAscending",
-        itemListElement: top25.map((team) => ({
-          "@type": "ListItem",
-          position: team.rank,
-          item: {
-            "@type": "SportsTeam",
-            name: team.shortName,
-            sport: sport,
-          },
-        })),
+        itemListElement: top25.flatMap((team) =>
+          team.rank == null
+            ? []
+            : [
+                {
+                  "@type": "ListItem" as const,
+                  position: team.rank,
+                  item: {
+                    "@type": "SportsTeam" as const,
+                    name: team.shortName,
+                    sport: sport,
+                  },
+                },
+              ],
+        ),
       },
     ],
   };
@@ -188,21 +228,37 @@ export default async function CollegeFootballRankingsPage({
               <TableHeader>
                 <TableRow>
                   <TableHead>Rank</TableHead>
+                  <TableHead>Trend</TableHead>
                   <TableHead>School (1st Place Votes)</TableHead>
                   <TableHead>Points</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {top25.map((team) => {
+                  const movement = previousRankById
+                    ? getMovement(team.rank, previousRankById.get(team._id))
+                    : null;
+
                   return (
                     <TableRow key={team._id}>
                       <TableCell>
                         {team.isTie ? `T-${team.rank}` : team.rank}
                       </TableCell>
                       <TableCell>
+                        {movement ? (
+                          <RankMovement movement={movement} />
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center">
                           <CustomImage
-                            image={team.image}
+                            image={
+                              team.image as Parameters<
+                                typeof CustomImage
+                              >[0]["image"]
+                            }
                             width={40}
                             height={40}
                             className="mr-2 size-10 shrink-0 object-contain"
@@ -241,14 +297,36 @@ export default async function CollegeFootballRankingsPage({
           )}
         </CardContent>
         <CardFooter>
-          {outsideTop25.length > 0 && (
-            <div className="mt-4">
-              <p>
-                <strong>Others receiving votes:</strong>{" "}
-                {outsideTop25
-                  .map((team) => `${team.shortName} ${team._points}`)
-                  .join(", ")}
-              </p>
+          {(droppedOutOfTop25.length > 0 ||
+            outsideTop25.length > 0 ||
+            noLongerReceivingVotes.length > 0) && (
+            <div className="mt-4 space-y-2">
+              {droppedOutOfTop25.length > 0 && (
+                <p>
+                  <strong>Dropped Out of Top 25:</strong>{" "}
+                  {droppedOutOfTop25
+                    .map(
+                      (team) => `${displayName(team)} (${team.previousRank})`,
+                    )
+                    .join(", ")}
+                </p>
+              )}
+              {outsideTop25.length > 0 && (
+                <p>
+                  <strong>Others receiving votes:</strong>{" "}
+                  {outsideTop25
+                    .map((team) => `${team.shortName} ${team._points}`)
+                    .join(", ")}
+                </p>
+              )}
+              {noLongerReceivingVotes.length > 0 && (
+                <p>
+                  <strong>No longer receiving votes:</strong>{" "}
+                  {noLongerReceivingVotes
+                    .map((team) => displayName(team))
+                    .join(", ")}
+                </p>
+              )}
             </div>
           )}
         </CardFooter>
@@ -259,7 +337,7 @@ export default async function CollegeFootballRankingsPage({
             division={division}
             year={yearNumber}
             week={weekNumber}
-            sport={sport as SportParam}
+            sport={sportParam}
           />
         </Suspense>
       )}

@@ -1,6 +1,6 @@
 {
   "extends": "@redshirt-sports/typescript-config/base.json",
-  "include": ["src"],
+  "include": ["src", "scripts", "keys.ts"],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "types": ["node"],

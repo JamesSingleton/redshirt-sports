@@ -1,3 +1,4 @@
+import type { SanityImageData } from "@redshirt-sports/sanity/image";
 import {
   Table,
   TableBody,
@@ -12,8 +13,10 @@ import Link from "next/link";
 import {
   PortableText,
   type PortableTextBlock,
+  type PortableTextComponentProps,
   type PortableTextMarkComponentProps,
   type PortableTextReactComponents,
+  type PortableTextTypeComponentProps,
 } from "next-sanity";
 
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
@@ -31,11 +34,33 @@ type TableType = {
   markDefs: any;
 };
 
+type TwitterEmbedValue = {
+  _type: "twitter";
+  id: string;
+};
+
+type YoutubeEmbedValue = {
+  _type: "youtubeEmbed";
+  url: string;
+  autoplay?: boolean;
+  description?: string;
+  height?: number | string;
+  requireConsent?: boolean;
+  thumbnail?: string;
+  title?: string;
+  width?: number | string;
+};
+
 type SiteLinkMarkValue = {
   _type: string;
   href?: string;
   openInNewTab?: boolean;
 };
+
+type BlockChildrenProps = Pick<
+  PortableTextComponentProps<PortableTextBlock>,
+  "children"
+>;
 
 function SiteLinkMark({
   children,
@@ -69,19 +94,19 @@ function SiteLinkMark({
 
 const components: Partial<PortableTextReactComponents> = {
   block: {
-    h2: ({ children }) => {
+    h2: ({ children }: BlockChildrenProps) => {
       return <h2 className="text-4xl">{children}</h2>;
     },
-    h3: ({ children }) => {
+    h3: ({ children }: BlockChildrenProps) => {
       return <h3 className="text-3xl">{children}</h3>;
     },
-    h4: ({ children }) => {
+    h4: ({ children }: BlockChildrenProps) => {
       return <h4 className="text-2xl">{children}</h4>;
     },
-    h5: ({ children }) => {
+    h5: ({ children }: BlockChildrenProps) => {
       return <h5 className="text-xl">{children}</h5>;
     },
-    h6: ({ children }) => {
+    h6: ({ children }: BlockChildrenProps) => {
       return <h6 className="text-lg">{children}</h6>;
     },
   },
@@ -119,14 +144,18 @@ const components: Partial<PortableTextReactComponents> = {
     },
   },
   types: {
-    twitter: ({ value }) => {
+    twitter: ({ value }: PortableTextTypeComponentProps<TwitterEmbedValue>) => {
       return (
         <div className="not-prose flex items-center justify-center">
           <Tweet id={value.id} />
         </div>
       );
     },
-    image: ({ value }) => {
+    image: ({
+      value,
+    }: PortableTextTypeComponentProps<
+      SanityImageData & { _type: "image" }
+    >) => {
       return (
         <figure className="my-2 flex flex-col items-center self-center rounded-lg shadow-md">
           <CustomImage
@@ -146,7 +175,7 @@ const components: Partial<PortableTextReactComponents> = {
         </figure>
       );
     },
-    table: ({ value }: { value: TableType }) => {
+    table: ({ value }: PortableTextTypeComponentProps<TableType>) => {
       const headerRow = value.rows[0];
       const rows = value.rows.slice(1);
 
@@ -173,7 +202,9 @@ const components: Partial<PortableTextReactComponents> = {
         </div>
       );
     },
-    youtubeEmbed: ({ value }) => {
+    youtubeEmbed: ({
+      value,
+    }: PortableTextTypeComponentProps<YoutubeEmbedValue>) => {
       return <YouTubeEmbedComponent {...value} />;
     },
   },

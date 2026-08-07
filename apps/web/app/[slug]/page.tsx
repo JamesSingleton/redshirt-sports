@@ -228,10 +228,12 @@ async function renderPostPage(
                     mode="cover"
                     sizes={IMAGE_SIZES.articleHero}
                   />
-                  <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
-                    <CameraIcon className="h-4 w-4" />
-                    <span>Source: {data.image.credit}</span>
-                  </figcaption>
+                  {data.image.credit ? (
+                    <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
+                      <CameraIcon className="h-4 w-4" />
+                      <span>Source: {data.image.credit}</span>
+                    </figcaption>
+                  ) : null}
                 </figure>
               )}
               <RichText richText={data.body} />

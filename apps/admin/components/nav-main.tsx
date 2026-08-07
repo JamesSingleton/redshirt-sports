@@ -28,15 +28,14 @@ export function NavMain({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
+                asChild
                 tooltip={item.title}
-                isActive={item?.url === currentPath}
+                isActive={item.url === currentPath}
               >
-                {item.icon && <item.icon />}
-                {item.url ? (
-                  <Link href={item.url}>{item.title}</Link>
-                ) : (
+                <Link href={item.url}>
+                  {item.icon && <item.icon />}
                   <span>{item.title}</span>
-                )}
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

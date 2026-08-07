@@ -11,7 +11,7 @@ import type { InputProps, PortableTextInputProps } from "sanity";
 import { defineConfig } from "sanity";
 import { presentationTool } from "sanity/presentation";
 import { structureTool } from "sanity/structure";
-import { media, mediaAssetSource } from "sanity-plugin-media";
+import { media } from "sanity-plugin-media";
 
 import { CharacterCountInputPTE } from "@/components/character-count";
 import { Logo } from "@/components/logo";
@@ -33,9 +33,6 @@ export default defineConfig({
   projectId: projectId,
   icon: Logo,
   dataset: dataset ?? "production",
-  mediaLibrary: {
-    enabled: true,
-  },
   plugins: [
     assist(),
     structureTool({
@@ -73,13 +70,6 @@ export default defineConfig({
     table(),
   ],
   form: {
-    image: {
-      assetSources: (previousAssetSources) => {
-        return previousAssetSources.filter(
-          (assetSource) => assetSource === mediaAssetSource,
-        );
-      },
-    },
     components: {
       input: (props: InputProps) => {
         if (props.schemaType.name === "blockContent") {
