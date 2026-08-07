@@ -238,9 +238,7 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           fromWeekKey: weekKey,
           toWeekKey,
         });
-        toast.success(
-          `Moved ballot for ${voter.firstName} ${voter.lastName}`,
-        );
+        toast.success(`Moved ballot for ${voter.firstName} ${voter.lastName}`);
         const next = await previewRankingsPublish({
           sportSlug: selectedPoll.sportSlug,
           division: selectedPoll.slug,

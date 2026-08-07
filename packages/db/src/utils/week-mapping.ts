@@ -11,7 +11,10 @@ export const PUBLISHABLE_SEASON_TYPES = [
   SEASON_TYPE_CODES.POSTSEASON,
 ] as const;
 
-export function calendarWeekKey(seasonType: number, weekNumber: number): string {
+export function calendarWeekKey(
+  seasonType: number,
+  weekNumber: number,
+): string {
   return `${seasonType}-${weekNumber}`;
 }
 
@@ -113,7 +116,9 @@ export function legacyWeekLabel({
       }
       return trimmed;
     }
-    return weekNumber === 1 ? "Final Rankings" : `Postseason week ${weekNumber}`;
+    return weekNumber === 1
+      ? "Final Rankings"
+      : `Postseason week ${weekNumber}`;
   }
   const trimmed = text?.trim();
   if (trimmed) return trimmed;

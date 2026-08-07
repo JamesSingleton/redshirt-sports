@@ -9,11 +9,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import CustomImage from "@/components/sanity-image";
-import {
-  getCurrentSeason,
-  getVotingWeek,
-  type SportParam,
-} from "@/utils/espn";
+import { getCurrentSeason, getVotingWeek, type SportParam } from "@/utils/espn";
 import { transformBallotToTeamIds } from "@/utils/process-ballots";
 
 function generateConfirmationHeader(sport: string, division: string) {
