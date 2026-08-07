@@ -1,6 +1,6 @@
 import { inArray } from "drizzle-orm";
 
-import { primaryDb as db, ensurePrimaryDbAlive } from "../client";
+import { primaryDb as db } from "../client";
 import { SEASON_TYPE_CODES, seasonsTable } from "../schema";
 import {
   LEGACY_FINAL_RANKINGS_WEEK,
@@ -144,8 +144,6 @@ export async function getVotingSeasonInfoBySportIds(
 ): Promise<Map<string, VotingSeasonInfo>> {
   const bySportId = new Map<string, VotingSeasonInfo>();
   if (sportIds.length === 0) return bySportId;
-
-  await ensurePrimaryDbAlive();
 
   const seasonHeaders = await db.query.seasonsTable.findMany({
     where: inArray(seasonsTable.sportId, sportIds),

@@ -8,12 +8,17 @@ import * as schema from "./schema";
  * Serverless-safe postgres.js settings.
  * Short connect/idle timeouts avoid burning Vercel's ~10s function budget on
  * stale TCP sockets after an isolate freeze (Supabase CONNECT_TIMEOUT hangs).
+ *
+ * max_lifetime is disabled: postgres.js terminates aged sockets via a timer,
+ * which races in-flight queries in long-lived Next.js processes and surfaces
+ * as CONNECTION_DESTROYED. Stale sockets are handled by idle_timeout +
+ * {@link ensurePrimaryDbAlive} at request boundaries.
  */
 export const serverlessPostgresOptions = {
   prepare: false,
   max: 2,
   idle_timeout: 20,
-  max_lifetime: 60 * 5,
+  max_lifetime: 0,
   connect_timeout: 3,
 } as const;
 
@@ -24,6 +29,7 @@ type PrimaryDb = PostgresJsDatabase<PrimarySchema>;
 
 let primarySql: Sql | null = null;
 let primaryDbInstance: PrimaryDb | null = null;
+let ensureAliveInFlight: Promise<void> | null = null;
 
 function warnIfDirectSupabaseHost(databaseUrl: string) {
   try {
@@ -105,20 +111,32 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string) {
 
 /**
  * Ping the pool and recycle once if the socket is stale/unreachable.
- * Call at the start of serverless request handlers that use {@link primaryDb}.
+ *
+ * Call once at the start of a request handler, before parallel queries.
+ * Do not call from query helpers that may run concurrently — a timed-out
+ * ping under a saturated pool (max: 2) would recycle sockets still in use
+ * and cause CONNECTION_DESTROYED on sibling queries.
  */
 export async function ensurePrimaryDbAlive() {
-  const ping = async () => {
-    const sql = getPrimarySql();
-    await withTimeout(sql`select 1`, LIVENESS_TIMEOUT_MS, "DB liveness");
-  };
+  if (ensureAliveInFlight) return ensureAliveInFlight;
 
-  try {
-    await ping();
-  } catch {
-    await recyclePrimaryClient();
-    await ping();
-  }
+  ensureAliveInFlight = (async () => {
+    const ping = async () => {
+      const sql = getPrimarySql();
+      await withTimeout(sql`select 1`, LIVENESS_TIMEOUT_MS, "DB liveness");
+    };
+
+    try {
+      await ping();
+    } catch {
+      await recyclePrimaryClient();
+      await ping();
+    }
+  })().finally(() => {
+    ensureAliveInFlight = null;
+  });
+
+  return ensureAliveInFlight;
 }
 
 /**

@@ -7,12 +7,13 @@ import { env } from "@/env";
 /**
  * Keep in sync with `@redshirt-sports/db` serverlessPostgresOptions.
  * Short connect/idle timeouts avoid Vercel function hangs on stale sockets.
+ * max_lifetime stays 0 — timer-based teardown races in-flight queries.
  */
 const client = postgres(env.DATABASE_URL, {
   prepare: false,
   max: 2,
   idle_timeout: 20,
-  max_lifetime: 60 * 5,
+  max_lifetime: 0,
   connect_timeout: 3,
 });
 
