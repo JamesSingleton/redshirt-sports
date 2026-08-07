@@ -1,5 +1,4 @@
-"use server";
-
+import { ensurePrimaryDbAlive } from "@redshirt-sports/db/client";
 import {
   countActivePollVotersByPollIds,
   countBallotsForPollWeeks,
@@ -8,8 +7,6 @@ import {
   countVoters,
   getVotingSeasonInfoBySportIds,
   listPolls,
-  resolveWeekIdsForLegacyWeekLookups,
-  weekLookupKey,
   weekTitle,
 } from "@redshirt-sports/db/queries";
 
@@ -30,6 +27,7 @@ function sportTitle(slug: string) {
 
 export async function getDashboardData() {
   await requireAdmin();
+  await ensurePrimaryDbAlive();
 
   const pollsPromise = listPolls();
   const snapshotPromise = Promise.all([
@@ -51,32 +49,10 @@ export async function getDashboardData() {
   ]);
   const [credentialedVoters, totalUsers, staleAssignments] = snapshot;
 
-  const weekLookups = polls.flatMap((poll) => {
-    const season = seasonBySportId.get(poll.sportId);
-    if (!season) return [];
-    return [
-      {
-        sportId: poll.sportId,
-        year: season.year,
-        legacyWeek: season.votingWeek,
-      },
-    ];
-  });
-
-  const weekIdsByLookup = await resolveWeekIdsForLegacyWeekLookups(weekLookups);
-
   const ballotPairs = polls.flatMap((poll) => {
     const season = seasonBySportId.get(poll.sportId);
-    if (!season) return [];
-    const weekId = weekIdsByLookup.get(
-      weekLookupKey({
-        sportId: poll.sportId,
-        year: season.year,
-        legacyWeek: season.votingWeek,
-      }),
-    );
-    if (!weekId) return [];
-    return [{ pollId: poll.id, weekId }];
+    if (!season?.weekId) return [];
+    return [{ pollId: poll.id, weekId: season.weekId }];
   });
 
   const ballotCounts = await countBallotsForPollWeeks(ballotPairs);
@@ -87,17 +63,8 @@ export async function getDashboardData() {
     const assignedCount = assignedByPoll.get(poll.id) ?? 0;
 
     let submittedCount: number | null = null;
-    if (season) {
-      const weekId = weekIdsByLookup.get(
-        weekLookupKey({
-          sportId: poll.sportId,
-          year: season.year,
-          legacyWeek: season.votingWeek,
-        }),
-      );
-      if (weekId) {
-        submittedCount = ballotCounts.get(`${poll.id}:${weekId}`) ?? 0;
-      }
+    if (season?.weekId) {
+      submittedCount = ballotCounts.get(`${poll.id}:${season.weekId}`) ?? 0;
     }
 
     return {

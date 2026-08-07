@@ -1,7 +1,8 @@
 import { sql } from "drizzle-orm";
 
-import { primaryDb } from "../client";
+import { ensurePrimaryDbAlive, primaryDb } from "../client";
 
 export async function checkHealth() {
+  await ensurePrimaryDbAlive();
   await primaryDb.execute(sql`SELECT 1`);
 }

@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import { Suspense } from "react";
 
-import { getDashboardData } from "@/actions/dashboard";
+import { getDashboardData } from "@/lib/dashboard-data";
 import { PUBLIC_SITE_URL } from "@/lib/site";
 
 function DashboardFallback() {

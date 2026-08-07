@@ -1,10 +1,11 @@
 import { inArray } from "drizzle-orm";
 
-import { primaryDb as db } from "../client";
+import { primaryDb as db, ensurePrimaryDbAlive } from "../client";
 import { SEASON_TYPE_CODES, seasonsTable } from "../schema";
 import {
   LEGACY_FINAL_RANKINGS_WEEK,
   LEGACY_PRESEASON_WEEK,
+  legacyWeekToSeasonTypeAndNumber,
 } from "../utils/week-mapping";
 
 export async function getWeekBySport(
@@ -48,6 +49,7 @@ export type VotingSeasonInfo = {
   sportId: string;
   year: number;
   votingWeek: number;
+  weekId: string | null;
   isPreseason: boolean;
   isRegularSeason: boolean;
   isPostseason: boolean;
@@ -113,9 +115,28 @@ function periodFlags({
   return { isPreseason, isRegularSeason, isPostseason };
 }
 
+function resolveWeekIdFromSeasonTypes({
+  seasonTypes,
+  votingWeek,
+}: {
+  seasonTypes: Array<{
+    type: number;
+    weeks: Array<{ id: string; number: number }>;
+  }>;
+  votingWeek: number;
+}): string | null {
+  const { seasonType, weekNumber } =
+    legacyWeekToSeasonTypeAndNumber(votingWeek);
+  const type = seasonTypes.find((entry) => entry.type === seasonType);
+  return type?.weeks.find((week) => week.number === weekNumber)?.id ?? null;
+}
+
 /**
  * Resolve current voting-season info for many sports from synced Postgres
  * season/week rows (no ESPN round trip).
+ *
+ * Loads season headers first, then only types/weeks for the current season
+ * per sport (overlapping dates, else latest year).
  */
 export async function getVotingSeasonInfoBySportIds(
   sportIds: string[],
@@ -124,8 +145,48 @@ export async function getVotingSeasonInfoBySportIds(
   const bySportId = new Map<string, VotingSeasonInfo>();
   if (sportIds.length === 0) return bySportId;
 
-  const seasons = await db.query.seasonsTable.findMany({
+  await ensurePrimaryDbAlive();
+
+  const seasonHeaders = await db.query.seasonsTable.findMany({
     where: inArray(seasonsTable.sportId, sportIds),
+    columns: {
+      id: true,
+      sportId: true,
+      year: true,
+      startDate: true,
+      endDate: true,
+    },
+    orderBy: (model, { desc }) => [desc(model.year)],
+  });
+
+  const headersBySport = new Map<string, typeof seasonHeaders>();
+  for (const season of seasonHeaders) {
+    const list = headersBySport.get(season.sportId) ?? [];
+    list.push(season);
+    headersBySport.set(season.sportId, list);
+  }
+
+  const currentSeasonIds: string[] = [];
+  const currentHeaderBySport = new Map<
+    string,
+    (typeof seasonHeaders)[number]
+  >();
+
+  for (const sportId of sportIds) {
+    const sportSeasons = headersBySport.get(sportId) ?? [];
+    const current =
+      sportSeasons.find(
+        (season) => date >= season.startDate && date <= season.endDate,
+      ) ?? sportSeasons[0];
+    if (!current) continue;
+    currentSeasonIds.push(current.id);
+    currentHeaderBySport.set(sportId, current);
+  }
+
+  if (currentSeasonIds.length === 0) return bySportId;
+
+  const seasons = await db.query.seasonsTable.findMany({
+    where: inArray(seasonsTable.id, currentSeasonIds),
     with: {
       seasonTypes: {
         with: {
@@ -133,23 +194,14 @@ export async function getVotingSeasonInfoBySportIds(
         },
       },
     },
-    orderBy: (model, { desc }) => [desc(model.year)],
   });
 
-  const seasonsBySport = new Map<string, typeof seasons>();
-  for (const season of seasons) {
-    const list = seasonsBySport.get(season.sportId) ?? [];
-    list.push(season);
-    seasonsBySport.set(season.sportId, list);
-  }
+  const seasonById = new Map(seasons.map((season) => [season.id, season]));
 
   for (const sportId of sportIds) {
-    const sportSeasons = seasonsBySport.get(sportId) ?? [];
-    const current =
-      sportSeasons.find(
-        (season) => date >= season.startDate && date <= season.endDate,
-      ) ?? sportSeasons[0];
-
+    const header = currentHeaderBySport.get(sportId);
+    if (!header) continue;
+    const current = seasonById.get(header.id);
     if (!current) continue;
 
     const preseason = current.seasonTypes.find(
@@ -167,16 +219,22 @@ export async function getVotingSeasonInfoBySportIds(
       regularEnd: regularSeason?.endDate ?? null,
     });
 
+    const votingWeek = resolveVotingWeekFromLocalSeason({
+      regularSeasonEndDate: regularSeason?.endDate ?? null,
+      regularWeeks: (regularSeason?.weeks ?? []).map((week) => ({
+        number: week.number,
+        endDate: week.endDate,
+      })),
+      date,
+    });
+
     bySportId.set(sportId, {
       sportId,
       year: current.year,
-      votingWeek: resolveVotingWeekFromLocalSeason({
-        regularSeasonEndDate: regularSeason?.endDate ?? null,
-        regularWeeks: (regularSeason?.weeks ?? []).map((week) => ({
-          number: week.number,
-          endDate: week.endDate,
-        })),
-        date,
+      votingWeek,
+      weekId: resolveWeekIdFromSeasonTypes({
+        seasonTypes: current.seasonTypes,
+        votingWeek,
       }),
       isPreseason,
       isRegularSeason,
