@@ -11,11 +11,53 @@ import {
 import { listActivePollVoters } from "./polls";
 import { replacePollRankings } from "./rankings";
 import { getSportIdBySlug, type SportParam } from "./sports";
-import { getBallotsByWeekYearDivisionAndSport } from "./voting";
+import { getBallotVotesForPollWeek } from "./voting";
 import {
-  resolveWeekIdForLegacyWeek,
+  calendarWeekKey,
+  legacyWeekLabel,
+  legacyWeekToSeasonTypeAndNumber,
+  PUBLISHABLE_SEASON_TYPES,
+  parseCalendarWeekKey,
+  resolveWeekIdForCalendarWeek,
   seasonTypeAndNumberToLegacyWeek,
 } from "./weeks";
+
+export type CalendarWeekParams = {
+  seasonType: number;
+  weekNumber: number;
+};
+
+export function resolveCalendarWeekParams({
+  weekKey,
+  seasonType,
+  weekNumber,
+  legacyWeek,
+}: {
+  weekKey?: string | null;
+  seasonType?: number | null;
+  weekNumber?: number | null;
+  legacyWeek?: number | null;
+}): CalendarWeekParams {
+  if (weekKey) {
+    const parsed = parseCalendarWeekKey(weekKey);
+    if (!parsed) {
+      throw new Error(`Invalid week key: ${weekKey}`);
+    }
+    return parsed;
+  }
+
+  if (seasonType != null && weekNumber != null) {
+    return { seasonType, weekNumber };
+  }
+
+  if (legacyWeek != null) {
+    return legacyWeekToSeasonTypeAndNumber(legacyWeek);
+  }
+
+  throw new Error(
+    "Week is required (weekKey, seasonType + weekNumber, or legacy week)",
+  );
+}
 
 type BallotVote = {
   schoolId?: string;
@@ -125,28 +167,61 @@ export async function listLegacyWeeksForSportYear({
       eq(weeksTable.seasonTypeId, seasonTypesTable.id),
     )
     .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
-    .where(and(eq(seasonsTable.sportId, sportId), eq(seasonsTable.year, year)))
+    .where(
+      and(
+        eq(seasonsTable.sportId, sportId),
+        eq(seasonsTable.year, year),
+        inArray(seasonTypesTable.type, [...PUBLISHABLE_SEASON_TYPES]),
+      ),
+    )
     .orderBy(asc(seasonTypesTable.type), asc(weeksTable.number));
 
-  return rows.map((row) => ({
-    legacyWeek: seasonTypeAndNumberToLegacyWeek(row.seasonType, row.weekNumber),
-    label: row.text || `Week ${row.weekNumber}`,
-    seasonType: row.seasonType,
-    weekNumber: row.weekNumber,
-  }));
+  return rows.map((row) => {
+    const legacyWeek = seasonTypeAndNumberToLegacyWeek(
+      row.seasonType,
+      row.weekNumber,
+    );
+    return {
+      weekKey: calendarWeekKey(row.seasonType, row.weekNumber),
+      legacyWeek,
+      label: legacyWeekLabel({
+        legacyWeek,
+        seasonType: row.seasonType,
+        weekNumber: row.weekNumber,
+        text: row.text,
+      }),
+      seasonType: row.seasonType,
+      weekNumber: row.weekNumber,
+    };
+  });
 }
 
 export async function getPollRankingPublishPreview({
   sport,
   division,
   year,
+  weekKey,
+  seasonType,
+  weekNumber,
   week,
 }: {
   sport: SportParam;
   division: string;
   year: number;
-  week: number;
+  weekKey?: string | null;
+  seasonType?: number | null;
+  weekNumber?: number | null;
+  /** @deprecated Use weekKey or seasonType + weekNumber */
+  week?: number | null;
 }) {
+  const { seasonType: resolvedSeasonType, weekNumber: resolvedWeekNumber } =
+    resolveCalendarWeekParams({
+      weekKey,
+      seasonType,
+      weekNumber,
+      legacyWeek: week,
+    });
+
   const sportId = await getSportIdBySlug(sport);
   if (!sportId) throw new Error(`Invalid sport: ${sport}`);
 
@@ -159,23 +234,33 @@ export async function getPollRankingPublishPreview({
     throw new Error(`Poll is inactive: ${sport}/${division}`);
   }
 
-  const weekId = await resolveWeekIdForLegacyWeek({
+  const weekId = await resolveWeekIdForCalendarWeek({
     sportId,
     year,
-    legacyWeek: week,
+    seasonType: resolvedSeasonType,
+    weekNumber: resolvedWeekNumber,
   });
   if (!weekId) {
-    throw new Error(`Week not found for year=${year} week=${week}`);
+    throw new Error(
+      `Week not found for year=${year} seasonType=${resolvedSeasonType} week=${resolvedWeekNumber}`,
+    );
   }
+
+  const legacyWeek = seasonTypeAndNumberToLegacyWeek(
+    resolvedSeasonType,
+    resolvedWeekNumber,
+  );
 
   const [assigned, votes, existingRankingRow, submittedBallots] =
     await Promise.all([
       listActivePollVoters(poll.id),
-      getBallotsByWeekYearDivisionAndSport({
-        year,
-        week,
-        division,
+      getBallotVotesForPollWeek({
+        pollId: poll.id,
+        weekId,
         sportId,
+        division,
+        year,
+        legacyWeek,
       }),
       db
         .select({ count: sql<number>`count(*)::int` })
@@ -236,7 +321,7 @@ export async function getPollRankingPublishPreview({
       sportId,
     },
     year,
-    week,
+    week: legacyWeek,
     weekId,
     ballotCount: submittedBallots.length,
     assignedCount: assigned.length,
@@ -261,13 +346,28 @@ export async function publishPollRankingsForWeek({
   sport,
   division,
   year,
+  weekKey,
+  seasonType,
+  weekNumber,
   week,
 }: {
   sport: SportParam;
   division: string;
   year: number;
-  week: number;
+  weekKey?: string | null;
+  seasonType?: number | null;
+  weekNumber?: number | null;
+  /** @deprecated Use weekKey or seasonType + weekNumber */
+  week?: number | null;
 }) {
+  const { seasonType: resolvedSeasonType, weekNumber: resolvedWeekNumber } =
+    resolveCalendarWeekParams({
+      weekKey,
+      seasonType,
+      weekNumber,
+      legacyWeek: week,
+    });
+
   const sportId = await getSportIdBySlug(sport);
   if (!sportId) throw new Error(`Invalid sport: ${sport}`);
 
@@ -280,20 +380,30 @@ export async function publishPollRankingsForWeek({
     throw new Error(`Poll is inactive: ${sport}/${division}`);
   }
 
-  const weekId = await resolveWeekIdForLegacyWeek({
+  const weekId = await resolveWeekIdForCalendarWeek({
     sportId,
     year,
-    legacyWeek: week,
+    seasonType: resolvedSeasonType,
+    weekNumber: resolvedWeekNumber,
   });
   if (!weekId) {
-    throw new Error(`Week not found for year=${year} week=${week}`);
+    throw new Error(
+      `Week not found for year=${year} seasonType=${resolvedSeasonType} week=${resolvedWeekNumber}`,
+    );
   }
 
-  const votes = await getBallotsByWeekYearDivisionAndSport({
-    year,
-    week,
-    division,
+  const legacyWeek = seasonTypeAndNumberToLegacyWeek(
+    resolvedSeasonType,
+    resolvedWeekNumber,
+  );
+
+  const votes = await getBallotVotesForPollWeek({
+    pollId: poll.id,
+    weekId,
     sportId,
+    division,
+    year,
+    legacyWeek,
   });
   if (!votes.length) {
     throw new Error("No ballots found for this week");

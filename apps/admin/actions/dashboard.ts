@@ -24,15 +24,11 @@ function isSportParam(slug: string): slug is SportParam {
 }
 
 function weekLabel(info: {
-  currentWeek: number;
-  isPreseason: boolean;
-  isRegularSeason: boolean;
-  isPostseason: boolean;
+  votingWeek: number;
 }) {
-  if (info.isPreseason) return "Preseason";
-  if (info.isPostseason) return "Final rankings";
-  if (info.isRegularSeason) return `Week ${info.currentWeek}`;
-  return "Offseason";
+  if (info.votingWeek === 0) return "Preseason";
+  if (info.votingWeek === 999) return "Final rankings";
+  return `Week ${info.votingWeek}`;
 }
 
 function sportTitle(slug: string) {
@@ -97,7 +93,7 @@ export async function getDashboardData() {
         const weekId = await resolveWeekIdForLegacyWeek({
           sportId: poll.sportId,
           year: season.year,
-          legacyWeek: season.currentWeek,
+          legacyWeek: season.votingWeek,
         });
         if (weekId) {
           submittedCount = await countBallotsForPollWeek({

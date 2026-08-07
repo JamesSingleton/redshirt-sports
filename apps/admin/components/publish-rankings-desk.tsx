@@ -43,6 +43,7 @@ import {
   getYearsForPollSport,
   previewRankingsPublish,
   publishRankings,
+  reassignVoterBallotWeek,
 } from "@/actions/publish-rankings";
 import { buildNudgeMessage } from "@/lib/nudge";
 
@@ -56,6 +57,7 @@ type PollOption = {
 };
 
 type WeekOption = {
+  weekKey: string;
   legacyWeek: number;
   label: string;
   seasonType: number;
@@ -67,16 +69,24 @@ type Preview = Awaited<ReturnType<typeof previewRankingsPublish>>;
 export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
   const [pollId, setPollId] = useState(polls[0]?.id ?? "");
   const [year, setYear] = useState<number | null>(null);
-  const [week, setWeek] = useState<number | null>(null);
+  const [weekKey, setWeekKey] = useState<string | null>(null);
   const [years, setYears] = useState<number[]>([]);
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
   const [preview, setPreview] = useState<Preview | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [reassignTargetByUser, setReassignTargetByUser] = useState<
+    Record<string, string>
+  >({});
   const [pending, startPending] = useTransition();
 
   const selectedPoll = useMemo(
     () => polls.find((poll) => poll.id === pollId) ?? null,
     [polls, pollId],
+  );
+
+  const selectedWeek = useMemo(
+    () => weeks.find((option) => option.weekKey === weekKey) ?? null,
+    [weeks, weekKey],
   );
 
   useEffect(() => {
@@ -88,7 +98,7 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
         if (cancelled) return;
         setYears(nextYears);
         setYear(nextYears[0] ?? null);
-        setWeek(null);
+        setWeekKey(null);
         setWeeks([]);
         setPreview(null);
       } catch (error) {
@@ -113,8 +123,9 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
         });
         if (cancelled) return;
         setWeeks(nextWeeks);
-        setWeek(nextWeeks[0]?.legacyWeek ?? null);
+        setWeekKey(nextWeeks[0]?.weekKey ?? null);
         setPreview(null);
+        setReassignTargetByUser({});
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Failed to load weeks",
@@ -127,14 +138,14 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
   }, [selectedPoll, year]);
 
   function loadPreview() {
-    if (!selectedPoll || year == null || week == null) return;
+    if (!selectedPoll || year == null || !weekKey) return;
     startPending(async () => {
       try {
         const next = await previewRankingsPublish({
           sportSlug: selectedPoll.sportSlug,
           division: selectedPoll.slug,
           year,
-          week,
+          weekKey,
         });
         setPreview(next);
       } catch (error) {
@@ -146,14 +157,14 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
   }
 
   function runPublish() {
-    if (!selectedPoll || year == null || week == null) return;
+    if (!selectedPoll || year == null || !weekKey) return;
     startPending(async () => {
       try {
         const result = await publishRankings({
           sportSlug: selectedPoll.sportSlug,
           division: selectedPoll.slug,
           year,
-          week,
+          weekKey,
         });
         toast.success(
           `Published ${result.teams} teams from ${result.ballots} ballots`,
@@ -163,7 +174,7 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           sportSlug: selectedPoll.sportSlug,
           division: selectedPoll.slug,
           year,
-          week,
+          weekKey,
         });
         setPreview(next);
       } catch (error) {
@@ -209,6 +220,47 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
       }
     });
   }
+
+  function reassignBallot(voter: Preview["panel"][number]) {
+    if (!selectedPoll || year == null || !weekKey) return;
+    const toWeekKey = reassignTargetByUser[voter.userId];
+    if (!toWeekKey) {
+      toast.error("Choose a target week first");
+      return;
+    }
+    startPending(async () => {
+      try {
+        await reassignVoterBallotWeek({
+          pollId: selectedPoll.id,
+          sportId: selectedPoll.sportId,
+          year,
+          userId: voter.userId,
+          fromWeekKey: weekKey,
+          toWeekKey,
+        });
+        toast.success(
+          `Moved ballot for ${voter.firstName} ${voter.lastName}`,
+        );
+        const next = await previewRankingsPublish({
+          sportSlug: selectedPoll.sportSlug,
+          division: selectedPoll.slug,
+          year,
+          weekKey,
+        });
+        setPreview(next);
+        setReassignTargetByUser((prev) => {
+          const { [voter.userId]: _, ...rest } = prev;
+          return rest;
+        });
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to move ballot",
+        );
+      }
+    });
+  }
+
+  const otherWeeks = weeks.filter((option) => option.weekKey !== weekKey);
 
   const top25 = preview?.rankings.filter(
     (row) => row.rank != null && row.rank <= 25,
@@ -281,8 +333,8 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
             Week
           </span>
           <Select
-            value={week?.toString() ?? ""}
-            onValueChange={(value) => setWeek(Number(value))}
+            value={weekKey ?? ""}
+            onValueChange={setWeekKey}
             disabled={!weeks.length}
           >
             <SelectTrigger className="min-w-40">
@@ -291,10 +343,7 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
             <SelectContent>
               <SelectGroup>
                 {weeks.map((w) => (
-                  <SelectItem
-                    key={`${w.seasonType}-${w.weekNumber}`}
-                    value={String(w.legacyWeek)}
-                  >
+                  <SelectItem key={w.weekKey} value={w.weekKey}>
                     {w.label}
                   </SelectItem>
                 ))}
@@ -305,7 +354,7 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
 
         <Button
           onClick={loadPreview}
-          disabled={pending || !selectedPoll || year == null || week == null}
+          disabled={pending || !selectedPoll || year == null || !weekKey}
         >
           <IconRefresh data-icon="inline-start" />
           Load week
@@ -338,7 +387,7 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
                   Ballot inbox
                 </h2>
                 <p className="text-muted-foreground text-sm">
-                  Who still needs to submit before Sunday night
+                  Who still needs to submit before Monday 8:00 AM MST
                 </p>
               </div>
             </div>
@@ -362,7 +411,48 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
                       </span>
                     </div>
                     {voter.submitted ? (
-                      <Badge variant="outline">Submitted</Badge>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline">Submitted</Badge>
+                        {otherWeeks.length > 0 ? (
+                          <>
+                            <Select
+                              value={reassignTargetByUser[voter.userId] ?? ""}
+                              onValueChange={(value) =>
+                                setReassignTargetByUser((prev) => ({
+                                  ...prev,
+                                  [voter.userId]: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger className="min-w-36" size="sm">
+                                <SelectValue placeholder="Move to…" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  {otherWeeks.map((w) => (
+                                    <SelectItem
+                                      key={w.weekKey}
+                                      value={w.weekKey}
+                                    >
+                                      {w.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => reassignBallot(voter)}
+                              disabled={
+                                pending || !reassignTargetByUser[voter.userId]
+                              }
+                            >
+                              Move ballot
+                            </Button>
+                          </>
+                        ) : null}
+                      </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary">Missing</Badge>
@@ -460,7 +550,7 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
             <AlertDialogDescription>
               {preview
                 ? [
-                    `This writes the Top 25 for ${selectedPoll?.name} · ${year} · week ${week} from ${preview.ballotCount} ballot${preview.ballotCount === 1 ? "" : "s"}.`,
+                    `This writes the Top 25 for ${selectedPoll?.name} · ${year} · ${selectedWeek?.label ?? "selected week"} from ${preview.ballotCount} ballot${preview.ballotCount === 1 ? "" : "s"}.`,
                     preview.missingCount > 0
                       ? `${preview.missingCount} assigned voter${preview.missingCount === 1 ? " is" : "s are"} still missing.`
                       : null,

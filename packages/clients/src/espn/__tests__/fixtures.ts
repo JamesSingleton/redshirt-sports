@@ -21,13 +21,13 @@ export const footballCurrentSeason = {
       type: 1,
       name: "Preseason",
       startDate: "2026-02-01T08:00:00.000+00:00",
-      endDate: "2026-08-29T06:59:00.000+00:00",
+      endDate: "2026-08-22T06:59:00.000+00:00",
     },
     {
       id: "2",
       type: 2,
       name: "Regular Season",
-      startDate: "2026-08-29T07:00:00.000+00:00",
+      startDate: "2026-08-22T07:00:00.000+00:00",
       endDate: "2026-12-12T07:59:00.000+00:00",
     },
     {
@@ -149,19 +149,19 @@ export const footballSeasonsBody = {
           type: 1,
           name: "Preseason",
           startDate: "2026-02-01T08:00:00.000+00:00",
-          endDate: "2026-08-29T06:59:00.000+00:00",
+          endDate: "2026-08-22T06:59:00.000+00:00",
           weeks: [
             {
               number: 1,
               startDate: "2026-02-01T08:00:00.000+00:00",
-              endDate: "2026-08-29T06:59:00.000+00:00",
+              endDate: "2026-08-22T06:59:00.000+00:00",
               text: "Week 1",
             },
           ],
           week: {
             number: 1,
             startDate: "2026-02-01T08:00:00.000+00:00",
-            endDate: "2026-08-29T06:59:00.000+00:00",
+            endDate: "2026-08-22T06:59:00.000+00:00",
             text: "Week 1",
           },
         },
@@ -169,12 +169,12 @@ export const footballSeasonsBody = {
           id: "2",
           type: 2,
           name: "Regular Season",
-          startDate: "2026-08-29T07:00:00.000+00:00",
+          startDate: "2026-08-22T07:00:00.000+00:00",
           endDate: "2026-12-12T07:59:00.000+00:00",
           weeks: [
             {
               number: 1,
-              startDate: "2026-08-29T07:00:00.000+00:00",
+              startDate: "2026-08-22T07:00:00.000+00:00",
               endDate: "2026-09-08T06:59:00.000+00:00",
               text: "Week 1",
             },

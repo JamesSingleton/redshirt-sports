@@ -29,8 +29,10 @@ async function RankingsContent() {
           Publish rankings
         </h1>
         <p className="text-muted-foreground max-w-2xl text-sm">
-          Load a week, nudge missing voters, then publish when you&apos;re ready
-          — usually Sunday night after Saturday games.
+          Ballots attach to the week just completed (not the ESPN week in
+          progress). Saturday games → ballots through Monday 8:00 AM MST →
+          publish when ready. Per-poll cutoffs (e.g. FCS playoffs) are manual —
+          skip nudge/publish for weeks you are not running.
         </p>
       </div>
       <PublishRankingsDesk polls={polls} />

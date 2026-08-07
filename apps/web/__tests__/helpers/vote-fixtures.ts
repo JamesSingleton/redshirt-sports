@@ -6,6 +6,7 @@ export const TEST_WEEK_ID = "week_2025_1";
 export const seasonInfoInSeason = {
   year: 2025,
   currentWeek: 1,
+  votingWeek: 1,
   isPreseason: false,
   isRegularSeason: true,
   isPostseason: false,
@@ -14,6 +15,7 @@ export const seasonInfoInSeason = {
 export const seasonInfoOffSeason = {
   year: 2025,
   currentWeek: 1,
+  votingWeek: 1,
   isPreseason: false,
   isRegularSeason: false,
   isPostseason: false,

@@ -188,6 +188,48 @@ export async function getBallotsByWeekYearDivisionAndSport({
   );
 }
 
+export async function getBallotVotesForPollWeek({
+  pollId,
+  weekId,
+  sportId,
+  division,
+  year,
+  legacyWeek,
+}: {
+  pollId: string;
+  weekId: string;
+  sportId: string;
+  division: string;
+  year: number;
+  legacyWeek: number;
+}) {
+  const ballots = await db.query.ballotsTable.findMany({
+    where: (model, { eq, and }) =>
+      and(eq(model.pollId, pollId), eq(model.weekId, weekId)),
+    with: {
+      entries: {
+        with: { school: true },
+      },
+    },
+  });
+
+  return ballots.flatMap((ballot) =>
+    ballot.entries.map((entry) => ({
+      id: entry.id,
+      userId: ballot.userId,
+      division,
+      week: legacyWeek,
+      year,
+      createdAt: ballot.submittedAt,
+      teamId: entry.school.sanityId ?? entry.schoolId,
+      rank: entry.rank,
+      points: entry.points,
+      sportId,
+      schoolId: entry.schoolId,
+    })),
+  );
+}
+
 export async function getVotedWeeks(year: number) {
   const rows = await db
     .select({
@@ -449,5 +491,60 @@ export async function submitBallot({
     );
 
     return ballot;
+  });
+}
+
+/**
+ * Move a voter's ballot from one week to another (admin correction).
+ * Fails if no ballot exists on fromWeekId or a ballot already exists on toWeekId.
+ */
+export async function reassignBallotWeek({
+  pollId,
+  userId,
+  fromWeekId,
+  toWeekId,
+}: {
+  pollId: string;
+  userId: string;
+  fromWeekId: string;
+  toWeekId: string;
+}) {
+  if (fromWeekId === toWeekId) {
+    throw new Error("Source and target week are the same");
+  }
+
+  return db.transaction(async (tx) => {
+    const existingTarget = await tx.query.ballotsTable.findFirst({
+      where: (model, { eq, and }) =>
+        and(
+          eq(model.pollId, pollId),
+          eq(model.userId, userId),
+          eq(model.weekId, toWeekId),
+        ),
+      columns: { id: true },
+    });
+    if (existingTarget) {
+      throw new Error(
+        "Voter already has a ballot for the target week; resolve the conflict first",
+      );
+    }
+
+    const [updated] = await tx
+      .update(ballotsTable)
+      .set({ weekId: toWeekId, updatedAt: new Date() })
+      .where(
+        and(
+          eq(ballotsTable.pollId, pollId),
+          eq(ballotsTable.userId, userId),
+          eq(ballotsTable.weekId, fromWeekId),
+        ),
+      )
+      .returning({ id: ballotsTable.id, weekId: ballotsTable.weekId });
+
+    if (!updated) {
+      throw new Error("No ballot found for this voter on the source week");
+    }
+
+    return updated;
   });
 }

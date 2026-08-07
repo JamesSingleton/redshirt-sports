@@ -5,7 +5,7 @@ const {
   mockGetSportIdBySlug,
   mockUserCanVoteOnPoll,
   mockHasVoterVoted,
-  mockGetCurrentWeek,
+  mockGetVotingWeek,
   mockGetCurrentSeason,
   mockSanityFetchPage,
   mockGetLatestVoterBallot,
@@ -17,7 +17,7 @@ const {
   mockGetSportIdBySlug: vi.fn(),
   mockUserCanVoteOnPoll: vi.fn(),
   mockHasVoterVoted: vi.fn(),
-  mockGetCurrentWeek: vi.fn(),
+  mockGetVotingWeek: vi.fn(),
   mockGetCurrentSeason: vi.fn(),
   mockSanityFetchPage: vi.fn(),
   mockGetLatestVoterBallot: vi.fn(),
@@ -48,7 +48,7 @@ vi.mock("@/utils/espn", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/utils/espn")>();
   return {
     ...actual,
-    getCurrentWeek: mockGetCurrentWeek,
+    getVotingWeek: mockGetVotingWeek,
     getCurrentSeason: mockGetCurrentSeason,
   };
 });
@@ -97,7 +97,7 @@ describe("VotePageAuth", () => {
     mockGetSportIdBySlug.mockReset().mockResolvedValue("sport_football");
     mockUserCanVoteOnPoll.mockReset().mockResolvedValue(true);
     mockHasVoterVoted.mockReset().mockResolvedValue(false);
-    mockGetCurrentWeek.mockReset().mockResolvedValue(1);
+    mockGetVotingWeek.mockReset().mockResolvedValue(1);
     mockGetCurrentSeason.mockReset().mockResolvedValue({ year: 2025 });
     mockSanityFetchPage.mockReset().mockResolvedValue({
       data: [{ _id: "school-1", shortName: "Alabama" }],

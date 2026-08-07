@@ -80,6 +80,8 @@ Avoid: using Top 25 as the canonical name for the weekly published aggregate.
 
 A voting and rankings period within a Season for a Sport and Year. FK to Postgres `weeks` (ESPN calendar: preseason / regular / postseason). URL specials `preseason` and `final-rankings` map in the app layer (legacy storage used `0` / `999` — do not store those integers on new tables). Ballots and Rankings are scoped to a Week.
 
+See [docs/poll-weeks.md](docs/poll-weeks.md) for ESPN → `weekKey` → legacy URL mapping, voting-week lag (last completed week), Monday 8am MST publish cadence, and per-poll cutoffs (e.g. FCS playoffs).
+
 ## Season
 
 The competition calendar for a Sport and Year, composed of Weeks (and season types such as preseason, regular, postseason).

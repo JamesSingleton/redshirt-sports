@@ -8,10 +8,15 @@ import {
 } from "../utils/week-mapping";
 
 export {
+  calendarWeekKey,
   LEGACY_FINAL_RANKINGS_WEEK,
   LEGACY_PRESEASON_WEEK,
+  legacyWeekLabel,
   legacyWeekToSeasonTypeAndNumber,
+  PUBLISHABLE_SEASON_TYPES,
+  parseCalendarWeekKey,
   seasonTypeAndNumberToLegacyWeek,
+  weekTitle,
 } from "../utils/week-mapping";
 
 export async function resolveWeekIdForLegacyWeek({
@@ -26,6 +31,25 @@ export async function resolveWeekIdForLegacyWeek({
   const { seasonType, weekNumber } =
     legacyWeekToSeasonTypeAndNumber(legacyWeek);
 
+  return resolveWeekIdForCalendarWeek({
+    sportId,
+    year,
+    seasonType,
+    weekNumber,
+  });
+}
+
+export async function resolveWeekIdForCalendarWeek({
+  sportId,
+  year,
+  seasonType,
+  weekNumber,
+}: {
+  sportId: string;
+  year: number;
+  seasonType: number;
+  weekNumber: number;
+}): Promise<string | null> {
   const row = await db
     .select({ weekId: weeksTable.id })
     .from(weeksTable)

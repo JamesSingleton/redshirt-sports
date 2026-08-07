@@ -138,40 +138,57 @@ export async function getMultipleSeasonsData(
 }
 
 /**
- * Get current week number for a specific sport.
- * Returns legacy week ints used at the app edge: `0` (preseason),
- * regular week `N`, or `999` (postseason / final rankings).
+ * Calendar week currently in progress on ESPN (legacy ints).
+ * Prefer {@link getVotingWeek} for ballot / rankings attachment.
  */
 export async function getCurrentWeek(
   sport: SportParam = "football",
 ): Promise<number> {
   const currentDate = new Date();
   const currentSeasonData = await getSeasonData(sport);
+  return resolveCalendarWeekFromSeason(currentSeasonData, currentDate);
+}
 
-  if (!currentSeasonData.types.length) {
+/**
+ * Ballot / rankings week: last fully completed regular week by ESPN `endDate`,
+ * else Preseason, else Final Rankings after regular season ends.
+ * See docs/poll-weeks.md.
+ */
+export async function getVotingWeek(
+  sport: SportParam = "football",
+): Promise<number> {
+  const currentDate = new Date();
+  const currentSeasonData = await getSeasonData(sport);
+  return resolveVotingWeekFromSeason(currentSeasonData, currentDate);
+}
+
+/** Pure: ESPN calendar week containing `date` (legacy ints). */
+export function resolveCalendarWeekFromSeason(
+  season: Season,
+  date: Date,
+): number {
+  if (!season.types.length) {
     return LEGACY_PRESEASON_WEEK;
   }
 
-  const preseason = currentSeasonData.types.find((type) => type.type === 1);
-  const regularSeason = currentSeasonData.types.find((type) => type.type === 2);
+  const preseason = season.types.find((type) => type.type === 1);
+  const regularSeason = season.types.find((type) => type.type === 2);
 
   if (!preseason || !regularSeason) {
     return LEGACY_PRESEASON_WEEK;
   }
 
   const isRegularSeason =
-    currentDate >= new Date(regularSeason.startDate) &&
-    currentDate <= new Date(regularSeason.endDate);
+    date >= new Date(regularSeason.startDate) &&
+    date <= new Date(regularSeason.endDate);
 
-  // After regular season ends → postseason (do not require season endDate alone)
   const isPostseason =
-    currentDate >= new Date(regularSeason.endDate) && !isRegularSeason;
+    date >= new Date(regularSeason.endDate) && !isRegularSeason;
 
   if (isRegularSeason) {
     const currentWeek = regularSeason.weeks?.find(
       (week) =>
-        currentDate >= new Date(week.startDate) &&
-        currentDate <= new Date(week.endDate),
+        date >= new Date(week.startDate) && date <= new Date(week.endDate),
     );
 
     if (currentWeek) {
@@ -185,12 +202,42 @@ export async function getCurrentWeek(
 }
 
 /**
- * Get season information including current period and week.
- * `currentWeek` uses the same legacy ints as {@link getCurrentWeek}.
+ * Pure: voting week for ballots (last completed regular week).
+ * Does not use the in-progress ESPN calendar week.
+ */
+export function resolveVotingWeekFromSeason(
+  season: Season,
+  date: Date,
+): number {
+  const regularSeason = season.types.find((type) => type.type === 2);
+
+  if (!regularSeason) {
+    return LEGACY_PRESEASON_WEEK;
+  }
+
+  if (date >= new Date(regularSeason.endDate)) {
+    return LEGACY_FINAL_RANKINGS_WEEK;
+  }
+
+  const completed = (regularSeason.weeks ?? []).filter(
+    (week) => date >= new Date(week.endDate),
+  );
+
+  if (completed.length === 0) {
+    return LEGACY_PRESEASON_WEEK;
+  }
+
+  return Math.max(...completed.map((week) => week.number));
+}
+
+/**
+ * Get season information including calendar week and voting week.
+ * `currentWeek` = ESPN window containing now; `votingWeek` = ballot attachment week.
  */
 export async function getSeasonInfo(sport: SportParam = "football"): Promise<{
   year: number;
   currentWeek: number;
+  votingWeek: number;
   isPreseason: boolean;
   isRegularSeason: boolean;
   isPostseason: boolean;
@@ -217,24 +264,19 @@ export async function getSeasonInfo(sport: SportParam = "football"): Promise<{
     ? currentDate >= new Date(regularSeason.endDate) && !isRegularSeason
     : false;
 
-  let currentWeek = LEGACY_PRESEASON_WEEK;
-
-  if (isRegularSeason && regularSeason) {
-    const week = regularSeason.weeks?.find(
-      (week) =>
-        currentDate >= new Date(week.startDate) &&
-        currentDate <= new Date(week.endDate),
-    );
-    if (week) {
-      currentWeek = week.number;
-    }
-  } else if (isPostseason) {
-    currentWeek = LEGACY_FINAL_RANKINGS_WEEK;
-  }
+  const currentWeek = resolveCalendarWeekFromSeason(
+    currentSeasonData,
+    currentDate,
+  );
+  const votingWeek = resolveVotingWeekFromSeason(
+    currentSeasonData,
+    currentDate,
+  );
 
   return {
     year: currentSeasonData.year,
     currentWeek,
+    votingWeek,
     isPreseason,
     isRegularSeason,
     isPostseason,

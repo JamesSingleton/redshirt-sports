@@ -6,7 +6,10 @@ import {
   listLegacyWeeksForSportYear,
   listPolls,
   listSeasonYearsForSport,
+  parseCalendarWeekKey,
   publishPollRankingsForWeek,
+  reassignBallotWeek,
+  resolveWeekIdForCalendarWeek,
   type SportParam,
 } from "@redshirt-sports/db/queries";
 import { revalidatePath } from "next/cache";
@@ -66,19 +69,20 @@ export async function previewRankingsPublish({
   sportSlug,
   division,
   year,
-  week,
+  weekKey,
 }: {
   sportSlug: string;
   division: string;
   year: number;
-  week: number;
+  weekKey: string;
 }) {
   await requireAdmin();
+  if (!weekKey) throw new Error("weekKey is required");
   return getPollRankingPublishPreview({
     sport: asSportParam(sportSlug),
     division,
     year,
-    week,
+    weekKey,
   });
 }
 
@@ -86,19 +90,20 @@ export async function publishRankings({
   sportSlug,
   division,
   year,
-  week,
+  weekKey,
 }: {
   sportSlug: string;
   division: string;
   year: number;
-  week: number;
+  weekKey: string;
 }) {
   await requireAdmin();
+  if (!weekKey) throw new Error("weekKey is required");
   const result = await publishPollRankingsForWeek({
     sport: asSportParam(sportSlug),
     division,
     year,
-    week,
+    weekKey,
   });
   revalidatePath("/rankings");
   revalidatePath("/");
@@ -141,4 +146,63 @@ export async function getVoterNudgeMailto({
   const mailto = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
   return { email, mailto, body };
+}
+
+export async function reassignVoterBallotWeek({
+  pollId,
+  sportId,
+  year,
+  userId,
+  fromWeekKey,
+  toWeekKey,
+}: {
+  pollId: string;
+  sportId: string;
+  year: number;
+  userId: string;
+  fromWeekKey: string;
+  toWeekKey: string;
+}) {
+  await requireAdmin();
+  if (!pollId || !sportId || !year || !userId || !fromWeekKey || !toWeekKey) {
+    throw new Error("pollId, sportId, year, userId, fromWeekKey, and toWeekKey are required");
+  }
+
+  const fromParsed = parseCalendarWeekKey(fromWeekKey);
+  const toParsed = parseCalendarWeekKey(toWeekKey);
+  if (!fromParsed || !toParsed) {
+    throw new Error("Invalid week key");
+  }
+
+  const [fromWeekId, toWeekId] = await Promise.all([
+    resolveWeekIdForCalendarWeek({
+      sportId,
+      year,
+      seasonType: fromParsed.seasonType,
+      weekNumber: fromParsed.weekNumber,
+    }),
+    resolveWeekIdForCalendarWeek({
+      sportId,
+      year,
+      seasonType: toParsed.seasonType,
+      weekNumber: toParsed.weekNumber,
+    }),
+  ]);
+
+  if (!fromWeekId) {
+    throw new Error(`Source week not found: ${fromWeekKey}`);
+  }
+  if (!toWeekId) {
+    throw new Error(`Target week not found: ${toWeekKey}`);
+  }
+
+  const result = await reassignBallotWeek({
+    pollId,
+    userId,
+    fromWeekId,
+    toWeekId,
+  });
+
+  revalidatePath("/rankings");
+  return result;
 }

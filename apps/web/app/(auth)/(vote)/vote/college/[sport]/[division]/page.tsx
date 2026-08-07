@@ -21,7 +21,7 @@ import { userCanVoteOnPoll } from "@/lib/require-poll-voter";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import {
   getCurrentSeason,
-  getCurrentWeek,
+  getVotingWeek,
   type SportParam,
   SportSchema,
 } from "@/utils/espn";
@@ -195,7 +195,7 @@ export async function VotePageAuth({
   }
 
   const [votingWeek, { year }] = await Promise.all([
-    getCurrentWeek(sport),
+    getVotingWeek(sport),
     getCurrentSeason(sport),
   ]);
 

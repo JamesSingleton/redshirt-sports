@@ -6,8 +6,10 @@ import {
   getSeasonData,
   getSeasonInfo,
   getSeasonWeeks,
+  getVotingWeek,
   getWeekForDate,
   isDateInSeasonPeriod,
+  resolveVotingWeekFromSeason,
   SportSchema,
 } from "../api";
 import {
@@ -51,7 +53,7 @@ describe("SportSchema", () => {
 });
 
 describe("isDateInSeasonPeriod", () => {
-  // 2026 regular season: Aug 29 07:00 … Dec 12 07:59 UTC
+  // 2026 regular season: Aug 22 07:00 … Dec 12 07:59 UTC
 
   it("returns true for a date within the period", () => {
     expect(
@@ -100,7 +102,7 @@ describe("isDateInSeasonPeriod", () => {
 });
 
 describe("getWeekForDate", () => {
-  // 2026 weeks: 1 (Aug 29–Sep 8), 2 (Sep 8–Sep 14), 3 (Sep 14–Sep 21), …
+  // 2026 weeks: 1 (Aug 22–Sep 8), 2 (Sep 8–Sep 14), 3 (Sep 14–Sep 21), …
 
   it("returns the correct week number", () => {
     expect(
@@ -256,7 +258,7 @@ describe("getCurrentWeek", () => {
 
   it("returns the matching week number during regular season", async () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-09-01T12:00:00.000Z")); // falls in week 1 (Aug 29 – Sep 8)
+    vi.setSystemTime(new Date("2026-09-01T12:00:00.000Z")); // falls in week 1 (Aug 22 – Sep 8)
     stubSeasonData();
 
     expect(await getCurrentWeek()).toBe(1);
@@ -322,6 +324,7 @@ describe("getSeasonInfo", () => {
     expect(info).toMatchObject({
       year: 2026,
       currentWeek: 0,
+      votingWeek: 0,
       isPreseason: true,
       isRegularSeason: false,
       isPostseason: false,
@@ -338,6 +341,8 @@ describe("getSeasonInfo", () => {
     expect(info).toMatchObject({
       year: 2026,
       currentWeek: 2,
+      // Week 1 ended Sep 8; Week 2 still in progress → vote for Week 1
+      votingWeek: 1,
       isPreseason: false,
       isRegularSeason: true,
       isPostseason: false,
@@ -354,6 +359,7 @@ describe("getSeasonInfo", () => {
     expect(info).toMatchObject({
       year: 2026,
       currentWeek: 999,
+      votingWeek: 999,
       isPreseason: false,
       isRegularSeason: false,
       isPostseason: true,
@@ -369,6 +375,68 @@ describe("getSeasonInfo", () => {
 
     expect(info.preseason).toEqual(preseason2026);
     expect(info.regularSeason).toEqual(regularSeason2026);
+  });
+});
+
+describe("resolveVotingWeekFromSeason / getVotingWeek", () => {
+  function stubSeasonData(season = season2026) {
+    mockFetch
+      .mockResolvedValueOnce(mockJsonResponse(footballCurrentSeason))
+      .mockResolvedValueOnce(mockJsonResponse({ seasons: [season] }));
+  }
+
+  it("returns preseason mid-preseason", () => {
+    expect(
+      resolveVotingWeekFromSeason(
+        season2026,
+        new Date("2026-03-15T12:00:00.000Z"),
+      ),
+    ).toBe(0);
+  });
+
+  it("returns preseason during Week 1 window before Week 1 endDate (Week 0 / early Week 1)", () => {
+    // Regular Week 1: Aug 22 – Sep 8; still before endDate → Preseason ballots
+    expect(
+      resolveVotingWeekFromSeason(
+        season2026,
+        new Date("2026-09-01T12:00:00.000Z"),
+      ),
+    ).toBe(0);
+  });
+
+  it("returns Week 1 just after Week 1 endDate", () => {
+    expect(
+      resolveVotingWeekFromSeason(
+        season2026,
+        new Date("2026-09-08T07:00:00.000Z"),
+      ),
+    ).toBe(1);
+  });
+
+  it("returns Week 1 during Week 2 before Week 2 ends (late Monday case)", () => {
+    expect(
+      resolveVotingWeekFromSeason(
+        season2026,
+        new Date("2026-09-10T12:00:00.000Z"),
+      ),
+    ).toBe(1);
+  });
+
+  it("returns 999 after regular season ends", () => {
+    expect(
+      resolveVotingWeekFromSeason(
+        season2026,
+        new Date("2026-12-20T12:00:00.000Z"),
+      ),
+    ).toBe(999);
+  });
+
+  it("getVotingWeek matches resolveVotingWeekFromSeason", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-10T12:00:00.000Z"));
+    stubSeasonData();
+
+    expect(await getVotingWeek()).toBe(1);
   });
 });
 

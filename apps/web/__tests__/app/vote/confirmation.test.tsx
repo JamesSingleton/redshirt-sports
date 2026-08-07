@@ -4,7 +4,7 @@ const {
   mockAuthProtect,
   mockGetSportIdBySlug,
   mockGetVoterBallots,
-  mockGetCurrentWeek,
+  mockGetVotingWeek,
   mockGetCurrentSeason,
   mockClientFetch,
   mockRedirect,
@@ -12,7 +12,7 @@ const {
   mockAuthProtect: vi.fn(),
   mockGetSportIdBySlug: vi.fn(),
   mockGetVoterBallots: vi.fn(),
-  mockGetCurrentWeek: vi.fn(),
+  mockGetVotingWeek: vi.fn(),
   mockGetCurrentSeason: vi.fn(),
   mockClientFetch: vi.fn(),
   mockRedirect: vi.fn((url: string) => {
@@ -30,7 +30,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
 }));
 
 vi.mock("@/utils/espn", () => ({
-  getCurrentWeek: mockGetCurrentWeek,
+  getVotingWeek: mockGetVotingWeek,
   getCurrentSeason: mockGetCurrentSeason,
 }));
 
@@ -66,7 +66,7 @@ describe("VoteConfirmationContent", () => {
   beforeEach(() => {
     mockAuthProtect.mockReset().mockResolvedValue({ userId: "user-1" });
     mockGetSportIdBySlug.mockReset().mockResolvedValue("sport_football");
-    mockGetCurrentWeek.mockReset().mockResolvedValue(1);
+    mockGetVotingWeek.mockReset().mockResolvedValue(1);
     mockGetCurrentSeason.mockReset().mockResolvedValue({ year: 2025 });
     mockGetVoterBallots.mockReset();
     mockClientFetch.mockReset();

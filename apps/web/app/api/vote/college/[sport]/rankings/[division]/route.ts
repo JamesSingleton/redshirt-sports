@@ -103,7 +103,7 @@ export async function POST(
     }
 
     const seasonInfo = await getSeasonInfo(validatedSport);
-    const { year, currentWeek: votingWeek } = seasonInfo;
+    const { year, votingWeek } = seasonInfo;
 
     if (
       !seasonInfo.isPreseason &&
@@ -261,7 +261,7 @@ export async function GET(
     }
 
     const seasonInfo = await getSeasonInfo(validatedSport);
-    const { year, currentWeek: votingWeek } = seasonInfo;
+    const { year, votingWeek } = seasonInfo;
 
     const existingVote = await getVoterBallots({
       userId: user.userId,

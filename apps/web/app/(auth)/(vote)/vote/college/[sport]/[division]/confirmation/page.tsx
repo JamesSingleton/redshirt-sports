@@ -11,7 +11,7 @@ import { Suspense } from "react";
 import CustomImage from "@/components/sanity-image";
 import {
   getCurrentSeason,
-  getCurrentWeek,
+  getVotingWeek,
   type SportParam,
 } from "@/utils/espn";
 import { transformBallotToTeamIds } from "@/utils/process-ballots";
@@ -77,7 +77,7 @@ export async function VoteConfirmationContent({
   const { userId } = await auth.protect();
 
   const [votingWeek, { year }, sportId] = await Promise.all([
-    getCurrentWeek(sport as SportParam),
+    getVotingWeek(sport as SportParam),
     getCurrentSeason(sport as SportParam),
     getSportIdBySlug(sport as SportParam),
   ]);
