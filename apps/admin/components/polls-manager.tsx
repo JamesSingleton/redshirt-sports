@@ -247,7 +247,7 @@ function PollEditorRow({
   const dirty = name !== poll.name || slug !== poll.slug;
 
   return (
-    <TableRow>
+    <TableRow className={poll.isActive ? undefined : "opacity-60"}>
       <TableCell>
         <Input
           value={name}

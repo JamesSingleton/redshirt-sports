@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import { seasonsTable, seasonTypesTable, weeksTable } from "../schema";
@@ -69,6 +69,102 @@ export async function resolveWeekIdForCalendarWeek({
     .limit(1);
 
   return row[0]?.weekId ?? null;
+}
+
+function legacyWeekLookupKey({
+  sportId,
+  year,
+  legacyWeek,
+}: {
+  sportId: string;
+  year: number;
+  legacyWeek: number;
+}) {
+  return `${sportId}:${year}:${legacyWeek}`;
+}
+
+/**
+ * Resolve many legacy week lookups in one DB round trip.
+ * Returns a map keyed by `${sportId}:${year}:${legacyWeek}`.
+ */
+export async function resolveWeekIdsForLegacyWeekLookups(
+  lookups: Array<{
+    sportId: string;
+    year: number;
+    legacyWeek: number;
+  }>,
+): Promise<Map<string, string | null>> {
+  const results = new Map<string, string | null>();
+  if (lookups.length === 0) return results;
+
+  const uniqueLookups = new Map<
+    string,
+    { sportId: string; year: number; legacyWeek: number }
+  >();
+  for (const lookup of lookups) {
+    const key = legacyWeekLookupKey(lookup);
+    if (!uniqueLookups.has(key)) {
+      uniqueLookups.set(key, lookup);
+      results.set(key, null);
+    }
+  }
+
+  const sportIds = [
+    ...new Set([...uniqueLookups.values()].map((lookup) => lookup.sportId)),
+  ];
+  const years = [
+    ...new Set([...uniqueLookups.values()].map((lookup) => lookup.year)),
+  ];
+
+  const rows = await db
+    .select({
+      weekId: weeksTable.id,
+      sportId: seasonsTable.sportId,
+      year: seasonsTable.year,
+      seasonType: seasonTypesTable.type,
+      weekNumber: weeksTable.number,
+    })
+    .from(weeksTable)
+    .innerJoin(
+      seasonTypesTable,
+      eq(weeksTable.seasonTypeId, seasonTypesTable.id),
+    )
+    .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
+    .where(
+      and(
+        inArray(seasonsTable.sportId, sportIds),
+        inArray(seasonsTable.year, years),
+      ),
+    );
+
+  const weekByCalendarKey = new Map(
+    rows.map((row) => [
+      `${row.sportId}:${row.year}:${row.seasonType}:${row.weekNumber}`,
+      row.weekId,
+    ]),
+  );
+
+  for (const [key, lookup] of uniqueLookups) {
+    const { seasonType, weekNumber } = legacyWeekToSeasonTypeAndNumber(
+      lookup.legacyWeek,
+    );
+    results.set(
+      key,
+      weekByCalendarKey.get(
+        `${lookup.sportId}:${lookup.year}:${seasonType}:${weekNumber}`,
+      ) ?? null,
+    );
+  }
+
+  return results;
+}
+
+export function weekLookupKey(lookup: {
+  sportId: string;
+  year: number;
+  legacyWeek: number;
+}) {
+  return legacyWeekLookupKey(lookup);
 }
 
 export async function getWeekMetaById(weekId: string): Promise<{

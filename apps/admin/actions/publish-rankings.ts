@@ -34,16 +34,14 @@ export async function getPublishRankingsBootstrap() {
   await requireAdmin();
   const polls = await listPolls();
   return {
-    polls: polls
-      .filter((poll) => poll.isActive)
-      .map((poll) => ({
-        id: poll.id,
-        name: poll.name,
-        slug: poll.slug,
-        sportId: poll.sportId,
-        sportSlug: poll.sport?.slug ?? "",
-        sportName: poll.sport?.name ?? poll.sport?.slug ?? "",
-      })),
+    polls: polls.map((poll) => ({
+      id: poll.id,
+      name: poll.name,
+      slug: poll.slug,
+      sportId: poll.sportId,
+      sportSlug: poll.sport?.slug ?? "",
+      sportName: poll.sport?.name ?? poll.sport?.slug ?? "",
+    })),
   };
 }
 
@@ -165,7 +163,9 @@ export async function reassignVoterBallotWeek({
 }) {
   await requireAdmin();
   if (!pollId || !sportId || !year || !userId || !fromWeekKey || !toWeekKey) {
-    throw new Error("pollId, sportId, year, userId, fromWeekKey, and toWeekKey are required");
+    throw new Error(
+      "pollId, sportId, year, userId, fromWeekKey, and toWeekKey are required",
+    );
   }
 
   const fromParsed = parseCalendarWeekKey(fromWeekKey);

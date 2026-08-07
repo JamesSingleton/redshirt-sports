@@ -1,35 +1,19 @@
 "use server";
 
-import { getSeasonInfo, type SportParam } from "@redshirt-sports/clients/espn";
 import {
-  countBallotsForPollWeek,
+  countActivePollVotersByPollIds,
+  countBallotsForPollWeeks,
   countStalePollVoterAssignments,
-  listActivePollVoters,
+  countUsers,
+  countVoters,
+  getVotingSeasonInfoBySportIds,
   listPolls,
-  listUsers,
-  listVoters,
-  resolveWeekIdForLegacyWeek,
+  resolveWeekIdsForLegacyWeekLookups,
+  weekLookupKey,
+  weekTitle,
 } from "@redshirt-sports/db/queries";
 
 import { requireAdmin } from "@/lib/require-admin";
-
-const SPORT_PARAMS = new Set<SportParam>([
-  "football",
-  "mens-basketball",
-  "womens-basketball",
-]);
-
-function isSportParam(slug: string): slug is SportParam {
-  return SPORT_PARAMS.has(slug as SportParam);
-}
-
-function weekLabel(info: {
-  votingWeek: number;
-}) {
-  if (info.votingWeek === 0) return "Preseason";
-  if (info.votingWeek === 999) return "Final rankings";
-  return `Week ${info.votingWeek}`;
-}
 
 function sportTitle(slug: string) {
   switch (slug) {
@@ -47,93 +31,105 @@ function sportTitle(slug: string) {
 export async function getDashboardData() {
   await requireAdmin();
 
-  const [polls, voters, users, staleAssignments] = await Promise.all([
-    listPolls(),
-    listVoters(),
-    listUsers(),
+  const pollsPromise = listPolls();
+  const snapshotPromise = Promise.all([
+    countVoters(),
+    countUsers(),
     countStalePollVoterAssignments(),
   ]);
 
-  const sportSlugs = [
-    ...new Set(
-      polls
-        .map((poll) => poll.sport?.slug)
-        .filter((slug): slug is string => Boolean(slug)),
-    ),
+  const polls = await pollsPromise;
+  const pollIds = polls.map((poll) => poll.id);
+  const sportIds = [
+    ...new Set(polls.map((poll) => poll.sportId).filter(Boolean)),
   ];
 
-  const seasonBySport = new Map<
-    string,
-    Awaited<ReturnType<typeof getSeasonInfo>> | null
-  >();
+  const [seasonBySportId, assignedByPoll, snapshot] = await Promise.all([
+    getVotingSeasonInfoBySportIds(sportIds),
+    countActivePollVotersByPollIds(pollIds),
+    snapshotPromise,
+  ]);
+  const [credentialedVoters, totalUsers, staleAssignments] = snapshot;
 
-  await Promise.all(
-    sportSlugs.map(async (slug) => {
-      if (!isSportParam(slug)) {
-        seasonBySport.set(slug, null);
-        return;
-      }
-      try {
-        seasonBySport.set(slug, await getSeasonInfo(slug));
-      } catch {
-        seasonBySport.set(slug, null);
-      }
-    }),
-  );
+  const weekLookups = polls.flatMap((poll) => {
+    const season = seasonBySportId.get(poll.sportId);
+    if (!season) return [];
+    return [
+      {
+        sportId: poll.sportId,
+        year: season.year,
+        legacyWeek: season.votingWeek,
+      },
+    ];
+  });
 
-  const panels = await Promise.all(
-    polls.map(async (poll) => {
-      const sportSlug = poll.sport?.slug ?? "";
-      const season = seasonBySport.get(sportSlug) ?? null;
-      const assigned = await listActivePollVoters(poll.id);
-      const assignedCount = assigned.length;
+  const weekIdsByLookup = await resolveWeekIdsForLegacyWeekLookups(weekLookups);
 
-      let submittedCount: number | null = null;
-      if (season && poll.sportId) {
-        const weekId = await resolveWeekIdForLegacyWeek({
+  const ballotPairs = polls.flatMap((poll) => {
+    const season = seasonBySportId.get(poll.sportId);
+    if (!season) return [];
+    const weekId = weekIdsByLookup.get(
+      weekLookupKey({
+        sportId: poll.sportId,
+        year: season.year,
+        legacyWeek: season.votingWeek,
+      }),
+    );
+    if (!weekId) return [];
+    return [{ pollId: poll.id, weekId }];
+  });
+
+  const ballotCounts = await countBallotsForPollWeeks(ballotPairs);
+
+  const panels = polls.map((poll) => {
+    const sportSlug = poll.sport?.slug ?? "";
+    const season = seasonBySportId.get(poll.sportId) ?? null;
+    const assignedCount = assignedByPoll.get(poll.id) ?? 0;
+
+    let submittedCount: number | null = null;
+    if (season) {
+      const weekId = weekIdsByLookup.get(
+        weekLookupKey({
           sportId: poll.sportId,
           year: season.year,
           legacyWeek: season.votingWeek,
-        });
-        if (weekId) {
-          submittedCount = await countBallotsForPollWeek({
-            pollId: poll.id,
-            weekId,
-          });
-        }
+        }),
+      );
+      if (weekId) {
+        submittedCount = ballotCounts.get(`${poll.id}:${weekId}`) ?? 0;
       }
+    }
 
-      return {
-        id: poll.id,
-        name: poll.name,
-        slug: poll.slug,
-        sportSlug,
-        sportTitle: sportTitle(sportSlug),
-        isActive: poll.isActive,
-        assignedCount,
-        submittedCount,
-        weekLabel: season ? weekLabel(season) : null,
-        year: season?.year ?? null,
-      };
-    }),
-  );
+    return {
+      id: poll.id,
+      name: poll.name,
+      slug: poll.slug,
+      sportSlug,
+      sportTitle: sportTitle(sportSlug),
+      isActive: poll.isActive,
+      assignedCount,
+      submittedCount,
+      weekLabel: season ? weekTitle(season.votingWeek) : null,
+      year: season?.year ?? null,
+    };
+  });
 
-  const primarySport =
-    panels.find((panel) => panel.sportSlug === "football") ?? panels[0];
-  const primarySeason = primarySport
-    ? seasonBySport.get(primarySport.sportSlug)
+  const primaryPoll =
+    polls.find((poll) => poll.sport?.slug === "football") ?? polls[0];
+  const primarySeason = primaryPoll
+    ? (seasonBySportId.get(primaryPoll.sportId) ?? null)
     : null;
 
   return {
-    credentialedVoters: voters.length,
-    totalUsers: users.length,
+    credentialedVoters,
+    totalUsers,
     staleAssignments,
     activePanels: panels.filter((panel) => panel.isActive).length,
     panels,
     headline: primarySeason
       ? {
-          sportTitle: sportTitle(primarySport?.sportSlug ?? "football"),
-          weekLabel: weekLabel(primarySeason),
+          sportTitle: sportTitle(primaryPoll?.sport?.slug ?? "football"),
+          weekLabel: weekTitle(primarySeason.votingWeek),
           year: primarySeason.year,
           period: primarySeason.isPreseason
             ? "preseason"

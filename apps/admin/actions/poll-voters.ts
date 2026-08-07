@@ -3,7 +3,7 @@
 import { clerkClient } from "@redshirt-sports/auth/server";
 import {
   assignVoterToPoll,
-  listActivePollVoters,
+  listActivePollVoterUserIdsByPollIds,
   listPolls,
   listUsers,
   revokeAssignmentsForNonVoters,
@@ -23,11 +23,8 @@ export async function getVotersPageData() {
   });
 
   const [polls, users] = await Promise.all([listPolls(), listUsers()]);
-  const assignments = await Promise.all(
-    polls.map(async (poll) => ({
-      pollId: poll.id,
-      userIds: (await listActivePollVoters(poll.id)).map((a) => a.userId),
-    })),
+  const assignmentsByPollId = await listActivePollVoterUserIdsByPollIds(
+    polls.map((poll) => poll.id),
   );
 
   return {
@@ -44,9 +41,10 @@ export async function getVotersPageData() {
       organization: user.organization,
       isVoter: user.isVoter,
     })),
-    assignmentsByPollId: Object.fromEntries(
-      assignments.map((a) => [a.pollId, a.userIds]),
-    ) as Record<string, string[]>,
+    assignmentsByPollId: Object.fromEntries(assignmentsByPollId) as Record<
+      string,
+      string[]
+    >,
   };
 }
 

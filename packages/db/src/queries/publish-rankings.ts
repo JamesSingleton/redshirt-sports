@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
@@ -263,7 +263,7 @@ export async function getPollRankingPublishPreview({
         legacyWeek,
       }),
       db
-        .select({ count: sql<number>`count(*)::int` })
+        .select({ count: count() })
         .from(pollRankingsTable)
         .where(
           and(

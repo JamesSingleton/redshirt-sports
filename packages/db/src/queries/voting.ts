@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
@@ -83,12 +83,59 @@ export async function countBallotsForPollWeek({
   weekId: string;
 }) {
   const [row] = await db
-    .select({ count: sql<number>`count(*)::int` })
+    .select({ count: count() })
     .from(ballotsTable)
     .where(
       and(eq(ballotsTable.pollId, pollId), eq(ballotsTable.weekId, weekId)),
     );
   return row?.count ?? 0;
+}
+
+function pollWeekKey(pollId: string, weekId: string) {
+  return `${pollId}:${weekId}`;
+}
+
+/**
+ * Ballot counts for many poll/week pairs in one query.
+ * Returns a map keyed by `${pollId}:${weekId}`.
+ */
+export async function countBallotsForPollWeeks(
+  pairs: Array<{ pollId: string; weekId: string }>,
+) {
+  const counts = new Map<string, number>();
+  if (pairs.length === 0) return counts;
+
+  for (const pair of pairs) {
+    counts.set(pollWeekKey(pair.pollId, pair.weekId), 0);
+  }
+
+  const pollIds = [...new Set(pairs.map((pair) => pair.pollId))];
+  const weekIds = [...new Set(pairs.map((pair) => pair.weekId))];
+  const wanted = new Set(counts.keys());
+
+  const rows = await db
+    .select({
+      pollId: ballotsTable.pollId,
+      weekId: ballotsTable.weekId,
+      count: count(),
+    })
+    .from(ballotsTable)
+    .where(
+      and(
+        inArray(ballotsTable.pollId, pollIds),
+        inArray(ballotsTable.weekId, weekIds),
+      ),
+    )
+    .groupBy(ballotsTable.pollId, ballotsTable.weekId);
+
+  for (const row of rows) {
+    const key = pollWeekKey(row.pollId, row.weekId);
+    if (wanted.has(key)) {
+      counts.set(key, row.count);
+    }
+  }
+
+  return counts;
 }
 
 export async function getVoterBallots({

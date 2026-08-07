@@ -103,14 +103,7 @@ async function DashboardContent() {
                   className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:gap-6"
                 >
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="truncate font-medium">{panel.name}</span>
-                      {!panel.isActive ? (
-                        <span className="text-muted-foreground text-xs tracking-wide uppercase">
-                          Inactive
-                        </span>
-                      ) : null}
-                    </div>
+                    <span className="truncate font-medium">{panel.name}</span>
                     <span className="text-muted-foreground text-xs tracking-wide uppercase">
                       {panel.sportTitle}
                       {panel.weekLabel ? ` · ${panel.weekLabel}` : ""}

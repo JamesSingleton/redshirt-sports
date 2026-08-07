@@ -12,7 +12,10 @@ import { requireAdmin } from "@/lib/require-admin";
 
 export async function getPollsManagerData() {
   await requireAdmin();
-  const [polls, sports] = await Promise.all([listPolls(), listSports()]);
+  const [polls, sports] = await Promise.all([
+    listPolls({ activeOnly: false }),
+    listSports(),
+  ]);
   return {
     sports,
     polls: polls.map((poll) => ({

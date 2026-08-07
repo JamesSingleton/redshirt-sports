@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, count, eq, inArray, isNull } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
@@ -35,12 +35,15 @@ export async function getPollBySportSlugAndPollSlug({
   return getPollBySportAndSlug({ sportId, slug: pollSlug });
 }
 
-export async function listPolls() {
+export async function listPolls(options?: { activeOnly?: boolean }) {
+  const activeOnly = options?.activeOnly ?? true;
   return db.query.pollsTable.findMany({
+    where: activeOnly ? (model, { eq }) => eq(model.isActive, true) : undefined,
     with: {
       sport: true,
     },
-    orderBy: (model, { asc }) => [asc(model.name)],
+    orderBy: (model, { asc, desc }) =>
+      activeOnly ? [asc(model.name)] : [desc(model.isActive), asc(model.name)],
   });
 }
 
@@ -159,6 +162,39 @@ export async function listActivePollVoters(pollId: string) {
 }
 
 /**
+ * Active credentialed voter user ids keyed by poll id.
+ */
+export async function listActivePollVoterUserIdsByPollIds(pollIds: string[]) {
+  const byPollId = new Map<string, string[]>();
+  if (pollIds.length === 0) return byPollId;
+
+  for (const pollId of pollIds) {
+    byPollId.set(pollId, []);
+  }
+
+  const rows = await db
+    .select({
+      pollId: pollVotersTable.pollId,
+      userId: pollVotersTable.userId,
+    })
+    .from(pollVotersTable)
+    .innerJoin(usersTable, eq(pollVotersTable.userId, usersTable.id))
+    .where(
+      and(
+        inArray(pollVotersTable.pollId, pollIds),
+        isNull(pollVotersTable.revokedAt),
+        eq(usersTable.isVoter, true),
+      ),
+    );
+
+  for (const row of rows) {
+    byPollId.get(row.pollId)?.push(row.userId);
+  }
+
+  return byPollId;
+}
+
+/**
  * Soft-revoke poll assignments for users who are no longer credentialed voters.
  * Historical ballots are untouched.
  */
@@ -265,10 +301,58 @@ export async function listVoters() {
   });
 }
 
+export async function countVoters() {
+  const [row] = await db
+    .select({ count: count() })
+    .from(usersTable)
+    .where(eq(usersTable.isVoter, true));
+  return row?.count ?? 0;
+}
+
 export async function listUsers() {
   return db.query.usersTable.findMany({
     orderBy: (model, { asc }) => [asc(model.lastName), asc(model.firstName)],
   });
+}
+
+export async function countUsers() {
+  const [row] = await db.select({ count: count() }).from(usersTable);
+  return row?.count ?? 0;
+}
+
+/**
+ * Active credentialed voter counts keyed by poll id.
+ * Former voters (isVoter=false) are excluded even if poll_voters.revoked_at is null.
+ */
+export async function countActivePollVotersByPollIds(pollIds: string[]) {
+  const counts = new Map<string, number>();
+  if (pollIds.length === 0) return counts;
+
+  for (const pollId of pollIds) {
+    counts.set(pollId, 0);
+  }
+
+  const rows = await db
+    .select({
+      pollId: pollVotersTable.pollId,
+      count: count(),
+    })
+    .from(pollVotersTable)
+    .innerJoin(usersTable, eq(pollVotersTable.userId, usersTable.id))
+    .where(
+      and(
+        inArray(pollVotersTable.pollId, pollIds),
+        isNull(pollVotersTable.revokedAt),
+        eq(usersTable.isVoter, true),
+      ),
+    )
+    .groupBy(pollVotersTable.pollId);
+
+  for (const row of rows) {
+    counts.set(row.pollId, row.count);
+  }
+
+  return counts;
 }
 
 /**
@@ -313,7 +397,7 @@ export async function getPollsForUser(userId: string) {
 /** Used by tests / ops to count stale assignments. */
 export async function countStalePollVoterAssignments() {
   const [row] = await db
-    .select({ count: sql<number>`count(*)::int` })
+    .select({ count: count() })
     .from(pollVotersTable)
     .innerJoin(usersTable, eq(pollVotersTable.userId, usersTable.id))
     .where(
