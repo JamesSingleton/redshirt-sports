@@ -411,7 +411,10 @@ export async function fetchAndLoadSchools() {
         await tx
           .delete(schoolConferenceAffiliationsTable)
           .where(
-            inArray(schoolConferenceAffiliationsTable.schoolId, syncedSchoolIds),
+            inArray(
+              schoolConferenceAffiliationsTable.schoolId,
+              syncedSchoolIds,
+            ),
           );
       }
 
