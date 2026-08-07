@@ -471,12 +471,12 @@ export async function fetchAndLoadConferences() {
       }
 
       if (conference?.sports?.length) {
-        conference.sports.forEach((sport: string) =>
+        conference.sports.forEach((sport: string) => {
           conferenceSportMappings.push({
             sportId: sport,
             conferenceName: conference.name,
-          }),
-        );
+          });
+        });
       }
 
       mappedConferences.push({
@@ -550,12 +550,12 @@ export async function fetchAndLoadSubdivisions() {
       const division = divisions.find(
         (div) => div.sanityId === d.parentDivisionId,
       );
-      d.applicableSports.forEach((sport: string) =>
+      d.applicableSports.forEach((sport: string) => {
         divisionSportMappings.push({
           subdivisionSanityId: d._id,
           sportId: sport,
-        }),
-      );
+        });
+      });
 
       return {
         parentDivisionId: division?.id,
