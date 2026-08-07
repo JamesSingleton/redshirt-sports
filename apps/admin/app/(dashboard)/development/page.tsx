@@ -105,7 +105,7 @@ const configuredLoaders = [
   {
     label: "Schools",
     description:
-      "Fetch schools from Sanity and upsert them (safe to re-run). Also syncs conference affiliations.",
+      "Fetch schools from Sanity and upsert them (safe to re-run). Replaces conference affiliations from each school's Sanity data.",
     loader: fetchAndLoadSchools,
   },
 ];

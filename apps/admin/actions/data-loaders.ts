@@ -37,7 +37,7 @@ import type {
   SportInfoQueryResult,
   SubdivisionsQueryResult,
 } from "@redshirt-sports/sanity/types";
-import { sql } from "drizzle-orm";
+import { inArray, sql } from "drizzle-orm";
 
 import { requireAdmin } from "@/lib/require-admin";
 
@@ -405,14 +405,24 @@ export async function fetchAndLoadSchools() {
       },
     );
 
-    if (affiliationRows.length) {
-      await db
-        .insert(schoolConferenceAffiliationsTable)
-        .values(affiliationRows)
-        .onConflictDoNothing();
-    }
+    const syncedSchoolIds = dbSchools.map((school) => school.id);
+    await db.transaction(async (tx) => {
+      if (syncedSchoolIds.length > 0) {
+        await tx
+          .delete(schoolConferenceAffiliationsTable)
+          .where(
+            inArray(schoolConferenceAffiliationsTable.schoolId, syncedSchoolIds),
+          );
+      }
 
-    return `Upserted ${dbSchools.length} schools and synced ${affiliationRows.length} conference affiliations.`;
+      if (affiliationRows.length > 0) {
+        await tx
+          .insert(schoolConferenceAffiliationsTable)
+          .values(affiliationRows);
+      }
+    });
+
+    return `Upserted ${dbSchools.length} schools and replaced ${affiliationRows.length} conference affiliations from Sanity.`;
   });
 }
 
