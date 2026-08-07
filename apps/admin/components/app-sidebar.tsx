@@ -17,6 +17,7 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import Image from "next/image";
+import Link from "next/link";
 import type * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
@@ -62,7 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="/">
+              <Link href="/" prefetch={false}>
                 {/*<IconInnerShadowTop className="!size-5" />*/}
                 <Image
                   src="https://cdn.sanity.io/images/8pbt9f8w/production/6ed24cde242b41912e2d06bf2ca7da9abdf97c06-4347x2855.svg"
@@ -73,7 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   height={25.6}
                 />
                 <span className="text-base font-semibold">Redshirt Sports</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -74,7 +74,7 @@ async function DashboardContent() {
             </p>
           </div>
           <Button variant="outline" size="sm" asChild>
-            <Link href="/voters">
+            <Link href="/voters" prefetch={false}>
               Manage panels
               <IconArrowRight data-icon="inline-end" />
             </Link>
@@ -164,6 +164,7 @@ async function DashboardContent() {
             <li>
               <Link
                 href="/rankings"
+                prefetch={false}
                 className="hover:bg-muted/50 flex items-center gap-3 px-5 py-4 transition-colors"
               >
                 <IconTrophy className="text-muted-foreground size-5 shrink-0" />
@@ -179,6 +180,7 @@ async function DashboardContent() {
             <li>
               <Link
                 href="/voters"
+                prefetch={false}
                 className="hover:bg-muted/50 flex items-center gap-3 px-5 py-4 transition-colors"
               >
                 <IconUsers className="text-muted-foreground size-5 shrink-0" />
@@ -194,6 +196,7 @@ async function DashboardContent() {
             <li>
               <Link
                 href="/polls"
+                prefetch={false}
                 className="hover:bg-muted/50 flex items-center gap-3 px-5 py-4 transition-colors"
               >
                 <IconListDetails className="text-muted-foreground size-5 shrink-0" />
@@ -209,6 +212,7 @@ async function DashboardContent() {
             <li>
               <Link
                 href="/development"
+                prefetch={false}
                 className="hover:bg-muted/50 flex items-center gap-3 px-5 py-4 transition-colors"
               >
                 <IconDatabase className="text-muted-foreground size-5 shrink-0" />
@@ -222,10 +226,10 @@ async function DashboardContent() {
               </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={PUBLIC_SITE_URL}
                 target="_blank"
-                rel="noopener noreferrer"
+                prefetch={false}
                 className="hover:bg-muted/50 flex items-center gap-3 px-5 py-4 transition-colors"
               >
                 <IconExternalLink className="text-muted-foreground size-5 shrink-0" />
@@ -236,7 +240,7 @@ async function DashboardContent() {
                   </span>
                 </span>
                 <IconArrowRight className="text-muted-foreground size-4" />
-              </a>
+              </Link>
             </li>
           </ul>
         </section>

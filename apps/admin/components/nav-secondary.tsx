@@ -8,6 +8,7 @@ import {
   SidebarMenuItem,
 } from "@redshirt-sports/ui/components/sidebar";
 import type { Icon } from "@tabler/icons-react";
+import Link from "next/link";
 import type * as React from "react";
 
 export function NavSecondary({
@@ -27,10 +28,10 @@ export function NavSecondary({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
-                <a href={item.url}>
+                <Link href={item.url} prefetch={false}>
                   <item.icon />
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
