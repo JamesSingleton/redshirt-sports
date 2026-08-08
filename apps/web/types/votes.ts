@@ -33,6 +33,7 @@ export type VoterBreakdown = {
   organization: string;
   organizationRole: string;
   ballot: VoteWithExtraData[];
+  matchPercent: number;
 };
 
 export type Vote = {

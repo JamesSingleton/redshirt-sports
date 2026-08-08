@@ -10,11 +10,13 @@ import {
   postsBySchoolQuery,
   querySchoolPaths,
   schoolBySlugQuery,
+  schoolSlugsByIdsQuery,
 } from "@redshirt-sports/sanity/queries";
 import type {
   PostsBySchoolAndStoryTypeQueryResult,
   PostsBySchoolQueryResult,
   SchoolBySlugQueryResult,
+  SchoolSlugsByIdsQueryResult,
 } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -28,12 +30,19 @@ import {
   TeamFeaturedArticle,
   TeamNewsItem,
 } from "@/components/teams/team-post-card";
+import { TeamRankingHistory } from "@/components/teams/team-ranking-history";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import {
   fetchGlobalSeoSettings,
   getPageMetadata,
 } from "@/lib/global-seo-settings";
+import {
+  getCachedRankedSchoolSanityIds,
+  getCachedSchoolHasPollRankings,
+  getCachedSchoolRankingHistory,
+} from "@/lib/rankings-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
+import { isTeamPageEligible } from "@/lib/team-page-eligibility";
 
 function defaultTeamPageTitle({
   name,
@@ -54,11 +63,33 @@ function defaultTeamPageDescription(schoolName: string) {
 }
 
 export async function generateStaticParams() {
-  const { data } = await sanityFetchStaticParams({
-    query: querySchoolPaths,
-    params: { minPosts: MIN_TEAM_PAGE_POSTS },
-  });
-  return data?.map(({ slug }) => ({ slug })) ?? [];
+  const [{ data: postQualified }, rankedSanityIds] = await Promise.all([
+    sanityFetchStaticParams({
+      query: querySchoolPaths,
+      params: { minPosts: MIN_TEAM_PAGE_POSTS },
+    }),
+    getCachedRankedSchoolSanityIds(),
+  ]);
+
+  const rankedSlugs =
+    rankedSanityIds.length > 0
+      ? ((
+          await sanityFetchStaticParams({
+            query: schoolSlugsByIdsQuery,
+            params: { ids: rankedSanityIds },
+          })
+        ).data as SchoolSlugsByIdsQueryResult | null)
+      : [];
+
+  const slugs = new Set<string>();
+  for (const school of postQualified ?? []) {
+    if (school.slug) slugs.add(school.slug);
+  }
+  for (const school of rankedSlugs ?? []) {
+    if (school.slug) slugs.add(school.slug);
+  }
+
+  return [...slugs].map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -70,13 +101,23 @@ export async function generateMetadata({
     params,
     getDynamicFetchOptions(),
   ]);
-  const { data: school } = await sanityFetchMetadata({
+  const { data: school } = (await sanityFetchMetadata({
     query: schoolBySlugQuery,
-    params: { slug, minPosts: MIN_TEAM_PAGE_POSTS },
+    params: { slug },
     perspective,
-  });
+  })) as { data: SchoolBySlugQueryResult | null };
 
   if (!school) {
+    notFound();
+  }
+
+  const hasRankings = await getCachedSchoolHasPollRankings(school._id);
+  if (
+    !isTeamPageEligible({
+      postCount: school.postCount,
+      hasRankings,
+    })
+  ) {
     notFound();
   }
 
@@ -112,7 +153,7 @@ async function renderSchoolTeamPage(
   "use cache";
   const { data: school } = (await sanityFetchPage({
     query: schoolBySlugQuery,
-    params: { slug, minPosts: MIN_TEAM_PAGE_POSTS },
+    params: { slug },
     perspective,
     stega,
   })) as { data: SchoolBySlugQueryResult | null };
@@ -121,22 +162,36 @@ async function renderSchoolTeamPage(
     notFound();
   }
 
-  const [{ data: newsData }, { data: recruitingPosts }, globalSettings] =
-    await Promise.all([
-      sanityFetchPage({
-        query: postsBySchoolQuery,
-        params: { schoolId: school._id, from: 0, to: MIN_TEAM_PAGE_POSTS },
-        perspective,
-        stega,
-      }) as Promise<{ data: PostsBySchoolQueryResult | null }>,
-      sanityFetchPage({
-        query: postsBySchoolAndStoryTypeQuery,
-        params: { schoolId: school._id, storyType: "recruiting" },
-        perspective,
-        stega,
-      }) as Promise<{ data: PostsBySchoolAndStoryTypeQueryResult | null }>,
-      fetchGlobalSeoSettings(perspective),
-    ]);
+  const [
+    { data: newsData },
+    { data: recruitingPosts },
+    globalSettings,
+    rankingHistory,
+  ] = await Promise.all([
+    sanityFetchPage({
+      query: postsBySchoolQuery,
+      params: { schoolId: school._id, from: 0, to: MIN_TEAM_PAGE_POSTS },
+      perspective,
+      stega,
+    }) as Promise<{ data: PostsBySchoolQueryResult | null }>,
+    sanityFetchPage({
+      query: postsBySchoolAndStoryTypeQuery,
+      params: { schoolId: school._id, storyType: "recruiting" },
+      perspective,
+      stega,
+    }) as Promise<{ data: PostsBySchoolAndStoryTypeQueryResult | null }>,
+    fetchGlobalSeoSettings(perspective),
+    getCachedSchoolRankingHistory(school._id),
+  ]);
+
+  if (
+    !isTeamPageEligible({
+      postCount: school.postCount,
+      hasRankings: rankingHistory.polls.length > 0,
+    })
+  ) {
+    notFound();
+  }
 
   const posts = newsData?.posts ?? [];
   const featuredPosts = posts.slice(0, 3);
@@ -157,7 +212,7 @@ async function renderSchoolTeamPage(
         schoolImage={school.image}
       />
 
-      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8 lg:p-6">
+      <div className="mx-auto grid max-w-437.5 grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8 lg:p-6">
         <section className="min-w-0">
           {featuredPosts.length > 0 ? (
             <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -171,6 +226,11 @@ async function renderSchoolTeamPage(
             title={`${teamShortName} Sports`}
             posts={sportsPosts}
             footerLinks={sportsFooterLinks}
+          />
+
+          <TeamRankingHistory
+            history={rankingHistory}
+            teamName={teamShortName}
           />
 
           {recruitingPosts && recruitingPosts.length > 0 ? (
@@ -226,7 +286,7 @@ function TeamNavBar({
 }) {
   return (
     <nav className="sticky top-0 z-40 border-b border-border bg-card">
-      <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-4 overflow-x-auto px-4 [-webkit-overflow-scrolling:touch]">
+      <div className="mx-auto flex h-14 max-w-437.5 items-center gap-4 overflow-x-auto px-4 [-webkit-overflow-scrolling:touch]">
         <div className="flex shrink-0 items-center gap-2.5">
           {schoolImage ? (
             <CustomImage
@@ -247,7 +307,7 @@ function TeamNavBar({
   );
 }
 
-function NilWidget({ teamShortName }: { teamShortName: string }) {
+function _NilWidget({ teamShortName }: { teamShortName: string }) {
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-card">
       <div className="flex items-center gap-1 border-b border-border px-4 py-3">
@@ -271,7 +331,7 @@ function NilWidget({ teamShortName }: { teamShortName: string }) {
   );
 }
 
-function CommitmentsWidget({ teamShortName }: { teamShortName: string }) {
+function _CommitmentsWidget({ teamShortName }: { teamShortName: string }) {
   return (
     <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
       <h3 className="border-b border-border px-4 py-3 text-base font-bold">

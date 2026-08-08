@@ -28,15 +28,21 @@ const VoterBreakdownDesktop = dynamic(() => import("./desktop"), {
 });
 const VoterBreakdownMobile = dynamic(() => import("./mobile"), { ssr: false });
 
+type SortBy = "name" | "match";
+
 type Props = {
   voterBreakdown: VoterBreakdown[];
 };
+
+const VOTER_BREAKDOWN_DESCRIPTION =
+  "See how each voter cast their ballot for this week's rankings. Match % shows how closely each ballot's rank order matched the final Top 25.";
 
 export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 150);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [sortBy, setSortBy] = useState<SortBy>("name");
   const isMobile = useIsMobile();
   const [ready, setReady] = useState(false);
 
@@ -50,9 +56,16 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
   );
   const filtered = useMemo(() => {
     const q = debouncedQuery.trim().toLowerCase();
-    if (!q) return searchable.map((s) => s.voter);
-    return searchable.filter((s) => s.text.includes(q)).map((s) => s.voter);
-  }, [debouncedQuery, searchable]);
+    const list = q
+      ? searchable.filter((s) => s.text.includes(q)).map((s) => s.voter)
+      : searchable.map((s) => s.voter);
+
+    if (sortBy === "match") {
+      return [...list].sort((a, b) => b.matchPercent - a.matchPercent);
+    }
+
+    return [...list].sort((a, b) => a.name.localeCompare(b.name));
+  }, [debouncedQuery, searchable, sortBy]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, pageCount);
@@ -77,7 +90,7 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedQuery, pageSize]);
+  }, [debouncedQuery, pageSize, sortBy]);
 
   useEffect(() => setReady(true), []);
   if (!ready) {
@@ -85,9 +98,7 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-2xl">Voter Breakdown</CardTitle>
-          <CardDescription>
-            See how each voter cast their ballot for this week&apos;s rankings.
-          </CardDescription>
+          <CardDescription>{VOTER_BREAKDOWN_DESCRIPTION}</CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground text-sm">
           Loading view…
@@ -98,12 +109,10 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
 
   return (
     <Card className="w-full">
-      <CardHeader className="gap-3 md:flex-row md:items-end md:justify-between">
-        <div className="space-y-1">
+      <CardHeader className="gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-1">
           <CardTitle className="text-2xl">Voter Breakdown</CardTitle>
-          <CardDescription>
-            See how each voter cast their ballot for this week&apos;s rankings.
-          </CardDescription>
+          <CardDescription>{VOTER_BREAKDOWN_DESCRIPTION}</CardDescription>
         </div>
         <div className="grid w-full grid-cols-1 gap-2 md:w-auto md:auto-cols-max md:grid-flow-col">
           <div className="relative">
@@ -116,25 +125,39 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
               aria-label="Search voters or organizations"
             />
           </div>
-          <Select
-            value={String(pageSize)}
-            onValueChange={(v) => setPageSize(Number(v))}
-          >
-            <SelectTrigger className="min-w-[140px]">
-              <SelectValue placeholder="Rows per page" />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {pageSizeOptions.map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {`${n} per page`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Select
+              value={sortBy}
+              onValueChange={(v) => setSortBy(v as SortBy)}
+            >
+              <SelectTrigger className="min-w-43.75" aria-label="Sort voters">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="match">Match %</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={String(pageSize)}
+              onValueChange={(v) => setPageSize(Number(v))}
+            >
+              <SelectTrigger className="min-w-43.75">
+                <SelectValue placeholder="Rows per page" />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {pageSizeOptions.map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {`${n} per page`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         <div className="text-muted-foreground text-sm">
           Showing {rows.length} of {filtered.length} voter(s). Page {safePage}{" "}
           of {pageCount}.

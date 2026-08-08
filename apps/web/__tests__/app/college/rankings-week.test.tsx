@@ -144,10 +144,24 @@ describe("CollegeFootballRankingsPage", () => {
     expect(screen.getByLabelText("down 1")).toBeInTheDocument();
     expect(screen.getByLabelText("new to rankings")).toBeInTheDocument();
     expect(screen.getByText(/Dropped Out of Top 25/i)).toBeInTheDocument();
-    expect(screen.getByText(/Mercer \(24\)/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Mercer (24)" })).toHaveAttribute(
+      "href",
+      "/college/teams/mercer",
+    );
     expect(screen.getByText(/Others receiving votes/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /ORV Team/ })).toHaveAttribute(
+      "href",
+      "/college/teams/orv-team",
+    );
     expect(screen.getByText(/No longer receiving votes/i)).toBeInTheDocument();
-    expect(screen.getByText(/Vanished/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Vanished" })).toHaveAttribute(
+      "href",
+      "/college/teams/vanished",
+    );
+    expect(screen.getByRole("link", { name: "Alabama" })).toHaveAttribute(
+      "href",
+      "/college/teams/alabama",
+    );
 
     const jsonLd = screen.getByTestId("json-ld");
     const data = JSON.parse(jsonLd.innerHTML);

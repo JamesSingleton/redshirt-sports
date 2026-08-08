@@ -808,6 +808,7 @@ export const schoolsQuery = defineQuery(/* groq */ `
     shortName,
     abbreviation,
     nickname,
+    "slug": slug.current,
     top25VotingEligible,
     ${schoolImageFragment},
     conferenceAffiliations[] {
@@ -939,8 +940,7 @@ export const queryDivisionOrSubgroupingDisplayName = defineQuery(
 export const schoolBySlugQuery = defineQuery(/* groq */ `
   *[
     _type == "school" &&
-    slug.current == $slug &&
-    count(*[${publishedPostsTaggingSchoolFromParentFilter}]) >= $minPosts
+    slug.current == $slug
   ][0]{
     _id,
     name,
@@ -956,6 +956,7 @@ export const schoolBySlugQuery = defineQuery(/* groq */ `
     seoImage,
     ogTitle,
     ogDescription,
+    "postCount": count(*[${publishedPostsTaggingSchoolFromParentFilter}]),
     ${schoolImageFragment},
     conferenceAffiliations[]{
       _key,
@@ -1039,3 +1040,12 @@ export const schoolSlugsForSitemapQuery = groq`
     _updatedAt
   }
 `;
+
+/** Resolve team hub slugs for schools that appear in rankings (by Sanity _id). */
+export const schoolSlugsByIdsQuery = defineQuery(/* groq */ `
+  *[_type == "school" && defined(slug.current) && _id in $ids]{
+    _id,
+    "slug": slug.current,
+    _updatedAt
+  }
+`);

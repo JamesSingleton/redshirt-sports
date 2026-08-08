@@ -7,6 +7,7 @@ export type RankingTeamRef = {
   shortName?: string | null;
   abbreviation?: string | null;
   name?: string | null;
+  slug?: string | null;
 };
 
 export type Movement =

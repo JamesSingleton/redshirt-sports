@@ -3170,6 +3170,7 @@ export type SchoolsQueryResult = Array<{
   shortName: string | null;
   abbreviation: string | null;
   nickname: string | null;
+  slug: string | null;
   top25VotingEligible: boolean | null;
   image: {
     asset?: SanityImageAssetReference;
@@ -3439,6 +3440,7 @@ export type SchoolBySlugQueryResult = {
   seoImage: SeoImage | null;
   ogTitle: string | null;
   ogDescription: string | null;
+  postCount: number;
   image: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -3772,6 +3774,14 @@ export type SchoolSlugsForSitemapQueryResult = Array<{
   _updatedAt: string;
 }>;
 
+// Source: ../../packages/sanity/src/queries.ts
+// Variable: schoolSlugsByIdsQuery
+export type SchoolSlugsByIdsQueryResult = Array<{
+  _id: string;
+  slug: string;
+  _updatedAt: string;
+}>;
+
 // Query TypeMap
 import "@sanity/client";
 
@@ -3809,7 +3819,7 @@ declare module "@sanity/client" {
     '*[_type == "sport" && defined(slug.current)]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    title,\n    "slug": slug.current,\n  }': SportInfoQueryResult;
     '\n  *[_type == "division"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    title,\n    heading,\n    longName,\n    "slug": slug.current,\n    description,\n    \n  logo{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n\n  }\n  ': DivisionsQueryResult;
     '\n  *[_type == "conference"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    "slug": slug.current,\n    "divisionId": division->_id,\n    \n  logo{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    "sports": sports[]->_id\n  }\n  ': ConferencesQueryResult;
-    '\n  *[_type == "school"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    top25VotingEligible,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    conferenceAffiliations[] {\n      "conferenceId": conference->_id,\n      "sportId": sport->_id,\n    }\n  }\n  ': SchoolsQueryResult;
+    '\n  *[_type == "school"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    "slug": slug.current,\n    top25VotingEligible,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    conferenceAffiliations[] {\n      "conferenceId": conference->_id,\n      "sportId": sport->_id,\n    }\n  }\n  ': SchoolsQueryResult;
     '\n    *[_type == "sportSubgrouping"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    "slug": slug.current,\n    "parentDivisionId": parentDivision->_id,\n    "applicableSports": applicableSports[]->_id\n  }\n': SubdivisionsQueryResult;
     '\n*[_type == "school" && _id in $ids[].id]{\n  _id,\n  "_points": $ids[id == ^._id][0].totalPoints,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n} | order(_points desc)\n': SchoolsByIdOrderedByPointsResult;
     '\n*[_type == "school" && _id in $ids[].teamId]{\n  _id,\n  "_order": $ids[teamId == ^._id][0].rank,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "preview": asset->metadata.lqip,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  "dominantColor": asset->metadata.palette.dominant.background,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n} | order(_order)\n': SchoolWithVoteOrderResult;

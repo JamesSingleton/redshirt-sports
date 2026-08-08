@@ -1,6 +1,7 @@
 import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
+  sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import {
   globalNavigationQuery,
@@ -13,7 +14,6 @@ import type {
 import { memo } from "react";
 
 import { getCachedNavbarLatestRankings } from "@/lib/rankings-data";
-import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { Logo } from "./logo";
 import { NavbarClient, NavbarSkeletonResponsive } from "./navbar-client";
 
@@ -42,15 +42,18 @@ export async function CachedNavbarServer({
   stega,
 }: DynamicFetchOptions) {
   "use cache";
+  // Call sanityFetch directly (not sanityFetchPage) to avoid nested `"use cache"`
+  // entries that can deadlock against the shared postgres/client module scope
+  // while sibling Suspense boundaries fill other caches.
   const [latestRankings, { data: navbarData }, { data: settingsData }] =
     await Promise.all([
       getCachedNavbarLatestRankings(),
-      sanityFetchPage({
+      sanityFetch({
         query: globalNavigationQuery,
         perspective,
         stega,
       }),
-      sanityFetchPage({
+      sanityFetch({
         query: queryGlobalSeoSettings,
         perspective,
         stega,

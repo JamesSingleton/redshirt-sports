@@ -20,7 +20,7 @@ type SchoolRecord = {
 
 export async function processVoterBallots(
   userBallots: BallotsByVoter,
-): Promise<VoterBreakdown[]> {
+): Promise<Omit<VoterBreakdown, "matchPercent">[]> {
   const teamIds = new Set<string>();
 
   for (const userId in userBallots) {
@@ -43,7 +43,7 @@ export async function processVoterBallots(
   );
 
   const schoolById = new Map(schools.map((school) => [school._id, school]));
-  const voterBallot: VoterBreakdown[] = [];
+  const voterBallot: Omit<VoterBreakdown, "matchPercent">[] = [];
 
   for (const userId in userBallots) {
     const userBallot = userBallots[userId];

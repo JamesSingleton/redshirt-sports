@@ -15,6 +15,7 @@ const validPayload = {
     shortName: "Montana State",
     abbreviation: "MTST",
     nickname: "Bobcats",
+    slug: "montana-state-bobcats",
     top25Eligible: true,
   },
 };
@@ -85,6 +86,7 @@ describe("POST /api/webhooks/sanity/school", () => {
       expect.objectContaining({
         sanityId: "sanity-school-1",
         name: "Montana State",
+        slug: "montana-state-bobcats",
       }),
     );
   });
