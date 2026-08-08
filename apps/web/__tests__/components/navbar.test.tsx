@@ -75,7 +75,9 @@ describe("Navbar", () => {
 describe("NavbarSkeleton", () => {
   it("renders the navbar loading skeleton", () => {
     render(<NavbarSkeleton />);
-    expect(screen.getByTestId("navbar-skeleton-responsive")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("navbar-skeleton-responsive"),
+    ).toBeInTheDocument();
   });
 });
 

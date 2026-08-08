@@ -11,7 +11,8 @@ const { mockSanityFetchPage, mockGetDynamicFetchOptions, mockGetPageMetadata } =
   }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) => render(),
+  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) =>
+    render(),
 }));
 
 vi.mock("@/lib/sanity-fetch", () => ({
@@ -32,17 +33,25 @@ vi.mock("@/lib/global-seo-settings", () => ({
 
 vi.mock("@/components/page-header", () => ({
   __esModule: true,
-  default: ({ title, subtitle }: { title: string; subtitle?: string | null }) => (
-  <div>
-    <h1>{title}</h1>
-    {subtitle ? <p>{subtitle}</p> : null}
-  </div>
+  default: ({
+    title,
+    subtitle,
+  }: {
+    title: string;
+    subtitle?: string | null;
+  }) => (
+    <div>
+      <h1>{title}</h1>
+      {subtitle ? <p>{subtitle}</p> : null}
+    </div>
   ),
 }));
 
 vi.mock("@/components/article-card", () => ({
   __esModule: true,
-  default: ({ title }: { title: string }) => <div data-testid="article-card">{title}</div>,
+  default: ({ title }: { title: string }) => (
+    <div data-testid="article-card">{title}</div>
+  ),
 }));
 
 vi.mock("@/components/pagination-controls", () => ({
@@ -50,8 +59,8 @@ vi.mock("@/components/pagination-controls", () => ({
   default: () => <nav data-testid="pagination" />,
 }));
 
-import SearchPage, { generateMetadata } from "@/app/search/page";
 import SearchLoading from "@/app/search/loading";
+import SearchPage, { generateMetadata } from "@/app/search/page";
 
 describe("SearchPage", () => {
   beforeEach(() => {
@@ -72,7 +81,9 @@ describe("SearchPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "Search Results" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Search Results" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("No results found.")).toBeInTheDocument();
   });
 
@@ -98,7 +109,9 @@ describe("SearchPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByText('Search results for "alabama"')).toBeInTheDocument();
+    expect(
+      screen.getByText('Search results for "alabama"'),
+    ).toBeInTheDocument();
     expect(screen.getByText("Alabama Preview")).toBeInTheDocument();
   });
 
@@ -129,6 +142,8 @@ describe("SearchPage", () => {
 describe("SearchLoading", () => {
   it("renders skeleton placeholders", () => {
     const { container } = render(<SearchLoading />);
-    expect(container.querySelectorAll(".animate-pulse, [class*='skeleton']").length).toBeGreaterThan(0);
+    expect(
+      container.querySelectorAll(".animate-pulse, [class*='skeleton']").length,
+    ).toBeGreaterThan(0);
   });
 });

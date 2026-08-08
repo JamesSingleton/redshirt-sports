@@ -153,12 +153,7 @@ describe("RankingsFilters", () => {
 
   it("ignores year changes when the selected year matches the route", async () => {
     const user = userEvent.setup();
-    render(
-      <RankingsFilters
-        years={[{ year: 2025 }]}
-        weeks={[{ week: 1 }]}
-      />,
-    );
+    render(<RankingsFilters years={[{ year: 2025 }]} weeks={[{ week: 1 }]} />);
 
     await user.click(screen.getByTestId("trigger-year-same"));
 
@@ -168,12 +163,7 @@ describe("RankingsFilters", () => {
 
   it("ignores week changes when the selected segment matches the route", async () => {
     const user = userEvent.setup();
-    render(
-      <RankingsFilters
-        years={[{ year: 2025 }]}
-        weeks={[{ week: 1 }]}
-      />,
-    );
+    render(<RankingsFilters years={[{ year: 2025 }]} weeks={[{ week: 1 }]} />);
 
     await user.click(screen.getByTestId("trigger-week-same"));
 
@@ -184,12 +174,7 @@ describe("RankingsFilters", () => {
   it("ignores invalid week segments that fail parsing", async () => {
     mockParams.week = "bad-week";
     const user = userEvent.setup();
-    render(
-      <RankingsFilters
-        years={[{ year: 2025 }]}
-        weeks={[{ week: 1 }]}
-      />,
-    );
+    render(<RankingsFilters years={[{ year: 2025 }]} weeks={[{ week: 1 }]} />);
 
     await user.click(screen.getByTestId("trigger-bad-week"));
 

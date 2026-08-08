@@ -20,7 +20,8 @@ const {
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) => render(),
+  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) =>
+    render(),
 }));
 
 vi.mock("@/lib/sanity-fetch", () => ({
@@ -66,8 +67,10 @@ vi.mock("@/components/pagination-controls", () => ({
   default: () => <nav data-testid="pagination" />,
 }));
 
-import SportNewsPage, { generateMetadata } from "@/app/college/[sport]/news/page";
 import SportNewsLoading from "@/app/college/[sport]/news/loading";
+import SportNewsPage, {
+  generateMetadata,
+} from "@/app/college/[sport]/news/page";
 
 describe("SportNewsPage", () => {
   beforeEach(() => {
@@ -145,7 +148,9 @@ describe("SportNewsPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "College Football News" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "College Football News" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Football Story")).toBeInTheDocument();
   });
 

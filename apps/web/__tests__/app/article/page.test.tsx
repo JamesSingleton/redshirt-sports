@@ -82,7 +82,9 @@ vi.mock("@/components/json-ld", () => ({
 
 vi.mock("@/components/article-card", () => ({
   __esModule: true,
-  default: ({ title }: { title: string }) => <div data-testid="article-card">{title}</div>,
+  default: ({ title }: { title: string }) => (
+    <div data-testid="article-card">{title}</div>
+  ),
 }));
 
 vi.mock("@/components/article-loading-skeleton", () => ({
@@ -92,7 +94,9 @@ vi.mock("@/components/article-loading-skeleton", () => ({
 
 vi.mock("@/components/format-date", () => ({
   __esModule: true,
-  default: ({ dateString }: { dateString: string }) => <time>{dateString}</time>,
+  default: ({ dateString }: { dateString: string }) => (
+    <time>{dateString}</time>
+  ),
 }));
 
 vi.mock("@/components/posts/article-share", () => ({
@@ -114,7 +118,10 @@ vi.mock("@/components/sanity-image", () => ({
   IMAGE_SIZES: { articleHero: "100vw" },
 }));
 
-import PostPage, { generateMetadata, generateStaticParams } from "@/app/[slug]/page";
+import PostPage, {
+  generateMetadata,
+  generateStaticParams,
+} from "@/app/[slug]/page";
 
 const samplePost = {
   title: "Big Game Preview",
@@ -179,7 +186,9 @@ describe("PostPage", () => {
 
   it("generateMetadata builds article metadata when post exists", async () => {
     mockSanityFetchMetadata.mockResolvedValue({ data: samplePost });
-    await generateMetadata({ params: Promise.resolve({ slug: "big-game-preview" }) });
+    await generateMetadata({
+      params: Promise.resolve({ slug: "big-game-preview" }),
+    });
     expect(mockGetPageMetadata).toHaveBeenCalledWith(
       expect.objectContaining({
         title: "Big Game Preview",
@@ -213,7 +222,9 @@ describe("PostPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "Big Game Preview" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Big Game Preview" }),
+    ).toBeInTheDocument();
     expect(screen.queryByText("You Might Also Like")).not.toBeInTheDocument();
   });
 
@@ -225,7 +236,9 @@ describe("PostPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "Big Game Preview" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Big Game Preview" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Football" })).toHaveAttribute(
       "href",
       "/college/football/news",

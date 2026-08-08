@@ -62,9 +62,24 @@ const richText = [
     style: "normal",
     markDefs: [
       { _key: "internal", _type: "internalLink", href: "/internal" },
-      { _key: "blank", _type: "link", href: "https://external.com", blank: true },
-      { _key: "same", _type: "link", href: "https://same-tab.com", blank: false },
-      { _key: "custom", _type: "customLink", href: "/custom", openInNewTab: true },
+      {
+        _key: "blank",
+        _type: "link",
+        href: "https://external.com",
+        blank: true,
+      },
+      {
+        _key: "same",
+        _type: "link",
+        href: "https://same-tab.com",
+        blank: false,
+      },
+      {
+        _key: "custom",
+        _type: "customLink",
+        href: "/custom",
+        openInNewTab: true,
+      },
       { _key: "custom-same", _type: "customUrl", href: "/custom-same" },
       { _key: "missing", _type: "customLink" },
     ],
@@ -178,7 +193,9 @@ describe("RichText", () => {
     expect(screen.getByTestId("tweet")).toHaveTextContent("tweet-1");
     expect(screen.getByText("Source: Getty")).toBeInTheDocument();
     expect(screen.getByText("Source: AP")).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Team" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Team" }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("youtube")).toHaveTextContent("abc");
     expect(logSpy).toHaveBeenCalled();
     logSpy.mockRestore();

@@ -20,7 +20,8 @@ const {
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) => render(),
+  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) =>
+    render(),
 }));
 
 vi.mock("@/lib/sanity-fetch", () => ({
@@ -33,7 +34,8 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
-  queryDivisionOrSubgroupingDisplayName: "queryDivisionOrSubgroupingDisplayName",
+  queryDivisionOrSubgroupingDisplayName:
+    "queryDivisionOrSubgroupingDisplayName",
   querySportsAndDivisionNews: "querySportsAndDivisionNews",
   sportInfoBySlug: "sportInfoBySlug",
 }));
@@ -77,7 +79,9 @@ vi.mock("@/components/pagination-controls", () => ({
   default: () => <nav data-testid="pagination" />,
 }));
 
-import DivisionNewsPage, { generateMetadata } from "@/app/college/[sport]/news/[division]/page";
+import DivisionNewsPage, {
+  generateMetadata,
+} from "@/app/college/[sport]/news/[division]/page";
 
 describe("DivisionNewsPage", () => {
   beforeEach(() => {
@@ -163,7 +167,9 @@ describe("DivisionNewsPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "FBS Football News" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "FBS Football News" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("FBS Story")).toBeInTheDocument();
     expect(screen.getByTestId("json-ld")).toBeInTheDocument();
   });

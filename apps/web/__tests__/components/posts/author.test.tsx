@@ -48,7 +48,9 @@ describe("Author components", () => {
     render(<AuthorItem {...({ ...author, archived: true } as never)} />);
 
     expect(screen.getByText("Jane Doe")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Jane Doe" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Jane Doe" }),
+    ).not.toBeInTheDocument();
   });
 
   it("renders the author section list", () => {

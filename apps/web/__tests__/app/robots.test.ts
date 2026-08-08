@@ -12,11 +12,7 @@ describe("robots", () => {
       expect.objectContaining({
         userAgent: "*",
         allow: ["/"],
-        disallow: expect.arrayContaining([
-          "/api/cron/",
-          "/vote/",
-          "/search/",
-        ]),
+        disallow: expect.arrayContaining(["/api/cron/", "/vote/", "/search/"]),
       }),
     );
     expect(result.sitemap).toEqual(

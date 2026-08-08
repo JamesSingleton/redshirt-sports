@@ -30,7 +30,9 @@ vi.mock("@/components/page-header", () => ({
 }));
 
 vi.mock("@/components/contact-email-link", () => ({
-  ContactEmailLink: ({ email }: { email: string }) => <a href={`mailto:${email}`}>{email}</a>,
+  ContactEmailLink: ({ email }: { email: string }) => (
+    <a href={`mailto:${email}`}>{email}</a>
+  ),
 }));
 
 import ContactPage, { generateMetadata } from "@/app/contact/page";
@@ -47,7 +49,9 @@ describe("ContactPage", () => {
   it("renders contact cards with email links", () => {
     render(<ContactPage />);
 
-    expect(screen.getByRole("heading", { name: "Contact Us" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Contact Us" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Collaborate")).toBeInTheDocument();
     expect(screen.getByText("Advertising")).toBeInTheDocument();
     expect(screen.getByText("General Inquiries")).toBeInTheDocument();

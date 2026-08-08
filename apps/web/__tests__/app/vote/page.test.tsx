@@ -221,7 +221,9 @@ describe("VotePageAuth", () => {
         options: publishedOptions,
       });
       render(ui as ReactNode);
-      expect(screen.getByRole("heading", { name: headingPattern })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: headingPattern }),
+      ).toBeInTheDocument();
     },
   );
 

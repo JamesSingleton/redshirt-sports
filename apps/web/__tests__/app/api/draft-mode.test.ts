@@ -44,8 +44,8 @@ describe("draft-mode routes", () => {
     const enable = await import("@/app/api/draft-mode/enable/route");
     expect(mockDefineEnableDraftMode).toHaveBeenCalled();
     expect(enable.GET).toBeDefined();
-    await expect(enable.GET(new Request("https://example.com"))).resolves.toBeInstanceOf(
-      Response,
-    );
+    await expect(
+      enable.GET(new Request("https://example.com")),
+    ).resolves.toBeInstanceOf(Response);
   });
 });

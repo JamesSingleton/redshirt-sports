@@ -80,7 +80,9 @@ describe("college sitemap", () => {
 
   it("skips posts without a sport slug", async () => {
     mockSanityFetchMetadata.mockResolvedValue({
-      data: [{ sport: null, division: "d2", _updatedAt: "2026-01-01T00:00:00Z" }],
+      data: [
+        { sport: null, division: "d2", _updatedAt: "2026-01-01T00:00:00Z" },
+      ],
     });
     const urls = await collegeSitemap();
     expect(urls).toEqual([]);
@@ -168,8 +170,6 @@ describe("college sitemap", () => {
       ],
     });
     const urls = await collegeSitemap();
-    expect(
-      urls.some((entry) => entry.url.includes("/fbs/sec")),
-    ).toBe(false);
+    expect(urls.some((entry) => entry.url.includes("/fbs/sec"))).toBe(false);
   });
 });

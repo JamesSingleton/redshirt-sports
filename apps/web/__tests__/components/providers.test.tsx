@@ -2,9 +2,11 @@ import { render, screen } from "@testing-library/react";
 
 import { Providers } from "@/components/providers";
 
-const mockThemeProvider = vi.fn(({ children }: { children: React.ReactNode }) => (
-  <div data-testid="theme-provider">{children}</div>
-));
+const mockThemeProvider = vi.fn(
+  ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="theme-provider">{children}</div>
+  ),
+);
 
 vi.mock("next-themes", () => ({
   ThemeProvider: (props: { children: React.ReactNode }) =>

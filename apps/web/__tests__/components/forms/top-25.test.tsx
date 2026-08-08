@@ -44,7 +44,10 @@ vi.mock("@/components/virtualized-combobox", () => ({
   ),
 }));
 
-import Top25, { formSchema, type Top25FormRef } from "@/components/forms/top-25";
+import Top25, {
+  formSchema,
+  type Top25FormRef,
+} from "@/components/forms/top-25";
 
 function makeSchools(count: number) {
   return Array.from({ length: count }, (_, i) => ({

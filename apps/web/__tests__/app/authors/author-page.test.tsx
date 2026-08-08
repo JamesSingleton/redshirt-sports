@@ -24,7 +24,8 @@ const {
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) => render(),
+  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) =>
+    render(),
 }));
 
 vi.mock("@/lib/sanity-fetch", () => ({
@@ -70,7 +71,9 @@ vi.mock("@/components/json-ld", () => ({
 
 vi.mock("@/components/article-card", () => ({
   __esModule: true,
-  default: ({ title }: { title: string }) => <div data-testid="article-card">{title}</div>,
+  default: ({ title }: { title: string }) => (
+    <div data-testid="article-card">{title}</div>
+  ),
 }));
 
 vi.mock("@/components/pagination-controls", () => ({
@@ -166,7 +169,9 @@ describe("AuthorPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "Jane Author" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Jane Author" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Covers college football.")).toBeInTheDocument();
     expect(screen.getByText("Articles by Jane Author")).toBeInTheDocument();
     expect(screen.getByText("Latest Story")).toBeInTheDocument();
@@ -196,8 +201,12 @@ describe("AuthorPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "Jane Author" })).toBeInTheDocument();
-    expect(screen.queryByText("Articles by Jane Author")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Jane Author" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Articles by Jane Author"),
+    ).not.toBeInTheDocument();
   });
 
   it("renders facebook and youtube social links with pagination", async () => {
@@ -231,7 +240,9 @@ describe("AuthorPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByText(/Follow Jane Author on Facebook/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Follow Jane Author on Facebook/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/Subscribe to Jane Author's YouTube channel/i),
     ).toBeInTheDocument();

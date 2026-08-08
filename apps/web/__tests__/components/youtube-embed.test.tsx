@@ -5,7 +5,11 @@ import { YouTubeEmbedComponent } from "@/components/youtube-embed";
 vi.mock("react-player", () => ({
   __esModule: true,
   default: ({ src, playing }: { src: string; playing?: boolean }) => (
-    <div data-testid="react-player" data-src={src} data-playing={String(playing)} />
+    <div
+      data-testid="react-player"
+      data-src={src}
+      data-playing={String(playing)}
+    />
   ),
 }));
 

@@ -24,7 +24,9 @@ describe("root sitemap", () => {
   it("returns static pages and author URLs", async () => {
     mockSanityFetchMetadata.mockResolvedValue({
       data: {
-        authors: [{ slug: "jane-author", lastModified: "2026-01-01T00:00:00Z" }],
+        authors: [
+          { slug: "jane-author", lastModified: "2026-01-01T00:00:00Z" },
+        ],
       },
     });
 

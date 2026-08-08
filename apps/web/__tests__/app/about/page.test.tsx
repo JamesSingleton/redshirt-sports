@@ -13,7 +13,10 @@ const { mockSanityFetchPage, mockGetDynamicFetchOptions, mockGetPageMetadata } =
 vi.mock("@/lib/draft-cache", () => ({
   draftAwarePage: (
     _fallback: unknown,
-    render: (options: { perspective: string; stega: boolean }) => Promise<unknown>,
+    render: (options: {
+      perspective: string;
+      stega: boolean;
+    }) => Promise<unknown>,
   ) => render({ perspective: "published", stega: false }),
 }));
 
@@ -101,7 +104,9 @@ describe("AboutPage", () => {
     expect(
       screen.getByRole("heading", { name: /About Redshirt Sports/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/passion for college football/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/passion for college football/i),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Jane Author" })).toHaveAttribute(
       "href",
       "/authors/jane-author",
@@ -137,7 +142,9 @@ describe("AboutPage", () => {
     expect(
       screen.getByText(/Follow Jane Author on X \(Formerly Twitter\)/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Follow Jane Author on Facebook/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Follow Jane Author on Facebook/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/Subscribe to Jane Author's YouTube channel/i),
     ).toBeInTheDocument();

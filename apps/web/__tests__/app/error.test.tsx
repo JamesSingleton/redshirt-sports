@@ -21,7 +21,9 @@ describe("AppError", () => {
 
     render(<AppError error={error} reset={reset} />);
 
-    expect(screen.getByRole("heading", { name: "Something went wrong" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Something went wrong" }),
+    ).toBeInTheDocument();
     expect(mockCaptureException).toHaveBeenCalledWith(error);
 
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));

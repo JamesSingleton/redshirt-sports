@@ -10,11 +10,11 @@ vi.mock("@/lib/seo", () => ({
   getSEOMetadata: vi.fn((data) => ({ title: data.title ?? "Default" })),
 }));
 
-import { getSEOMetadata } from "@/lib/seo";
 import {
   fetchGlobalSeoSettings,
   getPageMetadata,
 } from "@/lib/global-seo-settings";
+import { getSEOMetadata } from "@/lib/seo";
 
 describe("global-seo-settings", () => {
   beforeEach(() => {

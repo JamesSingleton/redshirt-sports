@@ -76,9 +76,7 @@ describe("GET /api/link-check", () => {
   it("returns 400 when target URL is invalid", async () => {
     mockResolveLinkCheckTarget.mockReturnValue(null);
     const res = await GET(
-      makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=bad",
-      ),
+      makeRequest("https://www.redshirtsports.xyz/api/link-check?url=bad"),
     );
     expect(res.status).toBe(400);
     await expect(res.json()).resolves.toMatchObject({ message: "Invalid URL" });

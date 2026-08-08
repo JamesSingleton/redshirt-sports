@@ -167,7 +167,10 @@ describe("TeamRankingHistory", () => {
     );
 
     expect(screen.getByText("Alabama Top 25 History")).toBeInTheDocument();
-    expect(screen.getByTestId("line-chart")).toHaveAttribute("data-points", "2");
+    expect(screen.getByTestId("line-chart")).toHaveAttribute(
+      "data-points",
+      "2",
+    );
     expect(screen.getByRole("link", { name: "View rankings" })).toHaveAttribute(
       "href",
       "/college/football/rankings/fbs/2025/2",
@@ -184,7 +187,9 @@ describe("TeamRankingHistory", () => {
     const user = userEvent.setup();
     render(<TeamRankingHistory history={history} teamName="Alabama" />);
 
-    expect(screen.getByRole("tab", { name: "Football FBS" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: "Football FBS" }),
+    ).toBeInTheDocument();
     await user.click(screen.getByRole("tab", { name: "Football FCS" }));
     expect(screen.getByText("Latest #10")).toBeInTheDocument();
   });

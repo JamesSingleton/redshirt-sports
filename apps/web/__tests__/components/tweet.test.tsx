@@ -1,10 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import {
-  getAndCacheTweet,
-  ReactTweet,
-  TweetContent,
-} from "@/components/tweet";
+import { getAndCacheTweet, ReactTweet, TweetContent } from "@/components/tweet";
 
 const { mockFetchTweet, mockRedisSet, mockRedisDel } = vi.hoisted(() => ({
   mockFetchTweet: vi.fn(),

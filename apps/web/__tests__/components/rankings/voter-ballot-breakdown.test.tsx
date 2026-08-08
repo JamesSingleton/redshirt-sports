@@ -1,6 +1,6 @@
-import * as React from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import * as React from "react";
 
 import VoterBallotBreakdown from "@/components/rankings/voter-ballot-breakdown";
 import VoterBreakdownDesktop from "@/components/rankings/voter-ballot-breakdown/desktop";
@@ -140,8 +140,12 @@ describe("VoterBallotBreakdown", () => {
 
     const pageSizeTrigger = screen.getAllByRole("combobox")[1];
     await user.click(pageSizeTrigger);
-    expect(screen.getByRole("option", { name: "10 per page" })).toBeInTheDocument();
-    expect(screen.queryByRole("option", { name: "20 per page" })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "10 per page" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: "20 per page" }),
+    ).not.toBeInTheDocument();
   });
 
   it("uses desktop pagination callbacks when the viewport is wide", async () => {
@@ -238,15 +242,17 @@ describe("VoterBreakdownMobile", () => {
   it("renders placeholder ranks when ballot entries are missing", () => {
     render(
       <VoterBreakdownMobile
-        rows={[
-          {
-            name: "Voter Empty",
-            organization: "Org",
-            organizationRole: "",
-            matchPercent: 50,
-            ballot: [],
-          },
-        ] as never}
+        rows={
+          [
+            {
+              name: "Voter Empty",
+              organization: "Org",
+              organizationRole: "",
+              matchPercent: 50,
+              ballot: [],
+            },
+          ] as never
+        }
         page={1}
         pageCount={1}
         onPrevAction={vi.fn()}
@@ -287,10 +293,22 @@ describe("SyncedScroll", () => {
     const scrollers = document.querySelectorAll(".overflow-x-auto");
     const [left, right] = Array.from(scrollers) as HTMLDivElement[];
 
-    Object.defineProperty(left, "scrollWidth", { value: 1000, configurable: true });
-    Object.defineProperty(left, "clientWidth", { value: 500, configurable: true });
-    Object.defineProperty(right, "scrollWidth", { value: 1000, configurable: true });
-    Object.defineProperty(right, "clientWidth", { value: 500, configurable: true });
+    Object.defineProperty(left, "scrollWidth", {
+      value: 1000,
+      configurable: true,
+    });
+    Object.defineProperty(left, "clientWidth", {
+      value: 500,
+      configurable: true,
+    });
+    Object.defineProperty(right, "scrollWidth", {
+      value: 1000,
+      configurable: true,
+    });
+    Object.defineProperty(right, "clientWidth", {
+      value: 500,
+      configurable: true,
+    });
 
     left.scrollLeft = 250;
     act(() => {
@@ -356,7 +374,9 @@ describe("SyncedScroll", () => {
       </SyncedScroll>,
     );
 
-    const scroller = document.querySelector(".overflow-x-auto") as HTMLDivElement;
+    const scroller = document.querySelector(
+      ".overflow-x-auto",
+    ) as HTMLDivElement;
     Object.defineProperty(scroller, "scrollWidth", {
       value: 1000,
       configurable: true,

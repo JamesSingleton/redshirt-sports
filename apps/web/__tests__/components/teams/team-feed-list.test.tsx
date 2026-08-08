@@ -46,11 +46,15 @@ describe("TeamFeedList", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Latest News" })).toBeInTheDocument();
-    expect(container.querySelectorAll('[data-ui="feed-article"]')).toHaveLength(2);
-    expect(screen.getAllByRole("link", { name: "Jane Doe" }).length).toBeGreaterThan(
-      0,
+    expect(
+      screen.getByRole("heading", { name: "Latest News" }),
+    ).toBeInTheDocument();
+    expect(container.querySelectorAll('[data-ui="feed-article"]')).toHaveLength(
+      2,
     );
+    expect(
+      screen.getAllByRole("link", { name: "Jane Doe" }).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByRole("link", { name: "View all" })).toHaveAttribute(
       "href",
       "/college/football/news",
@@ -73,7 +77,9 @@ describe("TeamFeedList", () => {
     );
 
     expect(screen.getByText("Staff Writer")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Staff Writer" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Staff Writer" }),
+    ).not.toBeInTheDocument();
   });
 
   it("renders unlinked titles and thumbnails when slug is missing", () => {

@@ -51,7 +51,9 @@ vi.mock("@/components/disable-draft-mode", () => ({
 
 vi.mock("@/components/footer", () => ({
   CachedFooterServer: () => <footer data-testid="footer">Footer</footer>,
-  DynamicFooterServer: () => <footer data-testid="dynamic-footer">Footer</footer>,
+  DynamicFooterServer: () => (
+    <footer data-testid="dynamic-footer">Footer</footer>
+  ),
   FooterSkeleton: () => <footer data-testid="footer-skeleton" />,
 }));
 

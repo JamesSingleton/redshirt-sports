@@ -20,7 +20,8 @@ const {
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) => render(),
+  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) =>
+    render(),
 }));
 
 vi.mock("@/lib/sanity-fetch", () => ({
@@ -36,7 +37,8 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
   conferenceInfoBySlugQuery: "conferenceInfoBySlugQuery",
   queryArticlesBySportDivisionAndConference:
     "queryArticlesBySportDivisionAndConference",
-  queryDivisionOrSubgroupingDisplayName: "queryDivisionOrSubgroupingDisplayName",
+  queryDivisionOrSubgroupingDisplayName:
+    "queryDivisionOrSubgroupingDisplayName",
   sportInfoBySlug: "sportInfoBySlug",
 }));
 
@@ -111,7 +113,9 @@ describe("ConferenceNewsPage", () => {
   it("generateMetadata uses paginated title for page > 1", async () => {
     mockSanityFetchMetadata
       .mockResolvedValueOnce({ data: { displayName: "FBS" } })
-      .mockResolvedValueOnce({ data: { shortName: "SEC", name: "Southeastern Conference" } })
+      .mockResolvedValueOnce({
+        data: { shortName: "SEC", name: "Southeastern Conference" },
+      })
       .mockResolvedValueOnce({ data: { title: "Football" } });
 
     await generateMetadata({
@@ -198,7 +202,9 @@ describe("ConferenceNewsPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "SEC Football News" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "SEC Football News" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("SEC Story")).toBeInTheDocument();
   });
 

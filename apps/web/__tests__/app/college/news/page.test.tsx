@@ -18,7 +18,8 @@ const {
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) => render(),
+  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) =>
+    render(),
 }));
 
 vi.mock("@/lib/sanity-fetch", () => ({
@@ -129,7 +130,9 @@ describe("CollegeNewsPage", () => {
     const page = await CollegeNewsPage({ searchParams: Promise.resolve({}) });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "College Sports News" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "College Sports News" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("College Headline")).toBeInTheDocument();
   });
 
@@ -145,7 +148,9 @@ describe("CollegeNewsPage", () => {
       },
     });
 
-    const page = await CollegeNewsPage({ searchParams: Promise.resolve({ page: "2" }) });
+    const page = await CollegeNewsPage({
+      searchParams: Promise.resolve({ page: "2" }),
+    });
     render(page as ReactNode);
 
     expect(screen.getByTestId("pagination")).toBeInTheDocument();

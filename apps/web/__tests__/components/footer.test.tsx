@@ -121,9 +121,7 @@ describe("CachedFooterServer", () => {
       "href",
       "https://example.com/contact",
     );
-    expect(
-      screen.getByLabelText("Follow us on Facebook"),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Follow us on Facebook")).toBeInTheDocument();
     expect(
       screen.getByLabelText("Subscribe to our YouTube channel"),
     ).toBeInTheDocument();

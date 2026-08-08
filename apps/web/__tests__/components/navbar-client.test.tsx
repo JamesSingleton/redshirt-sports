@@ -152,7 +152,9 @@ describe("NavbarClient", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "Open menu" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Open menu" }),
+    ).toBeInTheDocument();
   });
 
   it("opens mobile conference and rankings navigation", async () => {
@@ -232,10 +234,7 @@ describe("NavbarClient", () => {
     const accLink = screen.getByRole("link", {
       name: "Atlantic Coast Conference",
     });
-    expect(accLink).toHaveAttribute(
-      "href",
-      "/college/football/news/fbs/acc",
-    );
+    expect(accLink).toHaveAttribute("href", "/college/football/news/fbs/acc");
     await user.click(accLink);
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
@@ -257,10 +256,7 @@ describe("NavbarClient", () => {
 describe("DesktopNavbar", () => {
   it("renders football rankings links with display names", () => {
     render(
-      <DesktopNavbar
-        navbarData={navbarData}
-        latestRankings={latestRankings}
-      />,
+      <DesktopNavbar navbarData={navbarData} latestRankings={latestRankings} />,
     );
 
     expect(
@@ -272,7 +268,6 @@ describe("DesktopNavbar", () => {
     expect(screen.getByText("Coming Soon...")).toBeInTheDocument();
   });
 });
-
 
 describe("NavbarSkeletonResponsive", () => {
   it("renders mobile and desktop skeletons", () => {

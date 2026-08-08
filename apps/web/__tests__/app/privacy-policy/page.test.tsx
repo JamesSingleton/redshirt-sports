@@ -13,7 +13,10 @@ const { mockSanityFetchPage, mockGetDynamicFetchOptions, mockGetPageMetadata } =
 vi.mock("@/lib/draft-cache", () => ({
   draftAwarePage: (
     _fallback: unknown,
-    render: (options: { perspective: string; stega: boolean }) => Promise<unknown>,
+    render: (options: {
+      perspective: string;
+      stega: boolean;
+    }) => Promise<unknown>,
   ) => render({ perspective: "published", stega: false }),
 }));
 
@@ -44,13 +47,7 @@ vi.mock("@/components/json-ld", () => ({
 
 vi.mock("@/components/page-header", () => ({
   __esModule: true,
-  default: ({
-    title,
-    subtitle,
-  }: {
-    title: string;
-    subtitle?: ReactNode;
-  }) => (
+  default: ({ title, subtitle }: { title: string; subtitle?: ReactNode }) => (
     <div>
       <h1>{title}</h1>
       {subtitle}
@@ -60,7 +57,9 @@ vi.mock("@/components/page-header", () => ({
 
 vi.mock("@/components/format-date", () => ({
   __esModule: true,
-  default: ({ dateString }: { dateString: string }) => <time>{dateString}</time>,
+  default: ({ dateString }: { dateString: string }) => (
+    <time>{dateString}</time>
+  ),
 }));
 
 vi.mock("@/components/rich-text", () => ({
@@ -79,7 +78,10 @@ describe("PrivacyPolicyPage", () => {
   it("generateMetadata calls getPageMetadata with privacy fields", async () => {
     await generateMetadata();
     expect(mockGetPageMetadata).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Privacy Policy", slug: "/privacy-policy" }),
+      expect.objectContaining({
+        title: "Privacy Policy",
+        slug: "/privacy-policy",
+      }),
       "published",
     );
   });
@@ -95,7 +97,9 @@ describe("PrivacyPolicyPage", () => {
     const page = await PrivacyPolicyPage();
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "Privacy Policy" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Privacy Policy" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("2026-01-15T00:00:00Z")).toBeInTheDocument();
     expect(screen.getByTestId("rich-text")).toBeInTheDocument();
   });

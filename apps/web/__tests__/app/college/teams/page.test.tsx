@@ -114,7 +114,10 @@ vi.mock("@/components/teams/team-ranking-history", () => ({
   TeamRankingHistory: () => <div data-testid="ranking-history" />,
 }));
 
-import TeamPage, { generateMetadata, generateStaticParams } from "@/app/college/teams/[slug]/page";
+import TeamPage, {
+  generateMetadata,
+  generateStaticParams,
+} from "@/app/college/teams/[slug]/page";
 
 const sampleSchool = {
   _id: "school-1",
@@ -184,7 +187,9 @@ describe("TeamPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "Alabama" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Alabama" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Post 0")).toBeInTheDocument();
     expect(screen.getByText("Alabama Sports")).toBeInTheDocument();
     expect(screen.getByText("Top Recruit")).toBeInTheDocument();

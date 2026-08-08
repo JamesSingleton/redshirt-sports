@@ -76,11 +76,7 @@ describe("team-post-card", () => {
   });
 
   it("renders an unlinked featured article when slug is missing", () => {
-    render(
-      <TeamFeaturedArticle
-        post={{ ...post, slug: null } as never}
-      />,
-    );
+    render(<TeamFeaturedArticle post={{ ...post, slug: null } as never} />);
     expect(
       screen.queryByRole("link", { name: "Alabama lands five-star recruit" }),
     ).not.toBeInTheDocument();
@@ -95,9 +91,7 @@ describe("team-post-card", () => {
 
   it("renders a placeholder image container when asset is missing", () => {
     render(
-      <TeamNewsItem
-        post={{ ...post, image: { alt: "No asset" } } as never}
-      />,
+      <TeamNewsItem post={{ ...post, image: { alt: "No asset" } } as never} />,
     );
     expect(screen.getByRole("article")).toBeInTheDocument();
   });
@@ -107,7 +101,9 @@ describe("team-post-card", () => {
     expect(
       screen.queryByRole("link", { name: "Alabama lands five-star recruit" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText("Alabama lands five-star recruit")).toBeInTheDocument();
+    expect(
+      screen.getByText("Alabama lands five-star recruit"),
+    ).toBeInTheDocument();
   });
 
   it("omits published date when missing", () => {

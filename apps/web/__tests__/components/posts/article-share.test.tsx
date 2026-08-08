@@ -39,7 +39,9 @@ describe("Article share components", () => {
       expect(writeText).toHaveBeenCalledWith(
         "https://redshirtsports.com/big-game",
       );
-      expect(screen.getByRole("button", { name: /Copied!/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Copied!/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -65,9 +67,7 @@ describe("Article share components", () => {
   });
 
   it("renders the small share layout and copies the URL", async () => {
-    render(
-      <SmallArticleSocialShare slug="mobile-game" title="Mobile Game" />,
-    );
+    render(<SmallArticleSocialShare slug="mobile-game" title="Mobile Game" />);
 
     expect(screen.getByText("Share this article")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Copy/i }));
@@ -81,9 +81,7 @@ describe("Article share components", () => {
 
   it("opens social share windows from the small layout", async () => {
     const user = userEvent.setup();
-    render(
-      <SmallArticleSocialShare slug="mobile-game" title="Mobile Game" />,
-    );
+    render(<SmallArticleSocialShare slug="mobile-game" title="Mobile Game" />);
 
     await user.click(screen.getByRole("button", { name: "Share on X" }));
     await user.click(screen.getByRole("button", { name: "Share on Facebook" }));

@@ -1,10 +1,8 @@
-const {
-  mockSanityFetchMetadata,
-  mockGetCachedRankedSchoolSanityIds,
-} = vi.hoisted(() => ({
-  mockSanityFetchMetadata: vi.fn(),
-  mockGetCachedRankedSchoolSanityIds: vi.fn(),
-}));
+const { mockSanityFetchMetadata, mockGetCachedRankedSchoolSanityIds } =
+  vi.hoisted(() => ({
+    mockSanityFetchMetadata: vi.fn(),
+    mockGetCachedRankedSchoolSanityIds: vi.fn(),
+  }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
   sanityFetchMetadata: mockSanityFetchMetadata,

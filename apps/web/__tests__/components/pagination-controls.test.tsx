@@ -14,9 +14,7 @@ const nav = vi.hoisted(() => {
 
   return {
     usePathname: vi.fn(() => "/college/news"),
-    useSearchParams: vi.fn(
-      () => new URLSearchParams({ page: "2" }),
-    ),
+    useSearchParams: vi.fn(() => new URLSearchParams({ page: "2" })),
     router,
   };
 });

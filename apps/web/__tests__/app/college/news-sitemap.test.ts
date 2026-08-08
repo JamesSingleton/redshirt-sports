@@ -15,7 +15,9 @@ vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "https://redshirtsports.xyz",
 }));
 
-import collegeNewsSitemap, { generateSitemaps } from "@/app/college/news/sitemap";
+import collegeNewsSitemap, {
+  generateSitemaps,
+} from "@/app/college/news/sitemap";
 
 describe("college news sitemap", () => {
   beforeEach(() => {
@@ -24,7 +26,11 @@ describe("college news sitemap", () => {
 
   it("generateSitemaps returns one id per chunk", async () => {
     mockSanityFetchMetadata.mockResolvedValue({ data: 120_000 });
-    await expect(generateSitemaps()).resolves.toEqual([{ id: 0 }, { id: 1 }, { id: 2 }]);
+    await expect(generateSitemaps()).resolves.toEqual([
+      { id: 0 },
+      { id: 1 },
+      { id: 2 },
+    ]);
   });
 
   it("returns post URLs for the requested chunk", async () => {
@@ -48,8 +54,8 @@ describe("college news sitemap", () => {
       .mockResolvedValueOnce({ data: null });
 
     await expect(generateSitemaps()).resolves.toEqual([]);
-    await expect(collegeNewsSitemap({ id: Promise.resolve(0) })).resolves.toEqual(
-      [],
-    );
+    await expect(
+      collegeNewsSitemap({ id: Promise.resolve(0) }),
+    ).resolves.toEqual([]);
   });
 });
