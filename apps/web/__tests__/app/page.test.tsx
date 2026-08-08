@@ -2,10 +2,14 @@ import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { Mock } from "vitest";
 
-import { CachedHomePage, generateMetadata } from "@/app/page";
+import HomePage, { CachedHomePage, generateMetadata } from "@/app/page";
 
-const { mockSanityFetchPage } = vi.hoisted(() => ({
+const { mockSanityFetchPage, mockGetDynamicFetchOptions } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
+  mockGetDynamicFetchOptions: vi.fn().mockResolvedValue({
+    perspective: "published",
+    stega: false,
+  }),
 }));
 
 vi.mock("next/headers", () => ({
@@ -84,10 +88,7 @@ vi.mock("@/lib/global-seo-settings", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
-  getDynamicFetchOptions: vi.fn().mockResolvedValue({
-    perspective: "published",
-    stega: false,
-  }),
+  getDynamicFetchOptions: mockGetDynamicFetchOptions,
 }));
 
 const mockFetch = mockSanityFetchPage as Mock;
@@ -222,5 +223,11 @@ describe("HomePage", () => {
       screen.queryByText("FBS College Football News"),
     ).not.toBeInTheDocument();
     expect(screen.getAllByTestId("article-section")).toHaveLength(3);
+  });
+
+  it("default export delegates to CachedHomePage with dynamic fetch options", async () => {
+    const page = await HomePage();
+    expect(page).toBeTruthy();
+    expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
   });
 });

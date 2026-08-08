@@ -6,7 +6,7 @@ import {
 import type { ReactElement, ReactNode } from "react";
 
 function TestProviders({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return <div data-testid="test-providers">{children}</div>;
 }
 
 export function renderWithProviders(

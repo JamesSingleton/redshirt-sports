@@ -331,6 +331,26 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
     expect(body.error).toBe("Invalid request data");
     expect(body.details).toBeDefined();
   });
+
+  it("returns 400 when sport lookup fails on POST", async () => {
+    mockGetSportIdBySlug.mockResolvedValue(null);
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/Sport not found/);
+  });
+
+  it("returns 500 for unexpected POST errors", async () => {
+    mockSubmitBallot.mockRejectedValue("unexpected");
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBe("Internal server error");
+  });
 });
 
 describe("GET /api/vote/college/[sport]/rankings/[division]", () => {
@@ -376,5 +396,27 @@ describe("GET /api/vote/college/[sport]/rankings/[division]", () => {
     expect(body.hasVoted).toBe(true);
     expect(body.voteCount).toBe(1);
     expect(body.votes).toHaveLength(1);
+  });
+
+  it("returns 404 when poll is not found on GET", async () => {
+    mockGetPollBySportAndSlug.mockResolvedValue(null);
+    const res = await GET(getRequest(), { params: voteParams() });
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 400 when sport lookup fails on GET", async () => {
+    mockGetSportIdBySlug.mockResolvedValue(null);
+    const res = await GET(getRequest(), { params: voteParams() });
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/Sport not found/);
+  });
+
+  it("returns 500 for unexpected GET errors", async () => {
+    mockGetVoterBallots.mockRejectedValue("unexpected");
+    const res = await GET(getRequest(), { params: voteParams() });
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBe("Internal server error");
   });
 });

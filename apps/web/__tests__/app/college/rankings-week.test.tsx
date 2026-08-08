@@ -8,6 +8,7 @@ const {
   mockGetCachedWeeks,
   mockGetCachedFinalRankings,
   mockGetDynamicFetchOptions,
+  mockGetPageMetadata,
 } = vi.hoisted(() => ({
   mockGetCachedYears: vi.fn(),
   mockGetCachedWeeks: vi.fn(),
@@ -16,6 +17,7 @@ const {
     perspective: "published",
     stega: false,
   }),
+  mockGetPageMetadata: vi.fn(() => ({ title: "Rankings" })),
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -33,7 +35,7 @@ vi.mock("@/lib/get-base-url", () => ({
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
-  getPageMetadata: vi.fn(() => ({ title: "Rankings" })),
+  getPageMetadata: mockGetPageMetadata,
 }));
 
 vi.mock("next/link", () => ({
@@ -77,13 +79,49 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-import CollegeFootballRankingsPage from "@/app/college/[sport]/rankings/[division]/[year]/[week]/page";
+import CollegeFootballRankingsPage, {
+  generateMetadata,
+} from "@/app/college/[sport]/rankings/[division]/[year]/[week]/page";
 
 describe("CollegeFootballRankingsPage", () => {
   beforeEach(() => {
     mockGetCachedYears.mockReset();
     mockGetCachedWeeks.mockReset();
     mockGetCachedFinalRankings.mockReset();
+  });
+
+  it("generateMetadata builds rankings metadata", async () => {
+    await generateMetadata({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    expect(mockGetPageMetadata).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "/college/football/rankings/fbs/2025/1",
+      }),
+      "published",
+    );
+  });
+
+  it("throws notFound when rankings fetch rejects", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockRejectedValue(new Error("db down"));
+
+    await expect(
+      CollegeFootballRankingsPage({
+        params: Promise.resolve({
+          sport: "football",
+          division: "fbs",
+          year: "2025",
+          week: "1",
+        }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
   it("throws notFound when there are no years or weeks with votes", async () => {
@@ -169,5 +207,66 @@ describe("CollegeFootballRankingsPage", () => {
       (n: { "@type": string }) => n["@type"] === "ItemList",
     );
     expect(itemList.numberOfItems).toBe(2); // stay + new in Top 25
+  });
+
+  it("renders poll-not-found message when rankings data is empty", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({ rankings: [] });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+
+    render(page);
+    expect(screen.getByText("Top 25 Poll Not Found")).toBeInTheDocument();
+  });
+
+  it("renders tied ranks and first-place vote counts", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [
+        {
+          ...sampleRankingTeam("tied", 1, 200, "Alabama"),
+          isTie: true,
+          firstPlaceVotes: 3,
+        },
+      ],
+    });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    expect(screen.getByText("T-1")).toBeInTheDocument();
+    expect(screen.getByText("(3)")).toBeInTheDocument();
+  });
+
+  it("treats rejected year and week lookups as empty", async () => {
+    mockGetCachedYears.mockRejectedValue(new Error("years failed"));
+    mockGetCachedWeeks.mockRejectedValue(new Error("weeks failed"));
+
+    await expect(
+      CollegeFootballRankingsPage({
+        params: Promise.resolve({
+          sport: "football",
+          division: "fbs",
+          year: "2025",
+          week: "1",
+        }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 });

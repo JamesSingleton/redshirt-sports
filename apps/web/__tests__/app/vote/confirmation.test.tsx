@@ -60,7 +60,9 @@ vi.mock("@/components/sanity-image", () => ({
 
 import { render, screen } from "@testing-library/react";
 
-import { VoteConfirmationContent } from "@/app/(auth)/(vote)/vote/college/[sport]/[division]/confirmation/page";
+import VoteConfirmationPage, {
+  VoteConfirmationContent,
+} from "@/app/(auth)/(vote)/vote/college/[sport]/[division]/confirmation/page";
 
 describe("VoteConfirmationContent", () => {
   beforeEach(() => {
@@ -135,5 +137,82 @@ describe("VoteConfirmationContent", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/1\. Alabama/)).toBeInTheDocument();
     expect(screen.getByText(/2\. Georgia/)).toBeInTheDocument();
+  });
+
+  it("default export wraps confirmation content in Suspense", () => {
+    const ui = VoteConfirmationPage({
+      params: Promise.resolve({ sport: "football", division: "fbs" }),
+    });
+    expect(ui).toBeTruthy();
+  });
+
+  it("falls back to school name and unknown sport or division labels", async () => {
+    mockGetVoterBallots.mockResolvedValue([
+      {
+        teamId: "school-1",
+        rank: 1,
+        points: 25,
+        userId: "user-1",
+        division: "custom-division",
+        week: 1,
+        year: 2025,
+        id: "1",
+        createdAt: new Date(),
+      },
+    ]);
+    mockClientFetch.mockResolvedValue([
+      {
+        _id: "school-1",
+        shortName: null,
+        abbreviation: null,
+        name: "Custom School",
+        image: null,
+      },
+    ]);
+    mockGetSportIdBySlug.mockResolvedValue(null);
+
+    const ui = await VoteConfirmationContent({
+      params: Promise.resolve({
+        sport: "custom-sport",
+        division: "custom-division",
+      }),
+    });
+    render(ui as ReactNode);
+
+    expect(
+      screen.getByText(/Your custom-division custom-sport Top 25 Vote is In!/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/1\. Custom School/)).toBeInTheDocument();
+  });
+
+  it("uses abbreviation when shortName is missing", async () => {
+    mockGetVoterBallots.mockResolvedValue([
+      {
+        teamId: "school-1",
+        rank: 1,
+        points: 25,
+        userId: "user-1",
+        division: "fbs",
+        week: 1,
+        year: 2025,
+        id: "1",
+        createdAt: new Date(),
+      },
+    ]);
+    mockClientFetch.mockResolvedValue([
+      {
+        _id: "school-1",
+        shortName: null,
+        abbreviation: "ALA",
+        name: "Alabama",
+        image: null,
+      },
+    ]);
+
+    const ui = await VoteConfirmationContent({
+      params: Promise.resolve({ sport: "football", division: "fbs" }),
+    });
+    render(ui as ReactNode);
+    expect(screen.getByText(/1\. ALA/)).toBeInTheDocument();
   });
 });

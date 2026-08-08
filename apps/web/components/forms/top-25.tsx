@@ -26,7 +26,7 @@ export type Top25FormRef = {
   populateWithPreviousBallot: () => void;
 };
 
-const formSchema = z
+export const formSchema = z
   .object({
     division: z
       .enum(["fbs", "fcs", "d2", "d3", "mid-major", "power-conferences"])

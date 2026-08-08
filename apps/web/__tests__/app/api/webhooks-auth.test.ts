@@ -179,6 +179,28 @@ describe("POST /api/webhooks/auth", () => {
     expect(mockRevokeAssignments).not.toHaveBeenCalled();
   });
 
+  it("returns 500 when webhook handler throws", async () => {
+    mockVerify.mockReturnValue({
+      type: "user.created",
+      data: {
+        id: "user_1",
+        first_name: "Jane",
+        last_name: "Doe",
+      },
+    });
+    mockCreateUser.mockRejectedValue(new Error("database down"));
+
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/auth", {
+        method: "POST",
+        body: JSON.stringify({}),
+      }),
+    );
+
+    expect(res.status).toBe(500);
+    await expect(res.text()).resolves.toBe("database down");
+  });
+
   it("returns 501 for unsupported event types", async () => {
     mockVerify.mockReturnValue({
       type: "session.created",
@@ -192,5 +214,17 @@ describe("POST /api/webhooks/auth", () => {
       }),
     );
     expect(res.status).toBe(501);
+  });
+
+  it("throws when webhook secret is missing", async () => {
+    delete process.env.CLERK_WEBHOOK_SECRET;
+    await expect(
+      POST(
+        new Request("http://localhost/api/webhooks/auth", {
+          method: "POST",
+          body: JSON.stringify({}),
+        }),
+      ),
+    ).rejects.toThrow(/WEBHOOK_SECRET/);
   });
 });

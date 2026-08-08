@@ -179,4 +179,42 @@ describe("processVoterBallots", () => {
     expect(result[0]?.ballot).toHaveLength(1);
     expect(result[0]?.ballot[0]?.name).toBe("Alabama");
   });
+
+  it("skips voters without userData and defaults empty org fields", async () => {
+    mockFetch.mockResolvedValue([
+      {
+        _id: "school-1",
+        name: "Alabama",
+        shortName: "Alabama",
+        abbreviation: "ALA",
+        image: { _type: "image", asset: { _ref: "image-1" } },
+      },
+    ]);
+
+    const ballots: BallotsByVoter = {
+      noUser: {
+        userData: undefined as unknown as BallotsByVoter[string]["userData"],
+        votes: [createVote("school-1", 1)],
+      },
+      voter1: {
+        userData: {
+          id: "voter1",
+          firstName: "Jane",
+          lastName: "Doe",
+          organization: null as unknown as string,
+          organizationRole: null as unknown as string,
+        },
+        votes: [createVote("school-1", 1)],
+      },
+    };
+
+    const result = await processVoterBallots(ballots);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      name: "Jane Doe",
+      organization: "",
+      organizationRole: "",
+    });
+  });
 });

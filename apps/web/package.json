@@ -16,7 +16,8 @@
     "db:push": "drizzle-kit push",
     "check:types": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

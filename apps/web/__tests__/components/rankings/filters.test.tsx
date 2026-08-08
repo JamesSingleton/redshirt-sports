@@ -10,6 +10,11 @@ const { mockPush, mockCapture, mockParams } = vi.hoisted(() => ({
     division: "fbs",
     year: "2025",
     week: "1",
+  } as {
+    sport?: string | string[];
+    division?: string | string[];
+    year?: string | string[];
+    week?: string | string[];
   },
 }));
 
@@ -32,23 +37,38 @@ vi.mock("@redshirt-sports/ui/components/select", () => ({
     onValueChange?: (v: string) => void;
     value?: string;
   }) => (
-    <div data-testid={`select-${value}`}>
+    <div data-testid={`select-${value ?? "empty"}`}>
       <button
         type="button"
-        data-testid={`trigger-${value}`}
+        data-testid={`trigger-${value ?? "empty"}`}
         onClick={() => {
-          // Year select has value === year param; week select has week segment
           if (value === mockParams.year) {
             onValueChange?.("2024");
           } else if (value === "13") {
             onValueChange?.("");
+          } else if (value === "bad-week") {
+            onValueChange?.("not-a-week");
           } else {
             onValueChange?.("final-rankings");
           }
         }}
       >
-        {value}
+        {value ?? "empty"}
       </button>
+      {value === mockParams.year ? (
+        <button
+          type="button"
+          data-testid="trigger-year-same"
+          onClick={() => onValueChange?.(mockParams.year)}
+        />
+      ) : null}
+      {value === mockParams.week ? (
+        <button
+          type="button"
+          data-testid="trigger-week-same"
+          onClick={() => onValueChange?.(mockParams.week)}
+        />
+      ) : null}
       {children}
     </div>
   ),
@@ -128,6 +148,113 @@ describe("RankingsFilters", () => {
 
     expect(mockPush).not.toHaveBeenCalled();
     expect(mockCapture).not.toHaveBeenCalled();
+    mockParams.week = "1";
+  });
+
+  it("ignores year changes when the selected year matches the route", async () => {
+    const user = userEvent.setup();
+    render(
+      <RankingsFilters
+        years={[{ year: 2025 }]}
+        weeks={[{ week: 1 }]}
+      />,
+    );
+
+    await user.click(screen.getByTestId("trigger-year-same"));
+
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockCapture).not.toHaveBeenCalled();
+  });
+
+  it("ignores week changes when the selected segment matches the route", async () => {
+    const user = userEvent.setup();
+    render(
+      <RankingsFilters
+        years={[{ year: 2025 }]}
+        weeks={[{ week: 1 }]}
+      />,
+    );
+
+    await user.click(screen.getByTestId("trigger-week-same"));
+
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockCapture).not.toHaveBeenCalled();
+  });
+
+  it("ignores invalid week segments that fail parsing", async () => {
+    mockParams.week = "bad-week";
+    const user = userEvent.setup();
+    render(
+      <RankingsFilters
+        years={[{ year: 2025 }]}
+        weeks={[{ week: 1 }]}
+      />,
+    );
+
+    await user.click(screen.getByTestId("trigger-bad-week"));
+
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockCapture).not.toHaveBeenCalled();
+    mockParams.week = "1";
+  });
+
+  it("ignores year changes when required route params are missing", async () => {
+    mockParams.sport = undefined as never;
+    const user = userEvent.setup();
+    render(
+      <RankingsFilters
+        years={[{ year: 2025 }, { year: 2024 }]}
+        weeks={[{ week: 1 }]}
+      />,
+    );
+
+    await user.click(screen.getByTestId("trigger-2025"));
+
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockCapture).not.toHaveBeenCalled();
+    mockParams.sport = "football";
+  });
+
+  it("ignores week changes when the year route param is missing", async () => {
+    mockParams.year = undefined as never;
+    const user = userEvent.setup();
+    render(
+      <RankingsFilters
+        years={[{ year: 2025 }]}
+        weeks={[{ week: 1 }, { week: 999 }]}
+      />,
+    );
+
+    await user.click(screen.getByTestId("trigger-1"));
+
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockCapture).not.toHaveBeenCalled();
+    mockParams.year = "2025";
+  });
+
+  it("unwraps array route params before navigating", async () => {
+    mockParams.sport = ["football"] as never;
+    mockParams.division = ["fbs"] as never;
+    mockParams.year = ["2025"] as never;
+    mockParams.week = ["1"] as never;
+
+    const user = userEvent.setup();
+    render(
+      <RankingsFilters
+        years={[{ year: 2025 }, { year: 2024 }]}
+        weeks={[{ week: 1 }]}
+      />,
+    );
+
+    await user.click(screen.getByTestId("trigger-2025"));
+
+    expect(mockPush).toHaveBeenCalledWith(
+      "/college/football/rankings/fbs/2024/0",
+    );
+
+    mockParams.sport = "football";
+    mockParams.division = "fbs";
+    mockParams.year = "2025";
     mockParams.week = "1";
   });
 });

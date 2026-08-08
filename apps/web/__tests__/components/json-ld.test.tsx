@@ -126,17 +126,73 @@ describe("buildPostPageJsonLd", () => {
     });
   });
 
-  it("omits image fields when the image is missing", () => {
+  it("returns null when article slug is missing", () => {
+    expect(buildPostPageJsonLd({ ...sampleArticle, slug: null })).toBeNull();
+  });
+
+  it("builds article graph without optional sport, tags, and image nodes", () => {
     const data = buildPostPageJsonLd({
-      ...sampleArticle,
-      image: { alt: "Hero" },
+      slug: "bare-article",
+      title: null,
+      excerpt: null,
+      publishedAt: null,
+      _updatedAt: null,
+      body: [],
+      authors: [{ name: "Author", slug: null }],
+      sport: null,
+      tags: null,
+      image: null,
     });
+
     const article = data?.["@graph"]?.find(
       (node) => typeof node === "object" && node?.["@type"] === "NewsArticle",
     ) as Record<string, unknown> | undefined;
 
-    expect(article?.image).toBeUndefined();
-    expect(article?.thumbnailUrl).toBeUndefined();
+    expect(article?.articleSection).toBeUndefined();
+    expect(article?.keywords).toBeUndefined();
+    expect(article?.author).toEqual([{ "@type": "Person", name: "Author" }]);
+  });
+
+  it("returns null when team slug is missing", () => {
+    expect(buildTeamPageJsonLd({ name: "Alabama" })).toBeNull();
+  });
+
+  it("builds team graph with multiple sports and conferences", () => {
+    const data = buildTeamPageJsonLd({
+      slug: "alabama",
+      name: "University of Alabama",
+      conferenceAffiliations: [
+        {
+          sport: { title: "Football" },
+          conference: { name: "Southeastern Conference" },
+        },
+        {
+          sport: { title: "Basketball" },
+          conference: { shortName: "SEC" },
+        },
+      ],
+    });
+
+    const team = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "SportsTeam",
+    ) as Record<string, unknown> | undefined;
+
+    expect(team?.sport).toEqual(["Football", "Basketball"]);
+    expect(team?.memberOf).toHaveLength(2);
+  });
+
+  it("returns null when PostPageJsonLd article has no slug", () => {
+    const { container } = render(
+      <PostPageJsonLd article={{ ...sampleArticle, slug: null }} />,
+    );
+    expect(container.firstChild).toBeNull();
+  });
+
+  it("returns null when TeamPageJsonLd school has no slug", () => {
+    const { container } = render(
+      <TeamPageJsonLd school={{ name: "Alabama" }} />,
+    );
+    expect(container.firstChild).toBeNull();
   });
 });
 

@@ -77,6 +77,16 @@ describe("computeBallotMatchPercent", () => {
     expect(computeBallotMatchPercent(TOP_25_IDS, [])).toBe(0);
   });
 
+  it("ignores empty team ids and duplicate later ranks", () => {
+    const withGaps = ["", "team-1", "team-1", "team-2", ...TOP_25_IDS.slice(2)];
+    const percent = computeBallotMatchPercent(
+      withGaps,
+      consensusOf(TOP_25_IDS),
+    );
+    expect(percent).toBeGreaterThan(0);
+    expect(percent).toBeLessThanOrEqual(100);
+  });
+
   it("exposes ABSENT_RANK and MAX_FOOTRULE_ERROR used by the formula", () => {
     expect(ABSENT_RANK).toBe(26);
     expect(MAX_FOOTRULE_ERROR).toBe(325);
