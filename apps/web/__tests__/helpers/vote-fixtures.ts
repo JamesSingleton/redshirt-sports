@@ -88,6 +88,7 @@ export const sampleRankingTeam = (
   rank: number | null,
   points = 100,
   shortName = id,
+  slug?: string | null,
 ) => ({
   _id: id,
   rank,
@@ -95,6 +96,7 @@ export const sampleRankingTeam = (
   shortName,
   abbreviation: shortName.slice(0, 3).toUpperCase(),
   name: shortName,
+  slug: slug ?? `${shortName.toLowerCase().replace(/\s+/g, "-")}`,
   firstPlaceVotes: rank === 1 ? 5 : 0,
   isTie: false,
   image: null,

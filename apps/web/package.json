@@ -58,6 +58,7 @@
     "react-hook-form": "^7.84.0",
     "react-player": "^3.4.0",
     "react-tweet": "^3.3.1",
+    "recharts": "3.8.0",
     "sanity-image": "^1.1.0",
     "schema-dts": "^2.0.0",
     "server-only": "^0.0.1",

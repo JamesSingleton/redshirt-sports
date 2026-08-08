@@ -1,8 +1,10 @@
 "use client";
+
 import { Button } from "@redshirt-sports/ui/components/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { VoterBreakdown } from "@/types/votes";
+import { BallotMatchBadge } from "./match-badge";
 import { SyncedScroll } from "./synced-scroll";
 import { TeamLogo } from "./team-logo";
 
@@ -23,17 +25,25 @@ export default function VoterBreakdownMobile({
 }: Props) {
   return (
     <div className="block md:hidden">
-      <ul className="space-y-3">
+      <ul className="flex flex-col gap-3">
         {rows.map((voter) => (
           <li
             key={`${voter.name}-${voter.organization}`}
             className="bg-card text-card-foreground rounded-md border p-3"
           >
-            <div className="mb-2">
-              <div className="leading-tight font-medium">{voter.name}</div>
-              <div className="text-muted-foreground text-xs italic">
-                {voter.organization}
-                {voter.organizationRole ? ` (${voter.organizationRole})` : ""}
+            <div className="mb-2 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="leading-tight font-medium">{voter.name}</div>
+                <div className="text-muted-foreground text-xs italic">
+                  {voter.organization}
+                  {voter.organizationRole ? ` (${voter.organizationRole})` : ""}
+                </div>
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                <span className="text-muted-foreground text-[10px] leading-none tracking-wide uppercase">
+                  Match %
+                </span>
+                <BallotMatchBadge matchPercent={voter.matchPercent} />
               </div>
             </div>
 
@@ -58,7 +68,7 @@ export default function VoterBreakdownMobile({
                         {vote ? (
                           <TeamLogo vote={vote} size={36} />
                         ) : (
-                          <div className="bg-muted/30 h-9 w-9 rounded-sm" />
+                          <div className="bg-muted/30 size-9 rounded-sm" />
                         )}
                       </div>
                     );

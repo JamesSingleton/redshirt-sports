@@ -18,6 +18,7 @@
     "./utils/search-query": "./src/utils/search-query.ts",
     "./utils/health": "./src/utils/health.ts",
     "./utils/week-mapping": "./src/utils/week-mapping.ts",
+    "./utils/school-ranking-history": "./src/utils/school-ranking-history.ts",
     "./keys": "./keys.ts"
   },
   "dependencies": {

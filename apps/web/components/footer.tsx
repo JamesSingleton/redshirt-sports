@@ -1,6 +1,7 @@
 import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
+  sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import {
   queryFooterData,
@@ -12,7 +13,6 @@ import type {
 } from "@redshirt-sports/sanity/types";
 import Link from "next/link";
 
-import { sanityFetchPage } from "@/lib/sanity-fetch";
 import {
   BlueSkyIcon,
   Facebook,
@@ -43,12 +43,12 @@ export async function CachedFooterServer({
 }: DynamicFetchOptions) {
   "use cache";
   const [response, settingsResponse] = await Promise.all([
-    sanityFetchPage({
+    sanityFetch({
       query: queryFooterData,
       perspective,
       stega,
     }),
-    sanityFetchPage({
+    sanityFetch({
       query: queryGlobalSeoSettings,
       perspective,
       stega,

@@ -18,13 +18,14 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 import type { Graph } from "schema-dts";
 
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { RankingsFilters } from "@/components/rankings/filters";
 import { RankMovement } from "@/components/rankings/rank-movement";
 import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
+import { TeamPageLink } from "@/components/rankings/team-page-link";
 import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-skeleton";
 import CustomImage from "@/components/sanity-image";
 import { TOP_25 } from "@/lib/constants";
@@ -253,18 +254,23 @@ export default async function CollegeFootballRankingsPage({
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center">
-                          <CustomImage
-                            image={
-                              team.image as Parameters<
-                                typeof CustomImage
-                              >[0]["image"]
-                            }
-                            width={40}
-                            height={40}
-                            className="mr-2 size-10 shrink-0 object-contain"
-                            mode="contain"
-                          />
-                          {team.shortName ?? team.abbreviation ?? team.name}
+                          <TeamPageLink
+                            slug={team.slug}
+                            className="flex items-center hover:underline"
+                          >
+                            <CustomImage
+                              image={
+                                team.image as Parameters<
+                                  typeof CustomImage
+                                >[0]["image"]
+                              }
+                              width={40}
+                              height={40}
+                              className="mr-2 size-10 shrink-0 object-contain"
+                              mode="contain"
+                            />
+                            {team.shortName ?? team.abbreviation ?? team.name}
+                          </TeamPageLink>
                           {team.firstPlaceVotes ? (
                             <span className="text-muted-foreground ml-2 tracking-wider">
                               ({team.firstPlaceVotes})
@@ -304,27 +310,40 @@ export default async function CollegeFootballRankingsPage({
               {droppedOutOfTop25.length > 0 && (
                 <p>
                   <strong>Dropped Out of Top 25:</strong>{" "}
-                  {droppedOutOfTop25
-                    .map(
-                      (team) => `${displayName(team)} (${team.previousRank})`,
-                    )
-                    .join(", ")}
+                  {droppedOutOfTop25.map((team, index) => (
+                    <Fragment key={team._id}>
+                      {index > 0 ? ", " : null}
+                      <TeamPageLink slug={team.slug}>
+                        {displayName(team)} ({team.previousRank})
+                      </TeamPageLink>
+                    </Fragment>
+                  ))}
                 </p>
               )}
               {outsideTop25.length > 0 && (
                 <p>
                   <strong>Others receiving votes:</strong>{" "}
-                  {outsideTop25
-                    .map((team) => `${team.shortName} ${team._points}`)
-                    .join(", ")}
+                  {outsideTop25.map((team, index) => (
+                    <Fragment key={team._id}>
+                      {index > 0 ? ", " : null}
+                      <TeamPageLink slug={team.slug}>
+                        {team.shortName} {team._points}
+                      </TeamPageLink>
+                    </Fragment>
+                  ))}
                 </p>
               )}
               {noLongerReceivingVotes.length > 0 && (
                 <p>
                   <strong>No longer receiving votes:</strong>{" "}
-                  {noLongerReceivingVotes
-                    .map((team) => displayName(team))
-                    .join(", ")}
+                  {noLongerReceivingVotes.map((team, index) => (
+                    <Fragment key={team._id}>
+                      {index > 0 ? ", " : null}
+                      <TeamPageLink slug={team.slug}>
+                        {displayName(team)}
+                      </TeamPageLink>
+                    </Fragment>
+                  ))}
                 </p>
               )}
             </div>
@@ -338,6 +357,9 @@ export default async function CollegeFootballRankingsPage({
             year={yearNumber}
             week={weekNumber}
             sport={sportParam}
+            consensusRanks={top25.flatMap((team) =>
+              team.rank == null ? [] : [{ id: team._id, rank: team.rank }],
+            )}
           />
         </Suspense>
       )}

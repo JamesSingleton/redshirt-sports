@@ -13,17 +13,14 @@ import {
   websiteId,
 } from "@/components/json-ld";
 
-const { mockGetDynamicFetchOptions, mockSanityFetchPage } = vi.hoisted(() => ({
+const { mockGetDynamicFetchOptions, mockSanityFetch } = vi.hoisted(() => ({
   mockGetDynamicFetchOptions: vi.fn(),
-  mockSanityFetchPage: vi.fn(),
+  mockSanityFetch: vi.fn(),
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
   getDynamicFetchOptions: mockGetDynamicFetchOptions,
-}));
-
-vi.mock("@/lib/sanity-fetch", () => ({
-  sanityFetchPage: mockSanityFetchPage,
+  sanityFetch: mockSanityFetch,
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
@@ -300,7 +297,7 @@ describe("DynamicCombinedJsonLd", () => {
       perspective: "published",
       stega: false,
     });
-    mockSanityFetchPage.mockResolvedValue({
+    mockSanityFetch.mockResolvedValue({
       data: {
         name: "Redshirt Sports",
         siteTitle: "Redshirt Sports",

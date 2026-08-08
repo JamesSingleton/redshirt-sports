@@ -2,6 +2,7 @@ import { urlFor } from "@redshirt-sports/sanity/client";
 import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
+  sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import { querySettingsData } from "@redshirt-sports/sanity/queries";
 import { toPlainText } from "next-sanity";
@@ -21,7 +22,6 @@ import type {
 
 import { getArticleTagNames } from "@/lib/article-seo";
 import { getBaseUrl } from "@/lib/get-base-url";
-import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getCollegeSportSection } from "@/lib/sport-section";
 
 const baseUrl = getBaseUrl();
@@ -476,7 +476,7 @@ export async function CachedCombinedJsonLd({
   stega,
 }: DynamicFetchOptions) {
   "use cache";
-  const { data: res } = await sanityFetchPage({
+  const { data: res } = await sanityFetch({
     query: querySettingsData,
     perspective,
     stega,

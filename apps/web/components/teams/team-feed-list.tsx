@@ -91,7 +91,7 @@ export function TeamFeedList({
   posts: TeamPost[];
   footerLinks?: TeamFeedFooterLink[];
 }) {
-  if (posts.length === 0 && !footerLinks?.length) return null;
+  if (posts.length === 0) return null;
 
   return (
     <section className="mb-8">

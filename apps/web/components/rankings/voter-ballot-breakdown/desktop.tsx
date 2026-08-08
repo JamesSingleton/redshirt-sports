@@ -18,6 +18,7 @@ import {
 import * as React from "react";
 
 import type { VoterBreakdown } from "@/types/votes";
+import { BallotMatchBadge, BallotMatchHeader } from "./match-badge";
 import { TeamLogo } from "./team-logo";
 
 type Props = {
@@ -48,8 +49,11 @@ export default function VoterBreakdownDesktop({
           <Table className="min-w-max">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="bg-background sticky left-0 z-20">
+                <TableHead className="bg-background sticky left-0 z-20 min-w-48">
                   Voter
+                </TableHead>
+                <TableHead className="bg-background sticky left-48 z-20 min-w-20 text-center">
+                  <BallotMatchHeader />
                 </TableHead>
                 {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => (
                   <TableHead
@@ -73,6 +77,11 @@ export default function VoterBreakdownDesktop({
                         : ""}
                     </div>
                   </TableCell>
+                  <TableCell className="bg-background sticky left-48 z-10 min-w-20 text-center">
+                    <div className="flex justify-center">
+                      <BallotMatchBadge matchPercent={voter.matchPercent} />
+                    </div>
+                  </TableCell>
                   {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => {
                     const vote = voter.ballot?.[rank - 1];
                     return (
@@ -81,7 +90,7 @@ export default function VoterBreakdownDesktop({
                           {vote ? (
                             <TeamLogo vote={vote} size={40} />
                           ) : (
-                            <div className="bg-muted/30 h-10 w-10 rounded-sm" />
+                            <div className="bg-muted/30 size-10 rounded-sm" />
                           )}
                         </div>
                       </TableCell>

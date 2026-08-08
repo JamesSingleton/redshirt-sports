@@ -9,6 +9,7 @@ const SchoolPayloadSchema = z.object({
     shortName: z.string().optional().nullable(),
     abbreviation: z.string().optional().nullable(),
     nickname: z.string().optional().nullable(),
+    slug: z.string().optional().nullable(),
     image: z.unknown().optional().nullable(),
     top25Eligible: z.boolean().optional().nullable(),
   }),
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
     shortName: school.shortName,
     abbreviation: school.abbreviation,
     nickname: school.nickname,
+    slug: school.slug,
     image: school.image,
     top25Eligible: school.top25Eligible,
   });

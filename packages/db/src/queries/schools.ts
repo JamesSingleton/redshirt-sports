@@ -49,6 +49,7 @@ export type SanitySchoolSyncPayload = {
   shortName?: string | null;
   abbreviation?: string | null;
   nickname?: string | null;
+  slug?: string | null;
   image?: unknown;
   top25Eligible?: boolean | null;
 };
@@ -63,6 +64,7 @@ export async function upsertSchoolFromSanity(payload: SanitySchoolSyncPayload) {
     shortName: payload.shortName ?? null,
     abbreviation: payload.abbreviation ?? null,
     nickname: payload.nickname ?? null,
+    slug: payload.slug ?? null,
     image: payload.image ?? null,
     top25Eligible: payload.top25Eligible ?? null,
     updatedAt: new Date(),

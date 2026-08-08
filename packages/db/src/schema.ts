@@ -153,10 +153,16 @@ export const schoolsTable = pgTable(
     shortName: text("short_name"),
     abbreviation: text(),
     nickname: text(),
+    /** Public team hub URL slug from Sanity (`/college/teams/[slug]`). */
+    slug: text(),
     image: jsonb(),
     top25Eligible: boolean("top_25_eligible"),
   },
-  (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
+  (table) => [
+    unique().on(table.sanityId),
+    index().on(table.sanityId),
+    unique().on(table.slug),
+  ],
 );
 
 export const conferencesTable = pgTable(
