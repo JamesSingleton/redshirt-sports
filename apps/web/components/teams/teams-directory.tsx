@@ -40,6 +40,7 @@ export function TeamsDirectory({
 }) {
   const [query, setQuery] = useState("");
   const [activeConference, setActiveConference] = useState<string>("all");
+  console.log("[v0] TeamsDirectory render, activeConference:", activeConference);
 
   const filteredTeams = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
