@@ -125,7 +125,7 @@ export default function VoterBreakdownDesktop({
         >
           <ChevronLeft className="size-4" />
         </Button>
-        <div className="w-[120px] text-center text-sm">
+        <div className="w-37.5 text-center text-sm">
           Page {page} of {pageCount}
         </div>
         <Button

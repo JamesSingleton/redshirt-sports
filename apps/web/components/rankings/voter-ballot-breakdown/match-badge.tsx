@@ -7,8 +7,6 @@ import {
   TooltipTrigger,
 } from "@redshirt-sports/ui/components/tooltip";
 
-import { BALLOT_MATCH_TOOLTIP } from "@/lib/ballot-match";
-
 export function BallotMatchHeader() {
   return (
     <Tooltip>
@@ -21,7 +19,7 @@ export function BallotMatchHeader() {
         </button>
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">
-        {BALLOT_MATCH_TOOLTIP}
+        How close this ballot's rank order was to the final Top 25.
       </TooltipContent>
     </Tooltip>
   );

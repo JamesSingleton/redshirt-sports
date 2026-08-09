@@ -44,6 +44,3 @@ export function computeBallotMatchPercent(
   const percent = Math.round((1 - error / MAX_FOOTRULE_ERROR) * 100);
   return Math.min(100, Math.max(0, percent));
 }
-
-export const BALLOT_MATCH_TOOLTIP =
-  "How close this ballot's rank order was to the final Top 25. Teams left off the ballot count as #26.";
