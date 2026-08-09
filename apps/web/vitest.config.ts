@@ -18,7 +18,6 @@ export default defineConfig({
       enabled: true,
       provider: "v8",
       reporter: ["text", "json-summary"],
-      all: true,
       include: [
         "hooks/**/*.{ts,tsx}",
         "lib/**/*.{ts,tsx}",

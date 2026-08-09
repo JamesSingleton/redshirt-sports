@@ -42,11 +42,15 @@ vi.mock("@redshirt-sports/ui/components/select", () => ({
         type="button"
         data-testid={`trigger-${value ?? "empty"}`}
         onClick={() => {
-          if (value === mockParams.year) {
+          const selectedValue = Array.isArray(value) ? value[0] : value;
+          const currentYear = Array.isArray(mockParams.year)
+            ? mockParams.year[0]
+            : mockParams.year;
+          if (selectedValue === currentYear) {
             onValueChange?.("2024");
-          } else if (value === "13") {
+          } else if (selectedValue === "13") {
             onValueChange?.("");
-          } else if (value === "bad-week") {
+          } else if (selectedValue === "bad-week") {
             onValueChange?.("not-a-week");
           } else {
             onValueChange?.("final-rankings");
@@ -59,14 +63,26 @@ vi.mock("@redshirt-sports/ui/components/select", () => ({
         <button
           type="button"
           data-testid="trigger-year-same"
-          onClick={() => onValueChange?.(mockParams.year)}
+          onClick={() =>
+            onValueChange?.(
+              Array.isArray(mockParams.year)
+                ? (mockParams.year[0] ?? "")
+                : (mockParams.year ?? ""),
+            )
+          }
         />
       ) : null}
       {value === mockParams.week ? (
         <button
           type="button"
           data-testid="trigger-week-same"
-          onClick={() => onValueChange?.(mockParams.week)}
+          onClick={() =>
+            onValueChange?.(
+              Array.isArray(mockParams.week)
+                ? (mockParams.week[0] ?? "")
+                : (mockParams.week ?? ""),
+            )
+          }
         />
       ) : null}
       {children}

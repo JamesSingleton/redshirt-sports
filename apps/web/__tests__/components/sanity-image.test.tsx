@@ -44,10 +44,8 @@ vi.mock("sanity-image", () => ({
 }));
 
 describe("SanityImage", () => {
-  const originalEnv = process.env.NODE_ENV;
-
   afterEach(() => {
-    process.env.NODE_ENV = originalEnv;
+    vi.unstubAllEnvs();
     mockProcessImageData.mockReset();
   });
 
@@ -148,7 +146,7 @@ describe("SanityImage", () => {
   });
 
   it("warns in development when alt text is missing", () => {
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     mockProcessImageData.mockReturnValue({
       id: "image-2",

@@ -236,6 +236,7 @@ describe("NavbarClient", () => {
     });
     expect(accLink).toHaveAttribute("href", "/college/football/news/fbs/acc");
     await user.click(accLink);
+    await user.click(screen.getByRole("button", { name: "Close" }));
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     await user.click(screen.getByRole("button", { name: "Rankings" }));
@@ -243,6 +244,7 @@ describe("NavbarClient", () => {
     await user.click(
       screen.getByRole("link", { name: /custom-division Football Rankings/i }),
     );
+    await user.click(screen.getByRole("button", { name: "Close" }));
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     await user.click(screen.getByRole("button", { name: "Rankings" }));

@@ -88,6 +88,7 @@ describe("CollegeFootballRankingsPage", () => {
     mockGetCachedYears.mockReset();
     mockGetCachedWeeks.mockReset();
     mockGetCachedFinalRankings.mockReset();
+    mockGetPageMetadata.mockClear();
   });
 
   it("generateMetadata builds rankings metadata", async () => {
@@ -124,20 +125,54 @@ describe("CollegeFootballRankingsPage", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
-  it("throws notFound when there are no years or weeks with votes", async () => {
-    mockGetCachedYears.mockResolvedValue([]);
-    mockGetCachedWeeks.mockResolvedValue([]);
-
+  it("throws notFound for an invalid week segment before fetching rankings", async () => {
     await expect(
       CollegeFootballRankingsPage({
         params: Promise.resolve({
           sport: "football",
-          division: "fbs",
+          division: "fcs",
           year: "2025",
-          week: "1",
+          week: "garbage",
         }),
       }),
     ).rejects.toThrow("NEXT_NOT_FOUND");
+
+    expect(mockGetCachedYears).not.toHaveBeenCalled();
+    expect(mockGetCachedWeeks).not.toHaveBeenCalled();
+    expect(mockGetCachedFinalRankings).not.toHaveBeenCalled();
+  });
+
+  it("throws notFound from metadata for an invalid week segment", async () => {
+    await expect(
+      generateMetadata({
+        params: Promise.resolve({
+          sport: "football",
+          division: "fcs",
+          year: "2025",
+          week: "garbage",
+        }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+
+    expect(mockGetPageMetadata).not.toHaveBeenCalled();
+  });
+
+  it("does not treat empty filter data as a missing rankings page", async () => {
+    mockGetCachedYears.mockResolvedValue([]);
+    mockGetCachedWeeks.mockResolvedValue([]);
+    mockGetCachedFinalRankings.mockResolvedValue({ rankings: [] });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+
+    render(page);
+    expect(screen.getByText("Top 25 Poll Not Found")).toBeInTheDocument();
   });
 
   it("renders movement, dropped out, ORV, and no-longer-receiving sections", async () => {
@@ -254,19 +289,23 @@ describe("CollegeFootballRankingsPage", () => {
     expect(screen.getByText("(3)")).toBeInTheDocument();
   });
 
-  it("treats rejected year and week lookups as empty", async () => {
+  it("renders rankings when the optional year and week lookups fail", async () => {
     mockGetCachedYears.mockRejectedValue(new Error("years failed"));
     mockGetCachedWeeks.mockRejectedValue(new Error("weeks failed"));
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("alabama", 1, 200, "Alabama")],
+    });
 
-    await expect(
-      CollegeFootballRankingsPage({
-        params: Promise.resolve({
-          sport: "football",
-          division: "fbs",
-          year: "2025",
-          week: "1",
-        }),
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
       }),
-    ).rejects.toThrow("NEXT_NOT_FOUND");
+    });
+
+    render(page);
+    expect(screen.getByRole("link", { name: "Alabama" })).toBeInTheDocument();
   });
 });

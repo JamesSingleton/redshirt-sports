@@ -24,7 +24,7 @@ describe("PageHeader", () => {
       <PageHeader
         title="Week 1"
         subtitle={<p>Football rankings</p>}
-        breadcrumbs={[{ label: "Home", href: "/" }]}
+        breadcrumbs={[{ title: "Home", href: "/" }]}
       />,
     );
 

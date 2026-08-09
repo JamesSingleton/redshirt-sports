@@ -104,7 +104,7 @@ describe("VoterBallotBreakdown", () => {
       expect(screen.getByText("Voter 1")).toBeInTheDocument();
     });
 
-    const pageSizeTrigger = screen.getAllByRole("combobox")[1];
+    const pageSizeTrigger = screen.getAllByRole("combobox")[1]!;
     await user.click(pageSizeTrigger);
     await user.click(screen.getByRole("option", { name: "20 per page" }));
 
@@ -138,7 +138,7 @@ describe("VoterBallotBreakdown", () => {
       expect(screen.getByText(/Showing 3 of 3 voter/)).toBeInTheDocument();
     });
 
-    const pageSizeTrigger = screen.getAllByRole("combobox")[1];
+    const pageSizeTrigger = screen.getAllByRole("combobox")[1]!;
     await user.click(pageSizeTrigger);
     expect(
       screen.getByRole("option", { name: "10 per page" }),
@@ -291,7 +291,7 @@ describe("SyncedScroll", () => {
     );
 
     const scrollers = document.querySelectorAll(".overflow-x-auto");
-    const [left, right] = Array.from(scrollers) as HTMLDivElement[];
+    const [left, right] = Array.from(scrollers) as [HTMLDivElement, HTMLDivElement];
 
     Object.defineProperty(left, "scrollWidth", {
       value: 1000,
@@ -331,7 +331,7 @@ describe("SyncedScroll", () => {
     );
 
     const scrollers = document.querySelectorAll(".overflow-x-auto");
-    const [left, right] = Array.from(scrollers) as HTMLDivElement[];
+    const [left, right] = Array.from(scrollers) as [HTMLDivElement, HTMLDivElement];
 
     for (const el of [left, right]) {
       Object.defineProperty(el, "scrollWidth", {
@@ -409,7 +409,7 @@ describe("SyncedScroll", () => {
     );
 
     const scrollers = document.querySelectorAll(".overflow-x-auto");
-    const [left, right] = Array.from(scrollers) as HTMLDivElement[];
+    const [left, right] = Array.from(scrollers) as [HTMLDivElement, HTMLDivElement];
 
     for (const el of [left, right]) {
       Object.defineProperty(el, "scrollWidth", {
@@ -443,7 +443,7 @@ describe("SyncedScroll", () => {
     );
 
     const scrollers = document.querySelectorAll(".overflow-x-auto");
-    const [left, right] = Array.from(scrollers) as HTMLDivElement[];
+    const [left, right] = Array.from(scrollers) as [HTMLDivElement, HTMLDivElement];
 
     for (const el of [left, right]) {
       Object.defineProperty(el, "scrollWidth", {
@@ -479,7 +479,7 @@ describe("SyncedScroll", () => {
     );
 
     const scrollers = document.querySelectorAll(".overflow-x-auto");
-    const [left] = Array.from(scrollers) as HTMLDivElement[];
+    const [left] = Array.from(scrollers) as [HTMLDivElement, HTMLDivElement];
 
     Object.defineProperty(left, "scrollWidth", {
       value: 1000,

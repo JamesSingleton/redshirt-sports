@@ -50,11 +50,11 @@ describe("TeamConnectWidget", () => {
         schoolName="Alabama"
         schoolSocialLinks={{
           twitter: "https://x.com/alabama",
-          facebook: null,
-          bluesky: null,
-          threads: null,
+          facebook: undefined,
+          bluesky: undefined,
+          threads: undefined,
           instagram: "https://instagram.com/alabama",
-          youtube: null,
+          youtube: undefined,
         }}
         globalSocialLinks={{
           twitter: "https://x.com/redshirtsports",
@@ -104,10 +104,10 @@ describe("TeamConnectWidget", () => {
         schoolSocialLinks={{
           twitter: "",
           facebook: "   ",
-          bluesky: null,
-          threads: null,
-          instagram: null,
-          youtube: null,
+          bluesky: undefined,
+          threads: undefined,
+          instagram: undefined,
+          youtube: undefined,
         }}
         globalSocialLinks={{
           twitter: null,

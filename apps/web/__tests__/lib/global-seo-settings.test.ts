@@ -70,13 +70,13 @@ describe("global-seo-settings", () => {
     await getPageMetadata({
       title: "About",
       siteBrand: "Override Brand",
-      defaultOpenGraphImage: { asset: { _ref: "page-img" } },
+      defaultOpenGraphImage: "page-img",
     });
 
     expect(getSEOMetadata).toHaveBeenCalledWith({
       title: "About",
       siteBrand: "Override Brand",
-      defaultOpenGraphImage: { asset: { _ref: "page-img" } },
+      defaultOpenGraphImage: "page-img",
     });
   });
 

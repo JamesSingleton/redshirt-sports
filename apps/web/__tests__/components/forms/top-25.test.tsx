@@ -309,10 +309,14 @@ describe("Top25 form", () => {
       error?: (err: Error) => string;
     } = {};
 
-    vi.mocked(toast.promise).mockImplementation((promise, messages) => {
-      Object.assign(toastMessages, messages);
-      return promise.catch(() => undefined);
-    });
+    vi.mocked(toast.promise).mockImplementation(
+      ((promise: any, messages: any) => {
+        Object.assign(toastMessages, messages);
+        return (typeof promise === "function" ? promise() : promise).catch(
+          () => undefined,
+        );
+      }) as never,
+    );
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -447,10 +451,14 @@ describe("Top25 form", () => {
       success?: (data: { message?: string }) => string;
     } = {};
 
-    vi.mocked(toast.promise).mockImplementation((promise, messages) => {
-      Object.assign(toastMessages, messages);
-      return promise.catch(() => undefined);
-    });
+    vi.mocked(toast.promise).mockImplementation(
+      ((promise: any, messages: any) => {
+        Object.assign(toastMessages, messages);
+        return (typeof promise === "function" ? promise() : promise).catch(
+          () => undefined,
+        );
+      }) as never,
+    );
 
     mockFetch.mockResolvedValue({
       ok: true,

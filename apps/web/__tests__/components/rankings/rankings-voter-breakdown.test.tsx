@@ -40,7 +40,7 @@ describe("RankingsVoterBreakdown", () => {
     year: 2025,
     week: 1,
     sport: "football" as const,
-    consensusRanks: [{ _id: "team-1", rank: 1 }],
+    consensusRanks: [{ id: "team-1", rank: 1 }],
   };
 
   beforeEach(() => {

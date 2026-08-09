@@ -35,7 +35,7 @@ const author = {
 
 describe("Author components", () => {
   it("links active authors to their profile page", () => {
-    render(<AuthorItem {...(author as never)} />);
+    render(<AuthorItem {...(author as any)} />);
 
     expect(screen.getByRole("link", { name: "Jane Doe" })).toHaveAttribute(
       "href",
@@ -45,7 +45,7 @@ describe("Author components", () => {
   });
 
   it("renders archived authors without a profile link", () => {
-    render(<AuthorItem {...({ ...author, archived: true } as never)} />);
+    render(<AuthorItem {...({ ...author, archived: true } as any)} />);
 
     expect(screen.getByText("Jane Doe")).toBeInTheDocument();
     expect(

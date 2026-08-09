@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { SchoolRankingHistory } from "@redshirt-sports/db/utils/school-ranking-history";
 
 import { TeamRankingHistory } from "@/components/teams/team-ranking-history";
 
@@ -98,7 +99,7 @@ vi.mock("@redshirt-sports/ui/components/chart", () => ({
   ),
 }));
 
-const history = {
+const history: SchoolRankingHistory = {
   polls: [
     {
       pollId: "poll-fbs",

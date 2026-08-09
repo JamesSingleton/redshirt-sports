@@ -250,10 +250,10 @@ const Top25 = forwardRef<
     toast.success("Form populated with your previous ballot");
   }
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     values = { ...values, division, sport };
 
-    toast.promise(
+    await toast.promise(
       fetch(`/api/vote/college/${sport}/rankings/${division}`, {
         method: "POST",
         body: JSON.stringify(values),
