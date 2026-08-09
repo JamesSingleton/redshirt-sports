@@ -311,6 +311,39 @@ export const querySchoolPaths = defineQuery(/* groq */ `
   ] | order(_updatedAt desc) [0...100]{"slug": slug.current}
 `);
 
+/**
+ * All schools with a public slug, their published-post count, and their
+ * primary conference (football if affiliated, otherwise the first sport
+ * affiliation). Consumed by the /college/teams directory, which keeps only
+ * schools that clear MIN_TEAM_PAGE_POSTS or have Top 25 poll history.
+ */
+export const teamsDirectoryQuery = defineQuery(/* groq */ `
+  *[_type == "school" && defined(slug.current)]{
+    _id,
+    name,
+    shortName,
+    abbreviation,
+    nickname,
+    "slug": slug.current,
+    "postCount": count(*[${publishedPostsTaggingSchoolFromParentFilter}]),
+    ${schoolImageFragment},
+    "primaryConference": coalesce(
+      conferenceAffiliations[sport->slug.current == "football"][0].conference->{
+        name,
+        shortName,
+        abbreviation,
+        "slug": slug.current
+      },
+      conferenceAffiliations[0].conference->{
+        name,
+        shortName,
+        abbreviation,
+        "slug": slug.current
+      }
+    )
+  } | order(coalesce(shortName, name) asc)
+`);
+
 export const querySportsNews = defineQuery(/* groq */ `
   {
     "posts": *[_type == "post" && sport->slug.current == $sport] | order(publishedAt desc)[$from...$to]{
