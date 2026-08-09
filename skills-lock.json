@@ -23,7 +23,7 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
-      "computedHash": "66e8a50c83c3c724fcfe0769701b665c56cec220cc4f49cc1aee8bdfc07de94a"
+      "computedHash": "bce096b49db40761adb1d5348f064c303fc152e4e50fc3fd81b79df8b6cf137f"
     },
     "portable-text-serialization": {
       "source": "sanity-io/agent-toolkit",
@@ -35,13 +35,13 @@
       "source": "sanity-io/agent-toolkit",
       "sourceType": "github",
       "skillPath": "skills/sanity-best-practices/SKILL.md",
-      "computedHash": "c5610d08f5fbe0c6d3acaf7134663220a5d8e34c3b18ffc45909842a0849b8eb"
+      "computedHash": "e49645c544ebcce15b88b92bada595c5ec8b7aad189257352c7149693dbfc31e"
     },
     "sanity-live-cache-components": {
       "source": "sanity-io/next-sanity",
       "sourceType": "github",
       "skillPath": "skills/sanity-live-cache-components/SKILL.md",
-      "computedHash": "354498f97fd57877d48f4cfe6e8838de610995a6d53bef0cee3fe5b5ef9fad7e"
+      "computedHash": "6ca6b6034d8f297b6984794480686a1b67badf8e7b157b8634751d4f4d263894"
     },
     "seo-aeo-best-practices": {
       "source": "sanity-io/agent-toolkit",
@@ -77,7 +77,7 @@
       "source": "vercel/turborepo",
       "sourceType": "github",
       "skillPath": "skills/turborepo/SKILL.md",
-      "computedHash": "d6efa117c8940c29b2fe1d1214351eb928ca5dd5d941b29990b2ce7b41c7b4f2"
+      "computedHash": "a1ee68f55f7d232fbe095554f55e22c2080429a8a37c28adceaabad5fbe8a927"
     },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",
