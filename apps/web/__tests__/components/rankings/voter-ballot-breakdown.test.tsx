@@ -291,7 +291,10 @@ describe("SyncedScroll", () => {
     );
 
     const scrollers = document.querySelectorAll(".overflow-x-auto");
-    const [left, right] = Array.from(scrollers) as [HTMLDivElement, HTMLDivElement];
+    const [left, right] = Array.from(scrollers) as [
+      HTMLDivElement,
+      HTMLDivElement,
+    ];
 
     Object.defineProperty(left, "scrollWidth", {
       value: 1000,
@@ -331,7 +334,10 @@ describe("SyncedScroll", () => {
     );
 
     const scrollers = document.querySelectorAll(".overflow-x-auto");
-    const [left, right] = Array.from(scrollers) as [HTMLDivElement, HTMLDivElement];
+    const [left, right] = Array.from(scrollers) as [
+      HTMLDivElement,
+      HTMLDivElement,
+    ];
 
     for (const el of [left, right]) {
       Object.defineProperty(el, "scrollWidth", {
@@ -409,7 +415,10 @@ describe("SyncedScroll", () => {
     );
 
     const scrollers = document.querySelectorAll(".overflow-x-auto");
-    const [left, right] = Array.from(scrollers) as [HTMLDivElement, HTMLDivElement];
+    const [left, right] = Array.from(scrollers) as [
+      HTMLDivElement,
+      HTMLDivElement,
+    ];
 
     for (const el of [left, right]) {
       Object.defineProperty(el, "scrollWidth", {
@@ -443,7 +452,10 @@ describe("SyncedScroll", () => {
     );
 
     const scrollers = document.querySelectorAll(".overflow-x-auto");
-    const [left, right] = Array.from(scrollers) as [HTMLDivElement, HTMLDivElement];
+    const [left, right] = Array.from(scrollers) as [
+      HTMLDivElement,
+      HTMLDivElement,
+    ];
 
     for (const el of [left, right]) {
       Object.defineProperty(el, "scrollWidth", {
