@@ -29,7 +29,7 @@
     "next-themes": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "sonner": "^2.0.7"
+    "sonner": "^2.0.8"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
@@ -41,7 +41,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-react-compiler": "1.0.0",
-    "happy-dom": "^20.11.1",
+    "happy-dom": "^20.11.2",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
