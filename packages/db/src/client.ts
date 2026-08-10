@@ -12,7 +12,7 @@ import * as schema from "./schema";
  */
 const client = postgres(keys().DATABASE_URL, {
   prepare: false,
-  max: 2,
+  max: 5,
   idle_timeout: 20,
   max_lifetime: 0,
   connect_timeout: 10,

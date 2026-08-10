@@ -1,5 +1,6 @@
 import "server-only";
 
+export * from "./admin-dashboard";
 export * from "./polls";
 export * from "./publish-rankings";
 export * from "./rankings";
