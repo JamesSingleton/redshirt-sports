@@ -78,13 +78,9 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
   const pageSizeOptions = useMemo(() => {
     const total = filtered.length;
     const increments = [10, 20, 30, 40, 50, 100];
-    // If increments is empty, fallback to total or 10
-    const fallback = total > 0 ? total : 10;
+    // When total exceeds the largest increment, keep all options.
     const maxOption =
-      increments.find((n) => n >= total) ??
-      increments[increments.length - 1] ??
-      fallback;
-    // Only include increments up to maxOption
+      increments.find((n) => n >= total) ?? increments[increments.length - 1]!;
     return increments.filter((n) => n <= maxOption);
   }, [filtered.length]);
 

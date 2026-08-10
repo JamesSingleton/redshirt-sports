@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { SearchBar } from "@/components/search-bar";
@@ -207,5 +207,105 @@ describe("SearchBar", () => {
     await user.keyboard("{Enter}");
 
     expect(mockPush).toHaveBeenCalledWith("/search?q=result");
+  });
+
+  it("does not search when the query is only whitespace", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<SearchBar />);
+
+    await user.type(screen.getByRole("textbox"), "   ");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(350);
+    });
+
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it("does not submit an empty query", async () => {
+    const user = userEvent.setup();
+    render(<SearchBar />);
+
+    await user.click(screen.getByRole("textbox"));
+    await user.keyboard("{Enter}");
+
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it("keeps the selected index when ArrowDown is pressed on the last result", async () => {
+    mockFetch.mockResolvedValue([
+      {
+        _id: "post-1",
+        _type: "post",
+        title: "Only Result",
+        slug: "only",
+        publishedAt: "2026-01-01T00:00:00Z",
+      },
+    ]);
+    const user = userEvent.setup();
+    render(<SearchBar />);
+
+    const input = screen.getByRole("textbox");
+    await user.type(input, "only");
+    await waitFor(() => {
+      expect(screen.getByText("Only Result")).toBeInTheDocument();
+    });
+
+    await user.keyboard("{ArrowDown}{ArrowDown}");
+    const selected = screen.getByText("Only Result").closest("button");
+    expect(selected).toHaveClass("bg-muted");
+  });
+
+  it("keeps showing prior results after the query is cleared while focused", async () => {
+    mockFetch.mockResolvedValue([
+      {
+        _id: "post-1",
+        _type: "post",
+        title: "Sticky Result",
+        slug: "sticky",
+        publishedAt: "2026-01-01T00:00:00Z",
+      },
+    ]);
+    const user = userEvent.setup();
+    render(<SearchBar />);
+
+    const input = screen.getByRole("textbox");
+    await user.type(input, "sticky");
+    await waitFor(() => {
+      expect(screen.getByText("Sticky Result")).toBeInTheDocument();
+    });
+
+    await user.clear(input);
+    expect(screen.getByText("Sticky Result")).toBeInTheDocument();
+  });
+
+  it("shows a loading state while search results are pending", async () => {
+    let resolveSearch: (value: unknown) => void = () => {};
+    mockFetch.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveSearch = resolve;
+        }),
+    );
+    const user = userEvent.setup();
+    render(<SearchBar />);
+
+    await user.type(screen.getByRole("textbox"), "pending");
+    await waitFor(() => {
+      expect(screen.getByText("Searching...")).toBeInTheDocument();
+    });
+
+    resolveSearch([
+      {
+        _id: "post-1",
+        _type: "post",
+        title: "Pending Result",
+        slug: "pending",
+        publishedAt: "2026-01-01T00:00:00Z",
+      },
+    ]);
+
+    await waitFor(() => {
+      expect(screen.getByText("Pending Result")).toBeInTheDocument();
+    });
   });
 });

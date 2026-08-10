@@ -172,4 +172,56 @@ describe("college sitemap", () => {
     const urls = await collegeSitemap();
     expect(urls.some((entry) => entry.url.includes("/fbs/sec"))).toBe(false);
   });
+
+  it("handles null Sanity data as an empty sitemap", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({ data: null });
+    const urls = await collegeSitemap();
+    expect(urls).toEqual([]);
+  });
+
+  it("skips division and conference URLs when division segment is missing", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({
+      data: [
+        {
+          sport: "football",
+          division: null,
+          conferences: [{ slug: "sec" }],
+          _updatedAt: "2026-01-01T00:00:00Z",
+        },
+      ],
+    });
+    const urls = await collegeSitemap();
+    expect(urls).toEqual([
+      expect.objectContaining({
+        url: "https://redshirtsports.xyz/college/football/news",
+      }),
+    ]);
+    expect(urls.some((entry) => entry.url.includes("/sec"))).toBe(false);
+  });
+
+  it("keeps the newest conference URL timestamp when duplicates appear", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({
+      data: [
+        {
+          sport: "football",
+          division: "d2",
+          conferences: [{ slug: "gac" }],
+          _updatedAt: "2026-01-10T00:00:00Z",
+        },
+        {
+          sport: "football",
+          division: "d2",
+          conferences: [{ slug: "gac" }],
+          _updatedAt: "2026-01-01T00:00:00Z",
+        },
+      ],
+    });
+    const urls = await collegeSitemap();
+    const conferenceUrl = urls.find((entry) =>
+      entry.url.endsWith("/college/football/news/d2/gac"),
+    );
+    expect(conferenceUrl?.lastModified).toEqual(
+      new Date("2026-01-10T00:00:00Z"),
+    );
+  });
 });

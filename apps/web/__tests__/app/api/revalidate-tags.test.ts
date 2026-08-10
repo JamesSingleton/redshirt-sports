@@ -59,6 +59,39 @@ describe("POST /api/revalidate-tags", () => {
     expect(res.status).toBe(400);
   });
 
+  it("returns 400 when tags is present but not an array", async () => {
+    process.env.SANITY_REVALIDATE_SECRET = "correct-secret";
+    vi.resetModules();
+    const { POST } = await import("@/app/api/revalidate-tags/route");
+
+    const res = await POST(
+      new Request("https://example.com/api/revalidate-tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          secret: "correct-secret",
+          tags: "post",
+        }),
+      }) as never,
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 401 when JSON body has no secret", async () => {
+    process.env.SANITY_REVALIDATE_SECRET = "correct-secret";
+    vi.resetModules();
+    const { POST } = await import("@/app/api/revalidate-tags/route");
+
+    const res = await POST(
+      new Request("https://example.com/api/revalidate-tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tags: ["post"] }),
+      }) as never,
+    );
+    expect(res.status).toBe(401);
+  });
+
   it("handles invalid JSON body as unauthorized when secret missing from body", async () => {
     process.env.SANITY_REVALIDATE_SECRET = "correct-secret";
     vi.resetModules();

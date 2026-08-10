@@ -24,7 +24,7 @@ import {
 import CustomImage from "./sanity-image";
 
 interface SocialLinksProps {
-  data: NonNullable<QueryGlobalSeoSettingsResult>["socialLinks"];
+  data: NonNullable<NonNullable<QueryGlobalSeoSettingsResult>["socialLinks"]>;
 }
 
 interface FooterProps {
@@ -60,8 +60,6 @@ export async function CachedFooterServer({
 }
 
 function SocialLinks({ data }: SocialLinksProps) {
-  if (!data) return null;
-
   const { facebook, twitter, youtube, instagram, bluesky, threads } = data;
 
   const socialLinks = [
@@ -87,7 +85,7 @@ function SocialLinks({ data }: SocialLinksProps) {
       Icon: ThreadsIcon,
       label: "Follow us on Threads",
     },
-  ].filter((link) => link.url);
+  ].filter((link): link is typeof link & { url: string } => Boolean(link.url));
 
   return (
     <ul className="text-muted-foreground flex items-center space-x-6">
@@ -97,7 +95,7 @@ function SocialLinks({ data }: SocialLinksProps) {
           className="hover:text-primary font-medium"
         >
           <Link
-            href={url ?? "#"}
+            href={url}
             target="_blank"
             prefetch={false}
             rel="noopener noreferrer"

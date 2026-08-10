@@ -20,10 +20,15 @@ vi.mock("next/link", () => ({
   default: ({
     children,
     href,
+    ...props
   }: {
     children: React.ReactNode;
     href: string;
-  }) => <a href={href}>{children}</a>,
+  } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@/components/logo", () => ({
@@ -203,6 +208,9 @@ describe("NavbarClient", () => {
       "/college/football/rankings/fbs/2025/1",
     );
     await user.click(rankingsLink);
+
+    // Link onClick closes the sheet; reopen to assert remaining nav.
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
     expect(screen.getByRole("link", { name: "News" })).toHaveAttribute(
       "href",
       "/college/news",
@@ -236,7 +244,6 @@ describe("NavbarClient", () => {
     });
     expect(accLink).toHaveAttribute("href", "/college/football/news/fbs/acc");
     await user.click(accLink);
-    await user.click(screen.getByRole("button", { name: "Close" }));
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     await user.click(screen.getByRole("button", { name: "Rankings" }));
@@ -244,7 +251,6 @@ describe("NavbarClient", () => {
     await user.click(
       screen.getByRole("link", { name: /custom-division Football Rankings/i }),
     );
-    await user.click(screen.getByRole("button", { name: "Close" }));
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     await user.click(screen.getByRole("button", { name: "Rankings" }));
@@ -268,6 +274,117 @@ describe("DesktopNavbar", () => {
       screen.getByRole("link", { name: /FCS Football Rankings/i }),
     ).toBeInTheDocument();
     expect(screen.getByText("Coming Soon...")).toBeInTheDocument();
+  });
+
+  it("falls back when ranking week and division labels are missing", () => {
+    render(
+      <DesktopNavbar
+        navbarData={
+          [
+            {
+              _id: "sport-1",
+              name: "Football",
+              slug: "football",
+              groupings: [
+                {
+                  _id: "group-1",
+                  name: "FBS",
+                  slug: "fbs",
+                  conferences: [
+                    {
+                      _id: "conf-1",
+                      name: "Big Ten Conference",
+                      shortName: null,
+                      slug: "big-ten",
+                    },
+                  ],
+                },
+              ],
+            },
+          ] as never
+        }
+        latestRankings={
+          [
+            {
+              sport: "football",
+              divisions: [{ division: undefined, week: undefined, year: 2025 }],
+            },
+          ] as never
+        }
+      />,
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Big Ten Conference" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Football Rankings/i }),
+    ).toHaveAttribute("href", "/college/football/rankings/undefined/2025/0");
+  });
+
+  it("uses an empty divisions list when football rankings are absent", () => {
+    render(
+      <DesktopNavbar
+        navbarData={navbarData}
+        latestRankings={[{ sport: "basketball", divisions: [] }] as never}
+      />,
+    );
+
+    expect(screen.getByText("Rankings")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /Football Rankings/i }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("NavbarClient mobile edge cases", () => {
+  it("handles missing settings and ranking week fallbacks on mobile", async () => {
+    mockUseIsMobile.mockReturnValue(true);
+    const user = userEvent.setup();
+
+    render(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={null as never}
+        latestRankings={
+          [
+            {
+              sport: "football",
+              divisions: [{ division: "fbs", year: 2025 }],
+            },
+          ] as never
+        }
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    await user.click(screen.getByRole("button", { name: "Rankings" }));
+    await user.click(screen.getByRole("button", { name: /College Football/i }));
+
+    expect(
+      screen.getByRole("link", { name: /FBS Football Rankings/i }),
+    ).toHaveAttribute("href", "/college/football/rankings/fbs/2025/0");
+  });
+
+  it("uses an empty football divisions list when the sport is missing", async () => {
+    mockUseIsMobile.mockReturnValue(true);
+    const user = userEvent.setup();
+
+    render(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={settingsData}
+        latestRankings={[] as never}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    await user.click(screen.getByRole("button", { name: "Rankings" }));
+    await user.click(screen.getByRole("button", { name: /Men's Basketball/i }));
+    expect(screen.getByText("Coming Soon...")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /Football Rankings/i }),
+    ).not.toBeInTheDocument();
   });
 });
 

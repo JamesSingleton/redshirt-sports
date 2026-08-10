@@ -96,16 +96,14 @@ export function TeamFeedList({
   return (
     <section className="mb-8">
       <h2 className="mb-5 text-[22px] font-bold text-foreground">{title}</h2>
-      {posts.length > 0 ? (
-        <ul className="flex flex-col" data-feed-list>
-          {posts.map((post, index) => (
-            <li key={post._id}>
-              <TeamArticleFeedItem post={post} />
-              {index < posts.length - 1 ? <Separator /> : null}
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      <ul className="flex flex-col" data-feed-list>
+        {posts.map((post, index) => (
+          <li key={post._id}>
+            <TeamArticleFeedItem post={post} />
+            {index < posts.length - 1 ? <Separator /> : null}
+          </li>
+        ))}
+      </ul>
       {footerLinks && footerLinks.length > 0 ? (
         <footer className="mt-5 flex flex-wrap gap-6">
           {footerLinks.map((link) => (

@@ -309,6 +309,57 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
       expect.objectContaining({
         distinctId: TEST_USER_ID,
         event: "ballot_submitted",
+        properties: expect.objectContaining({
+          season_type: "regular_season",
+        }),
+      }),
+    );
+  });
+
+  it("falls back to URL division when body omits division", async () => {
+    const { division: _division, ...bodyWithoutDivision } = ballotBody();
+    const res = await POST(postRequest(bodyWithoutDivision), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(200);
+    expect(mockGetPollBySportAndSlug).toHaveBeenCalledWith({
+      sportId: "sport_football",
+      slug: "fbs",
+    });
+  });
+
+  it("records preseason season_type in analytics", async () => {
+    mockGetSeasonInfo.mockResolvedValue({
+      ...seasonInfoInSeason,
+      isPreseason: true,
+      isRegularSeason: false,
+      isPostseason: false,
+    });
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(200);
+    expect(mockAnalyticsCapture).toHaveBeenCalledWith(
+      expect.objectContaining({
+        properties: expect.objectContaining({ season_type: "preseason" }),
+      }),
+    );
+  });
+
+  it("records postseason season_type in analytics", async () => {
+    mockGetSeasonInfo.mockResolvedValue({
+      ...seasonInfoInSeason,
+      isPreseason: false,
+      isRegularSeason: false,
+      isPostseason: true,
+    });
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(200);
+    expect(mockAnalyticsCapture).toHaveBeenCalledWith(
+      expect.objectContaining({
+        properties: expect.objectContaining({ season_type: "postseason" }),
       }),
     );
   });
@@ -405,18 +456,22 @@ describe("GET /api/vote/college/[sport]/rankings/[division]", () => {
   });
 
   it("returns 400 when sport lookup fails on GET", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockGetSportIdBySlug.mockResolvedValue(null);
     const res = await GET(getRequest(), { params: voteParams() });
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toMatch(/Sport not found/);
+    consoleSpy.mockRestore();
   });
 
   it("returns 500 for unexpected GET errors", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockGetVoterBallots.mockRejectedValue("unexpected");
     const res = await GET(getRequest(), { params: voteParams() });
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.error).toBe("Internal server error");
+    consoleSpy.mockRestore();
   });
 });

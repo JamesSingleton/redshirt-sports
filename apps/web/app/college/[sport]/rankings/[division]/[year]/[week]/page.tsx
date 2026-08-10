@@ -48,6 +48,14 @@ import { parseWeekSegment, type SportParam, weekTitle } from "@/utils/espn";
 
 const baseUrl = getBaseUrl();
 
+function resolveWeekNumber(week: string): number {
+  try {
+    return parseWeekSegment(week);
+  } catch {
+    notFound();
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -62,7 +70,7 @@ export async function generateMetadata({
     params,
     getDynamicFetchOptions(),
   ]);
-  const weekNumber = parseWeekSegment(week);
+  const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
 
   return getPageMetadata(
@@ -87,7 +95,7 @@ export default async function CollegeFootballRankingsPage({
 }) {
   const { division, year, week, sport } = await params;
 
-  const weekNumber = parseWeekSegment(week);
+  const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
   const yearNumber = parseInt(year, 10);
   const sportParam = sport as SportParam;
@@ -186,21 +194,15 @@ export default async function CollegeFootballRankingsPage({
         url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
         numberOfItems: top25.length,
         itemListOrder: "https://schema.org/ItemListOrderAscending",
-        itemListElement: top25.flatMap((team) =>
-          team.rank == null
-            ? []
-            : [
-                {
-                  "@type": "ListItem" as const,
-                  position: team.rank,
-                  item: {
-                    "@type": "SportsTeam" as const,
-                    name: team.shortName,
-                    sport: sport,
-                  },
-                },
-              ],
-        ),
+        itemListElement: top25.map((team) => ({
+          "@type": "ListItem" as const,
+          position: team.rank as number,
+          item: {
+            "@type": "SportsTeam" as const,
+            name: team.shortName,
+            sport: sport,
+          },
+        })),
       },
     ],
   };
@@ -357,9 +359,10 @@ export default async function CollegeFootballRankingsPage({
             year={yearNumber}
             week={weekNumber}
             sport={sportParam}
-            consensusRanks={top25.flatMap((team) =>
-              team.rank == null ? [] : [{ id: team._id, rank: team.rank }],
-            )}
+            consensusRanks={top25.map((team) => ({
+              id: team._id,
+              rank: team.rank as number,
+            }))}
           />
         </Suspense>
       )}

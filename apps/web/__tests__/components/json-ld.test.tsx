@@ -137,20 +137,41 @@ describe("buildPostPageJsonLd", () => {
       excerpt: null,
       publishedAt: null,
       _updatedAt: null,
-      body: [],
-      authors: [{ name: "Author", slug: null }],
+      body: undefined,
+      authors: [{ name: null, slug: null }, null],
       sport: null,
       tags: null,
+      image: { alt: null, asset: { _ref: "image-123" } },
+    });
+
+    const article = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "NewsArticle",
+    ) as Record<string, unknown> | undefined;
+    const imageNode = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "ImageObject",
+    ) as Record<string, unknown> | undefined;
+
+    expect(article?.articleSection).toBeUndefined();
+    expect(article?.keywords).toBeUndefined();
+    expect(article?.author).toEqual([
+      { "@type": "Person", name: undefined, url: undefined },
+    ]);
+    expect(imageNode?.caption).toBeUndefined();
+  });
+
+  it("builds article authors as an empty list when authors is null", () => {
+    const data = buildPostPageJsonLd({
+      ...sampleArticle,
+      authors: null,
       image: null,
+      body: null,
     });
 
     const article = data?.["@graph"]?.find(
       (node) => typeof node === "object" && node?.["@type"] === "NewsArticle",
     ) as Record<string, unknown> | undefined;
 
-    expect(article?.articleSection).toBeUndefined();
-    expect(article?.keywords).toBeUndefined();
-    expect(article?.author).toEqual([{ "@type": "Person", name: "Author" }]);
+    expect(article?.author).toEqual([]);
   });
 
   it("returns null when team slug is missing", () => {
@@ -179,6 +200,47 @@ describe("buildPostPageJsonLd", () => {
 
     expect(team?.sport).toEqual(["Football", "Basketball"]);
     expect(team?.memberOf).toHaveLength(2);
+  });
+
+  it("falls back to Team labels when school naming fields are empty", () => {
+    const data = buildTeamPageJsonLd({
+      slug: "mystery",
+      name: null,
+      shortName: null,
+      nickname: null,
+    });
+
+    const team = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "SportsTeam",
+    ) as Record<string, unknown> | undefined;
+    const breadcrumb = data?.["@graph"]?.find(
+      (node) =>
+        typeof node === "object" && node?.["@type"] === "BreadcrumbList",
+    ) as {
+      itemListElement?: Array<{ name?: string }>;
+    };
+    const webPage = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "WebPage",
+    ) as Record<string, unknown> | undefined;
+
+    expect(team?.name).toBeUndefined();
+    expect(breadcrumb?.itemListElement?.[1]?.name).toBe("Team");
+    expect(webPage?.name).toBeUndefined();
+  });
+
+  it("falls back to school name when shortName and nickname are missing", () => {
+    const data = buildTeamPageJsonLd({
+      slug: "alabama",
+      name: "University of Alabama",
+      shortName: null,
+      nickname: null,
+    });
+
+    const team = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "SportsTeam",
+    ) as Record<string, unknown> | undefined;
+
+    expect(team?.name).toBe("University of Alabama");
   });
 
   it("returns null when PostPageJsonLd article has no slug", () => {
@@ -249,6 +311,11 @@ describe("buildTeamPageJsonLd", () => {
 });
 
 describe("TeamPageJsonLd", () => {
+  it("returns null when school is missing", () => {
+    const { container } = render(<TeamPageJsonLd school={null} />);
+    expect(container.firstChild).toBeNull();
+  });
+
   it("renders team structured data", () => {
     const { container } = render(
       <TeamPageJsonLd

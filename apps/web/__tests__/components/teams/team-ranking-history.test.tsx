@@ -54,7 +54,7 @@ vi.mock("recharts", () => ({
   YAxis: ({ tickFormatter }: { tickFormatter?: (value: number) => string }) => (
     <div data-testid="y-axis">
       {tickFormatter?.(25)}
-      {tickFormatter?.(26)}
+      {tickFormatter?.(29)}
     </div>
   ),
 }));
@@ -265,5 +265,75 @@ describe("TeamRankingHistory", () => {
 
     expect(screen.getByText("2025")).toBeInTheDocument();
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+  });
+
+  it("keeps the earliest peak when later ranked weeks are worse", () => {
+    render(
+      <TeamRankingHistory
+        history={{
+          polls: [
+            {
+              pollId: "poll-fbs",
+              pollSlug: "fbs",
+              pollName: "FBS",
+              sportSlug: "football",
+              sportTitle: "Football",
+              years: [2025],
+              seriesByYear: {
+                2025: [
+                  {
+                    legacyWeek: 1,
+                    label: "Week 1",
+                    rank: 3,
+                    points: 1200,
+                    status: "ranked" as const,
+                  },
+                  {
+                    legacyWeek: 2,
+                    label: "Week 2",
+                    rank: 8,
+                    points: 800,
+                    status: "ranked" as const,
+                  },
+                ],
+              },
+            },
+          ],
+        }}
+        teamName="Alabama"
+      />,
+    );
+
+    expect(screen.getByText("Peak #3")).toBeInTheDocument();
+    expect(screen.getByText("Latest #8")).toBeInTheDocument();
+  });
+
+  it("handles polls with no years and missing series entries", () => {
+    render(
+      <TeamRankingHistory
+        history={{
+          polls: [
+            {
+              pollId: "poll-empty",
+              pollSlug: "fbs",
+              pollName: "FBS",
+              sportSlug: "football",
+              sportTitle: "Football",
+              years: [],
+              seriesByYear: {},
+            },
+          ],
+        }}
+        teamName="Alabama"
+      />,
+    );
+
+    expect(
+      screen.getByText("No published rankings for Alabama in ."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View rankings" })).toHaveAttribute(
+      "href",
+      "/college/football/rankings/fbs",
+    );
   });
 });

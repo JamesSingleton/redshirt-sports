@@ -75,7 +75,7 @@ export function TeamConnectWidget({
     { url: socialLinks.threads, Icon: ThreadsIcon },
     { url: socialLinks.instagram, Icon: Instagram },
     { url: socialLinks.youtube, Icon: YouTubeIcon },
-  ].filter((link) => link.url);
+  ].filter((link): link is typeof link & { url: string } => Boolean(link.url));
 
   if (links.length === 0) return null;
 
@@ -83,22 +83,18 @@ export function TeamConnectWidget({
     <div className="overflow-hidden rounded-lg border border-border bg-card">
       <h3 className="border-b px-4 py-3 text-base font-bold">{title}</h3>
       <div className="flex flex-col px-4 py-3">
-        {links.map(({ url, Icon }) => {
-          if (!url) return null;
-
-          return (
-            <Link
-              key={url}
-              href={url}
-              className="flex items-center gap-2.5 py-2"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Icon className="size-5 shrink-0 text-center" />
-              <span>{socialHandle(url)}</span>
-            </Link>
-          );
-        })}
+        {links.map(({ url, Icon }) => (
+          <Link
+            key={url}
+            href={url}
+            className="flex items-center gap-2.5 py-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Icon className="size-5 shrink-0 text-center" />
+            <span>{socialHandle(url)}</span>
+          </Link>
+        ))}
       </div>
     </div>
   );

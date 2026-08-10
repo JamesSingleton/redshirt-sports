@@ -14,8 +14,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    if (!secret && body.secret) secret = body.secret;
-    if (tags.length === 0 && Array.isArray(body.tags)) tags = body.tags;
+    if (body.secret) secret = body.secret;
+    if (Array.isArray(body.tags)) tags = body.tags;
   } catch {
     // no valid JSON body
   }

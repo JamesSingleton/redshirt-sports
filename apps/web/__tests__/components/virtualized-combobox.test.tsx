@@ -8,11 +8,14 @@ const { mockUseVirtualizer } = vi.hoisted(() => ({
     ({
       count,
       getScrollElement,
+      estimateSize,
     }: {
       count: number;
       getScrollElement: () => HTMLElement | null;
+      estimateSize: () => number;
     }) => {
       getScrollElement();
+      estimateSize();
 
       return {
         getVirtualItems: () =>
@@ -89,6 +92,14 @@ describe("VirtualizedCombobox", () => {
     expect(screen.getByText("No school found.")).toBeInTheDocument();
 
     await user.clear(screen.getByPlaceholderText("Select a school..."));
+    await waitFor(() => {
+      expect(screen.getAllByText("Alabama").length).toBeGreaterThan(0);
+    });
+
+    await user.type(
+      screen.getByPlaceholderText("Select a school..."),
+      "Alabama",
+    );
     await waitFor(() => {
       expect(screen.getAllByText("Alabama").length).toBeGreaterThan(0);
     });

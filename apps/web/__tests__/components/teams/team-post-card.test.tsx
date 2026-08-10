@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 
 import {
   getPostSportCategory,
@@ -42,6 +41,14 @@ const post = {
 describe("team-post-card", () => {
   it("returns the default sport category when sport data is missing", () => {
     expect(getPostSportCategory({ ...post, sport: null } as never)).toEqual({
+      label: "College News",
+      href: "/college/news",
+    });
+  });
+
+  it("returns the default sport category when the post has no sport field", () => {
+    const { sport: _sport, ...postWithoutSport } = post;
+    expect(getPostSportCategory(postWithoutSport as never)).toEqual({
       label: "College News",
       href: "/college/news",
     });

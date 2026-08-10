@@ -60,13 +60,25 @@ describe("getAndCacheTweet", () => {
 
   it("deletes cache entries when tweet is not found", async () => {
     mockFetchTweet.mockResolvedValue({
-      data: undefined,
+      data: null,
       tombstone: false,
       notFound: true,
     });
 
     await expect(getAndCacheTweet("not-found")).resolves.toBeUndefined();
     expect(mockRedisDel).toHaveBeenCalledWith("tweet:not-found");
+  });
+
+  it("leaves cache alone when fetch returns no data and no tombstone flags", async () => {
+    mockFetchTweet.mockResolvedValue({
+      data: undefined,
+      tombstone: false,
+      notFound: false,
+    });
+
+    await expect(getAndCacheTweet("empty")).resolves.toBeUndefined();
+    expect(mockRedisDel).not.toHaveBeenCalled();
+    expect(mockRedisSet).not.toHaveBeenCalled();
   });
 
   it("logs and returns undefined when fetch fails", async () => {
@@ -110,7 +122,14 @@ describe("TweetContent", () => {
 
 describe("ReactTweet", () => {
   it("renders the suspense fallback skeleton", () => {
+    // Never resolve so only the Suspense fallback is asserted. Suppress the
+    // known React testing warning about async Server Components under Suspense.
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockFetchTweet.mockImplementation(() => new Promise(() => {}));
+
     render(<ReactTweet id="123" />);
     expect(screen.getByTestId("tweet-skeleton")).toBeInTheDocument();
+
+    errorSpy.mockRestore();
   });
 });

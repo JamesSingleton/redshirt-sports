@@ -122,4 +122,19 @@ describe("TeamConnectWidget", () => {
 
     expect(container).toBeEmptyDOMElement();
   });
+
+  it("returns null when social links resolve but no known networks have URLs", () => {
+    const { container } = render(
+      <TeamConnectWidget
+        schoolSocialLinks={
+          {
+            website: "https://example.com",
+          } as never
+        }
+        globalSocialLinks={null}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
 });

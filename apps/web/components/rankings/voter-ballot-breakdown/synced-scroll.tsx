@@ -25,8 +25,7 @@ export function SyncedScroll({ group, className, children, ...rest }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const el = ref.current!;
 
     const groupSet = getGroup(group);
     groupSet.add(el);

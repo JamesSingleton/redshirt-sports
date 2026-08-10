@@ -1,6 +1,5 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import * as React from "react";
 
 import VoterBallotBreakdown from "@/components/rankings/voter-ballot-breakdown";
 import VoterBreakdownDesktop from "@/components/rankings/voter-ballot-breakdown/desktop";
@@ -148,6 +147,29 @@ describe("VoterBallotBreakdown", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("keeps all page size options when voter count exceeds the largest increment", async () => {
+    const user = userEvent.setup();
+    const manyVoters = Array.from({ length: 120 }, (_, index) => ({
+      name: `Voter ${index + 1}`,
+      organization: `Org ${index + 1}`,
+      organizationRole: "",
+      matchPercent: 50,
+      ballot: [],
+    }));
+
+    render(<VoterBallotBreakdown voterBreakdown={manyVoters as never} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 10 of 120 voter/)).toBeInTheDocument();
+    });
+
+    const pageSizeTrigger = screen.getAllByRole("combobox")[1]!;
+    await user.click(pageSizeTrigger);
+    expect(
+      screen.getByRole("option", { name: "100 per page" }),
+    ).toBeInTheDocument();
+  });
+
   it("uses desktop pagination callbacks when the viewport is wide", async () => {
     vi.stubGlobal(
       "matchMedia",
@@ -263,6 +285,39 @@ describe("VoterBreakdownMobile", () => {
     expect(screen.getByLabelText("Rank 2")).toBeInTheDocument();
     expect(screen.queryByLabelText(/Rank 2:/)).not.toBeInTheDocument();
   });
+
+  it("falls back to team name when shortName is missing", () => {
+    render(
+      <VoterBreakdownMobile
+        rows={
+          [
+            {
+              name: "Voter Name Only",
+              organization: "Org",
+              organizationRole: "",
+              matchPercent: 80,
+              ballot: [
+                {
+                  _id: "team-2",
+                  name: "Full Team Name",
+                  shortName: null,
+                  abbreviation: "FTN",
+                  image: { alt: "logo" },
+                  _order: 1,
+                },
+              ],
+            },
+          ] as never
+        }
+        page={1}
+        pageCount={1}
+        onPrevAction={vi.fn()}
+        onNextAction={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText("Rank 1: Full Team Name")).toBeInTheDocument();
+  });
 });
 
 describe("SyncedScroll", () => {
@@ -371,6 +426,7 @@ describe("SyncedScroll", () => {
       }
       observe() {}
       disconnect() {}
+      unobserve() {}
     }
     vi.stubGlobal("ResizeObserver", MockResizeObserver);
 
@@ -391,14 +447,54 @@ describe("SyncedScroll", () => {
       value: 500,
       configurable: true,
     });
-    scroller.scrollLeft = 100;
+    Object.defineProperty(scroller, "scrollLeft", {
+      value: 100,
+      writable: true,
+      configurable: true,
+    });
 
     const dispatchSpy = vi.spyOn(scroller, "dispatchEvent");
     act(() => {
-      resizeCallbacks[0]?.([], {} as ResizeObserver);
+      resizeCallbacks.at(-1)?.([], {} as ResizeObserver);
     });
 
     expect(dispatchSpy).toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("does not dispatch scroll on resize when scrollLeft is zero", () => {
+    const resizeCallbacks: ResizeObserverCallback[] = [];
+    class MockResizeObserver {
+      constructor(callback: ResizeObserverCallback) {
+        resizeCallbacks.push(callback);
+      }
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+    }
+    vi.stubGlobal("ResizeObserver", MockResizeObserver);
+
+    render(
+      <SyncedScroll group="resize-zero-group">
+        <div style={{ width: 1000 }}>Scroller</div>
+      </SyncedScroll>,
+    );
+
+    const scroller = document.querySelector(
+      ".overflow-x-auto",
+    ) as HTMLDivElement;
+    Object.defineProperty(scroller, "scrollLeft", {
+      value: 0,
+      writable: true,
+      configurable: true,
+    });
+
+    const dispatchSpy = vi.spyOn(scroller, "dispatchEvent");
+    act(() => {
+      resizeCallbacks.at(-1)?.([], {} as ResizeObserver);
+    });
+
+    expect(dispatchSpy).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
   });
 

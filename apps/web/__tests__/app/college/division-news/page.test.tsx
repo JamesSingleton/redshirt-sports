@@ -53,7 +53,13 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/components/json-ld", () => ({
-  JsonLdScript: () => <script data-testid="json-ld" />,
+  JsonLdScript: ({ data }: { data: Record<string, unknown> }) => (
+    <script
+      data-testid="json-ld"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  ),
   organizationId: "org-id",
   websiteId: "website-id",
 }));
@@ -195,5 +201,30 @@ describe("DivisionNewsPage", () => {
     });
     render(page as ReactNode);
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
+  });
+
+  it("falls back to empty division title in JSON-LD when displayName is missing", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({
+        data: {
+          posts: [{ _id: "1", title: "FBS Story", slug: "fbs-story" }],
+          totalPosts: 1,
+        },
+      })
+      .mockResolvedValueOnce({ data: { title: "Football" } })
+      .mockResolvedValueOnce({ data: null });
+
+    const page = await DivisionNewsPage({
+      params: Promise.resolve({ sport: "football", division: "fbs" }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page as ReactNode);
+
+    const jsonLd = screen.getByTestId("json-ld");
+    const data = JSON.parse(jsonLd.innerHTML);
+    const divisionCrumb = data.breadcrumb.itemListElement.find(
+      (item: { position: number }) => item.position === 4,
+    );
+    expect(divisionCrumb.name).toBe("");
   });
 });

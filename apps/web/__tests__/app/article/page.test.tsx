@@ -198,6 +198,42 @@ describe("PostPage", () => {
     );
   });
 
+  it("generateMetadata coerces null SEO fields to undefined", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({
+      data: {
+        ...samplePost,
+        seoTitle: null,
+        seoDescription: null,
+        ogTitle: null,
+        ogDescription: null,
+        seoImage: null,
+        image: null,
+        excerpt: null,
+        slug: null,
+        publishedAt: null,
+        _updatedAt: null,
+      },
+    });
+    await generateMetadata({
+      params: Promise.resolve({ slug: "big-game-preview" }),
+    });
+    expect(mockGetPageMetadata).toHaveBeenCalledWith(
+      expect.objectContaining({
+        seoTitle: undefined,
+        seoDescription: undefined,
+        ogTitle: undefined,
+        ogDescription: undefined,
+        seoImage: undefined,
+        image: undefined,
+        description: undefined,
+        slug: undefined,
+        publishedTime: undefined,
+        modifiedTime: undefined,
+      }),
+      "published",
+    );
+  });
+
   it("throws notFound when post data is missing on render", async () => {
     mockSanityFetchPage.mockResolvedValue({ data: null });
     await expect(
@@ -302,5 +338,44 @@ describe("PostPage", () => {
       "href",
       "/college/football/news/fbs",
     );
+  });
+
+  it("renders sport badge with only sportSubgrouping and no bullet without division/conferences", async () => {
+    mockSanityFetchPage.mockResolvedValue({
+      data: {
+        ...samplePost,
+        division: null,
+        conferences: null,
+        image: { credit: null },
+      },
+    });
+
+    const page = await PostPage({
+      params: Promise.resolve({ slug: "big-game-preview" }),
+    });
+    render(page as ReactNode);
+
+    expect(screen.getByRole("link", { name: "Football" })).toBeInTheDocument();
+    expect(screen.getByTestId("hero-image")).toBeInTheDocument();
+    expect(screen.queryByText(/Source:/)).not.toBeInTheDocument();
+    expect(screen.queryByText("•")).not.toBeInTheDocument();
+  });
+
+  it("renders bullet separator when sport has conferences but no division", async () => {
+    mockSanityFetchPage.mockResolvedValue({
+      data: {
+        ...samplePost,
+        division: null,
+        sportSubgrouping: null,
+        relatedPosts: [],
+      },
+    });
+
+    const page = await PostPage({
+      params: Promise.resolve({ slug: "big-game-preview" }),
+    });
+    render(page as ReactNode);
+
+    expect(screen.getByText("•")).toBeInTheDocument();
   });
 });

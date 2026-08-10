@@ -82,6 +82,25 @@ describe("TeamFeedList", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("omits author metadata when the author name is missing", () => {
+    render(
+      <TeamFeedList
+        title="Updates"
+        posts={[
+          {
+            ...post,
+            authors: [{ slug: "anonymous" }],
+          } as never,
+        ]}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("link", { name: /authors/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Team update")).toBeInTheDocument();
+  });
+
   it("renders unlinked titles and thumbnails when slug is missing", () => {
     render(
       <TeamFeedList

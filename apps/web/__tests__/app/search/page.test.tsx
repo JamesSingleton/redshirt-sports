@@ -49,8 +49,11 @@ vi.mock("@/components/page-header", () => ({
 
 vi.mock("@/components/article-card", () => ({
   __esModule: true,
-  default: ({ title }: { title: string }) => (
-    <div data-testid="article-card">{title}</div>
+  default: ({ title, author }: { title: string; author: string }) => (
+    <div data-testid="article-card">
+      <span>{title}</span>
+      <span data-testid="author">{author}</span>
+    </div>
   ),
 }));
 
@@ -113,6 +116,33 @@ describe("SearchPage", () => {
       screen.getByText('Search results for "alabama"'),
     ).toBeInTheDocument();
     expect(screen.getByText("Alabama Preview")).toBeInTheDocument();
+    expect(screen.getByTestId("author")).toHaveTextContent("Writer");
+  });
+
+  it("falls back to empty author when post has no authors", async () => {
+    mockSanityFetchPage.mockResolvedValue({
+      data: {
+        posts: [
+          {
+            _id: "1",
+            title: "No Author Story",
+            publishedAt: "2026-01-01",
+            image: null,
+            slug: "no-author",
+            authors: [],
+          },
+        ],
+        totalPosts: 1,
+      },
+    });
+
+    const page = await SearchPage({
+      searchParams: Promise.resolve({ q: "story" }),
+    });
+    render(page as ReactNode);
+
+    expect(screen.getByText("No Author Story")).toBeInTheDocument();
+    expect(screen.getByTestId("author")).toHaveTextContent("");
   });
 
   it("renders pagination when search results span multiple pages", async () => {

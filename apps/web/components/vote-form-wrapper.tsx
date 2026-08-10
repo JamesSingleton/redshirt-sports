@@ -29,7 +29,8 @@ export default function VoteFormWrapper({
   const handlePopulateForm = () => {
     formRef.current?.populateWithPreviousBallot();
     analytics?.capture("previous_ballot_populated", {
-      previous_ballot_count: previousBallot?.length ?? 0,
+      // Button is only rendered when previousBallot is non-empty.
+      previous_ballot_count: previousBallot!.length,
     });
   };
 

@@ -168,6 +168,42 @@ describe("TeamPage", () => {
     ]);
   });
 
+  it("generateStaticParams skips ranked lookup when there are no ranked schools", async () => {
+    mockSanityFetchStaticParams.mockResolvedValueOnce({
+      data: [{ slug: "alabama" }],
+    });
+    mockGetCachedRankedSchoolSanityIds.mockResolvedValue([]);
+
+    await expect(generateStaticParams()).resolves.toEqual([
+      { slug: "alabama" },
+    ]);
+    expect(mockSanityFetchStaticParams).toHaveBeenCalledTimes(1);
+  });
+
+  it("generateStaticParams ignores null results and schools without slugs", async () => {
+    mockSanityFetchStaticParams
+      .mockResolvedValueOnce({ data: null })
+      .mockResolvedValueOnce({
+        data: [{ slug: null }, { slug: "georgia" }],
+      });
+    mockGetCachedRankedSchoolSanityIds.mockResolvedValue(["school-2"]);
+
+    await expect(generateStaticParams()).resolves.toEqual([
+      { slug: "georgia" },
+    ]);
+  });
+
+  it("generateStaticParams treats null ranked slug payload as empty", async () => {
+    mockSanityFetchStaticParams
+      .mockResolvedValueOnce({ data: [{ slug: "alabama" }, { slug: null }] })
+      .mockResolvedValueOnce({ data: null });
+    mockGetCachedRankedSchoolSanityIds.mockResolvedValue(["school-2"]);
+
+    await expect(generateStaticParams()).resolves.toEqual([
+      { slug: "alabama" },
+    ]);
+  });
+
   it("generateMetadata throws notFound when school is ineligible", async () => {
     mockSanityFetchMetadata.mockResolvedValue({
       data: { ...sampleSchool, postCount: 1 },
@@ -251,6 +287,25 @@ describe("TeamPage", () => {
     );
   });
 
+  it("generateMetadata uses name when shortName is missing for default title", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({
+      data: {
+        ...sampleSchool,
+        shortName: null,
+        nickname: "Crimson Tide",
+        seoTitle: null,
+      },
+    });
+    mockGetCachedSchoolHasPollRankings.mockResolvedValue(true);
+    await generateMetadata({ params: Promise.resolve({ slug: "alabama" }) });
+    expect(mockGetPageMetadata).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.stringContaining("Alabama Crimson Tide"),
+      }),
+      "published",
+    );
+  });
+
   it("renders placeholder nav image when school has no logo", async () => {
     mockTeamPageFetches();
     const page = await TeamPage({
@@ -258,6 +313,58 @@ describe("TeamPage", () => {
     });
     const { container } = render(page as ReactNode);
     expect(container.querySelector(".rounded-full.bg-muted")).toBeTruthy();
+  });
+
+  it("renders school logo when image is present", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({
+        data: {
+          ...sampleSchool,
+          image: { asset: { _ref: "image-1" }, alt: "Alabama" },
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          posts: Array.from({ length: 8 }, (_, i) => ({
+            _id: `post-${i}`,
+            title: `Post ${i}`,
+          })),
+        },
+      })
+      .mockResolvedValueOnce({
+        data: [{ _id: "recruit-1", title: "Top Recruit" }],
+      });
+
+    const page = await TeamPage({
+      params: Promise.resolve({ slug: "alabama" }),
+    });
+    const { container } = render(page as ReactNode);
+    expect(container.querySelector("img")).toBeTruthy();
+    expect(container.querySelector(".rounded-full.bg-muted")).toBeNull();
+  });
+
+  it("falls back to Team when shortName and name are missing", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({
+        data: {
+          ...sampleSchool,
+          shortName: null,
+          name: null,
+        },
+      })
+      .mockResolvedValueOnce({ data: null })
+      .mockResolvedValueOnce({ data: [] });
+    mockGetCachedSchoolRankingHistory.mockResolvedValue({
+      polls: [{ pollId: "poll-1" }],
+    });
+
+    const page = await TeamPage({
+      params: Promise.resolve({ slug: "alabama" }),
+    });
+    render(page as ReactNode);
+
+    expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
+    expect(screen.getByText("Team Sports")).toBeInTheDocument();
   });
 
   it("renders team page without featured posts or recruiting when feeds are empty", async () => {

@@ -76,6 +76,9 @@ describe("Article share components", () => {
       expect(writeText).toHaveBeenCalledWith(
         "https://redshirtsports.com/mobile-game",
       );
+      expect(
+        screen.getByRole("button", { name: /Copied!/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -94,6 +97,31 @@ describe("Article share components", () => {
     try {
       render(
         <LargeArticleSocialShare slug="big-game" title="Big Game Preview" />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /Copy/i }));
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: /Copied!/i }),
+        ).toBeInTheDocument();
+      });
+
+      vi.advanceTimersByTime(2000);
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: /^Copy$/i }),
+        ).toBeInTheDocument();
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("resets copied state after the clipboard timeout on the small layout", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      render(
+        <SmallArticleSocialShare slug="mobile-game" title="Mobile Game" />,
       );
 
       fireEvent.click(screen.getByRole("button", { name: /Copy/i }));

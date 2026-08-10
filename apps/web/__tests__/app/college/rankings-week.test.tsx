@@ -157,22 +157,22 @@ describe("CollegeFootballRankingsPage", () => {
     expect(mockGetPageMetadata).not.toHaveBeenCalled();
   });
 
-  it("does not treat empty filter data as a missing rankings page", async () => {
+  it("throws notFound when there are no years or weeks with votes", async () => {
     mockGetCachedYears.mockResolvedValue([]);
     mockGetCachedWeeks.mockResolvedValue([]);
-    mockGetCachedFinalRankings.mockResolvedValue({ rankings: [] });
 
-    const page = await CollegeFootballRankingsPage({
-      params: Promise.resolve({
-        sport: "football",
-        division: "fbs",
-        year: "2025",
-        week: "1",
+    await expect(
+      CollegeFootballRankingsPage({
+        params: Promise.resolve({
+          sport: "football",
+          division: "fbs",
+          year: "2025",
+          week: "1",
+        }),
       }),
-    });
+    ).rejects.toThrow("NEXT_NOT_FOUND");
 
-    render(page);
-    expect(screen.getByText("Top 25 Poll Not Found")).toBeInTheDocument();
+    expect(mockGetCachedFinalRankings).not.toHaveBeenCalled();
   });
 
   it("renders movement, dropped out, ORV, and no-longer-receiving sections", async () => {
@@ -289,11 +289,24 @@ describe("CollegeFootballRankingsPage", () => {
     expect(screen.getByText("(3)")).toBeInTheDocument();
   });
 
-  it("renders rankings when the optional year and week lookups fail", async () => {
-    mockGetCachedYears.mockRejectedValue(new Error("years failed"));
-    mockGetCachedWeeks.mockRejectedValue(new Error("weeks failed"));
+  it("falls back through shortName and abbreviation for team display names", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
     mockGetCachedFinalRankings.mockResolvedValue({
-      rankings: [sampleRankingTeam("alabama", 1, 200, "Alabama")],
+      rankings: [
+        {
+          ...sampleRankingTeam("abbr", 1, 200, "Alabama"),
+          shortName: null,
+          abbreviation: "ALA",
+          name: "University of Alabama",
+        },
+        {
+          ...sampleRankingTeam("name-only", 2, 180, "Georgia"),
+          shortName: null,
+          abbreviation: null,
+          name: "University of Georgia",
+        },
+      ],
     });
 
     const page = await CollegeFootballRankingsPage({
@@ -304,8 +317,78 @@ describe("CollegeFootballRankingsPage", () => {
         week: "1",
       }),
     });
-
     render(page);
-    expect(screen.getByRole("link", { name: "Alabama" })).toBeInTheDocument();
+
+    expect(screen.getByRole("link", { name: "ALA" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "University of Georgia" }),
+    ).toBeInTheDocument();
+  });
+
+  it("joins multiple dropped-out and no-longer-receiving teams with commas", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }, { week: 2 }]);
+
+    const previous = [
+      sampleRankingTeam("stay", 1, 200, "Alabama"),
+      sampleRankingTeam("dropout-a", 24, 40, "Mercer"),
+      sampleRankingTeam("dropout-b", 25, 35, "Samford"),
+      sampleRankingTeam("gone-a", 26, 12, "Vanished A"),
+      sampleRankingTeam("gone-b", 27, 8, "Vanished B"),
+    ];
+    const current = [
+      sampleRankingTeam("stay", 1, 200, "Alabama"),
+      sampleRankingTeam("dropout-a", null, 10, "Mercer"),
+      sampleRankingTeam("dropout-b", null, 5, "Samford"),
+    ];
+
+    mockGetCachedFinalRankings.mockImplementation(
+      async ({ week }: { week: number }) => {
+        if (week === 2) return { rankings: current };
+        if (week === 1) return { rankings: previous };
+        return { rankings: [] };
+      },
+    );
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "2",
+      }),
+    });
+    render(page);
+
+    expect(
+      screen.getByRole("link", { name: "Mercer (24)" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Samford (25)" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Vanished A" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Vanished B" }),
+    ).toBeInTheDocument();
+  });
+
+  it("throws notFound when year and week lookups fail", async () => {
+    mockGetCachedYears.mockRejectedValue(new Error("years failed"));
+    mockGetCachedWeeks.mockRejectedValue(new Error("weeks failed"));
+
+    await expect(
+      CollegeFootballRankingsPage({
+        params: Promise.resolve({
+          sport: "football",
+          division: "fbs",
+          year: "2025",
+          week: "1",
+        }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+
+    expect(mockGetCachedFinalRankings).not.toHaveBeenCalled();
   });
 });

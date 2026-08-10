@@ -135,6 +135,35 @@ describe("AuthorPage", () => {
     );
   });
 
+  it("generateMetadata keeps canonical when page is 1", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({ data: sampleAuthor });
+    await generateMetadata({
+      params: Promise.resolve({ slug: "jane-author" }),
+      searchParams: Promise.resolve({ page: "1" }),
+    });
+    expect(mockGetPageMetadata).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Jane Author - Senior Writer",
+        slug: "/authors/jane-author",
+      }),
+      "published",
+    );
+  });
+
+  it("generateMetadata ignores non-string page values", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({ data: sampleAuthor });
+    await generateMetadata({
+      params: Promise.resolve({ slug: "jane-author" }),
+      searchParams: Promise.resolve({ page: 2 as unknown as string }),
+    });
+    expect(mockGetPageMetadata).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "/authors/jane-author",
+      }),
+      "published",
+    );
+  });
+
   it("redirects page=1 to canonical author URL", async () => {
     await expect(
       AuthorPage({
@@ -207,6 +236,32 @@ describe("AuthorPage", () => {
     expect(
       screen.queryByText("Articles by Jane Author"),
     ).not.toBeInTheDocument();
+  });
+
+  it("renders author when posts payload is null and biography/socialLinks are missing", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({
+        data: {
+          ...sampleAuthor,
+          biography: null,
+          socialLinks: null,
+        },
+      })
+      .mockResolvedValueOnce({ data: null });
+
+    const page = await AuthorPage({
+      params: Promise.resolve({ slug: "jane-author" }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page as ReactNode);
+
+    expect(
+      screen.getByRole("heading", { name: "Jane Author" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Covers college football."),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 
   it("renders facebook and youtube social links with pagination", async () => {

@@ -26,162 +26,46 @@ export type Top25FormRef = {
   populateWithPreviousBallot: () => void;
 };
 
+function rankString(rank: number) {
+  return z.string({
+    error: (issue) =>
+      issue.input === undefined
+        ? `Please select a team for rank ${rank}.`
+        : undefined,
+  });
+}
+
 export const formSchema = z
   .object({
     division: z
       .enum(["fbs", "fcs", "d2", "d3", "mid-major", "power-conferences"])
       .optional(),
     sport: z.string().optional(),
-    rank_1: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 1."
-          : undefined,
-    }),
-    rank_2: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 2."
-          : undefined,
-    }),
-    rank_3: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 3."
-          : undefined,
-    }),
-    rank_4: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 4."
-          : undefined,
-    }),
-    rank_5: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 5."
-          : undefined,
-    }),
-    rank_6: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 6."
-          : undefined,
-    }),
-    rank_7: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 7."
-          : undefined,
-    }),
-    rank_8: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 8."
-          : undefined,
-    }),
-    rank_9: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 9."
-          : undefined,
-    }),
-    rank_10: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 10."
-          : undefined,
-    }),
-    rank_11: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 11."
-          : undefined,
-    }),
-    rank_12: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 12."
-          : undefined,
-    }),
-    rank_13: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 13."
-          : undefined,
-    }),
-    rank_14: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 14."
-          : undefined,
-    }),
-    rank_15: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 15."
-          : undefined,
-    }),
-    rank_16: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 16."
-          : undefined,
-    }),
-    rank_17: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 17."
-          : undefined,
-    }),
-    rank_18: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 18."
-          : undefined,
-    }),
-    rank_19: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 19."
-          : undefined,
-    }),
-    rank_20: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 20."
-          : undefined,
-    }),
-    rank_21: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 21."
-          : undefined,
-    }),
-    rank_22: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 22."
-          : undefined,
-    }),
-    rank_23: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 23."
-          : undefined,
-    }),
-    rank_24: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 24."
-          : undefined,
-    }),
-    rank_25: z.string({
-      error: (issue) =>
-        issue.input === undefined
-          ? "Please select a team for rank 25."
-          : undefined,
-    }),
+    rank_1: rankString(1),
+    rank_2: rankString(2),
+    rank_3: rankString(3),
+    rank_4: rankString(4),
+    rank_5: rankString(5),
+    rank_6: rankString(6),
+    rank_7: rankString(7),
+    rank_8: rankString(8),
+    rank_9: rankString(9),
+    rank_10: rankString(10),
+    rank_11: rankString(11),
+    rank_12: rankString(12),
+    rank_13: rankString(13),
+    rank_14: rankString(14),
+    rank_15: rankString(15),
+    rank_16: rankString(16),
+    rank_17: rankString(17),
+    rank_18: rankString(18),
+    rank_19: rankString(19),
+    rank_20: rankString(20),
+    rank_21: rankString(21),
+    rank_22: rankString(22),
+    rank_23: rankString(23),
+    rank_24: rankString(24),
+    rank_25: rankString(25),
   })
   .superRefine((arg, ctx) => {
     // find which arg items are duplicates

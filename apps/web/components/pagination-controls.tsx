@@ -24,7 +24,7 @@ export default function PaginationControls({
   const totalPages = Math.ceil(totalPosts / perPage);
 
   const createPageUrl = (pageNumber: number | string) => {
-    const params = new URLSearchParams(searchParams ?? "");
+    const params = new URLSearchParams(searchParams);
     params.set("page", pageNumber.toString());
     if (pageNumber === 1 || pageNumber === 0) {
       params.delete("page");

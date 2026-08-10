@@ -63,7 +63,13 @@ vi.mock("@/components/article-section", () => ({
 }));
 
 vi.mock("@/components/json-ld", () => ({
-  JsonLdScript: () => null,
+  JsonLdScript: ({ data }: { data: Record<string, unknown> }) => (
+    <script
+      data-testid="home-json-ld"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  ),
   organizationId: "org-id",
   websiteId: "website-id",
 }));
@@ -229,5 +235,24 @@ describe("HomePage", () => {
     const page = await HomePage();
     expect(page).toBeTruthy();
     expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
+  });
+
+  it("falls back to app name and undefined description when SEO settings are missing", async () => {
+    const previousAppName = process.env.NEXT_PUBLIC_APP_NAME;
+    process.env.NEXT_PUBLIC_APP_NAME = "Redshirt Sports Fallback";
+    mockFetchGlobalSeoSettings.mockResolvedValueOnce(null);
+
+    const page = await CachedHomePage({
+      perspective: "published",
+      stega: false,
+    });
+    render(page);
+
+    const jsonLd = screen.getByTestId("home-json-ld");
+    const data = JSON.parse(jsonLd.innerHTML);
+    expect(data.name).toBe("Redshirt Sports Fallback");
+    expect(data.description).toBeUndefined();
+
+    process.env.NEXT_PUBLIC_APP_NAME = previousAppName;
   });
 });

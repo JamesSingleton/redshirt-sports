@@ -99,4 +99,44 @@ describe("teams sitemap", () => {
     const urls = await teamsSitemap();
     expect(urls).toEqual([]);
   });
+
+  it("treats null ranked slug payload as empty", async () => {
+    mockSanityFetchMetadata
+      .mockResolvedValueOnce({
+        data: [{ slug: "alabama", _updatedAt: "2026-01-01T00:00:00Z" }],
+      })
+      .mockResolvedValueOnce({ data: null });
+    mockGetCachedRankedSchoolSanityIds.mockResolvedValue(["school-1"]);
+
+    const urls = await teamsSitemap();
+    expect(urls).toEqual([
+      {
+        url: "https://redshirtsports.xyz/college/teams/alabama",
+        lastModified: new Date("2026-01-01T00:00:00Z"),
+        changeFrequency: "weekly",
+        priority: 0.5,
+      },
+    ]);
+  });
+
+  it("keeps the existing timestamp when ranked slug is older", async () => {
+    mockSanityFetchMetadata
+      .mockResolvedValueOnce({
+        data: [{ slug: "alabama", _updatedAt: "2026-03-01T00:00:00Z" }],
+      })
+      .mockResolvedValueOnce({
+        data: [{ slug: "alabama", _updatedAt: "2026-01-01T00:00:00Z" }],
+      });
+    mockGetCachedRankedSchoolSanityIds.mockResolvedValue(["school-1"]);
+
+    const urls = await teamsSitemap();
+    expect(urls).toEqual([
+      {
+        url: "https://redshirtsports.xyz/college/teams/alabama",
+        lastModified: new Date("2026-03-01T00:00:00Z"),
+        changeFrequency: "weekly",
+        priority: 0.5,
+      },
+    ]);
+  });
 });

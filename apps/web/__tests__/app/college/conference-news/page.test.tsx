@@ -55,14 +55,35 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/components/json-ld", () => ({
-  JsonLdScript: () => <script data-testid="json-ld" />,
+  JsonLdScript: ({ data }: { data: Record<string, unknown> }) => (
+    <script
+      data-testid="json-ld"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  ),
   organizationId: "org-id",
   websiteId: "website-id",
 }));
 
 vi.mock("@/components/page-header", () => ({
   __esModule: true,
-  default: ({ title }: { title: string }) => <h1>{title}</h1>,
+  default: ({
+    title,
+    breadcrumbs,
+  }: {
+    title: string;
+    breadcrumbs?: Array<{ title?: string | null; href: string }>;
+  }) => (
+    <div>
+      <h1>{title}</h1>
+      {breadcrumbs?.map((item) => (
+        <span key={item.href} data-testid={`crumb-${item.href}`}>
+          {item.title ?? ""}
+        </span>
+      ))}
+    </div>
+  ),
 }));
 
 vi.mock("@/components/article-feed", () => ({
@@ -131,6 +152,31 @@ describe("ConferenceNewsPage", () => {
       expect.objectContaining({
         title: expect.stringContaining("Page 2"),
         slug: "/college/football/news/fbs/sec?page=2",
+      }),
+      "published",
+    );
+  });
+
+  it("generateMetadata falls back to conference name when shortName is missing", async () => {
+    mockSanityFetchMetadata
+      .mockResolvedValueOnce({ data: { displayName: "FBS" } })
+      .mockResolvedValueOnce({
+        data: { shortName: null, name: "Southeastern Conference" },
+      })
+      .mockResolvedValueOnce({ data: { title: "Football" } });
+
+    await generateMetadata({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        conference: "sec",
+      }),
+      searchParams: Promise.resolve({}),
+    });
+
+    expect(mockGetPageMetadata).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.stringContaining("Southeastern Conference"),
       }),
       "published",
     );
@@ -239,5 +285,38 @@ describe("ConferenceNewsPage", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
+  });
+
+  it("falls back to empty division names in breadcrumbs when displayName is missing", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({
+        data: {
+          posts: [{ _id: "1", title: "SEC Story", slug: "sec-story" }],
+          totalPosts: 1,
+          conferenceInfo: { name: "Southeastern Conference", shortName: "SEC" },
+        },
+      })
+      .mockResolvedValueOnce({ data: { title: "Football" } })
+      .mockResolvedValueOnce({ data: null });
+
+    const page = await ConferenceNewsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        conference: "sec",
+      }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page as ReactNode);
+
+    const jsonLd = screen.getByTestId("json-ld");
+    const data = JSON.parse(jsonLd.innerHTML);
+    const divisionCrumb = data.breadcrumb.itemListElement.find(
+      (item: { position: number }) => item.position === 4,
+    );
+    expect(divisionCrumb.name).toBe("");
+    expect(
+      screen.getByTestId("crumb-/college/football/news/fbs"),
+    ).toHaveTextContent("");
   });
 });
