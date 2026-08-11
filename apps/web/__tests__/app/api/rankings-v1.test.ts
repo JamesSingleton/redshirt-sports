@@ -32,6 +32,7 @@ import {
   GET as getLatest,
   OPTIONS as optionsLatest,
 } from "@/app/api/v1/college/[sport]/rankings/[division]/route";
+import { handleRankingsApiGet } from "@/lib/rankings-api-route";
 
 const sampleRankings = {
   id: "poll:week",
@@ -339,5 +340,42 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
     );
 
     expect(mockRatelimit).toHaveBeenCalledWith("rankings-api:198.51.100.1");
+  });
+
+  it("returns 400 when only year is provided without week", async () => {
+    const res = await handleRankingsApiGet(
+      new Request(
+        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+      ),
+      {
+        sport: "football",
+        division: "fcs",
+        year: "2025",
+      },
+    );
+
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toEqual({
+      error: "Both year and week are required",
+    });
+  });
+
+  it("falls back to x-real-ip when x-forwarded-for is blank", async () => {
+    mockGetFinalRankingsForWeekAndYear.mockResolvedValue(sampleRankings);
+
+    await handleRankingsApiGet(
+      new Request(
+        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        {
+          headers: {
+            "x-forwarded-for": " , ",
+            "x-real-ip": "203.0.113.44",
+          },
+        },
+      ),
+      { sport: "football", division: "fcs", year: "2025", week: "5" },
+    );
+
+    expect(mockRatelimit).toHaveBeenCalledWith("rankings-api:203.0.113.44");
   });
 });

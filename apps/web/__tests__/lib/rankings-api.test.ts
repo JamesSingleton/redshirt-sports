@@ -8,7 +8,26 @@ vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "https://www.redshirtsports.xyz",
 }));
 
-import { buildSourceUrl, toPublicRankingsResponse } from "@/lib/rankings-api";
+import {
+  getFinalRankingsForWeekAndYear,
+  getLatestFinalRankings,
+  getPollBySportSlugAndPollSlug,
+} from "@redshirt-sports/db/queries";
+
+import {
+  buildSourceUrl,
+  resolvePublicRankings,
+  toPublicRankingsResponse,
+} from "@/lib/rankings-api";
+import * as voteBallot from "@/lib/vote-ballot";
+
+const mockGetFinalRankingsForWeekAndYear = vi.mocked(
+  getFinalRankingsForWeekAndYear,
+);
+const mockGetLatestFinalRankings = vi.mocked(getLatestFinalRankings);
+const mockGetPollBySportSlugAndPollSlug = vi.mocked(
+  getPollBySportSlugAndPollSlug,
+);
 
 describe("toPublicRankingsResponse", () => {
   it("maps Top 25 and others receiving votes into a partner-friendly DTO", () => {
@@ -154,5 +173,89 @@ describe("buildSourceUrl", () => {
     ).toBe(
       "https://www.redshirtsports.xyz/college/football/rankings/fcs/2025/0",
     );
+  });
+});
+
+describe("resolvePublicRankings", () => {
+  beforeEach(() => {
+    mockGetFinalRankingsForWeekAndYear.mockReset();
+    mockGetLatestFinalRankings.mockReset();
+    mockGetPollBySportSlugAndPollSlug.mockReset();
+    vi.restoreAllMocks();
+  });
+
+  it("returns 400 when validation throws a non-Error value", async () => {
+    vi.spyOn(voteBallot, "validateSport").mockImplementation(() => {
+      throw "bad sport";
+    });
+
+    const result = await resolvePublicRankings({
+      sportSlug: "football",
+      divisionSlug: "fcs",
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      status: 400,
+      error: "bad sport",
+    });
+  });
+
+  it("returns 404 when rankings lookup rejects a non-Error value", async () => {
+    mockGetPollBySportSlugAndPollSlug.mockResolvedValue({
+      id: "poll-1",
+      name: "FCS Top 25",
+      slug: "fcs",
+      sportId: "sport-1",
+      isActive: true,
+      divisionSportId: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockGetFinalRankingsForWeekAndYear.mockRejectedValue(
+      "Unable to find season or week for rankings",
+    );
+
+    const result = await resolvePublicRankings({
+      sportSlug: "football",
+      divisionSlug: "fcs",
+      year: 2025,
+      week: 5,
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      status: 404,
+      error: "Rankings not found",
+    });
+  });
+
+  it("returns 404 when rankings lookup fails with Unable to find", async () => {
+    mockGetPollBySportSlugAndPollSlug.mockResolvedValue({
+      id: "poll-1",
+      name: "FCS Top 25",
+      slug: "fcs",
+      sportId: "sport-1",
+      isActive: true,
+      divisionSportId: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockGetFinalRankingsForWeekAndYear.mockRejectedValue(
+      new Error("Unable to find season or week for rankings"),
+    );
+
+    const result = await resolvePublicRankings({
+      sportSlug: "football",
+      divisionSlug: "fcs",
+      year: 2025,
+      week: 5,
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      status: 404,
+      error: "Rankings not found",
+    });
   });
 });
