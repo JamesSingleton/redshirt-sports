@@ -13,3 +13,11 @@ export const ratelimit = new Ratelimit({
    */
   prefix: "@upstash/ratelimit",
 });
+
+/** Public rankings ingest API — 60 requests per minute per IP. */
+export const rankingsApiRatelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(60, "60 s"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/rankings-api",
+});

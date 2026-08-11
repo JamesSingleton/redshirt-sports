@@ -68,6 +68,8 @@ A credentialed User authorized to submit Ballots for specific Polls (`poll_voter
 
 The published aggregate of Ballots for a Poll and Week (points, first-place votes, ties, others receiving votes). Stored as normalized `poll_rankings` rows (not jsonb blobs). Poll math (rank/points/FPVs/ties) is frozen at publish; School name/logo are live from `schools`.
 
+Public JSON ingest for partners: [docs/rankings-api.md](docs/rankings-api.md).
+
 Avoid: reintroducing `weekly_final_rankings` jsonb snapshots or `voter_ballot` / `weekly_team_rankings` as the read path.
 
 ## Top 25

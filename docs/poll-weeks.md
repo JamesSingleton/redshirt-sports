@@ -76,4 +76,5 @@ Operational model:
 
 - Mapping: `packages/db/src/utils/week-mapping.ts`, `packages/clients/src/espn/week-url.ts`
 - Voting week: `getVotingWeek` / `getSeasonInfo().votingWeek` in `packages/clients/src/espn/api.ts`
+- Public rankings API week segments: [rankings-api.md](./rankings-api.md)
 - Domain glossary: [CONTEXT.md](../CONTEXT.md) (Week)
