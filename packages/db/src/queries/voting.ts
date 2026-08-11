@@ -186,6 +186,60 @@ export async function getVoterBallots({
   }));
 }
 
+/** Ballot entries with school display fields for confirmation / share image. */
+export type VoterBallotSchoolEntry = {
+  rank: number;
+  name: string | null;
+  shortName: string | null;
+  abbreviation: string | null;
+  image: unknown;
+  schoolId: string;
+  teamId: string;
+};
+
+export async function getVoterBallotSchoolEntries({
+  year,
+  week,
+  division,
+  sportId,
+  userId,
+}: GetUsersVote): Promise<VoterBallotSchoolEntry[]> {
+  const resolved = await resolvePollAndWeek({
+    sportId,
+    division,
+    year,
+    week,
+  });
+  if (!resolved) return [];
+
+  const ballot = await db.query.ballotsTable.findFirst({
+    where: (model, { eq, and }) =>
+      and(
+        eq(model.pollId, resolved.poll.id),
+        eq(model.userId, userId),
+        eq(model.weekId, resolved.weekId),
+      ),
+    with: {
+      entries: {
+        with: { school: true },
+        orderBy: (entry, { asc }) => [asc(entry.rank)],
+      },
+    },
+  });
+
+  if (!ballot) return [];
+
+  return ballot.entries.map((entry) => ({
+    rank: entry.rank,
+    name: entry.school.name,
+    shortName: entry.school.shortName,
+    abbreviation: entry.school.abbreviation,
+    image: entry.school.image,
+    schoolId: entry.schoolId,
+    teamId: entry.school.sanityId ?? entry.schoolId,
+  }));
+}
+
 export async function getBallotsByWeekYearDivisionAndSport({
   year,
   week,

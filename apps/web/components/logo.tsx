@@ -6,7 +6,7 @@ import type { Maybe } from "@/types";
 import CustomImage from "./sanity-image";
 
 const LOGO_URL =
-  "https://cdn.sanity.io/images/s6kuy1ts/production/68c438f68264717e93c7ba1e85f1d0c4b58b33c2-1200x621.svg";
+  "https://cdn.sanity.io/images/8pbt9f8w/production/6ed24cde242b41912e2d06bf2ca7da9abdf97c06-4347x2855.svg";
 
 interface LogoProps {
   src?: Maybe<string>;

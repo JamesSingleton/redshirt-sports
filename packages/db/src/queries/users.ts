@@ -3,6 +3,19 @@ import { eq } from "drizzle-orm";
 import { primaryDb as db } from "../client";
 import { usersTable } from "../schema";
 
+export async function getUserById(id: string) {
+  return db.query.usersTable.findFirst({
+    where: (model, { eq }) => eq(model.id, id),
+    columns: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      organization: true,
+      organizationRole: true,
+    },
+  });
+}
+
 export async function createUser({
   id,
   firstName,
