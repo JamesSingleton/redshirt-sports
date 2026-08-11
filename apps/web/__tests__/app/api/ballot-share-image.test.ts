@@ -135,4 +135,46 @@ describe("GET /api/vote/college/[sport]/rankings/[division]/share-image", () => 
     );
     expect(res.headers.get("Cache-Control")).toBe("private, no-store");
   });
+
+  it("returns 404 when sport is missing", async () => {
+    mockGetSportIdBySlug.mockResolvedValue(null);
+
+    const res = await GET(new Request("http://localhost"), { params });
+    expect(res.status).toBe(404);
+    await expect(res.json()).resolves.toMatchObject({
+      error: expect.stringContaining("Sport not found"),
+    });
+  });
+
+  it("returns 404 when season info is missing", async () => {
+    mockGetVotingSeasonInfoBySportIds.mockResolvedValue(new Map());
+
+    const res = await GET(new Request("http://localhost"), { params });
+    expect(res.status).toBe(404);
+    await expect(res.json()).resolves.toMatchObject({
+      error: "Season info not found",
+    });
+  });
+
+  it("falls back to Voter label when user profile is missing", async () => {
+    mockGetUserById.mockResolvedValue(null);
+
+    const res = await GET(new Request("http://localhost"), { params });
+    expect(mockImageResponse).toHaveBeenCalled();
+    expect(res.headers.get("Content-Disposition")).toContain(
+      "redshirt-top25-fbs-week5.png",
+    );
+  });
+
+  it("returns 500 for unexpected errors", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockGetSportIdBySlug.mockRejectedValue(new Error("db down"));
+
+    const res = await GET(new Request("http://localhost"), { params });
+    expect(res.status).toBe(500);
+    await expect(res.json()).resolves.toMatchObject({
+      error: "Failed to generate share image",
+    });
+    errorSpy.mockRestore();
+  });
 });

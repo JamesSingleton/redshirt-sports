@@ -25,7 +25,7 @@ export type BallotShareImageProps = {
 };
 
 export function schoolLogoUrl(image: unknown): string | null {
-  if (!image) return null;
+  if (image == null) return null;
   if (typeof image === "string") {
     return image.length > 0 ? image : null;
   }
