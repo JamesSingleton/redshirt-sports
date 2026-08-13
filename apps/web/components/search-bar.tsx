@@ -25,8 +25,6 @@ interface SearchBarProps {
 }
 
 const realSearch = async (query: string): Promise<any> => {
-  if (!query.trim()) return [];
-
   try {
     const results = await client.fetch(postsSearchQuery, { q: query });
 
@@ -204,11 +202,11 @@ export function SearchBar({
                 </div>
               )}
             </div>
-          ) : query.trim() ? (
+          ) : (
             <div className="text-muted-foreground p-4 text-center text-sm">
               No articles found for &quot;{query}&quot;
             </div>
-          ) : null}
+          )}
         </Card>
       )}
     </div>

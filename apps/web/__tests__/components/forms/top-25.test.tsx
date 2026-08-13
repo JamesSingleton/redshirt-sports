@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
 import { toast } from "sonner";
@@ -44,7 +44,10 @@ vi.mock("@/components/virtualized-combobox", () => ({
   ),
 }));
 
-import Top25, { type Top25FormRef } from "@/components/forms/top-25";
+import Top25, {
+  formSchema,
+  type Top25FormRef,
+} from "@/components/forms/top-25";
 
 function makeSchools(count: number) {
   return Array.from({ length: count }, (_, i) => ({
@@ -189,6 +192,305 @@ describe("Top25 form", () => {
           status_code: 409,
           error_message: "You have already voted for this week",
         }),
+      );
+    });
+  });
+
+  it("shows validation errors for duplicate team selections", async () => {
+    const ref = createRef<Top25FormRef>();
+
+    render(
+      <Top25
+        ref={ref}
+        schools={makeSchools(25)}
+        previousBallot={makePreviousBallot(25)}
+      />,
+    );
+
+    ref.current?.populateWithPreviousBallot();
+
+    const selects = screen.getAllByLabelText("team-select");
+    fireEvent.change(selects[1]!, { target: { value: "school-1" } });
+
+    fireEvent.submit(
+      screen.getByRole("button", { name: /^Submit$/i }).closest("form")!,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Duplicate team selected for rank 2/i),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("uses fallback error message when error response JSON fails", async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      statusText: "Server Error",
+      json: async () => {
+        throw new Error("invalid json");
+      },
+    });
+
+    const ref = createRef<Top25FormRef>();
+    const user = userEvent.setup();
+
+    render(
+      <Top25
+        ref={ref}
+        schools={makeSchools(25)}
+        previousBallot={makePreviousBallot(25)}
+      />,
+    );
+
+    ref.current?.populateWithPreviousBallot();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /^Submit$/i }),
+      ).not.toBeDisabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: /^Submit$/i }));
+
+    await waitFor(() => {
+      expect(mockCapture).toHaveBeenCalledWith(
+        "ballot_submission_error",
+        expect.objectContaining({
+          error_message: "Unknown error",
+        }),
+      );
+    });
+  });
+
+  it("uses HTTP status text when error payload omits a message", async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      statusText: "Server Error",
+      json: async () => ({}),
+    });
+
+    const ref = createRef<Top25FormRef>();
+    const user = userEvent.setup();
+
+    render(
+      <Top25
+        ref={ref}
+        schools={makeSchools(25)}
+        previousBallot={makePreviousBallot(25)}
+      />,
+    );
+
+    ref.current?.populateWithPreviousBallot();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /^Submit$/i }),
+      ).not.toBeDisabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: /^Submit$/i }));
+
+    await waitFor(() => {
+      expect(mockCapture).toHaveBeenCalledWith(
+        "ballot_submission_error",
+        expect.objectContaining({
+          error_message: "HTTP 500: Server Error",
+        }),
+      );
+    });
+  });
+
+  it("resolves toast messages for success and error responses", async () => {
+    const toastMessages: {
+      success?: (data: { message?: string }) => string;
+      error?: (err: Error) => string;
+    } = {};
+
+    vi.mocked(toast.promise).mockImplementation(((
+      promise: any,
+      messages: any,
+    ) => {
+      Object.assign(toastMessages, messages);
+      return (typeof promise === "function" ? promise() : promise).catch(
+        () => undefined,
+      );
+    }) as never);
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({}),
+    });
+
+    const ref = createRef<Top25FormRef>();
+    const user = userEvent.setup();
+
+    render(
+      <Top25
+        ref={ref}
+        schools={makeSchools(25)}
+        previousBallot={makePreviousBallot(25)}
+      />,
+    );
+
+    ref.current?.populateWithPreviousBallot();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /^Submit$/i }),
+      ).not.toBeDisabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: /^Submit$/i }));
+
+    await waitFor(() => {
+      expect(toastMessages.success?.({})).toBe("Ballot submitted successfully");
+    });
+
+    expect(toastMessages.error?.(new Error(""))).toBe(
+      "An error occurred while submitting your ballot",
+    );
+    expect(toastMessages.error?.(new Error("Custom failure"))).toBe(
+      "Custom failure",
+    );
+  });
+
+  it("validates each rank field when values are missing", () => {
+    const result = formSchema.safeParse({});
+    expect(result.success).toBe(false);
+
+    if (!result.success) {
+      for (let rank = 1; rank <= 25; rank += 1) {
+        expect(
+          result.error.issues.some((issue) =>
+            issue.message.includes(`rank ${rank}`),
+          ),
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("allows non-undefined invalid rank values without custom messages", () => {
+    const values = Object.fromEntries(
+      Array.from({ length: 25 }, (_, index) => [
+        `rank_${index + 1}`,
+        `school-${index + 1}`,
+      ]),
+    );
+
+    const invalidValue = formSchema.shape.rank_1.safeParse(123);
+    expect(invalidValue.success).toBe(false);
+    if (!invalidValue.success) {
+      expect(
+        invalidValue.error.issues.every(
+          (issue) => !issue.message?.includes("Please select a team"),
+        ),
+      ).toBe(true);
+    }
+
+    expect(formSchema.safeParse(values).success).toBe(true);
+  });
+
+  it("does not populate when previous ballot is empty", () => {
+    const ref = createRef<Top25FormRef>();
+    render(<Top25 ref={ref} schools={makeSchools(25)} previousBallot={[]} />);
+
+    ref.current?.populateWithPreviousBallot();
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it("shows the submitting state while the ballot posts", async () => {
+    let resolveFetch: ((value: unknown) => void) | undefined;
+    mockFetch.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+
+    const ref = createRef<Top25FormRef>();
+    const user = userEvent.setup();
+
+    render(
+      <Top25
+        ref={ref}
+        schools={makeSchools(25)}
+        previousBallot={makePreviousBallot(25)}
+      />,
+    );
+
+    ref.current?.populateWithPreviousBallot();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /^Submit$/i }),
+      ).not.toBeDisabled();
+    });
+
+    const submitButton = screen.getByRole("button", { name: /^Submit$/i });
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(submitButton).toBeDisabled();
+      expect(submitButton).toHaveTextContent(/Submitting Ballot/i);
+    });
+
+    resolveFetch?.({
+      ok: true,
+      json: async () => ({ message: "Saved" }),
+    });
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalled();
+    });
+  });
+
+  it("uses the API success message in toast callbacks", async () => {
+    const toastMessages: {
+      success?: (data: { message?: string }) => string;
+    } = {};
+
+    vi.mocked(toast.promise).mockImplementation(((
+      promise: any,
+      messages: any,
+    ) => {
+      Object.assign(toastMessages, messages);
+      return (typeof promise === "function" ? promise() : promise).catch(
+        () => undefined,
+      );
+    }) as never);
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: "Custom success" }),
+    });
+
+    const ref = createRef<Top25FormRef>();
+    const user = userEvent.setup();
+
+    render(
+      <Top25
+        ref={ref}
+        schools={makeSchools(25)}
+        previousBallot={makePreviousBallot(25)}
+      />,
+    );
+
+    ref.current?.populateWithPreviousBallot();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /^Submit$/i }),
+      ).not.toBeDisabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: /^Submit$/i }));
+
+    await waitFor(() => {
+      expect(toastMessages.success?.({ message: "Custom success" })).toBe(
+        "Custom success",
       );
     });
   });

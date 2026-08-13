@@ -4,7 +4,7 @@ import { fetchTweet, type Tweet } from "react-tweet/api";
 
 import redis from "@/utils/redis";
 
-async function getAndCacheTweet(id: string): Promise<Tweet | undefined> {
+export async function getAndCacheTweet(id: string): Promise<Tweet | undefined> {
   try {
     const { data, tombstone, notFound } = await fetchTweet(id);
 
@@ -19,14 +19,9 @@ async function getAndCacheTweet(id: string): Promise<Tweet | undefined> {
   }
 }
 
-const TweetContent = async ({ id }: { id: string }) => {
-  try {
-    const tweet = await getAndCacheTweet(id);
-    return tweet ? <EmbeddedTweet tweet={tweet} /> : <TweetNotFound />;
-  } catch (error) {
-    console.log(error);
-    return <TweetNotFound error={error} />;
-  }
+export const TweetContent = async ({ id }: { id: string }) => {
+  const tweet = await getAndCacheTweet(id);
+  return tweet ? <EmbeddedTweet tweet={tweet} /> : <TweetNotFound />;
 };
 
 export const ReactTweet = ({ id }: { id: string }) => {

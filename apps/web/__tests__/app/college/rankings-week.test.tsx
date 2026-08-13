@@ -8,6 +8,7 @@ const {
   mockGetCachedWeeks,
   mockGetCachedFinalRankings,
   mockGetDynamicFetchOptions,
+  mockGetPageMetadata,
 } = vi.hoisted(() => ({
   mockGetCachedYears: vi.fn(),
   mockGetCachedWeeks: vi.fn(),
@@ -16,6 +17,7 @@ const {
     perspective: "published",
     stega: false,
   }),
+  mockGetPageMetadata: vi.fn(() => ({ title: "Rankings" })),
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -33,7 +35,7 @@ vi.mock("@/lib/get-base-url", () => ({
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
-  getPageMetadata: vi.fn(() => ({ title: "Rankings" })),
+  getPageMetadata: mockGetPageMetadata,
 }));
 
 vi.mock("next/link", () => ({
@@ -77,13 +79,82 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-import CollegeFootballRankingsPage from "@/app/college/[sport]/rankings/[division]/[year]/[week]/page";
+import CollegeFootballRankingsPage, {
+  generateMetadata,
+} from "@/app/college/[sport]/rankings/[division]/[year]/[week]/page";
 
 describe("CollegeFootballRankingsPage", () => {
   beforeEach(() => {
     mockGetCachedYears.mockReset();
     mockGetCachedWeeks.mockReset();
     mockGetCachedFinalRankings.mockReset();
+    mockGetPageMetadata.mockClear();
+  });
+
+  it("generateMetadata builds rankings metadata", async () => {
+    await generateMetadata({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    expect(mockGetPageMetadata).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "/college/football/rankings/fbs/2025/1",
+      }),
+      "published",
+    );
+  });
+
+  it("throws notFound when rankings fetch rejects", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockRejectedValue(new Error("db down"));
+
+    await expect(
+      CollegeFootballRankingsPage({
+        params: Promise.resolve({
+          sport: "football",
+          division: "fbs",
+          year: "2025",
+          week: "1",
+        }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("throws notFound for an invalid week segment before fetching rankings", async () => {
+    await expect(
+      CollegeFootballRankingsPage({
+        params: Promise.resolve({
+          sport: "football",
+          division: "fcs",
+          year: "2025",
+          week: "garbage",
+        }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+
+    expect(mockGetCachedYears).not.toHaveBeenCalled();
+    expect(mockGetCachedWeeks).not.toHaveBeenCalled();
+    expect(mockGetCachedFinalRankings).not.toHaveBeenCalled();
+  });
+
+  it("throws notFound from metadata for an invalid week segment", async () => {
+    await expect(
+      generateMetadata({
+        params: Promise.resolve({
+          sport: "football",
+          division: "fcs",
+          year: "2025",
+          week: "garbage",
+        }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+
+    expect(mockGetPageMetadata).not.toHaveBeenCalled();
   });
 
   it("throws notFound when there are no years or weeks with votes", async () => {
@@ -100,6 +171,8 @@ describe("CollegeFootballRankingsPage", () => {
         }),
       }),
     ).rejects.toThrow("NEXT_NOT_FOUND");
+
+    expect(mockGetCachedFinalRankings).not.toHaveBeenCalled();
   });
 
   it("renders movement, dropped out, ORV, and no-longer-receiving sections", async () => {
@@ -169,5 +242,153 @@ describe("CollegeFootballRankingsPage", () => {
       (n: { "@type": string }) => n["@type"] === "ItemList",
     );
     expect(itemList.numberOfItems).toBe(2); // stay + new in Top 25
+  });
+
+  it("renders poll-not-found message when rankings data is empty", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({ rankings: [] });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+
+    render(page);
+    expect(screen.getByText("Top 25 Poll Not Found")).toBeInTheDocument();
+  });
+
+  it("renders tied ranks and first-place vote counts", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [
+        {
+          ...sampleRankingTeam("tied", 1, 200, "Alabama"),
+          isTie: true,
+          firstPlaceVotes: 3,
+        },
+      ],
+    });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    expect(screen.getByText("T-1")).toBeInTheDocument();
+    expect(screen.getByText("(3)")).toBeInTheDocument();
+  });
+
+  it("falls back through shortName and abbreviation for team display names", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [
+        {
+          ...sampleRankingTeam("abbr", 1, 200, "Alabama"),
+          shortName: null,
+          abbreviation: "ALA",
+          name: "University of Alabama",
+        },
+        {
+          ...sampleRankingTeam("name-only", 2, 180, "Georgia"),
+          shortName: null,
+          abbreviation: null,
+          name: "University of Georgia",
+        },
+      ],
+    });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    expect(screen.getByRole("link", { name: "ALA" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "University of Georgia" }),
+    ).toBeInTheDocument();
+  });
+
+  it("joins multiple dropped-out and no-longer-receiving teams with commas", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }, { week: 2 }]);
+
+    const previous = [
+      sampleRankingTeam("stay", 1, 200, "Alabama"),
+      sampleRankingTeam("dropout-a", 24, 40, "Mercer"),
+      sampleRankingTeam("dropout-b", 25, 35, "Samford"),
+      sampleRankingTeam("gone-a", 26, 12, "Vanished A"),
+      sampleRankingTeam("gone-b", 27, 8, "Vanished B"),
+    ];
+    const current = [
+      sampleRankingTeam("stay", 1, 200, "Alabama"),
+      sampleRankingTeam("dropout-a", null, 10, "Mercer"),
+      sampleRankingTeam("dropout-b", null, 5, "Samford"),
+    ];
+
+    mockGetCachedFinalRankings.mockImplementation(
+      async ({ week }: { week: number }) => {
+        if (week === 2) return { rankings: current };
+        if (week === 1) return { rankings: previous };
+        return { rankings: [] };
+      },
+    );
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "2",
+      }),
+    });
+    render(page);
+
+    expect(
+      screen.getByRole("link", { name: "Mercer (24)" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Samford (25)" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Vanished A" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Vanished B" }),
+    ).toBeInTheDocument();
+  });
+
+  it("throws notFound when year and week lookups fail", async () => {
+    mockGetCachedYears.mockRejectedValue(new Error("years failed"));
+    mockGetCachedWeeks.mockRejectedValue(new Error("weeks failed"));
+
+    await expect(
+      CollegeFootballRankingsPage({
+        params: Promise.resolve({
+          sport: "football",
+          division: "fbs",
+          year: "2025",
+          week: "1",
+        }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+
+    expect(mockGetCachedFinalRankings).not.toHaveBeenCalled();
   });
 });

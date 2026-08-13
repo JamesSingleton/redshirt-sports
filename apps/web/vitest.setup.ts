@@ -10,3 +10,4 @@ process.env.UPSTASH_REDIS_REST_URL ??= "https://test.upstash.io";
 process.env.DATABASE_URL ??= "postgresql://test:test@localhost:5432/test";
 process.env.NEXT_PUBLIC_POSTHOG_KEY ??= "test-posthog-key";
 process.env.NEXT_PUBLIC_POSTHOG_HOST ??= "https://app.posthog.com";
+process.env.NEXT_PUBLIC_APP_NAME ??= "Redshirt Sports";

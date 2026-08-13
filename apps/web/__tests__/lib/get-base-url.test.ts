@@ -35,6 +35,52 @@ describe("getBaseUrl", () => {
     expect(getBaseUrl()).toBe("https://www.redshirtsports.xyz");
   });
 
+  it("uses VERCEL_PROJECT_PRODUCTION_URL when public site URL is unset", () => {
+    process.env.VERCEL_ENV = "production";
+    process.env.VERCEL_PROJECT_PRODUCTION_URL = "prod.redshirtsports.com";
+    delete process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+
+    expect(getBaseUrl()).toBe("https://prod.redshirtsports.com");
+  });
+
+  it("keeps an already-absolute NEXT_PUBLIC_SITE_URL", () => {
+    process.env.VERCEL_ENV = "production";
+    delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    delete process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
+    process.env.NEXT_PUBLIC_SITE_URL = "https://absolute.example.com";
+
+    expect(getBaseUrl()).toBe("https://absolute.example.com");
+  });
+
+  it("uses 127.0.0.1 browser origin as local host", () => {
+    globalThis.window = {
+      ...originalWindow,
+      location: {
+        ...originalWindow.location,
+        hostname: "127.0.0.1",
+        origin: "http://127.0.0.1:3000",
+      },
+    } as Window & typeof globalThis;
+
+    expect(getBaseUrl()).toBe("http://127.0.0.1:3000");
+  });
+
+  it("falls back to window.location.origin when public URL is unset in browser", () => {
+    globalThis.window = {
+      ...originalWindow,
+      location: {
+        ...originalWindow.location,
+        hostname: "www.redshirtsports.xyz",
+        origin: "https://www.redshirtsports.xyz",
+      },
+    } as Window & typeof globalThis;
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+    delete process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
+
+    expect(getBaseUrl()).toBe("https://www.redshirtsports.xyz");
+  });
+
   it("throws when production URL is not configured", () => {
     process.env.VERCEL_ENV = "production";
     delete process.env.VERCEL_PROJECT_PRODUCTION_URL;

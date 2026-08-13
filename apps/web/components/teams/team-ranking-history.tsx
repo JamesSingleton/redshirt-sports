@@ -79,12 +79,12 @@ function toChartRows(points: RankingHistoryPoint[]): ChartRow[] {
 }
 
 function summarizeSeries(points: RankingHistoryPoint[]) {
-  const ranked = points.filter((p) => p.status === "ranked" && p.rank != null);
+  const ranked = points.filter(
+    (p): p is RankingHistoryPoint & { rank: number } =>
+      p.status === "ranked" && p.rank != null,
+  );
   const peak = ranked.reduce<number | null>(
-    (best, point) =>
-      best == null || (point.rank != null && point.rank < best)
-        ? point.rank
-        : best,
+    (best, point) => (best == null || point.rank < best ? point.rank : best),
     null,
   );
   const latestInPoll = [...points]

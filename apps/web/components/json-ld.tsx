@@ -96,11 +96,11 @@ function buildImageObject({
 }: {
   imageUrl: string;
   alt?: string | null;
-  id?: string;
+  id: string;
 }): ImageObject {
   return {
     "@type": "ImageObject",
-    ...(id ? { "@id": id } : {}),
+    "@id": id,
     url: imageUrl,
     contentUrl: imageUrl,
     caption: alt ?? undefined,

@@ -84,7 +84,7 @@ export function resolveVotingWeekFromLocalSeason({
   return Math.max(...completed.map((week) => week.number));
 }
 
-function periodFlags({
+export function periodFlags({
   date,
   preseasonStart,
   preseasonEnd,
@@ -115,7 +115,7 @@ function periodFlags({
   return { isPreseason, isRegularSeason, isPostseason };
 }
 
-function resolveWeekIdFromSeasonTypes({
+export function resolveWeekIdFromSeasonTypes({
   seasonTypes,
   votingWeek,
 }: {

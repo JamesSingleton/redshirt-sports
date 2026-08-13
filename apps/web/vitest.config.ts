@@ -34,7 +34,10 @@ export default defineConfig({
         "app/__players/**",
       ],
       thresholds: {
-        // Soft floors for branch-critical modules; raise overall over time.
+        statements: 100,
+        branches: 100,
+        functions: 100,
+        lines: 100,
         "lib/rankings-movement.ts": {
           statements: 100,
           branches: 100,
@@ -52,18 +55,6 @@ export default defineConfig({
           branches: 100,
           functions: 100,
           lines: 100,
-        },
-        "app/api/vote/**": {
-          statements: 85,
-          branches: 75,
-          functions: 85,
-          lines: 85,
-        },
-        "app/api/webhooks/**": {
-          statements: 80,
-          branches: 70,
-          functions: 80,
-          lines: 80,
         },
       },
     },

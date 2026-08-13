@@ -58,7 +58,17 @@ vi.mock("@/lib/sanity-fetch", () => ({
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  draftAwareParamsPage: vi.fn(),
+  draftAwareParamsPage: (
+    params: Promise<{ sport: string; division: string }>,
+    _fallback: unknown,
+    render: (
+      resolved: { sport: string; division: string },
+      options: { perspective: string; stega: boolean },
+    ) => Promise<unknown>,
+  ) =>
+    params.then((resolved) =>
+      render(resolved, { perspective: "published", stega: false }),
+    ),
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -87,7 +97,17 @@ vi.mock("@/components/vote-form-wrapper", () => ({
 
 import { render, screen } from "@testing-library/react";
 
-import { VotePageAuth } from "@/app/(auth)/(vote)/vote/college/[sport]/[division]/page";
+import VotePage, {
+  VotePageAuth,
+} from "@/app/(auth)/(vote)/vote/college/[sport]/[division]/page";
+
+const divisionHeaders = [
+  ["fcs", /Football Championship Subdivision/i],
+  ["d2", /Division II/i],
+  ["d3", /Division III/i],
+  ["power-conferences", /Power Conferences/i],
+  ["mid-major", /Mid-Major/i],
+] as const;
 
 const publishedOptions = { perspective: "published" as const, stega: false };
 
@@ -153,5 +173,103 @@ describe("VotePageAuth", () => {
     expect(
       screen.getByRole("heading", { name: /Football Bowl Subdivision/i }),
     ).toBeInTheDocument();
+  });
+
+  it("calls notFound when schools data is missing", async () => {
+    mockSanityFetchPage.mockResolvedValue({ data: null });
+    await expect(
+      VotePageAuth({
+        sport: "football",
+        division: "fbs",
+        options: publishedOptions,
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("renders vote form without header for unknown division", async () => {
+    const ui = await VotePageAuth({
+      sport: "football",
+      division: "unknown-division",
+      options: publishedOptions,
+    });
+    render(ui as ReactNode);
+    expect(screen.getByTestId("vote-form-wrapper")).toBeInTheDocument();
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+  });
+
+  it("calls notFound for invalid route params via VotePage", async () => {
+    await expect(
+      VotePage({
+        params: Promise.resolve({ sport: "invalid-sport", division: "fbs" }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("renders vote page via default export with valid params", async () => {
+    const ui = await VotePage({
+      params: Promise.resolve({ sport: "football", division: "fbs" }),
+    });
+    expect(ui).toBeTruthy();
+  });
+
+  it.each(divisionHeaders)(
+    "renders division header for %s",
+    async (division, headingPattern) => {
+      const ui = await VotePageAuth({
+        sport: "football",
+        division,
+        options: publishedOptions,
+      });
+      render(ui as ReactNode);
+      expect(
+        screen.getByRole("heading", { name: headingPattern }),
+      ).toBeInTheDocument();
+    },
+  );
+
+  it("maps previous ballot schools with and without Sanity matches", async () => {
+    mockGetLatestVoterBallot.mockResolvedValue([
+      {
+        id: "1",
+        userId: "user-1",
+        division: "fbs",
+        week: 1,
+        year: 2025,
+        createdAt: new Date(),
+        teamId: "school-1",
+        rank: 1,
+        points: 25,
+      },
+      {
+        id: "2",
+        userId: "user-1",
+        division: "fbs",
+        week: 1,
+        year: 2025,
+        createdAt: new Date(),
+        teamId: "school-missing",
+        rank: 2,
+        points: 24,
+      },
+    ]);
+    mockClientFetch.mockResolvedValue([
+      {
+        _id: "school-1",
+        name: "Alabama",
+        shortName: "Alabama",
+        abbreviation: "ALA",
+        nickname: "Crimson Tide",
+        image: "https://example.com/alabama.png",
+      },
+    ]);
+
+    const ui = await VotePageAuth({
+      sport: "football",
+      division: "fbs",
+      options: publishedOptions,
+    });
+    render(ui as ReactNode);
+    expect(screen.getByTestId("vote-form-wrapper")).toBeInTheDocument();
+    expect(mockClientFetch).toHaveBeenCalled();
   });
 });

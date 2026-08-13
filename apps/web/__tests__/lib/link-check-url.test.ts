@@ -29,6 +29,10 @@ describe("resolveLinkCheckTarget", () => {
   it("rejects unsupported protocols", () => {
     expect(resolveLinkCheckTarget("ftp://example.com", requestUrl)).toBeNull();
   });
+
+  it("returns null for malformed URLs", () => {
+    expect(resolveLinkCheckTarget("https://[not-a-url", requestUrl)).toBeNull();
+  });
 });
 
 describe("assertPublicHttpUrl", () => {

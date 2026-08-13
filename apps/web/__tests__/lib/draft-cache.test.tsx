@@ -13,7 +13,11 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
   getDynamicFetchOptions: mockGetDynamicFetchOptions,
 }));
 
-import { draftAwarePage, draftAwareParamsPage } from "@/lib/draft-cache";
+import {
+  draftAwarePage,
+  draftAwareParamsPage,
+  searchParamsPage,
+} from "@/lib/draft-cache";
 
 describe("draftAwarePage", () => {
   beforeEach(() => {
@@ -101,5 +105,53 @@ describe("draftAwareParamsPage", () => {
       { slug: "hello" },
       { perspective: "published", stega: false },
     );
+  });
+
+  it("uses getDynamicFetchOptions when draft mode is on for params", async () => {
+    mockDraftMode.mockResolvedValue({ isEnabled: true });
+    mockGetDynamicFetchOptions.mockResolvedValue({
+      perspective: "previewDrafts",
+      stega: true,
+    });
+    const renderFn = vi.fn(async () => <div>draft</div>);
+
+    const tree = draftAwareParamsPage(
+      Promise.resolve({ slug: "hello" }),
+      null,
+      renderFn,
+    );
+    const child = (tree.props as { children: React.ReactElement }).children;
+    await (
+      child.type as (p: {
+        params: Promise<{ slug: string }>;
+        render: typeof renderFn;
+      }) => Promise<unknown>
+    )({
+      params: Promise.resolve({ slug: "hello" }),
+      render: renderFn,
+    });
+
+    expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
+    expect(renderFn).toHaveBeenCalledWith(
+      { slug: "hello" },
+      { perspective: "previewDrafts", stega: true },
+    );
+  });
+});
+
+describe("searchParamsPage", () => {
+  it("wraps render in Suspense and invokes it", async () => {
+    const renderFn = vi.fn(async () => <div>search</div>);
+    const tree = searchParamsPage(null, renderFn);
+
+    expect(isValidElement(tree)).toBe(true);
+    expect(tree.type).toBe(Suspense);
+
+    const child = (tree.props as { children: React.ReactElement }).children;
+    await (child.type as (p: { render: typeof renderFn }) => Promise<unknown>)({
+      render: renderFn,
+    });
+
+    expect(renderFn).toHaveBeenCalled();
   });
 });

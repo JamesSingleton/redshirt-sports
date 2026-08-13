@@ -7,8 +7,14 @@ const { mockCapture, mockPopulate } = vi.hoisted(() => ({
   mockPopulate: vi.fn(),
 }));
 
+let mockAnalytics: { capture: typeof mockCapture } | undefined = {
+  capture: mockCapture,
+};
+
 vi.mock("@redshirt-sports/analytics", () => ({
-  analytics: { capture: mockCapture },
+  get analytics() {
+    return mockAnalytics;
+  },
 }));
 
 vi.mock("@/components/forms/top-25", () => {
@@ -90,6 +96,7 @@ describe("VoteFormWrapper", () => {
   beforeEach(() => {
     mockCapture.mockReset();
     mockPopulate.mockReset();
+    mockAnalytics = { capture: mockCapture };
   });
 
   it("hides Use Previous Ballot when previousBallot is empty", () => {
@@ -118,5 +125,30 @@ describe("VoteFormWrapper", () => {
       "previous_ballot_populated",
       expect.objectContaining({ previous_ballot_count: 1 }),
     );
+  });
+
+  it("reports zero previous ballots when previousBallot is omitted", () => {
+    render(<VoteFormWrapper schools={schools} />);
+
+    expect(
+      screen.queryByRole("button", { name: /Use Previous Ballot/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("top-25-form")).toBeInTheDocument();
+  });
+
+  it("handles missing analytics when populating the form", async () => {
+    mockAnalytics = undefined;
+    const user = userEvent.setup();
+
+    render(
+      <VoteFormWrapper schools={schools} previousBallot={previousBallot} />,
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: /Use Previous Ballot/i }),
+    );
+
+    expect(mockPopulate).toHaveBeenCalled();
+    expect(mockCapture).not.toHaveBeenCalled();
   });
 });

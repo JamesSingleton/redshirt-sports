@@ -185,6 +185,48 @@ describe("getSEOMetadata", () => {
     expect(metadata.other?.["og:article:tag"]).toEqual(["Recruiting", "SEC"]);
   });
 
+  it("sets a single article tag as a string", () => {
+    const metadata = getSEOMetadata({
+      ogType: "article",
+      articleTags: ["Recruiting"],
+    });
+
+    expect(metadata.other?.["og:article:tag"]).toBe("Recruiting");
+  });
+
+  it("skips empty first article tags in other metadata", () => {
+    const metadata = getSEOMetadata({
+      ogType: "article",
+      articleTags: [""],
+    });
+
+    expect(metadata.other).toBeUndefined();
+  });
+
+  it("omits article other meta when article has no authors tags or reading time", () => {
+    const metadata = getSEOMetadata({
+      ogType: "article",
+      authors: [{ name: "" }],
+      articleTags: [],
+    });
+
+    expect(metadata.other).toBeUndefined();
+  });
+
+  it("ignores null readingTime for article twitter labels", () => {
+    const metadata = getSEOMetadata({
+      ogType: "article",
+      authors: [{ name: "Jane Doe" }],
+      readingTime: null as unknown as number,
+    });
+
+    expect(metadata.other).toEqual({
+      "og:article:author": "Jane Doe",
+      "twitter:label1": "Written by",
+      "twitter:data1": "Jane Doe",
+    });
+  });
+
   it("sets noindex robots when requested", () => {
     const metadata = getSEOMetadata({ noIndex: true });
 
