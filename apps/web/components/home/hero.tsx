@@ -1,11 +1,16 @@
 import type { QueryHomePageDataResult } from "@redshirt-sports/sanity/types";
 import Link from "next/link";
+import type { StegaBranded } from "next-sanity";
 
 import ArticleCard from "@/components/article-card";
 import FormatDate from "@/components/format-date";
 import CustomImage, { IMAGE_SIZES } from "../sanity-image";
 
-const Hero = ({ heroPosts }: { heroPosts: QueryHomePageDataResult }) => {
+const Hero = ({
+  heroPosts,
+}: {
+  heroPosts: StegaBranded<QueryHomePageDataResult>;
+}) => {
   const heroArticle = heroPosts[0]!;
   const recentArticles = heroPosts.slice(1);
 

@@ -1,4 +1,5 @@
 import type { Author } from "@redshirt-sports/sanity/types";
+import type { StegaBranded } from "next-sanity";
 
 import ArticleCard from "@/components/article-card";
 import type { ArticleFeedItem } from "@/types/article";
@@ -6,7 +7,7 @@ import type { ArticleFeedItem } from "@/types/article";
 export default function ArticleFeed({
   articles,
 }: {
-  articles: ArticleFeedItem[];
+  articles: StegaBranded<ArticleFeedItem>[];
 }) {
   return (
     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

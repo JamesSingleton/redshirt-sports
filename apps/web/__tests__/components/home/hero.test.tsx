@@ -1,5 +1,6 @@
 import type { QueryHomePageDataResult } from "@redshirt-sports/sanity/types";
 import { render, screen } from "@testing-library/react";
+import type { StegaBranded } from "next-sanity";
 
 import Hero from "@/components/home/hero";
 
@@ -78,7 +79,11 @@ const heroPosts = [
 describe("Hero", () => {
   it("renders the lead story and recent article cards", () => {
     render(
-      <Hero heroPosts={heroPosts as unknown as QueryHomePageDataResult} />,
+      <Hero
+        heroPosts={
+          heroPosts as unknown as StegaBranded<QueryHomePageDataResult>
+        }
+      />,
     );
 
     expect(

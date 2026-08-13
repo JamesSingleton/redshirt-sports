@@ -160,7 +160,7 @@ function DeadLinksCheckBase({
   const badge = getLinksBadge(findings, hasChecked);
 
   return (
-    <Stack space={4}>
+    <Stack gap={4}>
       <SectionHeader
         action={{
           label: "Check all links",
@@ -182,7 +182,7 @@ function DeadLinksCheckBase({
           </Text>
         </Card>
       ) : (
-        <Stack space={2}>
+        <Stack gap={2}>
           {findings.map((finding) => {
             const visitUrl = isVisitableLinkUrl(finding.url)
               ? finding.url

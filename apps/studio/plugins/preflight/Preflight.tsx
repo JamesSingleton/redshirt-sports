@@ -11,10 +11,10 @@ function PreflightBase({
 }: PreflightCheckProps & { config: PreflightConfig }) {
   return (
     <PreflightLayout>
-      <Stack space={5}>
+      <Stack gap={5}>
         {config.checks.map(
           (Check: ComponentType<PreflightCheckProps>, index: number) => (
-            <Stack key={Check.displayName ?? Check.name ?? index} space={5}>
+            <Stack key={Check.displayName ?? Check.name ?? index} gap={5}>
               <Check {...props} />
               {index < config.checks.length - 1 ? <SectionDivider /> : null}
             </Stack>

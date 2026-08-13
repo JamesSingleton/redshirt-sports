@@ -8,7 +8,7 @@ type PreflightLayoutProps = {
 export function PreflightLayout({ children }: PreflightLayoutProps) {
   return (
     <Box padding={4}>
-      <Stack space={5} style={{ maxWidth: "720px" }}>
+      <Stack gap={5} style={{ maxWidth: "720px" }}>
         {children}
       </Stack>
     </Box>

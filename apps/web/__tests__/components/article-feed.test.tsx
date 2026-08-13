@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import type { StegaBranded } from "next-sanity";
 
 import ArticleFeed from "@/components/article-feed";
 import type { ArticleFeedItem } from "@/types/article";
@@ -57,7 +58,7 @@ const articles = [
     publishedAt: "2026-01-02T00:00:00Z",
     authors: [{ name: "John Smith" }],
   },
-] as ArticleFeedItem[];
+] as unknown as StegaBranded<ArticleFeedItem>[];
 
 describe("ArticleFeed", () => {
   it("renders article cards for each article", () => {
@@ -78,7 +79,7 @@ describe("ArticleFeed", () => {
       slug: `article-${i}`,
       publishedAt: "2026-01-01T00:00:00Z",
       authors: [{ name: "Author" }],
-    })) as ArticleFeedItem[];
+    })) as unknown as StegaBranded<ArticleFeedItem>[];
 
     render(<ArticleFeed articles={manyArticles} />);
 

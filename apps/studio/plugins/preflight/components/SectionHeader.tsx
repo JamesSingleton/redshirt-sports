@@ -20,7 +20,7 @@ export function SectionHeader({
   action,
 }: SectionHeaderProps) {
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       <Flex align="center" justify="space-between" gap={3} wrap="wrap">
         <Flex align="center" gap={3} wrap="wrap">
           <Heading as="h2" size={1}>

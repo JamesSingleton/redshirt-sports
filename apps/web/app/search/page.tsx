@@ -5,6 +5,7 @@ import {
 import { searchQuery } from "@redshirt-sports/sanity/queries";
 import type { SearchQueryResult } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
+import type { StegaBranded } from "next-sanity";
 
 import ArticleCard from "@/components/article-card";
 import PageHeader from "@/components/page-header";
@@ -53,7 +54,7 @@ async function cachedRenderSearchPage({
   "use cache";
   const subheadingText = query ? `Search results for "${query}"` : null;
 
-  let searchResults: SearchQueryResult = {
+  let searchResults: StegaBranded<SearchQueryResult> = {
     posts: [],
     totalPosts: 0,
   };
