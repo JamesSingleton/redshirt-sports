@@ -41,7 +41,7 @@ export function StatusRow({
         <Flex align="center" style={{ flexShrink: 0, width: "24px" }}>
           <StatusIcon status={status} />
         </Flex>
-        <Stack space={2} style={{ minWidth: 0, flex: 1 }}>
+        <Stack gap={2} style={{ minWidth: 0, flex: 1 }}>
           {tertiary ? (
             <Text muted size={1}>
               {tertiary}

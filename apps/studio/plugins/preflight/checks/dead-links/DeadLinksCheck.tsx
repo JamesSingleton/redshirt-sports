@@ -53,6 +53,7 @@ function DeadLinksCheckBase({
       setHasChecked(false);
 
       try {
+        // @ts-expect-error - TODO: fix this
         const resolved = await resolveLinkFindings(rawFindings, client);
         if (!cancelled) {
           setFindings(resolved);
@@ -160,7 +161,7 @@ function DeadLinksCheckBase({
   const badge = getLinksBadge(findings, hasChecked);
 
   return (
-    <Stack space={4}>
+    <Stack gap={4}>
       <SectionHeader
         action={{
           label: "Check all links",
@@ -182,7 +183,7 @@ function DeadLinksCheckBase({
           </Text>
         </Card>
       ) : (
-        <Stack space={2}>
+        <Stack gap={2}>
           {findings.map((finding) => {
             const visitUrl = isVisitableLinkUrl(finding.url)
               ? finding.url

@@ -6,12 +6,14 @@ import { cn } from "@redshirt-sports/ui/lib/utils";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import Link from "next/link";
+import type { StegaBranded } from "next-sanity";
 
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 
-export type TeamPost =
+export type TeamPost = StegaBranded<
   | PostsBySchoolQueryResult["posts"][number]
-  | PostsBySchoolAndStoryTypeQueryResult[number];
+  | PostsBySchoolAndStoryTypeQueryResult[number]
+>;
 
 const TIME_ZONE = "America/Phoenix";
 
@@ -37,7 +39,7 @@ export function TeamSportCategory({
   post,
   className,
 }: {
-  post: TeamPost;
+  post: StegaBranded<TeamPost>;
   className?: string;
 }) {
   const { label, href } = getPostSportCategory(post);
@@ -64,7 +66,7 @@ function TeamPostImage({
   quality = 62,
   sizes,
 }: {
-  image: TeamPost["image"];
+  image: StegaBranded<TeamPost>["image"];
   width: number;
   height: number;
   className?: string;
@@ -98,7 +100,11 @@ export function TeamRelativeDate({ dateString }: { dateString: string }) {
   );
 }
 
-export function TeamFeaturedArticle({ post }: { post: TeamPost }) {
+export function TeamFeaturedArticle({
+  post,
+}: {
+  post: StegaBranded<TeamPost>;
+}) {
   const href = post.slug ? `/${post.slug}` : null;
 
   const image = (
@@ -139,7 +145,7 @@ export function TeamFeaturedArticle({ post }: { post: TeamPost }) {
   );
 }
 
-export function TeamNewsItem({ post }: { post: TeamPost }) {
+export function TeamNewsItem({ post }: { post: StegaBranded<TeamPost> }) {
   const href = post.slug ? `/${post.slug}` : null;
 
   return (
@@ -174,7 +180,7 @@ function TeamPostMeta({
   post,
   className,
 }: {
-  post: TeamPost;
+  post: StegaBranded<TeamPost>;
   className?: string;
 }) {
   const author = post.authors[0]?.name ?? "Redshirt Sports";

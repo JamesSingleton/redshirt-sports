@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import type { StegaBranded } from "next-sanity";
 
 import ArticleSection from "@/components/article-section";
 
@@ -60,7 +61,7 @@ const articles = [
     publishedAt: "2026-01-14T20:00:00.000Z",
     authors: [{ name: "John Smith" }],
   },
-] as Parameters<typeof ArticleSection>[0]["articles"];
+] as unknown as StegaBranded<Parameters<typeof ArticleSection>[0]["articles"]>;
 
 describe("ArticleSection", () => {
   it("renders the section title, lead story, and remaining cards", () => {

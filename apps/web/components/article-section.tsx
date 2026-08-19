@@ -6,6 +6,7 @@ import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import type { StegaBranded } from "next-sanity";
 
 import ArticleCard from "@/components/article-card";
 import FormatDate from "@/components/format-date";
@@ -14,7 +15,7 @@ import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 interface ArticleSectionProps {
   title: string;
   slug: string;
-  articles: QueryLatestCollegeSportsArticlesResult;
+  articles: StegaBranded<QueryLatestCollegeSportsArticlesResult>;
   imageFirst?: boolean;
 }
 

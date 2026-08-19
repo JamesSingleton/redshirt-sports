@@ -12,14 +12,14 @@ function EditorialCheckBase({ document }: PreflightCheckProps) {
   const badge = getEditorialBadge(results);
 
   return (
-    <Stack space={4}>
+    <Stack gap={4}>
       <SectionHeader
         badge={badge}
         description="Editorial and SEO checks based on this article's fields and body content."
         title="Editorial"
       />
 
-      <Stack space={2}>
+      <Stack gap={2}>
         {results.map((result) => (
           <StatusRow
             key={result.id}

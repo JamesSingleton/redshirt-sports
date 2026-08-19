@@ -12,7 +12,7 @@ export function CharacterCountInput(props: StringInputProps) {
     .filter((rule: any) => rule.flag === "max")
     .map((rule: any) => rule.constraint)[0];
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       {props.renderDefault(props)}
       <Text muted size={1}>
         Characters: {props.value?.length || 0}
@@ -33,7 +33,7 @@ export function CharacterCountInputPTE(props: PortableTextInputProps) {
     .filter((rule: any) => rule.flag === "max")
     .map((rule: any) => rule.constraint)[0];
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       {props.renderDefault(props)}
       <Text muted size={1}>
         Characters: {characters}

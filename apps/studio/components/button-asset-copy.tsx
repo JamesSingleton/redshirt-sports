@@ -1,5 +1,6 @@
 import { CopyIcon } from "@sanity/icons/Copy";
-import { Button, Popover, Text } from "@sanity/ui";
+import { Button, Text } from "@sanity/ui";
+import { Popover } from "@sanity/ui/popover";
 import copy from "copy-to-clipboard";
 import { useEffect, useRef, useState } from "react";
 

@@ -21,6 +21,7 @@ import type {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { StegaBranded } from "next-sanity";
 
 import { TeamPageJsonLd } from "@/components/json-ld";
 import CustomImage from "@/components/sanity-image";
@@ -173,13 +174,15 @@ async function renderSchoolTeamPage(
       params: { schoolId: school._id, from: 0, to: MIN_TEAM_PAGE_POSTS },
       perspective,
       stega,
-    }) as Promise<{ data: PostsBySchoolQueryResult | null }>,
+    }) as Promise<{ data: StegaBranded<PostsBySchoolQueryResult> | null }>,
     sanityFetchPage({
       query: postsBySchoolAndStoryTypeQuery,
       params: { schoolId: school._id, storyType: "recruiting" },
       perspective,
       stega,
-    }) as Promise<{ data: PostsBySchoolAndStoryTypeQueryResult | null }>,
+    }) as Promise<{
+      data: StegaBranded<PostsBySchoolAndStoryTypeQueryResult> | null;
+    }>,
     fetchGlobalSeoSettings(perspective),
     getCachedSchoolRankingHistory(school._id),
   ]);
