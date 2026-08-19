@@ -20,7 +20,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.7.1",
+    "@hookform/resolvers": "^5.9.1",
     "@portabletext/react": "^8.0.0",
     "@portabletext/to-html": "^6.0.0",
     "@redshirt-sports/analytics": "workspace:*",
@@ -36,7 +36,7 @@
     "@sanity/image-url": "^2.1.1",
     "@sentry/nextjs": "^10.70.0",
     "@t3-oss/env-nextjs": "^0.13.11",
-    "@tanstack/react-virtual": "^3.14.9",
+    "@tanstack/react-virtual": "^3.14.10",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.2",
     "@vercel/speed-insights": "^2.0.0",
@@ -75,7 +75,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.11",
     "babel-plugin-react-compiler": "1.0.0",
     "drizzle-kit": "catalog:",
     "happy-dom": "^20.11.2",
