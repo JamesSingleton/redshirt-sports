@@ -25,12 +25,12 @@ export function EditorialHealthWidget() {
 
   return (
     <Card padding={4} radius={2} shadow={1}>
-      <Stack space={4}>
+      <Stack gap={4}>
         <Text size={2} weight="semibold">
           Editorial health
         </Text>
         {counts ? (
-          <Stack space={3}>
+          <Stack gap={3}>
             <Flex justify="space-between">
               <Text size={1}>Posts missing story type</Text>
               <Text size={1} weight="medium">

@@ -11,6 +11,7 @@ import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
 } from "@redshirt-sports/sanity/types";
+import type { StegaBranded } from "next-sanity";
 import { memo } from "react";
 
 import { getCachedNavbarLatestRankings } from "@/lib/rankings-data";
@@ -75,7 +76,7 @@ const MemoizedNavbar = memo(function Navbar({
   settingsData,
   latestRankings,
 }: {
-  navbarData: GlobalNavigationQueryResult;
+  navbarData: StegaBranded<GlobalNavigationQueryResult>;
   settingsData: QueryGlobalSeoSettingsResult;
   latestRankings: Top25RankingsData | undefined;
 }) {

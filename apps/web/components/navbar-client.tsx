@@ -31,6 +31,7 @@ import {
 import { ChevronDown, ChevronRight, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { StegaBranded } from "next-sanity";
 import { memo, useEffect, useMemo, useState } from "react";
 
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -54,7 +55,7 @@ const MobileNavbar = memo(function MobileNavbar({
   settingsData,
   latestRankings,
 }: {
-  navbarData: GlobalNavigationQueryResult;
+  navbarData: StegaBranded<GlobalNavigationQueryResult>;
   settingsData: QueryGlobalSeoSettingsResult;
   latestRankings: Top25RankingsData;
 }) {
@@ -209,7 +210,7 @@ export const DesktopNavbar = memo(function DesktopNavbar({
   navbarData,
   latestRankings,
 }: {
-  navbarData: GlobalNavigationQueryResult;
+  navbarData: StegaBranded<GlobalNavigationQueryResult>;
   latestRankings: Top25RankingsData;
 }) {
   const footballRankings = useMemo(
@@ -347,7 +348,7 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
   settingsData,
   latestRankings,
 }: {
-  navbarData: GlobalNavigationQueryResult;
+  navbarData: StegaBranded<GlobalNavigationQueryResult>;
   settingsData: QueryGlobalSeoSettingsResult;
   latestRankings: Top25RankingsData;
 }) {

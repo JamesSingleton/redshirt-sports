@@ -7,7 +7,11 @@ import {
 } from "@sanity/dashboard";
 import { table } from "@sanity/table";
 import { visionTool } from "@sanity/vision";
-import type { InputProps, PortableTextInputProps } from "sanity";
+import type {
+  InputProps,
+  PortableTextInputProps,
+  PortableTextPluginsProps,
+} from "sanity";
 import { defineConfig } from "sanity";
 import { presentationTool } from "sanity/presentation";
 import { structureTool } from "sanity/structure";
@@ -77,6 +81,16 @@ export default defineConfig({
         }
 
         return props.renderDefault(props);
+      },
+      portableText: {
+        plugins: (props: PortableTextPluginsProps) =>
+          props.renderDefault({
+            ...props,
+            plugins: {
+              ...props.plugins,
+              table: { enabled: true },
+            },
+          }),
       },
     },
   },
