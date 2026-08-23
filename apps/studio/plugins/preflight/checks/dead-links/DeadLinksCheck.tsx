@@ -53,7 +53,6 @@ function DeadLinksCheckBase({
       setHasChecked(false);
 
       try {
-        // @ts-expect-error - TODO: fix this
         const resolved = await resolveLinkFindings(rawFindings, client);
         if (!cancelled) {
           setFindings(resolved);
