@@ -17,7 +17,8 @@ export default defineConfig({
     coverage: {
       enabled: true,
       provider: "v8",
-      reporter: ["text", "json-summary"],
+      reportOnFailure: true,
+      reporter: ["text", "json-summary", "json"],
       include: [
         "hooks/**/*.{ts,tsx}",
         "lib/**/*.{ts,tsx}",

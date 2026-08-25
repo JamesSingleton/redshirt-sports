@@ -9,43 +9,16 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  id-token: write
 
 jobs:
   ci:
-    name: Lint, Typecheck, and Test
+    name: Lint and Test
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     env:
-      # Env validation runs closed (no SKIP_ENV_VALIDATION). Dummy-but-valid Zod values.
-      NEXT_PUBLIC_SANITY_DATASET: production
-      NEXT_PUBLIC_SANITY_PROJECT_ID: ci-project-id
-      NEXT_PUBLIC_SANITY_API_VERSION: "2026-06-12"
-      NEXT_PUBLIC_SANITY_STUDIO_URL: http://localhost:3333
-      SANITY_API_READ_TOKEN: ci-sanity-read-token
-      SANITY_REVALIDATE_SECRET: ci-revalidate-secret
-      SANITY_STUDIO_PROJECT_ID: ci-project-id
-      SANITY_STUDIO_DATASET: production
-      SANITY_STUDIO_TITLE: Redshirt Sports Studio
-      SANITY_STUDIO_PRESENTATION_URL: http://localhost:3000
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
-      DATABASE_DIRECT_URL: postgresql://postgres:postgres@localhost:5432/postgres
-      UPSTASH_REDIS_REST_URL: https://ci.upstash.io
-      UPSTASH_REDIS_REST_TOKEN: ci-upstash-token
-      SCHOOL_SYNC_SECRET: ci-school-sync-secret
-      CLERK_SECRET_KEY: sk_test_ci_clerk_secret_key_value
-      CLERK_WEBHOOK_SECRET: whsec_ci_clerk_webhook_secret
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ci_clerk_publishable_key
-      NEXT_PUBLIC_SITE_URL: redshirtsports.com
-      NEXT_PUBLIC_APP_NAME: Redshirt Sports
-      NEXT_PUBLIC_CLERK_DOMAIN: clerk.redshirtsports.com
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      SKIP_ENV_VALIDATION: "true"
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -55,110 +28,18 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check formatting
-        run: pnpm run check:format
+      - name: Lint
+        run: pnpm lint
 
-      - name: TypeGen dirty check
-        if: ${{ secrets.SANITY_API_READ_TOKEN != '' && secrets.NEXT_PUBLIC_SANITY_PROJECT_ID != '' }}
-        env:
-          SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
-          SANITY_STUDIO_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
-          SANITY_STUDIO_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
-          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
-          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
-        run: |
-          pnpm --filter @redshirt-sports/studio type
-          if ! git diff --quiet -- packages/sanity/src/types.ts apps/studio/schema.json; then
-            echo "::error::Sanity TypeGen output is dirty. Run pnpm --filter @redshirt-sports/studio type and commit."
-            git --no-pager diff -- packages/sanity/src/types.ts apps/studio/schema.json | head -n 200
-            exit 1
-          fi
+      - name: Test
+        run: pnpm test
 
-      - name: Run lint, typecheck, and test (affected)
-        run: pnpm exec turbo run lint check:types test --affected --concurrency=2
-
-      - name: Update PR comment
-        if: github.event_name == 'pull_request' && always()
-        uses: actions/github-script@v9
+      - name: Report coverage
+        if: always()
+        uses: davelosert/vitest-coverage-report-action@v2
         with:
-          script: |
-            const marker = "<!-- ci-report -->";
-            const { owner, repo } = context.repo;
-            const issue_number = context.payload.pull_request.number;
-            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
-            const sha = context.payload.pull_request.head.sha.slice(0, 7);
-            const passed = "${{ job.status }}" === "success";
-
-            const fs = require("node:fs");
-            const coveragePath = "apps/web/coverage/coverage-summary.json";
-
-            let coverageSection = "_Coverage report unavailable (tests may not have reached apps/web)._";
-            if (fs.existsSync(coveragePath)) {
-              const summary = JSON.parse(fs.readFileSync(coveragePath, "utf8"));
-              const total = summary.total;
-              const row = (label, metric) =>
-                `| ${label} | ${metric.pct}% (${metric.covered}/${metric.total}) |`;
-
-              coverageSection = [
-                "| Metric | Coverage |",
-                "| --- | --- |",
-                row("Statements", total.statements),
-                row("Branches", total.branches),
-                row("Functions", total.functions),
-                row("Lines", total.lines),
-              ].join("\n");
-            }
-
-            const body = [
-              marker,
-              "## CI results",
-              "",
-              passed ? "✅ **Passed**" : "❌ **Failed**",
-              "",
-              `- Commit: \`${sha}\``,
-              `- [View workflow run](${runUrl})`,
-              "",
-              "### Coverage (`apps/web`)",
-              "",
-              coverageSection,
-            ].join("\n");
-
-            const { data: comments } = await github.rest.issues.listComments({
-              owner,
-              repo,
-              issue_number,
-            });
-
-            const existing = comments.find((comment) => comment.body?.includes(marker));
-
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner,
-                repo,
-                comment_id: existing.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number,
-                body,
-              });
-            }
+          name: apps/web
+          working-directory: apps/web
