@@ -5,7 +5,6 @@ import {
   projectUsersWidget,
   sanityTutorialsWidget,
 } from "@sanity/dashboard";
-import { table } from "@sanity/table";
 import { visionTool } from "@sanity/vision";
 import type {
   InputProps,
@@ -19,6 +18,7 @@ import { media } from "sanity-plugin-media";
 
 import { CharacterCountInputPTE } from "@/components/character-count";
 import { Logo } from "@/components/logo";
+import { env } from "@/env";
 import { EditorialHealthWidget } from "@/plugins/editorial-health-widget";
 import { presentationUrl } from "@/plugins/presentation-url";
 import { resolve } from "@/presentation/resolve";
@@ -26,17 +26,11 @@ import { schemaTypes } from "@/schemaTypes";
 import { getDefaultDocumentNode, structure } from "@/structure";
 import { createCustomPostDuplicateAction } from "@/utils/actions";
 
-const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? "";
-const dataset = process.env.SANITY_STUDIO_DATASET;
-const title = process.env.SANITY_STUDIO_TITLE;
-const presentationUrlOrigin =
-  process.env.SANITY_STUDIO_PRESENTATION_URL ?? "http://localhost:3000";
-
 export default defineConfig({
-  title: title ?? "Redshirt Sports Studio",
-  projectId: projectId,
+  title: env.SANITY_STUDIO_TITLE,
+  projectId: env.SANITY_STUDIO_PROJECT_ID,
   icon: Logo,
-  dataset: dataset ?? "production",
+  dataset: env.SANITY_STUDIO_DATASET,
   plugins: [
     assist(),
     structureTool({
@@ -46,7 +40,7 @@ export default defineConfig({
     presentationTool({
       resolve,
       previewUrl: {
-        origin: presentationUrlOrigin,
+        origin: env.SANITY_STUDIO_PRESENTATION_URL,
         previewMode: {
           enable: "/api/draft-mode/enable",
         },
@@ -71,7 +65,6 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    table(),
   ],
   form: {
     components: {

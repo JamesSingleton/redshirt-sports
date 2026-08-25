@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@upstash/redis", () => ({
-  Redis: {
-    fromEnv: vi.fn(() => ({})),
-  },
+  Redis: vi.fn(function Redis() {
+    return {};
+  }),
 }));
 
 vi.mock("@upstash/ratelimit", () => ({

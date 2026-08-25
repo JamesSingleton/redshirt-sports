@@ -12,7 +12,7 @@
     "build": "sanity build",
     "deploy:schema": "sanity schema deploy --manifest-dir ./dist/static",
     "deploy": "sanity deploy",
-    "type": "sanity schema extract --enforce-required-fields && sanity typegen generate",
+    "type": "sanity schema extract --enforce-required-fields --force && sanity typegen generate",
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
@@ -26,9 +26,9 @@
     "@sanity/functions": "^1.6.8",
     "@sanity/icons": "^5.2.1",
     "@sanity/image-url": "^2.1.1",
-    "@sanity/table": "^3.1.16",
     "@sanity/ui": "^4.0.6",
     "@sanity/vision": "^6.10.1",
+    "@t3-oss/env-core": "^0.13.11",
     "copy-to-clipboard": "^4.0.2",
     "lucide-react": "catalog:",
     "react": "catalog:",
@@ -37,7 +37,8 @@
     "sanity-plugin-documents-pane": "^4.1.19",
     "sanity-plugin-media": "^6.1.6",
     "slugify": "^1.6.9",
-    "styled-components": "^6.5.3"
+    "styled-components": "^6.5.3",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

@@ -199,7 +199,7 @@ export function findTreeByPath(root: Tree, path?: string): Tree {
 
   for (const segment of segments) {
     const node = currentTree[segment];
-    if (!node || node._type !== "folder") break;
+    if (node?._type !== "folder") break;
     currentTree = node.children;
   }
 

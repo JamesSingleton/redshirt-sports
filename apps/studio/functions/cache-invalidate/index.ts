@@ -37,17 +37,36 @@ async function expireTags(target: URL, tags: string[], secret: string) {
   }
 }
 
+function resolveRevalidateTarget(): URL {
+  const explicit = process.env.REVALIDATE_TAGS_URL;
+  if (explicit) {
+    return new URL(explicit);
+  }
+
+  const baseUrl =
+    process.env.SANITY_STUDIO_PRESENTATION_URL ?? process.env.SITE_URL;
+  if (!baseUrl) {
+    throw new Error(
+      "Set REVALIDATE_TAGS_URL, SANITY_STUDIO_PRESENTATION_URL, or SITE_URL for cache invalidation",
+    );
+  }
+
+  return new URL("/api/revalidate-tags", baseUrl);
+}
+
 export const handler = syncTagInvalidateEventHandler(
   async ({ event, done }) => {
     const start = performance.now();
     const { syncTags } = event.data;
 
-    const target = new URL(
-      "https://www.redshirtsports.xyz/api/revalidate-tags",
-    );
+    const target = resolveRevalidateTarget();
     console.info(`Forwarding ${syncTags.length} tags to api`);
 
-    const secret = process.env.SANITY_REVALIDATE_SECRET!;
+    const secret = process.env.SANITY_REVALIDATE_SECRET;
+    if (!secret) {
+      throw new Error("SANITY_REVALIDATE_SECRET is not configured");
+    }
+
     await expireTags(target, syncTags, secret);
 
     await ack(done, syncTags);

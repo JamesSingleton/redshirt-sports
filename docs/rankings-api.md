@@ -2,7 +2,7 @@
 
 Machine-readable Top 25 poll data for external consumers (news sites, conference offices, partners such as the NCAA). Backed by published `poll_rankings` — the same data as the public rankings pages.
 
-**Base URL:** `https://www.redshirtsports.xyz`
+**Base URL:** set via `NEXT_PUBLIC_SITE_URL` (production hostname, e.g. `www.redshirtsports.com`)
 
 No authentication. CORS allows `GET` / `OPTIONS` from any origin. Rate-limited to **60 requests per minute per IP**.
 
@@ -110,7 +110,7 @@ Team win–loss records are **not** included.
     "seasonType": 2,
     "weekNumber": 5
   },
-  "sourceUrl": "https://www.redshirtsports.xyz/college/football/rankings/fcs/2025/5",
+  "sourceUrl": "https://www.redshirtsports.com/college/football/rankings/fcs/2025/5",
   "rankings": [
     {
       "rank": 1,

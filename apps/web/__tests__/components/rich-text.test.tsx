@@ -200,4 +200,70 @@ describe("RichText", () => {
     expect(logSpy).toHaveBeenCalled();
     logSpy.mockRestore();
   });
+
+  it("renders native Portable Text tables with headerRows and cell marks", () => {
+    const ptTable = [
+      {
+        _type: "table",
+        _key: "pt-table-1",
+        headerRows: 1,
+        rows: [
+          {
+            _key: "h1",
+            cells: [
+              {
+                _key: "c1",
+                value: [
+                  {
+                    _type: "block",
+                    _key: "b1",
+                    style: "normal",
+                    markDefs: [],
+                    children: [
+                      {
+                        _type: "span",
+                        _key: "s1",
+                        text: "School",
+                        marks: ["strong"],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            _key: "r1",
+            cells: [
+              {
+                _key: "c2",
+                value: [
+                  {
+                    _type: "block",
+                    _key: "b2",
+                    style: "normal",
+                    markDefs: [],
+                    children: [
+                      {
+                        _type: "span",
+                        _key: "s2",
+                        text: "Montana",
+                        marks: [],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    render(<RichText richText={ptTable} />);
+    expect(
+      screen.getByRole("columnheader", { name: "School" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Montana")).toBeInTheDocument();
+  });
 });

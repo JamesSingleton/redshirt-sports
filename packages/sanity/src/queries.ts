@@ -238,7 +238,38 @@ const richTextFragment = /* groq */ `
       ...,
       ${imageMetadataProjection}
     },
+    _type == "table" => {
+      ...,
+      rows[]{
+        ...,
+        cells[]{
+          ...,
+          // Native PT cells: project nested markDefs the same as body blocks.
+          value[]{
+            ...,
+            _type == "block" => {
+              ...,
+              ${markDefsFragment}
+            }
+          }
+        }
+      }
+    },
   }
+`;
+
+/** Card/list projection — avoids pulling full Portable Text body on index pages. */
+const postCardFragment = /* groq */ `
+  _id,
+  title,
+  excerpt,
+  storyType,
+  publishedAt,
+  seoTitle,
+  seoDescription,
+  "slug": slug.current,
+  ${postImageFragment},
+  ${postAuthorFragment}
 `;
 
 export const queryPostSlugData = defineQuery(/* groq */ `
@@ -314,10 +345,7 @@ export const querySchoolPaths = defineQuery(/* groq */ `
 export const querySportsNews = defineQuery(/* groq */ `
   {
     "posts": *[_type == "post" && sport->slug.current == $sport] | order(publishedAt desc)[$from...$to]{
-      ...,
-      ${postImageFragment},
-      "slug": slug.current,
-      ${postAuthorFragment}
+      ${postCardFragment}
     },
     "totalPosts": count(*[_type == "post" && sport->slug.current == $sport])
   }
@@ -331,10 +359,7 @@ export const querySportsAndDivisionNews = defineQuery(/* groq */ `
       (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&
       $division != "d1"
     ] | order(publishedAt desc)[$from...$to]{
-      ...,
-      ${postImageFragment},
-      "slug": slug.current,
-      ${postAuthorFragment}
+      ${postCardFragment}
     },
     "totalPosts": count(*[
       _type == "post" &&
@@ -482,10 +507,7 @@ export const queryArticlesBySportDivisionAndConference =
     "posts": *[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (
       sportSubgrouping->slug.current == $division || division->slug.current == $division
     ) && $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current] | order(publishedAt desc) [$from...$to]{
-      ...,
-      ${postImageFragment},
-      "slug": slug.current,
-      ${postAuthorFragment}
+      ${postCardFragment}
     },
     "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))][0]{
       _id,
@@ -505,11 +527,9 @@ export const searchQuery = defineQuery(/* groq */ `
     boost(excerpt match $q, 3),
     boost(pt::text(body) match $q, 2),
   ) | order(publishedAt desc, _score desc)[$from...$to]{
-    ...,
-    "slug": slug.current,
+    ${postCardFragment},
     ${divisionFragment},
     ${conferencesFragment},
-    ${postAuthorFragment},
     "sport": sport->title,
   },
   "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])
@@ -533,10 +553,7 @@ export const authorBySlug = defineQuery(/* groq */ `
 export const postsByAuthor = defineQuery(/* groq */ `
   *[_type == "author" && slug.current == $slug && archived == false][0]{
     "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[$from...$to]{
-      ...,
-      "slug": slug.current,
-      ${postImageFragment},
-      ${postAuthorFragment},
+      ${postCardFragment},
     },
     "totalPosts": count(*[_type == "post" && references(^._id)])
   }
@@ -618,12 +635,7 @@ export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
 export const collegeNewsQuery = defineQuery(/* groq */ `
   {
     "posts": *[_type == "post"] | order(publishedAt desc)[$from...$to] {
-      _id,
-      title,
-      "slug": slug.current,
-      publishedAt,
-      ${postAuthorFragment},
-      ${postImageFragment}
+      ${postCardFragment}
     },
     "totalPosts": count(*[_type == "post"])
   }

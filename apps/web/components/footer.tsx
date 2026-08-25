@@ -3,16 +3,14 @@ import {
   getDynamicFetchOptions,
   sanityFetch,
 } from "@redshirt-sports/sanity/live";
-import {
-  queryFooterData,
-  queryGlobalSeoSettings,
-} from "@redshirt-sports/sanity/queries";
+import { queryFooterData } from "@redshirt-sports/sanity/queries";
 import type {
   QueryFooterDataResult,
   QueryGlobalSeoSettingsResult,
 } from "@redshirt-sports/sanity/types";
 import Link from "next/link";
 
+import { getGlobalSettings } from "@/lib/navigation";
 import {
   BlueSkyIcon,
   Facebook,
@@ -42,21 +40,17 @@ export async function CachedFooterServer({
   stega,
 }: DynamicFetchOptions) {
   "use cache";
-  const [response, settingsResponse] = await Promise.all([
+  const [response, settingsData] = await Promise.all([
     sanityFetch({
       query: queryFooterData,
       perspective,
       stega,
     }),
-    sanityFetch({
-      query: queryGlobalSeoSettings,
-      perspective,
-      stega,
-    }),
+    getGlobalSettings({ perspective, stega }),
   ]);
 
-  if (!response?.data || !settingsResponse?.data) return <FooterSkeleton />;
-  return <Footer data={response.data} settingsData={settingsResponse.data} />;
+  if (!response?.data || !settingsData) return <FooterSkeleton />;
+  return <Footer data={response.data} settingsData={settingsData} />;
 }
 
 function SocialLinks({ data }: SocialLinksProps) {

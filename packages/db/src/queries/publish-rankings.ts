@@ -8,6 +8,15 @@ import {
   seasonTypesTable,
   weeksTable,
 } from "../schema";
+import {
+  type BallotVote,
+  tallyTeamPoints,
+  toRankingRows,
+} from "../utils/publish-tally";
+import {
+  type CalendarWeekParams,
+  resolveCalendarWeekParams,
+} from "../utils/week-mapping";
 import { listActivePollVoters } from "./polls";
 import { replacePollRankings } from "./rankings";
 import { getSportIdBySlug, type SportParam } from "./sports";
@@ -15,129 +24,13 @@ import { getBallotVotesForPollWeek } from "./voting";
 import {
   calendarWeekKey,
   legacyWeekLabel,
-  legacyWeekToSeasonTypeAndNumber,
   PUBLISHABLE_SEASON_TYPES,
-  parseCalendarWeekKey,
   resolveWeekIdForCalendarWeek,
   seasonTypeAndNumberToLegacyWeek,
 } from "./weeks";
 
-export type CalendarWeekParams = {
-  seasonType: number;
-  weekNumber: number;
-};
-
-export function resolveCalendarWeekParams({
-  weekKey,
-  seasonType,
-  weekNumber,
-  legacyWeek,
-}: {
-  weekKey?: string | null;
-  seasonType?: number | null;
-  weekNumber?: number | null;
-  legacyWeek?: number | null;
-}): CalendarWeekParams {
-  if (weekKey) {
-    const parsed = parseCalendarWeekKey(weekKey);
-    if (!parsed) {
-      throw new Error(`Invalid week key: ${weekKey}`);
-    }
-    return parsed;
-  }
-
-  if (seasonType != null && weekNumber != null) {
-    return { seasonType, weekNumber };
-  }
-
-  if (legacyWeek != null) {
-    return legacyWeekToSeasonTypeAndNumber(legacyWeek);
-  }
-
-  throw new Error(
-    "Week is required (weekKey, seasonType + weekNumber, or legacy week)",
-  );
-}
-
-type BallotVote = {
-  schoolId?: string;
-  rank: number;
-  points: number;
-  userId: string;
-};
-
-type TeamPoint = {
-  schoolId: string;
-  totalPoints: number;
-  firstPlaceVotes: number;
-  rank?: number;
-  isTie?: boolean;
-};
-
-function tallyTeamPoints(votes: BallotVote[]): TeamPoint[] {
-  const bySchool = new Map<string, TeamPoint>();
-
-  for (const vote of votes) {
-    const schoolId = vote.schoolId;
-    if (!schoolId) continue;
-
-    const existing = bySchool.get(schoolId);
-    if (existing) {
-      existing.totalPoints += vote.points;
-      if (vote.rank === 1) existing.firstPlaceVotes += 1;
-    } else {
-      bySchool.set(schoolId, {
-        schoolId,
-        totalPoints: vote.points,
-        firstPlaceVotes: vote.rank === 1 ? 1 : 0,
-      });
-    }
-  }
-
-  const teamPoints = [...bySchool.values()].sort((a, b) => {
-    if (a.totalPoints === b.totalPoints) {
-      return b.firstPlaceVotes - a.firstPlaceVotes;
-    }
-    return b.totalPoints - a.totalPoints;
-  });
-
-  let currentRank = 1;
-  let previousPoints = teamPoints[0]?.totalPoints;
-  let wasPreviousTeamTied = false;
-
-  teamPoints.forEach((team, index) => {
-    if (index > 0) {
-      if (team.totalPoints === previousPoints) {
-        team.isTie = true;
-        if (!wasPreviousTeamTied) {
-          const prevTeam = teamPoints[index - 1];
-          if (prevTeam) prevTeam.isTie = true;
-        }
-        wasPreviousTeamTied = true;
-      } else {
-        currentRank = index + 1;
-        wasPreviousTeamTied = false;
-      }
-    } else {
-      team.isTie = false;
-    }
-    team.rank = currentRank;
-    previousPoints = team.totalPoints;
-  });
-
-  return teamPoints;
-}
-
-function toRankingRows(teamPoints: TeamPoint[]) {
-  return teamPoints.map((team) => ({
-    schoolId: team.schoolId,
-    // Match existing cron behavior: keep ordinal for ORV rows too.
-    rank: team.rank && team.rank <= 25 ? team.rank : (team.rank ?? null),
-    points: team.totalPoints,
-    firstPlaceVotes: team.firstPlaceVotes,
-    isTie: team.isTie ?? false,
-  }));
-}
+export type { CalendarWeekParams };
+export { resolveCalendarWeekParams };
 
 export async function listSeasonYearsForSport(sportId: string) {
   const rows = await db

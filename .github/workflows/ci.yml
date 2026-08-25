@@ -9,17 +9,38 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  id-token: write
 
 jobs:
   ci:
     name: Lint, Typecheck, and Test
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
-      NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
-      NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
-      SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
-      SKIP_ENV_VALIDATION: true
+      # Env validation runs closed (no SKIP_ENV_VALIDATION). Dummy-but-valid Zod values.
+      NEXT_PUBLIC_SANITY_DATASET: production
+      NEXT_PUBLIC_SANITY_PROJECT_ID: ci-project-id
+      NEXT_PUBLIC_SANITY_API_VERSION: "2026-06-12"
+      NEXT_PUBLIC_SANITY_STUDIO_URL: http://localhost:3333
+      SANITY_API_READ_TOKEN: ci-sanity-read-token
+      SANITY_REVALIDATE_SECRET: ci-revalidate-secret
+      SANITY_STUDIO_PROJECT_ID: ci-project-id
+      SANITY_STUDIO_DATASET: production
+      SANITY_STUDIO_TITLE: Redshirt Sports Studio
+      SANITY_STUDIO_PRESENTATION_URL: http://localhost:3000
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      DATABASE_DIRECT_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      UPSTASH_REDIS_REST_URL: https://ci.upstash.io
+      UPSTASH_REDIS_REST_TOKEN: ci-upstash-token
+      SCHOOL_SYNC_SECRET: ci-school-sync-secret
+      CLERK_SECRET_KEY: sk_test_ci_clerk_secret_key_value
+      CLERK_WEBHOOK_SECRET: whsec_ci_clerk_webhook_secret
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ci_clerk_publishable_key
+      NEXT_PUBLIC_SITE_URL: redshirtsports.com
+      NEXT_PUBLIC_APP_NAME: Redshirt Sports
+      NEXT_PUBLIC_CLERK_DOMAIN: clerk.redshirtsports.com
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -53,8 +74,24 @@ jobs:
       - name: Check formatting
         run: pnpm run check:format
 
-      - name: Run lint, typecheck, and test
-        run: pnpm exec turbo run lint check:types test
+      - name: TypeGen dirty check
+        if: ${{ secrets.SANITY_API_READ_TOKEN != '' && secrets.NEXT_PUBLIC_SANITY_PROJECT_ID != '' }}
+        env:
+          SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
+          SANITY_STUDIO_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          SANITY_STUDIO_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+        run: |
+          pnpm --filter @redshirt-sports/studio type
+          if ! git diff --quiet -- packages/sanity/src/types.ts apps/studio/schema.json; then
+            echo "::error::Sanity TypeGen output is dirty. Run pnpm --filter @redshirt-sports/studio type and commit."
+            git --no-pager diff -- packages/sanity/src/types.ts apps/studio/schema.json | head -n 200
+            exit 1
+          fi
+
+      - name: Run lint, typecheck, and test (affected)
+        run: pnpm exec turbo run lint check:types test --affected --concurrency=2
 
       - name: Update PR comment
         if: github.event_name == 'pull_request' && always()

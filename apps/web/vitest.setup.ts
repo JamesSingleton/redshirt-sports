@@ -1,13 +1,20 @@
 import "@testing-library/jest-dom/vitest";
 
+process.env.SKIP_ENV_VALIDATION ??= "true";
 process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ??= "test-project-id";
 process.env.NEXT_PUBLIC_SANITY_DATASET ??= "production";
 process.env.SANITY_API_READ_TOKEN ??= "test-token";
+process.env.SANITY_REVALIDATE_SECRET ??= "test-revalidate-secret";
 process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ??= "redshirtsports.com";
 process.env.NEXT_PUBLIC_SITE_URL ??= "redshirtsports.com";
+process.env.NEXT_PUBLIC_CLERK_DOMAIN ??= "clerk.redshirtsports.com";
 process.env.UPSTASH_REDIS_REST_TOKEN ??= "test-upstash-token";
 process.env.UPSTASH_REDIS_REST_URL ??= "https://test.upstash.io";
 process.env.DATABASE_URL ??= "postgresql://test:test@localhost:5432/test";
-process.env.NEXT_PUBLIC_POSTHOG_KEY ??= "test-posthog-key";
+process.env.SCHOOL_SYNC_SECRET ??= "school_sync_secret";
+process.env.CLERK_SECRET_KEY ??= "sk_test_clerk_secret_key";
+process.env.CLERK_WEBHOOK_SECRET ??= "whsec_test_clerk_webhook_secret";
+process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ??= "pk_test_clerk_publishable";
+process.env.NEXT_PUBLIC_POSTHOG_KEY ??= "phc_test_posthog_key";
 process.env.NEXT_PUBLIC_POSTHOG_HOST ??= "https://app.posthog.com";
 process.env.NEXT_PUBLIC_APP_NAME ??= "Redshirt Sports";
