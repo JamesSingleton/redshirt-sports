@@ -19,7 +19,7 @@ export interface PtTableCellValue {
 
 export interface PtTableRowValue {
   _key: string;
-  cells?: PtTableCellValue[] | null;
+  cells?: Array<PtTableCellValue | null> | null;
 }
 
 /** Native Sanity Portable Text table (nested cell rich text). */
@@ -27,18 +27,18 @@ export interface PtTableBlockValue {
   _type: "table";
   _key?: string;
   headerRows?: number | null;
-  rows?: PtTableRowValue[] | null;
+  rows?: Array<PtTableRowValue | null> | null;
 }
 
 /** Legacy @sanity/table shape (plain string cells). */
 export interface LegacyTableBlockValue {
   _type: "table";
   _key?: string;
-  rows: {
+  rows: Array<{
     _key: string;
     _type?: string;
-    cells: string[];
-  }[];
+    cells: Array<string | null>;
+  } | null>;
 }
 
 export type TableBlockValue = PtTableBlockValue | LegacyTableBlockValue;
@@ -46,7 +46,9 @@ export type TableBlockValue = PtTableBlockValue | LegacyTableBlockValue;
 function isLegacyStringCellTable(
   value: TableBlockValue,
 ): value is LegacyTableBlockValue {
-  const firstCell = value.rows?.[0]?.cells?.[0];
+  const firstCell = value.rows
+    ?.find(Boolean)
+    ?.cells?.find((cell) => cell != null);
   return typeof firstCell === "string";
 }
 
@@ -78,9 +80,13 @@ function PtTableRow({
   isHeader: boolean;
   cellComponents: Partial<PortableTextReactComponents>;
 }>) {
+  const cells = (row.cells ?? []).filter(
+    (cell): cell is PtTableCellValue => cell != null && Boolean(cell._key),
+  );
+
   return (
     <TableRow>
-      {(row.cells ?? []).map((cell) => (
+      {cells.map((cell) => (
         <PtTableCell
           cell={cell}
           cellComponents={cellComponents}
@@ -93,25 +99,33 @@ function PtTableRow({
 }
 
 function LegacyStringTable({ value }: { value: LegacyTableBlockValue }) {
-  const headerRow = value.rows[0];
-  const rows = value.rows.slice(1);
+  const rows = value.rows.filter(
+    (row): row is NonNullable<(typeof value.rows)[number]> =>
+      row != null && Boolean(row._key),
+  );
+  const headerRow = rows[0];
+  const bodyRows = rows.slice(1);
 
   return (
     <div className="not-prose">
       <Table>
         <TableHeader>
           <TableRow>
-            {headerRow?.cells.map((cell) => (
-              <TableHead key={cell}>{cell}</TableHead>
-            ))}
+            {(headerRow?.cells ?? [])
+              .filter((cell): cell is string => cell != null)
+              .map((cell) => (
+                <TableHead key={cell}>{cell}</TableHead>
+              ))}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((row) => (
+          {bodyRows.map((row) => (
             <TableRow key={row._key}>
-              {row.cells.map((cell) => (
-                <TableCell key={cell}>{cell}</TableCell>
-              ))}
+              {(row.cells ?? [])
+                .filter((cell): cell is string => cell != null)
+                .map((cell) => (
+                  <TableCell key={cell}>{cell}</TableCell>
+                ))}
             </TableRow>
           ))}
         </TableBody>
@@ -135,9 +149,16 @@ export function TableBlock({
     return <LegacyStringTable value={value} />;
   }
 
+  const rows = value.rows.filter(
+    (row): row is PtTableRowValue => row != null && Boolean(row._key),
+  );
+  if (rows.length === 0) {
+    return null;
+  }
+
   const headerRowCount = Math.max(0, value.headerRows ?? 0);
-  const headRows = value.rows.slice(0, headerRowCount);
-  const bodyRows = value.rows.slice(headerRowCount);
+  const headRows = rows.slice(0, headerRowCount);
+  const bodyRows = rows.slice(headerRowCount);
 
   return (
     <div className="not-prose my-6 overflow-x-auto">

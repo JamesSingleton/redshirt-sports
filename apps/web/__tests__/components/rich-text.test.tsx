@@ -266,4 +266,45 @@ describe("RichText", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Montana")).toBeInTheDocument();
   });
+
+  it("skips null holes in native table rows and cells", () => {
+    const ptTable = [
+      {
+        _type: "table",
+        _key: "pt-table-holes",
+        headerRows: 0,
+        rows: [
+          null,
+          {
+            _key: "r1",
+            cells: [
+              null,
+              {
+                _key: "c1",
+                value: [
+                  {
+                    _type: "block",
+                    _key: "b1",
+                    style: "normal",
+                    markDefs: [],
+                    children: [
+                      {
+                        _type: "span",
+                        _key: "s1",
+                        text: "Present",
+                        marks: [],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    render(<RichText richText={ptTable} />);
+    expect(screen.getByText("Present")).toBeInTheDocument();
+  });
 });
