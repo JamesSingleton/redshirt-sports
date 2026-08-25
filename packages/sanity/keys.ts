@@ -6,7 +6,6 @@ export const keys = () =>
     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
     server: {
       SANITY_API_READ_TOKEN: z.string().min(1),
-      SANITY_REVALIDATE_SECRET: z.string().min(1),
     },
     client: {
       NEXT_PUBLIC_SANITY_PROJECT_ID: z.string().min(1),
@@ -16,7 +15,6 @@ export const keys = () =>
     },
     runtimeEnv: {
       SANITY_API_READ_TOKEN: process.env.SANITY_API_READ_TOKEN,
-      SANITY_REVALIDATE_SECRET: process.env.SANITY_REVALIDATE_SECRET,
       NEXT_PUBLIC_SANITY_PROJECT_ID: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
       NEXT_PUBLIC_SANITY_DATASET: process.env.NEXT_PUBLIC_SANITY_DATASET,
       NEXT_PUBLIC_SANITY_API_VERSION:
