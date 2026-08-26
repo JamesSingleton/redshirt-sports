@@ -45,6 +45,27 @@ describe("POST /api/webhooks/sanity/school", () => {
     expect(res.status).toBe(401);
   });
 
+  it("returns 401 when authorization is not a bearer token", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/sanity/school", {
+        method: "POST",
+        headers: { Authorization: "Basic school_sync_secret" },
+        body: JSON.stringify(validPayload),
+      }),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 401 when authorization header is missing", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/sanity/school", {
+        method: "POST",
+        body: JSON.stringify(validPayload),
+      }),
+    );
+    expect(res.status).toBe(401);
+  });
+
   it("returns 400 for invalid payload", async () => {
     const res = await POST(
       new Request("http://localhost/api/webhooks/sanity/school", {

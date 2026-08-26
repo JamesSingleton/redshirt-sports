@@ -1,4 +1,4 @@
-import { getBaseUrl } from "@/lib/get-base-url";
+import { getBaseUrl, getSiteEmailDomain } from "@/lib/get-base-url";
 
 describe("getBaseUrl", () => {
   const originalEnv = { ...process.env };
@@ -125,5 +125,38 @@ describe("getBaseUrl", () => {
     process.env.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.com";
 
     expect(getBaseUrl()).toBe("https://www.redshirtsports.com");
+  });
+});
+
+describe("getSiteEmailDomain", () => {
+  const originalEnv = { ...process.env };
+  const originalWindow = globalThis.window;
+
+  beforeEach(() => {
+    // @ts-expect-error server-side tests should not use the browser branch
+    delete globalThis.window;
+  });
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+    globalThis.window = originalWindow;
+  });
+
+  it("strips www from the site hostname", () => {
+    process.env.VERCEL_ENV = "production";
+    delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    delete process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
+    process.env.NEXT_PUBLIC_SITE_URL = "https://www.redshirtsports.com";
+
+    expect(getSiteEmailDomain()).toBe("redshirtsports.com");
+  });
+
+  it("falls back to localhost when the base URL is invalid", () => {
+    process.env.VERCEL_ENV = "production";
+    delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    delete process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+
+    expect(getSiteEmailDomain()).toBe("localhost");
   });
 });

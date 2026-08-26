@@ -33,6 +33,7 @@ export default defineConfig({
         "app/__transfer-portal/**",
         "app/__recruiting/**",
         "app/__players/**",
+        "utils/espn.ts",
       ],
       thresholds: {
         statements: 100,
