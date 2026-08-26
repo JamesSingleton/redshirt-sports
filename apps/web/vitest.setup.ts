@@ -3,6 +3,7 @@ import "@testing-library/jest-dom/vitest";
 process.env.SKIP_ENV_VALIDATION ??= "true";
 process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ??= "test-project-id";
 process.env.NEXT_PUBLIC_SANITY_DATASET ??= "production";
+process.env.NEXT_PUBLIC_SANITY_API_VERSION ??= "2026-08-26";
 process.env.SANITY_API_READ_TOKEN ??= "test-token";
 process.env.SANITY_REVALIDATE_SECRET ??= "test-revalidate-secret";
 process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ??= "redshirtsports.com";

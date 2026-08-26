@@ -10,7 +10,7 @@ export const keys = () =>
     client: {
       NEXT_PUBLIC_SANITY_PROJECT_ID: z.string().min(1),
       NEXT_PUBLIC_SANITY_DATASET: z.string().min(1).default("production"),
-      NEXT_PUBLIC_SANITY_API_VERSION: z.string().min(1).default("2026-06-12"),
+      NEXT_PUBLIC_SANITY_API_VERSION: z.string().min(1).default("2026-08-26"),
       NEXT_PUBLIC_SANITY_STUDIO_URL: z.url().optional(),
     },
     runtimeEnv: {
