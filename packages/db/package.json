@@ -6,7 +6,8 @@
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "check:types": "tsc --noEmit --emitDeclarationOnly false"
+    "check:types": "tsc --noEmit --emitDeclarationOnly false",
+    "db:seed:users-with-ballots": "tsx seeds/users-with-ballots.ts"
   },
   "exports": {
     "./client": "./src/client.ts",
@@ -28,7 +29,9 @@
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
     "@types/node": "catalog:",
+    "dotenv": "^17.4.2",
     "drizzle-kit": "catalog:",
+    "tsx": "^4.23.12",
     "typescript": "catalog:"
   }
 }

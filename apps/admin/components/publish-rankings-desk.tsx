@@ -21,6 +21,13 @@ import {
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@redshirt-sports/ui/components/sheet";
+import {
   Table,
   TableBody,
   TableCell,
@@ -77,6 +84,9 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
   const [reassignTargetByUser, setReassignTargetByUser] = useState<
     Record<string, string>
   >({});
+  const [sheetVoter, setSheetVoter] = useState<Preview["panel"][number] | null>(
+    null,
+  );
   const [pending, startPending] = useTransition();
 
   const selectedPoll = useMemo(
@@ -396,84 +406,90 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
             ) : (
               <ul className="divide-y">
                 {preview.panel.map((voter) => (
-                  <li
-                    key={voter.userId}
-                    className="flex flex-wrap items-center gap-3 px-5 py-3"
-                  >
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate font-medium">
-                        {voter.firstName} {voter.lastName}
-                      </span>
-                      <span className="text-muted-foreground truncate text-sm">
-                        {voter.organization ?? "No organization"}
-                      </span>
+                  <li key={voter.userId}>
+                    <div className="flex flex-wrap items-center gap-3 px-5 py-3">
+                      <button
+                        type="button"
+                        className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                        onClick={() => voter.submitted && setSheetVoter(voter)}
+                        disabled={!voter.submitted}
+                      >
+                        <div className="flex min-w-0 flex-col">
+                          <span className="truncate font-medium">
+                            {voter.firstName} {voter.lastName}
+                          </span>
+                          <span className="text-muted-foreground truncate text-sm">
+                            {voter.organization ?? "No organization"}
+                          </span>
+                        </div>
+                      </button>
+                      {voter.submitted ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant="outline">Submitted</Badge>
+                          {otherWeeks.length > 0 ? (
+                            <>
+                              <Select
+                                value={reassignTargetByUser[voter.userId] ?? ""}
+                                onValueChange={(value) =>
+                                  setReassignTargetByUser((prev) => ({
+                                    ...prev,
+                                    [voter.userId]: value,
+                                  }))
+                                }
+                              >
+                                <SelectTrigger className="min-w-36" size="sm">
+                                  <SelectValue placeholder="Move to…" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    {otherWeeks.map((w) => (
+                                      <SelectItem
+                                        key={w.weekKey}
+                                        value={w.weekKey}
+                                      >
+                                        {w.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => reassignBallot(voter)}
+                                disabled={
+                                  pending || !reassignTargetByUser[voter.userId]
+                                }
+                              >
+                                Move ballot
+                              </Button>
+                            </>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary">Missing</Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copyNudge(voter)}
+                            disabled={pending}
+                          >
+                            <IconCopy data-icon="inline-start" />
+                            Copy nudge
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => emailNudge(voter)}
+                            disabled={pending}
+                          >
+                            <IconMail data-icon="inline-start" />
+                            Email
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                    {voter.submitted ? (
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="outline">Submitted</Badge>
-                        {otherWeeks.length > 0 ? (
-                          <>
-                            <Select
-                              value={reassignTargetByUser[voter.userId] ?? ""}
-                              onValueChange={(value) =>
-                                setReassignTargetByUser((prev) => ({
-                                  ...prev,
-                                  [voter.userId]: value,
-                                }))
-                              }
-                            >
-                              <SelectTrigger className="min-w-36" size="sm">
-                                <SelectValue placeholder="Move to…" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectGroup>
-                                  {otherWeeks.map((w) => (
-                                    <SelectItem
-                                      key={w.weekKey}
-                                      value={w.weekKey}
-                                    >
-                                      {w.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectGroup>
-                              </SelectContent>
-                            </Select>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => reassignBallot(voter)}
-                              disabled={
-                                pending || !reassignTargetByUser[voter.userId]
-                              }
-                            >
-                              Move ballot
-                            </Button>
-                          </>
-                        ) : null}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">Missing</Badge>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => copyNudge(voter)}
-                          disabled={pending}
-                        >
-                          <IconCopy data-icon="inline-start" />
-                          Copy nudge
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => emailNudge(voter)}
-                          disabled={pending}
-                        >
-                          <IconMail data-icon="inline-start" />
-                          Email
-                        </Button>
-                      </div>
-                    )}
                   </li>
                 ))}
               </ul>
@@ -569,6 +585,60 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Sheet
+        open={sheetVoter != null}
+        onOpenChange={(open) => !open && setSheetVoter(null)}
+      >
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
+              {sheetVoter
+                ? `${sheetVoter.firstName} ${sheetVoter.lastName}`
+                : "Ballot"}
+            </SheetTitle>
+            <SheetDescription>
+              {sheetVoter?.organization ?? "No organization"} ·{" "}
+              {selectedPoll?.name ?? "Poll"} ·{" "}
+              {selectedWeek?.label ?? "selected week"}
+            </SheetDescription>
+          </SheetHeader>
+          {sheetVoter && sheetVoter.ballotEntries.length === 0 ? (
+            <p className="text-muted-foreground px-4 text-sm">
+              No ballot entries found.
+            </p>
+          ) : (
+            sheetVoter && (
+              <div className="px-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">#</TableHead>
+                      <TableHead>School</TableHead>
+                      <TableHead className="w-16 text-right">Pts</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sheetVoter.ballotEntries.map((entry) => (
+                      <TableRow key={entry.schoolId}>
+                        <TableCell className="font-medium">
+                          {entry.rank}
+                        </TableCell>
+                        <TableCell>
+                          {entry.shortName ?? entry.abbreviation ?? entry.name}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {entry.points}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
