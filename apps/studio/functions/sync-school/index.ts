@@ -8,21 +8,8 @@ export const handler = documentEventHandler(async ({ context, event }) => {
   const { data } = event;
   const { local } = context;
 
-  const baseUrl =
-    process.env.SCHOOL_SYNC_URL ??
-    process.env.SANITY_STUDIO_PRESENTATION_URL ??
-    process.env.SITE_URL;
-
-  if (!baseUrl) {
-    console.error(
-      "Set SCHOOL_SYNC_URL, SANITY_STUDIO_PRESENTATION_URL, or SITE_URL for school sync",
-    );
-    return;
-  }
-
-  const target = baseUrl.includes("/api/")
-    ? baseUrl
-    : new URL("/api/webhooks/sanity/school", baseUrl).toString();
+  // Sanity Functions do not inherit Vercel/Studio env; hardcode production.
+  const target = "https://www.redshirtsports.xyz/api/webhooks/sanity/school";
   const secret = process.env.SCHOOL_SYNC_SECRET;
 
   if (!secret) {
