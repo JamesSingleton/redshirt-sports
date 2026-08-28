@@ -6,12 +6,17 @@
 
 import * as Sentry from "@sentry/nextjs";
 
-import { serverBeforeSend, serverIgnoreErrors } from "./filters";
+import {
+  ignoredTransactionNames,
+  serverBeforeSend,
+  serverIgnoreErrors,
+} from "./filters";
 import { keys } from "./keys";
 
 export const initializeSentry = (): ReturnType<typeof Sentry.init> =>
   Sentry.init({
     dsn: keys().NEXT_PUBLIC_SENTRY_DSN,
+    release: process.env.VERCEL_GIT_COMMIT_SHA,
 
     // Enable logging
     enableLogs: true,
@@ -23,6 +28,7 @@ export const initializeSentry = (): ReturnType<typeof Sentry.init> =>
     debug: false,
 
     ignoreErrors: serverIgnoreErrors,
+    ignoreTransactions: ignoredTransactionNames,
     beforeSend: serverBeforeSend,
 
     // Integrations for console logging
