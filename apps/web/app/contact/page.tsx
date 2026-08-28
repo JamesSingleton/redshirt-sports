@@ -12,7 +12,7 @@ import type { ContactPage, WithContext } from "schema-dts";
 import { ContactEmailLink } from "@/components/contact-email-link";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import PageHeader from "@/components/page-header";
-import { getBaseUrl } from "@/lib/get-base-url";
+import { getBaseUrl, getSiteEmailDomain } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,25 +27,26 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 }
 
+const baseUrl = getBaseUrl();
+const emailDomain = getSiteEmailDomain();
+
 const contactDetails = [
   {
     title: "Collaborate",
     description: "For partnership and collaboration inquiries",
-    email: "editors@redshirtsports.xyz",
+    email: `editors@${emailDomain}`,
   },
   {
     title: "Advertising",
     description: "For advertising and sponsorship opportunities",
-    email: "advertising@redshirtsports.xyz",
+    email: `advertising@${emailDomain}`,
   },
   {
     title: "General Inquiries",
     description: "For all other questions and information",
-    email: "contact@redshirtsports.xyz",
+    email: `contact@${emailDomain}`,
   },
 ];
-
-const baseUrl = getBaseUrl();
 
 const contactPageJsonLd: WithContext<ContactPage> = {
   "@context": "https://schema.org",

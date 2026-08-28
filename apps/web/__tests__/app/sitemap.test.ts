@@ -11,7 +11,7 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://redshirtsports.xyz",
+  getBaseUrl: () => "https://redshirtsports.com",
 }));
 
 import sitemap from "@/app/sitemap";
@@ -34,13 +34,13 @@ describe("root sitemap", () => {
 
     expect(urls).toEqual(
       expect.arrayContaining([
-        { url: "https://redshirtsports.xyz" },
-        { url: "https://redshirtsports.xyz/about" },
-        { url: "https://redshirtsports.xyz/contact" },
-        { url: "https://redshirtsports.xyz/privacy-policy" },
-        { url: "https://redshirtsports.xyz/college/news" },
+        { url: "https://redshirtsports.com" },
+        { url: "https://redshirtsports.com/about" },
+        { url: "https://redshirtsports.com/contact" },
+        { url: "https://redshirtsports.com/privacy-policy" },
+        { url: "https://redshirtsports.com/college/news" },
         {
-          url: "https://redshirtsports.xyz/authors/jane-author",
+          url: "https://redshirtsports.com/authors/jane-author",
           lastModified: new Date("2026-01-01T00:00:00Z"),
         },
       ]),
