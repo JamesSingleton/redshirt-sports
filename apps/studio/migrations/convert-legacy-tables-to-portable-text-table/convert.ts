@@ -178,9 +178,7 @@ export function convertTableBlock(table: TableBlock): TableBlock {
     headerRows: table.headerRows ?? 1,
     rows: (table.rows ?? [])
       .filter((row): row is LegacyTableRow | NativeTableRow => row != null)
-      .map((row) =>
-        isLegacyTableRow(row) ? convertLegacyTableRow(row) : row,
-      ),
+      .map((row) => (isLegacyTableRow(row) ? convertLegacyTableRow(row) : row)),
   };
 }
 
@@ -208,7 +206,9 @@ export function convertPortableTextValue(
 }
 
 /** Restore @sanity/table shape for prod until native table rendering is deployed. */
-export function convertNativeTableRowToLegacy(row: NativeTableRow): LegacyTableRow {
+export function convertNativeTableRowToLegacy(
+  row: NativeTableRow,
+): LegacyTableRow {
   return {
     _type: "tableRow",
     _key: row._key,

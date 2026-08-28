@@ -398,7 +398,12 @@ export type Post = {
   title: string;
   slug?: Slug;
   storyType:
-    "news" | "recruiting" | "transfer" | "analysis" | "opinion" | "game-recap";
+    | "news"
+    | "recruiting"
+    | "transfer"
+    | "analysis"
+    | "opinion"
+    | "game-recap";
   authors: Array<
     {
       _key: string;
@@ -1046,7 +1051,12 @@ export type QueryPostSlugDataResult = {
   title: string;
   slug: string | null;
   storyType:
-    "analysis" | "game-recap" | "news" | "opinion" | "recruiting" | "transfer";
+    | "analysis"
+    | "game-recap"
+    | "news"
+    | "opinion"
+    | "recruiting"
+    | "transfer";
   authors: Array<{
     _id: string;
     _type: "author";
@@ -1269,7 +1279,14 @@ export type QueryPostSlugDataResult = {
           _key: string;
         }>;
         style?:
-          "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          | "blockquote"
+          | "h1"
+          | "h2"
+          | "h3"
+          | "h4"
+          | "h5"
+          | "h6"
+          | "normal";
         listItem?: "bullet" | "number";
         markDefs: Array<
           | {
@@ -3647,6 +3664,7 @@ export type SchoolSlugsByIdsQueryResult = Array<{
 
 // Query TypeMap
 import "@sanity/client";
+
 declare module "@sanity/client" {
   interface SanityQueries {
     '\n  *[_type == "settings"][0]{\n    _id,\n    _type,\n    siteBrand,\n    siteTitle,\n    siteDescription,\n    "logo": logo.asset->url + "?w=80&h=40&dpr=3&fit=max",\n    "socialLinks": socialLinks,\n    "contactEmail": contactEmail,\n  }\n': QuerySettingsDataResult;

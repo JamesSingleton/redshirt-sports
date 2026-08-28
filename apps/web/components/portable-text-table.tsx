@@ -47,11 +47,7 @@ function isLegacyStringCellTable(
   value: TableBlockValue,
 ): value is LegacyTableBlockValue {
   const firstRow = value.rows?.find((row) => row != null);
-  if (
-    firstRow &&
-    "_type" in firstRow &&
-    firstRow._type === "tableRow"
-  ) {
+  if (firstRow && "_type" in firstRow && firstRow._type === "tableRow") {
     return true;
   }
 
