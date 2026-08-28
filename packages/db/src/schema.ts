@@ -245,6 +245,13 @@ export const weeklyRankings = pgTable(
 );
 
 /** First-class poll (Sport + Browse Scope operational product). */
+/**
+ * Poll-engine tables enable RLS in migration `0016_poll_engine.sql` with
+ * **no policies**. That is intentional while the app connects with a
+ * Supabase service-role / bypass role (DATABASE_URL). Browser/anon clients
+ * must never receive this URL. Add RLS policies *before* exposing Supabase
+ * to the client; do not add policies that lock out the current server role.
+ */
 export const pollsTable = pgTable(
   "polls",
   {

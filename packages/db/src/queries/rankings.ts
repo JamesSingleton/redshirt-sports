@@ -41,10 +41,6 @@ type FinalRankings = {
   }[];
 };
 
-export async function getAllWeeklyRankings() {
-  return db.query.pollRankingsTable.findMany();
-}
-
 export async function getFinalRankingsForWeekAndYearFromDb({
   year,
   week,
