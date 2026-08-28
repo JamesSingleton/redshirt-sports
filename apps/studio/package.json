@@ -2,6 +2,7 @@
   "name": "@redshirt-sports/studio",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "sanity dev",
     "start": "sanity start",
@@ -12,8 +13,13 @@
     "build": "sanity build",
     "deploy:schema": "sanity schema deploy --manifest-dir ./dist/static",
     "deploy": "sanity deploy",
-    "type": "sanity schema extract --enforce-required-fields && sanity typegen generate",
-    "check:types": "tsc --noEmit"
+    "type": "sanity schema extract --enforce-required-fields --force && sanity typegen generate",
+    "check:types": "tsc --noEmit",
+    "migration:tables:dry-run": "MIGRATION_DRY_RUN=true tsx migrations/convert-legacy-tables-to-portable-text-table/index.ts",
+    "migration:tables:apply": "tsx migrations/convert-legacy-tables-to-portable-text-table/index.ts",
+    "migration:tables:revert:dry-run": "MIGRATION_DRY_RUN=true tsx migrations/convert-legacy-tables-to-portable-text-table/revert.ts",
+    "migration:tables:revert": "tsx migrations/convert-legacy-tables-to-portable-text-table/revert.ts",
+    "migration:tables:list": "tsx migrations/convert-legacy-tables-to-portable-text-table/list-legacy-articles.ts"
   },
   "dependencies": {
     "@portabletext/react": "^8.0.1",
@@ -26,7 +32,6 @@
     "@sanity/functions": "^1.6.8",
     "@sanity/icons": "^5.2.1",
     "@sanity/image-url": "^2.1.1",
-    "@sanity/table": "^3.1.16",
     "@sanity/ui": "^4.0.6",
     "@sanity/vision": "^6.10.1",
     "copy-to-clipboard": "^4.0.2",

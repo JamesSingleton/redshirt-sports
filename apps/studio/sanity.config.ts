@@ -5,7 +5,6 @@ import {
   projectUsersWidget,
   sanityTutorialsWidget,
 } from "@sanity/dashboard";
-import { table } from "@sanity/table";
 import { visionTool } from "@sanity/vision";
 import type {
   InputProps,
@@ -71,7 +70,6 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    table(),
   ],
   form: {
     components: {

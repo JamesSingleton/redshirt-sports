@@ -200,4 +200,237 @@ describe("RichText", () => {
     expect(logSpy).toHaveBeenCalled();
     logSpy.mockRestore();
   });
+
+  it("renders native Portable Text tables with headerRows and cell marks", () => {
+    const ptTable = [
+      {
+        _type: "table",
+        _key: "pt-table-1",
+        headerRows: 1,
+        rows: [
+          {
+            _key: "h1",
+            cells: [
+              {
+                _key: "c1",
+                value: [
+                  {
+                    _type: "block",
+                    _key: "b1",
+                    style: "normal",
+                    markDefs: [],
+                    children: [
+                      {
+                        _type: "span",
+                        _key: "s1",
+                        text: "School",
+                        marks: ["strong"],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            _key: "r1",
+            cells: [
+              {
+                _key: "c2",
+                value: [
+                  {
+                    _type: "block",
+                    _key: "b2",
+                    style: "normal",
+                    markDefs: [],
+                    children: [
+                      {
+                        _type: "span",
+                        _key: "s2",
+                        text: "Montana",
+                        marks: [],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    render(<RichText richText={ptTable} />);
+    expect(
+      screen.getByRole("columnheader", { name: "School" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Montana")).toBeInTheDocument();
+  });
+
+  it("skips null holes in native table rows and cells", () => {
+    const ptTable = [
+      {
+        _type: "table",
+        _key: "pt-table-holes",
+        headerRows: 0,
+        rows: [
+          null,
+          {
+            _key: "r1",
+            cells: [
+              null,
+              {
+                _key: "c1",
+                value: [
+                  {
+                    _type: "block",
+                    _key: "b1",
+                    style: "normal",
+                    markDefs: [],
+                    children: [
+                      {
+                        _type: "span",
+                        _key: "s1",
+                        text: "Present",
+                        marks: [],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    render(<RichText richText={ptTable} />);
+    expect(screen.getByText("Present")).toBeInTheDocument();
+  });
+
+  it("renders nothing for empty or all-null native table rows", () => {
+    const { container: emptyContainer } = render(
+      <RichText
+        richText={[
+          {
+            _type: "table",
+            _key: "empty",
+            rows: [],
+          },
+        ]}
+      />,
+    );
+    expect(emptyContainer.querySelector("table")).toBeNull();
+
+    const { container: nullRowsContainer } = render(
+      <RichText
+        richText={[
+          {
+            _type: "table",
+            _key: "null-rows",
+            rows: [null, null],
+          },
+        ]}
+      />,
+    );
+    expect(nullRowsContainer.querySelector("table")).toBeNull();
+  });
+
+  it("covers empty cells, missing cell values, and nullish headerRows", () => {
+    render(
+      <RichText
+        richText={[
+          {
+            _type: "table",
+            _key: "edge-native",
+            rows: [
+              {
+                _key: "r1",
+                cells: null,
+              },
+              {
+                _key: "r2",
+                cells: [
+                  { _key: "c-empty", value: null },
+                  {
+                    _key: "c-text",
+                    value: [
+                      {
+                        _type: "block",
+                        _key: "b1",
+                        style: "normal",
+                        markDefs: [],
+                        children: [
+                          {
+                            _type: "span",
+                            _key: "s1",
+                            text: "Cell",
+                            marks: [],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+    expect(screen.getByText("Cell")).toBeInTheDocument();
+  });
+
+  it("covers legacy tables with null cells and rows", () => {
+    render(
+      <RichText
+        richText={[
+          {
+            _type: "table",
+            _key: "legacy-nulls",
+            rows: [
+              null,
+              {
+                _key: "h1",
+                cells: [null, "Header"],
+              },
+              {
+                _key: "b1",
+                cells: null as unknown as string[],
+              },
+              {
+                _key: "b2",
+                cells: [null, "Body"],
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+    expect(
+      screen.getByRole("columnheader", { name: "Header" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Body")).toBeInTheDocument();
+  });
+
+  it("renders an empty legacy table when rows lack keys", () => {
+    const { container } = render(
+      <RichText
+        richText={[
+          {
+            _type: "table",
+            _key: "legacy-no-keys",
+            rows: [
+              null,
+              {
+                cells: ["Ghost"],
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+    expect(container.querySelector("table")).not.toBeNull();
+    expect(screen.queryByText("Ghost")).not.toBeInTheDocument();
+  });
 });
