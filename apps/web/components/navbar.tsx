@@ -1,12 +1,7 @@
 import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
-  sanityFetch,
 } from "@redshirt-sports/sanity/live";
-import {
-  globalNavigationQuery,
-  queryGlobalSeoSettings,
-} from "@redshirt-sports/sanity/queries";
 import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
@@ -14,7 +9,7 @@ import type {
 import type { StegaBranded } from "next-sanity";
 import { memo } from "react";
 
-import { getCachedNavbarLatestRankings } from "@/lib/rankings-data";
+import { getNavigationData } from "@/lib/navigation";
 import { Logo } from "./logo";
 import { NavbarClient, NavbarSkeletonResponsive } from "./navbar-client";
 
@@ -42,24 +37,13 @@ export async function CachedNavbarServer({
   perspective,
   stega,
 }: DynamicFetchOptions) {
-  "use cache";
-  // Call sanityFetch directly (not sanityFetchPage) to avoid nested `"use cache"`
-  // entries that can deadlock against the shared postgres/client module scope
-  // while sibling Suspense boundaries fill other caches.
-  const [latestRankings, { data: navbarData }, { data: settingsData }] =
-    await Promise.all([
-      getCachedNavbarLatestRankings(),
-      sanityFetch({
-        query: globalNavigationQuery,
-        perspective,
-        stega,
-      }),
-      sanityFetch({
-        query: queryGlobalSeoSettings,
-        perspective,
-        stega,
-      }),
-    ]);
+  // Caching lives on `getNavigationData` / `getGlobalSettings` — a component-level
+  // `"use cache"` here deadlocks under Cache Components when sibling boundaries
+  // fill and Next's hang probe joins shared in-flight work from the outer render.
+  const { navbarData, settingsData, latestRankings } = await getNavigationData({
+    perspective,
+    stega,
+  });
 
   return (
     <MemoizedNavbar

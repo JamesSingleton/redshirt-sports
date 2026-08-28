@@ -1,19 +1,14 @@
-import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
-import { queryGlobalSeoSettings } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import type { LivePerspective } from "next-sanity/live";
 
+import { getGlobalSettings } from "@/lib/navigation";
 import { getSEOMetadata, type PageMetadataInput } from "@/lib/seo";
 
+/** Published/draft settings for metadata — shares the navbar/footer cache entry. */
 export async function fetchGlobalSeoSettings(
   perspective: LivePerspective = "published",
 ) {
-  "use cache";
-  const { data } = await sanityFetchMetadata({
-    query: queryGlobalSeoSettings,
-    perspective,
-  });
-  return data;
+  return getGlobalSettings({ perspective, stega: false });
 }
 
 export async function getPageMetadata(
