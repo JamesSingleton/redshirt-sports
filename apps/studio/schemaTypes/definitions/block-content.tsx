@@ -7,8 +7,6 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 
 import { warnWhenHeadingOrBlockIsAllBold } from "../../utils/portable-text-validations";
 
-const TABLE_CELL_BLOCK_STYLES = [{ title: "Normal", value: "normal" }];
-
 const customLinkAnnotation = {
   name: "customLink",
   type: "object",
@@ -19,15 +17,6 @@ const customLinkAnnotation = {
       name: "customLink",
       type: "customUrl",
     }),
-  ],
-};
-
-const tableCellMarks = {
-  annotations: [customLinkAnnotation],
-  decorators: [
-    { title: "Strong", value: "strong" },
-    { title: "Emphasis", value: "em" },
-    { title: "Code", value: "code" },
   ],
 };
 
@@ -138,75 +127,9 @@ const richTextMembers = [
     type: "twitter",
     icon: TwitterIcon,
   }),
-  // Native Portable Text table (Sanity v6+ plugin). Legacy @sanity/table
-  // string-cell documents still render on the site via cell-shape detection.
   defineArrayMember({
-    name: "table",
-    type: "object",
-    title: "Table",
+    type: "table",
     icon: ThLargeIcon,
-    fields: [
-      defineField({
-        name: "headerRows",
-        type: "number",
-        title: "Header Rows",
-        description: "How many rows at the top of the table are headers.",
-      }),
-      defineField({
-        name: "rows",
-        type: "array",
-        title: "Rows",
-        of: [
-          defineArrayMember({
-            name: "row",
-            type: "object",
-            fields: [
-              defineField({
-                name: "cells",
-                type: "array",
-                title: "Cells",
-                of: [
-                  defineArrayMember({
-                    name: "cell",
-                    type: "object",
-                    fields: [
-                      defineField({
-                        name: "value",
-                        type: "array",
-                        of: [
-                          defineArrayMember({
-                            type: "block",
-                            styles: TABLE_CELL_BLOCK_STYLES,
-                            marks: tableCellMarks,
-                          }),
-                        ],
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-    ],
-    preview: {
-      select: {
-        rows: "rows",
-      },
-      prepare({ rows }) {
-        const rowCount = Array.isArray(rows) ? rows.length : 0;
-        const columnCount = Array.isArray(rows?.[0]?.cells)
-          ? rows[0].cells.length
-          : 0;
-        return {
-          title:
-            rowCount && columnCount
-              ? `${rowCount}×${columnCount} Table`
-              : "Table",
-        };
-      },
-    },
   }),
   defineArrayMember({
     name: "youtubeEmbed",

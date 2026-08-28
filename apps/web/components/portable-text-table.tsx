@@ -46,6 +46,15 @@ export type TableBlockValue = PtTableBlockValue | LegacyTableBlockValue;
 function isLegacyStringCellTable(
   value: TableBlockValue,
 ): value is LegacyTableBlockValue {
+  const firstRow = value.rows?.find((row) => row != null);
+  if (
+    firstRow &&
+    "_type" in firstRow &&
+    firstRow._type === "tableRow"
+  ) {
+    return true;
+  }
+
   const firstCell = value.rows
     ?.find(Boolean)
     ?.cells?.find((cell) => cell != null);
@@ -80,9 +89,12 @@ function PtTableRow({
   isHeader: boolean;
   cellComponents: Partial<PortableTextReactComponents>;
 }>) {
-  const cells = (row.cells ?? []).filter(
-    (cell): cell is PtTableCellValue => cell != null && Boolean(cell._key),
-  );
+  const cells = (row.cells ?? [])
+    .filter((cell): cell is PtTableCellValue => cell != null)
+    .map((cell, index) => ({
+      ...cell,
+      _key: cell._key ?? `cell-${index}`,
+    }));
 
   return (
     <TableRow>
@@ -149,9 +161,12 @@ export function TableBlock({
     return <LegacyStringTable value={value} />;
   }
 
-  const rows = value.rows.filter(
-    (row): row is PtTableRowValue => row != null && Boolean(row._key),
-  );
+  const rows = value.rows
+    .filter((row): row is PtTableRowValue => row != null)
+    .map((row, index) => ({
+      ...row,
+      _key: row._key ?? `row-${index}`,
+    }));
   if (rows.length === 0) {
     return null;
   }

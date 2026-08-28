@@ -241,18 +241,22 @@ const richTextFragment = /* groq */ `
     _type == "table" => {
       ...,
       rows[]{
-        ...,
-        cells[]{
-          ...,
-          // Native PT cells: project nested markDefs the same as body blocks.
-          value[]{
-            ...,
-            _type == "block" => {
+        _key,
+        _type,
+        "cells": select(
+          _type == "row" => cells[]{
+            _key,
+            _type,
+            value[]{
               ...,
-              ${markDefsFragment}
+              _type == "block" => {
+                ...,
+                ${markDefsFragment}
+              }
             }
-          }
-        }
+          },
+          cells
+        )
       }
     },
   }
