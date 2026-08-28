@@ -8,6 +8,11 @@ import * as schema from "./schema";
  * Transaction-pooler safe options (Supabase port 6543).
  * `prepare: false` is required — named prepared statements aren't supported
  * in transaction mode.
+ *
+ * Use `DATABASE_URL` (pooler) for request-path queries.
+ * Use `DATABASE_DIRECT_URL` (session / port 5432) for drizzle-kit migrations
+ * and long-running jobs — see `drizzle.config.ts`.
+ *
  * @see https://supabase.com/docs/guides/database/drizzle
  */
 const client = postgres(keys().DATABASE_URL, {

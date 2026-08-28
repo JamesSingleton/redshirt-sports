@@ -1,37 +1,24 @@
 import { describe, expect, it, vi } from "vitest";
 
 describe("redis", () => {
-  it("creates a Redis client from env when URLs are set", async () => {
+  it("creates a Redis client from validated env keys", async () => {
     vi.resetModules();
-    const fromEnv = vi.fn(() => ({ ping: vi.fn() }));
+    const RedisCtor = vi.fn(function Redis() {
+      return { ping: vi.fn() };
+    });
     vi.doMock("@upstash/redis", () => ({
-      Redis: { fromEnv },
+      Redis: RedisCtor,
     }));
 
     process.env.UPSTASH_REDIS_REST_TOKEN = "token";
     process.env.UPSTASH_REDIS_REST_URL = "https://test.upstash.io";
+    process.env.SKIP_ENV_VALIDATION = "true";
 
     const redis = (await import("@/utils/redis")).default;
     expect(redis).toBeDefined();
-    expect(fromEnv).toHaveBeenCalled();
-  });
-
-  it("throws when both redis env vars are missing", async () => {
-    vi.resetModules();
-    vi.doMock("@upstash/redis", () => ({
-      Redis: { fromEnv: vi.fn() },
-    }));
-
-    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-    const url = process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-    delete process.env.UPSTASH_REDIS_REST_URL;
-
-    await expect(import("@/utils/redis")).rejects.toThrow(
-      "UPSTASH_REDIS_REST_TOKEN and or UPSTASH_REDIS_REST_URL is not set",
-    );
-
-    process.env.UPSTASH_REDIS_REST_TOKEN = token;
-    process.env.UPSTASH_REDIS_REST_URL = url;
+    expect(RedisCtor).toHaveBeenCalledWith({
+      url: "https://test.upstash.io",
+      token: "token",
+    });
   });
 });

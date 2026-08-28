@@ -12,7 +12,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { getDashboardData } from "@/lib/dashboard-data";
-import { PUBLIC_SITE_URL } from "@/lib/site";
+import { PUBLIC_SITE_URL, publicSiteLabel } from "@/lib/site";
 
 function DashboardFallback() {
   return (
@@ -236,7 +236,7 @@ async function DashboardContent() {
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="font-medium">Public site</span>
                   <span className="text-muted-foreground text-sm">
-                    Open redshirtsports.xyz
+                    Open {publicSiteLabel()}
                   </span>
                 </span>
                 <IconArrowRight className="text-muted-foreground size-4" />

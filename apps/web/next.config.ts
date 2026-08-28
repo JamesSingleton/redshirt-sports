@@ -1,33 +1,52 @@
 import { config, withAnalyzer } from "@redshirt-sports/next-config";
 import { withSentry } from "@redshirt-sports/observability/next-config";
+import {
+  apiVersion,
+  dataset,
+  projectId,
+  studioUrl,
+} from "@redshirt-sports/sanity/api";
 import { createClient } from "@sanity/client";
 import type { NextConfig } from "next";
+import type { Header } from "next/dist/lib/load-custom-routes";
 import { sanity } from "next-sanity/live/cache-life";
 
 import { env } from "@/env";
 
 const client = createClient({
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset,
+  projectId,
   useCdn: process.env.NODE_ENV === "production",
-  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2026-06-12",
+  apiVersion,
 });
 
-const sanityStudioUrl = process.env.NEXT_PUBLIC_SANITY_STUDIO_URL;
 const sanityStudioOrigins = [
   "'self'",
   "http://localhost:3333",
-  ...(sanityStudioUrl ? [sanityStudioUrl] : []),
+  ...(studioUrl ? [studioUrl] : []),
 ].join(" ");
+
+const clerkDomain = env.NEXT_PUBLIC_CLERK_DOMAIN;
+const clerkOrigin = clerkDomain
+  ? clerkDomain.startsWith("http")
+    ? clerkDomain
+    : `https://${clerkDomain}`
+  : undefined;
+const clerkHost = clerkDomain
+  ? clerkDomain.replace(/^https?:\/\//, "").replace(/\/$/, "")
+  : undefined;
+
+// Clerk Frontend API host for this application instance (not a brand domain).
+const clerkFrontendApi = "https://electric-alien-91.clerk.accounts.dev";
 
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
     default-src 'self' vercel.live;
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live https://electric-alien-91.clerk.accounts.dev https://clerk.redshirtsports.xyz https://challenges.cloudflare.com https://va.vercel-scripts.com https://*.posthog.com https://*.i.posthog.com;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live ${clerkFrontendApi} ${clerkOrigin ?? ""} https://challenges.cloudflare.com https://va.vercel-scripts.com https://*.posthog.com https://*.i.posthog.com;
     style-src 'self' 'unsafe-inline' https://*.posthog.com https://*.i.posthog.com;
     img-src * blob: data: https://img.clerk.com https://cdn.sanity.io https://*.posthog.com https://*.i.posthog.com;
     media-src 'none';
-    connect-src * https://clerk.redshirtsports.xyz https://electric-alien-91.clerk.accounts.dev;
+    connect-src * ${clerkFrontendApi} ${clerkOrigin ?? ""};
     font-src 'self' fonts.gstatic.com https://*.posthog.com https://*.i.posthog.com;
     frame-src 'self' https://challenges.cloudflare.com https://vercel.live https://www.youtube.com;
     frame-ancestors ${sanityStudioOrigins};
@@ -68,7 +87,7 @@ let nextConfig: NextConfig = {
   cacheComponents: true,
   cacheLife: { default: sanity },
   async headers() {
-    return [
+    const headers: Header[] = [
       {
         // Apply these headers to all routes in your application.
         source: "/:path*",
@@ -80,7 +99,15 @@ let nextConfig: NextConfig = {
         ],
       },
       {
-        // Exclude https://clerk.redshirtsports.xyz from robots
+        // Apply these headers to all routes in your application.
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+    ];
+
+    if (clerkHost) {
+      headers.splice(1, 0, {
+        // Exclude the Clerk custom domain from robots when it shares this app
         source: "/:path*",
         headers: [
           {
@@ -91,16 +118,13 @@ let nextConfig: NextConfig = {
         has: [
           {
             type: "host",
-            value: "clerk.redshirtsports.xyz",
+            value: clerkHost,
           },
         ],
-      },
-      {
-        // Apply these headers to all routes in your application.
-        source: "/:path*",
-        headers: securityHeaders,
-      },
-    ];
+      });
+    }
+
+    return headers;
   },
   async redirects() {
     const query =

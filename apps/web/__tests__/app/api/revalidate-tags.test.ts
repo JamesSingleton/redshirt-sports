@@ -6,6 +6,14 @@ vi.mock("next/cache", () => ({
   revalidateTag: mockRevalidateTag,
 }));
 
+vi.mock("@/env", () => ({
+  env: {
+    get SANITY_REVALIDATE_SECRET() {
+      return process.env.SANITY_REVALIDATE_SECRET;
+    },
+  },
+}));
+
 describe("POST /api/revalidate-tags", () => {
   const originalSecret = process.env.SANITY_REVALIDATE_SECRET;
 
