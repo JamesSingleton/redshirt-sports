@@ -42,6 +42,12 @@ export type PortableTextValue = Array<
   TableBlock | ({ _type: string; _key: string } & Record<string, unknown>)
 >;
 
+export function isTableBlock(
+  block: PortableTextValue[number],
+): block is TableBlock {
+  return block._type === "table";
+}
+
 export function isLegacyTableRow(row: unknown): row is LegacyTableRow {
   if (!row || typeof row !== "object") {
     return false;
@@ -71,7 +77,7 @@ export function portableTextHasLegacyTables(
   }
 
   return value.some(
-    (block) => block._type === "table" && tableBlockHasLegacyRows(block),
+    (block) => isTableBlock(block) && tableBlockHasLegacyRows(block),
   );
 }
 
@@ -98,7 +104,7 @@ export function portableTextHasNativeTables(
   }
 
   return value.some(
-    (block) => block._type === "table" && tableBlockHasNativeRows(block),
+    (block) => isTableBlock(block) && tableBlockHasNativeRows(block),
   );
 }
 
@@ -191,7 +197,7 @@ export function convertPortableTextValue(
 
   let changed = false;
   const nextValue = value.map((block) => {
-    if (block._type !== "table") {
+    if (!isTableBlock(block)) {
       return block;
     }
 
@@ -242,7 +248,7 @@ export function revertPortableTextValue(
 
   let changed = false;
   const nextValue = value.map((block) => {
-    if (block._type !== "table") {
+    if (!isTableBlock(block)) {
       return block;
     }
 
