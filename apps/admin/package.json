@@ -18,6 +18,7 @@
     "@redshirt-sports/clients": "workspace:*",
     "@redshirt-sports/db": "workspace:*",
     "@redshirt-sports/next-config": "workspace:*",
+    "@redshirt-sports/observability": "workspace:*",
     "@redshirt-sports/sanity": "workspace:*",
     "@redshirt-sports/ui": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.11",

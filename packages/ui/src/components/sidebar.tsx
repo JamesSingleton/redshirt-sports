@@ -82,6 +82,8 @@ function SidebarProvider({
       }
 
       // This sets the cookie to keep the sidebar state.
+      // Cookie Store API is not universal enough for this ShadCN pattern yet.
+      // biome-ignore lint/suspicious/noDocumentCookie: sync sidebar open state for SSR
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
     [setOpenProp, open],
