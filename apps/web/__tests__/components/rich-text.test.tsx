@@ -381,6 +381,70 @@ describe("RichText", () => {
     expect(screen.getByText("Cell")).toBeInTheDocument();
   });
 
+  it("synthesizes keys for native table rows and cells that omit _key", () => {
+    render(
+      <RichText
+        richText={[
+          {
+            _type: "table",
+            _key: "missing-keys",
+            headerRows: 1,
+            rows: [
+              {
+                cells: [
+                  {
+                    value: [
+                      {
+                        _type: "block",
+                        _key: "b-head",
+                        style: "normal",
+                        markDefs: [],
+                        children: [
+                          {
+                            _type: "span",
+                            _key: "s-head",
+                            text: "Head",
+                            marks: [],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    value: [
+                      {
+                        _type: "block",
+                        _key: "b-body",
+                        style: "normal",
+                        markDefs: [],
+                        children: [
+                          {
+                            _type: "span",
+                            _key: "s-body",
+                            text: "Body",
+                            marks: [],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+    expect(
+      screen.getByRole("columnheader", { name: "Head" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Body")).toBeInTheDocument();
+  });
+
   it("covers legacy tables with null cells and rows", () => {
     render(
       <RichText
