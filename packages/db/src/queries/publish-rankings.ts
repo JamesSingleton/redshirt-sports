@@ -2,6 +2,8 @@ import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
+  ballotEntriesTable,
+  ballotsTable,
   pollRankingsTable,
   schoolsTable,
   seasonsTable,
@@ -196,6 +198,62 @@ export async function listLegacyWeeksForSportYear({
   });
 }
 
+export async function getBallotEntriesForPollWeek({
+  pollId,
+  weekId,
+}: {
+  pollId: string;
+  weekId: string;
+}) {
+  const rows = await db
+    .select({
+      userId: ballotsTable.userId,
+      rank: ballotEntriesTable.rank,
+      points: ballotEntriesTable.points,
+      schoolId: schoolsTable.id,
+      name: schoolsTable.name,
+      shortName: schoolsTable.shortName,
+      abbreviation: schoolsTable.abbreviation,
+    })
+    .from(ballotsTable)
+    .innerJoin(
+      ballotEntriesTable,
+      eq(ballotEntriesTable.ballotId, ballotsTable.id),
+    )
+    .innerJoin(schoolsTable, eq(ballotEntriesTable.schoolId, schoolsTable.id))
+    .where(
+      and(eq(ballotsTable.pollId, pollId), eq(ballotsTable.weekId, weekId)),
+    )
+    .orderBy(asc(ballotEntriesTable.rank));
+
+  const byUserId = new Map<
+    string,
+    Array<{
+      rank: number;
+      points: number;
+      schoolId: string;
+      name: string;
+      shortName: string | null;
+      abbreviation: string | null;
+    }>
+  >();
+
+  for (const row of rows) {
+    const entries = byUserId.get(row.userId) ?? [];
+    entries.push({
+      rank: row.rank,
+      points: row.points,
+      schoolId: row.schoolId,
+      name: row.name ?? "Unknown",
+      shortName: row.shortName,
+      abbreviation: row.abbreviation,
+    });
+    byUserId.set(row.userId, entries);
+  }
+
+  return byUserId;
+}
+
 export async function getPollRankingPublishPreview({
   sport,
   division,
@@ -251,7 +309,7 @@ export async function getPollRankingPublishPreview({
     resolvedWeekNumber,
   );
 
-  const [assigned, votes, existingRankingRow, submittedBallots] =
+  const [assigned, votes, existingRankingRow, submittedBallots, ballotEntries] =
     await Promise.all([
       listActivePollVoters(poll.id),
       getBallotVotesForPollWeek({
@@ -277,6 +335,7 @@ export async function getPollRankingPublishPreview({
           and(eq(model.pollId, poll.id), eq(model.weekId, weekId)),
         columns: { userId: true, submittedAt: true },
       }),
+      getBallotEntriesForPollWeek({ pollId: poll.id, weekId }),
     ]);
 
   const submittedByUserId = new Map(
@@ -292,6 +351,8 @@ export async function getPollRankingPublishPreview({
       organization: row.user.organization,
       submitted: submittedAt != null,
       submittedAt,
+      ballotEntries:
+        submittedAt != null ? (ballotEntries.get(row.userId) ?? []) : [],
     };
   });
 
