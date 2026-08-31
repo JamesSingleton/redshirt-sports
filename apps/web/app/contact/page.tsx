@@ -31,17 +31,17 @@ const contactDetails = [
   {
     title: "Collaborate",
     description: "For partnership and collaboration inquiries",
-    email: "editors@redshirtsports.xyz",
+    email: "editors@redshirtsports.com",
   },
   {
     title: "Advertising",
     description: "For advertising and sponsorship opportunities",
-    email: "advertising@redshirtsports.xyz",
+    email: "advertising@redshirtsports.com",
   },
   {
     title: "General Inquiries",
     description: "For all other questions and information",
-    email: "contact@redshirtsports.xyz",
+    email: "contact@redshirtsports.com",
   },
 ];
 

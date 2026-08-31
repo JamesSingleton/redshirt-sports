@@ -12,7 +12,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://redshirtsports.xyz",
+  getBaseUrl: () => "https://redshirtsports.com",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
@@ -56,7 +56,7 @@ describe("ContactPage", () => {
     expect(screen.getByText("Advertising")).toBeInTheDocument();
     expect(screen.getByText("General Inquiries")).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "editors@redshirtsports.xyz" }),
-    ).toHaveAttribute("href", "mailto:editors@redshirtsports.xyz");
+      screen.getByRole("link", { name: "editors@redshirtsports.com" }),
+    ).toHaveAttribute("href", "mailto:editors@redshirtsports.com");
   });
 });
