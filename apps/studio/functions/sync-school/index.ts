@@ -10,7 +10,7 @@ export const handler = documentEventHandler(async ({ context, event }) => {
 
   const target =
     process.env.SCHOOL_SYNC_URL ??
-    "https://www.redshirtsports.xyz/api/webhooks/sanity/school";
+    "https://www.redshirtsports.com/api/webhooks/sanity/school";
   const secret = process.env.SCHOOL_SYNC_SECRET;
 
   if (!secret) {
