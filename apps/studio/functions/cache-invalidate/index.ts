@@ -43,7 +43,7 @@ export const handler = syncTagInvalidateEventHandler(
     const { syncTags } = event.data;
 
     const target = new URL(
-      "https://www.redshirtsports.xyz/api/revalidate-tags",
+      "https://www.redshirtsports.com/api/revalidate-tags",
     );
     console.info(`Forwarding ${syncTags.length} tags to api`);
 

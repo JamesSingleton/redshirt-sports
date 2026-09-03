@@ -31,7 +31,7 @@ vi.mock("@/lib/rankings-data", () => ({
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://redshirtsports.xyz",
+  getBaseUrl: () => "https://redshirtsports.com",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({

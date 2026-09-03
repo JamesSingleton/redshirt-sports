@@ -42,7 +42,7 @@ describe("GET /api/link-check", () => {
   it("returns 403 for non-studio origins", async () => {
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
         "https://evil.example",
       ),
     );
@@ -56,7 +56,7 @@ describe("GET /api/link-check", () => {
   it("returns 403 when origin is missing", async () => {
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
         null,
       ),
     );
@@ -65,7 +65,7 @@ describe("GET /api/link-check", () => {
 
   it("returns 400 when url param is missing", async () => {
     const res = await GET(
-      makeRequest("https://www.redshirtsports.xyz/api/link-check"),
+      makeRequest("https://www.redshirtsports.com/api/link-check"),
     );
     expect(res.status).toBe(400);
     await expect(res.json()).resolves.toMatchObject({
@@ -76,7 +76,7 @@ describe("GET /api/link-check", () => {
   it("returns 400 when target URL is invalid", async () => {
     mockResolveLinkCheckTarget.mockReturnValue(null);
     const res = await GET(
-      makeRequest("https://www.redshirtsports.xyz/api/link-check?url=bad"),
+      makeRequest("https://www.redshirtsports.com/api/link-check?url=bad"),
     );
     expect(res.status).toBe(400);
     await expect(res.json()).resolves.toMatchObject({ message: "Invalid URL" });
@@ -87,7 +87,7 @@ describe("GET /api/link-check", () => {
 
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     expect(res.status).toBe(200);
@@ -107,7 +107,7 @@ describe("GET /api/link-check", () => {
 
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     await expect(res.json()).resolves.toMatchObject({ ok: true, status: 200 });
@@ -124,7 +124,7 @@ describe("GET /api/link-check", () => {
 
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     await expect(res.json()).resolves.toMatchObject({
@@ -146,7 +146,7 @@ describe("GET /api/link-check", () => {
 
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     await expect(res.json()).resolves.toMatchObject({
@@ -160,7 +160,7 @@ describe("GET /api/link-check", () => {
 
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     await expect(res.json()).resolves.toMatchObject({
@@ -174,7 +174,7 @@ describe("GET /api/link-check", () => {
     mockAssertPublicHttpUrl.mockRejectedValue(new Error("Invalid URL"));
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     expect(res.status).toBe(400);
@@ -187,7 +187,7 @@ describe("GET /api/link-check", () => {
 
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     expect(res.status).toBe(502);
@@ -203,7 +203,7 @@ describe("GET /api/link-check", () => {
 
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     expect(res.status).toBe(502);
@@ -216,7 +216,7 @@ describe("GET /api/link-check", () => {
     mockAssertPublicHttpUrl.mockRejectedValue(new Error("Too many redirects"));
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     expect(res.status).toBe(502);
@@ -229,7 +229,7 @@ describe("GET /api/link-check", () => {
     mockAssertPublicHttpUrl.mockRejectedValue("boom");
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     expect(res.status).toBe(502);
@@ -253,7 +253,7 @@ describe("GET /api/link-check", () => {
 
     const responsePromise = GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
 
@@ -277,7 +277,7 @@ describe("GET /api/link-check", () => {
 
     const res = await GET(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check?url=https://example.com",
+        "https://www.redshirtsports.com/api/link-check?url=https://example.com",
       ),
     );
     expect(res.status).toBe(502);
@@ -290,7 +290,7 @@ describe("GET /api/link-check", () => {
 describe("OPTIONS /api/link-check", () => {
   it("returns 204 with CORS headers for studio origin", async () => {
     const res = await OPTIONS(
-      makeRequest("https://www.redshirtsports.xyz/api/link-check"),
+      makeRequest("https://www.redshirtsports.com/api/link-check"),
     );
     expect(res.status).toBe(204);
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe(STUDIO_ORIGIN);
@@ -299,7 +299,7 @@ describe("OPTIONS /api/link-check", () => {
   it("returns 204 without CORS for unknown origin", async () => {
     const res = await OPTIONS(
       makeRequest(
-        "https://www.redshirtsports.xyz/api/link-check",
+        "https://www.redshirtsports.com/api/link-check",
         "https://evil.example",
       ),
     );
