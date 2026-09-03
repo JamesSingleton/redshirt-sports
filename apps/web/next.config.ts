@@ -23,11 +23,11 @@ const sanityStudioOrigins = [
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
     default-src 'self' vercel.live;
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live https://electric-alien-91.clerk.accounts.dev https://clerk.redshirtsports.xyz https://challenges.cloudflare.com https://va.vercel-scripts.com https://*.posthog.com https://*.i.posthog.com;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live https://electric-alien-91.clerk.accounts.dev https://clerk.redshirtsports.com https://challenges.cloudflare.com https://va.vercel-scripts.com https://*.posthog.com https://*.i.posthog.com;
     style-src 'self' 'unsafe-inline' https://*.posthog.com https://*.i.posthog.com;
     img-src * blob: data: https://img.clerk.com https://cdn.sanity.io https://*.posthog.com https://*.i.posthog.com;
     media-src 'none';
-    connect-src * https://clerk.redshirtsports.xyz https://electric-alien-91.clerk.accounts.dev;
+    connect-src * https://clerk.redshirtsports.com https://electric-alien-91.clerk.accounts.dev;
     font-src 'self' fonts.gstatic.com https://*.posthog.com https://*.i.posthog.com;
     frame-src 'self' https://challenges.cloudflare.com https://vercel.live https://www.youtube.com;
     frame-ancestors ${sanityStudioOrigins};
@@ -80,7 +80,7 @@ let nextConfig: NextConfig = {
         ],
       },
       {
-        // Exclude https://clerk.redshirtsports.xyz from robots
+        // Exclude https://clerk.redshirtsports.com from robots
         source: "/:path*",
         headers: [
           {
@@ -91,7 +91,7 @@ let nextConfig: NextConfig = {
         has: [
           {
             type: "host",
-            value: "clerk.redshirtsports.xyz",
+            value: "clerk.redshirtsports.com",
           },
         ],
       },
