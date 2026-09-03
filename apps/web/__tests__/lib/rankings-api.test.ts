@@ -5,7 +5,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://www.redshirtsports.xyz",
+  getBaseUrl: () => "https://www.redshirtsports.com",
 }));
 
 import {
@@ -35,7 +35,7 @@ describe("toPublicRankingsResponse", () => {
       sport: "football",
       division: "fcs",
       pollName: "FCS Top 25",
-      baseUrl: "https://www.redshirtsports.xyz",
+      baseUrl: "https://www.redshirtsports.com",
       data: {
         id: "poll:week",
         division: "fcs",
@@ -127,7 +127,7 @@ describe("toPublicRankingsResponse", () => {
       },
     ]);
     expect(body.sourceUrl).toBe(
-      "https://www.redshirtsports.xyz/college/football/rankings/fcs/2025/5",
+      "https://www.redshirtsports.com/college/football/rankings/fcs/2025/5",
     );
   });
 
@@ -136,7 +136,7 @@ describe("toPublicRankingsResponse", () => {
       sport: "football",
       division: "fcs",
       pollName: "FCS Top 25",
-      baseUrl: "https://www.redshirtsports.xyz",
+      baseUrl: "https://www.redshirtsports.com",
       data: {
         id: "poll:week",
         division: "fcs",
@@ -155,7 +155,7 @@ describe("toPublicRankingsResponse", () => {
       weekNumber: 1,
     });
     expect(body.sourceUrl).toBe(
-      "https://www.redshirtsports.xyz/college/football/rankings/fcs/2025/final-rankings",
+      "https://www.redshirtsports.com/college/football/rankings/fcs/2025/final-rankings",
     );
   });
 });
@@ -168,10 +168,10 @@ describe("buildSourceUrl", () => {
         division: "fcs",
         year: 2025,
         week: 0,
-        baseUrl: "https://www.redshirtsports.xyz",
+        baseUrl: "https://www.redshirtsports.com",
       }),
     ).toBe(
-      "https://www.redshirtsports.xyz/college/football/rankings/fcs/2025/0",
+      "https://www.redshirtsports.com/college/football/rankings/fcs/2025/0",
     );
   });
 });
