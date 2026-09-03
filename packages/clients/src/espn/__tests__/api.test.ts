@@ -394,14 +394,23 @@ describe("resolveVotingWeekFromSeason / getVotingWeek", () => {
     ).toBe(0);
   });
 
-  it("returns preseason during Week 1 window before Week 1 endDate (Week 0 / early Week 1)", () => {
-    // Regular Week 1: Aug 22 – Sep 8; still before endDate → Preseason ballots
+  it("returns preseason during Week 1 more than 48h before Week 1 endDate", () => {
+    // Regular Week 1: Aug 22 – Sep 8 06:59 UTC; Sep 2 is still > 48h out
     expect(
       resolveVotingWeekFromSeason(
         season2026,
-        new Date("2026-09-01T12:00:00.000Z"),
+        new Date("2026-09-02T12:00:00.000Z"),
       ),
     ).toBe(0);
+  });
+
+  it("returns Week 1 at Week 1 endDate minus 48h", () => {
+    expect(
+      resolveVotingWeekFromSeason(
+        season2026,
+        new Date("2026-09-06T06:59:00.000Z"),
+      ),
+    ).toBe(1);
   });
 
   it("returns Week 1 just after Week 1 endDate", () => {
@@ -413,13 +422,22 @@ describe("resolveVotingWeekFromSeason / getVotingWeek", () => {
     ).toBe(1);
   });
 
-  it("returns Week 1 during Week 2 before Week 2 ends (late Monday case)", () => {
+  it("returns Week 1 after Week 1 endDate before Week 2 early open", () => {
     expect(
       resolveVotingWeekFromSeason(
         season2026,
         new Date("2026-09-10T12:00:00.000Z"),
       ),
     ).toBe(1);
+  });
+
+  it("returns Week 2 at Week 2 endDate minus 48h", () => {
+    expect(
+      resolveVotingWeekFromSeason(
+        season2026,
+        new Date("2026-09-12T06:59:00.000Z"),
+      ),
+    ).toBe(2);
   });
 
   it("returns 999 after regular season ends", () => {

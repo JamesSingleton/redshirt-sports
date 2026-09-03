@@ -10,6 +10,14 @@ export const LEGACY_FINAL_RANKINGS_WEEK = 999;
 export const FINAL_RANKINGS_SEGMENT = "final-rankings";
 export const PRESEASON_SEGMENT = "preseason";
 
+/** Open the next voting week this long before ESPN regular-week `endDate`. */
+export const VOTING_WEEK_EARLY_OPEN_MS = 48 * 60 * 60 * 1000;
+
+/** True once `now` is at or past `endDate - 48h` (ballot attachment, not calendar week). */
+export function isWeekCompleteForVoting(endDate: Date, now: Date): boolean {
+  return now.getTime() >= endDate.getTime() - VOTING_WEEK_EARLY_OPEN_MS;
+}
+
 /**
  * Parse a rankings URL week segment into a legacy week number.
  * Accepts `final-rankings`, `preseason`, or a numeric string (`0`, `1`, …).

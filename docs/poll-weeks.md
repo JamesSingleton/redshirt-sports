@@ -22,7 +22,7 @@ How college football (and other sports) calendar weeks from ESPN become ballot a
 
 There is **no ESPN “Week 0” row**. Colloquial Week 0 games fall inside Regular Season **Week 1**’s date window. Legacy `0` means Preseason only.
 
-**Product (football):** no Week 0 Top 25. Voting stays on Preseason until Regular Week 1’s ESPN `endDate` has passed.
+**Product (football):** no Week 0 Top 25. Voting stays on Preseason until Regular Week 1’s ESPN `endDate` minus 48 hours.
 
 For **2026 football**, ESPN Preseason ends `2026-08-22T06:59:00.000+00:00` (regular season / Week 1 starts immediately after). Dates always come from live ESPN / synced `weeks` rows — not hardcoded in app logic.
 
@@ -41,21 +41,23 @@ Default: allow ballots/publish for every regular week through the last type-2 we
 
 Live ESPN date windows drive which week is “in progress” on the calendar. **Ballots do not use that.**
 
-**Voting week** = last fully completed ESPN **regular** week by `endDate`, else Preseason, else Final Rankings after regular season ends:
+**Voting week** = last ESPN **regular** week complete for voting at `endDate - 48h`, else Preseason, else Final Rankings after regular season ends.
+
+Voters may submit while Sunday/Monday games are still unfinished; those ballots stay attached (one-shot, no edit).
 
 ```text
-if no regular week has endDate <= now:
+if no regular week has (endDate - 48h) <= now:
   → Preseason (legacy 0 / weekKey 1-1)
 else:
-  → max(week.number) among regular weeks where now >= week.endDate
+  → max(week.number) among regular weeks where now >= week.endDate - 48h
 after regular.endDate:
   → Final Rankings (legacy 999 / weekKey 3-1)
 ```
 
 Effects:
 
-- Through Week 0 / mid Week 1 (before Week 1 `endDate`) → Preseason ballots
-- After Week N `endDate`, until Week N+1 `endDate` → Week N ballots (late Monday submissions stay on the completed week)
+- Through Week 0 / mid Week 1 (more than 48h before Week 1 `endDate`) → Preseason ballots
+- From Week N `endDate - 48h` until Week N+1 `endDate - 48h` → Week N ballots (including after the real `endDate`)
 - Monday **8:00 AM America/Denver** is the operational nudge/publish deadline — not the week-flip clock
 
 Admin publish desk selects weeks by `weekKey`. Public rankings URLs still use legacy segments (`0`, `N`, `final-rankings`).

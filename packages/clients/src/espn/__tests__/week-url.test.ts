@@ -1,6 +1,7 @@
 import {
   FINAL_RANKINGS_SEGMENT,
   formatWeekSegment,
+  isWeekCompleteForVoting,
   LEGACY_FINAL_RANKINGS_WEEK,
   LEGACY_PRESEASON_WEEK,
   parseWeekSegment,
@@ -43,6 +44,22 @@ describe("formatWeekSegment", () => {
 
   it("stringifies regular weeks", () => {
     expect(formatWeekSegment(7)).toBe("7");
+  });
+});
+
+describe("isWeekCompleteForVoting", () => {
+  const endDate = new Date("2026-09-08T06:59:00.000Z");
+
+  it("is false more than 48h before endDate", () => {
+    expect(
+      isWeekCompleteForVoting(endDate, new Date("2026-09-02T12:00:00.000Z")),
+    ).toBe(false);
+  });
+
+  it("is true at endDate minus 48h", () => {
+    expect(
+      isWeekCompleteForVoting(endDate, new Date("2026-09-06T06:59:00.000Z")),
+    ).toBe(true);
   });
 });
 
