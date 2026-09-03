@@ -12,7 +12,7 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://redshirtsports.xyz",
+  getBaseUrl: () => "https://redshirtsports.com",
 }));
 
 vi.mock("@/lib/conference-division-match", () => ({
@@ -45,13 +45,13 @@ describe("college sitemap", () => {
     expect(urls).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          url: "https://redshirtsports.xyz/college/football/news",
+          url: "https://redshirtsports.com/college/football/news",
         }),
         expect.objectContaining({
-          url: "https://redshirtsports.xyz/college/football/news/fbs",
+          url: "https://redshirtsports.com/college/football/news/fbs",
         }),
         expect.objectContaining({
-          url: "https://redshirtsports.xyz/college/football/news/fbs/sec",
+          url: "https://redshirtsports.com/college/football/news/fbs/sec",
         }),
       ]),
     );
@@ -73,7 +73,7 @@ describe("college sitemap", () => {
     const urls = await collegeSitemap();
     expect(urls).toEqual([
       expect.objectContaining({
-        url: "https://redshirtsports.xyz/college/football/news",
+        url: "https://redshirtsports.com/college/football/news",
       }),
     ]);
   });
@@ -104,7 +104,7 @@ describe("college sitemap", () => {
     expect(urls).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          url: "https://redshirtsports.xyz/college/football/news/d2",
+          url: "https://redshirtsports.com/college/football/news/d2",
         }),
       ]),
     );
@@ -126,7 +126,7 @@ describe("college sitemap", () => {
     expect(urls).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          url: "https://redshirtsports.xyz/college/football/news/fcs/mvfc",
+          url: "https://redshirtsports.com/college/football/news/fcs/mvfc",
         }),
       ]),
     );
@@ -193,7 +193,7 @@ describe("college sitemap", () => {
     const urls = await collegeSitemap();
     expect(urls).toEqual([
       expect.objectContaining({
-        url: "https://redshirtsports.xyz/college/football/news",
+        url: "https://redshirtsports.com/college/football/news",
       }),
     ]);
     expect(urls.some((entry) => entry.url.includes("/sec"))).toBe(false);

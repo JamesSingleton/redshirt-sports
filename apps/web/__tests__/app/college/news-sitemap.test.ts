@@ -12,7 +12,7 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://redshirtsports.xyz",
+  getBaseUrl: () => "https://redshirtsports.com",
 }));
 
 import collegeNewsSitemap, {
@@ -42,7 +42,7 @@ describe("college news sitemap", () => {
 
     expect(urls).toEqual([
       {
-        url: "https://redshirtsports.xyz/story-one",
+        url: "https://redshirtsports.com/story-one",
         lastModified: "2026-01-01T00:00:00Z",
       },
     ]);

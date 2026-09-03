@@ -11,7 +11,7 @@ const SchoolPayloadSchema = z.object({
     nickname: z.string().optional().nullable(),
     slug: z.string().optional().nullable(),
     image: z.unknown().optional().nullable(),
-    top25Eligible: z.boolean().optional().nullable(),
+    top25VotingEligible: z.boolean().optional().nullable(),
   }),
 });
 
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     nickname: school.nickname,
     slug: school.slug,
     image: school.image,
-    top25Eligible: school.top25Eligible,
+    top25Eligible: school.top25VotingEligible,
   });
 
   return NextResponse.json({
