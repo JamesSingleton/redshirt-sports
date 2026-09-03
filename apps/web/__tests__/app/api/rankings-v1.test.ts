@@ -17,7 +17,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://www.redshirtsports.xyz",
+  getBaseUrl: () => "https://www.redshirtsports.com",
 }));
 
 vi.mock("@/server/ratelimit", () => ({
@@ -110,7 +110,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
 
     const res = await getLatest(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs",
       ),
       { params: latestParams() },
     );
@@ -156,7 +156,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
 
     const res = await getLatest(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs",
       ),
       { params: latestParams() },
     );
@@ -170,7 +170,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
 
     const res = await getLatest(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs",
       ),
       { params: latestParams() },
     );
@@ -182,7 +182,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
   it("returns 400 for invalid division", async () => {
     const res = await getLatest(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/d1",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/d1",
       ),
       {
         params: Promise.resolve({ sport: "football", division: "d1" }),
@@ -199,7 +199,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
 
     const res = await getLatest(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs",
       ),
       { params: latestParams() },
     );
@@ -227,7 +227,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
 
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
       ),
       { params: weekParams() },
     );
@@ -236,7 +236,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
     const body = await res.json();
     expect(body.week.number).toBe(5);
     expect(body.sourceUrl).toBe(
-      "https://www.redshirtsports.xyz/college/football/rankings/fcs/2025/5",
+      "https://www.redshirtsports.com/college/football/rankings/fcs/2025/5",
     );
     expect(mockGetLatestFinalRankings).not.toHaveBeenCalled();
   });
@@ -249,7 +249,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
 
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/final-rankings",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/final-rankings",
       ),
       { params: weekParams({ week: "final-rankings" }) },
     );
@@ -271,7 +271,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   it("returns 400 for invalid week segment", async () => {
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/nope",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/nope",
       ),
       { params: weekParams({ week: "nope" }) },
     );
@@ -284,7 +284,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   it("returns 400 for invalid year", async () => {
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/abc/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/abc/5",
       ),
       { params: weekParams({ year: "abc" }) },
     );
@@ -301,7 +301,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
 
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
       ),
       { params: weekParams() },
     );
@@ -316,7 +316,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
 
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
         { headers: { "x-real-ip": "203.0.113.10" } },
       ),
       { params: weekParams() },
@@ -333,7 +333,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
 
     await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
         { headers: { "x-forwarded-for": "198.51.100.1, 10.0.0.1" } },
       ),
       { params: weekParams() },
@@ -345,7 +345,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   it("returns 400 when only year is provided without week", async () => {
     const res = await handleRankingsApiGet(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
       ),
       {
         sport: "football",
@@ -365,7 +365,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
 
     await handleRankingsApiGet(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
         {
           headers: {
             "x-forwarded-for": " , ",

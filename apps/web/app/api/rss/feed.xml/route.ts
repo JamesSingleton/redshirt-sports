@@ -26,7 +26,7 @@ export async function GET() {
     },
     author: {
       name: `${process.env.NEXT_PUBLIC_APP_NAME}`,
-      email: "contact@redshirtsports.xyz",
+      email: "contact@redshirtsports.com",
       link: baseUrl,
     },
   });

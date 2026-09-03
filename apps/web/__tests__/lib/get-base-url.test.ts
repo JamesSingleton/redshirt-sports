@@ -30,9 +30,9 @@ describe("getBaseUrl", () => {
     process.env.VERCEL_ENV = "production";
     delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
     delete process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
-    process.env.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.xyz";
+    process.env.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.com";
 
-    expect(getBaseUrl()).toBe("https://www.redshirtsports.xyz");
+    expect(getBaseUrl()).toBe("https://www.redshirtsports.com");
   });
 
   it("uses VERCEL_PROJECT_PRODUCTION_URL when public site URL is unset", () => {
@@ -71,14 +71,14 @@ describe("getBaseUrl", () => {
       ...originalWindow,
       location: {
         ...originalWindow.location,
-        hostname: "www.redshirtsports.xyz",
-        origin: "https://www.redshirtsports.xyz",
+        hostname: "www.redshirtsports.com",
+        origin: "https://www.redshirtsports.com",
       },
     } as Window & typeof globalThis;
     delete process.env.NEXT_PUBLIC_SITE_URL;
     delete process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
 
-    expect(getBaseUrl()).toBe("https://www.redshirtsports.xyz");
+    expect(getBaseUrl()).toBe("https://www.redshirtsports.com");
   });
 
   it("throws when production URL is not configured", () => {
@@ -108,7 +108,7 @@ describe("getBaseUrl", () => {
         origin: "http://localhost:3000",
       },
     } as Window & typeof globalThis;
-    process.env.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.xyz";
+    process.env.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.com";
 
     expect(getBaseUrl()).toBe("http://localhost:3000");
   });
@@ -118,12 +118,12 @@ describe("getBaseUrl", () => {
       ...originalWindow,
       location: {
         ...originalWindow.location,
-        hostname: "www.redshirtsports.xyz",
-        origin: "https://www.redshirtsports.xyz",
+        hostname: "www.redshirtsports.com",
+        origin: "https://www.redshirtsports.com",
       },
     } as Window & typeof globalThis;
-    process.env.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.xyz";
+    process.env.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.com";
 
-    expect(getBaseUrl()).toBe("https://www.redshirtsports.xyz");
+    expect(getBaseUrl()).toBe("https://www.redshirtsports.com");
   });
 });
