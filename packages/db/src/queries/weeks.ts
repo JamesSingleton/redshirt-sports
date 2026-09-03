@@ -7,6 +7,7 @@ import {
   seasonTypeAndNumberToLegacyWeek,
 } from "../utils/week-mapping";
 
+export type { CalendarWeekParams } from "../utils/week-mapping";
 export {
   calendarWeekKey,
   LEGACY_FINAL_RANKINGS_WEEK,
@@ -15,6 +16,7 @@ export {
   legacyWeekToSeasonTypeAndNumber,
   PUBLISHABLE_SEASON_TYPES,
   parseCalendarWeekKey,
+  resolveCalendarWeekParams,
   seasonTypeAndNumberToLegacyWeek,
   weekTitle,
 } from "../utils/week-mapping";

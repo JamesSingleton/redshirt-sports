@@ -86,6 +86,44 @@ export function weekTitle(legacyWeek: number): string {
   return `Week ${legacyWeek}`;
 }
 
+export type CalendarWeekParams = {
+  seasonType: number;
+  weekNumber: number;
+};
+
+/** Resolve week from weekKey, seasonType+weekNumber, or legacy week integer. */
+export function resolveCalendarWeekParams({
+  weekKey,
+  seasonType,
+  weekNumber,
+  legacyWeek,
+}: {
+  weekKey?: string | null;
+  seasonType?: number | null;
+  weekNumber?: number | null;
+  legacyWeek?: number | null;
+}): CalendarWeekParams {
+  if (weekKey) {
+    const parsed = parseCalendarWeekKey(weekKey);
+    if (!parsed) {
+      throw new Error(`Invalid week key: ${weekKey}`);
+    }
+    return parsed;
+  }
+
+  if (seasonType != null && weekNumber != null) {
+    return { seasonType, weekNumber };
+  }
+
+  if (legacyWeek != null) {
+    return legacyWeekToSeasonTypeAndNumber(legacyWeek);
+  }
+
+  throw new Error(
+    "Week is required (weekKey, seasonType + weekNumber, or legacy week)",
+  );
+}
+
 /**
  * Label for a calendar week row from the DB (ESPN `text` + season type).
  * Preseason is always "Preseason" even when ESPN calls it "Week 1".
