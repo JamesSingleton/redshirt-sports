@@ -17,7 +17,8 @@ export default defineConfig({
     coverage: {
       enabled: true,
       provider: "v8",
-      reporter: ["text", "json-summary"],
+      reportOnFailure: true,
+      reporter: ["text", "json-summary", "json"],
       include: [
         "hooks/**/*.{ts,tsx}",
         "lib/**/*.{ts,tsx}",
@@ -32,6 +33,7 @@ export default defineConfig({
         "app/__transfer-portal/**",
         "app/__recruiting/**",
         "app/__players/**",
+        "utils/espn.ts",
       ],
       thresholds: {
         statements: 100,
