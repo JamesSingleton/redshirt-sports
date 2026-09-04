@@ -9,6 +9,7 @@ vi.mock("@redshirt-sports/sanity/client", () => ({
 
 vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "https://redshirtsports.com",
+  getSiteEmailDomain: () => "redshirtsports.com",
 }));
 
 vi.mock("@/components/json-ld", () => ({

@@ -13,6 +13,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 
 vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "https://redshirtsports.com",
+  getSiteEmailDomain: () => "redshirtsports.com",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({

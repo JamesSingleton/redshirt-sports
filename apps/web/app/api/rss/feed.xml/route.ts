@@ -4,9 +4,10 @@ import { Feed } from "feed";
 import { NextResponse } from "next/server";
 
 import { buildSafeImageUrl } from "@/components/json-ld";
-import { getBaseUrl } from "@/lib/get-base-url";
+import { getBaseUrl, getSiteEmailDomain } from "@/lib/get-base-url";
 
 const baseUrl = getBaseUrl();
+const emailDomain = getSiteEmailDomain();
 
 export async function GET() {
   const posts = await client.fetch(rssFeedQuery);
@@ -26,7 +27,7 @@ export async function GET() {
     },
     author: {
       name: `${process.env.NEXT_PUBLIC_APP_NAME}`,
-      email: "contact@redshirtsports.com",
+      email: `contact@${emailDomain}`,
       link: baseUrl,
     },
   });
