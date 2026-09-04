@@ -4,6 +4,14 @@ import { SEASON_TYPE_CODES } from "../schema";
 export const LEGACY_PRESEASON_WEEK = 0;
 export const LEGACY_FINAL_RANKINGS_WEEK = 999;
 
+/** Open the next voting week this long before ESPN regular-week `endDate`. */
+export const VOTING_WEEK_EARLY_OPEN_MS = 48 * 60 * 60 * 1000;
+
+/** True once `now` is at or past `endDate - 48h` (ballot attachment, not calendar week). */
+export function isWeekEligibleForVoting(endDate: Date, now: Date): boolean {
+  return now.getTime() >= endDate.getTime() - VOTING_WEEK_EARLY_OPEN_MS;
+}
+
 /** Season types that have Top 25 ballots / published rankings. */
 export const PUBLISHABLE_SEASON_TYPES = [
   SEASON_TYPE_CODES.PRESEASON,
