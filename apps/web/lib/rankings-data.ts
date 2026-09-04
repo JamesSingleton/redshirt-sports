@@ -24,7 +24,8 @@ export type NavbarLatestRankingsBySport = {
 
 /**
  * Latest rankings for the navbar. Call only from a `'use cache'` parent
- * (e.g. CachedNavbarServer) — no nested `"use cache"` here.
+ * (e.g. `getNavigationData`) — no nested `"use cache"` here so we don't
+ * contend with the shared postgres pool across sibling cache fills.
  */
 export async function getCachedNavbarLatestRankings(): Promise<
   NavbarLatestRankingsBySport[]
