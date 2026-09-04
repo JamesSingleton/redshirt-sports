@@ -1,12 +1,4 @@
 import type { SanityImageData } from "@redshirt-sports/sanity/image";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@redshirt-sports/ui/components/table";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { CameraIcon } from "lucide-react";
 import Link from "next/link";
@@ -19,20 +11,13 @@ import {
   type PortableTextTypeComponentProps,
 } from "next-sanity";
 
+import {
+  TableBlock,
+  type TableBlockValue,
+} from "@/components/portable-text-table";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { ReactTweet as Tweet } from "@/components/tweet";
 import { YouTubeEmbedComponent } from "./youtube-embed";
-
-type TableType = {
-  _type: "table";
-  _key: string;
-  rows: {
-    _key: string;
-    _type: "tableRow";
-    cells: string[];
-  }[];
-  markDefs: any;
-};
 
 type TwitterEmbedValue = {
   _type: "twitter";
@@ -175,33 +160,15 @@ const components: Partial<PortableTextReactComponents> = {
         </figure>
       );
     },
-    table: ({ value }: PortableTextTypeComponentProps<TableType>) => {
-      const headerRow = value.rows[0];
-      const rows = value.rows.slice(1);
-
-      return (
-        <div className="not-prose">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {headerRow?.cells.map((cell) => (
-                  <TableHead key={cell}>{cell}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow key={row._key}>
-                  {row.cells.map((cell) => (
-                    <TableCell key={cell}>{cell}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      );
-    },
+    table: ({ value }: PortableTextTypeComponentProps<TableBlockValue>) => (
+      <TableBlock
+        cellComponents={{
+          marks: components.marks,
+          block: components.block,
+        }}
+        value={value}
+      />
+    ),
     youtubeEmbed: ({
       value,
     }: PortableTextTypeComponentProps<YoutubeEmbedValue>) => {
