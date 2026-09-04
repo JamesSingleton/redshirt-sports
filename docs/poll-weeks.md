@@ -41,7 +41,7 @@ Default: allow ballots/publish for every regular week through the last type-2 we
 
 Live ESPN date windows drive which week is “in progress” on the calendar. **Ballots do not use that.**
 
-**Voting week** = last ESPN **regular** week complete for voting at `endDate - 48h`, else Preseason, else Final Rankings after regular season ends.
+**Voting week** = last ESPN **regular** week eligible for voting at `endDate - 48h`, else Preseason, else Final Rankings after regular season ends.
 
 Voters may submit while Sunday/Monday games are still unfinished; those ballots stay attached (one-shot, no edit).
 

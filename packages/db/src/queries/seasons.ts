@@ -3,7 +3,7 @@ import { inArray } from "drizzle-orm";
 import { primaryDb as db } from "../client";
 import { SEASON_TYPE_CODES, seasonsTable } from "../schema";
 import {
-  isWeekCompleteForVoting,
+  isWeekEligibleForVoting,
   LEGACY_FINAL_RANKINGS_WEEK,
   LEGACY_PRESEASON_WEEK,
   legacyWeekToSeasonTypeAndNumber,
@@ -57,7 +57,7 @@ export type VotingSeasonInfo = {
 };
 
 /**
- * Voting week = last regular week complete for voting (`endDate - 48h`),
+ * Voting week = last regular week eligible for voting (`endDate - 48h`),
  * else Preseason, else Final Rankings after regular season ends.
  * See docs/poll-weeks.md.
  */
@@ -79,7 +79,7 @@ export function resolveVotingWeekFromLocalSeason({
   }
 
   const completed = regularWeeks.filter((week) =>
-    isWeekCompleteForVoting(week.endDate, date),
+    isWeekEligibleForVoting(week.endDate, date),
   );
   if (completed.length === 0) {
     return LEGACY_PRESEASON_WEEK;

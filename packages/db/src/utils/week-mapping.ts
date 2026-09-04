@@ -8,7 +8,7 @@ export const LEGACY_FINAL_RANKINGS_WEEK = 999;
 export const VOTING_WEEK_EARLY_OPEN_MS = 48 * 60 * 60 * 1000;
 
 /** True once `now` is at or past `endDate - 48h` (ballot attachment, not calendar week). */
-export function isWeekCompleteForVoting(endDate: Date, now: Date): boolean {
+export function isWeekEligibleForVoting(endDate: Date, now: Date): boolean {
   return now.getTime() >= endDate.getTime() - VOTING_WEEK_EARLY_OPEN_MS;
 }
 

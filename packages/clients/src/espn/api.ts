@@ -9,7 +9,7 @@ import type {
   WeekDetail,
 } from "./types";
 import {
-  isWeekCompleteForVoting,
+  isWeekEligibleForVoting,
   LEGACY_FINAL_RANKINGS_WEEK,
   LEGACY_PRESEASON_WEEK,
 } from "./week-url";
@@ -154,7 +154,7 @@ export async function getCurrentWeek(
 }
 
 /**
- * Ballot / rankings week: last regular week complete for voting
+ * Ballot / rankings week: last regular week eligible for voting
  * (`endDate - 48h`), else Preseason, else Final Rankings after regular season ends.
  * See docs/poll-weeks.md.
  */
@@ -206,7 +206,7 @@ export function resolveCalendarWeekFromSeason(
 }
 
 /**
- * Pure: voting week for ballots (last regular week complete at `endDate - 48h`).
+ * Pure: voting week for ballots (last regular week eligible at `endDate - 48h`).
  * Does not use the in-progress ESPN calendar week.
  */
 export function resolveVotingWeekFromSeason(
@@ -224,7 +224,7 @@ export function resolveVotingWeekFromSeason(
   }
 
   const completed = (regularSeason.weeks ?? []).filter((week) =>
-    isWeekCompleteForVoting(new Date(week.endDate), date),
+    isWeekEligibleForVoting(new Date(week.endDate), date),
   );
 
   if (completed.length === 0) {
