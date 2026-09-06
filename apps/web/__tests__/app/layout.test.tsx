@@ -33,10 +33,6 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
   ),
 }));
 
-vi.mock("@vercel/speed-insights/next", () => ({
-  SpeedInsights: () => null,
-}));
-
 vi.mock("@redshirt-sports/ui/components/sonner", () => ({
   Toaster: () => null,
 }));
