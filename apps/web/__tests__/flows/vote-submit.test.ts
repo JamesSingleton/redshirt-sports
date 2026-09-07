@@ -23,6 +23,7 @@ const {
   mockResolveWeekIdForLegacyWeek,
   mockGetSchoolsBySanityIds,
   mockSubmitBallot,
+  mockArePollRankingsPublished,
   mockGetVoterBallots,
   mockGetSeasonInfo,
   mockRatelimit,
@@ -35,6 +36,7 @@ const {
   mockResolveWeekIdForLegacyWeek: vi.fn(),
   mockGetSchoolsBySanityIds: vi.fn(),
   mockSubmitBallot: vi.fn(),
+  mockArePollRankingsPublished: vi.fn(),
   mockGetVoterBallots: vi.fn(),
   mockGetSeasonInfo: vi.fn(),
   mockRatelimit: vi.fn(),
@@ -52,6 +54,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   resolveWeekIdForLegacyWeek: mockResolveWeekIdForLegacyWeek,
   getSchoolsBySanityIds: mockGetSchoolsBySanityIds,
   submitBallot: mockSubmitBallot,
+  arePollRankingsPublished: mockArePollRankingsPublished,
   getVoterBallots: mockGetVoterBallots,
 }));
 
@@ -94,6 +97,7 @@ describe("vote submit flow", () => {
     mockResolveWeekIdForLegacyWeek.mockReset().mockResolvedValue(TEST_WEEK_ID);
     mockGetSchoolsBySanityIds.mockReset().mockResolvedValue(schoolIdMap());
     mockSubmitBallot.mockReset().mockResolvedValue(undefined);
+    mockArePollRankingsPublished.mockReset().mockResolvedValue(false);
     mockGetSeasonInfo.mockReset().mockResolvedValue(seasonInfoInSeason);
     mockRatelimit.mockReset().mockResolvedValue({ success: true });
   });

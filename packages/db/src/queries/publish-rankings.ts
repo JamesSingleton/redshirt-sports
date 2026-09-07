@@ -9,7 +9,7 @@ import {
   weeksTable,
 } from "../schema";
 import { listActivePollVoters } from "./polls";
-import { replacePollRankings } from "./rankings";
+import { deletePollRankings, replacePollRankings } from "./rankings";
 import { getSportIdBySlug, type SportParam } from "./sports";
 import { getBallotVotesForPollWeek } from "./voting";
 import {
@@ -424,5 +424,64 @@ export async function publishPollRankingsForWeek({
     weekId,
     teams: rankings.length,
     ballots: new Set(votes.map((vote) => vote.userId)).size,
+  };
+}
+
+export async function unpublishPollRankingsForWeek({
+  sport,
+  division,
+  year,
+  weekKey,
+  seasonType,
+  weekNumber,
+  week,
+}: {
+  sport: SportParam;
+  division: string;
+  year: number;
+  weekKey?: string | null;
+  seasonType?: number | null;
+  weekNumber?: number | null;
+  /** @deprecated Use weekKey or seasonType + weekNumber */
+  week?: number | null;
+}) {
+  const { seasonType: resolvedSeasonType, weekNumber: resolvedWeekNumber } =
+    resolveCalendarWeekParams({
+      weekKey,
+      seasonType,
+      weekNumber,
+      legacyWeek: week,
+    });
+
+  const sportId = await getSportIdBySlug(sport);
+  if (!sportId) throw new Error(`Invalid sport: ${sport}`);
+
+  const poll = await db.query.pollsTable.findFirst({
+    where: (model, { eq, and }) =>
+      and(eq(model.sportId, sportId), eq(model.slug, division)),
+  });
+  if (!poll) throw new Error(`Poll not found: ${sport}/${division}`);
+
+  const weekId = await resolveWeekIdForCalendarWeek({
+    sportId,
+    year,
+    seasonType: resolvedSeasonType,
+    weekNumber: resolvedWeekNumber,
+  });
+  if (!weekId) {
+    throw new Error(
+      `Week not found for year=${year} seasonType=${resolvedSeasonType} week=${resolvedWeekNumber}`,
+    );
+  }
+
+  const result = await deletePollRankings({
+    pollId: poll.id,
+    weekId,
+  });
+
+  return {
+    pollId: poll.id,
+    weekId,
+    deleted: result.deleted,
   };
 }

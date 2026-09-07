@@ -99,6 +99,22 @@ describe("VoteFormWrapper", () => {
     mockAnalytics = { capture: mockCapture };
   });
 
+  it("hides Use Previous Ballot in edit mode even when a previous ballot exists", () => {
+    render(
+      <VoteFormWrapper
+        schools={schools}
+        previousBallot={previousBallot}
+        currentBallot={[{ teamId: "school-1", rank: 1 }]}
+        mode="edit"
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: /Use Previous Ballot/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Edit Ballot")).toBeInTheDocument();
+  });
+
   it("hides Use Previous Ballot when previousBallot is empty", () => {
     render(<VoteFormWrapper schools={schools} previousBallot={[]} />);
     expect(

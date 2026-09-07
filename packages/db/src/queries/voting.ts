@@ -544,6 +544,58 @@ export async function submitBallot({
   });
 }
 
+export async function updateBallot({
+  pollId,
+  userId,
+  weekId,
+  entries,
+}: {
+  pollId: string;
+  userId: string;
+  weekId: string;
+  entries: Array<{ schoolId: string; rank: number; points: number }>;
+}) {
+  return db.transaction(async (tx) => {
+    const existing = await tx.query.ballotsTable.findFirst({
+      where: (model, { eq, and }) =>
+        and(
+          eq(model.pollId, pollId),
+          eq(model.userId, userId),
+          eq(model.weekId, weekId),
+        ),
+      columns: { id: true },
+    });
+
+    if (!existing) {
+      throw new Error("No ballot found for this voter and week");
+    }
+
+    await tx
+      .delete(ballotEntriesTable)
+      .where(eq(ballotEntriesTable.ballotId, existing.id));
+
+    await tx.insert(ballotEntriesTable).values(
+      entries.map((entry) => ({
+        ballotId: existing.id,
+        schoolId: entry.schoolId,
+        rank: entry.rank,
+        points: entry.points,
+      })),
+    );
+
+    const now = new Date();
+    const [updated] = await tx
+      .update(ballotsTable)
+      .set({ submittedAt: now, updatedAt: now })
+      .where(eq(ballotsTable.id, existing.id))
+      .returning();
+
+    if (!updated) throw new Error("Failed to update ballot");
+
+    return updated;
+  });
+}
+
 /**
  * Move a voter's ballot from one week to another (admin correction).
  * Fails if no ballot exists on fromWeekId or a ballot already exists on toWeekId.

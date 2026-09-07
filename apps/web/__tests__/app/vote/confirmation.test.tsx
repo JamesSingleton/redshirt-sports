@@ -6,6 +6,9 @@ const {
   mockGetVoterBallots,
   mockGetVotingWeek,
   mockGetCurrentSeason,
+  mockGetPollBySportAndSlug,
+  mockResolveWeekIdForLegacyWeek,
+  mockArePollRankingsPublished,
   mockClientFetch,
   mockRedirect,
 } = vi.hoisted(() => ({
@@ -14,6 +17,9 @@ const {
   mockGetVoterBallots: vi.fn(),
   mockGetVotingWeek: vi.fn(),
   mockGetCurrentSeason: vi.fn(),
+  mockGetPollBySportAndSlug: vi.fn(),
+  mockResolveWeekIdForLegacyWeek: vi.fn(),
+  mockArePollRankingsPublished: vi.fn(),
   mockClientFetch: vi.fn(),
   mockRedirect: vi.fn((url: string) => {
     throw new Error(`NEXT_REDIRECT:${url}`);
@@ -27,6 +33,9 @@ vi.mock("@redshirt-sports/auth/server", () => ({
 vi.mock("@redshirt-sports/db/queries", () => ({
   getSportIdBySlug: mockGetSportIdBySlug,
   getVoterBallots: mockGetVoterBallots,
+  getPollBySportAndSlug: mockGetPollBySportAndSlug,
+  resolveWeekIdForLegacyWeek: mockResolveWeekIdForLegacyWeek,
+  arePollRankingsPublished: mockArePollRankingsPublished,
 }));
 
 vi.mock("@/utils/espn", () => ({
@@ -71,6 +80,9 @@ describe("VoteConfirmationContent", () => {
     mockGetVotingWeek.mockReset().mockResolvedValue(1);
     mockGetCurrentSeason.mockReset().mockResolvedValue({ year: 2025 });
     mockGetVoterBallots.mockReset();
+    mockGetPollBySportAndSlug.mockReset().mockResolvedValue({ id: "poll-1" });
+    mockResolveWeekIdForLegacyWeek.mockReset().mockResolvedValue("week-1");
+    mockArePollRankingsPublished.mockReset().mockResolvedValue(false);
     mockClientFetch.mockReset();
     mockRedirect.mockClear();
   });
@@ -137,6 +149,85 @@ describe("VoteConfirmationContent", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/1\. Alabama/)).toBeInTheDocument();
     expect(screen.getByText(/2\. Georgia/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Edit ballot/i })).toHaveAttribute(
+      "href",
+      "/vote/college/football/fbs?edit=1",
+    );
+    expect(
+      screen.getByText(/until this week's rankings are published/i),
+    ).toBeInTheDocument();
+  });
+
+  it("hides the edit CTA after rankings are published", async () => {
+    mockArePollRankingsPublished.mockResolvedValue(true);
+    mockGetVoterBallots.mockResolvedValue([
+      {
+        teamId: "school-1",
+        rank: 1,
+        points: 25,
+        userId: "user-1",
+        division: "fbs",
+        week: 1,
+        year: 2025,
+        id: "1",
+        createdAt: new Date(),
+      },
+    ]);
+    mockClientFetch.mockResolvedValue([
+      {
+        _id: "school-1",
+        shortName: "Alabama",
+        abbreviation: "ALA",
+        name: "Alabama",
+        image: null,
+      },
+    ]);
+
+    const ui = await VoteConfirmationContent({
+      params: Promise.resolve({ sport: "football", division: "fbs" }),
+    });
+    render(ui as ReactNode);
+
+    expect(
+      screen.queryByRole("link", { name: /Edit ballot/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/rankings have been published/i),
+    ).toBeInTheDocument();
+  });
+
+  it("does not lock the ballot when the week cannot be resolved", async () => {
+    mockResolveWeekIdForLegacyWeek.mockResolvedValue(null);
+    mockGetVoterBallots.mockResolvedValue([
+      {
+        teamId: "school-1",
+        rank: 1,
+        points: 25,
+        userId: "user-1",
+        division: "fbs",
+        week: 1,
+        year: 2025,
+        id: "1",
+        createdAt: new Date(),
+      },
+    ]);
+    mockClientFetch.mockResolvedValue([
+      {
+        _id: "school-1",
+        shortName: "Alabama",
+        abbreviation: "ALA",
+        name: "Alabama",
+        image: null,
+      },
+    ]);
+
+    const ui = await VoteConfirmationContent({
+      params: Promise.resolve({ sport: "football", division: "fbs" }),
+    });
+    render(ui as ReactNode);
+    expect(
+      screen.getByRole("link", { name: /Edit ballot/i }),
+    ).toBeInTheDocument();
   });
 
   it("default export wraps confirmation content in Suspense", () => {

@@ -25,3 +25,5 @@ Publishing is manual from the admin **Rankings** desk.
 
 - Re-publishing replaces rankings for that poll and week.
 - Prefer a single publish after the ballot window closes.
+- Publishing locks voter ballot edits for that poll and week.
+- **Unpublish** removes rankings rows only. Ballots stay. Voters can edit again until you publish.

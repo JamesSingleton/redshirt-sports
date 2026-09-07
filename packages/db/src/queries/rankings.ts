@@ -276,6 +276,47 @@ export async function getLatestFinalRankingsBySportSlug(sportSlug: string) {
   }));
 }
 
+export async function arePollRankingsPublished({
+  pollId,
+  weekId,
+}: {
+  pollId: string;
+  weekId: string;
+}) {
+  const row = await db
+    .select({ id: pollRankingsTable.id })
+    .from(pollRankingsTable)
+    .where(
+      and(
+        eq(pollRankingsTable.pollId, pollId),
+        eq(pollRankingsTable.weekId, weekId),
+      ),
+    )
+    .limit(1);
+
+  return row.length > 0;
+}
+
+export async function deletePollRankings({
+  pollId,
+  weekId,
+}: {
+  pollId: string;
+  weekId: string;
+}) {
+  const deleted = await db
+    .delete(pollRankingsTable)
+    .where(
+      and(
+        eq(pollRankingsTable.pollId, pollId),
+        eq(pollRankingsTable.weekId, weekId),
+      ),
+    )
+    .returning({ id: pollRankingsTable.id });
+
+  return { deleted: deleted.length };
+}
+
 export async function replacePollRankings({
   pollId,
   weekId,

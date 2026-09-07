@@ -95,10 +95,20 @@ const Top25 = forwardRef<
   {
     schools: SchoolsBySportAndSubgroupingStringQueryResult;
     previousBallot?: VoterBallotWithSchool[];
+    currentBallot?: Array<{ teamId: string; rank: number }>;
+    mode?: "create" | "edit";
   }
->(({ schools, previousBallot }, ref) => {
+>(({ schools, previousBallot, currentBallot, mode = "create" }, ref) => {
+  const defaultValues = useMemo(() => {
+    if (!currentBallot?.length) return undefined;
+    return Object.fromEntries(
+      currentBallot.map((entry) => [`rank_${entry.rank}`, entry.teamId]),
+    ) as Partial<z.infer<typeof formSchema>>;
+  }, [currentBallot]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues,
   });
   const formValues = form.watch();
   const selectedValues = useMemo(() => {
@@ -139,7 +149,7 @@ const Top25 = forwardRef<
 
     await toast.promise(
       fetch(`/api/vote/college/${sport}/rankings/${division}`, {
-        method: "POST",
+        method: mode === "edit" ? "PATCH" : "POST",
         body: JSON.stringify(values),
         headers: {
           "Content-Type": "application/json",
@@ -165,11 +175,17 @@ const Top25 = forwardRef<
         return data;
       }),
       {
-        loading: "Submitting Ballot",
+        loading: mode === "edit" ? "Saving Ballot" : "Submitting Ballot",
         success: (data: { message?: string }) =>
-          data?.message || "Ballot submitted successfully",
+          data?.message ||
+          (mode === "edit"
+            ? "Ballot updated successfully"
+            : "Ballot submitted successfully"),
         error: (err: Error) =>
-          err.message || "An error occurred while submitting your ballot",
+          err.message ||
+          (mode === "edit"
+            ? "An error occurred while saving your ballot"
+            : "An error occurred while submitting your ballot"),
       },
     );
   }
@@ -210,8 +226,10 @@ const Top25 = forwardRef<
           {form.formState.isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" size={16} />{" "}
-              Submitting Ballot
+              {mode === "edit" ? "Saving Ballot" : "Submitting Ballot"}
             </>
+          ) : mode === "edit" ? (
+            "Save changes"
           ) : (
             "Submit"
           )}

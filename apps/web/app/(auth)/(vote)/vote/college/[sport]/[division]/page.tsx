@@ -1,8 +1,12 @@
 import { auth } from "@redshirt-sports/auth/server";
 import {
+  arePollRankingsPublished,
   getLatestVoterBallot,
+  getPollBySportAndSlug,
   getSportIdBySlug,
+  getVoterBallots,
   hasVoterVoted,
+  resolveWeekIdForLegacyWeek,
 } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
 import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
@@ -10,7 +14,9 @@ import {
   schoolsBySportAndSubgroupingStringQuery,
   schoolsForVotesQuery,
 } from "@redshirt-sports/sanity/queries";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import z from "zod";
@@ -134,15 +140,20 @@ const divisionHeader = [
 
 export default async function VotePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ sport: string; division: string }>;
+  searchParams: Promise<{ edit?: string }>;
 }) {
-  return draftAwareParamsPage(params, null, renderVotePage);
+  return draftAwareParamsPage(params, null, (resolved, options) =>
+    renderVotePage(resolved, options, searchParams),
+  );
 }
 
 async function renderVotePage(
   resolved: { sport: string; division: string },
   options: DynamicFetchOptions,
+  searchParams: Promise<{ edit?: string }>,
 ) {
   const validationResult = ParamsSchema.safeParse(resolved);
   if (!validationResult.success) {
@@ -153,7 +164,12 @@ async function renderVotePage(
 
   return (
     <Suspense>
-      <VotePageAuth sport={sport} division={division} options={options} />
+      <VotePageAuth
+        sport={sport}
+        division={division}
+        options={options}
+        searchParams={searchParams}
+      />
     </Suspense>
   );
 }
@@ -163,10 +179,12 @@ export async function VotePageAuth({
   sport,
   division,
   options,
+  searchParams,
 }: {
   sport: SportParam;
   division: string;
   options: DynamicFetchOptions;
+  searchParams?: Promise<{ edit?: string }>;
 }) {
   const { userId } = await auth.protect();
 
@@ -194,10 +212,25 @@ export async function VotePageAuth({
     notFound();
   }
 
-  const [votingWeek, { year }] = await Promise.all([
+  const [votingWeek, { year }, query] = await Promise.all([
     getVotingWeek(sport),
     getCurrentSeason(sport),
+    searchParams ?? Promise.resolve({} as { edit?: string }),
   ]);
+  const wantsEdit = query.edit === "1";
+
+  const poll = await getPollBySportAndSlug({ sportId, slug: division });
+  const weekId = poll
+    ? await resolveWeekIdForLegacyWeek({
+        sportId,
+        year,
+        legacyWeek: votingWeek,
+      })
+    : null;
+  const published =
+    poll && weekId
+      ? await arePollRankingsPublished({ pollId: poll.id, weekId })
+      : false;
 
   const hasVoted = await hasVoterVoted({
     year,
@@ -207,30 +240,60 @@ export async function VotePageAuth({
     userId,
   });
 
-  if (hasVoted) {
+  if (hasVoted && (!wantsEdit || published)) {
     redirect(`/vote/college/${sport}/${division}/confirmation`);
   }
 
-  const latestBallot = await getLatestVoterBallotWithSchools(
-    userId,
-    division,
-    sport,
-    year,
-  );
   const header = divisionHeader.find((d) => d.division === division);
   const { title, subtitle } = header || { title: "", subtitle: "" };
+
+  if (!hasVoted && published) {
+    return (
+      <div className="container flex flex-col items-center gap-6 py-12 text-center">
+        {title ? (
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            {title}
+          </h1>
+        ) : null}
+        <p className="text-muted-foreground text-lg">
+          Voting is closed for this week. Rankings have already been published.
+        </p>
+        <Link href="/" className={buttonVariants()}>
+          Return Home
+        </Link>
+      </div>
+    );
+  }
+
+  const currentBallot = hasVoted
+    ? await getVoterBallots({
+        userId,
+        division,
+        sportId,
+        year,
+        week: votingWeek,
+      })
+    : [];
+  const latestBallot = hasVoted
+    ? []
+    : await getLatestVoterBallotWithSchools(userId, division, sport, year);
 
   return (
     <div className="container">
       {title && subtitle && (
-        <div className="space-y-4 pt-12 text-center">
+        <div className="flex flex-col gap-4 pt-12 text-center">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             {title}
           </h1>
           <p className="text-muted-foreground text-lg">{subtitle}</p>
         </div>
       )}
-      <VoteFormWrapper schools={schools} previousBallot={latestBallot} />
+      <VoteFormWrapper
+        schools={schools}
+        previousBallot={latestBallot}
+        currentBallot={currentBallot}
+        mode={hasVoted ? "edit" : "create"}
+      />
     </div>
   );
 }

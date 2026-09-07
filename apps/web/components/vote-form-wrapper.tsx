@@ -18,13 +18,19 @@ import CustomImage from "./sanity-image";
 type VoteFormWrapperProps = {
   schools: SchoolsBySportAndSubgroupingStringQueryResult;
   previousBallot?: VoterBallotWithSchool[];
+  currentBallot?: Array<{ teamId: string; rank: number }>;
+  mode?: "create" | "edit";
 };
 
 export default function VoteFormWrapper({
   schools,
   previousBallot,
+  currentBallot,
+  mode = "create",
 }: VoteFormWrapperProps) {
   const formRef = useRef<Top25FormRef>(null);
+  const showPreviousBallot =
+    mode === "create" && previousBallot && previousBallot.length > 0;
 
   const handlePopulateForm = () => {
     formRef.current?.populateWithPreviousBallot();
@@ -36,7 +42,7 @@ export default function VoteFormWrapper({
 
   return (
     <div className="flex flex-col gap-6 pt-4 lg:flex-row">
-      {previousBallot && previousBallot.length > 0 && (
+      {showPreviousBallot ? (
         <Card className="flex-1">
           <CardHeader>
             <CardTitle>Previous Ballot</CardTitle>
@@ -69,16 +75,20 @@ export default function VoteFormWrapper({
             ))}
           </CardContent>
         </Card>
-      )}
+      ) : null}
       <Card className="flex-1">
         <CardHeader>
-          <CardTitle>New Ballot Submission</CardTitle>
+          <CardTitle>
+            {mode === "edit" ? "Edit Ballot" : "New Ballot Submission"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Top25
             ref={formRef}
             schools={schools}
-            previousBallot={previousBallot}
+            previousBallot={mode === "create" ? previousBallot : undefined}
+            currentBallot={mode === "edit" ? currentBallot : undefined}
+            mode={mode}
           />
         </CardContent>
       </Card>

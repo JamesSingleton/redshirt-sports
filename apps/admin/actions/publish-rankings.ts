@@ -11,6 +11,7 @@ import {
   reassignBallotWeek,
   resolveWeekIdForCalendarWeek,
   type SportParam,
+  unpublishPollRankingsForWeek,
 } from "@redshirt-sports/db/queries";
 import { revalidatePath } from "next/cache";
 
@@ -107,6 +108,30 @@ export async function publishRankings({
   revalidatePath("/rankings");
   revalidatePath("/");
   await revalidatePublicPollRankingsCache();
+  return result;
+}
+
+export async function unpublishRankings({
+  sportSlug,
+  division,
+  year,
+  weekKey,
+}: {
+  sportSlug: string;
+  division: string;
+  year: number;
+  weekKey: string;
+}) {
+  await requireAdmin();
+  if (!weekKey) throw new Error("weekKey is required");
+  const result = await unpublishPollRankingsForWeek({
+    sport: asSportParam(sportSlug),
+    division,
+    year,
+    weekKey,
+  });
+  revalidatePath("/rankings");
+  revalidatePath("/");
   return result;
 }
 

@@ -9,6 +9,10 @@ const {
   mockGetCurrentSeason,
   mockSanityFetchPage,
   mockGetLatestVoterBallot,
+  mockGetPollBySportAndSlug,
+  mockResolveWeekIdForLegacyWeek,
+  mockArePollRankingsPublished,
+  mockGetVoterBallots,
   mockClientFetch,
   mockRedirect,
   mockNotFound,
@@ -21,6 +25,10 @@ const {
   mockGetCurrentSeason: vi.fn(),
   mockSanityFetchPage: vi.fn(),
   mockGetLatestVoterBallot: vi.fn(),
+  mockGetPollBySportAndSlug: vi.fn(),
+  mockResolveWeekIdForLegacyWeek: vi.fn(),
+  mockArePollRankingsPublished: vi.fn(),
+  mockGetVoterBallots: vi.fn(),
   mockClientFetch: vi.fn(),
   mockRedirect: vi.fn((url: string) => {
     throw new Error(`NEXT_REDIRECT:${url}`);
@@ -38,6 +46,10 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   getSportIdBySlug: mockGetSportIdBySlug,
   hasVoterVoted: mockHasVoterVoted,
   getLatestVoterBallot: mockGetLatestVoterBallot,
+  getPollBySportAndSlug: mockGetPollBySportAndSlug,
+  resolveWeekIdForLegacyWeek: mockResolveWeekIdForLegacyWeek,
+  arePollRankingsPublished: mockArePollRankingsPublished,
+  getVoterBallots: mockGetVoterBallots,
 }));
 
 vi.mock("@/lib/require-poll-voter", () => ({
@@ -123,6 +135,13 @@ describe("VotePageAuth", () => {
       data: [{ _id: "school-1", shortName: "Alabama" }],
     });
     mockGetLatestVoterBallot.mockReset().mockResolvedValue([]);
+    mockGetPollBySportAndSlug.mockReset().mockResolvedValue({
+      id: "poll-1",
+      isActive: true,
+    });
+    mockResolveWeekIdForLegacyWeek.mockReset().mockResolvedValue("week-1");
+    mockArePollRankingsPublished.mockReset().mockResolvedValue(false);
+    mockGetVoterBallots.mockReset().mockResolvedValue([]);
     mockClientFetch.mockReset().mockResolvedValue([]);
     mockRedirect.mockClear();
     mockNotFound.mockClear();
@@ -159,6 +178,87 @@ describe("VotePageAuth", () => {
         options: publishedOptions,
       }),
     ).rejects.toThrow("NEXT_REDIRECT:/vote/college/football/fbs/confirmation");
+  });
+
+  it("renders the edit form when voted, unlocked, and edit=1", async () => {
+    mockHasVoterVoted.mockResolvedValue(true);
+    mockGetVoterBallots.mockResolvedValue([{ teamId: "school-1", rank: 1 }]);
+    const ui = await VotePageAuth({
+      sport: "football",
+      division: "fbs",
+      options: publishedOptions,
+      searchParams: Promise.resolve({ edit: "1" }),
+    });
+    render(ui as ReactNode);
+    expect(screen.getByTestId("vote-form-wrapper")).toBeInTheDocument();
+  });
+
+  it("redirects to confirmation when edit is requested after rankings publish", async () => {
+    mockHasVoterVoted.mockResolvedValue(true);
+    mockArePollRankingsPublished.mockResolvedValue(true);
+    await expect(
+      VotePageAuth({
+        sport: "football",
+        division: "fbs",
+        options: publishedOptions,
+        searchParams: Promise.resolve({ edit: "1" }),
+      }),
+    ).rejects.toThrow("NEXT_REDIRECT:/vote/college/football/fbs/confirmation");
+  });
+
+  it("shows a closed message when rankings are published and the voter has no ballot", async () => {
+    mockArePollRankingsPublished.mockResolvedValue(true);
+    const ui = await VotePageAuth({
+      sport: "football",
+      division: "fbs",
+      options: publishedOptions,
+    });
+    render(ui as ReactNode);
+    expect(
+      screen.getByText(/Voting is closed for this week/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Football Bowl Subdivision/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("vote-form-wrapper")).not.toBeInTheDocument();
+  });
+
+  it("shows a closed message without a header for unknown divisions", async () => {
+    mockArePollRankingsPublished.mockResolvedValue(true);
+    const ui = await VotePageAuth({
+      sport: "football",
+      division: "unknown-division",
+      options: publishedOptions,
+    });
+    render(ui as ReactNode);
+    expect(
+      screen.getByText(/Voting is closed for this week/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+  });
+
+  it("treats a missing poll or week as unpublished", async () => {
+    mockGetPollBySportAndSlug.mockResolvedValue(null);
+    const ui = await VotePageAuth({
+      sport: "football",
+      division: "fbs",
+      options: publishedOptions,
+    });
+    render(ui as ReactNode);
+    expect(screen.getByTestId("vote-form-wrapper")).toBeInTheDocument();
+    expect(mockArePollRankingsPublished).not.toHaveBeenCalled();
+  });
+
+  it("does not query rankings when the week cannot be resolved", async () => {
+    mockResolveWeekIdForLegacyWeek.mockResolvedValue(null);
+    const ui = await VotePageAuth({
+      sport: "football",
+      division: "fbs",
+      options: publishedOptions,
+    });
+    render(ui as ReactNode);
+    expect(screen.getByTestId("vote-form-wrapper")).toBeInTheDocument();
+    expect(mockArePollRankingsPublished).not.toHaveBeenCalled();
   });
 
   it("renders the vote form when assigned and not yet voted", async () => {
@@ -201,6 +301,7 @@ describe("VotePageAuth", () => {
     await expect(
       VotePage({
         params: Promise.resolve({ sport: "invalid-sport", division: "fbs" }),
+        searchParams: Promise.resolve({}),
       }),
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
@@ -208,6 +309,7 @@ describe("VotePageAuth", () => {
   it("renders vote page via default export with valid params", async () => {
     const ui = await VotePage({
       params: Promise.resolve({ sport: "football", division: "fbs" }),
+      searchParams: Promise.resolve({}),
     });
     expect(ui).toBeTruthy();
   });

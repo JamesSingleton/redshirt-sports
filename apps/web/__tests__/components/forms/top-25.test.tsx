@@ -156,6 +156,83 @@ describe("Top25 form", () => {
     });
   });
 
+  it("saves changes with PATCH in edit mode", async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: "Ballot updated successfully" }),
+    });
+
+    const user = userEvent.setup();
+    render(
+      <Top25
+        schools={makeSchools(25)}
+        currentBallot={makePreviousBallot(25)}
+        mode="edit"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /Save changes/i }),
+      ).not.toBeDisabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: /Save changes/i }));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        "/api/vote/college/football/rankings/fbs",
+        expect.objectContaining({ method: "PATCH" }),
+      );
+    });
+  });
+
+  it("resolves edit-mode toast fallbacks", async () => {
+    const toastMessages: {
+      success?: (data: { message?: string }) => string;
+      error?: (err: Error) => string;
+    } = {};
+
+    vi.mocked(toast.promise).mockImplementation(((
+      promise: any,
+      messages: any,
+    ) => {
+      Object.assign(toastMessages, messages);
+      return (typeof promise === "function" ? promise() : promise).catch(
+        () => undefined,
+      );
+    }) as never);
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({}),
+    });
+
+    const user = userEvent.setup();
+    render(
+      <Top25
+        schools={makeSchools(25)}
+        currentBallot={makePreviousBallot(25)}
+        mode="edit"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /Save changes/i }),
+      ).not.toBeDisabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: /Save changes/i }));
+
+    await waitFor(() => {
+      expect(toastMessages.success?.({})).toBe("Ballot updated successfully");
+    });
+    expect(toastMessages.error?.(new Error(""))).toBe(
+      "An error occurred while saving your ballot",
+    );
+  });
+
   it("captures ballot_submission_error analytics on 409", async () => {
     mockFetch.mockResolvedValue({
       ok: false,
