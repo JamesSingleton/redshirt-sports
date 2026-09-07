@@ -1,9 +1,12 @@
 import { revalidateTag } from "next/cache";
 import type { NextRequest } from "next/server";
 
-const expireTagsSecret = process.env.SANITY_REVALIDATE_SECRET;
+import { env } from "@/env";
+import { safeCompare } from "@/lib/safe-compare";
 
 export async function POST(request: NextRequest) {
+  const expireTagsSecret = env.SANITY_REVALIDATE_SECRET;
+
   if (!expireTagsSecret) {
     console.error("SANITY_REVALIDATE_SECRET environment variable is required");
     return Response.json({ error: "Unexpected error" }, { status: 500 });
@@ -14,13 +17,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    if (body.secret) secret = body.secret;
+    if (typeof body.secret === "string") secret = body.secret;
     if (Array.isArray(body.tags)) tags = body.tags;
   } catch {
     // no valid JSON body
   }
 
-  if (secret !== expireTagsSecret) {
+  if (!secret || !safeCompare(secret, expireTagsSecret)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
