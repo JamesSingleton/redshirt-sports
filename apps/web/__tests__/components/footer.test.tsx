@@ -6,14 +6,20 @@ import {
   FooterSkeleton,
 } from "@/components/footer";
 
-const { mockGetDynamicFetchOptions, mockSanityFetch } = vi.hoisted(() => ({
-  mockGetDynamicFetchOptions: vi.fn(),
-  mockSanityFetch: vi.fn(),
-}));
+const { mockGetDynamicFetchOptions, mockSanityFetch, mockGetGlobalSettings } =
+  vi.hoisted(() => ({
+    mockGetDynamicFetchOptions: vi.fn(),
+    mockSanityFetch: vi.fn(),
+    mockGetGlobalSettings: vi.fn(),
+  }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
   getDynamicFetchOptions: mockGetDynamicFetchOptions,
   sanityFetch: mockSanityFetch,
+}));
+
+vi.mock("@/lib/navigation", () => ({
+  getGlobalSettings: mockGetGlobalSettings,
 }));
 
 vi.mock("next/link", () => ({
@@ -91,10 +97,12 @@ describe("FooterSkeleton", () => {
 describe("CachedFooterServer", () => {
   beforeEach(() => {
     mockSanityFetch.mockReset();
+    mockGetGlobalSettings.mockReset();
   });
 
   it("renders the skeleton when Sanity data is missing", async () => {
     mockSanityFetch.mockResolvedValue({ data: null });
+    mockGetGlobalSettings.mockResolvedValue(null);
     const component = await CachedFooterServer({
       perspective: "published",
       stega: false,
@@ -107,9 +115,8 @@ describe("CachedFooterServer", () => {
   });
 
   it("renders footer content with social links and columns", async () => {
-    mockSanityFetch
-      .mockResolvedValueOnce({ data: footerData })
-      .mockResolvedValueOnce({ data: settingsData });
+    mockSanityFetch.mockResolvedValueOnce({ data: footerData });
+    mockGetGlobalSettings.mockResolvedValue(settingsData);
 
     const component = await CachedFooterServer({
       perspective: "published",
@@ -131,21 +138,20 @@ describe("CachedFooterServer", () => {
   });
 
   it("omits social links when none are configured", async () => {
-    mockSanityFetch
-      .mockResolvedValueOnce({ data: { subtitle: null, columns: [] } })
-      .mockResolvedValueOnce({
-        data: {
-          ...settingsData,
-          socialLinks: {
-            facebook: null,
-            twitter: null,
-            youtube: null,
-            instagram: null,
-            bluesky: null,
-            threads: null,
-          },
-        },
-      });
+    mockSanityFetch.mockResolvedValueOnce({
+      data: { subtitle: null, columns: [] },
+    });
+    mockGetGlobalSettings.mockResolvedValue({
+      ...settingsData,
+      socialLinks: {
+        facebook: null,
+        twitter: null,
+        youtube: null,
+        instagram: null,
+        bluesky: null,
+        threads: null,
+      },
+    });
 
     const component = await CachedFooterServer({
       perspective: "published",
@@ -157,20 +163,19 @@ describe("CachedFooterServer", () => {
   });
 
   it("renders footer links without href values using a fallback", async () => {
-    mockSanityFetch
-      .mockResolvedValueOnce({
-        data: {
-          subtitle: "Coverage",
-          columns: [
-            {
-              _key: "col-1",
-              title: "Links",
-              links: [{ _key: "link-1", name: "Missing href", href: null }],
-            },
-          ],
-        },
-      })
-      .mockResolvedValueOnce({ data: settingsData });
+    mockSanityFetch.mockResolvedValueOnce({
+      data: {
+        subtitle: "Coverage",
+        columns: [
+          {
+            _key: "col-1",
+            title: "Links",
+            links: [{ _key: "link-1", name: "Missing href", href: null }],
+          },
+        ],
+      },
+    });
+    mockGetGlobalSettings.mockResolvedValue(settingsData);
 
     const component = await CachedFooterServer({
       perspective: "published",
@@ -182,14 +187,11 @@ describe("CachedFooterServer", () => {
   });
 
   it("omits social links when socialLinks is null", async () => {
-    mockSanityFetch
-      .mockResolvedValueOnce({ data: footerData })
-      .mockResolvedValueOnce({
-        data: {
-          ...settingsData,
-          socialLinks: null,
-        },
-      });
+    mockSanityFetch.mockResolvedValueOnce({ data: footerData });
+    mockGetGlobalSettings.mockResolvedValue({
+      ...settingsData,
+      socialLinks: null,
+    });
 
     const component = await CachedFooterServer({
       perspective: "published",
@@ -201,21 +203,18 @@ describe("CachedFooterServer", () => {
   });
 
   it("uses a hash fallback for social links without URLs", async () => {
-    mockSanityFetch
-      .mockResolvedValueOnce({ data: footerData })
-      .mockResolvedValueOnce({
-        data: {
-          ...settingsData,
-          socialLinks: {
-            facebook: "",
-            twitter: "https://twitter.com/redshirt",
-            youtube: null,
-            instagram: null,
-            bluesky: null,
-            threads: null,
-          },
-        },
-      });
+    mockSanityFetch.mockResolvedValueOnce({ data: footerData });
+    mockGetGlobalSettings.mockResolvedValue({
+      ...settingsData,
+      socialLinks: {
+        facebook: "",
+        twitter: "https://twitter.com/redshirt",
+        youtube: null,
+        instagram: null,
+        bluesky: null,
+        threads: null,
+      },
+    });
 
     const component = await CachedFooterServer({
       perspective: "published",

@@ -1,9 +1,9 @@
-const { mockSanityFetchMetadata } = vi.hoisted(() => ({
-  mockSanityFetchMetadata: vi.fn(),
+const { mockSanityFetch } = vi.hoisted(() => ({
+  mockSanityFetch: vi.fn(),
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
-  sanityFetchMetadata: mockSanityFetchMetadata,
+  sanityFetch: mockSanityFetch,
 }));
 
 vi.mock("@/lib/seo", () => ({
@@ -22,28 +22,34 @@ describe("global-seo-settings", () => {
   });
 
   it("fetchGlobalSeoSettings returns Sanity data", async () => {
-    mockSanityFetchMetadata.mockResolvedValue({
+    mockSanityFetch.mockResolvedValue({
       data: { siteBrand: "Redshirt Sports" },
     });
 
     await expect(fetchGlobalSeoSettings()).resolves.toEqual({
       siteBrand: "Redshirt Sports",
     });
-    expect(mockSanityFetchMetadata).toHaveBeenCalledWith(
-      expect.objectContaining({ perspective: "published" }),
+    expect(mockSanityFetch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        perspective: "published",
+        stega: false,
+      }),
     );
   });
 
   it("fetchGlobalSeoSettings passes custom perspective", async () => {
-    mockSanityFetchMetadata.mockResolvedValue({ data: null });
+    mockSanityFetch.mockResolvedValue({ data: null });
     await fetchGlobalSeoSettings("previewDrafts");
-    expect(mockSanityFetchMetadata).toHaveBeenCalledWith(
-      expect.objectContaining({ perspective: "previewDrafts" }),
+    expect(mockSanityFetch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        perspective: "previewDrafts",
+        stega: false,
+      }),
     );
   });
 
   it("getPageMetadata merges settings with page data", async () => {
-    mockSanityFetchMetadata.mockResolvedValue({
+    mockSanityFetch.mockResolvedValue({
       data: {
         siteBrand: "From Settings",
         defaultOpenGraphImage: { asset: { _ref: "img" } },
@@ -60,7 +66,7 @@ describe("global-seo-settings", () => {
   });
 
   it("getPageMetadata prefers explicit page overrides over settings", async () => {
-    mockSanityFetchMetadata.mockResolvedValue({
+    mockSanityFetch.mockResolvedValue({
       data: {
         siteBrand: "From Settings",
         defaultOpenGraphImage: { asset: { _ref: "settings-img" } },
@@ -81,7 +87,7 @@ describe("global-seo-settings", () => {
   });
 
   it("getPageMetadata handles missing settings", async () => {
-    mockSanityFetchMetadata.mockResolvedValue({ data: null });
+    mockSanityFetch.mockResolvedValue({ data: null });
 
     await getPageMetadata({});
 

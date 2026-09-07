@@ -7,23 +7,19 @@ import {
   NavbarSkeleton,
 } from "@/components/navbar";
 
-const {
-  mockGetDynamicFetchOptions,
-  mockSanityFetch,
-  mockGetCachedNavbarLatestRankings,
-} = vi.hoisted(() => ({
-  mockGetDynamicFetchOptions: vi.fn(),
-  mockSanityFetch: vi.fn(),
-  mockGetCachedNavbarLatestRankings: vi.fn(),
-}));
+const { mockGetDynamicFetchOptions, mockGetNavigationData } = vi.hoisted(
+  () => ({
+    mockGetDynamicFetchOptions: vi.fn(),
+    mockGetNavigationData: vi.fn(),
+  }),
+);
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
   getDynamicFetchOptions: mockGetDynamicFetchOptions,
-  sanityFetch: mockSanityFetch,
 }));
 
-vi.mock("@/lib/rankings-data", () => ({
-  getCachedNavbarLatestRankings: mockGetCachedNavbarLatestRankings,
+vi.mock("@/lib/navigation", () => ({
+  getNavigationData: mockGetNavigationData,
 }));
 
 vi.mock("@/components/navbar-client", () => ({
@@ -83,10 +79,11 @@ describe("NavbarSkeleton", () => {
 
 describe("CachedNavbarServer", () => {
   beforeEach(() => {
-    mockGetCachedNavbarLatestRankings.mockResolvedValue(latestRankings);
-    mockSanityFetch
-      .mockResolvedValueOnce({ data: navbarData })
-      .mockResolvedValueOnce({ data: settingsData });
+    mockGetNavigationData.mockResolvedValue({
+      navbarData,
+      settingsData,
+      latestRankings,
+    });
   });
 
   it("fetches navbar data and renders the memoized navbar", async () => {
@@ -96,7 +93,10 @@ describe("CachedNavbarServer", () => {
     });
     render(component);
 
-    expect(mockGetCachedNavbarLatestRankings).toHaveBeenCalled();
+    expect(mockGetNavigationData).toHaveBeenCalledWith({
+      perspective: "published",
+      stega: false,
+    });
     expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
   });
 });
@@ -106,6 +106,11 @@ describe("DynamicNavbarServer", () => {
     mockGetDynamicFetchOptions.mockResolvedValue({
       perspective: "published",
       stega: false,
+    });
+    mockGetNavigationData.mockResolvedValue({
+      navbarData,
+      settingsData,
+      latestRankings,
     });
 
     const component = await DynamicNavbarServer();

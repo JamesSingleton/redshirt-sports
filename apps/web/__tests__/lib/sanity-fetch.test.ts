@@ -33,7 +33,7 @@ describe("sanityFetchPage", () => {
     });
   });
 
-  it("defaults params to an empty object", async () => {
+  it("forwards options without inventing params", async () => {
     mockSanityFetch.mockResolvedValue({ data: null });
 
     await sanityFetchPage({
@@ -44,7 +44,6 @@ describe("sanityFetchPage", () => {
 
     expect(mockSanityFetch).toHaveBeenCalledWith({
       query: '*[_type == "post"][0]',
-      params: {},
       perspective: "previewDrafts",
       stega: true,
     });
