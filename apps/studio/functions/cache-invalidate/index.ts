@@ -37,18 +37,25 @@ async function expireTags(target: URL, tags: string[], secret: string) {
   }
 }
 
+// Sanity Functions run on Sanity's infra, not Vercel, and do not inherit
+// Studio or Vercel env. Keep the production origin in the function itself.
+const REVALIDATE_TAGS_URL = new URL(
+  "https://www.redshirtsports.xyz/api/revalidate-tags",
+);
+
 export const handler = syncTagInvalidateEventHandler(
   async ({ event, done }) => {
     const start = performance.now();
     const { syncTags } = event.data;
 
-    const target = new URL(
-      "https://www.redshirtsports.com/api/revalidate-tags",
-    );
     console.info(`Forwarding ${syncTags.length} tags to api`);
 
-    const secret = process.env.SANITY_REVALIDATE_SECRET!;
-    await expireTags(target, syncTags, secret);
+    const secret = process.env.SANITY_REVALIDATE_SECRET;
+    if (!secret) {
+      throw new Error("SANITY_REVALIDATE_SECRET is not configured");
+    }
+
+    await expireTags(REVALIDATE_TAGS_URL, syncTags, secret);
 
     await ack(done, syncTags);
     console.info(

@@ -1,10 +1,24 @@
 import { ImageIcon } from "@sanity/icons/Image";
 import { LinkIcon } from "@sanity/icons/Link";
 import { PlayIcon } from "@sanity/icons/Play";
+import { ThLargeIcon } from "@sanity/icons/ThLarge";
 import { TwitterIcon } from "@sanity/icons/Twitter";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 import { warnWhenHeadingOrBlockIsAllBold } from "../../utils/portable-text-validations";
+
+const customLinkAnnotation = {
+  name: "customLink",
+  type: "object",
+  title: "Internal/External Link",
+  icon: LinkIcon,
+  fields: [
+    defineField({
+      name: "customLink",
+      type: "customUrl",
+    }),
+  ],
+};
 
 const richTextMembers = [
   defineArrayMember({
@@ -13,18 +27,7 @@ const richTextMembers = [
     validation: (rule) => [warnWhenHeadingOrBlockIsAllBold(rule)],
     marks: {
       annotations: [
-        {
-          name: "customLink",
-          type: "object",
-          title: "Internal/External Link",
-          icon: LinkIcon,
-          fields: [
-            defineField({
-              name: "customLink",
-              type: "customUrl",
-            }),
-          ],
-        },
+        customLinkAnnotation,
         {
           title: "URL (Legacy)",
           name: "link",
@@ -49,7 +52,6 @@ const richTextMembers = [
             },
           ],
         },
-
         {
           name: "internalLink",
           title: "Internal Link (legacy)",
@@ -76,18 +78,9 @@ const richTextMembers = [
                   fill="currentColor"
                   fillRule="nonzero"
                 >
-                  <path
-                    d="M343.36,744.64 C251.78,744.64 187.08,704.35 159.98,630.86 L0.46,630.86 C34.6,780.14 162,868.65 344.77,868.65 C453.44,868.65 546.21,830.93 600.45,764.96 C598.22,697.56 576,647.43 529,609.34 C513.78,693.66 445.35,744.64 343.36,744.64 Z"
-                    id="Path"
-                  ></path>
-                  <path
-                    d="M320.67,123.39 C429.86,123.39 473.76,185.33 491.09,228.56 L643.69,228.56 C608.91,83.5 491.64,0.76 319.25,0.76 C214.4,0.76 124.31,39.4 71,107 C73.64,167.86 97.19,215.7 143.35,252.26 C160.62,172.94 227.15,123.39 320.67,123.39 Z"
-                    id="Path"
-                  ></path>
-                  <path
-                    d="M436.38,381 L277.65,343.62 C234.863333,332.62 197.98,318.646667 167,301.7 C97.3,263.5 57.17,210 45.6,140 C45.17,140.87 44.76,141.76 44.34,142.63 C28.55,175.42 20.34,212.07 20.34,250.63 C20.34,371.11 89.02,445.51 230.34,478.08 L386.18,514 C432.4,526.19 471.41,540.84 503.74,558.49 C577.39,598.69 616.34,654.49 626.53,732.16 C626.9,731.44 627.25,730.71 627.61,729.99 C644.78,696.05 653.47,657.76 653.47,615.61 C653.49,463.53 535.43,404.08 436.38,381 Z"
-                    id="Path"
-                  ></path>
+                  <path d="M343.36,744.64 C251.78,744.64 187.08,704.35 159.98,630.86 L0.46,630.86 C34.6,780.14 162,868.65 344.77,868.65 C453.44,868.65 546.21,830.93 600.45,764.96 C598.22,697.56 576,647.43 529,609.34 C513.78,693.66 445.35,744.64 343.36,744.64 Z" />
+                  <path d="M320.67,123.39 C429.86,123.39 473.76,185.33 491.09,228.56 L643.69,228.56 C608.91,83.5 491.64,0.76 319.25,0.76 C214.4,0.76 124.31,39.4 71,107 C73.64,167.86 97.19,215.7 143.35,252.26 C160.62,172.94 227.15,123.39 320.67,123.39 Z" />
+                  <path d="M436.38,381 L277.65,343.62 C234.863333,332.62 197.98,318.646667 167,301.7 C97.3,263.5 57.17,210 45.6,140 C45.17,140.87 44.76,141.76 44.34,142.63 C28.55,175.42 20.34,212.07 20.34,250.63 C20.34,371.11 89.02,445.51 230.34,478.08 L386.18,514 C432.4,526.19 471.41,540.84 503.74,558.49 C577.39,598.69 616.34,654.49 626.53,732.16 C626.9,731.44 627.25,730.71 627.61,729.99 C644.78,696.05 653.47,657.76 653.47,615.61 C653.49,463.53 535.43,404.08 436.38,381 Z" />
                 </g>
               </g>
             </svg>
@@ -135,9 +128,8 @@ const richTextMembers = [
     icon: TwitterIcon,
   }),
   defineArrayMember({
-    name: "table",
-    title: "Table",
     type: "table",
+    icon: ThLargeIcon,
   }),
   defineArrayMember({
     name: "youtubeEmbed",
@@ -169,7 +161,6 @@ const richTextMembers = [
         url: "url",
       },
       prepare({ url }) {
-        // Extract video title from URL if possible, otherwise show URL
         const videoId = url?.match(
           /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
         )?.[1];

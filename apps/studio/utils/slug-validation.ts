@@ -215,7 +215,6 @@ export function getSlugPreviewPath(
       return `/authors/${segment}`;
     case "school":
       return `/college/teams/${segment}`;
-    case "post":
     default:
       return slug.startsWith("/") ? slug : `/${segment}`;
   }

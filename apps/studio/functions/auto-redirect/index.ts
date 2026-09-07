@@ -9,7 +9,6 @@ function toPublicPath(documentType: string, slug: string): string {
       return `/authors/${segment}`;
     case "school":
       return `/college/teams/${segment}`;
-    case "post":
     default:
       return slug.startsWith("/") ? slug : `/${segment}`;
   }

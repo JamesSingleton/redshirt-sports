@@ -37,7 +37,7 @@ type PortableTextBlock = {
 function convertCustomUrl(
   value: CustomUrlValue | undefined,
 ): CustomUrlValue | undefined {
-  if (!value || value._type !== "customUrl") {
+  if (value?._type !== "customUrl") {
     return value;
   }
 
