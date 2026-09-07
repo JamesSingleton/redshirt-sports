@@ -27,20 +27,32 @@ const {
   mockGetVoterBallots,
   mockGetSeasonInfo,
   mockRatelimit,
-} = vi.hoisted(() => ({
-  mockAuth: vi.fn(),
-  mockGetSportIdBySlug: vi.fn(),
-  mockGetPollBySportAndSlug: vi.fn(),
-  mockIsUserAssignedToPoll: vi.fn(),
-  mockHasVoterVoted: vi.fn(),
-  mockResolveWeekIdForLegacyWeek: vi.fn(),
-  mockGetSchoolsBySanityIds: vi.fn(),
-  mockSubmitBallot: vi.fn(),
-  mockArePollRankingsPublished: vi.fn(),
-  mockGetVoterBallots: vi.fn(),
-  mockGetSeasonInfo: vi.fn(),
-  mockRatelimit: vi.fn(),
-}));
+  PollWeekLockedError,
+} = vi.hoisted(() => {
+  class PollWeekLockedError extends Error {
+    constructor(
+      message = "Voting is closed for this week because rankings have been published",
+    ) {
+      super(message);
+      this.name = "PollWeekLockedError";
+    }
+  }
+  return {
+    mockAuth: vi.fn(),
+    mockGetSportIdBySlug: vi.fn(),
+    mockGetPollBySportAndSlug: vi.fn(),
+    mockIsUserAssignedToPoll: vi.fn(),
+    mockHasVoterVoted: vi.fn(),
+    mockResolveWeekIdForLegacyWeek: vi.fn(),
+    mockGetSchoolsBySanityIds: vi.fn(),
+    mockSubmitBallot: vi.fn(),
+    mockArePollRankingsPublished: vi.fn(),
+    mockGetVoterBallots: vi.fn(),
+    mockGetSeasonInfo: vi.fn(),
+    mockRatelimit: vi.fn(),
+    PollWeekLockedError,
+  };
+});
 
 vi.mock("@redshirt-sports/auth/server", () => ({
   auth: mockAuth,
@@ -56,6 +68,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   submitBallot: mockSubmitBallot,
   arePollRankingsPublished: mockArePollRankingsPublished,
   getVoterBallots: mockGetVoterBallots,
+  PollWeekLockedError,
 }));
 
 vi.mock("@/utils/espn", () => ({

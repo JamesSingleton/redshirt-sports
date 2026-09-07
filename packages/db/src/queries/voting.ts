@@ -520,6 +520,8 @@ export async function submitBallot({
   entries: Array<{ schoolId: string; rank: number; points: number }>;
 }) {
   return db.transaction(async (tx) => {
+    await assertPollWeekUnlocked(tx, pollId, weekId);
+
     const [ballot] = await tx
       .insert(ballotsTable)
       .values({
@@ -544,6 +546,36 @@ export async function submitBallot({
   });
 }
 
+export class PollWeekLockedError extends Error {
+  constructor(
+    message = "Voting is closed for this week because rankings have been published",
+  ) {
+    super(message);
+    this.name = "PollWeekLockedError";
+  }
+}
+
+async function assertPollWeekUnlocked(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  pollId: string,
+  weekId: string,
+) {
+  const row = await tx
+    .select({ id: pollRankingsTable.id })
+    .from(pollRankingsTable)
+    .where(
+      and(
+        eq(pollRankingsTable.pollId, pollId),
+        eq(pollRankingsTable.weekId, weekId),
+      ),
+    )
+    .limit(1);
+
+  if (row.length > 0) {
+    throw new PollWeekLockedError();
+  }
+}
+
 export async function updateBallot({
   pollId,
   userId,
@@ -556,6 +588,8 @@ export async function updateBallot({
   entries: Array<{ schoolId: string; rank: number; points: number }>;
 }) {
   return db.transaction(async (tx) => {
+    await assertPollWeekUnlocked(tx, pollId, weekId);
+
     const existing = await tx.query.ballotsTable.findFirst({
       where: (model, { eq, and }) =>
         and(
@@ -599,6 +633,7 @@ export async function updateBallot({
 /**
  * Move a voter's ballot from one week to another (admin correction).
  * Fails if no ballot exists on fromWeekId or a ballot already exists on toWeekId.
+ * Fails if Rankings are published for the source or target week.
  */
 export async function reassignBallotWeek({
   pollId,
@@ -616,6 +651,9 @@ export async function reassignBallotWeek({
   }
 
   return db.transaction(async (tx) => {
+    await assertPollWeekUnlocked(tx, pollId, fromWeekId);
+    await assertPollWeekUnlocked(tx, pollId, toWeekId);
+
     const existingTarget = await tx.query.ballotsTable.findFirst({
       where: (model, { eq, and }) =>
         and(

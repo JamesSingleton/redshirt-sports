@@ -187,13 +187,17 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
     if (!selectedPoll || year == null || !weekKey) return;
     startPending(async () => {
       try {
-        await unpublishRankings({
+        const result = await unpublishRankings({
           sportSlug: selectedPoll.sportSlug,
           division: selectedPoll.slug,
           year,
           weekKey,
         });
-        toast.success("Rankings unpublished. Voters can edit ballots again.");
+        toast.success(
+          result.votersCanEdit
+            ? "Rankings unpublished. Voters can edit ballots again."
+            : "Rankings unpublished. Ballot edits stay closed unless this is the current voting week.",
+        );
         setUnpublishOpen(false);
         const next = await previewRankingsPublish({
           sportSlug: selectedPoll.sportSlug,

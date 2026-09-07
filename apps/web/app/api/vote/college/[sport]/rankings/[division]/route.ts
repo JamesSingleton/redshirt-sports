@@ -8,6 +8,7 @@ import {
   getVoterBallots,
   hasVoterVoted,
   isUserAssignedToPoll,
+  PollWeekLockedError,
   resolveWeekIdForLegacyWeek,
   submitBallot,
   updateBallot,
@@ -199,6 +200,10 @@ function seasonTypeLabel(
 
 function handleVoteWriteError(error: unknown) {
   Sentry.captureException(error);
+
+  if (error instanceof PollWeekLockedError) {
+    return jsonError(error.message, 403);
+  }
 
   if (error instanceof z.ZodError) {
     return new Response(

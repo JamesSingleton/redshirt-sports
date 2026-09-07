@@ -16,6 +16,11 @@ const {
   mockGetLatestFinalRankingsBySportSlug: vi.fn(),
 }));
 
+vi.mock("next/cache", () => ({
+  cacheTag: vi.fn(),
+  cacheLife: vi.fn(),
+}));
+
 vi.mock("@redshirt-sports/db/queries", () => ({
   getYearsThatHaveVotes: mockGetYearsThatHaveVotes,
   getWeeksThatHaveVotes: mockGetWeeksThatHaveVotes,

@@ -34,7 +34,9 @@
         "SUPABASE_ANON_KEY",
         "SUPABASE_URL",
         "SUPABASE_SERVICE_ROLE_KEY",
-        "SUPABASE_JWT_SECRET"
+        "SUPABASE_JWT_SECRET",
+        "SANITY_REVALIDATE_SECRET",
+        "NEXT_PUBLIC_SITE_URL"
       ]
     },
     "check:types": {

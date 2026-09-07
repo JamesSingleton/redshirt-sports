@@ -33,9 +33,12 @@ export async function POST(request: NextRequest) {
   console.info("Expiring tags from expirator service", { tags, cacheTags });
 
   for (const tag of tags) {
+    // Sanity Content Lake sync tags are stored as `sanity:${id}`.
+    // App-owned tags (e.g. rankings) are passed through unchanged.
+    const fullTag = tag.startsWith("rankings") ? tag : `sanity:${tag}`;
     // The `expire: 0` option makes revalidation behave as `updateTag` in a server action, it will be guaranteed to be fresh when visitors call `refresh()`.
     // The trade-off is that the app has `<Link>` prefetch disabled to avoid https://github.com/vercel/next.js/issues/93210
-    revalidateTag(`sanity:${tag}`, { expire: 0 });
+    revalidateTag(fullTag, { expire: 0 });
   }
 
   for (const tag of cacheTags) {

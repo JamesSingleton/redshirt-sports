@@ -27,23 +27,35 @@ const {
   mockAnalyticsCapture,
   mockSentryCapture,
   mockRatelimit,
-} = vi.hoisted(() => ({
-  mockAuth: vi.fn(),
-  mockGetSportIdBySlug: vi.fn(),
-  mockGetPollBySportAndSlug: vi.fn(),
-  mockIsUserAssignedToPoll: vi.fn(),
-  mockHasVoterVoted: vi.fn(),
-  mockResolveWeekIdForLegacyWeek: vi.fn(),
-  mockGetSchoolsBySanityIds: vi.fn(),
-  mockSubmitBallot: vi.fn(),
-  mockUpdateBallot: vi.fn(),
-  mockArePollRankingsPublished: vi.fn(),
-  mockGetVoterBallots: vi.fn(),
-  mockGetSeasonInfo: vi.fn(),
-  mockAnalyticsCapture: vi.fn(),
-  mockSentryCapture: vi.fn(),
-  mockRatelimit: vi.fn(),
-}));
+  PollWeekLockedError,
+} = vi.hoisted(() => {
+  class PollWeekLockedError extends Error {
+    constructor(
+      message = "Voting is closed for this week because rankings have been published",
+    ) {
+      super(message);
+      this.name = "PollWeekLockedError";
+    }
+  }
+  return {
+    mockAuth: vi.fn(),
+    mockGetSportIdBySlug: vi.fn(),
+    mockGetPollBySportAndSlug: vi.fn(),
+    mockIsUserAssignedToPoll: vi.fn(),
+    mockHasVoterVoted: vi.fn(),
+    mockResolveWeekIdForLegacyWeek: vi.fn(),
+    mockGetSchoolsBySanityIds: vi.fn(),
+    mockSubmitBallot: vi.fn(),
+    mockUpdateBallot: vi.fn(),
+    mockArePollRankingsPublished: vi.fn(),
+    mockGetVoterBallots: vi.fn(),
+    mockGetSeasonInfo: vi.fn(),
+    mockAnalyticsCapture: vi.fn(),
+    mockSentryCapture: vi.fn(),
+    mockRatelimit: vi.fn(),
+    PollWeekLockedError,
+  };
+});
 
 vi.mock("@redshirt-sports/auth/server", () => ({
   auth: mockAuth,
@@ -60,6 +72,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   updateBallot: mockUpdateBallot,
   arePollRankingsPublished: mockArePollRankingsPublished,
   getVoterBallots: mockGetVoterBallots,
+  PollWeekLockedError,
 }));
 
 vi.mock("@/utils/espn", () => ({
@@ -291,6 +304,16 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
     expect(mockSubmitBallot).not.toHaveBeenCalled();
   });
 
+  it("returns 403 when submitBallot rejects with PollWeekLockedError", async () => {
+    mockSubmitBallot.mockRejectedValue(new PollWeekLockedError());
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(403);
+    const body = await res.json();
+    expect(body.error).toMatch(/rankings have been published/i);
+  });
+
   it("returns 400 for unknown Sanity school ids", async () => {
     mockGetSchoolsBySanityIds.mockResolvedValue(new Map());
     const res = await POST(postRequest(ballotBody()), {
@@ -486,6 +509,16 @@ describe("PATCH /api/vote/college/[sport]/rankings/[division]", () => {
     const body = await res.json();
     expect(body.error).toMatch(/rankings have been published/i);
     expect(mockUpdateBallot).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 when updateBallot rejects with PollWeekLockedError", async () => {
+    mockUpdateBallot.mockRejectedValue(new PollWeekLockedError());
+    const res = await PATCH(patchRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(403);
+    const body = await res.json();
+    expect(body.error).toMatch(/rankings have been published/i);
   });
 
   it("returns 500 for unexpected PATCH errors", async () => {
