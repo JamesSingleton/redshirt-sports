@@ -27,5 +27,5 @@ Publishing is manual from the admin **Rankings** desk.
 - Prefer a single publish after the ballot window closes.
 - Publishing locks voter ballot edits for that poll and week.
 - **Unpublish** removes rankings rows only. Ballots stay. Voters can edit again only while that poll week is still the current **voting week** (and before you publish again). Unpublishing an older week does not reopen edits on the live voting week.
-- Publish and unpublish also expire the public web rankings cache tags (requires `SANITY_REVALIDATE_SECRET` on admin, same secret as web `/api/revalidate-tags`).
+- Publish and unpublish also expire the public web rankings cache tags. Admin needs `CACHE_REVALIDATE_SECRET` (same value as web; not the Sanity secret) and `NEXT_PUBLIC_SITE_URL` pointing at the live web host (e.g. `www.redshirtsports.xyz` — scheme optional). Falls back to `https://www.redshirtsports.com` if unset.
 - Do not reassign ballots to or from a week that still has published rankings — unpublish first.

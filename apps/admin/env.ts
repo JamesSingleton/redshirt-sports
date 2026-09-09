@@ -10,11 +10,11 @@ export const env = createEnv({
   skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
   extends: [core(), auth(), db(), observability(), sanity()],
   server: {
-    /** Shared with web `/api/revalidate-tags` to bust public rankings caches. */
-    SANITY_REVALIDATE_SECRET: z.string().min(1).optional(),
+    /** Shared with web `/api/revalidate-tags` cacheTags path. */
+    CACHE_REVALIDATE_SECRET: z.string().min(1).optional(),
   },
   client: {},
   runtimeEnv: {
-    SANITY_REVALIDATE_SECRET: process.env.SANITY_REVALIDATE_SECRET,
+    CACHE_REVALIDATE_SECRET: process.env.CACHE_REVALIDATE_SECRET,
   },
 });

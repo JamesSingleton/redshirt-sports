@@ -4,11 +4,13 @@ import {
   seasonTypeAndNumberToLegacyWeek,
 } from "@redshirt-sports/db/utils/week-mapping";
 
-import { PUBLIC_SITE_URL } from "@/lib/site";
+import { env } from "@/env";
+import { resolvePublicSiteUrl } from "@/lib/site";
 
 /**
  * Expire public web `"use cache"` rankings entries after publish/unpublish.
- * Soft-skips when secret is unset (local admin without web revalidate config).
+ * Hits the public site (`NEXT_PUBLIC_SITE_URL`, host-only OK) or the
+ * hardcoded fallback. Soft-skips when CACHE_REVALIDATE_SECRET is unset.
  */
 export async function revalidateWebRankingsCache({
   sport,
@@ -21,10 +23,10 @@ export async function revalidateWebRankingsCache({
   year: number;
   weekKey: string;
 }) {
-  const secret = process.env.SANITY_REVALIDATE_SECRET;
+  const secret = env.CACHE_REVALIDATE_SECRET;
   if (!secret) {
     console.warn(
-      "SANITY_REVALIDATE_SECRET unset; skipping web rankings cache revalidation",
+      "CACHE_REVALIDATE_SECRET unset; skipping web rankings cache revalidation",
     );
     return;
   }
@@ -39,15 +41,14 @@ export async function revalidateWebRankingsCache({
     parsed.seasonType,
     parsed.weekNumber,
   );
-  const tags = rankingsInvalidationTags({ sport, division, year, week });
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? PUBLIC_SITE_URL;
+  const cacheTags = rankingsInvalidationTags({ sport, division, year, week });
+  const baseUrl = resolvePublicSiteUrl(env.NEXT_PUBLIC_SITE_URL);
 
   try {
     const res = await fetch(`${baseUrl}/api/revalidate-tags`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ secret, tags }),
+      body: JSON.stringify({ secret, cacheTags }),
     });
     if (!res.ok) {
       const body = await res.text();
