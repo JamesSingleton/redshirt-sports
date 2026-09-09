@@ -71,6 +71,7 @@ export const voterBallots = pgTable(
       table.sportId,
       table.teamId,
     ),
+    index().on(table.sportId),
   ],
 );
 
@@ -87,7 +88,10 @@ export const weeklyFinalRankings = pgTable(
     rankings: jsonb("rankings").notNull(),
     createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
   },
-  (table) => [unique().on(table.division, table.year, table.week)],
+  (table) => [
+    unique().on(table.division, table.year, table.week),
+    index().on(table.sportId),
+  ],
 );
 
 export const usersTable = pgTable("users_table", {
@@ -141,7 +145,11 @@ export const weeksTable = pgTable(
       .notNull()
       .references(() => seasonTypesTable.id, { onDelete: "cascade" }),
   },
-  (table) => [unique().on(table.seasonTypeId, table.number)],
+  (table) => [
+    // Unique (season_type_id, number) already covers season_type_id-leading
+    // lookups/joins — no separate season_type_id index needed.
+    unique().on(table.seasonTypeId, table.number),
+  ],
 );
 
 export const schoolsTable = pgTable(
@@ -259,7 +267,12 @@ export const pollsTable = pgTable(
       () => divisionSportsTable.id,
     ),
   },
-  (table) => [unique().on(table.sportId, table.slug), index().on(table.slug)],
+  (table) => [
+    unique().on(table.sportId, table.slug),
+    index().on(table.slug),
+    // FK cover for division_sport_id (not leading in any existing index).
+    index().on(table.divisionSportId),
+  ],
 );
 
 export const pollVotersTable = pgTable(
@@ -302,6 +315,8 @@ export const ballotsTable = pgTable(
     unique().on(table.pollId, table.userId, table.weekId),
     index().on(table.pollId, table.weekId),
     index().on(table.userId, table.pollId),
+    // FK cover for week_id (composite indexes are poll_id-leading).
+    index().on(table.weekId),
   ],
 );
 
@@ -349,6 +364,8 @@ export const pollRankingsTable = pgTable(
     unique().on(table.pollId, table.weekId, table.schoolId),
     index().on(table.pollId, table.weekId),
     index().on(table.schoolId, table.pollId, table.weekId),
+    // FK cover for week_id (composite indexes are poll_id / school_id-leading).
+    index().on(table.weekId),
   ],
 );
 

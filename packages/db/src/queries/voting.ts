@@ -162,7 +162,8 @@ export async function getVoterBallots({
       ),
     with: {
       entries: {
-        with: { school: true },
+        // Only sanityId is mapped to teamId — avoid shipping full school jsonb.
+        with: { school: { columns: { sanityId: true } } },
         orderBy: (entry, { asc }) => [asc(entry.rank)],
       },
     },
@@ -213,7 +214,8 @@ export async function getBallotsByWeekYearDivisionAndSport({
       ),
     with: {
       entries: {
-        with: { school: true },
+        // Only sanityId is mapped to teamId — avoid shipping full school jsonb.
+        with: { school: { columns: { sanityId: true } } },
       },
     },
   });
@@ -255,7 +257,8 @@ export async function getBallotVotesForPollWeek({
       and(eq(model.pollId, pollId), eq(model.weekId, weekId)),
     with: {
       entries: {
-        with: { school: true },
+        // Only sanityId is mapped to teamId — avoid shipping full school jsonb.
+        with: { school: { columns: { sanityId: true } } },
       },
     },
   });

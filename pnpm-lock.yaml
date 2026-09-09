@@ -152,6 +152,9 @@ importers:
       sonner:
         specifier: ^2.0.8
         version: 2.0.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
     devDependencies:
       '@redshirt-sports/typescript-config':
         specifier: workspace:*
@@ -4648,8 +4651,8 @@ packages:
       react-dom: ^19.2
       styled-components: ^6.1
 
-  '@sanity/ui@5.0.0-alpha.8':
-    resolution: {integrity: sha512-97d8U9/gXi7Y09NuOSYSmg7AZucxdLGY465F1c0iS4TlO5oN3qP7hzxYoxdRfYESCaY3I2nPIkFrGViLYKDfwQ==}
+  '@sanity/ui@5.0.0-alpha.9':
+    resolution: {integrity: sha512-dwTWWwHvMEp7mVU6TtTgUCAEzZH84ok5e4pN81xSTfudUAE4x3Qf68yezbKX6FDtcaEgt6d7RS+n23QjyPdknw==}
     engines: {node: '>=20.19 <22 || >=22.12'}
     hasBin: true
     peerDependencies:
@@ -14561,7 +14564,7 @@ snapshots:
       styled-components: 6.5.3(css-to-react-native@3.2.0)(react-dom@19.2.8(react@19.2.8))(react-native@0.86.0(@babel/core@7.29.7)(@types/react@19.2.18)(bufferutil@4.1.0)(react@19.2.8)(utf-8-validate@6.0.6))(react@19.2.8)
       use-effect-event: 2.0.3(react@19.2.8)
 
-  '@sanity/ui@5.0.0-alpha.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@sanity/ui@5.0.0-alpha.9(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@sanity-labs/design-tokens': 0.0.2-alpha.4
       '@sanity/icons': 5.2.1(react@19.2.8)
@@ -19920,7 +19923,7 @@ snapshots:
       speakingurl: 14.0.1
       styled-components: 6.5.3(css-to-react-native@3.2.0)(react-dom@19.2.8(react@19.2.8))(react-native@0.86.0(@babel/core@7.29.7)(@types/react@19.2.18)(bufferutil@4.1.0)(react@19.2.8)(utf-8-validate@6.0.6))(react@19.2.8)
       swr: 2.5.1(react@19.2.8)
-      ui5: '@sanity/ui@5.0.0-alpha.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8)'
+      ui5: '@sanity/ui@5.0.0-alpha.9(react-dom@19.2.8(react@19.2.8))(react@19.2.8)'
       urlpattern-polyfill: 10.1.0
       use-device-pixel-ratio: 1.1.2(react@19.2.8)
       use-effect-event: 2.0.3(react@19.2.8)
@@ -20070,7 +20073,7 @@ snapshots:
       speakingurl: 14.0.1
       styled-components: 6.5.3(css-to-react-native@3.2.0)(react-dom@19.2.8(react@19.2.8))(react-native@0.86.0(@babel/core@7.29.7)(@types/react@19.2.18)(bufferutil@4.1.0)(react@19.2.8)(utf-8-validate@6.0.6))(react@19.2.8)
       swr: 2.5.1(react@19.2.8)
-      ui5: '@sanity/ui@5.0.0-alpha.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8)'
+      ui5: '@sanity/ui@5.0.0-alpha.9(react-dom@19.2.8(react@19.2.8))(react@19.2.8)'
       urlpattern-polyfill: 10.1.0
       use-device-pixel-ratio: 1.1.2(react@19.2.8)
       use-effect-event: 2.0.3(react@19.2.8)

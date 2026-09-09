@@ -2,12 +2,14 @@ import {
   getSportIdBySlug,
   getVotesForWeekAndYearByVoter,
 } from "@redshirt-sports/db/queries";
+import { cacheTag } from "next/cache";
 
 import VoterBallotBreakdown from "@/components/rankings/voter-ballot-breakdown";
 import {
   type ConsensusRank,
   computeBallotMatchPercent,
 } from "@/lib/ballot-match";
+import { POLL_RANKINGS_CACHE_TAG } from "@/lib/rankings-data";
 import type { VoterBreakdown } from "@/types/votes";
 import type { SportParam } from "@/utils/espn";
 import { processVoterBallots } from "@/utils/process-ballots";
@@ -32,6 +34,7 @@ async function getCachedVoterBreakdown({
   consensusRanks,
 }: RankingsVoterBreakdownProps): Promise<VoterBreakdown[] | null> {
   "use cache";
+  cacheTag(POLL_RANKINGS_CACHE_TAG);
 
   const sportId = await getSportIdBySlug(sport);
   if (!sportId) {

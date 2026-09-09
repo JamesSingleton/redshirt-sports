@@ -133,6 +133,35 @@ describe("POST /api/revalidate-tags", () => {
     await expect(res.json()).resolves.toEqual({
       service: "redshirtsports.com",
       tags: ["post", "author"],
+      cacheTags: [],
+    });
+  });
+
+  it("revalidates exact cacheTags without sanity prefix", async () => {
+    process.env.SANITY_REVALIDATE_SECRET = "correct-secret";
+    process.env.VERCEL_PROJECT_PRODUCTION_URL = "redshirtsports.com";
+    vi.resetModules();
+    const { POST } = await import("@/app/api/revalidate-tags/route");
+
+    const res = await POST(
+      new Request("https://example.com/api/revalidate-tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          secret: "correct-secret",
+          cacheTags: ["poll-rankings"],
+        }),
+      }) as never,
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockRevalidateTag).toHaveBeenCalledWith("poll-rankings", {
+      expire: 0,
+    });
+    await expect(res.json()).resolves.toEqual({
+      service: "redshirtsports.com",
+      tags: [],
+      cacheTags: ["poll-rankings"],
     });
   });
 });

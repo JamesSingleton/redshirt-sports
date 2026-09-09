@@ -127,6 +127,27 @@
       "when": 1786225187705,
       "tag": "0017_schools_slug",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1788903872472,
+      "tag": "0018_poll_week_fk_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1788919854556,
+      "tag": "0019_fk_indexes_and_poll_covers",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1788920000000,
+      "tag": "0020_lock_down_data_api",
+      "breakpoints": true
     }
   ]
 }

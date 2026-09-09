@@ -126,6 +126,31 @@ export async function getFinalRankingsForWeekAndYear({
   });
   if (!weekId) throw new Error("Rankings not found");
 
+  // Project only fields CustomImage/processImageData need — drops caption,
+  // dominantColor, and nested asset blobs from schools.image jsonb.
+  const schoolLogoImage = sql<unknown>`
+    CASE
+      WHEN ${schoolsTable.image} IS NULL THEN NULL
+      ELSE jsonb_strip_nulls(
+        jsonb_build_object(
+          'id', coalesce(
+            ${schoolsTable.image}->>'id',
+            ${schoolsTable.image}->'asset'->>'_ref'
+          ),
+          'alt', coalesce(
+            ${schoolsTable.image}->>'alt',
+            ${schoolsTable.image}->>'caption'
+          ),
+          'preview', ${schoolsTable.image}->'preview',
+          'width', ${schoolsTable.image}->'width',
+          'height', ${schoolsTable.image}->'height',
+          'hotspot', ${schoolsTable.image}->'hotspot',
+          'crop', ${schoolsTable.image}->'crop'
+        )
+      )
+    END
+  `;
+
   const rows = await db
     .select({
       id: pollRankingsTable.id,
@@ -138,7 +163,7 @@ export async function getFinalRankingsForWeekAndYear({
       shortName: schoolsTable.shortName,
       abbreviation: schoolsTable.abbreviation,
       slug: schoolsTable.slug,
-      image: schoolsTable.image,
+      image: schoolLogoImage,
     })
     .from(pollRankingsTable)
     .innerJoin(schoolsTable, eq(pollRankingsTable.schoolId, schoolsTable.id))
