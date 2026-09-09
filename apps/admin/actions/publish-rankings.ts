@@ -15,8 +15,8 @@ import {
 import { revalidatePath } from "next/cache";
 
 import { buildNudgeMessage } from "@/lib/nudge";
-import { revalidatePublicPollRankingsCache } from "@/lib/revalidate-public-rankings";
 import { requireAdmin } from "@/lib/require-admin";
+import { revalidatePublicPollRankingsCache } from "@/lib/revalidate-public-rankings";
 
 const SPORT_PARAMS = new Set<SportParam>([
   "football",

@@ -30,7 +30,8 @@
     "next-themes": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "sonner": "^2.0.8"
+    "sonner": "^2.0.8",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
