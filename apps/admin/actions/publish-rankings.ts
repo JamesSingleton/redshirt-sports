@@ -15,6 +15,7 @@ import {
 import { revalidatePath } from "next/cache";
 
 import { buildNudgeMessage } from "@/lib/nudge";
+import { revalidatePublicPollRankingsCache } from "@/lib/revalidate-public-rankings";
 import { requireAdmin } from "@/lib/require-admin";
 
 const SPORT_PARAMS = new Set<SportParam>([
@@ -105,6 +106,7 @@ export async function publishRankings({
   });
   revalidatePath("/rankings");
   revalidatePath("/");
+  await revalidatePublicPollRankingsCache();
   return result;
 }
 

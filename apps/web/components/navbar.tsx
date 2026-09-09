@@ -38,28 +38,43 @@ export async function DynamicNavbarServer() {
   return <CachedNavbarServer perspective={perspective} stega={stega} />;
 }
 
-export async function CachedNavbarServer({
+/**
+ * Sanity chrome for the navbar. Separate from rankings so Content Lake
+ * revalidation does not re-query Postgres for Top 25 week pointers.
+ */
+async function getCachedNavbarSanity({
   perspective,
   stega,
 }: DynamicFetchOptions) {
   "use cache";
-  // Call sanityFetch directly (not sanityFetchPage) to avoid nested `"use cache"`
-  // entries that can deadlock against the shared postgres/client module scope
-  // while sibling Suspense boundaries fill other caches.
-  const [latestRankings, { data: navbarData }, { data: settingsData }] =
-    await Promise.all([
-      getCachedNavbarLatestRankings(),
-      sanityFetch({
-        query: globalNavigationQuery,
-        perspective,
-        stega,
-      }),
-      sanityFetch({
-        query: queryGlobalSeoSettings,
-        perspective,
-        stega,
-      }),
-    ]);
+  const [{ data: navbarData }, { data: settingsData }] = await Promise.all([
+    sanityFetch({
+      query: globalNavigationQuery,
+      perspective,
+      stega,
+    }),
+    sanityFetch({
+      query: queryGlobalSeoSettings,
+      perspective,
+      stega,
+    }),
+  ]);
+  return { navbarData, settingsData };
+}
+
+/**
+ * Composer (no `"use cache"` here): runs two sibling cache scopes in parallel.
+ * Nested `"use cache"` under a parent cache previously deadlocked the shared
+ * postgres client while other Suspense boundaries filled.
+ */
+export async function CachedNavbarServer({
+  perspective,
+  stega,
+}: DynamicFetchOptions) {
+  const [latestRankings, { navbarData, settingsData }] = await Promise.all([
+    getCachedNavbarLatestRankings(),
+    getCachedNavbarSanity({ perspective, stega }),
+  ]);
 
   return (
     <MemoizedNavbar

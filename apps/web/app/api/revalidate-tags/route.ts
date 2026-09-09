@@ -11,11 +11,13 @@ export async function POST(request: NextRequest) {
 
   let secret: string | null = null;
   let tags: string[] = [];
+  let cacheTags: string[] = [];
 
   try {
     const body = await request.json();
     if (body.secret) secret = body.secret;
     if (Array.isArray(body.tags)) tags = body.tags;
+    if (Array.isArray(body.cacheTags)) cacheTags = body.cacheTags;
   } catch {
     // no valid JSON body
   }
@@ -24,11 +26,11 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (tags.length === 0) {
+  if (tags.length === 0 && cacheTags.length === 0) {
     return Response.json({ error: "No tags provided" }, { status: 400 });
   }
 
-  console.info("Expiring tags from expirator service", tags);
+  console.info("Expiring tags from expirator service", { tags, cacheTags });
 
   for (const tag of tags) {
     // The `expire: 0` option makes revalidation behave as `updateTag` in a server action, it will be guaranteed to be fresh when visitors call `refresh()`.
@@ -36,8 +38,13 @@ export async function POST(request: NextRequest) {
     revalidateTag(`sanity:${tag}`, { expire: 0 });
   }
 
+  for (const tag of cacheTags) {
+    revalidateTag(tag, { expire: 0 });
+  }
+
   return Response.json({
     service: process.env.VERCEL_PROJECT_PRODUCTION_URL,
     tags,
+    cacheTags,
   });
 }

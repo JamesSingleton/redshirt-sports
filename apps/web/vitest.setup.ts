@@ -19,3 +19,12 @@ process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ??= "pk_test_clerk_publishable";
 process.env.NEXT_PUBLIC_POSTHOG_KEY ??= "phc_test_posthog_key";
 process.env.NEXT_PUBLIC_POSTHOG_HOST ??= "https://app.posthog.com";
 process.env.NEXT_PUBLIC_APP_NAME ??= "Redshirt Sports";
+
+vi.mock("next/cache", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/cache")>();
+  return {
+    ...actual,
+    cacheTag: vi.fn(),
+    cacheLife: vi.fn(),
+  };
+});
