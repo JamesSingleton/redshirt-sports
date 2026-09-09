@@ -117,9 +117,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
 
     expect(res.status).toBe(200);
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe("*");
-    expect(res.headers.get("Cache-Control")).toContain(
-      "public, s-maxage=60, stale-while-revalidate=300",
-    );
+    expect(res.headers.get("Cache-Control")).toContain("s-maxage=1800");
 
     const body = await res.json();
     expect(body.poll.name).toBe("FCS Top 25");

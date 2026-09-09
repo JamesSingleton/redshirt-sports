@@ -201,12 +201,8 @@ describe("POST /api/revalidate-tags", () => {
     );
 
     expect(res.status).toBe(200);
-    expect(mockRevalidateTag).toHaveBeenCalledWith("sanity:post", {
-      expire: 0,
-    });
-    expect(mockRevalidateTag).toHaveBeenCalledWith("sanity:author", {
-      expire: 0,
-    });
+    expect(mockRevalidateTag).toHaveBeenCalledWith("sanity:post", "max");
+    expect(mockRevalidateTag).toHaveBeenCalledWith("sanity:author", "max");
     await expect(res.json()).resolves.toEqual({
       service: "redshirtsports.com",
       tags: ["post", "author"],

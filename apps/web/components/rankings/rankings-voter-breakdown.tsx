@@ -10,7 +10,6 @@ import {
 } from "@redshirt-sports/db/rankings-cache-tags";
 import { cacheTag } from "next/cache";
 
-import VoterBallotBreakdown from "@/components/rankings/voter-ballot-breakdown";
 import {
   type ConsensusRank,
   computeBallotMatchPercent,
@@ -19,7 +18,7 @@ import type { VoterBreakdown } from "@/types/votes";
 import type { SportParam } from "@/utils/espn";
 import { processVoterBallots } from "@/utils/process-ballots";
 
-type RankingsVoterBreakdownProps = {
+export type RankingsVoterBreakdownProps = {
   division: string;
   year: number;
   week: number;
@@ -31,7 +30,7 @@ type RankingsVoterBreakdownProps = {
  * Must run under `'use cache'`. Uncached DB/Sanity I/O here races layout
  * cache fills against the shared postgres pool and deadlocks CachedNavbarServer.
  */
-async function getCachedVoterBreakdown({
+export async function getCachedVoterBreakdown({
   division,
   year,
   week,
@@ -70,19 +69,4 @@ async function getCachedVoterBreakdown({
       consensusRanks,
     ),
   }));
-}
-
-export async function RankingsVoterBreakdown(
-  props: RankingsVoterBreakdownProps,
-) {
-  const voterBreakdown = await getCachedVoterBreakdown(props);
-  if (!voterBreakdown) {
-    return null;
-  }
-
-  return (
-    <div className="mt-8">
-      <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
-    </div>
-  );
 }

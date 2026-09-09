@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
-import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
+import { getCachedVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
+import VoterBallotBreakdown from "@/components/rankings/voter-ballot-breakdown";
 
 const {
   mockGetSportIdBySlug,
@@ -34,7 +35,7 @@ vi.mock("@/components/rankings/voter-ballot-breakdown", () => ({
   ),
 }));
 
-describe("RankingsVoterBreakdown", () => {
+describe("getCachedVoterBreakdown", () => {
   const props = {
     division: "fbs",
     year: 2025,
@@ -52,7 +53,7 @@ describe("RankingsVoterBreakdown", () => {
 
   it("returns null when the sport cannot be resolved", async () => {
     mockGetSportIdBySlug.mockResolvedValue(null);
-    const result = await RankingsVoterBreakdown(props);
+    const result = await getCachedVoterBreakdown(props);
     expect(result).toBeNull();
   });
 
@@ -61,11 +62,11 @@ describe("RankingsVoterBreakdown", () => {
     mockGetVotesForWeekAndYearByVoter.mockResolvedValue([]);
     mockProcessVoterBallots.mockResolvedValue([]);
 
-    const result = await RankingsVoterBreakdown(props);
+    const result = await getCachedVoterBreakdown(props);
     expect(result).toBeNull();
   });
 
-  it("renders voter breakdown with computed match percentages", async () => {
+  it("returns voter breakdown with computed match percentages", async () => {
     mockGetSportIdBySlug.mockResolvedValue("sport-1");
     mockGetVotesForWeekAndYearByVoter.mockResolvedValue([{ id: "vote-1" }]);
     mockProcessVoterBallots.mockResolvedValue([
@@ -78,10 +79,12 @@ describe("RankingsVoterBreakdown", () => {
     ]);
     mockComputeBallotMatchPercent.mockReturnValue(88);
 
-    const component = await RankingsVoterBreakdown(props);
-    render(component);
-
-    expect(screen.getByTestId("voter-breakdown")).toHaveTextContent("1");
+    const voterBreakdown = await getCachedVoterBreakdown(props);
+    expect(voterBreakdown).toHaveLength(1);
+    expect(voterBreakdown?.[0]?.matchPercent).toBe(88);
     expect(mockComputeBallotMatchPercent).toHaveBeenCalled();
+
+    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown!} />);
+    expect(screen.getByTestId("voter-breakdown")).toHaveTextContent("1");
   });
 });

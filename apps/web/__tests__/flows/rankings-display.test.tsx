@@ -19,6 +19,18 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
     perspective: "published",
     stega: false,
   }),
+  PUBLISHED_FETCH_OPTIONS: {
+    perspective: "published",
+    stega: false,
+  },
+}));
+
+vi.mock("@/lib/draft-cache", () => ({
+  draftAwareParamsPage: async (
+    params: Promise<unknown>,
+    _fallback: unknown,
+    render: (resolved: unknown) => Promise<React.ReactNode>,
+  ) => render(await params),
 }));
 
 vi.mock("@/lib/rankings-data", () => ({
@@ -49,12 +61,8 @@ vi.mock("@/components/rankings/filters", () => ({
   RankingsFilters: () => null,
 }));
 
-vi.mock("@/components/rankings/rankings-voter-breakdown", () => ({
-  RankingsVoterBreakdown: () => null,
-}));
-
-vi.mock("@/components/rankings/voter-breakdown-skeleton", () => ({
-  VoterBreakdownSkeleton: () => null,
+vi.mock("@/components/rankings/lazy-voter-breakdown", () => ({
+  LazyVoterBreakdown: () => null,
 }));
 
 vi.mock("@/components/sanity-image", () => ({

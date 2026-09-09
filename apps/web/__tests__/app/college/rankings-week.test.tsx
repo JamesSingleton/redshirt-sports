@@ -22,6 +22,18 @@ const {
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
   getDynamicFetchOptions: mockGetDynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS: {
+    perspective: "published",
+    stega: false,
+  },
+}));
+
+vi.mock("@/lib/draft-cache", () => ({
+  draftAwareParamsPage: async (
+    params: Promise<unknown>,
+    _fallback: unknown,
+    render: (resolved: unknown) => Promise<React.ReactNode>,
+  ) => render(await params),
 }));
 
 vi.mock("@/lib/rankings-data", () => ({
@@ -60,12 +72,8 @@ vi.mock("@/components/rankings/filters", () => ({
   RankingsFilters: () => <div data-testid="rankings-filters" />,
 }));
 
-vi.mock("@/components/rankings/rankings-voter-breakdown", () => ({
-  RankingsVoterBreakdown: () => <div data-testid="voter-breakdown" />,
-}));
-
-vi.mock("@/components/rankings/voter-breakdown-skeleton", () => ({
-  VoterBreakdownSkeleton: () => <div data-testid="voter-skeleton" />,
+vi.mock("@/components/rankings/lazy-voter-breakdown", () => ({
+  LazyVoterBreakdown: () => <div data-testid="voter-breakdown" />,
 }));
 
 vi.mock("@/components/sanity-image", () => ({
