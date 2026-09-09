@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  getDynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS,
 } from "@redshirt-sports/sanity/live";
 import {
   queryHomePageData,
@@ -18,6 +18,7 @@ import ArticleCard from "@/components/article-card";
 import ArticleSection from "@/components/article-section";
 import Hero from "@/components/home/hero";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
+import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import {
   fetchGlobalSeoSettings,
@@ -59,7 +60,7 @@ const divisions = [
 const baseUrl = getBaseUrl();
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { perspective } = await getDynamicFetchOptions();
+  const { perspective } = PUBLISHED_FETCH_OPTIONS;
   const settings = await fetchGlobalSeoSettings(perspective);
 
   return getPageMetadata(
@@ -72,10 +73,8 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 }
 
-export default async function HomePage() {
-  const { perspective, stega } = await getDynamicFetchOptions();
-
-  return <CachedHomePage perspective={perspective} stega={stega} />;
+export default function HomePage() {
+  return draftAwarePage(null, CachedHomePage);
 }
 
 export async function CachedHomePage({

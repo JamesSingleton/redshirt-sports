@@ -19,6 +19,10 @@ const { mockGetDynamicFetchOptions, mockSanityFetch } = vi.hoisted(() => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
+  PUBLISHED_FETCH_OPTIONS: {
+    perspective: "published",
+    stega: false,
+  },
   getDynamicFetchOptions: mockGetDynamicFetchOptions,
   sanityFetch: mockSanityFetch,
 }));

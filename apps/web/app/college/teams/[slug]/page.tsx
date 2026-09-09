@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  getDynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS,
   sanityFetchMetadata,
   sanityFetchStaticParams,
 } from "@redshirt-sports/sanity/live";
@@ -100,7 +100,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const [{ slug }, { perspective }] = await Promise.all([
     params,
-    getDynamicFetchOptions(),
+    Promise.resolve(PUBLISHED_FETCH_OPTIONS),
   ]);
   const { data: school } = (await sanityFetchMetadata({
     query: schoolBySlugQuery,

@@ -47,14 +47,15 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    console.info("Expiring Sanity tags from expirator service", { tags });
+    console.info("Revalidating Sanity tags from expirator service", { tags });
 
     for (const tag of tags) {
-      // The `expire: 0` option makes revalidation behave as `updateTag` in a
-      // server action; it will be guaranteed to be fresh when visitors call
-      // `refresh()`. The trade-off is that the app has `<Link>` prefetch
-      // disabled to avoid https://github.com/vercel/next.js/issues/93210
-      revalidateTag(`sanity:${tag}`, { expire: 0 });
+      // Most Sanity content is safe to regenerate in the background. Rankings
+      // remain immediately expired because they can change vote availability.
+      revalidateTag(
+        `sanity:${tag}`,
+        tag === "rankings" ? { expire: 0 } : "max",
+      );
     }
 
     return Response.json({

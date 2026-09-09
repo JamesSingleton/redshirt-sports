@@ -73,6 +73,12 @@ vi.mock("@/lib/seo", () => ({
 }));
 
 import RootLayout, { metadata, viewport } from "@/app/layout";
+import {
+  DraftAwareFooter,
+  DraftAwareJsonLd,
+  DraftAwareLiveAndEditing,
+  DraftAwareNavbar,
+} from "@/components/root-layout-chrome";
 
 describe("RootLayout", () => {
   beforeEach(() => {
@@ -84,35 +90,63 @@ describe("RootLayout", () => {
     expect(viewport).toEqual({ themeColor: "#E80022" });
   });
 
-  it("renders cached navbar, main content, and footer in published mode", async () => {
-    const layout = await RootLayout({ children: <div>Page content</div> });
+  it("does not call draftMode in the layout shell itself", () => {
+    RootLayout({ children: <div>Page content</div> });
+    expect(mockDraftMode).not.toHaveBeenCalled();
+  });
+
+  it("renders Suspense fallbacks around draft-aware chrome", () => {
+    const layout = RootLayout({ children: <div>Page content</div> });
     render(layout);
 
-    expect(screen.getByTestId("navbar")).toBeInTheDocument();
+    expect(screen.getByTestId("navbar-skeleton")).toBeInTheDocument();
     expect(screen.getByText("Page content")).toBeInTheDocument();
+    expect(screen.getByTestId("footer-skeleton")).toBeInTheDocument();
+  });
+});
+
+describe("DraftAware layout chrome", () => {
+  beforeEach(() => {
+    mockDraftMode.mockReset().mockResolvedValue({ isEnabled: false });
+  });
+
+  it("renders cached navbar, footer, and json-ld in published mode", async () => {
+    render(await DraftAwareNavbar());
+    expect(screen.getByTestId("navbar")).toBeInTheDocument();
+
+    render(await DraftAwareFooter());
     expect(screen.getByTestId("footer")).toBeInTheDocument();
+
+    render(await DraftAwareJsonLd());
     expect(screen.getByTestId("json-ld")).toBeInTheDocument();
+
+    render(await DraftAwareLiveAndEditing());
+    expect(screen.getByTestId("sanity-live")).toBeInTheDocument();
     expect(screen.queryByTestId("visual-editing")).not.toBeInTheDocument();
   });
 
   it("renders draft-mode UI when draft mode is enabled", async () => {
     mockDraftMode.mockResolvedValue({ isEnabled: true });
-    const layout = await RootLayout({ children: <div>Draft page</div> });
-    render(layout);
 
+    render(await DraftAwareNavbar());
     expect(screen.getByTestId("dynamic-navbar")).toBeInTheDocument();
+
+    render(await DraftAwareFooter());
     expect(screen.getByTestId("dynamic-footer")).toBeInTheDocument();
+
+    render(await DraftAwareJsonLd());
+    expect(screen.getByTestId("dynamic-json-ld")).toBeInTheDocument();
+
+    render(await DraftAwareLiveAndEditing());
     expect(screen.getByTestId("visual-editing")).toBeInTheDocument();
     expect(screen.getByTestId("disable-draft")).toBeInTheDocument();
-    expect(screen.getByTestId("dynamic-json-ld")).toBeInTheDocument();
   });
 
   it("uses production waitFor mode for SanityLive when VERCEL_ENV is production", async () => {
     const originalEnv = process.env.VERCEL_ENV;
     process.env.VERCEL_ENV = "production";
 
-    const layout = await RootLayout({ children: <div>Prod page</div> });
-    render(layout);
+    render(await DraftAwareLiveAndEditing());
 
     expect(screen.getByTestId("sanity-live")).toHaveAttribute(
       "data-wait-for",

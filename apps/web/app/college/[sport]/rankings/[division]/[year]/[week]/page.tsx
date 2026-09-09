@@ -1,4 +1,4 @@
-import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
+import { PUBLISHED_FETCH_OPTIONS } from "@redshirt-sports/sanity/live";
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import {
   Card,
@@ -18,17 +18,17 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Fragment } from "react";
 import type { Graph } from "schema-dts";
 
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { RankingsFilters } from "@/components/rankings/filters";
+import { LazyVoterBreakdown } from "@/components/rankings/lazy-voter-breakdown";
 import { RankMovement } from "@/components/rankings/rank-movement";
-import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
 import { TeamPageLink } from "@/components/rankings/team-page-link";
-import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-skeleton";
 import CustomImage from "@/components/sanity-image";
 import { TOP_25 } from "@/lib/constants";
+import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
@@ -66,10 +66,8 @@ export async function generateMetadata({
     week: string;
   }>;
 }): Promise<Metadata> {
-  const [{ division, year, week, sport }, { perspective }] = await Promise.all([
-    params,
-    getDynamicFetchOptions(),
-  ]);
+  const { division, year, week, sport } = await params;
+  const { perspective } = PUBLISHED_FETCH_OPTIONS;
   const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
 
@@ -83,7 +81,7 @@ export async function generateMetadata({
   );
 }
 
-export default async function CollegeFootballRankingsPage({
+export default function CollegeFootballRankingsPage({
   params,
 }: {
   params: Promise<{
@@ -93,7 +91,23 @@ export default async function CollegeFootballRankingsPage({
     week: string;
   }>;
 }) {
-  const { division, year, week, sport } = await params;
+  return draftAwareParamsPage(params, null, (resolved) =>
+    renderCollegeFootballRankingsPage(resolved),
+  );
+}
+
+async function renderCollegeFootballRankingsPage({
+  division,
+  year,
+  week,
+  sport,
+}: {
+  sport: string;
+  division: string;
+  year: string;
+  week: string;
+}) {
+  "use cache";
 
   const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
@@ -352,20 +366,18 @@ export default async function CollegeFootballRankingsPage({
           )}
         </CardFooter>
       </Card>
-      {top25.length > 0 && (
-        <Suspense fallback={<VoterBreakdownSkeleton />}>
-          <RankingsVoterBreakdown
-            division={division}
-            year={yearNumber}
-            week={weekNumber}
-            sport={sportParam}
-            consensusRanks={top25.map((team) => ({
-              id: team._id,
-              rank: team.rank as number,
-            }))}
-          />
-        </Suspense>
-      )}
+      {top25.length > 0 ? (
+        <LazyVoterBreakdown
+          division={division}
+          year={yearNumber}
+          week={weekNumber}
+          sport={sportParam}
+          consensusRanks={top25.map((team) => ({
+            id: team._id,
+            rank: team.rank as number,
+          }))}
+        />
+      ) : null}
     </div>
   );
 }
