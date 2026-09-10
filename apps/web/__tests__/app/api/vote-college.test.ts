@@ -20,26 +20,42 @@ const {
   mockResolveWeekIdForLegacyWeek,
   mockGetSchoolsBySanityIds,
   mockSubmitBallot,
+  mockUpdateBallot,
+  mockArePollRankingsPublished,
   mockGetVoterBallots,
   mockGetSeasonInfo,
   mockAnalyticsCapture,
   mockSentryCapture,
   mockRatelimit,
-} = vi.hoisted(() => ({
-  mockAuth: vi.fn(),
-  mockGetSportIdBySlug: vi.fn(),
-  mockGetPollBySportAndSlug: vi.fn(),
-  mockIsUserAssignedToPoll: vi.fn(),
-  mockHasVoterVoted: vi.fn(),
-  mockResolveWeekIdForLegacyWeek: vi.fn(),
-  mockGetSchoolsBySanityIds: vi.fn(),
-  mockSubmitBallot: vi.fn(),
-  mockGetVoterBallots: vi.fn(),
-  mockGetSeasonInfo: vi.fn(),
-  mockAnalyticsCapture: vi.fn(),
-  mockSentryCapture: vi.fn(),
-  mockRatelimit: vi.fn(),
-}));
+  PollWeekLockedError,
+} = vi.hoisted(() => {
+  class PollWeekLockedError extends Error {
+    constructor(
+      message = "Voting is closed for this week because rankings have been published",
+    ) {
+      super(message);
+      this.name = "PollWeekLockedError";
+    }
+  }
+  return {
+    mockAuth: vi.fn(),
+    mockGetSportIdBySlug: vi.fn(),
+    mockGetPollBySportAndSlug: vi.fn(),
+    mockIsUserAssignedToPoll: vi.fn(),
+    mockHasVoterVoted: vi.fn(),
+    mockResolveWeekIdForLegacyWeek: vi.fn(),
+    mockGetSchoolsBySanityIds: vi.fn(),
+    mockSubmitBallot: vi.fn(),
+    mockUpdateBallot: vi.fn(),
+    mockArePollRankingsPublished: vi.fn(),
+    mockGetVoterBallots: vi.fn(),
+    mockGetSeasonInfo: vi.fn(),
+    mockAnalyticsCapture: vi.fn(),
+    mockSentryCapture: vi.fn(),
+    mockRatelimit: vi.fn(),
+    PollWeekLockedError,
+  };
+});
 
 vi.mock("@redshirt-sports/auth/server", () => ({
   auth: mockAuth,
@@ -53,7 +69,10 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   resolveWeekIdForLegacyWeek: mockResolveWeekIdForLegacyWeek,
   getSchoolsBySanityIds: mockGetSchoolsBySanityIds,
   submitBallot: mockSubmitBallot,
+  updateBallot: mockUpdateBallot,
+  arePollRankingsPublished: mockArePollRankingsPublished,
   getVoterBallots: mockGetVoterBallots,
+  PollWeekLockedError,
 }));
 
 vi.mock("@/utils/espn", () => ({
@@ -74,6 +93,7 @@ vi.mock("@/server/ratelimit", () => ({
 
 import {
   GET,
+  PATCH,
   POST,
 } from "@/app/api/vote/college/[sport]/rankings/[division]/route";
 
@@ -82,6 +102,17 @@ function postRequest(body: unknown) {
     "http://localhost/api/vote/college/football/rankings/fbs",
     {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    },
+  );
+}
+
+function patchRequest(body: unknown) {
+  return new Request(
+    "http://localhost/api/vote/college/football/rankings/fbs",
+    {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     },
@@ -112,6 +143,8 @@ function resetHappyPathMocks() {
   mockResolveWeekIdForLegacyWeek.mockReset().mockResolvedValue(TEST_WEEK_ID);
   mockGetSchoolsBySanityIds.mockReset().mockResolvedValue(schoolIdMap());
   mockSubmitBallot.mockReset().mockResolvedValue(undefined);
+  mockUpdateBallot.mockReset().mockResolvedValue(undefined);
+  mockArePollRankingsPublished.mockReset().mockResolvedValue(false);
   mockGetVoterBallots.mockReset().mockResolvedValue([]);
   mockGetSeasonInfo.mockReset().mockResolvedValue(seasonInfoInSeason);
   mockAnalyticsCapture.mockReset();
@@ -260,6 +293,27 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
     expect(body.error).toMatch(/already voted/i);
   });
 
+  it("returns 403 when rankings are already published", async () => {
+    mockArePollRankingsPublished.mockResolvedValue(true);
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(403);
+    const body = await res.json();
+    expect(body.error).toMatch(/rankings have been published/i);
+    expect(mockSubmitBallot).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 when submitBallot rejects with PollWeekLockedError", async () => {
+    mockSubmitBallot.mockRejectedValue(new PollWeekLockedError());
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(403);
+    const body = await res.json();
+    expect(body.error).toMatch(/rankings have been published/i);
+  });
+
   it("returns 400 for unknown Sanity school ids", async () => {
     mockGetSchoolsBySanityIds.mockResolvedValue(new Map());
     const res = await POST(postRequest(ballotBody()), {
@@ -404,6 +458,80 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
   });
 });
 
+describe("PATCH /api/vote/college/[sport]/rankings/[division]", () => {
+  beforeEach(() => {
+    resetHappyPathMocks();
+    mockHasVoterVoted.mockResolvedValue(true);
+  });
+
+  it("updates an existing ballot when rankings are unpublished", async () => {
+    const res = await PATCH(patchRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toMatchObject({
+      success: true,
+      message: "Ballot updated successfully",
+      voteCount: 25,
+    });
+    expect(mockUpdateBallot).toHaveBeenCalledWith({
+      pollId: TEST_POLL_ID,
+      userId: TEST_USER_ID,
+      weekId: TEST_WEEK_ID,
+      entries: expectedEntries(),
+    });
+    expect(mockSubmitBallot).not.toHaveBeenCalled();
+    expect(mockAnalyticsCapture).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: "ballot_updated",
+      }),
+    );
+  });
+
+  it("returns 404 when no ballot exists", async () => {
+    mockHasVoterVoted.mockResolvedValue(false);
+    const res = await PATCH(patchRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.error).toMatch(/No ballot found/i);
+    expect(mockUpdateBallot).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 when rankings are already published", async () => {
+    mockArePollRankingsPublished.mockResolvedValue(true);
+    const res = await PATCH(patchRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(403);
+    const body = await res.json();
+    expect(body.error).toMatch(/rankings have been published/i);
+    expect(mockUpdateBallot).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 when updateBallot rejects with PollWeekLockedError", async () => {
+    mockUpdateBallot.mockRejectedValue(new PollWeekLockedError());
+    const res = await PATCH(patchRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(403);
+    const body = await res.json();
+    expect(body.error).toMatch(/rankings have been published/i);
+  });
+
+  it("returns 500 for unexpected PATCH errors", async () => {
+    mockUpdateBallot.mockRejectedValue("unexpected");
+    const res = await PATCH(patchRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBe("Internal server error");
+  });
+});
+
 describe("GET /api/vote/college/[sport]/rankings/[division]", () => {
   beforeEach(() => {
     resetHappyPathMocks();
@@ -436,6 +564,7 @@ describe("GET /api/vote/college/[sport]/rankings/[division]", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.hasVoted).toBe(false);
+    expect(body.canEdit).toBe(false);
     expect(body.voteCount).toBe(0);
   });
 
@@ -445,8 +574,29 @@ describe("GET /api/vote/college/[sport]/rankings/[division]", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.hasVoted).toBe(true);
+    expect(body.canEdit).toBe(true);
     expect(body.voteCount).toBe(1);
     expect(body.votes).toHaveLength(1);
+  });
+
+  it("returns canEdit false when rankings are published", async () => {
+    mockGetVoterBallots.mockResolvedValue([sampleBallotEntry]);
+    mockArePollRankingsPublished.mockResolvedValue(true);
+    const res = await GET(getRequest(), { params: voteParams() });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.hasVoted).toBe(true);
+    expect(body.canEdit).toBe(false);
+  });
+
+  it("treats a missing week as unpublished on GET", async () => {
+    mockGetVoterBallots.mockResolvedValue([sampleBallotEntry]);
+    mockResolveWeekIdForLegacyWeek.mockResolvedValue(null);
+    const res = await GET(getRequest(), { params: voteParams() });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.canEdit).toBe(true);
+    expect(mockArePollRankingsPublished).not.toHaveBeenCalled();
   });
 
   it("returns 404 when poll is not found on GET", async () => {

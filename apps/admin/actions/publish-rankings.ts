@@ -1,22 +1,29 @@
 "use server";
 
 import { clerkClient } from "@redshirt-sports/auth/server";
+import { getSeasonInfo } from "@redshirt-sports/clients/espn";
 import {
   getPollRankingPublishPreview,
   listLegacyWeeksForSportYear,
   listPolls,
   listSeasonYearsForSport,
-  parseCalendarWeekKey,
+  PollWeekLockedError,
   publishPollRankingsForWeek,
   reassignBallotWeek,
   resolveWeekIdForCalendarWeek,
   type SportParam,
+  unpublishPollRankingsForWeek,
 } from "@redshirt-sports/db/queries";
+import {
+  parseCalendarWeekKey,
+  seasonTypeAndNumberToLegacyWeek,
+} from "@redshirt-sports/db/utils/week-mapping";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 import { buildNudgeMessage } from "@/lib/nudge";
 import { requireAdmin } from "@/lib/require-admin";
-import { revalidatePublicPollRankingsCache } from "@/lib/revalidate-public-rankings";
+import { revalidateWebRankingsCache } from "@/lib/revalidate-web-rankings";
 
 const SPORT_PARAMS = new Set<SportParam>([
   "football",
@@ -104,10 +111,61 @@ export async function publishRankings({
     year,
     weekKey,
   });
-  revalidatePath("/rankings");
-  revalidatePath("/");
-  await revalidatePublicPollRankingsCache();
+  after(async () => {
+    revalidatePath("/rankings");
+    revalidatePath("/");
+    await revalidateWebRankingsCache({
+      sport: sportSlug,
+      division,
+      year,
+      weekKey,
+    });
+  });
   return result;
+}
+
+export async function unpublishRankings({
+  sportSlug,
+  division,
+  year,
+  weekKey,
+}: {
+  sportSlug: string;
+  division: string;
+  year: number;
+  weekKey: string;
+}) {
+  await requireAdmin();
+  if (!weekKey) throw new Error("weekKey is required");
+  const sport = asSportParam(sportSlug);
+  const result = await unpublishPollRankingsForWeek({
+    sport,
+    division,
+    year,
+    weekKey,
+  });
+  after(async () => {
+    revalidatePath("/rankings");
+    revalidatePath("/");
+    await revalidateWebRankingsCache({
+      sport: sportSlug,
+      division,
+      year,
+      weekKey,
+    });
+  });
+
+  const parsed = parseCalendarWeekKey(weekKey);
+  const seasonInfo = await getSeasonInfo(sport);
+  const unpublishedLegacy = parsed
+    ? seasonTypeAndNumberToLegacyWeek(parsed.seasonType, parsed.weekNumber)
+    : null;
+  const votersCanEdit =
+    unpublishedLegacy != null &&
+    year === seasonInfo.year &&
+    unpublishedLegacy === seasonInfo.votingWeek;
+
+  return { ...result, votersCanEdit };
 }
 
 export async function getVoterNudgeMailto({
@@ -198,13 +256,22 @@ export async function reassignVoterBallotWeek({
     throw new Error(`Target week not found: ${toWeekKey}`);
   }
 
-  const result = await reassignBallotWeek({
-    pollId,
-    userId,
-    fromWeekId,
-    toWeekId,
-  });
+  try {
+    const result = await reassignBallotWeek({
+      pollId,
+      userId,
+      fromWeekId,
+      toWeekId,
+    });
 
-  revalidatePath("/rankings");
-  return result;
+    revalidatePath("/rankings");
+    return result;
+  } catch (error) {
+    if (error instanceof PollWeekLockedError) {
+      throw new Error(
+        "Cannot reassign ballots to or from a week with published rankings. Unpublish first.",
+      );
+    }
+    throw error;
+  }
 }

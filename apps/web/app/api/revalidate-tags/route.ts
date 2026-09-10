@@ -1,14 +1,14 @@
 import { revalidateTag } from "next/cache";
 import type { NextRequest } from "next/server";
 
-const expireTagsSecret = process.env.SANITY_REVALIDATE_SECRET;
+const sanityRevalidateSecret = process.env.SANITY_REVALIDATE_SECRET;
+const cacheRevalidateSecret = process.env.CACHE_REVALIDATE_SECRET;
+
+function isAllowlistedCacheTag(tag: string) {
+  return tag === "rankings" || tag.startsWith("rankings:");
+}
 
 export async function POST(request: NextRequest) {
-  if (!expireTagsSecret) {
-    console.error("SANITY_REVALIDATE_SECRET environment variable is required");
-    return Response.json({ error: "Unexpected error" }, { status: 500 });
-  }
-
   let secret: string | null = null;
   let tags: string[] = [];
   let cacheTags: string[] = [];
@@ -22,21 +22,64 @@ export async function POST(request: NextRequest) {
     // no valid JSON body
   }
 
-  if (secret !== expireTagsSecret) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const hasSanityTags = tags.length > 0;
+  const hasCacheTags = cacheTags.length > 0;
 
-  if (tags.length === 0 && cacheTags.length === 0) {
+  if (!hasSanityTags && !hasCacheTags) {
     return Response.json({ error: "No tags provided" }, { status: 400 });
   }
 
-  console.info("Expiring tags from expirator service", { tags, cacheTags });
-
-  for (const tag of tags) {
-    // The `expire: 0` option makes revalidation behave as `updateTag` in a server action, it will be guaranteed to be fresh when visitors call `refresh()`.
-    // The trade-off is that the app has `<Link>` prefetch disabled to avoid https://github.com/vercel/next.js/issues/93210
-    revalidateTag(`sanity:${tag}`, { expire: 0 });
+  if (hasSanityTags && hasCacheTags) {
+    return Response.json(
+      { error: "Provide either tags or cacheTags, not both" },
+      { status: 400 },
+    );
   }
+
+  if (hasSanityTags) {
+    if (!sanityRevalidateSecret) {
+      console.error(
+        "SANITY_REVALIDATE_SECRET environment variable is required",
+      );
+      return Response.json({ error: "Unexpected error" }, { status: 500 });
+    }
+    if (secret !== sanityRevalidateSecret) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    console.info("Expiring Sanity tags from expirator service", { tags });
+
+    for (const tag of tags) {
+      // The `expire: 0` option makes revalidation behave as `updateTag` in a
+      // server action; it will be guaranteed to be fresh when visitors call
+      // `refresh()`. The trade-off is that the app has `<Link>` prefetch
+      // disabled to avoid https://github.com/vercel/next.js/issues/93210
+      revalidateTag(`sanity:${tag}`, { expire: 0 });
+    }
+
+    return Response.json({
+      service: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+      tags,
+      cacheTags: [],
+    });
+  }
+
+  if (!cacheRevalidateSecret) {
+    console.error("CACHE_REVALIDATE_SECRET environment variable is required");
+    return Response.json({ error: "Unexpected error" }, { status: 500 });
+  }
+  if (secret !== cacheRevalidateSecret) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!cacheTags.every(isAllowlistedCacheTag)) {
+    return Response.json(
+      { error: "cacheTags must be rankings or rankings:*" },
+      { status: 400 },
+    );
+  }
+
+  console.info("Expiring app cache tags", { cacheTags });
 
   for (const tag of cacheTags) {
     revalidateTag(tag, { expire: 0 });
@@ -44,7 +87,7 @@ export async function POST(request: NextRequest) {
 
   return Response.json({
     service: process.env.VERCEL_PROJECT_PRODUCTION_URL,
-    tags,
+    tags: [],
     cacheTags,
   });
 }

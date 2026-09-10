@@ -520,6 +520,8 @@ export async function submitBallot({
   entries: Array<{ schoolId: string; rank: number; points: number }>;
 }) {
   return db.transaction(async (tx) => {
+    await assertPollWeekUnlocked(tx, pollId, weekId);
+
     const [ballot] = await tx
       .insert(ballotsTable)
       .values({
@@ -544,9 +546,94 @@ export async function submitBallot({
   });
 }
 
+export class PollWeekLockedError extends Error {
+  constructor(
+    message = "Voting is closed for this week because rankings have been published",
+  ) {
+    super(message);
+    this.name = "PollWeekLockedError";
+  }
+}
+
+async function assertPollWeekUnlocked(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  pollId: string,
+  weekId: string,
+) {
+  const row = await tx
+    .select({ id: pollRankingsTable.id })
+    .from(pollRankingsTable)
+    .where(
+      and(
+        eq(pollRankingsTable.pollId, pollId),
+        eq(pollRankingsTable.weekId, weekId),
+      ),
+    )
+    .limit(1);
+
+  if (row.length > 0) {
+    throw new PollWeekLockedError();
+  }
+}
+
+export async function updateBallot({
+  pollId,
+  userId,
+  weekId,
+  entries,
+}: {
+  pollId: string;
+  userId: string;
+  weekId: string;
+  entries: Array<{ schoolId: string; rank: number; points: number }>;
+}) {
+  return db.transaction(async (tx) => {
+    await assertPollWeekUnlocked(tx, pollId, weekId);
+
+    const existing = await tx.query.ballotsTable.findFirst({
+      where: (model, { eq, and }) =>
+        and(
+          eq(model.pollId, pollId),
+          eq(model.userId, userId),
+          eq(model.weekId, weekId),
+        ),
+      columns: { id: true },
+    });
+
+    if (!existing) {
+      throw new Error("No ballot found for this voter and week");
+    }
+
+    await tx
+      .delete(ballotEntriesTable)
+      .where(eq(ballotEntriesTable.ballotId, existing.id));
+
+    await tx.insert(ballotEntriesTable).values(
+      entries.map((entry) => ({
+        ballotId: existing.id,
+        schoolId: entry.schoolId,
+        rank: entry.rank,
+        points: entry.points,
+      })),
+    );
+
+    const now = new Date();
+    const [updated] = await tx
+      .update(ballotsTable)
+      .set({ submittedAt: now, updatedAt: now })
+      .where(eq(ballotsTable.id, existing.id))
+      .returning();
+
+    if (!updated) throw new Error("Failed to update ballot");
+
+    return updated;
+  });
+}
+
 /**
  * Move a voter's ballot from one week to another (admin correction).
  * Fails if no ballot exists on fromWeekId or a ballot already exists on toWeekId.
+ * Fails if Rankings are published for the source or target week.
  */
 export async function reassignBallotWeek({
   pollId,
@@ -564,6 +651,9 @@ export async function reassignBallotWeek({
   }
 
   return db.transaction(async (tx) => {
+    await assertPollWeekUnlocked(tx, pollId, fromWeekId);
+    await assertPollWeekUnlocked(tx, pollId, toWeekId);
+
     const existingTarget = await tx.query.ballotsTable.findFirst({
       where: (model, { eq, and }) =>
         and(

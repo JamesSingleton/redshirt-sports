@@ -13,6 +13,7 @@ export const env = createEnv({
   server: {
     CLERK_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
     SANITY_REVALIDATE_SECRET: z.string().min(1),
+    CACHE_REVALIDATE_SECRET: z.string().min(1),
     SCHOOL_SYNC_SECRET: z.string().min(1),
     UPSTASH_REDIS_REST_URL: z.url(),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
@@ -21,6 +22,7 @@ export const env = createEnv({
   runtimeEnv: {
     CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
     SANITY_REVALIDATE_SECRET: process.env.SANITY_REVALIDATE_SECRET,
+    CACHE_REVALIDATE_SECRET: process.env.CACHE_REVALIDATE_SECRET,
     SCHOOL_SYNC_SECRET: process.env.SCHOOL_SYNC_SECRET,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,

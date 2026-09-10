@@ -43,7 +43,7 @@ Live ESPN date windows drive which week is “in progress” on the calendar. **
 
 **Voting week** = last ESPN **regular** week eligible for voting at `endDate - 48h`, else Preseason, else Final Rankings after regular season ends.
 
-Voters may submit while Sunday/Monday games are still unfinished; those ballots stay attached (one-shot, no edit).
+Voters may submit while Sunday/Monday games are still unfinished; those Ballots attach to the voting week. Voters may edit their Ballot until Rankings are published for that Poll and Week. After publish, create and edit are locked.
 
 ```text
 if no regular week has (endDate - 48h) <= now:
@@ -58,7 +58,7 @@ Effects:
 
 - Through Week 0 / mid Week 1 (more than 48h before Week 1 `endDate`) → Preseason ballots
 - From Week N `endDate - 48h` until Week N+1 `endDate - 48h` → Week N ballots (including after the real `endDate`)
-- Monday **8:00 AM America/Denver** is the operational nudge/publish deadline — not the week-flip clock
+- Monday **8:00 AM America/Denver** is the operational nudge/publish deadline — not the week-flip clock, and not the Ballot edit lock (that lock is Rankings publish)
 
 Admin publish desk selects weeks by `weekKey`. Public rankings URLs still use legacy segments (`0`, `N`, `final-rankings`).
 
