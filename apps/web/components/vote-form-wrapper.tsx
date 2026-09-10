@@ -12,25 +12,25 @@ import {
 import { useRef } from "react";
 
 import type { VoterBallotWithSchool } from "@/types/votes";
-import Top25, { type Top25FormRef } from "./forms/top-25";
+import { CreateTop25, EditTop25, type Top25FormRef } from "./forms/top-25";
 import CustomImage from "./sanity-image";
 
-type VoteFormWrapperProps = {
+type CreateVoteFormWrapperProps = {
   schools: SchoolsBySportAndSubgroupingStringQueryResult;
   previousBallot?: VoterBallotWithSchool[];
-  currentBallot?: Array<{ teamId: string; rank: number }>;
-  mode?: "create" | "edit";
 };
 
-export default function VoteFormWrapper({
+type EditVoteFormWrapperProps = {
+  schools: SchoolsBySportAndSubgroupingStringQueryResult;
+  currentBallot?: Array<{ teamId: string; rank: number }>;
+};
+
+export function CreateVoteFormWrapper({
   schools,
   previousBallot,
-  currentBallot,
-  mode = "create",
-}: VoteFormWrapperProps) {
+}: CreateVoteFormWrapperProps) {
   const formRef = useRef<Top25FormRef>(null);
-  const showPreviousBallot =
-    mode === "create" && previousBallot && previousBallot.length > 0;
+  const showPreviousBallot = previousBallot && previousBallot.length > 0;
 
   const handlePopulateForm = () => {
     formRef.current?.populateWithPreviousBallot();
@@ -78,20 +78,36 @@ export default function VoteFormWrapper({
       ) : null}
       <Card className="flex-1">
         <CardHeader>
-          <CardTitle>
-            {mode === "edit" ? "Edit Ballot" : "New Ballot Submission"}
-          </CardTitle>
+          <CardTitle>New Ballot Submission</CardTitle>
         </CardHeader>
         <CardContent>
-          <Top25
+          <CreateTop25
             ref={formRef}
             schools={schools}
-            previousBallot={mode === "create" ? previousBallot : undefined}
-            currentBallot={mode === "edit" ? currentBallot : undefined}
-            mode={mode}
+            previousBallot={previousBallot}
           />
         </CardContent>
       </Card>
     </div>
   );
 }
+
+export function EditVoteFormWrapper({
+  schools,
+  currentBallot,
+}: EditVoteFormWrapperProps) {
+  return (
+    <div className="flex flex-col gap-6 pt-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit Ballot</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EditTop25 schools={schools} currentBallot={currentBallot} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default CreateVoteFormWrapper;

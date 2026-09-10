@@ -21,7 +21,10 @@ import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import z from "zod";
 
-import VoteFormWrapper from "@/components/vote-form-wrapper";
+import {
+  CreateVoteFormWrapper,
+  EditVoteFormWrapper,
+} from "@/components/vote-form-wrapper";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { userCanVoteOnPoll } from "@/lib/require-poll-voter";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
@@ -219,26 +222,33 @@ export async function VotePageAuth({
   ]);
   const wantsEdit = query.edit === "1";
 
-  const poll = await getPollBySportAndSlug({ sportId, slug: division });
-  const weekId = poll
-    ? await resolveWeekIdForLegacyWeek({
-        sportId,
-        year,
-        legacyWeek: votingWeek,
-      })
-    : null;
-  const published =
-    poll && weekId
-      ? await arePollRankingsPublished({ pollId: poll.id, weekId })
-      : false;
-
-  const hasVoted = await hasVoterVoted({
+  const pollPromise = getPollBySportAndSlug({ sportId, slug: division });
+  const hasVotedPromise = hasVoterVoted({
     year,
     week: votingWeek,
     division,
     sportId,
     userId,
   });
+  const weekIdPromise = pollPromise.then((poll) =>
+    poll
+      ? resolveWeekIdForLegacyWeek({
+          sportId,
+          year,
+          legacyWeek: votingWeek,
+        })
+      : null,
+  );
+  const publishedPromise = Promise.all([pollPromise, weekIdPromise]).then(
+    async ([poll, weekId]) =>
+      poll && weekId
+        ? arePollRankingsPublished({ pollId: poll.id, weekId })
+        : false,
+  );
+  const [hasVoted, published] = await Promise.all([
+    hasVotedPromise,
+    publishedPromise,
+  ]);
 
   if (hasVoted && (!wantsEdit || published)) {
     redirect(`/vote/college/${sport}/${division}/confirmation`);
@@ -288,12 +298,14 @@ export async function VotePageAuth({
           <p className="text-muted-foreground text-lg">{subtitle}</p>
         </div>
       )}
-      <VoteFormWrapper
-        schools={schools}
-        previousBallot={latestBallot}
-        currentBallot={currentBallot}
-        mode={hasVoted ? "edit" : "create"}
-      />
+      {hasVoted ? (
+        <EditVoteFormWrapper schools={schools} currentBallot={currentBallot} />
+      ) : (
+        <CreateVoteFormWrapper
+          schools={schools}
+          previousBallot={latestBallot}
+        />
+      )}
     </div>
   );
 }

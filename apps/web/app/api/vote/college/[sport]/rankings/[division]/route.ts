@@ -375,26 +375,28 @@ export async function GET(
     const seasonInfo = await getSeasonInfo(validatedSport);
     const { year, votingWeek } = seasonInfo;
 
-    const weekId = await resolveWeekIdForLegacyWeek({
-      sportId,
-      year,
-      legacyWeek: votingWeek,
-    });
-
-    const published = weekId
-      ? await arePollRankingsPublished({
-          pollId: poll.id,
-          weekId,
-        })
-      : false;
-
-    const existingVote = await getVoterBallots({
+    const existingVotePromise = getVoterBallots({
       userId: user.userId,
       sportId,
       division: validatedDivision,
       week: votingWeek,
       year,
     });
+    const weekId = await resolveWeekIdForLegacyWeek({
+      sportId,
+      year,
+      legacyWeek: votingWeek,
+    });
+    const publishedPromise = weekId
+      ? arePollRankingsPublished({
+          pollId: poll.id,
+          weekId,
+        })
+      : Promise.resolve(false);
+    const [published, existingVote] = await Promise.all([
+      publishedPromise,
+      existingVotePromise,
+    ]);
 
     const hasVoted = existingVote.length > 0;
 

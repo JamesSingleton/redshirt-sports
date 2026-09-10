@@ -105,6 +105,8 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components/vote-form-wrapper", () => ({
   __esModule: true,
   default: () => <div data-testid="vote-form-wrapper" />,
+  CreateVoteFormWrapper: () => <div data-testid="vote-form-wrapper" />,
+  EditVoteFormWrapper: () => <div data-testid="vote-form-wrapper" />,
 }));
 
 import { render, screen } from "@testing-library/react";

@@ -19,17 +19,21 @@ vi.mock("@redshirt-sports/analytics", () => ({
 
 vi.mock("@/components/forms/top-25", () => {
   const React = require("react") as typeof import("react");
+  const MockTop25 = React.forwardRef(function MockTop25(
+    _props: unknown,
+    ref: React.Ref<{ populateWithPreviousBallot: () => void }>,
+  ) {
+    React.useImperativeHandle(ref, () => ({
+      populateWithPreviousBallot: mockPopulate,
+    }));
+    return <div data-testid="top-25-form" />;
+  });
+
   return {
     __esModule: true,
-    default: React.forwardRef(function MockTop25(
-      _props: unknown,
-      ref: React.Ref<{ populateWithPreviousBallot: () => void }>,
-    ) {
-      React.useImperativeHandle(ref, () => ({
-        populateWithPreviousBallot: mockPopulate,
-      }));
-      return <div data-testid="top-25-form" />;
-    }),
+    default: MockTop25,
+    CreateTop25: MockTop25,
+    EditTop25: MockTop25,
   };
 });
 
@@ -60,7 +64,9 @@ vi.mock("@redshirt-sports/ui/components/card", () => ({
   CardContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
-import VoteFormWrapper from "@/components/vote-form-wrapper";
+import VoteFormWrapper, {
+  EditVoteFormWrapper,
+} from "@/components/vote-form-wrapper";
 
 const schools = [
   {
@@ -101,11 +107,9 @@ describe("VoteFormWrapper", () => {
 
   it("hides Use Previous Ballot in edit mode even when a previous ballot exists", () => {
     render(
-      <VoteFormWrapper
+      <EditVoteFormWrapper
         schools={schools}
-        previousBallot={previousBallot}
         currentBallot={[{ teamId: "school-1", rank: 1 }]}
-        mode="edit"
       />,
     );
 

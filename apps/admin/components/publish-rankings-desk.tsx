@@ -554,7 +554,7 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
             <AlertDialogDescription>
               This removes published rankings for {selectedPoll?.name} · {year}{" "}
               · {selectedWeek?.label ?? "selected week"}. Ballots stay in place
-              and voters can edit again until you publish.
+              and voters can edit again only if this is the current voting week.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

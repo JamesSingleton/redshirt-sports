@@ -45,6 +45,7 @@ vi.mock("@/components/virtualized-combobox", () => ({
 }));
 
 import Top25, {
+  EditTop25,
   formSchema,
   type Top25FormRef,
 } from "@/components/forms/top-25";
@@ -164,10 +165,9 @@ describe("Top25 form", () => {
 
     const user = userEvent.setup();
     render(
-      <Top25
+      <EditTop25
         schools={makeSchools(25)}
         currentBallot={makePreviousBallot(25)}
-        mode="edit"
       />,
     );
 
@@ -210,10 +210,9 @@ describe("Top25 form", () => {
 
     const user = userEvent.setup();
     render(
-      <Top25
+      <EditTop25
         schools={makeSchools(25)}
         currentBallot={makePreviousBallot(25)}
-        mode="edit"
       />,
     );
 

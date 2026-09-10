@@ -19,6 +19,7 @@ import {
   seasonTypeAndNumberToLegacyWeek,
 } from "@redshirt-sports/db/utils/week-mapping";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 import { buildNudgeMessage } from "@/lib/nudge";
 import { requireAdmin } from "@/lib/require-admin";
@@ -110,13 +111,15 @@ export async function publishRankings({
     year,
     weekKey,
   });
-  revalidatePath("/rankings");
-  revalidatePath("/");
-  await revalidateWebRankingsCache({
-    sport: sportSlug,
-    division,
-    year,
-    weekKey,
+  after(async () => {
+    revalidatePath("/rankings");
+    revalidatePath("/");
+    await revalidateWebRankingsCache({
+      sport: sportSlug,
+      division,
+      year,
+      weekKey,
+    });
   });
   return result;
 }
@@ -141,13 +144,15 @@ export async function unpublishRankings({
     year,
     weekKey,
   });
-  revalidatePath("/rankings");
-  revalidatePath("/");
-  await revalidateWebRankingsCache({
-    sport: sportSlug,
-    division,
-    year,
-    weekKey,
+  after(async () => {
+    revalidatePath("/rankings");
+    revalidatePath("/");
+    await revalidateWebRankingsCache({
+      sport: sportSlug,
+      division,
+      year,
+      weekKey,
+    });
   });
 
   const parsed = parseCalendarWeekKey(weekKey);
