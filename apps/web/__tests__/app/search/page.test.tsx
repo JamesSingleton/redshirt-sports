@@ -20,6 +20,10 @@ vi.mock("@/lib/sanity-fetch", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
+  PUBLISHED_FETCH_OPTIONS: {
+    perspective: "published",
+    stega: false,
+  },
   getDynamicFetchOptions: mockGetDynamicFetchOptions,
 }));
 

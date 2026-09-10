@@ -1,6 +1,7 @@
 import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS,
 } from "@redshirt-sports/sanity/live";
 import { collegeNewsQuery } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
@@ -25,10 +26,8 @@ export async function generateMetadata({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
-  const [params, { perspective }] = await Promise.all([
-    searchParams,
-    getDynamicFetchOptions(),
-  ]);
+  const params = await searchParams;
+  const { perspective } = PUBLISHED_FETCH_OPTIONS;
   const page = params.page;
 
   const pageNumber = typeof page === "string" ? parseInt(page, 10) : 1;
