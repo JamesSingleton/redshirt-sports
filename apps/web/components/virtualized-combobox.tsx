@@ -29,10 +29,6 @@ function normalizeSchoolText(value: string | null | undefined) {
 
 function schoolMatchesQuery(option: SchoolOption, query: string) {
   const normalizedQuery = normalizeSchoolText(query);
-  if (!normalizedQuery) {
-    return true;
-  }
-
   return [option.name, option.shortName, option.abbreviation].some((value) =>
     normalizeSchoolText(value).includes(normalizedQuery),
   );
