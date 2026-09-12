@@ -77,6 +77,20 @@ const options = [
     abbreviation: "MINN",
     image: null,
   },
+  {
+    _id: "school-6",
+    name: "University of Northern Test",
+    shortName: null,
+    abbreviation: null,
+    image: null,
+  },
+  {
+    _id: "school-7",
+    name: "University of Southern Test",
+    shortName: null,
+    abbreviation: null,
+    image: null,
+  },
 ] as never;
 
 describe("VirtualizedCombobox", () => {
@@ -143,6 +157,36 @@ describe("VirtualizedCombobox", () => {
     expect(screen.queryByText("Alabama")).not.toBeInTheDocument();
     expect(screen.queryByText("Georgia")).not.toBeInTheDocument();
     expect(screen.queryByText("Minnesota")).not.toBeInTheDocument();
+  });
+
+  it("restores every school when the search is cleared", async () => {
+    const user = userEvent.setup();
+    render(
+      <VirtualizedCombobox options={options} selectedOptions={[]} value="" />,
+    );
+
+    await user.click(screen.getByRole("combobox"));
+    const searchInput = screen.getByPlaceholderText("Select a school...");
+    await user.type(searchInput, "Mont");
+    expect(screen.queryByText("Georgia")).not.toBeInTheDocument();
+
+    await user.clear(searchInput);
+    expect(screen.getByText("Georgia")).toBeInTheDocument();
+  });
+
+  it("searches schools with missing short names and abbreviations", async () => {
+    const user = userEvent.setup();
+    render(
+      <VirtualizedCombobox options={options} selectedOptions={[]} value="" />,
+    );
+
+    await user.click(screen.getByRole("combobox"));
+    await user.type(
+      screen.getByPlaceholderText("Select a school..."),
+      "University",
+    );
+
+    expect(screen.getAllByRole("option")).toHaveLength(7);
   });
 
   it("shows the placeholder when no school image is available", () => {
