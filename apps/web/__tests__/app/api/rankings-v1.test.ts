@@ -312,22 +312,33 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   });
 
   it("returns 500 when ranking lookup fails unexpectedly", async () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     mockGetFinalRankingsForWeekAndYear.mockRejectedValue(
       new Error("connection refused"),
     );
 
-    const res = await getWeek(
-      new Request(
-        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
-        { headers: { "x-real-ip": "203.0.113.10" } },
-      ),
-      { params: weekParams() },
-    );
+    try {
+      const res = await getWeek(
+        new Request(
+          "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
+          { headers: { "x-real-ip": "203.0.113.10" } },
+        ),
+        { params: weekParams() },
+      );
 
-    expect(res.status).toBe(500);
-    await expect(res.json()).resolves.toEqual({
-      error: "Internal server error",
-    });
+      expect(res.status).toBe(500);
+      await expect(res.json()).resolves.toEqual({
+        error: "Internal server error",
+      });
+      expect(consoleError).toHaveBeenCalledWith(
+        "Rankings API error:",
+        expect.any(Error),
+      );
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it("rate-limits using x-forwarded-for when present", async () => {

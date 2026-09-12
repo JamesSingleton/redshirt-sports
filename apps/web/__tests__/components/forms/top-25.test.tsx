@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
 import { toast } from "sonner";
@@ -94,7 +100,15 @@ describe("Top25 form", () => {
     vi.unstubAllGlobals();
   });
 
-  it("populates ranks from previous ballot and toasts success", () => {
+  async function populateWithPreviousBallot(
+    ref: React.RefObject<Top25FormRef | null>,
+  ) {
+    await act(async () => {
+      ref.current?.populateWithPreviousBallot();
+    });
+  }
+
+  it("populates ranks from previous ballot and toasts success", async () => {
     const ref = createRef<Top25FormRef>();
     render(
       <Top25
@@ -104,7 +118,7 @@ describe("Top25 form", () => {
       />,
     );
 
-    ref.current?.populateWithPreviousBallot();
+    await populateWithPreviousBallot(ref);
     expect(toast.success).toHaveBeenCalledWith(
       "Form populated with your previous ballot",
     );
@@ -127,7 +141,7 @@ describe("Top25 form", () => {
       />,
     );
 
-    ref.current?.populateWithPreviousBallot();
+    await populateWithPreviousBallot(ref);
 
     await waitFor(() => {
       expect(
@@ -251,7 +265,7 @@ describe("Top25 form", () => {
       />,
     );
 
-    ref.current?.populateWithPreviousBallot();
+    await populateWithPreviousBallot(ref);
 
     await waitFor(() => {
       expect(
@@ -283,7 +297,7 @@ describe("Top25 form", () => {
       />,
     );
 
-    ref.current?.populateWithPreviousBallot();
+    await populateWithPreviousBallot(ref);
 
     const selects = screen.getAllByLabelText("team-select");
     fireEvent.change(selects[1]!, { target: { value: "school-1" } });
@@ -320,7 +334,7 @@ describe("Top25 form", () => {
       />,
     );
 
-    ref.current?.populateWithPreviousBallot();
+    await populateWithPreviousBallot(ref);
 
     await waitFor(() => {
       expect(
@@ -359,7 +373,7 @@ describe("Top25 form", () => {
       />,
     );
 
-    ref.current?.populateWithPreviousBallot();
+    await populateWithPreviousBallot(ref);
 
     await waitFor(() => {
       expect(
@@ -411,7 +425,7 @@ describe("Top25 form", () => {
       />,
     );
 
-    ref.current?.populateWithPreviousBallot();
+    await populateWithPreviousBallot(ref);
 
     await waitFor(() => {
       expect(
@@ -497,7 +511,7 @@ describe("Top25 form", () => {
       />,
     );
 
-    ref.current?.populateWithPreviousBallot();
+    await populateWithPreviousBallot(ref);
 
     await waitFor(() => {
       expect(
@@ -554,7 +568,7 @@ describe("Top25 form", () => {
       />,
     );
 
-    ref.current?.populateWithPreviousBallot();
+    await populateWithPreviousBallot(ref);
 
     await waitFor(() => {
       expect(
