@@ -16,11 +16,43 @@ import {
 } from "@redshirt-sports/ui/components/popover";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import Fuse from "fuse.js";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 
 import CustomImage from "@/components/sanity-image";
+
+type SchoolOption = SchoolsBySportAndSubgroupingStringQueryResult[number];
+
+function normalizeSchoolText(value: string | null | undefined) {
+  return value?.trim().toLowerCase() ?? "";
+}
+
+function schoolMatchesQuery(option: SchoolOption, query: string) {
+  const normalizedQuery = normalizeSchoolText(query);
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  return [option.name, option.shortName, option.abbreviation].some((value) =>
+    normalizeSchoolText(value).includes(normalizedQuery),
+  );
+}
+
+function compareSchoolMatches(a: SchoolOption, b: SchoolOption, query: string) {
+  const normalizedQuery = normalizeSchoolText(query);
+  const aHasPrefix = [a.name, a.shortName, a.abbreviation].some((value) =>
+    normalizeSchoolText(value).startsWith(normalizedQuery),
+  );
+  const bHasPrefix = [b.name, b.shortName, b.abbreviation].some((value) =>
+    normalizeSchoolText(value).startsWith(normalizedQuery),
+  );
+
+  if (aHasPrefix !== bHasPrefix) {
+    return aHasPrefix ? -1 : 1;
+  }
+
+  return (a.shortName ?? a.name).localeCompare(b.shortName ?? b.name);
+}
 
 interface VirtualizedCommandProps {
   height: string;
@@ -44,20 +76,18 @@ const VirtualizedCommand = ({
     [options, selectedOptions],
   );
 
-  const [filteredOptions, setFilteredOptions] =
-    React.useState<SchoolsBySportAndSubgroupingStringQueryResult>(
-      availableOptions,
-    );
   const [searchValue, setSearchValue] = React.useState("");
   const parentRef = React.useRef(null);
 
-  const fuse = React.useMemo(
-    () =>
-      new Fuse(availableOptions, {
-        keys: ["name", "shortName", "abbreviation"],
-      }),
-    [availableOptions],
-  );
+  const filteredOptions = React.useMemo(() => {
+    if (!searchValue.trim()) {
+      return availableOptions;
+    }
+
+    return availableOptions
+      .filter((option) => schoolMatchesQuery(option, searchValue))
+      .sort((a, b) => compareSchoolMatches(a, b, searchValue));
+  }, [availableOptions, searchValue]);
 
   const virtualizer = useVirtualizer({
     count: filteredOptions.length,
@@ -68,32 +98,9 @@ const VirtualizedCommand = ({
 
   const virtualOptions = virtualizer.getVirtualItems();
 
-  const handleSearch = React.useCallback(
-    (search: string) => {
-      setSearchValue(search);
-
-      // If search is empty, show all available options
-      if (!search || search.trim() === "") {
-        setFilteredOptions(availableOptions);
-        return;
-      }
-
-      const searchResults = fuse.search(search).map((result) => result.item);
-      setFilteredOptions(searchResults);
-    },
-    [availableOptions, fuse],
-  );
-
-  // Reset filtered options when options or selectedOptions change
-  React.useEffect(() => {
-    if (!searchValue) {
-      setFilteredOptions(availableOptions);
-    }
-  }, [availableOptions, searchValue]);
-
   return (
     <Command shouldFilter={false}>
-      <CommandInput onValueChange={handleSearch} placeholder={placeholder} />
+      <CommandInput onValueChange={setSearchValue} placeholder={placeholder} />
       <CommandList className="max-h-fit">
         <CommandEmpty>No school found.</CommandEmpty>
         <CommandGroup

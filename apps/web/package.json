@@ -43,7 +43,6 @@
     "date-fns-tz": "^3.2.0",
     "drizzle-orm": "catalog:",
     "feed": "^6.0.0",
-    "fuse.js": "^7.5.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "catalog:",
     "next": "catalog:",

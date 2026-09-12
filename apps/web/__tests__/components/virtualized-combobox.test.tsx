@@ -56,6 +56,27 @@ const options = [
     abbreviation: "UGA",
     image: null,
   },
+  {
+    _id: "school-3",
+    name: "University of Montana",
+    shortName: "Montana",
+    abbreviation: "UM",
+    image: null,
+  },
+  {
+    _id: "school-4",
+    name: "Montana State University",
+    shortName: "Montana State",
+    abbreviation: "MSU",
+    image: null,
+  },
+  {
+    _id: "school-5",
+    name: "University of Minnesota",
+    shortName: "Minnesota",
+    abbreviation: "MINN",
+    image: null,
+  },
 ] as never;
 
 describe("VirtualizedCombobox", () => {
@@ -103,6 +124,25 @@ describe("VirtualizedCombobox", () => {
     await waitFor(() => {
       expect(screen.getAllByText("Alabama").length).toBeGreaterThan(0);
     });
+  });
+
+  it("keeps only schools whose names contain the typed letters", async () => {
+    const user = userEvent.setup();
+    render(
+      <VirtualizedCombobox options={options} selectedOptions={[]} value="" />,
+    );
+
+    await user.click(screen.getByRole("combobox"));
+    await user.type(screen.getByPlaceholderText("Select a school..."), "Mont");
+
+    await waitFor(() => {
+      expect(screen.getByText("Montana")).toBeInTheDocument();
+      expect(screen.getByText("Montana State")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText("Alabama")).not.toBeInTheDocument();
+    expect(screen.queryByText("Georgia")).not.toBeInTheDocument();
+    expect(screen.queryByText("Minnesota")).not.toBeInTheDocument();
   });
 
   it("shows the placeholder when no school image is available", () => {
