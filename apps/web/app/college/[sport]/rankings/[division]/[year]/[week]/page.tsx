@@ -25,6 +25,7 @@ import type { Graph } from "schema-dts";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { RankingsFilters } from "@/components/rankings/filters";
 import { RankMovement } from "@/components/rankings/rank-movement";
+import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
 import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
 import { TeamPageLink } from "@/components/rankings/team-page-link";
 import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-skeleton";
@@ -98,7 +99,7 @@ export default function CollegeFootballRankingsPage({
     week: string;
   }>;
 }) {
-  return draftAwareParamsPage(params, null, (resolved) =>
+  return draftAwareParamsPage(params, <RankingsPageSkeleton />, (resolved) =>
     renderCollegeFootballRankingsPage(resolved),
   );
 }

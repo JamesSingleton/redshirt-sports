@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { isValidElement, type ReactElement, type ReactNode } from "react";
 
+import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
 import { sampleRankingTeam } from "../../helpers/vote-fixtures";
 
 const {
@@ -9,6 +10,7 @@ const {
   mockGetCachedFinalRankings,
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
+  mockDraftAwareParamsPage,
 } = vi.hoisted(() => ({
   mockGetCachedYears: vi.fn(),
   mockGetCachedWeeks: vi.fn(),
@@ -18,6 +20,13 @@ const {
     stega: false,
   }),
   mockGetPageMetadata: vi.fn(() => ({ title: "Rankings" })),
+  mockDraftAwareParamsPage: vi.fn(
+    async (
+      params: Promise<unknown>,
+      _fallback: unknown,
+      render: (resolved: unknown) => Promise<React.ReactNode>,
+    ) => render(await params),
+  ),
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -29,11 +38,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  draftAwareParamsPage: async (
-    params: Promise<unknown>,
-    _fallback: unknown,
-    render: (resolved: unknown) => Promise<React.ReactNode>,
-  ) => render(await params),
+  draftAwareParamsPage: mockDraftAwareParamsPage,
 }));
 
 vi.mock("@/lib/rankings-data", () => ({
@@ -108,6 +113,7 @@ describe("CollegeFootballRankingsPage", () => {
     mockGetCachedWeeks.mockReset();
     mockGetCachedFinalRankings.mockReset();
     mockGetPageMetadata.mockClear();
+    mockDraftAwareParamsPage.mockClear();
   });
 
   it("generateMetadata builds rankings metadata", async () => {
@@ -125,6 +131,27 @@ describe("CollegeFootballRankingsPage", () => {
       }),
       "published",
     );
+  });
+
+  it("passes the route loading UI as the nearest Suspense fallback", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("stay", 1, 200, "Alabama")],
+    });
+
+    await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+
+    const fallback = mockDraftAwareParamsPage.mock.calls[0]?.[1];
+    expect(isValidElement(fallback)).toBe(true);
+    expect((fallback as ReactElement).type).toBe(RankingsPageSkeleton);
   });
 
   it("throws notFound when rankings fetch rejects", async () => {
