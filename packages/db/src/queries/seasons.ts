@@ -1,7 +1,12 @@
-import { inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
-import { SEASON_TYPE_CODES, seasonsTable } from "../schema";
+import {
+  SEASON_TYPE_CODES,
+  seasonsTable,
+  seasonTypesTable,
+  weeksTable,
+} from "../schema";
 import {
   isWeekEligibleForVoting,
   LEGACY_FINAL_RANKINGS_WEEK,
@@ -15,20 +20,41 @@ export async function getWeekBySport(
   week: number,
   seasonType = SEASON_TYPE_CODES.REGULAR_SEASON,
 ) {
-  return db.query.seasonsTable.findFirst({
-    where: (model, { eq, and }) =>
-      and(eq(model.sportId, sportId), eq(model.year, year)),
-    with: {
-      seasonTypes: {
-        where: (s, { eq }) => eq(s.type, seasonType),
-        with: {
-          weeks: {
-            where: (w, { eq }) => eq(w.number, week),
-          },
-        },
-      },
-    },
-  });
+  const [season] = await db
+    .select()
+    .from(seasonsTable)
+    .where(and(eq(seasonsTable.sportId, sportId), eq(seasonsTable.year, year)))
+    .limit(1);
+  if (!season) return undefined;
+
+  const [matchedType] = await db
+    .select()
+    .from(seasonTypesTable)
+    .where(
+      and(
+        eq(seasonTypesTable.seasonId, season.id),
+        eq(seasonTypesTable.type, seasonType),
+      ),
+    )
+    .limit(1);
+  if (!matchedType) {
+    return { ...season, seasonTypes: [] };
+  }
+
+  const weeks = await db
+    .select()
+    .from(weeksTable)
+    .where(
+      and(
+        eq(weeksTable.seasonTypeId, matchedType.id),
+        eq(weeksTable.number, week),
+      ),
+    );
+
+  return {
+    ...season,
+    seasonTypes: [{ ...matchedType, weeks }],
+  };
 }
 
 export async function getCurrentSeasonStartAndEnd({
@@ -38,10 +64,11 @@ export async function getCurrentSeasonStartAndEnd({
   sportId: string;
   year: number;
 }) {
-  const season = await db.query.seasonsTable.findFirst({
-    where: (model, { eq, and }) =>
-      and(eq(model.year, year), eq(model.sportId, sportId)),
-  });
+  const [season] = await db
+    .select()
+    .from(seasonsTable)
+    .where(and(eq(seasonsTable.year, year), eq(seasonsTable.sportId, sportId)))
+    .limit(1);
 
   return season;
 }
@@ -149,17 +176,17 @@ export async function getVotingSeasonInfoBySportIds(
   const bySportId = new Map<string, VotingSeasonInfo>();
   if (sportIds.length === 0) return bySportId;
 
-  const seasonHeaders = await db.query.seasonsTable.findMany({
-    where: inArray(seasonsTable.sportId, sportIds),
-    columns: {
-      id: true,
-      sportId: true,
-      year: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: (model, { desc }) => [desc(model.year)],
-  });
+  const seasonHeaders = await db
+    .select({
+      id: seasonsTable.id,
+      sportId: seasonsTable.sportId,
+      year: seasonsTable.year,
+      startDate: seasonsTable.startDate,
+      endDate: seasonsTable.endDate,
+    })
+    .from(seasonsTable)
+    .where(inArray(seasonsTable.sportId, sportIds))
+    .orderBy(desc(seasonsTable.year));
 
   const headersBySport = new Map<string, typeof seasonHeaders>();
   for (const season of seasonHeaders) {
@@ -187,15 +214,69 @@ export async function getVotingSeasonInfoBySportIds(
 
   if (currentSeasonIds.length === 0) return bySportId;
 
-  const seasons = await db.query.seasonsTable.findMany({
-    where: inArray(seasonsTable.id, currentSeasonIds),
-    with: {
-      seasonTypes: {
-        with: {
-          weeks: true,
-        },
+  const typeAndWeekRows = await db
+    .select({
+      seasonId: seasonTypesTable.seasonId,
+      type: seasonTypesTable.type,
+      typeStart: seasonTypesTable.startDate,
+      typeEnd: seasonTypesTable.endDate,
+      weekId: weeksTable.id,
+      weekNumber: weeksTable.number,
+      weekEnd: weeksTable.endDate,
+    })
+    .from(seasonTypesTable)
+    .leftJoin(weeksTable, eq(weeksTable.seasonTypeId, seasonTypesTable.id))
+    .where(inArray(seasonTypesTable.seasonId, currentSeasonIds));
+
+  type SeasonTypeBag = {
+    type: number;
+    startDate: Date;
+    endDate: Date;
+    weeks: Array<{ id: string; number: number; endDate: Date }>;
+  };
+
+  const typesBySeasonId = new Map<string, Map<number, SeasonTypeBag>>();
+  for (const row of typeAndWeekRows) {
+    let byType = typesBySeasonId.get(row.seasonId);
+    if (!byType) {
+      byType = new Map();
+      typesBySeasonId.set(row.seasonId, byType);
+    }
+
+    let bag = byType.get(row.type);
+    if (!bag) {
+      bag = {
+        type: row.type,
+        startDate: row.typeStart,
+        endDate: row.typeEnd,
+        weeks: [],
+      };
+      byType.set(row.type, bag);
+    }
+
+    if (row.weekId != null && row.weekNumber != null && row.weekEnd != null) {
+      bag.weeks.push({
+        id: row.weekId,
+        number: row.weekNumber,
+        endDate: row.weekEnd,
+      });
+    }
+  }
+
+  const seasons = currentSeasonIds.flatMap((seasonId) => {
+    const byType = typesBySeasonId.get(seasonId);
+    if (!byType) return [];
+    return [
+      {
+        id: seasonId,
+        seasonTypes: [...byType.values()].map((entry) => ({
+          type: entry.type,
+          startDate: entry.startDate,
+          endDate: entry.endDate,
+          weeks: entry.weeks,
+        })),
       },
-    },
+    ];
   });
 
   const seasonById = new Map(seasons.map((season) => [season.id, season]));
@@ -203,8 +284,10 @@ export async function getVotingSeasonInfoBySportIds(
   for (const sportId of sportIds) {
     const header = currentHeaderBySport.get(sportId);
     if (!header) continue;
-    const current = seasonById.get(header.id);
-    if (!current) continue;
+    const current = seasonById.get(header.id) ?? {
+      id: header.id,
+      seasonTypes: [],
+    };
 
     const preseason = current.seasonTypes.find(
       (type) => type.type === SEASON_TYPE_CODES.PRESEASON,
@@ -232,7 +315,7 @@ export async function getVotingSeasonInfoBySportIds(
 
     bySportId.set(sportId, {
       sportId,
-      year: current.year,
+      year: header.year,
       votingWeek,
       weekId: resolveWeekIdFromSeasonTypes({
         seasonTypes: current.seasonTypes,

@@ -1,6 +1,6 @@
 {
-  "id": "e2f8ad19-5956-45e8-9096-af9437b21f30",
-  "prevId": "6b9279a4-1405-44fd-8786-c9e348ac17c0",
+  "id": "05d921af-b93d-4bf7-bfa7-64c76338c7f8",
+  "prevId": "e2f8ad19-5956-45e8-9096-af9437b21f30",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -16,14 +16,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -134,14 +134,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -284,14 +284,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -309,7 +309,23 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "conference_sports_sport_id_index": {
+          "name": "conference_sports_sport_id_index",
+          "columns": [
+            {
+              "expression": "sport_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
@@ -335,14 +351,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -391,11 +407,11 @@
         }
       },
       "indexes": {
-        "conferences_sanity_id_index": {
-          "name": "conferences_sanity_id_index",
+        "conferences_division_id_index": {
+          "name": "conferences_division_id_index",
           "columns": [
             {
-              "expression": "sanity_id",
+              "expression": "division_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -432,14 +448,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -457,7 +473,23 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "division_sports_division_id_index": {
+          "name": "division_sports_division_id_index",
+          "columns": [
+            {
+              "expression": "division_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
@@ -483,14 +515,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -551,17 +583,17 @@
         },
         "is_subdivision": {
           "name": "is_subdivision",
-          "type": "text",
+          "type": "boolean",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {
-        "divisions_sanity_id_index": {
-          "name": "divisions_sanity_id_index",
+        "divisions_parent_division_id_index": {
+          "name": "divisions_parent_division_id_index",
           "columns": [
             {
-              "expression": "sanity_id",
+              "expression": "parent_division_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -598,14 +630,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -630,7 +662,7 @@
         },
         "committed_at": {
           "name": "committed_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         },
@@ -662,6 +694,21 @@
           "columns": [
             {
               "expression": "school_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "player_commitments_sport_id_index": {
+          "name": "player_commitments_sport_id_index",
+          "columns": [
+            {
+              "expression": "sport_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -720,14 +767,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -764,13 +811,13 @@
         },
         "start_date": {
           "name": "start_date",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "end_date": {
           "name": "end_date",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         }
@@ -781,6 +828,36 @@
           "columns": [
             {
               "expression": "player_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "player_timeline_school_id_index": {
+          "name": "player_timeline_school_id_index",
+          "columns": [
+            {
+              "expression": "school_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "player_timeline_sport_id_index": {
+          "name": "player_timeline_sport_id_index",
+          "columns": [
+            {
+              "expression": "sport_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -839,14 +916,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -949,11 +1026,11 @@
         }
       },
       "indexes": {
-        "players_slug_index": {
-          "name": "players_slug_index",
+        "players_sport_id_index": {
+          "name": "players_sport_id_index",
           "columns": [
             {
-              "expression": "slug",
+              "expression": "sport_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -964,11 +1041,11 @@
           "method": "btree",
           "with": {}
         },
-        "players_sport_id_index": {
-          "name": "players_sport_id_index",
+        "players_committed_school_id_index": {
+          "name": "players_committed_school_id_index",
           "columns": [
             {
-              "expression": "sport_id",
+              "expression": "committed_school_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1024,14 +1101,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -1082,8 +1159,8 @@
         }
       },
       "indexes": {
-        "poll_rankings_poll_id_week_id_index": {
-          "name": "poll_rankings_poll_id_week_id_index",
+        "poll_rankings_poll_id_week_id_rank_points_index": {
+          "name": "poll_rankings_poll_id_week_id_rank_points_index",
           "columns": [
             {
               "expression": "poll_id",
@@ -1093,6 +1170,18 @@
             },
             {
               "expression": "week_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "rank",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "points",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1199,14 +1288,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -1260,6 +1349,22 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "poll_voters_active_poll_id_index": {
+          "name": "poll_voters_active_poll_id_index",
+          "columns": [
+            {
+              "expression": "poll_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"poll_voters\".\"revoked_at\" is null",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -1306,14 +1411,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -1426,14 +1531,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -1457,7 +1562,38 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "school_conference_affiliations_sport_id_index": {
+          "name": "school_conference_affiliations_sport_id_index",
+          "columns": [
+            {
+              "expression": "sport_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "school_conference_affiliations_conference_id_index": {
+          "name": "school_conference_affiliations_conference_id_index",
+          "columns": [
+            {
+              "expression": "conference_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
@@ -1483,14 +1619,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -1544,23 +1680,7 @@
           "notNull": false
         }
       },
-      "indexes": {
-        "schools_sanity_id_index": {
-          "name": "schools_sanity_id_index",
-          "columns": [
-            {
-              "expression": "sanity_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
@@ -1591,14 +1711,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -1664,14 +1784,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -1768,14 +1888,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -1889,7 +2009,7 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "CURRENT_TIMESTAMP"
@@ -2008,7 +2128,7 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -2066,14 +2186,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
@@ -2121,7 +2241,38 @@
           "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "weekly_team_rankings_school_id_index": {
+          "name": "weekly_team_rankings_school_id_index",
+          "columns": [
+            {
+              "expression": "school_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "weekly_team_rankings_week_id_index": {
+          "name": "weekly_team_rankings_week_id_index",
+          "columns": [
+            {
+              "expression": "week_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
@@ -2147,14 +2298,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"

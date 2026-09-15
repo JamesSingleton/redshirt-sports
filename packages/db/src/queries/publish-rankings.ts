@@ -2,13 +2,14 @@ import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
+  ballotsTable,
   pollRankingsTable,
   schoolsTable,
   seasonsTable,
   seasonTypesTable,
   weeksTable,
 } from "../schema";
-import { listActivePollVoters } from "./polls";
+import { getPollBySportAndSlug, listActivePollVoters } from "./polls";
 import { deletePollRankings, replacePollRankings } from "./rankings";
 import { getSportIdBySlug, type SportParam } from "./sports";
 import { getBallotVotesForPollWeek } from "./voting";
@@ -89,10 +90,7 @@ async function resolvePollWeek({
   const sportId = await getSportIdBySlug(sport);
   if (!sportId) throw new Error(`Invalid sport: ${sport}`);
 
-  const poll = await db.query.pollsTable.findFirst({
-    where: (model, { eq, and }) =>
-      and(eq(model.sportId, sportId), eq(model.slug, division)),
-  });
+  const poll = await getPollBySportAndSlug({ sportId, slug: division });
   if (!poll) throw new Error(`Poll not found: ${sport}/${division}`);
 
   const weekId = await resolveWeekIdForCalendarWeek({
@@ -305,11 +303,18 @@ export async function getPollRankingPublishPreview({
           ),
         )
         .then((rows) => rows[0]?.count ?? 0),
-      db.query.ballotsTable.findMany({
-        where: (model, { eq, and }) =>
-          and(eq(model.pollId, poll.id), eq(model.weekId, weekId)),
-        columns: { userId: true, submittedAt: true },
-      }),
+      db
+        .select({
+          userId: ballotsTable.userId,
+          submittedAt: ballotsTable.submittedAt,
+        })
+        .from(ballotsTable)
+        .where(
+          and(
+            eq(ballotsTable.pollId, poll.id),
+            eq(ballotsTable.weekId, weekId),
+          ),
+        ),
     ]);
 
   const submittedByUserId = new Map(

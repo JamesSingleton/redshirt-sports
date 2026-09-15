@@ -26,6 +26,9 @@ const client = postgres(keys().DATABASE_URL, {
   connect_timeout: 10,
   connection: {
     application_name: "redshirt-db",
+    // Postgres GUCs in milliseconds — abort hung statements and idle-in-tx sessions.
+    statement_timeout: 30_000,
+    idle_in_transaction_session_timeout: 30_000,
   },
 });
 
