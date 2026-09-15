@@ -23,15 +23,16 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { SportParam } from "@/utils/espn";
 
 /**
- * Cross-request Data Cache lifetime for rankings Postgres reads.
- * Publish still busts immediately via `cacheTag`. next.config sets
- * `cacheLife.default` to the Sanity live-preview profile, which is too
- * short to persist — that is why these queries ran on every page view.
+ * Next.js `weeks` profile: 5m client stale, 1w background revalidate,
+ * 30d expire. Publish, voter display edits, and school logo/name sync
+ * expire tags immediately. This lifetime is the missed-webhook backup.
+ * next.config sets `cacheLife.default` to the Sanity live-preview
+ * profile, which is too short to persist.
  */
 export const RANKINGS_CACHE_LIFE = {
   stale: 300,
-  revalidate: 3600,
-  expire: 604800,
+  revalidate: 604800,
+  expire: 2592000,
 } as const;
 
 export type NavbarLatestRanking = {
@@ -58,7 +59,7 @@ export {
 /**
  * Latest rankings week pointers for the navbar.
  * Own `"use cache"` scope so Sanity publishes do not re-hit Postgres.
- * Publish busts {@link RANKINGS_CACHE_TAG}; 1h revalidate is a safety net.
+ * Publish and display-field webhooks bust {@link RANKINGS_CACHE_TAG}.
  */
 export async function getCachedNavbarLatestRankings(): Promise<
   NavbarLatestRankingsBySport[]

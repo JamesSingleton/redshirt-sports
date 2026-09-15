@@ -24,7 +24,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
 }));
 
 vi.mock("@/lib/rankings-data", () => ({
-  RANKINGS_CACHE_LIFE: { stale: 300, revalidate: 3600, expire: 604800 },
+  RANKINGS_CACHE_LIFE: { stale: 300, revalidate: 604800, expire: 2592000 },
   RANKINGS_CACHE_TAG: "rankings",
   rankingsSportTag: (sport: string) => `rankings:${sport}`,
   rankingsDivisionTag: (sport: string, division: string) =>
