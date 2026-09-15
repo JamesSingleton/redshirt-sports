@@ -126,8 +126,8 @@ export async function getFinalRankingsForWeekAndYear({
   });
   if (!weekId) throw new Error("Rankings not found");
 
-  // Project only fields CustomImage/processImageData need — drops caption,
-  // dominantColor, and nested asset blobs from schools.image jsonb.
+  // Project only fields CustomImage/processImageData need. Omit `preview`
+  // (Sanity LQIP data URI) — browsers cannot cache it and it dominated egress.
   const schoolLogoImage = sql<unknown>`
     CASE
       WHEN ${schoolsTable.image} IS NULL THEN NULL
@@ -141,7 +141,6 @@ export async function getFinalRankingsForWeekAndYear({
             ${schoolsTable.image}->>'alt',
             ${schoolsTable.image}->>'caption'
           ),
-          'preview', ${schoolsTable.image}->'preview',
           'width', ${schoolsTable.image}->'width',
           'height', ${schoolsTable.image}->'height',
           'hotspot', ${schoolsTable.image}->'hotspot',

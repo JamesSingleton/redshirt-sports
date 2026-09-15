@@ -37,6 +37,17 @@ vi.mock("@/lib/rankings-data", () => ({
   getCachedYearsThatHaveVotes: mockGetCachedYears,
   getCachedWeeksThatHaveVotes: mockGetCachedWeeks,
   getCachedFinalRankings: mockGetCachedFinalRankings,
+  RANKINGS_CACHE_LIFE: { stale: 300, revalidate: 3600, expire: 604800 },
+  RANKINGS_CACHE_TAG: "rankings",
+  rankingsSportTag: (sport: string) => `rankings:${sport}`,
+  rankingsDivisionTag: (sport: string, division: string) =>
+    `rankings:${sport}:${division}`,
+  rankingsWeekTag: (
+    sport: string,
+    division: string,
+    year: number,
+    week: number,
+  ) => `rankings:${sport}:${division}:${year}:${week}`,
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
@@ -61,8 +72,8 @@ vi.mock("@/components/rankings/filters", () => ({
   RankingsFilters: () => null,
 }));
 
-vi.mock("@/components/rankings/lazy-voter-breakdown", () => ({
-  LazyVoterBreakdown: () => null,
+vi.mock("@/components/rankings/rankings-voter-breakdown", () => ({
+  RankingsVoterBreakdown: () => null,
 }));
 
 vi.mock("@/components/sanity-image", () => ({

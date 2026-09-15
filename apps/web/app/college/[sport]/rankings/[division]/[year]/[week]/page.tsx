@@ -16,16 +16,18 @@ import {
   TableRow,
 } from "@redshirt-sports/ui/components/table";
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Fragment } from "react";
+import { Fragment, Suspense } from "react";
 import type { Graph } from "schema-dts";
 
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { RankingsFilters } from "@/components/rankings/filters";
-import { LazyVoterBreakdown } from "@/components/rankings/lazy-voter-breakdown";
 import { RankMovement } from "@/components/rankings/rank-movement";
+import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
 import { TeamPageLink } from "@/components/rankings/team-page-link";
+import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-skeleton";
 import CustomImage from "@/components/sanity-image";
 import { TOP_25 } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
@@ -35,6 +37,11 @@ import {
   getCachedFinalRankings,
   getCachedWeeksThatHaveVotes,
   getCachedYearsThatHaveVotes,
+  RANKINGS_CACHE_LIFE,
+  RANKINGS_CACHE_TAG,
+  rankingsDivisionTag,
+  rankingsSportTag,
+  rankingsWeekTag,
 } from "@/lib/rankings-data";
 import {
   buildRankBySchoolId,
@@ -113,6 +120,14 @@ async function renderCollegeFootballRankingsPage({
   const titleWeek = weekTitle(weekNumber);
   const yearNumber = parseInt(year, 10);
   const sportParam = sport as SportParam;
+
+  cacheTag(
+    RANKINGS_CACHE_TAG,
+    rankingsSportTag(sportParam),
+    rankingsDivisionTag(sportParam, division),
+    rankingsWeekTag(sportParam, division, yearNumber, weekNumber),
+  );
+  cacheLife(RANKINGS_CACHE_LIFE);
 
   const [yearsWithVotesResult, weeksWithVotesResult] = await Promise.allSettled(
     [
@@ -367,16 +382,18 @@ async function renderCollegeFootballRankingsPage({
         </CardFooter>
       </Card>
       {top25.length > 0 ? (
-        <LazyVoterBreakdown
-          division={division}
-          year={yearNumber}
-          week={weekNumber}
-          sport={sportParam}
-          consensusRanks={top25.map((team) => ({
-            id: team._id,
-            rank: team.rank as number,
-          }))}
-        />
+        <Suspense fallback={<VoterBreakdownSkeleton />}>
+          <RankingsVoterBreakdown
+            division={division}
+            year={yearNumber}
+            week={weekNumber}
+            sport={sportParam}
+            consensusRanks={top25.map((team) => ({
+              id: team._id,
+              rank: team.rank as number,
+            }))}
+          />
+        </Suspense>
       ) : null}
     </div>
   );

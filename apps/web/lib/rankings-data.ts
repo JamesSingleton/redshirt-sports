@@ -1,5 +1,6 @@
 import {
   getFinalRankingsForWeekAndYear,
+  getLatestFinalRankings,
   getLatestFinalRankingsBySportSlug,
   getRankedSchoolSanityIds,
   getSchoolRankingHistory,
@@ -20,6 +21,18 @@ import type { SchoolRankingHistory } from "@redshirt-sports/db/utils/school-rank
 import { cacheLife, cacheTag } from "next/cache";
 
 import type { SportParam } from "@/utils/espn";
+
+/**
+ * Cross-request Data Cache lifetime for rankings Postgres reads.
+ * Publish still busts immediately via `cacheTag`. next.config sets
+ * `cacheLife.default` to the Sanity live-preview profile, which is too
+ * short to persist — that is why these queries ran on every page view.
+ */
+export const RANKINGS_CACHE_LIFE = {
+  stale: 300,
+  revalidate: 3600,
+  expire: 604800,
+} as const;
 
 export type NavbarLatestRanking = {
   division: string;
@@ -52,7 +65,7 @@ export async function getCachedNavbarLatestRankings(): Promise<
 > {
   "use cache";
   cacheTag(RANKINGS_CACHE_TAG);
-  cacheLife({ revalidate: 3600 });
+  cacheLife(RANKINGS_CACHE_LIFE);
 
   const [latestFootballRankings, latestMensBasketballRankings] =
     await Promise.all([
@@ -73,6 +86,7 @@ export async function getCachedYearsThatHaveVotes({
 }) {
   "use cache";
   cacheTag(RANKINGS_CACHE_TAG, rankingsDivisionYearsTag(division));
+  cacheLife(RANKINGS_CACHE_LIFE);
   return getYearsThatHaveVotes({ division });
 }
 
@@ -85,6 +99,7 @@ export async function getCachedWeeksThatHaveVotes({
 }) {
   "use cache";
   cacheTag(RANKINGS_CACHE_TAG, rankingsDivisionWeeksTag(division, year));
+  cacheLife(RANKINGS_CACHE_LIFE);
   return getWeeksThatHaveVotes({ year, division });
 }
 
@@ -106,7 +121,19 @@ export async function getCachedFinalRankings({
     rankingsDivisionTag(sport, division),
     rankingsWeekTag(sport, division, year, week),
   );
+  cacheLife(RANKINGS_CACHE_LIFE);
   return getFinalRankingsForWeekAndYear({ year, week, division, sport });
+}
+
+export async function getCachedLatestFinalRankings({
+  division,
+}: {
+  division: string;
+}) {
+  "use cache";
+  cacheTag(RANKINGS_CACHE_TAG, rankingsDivisionYearsTag(division));
+  cacheLife(RANKINGS_CACHE_LIFE);
+  return getLatestFinalRankings({ division });
 }
 
 export async function getCachedSchoolRankingHistory(
@@ -114,6 +141,7 @@ export async function getCachedSchoolRankingHistory(
 ): Promise<SchoolRankingHistory> {
   "use cache";
   cacheTag(RANKINGS_CACHE_TAG);
+  cacheLife(RANKINGS_CACHE_LIFE);
   return getSchoolRankingHistory(sanityId);
 }
 
@@ -122,11 +150,13 @@ export async function getCachedSchoolHasPollRankings(
 ): Promise<boolean> {
   "use cache";
   cacheTag(RANKINGS_CACHE_TAG);
+  cacheLife(RANKINGS_CACHE_LIFE);
   return schoolHasPollRankings(sanityId);
 }
 
 export async function getCachedRankedSchoolSanityIds(): Promise<string[]> {
   "use cache";
   cacheTag(RANKINGS_CACHE_TAG);
+  cacheLife(RANKINGS_CACHE_LIFE);
   return getRankedSchoolSanityIds();
 }

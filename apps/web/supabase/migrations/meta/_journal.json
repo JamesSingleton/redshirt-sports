@@ -148,6 +148,13 @@
       "when": 1788920000000,
       "tag": "0020_lock_down_data_api",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1789428000000,
+      "tag": "0021_strip_school_image_preview",
+      "breakpoints": true
     }
   ]
 }

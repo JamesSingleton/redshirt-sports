@@ -54,6 +54,25 @@ export type SanitySchoolSyncPayload = {
   top25Eligible?: boolean | null;
 };
 
+/**
+ * Drop LQIP data URIs and palette blobs before storing school logos.
+ * Browsers cannot cache `data:` previews; they dominated jsonb payload size.
+ */
+export function stripSchoolLogoImage(image: unknown): unknown {
+  if (image == null || typeof image !== "object" || Array.isArray(image)) {
+    return image ?? null;
+  }
+
+  const {
+    preview: _preview,
+    lqip: _lqip,
+    dominantColor: _dominantColor,
+    ...rest
+  } = image as Record<string, unknown>;
+
+  return rest;
+}
+
 export async function upsertSchoolFromSanity(payload: SanitySchoolSyncPayload) {
   const existing = await db.query.schoolsTable.findFirst({
     where: (model, { eq }) => eq(model.sanityId, payload.sanityId),
@@ -65,7 +84,7 @@ export async function upsertSchoolFromSanity(payload: SanitySchoolSyncPayload) {
     abbreviation: payload.abbreviation ?? null,
     nickname: payload.nickname ?? null,
     slug: payload.slug ?? null,
-    image: payload.image ?? null,
+    image: stripSchoolLogoImage(payload.image),
     top25Eligible: payload.top25Eligible ?? null,
     updatedAt: new Date(),
   };
