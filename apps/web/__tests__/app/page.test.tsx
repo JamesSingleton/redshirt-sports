@@ -94,6 +94,10 @@ vi.mock("@/lib/global-seo-settings", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
+  PUBLISHED_FETCH_OPTIONS: {
+    perspective: "published",
+    stega: false,
+  },
   getDynamicFetchOptions: mockGetDynamicFetchOptions,
 }));
 
@@ -231,10 +235,10 @@ describe("HomePage", () => {
     expect(screen.getAllByTestId("article-section")).toHaveLength(3);
   });
 
-  it("default export delegates to CachedHomePage with dynamic fetch options", async () => {
-    const page = await HomePage();
+  it("default export wraps CachedHomePage in draftAware Suspense", () => {
+    const page = HomePage();
     expect(page).toBeTruthy();
-    expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
+    expect(mockGetDynamicFetchOptions).not.toHaveBeenCalled();
   });
 
   it("falls back to app name and undefined description when SEO settings are missing", async () => {

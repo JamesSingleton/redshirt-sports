@@ -14,8 +14,12 @@ import {
 } from "drizzle-orm/pg-core";
 
 const timestamps = {
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(
+    sql`CURRENT_TIMESTAMP`,
+  ),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).default(
+    sql`CURRENT_TIMESTAMP`,
+  ),
 };
 
 const defaultColumns = {
@@ -38,8 +42,12 @@ export const sportsTable = pgTable("sports", {
   name: varchar("name", { length: 256 }).notNull(),
   displayName: varchar("display_name", { length: 256 }),
   isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(
+    sql`CURRENT_TIMESTAMP`,
+  ),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).default(
+    sql`CURRENT_TIMESTAMP`,
+  ),
 });
 
 export const voterBallots = pgTable(
@@ -52,7 +60,7 @@ export const voterBallots = pgTable(
     year: integer("year")
       .default(sql`EXTRACT(year FROM CURRENT_DATE)`)
       .notNull(),
-    createdAt: timestamp("created_at")
+    createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     teamId: varchar("team_id", { length: 256 }).notNull(),
@@ -86,7 +94,9 @@ export const weeklyFinalRankings = pgTable(
     week: integer("week").notNull(),
     year: integer("year").notNull(),
     rankings: jsonb("rankings").notNull(),
-    createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
+    createdAt: timestamp("created_at", { withTimezone: true }).default(
+      sql`CURRENT_TIMESTAMP`,
+    ),
   },
   (table) => [
     unique().on(table.division, table.year, table.week),
@@ -166,11 +176,7 @@ export const schoolsTable = pgTable(
     image: jsonb(),
     top25Eligible: boolean("top_25_eligible"),
   },
-  (table) => [
-    unique().on(table.sanityId),
-    index().on(table.sanityId),
-    unique().on(table.slug),
-  ],
+  (table) => [unique().on(table.sanityId), unique().on(table.slug)],
 );
 
 export const conferencesTable = pgTable(
@@ -185,7 +191,10 @@ export const conferencesTable = pgTable(
     slug: text(),
     logo: jsonb(),
   },
-  (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
+  (table) => [
+    unique().on(table.sanityId),
+    index("conferences_division_id_index").on(table.divisionId),
+  ],
 );
 
 export const conferenceSportsTable = pgTable(
@@ -195,7 +204,10 @@ export const conferenceSportsTable = pgTable(
     conferenceId: text("conference_id").notNull(),
     sportId: text("sport_id").notNull(),
   },
-  (table) => [unique().on(table.conferenceId, table.sportId)],
+  (table) => [
+    unique().on(table.conferenceId, table.sportId),
+    index("conference_sports_sport_id_index").on(table.sportId),
+  ],
 );
 
 export const schoolConferenceAffiliationsTable = pgTable(
@@ -206,7 +218,13 @@ export const schoolConferenceAffiliationsTable = pgTable(
     sportId: text("sport_id").notNull(),
     conferenceId: text("conference_id").notNull(),
   },
-  (table) => [unique().on(table.schoolId, table.sportId, table.conferenceId)],
+  (table) => [
+    unique().on(table.schoolId, table.sportId, table.conferenceId),
+    index("school_conference_affiliations_sport_id_index").on(table.sportId),
+    index("school_conference_affiliations_conference_id_index").on(
+      table.conferenceId,
+    ),
+  ],
 );
 
 export const divisionsTable = pgTable(
@@ -222,9 +240,12 @@ export const divisionsTable = pgTable(
     description: text(),
     logo: jsonb(),
     parentDivisionId: text("parent_division_id"),
-    isSubdivision: text("is_subdivision"),
+    isSubdivision: boolean("is_subdivision"),
   },
-  (table) => [unique().on(table.sanityId), index().on(table.sanityId)],
+  (table) => [
+    unique().on(table.sanityId),
+    index("divisions_parent_division_id_index").on(table.parentDivisionId),
+  ],
 );
 
 export const divisionSportsTable = pgTable(
@@ -234,7 +255,10 @@ export const divisionSportsTable = pgTable(
     sportId: text("sport_id").notNull(),
     divisionId: text("division_id").notNull(),
   },
-  (table) => [unique().on(table.sportId, table.divisionId)],
+  (table) => [
+    unique().on(table.sportId, table.divisionId),
+    index("division_sports_division_id_index").on(table.divisionId),
+  ],
 );
 
 export const weeklyRankings = pgTable(
@@ -249,7 +273,11 @@ export const weeklyRankings = pgTable(
     firstPlaceVotes: integer("first_place_votes"),
     isTie: boolean("is_tie"),
   },
-  (table) => [unique().on(table.divisionSportId, table.schoolId, table.weekId)],
+  (table) => [
+    unique().on(table.divisionSportId, table.schoolId, table.weekId),
+    index("weekly_team_rankings_school_id_index").on(table.schoolId),
+    index("weekly_team_rankings_week_id_index").on(table.weekId),
+  ],
 );
 
 /** First-class poll (Sport + Browse Scope operational product). */
@@ -291,6 +319,9 @@ export const pollVotersTable = pgTable(
     unique().on(table.pollId, table.userId),
     index().on(table.userId),
     index().on(table.pollId),
+    index("poll_voters_active_poll_id_index")
+      .on(table.pollId)
+      .where(sql`${table.revokedAt} is null`),
   ],
 );
 
@@ -362,7 +393,7 @@ export const pollRankingsTable = pgTable(
   },
   (table) => [
     unique().on(table.pollId, table.weekId, table.schoolId),
-    index().on(table.pollId, table.weekId),
+    index().on(table.pollId, table.weekId, table.rank, table.points),
     index().on(table.schoolId, table.pollId, table.weekId),
     // FK cover for week_id (composite indexes are poll_id / school_id-leading).
     index().on(table.weekId),
@@ -392,7 +423,10 @@ export const playersTable = pgTable(
     bio: text("bio"),
     socialLinks: jsonb("social_links"),
   },
-  (table) => [index().on(table.slug), index().on(table.sportId)],
+  (table) => [
+    index().on(table.sportId),
+    index("players_committed_school_id_index").on(table.committedSchoolId),
+  ],
 );
 
 export const playerTimelineTable = pgTable(
@@ -406,10 +440,14 @@ export const playerTimelineTable = pgTable(
     label: text("label").notNull(),
     schoolId: text("school_id").references(() => schoolsTable.id),
     sportId: text("sport_id").references(() => sportsTable.id),
-    startDate: timestamp("start_date"),
-    endDate: timestamp("end_date"),
+    startDate: timestamp("start_date", { withTimezone: true }),
+    endDate: timestamp("end_date", { withTimezone: true }),
   },
-  (table) => [index().on(table.playerId)],
+  (table) => [
+    index().on(table.playerId),
+    index("player_timeline_school_id_index").on(table.schoolId),
+    index("player_timeline_sport_id_index").on(table.sportId),
+  ],
 );
 
 export const playerCommitmentsTable = pgTable(
@@ -421,10 +459,14 @@ export const playerCommitmentsTable = pgTable(
       .references(() => playersTable.id, { onDelete: "cascade" }),
     schoolId: text("school_id").references(() => schoolsTable.id),
     sportId: text("sport_id").references(() => sportsTable.id),
-    committedAt: timestamp("committed_at"),
+    committedAt: timestamp("committed_at", { withTimezone: true }),
     classYear: integer("class_year"),
   },
-  (table) => [index().on(table.playerId), index().on(table.schoolId)],
+  (table) => [
+    index().on(table.playerId),
+    index().on(table.schoolId),
+    index("player_commitments_sport_id_index").on(table.sportId),
+  ],
 );
 
 export const playersTableRelations = relations(

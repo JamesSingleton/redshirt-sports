@@ -1,6 +1,7 @@
 import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS,
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
 import { authorBySlug, postsByAuthor } from "@redshirt-sports/sanity/queries";
@@ -35,7 +36,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const { page } = await searchParams;
-  const { perspective } = await getDynamicFetchOptions();
+  const { perspective } = PUBLISHED_FETCH_OPTIONS;
 
   const { data: author } = await sanityFetchMetadata({
     query: authorBySlug,

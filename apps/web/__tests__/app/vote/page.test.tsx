@@ -84,6 +84,10 @@ vi.mock("@/lib/draft-cache", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
+  PUBLISHED_FETCH_OPTIONS: {
+    perspective: "published",
+    stega: false,
+  },
   getDynamicFetchOptions: vi.fn(),
   defineLive: vi.fn(),
 }));

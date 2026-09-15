@@ -2,24 +2,25 @@ import {
   getSportIdBySlug,
   getVotesForWeekAndYearByVoter,
 } from "@redshirt-sports/db/queries";
-import {
-  RANKINGS_CACHE_TAG,
-  rankingsDivisionTag,
-  rankingsSportTag,
-  rankingsWeekTag,
-} from "@redshirt-sports/db/rankings-cache-tags";
-import { cacheTag } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 import VoterBallotBreakdown from "@/components/rankings/voter-ballot-breakdown";
 import {
   type ConsensusRank,
   computeBallotMatchPercent,
 } from "@/lib/ballot-match";
+import {
+  RANKINGS_CACHE_LIFE,
+  RANKINGS_CACHE_TAG,
+  rankingsDivisionTag,
+  rankingsSportTag,
+  rankingsWeekTag,
+} from "@/lib/rankings-data";
 import type { VoterBreakdown } from "@/types/votes";
 import type { SportParam } from "@/utils/espn";
 import { processVoterBallots } from "@/utils/process-ballots";
 
-type RankingsVoterBreakdownProps = {
+export type RankingsVoterBreakdownProps = {
   division: string;
   year: number;
   week: number;
@@ -28,16 +29,15 @@ type RankingsVoterBreakdownProps = {
 };
 
 /**
- * Must run under `'use cache'`. Uncached DB/Sanity I/O here races layout
- * cache fills against the shared postgres pool and deadlocks CachedNavbarServer.
+ * Ballot rows only — keep `consensusRanks` out of the cache key so a new
+ * array identity from the page does not bust this on every request.
  */
-async function getCachedVoterBreakdown({
+async function getCachedVoterBallots({
   division,
   year,
   week,
   sport,
-  consensusRanks,
-}: RankingsVoterBreakdownProps): Promise<VoterBreakdown[] | null> {
+}: Omit<RankingsVoterBreakdownProps, "consensusRanks">) {
   "use cache";
   cacheTag(
     RANKINGS_CACHE_TAG,
@@ -45,6 +45,7 @@ async function getCachedVoterBreakdown({
     rankingsDivisionTag(sport, division),
     rankingsWeekTag(sport, division, year, week),
   );
+  cacheLife(RANKINGS_CACHE_LIFE);
 
   const sportId = await getSportIdBySlug(sport);
   if (!sportId) {
@@ -60,6 +61,23 @@ async function getCachedVoterBreakdown({
 
   const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter);
   if (voterBreakdown.length === 0) {
+    return null;
+  }
+
+  return voterBreakdown;
+}
+
+/**
+ * Must run under `'use cache'` (via {@link getCachedVoterBallots}). Uncached
+ * DB/Sanity I/O here races layout cache fills against the shared postgres
+ * pool and deadlocks CachedNavbarServer.
+ */
+export async function getCachedVoterBreakdown({
+  consensusRanks,
+  ...ballotParams
+}: RankingsVoterBreakdownProps): Promise<VoterBreakdown[] | null> {
+  const voterBreakdown = await getCachedVoterBallots(ballotParams);
+  if (!voterBreakdown) {
     return null;
   }
 
