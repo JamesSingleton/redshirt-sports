@@ -45,7 +45,6 @@ export async function getAllWeeklyRankings() {
   return db.select().from(pollRankingsTable);
 }
 
-
 export async function getFinalRankingsForWeekAndYearFromDb({
   year,
   week,

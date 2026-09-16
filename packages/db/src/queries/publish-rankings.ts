@@ -81,7 +81,6 @@ async function resolvePollWeek({
   return { sportId, poll, weekId, resolvedSeasonType, resolvedWeekNumber };
 }
 
-
 export async function listSeasonYearsForSport(sportId: string) {
   const rows = await db
     .selectDistinct({ year: seasonsTable.year })
