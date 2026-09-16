@@ -16,6 +16,7 @@
     "./utils/health": "./src/utils/health.ts",
     "./utils/week-mapping": "./src/utils/week-mapping.ts",
     "./utils/school-ranking-history": "./src/utils/school-ranking-history.ts",
+    "./rankings-cache-tags": "./src/rankings-cache-tags.ts",
     "./keys": "./keys.ts"
   },
   "dependencies": {

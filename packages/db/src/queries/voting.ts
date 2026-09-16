@@ -9,6 +9,7 @@ import {
   schoolsTable,
   seasonsTable,
   seasonTypesTable,
+  usersTable,
   weeksTable,
 } from "../schema";
 import { getPollBySportAndSlug } from "./polls";
@@ -64,14 +65,17 @@ export async function hasVoterVoted({
   });
   if (!resolved) return false;
 
-  const ballot = await db.query.ballotsTable.findFirst({
-    where: (model, { eq, and }) =>
+  const [ballot] = await db
+    .select({ id: ballotsTable.id })
+    .from(ballotsTable)
+    .where(
       and(
-        eq(model.pollId, resolved.poll.id),
-        eq(model.userId, userId),
-        eq(model.weekId, resolved.weekId),
+        eq(ballotsTable.pollId, resolved.poll.id),
+        eq(ballotsTable.userId, userId),
+        eq(ballotsTable.weekId, resolved.weekId),
       ),
-  });
+    )
+    .limit(1);
   return !!ballot;
 }
 
@@ -138,6 +142,78 @@ export async function countBallotsForPollWeeks(
   return counts;
 }
 
+function mapBallotEntryRows(
+  rows: Array<{
+    id: string;
+    userId: string;
+    submittedAt: Date;
+    schoolId: string;
+    sanityId: string | null;
+    rank: number;
+    points: number;
+  }>,
+  {
+    division,
+    week,
+    year,
+    sportId,
+  }: {
+    division: string;
+    week: number;
+    year: number;
+    sportId: string;
+  },
+) {
+  return rows.map((entry) => ({
+    id: entry.id,
+    userId: entry.userId,
+    division,
+    week,
+    year,
+    createdAt: entry.submittedAt,
+    teamId: entry.sanityId ?? entry.schoolId,
+    rank: entry.rank,
+    points: entry.points,
+    sportId,
+    schoolId: entry.schoolId,
+  }));
+}
+
+async function selectBallotEntriesForPollWeek({
+  pollId,
+  weekId,
+  userId,
+}: {
+  pollId: string;
+  weekId: string;
+  userId?: string;
+}) {
+  return db
+    .select({
+      id: ballotEntriesTable.id,
+      userId: ballotsTable.userId,
+      submittedAt: ballotsTable.submittedAt,
+      schoolId: ballotEntriesTable.schoolId,
+      sanityId: schoolsTable.sanityId,
+      rank: ballotEntriesTable.rank,
+      points: ballotEntriesTable.points,
+    })
+    .from(ballotsTable)
+    .innerJoin(
+      ballotEntriesTable,
+      eq(ballotEntriesTable.ballotId, ballotsTable.id),
+    )
+    .innerJoin(schoolsTable, eq(ballotEntriesTable.schoolId, schoolsTable.id))
+    .where(
+      and(
+        eq(ballotsTable.pollId, pollId),
+        eq(ballotsTable.weekId, weekId),
+        ...(userId ? [eq(ballotsTable.userId, userId)] : []),
+      ),
+    )
+    .orderBy(asc(ballotEntriesTable.rank));
+}
+
 export async function getVoterBallots({
   year,
   week,
@@ -153,37 +229,13 @@ export async function getVoterBallots({
   });
   if (!resolved) return [];
 
-  const ballot = await db.query.ballotsTable.findFirst({
-    where: (model, { eq, and }) =>
-      and(
-        eq(model.pollId, resolved.poll.id),
-        eq(model.userId, userId),
-        eq(model.weekId, resolved.weekId),
-      ),
-    with: {
-      entries: {
-        with: { school: true },
-        orderBy: (entry, { asc }) => [asc(entry.rank)],
-      },
-    },
+  const rows = await selectBallotEntriesForPollWeek({
+    pollId: resolved.poll.id,
+    weekId: resolved.weekId,
+    userId,
   });
 
-  if (!ballot) return [];
-
-  // Legacy-shaped rows for existing UI consumers
-  return ballot.entries.map((entry) => ({
-    id: entry.id,
-    userId: ballot.userId,
-    division,
-    week,
-    year,
-    createdAt: ballot.submittedAt,
-    teamId: entry.school.sanityId ?? entry.schoolId,
-    rank: entry.rank,
-    points: entry.points,
-    sportId,
-    schoolId: entry.schoolId,
-  }));
+  return mapBallotEntryRows(rows, { division, week, year, sportId });
 }
 
 export async function getBallotsByWeekYearDivisionAndSport({
@@ -205,34 +257,12 @@ export async function getBallotsByWeekYearDivisionAndSport({
   });
   if (!resolved) return [];
 
-  const ballots = await db.query.ballotsTable.findMany({
-    where: (model, { eq, and }) =>
-      and(
-        eq(model.pollId, resolved.poll.id),
-        eq(model.weekId, resolved.weekId),
-      ),
-    with: {
-      entries: {
-        with: { school: true },
-      },
-    },
+  const rows = await selectBallotEntriesForPollWeek({
+    pollId: resolved.poll.id,
+    weekId: resolved.weekId,
   });
 
-  return ballots.flatMap((ballot) =>
-    ballot.entries.map((entry) => ({
-      id: entry.id,
-      userId: ballot.userId,
-      division,
-      week,
-      year,
-      createdAt: ballot.submittedAt,
-      teamId: entry.school.sanityId ?? entry.schoolId,
-      rank: entry.rank,
-      points: entry.points,
-      sportId,
-      schoolId: entry.schoolId,
-    })),
-  );
+  return mapBallotEntryRows(rows, { division, week, year, sportId });
 }
 
 export async function getBallotVotesForPollWeek({
@@ -250,31 +280,17 @@ export async function getBallotVotesForPollWeek({
   year: number;
   legacyWeek: number;
 }) {
-  const ballots = await db.query.ballotsTable.findMany({
-    where: (model, { eq, and }) =>
-      and(eq(model.pollId, pollId), eq(model.weekId, weekId)),
-    with: {
-      entries: {
-        with: { school: true },
-      },
-    },
+  const rows = await selectBallotEntriesForPollWeek({
+    pollId,
+    weekId,
   });
 
-  return ballots.flatMap((ballot) =>
-    ballot.entries.map((entry) => ({
-      id: entry.id,
-      userId: ballot.userId,
-      division,
-      week: legacyWeek,
-      year,
-      createdAt: ballot.submittedAt,
-      teamId: entry.school.sanityId ?? entry.schoolId,
-      rank: entry.rank,
-      points: entry.points,
-      sportId,
-      schoolId: entry.schoolId,
-    })),
-  );
+  return mapBallotEntryRows(rows, {
+    division,
+    week: legacyWeek,
+    year,
+    sportId,
+  });
 }
 
 export async function getVotedWeeks(year: number) {
@@ -375,16 +391,16 @@ export async function getVotesForWeekAndYearByVoter({
     new Set(allVotes.map((vote) => vote.userId)),
   );
 
-  const allUsers = await db.query.usersTable.findMany({
-    where: (model, { inArray }) => inArray(model.id, uniqueUserIds),
-    columns: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      organization: true,
-      organizationRole: true,
-    },
-  });
+  const allUsers = await db
+    .select({
+      id: usersTable.id,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      organization: usersTable.organization,
+      organizationRole: usersTable.organizationRole,
+    })
+    .from(usersTable)
+    .where(inArray(usersTable.id, uniqueUserIds));
 
   const userMap = new Map(allUsers.map((user) => [user.id, user]));
   const userBallots: {
@@ -517,6 +533,8 @@ export async function submitBallot({
   entries: Array<{ schoolId: string; rank: number; points: number }>;
 }) {
   return db.transaction(async (tx) => {
+    await assertPollWeekUnlocked(tx, pollId, weekId);
+
     const [ballot] = await tx
       .insert(ballotsTable)
       .values({
@@ -541,9 +559,96 @@ export async function submitBallot({
   });
 }
 
+export class PollWeekLockedError extends Error {
+  constructor(
+    message = "Voting is closed for this week because rankings have been published",
+  ) {
+    super(message);
+    this.name = "PollWeekLockedError";
+  }
+}
+
+async function assertPollWeekUnlocked(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  pollId: string,
+  weekId: string,
+) {
+  const row = await tx
+    .select({ id: pollRankingsTable.id })
+    .from(pollRankingsTable)
+    .where(
+      and(
+        eq(pollRankingsTable.pollId, pollId),
+        eq(pollRankingsTable.weekId, weekId),
+      ),
+    )
+    .limit(1);
+
+  if (row.length > 0) {
+    throw new PollWeekLockedError();
+  }
+}
+
+export async function updateBallot({
+  pollId,
+  userId,
+  weekId,
+  entries,
+}: {
+  pollId: string;
+  userId: string;
+  weekId: string;
+  entries: Array<{ schoolId: string; rank: number; points: number }>;
+}) {
+  return db.transaction(async (tx) => {
+    await assertPollWeekUnlocked(tx, pollId, weekId);
+
+    const [existing] = await tx
+      .select({ id: ballotsTable.id })
+      .from(ballotsTable)
+      .where(
+        and(
+          eq(ballotsTable.pollId, pollId),
+          eq(ballotsTable.userId, userId),
+          eq(ballotsTable.weekId, weekId),
+        ),
+      )
+      .limit(1);
+
+    if (!existing) {
+      throw new Error("No ballot found for this voter and week");
+    }
+
+    await tx
+      .delete(ballotEntriesTable)
+      .where(eq(ballotEntriesTable.ballotId, existing.id));
+
+    await tx.insert(ballotEntriesTable).values(
+      entries.map((entry) => ({
+        ballotId: existing.id,
+        schoolId: entry.schoolId,
+        rank: entry.rank,
+        points: entry.points,
+      })),
+    );
+
+    const now = new Date();
+    const [updated] = await tx
+      .update(ballotsTable)
+      .set({ submittedAt: now, updatedAt: now })
+      .where(eq(ballotsTable.id, existing.id))
+      .returning();
+
+    if (!updated) throw new Error("Failed to update ballot");
+
+    return updated;
+  });
+}
+
 /**
  * Move a voter's ballot from one week to another (admin correction).
  * Fails if no ballot exists on fromWeekId or a ballot already exists on toWeekId.
+ * Fails if Rankings are published for the source or target week.
  */
 export async function reassignBallotWeek({
   pollId,
@@ -561,15 +666,20 @@ export async function reassignBallotWeek({
   }
 
   return db.transaction(async (tx) => {
-    const existingTarget = await tx.query.ballotsTable.findFirst({
-      where: (model, { eq, and }) =>
+    await assertPollWeekUnlocked(tx, pollId, fromWeekId);
+    await assertPollWeekUnlocked(tx, pollId, toWeekId);
+
+    const [existingTarget] = await tx
+      .select({ id: ballotsTable.id })
+      .from(ballotsTable)
+      .where(
         and(
-          eq(model.pollId, pollId),
-          eq(model.userId, userId),
-          eq(model.weekId, toWeekId),
+          eq(ballotsTable.pollId, pollId),
+          eq(ballotsTable.userId, userId),
+          eq(ballotsTable.weekId, toWeekId),
         ),
-      columns: { id: true },
-    });
+      )
+      .limit(1);
     if (existingTarget) {
       throw new Error(
         "Voter already has a ballot for the target week; resolve the conflict first",

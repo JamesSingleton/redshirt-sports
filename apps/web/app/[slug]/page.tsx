@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  getDynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS,
   sanityFetchMetadata,
   sanityFetchStaticParams,
 } from "@redshirt-sports/sanity/live";
@@ -46,10 +46,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const [{ slug }, { perspective }] = await Promise.all([
-    params,
-    getDynamicFetchOptions(),
-  ]);
+  const { slug } = await params;
+  const { perspective } = PUBLISHED_FETCH_OPTIONS;
   const { data } = (await sanityFetchMetadata({
     query: queryPostSlugData,
     params: { slug },

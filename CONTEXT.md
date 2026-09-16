@@ -52,7 +52,7 @@ Avoid: treating a bare division string as the poll identity; authorizing any glo
 
 ## Ballot
 
-A credentialed Voter’s ordered Top 25 of Schools for a Poll and Week. Stored as `ballots` (one row per submission) + `ballot_entries` (rank lines). The submitted artifact of the poll product. Historical ballots survive voter revoke.
+A credentialed Voter’s ordered Top 25 of Schools for a Poll and Week. Stored as `ballots` (one row per submission) + `ballot_entries` (rank lines). The submitted artifact of the poll product. Historical ballots survive voter revoke. A Ballot stays editable by its Voter until Rankings are published for that Poll and Week; after publish it is locked. Unpublishing Rankings removes rankings rows only (Ballots stay) and reopens edits for that Poll and Week when it is still the current voting week.
 
 ## Vote
 

@@ -28,3 +28,8 @@ export function createSanityMocks(): SanityMocks {
     urlForImage: vi.fn(() => builder),
   };
 }
+
+export const PUBLISHED_FETCH_OPTIONS = {
+  perspective: "published" as const,
+  stega: false as const,
+};

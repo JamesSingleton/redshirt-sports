@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  getDynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS,
 } from "@redshirt-sports/sanity/live";
 import { authorsListNotArchived } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
@@ -17,7 +17,7 @@ import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { perspective } = await getDynamicFetchOptions();
+  const { perspective } = PUBLISHED_FETCH_OPTIONS;
   return getPageMetadata(
     {
       title: "About Us",

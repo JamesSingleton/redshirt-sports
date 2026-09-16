@@ -19,12 +19,35 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
     perspective: "published",
     stega: false,
   }),
+  PUBLISHED_FETCH_OPTIONS: {
+    perspective: "published",
+    stega: false,
+  },
+}));
+
+vi.mock("@/lib/draft-cache", () => ({
+  draftAwareParamsPage: async (
+    params: Promise<unknown>,
+    _fallback: unknown,
+    render: (resolved: unknown) => Promise<React.ReactNode>,
+  ) => render(await params),
 }));
 
 vi.mock("@/lib/rankings-data", () => ({
   getCachedYearsThatHaveVotes: mockGetCachedYears,
   getCachedWeeksThatHaveVotes: mockGetCachedWeeks,
   getCachedFinalRankings: mockGetCachedFinalRankings,
+  RANKINGS_CACHE_LIFE: { stale: 300, revalidate: 604800, expire: 2592000 },
+  RANKINGS_CACHE_TAG: "rankings",
+  rankingsSportTag: (sport: string) => `rankings:${sport}`,
+  rankingsDivisionTag: (sport: string, division: string) =>
+    `rankings:${sport}:${division}`,
+  rankingsWeekTag: (
+    sport: string,
+    division: string,
+    year: number,
+    week: number,
+  ) => `rankings:${sport}:${division}:${year}:${week}`,
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
@@ -51,10 +74,6 @@ vi.mock("@/components/rankings/filters", () => ({
 
 vi.mock("@/components/rankings/rankings-voter-breakdown", () => ({
   RankingsVoterBreakdown: () => null,
-}));
-
-vi.mock("@/components/rankings/voter-breakdown-skeleton", () => ({
-  VoterBreakdownSkeleton: () => null,
 }));
 
 vi.mock("@/components/sanity-image", () => ({

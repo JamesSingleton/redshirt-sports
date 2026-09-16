@@ -1,5 +1,11 @@
 import { auth } from "@redshirt-sports/auth/server";
-import { getSportIdBySlug, getVoterBallots } from "@redshirt-sports/db/queries";
+import {
+  arePollRankingsPublished,
+  getPollBySportAndSlug,
+  getSportIdBySlug,
+  getVoterBallots,
+  resolveWeekIdForLegacyWeek,
+} from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
 import { schoolsByIdQuery } from "@redshirt-sports/sanity/queries";
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
@@ -90,6 +96,24 @@ export async function VoteConfirmationContent({
     redirect(`/vote/college/${sport}/${division}`);
   }
 
+  const poll =
+    sportId != null && sportId !== ""
+      ? await getPollBySportAndSlug({ sportId, slug: division })
+      : null;
+  const weekId =
+    poll && sportId
+      ? await resolveWeekIdForLegacyWeek({
+          sportId,
+          year,
+          legacyWeek: votingWeek,
+        })
+      : null;
+  const published =
+    poll && weekId
+      ? await arePollRankingsPublished({ pollId: poll.id, weekId })
+      : false;
+  const canEdit = !published;
+
   const schools = await client.fetch(schoolsByIdQuery, {
     ids: transformBallotToTeamIds(ballot),
   });
@@ -102,6 +126,17 @@ export async function VoteConfirmationContent({
           Thank you for casting your vote. Your rankings have been successfully
           submitted.
         </p>
+        {canEdit ? (
+          <p className="text-muted-foreground">
+            You can edit your ballot until this week&apos;s rankings are
+            published.
+          </p>
+        ) : (
+          <p className="text-muted-foreground">
+            This week&apos;s rankings have been published, so your ballot is
+            locked.
+          </p>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
         {schools.map((school, index) => (
@@ -116,8 +151,21 @@ export async function VoteConfirmationContent({
           </div>
         ))}
       </div>
-      <div>
-        <Link href="/" className={buttonVariants()}>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        {canEdit ? (
+          <Link
+            href={`/vote/college/${sport}/${division}?edit=1`}
+            className={buttonVariants()}
+          >
+            Edit ballot
+          </Link>
+        ) : null}
+        <Link
+          href="/"
+          className={buttonVariants({
+            variant: canEdit ? "outline" : "default",
+          })}
+        >
           Return Home
         </Link>
       </div>

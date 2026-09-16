@@ -19,6 +19,20 @@ export async function createUser({
   });
 }
 
+export async function getUserDisplayFields(id: string) {
+  const [user] = await db
+    .select({
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      organization: usersTable.organization,
+      organizationRole: usersTable.organizationRole,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, id))
+    .limit(1);
+  return user;
+}
+
 export async function updateUser({
   id,
   firstName,
