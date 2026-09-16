@@ -11,6 +11,16 @@ vi.mock("../../src/client", () => ({
   },
 }));
 
+function unlockedSelect() {
+  return {
+    from: vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        limit: vi.fn().mockResolvedValue([]),
+      }),
+    }),
+  };
+}
+
 describe("submitBallot", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -27,6 +37,7 @@ describe("submitBallot", () => {
     let call = 0;
     const entryValues = vi.fn().mockResolvedValue(undefined);
     const tx = {
+      select: vi.fn(unlockedSelect),
       insert: vi.fn(() => {
         call += 1;
         if (call === 1) {
@@ -62,6 +73,7 @@ describe("submitBallot", () => {
 
     expect(result).toEqual(ballot);
     expect(transactionMock).toHaveBeenCalledOnce();
+    expect(tx.select).toHaveBeenCalledOnce();
     expect(tx.insert).toHaveBeenCalledTimes(2);
     expect(entryValues).toHaveBeenCalledWith([
       {
@@ -81,6 +93,7 @@ describe("submitBallot", () => {
 
   it("throws when ballot insert returns nothing", async () => {
     const tx = {
+      select: vi.fn(unlockedSelect),
       insert: vi.fn(() => ({
         values: vi.fn().mockReturnValue({
           returning: vi.fn().mockResolvedValue([]),
