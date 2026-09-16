@@ -91,13 +91,11 @@ const customUrlHrefFragment = /* groq */ `
   )
 `;
 
-const coreImageMetadataProjection = /* groq */ `
+const imageGeometryProjection = /* groq */ `
   "id": asset._ref,
-  "preview": asset->metadata.lqip,
   "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),
   "width": asset->metadata.dimensions.width,
   "height": asset->metadata.dimensions.height,
-  "dominantColor": asset->metadata.palette.dominant.background,
   // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...
   hotspot {
     x,
@@ -111,6 +109,12 @@ const coreImageMetadataProjection = /* groq */ `
     right,
     top
   }
+`;
+
+const coreImageMetadataProjection = /* groq */ `
+  ${imageGeometryProjection},
+  "preview": asset->metadata.lqip,
+  "dominantColor": asset->metadata.palette.dominant.background
 `;
 
 const imageMetadataProjection = /* groq */ `
@@ -135,7 +139,7 @@ const logoFragment = /* groq */ `
 const schoolImageFragment = /* groq */ `
   image{
     ...,
-    ${coreImageMetadataProjection}
+    ${imageGeometryProjection}
   }
 `;
 
