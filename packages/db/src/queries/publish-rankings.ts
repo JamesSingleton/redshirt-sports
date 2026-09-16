@@ -2,6 +2,7 @@ import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
+  ballotsTable,
   pollRankingsTable,
   schoolsTable,
   seasonsTable,
@@ -17,8 +18,8 @@ import {
   type CalendarWeekParams,
   resolveCalendarWeekParams,
 } from "../utils/week-mapping";
-import { listActivePollVoters } from "./polls";
-import { replacePollRankings } from "./rankings";
+import { getPollBySportAndSlug, listActivePollVoters } from "./polls";
+import { deletePollRankings, replacePollRankings } from "./rankings";
 import { getSportIdBySlug, type SportParam } from "./sports";
 import { getBallotVotesForPollWeek } from "./voting";
 import {
@@ -31,6 +32,55 @@ import {
 
 export type { CalendarWeekParams };
 export { resolveCalendarWeekParams };
+
+type PollWeekInput = {
+  sport: SportParam;
+  division: string;
+  year: number;
+  weekKey?: string | null;
+  seasonType?: number | null;
+  weekNumber?: number | null;
+  legacyWeek?: number | null;
+};
+
+async function resolvePollWeek({
+  sport,
+  division,
+  year,
+  weekKey,
+  seasonType,
+  weekNumber,
+  legacyWeek,
+}: PollWeekInput) {
+  const { seasonType: resolvedSeasonType, weekNumber: resolvedWeekNumber } =
+    resolveCalendarWeekParams({
+      weekKey,
+      seasonType,
+      weekNumber,
+      legacyWeek,
+    });
+
+  const sportId = await getSportIdBySlug(sport);
+  if (!sportId) throw new Error(`Invalid sport: ${sport}`);
+
+  const poll = await getPollBySportAndSlug({ sportId, slug: division });
+  if (!poll) throw new Error(`Poll not found: ${sport}/${division}`);
+
+  const weekId = await resolveWeekIdForCalendarWeek({
+    sportId,
+    year,
+    seasonType: resolvedSeasonType,
+    weekNumber: resolvedWeekNumber,
+  });
+  if (!weekId) {
+    throw new Error(
+      `Week not found for year=${year} seasonType=${resolvedSeasonType} week=${resolvedWeekNumber}`,
+    );
+  }
+
+  return { sportId, poll, weekId, resolvedSeasonType, resolvedWeekNumber };
+}
+
 
 export async function listSeasonYearsForSport(sportId: string) {
   const rows = await db
@@ -107,36 +157,18 @@ export async function getPollRankingPublishPreview({
   /** @deprecated Use weekKey or seasonType + weekNumber */
   week?: number | null;
 }) {
-  const { seasonType: resolvedSeasonType, weekNumber: resolvedWeekNumber } =
-    resolveCalendarWeekParams({
+  const { sportId, poll, weekId, resolvedSeasonType, resolvedWeekNumber } =
+    await resolvePollWeek({
+      sport,
+      division,
+      year,
       weekKey,
       seasonType,
       weekNumber,
       legacyWeek: week,
     });
-
-  const sportId = await getSportIdBySlug(sport);
-  if (!sportId) throw new Error(`Invalid sport: ${sport}`);
-
-  const poll = await db.query.pollsTable.findFirst({
-    where: (model, { eq, and }) =>
-      and(eq(model.sportId, sportId), eq(model.slug, division)),
-  });
-  if (!poll) throw new Error(`Poll not found: ${sport}/${division}`);
   if (!poll.isActive) {
     throw new Error(`Poll is inactive: ${sport}/${division}`);
-  }
-
-  const weekId = await resolveWeekIdForCalendarWeek({
-    sportId,
-    year,
-    seasonType: resolvedSeasonType,
-    weekNumber: resolvedWeekNumber,
-  });
-  if (!weekId) {
-    throw new Error(
-      `Week not found for year=${year} seasonType=${resolvedSeasonType} week=${resolvedWeekNumber}`,
-    );
   }
 
   const legacyWeek = seasonTypeAndNumberToLegacyWeek(
@@ -165,11 +197,18 @@ export async function getPollRankingPublishPreview({
           ),
         )
         .then((rows) => rows[0]?.count ?? 0),
-      db.query.ballotsTable.findMany({
-        where: (model, { eq, and }) =>
-          and(eq(model.pollId, poll.id), eq(model.weekId, weekId)),
-        columns: { userId: true, submittedAt: true },
-      }),
+      db
+        .select({
+          userId: ballotsTable.userId,
+          submittedAt: ballotsTable.submittedAt,
+        })
+        .from(ballotsTable)
+        .where(
+          and(
+            eq(ballotsTable.pollId, poll.id),
+            eq(ballotsTable.weekId, weekId),
+          ),
+        ),
     ]);
 
   const submittedByUserId = new Map(
@@ -253,36 +292,18 @@ export async function publishPollRankingsForWeek({
   /** @deprecated Use weekKey or seasonType + weekNumber */
   week?: number | null;
 }) {
-  const { seasonType: resolvedSeasonType, weekNumber: resolvedWeekNumber } =
-    resolveCalendarWeekParams({
+  const { sportId, poll, weekId, resolvedSeasonType, resolvedWeekNumber } =
+    await resolvePollWeek({
+      sport,
+      division,
+      year,
       weekKey,
       seasonType,
       weekNumber,
       legacyWeek: week,
     });
-
-  const sportId = await getSportIdBySlug(sport);
-  if (!sportId) throw new Error(`Invalid sport: ${sport}`);
-
-  const poll = await db.query.pollsTable.findFirst({
-    where: (model, { eq, and }) =>
-      and(eq(model.sportId, sportId), eq(model.slug, division)),
-  });
-  if (!poll) throw new Error(`Poll not found: ${sport}/${division}`);
   if (!poll.isActive) {
     throw new Error(`Poll is inactive: ${sport}/${division}`);
-  }
-
-  const weekId = await resolveWeekIdForCalendarWeek({
-    sportId,
-    year,
-    seasonType: resolvedSeasonType,
-    weekNumber: resolvedWeekNumber,
-  });
-  if (!weekId) {
-    throw new Error(
-      `Week not found for year=${year} seasonType=${resolvedSeasonType} week=${resolvedWeekNumber}`,
-    );
   }
 
   const legacyWeek = seasonTypeAndNumberToLegacyWeek(
@@ -317,5 +338,45 @@ export async function publishPollRankingsForWeek({
     weekId,
     teams: rankings.length,
     ballots: new Set(votes.map((vote) => vote.userId)).size,
+  };
+}
+
+export async function unpublishPollRankingsForWeek({
+  sport,
+  division,
+  year,
+  weekKey,
+  seasonType,
+  weekNumber,
+  week,
+}: {
+  sport: SportParam;
+  division: string;
+  year: number;
+  weekKey?: string | null;
+  seasonType?: number | null;
+  weekNumber?: number | null;
+  /** @deprecated Use weekKey or seasonType + weekNumber */
+  week?: number | null;
+}) {
+  const { poll, weekId } = await resolvePollWeek({
+    sport,
+    division,
+    year,
+    weekKey,
+    seasonType,
+    weekNumber,
+    legacyWeek: week,
+  });
+
+  const result = await deletePollRankings({
+    pollId: poll.id,
+    weekId,
+  });
+
+  return {
+    pollId: poll.id,
+    weekId,
+    deleted: result.deleted,
   };
 }

@@ -24,6 +24,7 @@
     "./utils/week-mapping": "./src/utils/week-mapping.ts",
     "./utils/school-ranking-history": "./src/utils/school-ranking-history.ts",
     "./utils/publish-tally": "./src/utils/publish-tally.ts",
+    "./rankings-cache-tags": "./src/rankings-cache-tags.ts",
     "./keys": "./keys.ts"
   },
   "dependencies": {

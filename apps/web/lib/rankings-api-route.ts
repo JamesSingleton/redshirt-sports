@@ -12,7 +12,7 @@ const CORS_HEADERS = {
 } as const;
 
 const CACHE_HEADERS = {
-  "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+  "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=86400",
 } as const;
 
 function clientIp(request: Request): string {

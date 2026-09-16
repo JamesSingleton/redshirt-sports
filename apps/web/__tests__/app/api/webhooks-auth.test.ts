@@ -1,24 +1,29 @@
 const {
   mockCreateUser,
   mockUpdateUser,
+  mockGetUserDisplayFields,
   mockRevokeAssignments,
   mockAnalyticsCapture,
   mockAnalyticsIdentify,
   mockVerify,
   mockHeadersGet,
+  mockRevalidateTag,
 } = vi.hoisted(() => ({
   mockCreateUser: vi.fn(),
   mockUpdateUser: vi.fn(),
+  mockGetUserDisplayFields: vi.fn(),
   mockRevokeAssignments: vi.fn(),
   mockAnalyticsCapture: vi.fn(),
   mockAnalyticsIdentify: vi.fn(),
   mockVerify: vi.fn(),
   mockHeadersGet: vi.fn(),
+  mockRevalidateTag: vi.fn(),
 }));
 
 vi.mock("@redshirt-sports/db/queries", () => ({
   createUser: mockCreateUser,
   updateUser: mockUpdateUser,
+  getUserDisplayFields: mockGetUserDisplayFields,
   revokeAssignmentsForNonVoters: mockRevokeAssignments,
 }));
 
@@ -34,6 +39,24 @@ vi.mock("next/headers", () => ({
     get: mockHeadersGet,
   }),
 }));
+
+vi.mock("next/cache", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/cache")>();
+  return {
+    ...actual,
+    revalidateTag: mockRevalidateTag,
+  };
+});
+
+vi.mock("next/server", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/server")>();
+  return {
+    ...actual,
+    after: (fn: () => void) => {
+      fn();
+    },
+  };
+});
 
 vi.mock("svix", () => ({
   Webhook: class MockWebhook {
@@ -62,11 +85,13 @@ describe("POST /api/webhooks/auth", () => {
     process.env.CLERK_WEBHOOK_SECRET = "whsec_test";
     mockCreateUser.mockReset().mockResolvedValue(undefined);
     mockUpdateUser.mockReset().mockResolvedValue(undefined);
+    mockGetUserDisplayFields.mockReset().mockResolvedValue(undefined);
     mockRevokeAssignments.mockReset().mockResolvedValue(undefined);
     mockAnalyticsCapture.mockReset();
     mockAnalyticsIdentify.mockReset();
     mockVerify.mockReset();
     mockHeadersGet.mockReset();
+    mockRevalidateTag.mockReset();
     setSvixHeaders(true);
   });
 
@@ -232,6 +257,71 @@ describe("POST /api/webhooks/auth", () => {
 
     expect(res.status).toBe(200);
     expect(mockRevokeAssignments).not.toHaveBeenCalled();
+  });
+
+  it("expires rankings cache when a voter display field changes", async () => {
+    mockGetUserDisplayFields.mockResolvedValue({
+      firstName: "Jane",
+      lastName: "Doe",
+      organization: "ESPN",
+      organizationRole: "Analyst",
+    });
+    mockVerify.mockReturnValue({
+      type: "user.updated",
+      data: {
+        id: "user_1",
+        first_name: "Jane",
+        last_name: "Smith",
+        public_metadata: {
+          isVoter: true,
+          organization: "ESPN",
+          organizationRole: "Analyst",
+        },
+      },
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/auth", {
+        method: "POST",
+        body: JSON.stringify({}),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", { expire: 0 });
+  });
+
+  it("does not expire rankings cache when only voter credentials change", async () => {
+    mockGetUserDisplayFields.mockResolvedValue({
+      firstName: "Jane",
+      lastName: "Doe",
+      organization: "ESPN",
+      organizationRole: "Analyst",
+    });
+    mockVerify.mockReturnValue({
+      type: "user.updated",
+      data: {
+        id: "user_1",
+        first_name: "Jane",
+        last_name: "Doe",
+        public_metadata: {
+          isVoter: false,
+          organization: "ESPN",
+          organizationRole: "Analyst",
+        },
+      },
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/auth", {
+        method: "POST",
+        body: JSON.stringify({}),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockRevokeAssignments).toHaveBeenCalledWith("user_1");
+    expect(mockRevalidateTag).not.toHaveBeenCalled();
   });
 
   it("returns 500 when webhook handler throws", async () => {

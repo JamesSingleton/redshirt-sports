@@ -2,6 +2,8 @@ import { upsertSchoolFromSanity } from "@redshirt-sports/db/queries";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { expireRankingsCache } from "@/lib/expire-rankings-cache";
+
 const SchoolPayloadSchema = z.object({
   school: z.object({
     _id: z.string(),
@@ -49,6 +51,8 @@ export async function POST(request: Request) {
     image: school.image,
     top25Eligible: school.top25VotingEligible,
   });
+
+  expireRankingsCache();
 
   return NextResponse.json({
     ok: true,

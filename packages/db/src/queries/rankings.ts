@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
@@ -41,6 +41,11 @@ type FinalRankings = {
   }[];
 };
 
+export async function getAllWeeklyRankings() {
+  return db.select().from(pollRankingsTable);
+}
+
+
 export async function getFinalRankingsForWeekAndYearFromDb({
   year,
   week,
@@ -65,24 +70,31 @@ export async function getFinalRankingsForWeekAndYearFromDb({
   });
   if (!weekId) throw new Error("Unable to find season or week for rankings");
 
-  const rankings = await db.query.pollRankingsTable.findMany({
-    where: (model, { eq, and }) =>
-      and(eq(model.pollId, poll.id), eq(model.weekId, weekId)),
-    with: {
-      school: true,
-    },
-    orderBy: (model, { asc }) => [asc(model.rank), asc(model.points)],
-  });
+  const rankings = await db
+    .select({
+      ranking: pollRankingsTable,
+      school: schoolsTable,
+    })
+    .from(pollRankingsTable)
+    .innerJoin(schoolsTable, eq(pollRankingsTable.schoolId, schoolsTable.id))
+    .where(
+      and(
+        eq(pollRankingsTable.pollId, poll.id),
+        eq(pollRankingsTable.weekId, weekId),
+      ),
+    )
+    .orderBy(asc(pollRankingsTable.rank), asc(pollRankingsTable.points));
 
   return rankings.map((row) => ({
-    ...row,
-    ranking: row.rank,
-    schoolId: row.schoolId,
-    weekId: row.weekId,
+    ...row.ranking,
+    school: row.school,
+    ranking: row.ranking.rank,
+    schoolId: row.ranking.schoolId,
+    weekId: row.ranking.weekId,
     divisionSportId: poll.divisionSportId,
-    firstPlaceVotes: row.firstPlaceVotes,
-    isTie: row.isTie,
-    points: row.points,
+    firstPlaceVotes: row.ranking.firstPlaceVotes,
+    isTie: row.ranking.isTie,
+    points: row.ranking.points,
   })) as unknown as FinalRankingWithSchool[];
 }
 
@@ -102,9 +114,11 @@ export async function getFinalRankingsForWeekAndYear({
     sportId = await getSportIdBySlug(sport);
   } else {
     // Infer sport from poll slug when only one active poll matches
-    const poll = await db.query.pollsTable.findFirst({
-      where: (model, { eq }) => eq(model.slug, division),
-    });
+    const [poll] = await db
+      .select({ sportId: pollsTable.sportId })
+      .from(pollsTable)
+      .where(eq(pollsTable.slug, division))
+      .limit(1);
     sportId = poll?.sportId ?? null;
   }
 
@@ -122,6 +136,30 @@ export async function getFinalRankingsForWeekAndYear({
   });
   if (!weekId) throw new Error("Rankings not found");
 
+  // Project only fields CustomImage/processImageData need. Omit `preview`
+  // (Sanity LQIP data URI) — browsers cannot cache it and it dominated egress.
+  const schoolLogoImage = sql<unknown>`
+    CASE
+      WHEN ${schoolsTable.image} IS NULL THEN NULL
+      ELSE jsonb_strip_nulls(
+        jsonb_build_object(
+          'id', coalesce(
+            ${schoolsTable.image}->>'id',
+            ${schoolsTable.image}->'asset'->>'_ref'
+          ),
+          'alt', coalesce(
+            ${schoolsTable.image}->>'alt',
+            ${schoolsTable.image}->>'caption'
+          ),
+          'width', ${schoolsTable.image}->'width',
+          'height', ${schoolsTable.image}->'height',
+          'hotspot', ${schoolsTable.image}->'hotspot',
+          'crop', ${schoolsTable.image}->'crop'
+        )
+      )
+    END
+  `;
+
   const rows = await db
     .select({
       id: pollRankingsTable.id,
@@ -134,7 +172,7 @@ export async function getFinalRankingsForWeekAndYear({
       shortName: schoolsTable.shortName,
       abbreviation: schoolsTable.abbreviation,
       slug: schoolsTable.slug,
-      image: schoolsTable.image,
+      image: schoolLogoImage,
     })
     .from(pollRankingsTable)
     .innerJoin(schoolsTable, eq(pollRankingsTable.schoolId, schoolsTable.id))
@@ -247,6 +285,47 @@ export async function getLatestFinalRankingsBySportSlug(sportSlug: string) {
   }));
 }
 
+export async function arePollRankingsPublished({
+  pollId,
+  weekId,
+}: {
+  pollId: string;
+  weekId: string;
+}) {
+  const row = await db
+    .select({ id: pollRankingsTable.id })
+    .from(pollRankingsTable)
+    .where(
+      and(
+        eq(pollRankingsTable.pollId, pollId),
+        eq(pollRankingsTable.weekId, weekId),
+      ),
+    )
+    .limit(1);
+
+  return row.length > 0;
+}
+
+export async function deletePollRankings({
+  pollId,
+  weekId,
+}: {
+  pollId: string;
+  weekId: string;
+}) {
+  const deleted = await db
+    .delete(pollRankingsTable)
+    .where(
+      and(
+        eq(pollRankingsTable.pollId, pollId),
+        eq(pollRankingsTable.weekId, weekId),
+      ),
+    )
+    .returning({ id: pollRankingsTable.id });
+
+  return { deleted: deleted.length };
+}
+
 export async function replacePollRankings({
   pollId,
   weekId,
@@ -291,19 +370,14 @@ export async function replacePollRankings({
 export async function schoolHasPollRankings(
   sanityId: string,
 ): Promise<boolean> {
-  const school = await db.query.schoolsTable.findFirst({
-    where: (model, { eq }) => eq(model.sanityId, sanityId),
-    columns: { id: true },
-  });
-  if (!school) return false;
-
-  const row = await db
+  const [row] = await db
     .select({ id: pollRankingsTable.id })
     .from(pollRankingsTable)
-    .where(eq(pollRankingsTable.schoolId, school.id))
+    .innerJoin(schoolsTable, eq(pollRankingsTable.schoolId, schoolsTable.id))
+    .where(eq(schoolsTable.sanityId, sanityId))
     .limit(1);
 
-  return row.length > 0;
+  return !!row;
 }
 
 /** Distinct Sanity school ids that appear in published poll rankings. */
@@ -322,14 +396,6 @@ export async function getRankedSchoolSanityIds(): Promise<string[]> {
 export async function getSchoolRankingHistory(
   sanityId: string,
 ): Promise<SchoolRankingHistory> {
-  const school = await db.query.schoolsTable.findFirst({
-    where: (model, { eq }) => eq(model.sanityId, sanityId),
-    columns: { id: true },
-  });
-  if (!school) {
-    return { polls: [] };
-  }
-
   const appearances = await db
     .select({
       pollId: pollsTable.id,
@@ -345,6 +411,7 @@ export async function getSchoolRankingHistory(
       points: pollRankingsTable.points,
     })
     .from(pollRankingsTable)
+    .innerJoin(schoolsTable, eq(pollRankingsTable.schoolId, schoolsTable.id))
     .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
     .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
     .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
@@ -353,7 +420,7 @@ export async function getSchoolRankingHistory(
       eq(weeksTable.seasonTypeId, seasonTypesTable.id),
     )
     .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
-    .where(eq(pollRankingsTable.schoolId, school.id));
+    .where(eq(schoolsTable.sanityId, sanityId));
 
   if (appearances.length === 0) {
     return { polls: [] };

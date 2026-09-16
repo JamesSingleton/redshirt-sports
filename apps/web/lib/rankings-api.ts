@@ -1,9 +1,5 @@
 import { formatWeekSegment } from "@redshirt-sports/clients/espn";
-import {
-  getFinalRankingsForWeekAndYear,
-  getLatestFinalRankings,
-  getPollBySportSlugAndPollSlug,
-} from "@redshirt-sports/db/queries";
+import { getPollBySportSlugAndPollSlug } from "@redshirt-sports/db/queries";
 import {
   calendarWeekKey,
   legacyWeekToSeasonTypeAndNumber,
@@ -11,6 +7,10 @@ import {
 } from "@redshirt-sports/db/utils/week-mapping";
 
 import { getBaseUrl } from "@/lib/get-base-url";
+import {
+  getCachedFinalRankings,
+  getCachedLatestFinalRankings,
+} from "@/lib/rankings-data";
 import {
   type ValidDivision,
   validateDivision,
@@ -64,9 +64,7 @@ export type PublicRankingsResponse = {
   othersReceivingVotes: PublicRankingEntry[];
 };
 
-type InternalRankings = Awaited<
-  ReturnType<typeof getFinalRankingsForWeekAndYear>
->;
+type InternalRankings = Awaited<ReturnType<typeof getCachedFinalRankings>>;
 
 function mapEntry(
   row: InternalRankings["rankings"][number],
@@ -200,7 +198,7 @@ export async function resolvePublicRankings({
   let resolvedWeek = week;
 
   if (resolvedYear == null || resolvedWeek == null) {
-    const latest = await getLatestFinalRankings({ division });
+    const latest = await getCachedLatestFinalRankings({ division });
     if (!latest) {
       return { ok: false, status: 404, error: "Rankings not found" };
     }
@@ -209,7 +207,7 @@ export async function resolvePublicRankings({
   }
 
   try {
-    const data = await getFinalRankingsForWeekAndYear({
+    const data = await getCachedFinalRankings({
       year: resolvedYear,
       week: resolvedWeek,
       division,

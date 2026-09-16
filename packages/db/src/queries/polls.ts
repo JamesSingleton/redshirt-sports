@@ -1,4 +1,4 @@
-import { and, asc, count, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNull } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
@@ -17,10 +17,12 @@ export async function getPollBySportAndSlug({
   sportId: string;
   slug: string;
 }) {
-  return db.query.pollsTable.findFirst({
-    where: (model, { eq, and }) =>
-      and(eq(model.sportId, sportId), eq(model.slug, slug)),
-  });
+  const [poll] = await db
+    .select()
+    .from(pollsTable)
+    .where(and(eq(pollsTable.sportId, sportId), eq(pollsTable.slug, slug)))
+    .limit(1);
+  return poll;
 }
 
 export async function getPollBySportSlugAndPollSlug({
@@ -37,14 +39,32 @@ export async function getPollBySportSlugAndPollSlug({
 
 export async function listPolls(options?: { activeOnly?: boolean }) {
   const activeOnly = options?.activeOnly ?? true;
-  return db.query.pollsTable.findMany({
-    where: activeOnly ? (model, { eq }) => eq(model.isActive, true) : undefined,
-    with: {
-      sport: true,
-    },
-    orderBy: (model, { asc, desc }) =>
-      activeOnly ? [asc(model.name)] : [desc(model.isActive), asc(model.name)],
-  });
+  return db
+    .select({
+      id: pollsTable.id,
+      createdAt: pollsTable.createdAt,
+      updatedAt: pollsTable.updatedAt,
+      sportId: pollsTable.sportId,
+      slug: pollsTable.slug,
+      name: pollsTable.name,
+      isActive: pollsTable.isActive,
+      divisionSportId: pollsTable.divisionSportId,
+      sport: {
+        id: sportsTable.id,
+        slug: sportsTable.slug,
+        name: sportsTable.name,
+        displayName: sportsTable.displayName,
+        isActive: sportsTable.isActive,
+      },
+    })
+    .from(pollsTable)
+    .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
+    .where(activeOnly ? eq(pollsTable.isActive, true) : undefined)
+    .orderBy(
+      ...(activeOnly
+        ? [asc(pollsTable.name)]
+        : [desc(pollsTable.isActive), asc(pollsTable.name)]),
+    );
 }
 
 export async function listSports() {
@@ -245,18 +265,25 @@ export async function assignVoterToPoll({
   pollId: string;
   userId: string;
 }) {
-  const user = await db.query.usersTable.findFirst({
-    where: (model, { eq }) => eq(model.id, userId),
-    columns: { id: true, isVoter: true },
-  });
+  const [user] = await db
+    .select({ id: usersTable.id, isVoter: usersTable.isVoter })
+    .from(usersTable)
+    .where(eq(usersTable.id, userId))
+    .limit(1);
   if (!user?.isVoter) {
     throw new Error("User is not a credentialed voter");
   }
 
-  const existing = await db.query.pollVotersTable.findFirst({
-    where: (model, { eq, and }) =>
-      and(eq(model.pollId, pollId), eq(model.userId, userId)),
-  });
+  const [existing] = await db
+    .select()
+    .from(pollVotersTable)
+    .where(
+      and(
+        eq(pollVotersTable.pollId, pollId),
+        eq(pollVotersTable.userId, userId),
+      ),
+    )
+    .limit(1);
 
   if (existing) {
     if (existing.revokedAt) {
@@ -295,10 +322,11 @@ export async function revokeVoterFromPoll({
 }
 
 export async function listVoters() {
-  return db.query.usersTable.findMany({
-    where: (model, { eq }) => eq(model.isVoter, true),
-    orderBy: (model, { asc }) => [asc(model.lastName), asc(model.firstName)],
-  });
+  return db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.isVoter, true))
+    .orderBy(asc(usersTable.lastName), asc(usersTable.firstName));
 }
 
 export async function countVoters() {
@@ -310,9 +338,10 @@ export async function countVoters() {
 }
 
 export async function listUsers() {
-  return db.query.usersTable.findMany({
-    orderBy: (model, { asc }) => [asc(model.lastName), asc(model.firstName)],
-  });
+  return db
+    .select()
+    .from(usersTable)
+    .orderBy(asc(usersTable.lastName), asc(usersTable.firstName));
 }
 
 export async function countUsers() {
