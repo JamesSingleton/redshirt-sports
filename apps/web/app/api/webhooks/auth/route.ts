@@ -2,11 +2,17 @@ import { analytics } from "@redshirt-sports/analytics/server";
 import type { WebhookEvent } from "@redshirt-sports/auth/server";
 import {
   createUser,
+  getUserDisplayFields,
   revokeAssignmentsForNonVoters,
   updateUser,
 } from "@redshirt-sports/db/queries";
 import { headers } from "next/headers";
 import { Webhook } from "svix";
+
+import {
+  expireRankingsCache,
+  rankingsVoterDisplayChanged,
+} from "@/lib/expire-rankings-cache";
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -80,18 +86,30 @@ export async function POST(req: Request) {
         break;
       case "user.updated": {
         const isVoter = Boolean(data.public_metadata.isVoter);
-
-        await updateUser({
-          id: data.id,
+        const nextDisplay = {
           firstName: data.first_name ?? "",
           lastName: data.last_name ?? "",
           organization: data.public_metadata.organization as string | undefined,
           organizationRole: data.public_metadata.organizationRole as
             | string
             | undefined,
+        };
+        const currentDisplay = await getUserDisplayFields(data.id);
+        const displayChanged = rankingsVoterDisplayChanged(
+          currentDisplay,
+          nextDisplay,
+        );
+
+        await updateUser({
+          id: data.id,
+          ...nextDisplay,
           isAdmin: data.public_metadata.isAdmin as boolean | undefined,
           isVoter,
         });
+
+        if (displayChanged) {
+          expireRankingsCache();
+        }
 
         // Drop active poll assignments when voter credentials are removed.
         // Historical ballots remain.

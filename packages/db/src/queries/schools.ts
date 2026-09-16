@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { inArray, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import { schoolsTable } from "../schema";
@@ -54,37 +54,60 @@ export type SanitySchoolSyncPayload = {
   top25Eligible?: boolean | null;
 };
 
-export async function upsertSchoolFromSanity(payload: SanitySchoolSyncPayload) {
-  const existing = await db.query.schoolsTable.findFirst({
-    where: (model, { eq }) => eq(model.sanityId, payload.sanityId),
-  });
+/**
+ * Drop LQIP data URIs and palette blobs before storing school logos.
+ * Browsers cannot cache `data:` previews; they dominated jsonb payload size.
+ */
+export function stripSchoolLogoImage(image: unknown): unknown {
+  if (image == null || typeof image !== "object" || Array.isArray(image)) {
+    return image ?? null;
+  }
 
+  const {
+    preview: _preview,
+    lqip: _lqip,
+    dominantColor: _dominantColor,
+    ...rest
+  } = image as Record<string, unknown>;
+
+  return rest;
+}
+
+export async function upsertSchoolFromSanity(payload: SanitySchoolSyncPayload) {
   const values = {
     name: payload.name ?? null,
     shortName: payload.shortName ?? null,
     abbreviation: payload.abbreviation ?? null,
     nickname: payload.nickname ?? null,
     slug: payload.slug ?? null,
-    image: payload.image ?? null,
+    image: stripSchoolLogoImage(payload.image),
     top25Eligible: payload.top25Eligible ?? null,
     updatedAt: new Date(),
   };
 
-  if (existing) {
-    await db
-      .update(schoolsTable)
-      .set(values)
-      .where(eq(schoolsTable.id, existing.id));
-    return { action: "updated" as const, id: existing.id };
-  }
-
-  const [inserted] = await db
+  const [row] = await db
     .insert(schoolsTable)
     .values({
       sanityId: payload.sanityId,
       ...values,
     })
-    .returning({ id: schoolsTable.id });
+    .onConflictDoUpdate({
+      target: schoolsTable.sanityId,
+      set: values,
+    })
+    .returning({
+      id: schoolsTable.id,
+      inserted: sql<boolean>`xmax = 0`,
+    });
 
-  return { action: "inserted" as const, id: inserted!.id };
+  if (!row) {
+    throw new Error("School upsert did not return a row");
+  }
+
+  const inserted = row.inserted === true || `${row.inserted}` === "t";
+
+  return {
+    action: inserted ? ("inserted" as const) : ("updated" as const),
+    id: row.id,
+  };
 }

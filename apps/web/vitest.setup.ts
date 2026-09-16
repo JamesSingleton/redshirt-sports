@@ -6,6 +6,7 @@ process.env.NEXT_PUBLIC_SANITY_DATASET ??= "production";
 process.env.NEXT_PUBLIC_SANITY_API_VERSION ??= "2026-08-26";
 process.env.SANITY_API_READ_TOKEN ??= "test-token";
 process.env.SANITY_REVALIDATE_SECRET ??= "test-revalidate-secret";
+process.env.CACHE_REVALIDATE_SECRET ??= "test-cache-revalidate-secret";
 process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ??= "redshirtsports.com";
 process.env.NEXT_PUBLIC_SITE_URL ??= "redshirtsports.com";
 process.env.NEXT_PUBLIC_CLERK_DOMAIN ??= "clerk.redshirtsports.com";
@@ -19,3 +20,12 @@ process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ??= "pk_test_clerk_publishable";
 process.env.NEXT_PUBLIC_POSTHOG_KEY ??= "phc_test_posthog_key";
 process.env.NEXT_PUBLIC_POSTHOG_HOST ??= "https://app.posthog.com";
 process.env.NEXT_PUBLIC_APP_NAME ??= "Redshirt Sports";
+
+vi.mock("next/cache", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/cache")>();
+  return {
+    ...actual,
+    cacheTag: vi.fn(),
+    cacheLife: vi.fn(),
+  };
+});

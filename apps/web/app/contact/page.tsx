@@ -1,4 +1,4 @@
-import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
+import { PUBLISHED_FETCH_OPTIONS } from "@redshirt-sports/sanity/live";
 import {
   Card,
   CardContent,
@@ -16,7 +16,7 @@ import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { perspective } = await getDynamicFetchOptions();
+  const { perspective } = PUBLISHED_FETCH_OPTIONS;
   return getPageMetadata(
     {
       title: "Contact Us",

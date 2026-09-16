@@ -1,30 +1,33 @@
 vi.mock("@redshirt-sports/db/queries", () => ({
-  getFinalRankingsForWeekAndYear: vi.fn(),
-  getLatestFinalRankings: vi.fn(),
   getPollBySportSlugAndPollSlug: vi.fn(),
+}));
+
+vi.mock("@/lib/rankings-data", () => ({
+  getCachedFinalRankings: vi.fn(),
+  getCachedLatestFinalRankings: vi.fn(),
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "https://www.redshirtsports.com",
 }));
 
-import {
-  getFinalRankingsForWeekAndYear,
-  getLatestFinalRankings,
-  getPollBySportSlugAndPollSlug,
-} from "@redshirt-sports/db/queries";
+import { getPollBySportSlugAndPollSlug } from "@redshirt-sports/db/queries";
 
 import {
   buildSourceUrl,
   resolvePublicRankings,
   toPublicRankingsResponse,
 } from "@/lib/rankings-api";
+import {
+  getCachedFinalRankings,
+  getCachedLatestFinalRankings,
+} from "@/lib/rankings-data";
 import * as voteBallot from "@/lib/vote-ballot";
 
-const mockGetFinalRankingsForWeekAndYear = vi.mocked(
-  getFinalRankingsForWeekAndYear,
+const mockGetCachedFinalRankings = vi.mocked(getCachedFinalRankings);
+const mockGetCachedLatestFinalRankings = vi.mocked(
+  getCachedLatestFinalRankings,
 );
-const mockGetLatestFinalRankings = vi.mocked(getLatestFinalRankings);
 const mockGetPollBySportSlugAndPollSlug = vi.mocked(
   getPollBySportSlugAndPollSlug,
 );
@@ -178,8 +181,8 @@ describe("buildSourceUrl", () => {
 
 describe("resolvePublicRankings", () => {
   beforeEach(() => {
-    mockGetFinalRankingsForWeekAndYear.mockReset();
-    mockGetLatestFinalRankings.mockReset();
+    mockGetCachedFinalRankings.mockReset();
+    mockGetCachedLatestFinalRankings.mockReset();
     mockGetPollBySportSlugAndPollSlug.mockReset();
     vi.restoreAllMocks();
   });
@@ -212,7 +215,7 @@ describe("resolvePublicRankings", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    mockGetFinalRankingsForWeekAndYear.mockRejectedValue(
+    mockGetCachedFinalRankings.mockRejectedValue(
       "Unable to find season or week for rankings",
     );
 
@@ -241,7 +244,7 @@ describe("resolvePublicRankings", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    mockGetFinalRankingsForWeekAndYear.mockRejectedValue(
+    mockGetCachedFinalRankings.mockRejectedValue(
       new Error("Unable to find season or week for rankings"),
     );
 
