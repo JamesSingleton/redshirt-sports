@@ -48,7 +48,12 @@ async function DraftAwareParamsRender<P>({
   return render(resolved, { perspective: "published", stega: false });
 }
 
-/** Layer 1 branch for routes with dynamic `params`. */
+/**
+ * Layer 1 branch for routes with dynamic `params`.
+ * This Suspense is required so `draftMode()` can prerender a shell. It is
+ * the nearest boundary, so `loading.tsx` does not run unless `fallback`
+ * is that loading UI.
+ */
 export function draftAwareParamsPage<P>(
   params: Promise<P>,
   fallback: ReactNode,

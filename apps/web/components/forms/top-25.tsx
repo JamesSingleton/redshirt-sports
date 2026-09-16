@@ -14,7 +14,7 @@ import {
 } from "@redshirt-sports/ui/components/form";
 import { Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { forwardRef, useImperativeHandle, useMemo } from "react";
+import { useImperativeHandle, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -90,15 +90,39 @@ export const formSchema = z
     }
   });
 
-const Top25 = forwardRef<
-  Top25FormRef,
-  {
-    schools: SchoolsBySportAndSubgroupingStringQueryResult;
-    previousBallot?: VoterBallotWithSchool[];
-  }
->(({ schools, previousBallot }, ref) => {
-  const form = useForm<z.infer<typeof formSchema>>({
+type Top25Values = z.infer<typeof formSchema>;
+
+type Top25FormProps = {
+  schools: SchoolsBySportAndSubgroupingStringQueryResult;
+  previousBallot?: VoterBallotWithSchool[];
+  currentBallot?: Array<{ teamId: string; rank: number }>;
+  ref?: React.Ref<Top25FormRef>;
+  submit: {
+    button: string;
+    loading: string;
+    method: "PATCH" | "POST";
+    success: string;
+    error: string;
+  };
+};
+
+function Top25Form({
+  schools,
+  previousBallot,
+  currentBallot,
+  ref,
+  submit,
+}: Top25FormProps) {
+  const defaultValues = useMemo(() => {
+    if (!currentBallot?.length) return undefined;
+    return Object.fromEntries(
+      currentBallot.map((entry) => [`rank_${entry.rank}`, entry.teamId]),
+    ) as Partial<z.infer<typeof formSchema>>;
+  }, [currentBallot]);
+
+  const form = useForm<Top25Values>({
     resolver: zodResolver(formSchema),
+    defaultValues,
   });
   const formValues = form.watch();
   const selectedValues = useMemo(() => {
@@ -134,12 +158,12 @@ const Top25 = forwardRef<
     toast.success("Form populated with your previous ballot");
   }
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: Top25Values) {
     values = { ...values, division, sport };
 
     await toast.promise(
       fetch(`/api/vote/college/${sport}/rankings/${division}`, {
-        method: "POST",
+        method: submit.method,
         body: JSON.stringify(values),
         headers: {
           "Content-Type": "application/json",
@@ -165,11 +189,10 @@ const Top25 = forwardRef<
         return data;
       }),
       {
-        loading: "Submitting Ballot",
+        loading: submit.loading,
         success: (data: { message?: string }) =>
-          data?.message || "Ballot submitted successfully",
-        error: (err: Error) =>
-          err.message || "An error occurred while submitting your ballot",
+          data?.message || submit.success,
+        error: (err: Error) => err.message || submit.error,
       },
     );
   }
@@ -210,17 +233,57 @@ const Top25 = forwardRef<
           {form.formState.isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" size={16} />{" "}
-              Submitting Ballot
+              {submit.loading}
             </>
           ) : (
-            "Submit"
+            submit.button
           )}
         </Button>
       </form>
     </Form>
   );
-});
+}
 
-Top25.displayName = "Top25";
+export function CreateTop25({
+  schools,
+  previousBallot,
+  ref,
+}: Omit<Top25FormProps, "currentBallot" | "submit">) {
+  return (
+    <Top25Form
+      ref={ref}
+      schools={schools}
+      previousBallot={previousBallot}
+      submit={{
+        button: "Submit",
+        loading: "Submitting Ballot",
+        method: "POST",
+        success: "Ballot submitted successfully",
+        error: "An error occurred while submitting your ballot",
+      }}
+    />
+  );
+}
 
-export default Top25;
+export function EditTop25({
+  schools,
+  currentBallot,
+  ref,
+}: Omit<Top25FormProps, "previousBallot" | "submit">) {
+  return (
+    <Top25Form
+      ref={ref}
+      schools={schools}
+      currentBallot={currentBallot}
+      submit={{
+        button: "Save changes",
+        loading: "Saving Ballot",
+        method: "PATCH",
+        success: "Ballot updated successfully",
+        error: "An error occurred while saving your ballot",
+      }}
+    />
+  );
+}
+
+export default CreateTop25;

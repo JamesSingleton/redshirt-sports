@@ -28,6 +28,12 @@ export type DynamicFetchOptions = {
   stega: boolean;
 };
 
+/** Static published options — safe for `generateMetadata` (no draftMode/cookies). */
+export const PUBLISHED_FETCH_OPTIONS = {
+  perspective: "published",
+  stega: false,
+} as const satisfies DynamicFetchOptions;
+
 /** Resolves perspective/stega outside any `'use cache'` boundary (reads draftMode/cookies). */
 export async function getDynamicFetchOptions(): Promise<DynamicFetchOptions> {
   const { isEnabled: isDraftMode } = await draftMode();

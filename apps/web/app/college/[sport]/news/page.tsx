@@ -1,6 +1,7 @@
 import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS,
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
 import {
@@ -29,7 +30,7 @@ export async function generateMetadata({
   const { sport } = await params;
   const { page } = await searchParams;
   const pageIndex = validatePageIndex(page);
-  const { perspective } = await getDynamicFetchOptions();
+  const { perspective } = PUBLISHED_FETCH_OPTIONS;
 
   const { data: sportData } = await sanityFetchMetadata({
     query: sportInfoBySlug,

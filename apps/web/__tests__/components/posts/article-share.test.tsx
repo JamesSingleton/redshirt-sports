@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import {
@@ -106,7 +112,9 @@ describe("Article share components", () => {
         ).toBeInTheDocument();
       });
 
-      vi.advanceTimersByTime(2000);
+      act(() => {
+        vi.advanceTimersByTime(2000);
+      });
       await waitFor(() => {
         expect(
           screen.getByRole("button", { name: /^Copy$/i }),
@@ -131,7 +139,9 @@ describe("Article share components", () => {
         ).toBeInTheDocument();
       });
 
-      vi.advanceTimersByTime(2000);
+      act(() => {
+        vi.advanceTimersByTime(2000);
+      });
       await waitFor(() => {
         expect(
           screen.getByRole("button", { name: /^Copy$/i }),

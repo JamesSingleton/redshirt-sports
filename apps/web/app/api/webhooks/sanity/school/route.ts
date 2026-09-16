@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { env } from "@/env";
+import { expireRankingsCache } from "@/lib/expire-rankings-cache";
 import { safeCompare } from "@/lib/safe-compare";
 
 const SchoolPayloadSchema = z.object({
@@ -50,6 +51,8 @@ export async function POST(request: Request) {
     image: school.image,
     top25Eligible: school.top25VotingEligible,
   });
+
+  expireRankingsCache();
 
   return NextResponse.json({
     ok: true,

@@ -1,26 +1,31 @@
+/** Fallback when `NEXT_PUBLIC_SITE_URL` is unset on admin. */
+export const PUBLIC_SITE_URL = "https://www.redshirtsports.com";
+
 /**
- * Public site origin for admin links and outbound references.
- * Prefer NEXT_PUBLIC_SITE_URL; fall back to Vercel production URL.
+ * Absolute public web origin for server-side fetches (cache revalidation, etc.).
+ * Accepts host-only values like `www.redshirtsports.xyz` from Vercel env.
  */
-function resolvePublicSiteUrl(): string {
-  const configured =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ??
-    process.env.VERCEL_PROJECT_PRODUCTION_URL;
-
-  if (!configured) {
-    return "http://localhost:3000";
+export function resolvePublicSiteUrl(
+  configured: string | undefined = process.env.NEXT_PUBLIC_SITE_URL,
+): string {
+  const raw = configured?.trim().replace(/\/$/, "");
+  if (!raw) {
+    return PUBLIC_SITE_URL;
   }
-
-  return configured.startsWith("http") ? configured : `https://${configured}`;
+  return raw.startsWith("http://") || raw.startsWith("https://")
+    ? raw
+    : `https://${raw}`;
 }
 
-export const PUBLIC_SITE_URL = resolvePublicSiteUrl();
-
-export function publicSiteLabel(): string {
+export function publicSiteLabel(
+  configured: string | undefined = process.env.NEXT_PUBLIC_SITE_URL,
+): string {
   try {
-    return new URL(PUBLIC_SITE_URL).hostname.replace(/^www\./, "");
+    return new URL(resolvePublicSiteUrl(configured)).hostname.replace(
+      /^www\./,
+      "",
+    );
   } catch {
-    return PUBLIC_SITE_URL;
+    return resolvePublicSiteUrl(configured);
   }
 }

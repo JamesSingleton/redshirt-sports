@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 
 import { getAndCacheTweet, ReactTweet, TweetContent } from "@/components/tweet";
 
@@ -121,15 +121,13 @@ describe("TweetContent", () => {
 });
 
 describe("ReactTweet", () => {
-  it("renders the suspense fallback skeleton", () => {
-    // Never resolve so only the Suspense fallback is asserted. Suppress the
-    // known React testing warning about async Server Components under Suspense.
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("renders the suspense fallback skeleton", async () => {
     mockFetchTweet.mockImplementation(() => new Promise(() => {}));
 
-    render(<ReactTweet id="123" />);
-    expect(screen.getByTestId("tweet-skeleton")).toBeInTheDocument();
+    await act(async () => {
+      render(<ReactTweet id="123" />);
+    });
 
-    errorSpy.mockRestore();
+    expect(screen.getByTestId("tweet-skeleton")).toBeInTheDocument();
   });
 });
