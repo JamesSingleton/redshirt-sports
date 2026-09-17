@@ -66,6 +66,14 @@ vi.mock("svix", () => ({
   },
 }));
 
+vi.mock("@/env", () => ({
+  env: {
+    get CLERK_WEBHOOK_SECRET() {
+      return process.env.CLERK_WEBHOOK_SECRET;
+    },
+  },
+}));
+
 import { POST } from "@/app/api/webhooks/auth/route";
 
 function setSvixHeaders(present = true) {

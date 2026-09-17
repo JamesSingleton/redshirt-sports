@@ -1,6 +1,8 @@
 import { revalidateTag } from "next/cache";
 import type { NextRequest } from "next/server";
 
+import { safeCompare } from "@/lib/safe-compare";
+
 const sanityRevalidateSecret = process.env.SANITY_REVALIDATE_SECRET;
 const cacheRevalidateSecret = process.env.CACHE_REVALIDATE_SECRET;
 
@@ -15,7 +17,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    if (body.secret) secret = body.secret;
+    if (typeof body.secret === "string") secret = body.secret;
     if (Array.isArray(body.tags)) tags = body.tags;
     if (Array.isArray(body.cacheTags)) cacheTags = body.cacheTags;
   } catch {
@@ -43,7 +45,7 @@ export async function POST(request: NextRequest) {
       );
       return Response.json({ error: "Unexpected error" }, { status: 500 });
     }
-    if (secret !== sanityRevalidateSecret) {
+    if (!secret || !safeCompare(secret, sanityRevalidateSecret)) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -69,7 +71,7 @@ export async function POST(request: NextRequest) {
     console.error("CACHE_REVALIDATE_SECRET environment variable is required");
     return Response.json({ error: "Unexpected error" }, { status: 500 });
   }
-  if (secret !== cacheRevalidateSecret) {
+  if (!secret || !safeCompare(secret, cacheRevalidateSecret)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
