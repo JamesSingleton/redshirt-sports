@@ -1,23 +1,26 @@
 const {
-  mockGetFinalRankingsForWeekAndYear,
-  mockGetLatestFinalRankings,
+  mockGetCachedFinalRankings,
+  mockGetCachedLatestFinalRankings,
   mockGetPollBySportSlugAndPollSlug,
   mockRatelimit,
 } = vi.hoisted(() => ({
-  mockGetFinalRankingsForWeekAndYear: vi.fn(),
-  mockGetLatestFinalRankings: vi.fn(),
+  mockGetCachedFinalRankings: vi.fn(),
+  mockGetCachedLatestFinalRankings: vi.fn(),
   mockGetPollBySportSlugAndPollSlug: vi.fn(),
   mockRatelimit: vi.fn(),
 }));
 
 vi.mock("@redshirt-sports/db/queries", () => ({
-  getFinalRankingsForWeekAndYear: mockGetFinalRankingsForWeekAndYear,
-  getLatestFinalRankings: mockGetLatestFinalRankings,
   getPollBySportSlugAndPollSlug: mockGetPollBySportSlugAndPollSlug,
 }));
 
+vi.mock("@/lib/rankings-data", () => ({
+  getCachedFinalRankings: mockGetCachedFinalRankings,
+  getCachedLatestFinalRankings: mockGetCachedLatestFinalRankings,
+}));
+
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://www.redshirtsports.xyz",
+  getBaseUrl: () => "https://www.redshirtsports.com",
 }));
 
 vi.mock("@/server/ratelimit", () => ({
@@ -88,8 +91,8 @@ function weekParams(overrides?: {
 
 describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
   beforeEach(() => {
-    mockGetFinalRankingsForWeekAndYear.mockReset();
-    mockGetLatestFinalRankings.mockReset();
+    mockGetCachedFinalRankings.mockReset();
+    mockGetCachedLatestFinalRankings.mockReset();
     mockGetPollBySportSlugAndPollSlug.mockReset();
     mockRatelimit.mockReset();
     mockRatelimit.mockResolvedValue({ success: true });
@@ -101,23 +104,23 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
   });
 
   it("returns the latest published rankings", async () => {
-    mockGetLatestFinalRankings.mockResolvedValue({
+    mockGetCachedLatestFinalRankings.mockResolvedValue({
       division: "fcs",
       week: 5,
       year: 2025,
     });
-    mockGetFinalRankingsForWeekAndYear.mockResolvedValue(sampleRankings);
+    mockGetCachedFinalRankings.mockResolvedValue(sampleRankings);
 
     const res = await getLatest(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs",
       ),
       { params: latestParams() },
     );
 
     expect(res.status).toBe(200);
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe("*");
-    expect(res.headers.get("Cache-Control")).toContain("s-maxage=300");
+    expect(res.headers.get("Cache-Control")).toContain("s-maxage=1800");
 
     const body = await res.json();
     expect(body.poll.name).toBe("FCS Top 25");
@@ -137,7 +140,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
         }),
       }),
     ]);
-    expect(mockGetFinalRankingsForWeekAndYear).toHaveBeenCalledWith({
+    expect(mockGetCachedFinalRankings).toHaveBeenCalledWith({
       year: 2025,
       week: 5,
       division: "fcs",
@@ -156,7 +159,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
 
     const res = await getLatest(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs",
       ),
       { params: latestParams() },
     );
@@ -166,11 +169,11 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
   });
 
   it("returns 404 when no rankings have been published", async () => {
-    mockGetLatestFinalRankings.mockResolvedValue(undefined);
+    mockGetCachedLatestFinalRankings.mockResolvedValue(undefined);
 
     const res = await getLatest(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs",
       ),
       { params: latestParams() },
     );
@@ -182,7 +185,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
   it("returns 400 for invalid division", async () => {
     const res = await getLatest(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/d1",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/d1",
       ),
       {
         params: Promise.resolve({ sport: "football", division: "d1" }),
@@ -199,7 +202,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
 
     const res = await getLatest(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs",
       ),
       { params: latestParams() },
     );
@@ -210,8 +213,8 @@ describe("GET /api/v1/college/[sport]/rankings/[division]", () => {
 
 describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => {
   beforeEach(() => {
-    mockGetFinalRankingsForWeekAndYear.mockReset();
-    mockGetLatestFinalRankings.mockReset();
+    mockGetCachedFinalRankings.mockReset();
+    mockGetCachedLatestFinalRankings.mockReset();
     mockGetPollBySportSlugAndPollSlug.mockReset();
     mockRatelimit.mockReset();
     mockRatelimit.mockResolvedValue({ success: true });
@@ -223,11 +226,11 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   });
 
   it("returns rankings for a specific week", async () => {
-    mockGetFinalRankingsForWeekAndYear.mockResolvedValue(sampleRankings);
+    mockGetCachedFinalRankings.mockResolvedValue(sampleRankings);
 
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
       ),
       { params: weekParams() },
     );
@@ -236,26 +239,26 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
     const body = await res.json();
     expect(body.week.number).toBe(5);
     expect(body.sourceUrl).toBe(
-      "https://www.redshirtsports.xyz/college/football/rankings/fcs/2025/5",
+      "https://www.redshirtsports.com/college/football/rankings/fcs/2025/5",
     );
-    expect(mockGetLatestFinalRankings).not.toHaveBeenCalled();
+    expect(mockGetCachedLatestFinalRankings).not.toHaveBeenCalled();
   });
 
   it("accepts final-rankings week segment", async () => {
-    mockGetFinalRankingsForWeekAndYear.mockResolvedValue({
+    mockGetCachedFinalRankings.mockResolvedValue({
       ...sampleRankings,
       week: 999,
     });
 
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/final-rankings",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/final-rankings",
       ),
       { params: weekParams({ week: "final-rankings" }) },
     );
 
     expect(res.status).toBe(200);
-    expect(mockGetFinalRankingsForWeekAndYear).toHaveBeenCalledWith({
+    expect(mockGetCachedFinalRankings).toHaveBeenCalledWith({
       year: 2025,
       week: 999,
       division: "fcs",
@@ -271,7 +274,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   it("returns 400 for invalid week segment", async () => {
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/nope",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/nope",
       ),
       { params: weekParams({ week: "nope" }) },
     );
@@ -284,7 +287,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   it("returns 400 for invalid year", async () => {
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/abc/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/abc/5",
       ),
       { params: weekParams({ year: "abc" }) },
     );
@@ -295,13 +298,13 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   });
 
   it("returns 404 when the week has no published rankings", async () => {
-    mockGetFinalRankingsForWeekAndYear.mockRejectedValue(
+    mockGetCachedFinalRankings.mockRejectedValue(
       new Error("Rankings not found"),
     );
 
     const res = await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
       ),
       { params: weekParams() },
     );
@@ -310,30 +313,41 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   });
 
   it("returns 500 when ranking lookup fails unexpectedly", async () => {
-    mockGetFinalRankingsForWeekAndYear.mockRejectedValue(
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    mockGetCachedFinalRankings.mockRejectedValue(
       new Error("connection refused"),
     );
 
-    const res = await getWeek(
-      new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
-        { headers: { "x-real-ip": "203.0.113.10" } },
-      ),
-      { params: weekParams() },
-    );
+    try {
+      const res = await getWeek(
+        new Request(
+          "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
+          { headers: { "x-real-ip": "203.0.113.10" } },
+        ),
+        { params: weekParams() },
+      );
 
-    expect(res.status).toBe(500);
-    await expect(res.json()).resolves.toEqual({
-      error: "Internal server error",
-    });
+      expect(res.status).toBe(500);
+      await expect(res.json()).resolves.toEqual({
+        error: "Internal server error",
+      });
+      expect(consoleError).toHaveBeenCalledWith(
+        "Rankings API error:",
+        expect.any(Error),
+      );
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it("rate-limits using x-forwarded-for when present", async () => {
-    mockGetFinalRankingsForWeekAndYear.mockResolvedValue(sampleRankings);
+    mockGetCachedFinalRankings.mockResolvedValue(sampleRankings);
 
     await getWeek(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
         { headers: { "x-forwarded-for": "198.51.100.1, 10.0.0.1" } },
       ),
       { params: weekParams() },
@@ -345,7 +359,7 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   it("returns 400 when only year is provided without week", async () => {
     const res = await handleRankingsApiGet(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
       ),
       {
         sport: "football",
@@ -361,11 +375,11 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
   });
 
   it("falls back to x-real-ip when x-forwarded-for is blank", async () => {
-    mockGetFinalRankingsForWeekAndYear.mockResolvedValue(sampleRankings);
+    mockGetCachedFinalRankings.mockResolvedValue(sampleRankings);
 
     await handleRankingsApiGet(
       new Request(
-        "https://www.redshirtsports.xyz/api/v1/college/football/rankings/fcs/2025/5",
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5",
         {
           headers: {
             "x-forwarded-for": " , ",

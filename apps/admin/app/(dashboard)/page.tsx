@@ -236,7 +236,7 @@ async function DashboardContent() {
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="font-medium">Public site</span>
                   <span className="text-muted-foreground text-sm">
-                    Open redshirtsports.xyz
+                    Open redshirtsports.com
                   </span>
                 </span>
                 <IconArrowRight className="text-muted-foreground size-4" />

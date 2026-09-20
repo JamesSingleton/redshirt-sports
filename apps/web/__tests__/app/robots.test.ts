@@ -1,5 +1,5 @@
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://redshirtsports.xyz",
+  getBaseUrl: () => "https://redshirtsports.com",
 }));
 
 import robots from "@/app/robots";
@@ -17,8 +17,8 @@ describe("robots", () => {
     );
     expect(result.sitemap).toEqual(
       expect.arrayContaining([
-        "https://redshirtsports.xyz/sitemap.xml",
-        "https://redshirtsports.xyz/college/sitemap.xml",
+        "https://redshirtsports.com/sitemap.xml",
+        "https://redshirtsports.com/college/sitemap.xml",
       ]),
     );
   });

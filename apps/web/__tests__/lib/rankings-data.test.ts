@@ -5,6 +5,7 @@ const {
   mockGetSchoolRankingHistory,
   mockSchoolHasPollRankings,
   mockGetRankedSchoolSanityIds,
+  mockGetLatestFinalRankings,
   mockGetLatestFinalRankingsBySportSlug,
 } = vi.hoisted(() => ({
   mockGetYearsThatHaveVotes: vi.fn(),
@@ -13,7 +14,13 @@ const {
   mockGetSchoolRankingHistory: vi.fn(),
   mockSchoolHasPollRankings: vi.fn(),
   mockGetRankedSchoolSanityIds: vi.fn(),
+  mockGetLatestFinalRankings: vi.fn(),
   mockGetLatestFinalRankingsBySportSlug: vi.fn(),
+}));
+
+vi.mock("next/cache", () => ({
+  cacheTag: vi.fn(),
+  cacheLife: vi.fn(),
 }));
 
 vi.mock("@redshirt-sports/db/queries", () => ({
@@ -23,11 +30,13 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   getSchoolRankingHistory: mockGetSchoolRankingHistory,
   schoolHasPollRankings: mockSchoolHasPollRankings,
   getRankedSchoolSanityIds: mockGetRankedSchoolSanityIds,
+  getLatestFinalRankings: mockGetLatestFinalRankings,
   getLatestFinalRankingsBySportSlug: mockGetLatestFinalRankingsBySportSlug,
 }));
 
 import {
   getCachedFinalRankings,
+  getCachedLatestFinalRankings,
   getCachedNavbarLatestRankings,
   getCachedRankedSchoolSanityIds,
   getCachedSchoolHasPollRankings,
@@ -110,5 +119,20 @@ describe("rankings-data", () => {
   it("getCachedRankedSchoolSanityIds delegates to db", async () => {
     mockGetRankedSchoolSanityIds.mockResolvedValue(["a", "b"]);
     await expect(getCachedRankedSchoolSanityIds()).resolves.toEqual(["a", "b"]);
+  });
+
+  it("getCachedLatestFinalRankings delegates to db", async () => {
+    mockGetLatestFinalRankings.mockResolvedValue({
+      division: "fcs",
+      week: 2,
+      year: 2026,
+    });
+    await expect(
+      getCachedLatestFinalRankings({ division: "fcs" }),
+    ).resolves.toEqual({
+      division: "fcs",
+      week: 2,
+      year: 2026,
+    });
   });
 });

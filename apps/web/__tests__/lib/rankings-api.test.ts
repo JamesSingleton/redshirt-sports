@@ -1,30 +1,33 @@
 vi.mock("@redshirt-sports/db/queries", () => ({
-  getFinalRankingsForWeekAndYear: vi.fn(),
-  getLatestFinalRankings: vi.fn(),
   getPollBySportSlugAndPollSlug: vi.fn(),
 }));
 
-vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://www.redshirtsports.xyz",
+vi.mock("@/lib/rankings-data", () => ({
+  getCachedFinalRankings: vi.fn(),
+  getCachedLatestFinalRankings: vi.fn(),
 }));
 
-import {
-  getFinalRankingsForWeekAndYear,
-  getLatestFinalRankings,
-  getPollBySportSlugAndPollSlug,
-} from "@redshirt-sports/db/queries";
+vi.mock("@/lib/get-base-url", () => ({
+  getBaseUrl: () => "https://www.redshirtsports.com",
+}));
+
+import { getPollBySportSlugAndPollSlug } from "@redshirt-sports/db/queries";
 
 import {
   buildSourceUrl,
   resolvePublicRankings,
   toPublicRankingsResponse,
 } from "@/lib/rankings-api";
+import {
+  getCachedFinalRankings,
+  getCachedLatestFinalRankings,
+} from "@/lib/rankings-data";
 import * as voteBallot from "@/lib/vote-ballot";
 
-const mockGetFinalRankingsForWeekAndYear = vi.mocked(
-  getFinalRankingsForWeekAndYear,
+const mockGetCachedFinalRankings = vi.mocked(getCachedFinalRankings);
+const mockGetCachedLatestFinalRankings = vi.mocked(
+  getCachedLatestFinalRankings,
 );
-const mockGetLatestFinalRankings = vi.mocked(getLatestFinalRankings);
 const mockGetPollBySportSlugAndPollSlug = vi.mocked(
   getPollBySportSlugAndPollSlug,
 );
@@ -35,7 +38,7 @@ describe("toPublicRankingsResponse", () => {
       sport: "football",
       division: "fcs",
       pollName: "FCS Top 25",
-      baseUrl: "https://www.redshirtsports.xyz",
+      baseUrl: "https://www.redshirtsports.com",
       data: {
         id: "poll:week",
         division: "fcs",
@@ -127,7 +130,7 @@ describe("toPublicRankingsResponse", () => {
       },
     ]);
     expect(body.sourceUrl).toBe(
-      "https://www.redshirtsports.xyz/college/football/rankings/fcs/2025/5",
+      "https://www.redshirtsports.com/college/football/rankings/fcs/2025/5",
     );
   });
 
@@ -136,7 +139,7 @@ describe("toPublicRankingsResponse", () => {
       sport: "football",
       division: "fcs",
       pollName: "FCS Top 25",
-      baseUrl: "https://www.redshirtsports.xyz",
+      baseUrl: "https://www.redshirtsports.com",
       data: {
         id: "poll:week",
         division: "fcs",
@@ -155,7 +158,7 @@ describe("toPublicRankingsResponse", () => {
       weekNumber: 1,
     });
     expect(body.sourceUrl).toBe(
-      "https://www.redshirtsports.xyz/college/football/rankings/fcs/2025/final-rankings",
+      "https://www.redshirtsports.com/college/football/rankings/fcs/2025/final-rankings",
     );
   });
 });
@@ -168,18 +171,18 @@ describe("buildSourceUrl", () => {
         division: "fcs",
         year: 2025,
         week: 0,
-        baseUrl: "https://www.redshirtsports.xyz",
+        baseUrl: "https://www.redshirtsports.com",
       }),
     ).toBe(
-      "https://www.redshirtsports.xyz/college/football/rankings/fcs/2025/0",
+      "https://www.redshirtsports.com/college/football/rankings/fcs/2025/0",
     );
   });
 });
 
 describe("resolvePublicRankings", () => {
   beforeEach(() => {
-    mockGetFinalRankingsForWeekAndYear.mockReset();
-    mockGetLatestFinalRankings.mockReset();
+    mockGetCachedFinalRankings.mockReset();
+    mockGetCachedLatestFinalRankings.mockReset();
     mockGetPollBySportSlugAndPollSlug.mockReset();
     vi.restoreAllMocks();
   });
@@ -212,7 +215,7 @@ describe("resolvePublicRankings", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    mockGetFinalRankingsForWeekAndYear.mockRejectedValue(
+    mockGetCachedFinalRankings.mockRejectedValue(
       "Unable to find season or week for rankings",
     );
 
@@ -241,7 +244,7 @@ describe("resolvePublicRankings", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    mockGetFinalRankingsForWeekAndYear.mockRejectedValue(
+    mockGetCachedFinalRankings.mockRejectedValue(
       new Error("Unable to find season or week for rankings"),
     );
 

@@ -26,7 +26,7 @@ export async function GET() {
     },
     author: {
       name: `${process.env.NEXT_PUBLIC_APP_NAME}`,
-      email: "contact@redshirtsports.xyz",
+      email: "contact@redshirtsports.com",
       link: baseUrl,
     },
   });
@@ -42,6 +42,9 @@ export async function GET() {
   });
 
   return new NextResponse(feed.rss2(), {
-    headers: { "Content-Type": "application/rss+xml; charset=utf-8" },
+    headers: {
+      "Content-Type": "application/rss+xml; charset=utf-8",
+      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+    },
   });
 }

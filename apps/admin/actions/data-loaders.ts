@@ -37,7 +37,7 @@ import type {
   SportInfoQueryResult,
   SubdivisionsQueryResult,
 } from "@redshirt-sports/sanity/types";
-import { inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 import { requireAdmin } from "@/lib/require-admin";
 
@@ -163,9 +163,10 @@ export async function fetchAndLoadSeasons(
       }));
 
       if (mappedWeeks.length) {
-        const existingWeeks = await db.query.weeksTable.findMany({
-          where: (model, { eq }) => eq(model.seasonTypeId, dbSeasonType.id),
-        });
+        const existingWeeks = await db
+          .select({ id: weeksTable.id })
+          .from(weeksTable)
+          .where(eq(weeksTable.seasonTypeId, dbSeasonType.id));
 
         if (existingWeeks.length) {
           console.log("Existing weeks found. Skipping load of weeks.");
@@ -183,13 +184,16 @@ export async function fetchAndLoadSeasons(
 
 async function findOrCreateSeasonType(seasonType: InsertSeasonType) {
   try {
-    let dbSeasonType = await db.query.seasonTypesTable.findFirst({
-      where: (model, { eq, and }) =>
+    let [dbSeasonType] = await db
+      .select()
+      .from(seasonTypesTable)
+      .where(
         and(
-          eq(model.type, seasonType.type),
-          eq(model.seasonId, seasonType.seasonId),
+          eq(seasonTypesTable.type, seasonType.type),
+          eq(seasonTypesTable.seasonId, seasonType.seasonId),
         ),
-    });
+      )
+      .limit(1);
     if (!dbSeasonType) {
       const insertedSeasonType = await db
         .insert(seasonTypesTable)
@@ -205,10 +209,16 @@ async function findOrCreateSeasonType(seasonType: InsertSeasonType) {
 
 async function findOrCreateSeason(season: InsertSeason) {
   try {
-    let dbSeason = await db.query.seasonsTable.findFirst({
-      where: (model, { eq, and }) =>
-        and(eq(model.year, season.year), eq(model.sportId, season.sportId)),
-    });
+    let [dbSeason] = await db
+      .select()
+      .from(seasonsTable)
+      .where(
+        and(
+          eq(seasonsTable.year, season.year),
+          eq(seasonsTable.sportId, season.sportId),
+        ),
+      )
+      .limit(1);
     if (!dbSeason) {
       const insertedSeason = await db
         .insert(seasonsTable)
@@ -223,9 +233,11 @@ async function findOrCreateSeason(season: InsertSeason) {
 }
 
 async function sportBySlug(slug: string) {
-  const dbSport = await db.query.sportsTable.findFirst({
-    where: (model, { eq }) => eq(model.slug, slug),
-  });
+  const [dbSport] = await db
+    .select()
+    .from(sportsTable)
+    .where(eq(sportsTable.slug, slug))
+    .limit(1);
 
   if (!dbSport) {
     throw new Error(
@@ -312,13 +324,13 @@ export async function fetchAndLoadSchools() {
   return runLoader("schools", async () => {
     await requireAdmin();
 
-    const sports = await db.query.sportsTable.findMany();
+    const sports = await db.select().from(sportsTable);
     if (!sports.length) {
       throw new Error(
         "No sports found. Sports must be loaded prior to schools.",
       );
     }
-    const conferences = await db.query.conferencesTable.findMany();
+    const conferences = await db.select().from(conferencesTable);
     if (!conferences.length) {
       throw new Error(
         "No conferences found. Conferences must be loaded prior to schools.",
@@ -435,13 +447,13 @@ export async function fetchAndLoadConferences() {
   return runLoader("conferences", async () => {
     await requireAdmin();
 
-    const sports = await db.query.sportsTable.findMany();
+    const sports = await db.select().from(sportsTable);
     if (!sports.length) {
       throw new Error(
         "No sports found. Sports must be loaded prior to conferences.",
       );
     }
-    const divisions = await db.query.divisionsTable.findMany();
+    const divisions = await db.select().from(divisionsTable);
     if (!divisions.length) {
       throw new Error(
         "No divisions found. Divisions must be loaded prior to conferences.",
@@ -454,9 +466,11 @@ export async function fetchAndLoadConferences() {
     const mappedConferences = [];
 
     for (const conference of data as ConferencesQueryResult) {
-      const existingConference = await db.query.conferencesTable.findFirst({
-        where: (model, { eq }) => eq(model.sanityId, conference._id),
-      });
+      const [existingConference] = await db
+        .select({ id: conferencesTable.id })
+        .from(conferencesTable)
+        .where(eq(conferencesTable.sanityId, conference._id))
+        .limit(1);
 
       if (existingConference) {
         continue;
@@ -528,14 +542,14 @@ export async function fetchAndLoadSubdivisions() {
   return runLoader("subdivisions", async () => {
     await requireAdmin();
 
-    const sports = await db.query.sportsTable.findMany();
+    const sports = await db.select().from(sportsTable);
     if (!sports.length) {
       throw new Error(
         "No sports found. Sports must be loaded prior to subdivisions.",
       );
     }
 
-    const divisions = await db.query.divisionsTable.findMany();
+    const divisions = await db.select().from(divisionsTable);
     if (!divisions.length) {
       throw new Error(
         "No divisions found. Divisions must be loaded prior to subdivisions.",
@@ -565,7 +579,7 @@ export async function fetchAndLoadSubdivisions() {
         longName: d.name,
         sanityId: d._id,
         slug: d.slug,
-        isSubdivision: "true",
+        isSubdivision: true,
       };
     });
 

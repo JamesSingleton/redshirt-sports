@@ -11,7 +11,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://redshirtsports.xyz",
+  getBaseUrl: () => "https://redshirtsports.com",
 }));
 
 describe("college rankings sitemap", () => {
@@ -33,9 +33,9 @@ describe("college rankings sitemap", () => {
     const entries = await sitemap();
 
     expect(entries.map((e) => e.url)).toEqual([
-      "https://redshirtsports.xyz/college/football/rankings/fbs/2025/0",
-      "https://redshirtsports.xyz/college/football/rankings/fcs/2025/3",
-      "https://redshirtsports.xyz/college/football/rankings/d2/2024/final-rankings",
+      "https://redshirtsports.com/college/football/rankings/fbs/2025/0",
+      "https://redshirtsports.com/college/football/rankings/fcs/2025/3",
+      "https://redshirtsports.com/college/football/rankings/d2/2024/final-rankings",
     ]);
   });
 });

@@ -14,16 +14,19 @@
     "./queries": "./src/queries.ts",
     "./types": "./src/types.ts",
     "./token": "./src/token.ts",
-    "./image": "./src/image.ts"
+    "./image": "./src/image.ts",
+    "./keys": "./keys.ts"
   },
   "dependencies": {
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/client": "catalog:",
     "@sanity/image-url": "^2.1.1",
+    "@t3-oss/env-nextjs": "^0.13.11",
     "next-sanity": "catalog:",
     "sanity": "catalog:",
     "sanity-image": "^1.1.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",

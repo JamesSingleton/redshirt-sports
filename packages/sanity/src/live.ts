@@ -1,5 +1,5 @@
 import { cookies, draftMode } from "next/headers";
-import type { QueryParams } from "next-sanity";
+import type { ClientReturn, QueryParams } from "next-sanity";
 import {
   defineLive,
   type LivePerspective,
@@ -28,6 +28,12 @@ export type DynamicFetchOptions = {
   stega: boolean;
 };
 
+/** Static published options — safe for `generateMetadata` (no draftMode/cookies). */
+export const PUBLISHED_FETCH_OPTIONS = {
+  perspective: "published",
+  stega: false,
+} as const satisfies DynamicFetchOptions;
+
 /** Resolves perspective/stega outside any `'use cache'` boundary (reads draftMode/cookies). */
 export async function getDynamicFetchOptions(): Promise<DynamicFetchOptions> {
   const { isEnabled: isDraftMode } = await draftMode();
@@ -43,7 +49,13 @@ export async function getDynamicFetchOptions(): Promise<DynamicFetchOptions> {
 /** For usage within `generateStaticParams` only. */
 export async function sanityFetchStaticParams<
   const QueryString extends string,
->({ query, params = {} }: { query: QueryString; params?: QueryParams }) {
+>({
+  query,
+  params = {},
+}: {
+  query: QueryString;
+  params?: QueryParams;
+}): Promise<{ data: ClientReturn<QueryString, unknown> }> {
   "use cache";
   const { data } = await sanityFetch({
     query,
@@ -63,7 +75,7 @@ export async function sanityFetchMetadata<const QueryString extends string>({
   query: QueryString;
   params?: QueryParams;
   perspective: LivePerspective;
-}) {
+}): Promise<{ data: ClientReturn<QueryString, unknown> }> {
   "use cache";
   const { data } = await sanityFetch({
     query,

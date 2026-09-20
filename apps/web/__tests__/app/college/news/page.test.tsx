@@ -27,6 +27,10 @@ vi.mock("@/lib/sanity-fetch", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
+  PUBLISHED_FETCH_OPTIONS: {
+    perspective: "published",
+    stega: false,
+  },
   getDynamicFetchOptions: mockGetDynamicFetchOptions,
 }));
 
@@ -35,7 +39,7 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://redshirtsports.xyz",
+  getBaseUrl: () => "https://redshirtsports.com",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({

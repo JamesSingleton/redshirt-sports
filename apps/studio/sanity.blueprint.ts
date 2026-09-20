@@ -63,7 +63,7 @@ export default defineBlueprint({
         on: ["create", "update"],
         filter: "_type == 'school'",
         projection:
-          "{_id, name, shortName, abbreviation, nickname, image, 'slug': slug.current, top25Eligible}",
+          "{_id, name, shortName, abbreviation, nickname, image, 'slug': slug.current, top25VotingEligible}",
       },
     }),
     defineSyncTagInvalidateFunction({

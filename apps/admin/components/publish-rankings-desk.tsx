@@ -10,7 +10,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@redshirt-sports/ui/components/alert-dialog";
-import { Badge } from "@redshirt-sports/ui/components/badge";
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Select,
@@ -35,12 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from "@redshirt-sports/ui/components/table";
-import {
-  IconCopy,
-  IconMail,
-  IconRefresh,
-  IconRocket,
-} from "@tabler/icons-react";
+import { IconRefresh, IconRocket, IconTrash } from "@tabler/icons-react";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -51,7 +45,9 @@ import {
   previewRankingsPublish,
   publishRankings,
   reassignVoterBallotWeek,
+  unpublishRankings,
 } from "@/actions/publish-rankings";
+import { BallotInboxVoter } from "@/components/ballot-inbox-voter";
 import { buildNudgeMessage } from "@/lib/nudge";
 
 type PollOption = {
@@ -81,6 +77,7 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
   const [preview, setPreview] = useState<Preview | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [unpublishOpen, setUnpublishOpen] = useState(false);
   const [reassignTargetByUser, setReassignTargetByUser] = useState<
     Record<string, string>
   >({});
@@ -190,6 +187,37 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Failed to publish",
+        );
+      }
+    });
+  }
+
+  function runUnpublish() {
+    if (!selectedPoll || year == null || !weekKey) return;
+    startPending(async () => {
+      try {
+        const result = await unpublishRankings({
+          sportSlug: selectedPoll.sportSlug,
+          division: selectedPoll.slug,
+          year,
+          weekKey,
+        });
+        toast.success(
+          result.votersCanEdit
+            ? "Rankings unpublished. Voters can edit ballots again."
+            : "Rankings unpublished. Ballot edits stay closed unless this is the current voting week.",
+        );
+        setUnpublishOpen(false);
+        const next = await previewRankingsPublish({
+          sportSlug: selectedPoll.sportSlug,
+          division: selectedPoll.slug,
+          year,
+          weekKey,
+        });
+        setPreview(next);
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to unpublish",
         );
       }
     });
@@ -406,91 +434,25 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
             ) : (
               <ul className="divide-y">
                 {preview.panel.map((voter) => (
-                  <li key={voter.userId}>
-                    <div className="flex flex-wrap items-center gap-3 px-5 py-3">
-                      <button
-                        type="button"
-                        className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                        onClick={() => voter.submitted && setSheetVoter(voter)}
-                        disabled={!voter.submitted}
-                      >
-                        <div className="flex min-w-0 flex-col">
-                          <span className="truncate font-medium">
-                            {voter.firstName} {voter.lastName}
-                          </span>
-                          <span className="text-muted-foreground truncate text-sm">
-                            {voter.organization ?? "No organization"}
-                          </span>
-                        </div>
-                      </button>
-                      {voter.submitted ? (
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Badge variant="outline">Submitted</Badge>
-                          {otherWeeks.length > 0 ? (
-                            <>
-                              <Select
-                                value={reassignTargetByUser[voter.userId] ?? ""}
-                                onValueChange={(value) =>
-                                  setReassignTargetByUser((prev) => ({
-                                    ...prev,
-                                    [voter.userId]: value,
-                                  }))
-                                }
-                              >
-                                <SelectTrigger className="min-w-36" size="sm">
-                                  <SelectValue placeholder="Move to…" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    {otherWeeks.map((w) => (
-                                      <SelectItem
-                                        key={w.weekKey}
-                                        value={w.weekKey}
-                                      >
-                                        {w.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => reassignBallot(voter)}
-                                disabled={
-                                  pending || !reassignTargetByUser[voter.userId]
-                                }
-                              >
-                                Move ballot
-                              </Button>
-                            </>
-                          ) : null}
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary">Missing</Badge>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyNudge(voter)}
-                            disabled={pending}
-                          >
-                            <IconCopy data-icon="inline-start" />
-                            Copy nudge
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => emailNudge(voter)}
-                            disabled={pending}
-                          >
-                            <IconMail data-icon="inline-start" />
-                            Email
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </li>
+                  <BallotInboxVoter
+                    key={voter.userId}
+                    voter={voter}
+                    otherWeeks={otherWeeks}
+                    reassignTarget={reassignTargetByUser[voter.userId] ?? ""}
+                    onReassignTargetChange={(value) =>
+                      setReassignTargetByUser((prev) => ({
+                        ...prev,
+                        [voter.userId]: value,
+                      }))
+                    }
+                    onReassign={() => reassignBallot(voter)}
+                    onCopyNudge={() => copyNudge(voter)}
+                    onEmailNudge={() => emailNudge(voter)}
+                    onViewBallot={
+                      voter.submitted ? () => setSheetVoter(voter) : undefined
+                    }
+                    pending={pending}
+                  />
                 ))}
               </ul>
             )}
@@ -507,13 +469,25 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
                   {orvCount > 0 ? ` · ${orvCount} receiving votes` : ""}
                 </p>
               </div>
-              <Button
-                onClick={() => setConfirmOpen(true)}
-                disabled={pending || preview.ballotCount === 0}
-              >
-                <IconRocket data-icon="inline-start" />
-                {preview.alreadyPublished ? "Re-publish" : "Publish rankings"}
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                {preview.alreadyPublished ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => setUnpublishOpen(true)}
+                    disabled={pending}
+                  >
+                    <IconTrash data-icon="inline-start" />
+                    Unpublish
+                  </Button>
+                ) : null}
+                <Button
+                  onClick={() => setConfirmOpen(true)}
+                  disabled={pending || preview.ballotCount === 0}
+                >
+                  <IconRocket data-icon="inline-start" />
+                  {preview.alreadyPublished ? "Re-publish" : "Publish rankings"}
+                </Button>
+              </div>
             </div>
             {preview.ballotCount === 0 ? (
               <p className="text-muted-foreground px-5 py-8 text-sm">
@@ -581,6 +555,25 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={runPublish} disabled={pending}>
               {preview?.alreadyPublished ? "Re-publish" : "Publish"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={unpublishOpen} onOpenChange={setUnpublishOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unpublish rankings?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes published rankings for {selectedPoll?.name} · {year}{" "}
+              · {selectedWeek?.label ?? "selected week"}. Ballots stay in place
+              and voters can edit again only if this is the current voting week.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={runUnpublish} disabled={pending}>
+              Unpublish
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

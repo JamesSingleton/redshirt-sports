@@ -6,11 +6,11 @@ import {
 } from "@/lib/link-check-url";
 
 describe("resolveLinkCheckTarget", () => {
-  const requestUrl = new URL("https://www.redshirtsports.xyz/api/link-check");
+  const requestUrl = new URL("https://www.redshirtsports.com/api/link-check");
 
   it("resolves relative paths against the site origin", () => {
     expect(resolveLinkCheckTarget("/about", requestUrl)?.toString()).toBe(
-      "https://www.redshirtsports.xyz/about",
+      "https://www.redshirtsports.com/about",
     );
   });
 

@@ -15,7 +15,7 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://redshirtsports.xyz",
+  getBaseUrl: () => "https://redshirtsports.com",
 }));
 
 vi.mock("@/lib/rankings-data", () => ({
@@ -45,13 +45,13 @@ describe("teams sitemap", () => {
     expect(urls).toEqual(
       expect.arrayContaining([
         {
-          url: "https://redshirtsports.xyz/college/teams/alabama",
+          url: "https://redshirtsports.com/college/teams/alabama",
           lastModified: new Date("2026-01-01T00:00:00Z"),
           changeFrequency: "weekly",
           priority: 0.5,
         },
         {
-          url: "https://redshirtsports.xyz/college/teams/georgia",
+          url: "https://redshirtsports.com/college/teams/georgia",
           lastModified: new Date("2026-02-01T00:00:00Z"),
           changeFrequency: "weekly",
           priority: 0.5,
@@ -84,7 +84,7 @@ describe("teams sitemap", () => {
     const urls = await teamsSitemap();
     expect(urls).toEqual([
       {
-        url: "https://redshirtsports.xyz/college/teams/alabama",
+        url: "https://redshirtsports.com/college/teams/alabama",
         lastModified: new Date("2026-03-01T00:00:00Z"),
         changeFrequency: "weekly",
         priority: 0.5,
@@ -111,7 +111,7 @@ describe("teams sitemap", () => {
     const urls = await teamsSitemap();
     expect(urls).toEqual([
       {
-        url: "https://redshirtsports.xyz/college/teams/alabama",
+        url: "https://redshirtsports.com/college/teams/alabama",
         lastModified: new Date("2026-01-01T00:00:00Z"),
         changeFrequency: "weekly",
         priority: 0.5,
@@ -132,7 +132,7 @@ describe("teams sitemap", () => {
     const urls = await teamsSitemap();
     expect(urls).toEqual([
       {
-        url: "https://redshirtsports.xyz/college/teams/alabama",
+        url: "https://redshirtsports.com/college/teams/alabama",
         lastModified: new Date("2026-03-01T00:00:00Z"),
         changeFrequency: "weekly",
         priority: 0.5,

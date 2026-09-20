@@ -127,6 +127,41 @@
       "when": 1786225187705,
       "tag": "0017_schools_slug",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1788903872472,
+      "tag": "0018_poll_week_fk_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1788919854556,
+      "tag": "0019_fk_indexes_and_poll_covers",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1788920000000,
+      "tag": "0020_lock_down_data_api",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1789428000000,
+      "tag": "0021_strip_school_image_preview",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1789445036122,
+      "tag": "0022_postgres_patterns",
+      "breakpoints": true
     }
   ]
 }
