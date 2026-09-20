@@ -14,6 +14,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio --verbose",
     "db:push": "drizzle-kit push"
+    "db:seed:users-with-ballots": "tsx seeds/users-with-ballots.ts"
   },
   "exports": {
     "./client": "./src/client.ts",
@@ -37,8 +38,11 @@
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
     "@types/node": "catalog:",
+    "dotenv": "^17.4.2",
     "drizzle-kit": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+    "tsx": "^4.23.12",
+    "typescript": "catalog:"
   }
 }
