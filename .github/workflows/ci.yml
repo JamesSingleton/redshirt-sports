@@ -35,10 +35,12 @@ jobs:
         run: pnpm lint
 
       - name: Test
-        run: pnpm test
+        # --continue lets apps/web finish and write coverage even if another
+        # workspace fails, so the report step below has files to read.
+        run: pnpm exec turbo run test --continue
 
       - name: Report coverage
-        if: always()
+        if: always() && hashFiles('apps/web/coverage/coverage-summary.json') != ''
         uses: davelosert/vitest-coverage-report-action@v2
         with:
           name: apps/web

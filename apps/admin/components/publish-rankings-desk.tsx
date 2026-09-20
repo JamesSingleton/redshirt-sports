@@ -21,6 +21,13 @@ import {
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@redshirt-sports/ui/components/sheet";
+import {
   Table,
   TableBody,
   TableCell,
@@ -75,6 +82,9 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
   const [reassignTargetByUser, setReassignTargetByUser] = useState<
     Record<string, string>
   >({});
+  const [sheetVoter, setSheetVoter] = useState<Preview["panel"][number] | null>(
+    null,
+  );
   const [pending, startPending] = useTransition();
 
   const selectedPoll = useMemo(
@@ -137,21 +147,27 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
 
   function loadPreview() {
     if (!selectedPoll || year == null || !weekKey) return;
-    startPending(async () => {
-      try {
-        const next = await previewRankingsPublish({
-          sportSlug: selectedPoll.sportSlug,
-          division: selectedPoll.slug,
-          year,
-          weekKey,
+
+    const params = {
+      sportSlug: selectedPoll.sportSlug,
+      division: selectedPoll.slug,
+      year,
+      weekKey,
+    };
+
+    // Await outside the transition — async work inside startTransition can
+    // drop the post-await setState under concurrent rendering (flaky in CI).
+    void previewRankingsPublish(params)
+      .then((next) => {
+        startPending(() => {
+          setPreview(next);
         });
-        setPreview(next);
-      } catch (error) {
+      })
+      .catch((error: unknown) => {
         toast.error(
           error instanceof Error ? error.message : "Failed to load week",
         );
-      }
-    });
+      });
   }
 
   function runPublish() {
@@ -439,6 +455,9 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
                     onReassign={() => reassignBallot(voter)}
                     onCopyNudge={() => copyNudge(voter)}
                     onEmailNudge={() => emailNudge(voter)}
+                    onViewBallot={
+                      voter.submitted ? () => setSheetVoter(voter) : undefined
+                    }
                     pending={pending}
                   />
                 ))}
@@ -547,6 +566,7 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
       <AlertDialog open={unpublishOpen} onOpenChange={setUnpublishOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -565,6 +585,60 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Sheet
+        open={sheetVoter != null}
+        onOpenChange={(open) => !open && setSheetVoter(null)}
+      >
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
+              {sheetVoter
+                ? `${sheetVoter.firstName} ${sheetVoter.lastName}`
+                : "Ballot"}
+            </SheetTitle>
+            <SheetDescription>
+              {sheetVoter?.organization ?? "No organization"} ·{" "}
+              {selectedPoll?.name ?? "Poll"} ·{" "}
+              {selectedWeek?.label ?? "selected week"}
+            </SheetDescription>
+          </SheetHeader>
+          {sheetVoter && sheetVoter.ballotEntries.length === 0 ? (
+            <p className="text-muted-foreground px-4 text-sm">
+              No ballot entries found.
+            </p>
+          ) : (
+            sheetVoter && (
+              <div className="px-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">#</TableHead>
+                      <TableHead>School</TableHead>
+                      <TableHead className="w-16 text-right">Pts</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sheetVoter.ballotEntries.map((entry) => (
+                      <TableRow key={entry.schoolId}>
+                        <TableCell className="font-medium">
+                          {entry.rank}
+                        </TableCell>
+                        <TableCell>
+                          {entry.shortName ?? entry.abbreviation ?? entry.name}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {entry.points}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
