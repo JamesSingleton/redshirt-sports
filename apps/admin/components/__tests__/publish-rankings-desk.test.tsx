@@ -131,7 +131,15 @@ describe("PublishRankingsDesk", () => {
     const loadButton = await screen.findByRole("button", {
       name: /load week/i,
     });
+    await waitFor(() => {
+      expect(loadButton).toBeEnabled();
+    });
+
+    mocks.preview.mockClear();
     await user.click(loadButton);
+    await waitFor(() => {
+      expect(mocks.preview).toHaveBeenCalled();
+    });
     await screen.findByRole("heading", { name: /ballot inbox/i });
 
     return user;

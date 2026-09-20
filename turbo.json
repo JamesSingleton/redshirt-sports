@@ -68,8 +68,7 @@
       "dependsOn": ["transit"]
     },
     "test": {
-      "dependsOn": ["transit"],
-      "outputs": ["coverage/**"]
+      "dependsOn": ["transit"]
     },
     "dev": {
       "cache": false,

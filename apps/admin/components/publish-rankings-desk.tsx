@@ -147,21 +147,27 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
 
   function loadPreview() {
     if (!selectedPoll || year == null || !weekKey) return;
-    startPending(async () => {
-      try {
-        const next = await previewRankingsPublish({
-          sportSlug: selectedPoll.sportSlug,
-          division: selectedPoll.slug,
-          year,
-          weekKey,
+
+    const params = {
+      sportSlug: selectedPoll.sportSlug,
+      division: selectedPoll.slug,
+      year,
+      weekKey,
+    };
+
+    // Await outside the transition — async work inside startTransition can
+    // drop the post-await setState under concurrent rendering (flaky in CI).
+    void previewRankingsPublish(params)
+      .then((next) => {
+        startPending(() => {
+          setPreview(next);
         });
-        setPreview(next);
-      } catch (error) {
+      })
+      .catch((error: unknown) => {
         toast.error(
           error instanceof Error ? error.message : "Failed to load week",
         );
-      }
-    });
+      });
   }
 
   function runPublish() {
