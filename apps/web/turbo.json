@@ -70,7 +70,8 @@
         "DATABASE_URL",
         "NEXT_PUBLIC_POSTHOG_KEY",
         "NEXT_PUBLIC_POSTHOG_HOST"
-      ]
+      ],
+      "outputs": ["coverage/**"]
     }
   }
 }

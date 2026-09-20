@@ -52,6 +52,7 @@ export function BallotInboxVoter({
   onReassign,
   onCopyNudge,
   onEmailNudge,
+  onViewBallot,
   pending,
 }: {
   voter: InboxVoter;
@@ -61,6 +62,7 @@ export function BallotInboxVoter({
   onReassign: () => void;
   onCopyNudge: () => void;
   onEmailNudge: () => void;
+  onViewBallot?: () => void;
   pending: boolean;
 }) {
   const isMobile = useIsMobile();
@@ -69,36 +71,50 @@ export function BallotInboxVoter({
   const organization = voter.organization ?? "No organization";
 
   const actions = voter.submitted ? (
-    otherWeeks.length > 0 ? (
-      <div className="flex flex-col gap-3">
-        <Select value={reassignTarget} onValueChange={onReassignTargetChange}>
-          <SelectTrigger className="w-full" size="sm">
-            <SelectValue placeholder="Move to…" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {otherWeeks.map((week) => (
-                <SelectItem key={week.weekKey} value={week.weekKey}>
-                  {week.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+    <div className="flex flex-col gap-3">
+      {onViewBallot ? (
         <Button
           size="sm"
           variant="outline"
-          onClick={onReassign}
-          disabled={pending || !reassignTarget}
+          onClick={() => {
+            setOpen(false);
+            onViewBallot();
+          }}
         >
-          Move ballot
+          View ballot
         </Button>
-      </div>
-    ) : (
-      <p className="text-muted-foreground text-sm">
-        No other weeks available to move this ballot.
-      </p>
-    )
+      ) : null}
+      {otherWeeks.length > 0 ? (
+        <>
+          <Select value={reassignTarget} onValueChange={onReassignTargetChange}>
+            <SelectTrigger className="w-full" size="sm">
+              <SelectValue placeholder="Move to…" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {otherWeeks.map((week) => (
+                  <SelectItem key={week.weekKey} value={week.weekKey}>
+                    {week.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onReassign}
+            disabled={pending || !reassignTarget}
+          >
+            Move ballot
+          </Button>
+        </>
+      ) : (
+        <p className="text-muted-foreground text-sm">
+          No other weeks available to move this ballot.
+        </p>
+      )}
+    </div>
   ) : (
     <div className="flex flex-col gap-2">
       <Button
@@ -128,14 +144,28 @@ export function BallotInboxVoter({
     </Button>
   );
 
+  const identity = (
+    <>
+      <span className="truncate font-medium">{name}</span>
+      <span className="text-muted-foreground truncate text-sm">
+        {organization}
+      </span>
+    </>
+  );
+
   return (
     <li className="flex items-center gap-3 px-5 py-3">
-      <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate font-medium">{name}</span>
-        <span className="text-muted-foreground truncate text-sm">
-          {organization}
-        </span>
-      </div>
+      {voter.submitted && onViewBallot ? (
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 flex-col text-left"
+          onClick={onViewBallot}
+        >
+          {identity}
+        </button>
+      ) : (
+        <div className="flex min-w-0 flex-1 flex-col">{identity}</div>
+      )}
       <Badge variant={voter.submitted ? "outline" : "secondary"}>
         {voter.submitted ? "Submitted" : "Missing"}
       </Badge>

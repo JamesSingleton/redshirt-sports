@@ -116,6 +116,29 @@ describe("BallotInboxVoter", () => {
     expect(onReassign).toHaveBeenCalled();
   });
 
+  it("invokes onViewBallot when submitted voter name is clicked", async () => {
+    const user = userEvent.setup();
+    const onViewBallot = vi.fn();
+    render(
+      <ul>
+        <BallotInboxVoter
+          voter={submittedVoter}
+          otherWeeks={[]}
+          reassignTarget=""
+          onReassignTargetChange={vi.fn()}
+          onReassign={vi.fn()}
+          onCopyNudge={vi.fn()}
+          onEmailNudge={vi.fn()}
+          onViewBallot={onViewBallot}
+          pending={false}
+        />
+      </ul>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /Pat Voter/i }));
+    expect(onViewBallot).toHaveBeenCalled();
+  });
+
   it("shows nudge actions for missing voters", async () => {
     const user = userEvent.setup();
     const onCopyNudge = vi.fn();
