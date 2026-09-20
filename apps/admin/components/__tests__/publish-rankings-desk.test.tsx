@@ -77,7 +77,13 @@ const mocks = vi.hoisted(() => ({
   weeks: vi.fn(),
   preview: vi.fn(),
   publish: vi.fn(),
+  unpublish: vi.fn(),
   mailto: vi.fn(),
+  useIsMobile: vi.fn(() => false),
+}));
+
+vi.mock("@/hooks/use-mobile", () => ({
+  useIsMobile: mocks.useIsMobile,
 }));
 
 vi.mock("@/actions/publish-rankings", () => ({
@@ -85,6 +91,7 @@ vi.mock("@/actions/publish-rankings", () => ({
   getWeeksForPollSportYear: mocks.weeks,
   previewRankingsPublish: mocks.preview,
   publishRankings: mocks.publish,
+  unpublishRankings: mocks.unpublish,
   getVoterNudgeMailto: mocks.mailto,
   reassignVoterBallotWeek: vi.fn(async () => undefined),
 }));
@@ -99,6 +106,7 @@ vi.mock("sonner", () => ({
 describe("PublishRankingsDesk", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.useIsMobile.mockReturnValue(false);
     mocks.years.mockResolvedValue([2025]);
     mocks.weeks.mockResolvedValue([
       {
@@ -111,6 +119,7 @@ describe("PublishRankingsDesk", () => {
     ]);
     mocks.preview.mockResolvedValue(PREVIEW);
     mocks.publish.mockResolvedValue({ teams: 1, ballots: 3 });
+    mocks.unpublish.mockResolvedValue({ votersCanEdit: false });
     mocks.mailto.mockResolvedValue({ mailto: "mailto:test" });
   });
 
@@ -118,7 +127,10 @@ describe("PublishRankingsDesk", () => {
     const user = userEvent.setup();
     render(<PublishRankingsDesk polls={polls} />);
 
-    const loadButton = await screen.findByRole("button", { name: /load week/i });
+    await screen.findByText("Week 3");
+    const loadButton = await screen.findByRole("button", {
+      name: /load week/i,
+    });
     await user.click(loadButton);
     await screen.findByRole("heading", { name: /ballot inbox/i });
 
@@ -127,7 +139,7 @@ describe("PublishRankingsDesk", () => {
 
   async function openSubmittedBallot() {
     const user = await renderWithLoadedWeek();
-    await user.click(screen.getByText(/marcus thompson/i));
+    await user.click(screen.getByRole("button", { name: /marcus thompson/i }));
     await screen.findByRole("heading", { name: /marcus thompson/i });
     return user;
   }
@@ -157,20 +169,16 @@ describe("PublishRankingsDesk", () => {
     expect(rows).toHaveLength(1);
   });
 
-  it("does not open a sheet for a missing voter", async () => {
-    const user = await renderWithLoadedWeek();
+  it("does not make missing voter names open a ballot sheet", async () => {
+    await renderWithLoadedWeek();
 
-    const missingVoterButton = screen.getByRole("button", {
-      name: /taylor reed/i,
-    });
-    expect(missingVoterButton).toBeDisabled();
-    await user.click(missingVoterButton);
-
-    await waitFor(() => {
-      expect(
-        screen.queryByRole("heading", { name: /taylor reed/i }),
-      ).not.toBeInTheDocument();
-    });
+    expect(
+      screen.queryByRole("button", { name: /taylor reed/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/taylor reed/i)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: /taylor reed/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("closes the sheet when the close button is clicked", async () => {
