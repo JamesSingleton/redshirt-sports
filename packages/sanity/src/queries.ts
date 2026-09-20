@@ -242,6 +242,27 @@ const richTextFragment = /* groq */ `
       ...,
       ${imageMetadataProjection}
     },
+    _type == "table" => {
+      ...,
+      rows[]{
+        _key,
+        _type,
+        "cells": select(
+          _type == "row" => cells[]{
+            _key,
+            _type,
+            value[]{
+              ...,
+              _type == "block" => {
+                ...,
+                ${markDefsFragment}
+              }
+            }
+          },
+          cells
+        )
+      }
+    },
   }
 `;
 
