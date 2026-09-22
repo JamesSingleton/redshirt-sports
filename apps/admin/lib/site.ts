@@ -16,3 +16,16 @@ export function resolvePublicSiteUrl(
     ? raw
     : `https://${raw}`;
 }
+
+export function publicSiteLabel(
+  configured: string | undefined = process.env.NEXT_PUBLIC_SITE_URL,
+): string {
+  try {
+    return new URL(resolvePublicSiteUrl(configured)).hostname.replace(
+      /^www\./,
+      "",
+    );
+  } catch {
+    return resolvePublicSiteUrl(configured);
+  }
+}

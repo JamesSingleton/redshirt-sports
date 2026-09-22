@@ -7,6 +7,12 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   upsertSchoolFromSanity: mockUpsertSchool,
 }));
 
+vi.mock("@/env", () => ({
+  env: {
+    SCHOOL_SYNC_SECRET: "school_sync_secret",
+  },
+}));
+
 vi.mock("next/cache", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/cache")>();
   return {
@@ -40,10 +46,7 @@ const validPayload = {
 };
 
 describe("POST /api/webhooks/sanity/school", () => {
-  const originalSecret = process.env.SCHOOL_SYNC_SECRET;
-
   beforeEach(() => {
-    process.env.SCHOOL_SYNC_SECRET = "school_sync_secret";
     mockUpsertSchool.mockReset().mockResolvedValue({
       action: "updated",
       id: "db-school-1",
@@ -51,27 +54,32 @@ describe("POST /api/webhooks/sanity/school", () => {
     mockRevalidateTag.mockReset();
   });
 
-  afterEach(() => {
-    process.env.SCHOOL_SYNC_SECRET = originalSecret;
-  });
-
-  it("returns 500 when SCHOOL_SYNC_SECRET is not configured", async () => {
-    delete process.env.SCHOOL_SYNC_SECRET;
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/sanity/school", {
-        method: "POST",
-        headers: { Authorization: "Bearer school_sync_secret" },
-        body: JSON.stringify(validPayload),
-      }),
-    );
-    expect(res.status).toBe(500);
-  });
-
   it("returns 401 for missing or wrong bearer token", async () => {
     const res = await POST(
       new Request("http://localhost/api/webhooks/sanity/school", {
         method: "POST",
         headers: { Authorization: "Bearer wrong" },
+        body: JSON.stringify(validPayload),
+      }),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 401 when authorization is not a bearer token", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/sanity/school", {
+        method: "POST",
+        headers: { Authorization: "Basic school_sync_secret" },
+        body: JSON.stringify(validPayload),
+      }),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 401 when authorization header is missing", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/sanity/school", {
+        method: "POST",
         body: JSON.stringify(validPayload),
       }),
     );

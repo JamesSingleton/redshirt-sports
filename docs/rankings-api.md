@@ -2,7 +2,7 @@
 
 Machine-readable Top 25 poll data for external consumers (news sites, conference offices, partners such as the NCAA). Backed by published `poll_rankings` — the same data as the public rankings pages.
 
-**Base URL:** `https://www.redshirtsports.com`
+**Base URL:** set via `NEXT_PUBLIC_SITE_URL` (production hostname, e.g. `www.redshirtsports.com`)
 
 No authentication. CORS allows `GET` / `OPTIONS` from any origin. Rate-limited to **60 requests per minute per IP**.
 
