@@ -6,7 +6,11 @@
 
 import * as Sentry from "@sentry/nextjs";
 
-import { clientDenyUrls, clientIgnoreErrors } from "./filters";
+import {
+  clientBeforeSend,
+  clientDenyUrls,
+  clientIgnoreErrors,
+} from "./filters";
 import { keys } from "./keys";
 
 export const initializeSentry = (): ReturnType<typeof Sentry.init> =>
@@ -24,6 +28,10 @@ export const initializeSentry = (): ReturnType<typeof Sentry.init> =>
 
     ignoreErrors: clientIgnoreErrors,
     denyUrls: clientDenyUrls,
+    // Drop Twitter/X iOS in-app browser chrome CONFIG ReferenceErrors
+    // (updateFooterPositions / updateGapFiller) — requires both the CONFIG
+    // wording and those chrome stack function names.
+    beforeSend: clientBeforeSend,
 
     // You can remove this option if you're not planning to use the Sentry Session Replay feature:
     integrations: [

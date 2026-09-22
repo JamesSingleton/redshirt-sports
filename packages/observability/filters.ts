@@ -51,6 +51,95 @@ function getEventMessage(event: ErrorEvent): string {
   return `${type} ${value}`.trim();
 }
 
+function getEventExceptionMessages(event: ErrorEvent): string[] {
+  const messages: string[] = [];
+
+  if (typeof event.message === "string" && event.message.length > 0) {
+    messages.push(event.message);
+  }
+
+  for (const exception of event.exception?.values ?? []) {
+    if (typeof exception.value === "string" && exception.value.length > 0) {
+      messages.push(exception.value);
+    }
+    const type = exception.type ?? "";
+    const value = exception.value ?? "";
+    const combined = `${type} ${value}`.trim();
+    if (combined.length > 0) {
+      messages.push(combined);
+    }
+  }
+
+  return messages;
+}
+
+function getEventStackFrameFunctions(event: ErrorEvent): string[] {
+  const names: string[] = [];
+  for (const exception of event.exception?.values ?? []) {
+    for (const frame of exception.stacktrace?.frames ?? []) {
+      if (typeof frame.function === "string" && frame.function.length > 0) {
+        names.push(frame.function);
+      }
+    }
+  }
+  return names;
+}
+
+/**
+ * Twitter/X iOS in-app browser chrome (`updateFooterPositions` /
+ * `updateGapFiller`) references a host-page `CONFIG` global that the app
+ * never defines. WebKit reports it as an unhandled ReferenceError attributed
+ * to the document URL (no Twitter bundle frames).
+ *
+ * Match is intentionally narrow: CONFIG ReferenceError wording AND a stack
+ * frame named `updateFooterPositions` or `updateGapFiller`. Never
+ * blanket-drop bare `CONFIG` ReferenceErrors from app code.
+ */
+const twitterInAppBrowserConfigMessage =
+  /^(?:ReferenceError:\s*)?(?:Can'?t find variable: CONFIG|Cannot find variable: CONFIG|CONFIG is not defined)\.?$/i;
+
+const twitterInAppBrowserChromeFunctions = new Set([
+  "updateFooterPositions",
+  "updateGapFiller",
+]);
+
+function isTwitterInAppBrowserConfigMessage(message: string): boolean {
+  return twitterInAppBrowserConfigMessage.test(message.trim());
+}
+
+function isTwitterInAppBrowserConfigError(originalException: unknown): boolean {
+  if (typeof originalException === "string") {
+    return isTwitterInAppBrowserConfigMessage(originalException);
+  }
+  if (typeof originalException !== "object" || originalException === null) {
+    return false;
+  }
+  if (
+    !("message" in originalException) ||
+    typeof originalException.message !== "string"
+  ) {
+    return false;
+  }
+  return isTwitterInAppBrowserConfigMessage(originalException.message);
+}
+
+function isTwitterInAppBrowserConfigSentryEvent(
+  event: ErrorEvent,
+  originalException?: unknown,
+): boolean {
+  const hasConfigMessage =
+    isTwitterInAppBrowserConfigError(originalException) ||
+    getEventExceptionMessages(event).some(isTwitterInAppBrowserConfigMessage);
+
+  if (!hasConfigMessage) {
+    return false;
+  }
+
+  return getEventStackFrameFunctions(event).some((name) =>
+    twitterInAppBrowserChromeFunctions.has(name),
+  );
+}
+
 function isTransientSanityFailure(message: string): boolean {
   const hasSanityHost = /apicdn\.sanity\.io|api\.sanity\.io/i.test(message);
   const hasTransientStatus =
@@ -74,6 +163,18 @@ function isTransientSanityFailure(message: string): boolean {
   }
 
   return false;
+}
+
+/** Drop Twitter/X in-app browser chrome CONFIG ReferenceErrors. */
+export function clientBeforeSend(
+  event: ErrorEvent,
+  hint?: EventHint,
+): ErrorEvent | null {
+  if (isTwitterInAppBrowserConfigSentryEvent(event, hint?.originalException)) {
+    return null;
+  }
+
+  return event;
 }
 
 /** Drop known 4xx client errors and transient Sanity / network failures. */
