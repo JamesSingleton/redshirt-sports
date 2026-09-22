@@ -2,7 +2,9 @@ import { upsertSchoolFromSanity } from "@redshirt-sports/db/queries";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { env } from "@/env";
 import { expireRankingsCache } from "@/lib/expire-rankings-cache";
+import { safeCompare } from "@/lib/safe-compare";
 
 const SchoolPayloadSchema = z.object({
   school: z.object({
@@ -18,16 +20,14 @@ const SchoolPayloadSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const secret = process.env.SCHOOL_SYNC_SECRET;
-  if (!secret) {
-    return NextResponse.json(
-      { error: "SCHOOL_SYNC_SECRET not configured" },
-      { status: 500 },
-    );
-  }
+  const secret = env.SCHOOL_SYNC_SECRET;
 
   const auth = request.headers.get("authorization");
-  if (auth !== `Bearer ${secret}`) {
+  const token = auth?.startsWith("Bearer ")
+    ? auth.slice("Bearer ".length)
+    : null;
+
+  if (!token || !safeCompare(token, secret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

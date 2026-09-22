@@ -63,3 +63,12 @@ export const getBaseUrl = () => {
 
   return "http://localhost:3000";
 };
+
+/** Bare hostname for contact emails (no www.). */
+export function getSiteEmailDomain(): string {
+  try {
+    return new URL(getBaseUrl()).hostname.replace(/^www\./, "");
+  } catch {
+    return "localhost";
+  }
+}
