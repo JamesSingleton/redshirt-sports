@@ -29,6 +29,13 @@ export const serverIgnoreErrors: Array<string | RegExp> = [
   /Client network socket disconnected/i,
 ];
 
+/** Health probes and CORS preflight — high volume, low signal. */
+export const ignoredTransactionNames: Array<string | RegExp> = [
+  /^GET \/api\/health$/,
+  /^GET \/api\/health\/ready$/,
+  /^OPTIONS /i,
+];
+
 function getEventMessage(event: ErrorEvent): string {
   if (typeof event.message === "string" && event.message.length > 0) {
     return event.message;
@@ -69,16 +76,28 @@ function isTransientSanityFailure(message: string): boolean {
   return false;
 }
 
-/** Drop known transient Sanity / network failures on the server. */
+/** Drop known 4xx client errors and transient Sanity / network failures. */
 export function serverBeforeSend(
   event: ErrorEvent,
   _hint?: EventHint,
 ): ErrorEvent | null {
   const message = getEventMessage(event);
+  const status = event.contexts?.response?.status_code;
+
+  if (typeof status === "number" && status >= 400 && status < 500) {
+    return null;
+  }
 
   if (isTransientSanityFailure(message)) {
     return null;
   }
 
   return event;
+}
+
+export function shouldIgnoreTransaction(name: string | undefined): boolean {
+  if (!name) return false;
+  return ignoredTransactionNames.some((pattern) =>
+    typeof pattern === "string" ? pattern === name : pattern.test(name),
+  );
 }
