@@ -86,6 +86,15 @@ function setSvixHeaders(present = true) {
   });
 }
 
+function postWebhook(body: unknown) {
+  return POST(
+    new Request("http://localhost/api/webhooks/auth", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  );
+}
+
 describe("POST /api/webhooks/auth", () => {
   const originalSecret = process.env.CLERK_WEBHOOK_SECRET;
 
@@ -109,12 +118,7 @@ describe("POST /api/webhooks/auth", () => {
 
   it("returns 400 when svix headers are missing", async () => {
     setSvixHeaders(false);
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
+    const res = await postWebhook({});
     expect(res.status).toBe(400);
   });
 
@@ -122,17 +126,12 @@ describe("POST /api/webhooks/auth", () => {
     mockVerify.mockImplementation(() => {
       throw new Error("bad sig");
     });
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({ type: "user.created", data: {} }),
-      }),
-    );
+    const res = await postWebhook({ type: "user.created", data: {} });
     expect(res.status).toBe(400);
   });
 
   it("creates user and captures analytics on user.created", async () => {
-    mockVerify.mockReturnValue({
+    const res = await postWebhook({
       type: "user.created",
       data: {
         id: "user_1",
@@ -140,13 +139,6 @@ describe("POST /api/webhooks/auth", () => {
         last_name: "Doe",
       },
     });
-
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
 
     expect(res.status).toBe(200);
     expect(mockCreateUser).toHaveBeenCalledWith({
@@ -161,7 +153,7 @@ describe("POST /api/webhooks/auth", () => {
   });
 
   it("defaults null first/last names to empty strings on user.created", async () => {
-    mockVerify.mockReturnValue({
+    const res = await postWebhook({
       type: "user.created",
       data: {
         id: "user_2",
@@ -169,13 +161,6 @@ describe("POST /api/webhooks/auth", () => {
         last_name: null,
       },
     });
-
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
 
     expect(res.status).toBe(200);
     expect(mockCreateUser).toHaveBeenCalledWith({
@@ -186,7 +171,7 @@ describe("POST /api/webhooks/auth", () => {
   });
 
   it("defaults null first/last names to empty strings on user.updated", async () => {
-    mockVerify.mockReturnValue({
+    const res = await postWebhook({
       type: "user.updated",
       data: {
         id: "user_3",
@@ -197,13 +182,6 @@ describe("POST /api/webhooks/auth", () => {
         },
       },
     });
-
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
 
     expect(res.status).toBe(200);
     expect(mockUpdateUser).toHaveBeenCalledWith(
@@ -216,7 +194,7 @@ describe("POST /api/webhooks/auth", () => {
   });
 
   it("revokes poll assignments when isVoter becomes false", async () => {
-    mockVerify.mockReturnValue({
+    const res = await postWebhook({
       type: "user.updated",
       data: {
         id: "user_1",
@@ -229,13 +207,6 @@ describe("POST /api/webhooks/auth", () => {
       },
     });
 
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
-
     expect(res.status).toBe(200);
     expect(mockUpdateUser).toHaveBeenCalledWith(
       expect.objectContaining({ id: "user_1", isVoter: false }),
@@ -244,7 +215,7 @@ describe("POST /api/webhooks/auth", () => {
   });
 
   it("does not revoke assignments when isVoter is true", async () => {
-    mockVerify.mockReturnValue({
+    const res = await postWebhook({
       type: "user.updated",
       data: {
         id: "user_1",
@@ -255,13 +226,6 @@ describe("POST /api/webhooks/auth", () => {
         },
       },
     });
-
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
 
     expect(res.status).toBe(200);
     expect(mockRevokeAssignments).not.toHaveBeenCalled();
@@ -274,7 +238,8 @@ describe("POST /api/webhooks/auth", () => {
       organization: "ESPN",
       organizationRole: "Analyst",
     });
-    mockVerify.mockReturnValue({
+
+    const res = await postWebhook({
       type: "user.updated",
       data: {
         id: "user_1",
@@ -288,13 +253,6 @@ describe("POST /api/webhooks/auth", () => {
       },
     });
 
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
-
     expect(res.status).toBe(200);
     expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", { expire: 0 });
   });
@@ -306,7 +264,8 @@ describe("POST /api/webhooks/auth", () => {
       organization: "ESPN",
       organizationRole: "Analyst",
     });
-    mockVerify.mockReturnValue({
+
+    const res = await postWebhook({
       type: "user.updated",
       data: {
         id: "user_1",
@@ -320,20 +279,15 @@ describe("POST /api/webhooks/auth", () => {
       },
     });
 
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
-
     expect(res.status).toBe(200);
     expect(mockRevokeAssignments).toHaveBeenCalledWith("user_1");
     expect(mockRevalidateTag).not.toHaveBeenCalled();
   });
 
   it("returns 500 when webhook handler throws", async () => {
-    mockVerify.mockReturnValue({
+    mockCreateUser.mockRejectedValue(new Error("database down"));
+
+    const res = await postWebhook({
       type: "user.created",
       data: {
         id: "user_1",
@@ -341,21 +295,15 @@ describe("POST /api/webhooks/auth", () => {
         last_name: "Doe",
       },
     });
-    mockCreateUser.mockRejectedValue(new Error("database down"));
-
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
 
     expect(res.status).toBe(500);
     await expect(res.text()).resolves.toBe("database down");
   });
 
   it("returns Unknown error when handler rejects with a non-Error value", async () => {
-    mockVerify.mockReturnValue({
+    mockCreateUser.mockRejectedValue("boom");
+
+    const res = await postWebhook({
       type: "user.created",
       data: {
         id: "user_1",
@@ -363,43 +311,21 @@ describe("POST /api/webhooks/auth", () => {
         last_name: "Doe",
       },
     });
-    mockCreateUser.mockRejectedValue("boom");
-
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
 
     expect(res.status).toBe(500);
     await expect(res.text()).resolves.toBe("Unknown error");
   });
 
   it("returns 501 for unsupported event types", async () => {
-    mockVerify.mockReturnValue({
+    const res = await postWebhook({
       type: "session.created",
       data: {},
     });
-
-    const res = await POST(
-      new Request("http://localhost/api/webhooks/auth", {
-        method: "POST",
-        body: JSON.stringify({}),
-      }),
-    );
     expect(res.status).toBe(501);
   });
 
   it("throws when webhook secret is missing", async () => {
     delete process.env.CLERK_WEBHOOK_SECRET;
-    await expect(
-      POST(
-        new Request("http://localhost/api/webhooks/auth", {
-          method: "POST",
-          body: JSON.stringify({}),
-        }),
-      ),
-    ).rejects.toThrow(/WEBHOOK_SECRET/);
+    await expect(postWebhook({})).rejects.toThrow(/WEBHOOK_SECRET/);
   });
 });

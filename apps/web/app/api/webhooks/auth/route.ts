@@ -41,21 +41,21 @@ export async function POST(req: Request) {
   // Create a new Svix instance with your secret.
   const wh = new Webhook(WEBHOOK_SECRET);
 
-  let evt: WebhookEvent;
-
-  // Verify the payload with the headers
+  // Verify the payload with the headers (svix v2 verifies in place; does not return the event)
   try {
-    evt = wh.verify(body, {
+    wh.verify(body, {
       "svix-id": svix_id,
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
-    }) as WebhookEvent;
+    });
   } catch (err) {
     console.error("Error verifying webhook:", err);
     return new Response("Error occured", {
       status: 400,
     });
   }
+
+  const evt = payload as WebhookEvent;
 
   const { type, data } = evt;
 
