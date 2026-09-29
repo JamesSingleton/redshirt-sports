@@ -739,13 +739,20 @@ export const globalNavigationQuery = defineQuery(/* groq */ `
 
 export const rssFeedQuery = defineQuery(
   /* groq */
-  `*[_type == "post"][0..50] | order(publishedAt desc) {
+  `*[_type == "post" && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc)[0...50] {
   _id,
   title,
   "slug": slug.current,
   publishedAt,
   excerpt,
   ${postImageFragment},
+  ${richTextFragment},
+  "authors": authors[]->name,
+  "sport": sport->title,
+  "division": division->title,
+  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),
+  "conferences": conferences[]->{ name, shortName },
+  "tags": tags[]->name,
 }
 `,
 );

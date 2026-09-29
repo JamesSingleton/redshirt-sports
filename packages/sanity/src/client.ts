@@ -70,3 +70,10 @@ export const urlFor = (source: SanityImageSource) =>
     .auto("format")
     .fit("max")
     .format("webp");
+
+/**
+ * Always serves JPEG: omits `auto=format` so the response type never varies by
+ * client, which RSS enclosures need to declare an accurate MIME type.
+ */
+export const urlForJpeg = (source: SanityImageSource) =>
+  imageBuilder.image(normalizeImageSource(source)).fit("max").format("jpg");
