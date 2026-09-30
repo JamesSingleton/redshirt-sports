@@ -17,6 +17,7 @@ import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { getSportFeed } from "@/lib/rss-feed-links";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
@@ -61,6 +62,7 @@ export async function generateMetadata({
       title,
       description,
       slug: canonicalUrl,
+      rssFeeds: [getSportFeed({ slug: sport, title: sportTitle })],
     },
     perspective,
   );

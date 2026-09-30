@@ -2,6 +2,7 @@ import { urlFor } from "@redshirt-sports/sanity/client";
 import type { Metadata } from "next";
 
 import { getBaseUrl } from "./get-base-url";
+import { getSiteFeed, type RssFeedLink } from "./rss-feed-links";
 
 export const SITE_BRAND = "Redshirt Sports";
 export const DEFAULT_META_TITLE =
@@ -57,6 +58,18 @@ export interface PageMetadataInput {
   publishedTime?: string;
   modifiedTime?: string;
   noIndex?: boolean;
+  /** Section feeds to advertise ahead of the site-wide feed, most specific first. */
+  rssFeeds?: RssFeedLink[];
+}
+
+/** Page-level `alternates` replace the root layout's, so every page must re-declare its feeds. */
+function buildRssAlternateTypes(baseUrl: string, feeds: RssFeedLink[] = []) {
+  return {
+    "application/rss+xml": [...feeds, getSiteFeed()].map((feed) => ({
+      url: `${baseUrl}${feed.path}`,
+      title: feed.title,
+    })),
+  };
 }
 
 function buildPageUrl({ baseUrl, slug }: { baseUrl: string; slug: string }) {
@@ -128,9 +141,7 @@ export function getRootMetadata(): Metadata {
       creator: TWITTER_HANDLE,
     },
     alternates: {
-      types: {
-        "application/rss+xml": `${baseUrl}/api/rss/feed.xml`,
-      },
+      types: buildRssAlternateTypes(baseUrl),
     },
     openGraph: {
       type: "website",
@@ -165,6 +176,7 @@ export function getSEOMetadata(data: PageMetadataInput = {}): Metadata {
     publishedTime,
     modifiedTime,
     noIndex,
+    rssFeeds,
   } = data ?? {};
 
   const baseUrl = getBaseUrl();
@@ -194,6 +206,7 @@ export function getSEOMetadata(data: PageMetadataInput = {}): Metadata {
     description: metaDescription,
     alternates: {
       canonical: pageUrl,
+      types: buildRssAlternateTypes(baseUrl, rssFeeds),
     },
     ...(noIndex && { robots: noIndexRobots }),
     twitter: {

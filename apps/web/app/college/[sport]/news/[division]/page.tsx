@@ -21,6 +21,7 @@ import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { getDivisionFeed, getSportFeed } from "@/lib/rss-feed-links";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
@@ -77,11 +78,20 @@ export async function generateMetadata({
     canonical = `${baseCanonical}?page=${pageIndex}`;
   }
 
+  const sportFeedInput = { slug: sport, title: sportTitle };
+
   return getPageMetadata(
     {
       title,
       description,
       slug: canonical,
+      rssFeeds: [
+        getDivisionFeed({
+          sport: sportFeedInput,
+          division: { slug: division, name: divisionName },
+        }),
+        getSportFeed(sportFeedInput),
+      ],
     },
     perspective,
   );

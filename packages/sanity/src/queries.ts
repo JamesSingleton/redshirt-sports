@@ -737,9 +737,7 @@ export const globalNavigationQuery = defineQuery(/* groq */ `
   }
 `);
 
-export const rssFeedQuery = defineQuery(
-  /* groq */
-  `*[_type == "post" && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc)[0...50] {
+const rssFeedItemFragment = /* groq */ `
   _id,
   title,
   "slug": slug.current,
@@ -753,9 +751,34 @@ export const rssFeedQuery = defineQuery(
   "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),
   "conferences": conferences[]->{ name, shortName },
   "tags": tags[]->name,
-}
-`,
-);
+`;
+
+const rssFeedPostFilter = /* groq */ `_type == "post" && defined(slug.current) && defined(publishedAt)`;
+
+export const rssFeedQuery = defineQuery(/* groq */ `
+  *[${rssFeedPostFilter}] | order(publishedAt desc)[0...50] {
+    ${rssFeedItemFragment}
+  }
+`);
+
+// Extra conditions go in a chained filter: typegen drops the `defined()` narrowing when they share one.
+export const rssFeedBySportQuery = defineQuery(/* groq */ `
+  *[${rssFeedPostFilter}][sport->slug.current == $sport]
+  | order(publishedAt desc)[0...50] {
+    ${rssFeedItemFragment}
+  }
+`);
+
+/** Matches `querySportsAndDivisionNews`: `$division` is a subgrouping or division slug, excluding the catch-all D1. */
+export const rssFeedBySportAndDivisionQuery = defineQuery(/* groq */ `
+  *[${rssFeedPostFilter}][
+    sport->slug.current == $sport &&
+    (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&
+    $division != "d1"
+  ] | order(publishedAt desc)[0...50] {
+    ${rssFeedItemFragment}
+  }
+`);
 
 export const schoolsByIdQuery = defineQuery(
   /* groq */
