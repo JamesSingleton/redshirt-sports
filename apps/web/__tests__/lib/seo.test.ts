@@ -65,9 +65,64 @@ describe("getRootMetadata", () => {
     expect(openGraph.title).toBe(DEFAULT_META_TITLE);
     expect(openGraph.description).toContain("Redshirt Sports");
   });
+
+  it("advertises the site-wide RSS feed", () => {
+    expect(getRootMetadata().alternates?.types).toEqual({
+      "application/rss+xml": [
+        {
+          url: "https://redshirtsports.com/api/rss/feed.xml",
+          title: "Redshirt Sports",
+        },
+      ],
+    });
+  });
 });
 
 describe("getSEOMetadata", () => {
+  it("keeps the site-wide RSS feed when setting a canonical URL", () => {
+    const metadata = getSEOMetadata({ slug: "about" });
+
+    expect(metadata.alternates?.types).toEqual({
+      "application/rss+xml": [
+        {
+          url: "https://redshirtsports.com/api/rss/feed.xml",
+          title: "Redshirt Sports",
+        },
+      ],
+    });
+  });
+
+  it("lists section feeds ahead of the site-wide feed", () => {
+    const metadata = getSEOMetadata({
+      slug: "/college/football/news/fbs",
+      rssFeeds: [
+        {
+          path: "/api/rss/football/fbs/feed.xml",
+          title: "Redshirt Sports: FBS Football News",
+        },
+        {
+          path: "/api/rss/football/feed.xml",
+          title: "Redshirt Sports: Football News",
+        },
+      ],
+    });
+
+    expect(metadata.alternates?.types?.["application/rss+xml"]).toEqual([
+      {
+        url: "https://redshirtsports.com/api/rss/football/fbs/feed.xml",
+        title: "Redshirt Sports: FBS Football News",
+      },
+      {
+        url: "https://redshirtsports.com/api/rss/football/feed.xml",
+        title: "Redshirt Sports: Football News",
+      },
+      {
+        url: "https://redshirtsports.com/api/rss/feed.xml",
+        title: "Redshirt Sports",
+      },
+    ]);
+  });
+
   it("returns default title and description when no data is provided", () => {
     const metadata = getSEOMetadata(null as never);
 
