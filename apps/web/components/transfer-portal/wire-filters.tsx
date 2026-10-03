@@ -84,7 +84,9 @@ export function WireFilters({
       <div className="grid grid-cols-2 gap-3 md:flex">
         <Select
           value={String(year)}
-          onValueChange={(value) => setParam("year", value)}
+          onValueChange={(value) => {
+            if (value !== null) setParam("year", value);
+          }}
         >
           <SelectTrigger aria-label="Portal year" className="bg-background">
             <SelectValue />
@@ -100,7 +102,10 @@ export function WireFilters({
 
         <Select
           value={searchParams.get("status") ?? ALL}
-          onValueChange={(value) => setParam("status", value)}
+          onValueChange={(value) => {
+            if (value !== null) setParam("status", value);
+          }}
+          items={{ [ALL]: "All statuses", ...PORTAL_STATUS_LABELS }}
         >
           <SelectTrigger aria-label="Status" className="bg-background">
             <SelectValue />
@@ -117,7 +122,10 @@ export function WireFilters({
 
         <Select
           value={searchParams.get("position") ?? ALL}
-          onValueChange={(value) => setParam("position", value)}
+          onValueChange={(value) => {
+            if (value !== null) setParam("position", value);
+          }}
+          items={{ [ALL]: "All positions" }}
         >
           <SelectTrigger aria-label="Position" className="bg-background">
             <SelectValue />
@@ -134,7 +142,16 @@ export function WireFilters({
 
         <Select
           value={searchParams.get("conference") ?? ALL}
-          onValueChange={(value) => setParam("conference", value)}
+          onValueChange={(value) => {
+            if (value !== null) setParam("conference", value);
+          }}
+          items={[
+            { value: ALL, label: "All conferences" },
+            ...conferences.map((conference) => ({
+              value: conference.id,
+              label: conference.shortName ?? conference.name,
+            })),
+          ]}
         >
           <SelectTrigger aria-label="Conference" className="bg-background">
             <SelectValue />

@@ -158,7 +158,10 @@ export function EntryFormDialog({
                 <FieldLabel htmlFor="entry-status">Status</FieldLabel>
                 <Select
                   value={status}
-                  onValueChange={(value) => setStatus(value as PortalStatus)}
+                  onValueChange={(value) => {
+                    if (value !== null) setStatus(value as PortalStatus);
+                  }}
+                  items={STATUS_LABELS}
                 >
                   <SelectTrigger id="entry-status" className="w-full">
                     <SelectValue />

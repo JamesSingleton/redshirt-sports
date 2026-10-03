@@ -86,7 +86,16 @@ export function BallotInboxVoter({
       ) : null}
       {otherWeeks.length > 0 ? (
         <>
-          <Select value={reassignTarget} onValueChange={onReassignTargetChange}>
+          <Select
+            value={reassignTarget}
+            onValueChange={(value) => {
+              if (value !== null) onReassignTargetChange(value);
+            }}
+            items={otherWeeks.map((week) => ({
+              value: week.weekKey,
+              label: week.label,
+            }))}
+          >
             <SelectTrigger className="w-full" size="sm">
               <SelectValue placeholder="Move to…" />
             </SelectTrigger>

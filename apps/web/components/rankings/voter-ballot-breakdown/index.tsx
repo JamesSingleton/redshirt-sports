@@ -38,10 +38,7 @@ type Props = {
 const VOTER_BREAKDOWN_DESCRIPTION =
   "See how each voter cast their ballot for this week's rankings. Match % shows how closely each ballot's rank order matched the final Top 25.";
 
-export default function VoterBallotBreakdown({
-  voterBreakdown,
-  teams,
-}: Props) {
+export default function VoterBallotBreakdown({ voterBreakdown, teams }: Props) {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 150);
   const [page, setPage] = useState(1);
@@ -128,7 +125,10 @@ export default function VoterBallotBreakdown({
           <div className="flex gap-2">
             <Select
               value={sortBy}
-              onValueChange={(v) => setSortBy(v as SortBy)}
+              onValueChange={(v) => {
+                if (v !== null) setSortBy(v as SortBy);
+              }}
+              items={{ name: "Name", match: "Match %" }}
             >
               <SelectTrigger className="min-w-43.75" aria-label="Sort voters">
                 <SelectValue placeholder="Sort by" />
@@ -140,7 +140,13 @@ export default function VoterBallotBreakdown({
             </Select>
             <Select
               value={String(pageSize)}
-              onValueChange={(v) => setPageSize(Number(v))}
+              onValueChange={(v) => {
+                if (v !== null) setPageSize(Number(v));
+              }}
+              items={pageSizeOptions.map((n) => ({
+                value: String(n),
+                label: `${n} per page`,
+              }))}
             >
               <SelectTrigger className="min-w-43.75">
                 <SelectValue placeholder="Rows per page" />

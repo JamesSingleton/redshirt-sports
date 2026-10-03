@@ -91,7 +91,12 @@ export const RankingsFilters = ({
 
   return (
     <>
-      <Select onValueChange={handleYearChange} value={yearSlug}>
+      <Select
+        onValueChange={(value) => {
+          if (value !== null) handleYearChange(value);
+        }}
+        value={yearSlug}
+      >
         <SelectTrigger id="year" aria-label="Year">
           <SelectValue placeholder={yearSlug} />
         </SelectTrigger>
@@ -105,8 +110,14 @@ export const RankingsFilters = ({
       </Select>
       <Select
         key={`${yearSlug}-${weekSlug}`}
-        onValueChange={handleWeekChange}
+        onValueChange={(value) => {
+          if (value !== null) handleWeekChange(value);
+        }}
         value={weekSlug}
+        items={weeks.map(({ week }: Week) => ({
+          value: formatWeekSegment(week),
+          label: weekTitle(week),
+        }))}
       >
         <SelectTrigger id="ranking" aria-label="Ranking">
           <SelectValue placeholder="Preseason" />

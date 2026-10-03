@@ -159,7 +159,12 @@ function PollRankingChart({
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {poll.years.length > 1 ? (
-            <Select value={year} onValueChange={setYear}>
+            <Select
+              value={year}
+              onValueChange={(value) => {
+                if (value !== null) setYear(value);
+              }}
+            >
               <SelectTrigger className="w-37.5" size="sm">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>

@@ -157,7 +157,16 @@ export function PlayerFormDialog({
             <div className="grid grid-cols-2 gap-4">
               <Field>
                 <FieldLabel htmlFor="player-sport">Sport</FieldLabel>
-                <Select value={sportId} onValueChange={setSportId}>
+                <Select
+                  value={sportId}
+                  onValueChange={(value) => {
+                    if (value !== null) setSportId(value);
+                  }}
+                  items={sports.map((sport) => ({
+                    value: sport.id,
+                    label: sport.name,
+                  }))}
+                >
                   <SelectTrigger id="player-sport" className="w-full">
                     <SelectValue placeholder="Select a sport" />
                   </SelectTrigger>
@@ -186,7 +195,13 @@ export function PlayerFormDialog({
             <div className="grid grid-cols-2 gap-4">
               <Field>
                 <FieldLabel htmlFor="player-class">Class</FieldLabel>
-                <Select value={academicYear} onValueChange={setAcademicYear}>
+                <Select
+                  value={academicYear}
+                  onValueChange={(value) => {
+                    if (value !== null) setAcademicYear(value);
+                  }}
+                  items={{ [NO_CLASS]: "Unknown" }}
+                >
                   <SelectTrigger id="player-class" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
