@@ -48,14 +48,16 @@ export function NavDocuments({
               </a>
             </SidebarMenuButton>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuAction
-                  showOnHover
-                  className="data-[state=open]:bg-accent rounded-sm"
-                >
-                  <IconDots />
-                  <span className="sr-only">More</span>
-                </SidebarMenuAction>
+              <DropdownMenuTrigger
+                render={
+                  <SidebarMenuAction
+                    showOnHover
+                    className="data-popup-open:bg-accent rounded-sm"
+                  />
+                }
+              >
+                <IconDots />
+                <span className="sr-only">More</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="w-24 rounded-lg"
