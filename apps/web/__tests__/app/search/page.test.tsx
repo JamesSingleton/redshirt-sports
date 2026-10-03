@@ -40,24 +40,53 @@ vi.mock("@/components/page-header", () => ({
   default: ({
     title,
     subtitle,
+    children,
   }: {
     title: string;
     subtitle?: string | null;
+    children?: ReactNode;
   }) => (
     <div>
       <h1>{title}</h1>
       {subtitle ? <p>{subtitle}</p> : null}
+      {children}
     </div>
+  ),
+}));
+
+vi.mock("next/form", () => ({
+  __esModule: true,
+  default: ({
+    action,
+    children,
+    ...props
+  }: {
+    action: string;
+    children: ReactNode;
+  }) => (
+    <form action={action} {...props}>
+      {children}
+    </form>
+  ),
+}));
+
+vi.mock("next/link", () => ({
+  __esModule: true,
+  default: ({ children, href }: { children: ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
   ),
 }));
 
 vi.mock("@/components/article-card", () => ({
   __esModule: true,
-  default: ({ title, author }: { title: string; author: string }) => (
+  default: ({ title, author }: { title: string; author: string | null }) => (
     <div data-testid="article-card">
       <span>{title}</span>
       <span data-testid="author">{author}</span>
     </div>
+  ),
+  ArticleOverlayCard: ({ title }: { title: string }) => (
+    <div data-testid="overlay-card">{title}</div>
   ),
 }));
 
@@ -82,16 +111,46 @@ describe("SearchPage", () => {
     );
   });
 
-  it("renders no results message without a query", async () => {
+  it("renders the search prompt without a query", async () => {
     const page = await SearchPage({
       searchParams: Promise.resolve({}),
     });
     render(page as ReactNode);
 
+    expect(screen.getByRole("heading", { name: "Search" })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Search Results" }),
+      screen.getByText("Search every story on Redshirt Sports."),
     ).toBeInTheDocument();
-    expect(screen.getByText("No results found.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("searchbox", { name: "Search articles" }),
+    ).toHaveValue("");
+    expect(screen.getByRole("search")).toHaveAttribute("action", "/search");
+    expect(mockSanityFetchPage).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("article-card")).not.toBeInTheDocument();
+    expect(screen.queryByText(/No stories match/)).not.toBeInTheDocument();
+  });
+
+  it("renders an empty state when the query has no matches", async () => {
+    mockSanityFetchPage.mockResolvedValue({
+      data: { posts: [], totalPosts: 0 },
+    });
+
+    const page = await SearchPage({
+      searchParams: Promise.resolve({ q: "zzz" }),
+    });
+    render(page as ReactNode);
+
+    expect(screen.getByText('0 results for "zzz"')).toBeInTheDocument();
+    expect(screen.getByText('No stories match "zzz"')).toBeInTheDocument();
+    expect(
+      screen.getByText("Try a team, conference, or player name instead."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Browse the latest news" }),
+    ).toHaveAttribute("href", "/college/news");
+    expect(
+      screen.getByRole("searchbox", { name: "Search articles" }),
+    ).toHaveValue("zzz");
   });
 
   it("renders search results when query matches posts", async () => {
@@ -104,7 +163,7 @@ describe("SearchPage", () => {
             publishedAt: "2026-01-01",
             image: null,
             slug: "alabama-preview",
-            authors: [{ name: "Writer" }],
+            authors: [{ _id: "a1", name: "Writer" }],
           },
         ],
         totalPosts: 1,
@@ -116,11 +175,17 @@ describe("SearchPage", () => {
     });
     render(page as ReactNode);
 
-    expect(
-      screen.getByText('Search results for "alabama"'),
-    ).toBeInTheDocument();
+    expect(mockSanityFetchPage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        query: "searchQuery",
+        params: { q: "alabama", from: 0, to: 12 },
+      }),
+    );
+    expect(screen.getByText('1 result for "alabama"')).toBeInTheDocument();
     expect(screen.getByText("Alabama Preview")).toBeInTheDocument();
     expect(screen.getByTestId("author")).toHaveTextContent("Writer");
+    expect(screen.queryByTestId("pagination")).not.toBeInTheDocument();
+    expect(screen.queryByText(/No stories match/)).not.toBeInTheDocument();
   });
 
   it("falls back to empty author when post has no authors", async () => {
@@ -169,6 +234,13 @@ describe("SearchPage", () => {
     });
     render(page as ReactNode);
 
+    expect(mockSanityFetchPage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        params: { q: "alabama", from: 12, to: 24 },
+      }),
+    );
+    expect(screen.getByText('24 results for "alabama"')).toBeInTheDocument();
+    expect(screen.getAllByTestId("article-card")).toHaveLength(12);
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
   });
 });

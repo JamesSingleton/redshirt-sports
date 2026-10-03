@@ -38,6 +38,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
+  queryDivisionConferenceFilters: "queryDivisionConferenceFilters",
   queryDivisionOrSubgroupingDisplayName:
     "queryDivisionOrSubgroupingDisplayName",
   querySportsAndDivisionNews: "querySportsAndDivisionNews",
@@ -73,20 +74,32 @@ vi.mock("@/components/page-header", () => ({
   default: ({ title }: { title: string }) => <h1>{title}</h1>,
 }));
 
-vi.mock("@/components/article-feed", () => ({
-  __esModule: true,
-  default: ({ articles }: { articles: Array<{ title: string }> }) => (
-    <div data-testid="article-feed">
-      {articles.map((a) => (
-        <div key={a.title}>{a.title}</div>
-      ))}
-    </div>
-  ),
+vi.mock("@/components/page-transition", () => ({
+  PageTransition: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("@/components/pagination-controls", () => ({
-  __esModule: true,
-  default: () => <nav data-testid="pagination" />,
+vi.mock("@/components/rankings/poll-aside", () => ({
+  PollAside: () => null,
+}));
+
+vi.mock("@/components/news/news-listing", () => ({
+  NewsListing: {
+    Layout: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    Feed: ({
+      posts,
+      totalPosts,
+    }: {
+      posts: Array<{ _id: string; title: string }>;
+      totalPosts: number;
+    }) => (
+      <div data-testid="article-feed">
+        {posts.map((post) => (
+          <div key={post._id}>{post.title}</div>
+        ))}
+        {totalPosts > posts.length ? <nav data-testid="pagination" /> : null}
+      </div>
+    ),
+  },
 }));
 
 import DivisionNewsPage, {
@@ -96,6 +109,7 @@ import DivisionNewsPage, {
 describe("DivisionNewsPage", () => {
   beforeEach(() => {
     mockSanityFetchPage.mockReset();
+    mockSanityFetchPage.mockResolvedValue({ data: null });
     mockSanityFetchMetadata.mockReset();
     mockNotFound.mockClear();
   });

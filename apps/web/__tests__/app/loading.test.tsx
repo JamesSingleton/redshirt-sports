@@ -1,15 +1,17 @@
-import { render, screen } from "@testing-library/react";
-
-vi.mock("@/components/home/home-page-skeleton", () => ({
-  __esModule: true,
-  default: () => <div data-testid="home-skeleton">Loading home</div>,
-}));
+import { render } from "@testing-library/react";
 
 import Loading from "@/app/loading";
 
 describe("RootLoading", () => {
-  it("renders the home page skeleton", () => {
-    render(<Loading />);
-    expect(screen.getByTestId("home-skeleton")).toBeInTheDocument();
+  it("renders the busy homepage skeleton", () => {
+    const { container } = render(<Loading />);
+
+    expect(container.firstElementChild).toHaveAttribute("aria-busy", "true");
+    expect(
+      container.querySelectorAll('[data-slot="skeleton"]').length,
+    ).toBeGreaterThanOrEqual(8);
+    expect(
+      container.querySelector('[data-slot="skeleton"].aspect-video'),
+    ).toBeInTheDocument();
   });
 });

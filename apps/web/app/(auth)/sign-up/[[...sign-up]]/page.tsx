@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Sign Up | Redshirt Sports",
+  title: "Sign Up",
   robots: {
     index: false,
     follow: false,
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function SignUpPage() {
   return (
-    <div className="flex justify-center py-24">
+    <div className="container flex justify-center py-12 md:py-20">
       <Suspense>
         <SignUp />
       </Suspense>

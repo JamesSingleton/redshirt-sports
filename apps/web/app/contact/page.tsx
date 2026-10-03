@@ -86,30 +86,25 @@ export default function Page() {
     <>
       <JsonLdScript data={contactPageJsonLd} id="contact-page-json-ld" />
       <PageHeader
-        title="Contact Us"
-        subtitle={
-          <p className="mt-4 text-lg font-normal lg:text-xl">
-            Interested in collaborating or advertising with us? We&apos;re all
-            ears! Let&apos;s explore exciting possibilities together!
-          </p>
-        }
+        title="Contact us"
+        subtitle="Interested in collaborating or advertising with us? Pick the inbox that fits and we will get back to you."
       />
-      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <section className="container pb-12">
+        <ul className="grid gap-4 md:grid-cols-3">
           {contactDetails.map(({ title, description, email }) => (
-            <Card key={title} className="flex flex-col">
-              <CardHeader>
-                <CardTitle className="text-lg sm:text-xl">{title}</CardTitle>
-                <CardDescription className="text-sm sm:text-base">
-                  {description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex grow items-end">
-                <ContactEmailLink email={email} category={title} />
-              </CardContent>
-            </Card>
+            <li key={title}>
+              <Card className="h-full gap-3 rounded-md py-5 shadow-none">
+                <CardHeader className="px-5">
+                  <CardTitle className="headline text-xl">{title}</CardTitle>
+                  <CardDescription>{description}</CardDescription>
+                </CardHeader>
+                <CardContent className="mt-auto px-5">
+                  <ContactEmailLink email={email} category={title} />
+                </CardContent>
+              </Card>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
     </>
   );

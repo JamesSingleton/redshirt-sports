@@ -1,60 +1,43 @@
 import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
+import type { Route } from "next";
 import Link from "next/link";
 
 import CustomImage from "../sanity-image";
 
 type PostAuthor = NonNullable<QueryPostSlugDataResult>["authors"][0];
 
-export const AuthorItem = (author: PostAuthor) => {
+export function Byline({ authors }: { authors: PostAuthor[] }) {
   return (
-    <div className="flex min-h-10 flex-row items-center justify-start gap-3 p-0">
-      <CustomImage
-        image={author.image}
-        className="size-9 rounded-full align-top"
-        width={36}
-        height={36}
-        mode="cover"
-      />
-      <div className="flex flex-col items-stretch justify-start gap-0.5">
-        {author.archived ? (
-          <p className="mr-1 text-sm font-semibold tracking-[-.01em]">
-            {author.name}
-          </p>
-        ) : (
-          <Link href={`/authors/${author.slug}`} prefetch={false}>
-            <p className="mr-1 text-sm font-semibold tracking-[-.01em] hover:underline">
-              {author.name}
-            </p>
-          </Link>
-        )}
-        <p className="text-muted-foreground min-h-4 text-sm/4 font-normal tracking-[-.01em]">
-          {author.roles.join(", ")}
-        </p>
-      </div>
-    </div>
+    <ul className="flex flex-wrap items-center gap-x-5 gap-y-3">
+      {authors?.map((author) => (
+        <li key={author._id} className="flex items-center gap-3">
+          <CustomImage
+            image={author.image}
+            className="size-9 rounded-full object-cover"
+            width={36}
+            height={36}
+            mode="cover"
+          />
+          <div className="flex flex-col">
+            {author.archived ? (
+              <span className="text-sm font-semibold">{author.name}</span>
+            ) : (
+              <Link
+                href={`/authors/${author.slug}` as Route}
+                prefetch={false}
+                className="hover:text-primary text-sm font-semibold"
+              >
+                {author.name}
+              </Link>
+            )}
+            {author.roles.length > 0 ? (
+              <span className="text-muted-foreground text-xs">
+                {author.roles.join(", ")}
+              </span>
+            ) : null}
+          </div>
+        </li>
+      ))}
+    </ul>
   );
-};
-
-export const AuthorSection = ({ authors }: { authors: PostAuthor[] }) => (
-  <>
-    <p className="text-muted-foreground text-sm font-normal">Written By</p>
-    {authors?.map((author) => (
-      <AuthorItem key={author._id} {...author} />
-    ))}
-  </>
-);
-
-export const MobileAuthorSection = ({ authors }: { authors: PostAuthor[] }) => (
-  <div className="lg:hidden">
-    <p className="text-muted-foreground text-sm font-normal">Written By</p>
-    <div className="border-border relative -mx-6 mt-3 flex overflow-x-auto border-b px-6">
-      <div className="flex-1 pb-4">
-        <div className="flex flex-row items-stretch justify-start gap-4">
-          {authors?.map((author) => (
-            <AuthorItem key={`${author._id}_mobile`} {...author} />
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-);
+}

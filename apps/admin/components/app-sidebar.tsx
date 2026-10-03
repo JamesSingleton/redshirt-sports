@@ -13,6 +13,7 @@ import {
   IconDatabase,
   IconHome,
   IconListDetails,
+  IconTransfer,
   IconTrophy,
   IconUsers,
 } from "@tabler/icons-react";
@@ -44,6 +45,11 @@ const data = {
       title: "Polls",
       url: "/polls",
       icon: IconListDetails,
+    },
+    {
+      title: "Transfer portal",
+      url: "/transfer-portal",
+      icon: IconTransfer,
     },
     {
       title: "Development",

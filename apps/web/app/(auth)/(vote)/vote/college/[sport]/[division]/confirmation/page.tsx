@@ -14,6 +14,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
+import PageHeader from "@/components/page-header";
 import CustomImage from "@/components/sanity-image";
 import { getCurrentSeason, getVotingWeek, type SportParam } from "@/utils/espn";
 import { transformBallotToTeamIds } from "@/utils/process-ballots";
@@ -44,7 +45,7 @@ function generateConfirmationHeader(sport: string, division: string) {
 }
 
 export const metadata: Metadata = {
-  title: `Vote Confirmation | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+  title: "Vote Confirmation",
   description: "Thank you for voting for the top 25 college football teams.",
   robots: {
     follow: false,
@@ -119,56 +120,58 @@ export async function VoteConfirmationContent({
   });
 
   return (
-    <div className="container flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8">
-      <div className="space-y-4 text-center">
-        <h1 className="text-3xl font-bold">{header?.title}</h1>
-        <p className="text-muted-foreground">
-          Thank you for casting your vote. Your rankings have been successfully
-          submitted.
-        </p>
-        {canEdit ? (
-          <p className="text-muted-foreground">
-            You can edit your ballot until this week&apos;s rankings are
-            published.
-          </p>
-        ) : (
-          <p className="text-muted-foreground">
-            This week&apos;s rankings have been published, so your ballot is
-            locked.
-          </p>
-        )}
-      </div>
-      <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
-        {schools.map((school, index) => (
-          <div className="flex flex-col items-center gap-2" key={school._id}>
-            <div className="flex h-16 w-16 flex-col justify-center">
-              <CustomImage image={school.image} width={60} height={60} />
-            </div>
-            <p className="text-center font-semibold">
-              {index + 1}.{" "}
-              {school.shortName ?? school.abbreviation ?? school.name}
-            </p>
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        {canEdit ? (
+    <>
+      <PageHeader
+        title={header?.title ?? "Ballot submitted"}
+        subtitle={
+          canEdit
+            ? "Thanks for voting. You can edit your ballot until this week's rankings are published."
+            : "Thanks for voting. This week's rankings have been published, so your ballot is locked."
+        }
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          {canEdit ? (
+            <Link
+              href={`/vote/college/${sport}/${division}?edit=1`}
+              className={buttonVariants()}
+            >
+              Edit ballot
+            </Link>
+          ) : null}
           <Link
-            href={`/vote/college/${sport}/${division}?edit=1`}
-            className={buttonVariants()}
+            href="/"
+            className={buttonVariants({
+              variant: canEdit ? "outline" : "default",
+            })}
           >
-            Edit ballot
+            Return home
           </Link>
-        ) : null}
-        <Link
-          href="/"
-          className={buttonVariants({
-            variant: canEdit ? "outline" : "default",
-          })}
-        >
-          Return Home
-        </Link>
-      </div>
-    </div>
+        </div>
+      </PageHeader>
+      <section aria-label="Your ballot" className="container pb-12">
+        <ol className="bg-border grid grid-cols-1 gap-px overflow-hidden rounded-md border sm:grid-cols-2 lg:grid-flow-col lg:grid-cols-5 lg:grid-rows-5">
+          {schools.map((school, index) => (
+            <li
+              key={school._id}
+              className="bg-card flex items-center gap-3 px-4 py-3"
+            >
+              <span className="rank-numeral text-muted-foreground w-6 text-right text-lg">
+                {index + 1}
+              </span>
+              <CustomImage
+                image={school.image}
+                width={32}
+                height={32}
+                mode="contain"
+                className="size-8 shrink-0 object-contain"
+              />
+              <span className="truncate font-semibold">
+                {school.shortName ?? school.abbreviation ?? school.name}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </>
   );
 }

@@ -20,6 +20,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const sport = post.sport;
     if (!sport) return;
 
+    // /college/[sport]
+    const hubUrl = `${baseUrl}/college/${sport}`;
+    const currentHubTimestamp = urls.get(hubUrl);
+    if (
+      !currentHubTimestamp ||
+      new Date(post._updatedAt) > new Date(currentHubTimestamp)
+    ) {
+      urls.set(hubUrl, post._updatedAt);
+    }
+
     // /college/[sport]/news
     const url1 = `${baseUrl}/college/${sport}/news`;
     const currentTimestamp1 = urls.get(url1);

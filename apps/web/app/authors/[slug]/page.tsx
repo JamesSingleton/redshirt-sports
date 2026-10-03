@@ -5,12 +5,12 @@ import {
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
 import { authorBySlug, postsByAuthor } from "@redshirt-sports/sanity/queries";
+import { Button } from "@redshirt-sports/ui/components/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Graph } from "schema-dts";
 
-import ArticleCard from "@/components/article-card";
 import { Facebook, Twitter, YouTubeIcon } from "@/components/icons";
 import {
   buildSafeImageUrl,
@@ -18,7 +18,9 @@ import {
   organizationId,
   websiteId,
 } from "@/components/json-ld";
-import PaginationControls from "@/components/pagination-controls";
+import { NewsListing } from "@/components/news/news-listing";
+import { SectionHeader } from "@/components/news/section-header";
+import { PageTransition } from "@/components/page-transition";
 import CustomImage from "@/components/sanity-image";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
@@ -135,8 +137,6 @@ async function cachedRenderAuthorPage({
     notFound();
   }
 
-  const totalPages = Math.ceil((authorPosts?.totalPosts ?? 0) / perPage);
-
   const authorJsonLd: Graph = {
     "@context": "https://schema.org",
     "@graph": [
@@ -210,113 +210,93 @@ async function cachedRenderAuthorPage({
     ],
   };
 
+  const socialLinks = [
+    {
+      url: author.socialLinks?.twitter,
+      label: `Follow ${author.name} on X`,
+      Icon: Twitter,
+    },
+    {
+      url: author.socialLinks?.facebook,
+      label: `Follow ${author.name} on Facebook`,
+      Icon: Facebook,
+    },
+    {
+      url: author.socialLinks?.youtube,
+      label: `Subscribe to ${author.name} on YouTube`,
+      Icon: YouTubeIcon,
+    },
+  ].filter((link): link is typeof link & { url: string } => Boolean(link.url));
+
   return (
-    <>
+    <PageTransition>
       <JsonLdScript
         data={authorJsonLd}
         id={`${author.name.toLowerCase().replace(/\s+/g, "-")}-json-ld`}
       />
-      <section className="py-8">
-        <div className="container mx-auto">
-          <div className="md:max-w-3xl xl:max-w-5xl">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-              <CustomImage
-                image={author.image}
-                className="size-20 shrink-0 rounded-full"
-                width={80}
-                height={80}
-                mode="cover"
-              />
-              <div>
-                <span className="text-brand-500 dark:text-brand-400 block text-base font-semibold">
+      <header className="bg-card border-b">
+        <div className="container flex flex-col gap-6 py-8 md:flex-row md:items-center md:py-10">
+          <CustomImage
+            image={author.image}
+            className="size-24 shrink-0 rounded-full object-cover md:size-28"
+            width={112}
+            height={112}
+            mode="cover"
+          />
+          <div className="flex max-w-3xl flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              {author.roles.length > 0 ? (
+                <p className="text-brand text-sm font-semibold">
                   {author.roles.join(", ")}
-                </span>
-                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
-                  {author.name}
-                </h1>
-              </div>
+                </p>
+              ) : null}
+              <h1 className="headline text-4xl text-balance md:text-5xl">
+                {author.name}
+              </h1>
             </div>
-            <p className="text-muted-foreground mt-4 text-lg font-normal lg:text-xl">
-              {author.biography}
-            </p>
-            {author.socialLinks && (
-              <ul className="text-muted-foreground mt-6 flex items-center space-x-6">
-                {author.socialLinks.twitter && (
-                  <li>
-                    <Link
-                      href={author.socialLinks.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Twitter
-                        name="twitter"
-                        className="fill-muted-foreground hover:fill-primary size-6"
-                      />
-                      <span className="sr-only">
-                        {`Follow ${author.name} on X (Formerly Twitter)`}
-                      </span>
-                    </Link>
+            {author.biography ? (
+              <p className="text-muted-foreground text-pretty md:text-lg">
+                {author.biography}
+              </p>
+            ) : null}
+            {socialLinks.length > 0 ? (
+              <ul className="flex items-center gap-2">
+                {socialLinks.map(({ url, label, Icon }) => (
+                  <li key={url}>
+                    <Button asChild variant="outline" size="icon">
+                      <Link
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Icon className="size-4 fill-current" />
+                        <span className="sr-only">{label}</span>
+                      </Link>
+                    </Button>
                   </li>
-                )}
-                {author.socialLinks.facebook && (
-                  <li>
-                    <Link
-                      href={author.socialLinks.facebook}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Facebook
-                        name="facebook"
-                        className="fill-muted-foreground hover:fill-primary size-6"
-                      />
-                      <span className="sr-only">{`Follow ${author.name} on Facebook`}</span>
-                    </Link>
-                  </li>
-                )}
-                {author.socialLinks.youtube && (
-                  <li>
-                    <Link
-                      href={author.socialLinks.youtube}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <YouTubeIcon
-                        name="youtube"
-                        className="fill-muted-foreground hover:fill-primary size-6"
-                      />
-                      <span className="sr-only">{`Subscribe to ${author.name}'s YouTube channel`}</span>
-                    </Link>
-                  </li>
-                )}
+                ))}
               </ul>
-            )}
-          </div>
-        </div>
-      </section>
-      {authorPosts && authorPosts.posts.length > 0 && (
-        <section className="container mx-auto">
-          <div>
-            <h2 className="mb-6 text-2xl font-bold tracking-tight">
-              Articles by {author.name}
-            </h2>
-            <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {authorPosts.posts.map((post: any) => (
-                <ArticleCard
-                  key={post._id}
-                  title={post.title}
-                  slug={post.slug}
-                  image={post.image}
-                  date={post.publishedAt}
-                  author={post.authors[0].name}
-                />
-              ))}
-            </div>
-            {totalPages > 1 ? (
-              <PaginationControls totalPosts={authorPosts.totalPosts} />
             ) : null}
           </div>
-        </section>
-      )}
-    </>
+        </div>
+      </header>
+      <section
+        aria-labelledby="author-articles"
+        className="container flex flex-col gap-6 py-8 pb-12"
+      >
+        <SectionHeader
+          id="author-articles"
+          title={`Stories by ${author.name}`}
+        />
+        {authorPosts && authorPosts.posts.length > 0 ? (
+          <NewsListing.Grid
+            posts={authorPosts.posts}
+            totalPosts={authorPosts.totalPosts}
+          />
+        ) : (
+          <p className="text-muted-foreground">No published stories yet.</p>
+        )}
+      </section>
+    </PageTransition>
   );
 }

@@ -17,6 +17,7 @@ export const env = createEnv({
     SCHOOL_SYNC_SECRET: z.string().min(1),
     UPSTASH_REDIS_REST_URL: z.url(),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
+    ENABLE_TRANSFER_PORTAL: z.enum(["true", "false"]).optional(),
   },
   client: {},
   runtimeEnv: {
@@ -26,5 +27,6 @@ export const env = createEnv({
     SCHOOL_SYNC_SECRET: process.env.SCHOOL_SYNC_SECRET,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    ENABLE_TRANSFER_PORTAL: process.env.ENABLE_TRANSFER_PORTAL,
   },
 });

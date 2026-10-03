@@ -51,11 +51,11 @@ describe("processVoterBallots", () => {
   it("returns an empty array when there are no ballots", async () => {
     const result = await processVoterBallots({});
 
-    expect(result).toEqual([]);
+    expect(result).toEqual({ voters: [], teams: {} });
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it("enriches ballots with school data and sorts votes by rank", async () => {
+  it("returns each school once and orders ballot team ids by rank", async () => {
     mockFetch.mockResolvedValue([
       {
         _id: "school-1",
@@ -89,14 +89,12 @@ describe("processVoterBallots", () => {
     const result = await processVoterBallots(ballots);
 
     expect(mockFetch).toHaveBeenCalledOnce();
-    expect(result).toHaveLength(1);
-    expect(result[0]?.name).toBe("Jane Doe");
-    expect(result[0]?.organization).toBe("ESPN");
-    expect(result[0]?.ballot.map((vote) => vote.name)).toEqual([
-      "Alabama",
-      "Georgia",
-    ]);
-    expect(result[0]?.ballot.map((vote) => vote._order)).toEqual([1, 2]);
+    expect(result.voters).toHaveLength(1);
+    expect(result.voters[0]?.name).toBe("Jane Doe");
+    expect(result.voters[0]?.organization).toBe("ESPN");
+    expect(result.voters[0]?.ballot).toEqual(["school-1", "school-2"]);
+    expect(Object.keys(result.teams)).toEqual(["school-1", "school-2"]);
+    expect(result.teams["school-2"]?.name).toBe("Georgia");
   });
 
   it("skips empty ballot entries and processes multiple voters", async () => {
@@ -143,8 +141,8 @@ describe("processVoterBallots", () => {
 
     const result = await processVoterBallots(ballots);
 
-    expect(result).toHaveLength(2);
-    expect(result.map((voter) => voter.name)).toEqual([
+    expect(result.voters).toHaveLength(2);
+    expect(result.voters.map((voter) => voter.name)).toEqual([
       "Jane Doe",
       "John Smith",
     ]);
@@ -176,8 +174,8 @@ describe("processVoterBallots", () => {
 
     const result = await processVoterBallots(ballots);
 
-    expect(result[0]?.ballot).toHaveLength(1);
-    expect(result[0]?.ballot[0]?.name).toBe("Alabama");
+    expect(result.voters[0]?.ballot).toEqual(["school-1"]);
+    expect(result.teams["missing-school"]).toBeUndefined();
   });
 
   it("skips voters without userData and defaults empty org fields", async () => {
@@ -210,8 +208,8 @@ describe("processVoterBallots", () => {
 
     const result = await processVoterBallots(ballots);
 
-    expect(result).toHaveLength(1);
-    expect(result[0]).toMatchObject({
+    expect(result.voters).toHaveLength(1);
+    expect(result.voters[0]).toMatchObject({
       name: "Jane Doe",
       organization: "",
       organizationRole: "",

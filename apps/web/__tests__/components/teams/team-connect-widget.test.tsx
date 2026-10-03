@@ -67,10 +67,14 @@ describe("TeamConnectWidget", () => {
       />,
     );
 
-    expect(screen.getByText("Connect With Alabama")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Follow Alabama" }),
+    ).toBeInTheDocument();
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(2);
     expect(links[0]).toHaveAttribute("href", "https://x.com/alabama");
+    expect(links[0]).toHaveTextContent("@alabama");
+    expect(links[1]).toHaveAttribute("href", "https://instagram.com/alabama");
   });
 
   it("keeps handles that already include an @ prefix", () => {
@@ -92,7 +96,9 @@ describe("TeamConnectWidget", () => {
       />,
     );
 
-    expect(screen.getByText("Connect With Us")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Follow Redshirt Sports" }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /@redshirtsports/i }),
     ).toBeInTheDocument();

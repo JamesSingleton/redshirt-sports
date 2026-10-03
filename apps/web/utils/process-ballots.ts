@@ -1,26 +1,23 @@
 import { client } from "@redshirt-sports/sanity/client";
 import { schoolsByIdsQuery } from "@redshirt-sports/sanity/queries";
 import { token } from "@redshirt-sports/sanity/token";
-import type { SanityImageAsset } from "@redshirt-sports/sanity/types";
 
 import type {
   Ballot,
   BallotsByVoter,
+  BallotTeam,
+  BallotTeamsById,
   VoterBreakdown,
-  VoteWithExtraData,
 } from "@/types";
 
-type SchoolRecord = {
-  _id: string;
-  name: string;
-  shortName: string;
-  abbreviation: string;
-  image: SanityImageAsset;
+export type ProcessedVoterBallots = {
+  voters: Omit<VoterBreakdown, "matchPercent">[];
+  teams: BallotTeamsById;
 };
 
 export async function processVoterBallots(
   userBallots: BallotsByVoter,
-): Promise<Omit<VoterBreakdown, "matchPercent">[]> {
+): Promise<ProcessedVoterBallots> {
   const teamIds = new Set<string>();
 
   for (const userId in userBallots) {
@@ -33,17 +30,21 @@ export async function processVoterBallots(
   }
 
   if (teamIds.size === 0) {
-    return [];
+    return { voters: [], teams: {} };
   }
 
-  const schools = await client.fetch<SchoolRecord[]>(
+  const schools = await client.fetch<BallotTeam[]>(
     schoolsByIdsQuery,
     { ids: [...teamIds] },
     { token, perspective: "published" },
   );
 
-  const schoolById = new Map(schools.map((school) => [school._id, school]));
-  const voterBallot: Omit<VoterBreakdown, "matchPercent">[] = [];
+  const teams: BallotTeamsById = {};
+  for (const school of schools) {
+    teams[school._id] = school;
+  }
+
+  const voters: ProcessedVoterBallots["voters"] = [];
 
   for (const userId in userBallots) {
     const userBallot = userBallots[userId];
@@ -52,28 +53,20 @@ export async function processVoterBallots(
     const { userData } = userBallot;
     if (!userData) continue;
 
-    const votesWithMoreData = userBallot.votes
-      .map((vote) => {
-        const school = schoolById.get(vote.teamId);
-        if (!school) return null;
+    const ballot = userBallot.votes
+      .filter((vote) => vote.teamId in teams)
+      .sort((a, b) => a.rank - b.rank)
+      .map((vote) => vote.teamId);
 
-        return {
-          ...school,
-          _order: vote.rank,
-        } satisfies VoteWithExtraData;
-      })
-      .filter((vote): vote is VoteWithExtraData => vote !== null)
-      .sort((a, b) => a._order - b._order);
-
-    voterBallot.push({
+    voters.push({
       name: `${userData.firstName} ${userData.lastName}`,
       organization: userData.organization ?? "",
       organizationRole: userData.organizationRole ?? "",
-      ballot: votesWithMoreData,
+      ballot,
     });
   }
 
-  return voterBallot;
+  return { voters, teams };
 }
 
 export const transformBallotToTeamIds = (ballot: Ballot[]) => {

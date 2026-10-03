@@ -35,7 +35,7 @@ export function LegalMobileTableOfContents({
   if (sections.length < 2) return null;
 
   return (
-    <details className="group bg-muted/40 rounded-lg border p-4 lg:hidden">
+    <details className="group bg-muted/40 rounded-md border p-4 lg:hidden">
       <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-semibold [&::-webkit-details-marker]:hidden">
         On this page
         <ChevronDown
@@ -60,13 +60,10 @@ export function LegalSidebar({
   const sections = headings.filter((heading) => heading.level === 2);
 
   return (
-    <aside className="space-y-10 text-sm lg:sticky lg:top-24 lg:self-start">
+    <aside className="space-y-10 text-sm lg:sticky lg:top-20 lg:self-start">
       {sections.length >= 2 && (
         <nav aria-labelledby="legal-toc-heading" className="hidden lg:block">
-          <h2
-            id="legal-toc-heading"
-            className="mb-4 text-xs font-semibold tracking-wider uppercase"
-          >
+          <h2 id="legal-toc-heading" className="headline mb-4 text-lg">
             On this page
           </h2>
           <TableOfContents headings={sections} />
@@ -74,10 +71,7 @@ export function LegalSidebar({
       )}
       {otherDocuments.length > 0 && (
         <nav aria-labelledby="legal-docs-heading">
-          <h2
-            id="legal-docs-heading"
-            className="mb-4 text-xs font-semibold tracking-wider uppercase"
-          >
+          <h2 id="legal-docs-heading" className="headline mb-4 text-lg">
             Other legal documents
           </h2>
           <ul className="space-y-2.5">
@@ -95,7 +89,7 @@ export function LegalSidebar({
           </ul>
         </nav>
       )}
-      <div className="bg-muted/40 rounded-lg border p-4">
+      <div className="bg-muted/40 rounded-md border p-4">
         <p className="font-semibold">Questions?</p>
         <p className="text-muted-foreground mt-1">
           If anything here is unclear,{" "}

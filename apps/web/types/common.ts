@@ -22,7 +22,7 @@ export type Conference = {
 };
 
 export type BreadcrumbProps = {
-  title: string;
+  title: string | null | undefined;
   href: string;
 }[];
 

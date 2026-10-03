@@ -47,8 +47,16 @@ vi.mock("@/lib/ballot-match", () => ({
 
 vi.mock("@/components/rankings/voter-ballot-breakdown", () => ({
   __esModule: true,
-  default: ({ voterBreakdown }: { voterBreakdown: unknown[] }) => (
-    <div data-testid="voter-breakdown">{voterBreakdown.length}</div>
+  default: ({
+    voterBreakdown,
+    teams,
+  }: {
+    voterBreakdown: unknown[];
+    teams: Record<string, unknown>;
+  }) => (
+    <div data-testid="voter-breakdown">
+      {voterBreakdown.length}:{Object.keys(teams).length}
+    </div>
   ),
 }));
 
@@ -77,7 +85,7 @@ describe("getCachedVoterBreakdown", () => {
   it("returns null when there are no processed ballots", async () => {
     mockGetSportIdBySlug.mockResolvedValue("sport-1");
     mockGetVotesForWeekAndYearByVoter.mockResolvedValue([]);
-    mockProcessVoterBallots.mockResolvedValue([]);
+    mockProcessVoterBallots.mockResolvedValue({ voters: [], teams: {} });
 
     const result = await getCachedVoterBreakdown(props);
     expect(result).toBeNull();
@@ -86,23 +94,34 @@ describe("getCachedVoterBreakdown", () => {
   it("returns voter breakdown with computed match percentages", async () => {
     mockGetSportIdBySlug.mockResolvedValue("sport-1");
     mockGetVotesForWeekAndYearByVoter.mockResolvedValue([{ id: "vote-1" }]);
-    mockProcessVoterBallots.mockResolvedValue([
-      {
-        name: "Voter One",
-        organization: "Media",
-        organizationRole: "Writer",
-        ballot: [{ _id: "team-1" }],
-      },
-    ]);
+    mockProcessVoterBallots.mockResolvedValue({
+      voters: [
+        {
+          name: "Voter One",
+          organization: "Media",
+          organizationRole: "Writer",
+          ballot: ["team-1"],
+        },
+      ],
+      teams: { "team-1": { _id: "team-1" } },
+    });
     mockComputeBallotMatchPercent.mockReturnValue(88);
 
     const voterBreakdown = await getCachedVoterBreakdown(props);
-    expect(voterBreakdown).toHaveLength(1);
-    expect(voterBreakdown?.[0]?.matchPercent).toBe(88);
-    expect(mockComputeBallotMatchPercent).toHaveBeenCalled();
+    expect(voterBreakdown?.voters).toHaveLength(1);
+    expect(voterBreakdown?.voters[0]?.matchPercent).toBe(88);
+    expect(mockComputeBallotMatchPercent).toHaveBeenCalledWith(
+      ["team-1"],
+      props.consensusRanks,
+    );
 
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown!} />);
-    expect(screen.getByTestId("voter-breakdown")).toHaveTextContent("1");
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown!.voters}
+        teams={voterBreakdown!.teams}
+      />,
+    );
+    expect(screen.getByTestId("voter-breakdown")).toHaveTextContent("1:1");
   });
 });
 
@@ -131,18 +150,21 @@ describe("RankingsVoterBreakdown", () => {
   it("renders voter ballots when breakdown exists", async () => {
     mockGetSportIdBySlug.mockResolvedValue("sport-1");
     mockGetVotesForWeekAndYearByVoter.mockResolvedValue([{ id: "vote-1" }]);
-    mockProcessVoterBallots.mockResolvedValue([
-      {
-        name: "Voter One",
-        organization: "Media",
-        organizationRole: "Writer",
-        ballot: [{ _id: "team-1" }],
-      },
-    ]);
+    mockProcessVoterBallots.mockResolvedValue({
+      voters: [
+        {
+          name: "Voter One",
+          organization: "Media",
+          organizationRole: "Writer",
+          ballot: ["team-1"],
+        },
+      ],
+      teams: { "team-1": { _id: "team-1" } },
+    });
     mockComputeBallotMatchPercent.mockReturnValue(88);
 
     const ui = await RankingsVoterBreakdown(props);
     render(ui!);
-    expect(screen.getByTestId("voter-breakdown")).toHaveTextContent("1");
+    expect(screen.getByTestId("voter-breakdown")).toHaveTextContent("1:1");
   });
 });

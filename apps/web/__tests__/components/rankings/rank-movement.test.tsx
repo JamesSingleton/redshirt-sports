@@ -15,9 +15,9 @@ describe("RankMovement", () => {
     expect(screen.getByText("2")).toBeInTheDocument();
   });
 
-  it("renders unchanged as an em dash", () => {
+  it("renders unchanged with an accessible label and no delta", () => {
     render(<RankMovement movement={{ kind: "same" }} />);
-    expect(screen.getByLabelText("unchanged")).toHaveTextContent("—");
+    expect(screen.getByLabelText("unchanged")).toHaveTextContent("");
   });
 
   it("renders NR for new-to-rankings", () => {

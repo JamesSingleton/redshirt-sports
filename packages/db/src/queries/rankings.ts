@@ -250,40 +250,6 @@ export async function getLatestFinalRankings({
   };
 }
 
-export async function getLatestFinalRankingsBySportSlug(sportSlug: string) {
-  const results = await db
-    .selectDistinctOn([pollsTable.slug], {
-      division: pollsTable.slug,
-      weekNumber: weeksTable.number,
-      seasonType: seasonTypesTable.type,
-      year: seasonsTable.year,
-    })
-    .from(pollRankingsTable)
-    .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
-    .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
-    .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
-    .innerJoin(
-      seasonTypesTable,
-      eq(weeksTable.seasonTypeId, seasonTypesTable.id),
-    )
-    .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
-    .where(eq(sportsTable.slug, sportSlug))
-    // Season type before week number: postseason week 1 (final rankings)
-    // must beat regular-season week 13.
-    .orderBy(
-      pollsTable.slug,
-      desc(seasonsTable.year),
-      desc(seasonTypesTable.type),
-      desc(weeksTable.number),
-    );
-
-  return results.map((row) => ({
-    division: row.division,
-    week: seasonTypeAndNumberToLegacyWeek(row.seasonType, row.weekNumber),
-    year: row.year,
-  }));
-}
-
 export async function arePollRankingsPublished({
   pollId,
   weekId,

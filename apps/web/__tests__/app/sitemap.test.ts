@@ -39,6 +39,7 @@ describe("root sitemap", () => {
         { url: "https://redshirtsports.com/about" },
         { url: "https://redshirtsports.com/contact" },
         { url: "https://redshirtsports.com/college/news" },
+        { url: "https://redshirtsports.com/college/teams" },
         {
           url: "https://redshirtsports.com/authors/jane-author",
           lastModified: new Date("2026-01-01T00:00:00Z"),
@@ -54,7 +55,7 @@ describe("root sitemap", () => {
   it("handles missing Sanity data", async () => {
     mockSanityFetchMetadata.mockResolvedValue({ data: null });
     const urls = await sitemap();
-    expect(urls).toHaveLength(4);
+    expect(urls).toHaveLength(5);
     expect(
       urls.every(
         (entry) =>

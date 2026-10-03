@@ -15,12 +15,20 @@ import {
   schoolsForVotesQuery,
 } from "@redshirt-sports/sanity/queries";
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@redshirt-sports/ui/components/empty";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import z from "zod";
 
+import PageHeader from "@/components/page-header";
 import {
   CreateVoteFormWrapper,
   EditVoteFormWrapper,
@@ -93,7 +101,7 @@ async function getLatestVoterBallotWithSchools(
 }
 
 export const metadata: Metadata = {
-  title: `College Football Top 25 Voting | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+  title: "Top 25 Voting",
   description: "Vote for the top 25 college football teams.",
   robots: {
     follow: false,
@@ -259,19 +267,24 @@ export async function VotePageAuth({
 
   if (!hasVoted && published) {
     return (
-      <div className="container flex flex-col items-center gap-6 py-12 text-center">
-        {title ? (
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            {title}
-          </h1>
-        ) : null}
-        <p className="text-muted-foreground text-lg">
-          Voting is closed for this week. Rankings have already been published.
-        </p>
-        <Link href="/" className={buttonVariants()}>
-          Return Home
-        </Link>
-      </div>
+      <>
+        {title ? <PageHeader title={title} /> : null}
+        <div className="container pb-12">
+          <Empty className="border">
+            <EmptyHeader>
+              <EmptyTitle>Voting is closed for this week</EmptyTitle>
+              <EmptyDescription>
+                This week&apos;s rankings have already been published.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Link href="/" className={buttonVariants()}>
+                Return home
+              </Link>
+            </EmptyContent>
+          </Empty>
+        </div>
+      </>
     );
   }
 
@@ -289,23 +302,21 @@ export async function VotePageAuth({
     : await getLatestVoterBallotWithSchools(userId, division, sport, year);
 
   return (
-    <div className="container">
-      {title && subtitle && (
-        <div className="flex flex-col gap-4 pt-12 text-center">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-            {title}
-          </h1>
-          <p className="text-muted-foreground text-lg">{subtitle}</p>
-        </div>
-      )}
-      {hasVoted ? (
-        <EditVoteFormWrapper schools={schools} currentBallot={currentBallot} />
-      ) : (
-        <CreateVoteFormWrapper
-          schools={schools}
-          previousBallot={latestBallot}
-        />
-      )}
-    </div>
+    <>
+      {title ? <PageHeader title={title} subtitle={subtitle} /> : null}
+      <div className="container pb-12">
+        {hasVoted ? (
+          <EditVoteFormWrapper
+            schools={schools}
+            currentBallot={currentBallot}
+          />
+        ) : (
+          <CreateVoteFormWrapper
+            schools={schools}
+            previousBallot={latestBallot}
+          />
+        )}
+      </div>
+    </>
   );
 }

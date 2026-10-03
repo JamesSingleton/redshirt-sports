@@ -16,7 +16,7 @@ import {
   rankingsSportTag,
   rankingsWeekTag,
 } from "@/lib/rankings-data";
-import type { VoterBreakdown } from "@/types/votes";
+import type { VoterBreakdownData } from "@/types/votes";
 import type { SportParam } from "@/utils/espn";
 import { processVoterBallots } from "@/utils/process-ballots";
 
@@ -59,12 +59,12 @@ async function getCachedVoterBallots({
     sportId,
   });
 
-  const voterBreakdown = await processVoterBallots(votesForWeekAndYearByVoter);
-  if (voterBreakdown.length === 0) {
+  const processed = await processVoterBallots(votesForWeekAndYearByVoter);
+  if (processed.voters.length === 0) {
     return null;
   }
 
-  return voterBreakdown;
+  return processed;
 }
 
 /**
@@ -75,19 +75,19 @@ async function getCachedVoterBallots({
 export async function getCachedVoterBreakdown({
   consensusRanks,
   ...ballotParams
-}: RankingsVoterBreakdownProps): Promise<VoterBreakdown[] | null> {
-  const voterBreakdown = await getCachedVoterBallots(ballotParams);
-  if (!voterBreakdown) {
+}: RankingsVoterBreakdownProps): Promise<VoterBreakdownData | null> {
+  const ballots = await getCachedVoterBallots(ballotParams);
+  if (!ballots) {
     return null;
   }
 
-  return voterBreakdown.map((voter) => ({
-    ...voter,
-    matchPercent: computeBallotMatchPercent(
-      voter.ballot.map((team) => team._id),
-      consensusRanks,
-    ),
-  }));
+  return {
+    teams: ballots.teams,
+    voters: ballots.voters.map((voter) => ({
+      ...voter,
+      matchPercent: computeBallotMatchPercent(voter.ballot, consensusRanks),
+    })),
+  };
 }
 
 export async function RankingsVoterBreakdown(
@@ -99,8 +99,9 @@ export async function RankingsVoterBreakdown(
   }
 
   return (
-    <div className="mt-8">
-      <VoterBallotBreakdown voterBreakdown={voterBreakdown} />
-    </div>
+    <VoterBallotBreakdown
+      voterBreakdown={voterBreakdown.voters}
+      teams={voterBreakdown.teams}
+    />
   );
 }

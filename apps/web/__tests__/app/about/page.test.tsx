@@ -66,12 +66,6 @@ vi.mock("@/components/sanity-image", () => ({
   default: () => <img alt="" data-testid="author-image" />,
 }));
 
-vi.mock("@/components/icons", () => ({
-  Facebook: () => <span data-testid="facebook-icon" />,
-  Twitter: () => <span data-testid="twitter-icon" />,
-  YouTubeIcon: () => <span data-testid="youtube-icon" />,
-}));
-
 import AboutPage, { generateMetadata } from "@/app/about/page";
 
 describe("AboutPage", () => {
@@ -115,13 +109,19 @@ describe("AboutPage", () => {
       "href",
       "/authors/jane-author",
     );
-    expect(screen.getByRole("link", { name: "contact page" })).toHaveAttribute(
-      "href",
-      "/contact",
-    );
+    expect(
+      screen.getByRole("heading", { name: "Our team" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Writer")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Write for us" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Contact our editors" }),
+    ).toHaveAttribute("href", "/contact");
   });
 
-  it("renders all author social links and authors without roles", async () => {
+  it("renders authors without roles", async () => {
     mockSanityFetchPage.mockResolvedValue({
       data: [
         {
@@ -130,27 +130,47 @@ describe("AboutPage", () => {
           slug: "jane-author",
           roles: null,
           image: null,
-          socialLinks: {
-            twitter: "https://twitter.com/jane",
-            facebook: "https://facebook.com/jane",
-            youtube: "https://youtube.com/jane",
-          },
+          socialLinks: null,
+        },
+        {
+          _id: "author-2",
+          name: "John Writer",
+          slug: "john-writer",
+          roles: [],
+          image: null,
+          socialLinks: null,
         },
       ],
     });
 
     const page = await AboutPage();
+    const { container } = render(page as ReactNode);
+
+    expect(screen.getByRole("link", { name: "Jane Author" })).toHaveAttribute(
+      "href",
+      "/authors/jane-author",
+    );
+    expect(screen.getByRole("link", { name: "John Writer" })).toHaveAttribute(
+      "href",
+      "/authors/john-writer",
+    );
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    expect(
+      container.querySelectorAll("li p.text-muted-foreground"),
+    ).toHaveLength(0);
+  });
+
+  it("hides the team section when there are no authors", async () => {
+    mockSanityFetchPage.mockResolvedValue({ data: [] });
+
+    const page = await AboutPage();
     render(page as ReactNode);
 
-    expect(screen.getByText("Jane Author")).toBeInTheDocument();
     expect(
-      screen.getByText(/Follow Jane Author on X \(Formerly Twitter\)/i),
-    ).toBeInTheDocument();
+      screen.queryByRole("heading", { name: "Our team" }),
+    ).not.toBeInTheDocument();
     expect(
-      screen.getByText(/Follow Jane Author on Facebook/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Subscribe to Jane Author's YouTube channel/i),
-    ).toBeInTheDocument();
+      screen.getByRole("link", { name: "Contact our editors" }),
+    ).toHaveAttribute("href", "/contact");
   });
 });

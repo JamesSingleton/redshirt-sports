@@ -1,5 +1,5 @@
-import { cn } from "@redshirt-sports/ui/lib/utils";
-import { ChevronRight, HomeIcon } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 
 import type { BreadcrumbProps } from "@/types";
@@ -9,50 +9,46 @@ type BreadCrumbPages = {
 };
 
 const BreadCrumbs = ({ breadCrumbPages }: BreadCrumbPages) => {
-  const filteredBreadcrumbPages = breadCrumbPages.filter(
-    (page) => page !== null,
+  const pages = breadCrumbPages.filter(
+    (page): page is { title: string; href: string } => Boolean(page?.title),
   );
+
   return (
-    <nav aria-label="breadcrumb" title="breadcrumb" className="flex">
-      <ol className="flex shrink-0 flex-wrap items-center gap-2">
-        <li title="Home">
+    <nav aria-label="Breadcrumb">
+      <ol className="text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm">
+        <li>
           <Link
             href="/"
             prefetch={false}
-            className="text-muted-foreground hover:text-foreground"
+            className="hover:text-foreground transition-colors"
           >
-            <span className="sr-only">Home</span>
-            <HomeIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
+            Home
           </Link>
         </li>
-        {filteredBreadcrumbPages.map((page, index: number) => (
-          <li key={page.title} title={page.title}>
-            <div className="flex items-center">
-              <ChevronRight
-                className="h-5 w-5 flex-shrink-0"
-                aria-hidden="true"
-                strokeWidth={1.5}
-              />
-              <Link
-                aria-current={
-                  index === filteredBreadcrumbPages.length - 1
-                    ? "page"
-                    : undefined
-                }
-                href={page.href}
-                prefetch={false}
-                className={cn(
-                  "ml-2 text-base font-semibold",
-                  index === filteredBreadcrumbPages.length - 1
-                    ? "text-brand-500 dark:text-brand-400 w-32 truncate sm:w-64 lg:w-full"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {page.title}
-              </Link>
-            </div>
-          </li>
-        ))}
+        {pages.map((page, index) => {
+          const isCurrent = index === pages.length - 1;
+          return (
+            <li key={page.href} className="flex items-center gap-1.5">
+              <ChevronRight aria-hidden="true" className="size-3.5" />
+              {isCurrent ? (
+                <span
+                  aria-current="page"
+                  className="text-foreground font-medium"
+                >
+                  {page.title}
+                </span>
+              ) : (
+                <Link
+                  href={page.href as Route}
+                  prefetch={false}
+                  className="hover:text-foreground transition-colors"
+                >
+                  {page.title}
+                </Link>
+              )}
+            </li>
+          );
+        })}
       </ol>
     </nav>
   );

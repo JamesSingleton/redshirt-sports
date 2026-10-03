@@ -5,6 +5,7 @@ import {
   getDroppedOutOfTop25,
   getMovement,
   getPreviousWeek,
+  getWeekHighlights,
   type RankingTeamRef,
 } from "@/lib/rankings-movement";
 
@@ -148,5 +149,30 @@ describe("displayName", () => {
         _points: 1,
       }),
     ).toBe("Unknown");
+  });
+});
+
+describe("getWeekHighlights", () => {
+  it("finds the biggest riser, biggest fall, and new teams", () => {
+    const current = [team("a", 1), team("b", 2), team("c", 3), team("d", 4)];
+    const previous = new Map<string, number | null>([
+      ["a", 2],
+      ["b", 9],
+      ["c", 1],
+      ["d", 30],
+    ]);
+
+    const highlights = getWeekHighlights(current, previous);
+
+    expect(highlights.riser).toEqual({ team: current[1], delta: 7 });
+    expect(highlights.faller).toEqual({ team: current[2], delta: 2 });
+    expect(highlights.newcomers).toEqual([current[3]]);
+  });
+
+  it("returns empty highlights when nothing moved", () => {
+    const current = [team("a", 1)];
+    const highlights = getWeekHighlights(current, new Map([["a", 1]]));
+
+    expect(highlights).toEqual({ riser: null, faller: null, newcomers: [] });
   });
 });

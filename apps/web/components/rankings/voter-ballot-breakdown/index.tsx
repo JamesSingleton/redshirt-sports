@@ -21,7 +21,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useDebounce } from "@/hooks/use-debounce";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import type { VoterBreakdown } from "@/types/votes";
+import type { BallotTeamsById, VoterBreakdown } from "@/types/votes";
 
 const VoterBreakdownDesktop = dynamic(() => import("./desktop"), {
   ssr: false,
@@ -32,12 +32,16 @@ type SortBy = "name" | "match";
 
 type Props = {
   voterBreakdown: VoterBreakdown[];
+  teams: BallotTeamsById;
 };
 
 const VOTER_BREAKDOWN_DESCRIPTION =
   "See how each voter cast their ballot for this week's rankings. Match % shows how closely each ballot's rank order matched the final Top 25.";
 
-export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
+export default function VoterBallotBreakdown({
+  voterBreakdown,
+  teams,
+}: Props) {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 150);
   const [page, setPage] = useState(1);
@@ -162,6 +166,7 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
         {isMobile ? (
           <VoterBreakdownMobile
             rows={rows}
+            teams={teams}
             page={safePage}
             pageCount={pageCount}
             onPrevAction={() => setPage((p) => Math.max(1, p - 1))}
@@ -170,6 +175,7 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
         ) : (
           <VoterBreakdownDesktop
             rows={rows}
+            teams={teams}
             page={safePage}
             pageCount={pageCount}
             onFirstAction={() => setPage(1)}

@@ -3,15 +3,19 @@ import {
   getDynamicFetchOptions,
   PUBLISHED_FETCH_OPTIONS,
 } from "@redshirt-sports/sanity/live";
-import { collegeNewsQuery } from "@redshirt-sports/sanity/queries";
+import {
+  collegeNewsQuery,
+  querySportFilters,
+} from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { CollectionPage, WithContext } from "schema-dts";
 
-import ArticleFeed from "@/components/article-feed";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
+import { FilterRow } from "@/components/news/filter-row";
+import { NewsListing } from "@/components/news/news-listing";
 import PageHeader from "@/components/page-header";
-import PaginationControls from "@/components/pagination-controls";
+import { PageTransition } from "@/components/page-transition";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
@@ -94,20 +98,24 @@ async function cachedRenderCollegeSportsNews({
   "use cache";
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
-  const {
-    data: { posts, totalPosts },
-  } = await sanityFetchPage({
-    query: collegeNewsQuery,
-    params: { from, to },
-    perspective,
-    stega,
-  });
+  const [
+    {
+      data: { posts, totalPosts },
+    },
+    { data: sports },
+  ] = await Promise.all([
+    sanityFetchPage({
+      query: collegeNewsQuery,
+      params: { from, to },
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({ query: querySportFilters, perspective, stega: false }),
+  ]);
 
   if (posts.length === 0) {
     notFound();
   }
-
-  const totalPages = Math.ceil(totalPosts / perPage);
 
   const newsJsonLd: WithContext<CollectionPage> = {
     "@context": "https://schema.org",
@@ -150,14 +158,32 @@ async function cachedRenderCollegeSportsNews({
     },
   };
 
+  const sportFilters = (sports ?? []).map((sport) => ({
+    key: sport._id,
+    label: sport.title ?? "",
+    href: `/college/${sport.slug}/news`,
+  }));
+
   return (
-    <>
+    <PageTransition>
       <JsonLdScript data={newsJsonLd} id="college-sports-news-json-ld" />
-      <PageHeader title="College Sports News" breadcrumbs={breadcrumbItems} />
-      <section className="container pb-12">
-        <ArticleFeed articles={posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={totalPosts} />}
-      </section>
-    </>
+      <PageHeader title="College Sports News" breadcrumbs={breadcrumbItems}>
+        <FilterRow
+          label="Sports"
+          items={[
+            { key: "all", label: "All", href: "/college/news" },
+            ...sportFilters,
+          ]}
+          activeHref="/college/news"
+        />
+      </PageHeader>
+      <NewsListing.Layout>
+        <NewsListing.Feed
+          posts={posts}
+          totalPosts={totalPosts}
+          pageIndex={pageIndex}
+        />
+      </NewsListing.Layout>
+    </PageTransition>
   );
 }

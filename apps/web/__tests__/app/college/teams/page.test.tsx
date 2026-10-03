@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
 const {
@@ -12,6 +12,8 @@ const {
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
+  mockIsTransferPortalEnabled,
+  mockGetCachedSchoolTransfers,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
   mockSanityFetchMetadata: vi.fn(),
@@ -27,6 +29,8 @@ const {
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
+  mockIsTransferPortalEnabled: vi.fn(() => false),
+  mockGetCachedSchoolTransfers: vi.fn(),
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
@@ -92,30 +96,67 @@ vi.mock("@/components/json-ld", () => ({
   TeamPageJsonLd: () => <script data-testid="team-json-ld" />,
 }));
 
+vi.mock("@/lib/transfer-portal", () => ({
+  isTransferPortalEnabled: mockIsTransferPortalEnabled,
+  getCachedSchoolTransfers: mockGetCachedSchoolTransfers,
+}));
+
 vi.mock("@/components/sanity-image", () => ({
   __esModule: true,
-  default: () => <img alt="" />,
+  default: ({ image }: { image: { alt?: string } }) => (
+    <img alt={image.alt ?? ""} data-testid="school-logo" />
+  ),
+}));
+
+vi.mock("@/components/article-card", () => ({
+  __esModule: true,
+  default: ({
+    title,
+    slug,
+    author,
+  }: {
+    title: string;
+    slug: string;
+    author?: string;
+  }) => (
+    <article data-testid="article-card">
+      <a href={`/${slug}`}>{title}</a>
+      {author ? <span>{author}</span> : null}
+    </article>
+  ),
+  ArticleRow: ({ title, slug }: { title: string; slug: string }) => (
+    <article data-testid="article-row">
+      <a href={`/${slug}`}>{title}</a>
+    </article>
+  ),
 }));
 
 vi.mock("@/components/teams/team-connect-widget", () => ({
-  TeamConnectWidget: () => <div data-testid="connect-widget" />,
-}));
-
-vi.mock("@/components/teams/team-feed-list", () => ({
-  TeamFeedList: ({ title }: { title: string }) => <section>{title}</section>,
-}));
-
-vi.mock("@/components/teams/team-post-card", () => ({
-  TeamFeaturedArticle: ({ post }: { post: { title: string } }) => (
-    <div data-testid="featured">{post.title}</div>
-  ),
-  TeamNewsItem: ({ post }: { post: { title: string } }) => (
-    <div data-testid="news-item">{post.title}</div>
+  TeamConnectWidget: ({ schoolName }: { schoolName: string }) => (
+    <div data-testid="connect-widget">{schoolName}</div>
   ),
 }));
 
 vi.mock("@/components/teams/team-ranking-history", () => ({
-  TeamRankingHistory: () => <div data-testid="ranking-history" />,
+  TeamRankingHistory: ({ teamName }: { teamName: string }) => (
+    <div data-testid="ranking-history">{teamName}</div>
+  ),
+}));
+
+vi.mock("@/components/teams/team-portal-moves", () => ({
+  TeamPortalMoves: ({
+    teamName,
+    incoming,
+    outgoing,
+  }: {
+    teamName: string;
+    incoming: unknown[];
+    outgoing: unknown[];
+  }) => (
+    <div data-testid="portal-moves">
+      {teamName}: {incoming.length} in, {outgoing.length} out
+    </div>
+  ),
 }));
 
 import TeamPage, {
@@ -135,20 +176,28 @@ const sampleSchool = {
   overview: "Team overview",
 };
 
-function mockTeamPageFetches() {
+function post(id: string, title: string) {
+  return { _id: id, title, slug: id, authors: [{ name: "Reporter" }] };
+}
+
+const eightPosts = Array.from({ length: 8 }, (_, i) =>
+  post(`post-${i}`, `Post ${i}`),
+);
+
+function mockTeamPageFetches(school: Record<string, unknown> = sampleSchool) {
   mockSanityFetchPage
-    .mockResolvedValueOnce({ data: sampleSchool })
+    .mockResolvedValueOnce({ data: school })
+    .mockResolvedValueOnce({ data: { posts: eightPosts } })
     .mockResolvedValueOnce({
-      data: {
-        posts: Array.from({ length: 8 }, (_, i) => ({
-          _id: `post-${i}`,
-          title: `Post ${i}`,
-        })),
-      },
-    })
-    .mockResolvedValueOnce({
-      data: [{ _id: "recruit-1", title: "Top Recruit" }],
+      data: [post("recruit-1", "Top Recruit"), post("post-0", "Post 0")],
     });
+}
+
+async function renderTeamPage() {
+  const page = await TeamPage({
+    params: Promise.resolve({ slug: "alabama" }),
+  });
+  return render(page as ReactNode);
 }
 
 describe("TeamPage", () => {
@@ -158,6 +207,8 @@ describe("TeamPage", () => {
     mockSanityFetchStaticParams.mockReset();
     mockNotFound.mockClear();
     mockGetCachedSchoolRankingHistory.mockResolvedValue({ polls: [] });
+    mockIsTransferPortalEnabled.mockReturnValue(false);
+    mockGetCachedSchoolTransfers.mockReset();
   });
 
   it("generateStaticParams merges post-qualified and ranked slugs", async () => {
@@ -222,18 +273,99 @@ describe("TeamPage", () => {
   it("renders team page sections for eligible school", async () => {
     mockTeamPageFetches();
 
-    const page = await TeamPage({
-      params: Promise.resolve({ slug: "alabama" }),
-    });
-    render(page as ReactNode);
+    await renderTeamPage();
 
     expect(
-      screen.getByRole("heading", { name: "Alabama" }),
+      screen.getByRole("heading", { level: 1, name: "Alabama Crimson Tide" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Post 0")).toBeInTheDocument();
-    expect(screen.getByText("Alabama Sports")).toBeInTheDocument();
-    expect(screen.getByText("Top Recruit")).toBeInTheDocument();
-    expect(screen.getByTestId("connect-widget")).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Alabama news" }),
+    ).toBeInTheDocument();
+    const cards = screen.getAllByTestId("article-card");
+    expect(cards).toHaveLength(3);
+    expect(within(cards[0]!).getByRole("link")).toHaveAttribute(
+      "href",
+      "/post-0",
+    );
+    expect(within(cards[0]!).getByText("Reporter")).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "More stories" }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Alabama recruiting" }),
+    ).toBeInTheDocument();
+    // 5 "More stories" rows + 1 recruiting row (Post 0 is deduped).
+    const rows = screen.getAllByTestId("article-row");
+    expect(rows).toHaveLength(6);
+    expect(rows.map((row) => row.textContent)).toEqual([
+      "Post 3",
+      "Post 4",
+      "Post 5",
+      "Post 6",
+      "Post 7",
+      "Top Recruit",
+    ]);
+
+    expect(screen.getByTestId("ranking-history")).toHaveTextContent("Alabama");
+    expect(screen.getByTestId("connect-widget")).toHaveTextContent("Alabama");
+    expect(screen.queryByTestId("portal-moves")).not.toBeInTheDocument();
+    expect(mockGetCachedSchoolTransfers).not.toHaveBeenCalled();
+  });
+
+  it("renders conference badges for complete affiliations only", async () => {
+    mockTeamPageFetches({
+      ...sampleSchool,
+      conferenceAffiliations: [
+        {
+          _key: "a1",
+          conference: { shortName: "SEC", name: "Southeastern Conference" },
+          sport: { title: "Football" },
+        },
+        {
+          _key: "a2",
+          conference: { shortName: null, name: "Big Sky Conference" },
+          sport: { title: "Basketball" },
+        },
+        { _key: "a3", conference: null, sport: { title: "Baseball" } },
+      ],
+    });
+
+    await renderTeamPage();
+
+    expect(screen.getByText("SEC Football")).toBeInTheDocument();
+    expect(
+      screen.getByText("Big Sky Conference Basketball"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Baseball/)).not.toBeInTheDocument();
+  });
+
+  it("renders transfer portal moves when the portal is enabled", async () => {
+    mockIsTransferPortalEnabled.mockReturnValue(true);
+    mockGetCachedSchoolTransfers.mockResolvedValue({
+      incoming: [{ id: "in-1" }, { id: "in-2" }],
+      outgoing: [{ id: "out-1" }],
+    });
+    mockTeamPageFetches();
+
+    await renderTeamPage();
+
+    expect(mockGetCachedSchoolTransfers).toHaveBeenCalledWith("school-1");
+    expect(screen.getByTestId("portal-moves")).toHaveTextContent(
+      "Alabama: 2 in, 1 out",
+    );
+  });
+
+  it("omits transfer portal moves when the school has no portal record", async () => {
+    mockIsTransferPortalEnabled.mockReturnValue(true);
+    mockGetCachedSchoolTransfers.mockResolvedValue(null);
+    mockTeamPageFetches();
+
+    await renderTeamPage();
+
+    expect(screen.queryByTestId("portal-moves")).not.toBeInTheDocument();
   });
 
   it("throws notFound when school is missing", async () => {
@@ -310,41 +442,21 @@ describe("TeamPage", () => {
     );
   });
 
-  it("renders placeholder nav image when school has no logo", async () => {
+  it("renders no logo when school has no image", async () => {
     mockTeamPageFetches();
-    const page = await TeamPage({
-      params: Promise.resolve({ slug: "alabama" }),
-    });
-    const { container } = render(page as ReactNode);
-    expect(container.querySelector(".rounded-full.bg-muted")).toBeTruthy();
+    await renderTeamPage();
+    expect(screen.queryByTestId("school-logo")).not.toBeInTheDocument();
   });
 
   it("renders school logo when image is present", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          ...sampleSchool,
-          image: { asset: { _ref: "image-1" }, alt: "Alabama" },
-        },
-      })
-      .mockResolvedValueOnce({
-        data: {
-          posts: Array.from({ length: 8 }, (_, i) => ({
-            _id: `post-${i}`,
-            title: `Post ${i}`,
-          })),
-        },
-      })
-      .mockResolvedValueOnce({
-        data: [{ _id: "recruit-1", title: "Top Recruit" }],
-      });
-
-    const page = await TeamPage({
-      params: Promise.resolve({ slug: "alabama" }),
+    mockTeamPageFetches({
+      ...sampleSchool,
+      image: { asset: { _ref: "image-1" }, alt: "Alabama" },
     });
-    const { container } = render(page as ReactNode);
-    expect(container.querySelector("img")).toBeTruthy();
-    expect(container.querySelector(".rounded-full.bg-muted")).toBeNull();
+
+    await renderTeamPage();
+
+    expect(screen.getByTestId("school-logo")).toHaveAttribute("alt", "Alabama");
   });
 
   it("falls back to Team when shortName and name are missing", async () => {
@@ -362,16 +474,16 @@ describe("TeamPage", () => {
       polls: [{ pollId: "poll-1" }],
     });
 
-    const page = await TeamPage({
-      params: Promise.resolve({ slug: "alabama" }),
-    });
-    render(page as ReactNode);
+    await renderTeamPage();
 
-    expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
-    expect(screen.getByText("Team Sports")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Crimson Tide" }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("ranking-history")).toHaveTextContent("Team");
+    expect(screen.getByTestId("connect-widget")).toHaveTextContent("Team");
   });
 
-  it("renders team page without featured posts or recruiting when feeds are empty", async () => {
+  it("renders team page without news or recruiting sections when feeds are empty", async () => {
     mockSanityFetchPage
       .mockResolvedValueOnce({ data: sampleSchool })
       .mockResolvedValueOnce({ data: { posts: [] } })
@@ -380,13 +492,11 @@ describe("TeamPage", () => {
       polls: [{ pollId: "poll-1" }],
     });
 
-    const page = await TeamPage({
-      params: Promise.resolve({ slug: "alabama" }),
-    });
-    render(page as ReactNode);
+    await renderTeamPage();
 
-    expect(screen.getByText("Alabama Sports")).toBeInTheDocument();
-    expect(screen.queryByTestId("featured")).not.toBeInTheDocument();
-    expect(screen.queryByText("Alabama Recruiting")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2 })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("article-card")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("article-row")).not.toBeInTheDocument();
+    expect(screen.getByTestId("ranking-history")).toBeInTheDocument();
   });
 });

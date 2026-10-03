@@ -7,17 +7,21 @@ import {
 import {
   conferenceInfoBySlugQuery,
   queryArticlesBySportDivisionAndConference,
+  queryDivisionConferenceFilters,
   queryDivisionOrSubgroupingDisplayName,
   sportInfoBySlug,
 } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import type { CollectionPage, WithContext } from "schema-dts";
 
-import ArticleFeed from "@/components/article-feed";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
+import { FilterCombobox } from "@/components/news/filter-combobox";
+import { NewsListing } from "@/components/news/news-listing";
 import PageHeader from "@/components/page-header";
-import PaginationControls from "@/components/pagination-controls";
+import { PageTransition } from "@/components/page-transition";
+import { PollAside } from "@/components/rankings/poll-aside";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
@@ -121,6 +125,7 @@ async function renderConferenceNewsPage({
     pageIndex,
     perspective,
     stega,
+    aside: <PollAside sport={sport} division={division} />,
   });
 }
 
@@ -131,38 +136,51 @@ async function cachedRenderConferenceNewsPage({
   pageIndex,
   perspective,
   stega,
+  aside,
 }: DynamicFetchOptions & {
   sport: string;
   division: string;
   conference: string;
   pageIndex: number;
+  /** Postgres-backed; passed through so it stays out of this cache entry. */
+  aside: ReactNode;
 }) {
   "use cache";
   const baseUrl = getBaseUrl();
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
 
-  const [newsResponse, sportInfoResponse, divisionNameResponse] =
-    await Promise.all([
-      sanityFetchPage({
-        query: queryArticlesBySportDivisionAndConference,
-        params: { sport, division, conference, from, to },
-        perspective,
-        stega,
-      }),
-      sanityFetchPage({
-        query: sportInfoBySlug,
-        params: { slug: sport },
-        perspective,
-        stega,
-      }),
-      sanityFetchPage({
-        query: queryDivisionOrSubgroupingDisplayName,
-        params: { slugOrShortName: division },
-        perspective,
-        stega,
-      }),
-    ]);
+  const [
+    newsResponse,
+    sportInfoResponse,
+    divisionNameResponse,
+    conferenceFiltersResponse,
+  ] = await Promise.all([
+    sanityFetchPage({
+      query: queryArticlesBySportDivisionAndConference,
+      params: { sport, division, conference, from, to },
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: sportInfoBySlug,
+      params: { slug: sport },
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: queryDivisionOrSubgroupingDisplayName,
+      params: { slugOrShortName: division },
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: queryDivisionConferenceFilters,
+      params: { sport, division },
+      perspective,
+      stega: false,
+    }),
+  ]);
 
   const news = newsResponse.data;
   const sportInfo = sportInfoResponse.data;
@@ -171,8 +189,6 @@ async function cachedRenderConferenceNewsPage({
   if (!news?.posts?.length || !news.conferenceInfo) {
     notFound();
   }
-
-  const totalPages = Math.ceil(news.totalPosts / perPage);
 
   const sportTitle = sportInfo?.title;
 
@@ -253,18 +269,38 @@ async function cachedRenderConferenceNewsPage({
     },
   ];
 
+  const divisionPath = `/college/${sport}/news/${division}`;
+  const conferenceFilters = (conferenceFiltersResponse.data ?? []).map(
+    (item) => ({
+      key: item._id,
+      label: item.name ?? "",
+      href: `${divisionPath}/${item.slug}`,
+    }),
+  );
+
   return (
-    <>
+    <PageTransition>
       <JsonLdScript
         data={collectionPageJsonLd}
         id={`collection-page-${sport}-${division}-${conference}`}
       />
-      {/* @ts-expect-error for some reason it doesn't like the type */}
-      <PageHeader title={title} breadcrumbs={breadcrumbItems} />
-      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <ArticleFeed articles={news.posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
-      </section>
-    </>
+      <PageHeader title={title} breadcrumbs={breadcrumbItems}>
+        <FilterCombobox
+          label="Conference"
+          items={[
+            { key: "all", label: "All", href: divisionPath },
+            ...conferenceFilters,
+          ]}
+          activeHref={`${divisionPath}/${conference}`}
+        />
+      </PageHeader>
+      <NewsListing.Layout aside={aside}>
+        <NewsListing.Feed
+          posts={news.posts}
+          totalPosts={news.totalPosts}
+          pageIndex={pageIndex}
+        />
+      </NewsListing.Layout>
+    </PageTransition>
   );
 }

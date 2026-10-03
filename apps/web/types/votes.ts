@@ -2,14 +2,15 @@ import type { SanityImageAsset } from "@redshirt-sports/sanity/types";
 
 import type { Ballot } from "./common";
 
-export type VoteWithExtraData = {
+export type BallotTeam = {
+  _id: string;
   name: string;
   shortName: string;
   abbreviation: string;
   image: SanityImageAsset;
-  _id: string;
-  _order: number;
 };
+
+export type BallotTeamsById = Record<string, BallotTeam>;
 
 export type VoterData = {
   id: string;
@@ -32,8 +33,18 @@ export type VoterBreakdown = {
   name: string;
   organization: string;
   organizationRole: string;
-  ballot: VoteWithExtraData[];
+  /**
+   * Team ids in ballot order. Teams live once in {@link BallotTeamsById}:
+   * repeating each school object per voter makes the RSC payload huge and
+   * overflows the stack when a cached render is serialized.
+   */
+  ballot: string[];
   matchPercent: number;
+};
+
+export type VoterBreakdownData = {
+  voters: VoterBreakdown[];
+  teams: BallotTeamsById;
 };
 
 export type Vote = {

@@ -1,3 +1,4 @@
+import { PORTAL_CACHE_TAG } from "@redshirt-sports/db/transfer-portal-cache-tags";
 import { revalidateTag } from "next/cache";
 import type { NextRequest } from "next/server";
 
@@ -7,7 +8,12 @@ const sanityRevalidateSecret = process.env.SANITY_REVALIDATE_SECRET;
 const cacheRevalidateSecret = process.env.CACHE_REVALIDATE_SECRET;
 
 function isAllowlistedCacheTag(tag: string) {
-  return tag === "rankings" || tag.startsWith("rankings:");
+  return (
+    tag === "rankings" ||
+    tag.startsWith("rankings:") ||
+    tag === PORTAL_CACHE_TAG ||
+    tag.startsWith(`${PORTAL_CACHE_TAG}:`)
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -77,7 +83,10 @@ export async function POST(request: NextRequest) {
 
   if (!cacheTags.every(isAllowlistedCacheTag)) {
     return Response.json(
-      { error: "cacheTags must be rankings or rankings:*" },
+      {
+        error:
+          "cacheTags must be rankings, transfer-portal, or one of their sub-tags",
+      },
       { status: 400 },
     );
   }

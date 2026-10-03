@@ -2,19 +2,19 @@
 
 import * as React from "react";
 
-import type { VoteWithExtraData } from "@/types/votes";
+import type { BallotTeam } from "@/types/votes";
 import CustomImage from "../../sanity-image";
 
 function TeamLogoBase({
-  vote,
+  team,
   size = 40,
 }: {
-  vote: VoteWithExtraData;
+  team: BallotTeam;
   size?: number;
 }) {
   return (
     <CustomImage
-      image={vote.image}
+      image={team.image}
       width={size}
       height={size}
       loading="lazy"
@@ -23,11 +23,4 @@ function TeamLogoBase({
   );
 }
 
-export const TeamLogo = React.memo(
-  TeamLogoBase,
-  (prev, next) =>
-    prev.size === next.size &&
-    prev.vote?._id === next.vote?._id &&
-    prev.vote?.image === next.vote?.image &&
-    prev.vote?.shortName === next.vote?.shortName,
-);
+export const TeamLogo = React.memo(TeamLogoBase);

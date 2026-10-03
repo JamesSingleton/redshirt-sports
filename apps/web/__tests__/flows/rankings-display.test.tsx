@@ -113,6 +113,6 @@ describe("rankings display flow", () => {
 
     render(page);
     expect(screen.getByLabelText("up 4")).toBeInTheDocument();
-    expect(screen.getByText("Team A")).toBeInTheDocument();
+    expect(screen.getAllByText("Team A")[0]).toBeInTheDocument();
   });
 });

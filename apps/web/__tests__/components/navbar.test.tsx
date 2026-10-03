@@ -3,118 +3,169 @@ import { render, screen } from "@testing-library/react";
 import {
   CachedNavbarServer,
   DynamicNavbarServer,
-  Navbar,
   NavbarSkeleton,
 } from "@/components/navbar";
 
-const {
-  mockGetDynamicFetchOptions,
-  mockSanityFetch,
-  mockGetCachedNavbarLatestRankings,
-} = vi.hoisted(() => ({
+const { mockGetDynamicFetchOptions, mockSanityFetch } = vi.hoisted(() => ({
   mockGetDynamicFetchOptions: vi.fn(),
   mockSanityFetch: vi.fn(),
-  mockGetCachedNavbarLatestRankings: vi.fn(),
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
-  PUBLISHED_FETCH_OPTIONS: {
-    perspective: "published",
-    stega: false,
-  },
   getDynamicFetchOptions: mockGetDynamicFetchOptions,
   sanityFetch: mockSanityFetch,
 }));
 
-vi.mock("@/lib/rankings-data", () => ({
-  getCachedNavbarLatestRankings: mockGetCachedNavbarLatestRankings,
-}));
-
-vi.mock("@/components/navbar-client", () => ({
-  NavbarClient: () => <nav data-testid="navbar-client">Client navbar</nav>,
-  NavbarSkeletonResponsive: () => (
-    <div data-testid="navbar-skeleton-responsive">Skeleton</div>
+vi.mock("@/components/site-header/primary-nav", () => ({
+  PrimaryNav: ({ items }: { items: { key: string }[] }) => (
+    <nav data-testid="primary-nav">{items.length} items</nav>
   ),
 }));
 
-vi.mock("@/components/logo", () => ({
-  Logo: ({ alt }: { alt?: string | null }) => <div>{alt}</div>,
+vi.mock("@/components/site-header/mobile-nav", () => ({
+  MobileNav: ({ brandName }: { brandName: string }) => (
+    <button type="button" data-brand={brandName}>
+      Open menu
+    </button>
+  ),
 }));
 
-const navbarData = [{ _id: "sport-1", name: "Football", slug: "football" }];
-const settingsData = {
-  siteTitle: "Redshirt Sports",
-  logo: { alt: "Logo" },
-};
-const latestRankings = [{ sport: "football", divisions: [] }];
+vi.mock("@/components/sanity-image", () => ({
+  default: ({ image }: { image: { id: string } }) => (
+    <img alt={`logo ${image.id}`} />
+  ),
+}));
 
-describe("Navbar", () => {
-  it("renders the logo and client navbar", () => {
+const navbarData = {
+  _id: "navbar",
+  logo: null,
+  logoDark: null,
+  items: [
+    {
+      _key: "teams",
+      type: "link",
+      name: "Teams",
+      href: "/college/teams",
+      openInNewTab: false,
+    },
+  ],
+  secondaryLinks: [
+    {
+      _key: "fcs",
+      name: "FCS",
+      href: "/college/football/news/fcs",
+      openInNewTab: false,
+    },
+  ],
+  cta: { name: "Vote", href: "/vote", openInNewTab: true },
+};
+
+describe("CachedNavbarServer", () => {
+  it("renders the primary nav, mobile menu, search and CTA", async () => {
+    mockSanityFetch.mockResolvedValue({ data: navbarData });
+
     render(
-      <Navbar
-        navbarData={navbarData as never}
-        settingsData={settingsData as never}
-        latestRankings={latestRankings}
-      />,
+      await CachedNavbarServer({ perspective: "published", stega: false }),
     );
 
-    expect(screen.getByText("Redshirt Sports")).toBeInTheDocument();
-    expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
+    expect(screen.getByTestId("primary-nav")).toHaveTextContent("1 items");
+    expect(screen.getByRole("button", { name: "Open menu" })).toHaveAttribute(
+      "data-brand",
+      "Redshirt Sports",
+    );
+    expect(screen.getByRole("search")).toBeInTheDocument();
+    expect(
+      screen.getByRole("searchbox", { name: "Search articles" }),
+    ).toHaveAttribute("name", "q");
+    expect(screen.getByRole("link", { name: "Search" })).toHaveAttribute(
+      "href",
+      "/search",
+    );
+
+    const cta = screen.getByRole("link", { name: "Vote" });
+    expect(cta).toHaveAttribute("href", "/vote");
+    expect(cta).toHaveAttribute("target", "_blank");
+    expect(cta).toHaveAttribute("rel", "noopener noreferrer");
+
+    expect(
+      screen.queryByRole("link", { name: "Log in" }),
+    ).not.toBeInTheDocument();
   });
 
-  it("renders without a logo and falls back to empty rankings", () => {
+  it("falls back to the brand text and omits the CTA", async () => {
+    mockSanityFetch.mockResolvedValue({
+      data: { ...navbarData, cta: null, secondaryLinks: null },
+    });
+
     render(
-      <Navbar
-        navbarData={navbarData as never}
-        settingsData={null as never}
-        latestRankings={undefined}
-      />,
+      await CachedNavbarServer({ perspective: "published", stega: false }),
     );
 
-    expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
-    expect(screen.queryByText("Redshirt Sports")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Redshirt Sports home" }),
+    ).toHaveTextContent("Redshirt Sports");
+    expect(
+      screen.queryByRole("link", { name: "Vote" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+  });
+
+  it("renders the light and dark Sanity logos when configured", async () => {
+    mockSanityFetch.mockResolvedValue({
+      data: { ...navbarData, logo: { id: "light" }, logoDark: { id: "dark" } },
+    });
+
+    render(
+      await CachedNavbarServer({ perspective: "published", stega: false }),
+    );
+
+    expect(screen.getByAltText("logo light")).toBeInTheDocument();
+    expect(screen.getByAltText("logo dark")).toBeInTheDocument();
+  });
+
+  it("reuses the light logo in dark mode when no dark logo is set", async () => {
+    mockSanityFetch.mockResolvedValue({
+      data: { ...navbarData, logo: { id: "light" } },
+    });
+
+    render(
+      await CachedNavbarServer({ perspective: "published", stega: false }),
+    );
+
+    expect(screen.getAllByAltText("logo light")).toHaveLength(2);
+  });
+
+  it("renders the brand fallback when the navbar document is missing", async () => {
+    mockSanityFetch.mockResolvedValue({ data: null });
+
+    render(
+      await CachedNavbarServer({ perspective: "published", stega: false }),
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Redshirt Sports home" }),
+    ).toHaveAttribute("href", "/");
+    expect(screen.getByTestId("primary-nav")).toHaveTextContent("0 items");
   });
 });
 
 describe("NavbarSkeleton", () => {
-  it("renders the navbar loading skeleton", () => {
-    render(<NavbarSkeleton />);
-    expect(
-      screen.getByTestId("navbar-skeleton-responsive"),
-    ).toBeInTheDocument();
-  });
-});
-
-describe("CachedNavbarServer", () => {
-  beforeEach(() => {
-    mockGetCachedNavbarLatestRankings.mockResolvedValue(latestRankings);
-    mockSanityFetch
-      .mockResolvedValueOnce({ data: navbarData })
-      .mockResolvedValueOnce({ data: settingsData });
-  });
-
-  it("fetches navbar data and renders the memoized navbar", async () => {
-    const component = await CachedNavbarServer({
-      perspective: "published",
-      stega: false,
-    });
-    render(component);
-
-    expect(mockGetCachedNavbarLatestRankings).toHaveBeenCalled();
-    expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
+  it("renders a logo placeholder", () => {
+    const { container } = render(<NavbarSkeleton />);
+    expect(container.querySelector('[data-slot="skeleton"]')).not.toBeNull();
   });
 });
 
 describe("DynamicNavbarServer", () => {
   it("loads dynamic fetch options before rendering", async () => {
     mockGetDynamicFetchOptions.mockResolvedValue({
-      perspective: "published",
-      stega: false,
+      perspective: "drafts",
+      stega: true,
     });
 
     const component = await DynamicNavbarServer();
 
     expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
-    expect(component).toBeTruthy();
+    expect(component.props).toEqual({ perspective: "drafts", stega: true });
   });
 });

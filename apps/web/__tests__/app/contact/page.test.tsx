@@ -55,13 +55,23 @@ describe("ContactPage", () => {
     render(<ContactPage />);
 
     expect(
-      screen.getByRole("heading", { name: "Contact Us" }),
+      screen.getByRole("heading", { name: "Contact us" }),
     ).toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
     expect(screen.getByText("Collaborate")).toBeInTheDocument();
+    expect(
+      screen.getByText("For partnership and collaboration inquiries"),
+    ).toBeInTheDocument();
     expect(screen.getByText("Advertising")).toBeInTheDocument();
     expect(screen.getByText("General Inquiries")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "editors@redshirtsports.com" }),
     ).toHaveAttribute("href", "mailto:editors@redshirtsports.com");
+    expect(
+      screen.getByRole("link", { name: "advertising@redshirtsports.com" }),
+    ).toHaveAttribute("href", "mailto:advertising@redshirtsports.com");
+    expect(
+      screen.getByRole("link", { name: "contact@redshirtsports.com" }),
+    ).toHaveAttribute("href", "mailto:contact@redshirtsports.com");
   });
 });

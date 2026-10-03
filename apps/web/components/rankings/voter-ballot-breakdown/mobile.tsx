@@ -3,13 +3,14 @@
 import { Button } from "@redshirt-sports/ui/components/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import type { VoterBreakdown } from "@/types/votes";
+import type { BallotTeamsById, VoterBreakdown } from "@/types/votes";
 import { BallotMatchBadge } from "./match-badge";
 import { SyncedScroll } from "./synced-scroll";
 import { TeamLogo } from "./team-logo";
 
 type Props = {
   rows: VoterBreakdown[];
+  teams: BallotTeamsById;
   page: number;
   pageCount: number;
   onPrevAction: () => void;
@@ -18,6 +19,7 @@ type Props = {
 
 export default function VoterBreakdownMobile({
   rows,
+  teams,
   page,
   pageCount,
   onPrevAction,
@@ -40,8 +42,8 @@ export default function VoterBreakdownMobile({
                 </div>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
-                <span className="text-muted-foreground text-[10px] leading-none tracking-wide uppercase">
-                  Match %
+                <span className="text-muted-foreground text-xs leading-none">
+                  Match
                 </span>
                 <BallotMatchBadge matchPercent={voter.matchPercent} />
               </div>
@@ -55,18 +57,19 @@ export default function VoterBreakdownMobile({
               >
                 <div className="flex snap-x snap-mandatory items-center gap-3">
                   {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => {
-                    const vote = voter.ballot?.[rank - 1];
+                    const teamId = voter.ballot[rank - 1];
+                    const team = teamId ? teams[teamId] : undefined;
                     return (
                       <div
-                        key={vote?._id ?? `rank-${rank}`}
+                        key={team?._id ?? `rank-${rank}`}
                         className="flex shrink-0 snap-start flex-col items-center gap-1"
-                        aria-label={`Rank ${rank}${vote ? `: ${vote.shortName ?? vote.name}` : ""}`}
+                        aria-label={`Rank ${rank}${team ? `: ${team.shortName ?? team.name}` : ""}`}
                       >
-                        <div className="text-muted-foreground text-[10px] leading-none">
+                        <div className="text-muted-foreground text-xs leading-none">
                           {rank}
                         </div>
-                        {vote ? (
-                          <TeamLogo vote={vote} size={36} />
+                        {team ? (
+                          <TeamLogo team={team} size={36} />
                         ) : (
                           <div className="bg-muted/30 size-9 rounded-sm" />
                         )}
