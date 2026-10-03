@@ -47,7 +47,7 @@ export function resolveCustomUrlPreview(
       post: `/${input.internalSlug}`,
       school: `/college/teams/${input.internalSlug}`,
       author: `/authors/${input.internalSlug}`,
-      legal: `/${input.internalSlug}`,
+      legal: `/legal/${input.internalSlug}`,
     };
     if (input.internalDocType) {
       return (

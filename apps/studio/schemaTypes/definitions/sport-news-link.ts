@@ -15,7 +15,8 @@ export const sportNewsLink = defineType({
       type: "reference",
       to: [{ type: "sport" }],
       options: { disableNew: true },
-      validation: (rule) => rule.required(),
+      // Required-ness lives on customUrl.sportNewsLink: this object is
+      // auto-initialized on every link, so a rule here fires on external links too.
     }),
     defineField({
       name: "routeDepth",

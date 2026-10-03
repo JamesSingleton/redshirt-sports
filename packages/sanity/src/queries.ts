@@ -26,7 +26,7 @@ const customUrlHrefSelect = /* groq */ `
     type == "internal" && internal->_type == "post" => "/" + internal->slug.current,
     type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,
     type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,
-    type == "internal" && internal->_type == "legal" => "/" + internal->slug.current,
+    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,
     href
   )
 `;
@@ -45,7 +45,7 @@ const customLinkMarkFragment = /* groq */ `
     customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,
     customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,
     customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,
-    customLink.type == "internal" && customLink.internal->_type == "legal" => "/" + customLink.internal->slug.current,
+    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,
     customLink.href
   )
 `;
@@ -86,7 +86,7 @@ const customUrlHrefFragment = /* groq */ `
     url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,
     url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,
     url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,
-    url.type == "internal" && url.internal->_type == "legal" => "/" + url.internal->slug.current,
+    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,
     url.href
   )
 `;
@@ -478,6 +478,10 @@ export const querySitemapData = defineQuery(/* groq */ `{
     "slug": slug.current,
     "lastModified": _updatedAt
   },
+  "legal": *[_type == "legal" && defined(slug.current)] {
+    "slug": slug.current,
+    "lastModified": coalesce(lastUpdated, effectiveDate, _updatedAt)
+  },
 }`);
 
 export const queryArticlesBySportDivisionAndConference =
@@ -557,8 +561,29 @@ export const authorsListNotArchived = defineQuery(/* groq */ `
   }
 `);
 
-export const privacyPolicyQuery = defineQuery(/* groq */ `
-  *[_type == "legal" && slug.current == "privacy-policy"][0]
+export const queryLegalDocumentBySlug = defineQuery(/* groq */ `
+  *[_type == "legal" && slug.current == $slug][0]{
+    _id,
+    _type,
+    title,
+    "slug": slug.current,
+    summary,
+    effectiveDate,
+    "lastUpdated": coalesce(lastUpdated, effectiveDate),
+    body[]{
+      ...,
+      ${markDefsFragment}
+    },
+    "otherDocuments": *[_type == "legal" && defined(slug.current) && slug.current != $slug] | order(title asc){
+      _id,
+      title,
+      "slug": slug.current
+    }
+  }
+`);
+
+export const queryLegalDocumentPaths = defineQuery(/* groq */ `
+  *[_type == "legal" && defined(slug.current)]{"slug": slug.current}
 `);
 
 export const schoolsByDivisionQuery = defineQuery(/* groq */ `

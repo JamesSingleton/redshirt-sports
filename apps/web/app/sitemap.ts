@@ -12,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     perspective: "published",
   });
   const authors = data?.authors ?? [];
+  const legal = data?.legal ?? [];
 
   return [
     {
@@ -24,14 +25,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/contact`,
     },
     {
-      url: `${baseUrl}/privacy-policy`,
-    },
-    {
       url: `${baseUrl}/college/news`,
     },
     ...authors.map((author: { slug: string; lastModified: string }) => ({
       url: `${baseUrl}/authors/${author.slug}`,
       lastModified: new Date(author.lastModified),
+    })),
+    ...legal.map((doc: { slug: string; lastModified: string }) => ({
+      url: `${baseUrl}/legal/${doc.slug}`,
+      lastModified: new Date(doc.lastModified),
     })),
   ];
 }

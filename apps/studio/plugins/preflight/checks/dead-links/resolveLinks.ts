@@ -95,7 +95,7 @@ function resolveInternalLinkPath(
     post: `/${doc.slug}`,
     school: `/college/teams/${doc.slug}`,
     author: `/authors/${doc.slug}`,
-    legal: `/${doc.slug}`,
+    legal: `/legal/${doc.slug}`,
   };
 
   const url = paths[doc._type] ?? `/${doc.slug}`;

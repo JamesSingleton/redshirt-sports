@@ -58,6 +58,7 @@
     "sanity-image": "^1.3.0",
     "schema-dts": "^2.0.0",
     "server-only": "^0.0.1",
+    "slugify": "^1.6.9",
     "sonner": "^2.0.8",
     "svix": "^2.6.1",
     "url-sheriff": "^2.0.0",

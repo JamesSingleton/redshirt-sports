@@ -92,7 +92,7 @@ function SiteLinkMark({
   );
 }
 
-const components: Partial<PortableTextReactComponents> = {
+export const richTextComponents: Partial<PortableTextReactComponents> = {
   block: {
     h2: ({ children }: BlockChildrenProps) => {
       return <h2 className="text-4xl">{children}</h2>;
@@ -228,7 +228,7 @@ export function RichText<T>({
     >
       <PortableText
         value={richText as PortableTextBlock[]}
-        components={components}
+        components={richTextComponents}
         onMissingComponent={(_, { nodeType, type }) =>
           console.log("missing component", nodeType, type)
         }

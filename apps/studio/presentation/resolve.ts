@@ -19,6 +19,10 @@ export const resolve: PresentationPluginOptions["resolve"] = {
       filter: `_type == "school" && slug.current == $slug`,
     },
     {
+      route: "/legal/:slug",
+      filter: `_type == "legal" && slug.current == $slug`,
+    },
+    {
       route: "/:slug",
       filter: `_type == "post" && slug.current == $slug`,
     },
@@ -72,6 +76,20 @@ export const resolve: PresentationPluginOptions["resolve"] = {
           {
             title: doc?.title || "Untitled",
             href: `/authors/${doc?.slug}`,
+          },
+        ],
+      }),
+    }),
+    legal: defineLocations({
+      select: {
+        title: "title",
+        slug: "slug.current",
+      },
+      resolve: (doc) => ({
+        locations: [
+          {
+            title: doc?.title || "Untitled",
+            href: `/legal/${doc?.slug}`,
           },
         ],
       }),
