@@ -182,7 +182,9 @@ export function BallotInboxVoter({
         </Drawer>
       ) : (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>{trigger}</DialogTrigger>
+          <DialogTrigger render={<Button size="sm" variant="outline" />}>
+            Manage
+          </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>{name}</DialogTitle>
