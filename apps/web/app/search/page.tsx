@@ -5,7 +5,7 @@ import {
 } from "@redshirt-sports/sanity/live";
 import { searchQuery } from "@redshirt-sports/sanity/queries";
 import type { SearchQueryResult } from "@redshirt-sports/sanity/types";
-import { Button } from "@redshirt-sports/ui/components/button";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import {
   Empty,
   EmptyContent,
@@ -114,9 +114,12 @@ async function cachedRenderSearchPage({
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
-              <Button asChild variant="outline">
-                <Link href="/college/news">Browse the latest news</Link>
-              </Button>
+              <Link
+                href="/college/news"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                Browse the latest news
+              </Link>
             </EmptyContent>
           </Empty>
         ) : null}

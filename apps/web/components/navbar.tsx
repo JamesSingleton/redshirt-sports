@@ -5,7 +5,7 @@ import {
 } from "@redshirt-sports/sanity/live";
 import { queryNavbarData } from "@redshirt-sports/sanity/queries";
 import type { QueryNavbarDataResult } from "@redshirt-sports/sanity/types";
-import { Button } from "@redshirt-sports/ui/components/button";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 import { SearchIcon } from "lucide-react";
 import Link from "next/link";
@@ -71,15 +71,27 @@ export async function CachedNavbarServer({
         </div>
         <div className="flex items-center justify-end gap-2">
           <HeaderSearch className="hidden max-w-64 md:block" />
-          <Button asChild variant="ghost" size="icon" className="md:hidden">
-            <Link href="/search" aria-label="Search">
-              <SearchIcon />
-            </Link>
-          </Button>
+          <Link
+            href="/search"
+            aria-label="Search"
+            className={buttonVariants({
+              variant: "ghost",
+              size: "icon",
+              className: "md:hidden",
+            })}
+          >
+            <SearchIcon />
+          </Link>
           {navigation.cta ? (
-            <Button asChild size="sm" className="hidden sm:inline-flex">
-              <NavAnchor link={navigation.cta}>{navigation.cta.name}</NavAnchor>
-            </Button>
+            <NavAnchor
+              link={navigation.cta}
+              className={buttonVariants({
+                size: "sm",
+                className: "hidden sm:inline-flex",
+              })}
+            >
+              {navigation.cta.name}
+            </NavAnchor>
           ) : null}
         </div>
       </div>

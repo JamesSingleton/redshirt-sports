@@ -3,7 +3,7 @@ import {
   PUBLISHED_FETCH_OPTIONS,
 } from "@redshirt-sports/sanity/live";
 import { authorsListNotArchived } from "@redshirt-sports/sanity/queries";
-import { Button } from "@redshirt-sports/ui/components/button";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import type { AboutPage as AboutPageSchema, WithContext } from "schema-dts";
@@ -159,9 +159,12 @@ async function renderAboutPage({ perspective, stega }: DynamicFetchOptions) {
                 Send us your name and a short note about what you would like to
                 cover, and our editors will be in touch.
               </p>
-              <Button asChild className="self-start">
-                <Link href="/contact">Contact our editors</Link>
-              </Button>
+              <Link
+                href="/contact"
+                className={buttonVariants({ className: "self-start" })}
+              >
+                Contact our editors
+              </Link>
             </div>
           </SidebarCard.Root>
         </aside>

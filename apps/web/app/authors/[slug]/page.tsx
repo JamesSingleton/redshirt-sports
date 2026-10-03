@@ -5,7 +5,7 @@ import {
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
 import { authorBySlug, postsByAuthor } from "@redshirt-sports/sanity/queries";
-import { Button } from "@redshirt-sports/ui/components/button";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -263,16 +263,18 @@ async function cachedRenderAuthorPage({
               <ul className="flex items-center gap-2">
                 {socialLinks.map(({ url, label, Icon }) => (
                   <li key={url}>
-                    <Button asChild variant="outline" size="icon">
-                      <Link
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Icon className="size-4 fill-current" />
-                        <span className="sr-only">{label}</span>
-                      </Link>
-                    </Button>
+                    <Link
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={buttonVariants({
+                        variant: "outline",
+                        size: "icon",
+                      })}
+                    >
+                      <Icon className="size-4 fill-current" />
+                      <span className="sr-only">{label}</span>
+                    </Link>
                   </li>
                 ))}
               </ul>

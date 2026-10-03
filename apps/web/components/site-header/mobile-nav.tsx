@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@redshirt-sports/ui/components/button";
+import { Button, buttonVariants } from "@redshirt-sports/ui/components/button";
 import { Separator } from "@redshirt-sports/ui/components/separator";
 import {
   Sheet,
@@ -110,11 +110,12 @@ export function MobileNav({
         {navigation.cta ? (
           <div className="border-t p-4">
             <SheetClose asChild>
-              <Button asChild className="w-full">
-                <NavAnchor link={navigation.cta}>
-                  {navigation.cta.name}
-                </NavAnchor>
-              </Button>
+              <NavAnchor
+                link={navigation.cta}
+                className={buttonVariants({ className: "w-full" })}
+              >
+                {navigation.cta.name}
+              </NavAnchor>
             </SheetClose>
           </div>
         ) : null}

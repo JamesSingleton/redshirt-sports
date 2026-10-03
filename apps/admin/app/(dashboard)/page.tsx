@@ -1,4 +1,4 @@
-import { Button } from "@redshirt-sports/ui/components/button";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import { Separator } from "@redshirt-sports/ui/components/separator";
 import {
   IconArrowRight,
@@ -73,12 +73,14 @@ async function DashboardContent() {
               Assigned voters vs ballots in for the current week
             </p>
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/voters" prefetch={false}>
-              Manage panels
-              <IconArrowRight data-icon="inline-end" />
-            </Link>
-          </Button>
+          <Link
+            href="/voters"
+            prefetch={false}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            Manage panels
+            <IconArrowRight data-icon="inline-end" />
+          </Link>
         </div>
 
         {data.panels.length === 0 ? (
