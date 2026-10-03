@@ -49,24 +49,24 @@ export function SchoolCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          id={id}
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between font-normal"
-        >
-          <span
-            className={cn("truncate", !selected && "text-muted-foreground")}
-          >
-            {selected ? schoolLabel(selected) : placeholder}
-          </span>
-          <IconSelector className="opacity-50" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            id={id}
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between font-normal"
+          />
+        }
+      >
+        <span className={cn("truncate", !selected && "text-muted-foreground")}>
+          {selected ? schoolLabel(selected) : placeholder}
+        </span>
+        <IconSelector className="opacity-50" />
       </PopoverTrigger>
-      <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
+      <PopoverContent className="w-(--anchor-width) p-0">
         <Command>
           <CommandInput placeholder="Search schools" />
           <CommandList>

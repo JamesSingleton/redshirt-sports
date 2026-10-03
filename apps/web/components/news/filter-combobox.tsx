@@ -43,26 +43,25 @@ export function FilterCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          aria-label={`${label}: ${active?.label}`}
-          className="w-full justify-between sm:w-72"
-          data-pending={isPending ? "" : undefined}
-        >
-          <span className="truncate">
-            <span className="text-muted-foreground">{label}: </span>
-            {active?.label}
-          </span>
-          <ChevronsUpDownIcon className="opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-(--radix-popover-trigger-width) p-0 sm:w-72"
+      <PopoverTrigger
+        render={
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            aria-label={`${label}: ${active?.label}`}
+            className="w-full justify-between sm:w-72"
+            data-pending={isPending ? "" : undefined}
+          />
+        }
       >
+        <span className="truncate">
+          <span className="text-muted-foreground">{label}: </span>
+          {active?.label}
+        </span>
+        <ChevronsUpDownIcon className="opacity-50" />
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-(--anchor-width) p-0 sm:w-72">
         <Command>
           <CommandInput
             placeholder={searchPlaceholder ?? `Search ${label.toLowerCase()}`}
