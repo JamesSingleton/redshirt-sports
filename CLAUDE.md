@@ -177,7 +177,7 @@ When one workspace needs another, reference it in package.json:
 
 ## Important Notes
 
-- **Node Version**: Requires Node.js 22 or higher (see `package.json` engines field)
+- **Node Version**: Requires Node.js 22.12 or higher (see `package.json` engines field)
 - **Package Manager**: Uses pnpm 10+ (see `packageManager` field)
 - **Git Workflow**: Main branch is `main` - create feature branches for new work
 - **License**: AGPL-3.0 - modifications must be made available under the same license

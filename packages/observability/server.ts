@@ -6,8 +6,9 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+import { dataCollection } from "./data-collection";
 import {
-  ignoredTransactionNames,
+  ignoredServerSpans,
   serverBeforeSend,
   serverIgnoreErrors,
 } from "./filters";
@@ -18,8 +19,7 @@ export const initializeSentry = (): ReturnType<typeof Sentry.init> =>
     dsn: keys().NEXT_PUBLIC_SENTRY_DSN,
     release: process.env.VERCEL_GIT_COMMIT_SHA,
 
-    // Enable logging
-    enableLogs: true,
+    dataCollection,
 
     // Adjust this value in production, or use tracesSampler for greater control
     tracesSampleRate: 1,
@@ -28,7 +28,7 @@ export const initializeSentry = (): ReturnType<typeof Sentry.init> =>
     debug: false,
 
     ignoreErrors: serverIgnoreErrors,
-    ignoreTransactions: ignoredTransactionNames,
+    ignoreSpans: ignoredServerSpans,
     beforeSend: serverBeforeSend,
 
     // Integrations for console logging

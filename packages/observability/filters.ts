@@ -1,4 +1,6 @@
-import type { ErrorEvent, EventHint } from "@sentry/nextjs";
+import type { ErrorEvent, EventHint, init } from "@sentry/nextjs";
+
+type NextjsOptions = NonNullable<Parameters<typeof init>[0]>;
 
 /** Browser extension / in-app browser noise that is not actionable app code. */
 export const clientIgnoreErrors: Array<string | RegExp> = [
@@ -29,11 +31,19 @@ export const serverIgnoreErrors: Array<string | RegExp> = [
   /Client network socket disconnected/i,
 ];
 
-/** Health probes and CORS preflight — high volume, low signal. */
-export const ignoredTransactionNames: Array<string | RegExp> = [
-  /^GET \/api\/health$/,
-  /^GET \/api\/health\/ready$/,
-  /^OPTIONS /i,
+/**
+ * Health probes and CORS preflight — high volume, low signal.
+ * `ignoreSpans` runs at span start, before the name is final, so match on
+ * attributes as well as the resolved name.
+ */
+export const ignoredServerSpans: NonNullable<NextjsOptions["ignoreSpans"]> = [
+  { op: "http.server", name: /^GET \/api\/health(\/ready)?$/ },
+  {
+    op: "http.server",
+    attributes: { "url.path": /^\/api\/health(\/ready)?$/ },
+  },
+  { op: "http.server", name: /^OPTIONS /i },
+  { op: "http.server", attributes: { "http.request.method": "OPTIONS" } },
 ];
 
 function getEventMessage(event: ErrorEvent): string {
@@ -194,11 +204,4 @@ export function serverBeforeSend(
   }
 
   return event;
-}
-
-export function shouldIgnoreTransaction(name: string | undefined): boolean {
-  if (!name) return false;
-  return ignoredTransactionNames.some((pattern) =>
-    typeof pattern === "string" ? pattern === name : pattern.test(name),
-  );
 }

@@ -2,29 +2,36 @@ packages:
   - "apps/*"
   - "packages/*"
 
+allowBuilds:
+  bufferutil: false
+  core-js: false
+  esbuild: true
+  utf-8-validate: false
+
 catalog:
   "@clerk/nextjs": "^7.9.4"
   "@sanity/client": "^7.27.0"
+  "@sentry/nextjs": "^11.2.0"
   "@testing-library/jest-dom": "^7.0.1"
   "@testing-library/react": "^16.3.3"
   "@testing-library/user-event": "^14.6.7"
-  "@types/node": "^26.6.2"
+  "@types/node": ^26.6.4
   "@types/react": "^19.3.0"
   "@types/react-dom": "^19.3.0"
   "@vitejs/plugin-react": "^6.1.1"
   drizzle-kit: "^0.31.11"
   drizzle-orm: "^0.45.3"
-  lucide-react: "^1.47.0"
-  next: "^16.3.6"
+  lucide-react: ^1.49.0
+  next: ^16.3.8
   next-sanity: "^13.3.4"
   next-themes: "^0.4.6"
-  posthog-js: "^1.434.8"
-  posthog-node: "^5.52.5"
+  posthog-js: ^1.435.6
+  posthog-node: ^5.55.0
   react: "^19.3.0"
   react-dom: "^19.3.0"
-  sanity: "^6.16.0"
+  sanity: ^6.17.0
   tailwindcss: "^4.3.3"
-  typescript: "^6.0.3"
-  vite: "^8.3.0"
-  vitest: "^4.1.11"
+  typescript: "^7.0.2"
+  vite: ^8.3.2
+  vitest: "^5.0.3"
   zod: "^4.6.5"

@@ -11,6 +11,7 @@ import type {
   QueryFooterDataResult,
   QueryGlobalSeoSettingsResult,
 } from "@redshirt-sports/sanity/types";
+import { cacheLife } from "next/cache";
 import Link from "next/link";
 
 import {
@@ -30,6 +31,7 @@ interface SocialLinksProps {
 interface FooterProps {
   data: NonNullable<QueryFooterDataResult>;
   settingsData: NonNullable<QueryGlobalSeoSettingsResult>;
+  copyrightYear: number;
 }
 
 export async function DynamicFooterServer() {
@@ -42,7 +44,7 @@ export async function CachedFooterServer({
   stega,
 }: DynamicFetchOptions) {
   "use cache";
-  const [response, settingsResponse] = await Promise.all([
+  const [response, settingsResponse, copyrightYear] = await Promise.all([
     sanityFetch({
       query: queryFooterData,
       perspective,
@@ -53,10 +55,23 @@ export async function CachedFooterServer({
       perspective,
       stega,
     }),
+    getCopyrightYear(),
   ]);
 
   if (!response?.data || !settingsResponse?.data) return <FooterSkeleton />;
-  return <Footer data={response.data} settingsData={settingsResponse.data} />;
+  return (
+    <Footer
+      data={response.data}
+      settingsData={settingsResponse.data}
+      copyrightYear={copyrightYear}
+    />
+  );
+}
+
+async function getCopyrightYear() {
+  "use cache";
+  cacheLife("days");
+  return new Date().getFullYear();
 }
 
 function SocialLinks({ data }: SocialLinksProps) {
@@ -161,10 +176,9 @@ export function FooterSkeleton() {
   );
 }
 
-function Footer({ data, settingsData }: FooterProps) {
+function Footer({ data, settingsData, copyrightYear }: FooterProps) {
   const { subtitle, columns } = data;
-  const { siteTitle, footerLogo, footerLogoDarkMode, socialLinks } =
-    settingsData;
+  const { footerLogo, footerLogoDarkMode, socialLinks } = settingsData;
 
   return (
     <footer className="mt-20 pb-8" aria-labelledby="footer-heading">
@@ -228,7 +242,7 @@ function Footer({ data, settingsData }: FooterProps) {
           </div>
           <div className="mt-20 border-t pt-8">
             <div className="text-muted-foreground mx-auto flex max-w-7xl flex-col justify-between gap-4 px-4 text-center text-sm font-normal md:px-6 lg:flex-row lg:items-center lg:text-left">
-              <p>© 2025 {siteTitle}. All rights reserved.</p>
+              <p>© {copyrightYear} Redshirt Sports LLC. All rights reserved.</p>
             </div>
           </div>
         </section>

@@ -131,7 +131,11 @@ describe("CachedFooterServer", () => {
     expect(
       screen.getByLabelText("Subscribe to our YouTube channel"),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Redshirt Sports/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        `© ${new Date().getFullYear()} Redshirt Sports LLC. All rights reserved.`,
+      ),
+    ).toBeInTheDocument();
   });
 
   it("omits social links when none are configured", async () => {

@@ -6,6 +6,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+import { dataCollection } from "./data-collection";
 import {
   clientBeforeSend,
   clientDenyUrls,
@@ -17,8 +18,7 @@ export const initializeSentry = (): ReturnType<typeof Sentry.init> =>
   Sentry.init({
     dsn: keys().NEXT_PUBLIC_SENTRY_DSN,
 
-    // Enable logging
-    enableLogs: true,
+    dataCollection,
 
     // Adjust this value in production, or use tracesSampler for greater control
     tracesSampleRate: 1,
