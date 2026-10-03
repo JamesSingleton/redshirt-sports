@@ -10,13 +10,15 @@ import {
 export function BallotMatchHeader() {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          className="cursor-help underline decoration-dotted underline-offset-2"
-        >
-          Match %
-        </button>
+      <TooltipTrigger
+        render={
+          <button
+            type="button"
+            className="cursor-help underline decoration-dotted underline-offset-2"
+          />
+        }
+      >
+        Match %
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">
         How close this ballot's rank order was to the final Top 25.
