@@ -204,12 +204,11 @@ export function TeamsDirectory({
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <ToggleGroup
-          type="single"
           variant="outline"
-          value={sport}
-          onValueChange={(value) => {
-            if (!value) return;
-            setSport(value);
+          value={[sport]}
+          onValueChange={([next]) => {
+            if (!next) return;
+            setSport(next);
             setConferenceId(ALL);
           }}
           aria-label="Sport"
