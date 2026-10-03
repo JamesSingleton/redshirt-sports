@@ -5,7 +5,7 @@
 ## Changed
 
 - `packages/ui/src/components/collapsible.tsx`: `@radix-ui/react-collapsible` → `@base-ui/react/collapsible`; Content → `Panel`; types → `.Props`.
-- Consumer: `packages/ui/src/components/sidebar.tsx` uses it only through the sidebar's own parts (checked with the sidebar migration). No app consumers.
+- No consumers import this wrapper.
 - Leftover scan: clean.
 
 ## Left alone
