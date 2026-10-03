@@ -4,7 +4,6 @@ import { Button, buttonVariants } from "@redshirt-sports/ui/components/button";
 import { Separator } from "@redshirt-sports/ui/components/separator";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -14,7 +13,7 @@ import {
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { MenuIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 import { isActivePath, type Navigation, type NavLink } from "@/lib/navigation";
 import { HeaderSearch } from "./header-search";
@@ -52,13 +51,15 @@ export function MobileNav({
 }) {
   const pathname = usePathname();
   const sections = toSections(navigation);
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Open menu">
-          <MenuIcon />
-        </Button>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger
+        render={<Button variant="ghost" size="icon" aria-label="Open menu" />}
+      >
+        <MenuIcon />
       </SheetTrigger>
       <SheetContent side="left" className="w-[88vw] gap-0 p-0 sm:max-w-sm">
         <SheetHeader className="border-b">
@@ -84,20 +85,19 @@ export function MobileNav({
                       const active = isActivePath(pathname, link.href);
                       return (
                         <li key={link.key}>
-                          <SheetClose asChild>
-                            <NavAnchor
-                              link={link}
-                              aria-current={active ? "page" : undefined}
-                              className={cn(
-                                "hover:bg-muted flex min-h-11 items-center rounded-sm px-2 text-base",
-                                active
-                                  ? "text-primary font-semibold"
-                                  : "text-muted-foreground",
-                              )}
-                            >
-                              {link.name}
-                            </NavAnchor>
-                          </SheetClose>
+                          <NavAnchor
+                            link={link}
+                            onClick={close}
+                            aria-current={active ? "page" : undefined}
+                            className={cn(
+                              "hover:bg-muted flex min-h-11 items-center rounded-sm px-2 text-base",
+                              active
+                                ? "text-primary font-semibold"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            {link.name}
+                          </NavAnchor>
                         </li>
                       );
                     })}
@@ -109,14 +109,13 @@ export function MobileNav({
         </div>
         {navigation.cta ? (
           <div className="border-t p-4">
-            <SheetClose asChild>
-              <NavAnchor
-                link={navigation.cta}
-                className={buttonVariants({ className: "w-full" })}
-              >
-                {navigation.cta.name}
-              </NavAnchor>
-            </SheetClose>
+            <NavAnchor
+              link={navigation.cta}
+              onClick={close}
+              className={buttonVariants({ className: "w-full" })}
+            >
+              {navigation.cta.name}
+            </NavAnchor>
           </div>
         ) : null}
       </SheetContent>
