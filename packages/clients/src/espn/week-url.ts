@@ -10,6 +10,8 @@ export const LEGACY_FINAL_RANKINGS_WEEK = 999;
 export const FINAL_RANKINGS_SEGMENT = "final-rankings";
 export const PRESEASON_SEGMENT = "preseason";
 
+const WEEK_NUMBER_SEGMENT = /^(0|[1-9]\d*)$/;
+
 /** Open the next voting week this long before ESPN regular-week `endDate`. */
 export const VOTING_WEEK_EARLY_OPEN_MS = 48 * 60 * 60 * 1000;
 
@@ -30,11 +32,10 @@ export function parseWeekSegment(segment: string): number {
     return LEGACY_PRESEASON_WEEK;
   }
 
-  const parsed = Number.parseInt(segment, 10);
-  if (Number.isNaN(parsed)) {
+  if (!WEEK_NUMBER_SEGMENT.test(segment)) {
     throw new Error(`Invalid week segment: ${segment}`);
   }
-  return parsed;
+  return Number(segment);
 }
 
 /**

@@ -24,6 +24,15 @@ describe("parseWeekSegment", () => {
     expect(parseWeekSegment("12")).toBe(12);
   });
 
+  it.each(["5.svg", "5abc", "05", "-1", "1e3", " 5"])(
+    "rejects non-canonical numeric segment %j",
+    (segment) => {
+      expect(() => parseWeekSegment(segment)).toThrow(
+        `Invalid week segment: ${segment}`,
+      );
+    },
+  );
+
   it("rejects invalid segments", () => {
     expect(() => parseWeekSegment("not-a-week")).toThrow(
       "Invalid week segment: not-a-week",
