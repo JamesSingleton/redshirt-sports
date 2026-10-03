@@ -70,8 +70,8 @@ export async function handleRankingsApiGet(
       return jsonError("Both year and week are required", 400);
     }
 
-    const parsedYear = Number.parseInt(yearParam, 10);
-    if (!Number.isInteger(parsedYear) || parsedYear < 1900) {
+    const parsedYear = Number(yearParam);
+    if (!/^\d{4}$/.test(yearParam) || parsedYear < 1900) {
       return jsonError(`Invalid year: ${yearParam}`, 400);
     }
 

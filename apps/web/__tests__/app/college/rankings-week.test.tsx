@@ -188,6 +188,26 @@ describe("CollegeFootballRankingsPage", () => {
     expect(mockGetCachedFinalRankings).not.toHaveBeenCalled();
   });
 
+  it.each([
+    { year: "2026", week: "5.svg" },
+    { year: "2026.svg", week: "5" },
+  ])(
+    "throws notFound for a file-extension URL ($year/$week)",
+    async ({ year, week }) => {
+      const params = { sport: "football", division: "fcs", year, week };
+
+      await expect(
+        CollegeFootballRankingsPage({ params: Promise.resolve(params) }),
+      ).rejects.toThrow("NEXT_NOT_FOUND");
+      await expect(
+        generateMetadata({ params: Promise.resolve(params) }),
+      ).rejects.toThrow("NEXT_NOT_FOUND");
+
+      expect(mockGetCachedYears).not.toHaveBeenCalled();
+      expect(mockGetPageMetadata).not.toHaveBeenCalled();
+    },
+  );
+
   it("throws notFound from metadata for an invalid week segment", async () => {
     await expect(
       generateMetadata({

@@ -56,6 +56,13 @@ import { parseWeekSegment, type SportParam, weekTitle } from "@/utils/espn";
 
 const baseUrl = getBaseUrl();
 
+function resolveYearNumber(year: string): number {
+  if (!/^\d{4}$/.test(year)) {
+    notFound();
+  }
+  return Number(year);
+}
+
 function resolveWeekNumber(week: string): number {
   try {
     return parseWeekSegment(week);
@@ -76,6 +83,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { division, year, week, sport } = await params;
   const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  resolveYearNumber(year);
   const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
 
@@ -117,9 +125,9 @@ async function renderCollegeFootballRankingsPage({
 }) {
   "use cache";
 
+  const yearNumber = resolveYearNumber(year);
   const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
-  const yearNumber = parseInt(year, 10);
   const sportParam = sport as SportParam;
 
   cacheTag(

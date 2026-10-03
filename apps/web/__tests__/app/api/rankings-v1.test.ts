@@ -284,6 +284,36 @@ describe("GET /api/v1/college/[sport]/rankings/[division]/[year]/[week]", () => 
     expect(body.error).toMatch(/Invalid week/);
   });
 
+  it.each(["2025abc", "2025.json", "02025", "1e4"])(
+    "returns 400 for non-canonical year %j",
+    async (year) => {
+      const res = await getWeek(
+        new Request(
+          `https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/${year}/5`,
+        ),
+        { params: weekParams({ year }) },
+      );
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toMatch(/Invalid year/);
+      expect(mockGetCachedFinalRankings).not.toHaveBeenCalled();
+    },
+  );
+
+  it("returns 400 for a week segment with a file extension", async () => {
+    const res = await getWeek(
+      new Request(
+        "https://www.redshirtsports.com/api/v1/college/football/rankings/fcs/2025/5.svg",
+      ),
+      { params: weekParams({ week: "5.svg" }) },
+    );
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/Invalid week/);
+  });
+
   it("returns 400 for invalid year", async () => {
     const res = await getWeek(
       new Request(
