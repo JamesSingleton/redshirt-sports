@@ -20,7 +20,7 @@ export function PrimaryNav({ items }: { items: NavItem[] }) {
   if (!items.length) return null;
 
   return (
-    <NavigationMenu viewport={false} aria-label="Primary">
+    <NavigationMenu aria-label="Primary">
       <NavigationMenuList className="gap-0">
         {items.map((item) =>
           item.type === "menu" ? (
@@ -40,17 +40,15 @@ export function PrimaryNav({ items }: { items: NavItem[] }) {
                   {item.links.map((link) => (
                     <li key={link.key}>
                       <NavigationMenuLink
-                        asChild
+                        render={<NavAnchor link={link} />}
                         active={isActivePath(pathname, link.href)}
                       >
-                        <NavAnchor link={link}>
-                          <span className="font-semibold">{link.name}</span>
-                          {link.description ? (
-                            <span className="text-muted-foreground line-clamp-2 text-xs">
-                              {link.description}
-                            </span>
-                          ) : null}
-                        </NavAnchor>
+                        <span className="font-semibold">{link.name}</span>
+                        {link.description ? (
+                          <span className="text-muted-foreground line-clamp-2 text-xs">
+                            {link.description}
+                          </span>
+                        ) : null}
                       </NavigationMenuLink>
                     </li>
                   ))}
@@ -60,11 +58,11 @@ export function PrimaryNav({ items }: { items: NavItem[] }) {
           ) : (
             <NavigationMenuItem key={item.key}>
               <NavigationMenuLink
-                asChild
+                render={<NavAnchor link={item} />}
                 active={isActivePath(pathname, item.href)}
                 className={navigationMenuTriggerStyle({ tone: "header" })}
               >
-                <NavAnchor link={item}>{item.name}</NavAnchor>
+                {item.name}
               </NavigationMenuLink>
             </NavigationMenuItem>
           ),
