@@ -38,10 +38,7 @@ type Props = {
 const VOTER_BREAKDOWN_DESCRIPTION =
   "See how each voter cast their ballot for this week's rankings. Match % shows how closely each ballot's rank order matched the final Top 25.";
 
-export default function VoterBallotBreakdown({
-  voterBreakdown,
-  teams,
-}: Props) {
+export default function VoterBallotBreakdown({ voterBreakdown, teams }: Props) {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 150);
   const [page, setPage] = useState(1);
