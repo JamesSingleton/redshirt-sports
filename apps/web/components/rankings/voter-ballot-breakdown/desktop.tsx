@@ -17,12 +17,13 @@ import {
 } from "lucide-react";
 import * as React from "react";
 
-import type { VoterBreakdown } from "@/types/votes";
+import type { BallotTeamsById, VoterBreakdown } from "@/types/votes";
 import { BallotMatchBadge, BallotMatchHeader } from "./match-badge";
 import { TeamLogo } from "./team-logo";
 
 type Props = {
   rows: VoterBreakdown[];
+  teams: BallotTeamsById;
   page: number;
   pageCount: number;
   onFirstAction: () => void;
@@ -33,6 +34,7 @@ type Props = {
 
 export default function VoterBreakdownDesktop({
   rows,
+  teams,
   page,
   pageCount,
   onFirstAction,
@@ -49,10 +51,10 @@ export default function VoterBreakdownDesktop({
           <Table className="min-w-max">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="bg-background sticky left-0 z-20 min-w-48">
-                  Voter
+                <TableHead className="bg-card sticky left-0 z-20 border-r">
+                  <div className="w-48">Voter</div>
                 </TableHead>
-                <TableHead className="bg-background sticky left-48 z-20 min-w-20 text-center">
+                <TableHead className="min-w-20 text-center">
                   <BallotMatchHeader />
                 </TableHead>
                 {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => (
@@ -68,27 +70,30 @@ export default function VoterBreakdownDesktop({
             <TableBody>
               {rows.map((voter) => (
                 <TableRow key={voter.name}>
-                  <TableCell className="bg-background sticky left-0 z-10 min-w-48">
-                    <div className="font-medium">{voter.name}</div>
-                    <div className="text-muted-foreground text-sm italic">
-                      {voter.organization}
-                      {voter.organizationRole
-                        ? ` (${voter.organizationRole})`
-                        : ""}
+                  <TableCell className="bg-card sticky left-0 z-10 border-r whitespace-normal">
+                    <div className="w-48">
+                      <div className="font-medium">{voter.name}</div>
+                      <div className="text-muted-foreground text-sm italic">
+                        {voter.organization}
+                        {voter.organizationRole
+                          ? ` (${voter.organizationRole})`
+                          : ""}
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell className="bg-background sticky left-48 z-10 min-w-20 text-center">
+                  <TableCell className="min-w-20 text-center">
                     <div className="flex justify-center">
                       <BallotMatchBadge matchPercent={voter.matchPercent} />
                     </div>
                   </TableCell>
                   {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => {
-                    const vote = voter.ballot?.[rank - 1];
+                    const teamId = voter.ballot[rank - 1];
+                    const team = teamId ? teams[teamId] : undefined;
                     return (
                       <TableCell key={`ballot-rank-${rank}`} className="py-1">
                         <div className="flex items-center justify-center">
-                          {vote ? (
-                            <TeamLogo vote={vote} size={40} />
+                          {team ? (
+                            <TeamLogo team={team} size={40} />
                           ) : (
                             <div className="bg-muted/30 size-10 rounded-sm" />
                           )}

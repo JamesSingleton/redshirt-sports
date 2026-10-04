@@ -582,6 +582,47 @@
     }
   },
   {
+    "name": "latestRankingsLink",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "latestRankingsLink"
+          }
+        },
+        "sport": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "sport.reference"
+          },
+          "optional": true
+        },
+        "poll": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "inline",
+                "name": "division.reference"
+              },
+              {
+                "type": "inline",
+                "name": "sportSubgrouping.reference"
+              }
+            ]
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
     "type": "type",
     "name": "post.reference",
     "value": {
@@ -768,6 +809,10 @@
               {
                 "type": "string",
                 "value": "sportNews"
+              },
+              {
+                "type": "string",
+                "value": "latestRankings"
               }
             ]
           },
@@ -810,6 +855,14 @@
           "value": {
             "type": "inline",
             "name": "sportNewsLink"
+          },
+          "optional": true
+        },
+        "latestRankingsLink": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "latestRankingsLink"
           },
           "optional": true
         }
@@ -1628,7 +1681,7 @@
                     "value": {
                       "type": "string"
                     },
-                    "optional": true
+                    "optional": false
                   },
                   "links": {
                     "type": "objectAttribute",
@@ -1741,6 +1794,75 @@
                 }
               }
             ]
+          }
+        },
+        "optional": true
+      },
+      "secondaryLinks": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "name": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                },
+                "optional": true
+              },
+              "url": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "inline",
+                  "name": "customUrl"
+                },
+                "optional": true
+              },
+              "_type": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string",
+                  "value": "navbarLink"
+                }
+              }
+            },
+            "rest": {
+              "type": "object",
+              "attributes": {
+                "_key": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "optional": true
+      },
+      "cta": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "object",
+          "attributes": {
+            "name": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
+            "url": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "inline",
+                "name": "customUrl"
+              },
+              "optional": true
+            }
           }
         },
         "optional": true

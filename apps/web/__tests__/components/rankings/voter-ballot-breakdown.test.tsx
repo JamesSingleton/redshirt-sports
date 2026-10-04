@@ -39,21 +39,31 @@ vi.mock("@/components/sanity-image", () => ({
   ),
 }));
 
-const vote = {
+const team = {
   _id: "team-1",
   name: "Alabama",
   shortName: "Alabama",
   abbreviation: "ALA",
   image: { alt: "Alabama logo" },
-  _order: 1,
 };
+
+const teams = {
+  "team-1": team,
+  "team-2": {
+    _id: "team-2",
+    name: "Full Team Name",
+    shortName: null,
+    abbreviation: "FTN",
+    image: { alt: "logo" },
+  },
+} as never;
 
 const voterBreakdown = Array.from({ length: 12 }, (_, index) => ({
   name: `Voter ${index + 1}`,
   organization: `Org ${index + 1}`,
   organizationRole: index % 2 === 0 ? "Writer" : "",
   matchPercent: 100 - index,
-  ballot: index === 0 ? [vote] : [],
+  ballot: index === 0 ? ["team-1"] : [],
 }));
 
 describe("VoterBallotBreakdown", () => {
@@ -63,7 +73,12 @@ describe("VoterBallotBreakdown", () => {
 
   it("filters, sorts, and paginates voters on desktop", async () => {
     const user = userEvent.setup();
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown as never} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Voter Breakdown")).toBeInTheDocument();
@@ -81,7 +96,12 @@ describe("VoterBallotBreakdown", () => {
 
   it("renders the mobile breakdown when on a small screen", async () => {
     mockUseIsMobile.mockReturnValue(true);
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown as never} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Prev")).toBeInTheDocument();
@@ -90,7 +110,12 @@ describe("VoterBallotBreakdown", () => {
 
   it("sorts by match percent and changes page size on desktop", async () => {
     const user = userEvent.setup();
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown as never} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByLabelText("Sort voters")).toBeInTheDocument();
@@ -115,7 +140,12 @@ describe("VoterBallotBreakdown", () => {
   it("paginates voters through mobile controls", async () => {
     mockUseIsMobile.mockReturnValue(true);
     const user = userEvent.setup();
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown as never} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Next" })).toBeInTheDocument();
@@ -130,6 +160,7 @@ describe("VoterBallotBreakdown", () => {
     render(
       <VoterBallotBreakdown
         voterBreakdown={voterBreakdown.slice(0, 3) as never}
+        teams={teams}
       />,
     );
 
@@ -157,7 +188,12 @@ describe("VoterBallotBreakdown", () => {
       ballot: [],
     }));
 
-    render(<VoterBallotBreakdown voterBreakdown={manyVoters as never} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={manyVoters as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText(/Showing 10 of 120 voter/)).toBeInTheDocument();
@@ -187,7 +223,12 @@ describe("VoterBallotBreakdown", () => {
     mockUseIsMobile.mockReturnValue(false);
 
     const user = userEvent.setup();
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown as never} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByLabelText("Go to last page")).toBeInTheDocument();
@@ -213,6 +254,7 @@ describe("VoterBreakdownDesktop", () => {
     render(
       <VoterBreakdownDesktop
         rows={voterBreakdown.slice(0, 1) as never}
+        teams={teams}
         page={2}
         pageCount={3}
         onFirstAction={onFirst}
@@ -247,6 +289,7 @@ describe("VoterBreakdownMobile", () => {
     render(
       <VoterBreakdownMobile
         rows={voterBreakdown.slice(0, 1) as never}
+        teams={teams}
         page={1}
         pageCount={2}
         onPrevAction={onPrev}
@@ -275,6 +318,7 @@ describe("VoterBreakdownMobile", () => {
             },
           ] as never
         }
+        teams={teams}
         page={1}
         pageCount={1}
         onPrevAction={vi.fn()}
@@ -296,19 +340,11 @@ describe("VoterBreakdownMobile", () => {
               organization: "Org",
               organizationRole: "",
               matchPercent: 80,
-              ballot: [
-                {
-                  _id: "team-2",
-                  name: "Full Team Name",
-                  shortName: null,
-                  abbreviation: "FTN",
-                  image: { alt: "logo" },
-                  _order: 1,
-                },
-              ],
+              ballot: ["team-2"],
             },
           ] as never
         }
+        teams={teams}
         page={1}
         pageCount={1}
         onPrevAction={vi.fn()}
@@ -625,7 +661,7 @@ describe("BallotMatchHeader", () => {
 
 describe("TeamLogo", () => {
   it("renders the team logo image", () => {
-    render(<TeamLogo vote={vote as never} size={36} />);
+    render(<TeamLogo team={team as never} size={36} />);
     expect(screen.getByTestId("team-logo")).toHaveAttribute("data-width", "36");
   });
 });

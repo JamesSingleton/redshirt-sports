@@ -67,11 +67,18 @@ vi.mock("@/components/sanity-image", () => ({
   default: () => <img alt="" />,
 }));
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 
 import VoteConfirmationPage, {
   VoteConfirmationContent,
 } from "@/app/(auth)/(vote)/vote/college/[sport]/[division]/confirmation/page";
+
+function ballotRows() {
+  const ballot = screen.getByRole("region", { name: "Your ballot" });
+  return within(within(ballot).getByRole("list"))
+    .getAllByRole("listitem")
+    .map((row) => row.textContent);
+}
 
 describe("VoteConfirmationContent", () => {
   beforeEach(() => {
@@ -145,10 +152,11 @@ describe("VoteConfirmationContent", () => {
     render(ui as ReactNode);
 
     expect(
-      screen.getByText(/Your Football Bowl Subdivision/i),
+      screen.getByRole("heading", {
+        name: "Your Football Bowl Subdivision (FBS) College Football Top 25 Vote is In!",
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/1\. Alabama/)).toBeInTheDocument();
-    expect(screen.getByText(/2\. Georgia/)).toBeInTheDocument();
+    expect(ballotRows()).toEqual(["1Alabama", "2Georgia"]);
     expect(screen.getByRole("link", { name: /Edit ballot/i })).toHaveAttribute(
       "href",
       "/vote/college/football/fbs?edit=1",
@@ -194,6 +202,10 @@ describe("VoteConfirmationContent", () => {
     expect(
       screen.getByText(/rankings have been published/i),
     ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Return home" })).toHaveAttribute(
+      "href",
+      "/",
+    );
   });
 
   it("does not lock the ballot when the week cannot be resolved", async () => {
@@ -273,7 +285,7 @@ describe("VoteConfirmationContent", () => {
     expect(
       screen.getByText(/Your custom-division custom-sport Top 25 Vote is In!/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/1\. Custom School/)).toBeInTheDocument();
+    expect(ballotRows()).toEqual(["1Custom School"]);
   });
 
   it("uses abbreviation when shortName is missing", async () => {
@@ -304,6 +316,6 @@ describe("VoteConfirmationContent", () => {
       params: Promise.resolve({ sport: "football", division: "fbs" }),
     });
     render(ui as ReactNode);
-    expect(screen.getByText(/1\. ALA/)).toBeInTheDocument();
+    expect(ballotRows()).toEqual(["1ALA"]);
   });
 });

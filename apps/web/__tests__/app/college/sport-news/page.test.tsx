@@ -38,6 +38,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
+  querySportDivisionFilters: "querySportDivisionFilters",
   querySportsNews: "querySportsNews",
   sportInfoBySlug: "sportInfoBySlug",
 }));
@@ -52,23 +53,40 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/components/page-header", () => ({
   __esModule: true,
-  default: ({ title }: { title: string }) => <h1>{title}</h1>,
-}));
-
-vi.mock("@/components/article-feed", () => ({
-  __esModule: true,
-  default: ({ articles }: { articles: Array<{ title: string }> }) => (
-    <div data-testid="article-feed">
-      {articles.map((a) => (
-        <div key={a.title}>{a.title}</div>
-      ))}
+  default: ({ title, children }: { title: string; children?: ReactNode }) => (
+    <div>
+      <h1>{title}</h1>
+      {children}
     </div>
   ),
 }));
 
-vi.mock("@/components/pagination-controls", () => ({
-  __esModule: true,
-  default: () => <nav data-testid="pagination" />,
+vi.mock("@/components/page-transition", () => ({
+  PageTransition: ({ children }: { children: ReactNode }) => <>{children}</>,
+}));
+
+vi.mock("@/components/rankings/poll-aside", () => ({
+  PollAside: () => null,
+}));
+
+vi.mock("@/components/news/news-listing", () => ({
+  NewsListing: {
+    Layout: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    Feed: ({
+      posts,
+      totalPosts,
+    }: {
+      posts: Array<{ _id: string; title: string }>;
+      totalPosts: number;
+    }) => (
+      <div data-testid="article-feed">
+        {posts.map((post) => (
+          <div key={post._id}>{post.title}</div>
+        ))}
+        {totalPosts > posts.length ? <nav data-testid="pagination" /> : null}
+      </div>
+    ),
+  },
 }));
 
 import SportNewsLoading from "@/app/college/[sport]/news/loading";
@@ -79,6 +97,7 @@ import SportNewsPage, {
 describe("SportNewsPage", () => {
   beforeEach(() => {
     mockSanityFetchPage.mockReset();
+    mockSanityFetchPage.mockResolvedValue({ data: null });
     mockSanityFetchMetadata.mockReset();
     mockNotFound.mockClear();
   });
@@ -156,6 +175,41 @@ describe("SportNewsPage", () => {
       screen.getByRole("heading", { name: "College Football News" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Football Story")).toBeInTheDocument();
+  });
+
+  it("renders division filter links, falling back to an empty label", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({
+        data: {
+          posts: [{ _id: "1", title: "Football Story" }],
+          totalPosts: 1,
+        },
+      })
+      .mockResolvedValueOnce({ data: { title: "Football" } })
+      .mockResolvedValueOnce({
+        data: {
+          subgroupings: [{ _id: "sub-fcs", name: "FCS", slug: "fcs" }],
+          divisions: [{ _id: "div-d2", name: null, slug: "d2" }],
+        },
+      });
+
+    const page = await SportNewsPage({
+      params: Promise.resolve({ sport: "football" }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page as ReactNode);
+
+    expect(screen.getByRole("link", { name: "FCS" })).toHaveAttribute(
+      "href",
+      "/college/football/news/fcs",
+    );
+    expect(
+      screen
+        .getAllByRole("link")
+        .some(
+          (link) => link.getAttribute("href") === "/college/football/news/d2",
+        ),
+    ).toBe(true);
   });
 
   it("renders pagination when multiple pages exist", async () => {

@@ -330,11 +330,11 @@ export function VotingPanels({
             </div>
 
             <Popover open={addOpen} onOpenChange={setAddOpen}>
-              <PopoverTrigger asChild>
-                <Button disabled={pending || !selectedPoll}>
-                  <PlusIcon data-icon="inline-start" />
-                  Add to panel
-                </Button>
+              <PopoverTrigger
+                render={<Button disabled={pending || !selectedPoll} />}
+              >
+                <PlusIcon data-icon="inline-start" />
+                Add to panel
               </PopoverTrigger>
               <PopoverContent className="w-80 p-0" align="end">
                 <Command>

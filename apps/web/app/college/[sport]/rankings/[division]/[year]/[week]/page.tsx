@@ -1,12 +1,12 @@
 import { PUBLISHED_FETCH_OPTIONS } from "@redshirt-sports/sanity/live";
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-} from "@redshirt-sports/ui/components/card";
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@redshirt-sports/ui/components/empty";
 import {
   Table,
   TableBody,
@@ -15,13 +15,14 @@ import {
   TableHeader,
   TableRow,
 } from "@redshirt-sports/ui/components/table";
-import type { Metadata } from "next";
+import { cn } from "@redshirt-sports/ui/lib/utils";
+import type { Metadata, Route } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Fragment, Suspense } from "react";
 import type { Graph } from "schema-dts";
 
+import BreadCrumbs from "@/components/breadcrumbs";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { RankingsFilters } from "@/components/rankings/filters";
 import { RankMovement } from "@/components/rankings/rank-movement";
@@ -30,10 +31,13 @@ import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-bre
 import { TeamPageLink } from "@/components/rankings/team-page-link";
 import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-skeleton";
 import CustomImage from "@/components/sanity-image";
+import { SidebarCard } from "@/components/sidebar-card";
+import { SuspenseReveal } from "@/components/suspense-reveal";
 import { TOP_25 } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { pollDateLabel } from "@/lib/poll-label";
 import {
   getCachedFinalRankings,
   getCachedWeeksThatHaveVotes,
@@ -51,10 +55,51 @@ import {
   getDroppedOutOfTop25,
   getMovement,
   getPreviousWeek,
+  getWeekHighlights,
 } from "@/lib/rankings-movement";
 import { parseWeekSegment, type SportParam, weekTitle } from "@/utils/espn";
 
 const baseUrl = getBaseUrl();
+
+type RankedTeam = Awaited<
+  ReturnType<typeof getCachedFinalRankings>
+>["rankings"][number];
+
+function HighlightRow({
+  label,
+  team,
+  detail,
+}: {
+  label: string;
+  team: RankedTeam;
+  detail: string;
+}) {
+  return (
+    <li className="flex items-center gap-3 px-4 py-3">
+      <CustomImage
+        image={team.image as Parameters<typeof CustomImage>[0]["image"]}
+        width={36}
+        height={36}
+        className="size-9 shrink-0 object-contain"
+        mode="contain"
+      />
+      <div className="flex min-w-0 flex-col">
+        <span className="text-muted-foreground text-xs font-medium">
+          {label}
+        </span>
+        <TeamPageLink
+          slug={team.slug}
+          className="truncate text-sm font-semibold hover:underline"
+        >
+          {displayName(team)}
+        </TeamPageLink>
+        <span className="text-muted-foreground text-xs tabular-nums">
+          {detail}
+        </span>
+      </div>
+    </li>
+  );
+}
 
 function resolveYearNumber(year: string): number {
   if (!/^\d{4}$/.test(year)) {
@@ -182,7 +227,7 @@ async function renderCollegeFootballRankingsPage({
     notFound();
   }
 
-  const { rankings } = finalRankingsResult.value;
+  const { rankings, throughDate } = finalRankingsResult.value;
   const previousRankings =
     previousRankingsResult.status === "fulfilled" &&
     previousRankingsResult.value != null
@@ -194,6 +239,7 @@ async function renderCollegeFootballRankingsPage({
     : null;
 
   const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25);
+  const [leader] = top25;
   const outsideTop25 = rankings.filter(
     (team) => !team.rank || team.rank > TOP_25,
   );
@@ -245,33 +291,102 @@ async function renderCollegeFootballRankingsPage({
     ],
   };
 
+  const divisionLabel = division.toUpperCase();
+  const otherLists = [
+    {
+      key: "others",
+      title: "Others receiving votes",
+      teams: outsideTop25.map((team) => ({
+        _id: team._id,
+        slug: team.slug,
+        label: team.shortName ?? displayName(team),
+        detail: String(team._points),
+      })),
+    },
+    {
+      key: "dropped",
+      title: "Dropped out",
+      teams: droppedOutOfTop25.map((team) => ({
+        _id: team._id,
+        slug: team.slug,
+        label: displayName(team),
+        detail: `(was No. ${team.previousRank})`,
+      })),
+    },
+    {
+      key: "no-votes",
+      title: "No longer receiving votes",
+      teams: noLongerReceivingVotes.map((team) => ({
+        _id: team._id,
+        slug: team.slug,
+        label: displayName(team),
+        detail: null,
+      })),
+    },
+  ].filter((list) => list.teams.length > 0);
+
+  const highlights = previousRankById
+    ? getWeekHighlights(top25, previousRankById)
+    : null;
+
   return (
-    <div className="container mx-auto gap-8 px-4 py-8">
+    <div className="container flex flex-col gap-8 py-6 md:py-10">
       <JsonLdScript
         data={jsonLd}
         id={`json-ld-${sport}-${division}-${year}-${week}`}
       />
-      <Card>
-        <CardHeader>
-          <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
-          <CardDescription>
-            Our {division.toUpperCase()} Top 25 uses a point system: 25 points
-            for a first-place vote down to 1 point for a 25th-place vote. Total
-            points determine the final rankings.
-          </CardDescription>
-          <CardDescription className="flex items-center space-x-4 pt-4">
-            <RankingsFilters years={yearsWithVotes} weeks={weeksWithVotes} />
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {top25.length > 0 && (
+      <div className="flex flex-col gap-4">
+        <BreadCrumbs
+          breadCrumbPages={[
+            { title: "Rankings", href: `/college/${sport}/rankings` },
+            {
+              title: `${divisionLabel} Top 25`,
+              href: `/college/${sport}/rankings/${division}/${year}/${week}`,
+            },
+          ]}
+        />
+        <header className="flex flex-col gap-4 border-b pb-6 md:flex-row md:items-end md:justify-between">
+          <div className="flex max-w-2xl flex-col gap-2">
+            <p className="text-brand text-sm font-semibold">
+              {pollDateLabel({
+                week: weekNumber,
+                year: yearNumber,
+                throughDate,
+              })}
+            </p>
+            <h1 className="headline text-4xl text-balance md:text-5xl">
+              {divisionLabel} Top 25
+            </h1>
+            <p className="text-muted-foreground text-pretty">
+              Our {divisionLabel} Top 25 uses a point system: 25 points for a
+              first-place vote down to 1 point for a 25th-place vote. Total
+              points determine the final rankings.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <RankingsFilters
+              years={yearsWithVotes}
+              weeks={weeksWithVotes}
+              currentYear={year}
+              currentWeek={week}
+            />
+          </div>
+        </header>
+      </div>
+
+      {leader ? (
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <section
+            aria-label={`${divisionLabel} Top 25 poll`}
+            className="bg-card overflow-hidden rounded-md border lg:col-span-8"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Rank</TableHead>
-                  <TableHead>Trend</TableHead>
-                  <TableHead>School (1st Place Votes)</TableHead>
-                  <TableHead>Points</TableHead>
+                  <TableHead className="w-16 pl-4">Rank</TableHead>
+                  <TableHead>Team</TableHead>
+                  <TableHead className="w-16">Trend</TableHead>
+                  <TableHead className="w-20 pr-4 text-right">Points</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -282,116 +397,165 @@ async function renderCollegeFootballRankingsPage({
 
                   return (
                     <TableRow key={team._id}>
-                      <TableCell>
-                        {team.isTie ? `T-${team.rank}` : team.rank}
+                      <TableCell className="pl-4">
+                        <span
+                          className={cn(
+                            "rank-numeral text-2xl",
+                            team.rank === 1 && "text-brand",
+                          )}
+                        >
+                          {team.isTie ? `T${team.rank}` : team.rank}
+                        </span>
                       </TableCell>
                       <TableCell>
-                        {movement ? (
-                          <RankMovement movement={movement} />
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-3">
+                          <CustomImage
+                            image={
+                              team.image as Parameters<
+                                typeof CustomImage
+                              >[0]["image"]
+                            }
+                            width={36}
+                            height={36}
+                            className="size-9 shrink-0 object-contain"
+                            mode="contain"
+                          />
                           <TeamPageLink
                             slug={team.slug}
-                            className="flex items-center hover:underline"
+                            className="font-semibold hover:underline"
                           >
-                            <CustomImage
-                              image={
-                                team.image as Parameters<
-                                  typeof CustomImage
-                                >[0]["image"]
-                              }
-                              width={40}
-                              height={40}
-                              className="mr-2 size-10 shrink-0 object-contain"
-                              mode="contain"
-                            />
                             {team.shortName ?? team.abbreviation ?? team.name}
                           </TeamPageLink>
                           {team.firstPlaceVotes ? (
-                            <span className="text-muted-foreground ml-2 tracking-wider">
+                            <span className="text-muted-foreground text-xs tabular-nums">
                               ({team.firstPlaceVotes})
                             </span>
                           ) : null}
                         </div>
                       </TableCell>
-                      <TableCell>{team._points}</TableCell>
+                      <TableCell>
+                        {movement ? <RankMovement movement={movement} /> : null}
+                      </TableCell>
+                      <TableCell className="pr-4 text-right font-semibold tabular-nums">
+                        {team._points}
+                      </TableCell>
                     </TableRow>
                   );
                 })}
               </TableBody>
             </Table>
-          )}
-          {top25.length === 0 && (
-            <div className="mx-auto max-w-md text-center">
-              <h2 className="text-foreground mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
-                Top 25 Poll Not Found
-              </h2>
-              <p className="text-muted-foreground mt-4">
-                We&apos;re sorry, but the selected Top 25 poll could not be
-                found. Please try again or check back later.
-              </p>
-              <div className="mt-6">
-                <Link href="/" className={buttonVariants()} prefetch={false}>
-                  Go back Home
-                </Link>
-              </div>
+            {otherLists.length > 0 ? (
+              <dl className="flex flex-col gap-3 border-t px-4 py-4 text-sm">
+                {otherLists.map((list) => (
+                  <div key={list.key} className="text-pretty">
+                    <dt className="inline font-semibold">{list.title}: </dt>
+                    <dd className="text-muted-foreground inline">
+                      {list.teams.map((team, index) => (
+                        <span key={team._id}>
+                          <TeamPageLink
+                            slug={team.slug}
+                            className="text-foreground hover:underline"
+                          >
+                            {team.label}
+                          </TeamPageLink>
+                          {team.detail ? (
+                            <span className="tabular-nums"> {team.detail}</span>
+                          ) : null}
+                          {index < list.teams.length - 1 ? ", " : null}
+                        </span>
+                      ))}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            ) : null}
+          </section>
+
+          <aside className="flex flex-col gap-6 lg:col-span-4">
+            <div className="lg:sticky lg:top-24">
+              <SidebarCard.Root labelledBy="week-highlights-heading">
+                <SidebarCard.Header
+                  id="week-highlights-heading"
+                  title="This week"
+                />
+                <ul className="divide-y">
+                  <HighlightRow
+                    label="No. 1"
+                    team={leader}
+                    detail={
+                      leader.firstPlaceVotes
+                        ? `${leader.firstPlaceVotes} first-place votes`
+                        : `${leader._points} points`
+                    }
+                  />
+                  {highlights?.riser ? (
+                    <HighlightRow
+                      label="Biggest riser"
+                      team={highlights.riser.team}
+                      detail={`Up ${highlights.riser.delta} to No. ${highlights.riser.team.rank}`}
+                    />
+                  ) : null}
+                  {highlights?.faller ? (
+                    <HighlightRow
+                      label="Biggest fall"
+                      team={highlights.faller.team}
+                      detail={`Down ${highlights.faller.delta} to No. ${highlights.faller.team.rank}`}
+                    />
+                  ) : null}
+                  {highlights?.newcomers.length ? (
+                    <li className="flex flex-col gap-1 px-4 py-3 text-sm">
+                      <span className="text-muted-foreground text-xs font-medium">
+                        New to the Top 25
+                      </span>
+                      <span className="text-pretty">
+                        {highlights.newcomers.map((team, index) => (
+                          <span key={team._id}>
+                            <TeamPageLink
+                              slug={team.slug}
+                              className="font-semibold hover:underline"
+                            >
+                              {displayName(team)}
+                            </TeamPageLink>
+                            <span className="text-muted-foreground tabular-nums">
+                              {" "}
+                              No. {team.rank}
+                            </span>
+                            {index < highlights.newcomers.length - 1
+                              ? ", "
+                              : null}
+                          </span>
+                        ))}
+                      </span>
+                    </li>
+                  ) : null}
+                </ul>
+              </SidebarCard.Root>
             </div>
-          )}
-        </CardContent>
-        <CardFooter>
-          {(droppedOutOfTop25.length > 0 ||
-            outsideTop25.length > 0 ||
-            noLongerReceivingVotes.length > 0) && (
-            <div className="mt-4 space-y-2">
-              {droppedOutOfTop25.length > 0 && (
-                <p>
-                  <strong>Dropped Out of Top 25:</strong>{" "}
-                  {droppedOutOfTop25.map((team, index) => (
-                    <Fragment key={team._id}>
-                      {index > 0 ? ", " : null}
-                      <TeamPageLink slug={team.slug}>
-                        {displayName(team)} ({team.previousRank})
-                      </TeamPageLink>
-                    </Fragment>
-                  ))}
-                </p>
-              )}
-              {outsideTop25.length > 0 && (
-                <p>
-                  <strong>Others receiving votes:</strong>{" "}
-                  {outsideTop25.map((team, index) => (
-                    <Fragment key={team._id}>
-                      {index > 0 ? ", " : null}
-                      <TeamPageLink slug={team.slug}>
-                        {team.shortName} {team._points}
-                      </TeamPageLink>
-                    </Fragment>
-                  ))}
-                </p>
-              )}
-              {noLongerReceivingVotes.length > 0 && (
-                <p>
-                  <strong>No longer receiving votes:</strong>{" "}
-                  {noLongerReceivingVotes.map((team, index) => (
-                    <Fragment key={team._id}>
-                      {index > 0 ? ", " : null}
-                      <TeamPageLink slug={team.slug}>
-                        {displayName(team)}
-                      </TeamPageLink>
-                    </Fragment>
-                  ))}
-                </p>
-              )}
-            </div>
-          )}
-        </CardFooter>
-      </Card>
+          </aside>
+        </div>
+      ) : (
+        <Empty className="bg-card rounded-md border">
+          <EmptyHeader>
+            <EmptyTitle>No poll for this week</EmptyTitle>
+            <EmptyDescription>
+              The selected Top 25 poll could not be found. Pick another week or
+              check back later.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Link
+              href={`/college/${sport}/rankings` as Route}
+              className={buttonVariants()}
+              prefetch={false}
+            >
+              Latest polls
+            </Link>
+          </EmptyContent>
+        </Empty>
+      )}
+
       {top25.length > 0 ? (
-        <Suspense fallback={<VoterBreakdownSkeleton />}>
+        <SuspenseReveal fallback={<VoterBreakdownSkeleton />}>
           <RankingsVoterBreakdown
             division={division}
             year={yearNumber}
@@ -402,7 +566,7 @@ async function renderCollegeFootballRankingsPage({
               rank: team.rank as number,
             }))}
           />
-        </Suspense>
+        </SuspenseReveal>
       ) : null}
     </div>
   );

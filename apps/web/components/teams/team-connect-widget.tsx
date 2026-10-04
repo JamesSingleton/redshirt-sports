@@ -12,6 +12,7 @@ import {
   Twitter,
   YouTubeIcon,
 } from "@/components/icons";
+import { SidebarCard } from "@/components/sidebar-card";
 
 type SchoolSocialLinks = NonNullable<SchoolBySlugQueryResult>["socialLinks"];
 type GlobalSocialLinks =
@@ -65,8 +66,8 @@ export function TeamConnectWidget({
 
   const title =
     usingSchoolSocialLinks && schoolName
-      ? `Connect With ${schoolName}`
-      : "Connect With Us";
+      ? `Follow ${schoolName}`
+      : "Follow Redshirt Sports";
 
   const links = [
     { url: socialLinks.twitter, Icon: Twitter },
@@ -80,22 +81,23 @@ export function TeamConnectWidget({
   if (links.length === 0) return null;
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
-      <h3 className="border-b px-4 py-3 text-base font-bold">{title}</h3>
-      <div className="flex flex-col px-4 py-3">
+    <SidebarCard.Root labelledBy="team-connect-heading">
+      <SidebarCard.Header id="team-connect-heading" title={title} />
+      <ul className="divide-y">
         {links.map(({ url, Icon }) => (
-          <Link
-            key={url}
-            href={url}
-            className="flex items-center gap-2.5 py-2"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Icon className="size-5 shrink-0 text-center" />
-            <span>{socialHandle(url)}</span>
-          </Link>
+          <li key={url}>
+            <Link
+              href={url}
+              className="hover:bg-accent flex items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon className="size-4 shrink-0" />
+              <span className="truncate">{socialHandle(url)}</span>
+            </Link>
+          </li>
         ))}
-      </div>
-    </div>
+      </ul>
+    </SidebarCard.Root>
   );
 }

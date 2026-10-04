@@ -89,22 +89,23 @@ const navbarColumn = defineField({
   name: "navbarColumn",
   type: "object",
   icon: LayoutPanelLeft,
-  title: "Navigation Column",
-  description: "A column of navigation links with an optional title",
+  title: "Dropdown Menu",
+  description:
+    "A dropdown in the primary bar. On mobile it becomes a section heading with its links listed below.",
   fields: [
     defineField({
       name: "title",
       type: "string",
-      title: "Column Title",
-      description:
-        "The heading text displayed above this group of navigation links",
+      title: "Menu Label",
+      description: "The text shown on the dropdown trigger, e.g. College",
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "links",
       type: "array",
-      title: "Column Links",
+      title: "Menu Links",
       validation: (rule) => [rule.required(), rule.unique()],
-      description: "The list of navigation links to display in this column",
+      description: "The links listed in this dropdown, in order",
       of: [navbarColumnLink],
     }),
   ],
@@ -141,10 +142,26 @@ export const navbar = defineType({
     defineField({
       name: "columns",
       type: "array",
-      title: "Navigation Structure",
+      title: "Primary Navigation",
       description:
-        "Build your navigation menu using columns and links. Add either a column of links or individual links.",
+        "Items in the dark primary bar. Add a dropdown menu or a single link.",
       of: [navbarColumn, navbarLink],
+    }),
+    defineField({
+      name: "secondaryLinks",
+      type: "array",
+      title: "Secondary Links",
+      description:
+        "Quick links in the light bar under the primary navigation, e.g. Top 25 Rankings or Vote.",
+      of: [navbarLink],
+      validation: (rule) => rule.max(8),
+    }),
+    defineField({
+      ...navbarLink,
+      name: "cta",
+      title: "Call to Action",
+      description:
+        "Optional button on the right side of the primary bar, e.g. Vote in the Top 25.",
     }),
   ],
   preview: {

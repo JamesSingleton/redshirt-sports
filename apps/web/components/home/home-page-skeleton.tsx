@@ -1,131 +1,97 @@
 import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
-import { cn } from "@redshirt-sports/ui/lib/utils";
 
-function ArticleCardSkeleton({
-  headingClassName,
-}: {
-  headingClassName?: string;
-}) {
+import {
+  MEGABOARD_SIDE_BODY_CLASS,
+  MEGABOARD_SIDE_CARD_CLASS,
+  MEGABOARD_SIDE_IMAGE_CLASS,
+  MEGABOARD_SIDE_ITEM_CLASS,
+  MEGABOARD_SIDE_LIST_CLASS,
+} from "@/components/home/megaboard";
+import { Top25CardSkeleton } from "@/components/rankings/top25-card";
+
+function CardSkeleton() {
   return (
-    <div className="border-border overflow-hidden rounded-lg border shadow-lg">
-      <Skeleton className="h-48 w-full rounded-none" />
-      <div className="bg-background space-y-2 p-4">
-        <Skeleton className={cn("h-5 w-full", headingClassName)} />
-        <Skeleton className="h-5 w-4/5" />
-        <div className="flex items-center gap-2 pt-1">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-4 w-1" />
-          <Skeleton className="h-4 w-20" />
-        </div>
+    <div className="flex flex-col gap-3">
+      <Skeleton className="aspect-video w-full rounded-md" />
+      <Skeleton className="h-5 w-full" />
+      <Skeleton className="h-5 w-4/5" />
+      <Skeleton className="h-4 w-32" />
+    </div>
+  );
+}
+
+function ThumbRowSkeleton() {
+  return (
+    <div className={MEGABOARD_SIDE_CARD_CLASS}>
+      <Skeleton className={MEGABOARD_SIDE_IMAGE_CLASS} />
+      <div className={MEGABOARD_SIDE_BODY_CLASS}>
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-20" />
       </div>
     </div>
   );
 }
 
-function HeroSkeleton() {
+function SectionHeaderSkeleton() {
   return (
-    <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
-      <div className="container">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <Skeleton className="aspect-2/1 w-full rounded-lg shadow-md" />
-            <div className="mt-4 space-y-2">
-              <Skeleton className="h-8 w-full lg:h-12" />
-              <Skeleton className="h-8 w-3/4 lg:h-12" />
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="h-5 w-5/6" />
-              <div className="flex items-center gap-2 pt-1">
-                <Skeleton className="size-8 rounded-full" />
-                <Skeleton className="h-4 w-28" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-0 lg:grid-cols-1">
-            <ArticleCardSkeleton />
-            <ArticleCardSkeleton />
-          </div>
-        </div>
-      </div>
-    </section>
+    <div className="flex items-end justify-between border-b pb-3">
+      <Skeleton className="h-7 w-40" />
+      <Skeleton className="h-4 w-16" />
+    </div>
   );
 }
 
-function LatestNewsSkeleton() {
+function SidebarCardSkeleton() {
   return (
-    <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-      <div className="container">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-36" />
-          <Skeleton className="h-9 w-24 rounded-md" />
-        </div>
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }, (_, index) => (
-            <ArticleCardSkeleton key={index} />
-          ))}
-        </div>
+    <div className="bg-card overflow-hidden rounded-md border">
+      <div className="border-brand border-l-4 px-4 py-3">
+        <Skeleton className="h-6 w-28" />
       </div>
-    </section>
-  );
-}
-
-function ArticleSectionSkeleton({
-  imageFirst = false,
-}: {
-  imageFirst?: boolean;
-}) {
-  return (
-    <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-      <div className="container">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-56" />
-          <Skeleton className="h-9 w-24 rounded-md" />
-        </div>
-        <div className="flex flex-col gap-4 pt-4 md:flex-row">
-          <div
-            className={cn(
-              "order-1 space-y-2 md:flex md:w-1/2 md:items-center xl:w-1/3",
-              imageFirst ? "md:order-2" : "md:order-1",
-            )}
-          >
-            <div className="space-y-2 md:flex-1">
-              <Skeleton className="h-9 w-full lg:h-10" />
-              <Skeleton className="h-9 w-4/5 lg:h-10" />
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="h-5 w-11/12" />
-              <div className="flex items-center gap-2 pt-1">
-                <Skeleton className="size-8 rounded-full" />
-                <Skeleton className="h-4 w-28" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </div>
-          </div>
-          <div
-            className={cn(
-              "md:w-1/2 xl:w-2/3",
-              imageFirst ? "md:order-1" : "md:order-2",
-            )}
-          >
-            <Skeleton className="aspect-3/2 w-full rounded-lg shadow-md" />
+      {Array.from({ length: 4 }, (_, index) => (
+        <div key={index} className="flex items-center gap-3 border-t px-4 py-3">
+          <Skeleton className="size-11 shrink-0 rounded-full" />
+          <div className="flex flex-1 flex-col gap-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-20" />
           </div>
         </div>
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }, (_, index) => (
-            <ArticleCardSkeleton key={index} />
-          ))}
-        </div>
-      </div>
-    </section>
+      ))}
+    </div>
   );
 }
 
 export default function HomePageSkeleton() {
   return (
-    <>
-      <HeroSkeleton />
-      <LatestNewsSkeleton />
-      <ArticleSectionSkeleton />
-      <ArticleSectionSkeleton imageFirst />
-    </>
+    <div aria-busy="true" className="container flex flex-col gap-8 py-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Skeleton className="aspect-4/3 w-full rounded-md sm:aspect-video lg:col-span-2" />
+        <div className={MEGABOARD_SIDE_LIST_CLASS}>
+          {Array.from({ length: 6 }, (_, index) => (
+            <div key={index} className={MEGABOARD_SIDE_ITEM_CLASS}>
+              <ThumbRowSkeleton />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div className="flex flex-col gap-10 lg:col-span-8">
+          {Array.from({ length: 2 }, (_, section) => (
+            <div key={section} className="flex flex-col gap-6">
+              <SectionHeaderSkeleton />
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                {Array.from({ length: 4 }, (_, index) => (
+                  <CardSkeleton key={index} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-col gap-6 lg:col-span-4">
+          <Top25CardSkeleton />
+          <SidebarCardSkeleton />
+        </div>
+      </div>
+    </div>
   );
 }

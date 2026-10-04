@@ -44,6 +44,7 @@ describe("toPublicRankingsResponse", () => {
         division: "fcs",
         week: 5,
         year: 2025,
+        throughDate: "2025-09-27",
         rankings: [
           {
             _id: "sanity-montana",
@@ -145,6 +146,7 @@ describe("toPublicRankingsResponse", () => {
         division: "fcs",
         week: 999,
         year: 2025,
+        throughDate: null,
         rankings: [],
       },
     });

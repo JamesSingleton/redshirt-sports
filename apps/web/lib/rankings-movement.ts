@@ -65,6 +65,43 @@ export function getMovement(
   return { kind: "same" };
 }
 
+export type WeekHighlights<T extends RankingTeamRef> = {
+  riser: { team: T; delta: number } | null;
+  faller: { team: T; delta: number } | null;
+  newcomers: T[];
+};
+
+/** Biggest move each way and newly ranked teams among this week's Top 25. */
+export function getWeekHighlights<T extends RankingTeamRef>(
+  top25: T[],
+  previousRankById: Map<string, number | null>,
+): WeekHighlights<T> {
+  const highlights: WeekHighlights<T> = {
+    riser: null,
+    faller: null,
+    newcomers: [],
+  };
+
+  for (const team of top25) {
+    const movement = getMovement(team.rank, previousRankById.get(team._id));
+    if (movement.kind === "nr") {
+      highlights.newcomers.push(team);
+    } else if (
+      movement.kind === "up" &&
+      movement.delta > (highlights.riser?.delta ?? 0)
+    ) {
+      highlights.riser = { team, delta: movement.delta };
+    } else if (
+      movement.kind === "down" &&
+      movement.delta > (highlights.faller?.delta ?? 0)
+    ) {
+      highlights.faller = { team, delta: movement.delta };
+    }
+  }
+
+  return highlights;
+}
+
 export function displayName(team: RankingTeamRef): string {
   return team.shortName ?? team.abbreviation ?? team.name ?? "Unknown";
 }

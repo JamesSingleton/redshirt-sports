@@ -19,8 +19,9 @@ import {
   type PortableTextTypeComponentProps,
 } from "next-sanity";
 
-import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
+import CustomImage from "@/components/sanity-image";
 import { ReactTweet as Tweet } from "@/components/tweet";
+import { IMAGE_SIZES } from "@/lib/image-sizes";
 import { YouTubeEmbedComponent } from "./youtube-embed";
 
 type TableType = {

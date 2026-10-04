@@ -19,16 +19,25 @@ vi.mock("next/link", () => ({
 }));
 
 describe("NotFound", () => {
-  it("renders a 404 message and link back home", () => {
+  it("renders a 404 message with links home and to the latest news", () => {
     render(<NotFound />);
 
-    expect(screen.getByRole("heading", { name: "404" })).toBeInTheDocument();
+    expect(screen.getByText("404")).toBeInTheDocument();
     expect(
-      screen.getByText("The page you are looking for does not exist."),
+      screen.getByRole("heading", { level: 1, name: "Page not found" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Return Home" })).toHaveAttribute(
+    expect(
+      screen.getByText(
+        "The page you are looking for does not exist or has moved.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Return home" })).toHaveAttribute(
       "href",
       "/",
+    );
+    expect(screen.getByRole("link", { name: "Latest news" })).toHaveAttribute(
+      "href",
+      "/college/news",
     );
   });
 });

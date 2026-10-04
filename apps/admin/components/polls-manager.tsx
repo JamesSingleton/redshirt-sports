@@ -180,7 +180,16 @@ export function PollsManager({
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="poll-sport">Sport</Label>
-              <Select value={sportId} onValueChange={setSportId}>
+              <Select
+                value={sportId}
+                onValueChange={(value) => {
+                  if (value !== null) setSportId(value);
+                }}
+                items={sports.map((sport) => ({
+                  value: sport.id,
+                  label: sport.displayName || sport.name,
+                }))}
+              >
                 <SelectTrigger id="poll-sport" className="w-full">
                   <SelectValue placeholder="Sport" />
                 </SelectTrigger>

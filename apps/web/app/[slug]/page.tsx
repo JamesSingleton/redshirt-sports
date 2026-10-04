@@ -9,21 +9,27 @@ import {
   queryPostSlugData,
 } from "@redshirt-sports/sanity/queries";
 import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
-import { badgeVariants } from "@redshirt-sports/ui/components/badge";
 import { CameraIcon } from "lucide-react";
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { toPlainText } from "next-sanity";
 
-import ArticleCard from "@/components/article-card";
+import { ArticleImage, ArticleRow } from "@/components/article-card";
 import ArticleLoadingSkeleton from "@/components/article-loading-skeleton";
 import FormatDate from "@/components/format-date";
 import { buildSafeImageUrl, PostPageJsonLd } from "@/components/json-ld";
-import { LargeArticleSocialShare } from "@/components/posts/article-share";
-import { AuthorSection, MobileAuthorSection } from "@/components/posts/author";
+import { PageTransition } from "@/components/page-transition";
+import { ArticleShare } from "@/components/posts/article-share";
+import { Byline } from "@/components/posts/author";
+import {
+  DivisionTop25Card,
+  DivisionTop25CardSkeleton,
+  isPollDivision,
+} from "@/components/rankings/top25-card";
 import { RichText } from "@/components/rich-text";
-import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
+import { SidebarCard } from "@/components/sidebar-card";
+import { SuspenseReveal } from "@/components/suspense-reveal";
 import { getArticleTagNames } from "@/lib/article-seo";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
@@ -31,6 +37,7 @@ import {
   fetchGlobalSeoSettings,
   getPageMetadata,
 } from "@/lib/global-seo-settings";
+import { IMAGE_SIZES } from "@/lib/image-sizes";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getCollegeSportSection } from "@/lib/sport-section";
 
@@ -97,7 +104,55 @@ export default async function PostPage({
   );
 }
 
+type Post = NonNullable<QueryPostSlugDataResult>;
+
+/**
+ * Not cached itself: the Sanity article and the Postgres-backed Top 25 card
+ * are sibling cache scopes.
+ */
 async function renderPostPage(
+  params: { slug: string },
+  options: DynamicFetchOptions,
+) {
+  const { data, settings } = await getCachedPostPageData(params, options);
+
+  if (!data) {
+    notFound();
+  }
+
+  const pollDivision = getPollDivision(data);
+
+  return (
+    <PostPageView
+      post={data}
+      slug={params.slug}
+      publisher={{
+        siteBrand: settings?.siteBrand,
+        logo: buildSafeImageUrl(settings?.logo),
+      }}
+      top25={
+        pollDivision ? (
+          <SuspenseReveal fallback={<DivisionTop25CardSkeleton />}>
+            <DivisionTop25Card division={pollDivision} />
+          </SuspenseReveal>
+        ) : null
+      }
+    />
+  );
+}
+
+/** Only football articles in a division we publish a poll for get a poll card. */
+function getPollDivision(post: Post) {
+  const { sport, division, sportSubgrouping } = post;
+  if (sport?.slug !== "football" || !division) return null;
+  const slug =
+    division.name === "D1" && sportSubgrouping
+      ? sportSubgrouping.slug
+      : division.slug;
+  return slug && isPollDivision(slug) ? slug : null;
+}
+
+async function getCachedPostPageData(
   { slug }: { slug: string },
   { perspective, stega }: DynamicFetchOptions,
 ) {
@@ -111,157 +166,182 @@ async function renderPostPage(
     }) as Promise<{ data: QueryPostSlugDataResult | null }>,
     fetchGlobalSeoSettings(perspective),
   ]);
+  return { data, settings };
+}
 
-  if (!data) {
-    notFound();
+/** Division I news only exists per subgrouping (FBS, FCS, …), never at `/news/d1`. */
+function isDivisionOne(division: {
+  name?: string | null;
+  slug?: string | null;
+}) {
+  const name = division.name?.toLowerCase();
+  const slug = division.slug?.toLowerCase();
+  return (
+    name === "d1" ||
+    name === "division i" ||
+    slug === "d1" ||
+    slug === "division-i"
+  );
+}
+
+function getTopicLinks(post: Post) {
+  const { sport, division, sportSubgrouping, conferences } = post;
+  if (!sport) return [];
+
+  const links: { key: string; label: string; href: string }[] = [
+    {
+      key: "sport",
+      label: sport.title,
+      href: `/college/${sport.slug}/news`,
+    },
+  ];
+
+  if (division) {
+    if (!isDivisionOne(division)) {
+      links.push({
+        key: "division",
+        label: division.name,
+        href: `/college/${sport.slug}/news/${division.slug}`,
+      });
+    } else if (sportSubgrouping) {
+      links.push({
+        key: "division",
+        label: sportSubgrouping.shortName ?? sportSubgrouping.name,
+        href: `/college/${sport.slug}/news/${sportSubgrouping.slug}`,
+      });
+    }
   }
 
+  for (const conference of conferences ?? []) {
+    const affiliation = conference.sportSubdivisionAffiliations?.find(
+      (item) => item.sport._id === sport._id,
+    );
+    if (!affiliation?.subgrouping.slug && isDivisionOne(conference.division)) {
+      continue;
+    }
+    const divisionSegment =
+      affiliation?.subgrouping.slug || conference.division.slug;
+    links.push({
+      key: `conference-${conference.slug}`,
+      label: conference.shortName ?? conference.name,
+      href: `/college/${sport.slug}/news/${divisionSegment}/${conference.slug}`,
+    });
+  }
+
+  return links;
+}
+
+function PostPageView({
+  post,
+  slug,
+  publisher,
+  top25,
+}: {
+  post: Post;
+  slug: string;
+  publisher: { siteBrand?: string | null; logo?: string | null };
+  top25: React.ReactNode;
+}) {
+  const topics = getTopicLinks(post);
+
   return (
-    <>
-      <PostPageJsonLd
-        article={data}
-        publisher={{
-          siteBrand: settings?.siteBrand,
-          logo: buildSafeImageUrl(settings?.logo),
-        }}
-      />
-      <section className="mt-8 pb-8">
-        <div className="container">
-          <h1
-            id="article-title"
-            className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl"
-          >
-            {data.title}
-          </h1>
-          <p
-            id="article-excerpt"
-            className="mt-4 text-lg font-normal lg:text-xl"
-          >
-            {data.excerpt}
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            {data.sport &&
-              (data.division || data.sportSubgrouping || data.conferences) && (
-                <div className="flex flex-wrap items-center gap-3">
-                  <Link
-                    href={`/college/${data.sport.slug}/news`}
-                    className={badgeVariants({ variant: "default" })}
-                    prefetch={false}
-                  >
-                    {data.sport.title}
-                  </Link>
-
-                  {data.division && (
-                    <Link
-                      href={`/college/${data.sport.slug}/news/${
-                        data.division.name === "D1" && data.sportSubgrouping
-                          ? data.sportSubgrouping.slug
-                          : data.division.slug
-                      }`}
-                      className={badgeVariants({ variant: "default" })}
-                      prefetch={false}
-                    >
-                      {data.division.name === "D1" && data.sportSubgrouping
-                        ? data.sportSubgrouping.shortName
-                        : data.division.name}
-                    </Link>
-                  )}
-
-                  {data.sport &&
-                    data.conferences?.map((conference) => {
-                      const articleSportId = data.sport?._id;
-
-                      const matchingAffiliation =
-                        conference.sportSubdivisionAffiliations?.find(
-                          (affiliation) =>
-                            affiliation.sport._id === articleSportId,
-                        );
-
-                      const divisionPathSegment =
-                        matchingAffiliation?.subgrouping.slug ||
-                        conference.division.slug;
-
-                      const conferenceHref = `/college/${data.sport?.slug}/news/${divisionPathSegment}/${conference.slug}`;
-
-                      return (
-                        <Link
-                          key={conference.slug}
-                          href={conferenceHref}
-                          className={badgeVariants({ variant: "default" })}
-                          prefetch={false}
-                        >
-                          {conference.shortName ?? conference.name}
-                        </Link>
-                      );
-                    })}
-                </div>
-              )}
-
-            {data.sport && (data.division || data.conferences) && (
-              <span className="text-sm">•</span>
-            )}
-            {data.publishedAt && <FormatDate dateString={data.publishedAt} />}
-          </div>
-        </div>
-      </section>
-      <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="container">
-          <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
-            <div className="lg:w-64 lg:shrink-0">
-              <div className="hidden lg:sticky lg:top-24 lg:left-0 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
-                <AuthorSection authors={data.authors} />
-                <LargeArticleSocialShare slug={slug} title={data.title} />
-              </div>
-              <MobileAuthorSection authors={data.authors} />
-            </div>
-            <article className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
-              {data.image && (
-                <figure className="mb-8 space-y-1.5">
-                  <CustomImage
-                    image={data.image}
-                    width={1200}
-                    height={675}
-                    className="h-auto w-full rounded-lg"
-                    priority
-                    mode="cover"
-                    sizes={IMAGE_SIZES.articleHero}
+    <PageTransition>
+      <PostPageJsonLd article={post} publisher={publisher} />
+      <div className="container grid gap-10 py-6 md:py-10 lg:grid-cols-[minmax(0,48rem)_minmax(20rem,28rem)] lg:justify-between xl:gap-14">
+        <article className="mx-auto flex w-full max-w-3xl flex-col gap-6 lg:mx-0 lg:max-w-none">
+          <header className="flex flex-col gap-4">
+            {topics.length > 0 ? (
+              <nav aria-label="Article topics">
+                <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold">
+                  {topics.map((topic) => (
+                    <li key={topic.key}>
+                      <Link
+                        href={topic.href as Route}
+                        prefetch={false}
+                        className="text-primary hover:underline"
+                      >
+                        {topic.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ) : null}
+            <h1
+              id="article-title"
+              className="headline text-4xl text-balance md:text-5xl"
+            >
+              {post.title}
+            </h1>
+            {post.excerpt ? (
+              <p
+                id="article-excerpt"
+                className="text-muted-foreground text-lg text-pretty md:text-xl"
+              >
+                {post.excerpt}
+              </p>
+            ) : null}
+            <div className="border-border flex flex-wrap items-center justify-between gap-4 border-y py-3">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <Byline authors={post.authors} />
+                {post.publishedAt ? (
+                  <FormatDate
+                    dateString={post.publishedAt}
+                    className="text-muted-foreground text-sm"
                   />
-                  {data.image.credit ? (
-                    <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
-                      <CameraIcon className="h-4 w-4" />
-                      <span>Source: {data.image.credit}</span>
-                    </figcaption>
-                  ) : null}
-                </figure>
-              )}
-              <RichText richText={data.body} />
-            </article>
-          </div>
-        </div>
-      </section>
-      {data.relatedPosts.length > 0 && (
-        <section className="border-border border-y py-12 sm:py-16 lg:py-20 xl:py-24">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-                You Might Also Like
-              </h2>
+                ) : null}
+              </div>
+              <ArticleShare slug={slug} title={post.title} />
             </div>
-            <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-3 lg:mt-12 xl:gap-16">
-              {data.relatedPosts.map((morePost: any) => (
-                <ArticleCard
-                  key={morePost._id}
-                  title={morePost.title}
-                  date={morePost.publishedAt}
-                  image={morePost.image}
-                  slug={morePost.slug}
-                  author={morePost.authors[0].name}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-    </>
+          </header>
+
+          {post.image ? (
+            <figure className="flex flex-col gap-2">
+              <ArticleImage
+                id={post._id}
+                image={post.image}
+                priority
+                sizes={IMAGE_SIZES.articleHero}
+                width={1280}
+                height={720}
+              />
+              {post.image.credit ? (
+                <figcaption className="text-muted-foreground flex items-center gap-2 text-xs">
+                  <CameraIcon aria-hidden="true" className="size-3.5" />
+                  {post.image.credit}
+                </figcaption>
+              ) : null}
+            </figure>
+          ) : null}
+
+          <RichText richText={post.body} />
+        </article>
+
+        <aside className="flex flex-col gap-6 lg:sticky lg:top-20 lg:self-start">
+          {post.relatedPosts.length > 0 ? (
+            <SidebarCard.Root labelledBy="related-heading">
+              <SidebarCard.Header
+                id="related-heading"
+                title="Articles you may like"
+              />
+              <ul className="divide-y">
+                {post.relatedPosts.map((related) => (
+                  <li key={related._id} className="px-4 py-3">
+                    <ArticleRow
+                      id={related._id}
+                      title={related.title}
+                      image={related.image}
+                      slug={related.slug}
+                      date={related.publishedAt}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </SidebarCard.Root>
+          ) : null}
+          {top25}
+        </aside>
+      </div>
+    </PageTransition>
   );
 }

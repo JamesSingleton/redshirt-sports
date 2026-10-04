@@ -5,12 +5,24 @@ import {
 } from "@redshirt-sports/sanity/live";
 import { searchQuery } from "@redshirt-sports/sanity/queries";
 import type { SearchQueryResult } from "@redshirt-sports/sanity/types";
+import { buttonVariants } from "@redshirt-sports/ui/components/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@redshirt-sports/ui/components/empty";
+import { SearchXIcon } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { StegaBranded } from "next-sanity";
 
-import ArticleCard from "@/components/article-card";
+import { NewsListing } from "@/components/news/news-listing";
 import PageHeader from "@/components/page-header";
-import PaginationControls from "@/components/pagination-controls";
+import { PageTransition } from "@/components/page-transition";
+import { HeaderSearch } from "@/components/site-header/header-search";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
@@ -20,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { perspective } = PUBLISHED_FETCH_OPTIONS;
   return getPageMetadata(
     {
-      title: `Search Results | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+      title: "Search Results",
       description: `Explore the latest articles, news, and analysis on college football. Find what you're looking for across FCS, FBS, D2, D3, and NAIA at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
       slug: "/search",
       noIndex: true,
@@ -53,8 +65,6 @@ async function cachedRenderSearchPage({
   stega,
 }: DynamicFetchOptions & { query?: string; pageIndex: number }) {
   "use cache";
-  const subheadingText = query ? `Search results for "${query}"` : null;
-
   let searchResults: StegaBranded<SearchQueryResult> = {
     posts: [],
     totalPosts: 0,
@@ -72,39 +82,48 @@ async function cachedRenderSearchPage({
     searchResults = data;
   }
 
-  const totalPages = Math.ceil(searchResults.totalPosts / perPage);
+  const resultCount = searchResults.totalPosts;
 
   return (
-    <>
-      <PageHeader title="Search Results" subtitle={subheadingText} />
-      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        {searchResults.posts.length > 0 && (
-          <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-            {searchResults.posts.map((post) => (
-              <ArticleCard
-                key={post._id}
-                title={post.title}
-                date={post.publishedAt}
-                image={post.image}
-                slug={post.slug}
-                author={post.authors[0]?.name ?? ""}
-              />
-            ))}
-          </div>
-        )}
-        {searchResults.posts.length === 0 && (
-          <div className="mt-8 text-center">
-            <h2 className="text-3xl font-bold">No results found.</h2>
-            <p className="text-muted-foreground mt-4 text-lg">
-              Try searching for something else or check out our latest articles
-              below.
-            </p>
-          </div>
-        )}
-        {totalPages > 1 && (
-          <PaginationControls totalPosts={searchResults.totalPosts} />
-        )}
-      </section>
-    </>
+    <PageTransition>
+      <PageHeader
+        title="Search"
+        subtitle={
+          query
+            ? `${resultCount} ${resultCount === 1 ? "result" : "results"} for "${query}"`
+            : "Search every story on Redshirt Sports."
+        }
+      >
+        <HeaderSearch className="max-w-xl" defaultValue={query} />
+      </PageHeader>
+      <div className="container pb-12">
+        {searchResults.posts.length > 0 ? (
+          <NewsListing.Grid
+            posts={searchResults.posts}
+            totalPosts={searchResults.totalPosts}
+          />
+        ) : query ? (
+          <Empty className="border">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <SearchXIcon />
+              </EmptyMedia>
+              <EmptyTitle>No stories match "{query}"</EmptyTitle>
+              <EmptyDescription>
+                Try a team, conference, or player name instead.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Link
+                href="/college/news"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                Browse the latest news
+              </Link>
+            </EmptyContent>
+          </Empty>
+        ) : null}
+      </div>
+    </PageTransition>
   );
 }

@@ -38,6 +38,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
+  queryDivisionConferenceFilters: "queryDivisionConferenceFilters",
   conferenceInfoBySlugQuery: "conferenceInfoBySlugQuery",
   queryArticlesBySportDivisionAndConference:
     "queryArticlesBySportDivisionAndConference",
@@ -70,13 +71,31 @@ vi.mock("@/components/json-ld", () => ({
   websiteId: "website-id",
 }));
 
+vi.mock("@/components/filter-combobox", () => ({
+  RouteFilterCombobox: ({
+    items,
+    activeHref,
+  }: {
+    items: Array<{ label: string; href: string; keywords?: string }>;
+    activeHref?: string;
+  }) => (
+    <div
+      data-testid="conference-filter"
+      data-active={activeHref}
+      data-items={JSON.stringify(items)}
+    />
+  ),
+}));
+
 vi.mock("@/components/page-header", () => ({
   __esModule: true,
   default: ({
     title,
     breadcrumbs,
+    children,
   }: {
     title: string;
+    children?: ReactNode;
     breadcrumbs?: Array<{ title?: string | null; href: string }>;
   }) => (
     <div>
@@ -86,24 +105,37 @@ vi.mock("@/components/page-header", () => ({
           {item.title ?? ""}
         </span>
       ))}
+      {children}
     </div>
   ),
 }));
 
-vi.mock("@/components/article-feed", () => ({
-  __esModule: true,
-  default: ({ articles }: { articles: Array<{ title: string }> }) => (
-    <div data-testid="article-feed">
-      {articles.map((a) => (
-        <div key={a.title}>{a.title}</div>
-      ))}
-    </div>
-  ),
+vi.mock("@/components/page-transition", () => ({
+  PageTransition: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("@/components/pagination-controls", () => ({
-  __esModule: true,
-  default: () => <nav data-testid="pagination" />,
+vi.mock("@/components/rankings/poll-aside", () => ({
+  PollAside: () => null,
+}));
+
+vi.mock("@/components/news/news-listing", () => ({
+  NewsListing: {
+    Layout: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    Feed: ({
+      posts,
+      totalPosts,
+    }: {
+      posts: Array<{ _id: string; title: string }>;
+      totalPosts: number;
+    }) => (
+      <div data-testid="article-feed">
+        {posts.map((post) => (
+          <div key={post._id}>{post.title}</div>
+        ))}
+        {totalPosts > posts.length ? <nav data-testid="pagination" /> : null}
+      </div>
+    ),
+  },
 }));
 
 import ConferenceNewsPage, {
@@ -113,6 +145,7 @@ import ConferenceNewsPage, {
 describe("ConferenceNewsPage", () => {
   beforeEach(() => {
     mockSanityFetchPage.mockReset();
+    mockSanityFetchPage.mockResolvedValue({ data: null });
     mockSanityFetchMetadata.mockReset();
     mockNotFound.mockClear();
   });
@@ -240,7 +273,17 @@ describe("ConferenceNewsPage", () => {
         },
       })
       .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+      .mockResolvedValueOnce({ data: { displayName: "FBS" } })
+      .mockResolvedValueOnce({
+        data: [
+          {
+            _id: "sec",
+            name: "SEC",
+            fullName: "Southeastern Conference",
+            slug: "sec",
+          },
+        ],
+      });
 
     const page = await ConferenceNewsPage({
       params: Promise.resolve({
@@ -256,6 +299,25 @@ describe("ConferenceNewsPage", () => {
       screen.getByRole("heading", { name: "SEC Football News" }),
     ).toBeInTheDocument();
     expect(screen.getByText("SEC Story")).toBeInTheDocument();
+
+    const filter = screen.getByTestId("conference-filter");
+    expect(filter).toHaveAttribute(
+      "data-active",
+      "/college/football/news/fbs/sec",
+    );
+    expect(JSON.parse(filter.getAttribute("data-items") ?? "[]")).toEqual([
+      {
+        key: "all",
+        label: "All conferences",
+        href: "/college/football/news/fbs",
+      },
+      {
+        key: "sec",
+        label: "SEC",
+        keywords: "Southeastern Conference",
+        href: "/college/football/news/fbs/sec",
+      },
+    ]);
   });
 
   it("uses conference name when shortName is missing", async () => {

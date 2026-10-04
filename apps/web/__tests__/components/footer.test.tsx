@@ -127,6 +127,7 @@ describe("CachedFooterServer", () => {
       "href",
       "https://example.com/contact",
     );
+    expect(screen.getByText("Contact")).toHaveAttribute("target", "_blank");
     expect(screen.getByLabelText("Follow us on Facebook")).toBeInTheDocument();
     expect(
       screen.getByLabelText("Subscribe to our YouTube channel"),
@@ -140,7 +141,7 @@ describe("CachedFooterServer", () => {
 
   it("omits social links when none are configured", async () => {
     mockSanityFetch
-      .mockResolvedValueOnce({ data: { subtitle: null, columns: [] } })
+      .mockResolvedValueOnce({ data: { subtitle: null, columns: null } })
       .mockResolvedValueOnce({
         data: {
           ...settingsData,
@@ -164,7 +165,7 @@ describe("CachedFooterServer", () => {
     expect(screen.queryByLabelText(/Follow us/i)).not.toBeInTheDocument();
   });
 
-  it("renders footer links without href values using a fallback", async () => {
+  it("drops footer links without href values and empty columns", async () => {
     mockSanityFetch
       .mockResolvedValueOnce({
         data: {
@@ -175,6 +176,7 @@ describe("CachedFooterServer", () => {
               title: "Links",
               links: [{ _key: "link-1", name: "Missing href", href: null }],
             },
+            { _key: "col-2", title: "Empty", links: null },
           ],
         },
       })
@@ -186,7 +188,8 @@ describe("CachedFooterServer", () => {
     });
     render(component);
 
-    expect(screen.getByText("Missing href")).toHaveAttribute("href", "#");
+    expect(screen.queryByText("Missing href")).not.toBeInTheDocument();
+    expect(screen.queryByText("Links")).not.toBeInTheDocument();
   });
 
   it("omits social links when socialLinks is null", async () => {

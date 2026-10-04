@@ -328,9 +328,11 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           <Select
             value={pollId}
             onValueChange={(value) => {
+              if (value === null) return;
               setPollId(value);
               setPreview(null);
             }}
+            items={polls.map((poll) => ({ value: poll.id, label: poll.name }))}
           >
             <SelectTrigger className="min-w-56">
               <SelectValue placeholder="Select poll" />
@@ -353,7 +355,9 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           </span>
           <Select
             value={year?.toString() ?? ""}
-            onValueChange={(value) => setYear(Number(value))}
+            onValueChange={(value) => {
+              if (value !== null) setYear(Number(value));
+            }}
             disabled={!years.length}
           >
             <SelectTrigger className="min-w-28">
@@ -377,7 +381,10 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           </span>
           <Select
             value={weekKey ?? ""}
-            onValueChange={setWeekKey}
+            onValueChange={(value) => {
+              if (value !== null) setWeekKey(value);
+            }}
+            items={weeks.map((w) => ({ value: w.weekKey, label: w.label }))}
             disabled={!weeks.length}
           >
             <SelectTrigger className="min-w-40">

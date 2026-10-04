@@ -38,6 +38,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
+  queryDivisionConferenceFilters: "queryDivisionConferenceFilters",
   queryDivisionOrSubgroupingDisplayName:
     "queryDivisionOrSubgroupingDisplayName",
   querySportsAndDivisionNews: "querySportsAndDivisionNews",
@@ -68,25 +69,58 @@ vi.mock("@/components/json-ld", () => ({
   websiteId: "website-id",
 }));
 
-vi.mock("@/components/page-header", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => <h1>{title}</h1>,
+vi.mock("@/components/filter-combobox", () => ({
+  RouteFilterCombobox: ({
+    items,
+    activeHref,
+  }: {
+    items: Array<{ label: string; href: string; keywords?: string }>;
+    activeHref?: string;
+  }) => (
+    <div
+      data-testid="conference-filter"
+      data-active={activeHref}
+      data-items={JSON.stringify(items)}
+    />
+  ),
 }));
 
-vi.mock("@/components/article-feed", () => ({
+vi.mock("@/components/page-header", () => ({
   __esModule: true,
-  default: ({ articles }: { articles: Array<{ title: string }> }) => (
-    <div data-testid="article-feed">
-      {articles.map((a) => (
-        <div key={a.title}>{a.title}</div>
-      ))}
+  default: ({ title, children }: { title: string; children?: ReactNode }) => (
+    <div>
+      <h1>{title}</h1>
+      {children}
     </div>
   ),
 }));
 
-vi.mock("@/components/pagination-controls", () => ({
-  __esModule: true,
-  default: () => <nav data-testid="pagination" />,
+vi.mock("@/components/page-transition", () => ({
+  PageTransition: ({ children }: { children: ReactNode }) => <>{children}</>,
+}));
+
+vi.mock("@/components/rankings/poll-aside", () => ({
+  PollAside: () => null,
+}));
+
+vi.mock("@/components/news/news-listing", () => ({
+  NewsListing: {
+    Layout: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    Feed: ({
+      posts,
+      totalPosts,
+    }: {
+      posts: Array<{ _id: string; title: string }>;
+      totalPosts: number;
+    }) => (
+      <div data-testid="article-feed">
+        {posts.map((post) => (
+          <div key={post._id}>{post.title}</div>
+        ))}
+        {totalPosts > posts.length ? <nav data-testid="pagination" /> : null}
+      </div>
+    ),
+  },
 }));
 
 import DivisionNewsPage, {
@@ -96,6 +130,7 @@ import DivisionNewsPage, {
 describe("DivisionNewsPage", () => {
   beforeEach(() => {
     mockSanityFetchPage.mockReset();
+    mockSanityFetchPage.mockResolvedValue({ data: null });
     mockSanityFetchMetadata.mockReset();
     mockNotFound.mockClear();
   });
@@ -169,7 +204,17 @@ describe("DivisionNewsPage", () => {
         },
       })
       .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+      .mockResolvedValueOnce({ data: { displayName: "FBS" } })
+      .mockResolvedValueOnce({
+        data: [
+          {
+            _id: "sec",
+            name: "SEC",
+            fullName: "Southeastern Conference",
+            slug: "sec",
+          },
+        ],
+      });
 
     const page = await DivisionNewsPage({
       params: Promise.resolve({ sport: "football", division: "fbs" }),
@@ -182,6 +227,22 @@ describe("DivisionNewsPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("FBS Story")).toBeInTheDocument();
     expect(screen.getByTestId("json-ld")).toBeInTheDocument();
+
+    const filter = screen.getByTestId("conference-filter");
+    expect(filter).toHaveAttribute("data-active", "/college/football/news/fbs");
+    expect(JSON.parse(filter.getAttribute("data-items") ?? "[]")).toEqual([
+      {
+        key: "all",
+        label: "All conferences",
+        href: "/college/football/news/fbs",
+      },
+      {
+        key: "sec",
+        label: "SEC",
+        keywords: "Southeastern Conference",
+        href: "/college/football/news/fbs/sec",
+      },
+    ]);
   });
 
   it("renders pagination when multiple pages exist", async () => {

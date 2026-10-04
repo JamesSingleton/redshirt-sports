@@ -206,7 +206,7 @@ describe("AuthorPage", () => {
       screen.getByRole("heading", { name: "Jane Author" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Covers college football.")).toBeInTheDocument();
-    expect(screen.getByText("Articles by Jane Author")).toBeInTheDocument();
+    expect(screen.getByText("Stories by Jane Author")).toBeInTheDocument();
     expect(screen.getByText("Latest Story")).toBeInTheDocument();
   });
 
@@ -223,7 +223,7 @@ describe("AuthorPage", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
-  it("renders author without articles section when there are no posts", async () => {
+  it("renders an empty stories message when there are no posts", async () => {
     mockSanityFetchPage
       .mockResolvedValueOnce({ data: sampleAuthor })
       .mockResolvedValueOnce({ data: { posts: [], totalPosts: 0 } });
@@ -237,9 +237,7 @@ describe("AuthorPage", () => {
     expect(
       screen.getByRole("heading", { name: "Jane Author" }),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByText("Articles by Jane Author"),
-    ).not.toBeInTheDocument();
+    expect(screen.getByText("No published stories yet.")).toBeInTheDocument();
   });
 
   it("renders author when posts payload is null and biography/socialLinks are missing", async () => {
@@ -266,6 +264,23 @@ describe("AuthorPage", () => {
       screen.queryByText("Covers college football."),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
+  });
+
+  it("omits the roles line when the author has no roles", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({ data: { ...sampleAuthor, roles: [] } })
+      .mockResolvedValueOnce({ data: { posts: [], totalPosts: 0 } });
+
+    const page = await AuthorPage({
+      params: Promise.resolve({ slug: "jane-author" }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page as ReactNode);
+
+    expect(
+      screen.getByRole("heading", { name: "Jane Author" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Senior Writer")).not.toBeInTheDocument();
   });
 
   it("renders facebook and youtube social links with pagination", async () => {
@@ -303,7 +318,7 @@ describe("AuthorPage", () => {
       screen.getByText(/Follow Jane Author on Facebook/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Subscribe to Jane Author's YouTube channel/i),
+      screen.getByText(/Subscribe to Jane Author on YouTube/i),
     ).toBeInTheDocument();
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
   });

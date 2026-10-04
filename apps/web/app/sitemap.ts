@@ -27,6 +27,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: `${baseUrl}/college/news`,
     },
+    {
+      url: `${baseUrl}/college/teams`,
+    },
     ...authors.map((author: { slug: string; lastModified: string }) => ({
       url: `${baseUrl}/authors/${author.slug}`,
       lastModified: new Date(author.lastModified),

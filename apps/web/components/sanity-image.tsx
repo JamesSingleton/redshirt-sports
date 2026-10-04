@@ -9,16 +9,6 @@ import {
   type WrapperProps,
 } from "sanity-image";
 
-export const IMAGE_SIZES = {
-  articleCard:
-    "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw",
-  articleHero: "(max-width: 1024px) 100vw, min(1200px, 70vw)",
-  homeHero: "(max-width: 1024px) 100vw, 66vw",
-  articleInline: "(max-width: 1024px) 100vw, min(720px, 70vw)",
-  teamFeatured: "(max-width: 768px) 100vw, 50vw",
-  teamThumbnail: "180px",
-} as const;
-
 type CustomSanityImageProps = SanityImageProps & {
   quality?: number;
   priority?: boolean;
@@ -78,13 +68,13 @@ export function SanityImage({
   return (
     <ImageWrapper
       {...props}
+      {...processedImageData}
       width={width ?? processedImageData.width}
       height={height ?? processedImageData.height}
       className={className}
       loading={priority ? "eager" : loading}
       fetchPriority={priority ? "high" : undefined}
       sizes={sizes}
-      {...processedImageData}
       alt={resolvedAlt}
       queryParams={{ ...queryParams, q: quality }}
     />

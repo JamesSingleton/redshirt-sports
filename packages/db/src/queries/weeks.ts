@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import { seasonsTable, seasonTypesTable, weeksTable } from "../schema";
@@ -15,6 +15,7 @@ export {
   legacyWeekToSeasonTypeAndNumber,
   PUBLISHABLE_SEASON_TYPES,
   parseCalendarWeekKey,
+  pollThroughDate,
   seasonTypeAndNumberToLegacyWeek,
   weekTitle,
 } from "../utils/week-mapping";
@@ -39,7 +40,39 @@ export async function resolveWeekIdForLegacyWeek({
   });
 }
 
-export async function resolveWeekIdForCalendarWeek({
+/** Week id plus the calendar fields needed to describe the poll. */
+export async function resolveWeekForLegacyWeek({
+  sportId,
+  year,
+  legacyWeek,
+}: {
+  sportId: string;
+  year: number;
+  legacyWeek: number;
+}): Promise<{ weekId: string; endDate: Date; seasonType: number } | null> {
+  const { seasonType, weekNumber } =
+    legacyWeekToSeasonTypeAndNumber(legacyWeek);
+
+  const week = await resolveCalendarWeek({
+    sportId,
+    year,
+    seasonType,
+    weekNumber,
+  });
+  return week ? { ...week, seasonType } : null;
+}
+
+export async function resolveWeekIdForCalendarWeek(args: {
+  sportId: string;
+  year: number;
+  seasonType: number;
+  weekNumber: number;
+}): Promise<string | null> {
+  const week = await resolveCalendarWeek(args);
+  return week?.weekId ?? null;
+}
+
+async function resolveCalendarWeek({
   sportId,
   year,
   seasonType,
@@ -49,9 +82,14 @@ export async function resolveWeekIdForCalendarWeek({
   year: number;
   seasonType: number;
   weekNumber: number;
-}): Promise<string | null> {
+}): Promise<{ weekId: string; endDate: Date } | null> {
   const row = await db
-    .select({ weekId: weeksTable.id })
+    .select({
+      weekId: weeksTable.id,
+      // The live column is `timestamp without time zone` holding UTC; the
+      // driver would parse it in the server's local zone. Epoch is UTC either way.
+      endEpoch: sql<string>`extract(epoch from ${weeksTable.endDate})`,
+    })
     .from(weeksTable)
     .innerJoin(
       seasonTypesTable,
@@ -68,7 +106,12 @@ export async function resolveWeekIdForCalendarWeek({
     )
     .limit(1);
 
-  return row[0]?.weekId ?? null;
+  const match = row[0];
+  if (!match) return null;
+  return {
+    weekId: match.weekId,
+    endDate: new Date(Number(match.endEpoch) * 1000),
+  };
 }
 
 function legacyWeekLookupKey({

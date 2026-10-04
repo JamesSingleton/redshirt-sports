@@ -167,7 +167,14 @@ describe("TeamRankingHistory", () => {
       />,
     );
 
-    expect(screen.getByText("Alabama Top 25 History")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Top 25 history" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Where Alabama has landed in each week of the Redshirt Sports poll.",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("line-chart")).toHaveAttribute(
       "data-points",
       "2",

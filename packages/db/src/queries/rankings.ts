@@ -18,6 +18,8 @@ import {
 import { getPollBySportAndSlug } from "./polls";
 import { getSportIdBySlug, type SportParam } from "./sports";
 import {
+  pollThroughDate,
+  resolveWeekForLegacyWeek,
   resolveWeekIdForLegacyWeek,
   seasonTypeAndNumberToLegacyWeek,
 } from "./weeks";
@@ -27,6 +29,8 @@ type FinalRankings = {
   division: string;
   week: number;
   year: number;
+  /** `YYYY-MM-DD` of the last game day covered; `null` for preseason/postseason. */
+  throughDate: string | null;
   rankings: {
     _id: string;
     _points: number;
@@ -128,12 +132,13 @@ export async function getFinalRankingsForWeekAndYear({
   const poll = await getPollBySportAndSlug({ sportId, slug: division });
   if (!poll) throw new Error("Rankings not found");
 
-  const weekId = await resolveWeekIdForLegacyWeek({
+  const calendarWeek = await resolveWeekForLegacyWeek({
     sportId,
     year,
     legacyWeek: week,
   });
-  if (!weekId) throw new Error("Rankings not found");
+  if (!calendarWeek) throw new Error("Rankings not found");
+  const { weekId } = calendarWeek;
 
   // Project only fields CustomImage/processImageData need. Omit `preview`
   // (Sanity LQIP data URI) — browsers cannot cache it and it dominated egress.
@@ -195,6 +200,7 @@ export async function getFinalRankingsForWeekAndYear({
     division,
     week,
     year,
+    throughDate: pollThroughDate(calendarWeek.endDate, calendarWeek.seasonType),
     rankings: rows.map((row) => ({
       _id: row.sanityId ?? "",
       _points: row.points,
@@ -210,10 +216,16 @@ export async function getFinalRankingsForWeekAndYear({
   };
 }
 
+/**
+ * Poll slugs like `d2` exist for several sports, so pass `sport` whenever
+ * it is known; without it the latest poll for that slug in any sport wins.
+ */
 export async function getLatestFinalRankings({
   division,
+  sport,
 }: {
   division: string;
+  sport?: SportParam;
 }) {
   const row = await db
     .select({
@@ -224,13 +236,19 @@ export async function getLatestFinalRankings({
     })
     .from(pollRankingsTable)
     .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
+    .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
     .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
     .innerJoin(
       seasonTypesTable,
       eq(weeksTable.seasonTypeId, seasonTypesTable.id),
     )
     .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
-    .where(eq(pollsTable.slug, division))
+    .where(
+      and(
+        eq(pollsTable.slug, division),
+        sport ? eq(sportsTable.slug, sport) : undefined,
+      ),
+    )
     // Season type before week number: postseason week 1 (final rankings)
     // must beat regular-season week 13.
     .orderBy(
@@ -248,40 +266,6 @@ export async function getLatestFinalRankings({
     week: seasonTypeAndNumberToLegacyWeek(match.seasonType, match.weekNumber),
     year: match.year,
   };
-}
-
-export async function getLatestFinalRankingsBySportSlug(sportSlug: string) {
-  const results = await db
-    .selectDistinctOn([pollsTable.slug], {
-      division: pollsTable.slug,
-      weekNumber: weeksTable.number,
-      seasonType: seasonTypesTable.type,
-      year: seasonsTable.year,
-    })
-    .from(pollRankingsTable)
-    .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
-    .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
-    .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
-    .innerJoin(
-      seasonTypesTable,
-      eq(weeksTable.seasonTypeId, seasonTypesTable.id),
-    )
-    .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
-    .where(eq(sportsTable.slug, sportSlug))
-    // Season type before week number: postseason week 1 (final rankings)
-    // must beat regular-season week 13.
-    .orderBy(
-      pollsTable.slug,
-      desc(seasonsTable.year),
-      desc(seasonTypesTable.type),
-      desc(weeksTable.number),
-    );
-
-  return results.map((row) => ({
-    division: row.division,
-    week: seasonTypeAndNumberToLegacyWeek(row.seasonType, row.weekNumber),
-    year: row.year,
-  }));
 }
 
 export async function arePollRankingsPublished({

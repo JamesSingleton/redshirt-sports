@@ -73,9 +73,36 @@ describe("college sitemap", () => {
     const urls = await collegeSitemap();
     expect(urls).toEqual([
       expect.objectContaining({
+        url: "https://redshirtsports.com/college/football",
+      }),
+      expect.objectContaining({
         url: "https://redshirtsports.com/college/football/news",
       }),
     ]);
+  });
+
+  it("adds the sport hub URL with the newest post timestamp", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({
+      data: [
+        {
+          sport: "football",
+          division: "d2",
+          conferences: [],
+          _updatedAt: "2026-01-01T00:00:00Z",
+        },
+        {
+          sport: "football",
+          division: "d2",
+          conferences: [],
+          _updatedAt: "2026-02-01T00:00:00Z",
+        },
+      ],
+    });
+    const urls = await collegeSitemap();
+    const hub = urls.find(
+      (entry) => entry.url === "https://redshirtsports.com/college/football",
+    );
+    expect(hub?.lastModified).toEqual(new Date("2026-02-01T00:00:00Z"));
   });
 
   it("skips posts without a sport slug", async () => {
@@ -192,6 +219,9 @@ describe("college sitemap", () => {
     });
     const urls = await collegeSitemap();
     expect(urls).toEqual([
+      expect.objectContaining({
+        url: "https://redshirtsports.com/college/football",
+      }),
       expect.objectContaining({
         url: "https://redshirtsports.com/college/football/news",
       }),

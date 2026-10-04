@@ -1,7 +1,6 @@
 import {
   getFinalRankingsForWeekAndYear,
   getLatestFinalRankings,
-  getLatestFinalRankingsBySportSlug,
   getRankedSchoolSanityIds,
   getSchoolRankingHistory,
   getWeeksThatHaveVotes,
@@ -35,17 +34,6 @@ export const RANKINGS_CACHE_LIFE = {
   expire: 2592000,
 } as const;
 
-export type NavbarLatestRanking = {
-  division: string;
-  week: number;
-  year: number;
-};
-
-export type NavbarLatestRankingsBySport = {
-  sport: string;
-  divisions: NavbarLatestRanking[];
-};
-
 export {
   RANKINGS_CACHE_TAG,
   rankingsDivisionTag,
@@ -56,28 +44,65 @@ export {
   rankingsWeekTag,
 };
 
+export type LatestPoll = Awaited<
+  ReturnType<typeof getFinalRankingsForWeekAndYear>
+> & { sport: SportParam };
+
 /**
- * Latest rankings week pointers for the navbar.
- * Own `"use cache"` scope so Sanity publishes do not re-hit Postgres.
- * Publish and display-field webhooks bust {@link RANKINGS_CACHE_TAG}.
+ * Most recent published poll for a division, or `null` when the division
+ * has never been voted on. Own `"use cache"` scope so Sanity publishes do
+ * not re-hit Postgres.
  */
-export async function getCachedNavbarLatestRankings(): Promise<
-  NavbarLatestRankingsBySport[]
-> {
+export async function getCachedLatestPollWeek({
+  sport,
+  division,
+}: {
+  sport: SportParam;
+  division: string;
+}) {
   "use cache";
-  cacheTag(RANKINGS_CACHE_TAG);
+  cacheTag(
+    RANKINGS_CACHE_TAG,
+    rankingsSportTag(sport),
+    rankingsDivisionTag(sport, division),
+    rankingsDivisionYearsTag(division),
+  );
   cacheLife(RANKINGS_CACHE_LIFE);
 
-  const [latestFootballRankings, latestMensBasketballRankings] =
-    await Promise.all([
-      getLatestFinalRankingsBySportSlug("football"),
-      getLatestFinalRankingsBySportSlug("mens-basketball"),
-    ]);
+  const latest = await getLatestFinalRankings({ division, sport });
+  return latest ? { year: latest.year, week: latest.week } : null;
+}
 
-  return [
-    { sport: "football", divisions: latestFootballRankings },
-    { sport: "mens-basketball", divisions: latestMensBasketballRankings },
-  ];
+export async function getCachedLatestPoll({
+  sport,
+  division,
+}: {
+  sport: SportParam;
+  division: string;
+}): Promise<LatestPoll | null> {
+  "use cache";
+  cacheTag(
+    RANKINGS_CACHE_TAG,
+    rankingsSportTag(sport),
+    rankingsDivisionTag(sport, division),
+    rankingsDivisionYearsTag(division),
+  );
+  cacheLife(RANKINGS_CACHE_LIFE);
+
+  const latest = await getLatestFinalRankings({ division, sport });
+  if (!latest) return null;
+
+  try {
+    const poll = await getFinalRankingsForWeekAndYear({
+      year: latest.year,
+      week: latest.week,
+      division,
+      sport,
+    });
+    return { ...poll, sport };
+  } catch {
+    return null;
+  }
 }
 
 export async function getCachedYearsThatHaveVotes({

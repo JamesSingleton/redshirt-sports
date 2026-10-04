@@ -111,16 +111,14 @@ async function renderLegalDocumentPage(
   return (
     <>
       <JsonLdScript data={jsonLd} id={`legal-${slug}-json-ld`} />
-      <article className="container pb-16 lg:pb-24">
-        <header className="border-b pt-12 pb-10 lg:pt-16 lg:pb-14">
-          <p className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-            Legal
-          </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+      <article className="container pb-12">
+        <header className="border-b pt-6 pb-8 md:pt-10">
+          <p className="text-brand text-sm font-semibold">Legal</p>
+          <h1 className="headline mt-2 text-4xl text-balance md:text-5xl">
             {data.title}
           </h1>
           {data.summary && (
-            <p className="text-muted-foreground mt-4 max-w-3xl text-lg lg:text-xl">
+            <p className="text-muted-foreground mt-4 max-w-3xl text-lg text-pretty">
               {data.summary}
             </p>
           )}
@@ -143,7 +141,7 @@ async function renderLegalDocumentPage(
             </dl>
           )}
         </header>
-        <div className="mt-10 grid gap-10 lg:mt-14 lg:grid-cols-[minmax(0,1fr)_16rem] xl:grid-cols-[minmax(0,1fr)_18rem] xl:gap-20">
+        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_16rem] xl:grid-cols-[minmax(0,1fr)_18rem] xl:gap-20">
           <div className="min-w-0 space-y-8">
             <LegalMobileTableOfContents headings={headings} />
             <LegalBody body={body} className="max-w-3xl" />

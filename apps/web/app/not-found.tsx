@@ -1,4 +1,11 @@
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@redshirt-sports/ui/components/empty";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -11,14 +18,29 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-[calc(100vh-400px)] flex-col items-center justify-center gap-4 p-4">
-      <h1 className="text-foreground animate-bounce text-6xl font-bold">404</h1>
-      <p className="text-muted-foreground animate-fade-in text-lg">
-        The page you are looking for does not exist.
-      </p>
-      <Link href="/" aria-label="Return Home" className={buttonVariants()}>
-        Return Home
-      </Link>
+    <div className="container py-12 md:py-20">
+      <Empty className="border">
+        <EmptyHeader>
+          <p className="rank-numeral text-brand text-6xl">404</p>
+          <EmptyTitle className="headline text-2xl">
+            <h1>Page not found</h1>
+          </EmptyTitle>
+          <EmptyDescription>
+            The page you are looking for does not exist or has moved.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent className="flex-row justify-center">
+          <Link href="/" className={buttonVariants()}>
+            Return home
+          </Link>
+          <Link
+            href="/college/news"
+            className={buttonVariants({ variant: "outline" })}
+          >
+            Latest news
+          </Link>
+        </EmptyContent>
+      </Empty>
     </div>
   );
 }

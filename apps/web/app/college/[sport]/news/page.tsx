@@ -5,15 +5,20 @@ import {
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
 import {
+  querySportDivisionFilters,
   querySportsNews,
   sportInfoBySlug,
 } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 
-import ArticleFeed from "@/components/article-feed";
+import { FilterRow } from "@/components/news/filter-row";
+import { NewsListing } from "@/components/news/news-listing";
+import { NewsListingSkeleton } from "@/components/news/news-listing-skeleton";
 import PageHeader from "@/components/page-header";
-import PaginationControls from "@/components/pagination-controls";
+import { PageTransition } from "@/components/page-transition";
+import { PollAside } from "@/components/rankings/poll-aside";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
@@ -75,7 +80,7 @@ export default function Page({
   params: Promise<{ sport: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  return searchParamsPage(null, () =>
+  return searchParamsPage(<NewsListingSkeleton />, () =>
     renderSportNewsPage({ params, searchParams }),
   );
 }
@@ -95,6 +100,7 @@ async function renderSportNewsPage({
     pageIndex,
     perspective,
     stega,
+    aside: <PollAside sport={sport} />,
   });
 }
 
@@ -103,25 +109,38 @@ async function cachedRenderSportNewsPage({
   pageIndex,
   perspective,
   stega,
-}: DynamicFetchOptions & { sport: string; pageIndex: number }) {
+  aside,
+}: DynamicFetchOptions & {
+  sport: string;
+  pageIndex: number;
+  /** Postgres-backed; passed through so it stays out of this cache entry. */
+  aside: ReactNode;
+}) {
   "use cache";
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
 
-  const [newsResponse, sportInfoResponse] = await Promise.all([
-    sanityFetchPage({
-      query: querySportsNews,
-      params: { sport, from, to },
-      perspective,
-      stega,
-    }),
-    sanityFetchPage({
-      query: sportInfoBySlug,
-      params: { slug: sport },
-      perspective,
-      stega,
-    }),
-  ]);
+  const [newsResponse, sportInfoResponse, divisionFiltersResponse] =
+    await Promise.all([
+      sanityFetchPage({
+        query: querySportsNews,
+        params: { sport, from, to },
+        perspective,
+        stega,
+      }),
+      sanityFetchPage({
+        query: sportInfoBySlug,
+        params: { slug: sport },
+        perspective,
+        stega,
+      }),
+      sanityFetchPage({
+        query: querySportDivisionFilters,
+        params: { sport },
+        perspective,
+        stega: false,
+      }),
+    ]);
 
   const news = newsResponse.data;
   const sportInfo = sportInfoResponse?.data;
@@ -129,8 +148,6 @@ async function cachedRenderSportNewsPage({
   if (!news?.posts?.length) {
     notFound();
   }
-
-  const totalPages = Math.ceil(news.totalPosts / perPage);
 
   const breadcrumbItems = [
     {
@@ -143,16 +160,37 @@ async function cachedRenderSportNewsPage({
     },
   ];
 
+  const basePath = `/college/${sport}/news`;
+  const { subgroupings = [], divisions = [] } =
+    divisionFiltersResponse.data ?? {};
+  const divisionFilters = [...subgroupings, ...divisions].map((item) => ({
+    key: item._id,
+    label: item.name ?? "",
+    href: `${basePath}/${item.slug}`,
+  }));
+
   return (
-    <>
+    <PageTransition>
       <PageHeader
         title={`College ${sportInfo?.title} News`}
         breadcrumbs={breadcrumbItems}
-      />
-      <section className="container pb-12">
-        <ArticleFeed articles={news.posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
-      </section>
-    </>
+      >
+        <FilterRow
+          label="Divisions"
+          items={[
+            { key: "all", label: "All", href: basePath },
+            ...divisionFilters,
+          ]}
+          activeHref={basePath}
+        />
+      </PageHeader>
+      <NewsListing.Layout aside={aside}>
+        <NewsListing.Feed
+          posts={news.posts}
+          totalPosts={news.totalPosts}
+          pageIndex={pageIndex}
+        />
+      </NewsListing.Layout>
+    </PageTransition>
   );
 }

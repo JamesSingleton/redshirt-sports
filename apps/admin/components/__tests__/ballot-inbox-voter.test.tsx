@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ReactNode } from "react";
+import { cloneElement, type ReactElement, type ReactNode } from "react";
 
 const { mockUseIsMobile } = vi.hoisted(() => ({
   mockUseIsMobile: vi.fn(() => false),
@@ -12,7 +12,13 @@ vi.mock("@/hooks/use-mobile", () => ({
 
 vi.mock("@redshirt-sports/ui/components/dialog", () => ({
   Dialog: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  DialogTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
+  DialogTrigger: ({
+    children,
+    render,
+  }: {
+    children: ReactNode;
+    render: ReactElement<{ children?: ReactNode }>;
+  }) => cloneElement(render, { children }),
   DialogContent: ({ children }: { children: ReactNode }) => (
     <div>{children}</div>
   ),
@@ -27,7 +33,13 @@ vi.mock("@redshirt-sports/ui/components/dialog", () => ({
 
 vi.mock("@redshirt-sports/ui/components/drawer", () => ({
   Drawer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  DrawerTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
+  DrawerTrigger: ({
+    children,
+    render,
+  }: {
+    children: ReactNode;
+    render: ReactElement<{ children?: ReactNode }>;
+  }) => cloneElement(render, { children }),
   DrawerContent: ({ children }: { children: ReactNode }) => (
     <div>{children}</div>
   ),

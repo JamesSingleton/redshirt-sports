@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
-import SanityImage, { IMAGE_SIZES } from "@/components/sanity-image";
+import SanityImage from "@/components/sanity-image";
+import { IMAGE_SIZES } from "@/lib/image-sizes";
 
 const { mockProcessImageData } = vi.hoisted(() => ({
   mockProcessImageData: vi.fn(),

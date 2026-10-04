@@ -30,17 +30,22 @@ function paramValue(value: string | string[] | undefined): string | undefined {
 export const RankingsFilters = ({
   years,
   weeks,
+  currentYear,
+  currentWeek,
 }: {
   years: Year[];
   weeks: Week[];
+  /** The latest-poll route has no year/week params, so the page passes them. */
+  currentYear: string;
+  currentWeek: string;
 }) => {
   const router = useRouter();
-  const { division, year, week, sport } = useParams();
+  const { division, sport } = useParams();
 
   const sportSlug = paramValue(sport);
   const divisionSlug = paramValue(division);
-  const yearSlug = paramValue(year);
-  const weekSlug = paramValue(week);
+  const yearSlug = currentYear;
+  const weekSlug = currentWeek;
 
   const handleYearChange = (nextYear: string) => {
     if (!nextYear || !sportSlug || !divisionSlug || nextYear === yearSlug) {
@@ -86,7 +91,12 @@ export const RankingsFilters = ({
 
   return (
     <>
-      <Select onValueChange={handleYearChange} value={yearSlug}>
+      <Select
+        onValueChange={(value) => {
+          if (value !== null) handleYearChange(value);
+        }}
+        value={yearSlug}
+      >
         <SelectTrigger id="year" aria-label="Year">
           <SelectValue placeholder={yearSlug} />
         </SelectTrigger>
@@ -100,8 +110,14 @@ export const RankingsFilters = ({
       </Select>
       <Select
         key={`${yearSlug}-${weekSlug}`}
-        onValueChange={handleWeekChange}
+        onValueChange={(value) => {
+          if (value !== null) handleWeekChange(value);
+        }}
         value={weekSlug}
+        items={weeks.map(({ week }: Week) => ({
+          value: formatWeekSegment(week),
+          label: weekTitle(week),
+        }))}
       >
         <SelectTrigger id="ranking" aria-label="Ranking">
           <SelectValue placeholder="Preseason" />

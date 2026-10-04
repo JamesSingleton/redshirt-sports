@@ -20,7 +20,7 @@ export function ContactEmailLink({ email, category }: ContactEmailLinkProps) {
     <Link
       href={`mailto:${email}`}
       onClick={handleClick}
-      className="text-primary text-sm break-all hover:underline sm:text-base"
+      className="text-primary font-semibold break-all hover:underline hover:underline-offset-4"
     >
       {email}
     </Link>

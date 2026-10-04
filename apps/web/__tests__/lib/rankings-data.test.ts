@@ -6,7 +6,6 @@ const {
   mockSchoolHasPollRankings,
   mockGetRankedSchoolSanityIds,
   mockGetLatestFinalRankings,
-  mockGetLatestFinalRankingsBySportSlug,
 } = vi.hoisted(() => ({
   mockGetYearsThatHaveVotes: vi.fn(),
   mockGetWeeksThatHaveVotes: vi.fn(),
@@ -15,7 +14,6 @@ const {
   mockSchoolHasPollRankings: vi.fn(),
   mockGetRankedSchoolSanityIds: vi.fn(),
   mockGetLatestFinalRankings: vi.fn(),
-  mockGetLatestFinalRankingsBySportSlug: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
@@ -31,13 +29,13 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   schoolHasPollRankings: mockSchoolHasPollRankings,
   getRankedSchoolSanityIds: mockGetRankedSchoolSanityIds,
   getLatestFinalRankings: mockGetLatestFinalRankings,
-  getLatestFinalRankingsBySportSlug: mockGetLatestFinalRankingsBySportSlug,
 }));
 
 import {
   getCachedFinalRankings,
   getCachedLatestFinalRankings,
-  getCachedNavbarLatestRankings,
+  getCachedLatestPoll,
+  getCachedLatestPollWeek,
   getCachedRankedSchoolSanityIds,
   getCachedSchoolHasPollRankings,
   getCachedSchoolRankingHistory,
@@ -50,27 +48,87 @@ describe("rankings-data", () => {
     vi.clearAllMocks();
   });
 
-  it("getCachedNavbarLatestRankings aggregates football and basketball", async () => {
-    mockGetLatestFinalRankingsBySportSlug
-      .mockResolvedValueOnce([{ division: "fbs", week: 1, year: 2025 }])
-      .mockResolvedValueOnce([{ division: "d1", week: 2, year: 2025 }]);
+  it("getCachedLatestPollWeek returns the newest year and week for a sport and division", async () => {
+    mockGetLatestFinalRankings.mockResolvedValue({
+      division: "fcs",
+      week: 4,
+      year: 2026,
+    });
 
-    await expect(getCachedNavbarLatestRankings()).resolves.toEqual([
-      {
-        sport: "football",
-        divisions: [{ division: "fbs", week: 1, year: 2025 }],
-      },
-      {
+    await expect(
+      getCachedLatestPollWeek({ sport: "football", division: "fcs" }),
+    ).resolves.toEqual({ year: 2026, week: 4 });
+    expect(mockGetLatestFinalRankings).toHaveBeenCalledWith({
+      division: "fcs",
+      sport: "football",
+    });
+  });
+
+  it("getCachedLatestPollWeek returns null when the division has no votes", async () => {
+    mockGetLatestFinalRankings.mockResolvedValue(null);
+
+    await expect(
+      getCachedLatestPollWeek({
         sport: "mens-basketball",
-        divisions: [{ division: "d1", week: 2, year: 2025 }],
-      },
-    ]);
-    expect(mockGetLatestFinalRankingsBySportSlug).toHaveBeenCalledWith(
-      "football",
+        division: "mid-major",
+      }),
+    ).resolves.toBeNull();
+  });
+
+  it("getCachedLatestPoll loads the newest week for a division", async () => {
+    mockGetLatestFinalRankings.mockResolvedValue({
+      division: "fbs",
+      week: 5,
+      year: 2026,
+    });
+    mockGetFinalRankingsForWeekAndYear.mockResolvedValue({
+      id: "poll:week",
+      division: "fbs",
+      week: 5,
+      year: 2026,
+      rankings: [],
+    });
+
+    await expect(
+      getCachedLatestPoll({ sport: "football", division: "fbs" }),
+    ).resolves.toEqual({
+      id: "poll:week",
+      division: "fbs",
+      week: 5,
+      year: 2026,
+      rankings: [],
+      sport: "football",
+    });
+    expect(mockGetFinalRankingsForWeekAndYear).toHaveBeenCalledWith({
+      year: 2026,
+      week: 5,
+      division: "fbs",
+      sport: "football",
+    });
+  });
+
+  it("getCachedLatestPoll returns null when the division has no votes", async () => {
+    mockGetLatestFinalRankings.mockResolvedValue(undefined);
+
+    await expect(
+      getCachedLatestPoll({ sport: "football", division: "d3" }),
+    ).resolves.toBeNull();
+    expect(mockGetFinalRankingsForWeekAndYear).not.toHaveBeenCalled();
+  });
+
+  it("getCachedLatestPoll returns null when the rankings lookup fails", async () => {
+    mockGetLatestFinalRankings.mockResolvedValue({
+      division: "fbs",
+      week: 5,
+      year: 2026,
+    });
+    mockGetFinalRankingsForWeekAndYear.mockRejectedValue(
+      new Error("Rankings not found"),
     );
-    expect(mockGetLatestFinalRankingsBySportSlug).toHaveBeenCalledWith(
-      "mens-basketball",
-    );
+
+    await expect(
+      getCachedLatestPoll({ sport: "football", division: "fbs" }),
+    ).resolves.toBeNull();
   });
 
   it("getCachedYearsThatHaveVotes delegates to db", async () => {

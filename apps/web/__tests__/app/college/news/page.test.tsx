@@ -36,6 +36,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
   collegeNewsQuery: "collegeNewsQuery",
+  querySportFilters: "querySportFilters",
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
@@ -58,23 +59,52 @@ vi.mock("@/components/json-ld", () => ({
 
 vi.mock("@/components/page-header", () => ({
   __esModule: true,
-  default: ({ title }: { title: string }) => <h1>{title}</h1>,
-}));
-
-vi.mock("@/components/article-feed", () => ({
-  __esModule: true,
-  default: ({ articles }: { articles: Array<{ title: string }> }) => (
-    <div data-testid="article-feed">
-      {articles.map((a) => (
-        <div key={a.title}>{a.title}</div>
-      ))}
+  default: ({ title, children }: { title: string; children?: ReactNode }) => (
+    <div>
+      <h1>{title}</h1>
+      {children}
     </div>
   ),
 }));
 
-vi.mock("@/components/pagination-controls", () => ({
-  __esModule: true,
-  default: () => <nav data-testid="pagination" />,
+vi.mock("@/components/page-transition", () => ({
+  PageTransition: ({ children }: { children: ReactNode }) => <>{children}</>,
+}));
+
+vi.mock("@/components/news/filter-row", () => ({
+  FilterRow: ({
+    items,
+  }: {
+    items: Array<{ key: string; label: string; href: string }>;
+  }) => (
+    <nav aria-label="Filters">
+      {items.map((item) => (
+        <a key={item.key} href={item.href}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+  ),
+}));
+
+vi.mock("@/components/news/news-listing", () => ({
+  NewsListing: {
+    Layout: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    Feed: ({
+      posts,
+      totalPosts,
+    }: {
+      posts: Array<{ _id: string; title: string }>;
+      totalPosts: number;
+    }) => (
+      <div data-testid="article-feed">
+        {posts.map((post) => (
+          <div key={post._id}>{post.title}</div>
+        ))}
+        {totalPosts > posts.length ? <nav data-testid="pagination" /> : null}
+      </div>
+    ),
+  },
 }));
 
 import CollegeNewsPage, { generateMetadata } from "@/app/college/news/page";
@@ -84,6 +114,18 @@ const samplePost = {
   title: "College Headline",
   slug: "college-headline",
 };
+
+const sampleSports = [
+  { _id: "sport-football", title: "Football", slug: "football" },
+];
+
+function mockFeed(feed: { posts: unknown[]; totalPosts: number }) {
+  mockSanityFetchPage.mockImplementation(({ query }: { query: string }) =>
+    Promise.resolve({
+      data: query === "querySportFilters" ? sampleSports : feed,
+    }),
+  );
+}
 
 describe("CollegeNewsPage", () => {
   beforeEach(() => {
@@ -118,18 +160,14 @@ describe("CollegeNewsPage", () => {
   });
 
   it("throws notFound when there are no posts", async () => {
-    mockSanityFetchPage.mockResolvedValue({
-      data: { posts: [], totalPosts: 0 },
-    });
+    mockFeed({ posts: [], totalPosts: 0 });
     await expect(
       CollegeNewsPage({ searchParams: Promise.resolve({}) }),
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
   it("renders college news feed", async () => {
-    mockSanityFetchPage.mockResolvedValue({
-      data: { posts: [samplePost], totalPosts: 1 },
-    });
+    mockFeed({ posts: [samplePost], totalPosts: 1 });
 
     const page = await CollegeNewsPage({ searchParams: Promise.resolve({}) });
     render(page as ReactNode);
@@ -138,18 +176,58 @@ describe("CollegeNewsPage", () => {
       screen.getByRole("heading", { name: "College Sports News" }),
     ).toBeInTheDocument();
     expect(screen.getByText("College Headline")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "All" })).toHaveAttribute(
+      "href",
+      "/college/news",
+    );
+    expect(screen.getByRole("link", { name: "Football" })).toHaveAttribute(
+      "href",
+      "/college/football/news",
+    );
+  });
+
+  it("renders only the All filter when sport filters are missing", async () => {
+    mockSanityFetchPage.mockImplementation(({ query }: { query: string }) =>
+      Promise.resolve({
+        data:
+          query === "querySportFilters"
+            ? null
+            : { posts: [samplePost], totalPosts: 1 },
+      }),
+    );
+
+    const page = await CollegeNewsPage({ searchParams: Promise.resolve({}) });
+    render(page as ReactNode);
+
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "All" })).toBeInTheDocument();
+  });
+
+  it("falls back to an empty label for untitled sports", async () => {
+    mockSanityFetchPage.mockImplementation(({ query }: { query: string }) =>
+      Promise.resolve({
+        data:
+          query === "querySportFilters"
+            ? [{ _id: "sport-x", title: null, slug: "untitled" }]
+            : { posts: [samplePost], totalPosts: 1 },
+      }),
+    );
+
+    const page = await CollegeNewsPage({ searchParams: Promise.resolve({}) });
+    const { container } = render(page as ReactNode);
+
+    const link = container.querySelector('a[href="/college/untitled/news"]');
+    expect(link).toHaveTextContent(/^$/);
   });
 
   it("renders pagination when multiple pages exist", async () => {
-    mockSanityFetchPage.mockResolvedValue({
-      data: {
-        posts: Array.from({ length: 12 }, (_, i) => ({
-          ...samplePost,
-          _id: String(i),
-          title: `Post ${i}`,
-        })),
-        totalPosts: 24,
-      },
+    mockFeed({
+      posts: Array.from({ length: 12 }, (_, i) => ({
+        ...samplePost,
+        _id: String(i),
+        title: `Post ${i}`,
+      })),
+      totalPosts: 24,
     });
 
     const page = await CollegeNewsPage({

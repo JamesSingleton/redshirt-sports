@@ -1,26 +1,18 @@
 import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 
-import { LoadingArticle } from "@/components/loading-article";
+import { CardGridSkeleton } from "@/components/news/news-listing-skeleton";
 
 export default function Loading() {
   return (
-    <>
-      <section className="py-12">
-        <div className="container">
-          <div className="md:max-w-3xl xl:max-w-5xl">
-            <Skeleton className="mt-8 h-10 w-3/4 rounded" />
-            <Skeleton className="mt-2 h-6 w-3/4 rounded" />
-          </div>
-        </div>
-      </section>
-      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-          <LoadingArticle />
-          <LoadingArticle />
-          <LoadingArticle />
-          <LoadingArticle />
-        </div>
-      </section>
-    </>
+    <div aria-busy="true">
+      <div className="container flex flex-col gap-4 pt-6 pb-6 md:pt-10">
+        <Skeleton className="h-11 w-48" />
+        <Skeleton className="h-6 w-72" />
+        <Skeleton className="h-9 w-full max-w-xl" />
+      </div>
+      <div className="container pb-12">
+        <CardGridSkeleton />
+      </div>
+    </div>
   );
 }

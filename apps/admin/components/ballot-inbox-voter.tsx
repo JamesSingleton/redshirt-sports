@@ -86,7 +86,16 @@ export function BallotInboxVoter({
       ) : null}
       {otherWeeks.length > 0 ? (
         <>
-          <Select value={reassignTarget} onValueChange={onReassignTargetChange}>
+          <Select
+            value={reassignTarget}
+            onValueChange={(value) => {
+              if (value !== null) onReassignTargetChange(value);
+            }}
+            items={otherWeeks.map((week) => ({
+              value: week.weekKey,
+              label: week.label,
+            }))}
+          >
             <SelectTrigger className="w-full" size="sm">
               <SelectValue placeholder="Move to…" />
             </SelectTrigger>
@@ -138,12 +147,6 @@ export function BallotInboxVoter({
     </div>
   );
 
-  const trigger = (
-    <Button size="sm" variant="outline">
-      Manage
-    </Button>
-  );
-
   const identity = (
     <>
       <span className="truncate font-medium">{name}</span>
@@ -171,7 +174,9 @@ export function BallotInboxVoter({
       </Badge>
       {isMobile ? (
         <Drawer open={open} onOpenChange={setOpen}>
-          <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+          <DrawerTrigger render={<Button size="sm" variant="outline" />}>
+            Manage
+          </DrawerTrigger>
           <DrawerContent>
             <DrawerHeader className="text-left">
               <DrawerTitle>{name}</DrawerTitle>
@@ -182,7 +187,9 @@ export function BallotInboxVoter({
         </Drawer>
       ) : (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>{trigger}</DialogTrigger>
+          <DialogTrigger render={<Button size="sm" variant="outline" />}>
+            Manage
+          </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>{name}</DialogTitle>

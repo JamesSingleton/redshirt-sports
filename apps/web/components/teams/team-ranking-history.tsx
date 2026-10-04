@@ -42,6 +42,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { SectionHeader } from "@/components/news/section-header";
+
 const chartConfig = {
   rank: {
     label: "Rank",
@@ -157,7 +159,12 @@ function PollRankingChart({
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {poll.years.length > 1 ? (
-            <Select value={year} onValueChange={setYear}>
+            <Select
+              value={year}
+              onValueChange={(value) => {
+                if (value !== null) setYear(value);
+              }}
+            >
               <SelectTrigger className="w-37.5" size="sm">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>
@@ -174,7 +181,7 @@ function PollRankingChart({
           )}
           <Link
             href={rankingsHref}
-            className="text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
+            className="text-primary text-sm font-semibold hover:underline hover:underline-offset-4"
           >
             View rankings
           </Link>
@@ -188,7 +195,7 @@ function PollRankingChart({
       ) : (
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-125 w-full"
+          className="aspect-auto h-80 w-full md:h-100"
           initialDimension={{ width: 640, height: 400 }}
         >
           <LineChart
@@ -276,18 +283,16 @@ export function TeamRankingHistory({
   const defaultPollId = history.polls[0]!.pollId;
 
   return (
-    <section className="mb-8 overflow-hidden rounded-lg border border-border bg-card">
-      <div className="border-b border-border px-4 py-3">
-        <h2 className="text-[22px] font-bold text-foreground">
-          {teamName} Top 25 History
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Weekly Redshirt Sports poll ranking — up, down, into, and out of the
-          Top 25.
-        </p>
-      </div>
+    <section
+      aria-labelledby="team-ranking-history"
+      className="flex flex-col gap-4"
+    >
+      <SectionHeader id="team-ranking-history" title="Top 25 history" />
+      <p className="text-muted-foreground text-sm text-pretty">
+        Where {teamName} has landed in each week of the Redshirt Sports poll.
+      </p>
 
-      <div className="p-4">
+      <div className="bg-card rounded-sm border p-4">
         {history.polls.length === 1 ? (
           <PollRankingChart poll={history.polls[0]!} teamName={teamName} />
         ) : (

@@ -7,24 +7,30 @@ type PageHeaderProps = {
   title: string;
   subtitle?: string | React.ReactNode;
   breadcrumbs?: BreadcrumbProps;
+  /** Rendered under the title, e.g. a filter row. */
+  children?: React.ReactNode;
 };
 
 export default function PageHeader({
   title,
   subtitle,
   breadcrumbs,
+  children,
 }: PageHeaderProps) {
   return (
-    <section className="py-12">
-      <div className="container">
-        <div className="md:max-w-3xl xl:max-w-5xl">
-          {breadcrumbs && <BreadCrumbs breadCrumbPages={breadcrumbs} />}
-          <h1 className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
-            {title}
-          </h1>
-          {subtitle && <>{subtitle}</>}
-        </div>
+    <header className="container flex flex-col gap-4 pt-6 pb-6 md:pt-10">
+      {breadcrumbs ? <BreadCrumbs breadCrumbPages={breadcrumbs} /> : null}
+      <div className="flex max-w-3xl flex-col gap-2">
+        <h1 className="headline text-4xl text-balance md:text-5xl">{title}</h1>
+        {typeof subtitle === "string" ? (
+          <p className="text-muted-foreground text-lg text-pretty">
+            {subtitle}
+          </p>
+        ) : (
+          subtitle
+        )}
       </div>
-    </section>
+      {children}
+    </header>
   );
 }

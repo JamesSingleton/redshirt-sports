@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { isValidElement, type ReactElement, type ReactNode } from "react";
 
 import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
@@ -85,7 +85,19 @@ vi.mock("@/components/json-ld", () => ({
 }));
 
 vi.mock("@/components/rankings/filters", () => ({
-  RankingsFilters: () => <div data-testid="rankings-filters" />,
+  RankingsFilters: ({
+    currentYear,
+    currentWeek,
+  }: {
+    currentYear: string;
+    currentWeek: string;
+  }) => (
+    <div
+      data-testid="rankings-filters"
+      data-year={currentYear}
+      data-week={currentWeek}
+    />
+  ),
 }));
 
 vi.mock("@/components/rankings/rankings-voter-breakdown", () => ({
@@ -106,6 +118,15 @@ vi.mock("next/navigation", () => ({
 import CollegeFootballRankingsPage, {
   generateMetadata,
 } from "@/app/college/[sport]/rankings/[division]/[year]/[week]/page";
+
+function pollNote(title: string) {
+  const term = screen.getByText(`${title}:`);
+  const definition = term.nextElementSibling;
+  if (!(definition instanceof HTMLElement)) {
+    throw new Error(`No poll note for ${title}`);
+  }
+  return definition;
+}
 
 describe("CollegeFootballRankingsPage", () => {
   beforeEach(() => {
@@ -282,22 +303,23 @@ describe("CollegeFootballRankingsPage", () => {
 
     expect(screen.getByLabelText("down 1")).toBeInTheDocument();
     expect(screen.getByLabelText("new to rankings")).toBeInTheDocument();
-    expect(screen.getByText(/Dropped Out of Top 25/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Mercer (24)" })).toHaveAttribute(
-      "href",
-      "/college/teams/mercer",
+    expect(pollNote("Dropped out")).toHaveTextContent("Mercer (was No. 24)");
+    expect(
+      within(pollNote("Dropped out")).getByRole("link", { name: "Mercer" }),
+    ).toHaveAttribute("href", "/college/teams/mercer");
+    expect(pollNote("Others receiving votes")).toHaveTextContent(
+      "ORV Team 8, Mercer 10",
     );
-    expect(screen.getByText(/Others receiving votes/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /ORV Team/ })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "ORV Team" })).toHaveAttribute(
       "href",
       "/college/teams/orv-team",
     );
-    expect(screen.getByText(/No longer receiving votes/i)).toBeInTheDocument();
+    expect(pollNote("No longer receiving votes")).toHaveTextContent("Vanished");
     expect(screen.getByRole("link", { name: "Vanished" })).toHaveAttribute(
       "href",
       "/college/teams/vanished",
     );
-    expect(screen.getByRole("link", { name: "Alabama" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "Alabama" })[0]).toHaveAttribute(
       "href",
       "/college/teams/alabama",
     );
@@ -325,7 +347,48 @@ describe("CollegeFootballRankingsPage", () => {
     });
 
     render(page);
-    expect(screen.getByText("Top 25 Poll Not Found")).toBeInTheDocument();
+    expect(screen.getByText("No poll for this week")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Latest polls" })).toHaveAttribute(
+      "href",
+      "/college/football/rankings",
+    );
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("voter-breakdown")).not.toBeInTheDocument();
+  });
+
+  it("renders the poll header, table, filters, and voter breakdown", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("stay", 1, 200, "Alabama")],
+    });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "FBS Top 25" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("2025 Week 1")).toBeInTheDocument();
+    expect(screen.getByTestId("rankings-filters")).toHaveAttribute(
+      "data-year",
+      "2025",
+    );
+    expect(screen.getByTestId("rankings-filters")).toHaveAttribute(
+      "data-week",
+      "1",
+    );
+    const poll = screen.getByRole("region", { name: "FBS Top 25 poll" });
+    const [, row] = within(poll).getAllByRole("row");
+    expect(row).toHaveTextContent("1Alabama(5)200");
+    expect(await screen.findByTestId("voter-breakdown")).toBeInTheDocument();
   });
 
   it("renders tied ranks and first-place vote counts", async () => {
@@ -351,7 +414,7 @@ describe("CollegeFootballRankingsPage", () => {
     });
     render(page);
 
-    expect(screen.getByText("T-1")).toBeInTheDocument();
+    expect(screen.getByText("T1")).toBeInTheDocument();
     expect(screen.getByText("(3)")).toBeInTheDocument();
   });
 
@@ -385,13 +448,13 @@ describe("CollegeFootballRankingsPage", () => {
     });
     render(page);
 
-    expect(screen.getByRole("link", { name: "ALA" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "ALA" })[0]).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "University of Georgia" }),
     ).toBeInTheDocument();
   });
 
-  it("joins multiple dropped-out and no-longer-receiving teams with commas", async () => {
+  it("lists every dropped-out and no-longer-receiving team", async () => {
     mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
     mockGetCachedWeeks.mockResolvedValue([{ week: 1 }, { week: 2 }]);
 
@@ -426,18 +489,52 @@ describe("CollegeFootballRankingsPage", () => {
     });
     render(page);
 
-    expect(
-      screen.getByRole("link", { name: "Mercer (24)" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Samford (25)" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Vanished A" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Vanished B" }),
-    ).toBeInTheDocument();
+    expect(pollNote("Dropped out")).toHaveTextContent(
+      "Mercer (was No. 24), Samford (was No. 25)",
+    );
+    expect(pollNote("No longer receiving votes")).toHaveTextContent(
+      "Vanished A, Vanished B",
+    );
+  });
+
+  it("separates multiple newcomers and labels unnamed ORV teams by name", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }, { week: 2 }]);
+
+    const previous = [sampleRankingTeam("stay", 1, 200, "Alabama")];
+    const current = [
+      sampleRankingTeam("stay", 1, 200, "Alabama"),
+      sampleRankingTeam("new-a", 2, 150, "Montana"),
+      sampleRankingTeam("new-b", 3, 140, "Idaho"),
+      {
+        ...sampleRankingTeam("orv", null, 8, "ORV Team"),
+        shortName: null,
+        abbreviation: null,
+        name: "Others University",
+      },
+    ];
+
+    mockGetCachedFinalRankings.mockImplementation(
+      async ({ week }: { week: number }) => ({
+        rankings: week === 2 ? current : previous,
+      }),
+    );
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "2",
+      }),
+    });
+    render(page);
+
+    const newcomers = screen.getByText("New to the Top 25").nextElementSibling;
+    expect(newcomers).toHaveTextContent("Montana No. 2, Idaho No. 3");
+    expect(pollNote("Others receiving votes")).toHaveTextContent(
+      "Others University 8",
+    );
   });
 
   it("throws notFound when year and week lookups fail", async () => {

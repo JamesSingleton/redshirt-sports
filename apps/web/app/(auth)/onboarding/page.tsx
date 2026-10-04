@@ -1,3 +1,4 @@
+import { Spinner } from "@redshirt-sports/ui/components/spinner";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
@@ -11,8 +12,8 @@ export const metadata: Metadata = {
 
 export default async function OnboardingPage() {
   return (
-    <div className="container flex items-center justify-center">
-      <Suspense fallback={<div>Loading...</div>}>
+    <div className="container flex justify-center py-12 md:py-20">
+      <Suspense fallback={<Spinner className="size-6" />}>
         <Onboarding />
       </Suspense>
     </div>
