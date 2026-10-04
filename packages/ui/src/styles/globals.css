@@ -176,6 +176,7 @@
     font-synthesis-weight: none;
   }
   body {
+    position: relative;
     @apply bg-background text-foreground;
     font-feature-settings: "ss01";
   }

@@ -147,12 +147,6 @@ export function BallotInboxVoter({
     </div>
   );
 
-  const trigger = (
-    <Button size="sm" variant="outline">
-      Manage
-    </Button>
-  );
-
   const identity = (
     <>
       <span className="truncate font-medium">{name}</span>
@@ -180,7 +174,9 @@ export function BallotInboxVoter({
       </Badge>
       {isMobile ? (
         <Drawer open={open} onOpenChange={setOpen}>
-          <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+          <DrawerTrigger render={<Button size="sm" variant="outline" />}>
+            Manage
+          </DrawerTrigger>
           <DrawerContent>
             <DrawerHeader className="text-left">
               <DrawerTitle>{name}</DrawerTitle>

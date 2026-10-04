@@ -33,7 +33,13 @@ vi.mock("@redshirt-sports/ui/components/dialog", () => ({
 
 vi.mock("@redshirt-sports/ui/components/drawer", () => ({
   Drawer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  DrawerTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
+  DrawerTrigger: ({
+    children,
+    render,
+  }: {
+    children: ReactNode;
+    render: ReactElement<{ children?: ReactNode }>;
+  }) => cloneElement(render, { children }),
   DrawerContent: ({ children }: { children: ReactNode }) => (
     <div>{children}</div>
   ),
