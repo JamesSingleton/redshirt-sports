@@ -73,7 +73,12 @@ describe("VoterBallotBreakdown", () => {
 
   it("filters, sorts, and paginates voters on desktop", async () => {
     const user = userEvent.setup();
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown as never} teams={teams} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Voter Breakdown")).toBeInTheDocument();
@@ -91,7 +96,12 @@ describe("VoterBallotBreakdown", () => {
 
   it("renders the mobile breakdown when on a small screen", async () => {
     mockUseIsMobile.mockReturnValue(true);
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown as never} teams={teams} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Prev")).toBeInTheDocument();
@@ -100,7 +110,12 @@ describe("VoterBallotBreakdown", () => {
 
   it("sorts by match percent and changes page size on desktop", async () => {
     const user = userEvent.setup();
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown as never} teams={teams} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByLabelText("Sort voters")).toBeInTheDocument();
@@ -125,7 +140,12 @@ describe("VoterBallotBreakdown", () => {
   it("paginates voters through mobile controls", async () => {
     mockUseIsMobile.mockReturnValue(true);
     const user = userEvent.setup();
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown as never} teams={teams} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Next" })).toBeInTheDocument();
@@ -168,7 +188,12 @@ describe("VoterBallotBreakdown", () => {
       ballot: [],
     }));
 
-    render(<VoterBallotBreakdown voterBreakdown={manyVoters as never} teams={teams} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={manyVoters as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText(/Showing 10 of 120 voter/)).toBeInTheDocument();
@@ -198,7 +223,12 @@ describe("VoterBallotBreakdown", () => {
     mockUseIsMobile.mockReturnValue(false);
 
     const user = userEvent.setup();
-    render(<VoterBallotBreakdown voterBreakdown={voterBreakdown as never} teams={teams} />);
+    render(
+      <VoterBallotBreakdown
+        voterBreakdown={voterBreakdown as never}
+        teams={teams}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByLabelText("Go to last page")).toBeInTheDocument();
