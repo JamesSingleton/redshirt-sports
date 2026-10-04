@@ -20,7 +20,7 @@ Commit order caveat: the `button` commit (1be5e47) doesn't typecheck on its own,
 - `command.tsx` (cmdk), `sonner.tsx` (sonner), `chart.tsx` (recharts).
 - `table.tsx` `data-[state=selected]`: an attribute consumers set themselves, not Radix.
 - `sidebar.tsx` `data-state="expanded|collapsed"`: set by the sidebar itself.
-- **`components.json` still declares `"style": "new-york"`** in `packages/ui`, `apps/web` and `apps/admin`. That's a Radix-era registry style. Future `shadcn add` runs will pull Radix-based new-york components (this already happened once: `shadcn add drawer` wrote the vaul drawer) unless you switch to a Base UI style (for example a `base-*` style). Flagged, not changed: switching restyles anything newly added, so it's your call.
+- **`components.json` switched from `"style": "new-york"` to `"base-nova"`** in `packages/ui`, `apps/web` and `apps/admin`, at your request. `shadcn info` now reports base `base`, style `nova`, so future `shadcn add` runs fetch Base UI components. They arrive in nova's look (for example `bg-popover`, `rounded-xl`, lighter overlays), not new-york's, and existing components are unchanged.
 
 ## App-code sweep
 
