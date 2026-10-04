@@ -51,7 +51,17 @@ export async function CachedNavbarServer({
       <div className="container grid h-16 grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
         <div className="flex items-center gap-1">
           <div className="lg:hidden">
-            <MobileNav navigation={navigation} brandName={BRAND_NAME} />
+            <MobileNav
+              navigation={navigation}
+              brandName={BRAND_NAME}
+              logo={
+                <SiteLogo
+                  light={data?.logo}
+                  dark={data?.logoDark}
+                  className="h-7"
+                />
+              }
+            />
           </div>
           <Link
             href="/"

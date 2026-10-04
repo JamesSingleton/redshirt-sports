@@ -57,7 +57,13 @@ function openDrawer() {
 
 describe("MobileNav", () => {
   it("lists every section expanded under bold headings", () => {
-    render(<MobileNav navigation={navigation} brandName="Redshirt Sports" />);
+    render(
+      <MobileNav
+        navigation={navigation}
+        brandName="Redshirt Sports"
+        logo={<img src="/logo.svg" alt="" />}
+      />,
+    );
     const drawer = openDrawer();
 
     expect(
@@ -88,7 +94,13 @@ describe("MobileNav", () => {
   });
 
   it("titles the drawer with the brand and includes search", () => {
-    render(<MobileNav navigation={navigation} brandName="Redshirt Sports" />);
+    render(
+      <MobileNav
+        navigation={navigation}
+        brandName="Redshirt Sports"
+        logo={<img src="/logo.svg" alt="" />}
+      />,
+    );
     const drawer = openDrawer();
 
     expect(drawer).toHaveAccessibleName("Redshirt Sports");
@@ -106,6 +118,7 @@ describe("MobileNav", () => {
       <MobileNav
         navigation={{ items: [], secondaryLinks: [], cta: null }}
         brandName="Redshirt Sports"
+        logo={<img src="/logo.svg" alt="" />}
       />,
     );
     const drawer = openDrawer();

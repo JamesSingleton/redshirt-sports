@@ -13,7 +13,7 @@ import {
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { MenuIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { Fragment, useState } from "react";
+import { Fragment, type ReactNode, useState } from "react";
 
 import { isActivePath, type Navigation, type NavLink } from "@/lib/navigation";
 import { HeaderSearch } from "./header-search";
@@ -45,9 +45,11 @@ function toSections({ items, secondaryLinks }: Navigation): Section[] {
 export function MobileNav({
   navigation,
   brandName,
+  logo,
 }: {
   navigation: Navigation;
   brandName: string;
+  logo: ReactNode;
 }) {
   const pathname = usePathname();
   const sections = toSections(navigation);
@@ -63,7 +65,12 @@ export function MobileNav({
       </SheetTrigger>
       <SheetContent side="left" className="w-[88vw] gap-0 p-0 sm:max-w-sm">
         <SheetHeader className="border-b">
-          <SheetTitle className="headline text-xl">{brandName}</SheetTitle>
+          <SheetTitle className="flex items-center">
+            <span className="sr-only">{brandName}</span>
+            <span aria-hidden="true" className="flex items-center">
+              {logo}
+            </span>
+          </SheetTitle>
           <SheetDescription className="sr-only">
             Site navigation
           </SheetDescription>
