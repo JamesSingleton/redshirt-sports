@@ -348,9 +348,10 @@ describe("CollegeFootballRankingsPage", () => {
 
     render(page);
     expect(screen.getByText("No poll for this week")).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Latest FBS poll" }),
-    ).toHaveAttribute("href", "/college/football/rankings/fbs");
+    expect(screen.getByRole("link", { name: "Latest polls" })).toHaveAttribute(
+      "href",
+      "/college/football/rankings",
+    );
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
     expect(screen.queryByTestId("voter-breakdown")).not.toBeInTheDocument();
   });
@@ -493,6 +494,46 @@ describe("CollegeFootballRankingsPage", () => {
     );
     expect(pollNote("No longer receiving votes")).toHaveTextContent(
       "Vanished A, Vanished B",
+    );
+  });
+
+  it("separates multiple newcomers and labels unnamed ORV teams by name", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }, { week: 2 }]);
+
+    const previous = [sampleRankingTeam("stay", 1, 200, "Alabama")];
+    const current = [
+      sampleRankingTeam("stay", 1, 200, "Alabama"),
+      sampleRankingTeam("new-a", 2, 150, "Montana"),
+      sampleRankingTeam("new-b", 3, 140, "Idaho"),
+      {
+        ...sampleRankingTeam("orv", null, 8, "ORV Team"),
+        shortName: null,
+        abbreviation: null,
+        name: "Others University",
+      },
+    ];
+
+    mockGetCachedFinalRankings.mockImplementation(
+      async ({ week }: { week: number }) => ({
+        rankings: week === 2 ? current : previous,
+      }),
+    );
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "2",
+      }),
+    });
+    render(page);
+
+    const newcomers = screen.getByText("New to the Top 25").nextElementSibling;
+    expect(newcomers).toHaveTextContent("Montana No. 2, Idaho No. 3");
+    expect(pollNote("Others receiving votes")).toHaveTextContent(
+      "Others University 8",
     );
   });
 

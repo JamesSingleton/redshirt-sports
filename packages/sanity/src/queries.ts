@@ -77,6 +77,7 @@ const customUrlHrefFragment = /* groq */ `
   "href": select(
     url.type == "external" => url.external,
     url.type == "internal" && url.internalType == "custom" => url.internalUrl,
+    url.type == "internal" && url.internalType == "latestRankings" => null,
     url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>
       "/college/" + url.sportNewsLink.sport->slug.current + "/news",
     url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>
@@ -88,6 +89,26 @@ const customUrlHrefFragment = /* groq */ `
     url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,
     url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,
     url.href
+  )
+`;
+
+// The href depends on the newest poll in Postgres, so the app resolves it.
+// Single-sport polls (FCS, FBS) skip the sport in the label; shared ones
+// (Mid-Major, Division II) need it to be unambiguous.
+const latestRankingsFragment = /* groq */ `
+  "latestRankings": select(
+    url.type == "internal" && url.internalType == "latestRankings" => {
+      "sport": url.latestRankingsLink.sport->slug.current,
+      "poll": url.latestRankingsLink.poll->slug.current,
+      "label": "Latest " + select(
+        count(url.latestRankingsLink.poll->applicableSports) == 1 => "",
+        url.latestRankingsLink.sport->title + " "
+      ) + coalesce(
+        url.latestRankingsLink.poll->shortName,
+        url.latestRankingsLink.poll->title,
+        url.latestRankingsLink.poll->name
+      ) + " rankings"
+    }
   )
 `;
 
@@ -317,23 +338,29 @@ export const querySchoolPaths = defineQuery(/* groq */ `
 
 /** Team hubs for the /college/teams index; mirrors `isTeamPageEligible`. */
 export const queryTeamsIndex = defineQuery(/* groq */ `
-  *[
-    _type == "school" &&
-    defined(slug.current) &&
-    (
-      _id in $rankedIds ||
-      count(*[${publishedPostsTaggingSchoolFromParentFilter}]) >= $minPosts
-    )
-  ] | order(coalesce(shortName, name) asc){
-    _id,
-    name,
-    shortName,
-    nickname,
-    "slug": slug.current,
-    ${schoolImageFragment},
-    "affiliations": conferenceAffiliations[defined(sport) && defined(conference)]{
-      "sport": sport->slug.current,
-      "conference": conference->{ _id, name, shortName }
+  {
+    "teams": *[
+      _type == "school" &&
+      defined(slug.current) &&
+      (
+        _id in $rankedIds ||
+        count(*[${publishedPostsTaggingSchoolFromParentFilter}]) >= $minPosts
+      )
+    ] | order(coalesce(shortName, name) asc){
+      _id,
+      name,
+      shortName,
+      nickname,
+      "slug": slug.current,
+      ${schoolImageFragment},
+      "affiliations": conferenceAffiliations[defined(sport) && defined(conference)]{
+        "sport": sport->slug.current,
+        "conference": conference->{ _id, name, shortName }
+      }
+    },
+    "sports": *[_type == "sport" && defined(slug.current) && defined(title)] | order(title asc){
+      "slug": slug.current,
+      title
     }
   }
 `);
@@ -424,26 +451,30 @@ export const queryNavbarData = defineQuery(/* groq */ `
           name,
           description,
           "openInNewTab": url.openInNewTab,
-          ${customUrlHrefFragment}
+          ${customUrlHrefFragment},
+          ${latestRankingsFragment}
         }
       },
       _type == "navbarLink" => {
         "type": "link",
         name,
         "openInNewTab": url.openInNewTab,
-        ${customUrlHrefFragment}
+        ${customUrlHrefFragment},
+        ${latestRankingsFragment}
       }
     },
     secondaryLinks[]{
       _key,
       name,
       "openInNewTab": url.openInNewTab,
-      ${customUrlHrefFragment}
+      ${customUrlHrefFragment},
+      ${latestRankingsFragment}
     },
     cta{
       name,
       "openInNewTab": url.openInNewTab,
-      ${customUrlHrefFragment}
+      ${customUrlHrefFragment},
+      ${latestRankingsFragment}
     },
     "logo": *[_type == "settings"][0].footerLogo{
       ...,
@@ -555,6 +586,7 @@ export const queryDivisionConferenceFilters = defineQuery(/* groq */ `
   ] | order(coalesce(shortName, name) asc){
     _id,
     "name": coalesce(shortName, name),
+    "fullName": name,
     "slug": slug.current
   }
 `);

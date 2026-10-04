@@ -14,6 +14,7 @@ import type { CollectionPage, WithContext } from "schema-dts";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import { FilterRow } from "@/components/news/filter-row";
 import { NewsListing } from "@/components/news/news-listing";
+import { NewsListingSkeleton } from "@/components/news/news-listing-skeleton";
 import PageHeader from "@/components/page-header";
 import { PageTransition } from "@/components/page-transition";
 import { perPage } from "@/lib/constants";
@@ -78,7 +79,9 @@ export default function CollegeSportsNews({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  return searchParamsPage(null, () => renderCollegeSportsNews(searchParams));
+  return searchParamsPage(<NewsListingSkeleton />, () =>
+    renderCollegeSportsNews(searchParams),
+  );
 }
 
 async function renderCollegeSportsNews(

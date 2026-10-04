@@ -83,6 +83,45 @@ export function seasonTypeAndNumberToLegacyWeek(
   return weekNumber;
 }
 
+const espnCalendarDayFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/Los_Angeles",
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  weekday: "short",
+});
+
+/**
+ * Last game day a regular-season poll covers, as `YYYY-MM-DD`, or `null` for
+ * preseason and postseason polls. ESPN weeks end at 11:59 PM Pacific; a
+ * week ending Sunday covers Saturday's games (as the NCAA labels its polls),
+ * while Labor Day weeks run through Monday.
+ */
+export function pollThroughDate(
+  weekEndDate: Date,
+  seasonType: number,
+): string | null {
+  if (seasonType !== SEASON_TYPE_CODES.REGULAR_SEASON) {
+    return null;
+  }
+
+  const parts = Object.fromEntries(
+    espnCalendarDayFormatter
+      .formatToParts(weekEndDate)
+      .map((part) => [part.type, part.value]),
+  );
+  const sundayOffset = parts.weekday === "Sun" ? 1 : 0;
+  const lastGameDay = new Date(
+    Date.UTC(
+      Number(parts.year),
+      Number(parts.month) - 1,
+      Number(parts.day) - sundayOffset,
+    ),
+  );
+
+  return lastGameDay.toISOString().slice(0, 10);
+}
+
 /** Human-readable label for a legacy week integer (URLs / filters). */
 export function weekTitle(legacyWeek: number): string {
   if (legacyWeek === LEGACY_PRESEASON_WEEK) {

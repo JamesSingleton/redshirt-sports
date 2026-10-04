@@ -9,6 +9,8 @@ export type CustomUrlPreviewInput = {
   routeDepth?: string;
   segmentSlug?: string;
   conferenceSlug?: string;
+  rankingsSportSlug?: string;
+  rankingsPollSlug?: string;
   openInNewTab?: boolean;
 };
 
@@ -40,6 +42,13 @@ export function resolveCustomUrlPreview(
       return undefined;
     }
     return `/college/${input.sportSlug}/news`;
+  }
+
+  if (input.internalType === "latestRankings") {
+    if (input.rankingsSportSlug && input.rankingsPollSlug) {
+      return `/college/${input.rankingsSportSlug}/rankings/${input.rankingsPollSlug}/latest`;
+    }
+    return undefined;
   }
 
   if (input.internalType === "reference" || input.internalSlug) {
@@ -88,6 +97,8 @@ export const customUrlPreviewSelect = {
   routeDepth: "sportNewsLink.routeDepth",
   segmentSlug: "sportNewsLink.segment.slug.current",
   conferenceSlug: "sportNewsLink.conference.slug.current",
+  rankingsSportSlug: "latestRankingsLink.sport.slug.current",
+  rankingsPollSlug: "latestRankingsLink.poll.slug.current",
   openInNewTab: "openInNewTab",
 } as const;
 

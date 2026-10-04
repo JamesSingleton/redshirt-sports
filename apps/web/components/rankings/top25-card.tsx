@@ -11,8 +11,9 @@ import {
 import CustomImage from "@/components/sanity-image";
 import { SidebarCard } from "@/components/sidebar-card";
 import { TOP_25 } from "@/lib/constants";
+import { pollDateLabel } from "@/lib/poll-label";
 import { getCachedLatestPoll, type LatestPoll } from "@/lib/rankings-data";
-import { weekTitle } from "@/utils/espn";
+import { formatWeekSegment } from "@/utils/espn";
 
 type TeamImage = Parameters<typeof CustomImage>[0]["image"];
 
@@ -97,10 +98,12 @@ function PollFooter({
   return (
     <div className="flex items-center justify-between gap-2 border-t px-4 py-3">
       <span className="text-muted-foreground text-xs">
-        {weekTitle(poll.week)}, {poll.year}
+        {pollDateLabel(poll)}
       </span>
       <Link
-        href={`/college/football/rankings/${division}` as Route}
+        href={
+          `/college/football/rankings/${division}/${poll.year}/${formatWeekSegment(poll.week)}` as Route
+        }
         className="text-primary text-sm font-semibold hover:underline hover:underline-offset-4"
       >
         Full {label} rankings
@@ -138,7 +141,18 @@ export async function Top25Card() {
   return (
     <SidebarCard.Root labelledBy="top25-card-heading">
       <TransitionTabs defaultValue={first.slug} className="gap-0">
-        <SidebarCard.Header id="top25-card-heading" title="Top 25 polls">
+        <SidebarCard.Header
+          id="top25-card-heading"
+          title="Top 25 polls"
+          action={
+            <Link
+              href="/college/football/rankings"
+              className="text-primary text-sm font-semibold hover:underline hover:underline-offset-4"
+            >
+              All polls
+            </Link>
+          }
+        >
           {available.length > 1 ? (
             <TabsList variant="line" className="w-full justify-start">
               {available.map((entry) => (

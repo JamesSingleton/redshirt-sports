@@ -15,6 +15,7 @@ import type { ReactNode } from "react";
 
 import { FilterRow } from "@/components/news/filter-row";
 import { NewsListing } from "@/components/news/news-listing";
+import { NewsListingSkeleton } from "@/components/news/news-listing-skeleton";
 import PageHeader from "@/components/page-header";
 import { PageTransition } from "@/components/page-transition";
 import { PollAside } from "@/components/rankings/poll-aside";
@@ -79,7 +80,7 @@ export default function Page({
   params: Promise<{ sport: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  return searchParamsPage(null, () =>
+  return searchParamsPage(<NewsListingSkeleton />, () =>
     renderSportNewsPage({ params, searchParams }),
   );
 }

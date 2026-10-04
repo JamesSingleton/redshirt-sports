@@ -2,7 +2,12 @@ import { cn } from "@redshirt-sports/ui/lib/utils";
 import type { Route } from "next";
 import Link from "next/link";
 
-export type FilterItem = { key: string; label: string; href: string };
+export type FilterItem = {
+  key: string;
+  label: string;
+  href: string;
+  keywords?: string;
+};
 
 /** Horizontally scrolling chip links used to narrow a news listing. */
 export function FilterRow({

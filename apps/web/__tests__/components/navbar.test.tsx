@@ -6,9 +6,18 @@ import {
   NavbarSkeleton,
 } from "@/components/navbar";
 
-const { mockGetDynamicFetchOptions, mockSanityFetch } = vi.hoisted(() => ({
+const {
+  mockGetDynamicFetchOptions,
+  mockSanityFetch,
+  mockGetCachedLatestPollWeek,
+} = vi.hoisted(() => ({
   mockGetDynamicFetchOptions: vi.fn(),
   mockSanityFetch: vi.fn(),
+  mockGetCachedLatestPollWeek: vi.fn(),
+}));
+
+vi.mock("@/lib/rankings-data", () => ({
+  getCachedLatestPollWeek: mockGetCachedLatestPollWeek,
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -18,7 +27,9 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 
 vi.mock("@/components/site-header/primary-nav", () => ({
   PrimaryNav: ({ items }: { items: { key: string }[] }) => (
-    <nav data-testid="primary-nav">{items.length} items</nav>
+    <nav data-testid="primary-nav" data-items={JSON.stringify(items)}>
+      {items.length} items
+    </nav>
   ),
 }));
 
@@ -146,6 +157,88 @@ describe("CachedNavbarServer", () => {
       screen.getByRole("link", { name: "Redshirt Sports home" }),
     ).toHaveAttribute("href", "/");
     expect(screen.getByTestId("primary-nav")).toHaveTextContent("0 items");
+  });
+});
+
+describe("CachedNavbarServer latest rankings links", () => {
+  const rankingsMenu = (
+    latestRankings: { sport: string; poll: string; label: string }[],
+  ) => ({
+    ...navbarData,
+    items: [
+      {
+        _key: "rankings",
+        type: "menu",
+        title: "Rankings",
+        links: latestRankings.map((target, index) => ({
+          _key: `poll-${index}`,
+          name: null,
+          description: null,
+          href: null,
+          openInNewTab: null,
+          latestRankings: target,
+        })),
+      },
+    ],
+  });
+
+  function renderedItems() {
+    return JSON.parse(
+      screen.getByTestId("primary-nav").getAttribute("data-items") ?? "[]",
+    );
+  }
+
+  beforeEach(() => {
+    mockGetCachedLatestPollWeek.mockReset();
+  });
+
+  it("links to the newest published poll week", async () => {
+    mockGetCachedLatestPollWeek.mockResolvedValue({ year: 2026, week: 4 });
+    mockSanityFetch.mockResolvedValue({
+      data: rankingsMenu([
+        { sport: "football", poll: "fcs", label: "Latest FCS rankings" },
+      ]),
+    });
+
+    render(
+      await CachedNavbarServer({ perspective: "published", stega: false }),
+    );
+
+    expect(mockGetCachedLatestPollWeek).toHaveBeenCalledWith({
+      sport: "football",
+      division: "fcs",
+    });
+    expect(renderedItems()[0].links).toEqual([
+      expect.objectContaining({
+        name: "Latest FCS rankings",
+        href: "/college/football/rankings/fcs/2026/4",
+      }),
+    ]);
+  });
+
+  it("drops links for unknown sports and polls without rankings", async () => {
+    mockGetCachedLatestPollWeek.mockResolvedValue(null);
+    mockSanityFetch.mockResolvedValue({
+      data: rankingsMenu([
+        { sport: "lacrosse", poll: "d1", label: "Latest Lacrosse rankings" },
+        {
+          sport: "mens-basketball",
+          poll: "mid-major",
+          label: "Latest Men's Basketball Mid-Major rankings",
+        },
+      ]),
+    });
+
+    render(
+      await CachedNavbarServer({ perspective: "published", stega: false }),
+    );
+
+    expect(mockGetCachedLatestPollWeek).toHaveBeenCalledTimes(1);
+    expect(mockGetCachedLatestPollWeek).toHaveBeenCalledWith({
+      sport: "mens-basketball",
+      division: "mid-major",
+    });
+    expect(renderedItems()).toEqual([]);
   });
 });
 

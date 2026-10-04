@@ -266,6 +266,23 @@ describe("AuthorPage", () => {
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 
+  it("omits the roles line when the author has no roles", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({ data: { ...sampleAuthor, roles: [] } })
+      .mockResolvedValueOnce({ data: { posts: [], totalPosts: 0 } });
+
+    const page = await AuthorPage({
+      params: Promise.resolve({ slug: "jane-author" }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page as ReactNode);
+
+    expect(
+      screen.getByRole("heading", { name: "Jane Author" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Senior Writer")).not.toBeInTheDocument();
+  });
+
   it("renders facebook and youtube social links with pagination", async () => {
     mockSanityFetchPage
       .mockResolvedValueOnce({

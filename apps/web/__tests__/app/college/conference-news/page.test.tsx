@@ -71,13 +71,31 @@ vi.mock("@/components/json-ld", () => ({
   websiteId: "website-id",
 }));
 
+vi.mock("@/components/filter-combobox", () => ({
+  RouteFilterCombobox: ({
+    items,
+    activeHref,
+  }: {
+    items: Array<{ label: string; href: string; keywords?: string }>;
+    activeHref?: string;
+  }) => (
+    <div
+      data-testid="conference-filter"
+      data-active={activeHref}
+      data-items={JSON.stringify(items)}
+    />
+  ),
+}));
+
 vi.mock("@/components/page-header", () => ({
   __esModule: true,
   default: ({
     title,
     breadcrumbs,
+    children,
   }: {
     title: string;
+    children?: ReactNode;
     breadcrumbs?: Array<{ title?: string | null; href: string }>;
   }) => (
     <div>
@@ -87,6 +105,7 @@ vi.mock("@/components/page-header", () => ({
           {item.title ?? ""}
         </span>
       ))}
+      {children}
     </div>
   ),
 }));
@@ -254,7 +273,17 @@ describe("ConferenceNewsPage", () => {
         },
       })
       .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+      .mockResolvedValueOnce({ data: { displayName: "FBS" } })
+      .mockResolvedValueOnce({
+        data: [
+          {
+            _id: "sec",
+            name: "SEC",
+            fullName: "Southeastern Conference",
+            slug: "sec",
+          },
+        ],
+      });
 
     const page = await ConferenceNewsPage({
       params: Promise.resolve({
@@ -270,6 +299,25 @@ describe("ConferenceNewsPage", () => {
       screen.getByRole("heading", { name: "SEC Football News" }),
     ).toBeInTheDocument();
     expect(screen.getByText("SEC Story")).toBeInTheDocument();
+
+    const filter = screen.getByTestId("conference-filter");
+    expect(filter).toHaveAttribute(
+      "data-active",
+      "/college/football/news/fbs/sec",
+    );
+    expect(JSON.parse(filter.getAttribute("data-items") ?? "[]")).toEqual([
+      {
+        key: "all",
+        label: "All conferences",
+        href: "/college/football/news/fbs",
+      },
+      {
+        key: "sec",
+        label: "SEC",
+        keywords: "Southeastern Conference",
+        href: "/college/football/news/fbs/sec",
+      },
+    ]);
   });
 
   it("uses conference name when shortName is missing", async () => {

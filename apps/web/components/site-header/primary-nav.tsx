@@ -42,6 +42,7 @@ export function PrimaryNav({ items }: { items: NavItem[] }) {
                       <NavigationMenuLink
                         render={<NavAnchor link={link} />}
                         active={isActivePath(pathname, link.href)}
+                        closeOnClick={true}
                       >
                         <span className="font-semibold">{link.name}</span>
                         {link.description ? (
@@ -61,6 +62,7 @@ export function PrimaryNav({ items }: { items: NavItem[] }) {
                 render={<NavAnchor link={item} />}
                 active={isActivePath(pathname, item.href)}
                 className={navigationMenuTriggerStyle({ tone: "header" })}
+                closeOnClick={true}
               >
                 {item.name}
               </NavigationMenuLink>

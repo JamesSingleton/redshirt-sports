@@ -40,7 +40,7 @@ describe("college rankings sitemap", () => {
     ]);
   });
 
-  it("lists one latest-poll URL per division ahead of week URLs", async () => {
+  it("lists the rankings hub ahead of week URLs, without the latest-poll redirects", async () => {
     mockGetYearsWithVotes.mockResolvedValue([
       { year: 2025, week: 1, division: "fbs" },
       { year: 2025, week: 0, division: "fbs" },
@@ -49,24 +49,15 @@ describe("college rankings sitemap", () => {
 
     const entries = await sitemap();
 
-    expect(entries.slice(0, 3)).toEqual([
-      {
-        url: "https://redshirtsports.com/college/football/rankings",
-        changeFrequency: "weekly",
-        priority: 0.9,
-      },
-      {
-        url: "https://redshirtsports.com/college/football/rankings/fbs",
-        changeFrequency: "weekly",
-        priority: 0.9,
-      },
-      {
-        url: "https://redshirtsports.com/college/football/rankings/fcs",
-        changeFrequency: "weekly",
-        priority: 0.9,
-      },
-    ]);
-    expect(entries).toHaveLength(6);
+    expect(entries[0]).toEqual({
+      url: "https://redshirtsports.com/college/football/rankings",
+      changeFrequency: "weekly",
+      priority: 0.9,
+    });
+    expect(entries.map((e) => e.url)).not.toContain(
+      "https://redshirtsports.com/college/football/rankings/fbs",
+    );
+    expect(entries).toHaveLength(4);
   });
 
   it("returns an empty sitemap when there are no votes", async () => {

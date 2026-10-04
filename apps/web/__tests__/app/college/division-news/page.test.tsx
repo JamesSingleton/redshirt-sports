@@ -69,9 +69,30 @@ vi.mock("@/components/json-ld", () => ({
   websiteId: "website-id",
 }));
 
+vi.mock("@/components/filter-combobox", () => ({
+  RouteFilterCombobox: ({
+    items,
+    activeHref,
+  }: {
+    items: Array<{ label: string; href: string; keywords?: string }>;
+    activeHref?: string;
+  }) => (
+    <div
+      data-testid="conference-filter"
+      data-active={activeHref}
+      data-items={JSON.stringify(items)}
+    />
+  ),
+}));
+
 vi.mock("@/components/page-header", () => ({
   __esModule: true,
-  default: ({ title }: { title: string }) => <h1>{title}</h1>,
+  default: ({ title, children }: { title: string; children?: ReactNode }) => (
+    <div>
+      <h1>{title}</h1>
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock("@/components/page-transition", () => ({
@@ -183,7 +204,17 @@ describe("DivisionNewsPage", () => {
         },
       })
       .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+      .mockResolvedValueOnce({ data: { displayName: "FBS" } })
+      .mockResolvedValueOnce({
+        data: [
+          {
+            _id: "sec",
+            name: "SEC",
+            fullName: "Southeastern Conference",
+            slug: "sec",
+          },
+        ],
+      });
 
     const page = await DivisionNewsPage({
       params: Promise.resolve({ sport: "football", division: "fbs" }),
@@ -196,6 +227,22 @@ describe("DivisionNewsPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("FBS Story")).toBeInTheDocument();
     expect(screen.getByTestId("json-ld")).toBeInTheDocument();
+
+    const filter = screen.getByTestId("conference-filter");
+    expect(filter).toHaveAttribute("data-active", "/college/football/news/fbs");
+    expect(JSON.parse(filter.getAttribute("data-items") ?? "[]")).toEqual([
+      {
+        key: "all",
+        label: "All conferences",
+        href: "/college/football/news/fbs",
+      },
+      {
+        key: "sec",
+        label: "SEC",
+        keywords: "Southeastern Conference",
+        href: "/college/football/news/fbs/sec",
+      },
+    ]);
   });
 
   it("renders pagination when multiple pages exist", async () => {

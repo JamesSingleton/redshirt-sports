@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 
-const { mockPush, mockCapture, mockParams } = vi.hoisted(() => ({
+const { mockPush, mockCapture, mockParams, NULL_VALUE } = vi.hoisted(() => ({
+  NULL_VALUE: "__null__",
   mockPush: vi.fn(),
   mockCapture: vi.fn(),
   mockParams: {
@@ -26,7 +27,7 @@ vi.mock("@redshirt-sports/ui/components/select", async () => {
   const { createContext, use } = await import("react");
   const SelectContext = createContext<{
     value?: string;
-    onValueChange?: (v: string) => void;
+    onValueChange?: (v: string | null) => void;
   }>({});
 
   return {
@@ -36,7 +37,7 @@ vi.mock("@redshirt-sports/ui/components/select", async () => {
       value,
     }: {
       children: ReactNode;
-      onValueChange?: (v: string) => void;
+      onValueChange?: (v: string | null) => void;
       value?: string;
     }) => (
       <SelectContext value={{ value, onValueChange }}>{children}</SelectContext>
@@ -54,7 +55,11 @@ vi.mock("@redshirt-sports/ui/components/select", async () => {
           <input
             aria-label={ariaLabel}
             defaultValue={value}
-            onChange={(e) => onValueChange?.(e.target.value)}
+            onChange={(e) =>
+              onValueChange?.(
+                e.target.value === NULL_VALUE ? null : e.target.value,
+              )
+            }
           />
           {children}
         </>
@@ -216,6 +221,16 @@ describe("RankingsFilters", () => {
     renderFilters({ currentYear: "" });
 
     changeSelect("Ranking", "final-rankings");
+
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockCapture).not.toHaveBeenCalled();
+  });
+
+  it("ignores cleared (null) selections from either select", () => {
+    renderFilters();
+
+    changeSelect("Year", NULL_VALUE);
+    changeSelect("Ranking", NULL_VALUE);
 
     expect(mockPush).not.toHaveBeenCalled();
     expect(mockCapture).not.toHaveBeenCalled();

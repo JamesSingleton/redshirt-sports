@@ -2,14 +2,6 @@
 
 import type { QueryTeamsIndexResult } from "@redshirt-sports/sanity/types";
 import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@redshirt-sports/ui/components/combobox";
-import {
   Empty,
   EmptyDescription,
   EmptyHeader,
@@ -29,15 +21,16 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 
+import { FilterCombobox } from "@/components/filter-combobox";
 import CustomImage from "@/components/sanity-image";
 
-export type DirectoryTeam = QueryTeamsIndexResult[number];
+export type DirectoryTeam = QueryTeamsIndexResult["teams"][number];
 
 type Conference = NonNullable<
   DirectoryTeam["affiliations"]
 >[number]["conference"];
 
-export type DirectorySport = { slug: string; label: string };
+export type DirectorySport = QueryTeamsIndexResult["sports"][number];
 
 type ConferenceGroup = {
   id: string;
@@ -111,69 +104,6 @@ function TeamCard({ team }: { team: DirectoryTeam }) {
   );
 }
 
-type ConferenceOption = { id: string; label: string; name: string };
-
-const ALL_CONFERENCES: ConferenceOption = {
-  id: ALL,
-  label: "All conferences",
-  name: "",
-};
-
-function matchesConference(option: ConferenceOption, query: string) {
-  const needle = query.trim().toLowerCase();
-  if (!needle) return true;
-  return [option.label, option.name].some((value) =>
-    value.toLowerCase().includes(needle),
-  );
-}
-
-function ConferenceCombobox({
-  groups,
-  value,
-  onValueChange,
-}: {
-  groups: ConferenceGroup[];
-  value: string;
-  onValueChange: (value: string) => void;
-}) {
-  const options = useMemo<ConferenceOption[]>(
-    () => [
-      ALL_CONFERENCES,
-      ...groups.map(({ id, label, name }) => ({ id, label, name })),
-    ],
-    [groups],
-  );
-  const selected =
-    options.find((option) => option.id === value) ?? ALL_CONFERENCES;
-
-  return (
-    <Combobox
-      items={options}
-      value={selected}
-      onValueChange={(next) => onValueChange(next?.id ?? ALL)}
-      itemToStringLabel={(option) => option.label}
-      isItemEqualToValue={(option, current) => option.id === current.id}
-      filter={matchesConference}
-    >
-      <ComboboxInput
-        aria-label="Conference"
-        placeholder="Search conferences"
-        className="bg-card w-full sm:w-64"
-      />
-      <ComboboxContent align="end">
-        <ComboboxEmpty>No conferences found.</ComboboxEmpty>
-        <ComboboxList>
-          {(option: ConferenceOption) => (
-            <ComboboxItem key={option.id} value={option}>
-              {option.label}
-            </ComboboxItem>
-          )}
-        </ComboboxList>
-      </ComboboxContent>
-    </Combobox>
-  );
-}
-
 /** Team hubs grouped by the selected sport's conference, with search and a conference filter. */
 export function TeamsDirectory({
   teams,
@@ -220,7 +150,7 @@ export function TeamsDirectory({
               value={entry.slug}
               className="flex-1 px-3 md:flex-none"
             >
-              {entry.label}
+              {entry.title}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
@@ -237,8 +167,17 @@ export function TeamsDirectory({
               <SearchIcon />
             </InputGroupAddon>
           </InputGroup>
-          <ConferenceCombobox
-            groups={groups}
+          <FilterCombobox
+            label="Conference"
+            searchPlaceholder="Search conferences"
+            options={[
+              { value: ALL, label: "All conferences" },
+              ...groups.map(({ id, label, name }) => ({
+                value: id,
+                label,
+                keywords: name,
+              })),
+            ]}
             value={conferenceId}
             onValueChange={setConferenceId}
           />

@@ -499,4 +499,16 @@ describe("TeamPage", () => {
     expect(screen.queryByTestId("article-row")).not.toBeInTheDocument();
     expect(screen.getByTestId("ranking-history")).toBeInTheDocument();
   });
+
+  it("treats a null recruiting feed as empty", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({ data: sampleSchool })
+      .mockResolvedValueOnce({ data: { posts: eightPosts } })
+      .mockResolvedValueOnce({ data: null });
+
+    await renderTeamPage();
+
+    expect(screen.queryByText("Top Recruit")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Post 0").length).toBeGreaterThan(0);
+  });
 });

@@ -35,6 +35,7 @@ import {
   getCachedFinalRankings,
   getCachedLatestFinalRankings,
   getCachedLatestPoll,
+  getCachedLatestPollWeek,
   getCachedRankedSchoolSanityIds,
   getCachedSchoolHasPollRankings,
   getCachedSchoolRankingHistory,
@@ -45,6 +46,33 @@ import {
 describe("rankings-data", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("getCachedLatestPollWeek returns the newest year and week for a sport and division", async () => {
+    mockGetLatestFinalRankings.mockResolvedValue({
+      division: "fcs",
+      week: 4,
+      year: 2026,
+    });
+
+    await expect(
+      getCachedLatestPollWeek({ sport: "football", division: "fcs" }),
+    ).resolves.toEqual({ year: 2026, week: 4 });
+    expect(mockGetLatestFinalRankings).toHaveBeenCalledWith({
+      division: "fcs",
+      sport: "football",
+    });
+  });
+
+  it("getCachedLatestPollWeek returns null when the division has no votes", async () => {
+    mockGetLatestFinalRankings.mockResolvedValue(null);
+
+    await expect(
+      getCachedLatestPollWeek({
+        sport: "mens-basketball",
+        division: "mid-major",
+      }),
+    ).resolves.toBeNull();
   });
 
   it("getCachedLatestPoll loads the newest week for a division", async () => {

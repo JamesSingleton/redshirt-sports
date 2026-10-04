@@ -22,6 +22,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Graph } from "schema-dts";
 
+import BreadCrumbs from "@/components/breadcrumbs";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { RankingsFilters } from "@/components/rankings/filters";
 import { RankMovement } from "@/components/rankings/rank-movement";
@@ -36,6 +37,7 @@ import { TOP_25 } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { pollDateLabel } from "@/lib/poll-label";
 import {
   getCachedFinalRankings,
   getCachedWeeksThatHaveVotes,
@@ -225,7 +227,7 @@ async function renderCollegeFootballRankingsPage({
     notFound();
   }
 
-  const { rankings } = finalRankingsResult.value;
+  const { rankings, throughDate } = finalRankingsResult.value;
   const previousRankings =
     previousRankingsResult.status === "fulfilled" &&
     previousRankingsResult.value != null
@@ -237,6 +239,7 @@ async function renderCollegeFootballRankingsPage({
     : null;
 
   const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25);
+  const [leader] = top25;
   const outsideTop25 = rankings.filter(
     (team) => !team.rank || team.rank > TOP_25,
   );
@@ -332,31 +335,46 @@ async function renderCollegeFootballRankingsPage({
         data={jsonLd}
         id={`json-ld-${sport}-${division}-${year}-${week}`}
       />
-      <header className="flex flex-col gap-4 border-b pb-6 md:flex-row md:items-end md:justify-between">
-        <div className="flex max-w-2xl flex-col gap-2">
-          <p className="text-brand text-sm font-semibold">
-            {year} {titleWeek}
-          </p>
-          <h1 className="headline text-4xl text-balance md:text-5xl">
-            {divisionLabel} Top 25
-          </h1>
-          <p className="text-muted-foreground text-pretty">
-            Our {divisionLabel} Top 25 uses a point system: 25 points for a
-            first-place vote down to 1 point for a 25th-place vote. Total points
-            determine the final rankings.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <RankingsFilters
-            years={yearsWithVotes}
-            weeks={weeksWithVotes}
-            currentYear={year}
-            currentWeek={week}
-          />
-        </div>
-      </header>
+      <div className="flex flex-col gap-4">
+        <BreadCrumbs
+          breadCrumbPages={[
+            { title: "Rankings", href: `/college/${sport}/rankings` },
+            {
+              title: `${divisionLabel} Top 25`,
+              href: `/college/${sport}/rankings/${division}/${year}/${week}`,
+            },
+          ]}
+        />
+        <header className="flex flex-col gap-4 border-b pb-6 md:flex-row md:items-end md:justify-between">
+          <div className="flex max-w-2xl flex-col gap-2">
+            <p className="text-brand text-sm font-semibold">
+              {pollDateLabel({
+                week: weekNumber,
+                year: yearNumber,
+                throughDate,
+              })}
+            </p>
+            <h1 className="headline text-4xl text-balance md:text-5xl">
+              {divisionLabel} Top 25
+            </h1>
+            <p className="text-muted-foreground text-pretty">
+              Our {divisionLabel} Top 25 uses a point system: 25 points for a
+              first-place vote down to 1 point for a 25th-place vote. Total
+              points determine the final rankings.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <RankingsFilters
+              years={yearsWithVotes}
+              weeks={weeksWithVotes}
+              currentYear={year}
+              currentWeek={week}
+            />
+          </div>
+        </header>
+      </div>
 
-      {top25.length > 0 ? (
+      {leader ? (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <section
             aria-label={`${divisionLabel} Top 25 poll`}
@@ -461,17 +479,15 @@ async function renderCollegeFootballRankingsPage({
                   title="This week"
                 />
                 <ul className="divide-y">
-                  {top25[0] ? (
-                    <HighlightRow
-                      label="No. 1"
-                      team={top25[0]}
-                      detail={
-                        top25[0].firstPlaceVotes
-                          ? `${top25[0].firstPlaceVotes} first-place votes`
-                          : `${top25[0]._points} points`
-                      }
-                    />
-                  ) : null}
+                  <HighlightRow
+                    label="No. 1"
+                    team={leader}
+                    detail={
+                      leader.firstPlaceVotes
+                        ? `${leader.firstPlaceVotes} first-place votes`
+                        : `${leader._points} points`
+                    }
+                  />
                   {highlights?.riser ? (
                     <HighlightRow
                       label="Biggest riser"
@@ -528,11 +544,11 @@ async function renderCollegeFootballRankingsPage({
           </EmptyHeader>
           <EmptyContent>
             <Link
-              href={`/college/${sport}/rankings/${division}` as Route}
+              href={`/college/${sport}/rankings` as Route}
               className={buttonVariants()}
               prefetch={false}
             >
-              Latest {divisionLabel} poll
+              Latest polls
             </Link>
           </EmptyContent>
         </Empty>

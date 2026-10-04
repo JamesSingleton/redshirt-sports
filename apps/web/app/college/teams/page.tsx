@@ -11,20 +11,11 @@ import type { Metadata } from "next";
 
 import PageHeader from "@/components/page-header";
 import { PageTransition } from "@/components/page-transition";
-import {
-  type DirectorySport,
-  TeamsDirectory,
-} from "@/components/teams/teams-directory";
+import { TeamsDirectory } from "@/components/teams/teams-directory";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedRankedSchoolSanityIds } from "@/lib/rankings-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-
-const SPORTS: DirectorySport[] = [
-  { slug: "football", label: "Football" },
-  { slug: "mens-basketball", label: "Men's basketball" },
-  { slug: "womens-basketball", label: "Women's basketball" },
-];
 
 export async function generateMetadata(): Promise<Metadata> {
   return getPageMetadata(
@@ -54,15 +45,15 @@ async function cachedRenderTeamsIndexPage({
   rankedIds,
 }: DynamicFetchOptions & { rankedIds: string[] }) {
   "use cache";
-  const { data: teams } = (await sanityFetchPage({
+  const { data } = (await sanityFetchPage({
     query: queryTeamsIndex,
     params: { rankedIds, minPosts: MIN_TEAM_PAGE_POSTS },
     perspective,
     stega,
   })) as { data: QueryTeamsIndexResult | null };
 
-  const directoryTeams = teams ?? [];
-  const sports = SPORTS.filter((sport) =>
+  const directoryTeams = data?.teams ?? [];
+  const sports = (data?.sports ?? []).filter((sport) =>
     directoryTeams.some((team) =>
       team.affiliations?.some(
         (affiliation) => affiliation.sport === sport.slug,

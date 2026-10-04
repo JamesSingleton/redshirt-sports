@@ -17,11 +17,8 @@ export function generateSitemaps() {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const yearsWithVotes = await fetchYearsWithVotesForSitemap();
-  const divisions = [
-    ...new Set(yearsWithVotes.map(({ division }) => division)),
-  ];
   return [
-    ...(divisions.length
+    ...(yearsWithVotes.length
       ? [
           {
             url: `${baseUrl}/college/football/rankings`,
@@ -30,11 +27,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
         ]
       : []),
-    ...divisions.map((division) => ({
-      url: `${baseUrl}/college/football/rankings/${division}`,
-      changeFrequency: "weekly" as const,
-      priority: 0.9,
-    })),
     ...yearsWithVotes.map(({ year, week, division }) => ({
       url: `${baseUrl}/college/football/rankings/${division}/${year}/${formatWeekSegment(week)}`,
       priority: 0.7,

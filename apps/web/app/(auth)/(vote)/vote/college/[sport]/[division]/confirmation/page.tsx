@@ -122,7 +122,7 @@ export async function VoteConfirmationContent({
   return (
     <>
       <PageHeader
-        title={header?.title ?? "Ballot submitted"}
+        title={header.title}
         subtitle={
           canEdit
             ? "Thanks for voting. You can edit your ballot until this week's rankings are published."

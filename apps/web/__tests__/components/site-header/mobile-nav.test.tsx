@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 
 import { MobileNav } from "@/components/site-header/mobile-nav";
 import type { Navigation } from "@/lib/navigation";
@@ -111,6 +117,23 @@ describe("MobileNav", () => {
     expect(
       within(drawer).getByRole("navigation", { name: "Mobile" }),
     ).toBeInTheDocument();
+  });
+
+  it("closes the drawer when a link is chosen", async () => {
+    render(
+      <MobileNav
+        navigation={navigation}
+        brandName="Redshirt Sports"
+        logo={<img src="/logo.svg" alt="" />}
+      />,
+    );
+    const drawer = openDrawer();
+
+    fireEvent.click(within(drawer).getByRole("link", { name: "FBS" }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
   });
 
   it("omits empty groups and the CTA when not configured", () => {

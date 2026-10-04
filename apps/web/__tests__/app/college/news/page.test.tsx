@@ -186,6 +186,40 @@ describe("CollegeNewsPage", () => {
     );
   });
 
+  it("renders only the All filter when sport filters are missing", async () => {
+    mockSanityFetchPage.mockImplementation(({ query }: { query: string }) =>
+      Promise.resolve({
+        data:
+          query === "querySportFilters"
+            ? null
+            : { posts: [samplePost], totalPosts: 1 },
+      }),
+    );
+
+    const page = await CollegeNewsPage({ searchParams: Promise.resolve({}) });
+    render(page as ReactNode);
+
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "All" })).toBeInTheDocument();
+  });
+
+  it("falls back to an empty label for untitled sports", async () => {
+    mockSanityFetchPage.mockImplementation(({ query }: { query: string }) =>
+      Promise.resolve({
+        data:
+          query === "querySportFilters"
+            ? [{ _id: "sport-x", title: null, slug: "untitled" }]
+            : { posts: [samplePost], totalPosts: 1 },
+      }),
+    );
+
+    const page = await CollegeNewsPage({ searchParams: Promise.resolve({}) });
+    const { container } = render(page as ReactNode);
+
+    const link = container.querySelector('a[href="/college/untitled/news"]');
+    expect(link).toHaveTextContent(/^$/);
+  });
+
   it("renders pagination when multiple pages exist", async () => {
     mockFeed({
       posts: Array.from({ length: 12 }, (_, i) => ({

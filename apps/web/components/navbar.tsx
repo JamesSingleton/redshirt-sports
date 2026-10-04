@@ -9,8 +9,15 @@ import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 import { SearchIcon } from "lucide-react";
 import Link from "next/link";
+import { stegaClean } from "next-sanity";
 
-import { toNavigation } from "@/lib/navigation";
+import {
+  type ResolveLatestRankingsHref,
+  resolveLatestRankingsLinks,
+  toNavigation,
+} from "@/lib/navigation";
+import { getCachedLatestPollWeek } from "@/lib/rankings-data";
+import { formatWeekSegment, SportSchema } from "@/utils/espn";
 import { HeaderSearch } from "./site-header/header-search";
 import { MobileNav } from "./site-header/mobile-nav";
 import { NavAnchor } from "./site-header/nav-anchor";
@@ -37,6 +44,19 @@ async function getCachedNavbarData({
   return data;
 }
 
+const resolveLatestRankingsHref: ResolveLatestRankingsHref = async (target) => {
+  const sport = SportSchema.safeParse(stegaClean(target.sport));
+  if (!sport.success) return null;
+  const division = stegaClean(target.poll);
+  const latest = await getCachedLatestPollWeek({
+    sport: sport.data,
+    division,
+  });
+  return latest
+    ? `/college/${sport.data}/rankings/${division}/${latest.year}/${formatWeekSegment(latest.week)}`
+    : null;
+};
+
 export async function CachedNavbarServer({
   perspective,
   stega,
@@ -44,7 +64,12 @@ export async function CachedNavbarServer({
   const data = await getCachedNavbarData({ perspective, stega });
   // `type` and `href` are on the stega denylist, so they stay plain strings
   // at runtime; only display text (names, titles) carries stega markers.
-  const navigation = toNavigation(data as QueryNavbarDataResult);
+  const navigation = toNavigation(
+    await resolveLatestRankingsLinks(
+      data as QueryNavbarDataResult,
+      resolveLatestRankingsHref,
+    ),
+  );
 
   return (
     <header className="bg-header text-header-foreground border-header-border sticky top-0 z-40 border-b">

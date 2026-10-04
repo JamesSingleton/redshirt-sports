@@ -69,7 +69,7 @@ export async function getCachedLatestPollWeek({
   );
   cacheLife(RANKINGS_CACHE_LIFE);
 
-  const latest = await getLatestFinalRankings({ division });
+  const latest = await getLatestFinalRankings({ division, sport });
   return latest ? { year: latest.year, week: latest.week } : null;
 }
 
@@ -89,7 +89,7 @@ export async function getCachedLatestPoll({
   );
   cacheLife(RANKINGS_CACHE_LIFE);
 
-  const latest = await getLatestFinalRankings({ division });
+  const latest = await getLatestFinalRankings({ division, sport });
   if (!latest) return null;
 
   try {

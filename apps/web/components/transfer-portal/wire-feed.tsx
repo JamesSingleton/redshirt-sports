@@ -34,16 +34,18 @@ export function WireFeed({
   const [failed, setFailed] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  function loadMore() {
-    if (!cursor) return;
+  function loadMore(pageCursor: string) {
     setFailed(false);
     startTransition(async () => {
       try {
-        const next = await loadMorePortalEntries({ ...query, cursor });
+        const next = await loadMorePortalEntries({
+          ...query,
+          cursor: pageCursor,
+        });
         startTransition(() => {
           setPages((current) => [
             ...current,
-            { cursor, entries: next.entries },
+            { cursor: pageCursor, entries: next.entries },
           ]);
           setCursor(next.nextCursor);
         });
@@ -79,7 +81,11 @@ export function WireFeed({
         </p>
       ) : null}
       {cursor ? (
-        <Button variant="outline" onClick={loadMore} disabled={isPending}>
+        <Button
+          variant="outline"
+          onClick={() => loadMore(cursor)}
+          disabled={isPending}
+        >
           {isPending ? <Spinner /> : null}
           Load more
         </Button>

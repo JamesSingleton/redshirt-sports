@@ -442,6 +442,31 @@ describe("PostPage", () => {
     );
   });
 
+  it("falls back to the subgrouping name and omits excerpt and date when missing", async () => {
+    mockSanityFetchPage.mockResolvedValue({
+      data: {
+        ...samplePost,
+        excerpt: null,
+        publishedAt: null,
+        conferences: [],
+        sportSubgrouping: {
+          slug: "fbs",
+          shortName: null,
+          name: "Football Bowl Subdivision",
+        },
+      },
+    });
+
+    await renderPost();
+
+    expect(
+      screen.getByRole("link", { name: "Football Bowl Subdivision" }),
+    ).toHaveAttribute("href", "/college/football/news/fbs");
+    expect(
+      screen.queryByText("A look ahead at Saturday."),
+    ).not.toBeInTheDocument();
+  });
+
   it("renders only the sport link and no credit when division, conferences and credit are missing", async () => {
     mockSanityFetchPage.mockResolvedValue({
       data: {

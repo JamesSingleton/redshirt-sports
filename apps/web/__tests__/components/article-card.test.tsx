@@ -1,6 +1,10 @@
 import { render, screen } from "@testing-library/react";
 
-import ArticleCard from "@/components/article-card";
+import ArticleCard, {
+  ArticleOverlayCard,
+  ArticleRow,
+  toSlugPath,
+} from "@/components/article-card";
 
 vi.mock("@/components/format-date", () => ({
   __esModule: true,
@@ -114,5 +118,157 @@ describe("ArticleCard", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: "Headline" }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("ArticleCard extras", () => {
+  it("renders a kicker, a shared-element image and date-only meta", () => {
+    const { container } = render(
+      <ArticleCard
+        id="post-1"
+        title="Kicker Story"
+        image={{ alt: "Field" }}
+        slug="kicker-story"
+        date="2026-02-01"
+        kicker="SEC"
+      />,
+    );
+
+    expect(screen.getByText("SEC")).toBeInTheDocument();
+    expect(screen.getByText("2026-02-01")).toBeInTheDocument();
+    expect(container.querySelector("article p span")).toBeNull();
+  });
+
+  it("omits meta when there is no author or date", () => {
+    const { container } = render(
+      <ArticleCard title="No Meta" image={null} slug="no-meta" />,
+    );
+    expect(container.querySelector("p")).toBeNull();
+  });
+
+  it("treats a slug object without current as unlinked", () => {
+    render(
+      <ArticleCard
+        title="Slugless"
+        image={null}
+        slug={{ _type: "slug" } as never}
+      />,
+    );
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  });
+});
+
+describe("toSlugPath", () => {
+  it("normalizes strings, slug objects and nullish values", () => {
+    expect(toSlugPath("a")).toBe("a");
+    expect(toSlugPath({ _type: "slug", current: "b" })).toBe("b");
+    expect(toSlugPath({ _type: "slug" } as never)).toBeNull();
+    expect(toSlugPath(null)).toBeNull();
+    expect(toSlugPath(undefined)).toBeNull();
+  });
+});
+
+describe("ArticleRow", () => {
+  it("renders a linked h3 title with meta", () => {
+    render(
+      <ArticleRow
+        id="row-1"
+        title="Row Story"
+        image={null}
+        slug="row-story"
+        author="Writer"
+        date="2026-03-01"
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Row Story" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Row Story" })).toHaveAttribute(
+      "href",
+      "/row-story",
+    );
+    expect(screen.getByText("Writer")).toBeInTheDocument();
+  });
+
+  it("renders a plain title at the requested level without a slug", () => {
+    render(
+      <ArticleRow
+        title="Plain Row"
+        image={null}
+        slug={null}
+        headingLevel="h4"
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 4, name: "Plain Row" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  });
+});
+
+describe("ArticleOverlayCard", () => {
+  it("renders a linked overlay with kicker, excerpt, author and date", () => {
+    render(
+      <ArticleOverlayCard
+        id="lead-1"
+        title="Lead Story"
+        excerpt="The excerpt"
+        image={{ alt: "Hero" }}
+        imagePriority
+        slug="lead-story"
+        author="Reporter"
+        date="2026-04-01"
+        kicker="Big Ten"
+        headingLevel="h1"
+        sizes="100vw"
+        className="extra"
+        imageClassName="aspect-square"
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Lead Story" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/lead-story");
+    expect(screen.getByText("Big Ten")).toBeInTheDocument();
+    expect(screen.getByText("The excerpt")).toBeInTheDocument();
+    expect(screen.getByText("Reporter")).toBeInTheDocument();
+    expect(screen.getByText("2026-04-01")).toBeInTheDocument();
+    expect(screen.getByRole("img")).toHaveAttribute("data-priority", "true");
+  });
+
+  it("renders an unlinked h2 overlay with only a date", () => {
+    render(
+      <ArticleOverlayCard
+        title="Date Only"
+        image={null}
+        slug={null}
+        date="2026-05-01"
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Date Only" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(screen.getByText("2026-05-01")).toBeInTheDocument();
+  });
+
+  it("renders only the author when there is no date, and no meta when neither", () => {
+    const { rerender, container } = render(
+      <ArticleOverlayCard
+        title="Author Only"
+        image={null}
+        slug="author-only"
+        author="Solo"
+      />,
+    );
+    expect(screen.getByText("Solo")).toBeInTheDocument();
+    expect(container.querySelector("time")).toBeNull();
+
+    rerender(<ArticleOverlayCard title="Bare" image={null} slug="bare" />);
+    expect(container.querySelector("p")).toBeNull();
   });
 });

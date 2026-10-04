@@ -80,12 +80,13 @@ export const customUrl = defineType({
       type: "string",
       title: "Internal link type",
       description:
-        "Choose how to link to a page on this site. School/team pages use Document; sport news archives use Sport news archive.",
+        "Choose how to link to a page on this site. School/team pages use Document; sport news archives use Sport news archive; Top 25 polls use Latest rankings.",
       hidden: ({ parent }) => parent?.type !== "internal",
       options: createRadioListLayout([
         { title: "Document", value: "reference" },
         { title: "Custom path", value: "custom" },
         { title: "Sport news archive", value: "sportNews" },
+        { title: "Latest rankings", value: "latestRankings" },
       ]),
       initialValue: () => "reference",
       validation: (rule) => [
@@ -168,6 +169,34 @@ export const customUrl = defineType({
             !(value as { sport?: { _ref?: string } })?.sport?._ref
           ) {
             return "Sport news archive link is required";
+          }
+          return true;
+        }),
+      ],
+    }),
+    defineField({
+      name: "latestRankingsLink",
+      title: "Latest rankings",
+      type: "latestRankingsLink",
+      description:
+        "Links to the newest published poll, so it never needs updating each week. Only the navbar supports this today; it is hidden there until the poll has rankings.",
+      hidden: ({ parent }) =>
+        parent?.type !== "internal" ||
+        parent?.internalType !== "latestRankings",
+      validation: (rule) => [
+        rule.custom((value, { parent }) => {
+          const type = (parent as { type?: string })?.type;
+          const internalType = (parent as { internalType?: string })
+            ?.internalType;
+          const link = value as
+            | { sport?: { _ref?: string }; poll?: { _ref?: string } }
+            | undefined;
+          if (
+            type === "internal" &&
+            internalType === "latestRankings" &&
+            (!link?.sport?._ref || !link.poll?._ref)
+          ) {
+            return "Pick a sport and a division or subgrouping";
           }
           return true;
         }),

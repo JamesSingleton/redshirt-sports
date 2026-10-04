@@ -15,9 +15,10 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import type { CollectionPage, WithContext } from "schema-dts";
 
+import { RouteFilterCombobox } from "@/components/filter-combobox";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
-import { FilterCombobox } from "@/components/news/filter-combobox";
 import { NewsListing } from "@/components/news/news-listing";
+import { NewsListingSkeleton } from "@/components/news/news-listing-skeleton";
 import PageHeader from "@/components/page-header";
 import { PageTransition } from "@/components/page-transition";
 import { PollAside } from "@/components/rankings/poll-aside";
@@ -108,7 +109,7 @@ export default function Page({
   params: Promise<{ sport: string; division: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  return searchParamsPage(null, () =>
+  return searchParamsPage(<NewsListingSkeleton />, () =>
     renderDivisionNewsPage({ params, searchParams }),
   );
 }
@@ -265,7 +266,8 @@ async function cachedRenderDivisionNewsPage({
   const conferenceFilters = (conferenceFiltersResponse.data ?? []).map(
     (conference) => ({
       key: conference._id,
-      label: conference.name ?? "",
+      label: conference.name,
+      keywords: conference.fullName,
       href: `${basePath}/${conference.slug}`,
     }),
   );
@@ -280,10 +282,10 @@ async function cachedRenderDivisionNewsPage({
         title={`${divisionOrSubgroupingName} ${sportInfo?.title} News`}
         breadcrumbs={breadcrumbItems}
       >
-        <FilterCombobox
+        <RouteFilterCombobox
           label="Conference"
           items={[
-            { key: "all", label: "All", href: basePath },
+            { key: "all", label: "All conferences", href: basePath },
             ...conferenceFilters,
           ]}
           activeHref={basePath}

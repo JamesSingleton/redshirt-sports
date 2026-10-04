@@ -86,7 +86,13 @@ async function renderSportHub(
     notFound();
   }
 
-  return <SportHubView data={data} aside={<PollAside sport={sport} />} />;
+  return (
+    <SportHubView
+      data={data}
+      sport={data.sport}
+      aside={<PollAside sport={sport} />}
+    />
+  );
 }
 
 async function getCachedSportHubData(
@@ -107,14 +113,13 @@ type HubData = Awaited<ReturnType<typeof getCachedSportHubData>>;
 
 function SportHubView({
   data,
+  sport,
   aside,
 }: {
   data: HubData;
+  sport: NonNullable<HubData["sport"]>;
   aside: React.ReactNode;
 }) {
-  const sport = data.sport;
-  if (!sport) return null;
-
   const sportPath = `/college/${sport.slug}`;
   const shown = new Set(data.latest.map((post) => post._id));
   const sections = data.groups.flatMap((group) => {

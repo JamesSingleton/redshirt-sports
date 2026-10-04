@@ -53,7 +53,12 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/components/page-header", () => ({
   __esModule: true,
-  default: ({ title }: { title: string }) => <h1>{title}</h1>,
+  default: ({ title, children }: { title: string; children?: ReactNode }) => (
+    <div>
+      <h1>{title}</h1>
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock("@/components/page-transition", () => ({
@@ -170,6 +175,41 @@ describe("SportNewsPage", () => {
       screen.getByRole("heading", { name: "College Football News" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Football Story")).toBeInTheDocument();
+  });
+
+  it("renders division filter links, falling back to an empty label", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({
+        data: {
+          posts: [{ _id: "1", title: "Football Story" }],
+          totalPosts: 1,
+        },
+      })
+      .mockResolvedValueOnce({ data: { title: "Football" } })
+      .mockResolvedValueOnce({
+        data: {
+          subgroupings: [{ _id: "sub-fcs", name: "FCS", slug: "fcs" }],
+          divisions: [{ _id: "div-d2", name: null, slug: "d2" }],
+        },
+      });
+
+    const page = await SportNewsPage({
+      params: Promise.resolve({ sport: "football" }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page as ReactNode);
+
+    expect(screen.getByRole("link", { name: "FCS" })).toHaveAttribute(
+      "href",
+      "/college/football/news/fcs",
+    );
+    expect(
+      screen
+        .getAllByRole("link")
+        .some(
+          (link) => link.getAttribute("href") === "/college/football/news/d2",
+        ),
+    ).toBe(true);
   });
 
   it("renders pagination when multiple pages exist", async () => {
