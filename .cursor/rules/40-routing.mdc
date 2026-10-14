@@ -1,0 +1,19 @@
+---
+description: App Router routing, URL, redirect, pagination and caching rules
+globs: apps/*/app/**,apps/*/next.config.ts,apps/*/proxy.ts,**/middleware.ts,packages/next-config/**,packages/seo/**
+alwaysApply: false
+---
+
+# Routing and URLs
+
+- **Folders = URLs, zero rewrites.** Every `page.tsx` path equals its public URL. Never add `rewrites()` or `NextResponse.rewrite`, and keep `proxy.ts` for auth only.
+- **Redirects: legacy one-time 301s, plus automatic slug-change 301s.** The existing `next.config.ts` `redirects()` reads Sanity `redirect` docs and forces `permanent: true`. Sanity `auto-redirect` may create a permanent 301 when a slug changes. No new redirects for "latest" pages, `?page=1`, case, or roles. `/college` has no page (404). The onboarding redirect in `apps/web/proxy.ts` stays for voters only (A3) and later moves with voting.
+- **Level → sport tree (v1.6):** keep `app/college/[sport]` as a dynamic segment with `generateStaticParams` + `dynamicParams = false` (do not add `college/page.tsx`; `/college` 404s). `college/news/page.tsx` stays. Never use a root `[sport]`/`[level]` segment. `college` and `high-school` are reserved root segments; `/high-school` 404s until it's designed.
+- **Keep today's URLs working.** `/college/{sport}/news` and `/college/news` keep their URLs (no redirect). Decision #18 moves the rest, each with its legacy 301 in the same PR: rankings week segment (`/2026/7` → `/2026/week-7`, `0` → `preseason`, `final-rankings` → `final`), `/college/{sport}/news/{division}` → `/college/{sport}/{division}/news` (constrain `:division` to known slugs), `/college/teams/{slug}` → `/teams/{school-nickname}`, root `/[slug]` → `/college/{sport}/news/{slug}`, `/authors/*` → `/people/*`, `/vote/*` → `vote.`. Build the new route, verify it, then add the legacy 301 in the same PR. Never leave a URL 404ing in between. `/college` stays a 404 (it was never a live URL).
+- `?page=n` pagination: parse with zod. Page 1 has no param, canonical `…?page=n` for n>1, invalid or out-of-range pages `notFound()`, no rel prev/next.
+- Filtered list pages such as the Portal Tracker `/transfer-portal`: filters live in `searchParams`, invalid values are dropped, and canonical keeps only sport/division/page. Other filters are `noindex, follow`. Client filter changes use `router.replace` (navigation, not a redirect).
+- Root reserved segments (`RESERVED_ROOT_SEGMENTS`, blueprint §12) must include every top-level folder, including `teams` and `transfer-portal`.
+- Caching: data functions use `"use cache"` + `cacheTag` + `cacheLife`. The page shell is prerendered and dynamic islands sit in `<Suspense>`. Tags are expired from Sanity/admin webhooks.
+- Build URLs with a single `urls` helper (blueprint `@rs/seo/urls`; create it in the existing package layout) and never hand-build path strings in components.
+- No `/scores`, `/games`, `/live`, `/players`, `/page/n`, a root `[sport]`/`[level]` segment, or sport-scoped team hubs (team hubs are `/teams/{school-nickname}/{sport}`).
+- **Rankings tabs (v1.7)** are real URLs: Poll `…/rankings/{division}`, Ballots `…/{division}/{year}/{week}/ballots` (all ballots, default) and `…/ballots/by-voter`, Voters `…/{division}/voters`, History `…/{division}/history` (+ `/history/{year}`), Methodology `…/rankings/methodology`. The static `history` and `by-voter` folders win over the sibling `[year]`/`[voter]` segments; reserve `by-voter` as a voter slug. View params on these pages (`?voters=`, `?q=`, `?sort=`) never change the canonical; only `?page=n` paginates.

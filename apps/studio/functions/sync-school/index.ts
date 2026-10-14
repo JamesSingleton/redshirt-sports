@@ -8,21 +8,18 @@ export const handler = documentEventHandler(async ({ context, event }) => {
   const { data } = event;
   const { local } = context;
 
-  const target =
-    process.env.SCHOOL_SYNC_URL ??
-    "https://www.redshirtsports.com/api/webhooks/sanity/school";
+  const target = process.env.SCHOOL_SYNC_URL;
   const secret = process.env.SCHOOL_SYNC_SECRET;
 
-  if (!secret) {
-    console.error("SCHOOL_SYNC_SECRET is not configured");
+  if (!target || local) {
+    console.log(
+      `(mock) school sync skipped for ${data._id}; not calling production`,
+    );
     return;
   }
 
-  if (local) {
-    console.log(
-      `(LOCAL TEST MODE) Would sync school ${data._id} → ${target}`,
-      data,
-    );
+  if (!secret) {
+    console.error("SCHOOL_SYNC_SECRET is not configured");
     return;
   }
 

@@ -34,19 +34,19 @@ Competition level under a Governing Body (e.g. NCAA Division I, NCAA Division II
 
 Reader-facing competitive bucket within a Classification and Sport — e.g. FBS and FCS in Division I football; Power Conferences and Mid-Major in Division I basketball. These are what people search and browse for, not the parent Classification alone. Editorial taxonomy (Sanity); not the same as a Poll.
 
-Avoid: calling FBS/FCS/Power Conferences/Mid-Major a Classification; using “Division” as the canonical name for these buckets (legacy URL/UI only).
+Avoid: calling FBS/FCS/Power Conferences/Mid-Major a Classification; calling a Sport Subgrouping a replacement for Division. A Sport Subgrouping is a slice inside a division. Browse Scope is retired.
 
-## Browse Scope
+## Division
 
-The high-level competitive slice a reader picks for a Sport’s news, rankings, or voting. For a given Sport, a Browse Scope is either a Sport Subgrouping (when the Classification is split for browsing — e.g. FBS, FCS, Power Conference, Mid-Major) or a Classification with no such split (e.g. Division II, Division III).
+The competitive slice a reader picks for a Sport’s news, rankings, or voting: football `fbs`, `fcs`, `d2`, `d3`, `naia`; basketball `d1` (plus subgroupings such as Power Conference / Mid-Major when split), `d2`, `d3`.
 
-Examples: football Browse Scopes include FBS, FCS, Division II, Division III; men’s/women’s basketball Browse Scopes include Power Conference, Mid-Major, Division II, Division III.
+Formerly called Browse Scope; that term is retired. Code, schema, and copy use `division`.
 
-Avoid: calling every Browse Scope a Division or a Sport Subgrouping; assuming Division I itself is a Browse Scope when subgroupings exist.
+Avoid: calling every division a Classification or a Sport Subgrouping; assuming Division I itself is the browse slot when subgroupings exist.
 
 ## Poll
 
-First-class operational product in Postgres (`polls`): a Sport + Browse Scope (slug) that has voter assignments, Ballots, and published Rankings. Distinct from Sport Subgrouping / Browse Scope (editorial taxonomy). Seeded from `division_sports` today (e.g. football/fcs, mens-basketball/mid-major).
+First-class operational product in Postgres (`polls`): a Sport + Division (slug) that has voter assignments, Ballots, and published Rankings. Distinct from Sport Subgrouping (editorial taxonomy inside a division). Seeded from `division_sports` today (e.g. football/fcs, mens-basketball/mid-major).
 
 Avoid: treating a bare division string as the poll identity; authorizing any global voter for every poll URL.
 
@@ -114,7 +114,7 @@ The media or institutional affiliation of a Voter (or User) — e.g. Sports Illu
 
 ## Sport
 
-A first-class competitive category that partitions news, Browse Scopes, Ballots, and Rankings — e.g. Football, Men’s Basketball, Women’s Basketball. Men’s and Women’s Basketball are distinct Sports.
+A first-class competitive category that partitions news, Divisions, Ballots, and Rankings — e.g. Football, Men’s Basketball, Women’s Basketball. Men’s and Women’s Basketball are distinct Sports.
 
 ## Governing Body
 
@@ -123,12 +123,6 @@ An organization that defines Classifications (e.g. NCAA, NAIA, NJCAA). Classific
 ## User
 
 A signed-in account holder. May be a Voter, an Admin, both, or neither. Distinct from Author.
-
-## Division (legacy)
-
-Historical / URL label often used where Browse Scope is meant. Not a canonical domain term going forward. Poll slugs may still match legacy URL segments (fcs, fbs, mid-major, …).
-
-Avoid: using Division as the glossary name for FBS, FCS, Power Conference, Mid-Major, or the browse slot in general.
 
 ## Retired poll storage
 
