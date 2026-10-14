@@ -1,0 +1,16 @@
+---
+description: Tailwind v4 CSS-first + shadcn design-system rules for UI code
+globs: packages/ui/**,apps/*/components/**,apps/*/app/**/*.tsx,**/*.css
+alwaysApply: false
+---
+
+# UI (Tailwind v4 + shadcn)
+
+- Tokens are defined only in `packages/ui/src/styles/globals.css` (`@theme inline`, oklch, light/dark via `.dark`). The reference token set is blueprint §32.4, with the compiled mockup CSS in `docs/mockups/src/app.css`. No `tailwind.config.*` and no hex colors or arbitrary color values in components.
+- Custom utilities use v4 `@utility` (with nested `@variant` for breakpoints) in the shared CSS, not plugins.
+- Add shadcn primitives to `packages/ui/src/components` via `components.json` (see `.agents/skills/shadcn`). App-specific compositions live in `apps/*/components`.
+- Fonts: Barlow Condensed (display), Inter (UI) and Source Serif 4 (article body), via `next/font`.
+- Screens should match the mockups in `docs/mockups/` (open the `.html` files or compare against `docs/mockups/screenshots/*.png`), **except the Transfer Portal Tracker**, whose UI is pending a redesign (Open Decision #17). For the tracker, follow only the layout technique: named `grid-template-areas` that restack on mobile.
+- Accessibility: AA contrast for every token pair, visible focus states, semantic lists and tables, `aria-hidden` on decorative icons, and real `<a href="?page=n">` pagination links.
+- Ads reserve their height (CLS ≤ 0.05). No sign-in modals on load. Follow and save prompts respect the prompt budget (§31).
+- Images: use the `SanityImage` wrapper (`sanity-image`), AVIF/WebP, under 200 KB, with explicit dimensions, `priority` only on the LCP hero, and no upscaling.

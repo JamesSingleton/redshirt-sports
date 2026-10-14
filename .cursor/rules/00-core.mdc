@@ -1,0 +1,47 @@
+---
+description: Redshirt Sports core rules (stack, product scope, URLs, images). Always applied.
+alwaysApply: true
+---
+
+# Redshirt Sports: core rules
+
+This repo is the live Redshirt Sports site. `docs/blueprint/` (v1.5, handoff edition) is the **target architecture**. We **evolve this repo incrementally**: the site stays live, nothing gets rebuilt from scratch, and any URL that moves gets a one-time legacy 301. Work milestone by milestone from `docs/blueprint/BUILD_ORDER.md`, starting with Milestone 0 (the audit). Local development only: see `01-local-only.mdc`.
+
+## Before writing code
+- Read the relevant `docs/blueprint/NN-*.md` section and `CONTEXT.md`, the domain glossary (School, Browse Scope, Poll, Ballot, Rankings, Week…). Use its terms in code and copy.
+- Next.js, Turborepo, Sanity and Clerk move fast. Check the installed versions' docs (`node_modules/next/dist/docs/`, the turbo package's `docs/`) and the skills in `.agents/skills/` before using an API. Leave the tool-managed blocks in `AGENTS.md` and `apps/web/AGENTS.md` alone.
+- The repo's names win over the blueprint's: `@rs/*` in the docs means the existing `@redshirt-sports/*` package; `supabase/migrations` means `apps/web/supabase/migrations`; `pnpm typecheck` means `pnpm check:types`.
+- One milestone = one PR on a feature branch. Never push to `main`.
+
+## Stack (do not swap any of these)
+- **Next.js App Router** (Cache Components: `"use cache"`, `cacheTag`, `cacheLife`; Server Components by default), React 19, TypeScript.
+- **Turborepo + pnpm** workspaces, with the version catalog in `pnpm-workspace.yaml`. Biome for lint/format, Vitest for tests.
+- **Tailwind CSS v4, CSS-first**: tokens live in `packages/ui/src/styles/globals.css` (`@theme inline`, oklch). **No `tailwind.config.*`** and no hard-coded hex colors in components.
+- **shadcn/ui** components in `packages/ui`, via `components.json`.
+- **Drizzle ORM** for all Postgres access (schema in `packages/db`, migrations from drizzle-kit). **Supabase Postgres with RLS** on every table (deny by default).
+- **Clerk** for auth (roles in metadata, webhooks via svix).
+- **Sanity** for content (schemas in `apps/studio/schemaTypes`, GROQ in `packages/sanity`, typegen). **`sanity-image`** for images: no custom `next/image` Sanity loader.
+
+## URL and routing rules (non-negotiable)
+- **Zero rewrites.** No `rewrites()` in any `next.config`, no `NextResponse.rewrite`, no proxy routes. App Router folders map 1:1 to public URLs.
+- **The only redirects allowed are one-time permanent (301/308) legacy redirects** from old Redshirt URLs (blueprint §27). No slug-change, "latest", `?page=1`, case-normalization or role-based redirects: render in place, set a canonical, or 404. Sign-in protection by Clerk is the one auth exception.
+- Pagination is **`?page=n`** only: page 1 has no param, every page self-canonicalizes, there is no rel prev/next, and an invalid page returns 404. Never `/page/n`.
+- Team hubs: `/teams/{school-nickname}`. Voting target: **`vote.redshirtsports.com`** (today it lives at `/vote` in `apps/web`; don't add new voting surfaces to www).
+
+## Product scope: refuse to build
+- No game, score, standings or schedule data products. No live blogs (`*/live/*`), rosters, player pages or player DBs. Outbound link cards instead (§15). The ESPN client is for the poll week calendar only.
+- **No fan vote** and no fan-built Top 25 (removed in v1.5). The only Top 25 is the credentialed voters' poll.
+- **No comments or forums.** No sign-in modals on page load or first article view.
+- No portal or recruiting databases, feeds or scrapers. The Transfer Portal Tracker is editor-maintained Sanity `portalEntry` docs.
+
+## Transfer Portal Tracker (flags)
+- **In scope, but the UI needs a redesign before anyone builds it.** Build the schema, GROQ, route and `searchParams` plumbing first. Don't build `PortalRow`, filters or summary cards from the v1.5 mockups until James approves the new design (Open Decision #17).
+- **The story link is optional, pending Open Decision #16.** It shows a Studio warning, not `required()`. Never hide or reject entries for a missing story unless the decision changes.
+
+## Images
+- Serve **AVIF/WebP** (`auto=format`, the `sanity-image` default). Keep the largest rendered image **under 200 KB** (quality around 75), set width/height, keep hotspot/crop, add LQIP to heroes, and never upscale. Static assets are committed as WebP/AVIF under 200 KB.
+
+## Done means
+- `pnpm lint`, `pnpm check:types` and the relevant `pnpm test` pass. DB changes come with a generated migration and RLS tests.
+- `rg -n "rewrites|NextResponse.rewrite" apps packages` returns nothing.
+- The PR description lists which blueprint section and acceptance boxes it satisfies.

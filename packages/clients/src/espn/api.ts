@@ -28,6 +28,9 @@ const SPORT_MAPPINGS = {
 } as const;
 
 /**
+ * ESPN calendar client for poll weeks only. Do not use this for scores,
+ * standings, schedules, or rosters (blueprint §15).
+ *
  * ESPN API base URLs
  */
 const ESPN_BASE_SITE_URL = "https://site.api.espn.com/apis/common/v3/sports";

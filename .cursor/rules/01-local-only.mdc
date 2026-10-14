@@ -1,0 +1,28 @@
+---
+description: Local-only development. Never touch remote or production Supabase, Neon, Vercel, Sanity, Clerk or Resend. Always applied.
+alwaysApply: true
+---
+
+# Local only, never remote
+
+Cursor works against a **local stack**. If a task seems to need a remote or production system, stop and ask James instead of finding a workaround. Full guide: `docs/blueprint/LOCAL_DEVELOPMENT.md`.
+
+## Database: local Supabase only
+- Start it with `supabase start --workdir apps/web` (Docker). Postgres listens on **127.0.0.1:54322**, Studio on :54323 and the Inbucket mail viewer on :54324.
+- `DATABASE_URL` must be `postgresql://postgres:postgres@127.0.0.1:54322/postgres` (or `localhost`). Run `node scripts/assert-local-env.mjs` before any DB command. It refuses any other host.
+- `drizzle-kit generate` is always fine. Run **`drizzle-kit migrate` / `push`** (`pnpm db:migrate`, `pnpm db:push`) **only when DATABASE_URL is local.** `supabase db reset` only with `--local`.
+- Seed with example data only (`pnpm db:seed:example`, `apps/web/supabase/seed.sql`, `packages/db/seeds/*`). Use clearly fake names, never real voters' or users' data.
+- Never use `PROD_DATABASE_URL` or `pnpm db:dump-prod`, and never set them in a Cursor session. A production dump, if one is ever needed, is something James runs himself.
+
+## Never do these (no exceptions, even if a script or doc suggests it)
+- Never run SQL, migrations, `supabase link`, `supabase db push`, `supabase db reset --linked` or `drizzle-kit push/migrate` against a **remote** Supabase or Neon database.
+- Never call **MCP tools that touch real projects**: Supabase (`execute_sql`, `apply_migration`, branches…), Neon (`run_sql`, branches, endpoints…), Vercel (deployments, env, domains, projects…), Sanity (create/patch/publish/delete documents, deploy schema/studio, datasets) and Clerk (users, instance config). Read-only documentation search tools are fine.
+- **No deploys:** no `vercel`, `vercel deploy`, `vercel --prod`, `sanity deploy`, `sanity schema deploy`, `sanity blueprints deploy` or Studio `pnpm deploy` / `pnpm deploy:schema`. Don't trigger GitHub workflows that migrate or deploy.
+- **No `vercel env pull`** and no copying production secrets into `.env*` files. Never commit `.env.local`.
+
+## Services in development mode
+- **Sanity:** a non-production dataset only (`development`, or seeded fixtures from `docs/blueprint/local-dev/`). If `SANITY_*_DATASET` is `production`, stop. Writes such as fixture imports go to `development`, and only when James asks.
+- **Clerk:** development instance keys only (`pk_test_…` / `sk_test_…`). Webhooks come in through a local tunnel to `localhost:3000/api/webhooks/auth`.
+- **Resend:** test mode only. Send only to `delivered@resend.dev` / `bounced@resend.dev`, or set `EMAIL_TRANSPORT=preview` to render to the React Email preview / `.local-email/`. Never send to real addresses.
+- **School sync / revalidation webhooks:** point them at `http://localhost:3000/...` (`SCHOOL_SYNC_URL`), never at production.
+- **PostHog / Sentry / Upstash:** leave PostHog and Sentry keys empty locally. Point Upstash at a local Redis HTTP proxy (see `LOCAL_DEVELOPMENT.md`).

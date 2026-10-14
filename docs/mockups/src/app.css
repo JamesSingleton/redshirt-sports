@@ -1,0 +1,205 @@
+/* packages/ui/src/styles/globals.css — Redshirt theme (Tailwind v4, CSS-first, shadcn/ui tokens)
+   Mockup copy: identical tokens to the production file described in §32.4. */
+@import "tailwindcss";
+@source "../*.html";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Fonts (self-hosted, OFL) ---------- */
+@font-face { font-family: "Barlow Condensed"; font-weight: 500; font-display: swap; src: url("../fonts/barlow-condensed-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-weight: 600; font-display: swap; src: url("../fonts/barlow-condensed-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-weight: 700; font-display: swap; src: url("../fonts/barlow-condensed-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-weight: 800; font-display: swap; src: url("../fonts/barlow-condensed-latin-800-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter Variable"; font-weight: 100 900; font-display: swap; src: url("../fonts/inter-latin-wght-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Serif 4 Variable"; font-weight: 200 900; font-display: swap; src: url("../fonts/source-serif-4-latin-wght-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Serif 4 Variable"; font-style: italic; font-weight: 200 900; font-display: swap; src: url("../fonts/source-serif-4-latin-wght-italic.woff2") format("woff2"); }
+
+/* ---------- Semantic tokens (shadcn naming) ---------- */
+:root {
+  --radius: 0.5rem;
+
+  --background: oklch(0.992 0.002 75);          /* warm paper white */
+  --foreground: oklch(0.18 0.01 260);           /* ink */
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+
+  --primary: oklch(0.505 0.19 27);              /* Redshirt red */
+  --primary-foreground: oklch(0.985 0.005 27);
+  --secondary: oklch(0.955 0.004 260);
+  --secondary-foreground: oklch(0.22 0.01 260);
+  --muted: oklch(0.962 0.003 260);
+  --muted-foreground: oklch(0.48 0.012 260);
+  --accent: oklch(0.955 0.012 27);              /* faint red wash for hovers/selected */
+  --accent-foreground: oklch(0.38 0.15 27);
+  --destructive: oklch(0.577 0.245 27.3);
+  --border: oklch(0.91 0.004 260);
+  --input: oklch(0.89 0.004 260);
+  --ring: oklch(0.505 0.19 27);
+
+  /* Brand extensions */
+  --ink: oklch(0.16 0.012 260);                 /* masthead / ticker bar */
+  --ink-foreground: oklch(0.97 0.003 260);
+  --up: oklch(0.56 0.15 150);                   /* rank moved up */
+  --down: oklch(0.55 0.19 25);                  /* rank moved down */
+  --new: oklch(0.55 0.14 250);                  /* newly ranked */
+  --gold: oklch(0.78 0.14 85);                  /* first-place votes, champion */
+  --live: oklch(0.63 0.2 145);                  /* "open" voting windows, not live scores */
+
+  --chart-1: oklch(0.505 0.19 27);
+  --chart-2: oklch(0.55 0.14 250);
+  --chart-3: oklch(0.56 0.15 150);
+  --chart-4: oklch(0.78 0.14 85);
+  --chart-5: oklch(0.48 0.012 260);
+
+  --sidebar: oklch(0.985 0.002 260);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+.dark {
+  --background: oklch(0.16 0.008 260);
+  --foreground: oklch(0.96 0.004 260);
+  --card: oklch(0.2 0.009 260);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.2 0.009 260);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.64 0.2 25);
+  --primary-foreground: oklch(0.16 0.02 25);
+  --secondary: oklch(0.26 0.01 260);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.25 0.01 260);
+  --muted-foreground: oklch(0.7 0.012 260);
+  --accent: oklch(0.28 0.05 25);
+  --accent-foreground: oklch(0.9 0.05 25);
+  --destructive: oklch(0.704 0.191 22.2);
+  --border: oklch(1 0 0 / 11%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.64 0.2 25);
+  --ink: oklch(0.12 0.008 260);
+  --ink-foreground: oklch(0.96 0.004 260);
+  --up: oklch(0.72 0.16 150);
+  --down: oklch(0.7 0.17 25);
+  --new: oklch(0.72 0.12 250);
+  --gold: oklch(0.82 0.14 85);
+}
+
+/* ---------- Map tokens to Tailwind utilities ---------- */
+@theme inline {
+  --font-display: "Barlow Condensed", "Arial Narrow", ui-sans-serif, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Source Serif 4 Variable", Georgia, ui-serif, serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-up: var(--up);
+  --color-down: var(--down);
+  --color-new: var(--new);
+  --color-gold: var(--gold);
+  --color-live: var(--live);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Editorial type scale (display uses Barlow Condensed, tight leading) */
+  --text-kicker: 0.75rem;
+  --text-kicker--letter-spacing: 0.08em;
+  --text-headline-sm: 1.375rem;
+  --text-headline-sm--line-height: 1.1;
+  --text-headline: 2rem;
+  --text-headline--line-height: 1.05;
+  --text-headline-lg: 3.25rem;
+  --text-headline-lg--line-height: 1;
+  --container-prose: 42rem;
+  --container-site: 82rem;
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground font-sans antialiased; font-feature-settings: "cv11", "ss01"; }
+  h1, h2, h3, .font-display { font-family: var(--font-display); }
+  :focus-visible { @apply outline-2 outline-offset-2 outline-ring; }
+}
+
+/* ---------- Small utilities used by custom components ---------- */
+@utility kicker { @apply font-display text-kicker uppercase font-bold tracking-[0.08em]; }
+@utility tabular { font-variant-numeric: tabular-nums; }
+@utility ph-photo {
+  background:
+    repeating-linear-gradient(135deg, oklch(0.5 0 0 / 0.06) 0 12px, transparent 12px 24px),
+    linear-gradient(135deg, var(--muted), var(--secondary));
+}
+@utility ad-slot {
+  background: repeating-linear-gradient(45deg, oklch(0.5 0 0 / 0.04) 0 8px, transparent 8px 16px), var(--muted);
+}
+
+/* ---------- Transfer portal tracker row (named grid areas) ----------
+   Mobile first: stacked card. lg: one wide row whose columns line up with the header. */
+@utility portal-row {
+  display: grid;
+  grid-template-areas:
+    "avatar name    status"
+    "avatar meta    meta"
+    "schools schools schools"
+    "date   date    story";
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  column-gap: 0.75rem;
+  row-gap: 0.375rem;
+  align-items: center;
+  @variant lg {
+    grid-template-areas:
+      "avatar name pos schools status story"
+      "avatar meta pos schools date   story";
+    grid-template-columns: 2.75rem minmax(0, 1.35fr) 3.25rem minmax(0, 2fr) 6.5rem 7rem;
+    column-gap: 1rem;
+    row-gap: 0.125rem;
+  }
+}
+@utility portal-row-head {
+  display: none;
+  @variant lg {
+    display: grid;
+    grid-template-areas: "avatar name pos schools status story";
+    grid-template-columns: 2.75rem minmax(0, 1.35fr) 3.25rem minmax(0, 2fr) 6.5rem 7rem;
+    column-gap: 1rem;
+  }
+}

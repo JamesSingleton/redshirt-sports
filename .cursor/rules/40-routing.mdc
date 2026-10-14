@@ -1,0 +1,17 @@
+---
+description: App Router routing, URL, redirect, pagination and caching rules
+globs: apps/*/app/**,apps/*/next.config.ts,apps/*/proxy.ts,**/middleware.ts,packages/next-config/**,packages/seo/**
+alwaysApply: false
+---
+
+# Routing and URLs
+
+- **Folders = URLs, zero rewrites.** Every `page.tsx` path equals its public URL. Never add `rewrites()` or `NextResponse.rewrite`, and keep `proxy.ts` for auth only.
+- **Redirects: legacy one-time 301s only.** The existing `next.config.ts` `redirects()` reads Sanity `redirect` docs. Keep it for legacy URLs, but every entry must be permanent (301/308); fixing `permanent: redirect.permanent === true` is a Milestone 0 item. No new redirects for slug changes, "latest" pages, `?page=1`, case, or roles. The onboarding redirect in `apps/web/proxy.ts` is grandfathered until Milestone 0 decides.
+- **Keep today's URLs working** while migrating to the §17 route map (`/college/{sport}/…` → `/college-football/…`, `/college/teams/{slug}` → `/teams/{school-nickname}`, root `/[slug]` articles → `/{sport}/news/{slug}`). Build the new route, verify it, then add the legacy 301 in the same PR. Never leave a URL 404ing in between.
+- `?page=n` pagination: parse with zod. Page 1 has no param, canonical `…?page=n` for n>1, invalid or out-of-range pages `notFound()`, no rel prev/next.
+- Filtered list pages such as the Portal Tracker `/transfer-portal`: filters live in `searchParams`, invalid values are dropped, and canonical keeps only sport/division/page. Other filters are `noindex, follow`. Client filter changes use `router.replace` (navigation, not a redirect).
+- Root reserved segments (`RESERVED_ROOT_SEGMENTS`, blueprint §12) must include every top-level folder, including `teams` and `transfer-portal`.
+- Caching: data functions use `"use cache"` + `cacheTag` + `cacheLife`. The page shell is prerendered and dynamic islands sit in `<Suspense>`. Tags are expired from Sanity/admin webhooks.
+- Build URLs with a single `urls` helper (blueprint `@rs/seo/urls`; create it in the existing package layout) and never hand-build path strings in components.
+- No `/scores`, `/games`, `/live`, `/players`, `/page/n`, a root `[sport]` segment, or sport-scoped team hubs.

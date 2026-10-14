@@ -93,7 +93,7 @@ This is a Turborepo monorepo with three applications and shared packages:
 - Schema defined in `packages/db/src/schema.ts` using Drizzle ORM
 - Database client in `packages/db/src/client.ts`
 - Shared queries in `packages/db/src/queries/`
-- Drizzle Kit config at `packages/db/drizzle.config.ts`
+- Drizzle Kit config at `apps/web/drizzle.config.ts`
 
 **Important**: There are two separate data stores:
 - Sanity = content (posts, authors, editorial content)
@@ -131,8 +131,7 @@ Internal dashboard for managing ballots and development tools. Shares UI compone
 
 - **Tailwind CSS v4** - All apps use Tailwind for styling
 - **ShadCN UI** - Component library in `packages/ui`
-- Shared Tailwind config in `packages/ui/tailwind.config.ts`
-- Global styles in `packages/ui/src/styles/globals.css`
+- Tailwind v4 is CSS-first: tokens live in `packages/ui/src/styles/globals.css`. There is no `tailwind.config.ts` (the `packages/ui` export map still names `./tailwind.config`, but that file is not in the tree).
 
 ### Testing
 

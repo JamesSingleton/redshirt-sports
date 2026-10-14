@@ -1,0 +1,17 @@
+---
+description: Drizzle + Supabase Postgres + RLS rules for the db package, migrations and seeds
+globs: packages/db/**,apps/web/supabase/**,apps/web/drizzle.config.ts,**/*.sql,apps/*/actions/**,apps/web/server/**
+alwaysApply: false
+---
+
+# Database (Drizzle + Supabase Postgres)
+
+- Schema lives in `packages/db/src/schema.ts` (split by domain as it grows) and reusable queries in `packages/db/src/queries/`. Apps never write raw SQL for app data.
+- Migrations: `pnpm --filter @redshirt-sports/web db:generate` writes to `apps/web/supabase/migrations/`. Review the SQL in the PR. Forward-only, expand/contract for destructive changes, and never edit a migration that has shipped.
+- Apply migrations **only to local**: run `node scripts/assert-local-env.mjs && pnpm --filter @redshirt-sports/web db:migrate`. Production migrations are a CI job with manual approval, never run by Cursor.
+- **RLS on every new table**, deny by default, with policies declared next to the table (Drizzle `pgPolicy`) or in the migration. Add a test showing that an unauthorized role can't read or write. Respect `0020_lock_down_data_api.sql` (Data API locked down).
+- Server writes go through validated (zod) server functions with role checks. Ballot rules follow `CONTEXT.md`: editable until Rankings publish, then locked. Unpublishing reopens edits for the current week.
+- Don't reintroduce `voter_ballot`, `weekly_final_rankings` or `weekly_team_rankings`. Use `ballots` / `ballot_entries` / `poll_rankings`. School name and logo come live from `schools` (synced from Sanity).
+- No game, score, roster, player, recruit or portal tables. No `fan_ballots` (the fan vote was removed). Engagement tables (follows, saved items, newsletter events) are per blueprint §10/§31.
+- Seeds: fake example data only (e.g. "Example State", "Example Voter 1"), idempotent, local only. Add new seeds under `packages/db/seeds/` and expose them as `db:seed:*` scripts.
+- Indexes: add an index for every foreign key and for each hot filter, and use `explain` locally (see `.agents/skills/supabase-postgres-best-practices`).

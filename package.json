@@ -11,6 +11,8 @@
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean",
     "dev": "turbo run dev",
+    "dev:setup": "bash scripts/dev-setup.sh",
+    "env:check": "node scripts/assert-local-env.mjs",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
