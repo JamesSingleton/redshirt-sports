@@ -109,7 +109,7 @@ export const post = defineType({
       options: {
         hotspot: true,
       },
-      validation: (rule) =>
+      validation: (rule) => [
         rule.custom((image, context) => {
           const mainImage = (context.document as { mainImage?: unknown })
             ?.mainImage;
@@ -118,6 +118,23 @@ export const post = defineType({
           }
           return "Image is required";
         }),
+        rule.custom(async (image, context) => {
+          const ref = (image as { asset?: { _ref?: string } } | undefined)
+            ?.asset?._ref;
+          if (!ref) return true;
+          const asset = await context
+            .getClient({ apiVersion: "2025-06-11" })
+            .fetch<{ width?: number; height?: number } | null>(
+              `*[_id == $id][0].metadata.dimensions{width, height}`,
+              { id: ref },
+            );
+          if (!asset?.width || !asset.height) return true;
+          if (asset.width < 1920 || asset.height < 1080) {
+            return "Featured image must be at least 1920×1080";
+          }
+          return true;
+        }),
+      ],
       fields: postImageSubfields,
     }),
     defineField({

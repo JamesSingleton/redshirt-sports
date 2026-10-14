@@ -12,7 +12,7 @@ Cursor and any other coding agent work **only against a local stack**. This page
 | Clerk (auth) | **Development instance** keys only (`pk_test_…`, `sk_test_…`). Webhooks come in through a tunnel to `http://localhost:3000/api/webhooks/auth` | n/a |
 | Email | `EMAIL_TRANSPORT=preview` (React Email render to `.local-email/` plus the `email dev` preview), or Resend **test mode** sending only to `delivered@resend.dev` | n/a |
 | Redis (rate limits) | Local Redis behind `serverless-redis-http` (Upstash-compatible), see below | `http://127.0.0.1:8079` |
-| Apps | `pnpm dev` | web `:3000`, admin `:3001`, studio `:3333` (blueprint `apps/vote` would take its own port when added) |
+| Apps | `pnpm dev` | web `:3000`, admin `:3001`, vote `:3002`, studio `:3333` |
 
 ## One-time setup: `pnpm dev:setup`
 
@@ -31,7 +31,7 @@ Add this to the root `package.json` in Milestone 0:
 3. Copies `apps/{web,admin,studio}/.env.local.example` to `.env.local`. Existing `.env.local` files are never overwritten.
 4. Runs `supabase start --workdir apps/web` and prints `supabase status` (paste the **local** keys it shows into `apps/web/.env.local`).
 5. Runs `node scripts/assert-local-env.mjs`, which stops the script if anything points at a non-local DB, a `production` Sanity dataset, live Clerk keys, `PROD_DATABASE_URL`, or a pulled Vercel env.
-6. Runs `supabase db reset --local` (migrations + `seed.sql`), then the example seed (`db:seed:example`; `packages/db/seeds/example-data.ts`). Do not follow reset with `drizzle-kit migrate` or `push`: Supabase has already applied `apps/web/supabase/migrations`, and Drizzle's journal is a different table, so migrate tries to re-apply the same SQL.
+6. Runs `supabase db reset --local` (migrations + `seed.sql`), then `pnpm --filter @redshirt-sports/web db:migrate` and the example seeds (`db:seed:example`; outline in `local-dev/example-seed.outline.ts`).
 7. Optional, only with `DEV_SETUP_IMPORT_SANITY=1`: imports `local-dev/sanity-fixtures.example.ndjson` into the **development** dataset. It refuses if the dataset is `production`.
 8. Prints the local URLs. Then run `pnpm dev`.
 

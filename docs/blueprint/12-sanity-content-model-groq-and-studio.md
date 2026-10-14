@@ -244,7 +244,7 @@ export const personCardFragment = /* groq */ `{
 
 - If `hasProfile`, the byline links to `/people/{slug}` and JSON-LD `author` includes `url` plus `sameAs` from socials. If not, the name renders as plain text and JSON-LD carries `name` (and `sameAs` if present) without a `url`. Writers have profiles by default because a linked author page with credentials is a strong trust signal for Google News and AI answer engines.
 - People with profiles disabled are excluded from sitemaps and return 404 at `/people/{slug}`.
-- **Voters**: the poll transparency pages (`/college-football/rankings/fcs/voters/{voter}`) are Postgres data pages and always exist for active voters. If the voter also has a `person` doc with a profile (linked through `voterIds`), the voter page links to it and the person page shows a "Poll ballots" section (pulled from Postgres).
+- **Voters**: the poll transparency pages (`/college/football/rankings/fcs/voters/{voter}`) are Postgres data pages and always exist for active voters. If the voter also has a `person` doc with a profile (linked through `voterIds`), the voter page links to it and the person page shows a "Poll ballots" section (pulled from Postgres).
 
 #### URL: `/people/{slug}` (recommended) vs `/staff/{slug}`
 
@@ -337,7 +337,7 @@ export const page = defineType({
 ```ts
 // packages/sanity/src/reserved-paths.ts  (shared by Studio validation and the web router)
 export const RESERVED_ROOT_SEGMENTS = [
-  "college-football", "mens-college-basketball", "womens-college-basketball", "teams", "people", "transfer-portal",
+  "college", "high-school" /* future level, reserved now */, "teams", "people", "transfer-portal",
   "topics", "podcasts", "video", "bracket-challenge", "newsletters", "onboarding", "account", "search", "sign-in", "sign-up", "api", "studio",
   "sitemap.xml", "news-sitemap.xml", "sitemaps", "robots.txt", "feed.xml", "ads.txt", "manifest.webmanifest", "_next",
 ];
@@ -345,7 +345,7 @@ export const RESERVED_ROOT_SEGMENTS = [
 
 #### Catch-all route
 
-Sport sections are real static folders (`app/(site)/college-football/…`, §17.3). Static segments always match before the root catch-all, so `[...slug]` only sees paths no folder claims. `RESERVED_ROOT_SEGMENTS` is generated from the route manifest, so editors can't create a page whose slug shadows a section. No rewrites are involved.
+Levels and sport sections are real static folders (`app/(site)/college/…`, `app/(site)/college/football/…`, §17.3). Static segments always match before the root catch-all, so `[...slug]` only sees paths no folder claims. `RESERVED_ROOT_SEGMENTS` is generated from the route manifest, so editors can't create a page whose slug shadows a section. No rewrites are involved.
 
 ```tsx
 // apps/web/app/(site)/[...slug]/page.tsx

@@ -62,3 +62,15 @@ export async function updateUser({
     })
     .where(eq(usersTable.id, id));
 }
+
+/** Keeps the row so historical ballots still resolve. Clears staff and voter flags. */
+export async function softDeleteUser(id: string) {
+  await db
+    .update(usersTable)
+    .set({
+      deletedAt: new Date(),
+      isAdmin: false,
+      isVoter: false,
+    })
+    .where(eq(usersTable.id, id));
+}

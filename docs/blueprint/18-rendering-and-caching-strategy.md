@@ -26,7 +26,7 @@ export default config;
 | Tag | Invalidated by |
 |---|---|
 | `post:<slug>`, `post:<id>` | Sanity webhook |
-| `posts:list`, `posts:<sport>`, `posts:school:<schoolId>`, `posts:conf:<confId>`, `posts:person:<id>` | Sanity webhook (computed from projection) |
+| `posts:list`, `posts:level:<level>` (level hub + `/college/news`), `posts:<sport>`, `posts:school:<schoolId>`, `posts:conf:<confId>`, `posts:person:<id>` | Sanity webhook (computed from projection) |
 | `person:<id>`, `page:<slug>`, `pages:with-people` | Sanity webhook (person changes also expire pages with staff grids) |
 | `school:<schoolId>`, `conference:<confId>` | Sanity webhook, admin |
 | `homepage`, `settings` | Sanity webhook |
@@ -56,7 +56,7 @@ Tags do the real work; `revalidate` timers are a safety net in case a webhook is
 import { revalidateTag } from "next/cache";
 import { parseBody } from "next-sanity/webhook";
 
-type Payload = { _id: string; _type: string; slug?: string; oldSlug?: string; schoolIds?: string[]; sport?: string };
+type Payload = { _id: string; _type: string; slug?: string; oldSlug?: string; schoolIds?: string[]; sport?: string; level?: string };
 
 export async function POST(req: Request) {
   const { isValidSignature, body } = await parseBody<Payload>(req, process.env.SANITY_REVALIDATE_SECRET);
@@ -67,6 +67,7 @@ export async function POST(req: Request) {
   if (body._type === "post") {
     tags.add("posts:list");
     if (body.sport) tags.add(`posts:${body.sport}`);
+    if (body.level) tags.add(`posts:level:${body.level}`);   // level is projected from SPORTS[primarySport].level
     body.schoolIds?.forEach((id) => tags.add(`posts:school:${id}`));
     tags.add("sitemap:news");
   }

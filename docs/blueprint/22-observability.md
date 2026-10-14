@@ -22,5 +22,5 @@
 
 - Structured JSON logs (pino) with request id; Vercel log drains to a log store (Axiom, Better Stack or Datadog) if needed.
 - Supabase: enable `pg_stat_statements`, review slow queries weekly in season; use Supabase advisors (security and performance lints) in CI.
-- Uptime checks on `/`, `/college-football/rankings/fcs`, `/api/health` (checks DB, Sanity reachability).
+- Uptime checks on `/`, `/college/football/rankings/fcs`, `/api/health` (checks DB, Sanity reachability).
 - Business dashboards: ballots submitted per week vs voters, bracket entries per hour near lock, newsletter growth.

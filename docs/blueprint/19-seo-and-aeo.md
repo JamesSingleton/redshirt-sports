@@ -7,7 +7,7 @@
 | Titles/descriptions | `generateMetadata` via `@rs/seo/metadata` builder; Sanity `seo` overrides; title ≤ ~60 chars, description ≤ ~155 |
 | Canonicals | Always absolute, one canonical per piece; syndicated copies point to original |
 | Robots | `noindex` for search, account, join links, pick editor, draft previews; `vote.` and `admin.` are `Disallow: /` |
-| Sitemaps | Index at `/sitemap.xml` → `/sitemaps/posts/[n].xml` (≤ 50,000 URLs each), `/sitemaps/teams.xml`, `/sitemaps/rankings.xml`, `/sitemaps/brackets.xml`, `/sitemaps/pages.xml`, `/sitemaps/people.xml` |
+| Sitemaps | Index at `/sitemap.xml` → `/sitemaps/posts/[n].xml` (≤ 50,000 URLs each), `/sitemaps/teams.xml`, `/sitemaps/rankings.xml`, `/sitemaps/brackets.xml`, `/sitemaps/pages.xml` (includes the level hub `/college`, `/college/news`, sport and division hubs, generated from the route manifest), `/sitemaps/people.xml`. Article URLs are `/college/{sport}/news/{slug}` |
 | News sitemap | `/news-sitemap.xml` with only articles from the **last 48 hours** (Google News requirement), `<news:publication>` name + language, `<news:publication_date>`, `<news:title>` |
 | Google News | Publisher Center listing, clear bylines linked to `/people/{slug}` profiles, dated articles, contact/about/editorial policy pages, no deceptive practices |
 | Structured data | JSON-LD per page type (below), validated in CI with a schema test |

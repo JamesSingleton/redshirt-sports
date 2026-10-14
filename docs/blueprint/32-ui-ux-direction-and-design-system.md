@@ -271,7 +271,7 @@ Notes:
 | `breadcrumb` | Article and hub breadcrumbs |
 | `pagination` | `?page=n` archives (real `<a>` links; page 1 has no param; §17.6) |
 | `sonner` (toast) | "Saved", "Followed", "Ballot submitted" |
-| `chart` (Recharts) | Poll history line, ballot share bars |
+| `chart` (Recharts) | Poll history line chart (rank by week), vote distribution bars |
 | `carousel` (Embla) | Mobile top stories rail, podcast rail |
 | `accordion`, `collapsible` | Methodology, FAQ page-builder section, others receiving votes on mobile |
 | `sidebar` | `apps/admin` shell |
@@ -338,11 +338,11 @@ Dark mode uses the same layout with token swaps:
 ### 32.9 Sport hub, news indexes, team hub, portal and recruiting hubs
 
 - **Sport/division hub** = home layout scoped to the sport/division, with the division's poll widget, bracket CTA, conference chips and an "Official sources" link card (NCAA.com scoreboard/bracket).
-- **News index** (`/college-football/news`): breadcrumb, display H1, Follow, **division chips that are links** to `/college-football/{division}/news` (not filters), lead + three secondaries, reserved leaderboard ad, river with "Load more" (progressive enhancement) over shadcn `Pagination` links (`?page=n`, page 1 without a parameter), rail with Most read, rankings widget, ad, newsletter.
-- **Division news** (`/college-football/fcs/news?page=2`): division band with path tabs (Home, News, Rankings, Bracket Challenge, Transfer Portal, Conferences: each a real URL), conference chips linking to conference hubs, a paginated river showing the page number and range, and the canonical note (`…/news?page=2`).
+- **News index** (`/college/football/news`): breadcrumb, display H1, Follow, **division chips that are links** to `/college/football/{division}/news` (not filters), lead + three secondaries, reserved leaderboard ad, river with "Load more" (progressive enhancement) over shadcn `Pagination` links (`?page=n`, page 1 without a parameter), rail with Most read, rankings widget, ad, newsletter.
+- **Division news** (`/college/football/fcs/news?page=2`): division band with path tabs (Home, News, Rankings, Bracket Challenge, Transfer Portal, Conferences: each a real URL), conference chips linking to conference hubs, a paginated river showing the page number and range, and the canonical note (`…/news?page=2`).
 - **Team hub (sport-agnostic, `/teams/montana-state-bobcats`)**: header band with neutral placeholder mark, conference + city kicker, **school + nickname** in display type, per-sport rank/record chips, Follow + alert bell. **Sport tabs are paths**: Overview, Football (`/football`), Men's Basketball (`/mens-basketball`), Women's Basketball (`/womens-basketball`), All news (`/news`); only sports the school plays render. Inside a sport, a secondary chip row (Overview, News, Rankings) maps to `/teams/{slug}/{sport}`, `/news`, `/rankings`. Body: lead story + poll history chart, river with pagination; rail with **official outbound links** for that sport, "Other Bobcats sports" card, ad, bracket history.
-- **Transfer Portal hub** (`/college-football/transfer-portal`, §16): dark `ink` band with Follow-style "Portal alerts", filter tabs (All, FCS, D-II, D-III are client filters on the same list; Storylines and Tracker are in-page anchors), lead story, **storyline cards** (Sanity `storyline`), **tracker preview** (latest four `PortalRow`s and a "Full tracker" link to `/transfer-portal`, §16.1), river + pagination; rail: "Your teams in the portal" (from follows), editor-entered key dates, ad, newsletter.
-- **Recruiting hub** (`/college-football/recruiting`): commitments coverage cards (photo, school mark, "Example Recruit commits to …", position, high school; each card is an article), signing-day package banner, storylines, optional curated commits list, river; rail with Most read and a Follow nudge.
+- **Transfer Portal hub** (`/college/football/transfer-portal`, §16): dark `ink` band with Follow-style "Portal alerts", filter tabs (All, FCS, D-II, D-III are client filters on the same list; Storylines and Tracker are in-page anchors), lead story, **storyline cards** (Sanity `storyline`), **tracker preview** (latest four `PortalRow`s and a "Full tracker" link to `/transfer-portal`, §16.1), river + pagination; rail: "Your teams in the portal" (from follows), editor-entered key dates, ad, newsletter.
+- **Recruiting hub** (`/college/football/recruiting`): commitments coverage cards (photo, school mark, "Example Recruit commits to …", position, high school; each card is an article), signing-day package banner, storylines, optional curated commits list, river; rail with Most read and a Follow nudge.
 
 ![Team hub, sport section, desktop (1440×900)](../mockups/screenshots/team-hub-desktop.png)
 
@@ -372,15 +372,18 @@ Dark mode uses the same layout with token swaps:
 ### 32.11 Rankings page (movement + ballot transparency)
 
 - Header: "FCS Top 25 · Week 7", season/week `select`s, Share, **Notify me**; release metadata and methodology link.
-- Underline tabs: Poll, Ballots, Voters, History, Methodology.
-- `RankingsTable`: rank (display numerals), movement indicator (▲ green / ▼ red-orange / NEW blue / — unchanged, each with an `aria-label` and legend), team mark + name + first-place votes in parentheses, record (admin-entered), conference, points, previous rank, ballot-share bar. Followed teams get a subtle highlight and "Following" badge. Others receiving votes in a muted block; legend below.
-- Rail: **Ballot grid** (voters × ranks, links to every ballot), **Biggest movers** (largest rises/falls this week), **Notify me** card (poll-release alert), ad.
+- Underline tabs: Poll, Ballots, Voters, History, Methodology. Each tab is a real URL (§17): `…/rankings/fcs`, `…/fcs/2026/week-7/ballots`, `…/fcs/voters`, `…/fcs/history`, `…/rankings/methodology`.
+- `RankingsTable`: rank (display numerals), movement indicator (▲ green / ▼ red-orange / NEW blue / — unchanged, each with an `aria-label` and legend), team mark + name + first-place votes in parentheses, record (admin-entered), conference, points, previous rank, and **On ballots**: "On 18 of 22" with a thin bar (v1.7, replaces "Ballot share"; the count of ballots that ranked the team 1–25, from `poll_results.ballots_listed`; the caption explains it). Followed teams get a subtle highlight and "Following" badge.
+- **Beyond the Top 25** (full width under the table, three cards side by side on desktop, stacked on mobile): **Others receiving votes** (team, "on N of 22", points), **Dropped out of the Top 25** (team, last week's rank, and whether it still gets votes), **No longer receiving votes** (team, last week's rank or RV points). Definitions in §13.9.
+- Rail: a prominent **"See all 22 ballots"** CTA card (voter count, avatar stack, primary button to the full breakdown, "Browse by voter", CSV + hash) replaces the old small Ballot grid card; on mobile the same CTA is a compact banner above the table. Then **Biggest movers**, **Notify me** (poll-release alert), ad.
 
 ![Rankings, desktop (1440×900)](../mockups/screenshots/rankings-desktop.png)
 
-<p class="shots"><img src="mockups/screenshots/rankings-mobile.png" alt="Rankings, mobile"><img src="mockups/screenshots/ballots-mobile.png" alt="Ballot breakdown, mobile"></p>
+![Rankings, desktop full page: Beyond the Top 25](../mockups/screenshots/rankings-desktop-full.png)
 
-*Above: rankings (mobile) and the ballot breakdown (mobile, by-voter view). On mobile the table collapses record/conference into the team cell and hides previous rank and share bars.*
+<p class="shots"><img src="mockups/screenshots/rankings-mobile.png" alt="Rankings, mobile"><img src="mockups/screenshots/ballots-mobile.png" alt="Ballot breakdown, mobile (all ballots)"><img src="mockups/screenshots/ballots-by-voter-mobile.png" alt="Ballots by voter, mobile"></p>
+
+*Above: rankings (mobile), the ballot breakdown's default all-ballots grid (mobile, swipe for all 22 voters) and the by-voter view (mobile). On mobile the poll table moves record/conference and "On X of 22 ballots" into the team cell and hides previous rank.*
 
 ```tsx
 // packages/ui/src/components/rank-row.tsx (sketch)
@@ -389,7 +392,7 @@ import { Badge } from "@rs/ui/components/ui/badge";
 import { MovementIndicator } from "./movement-indicator";
 import { TeamMark } from "./team-mark";
 
-export function RankRow({ r, followed }: { r: PollResultRow; followed: boolean }) {
+export function RankRow({ r, followed, ballotsCounted }: { r: PollResultRow; followed: boolean; ballotsCounted: number }) {
   return (
     <TableRow data-followed={followed} className="data-[followed=true]:bg-accent/30">
       <TableCell className="pl-4 text-right font-display text-xl font-bold tabular">{r.tie ? `T-${r.rank}` : r.rank}</TableCell>
@@ -404,28 +407,69 @@ export function RankRow({ r, followed }: { r: PollResultRow; followed: boolean }
       </TableCell>
       <TableCell className="hidden sm:table-cell text-muted-foreground">{r.record ?? "—"}</TableCell>
       <TableCell className="text-right font-semibold tabular">{r.points.toLocaleString()}</TableCell>
+      {/* v1.7: "On X of N ballots" replaces the ballot-share bar; N = poll_week_summaries.ballots_counted */}
+      <TableCell className="hidden lg:table-cell text-right text-xs tabular" title={`Ranked on ${r.ballotsListed} of ${ballotsCounted} ballots`}>
+        On {r.ballotsListed} of {ballotsCounted}
+      </TableCell>
     </TableRow>
   );
 }
 ```
 
-#### 32.11a Voter Ballot Breakdown (`/{sport}/rankings/{division}/{year}/{week}/ballots`)
+#### 32.11a Voter Ballot Breakdown (`/college/{sport}/rankings/{division}/{year}/{week}/ballots`)
 
-Published with the poll (never before). One page per poll week; `…/ballots/{voter}` is the single-voter view.
+Published with the poll (never before). One page per poll week with two views, each a real URL: **All ballots** (`…/ballots`, the default) and **By voter** (`…/ballots/by-voter`); `…/ballots/{voter}` is the single-voter page.
 
-- **Teams × voters matrix** (`BallotMatrix`, shadcn `Table` in a horizontal `ScrollArea`; sticky rank/team columns): rows are teams in published order, then others receiving votes below a divider (RV); columns are voters (vertical labels); each cell is the rank that voter gave (or "–"). Cell shading is a 5-step ramp of `--primary` (1–5 darkest … 21–25 lightest) with the numeral always printed, so it's readable without color. Pts and first-place votes sit next to the team.
-- **Outliers** get `ring-2 ring-inset ring-gold` and are listed in a "Biggest outliers" card. Rule (documented on the methodology page): |voter rank − published rank| ≥ 7, or a voter omits a team ranked in the top 15, or ranks a non-Top-25 team 18th or better. Thresholds are config, not code.
-- **Voter filter** (`Command` in a `Popover` + chips): highlight or restrict columns; "Outliers only" and "Show RV" switches; sort columns by ballot order or name. Filters write `?voters=07,12`; the canonical stays the base URL and the page is still prerendered (the filter is a client-side view over the cached data).
-- **Per-team vote distribution** (`Card` + small bar chart): ranks received on all ballots for the selected team, with consensus, median, high and low. Team picker is a `Select`.
-- **Each voter's full ballot** (`Card`, five columns on desktop): rank, team, ▲/▼ vs consensus when ≥ 3 spots, optional voter note.
-- **Mobile**: default to **By voter** (voter `Select` with previous/next buttons, full 25-team list, outlier rows tinted `bg-gold/10` with an "Outlier" badge), then the distribution and outliers cards; the matrix is still available as a tab (horizontal scroll).
-- Data: one cached query per poll week (`"use cache"`, tags `poll:<weekId>` and `ballots:<weekId>`): `ballot_entries` joined to `ballots` (locked, published week) and `poll_results`; outlier flags and distributions are computed in TypeScript from that one result set. CSV download and the reproducibility hash link to §13.
+**All ballots (default, unfiltered).**
+
+- Summary strip: ballots counted ("22 of 22"), teams on every ballot, first-place votes for No. 1, outlier picks.
+- Toolbar: team search, "All 22 voters" (no voter pre-selected), column order, **Outliers only** and **Show RV** switches. Highlighting voters writes `?voters=07,12`; the canonical stays the base URL and the page is still prerendered (the filter is a client-side view over the cached data).
+- **Teams × voters matrix** (`BallotMatrix`): rows are teams in published order, then others receiving votes below a divider (RV); **every voter is a column** (vertical labels linking to that voter's ballot); each cell is the rank that voter gave (or "–"), plus **On** (ballots listing the team) and **Range** (high–low) columns. Inside one `overflow-auto` container with a max height, the header row is `sticky top-0` and the rank + team columns are `sticky left-*` (corner cells on top), so both stay put while the grid scrolls in either direction. Cell shading is a 5-step ramp of `--primary` (1–5 darkest … 21–25 lightest) with the numeral always printed, so it's readable without color.
+- **Outliers** get `ring-2 ring-inset ring-gold` and are listed in a "Biggest outliers" card. Rule (on the methodology page): |voter rank − published rank| ≥ 8, or a voter leaves off a team ranked in the top 15. Thresholds are config, not code.
+- **Per-team vote distribution** (`Card` + small bar chart): ranks received on all ballots for the selected team, with consensus, median, high and low.
+- Mobile: same grid (sticky team column, swipe hint "Swipe the grid for all 22 voters"), summary as one line, then outliers and distribution.
+
+![Voter Ballot Breakdown, desktop (all ballots, unfiltered)](../mockups/screenshots/ballots-desktop.png)
 
 ![Voter Ballot Breakdown, desktop full page](../mockups/screenshots/ballots-desktop-full.png)
 
+**By voter** (`…/ballots/by-voter`, `?q=` search, `?sort=` closest/farthest from consensus, most outliers, name, outlet; `?page=n`, six cards per page; `q`/`sort` views are `noindex` with the canonical on the base):
+
+- Left rail (desktop): **all 22 voters** with outlet, average gap from consensus and an outlier dot; jump links to cards.
+- One **card per voter**: avatar, name → `/people/{slug}`, outlet · role, "Ballot" link → `…/ballots/{voter}`; chips for average gap, outlier count, how many of their 25 are in the consensus Top 25, and their No. 1; the **full 25-team ballot** in two columns (1–13, 14–25), each pick with a diff chip vs consensus (`+3` ranked higher, `−2` lower, `=` same, `RV` for a team outside the Top 25); outlier picks tinted `bg-gold/15` with a gold ring; a footer listing **omitted top-15 teams** and the optional voter note.
+- Mobile: search + sort, legend, stacked cards, pagination.
+
+![Ballots by voter, desktop](../mockups/screenshots/ballots-by-voter-desktop.png)
+
+- Data: one cached query per poll week (`"use cache"`, tags `poll:<weekId>` and `ballots:<weekId>`): `ballot_entries` joined to `ballots` (locked, published week) and `poll_results`; outlier flags, diffs, distributions and per-voter gaps are computed in TypeScript from that one result set and shared by both views. CSV download and the reproducibility hash link to §13.
+
+#### 32.11b Voters tab (`/college/{sport}/rankings/{division}/voters`)
+
+- Summary: voters (22 in the example), outlets, ballots submitted this season, disclosures.
+- "How voters are chosen" alert linking to Methodology.
+- Search, coverage-area filter, sort; season roster selector (`/voters/2025` archive).
+- Roster `Table` (cards on mobile): voter (avatar, name → `/people/{slug}`, role), outlet/affiliation (external link), coverage area, on panel since, ballots this season (e.g. 8/8), disclosures ("Alma mater: …" or "None disclosed"), and links to the voter's **Week 7 ballot** and **Profile**.
+
+![Voters tab, desktop](../mockups/screenshots/rankings-voters-desktop.png)
+
+#### 32.11c History tab (`/college/{sport}/rankings/{division}/history`, `/history/{year}`)
+
+- Season and "through week" selectors; past seasons are their own URLs (`/history/2025`).
+- **Rank by week** line chart (`chart`, inverted y axis 1–25, Preseason … current week): up to six teams as removable chips plus "Add team"; end labels de-collided.
+- **Week by week** table: every team ranked at least once that season × weeks, shaded like the ballot matrix, current week outlined, plus High, Low and weeks ranked; sticky team column and header; each team links to its team-hub poll history (`/teams/{school-nickname}/football/rankings`).
+- Rail: **No. 1 history** (week, team, first-place votes; weeks-at-No. 1 summary) and **Past seasons** (final No. 1 per season).
+
+![History tab, desktop](../mockups/screenshots/rankings-history-desktop.png)
+
+#### 32.11d Methodology (`/college/{sport}/rankings/methodology`)
+
+One page per sport, shared by all of that sport's divisions. Sticky table of contents (a `Select` on mobile) and the "See all ballots" CTA in the rail. Sections: how the poll works (panel, 25-to-1, every ballot public); **points 25 to 1** with the 25-cell points grid, max points (N × 25) and tie rules (T-12, FPV then alphabetical, T-25 inclusion); **first-place votes** (no bonus); **"On X of N ballots"**; **Others / Dropped out / No longer receiving votes** definitions; **eligibility** (voters: invite-only, no athletics-department employees, disclosures, one ballot, MFA; teams: published eligibility list, transitioning-program rule); **ballot window and automation** timeline (opens Sun 08:00 ET, reminders Sun 18:00 and Mon 09:00, auto-lock Mon 12:00, automatic tabulation + outlier report, admin publish; extensions shown on the poll page; times per §13.3); **transparency** (public ballots at release, CSV + SHA-256 hash, corrections log, no early results); **outlier policy** (≥ 8 spots or omitting a top-15 team; flagged, never altered; voter notes; season-end review; only invalid ballots voided, with reasons); **FAQ** (`Accordion`, `FAQPage` markup).
+
+![Methodology, desktop](../mockups/screenshots/rankings-methodology-desktop.png)
+
 ### 32.12 Bracket Challenge UI
 
-Two separate screens, two URLs: the **bracket view** (`/college-football/bracket-challenge/fcs/2026`, everyone, after lock it's the main page) and the **pick editor** (`…/2026/my-bracket`, the signed-in entry).
+Two separate screens, two URLs: the **bracket view** (`/college/football/bracket-challenge/fcs/2026`, everyone, after lock it's the main page) and the **pick editor** (`…/2026/my-bracket`, the signed-in entry).
 
 #### Studied: MarchArena (marcharena.com)
 
@@ -534,21 +578,26 @@ Every mockup shows its public URL in the top ribbon so the folder ↔ URL mappin
 | File | Screen (URL) | Screenshots |
 |---|---|---|
 | `docs/mockups/index.html` | Home `/` (light/dark, mega nav, mobile sheet) | `home-desktop.png`, `home-desktop-full.png`, `home-mobile.png`, `home-desktop-dark.png`, `nav-mega-desktop.png`, `nav-sheet-mobile.png` |
-| `docs/mockups/article.html` | Article `/college-football/news/{slug}` | `article-desktop.png`, `article-desktop-full.png`, `article-mobile.png` |
-| `docs/mockups/news.html` | **News index** `/college-football/news` | `news-desktop.png`, `news-desktop-full.png`, `news-mobile.png` |
-| `docs/mockups/division-news.html` | **Division news** `/college-football/fcs/news?page=2` | `division-news-desktop.png`, `division-news-desktop-full.png`, `division-news-mobile.png` |
-| `docs/mockups/rankings.html` | Rankings `/college-football/rankings/fcs` | `rankings-desktop.png`, `rankings-desktop-full.png`, `rankings-mobile.png` |
-| `docs/mockups/ballots.html` | **Voter Ballot Breakdown** `/college-football/rankings/fcs/2026/week-7/ballots` | `ballots-desktop.png`, `ballots-desktop-full.png`, `ballots-desktop-dark.png`, `ballots-mobile.png` |
-| `docs/mockups/bracket.html` | **Bracket view (MarchArena-inspired)** `/college-football/bracket-challenge/fcs/2026` | `bracket-desktop.png`, `bracket-mobile.png` |
+| `docs/mockups/article.html` | Article `/college/football/news/{slug}` | `article-desktop.png`, `article-desktop-full.png`, `article-mobile.png` |
+| `docs/mockups/news.html` | **News index** `/college/football/news` | `news-desktop.png`, `news-desktop-full.png`, `news-mobile.png` |
+| `docs/mockups/division-news.html` | **Division news** `/college/football/fcs/news?page=2` | `division-news-desktop.png`, `division-news-desktop-full.png`, `division-news-mobile.png` |
+| `docs/mockups/rankings.html` | Rankings, Poll tab `/college/football/rankings/fcs` (v1.7: On X of 22 ballots, See-all-ballots CTA, Beyond the Top 25) | `rankings-desktop.png`, `rankings-desktop-full.png`, `rankings-mobile.png`, `rankings-mobile-full.png` |
+| `docs/mockups/ballots.html` | **Voter Ballot Breakdown, all ballots (unfiltered)** `/college/football/rankings/fcs/2026/week-7/ballots` | `ballots-desktop.png`, `ballots-desktop-full.png`, `ballots-desktop-dark.png`, `ballots-mobile.png`, `ballots-mobile-full.png` |
+| `docs/mockups/ballots-by-voter.html` | **Ballots by voter** (v1.7) `…/2026/week-7/ballots/by-voter` | `ballots-by-voter-desktop.png`, `ballots-by-voter-desktop-full.png`, `ballots-by-voter-mobile.png` |
+| `docs/mockups/rankings-voters.html` | **Voters tab** (v1.7) `/college/football/rankings/fcs/voters` | `rankings-voters-desktop.png`, `rankings-voters-desktop-full.png`, `rankings-voters-mobile.png` |
+| `docs/mockups/rankings-history.html` | **History tab** (v1.7) `/college/football/rankings/fcs/history` | `rankings-history-desktop.png`, `rankings-history-desktop-full.png`, `rankings-history-mobile.png` |
+| `docs/mockups/rankings-methodology.html` | **Methodology** (v1.7) `/college/football/rankings/methodology` | `rankings-methodology-desktop.png`, `rankings-methodology-desktop-full.png`, `rankings-methodology-mobile.png` |
+| `docs/mockups/bracket.html` | **Bracket view (MarchArena-inspired)** `/college/football/bracket-challenge/fcs/2026` | `bracket-desktop.png`, `bracket-mobile.png` |
 | `docs/mockups/bracket-picks.html` | Pick editor `…/fcs/2026/my-bracket` | `bracket-picks-desktop.png`, `bracket-picks-mobile.png` |
 | `docs/mockups/ballot.html` | Ballot on `vote.redshirtsports.com/ballot/fcs/2026/week-7` | `ballot-vote-desktop.png`, `ballot-vote-mobile.png` |
 | `docs/mockups/team.html` | **Team hub, sport section** `/teams/montana-state-bobcats/football` | `team-hub-desktop.png`, `team-hub-desktop-full.png`, `team-hub-mobile.png` |
-| `docs/mockups/transfer-portal.html` | **Transfer Portal hub** `/college-football/transfer-portal` | `transfer-portal-desktop.png`, `transfer-portal-desktop-full.png`, `transfer-portal-mobile.png` |
+| `docs/mockups/transfer-portal.html` | **Transfer Portal hub** `/college/football/transfer-portal` | `transfer-portal-desktop.png`, `transfer-portal-desktop-full.png`, `transfer-portal-mobile.png` |
 | `docs/mockups/portal-tracker.html` | **Portal Tracker** `/transfer-portal?division=fcs` | `portal-tracker-desktop.png`, `portal-tracker-desktop-full.png`, `portal-tracker-mobile.png` |
-| `docs/mockups/recruiting.html` | **Recruiting hub** `/college-football/recruiting` | `recruiting-desktop.png`, `recruiting-desktop-full.png`, `recruiting-mobile.png` |
+| `docs/mockups/college.html` | **College level hub** `/college` (v1.6) | `college-desktop.png`, `college-desktop-full.png`, `college-mobile.png` |
+| `docs/mockups/recruiting.html` | **Recruiting hub** `/college/football/recruiting` | `recruiting-desktop.png`, `recruiting-desktop-full.png`, `recruiting-mobile.png` |
 | (reference, not included) | marcharena.com, studied for §32.12 | Not in the handoff (third-party content) |
 | (reference, not included) | on3.com Transfer Portal Wire, studied for §16.1 | Not in the handoff: real On3 data, study only |
 
-- Source: `docs/mockups/src/app.css` (theme tokens), `docs/mockups/gen/*.py` (`pages.py` v1.3 screens, `pages2.py` v1.4 screens, `pages3.py` v1.5 portal tracker; shadcn-equivalent helpers in `ui.py`, including `pagination()`), compiled CSS `docs/mockups/css/app.css` (Tailwind v4 CLI), fonts in `docs/mockups/fonts/`.
-- Rebuild: `cd docs/mockups && python3 gen/build.py && npx @tailwindcss/cli -i src/app.css -o css/app.css && python shoot.py` (Playwright + Chrome; desktop 1440×900 at 1×, mobile 390×844 at 2×). `shoot.py news ballots` reshoots a subset.
+- Source: `docs/mockups/src/app.css` (theme tokens), `docs/mockups/gen/*.py` (`pages.py` v1.3 screens, `pages2.py` v1.4 screens, `pages3.py` v1.5 portal tracker; `pages4.py` v1.6 college hub; `pages5.py` + `polldata.py` v1.7 rankings/ballots tabs and the shared 22-voter example poll; shadcn-equivalent helpers in `ui.py`, including `pagination()`), compiled CSS `docs/mockups/dist/app.css` (Tailwind v4 CLI), fonts in `docs/mockups/fonts/`.
+- Rebuild: `cd docs/mockups && python3 gen/build.py && npx @tailwindcss/cli -i src/app.css -o dist/app.css && python shoot.py` (Playwright + Chrome; desktop 1440×900 at 1×, mobile 390×844 at 2×). `shoot.py news ballots` reshoots a subset.
 - When building the real apps, port the markup to the React shadcn components named in §32.5; class strings mirror the shadcn defaults.

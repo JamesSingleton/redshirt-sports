@@ -161,108 +161,7 @@ def bracket_page():
 <div class="flex items-center justify-between border-b px-4 py-2 text-[11px] text-muted-foreground"><span>Pinch or drag to explore · tap a game</span><span>104 pts · 21st</span></div>
 {matchup_panel(compact=True)}<div class="h-16"></div></div>'''
     body = f"{header()}{desktop}{mobile}{bottom_nav(2)}"
-    return page("FCS 2026 Bracket Challenge", body, path="/college-football/bracket-challenge/fcs/2026")
-
-# =====================================================================
-# Voter Ballot Breakdown
-# =====================================================================
-VOTERS = [f"Voter {i:02d}" for i in range(1, 26)]
-POOL = TEAMS + [("ETA","Example Team A","Example Conf","5-2"),("ETB","Example Team B","Example Conf","5-2"),("ETC","Example Team C","Example Conf","4-3"),("ETD","Example Team D","Example Conf","4-3")]
-
-def make_ballots():
-    rng = random.Random(42)
-    ballots = []
-    for v in range(25):
-        sc = []
-        for i, t in enumerate(POOL):
-            noise = rng.gauss(0, 1.2 + i*0.12)
-            if v == 6 and i == 1: noise = 9      # outlier example
-            if v == 17 and i == 26: noise = -14
-            if v == 11 and i == 0: noise = 5
-            sc.append((i + noise, i))
-        ballots.append([i for _, i in sorted(sc)[:25]])
-    points = {i: 0 for i in range(len(POOL))}; first = {i: 0 for i in range(len(POOL))}
-    for b in ballots:
-        for r, i in enumerate(b):
-            points[i] += 25 - r
-        first[b[0]] += 1
-    order = sorted(points, key=lambda i: -points[i])
-    return ballots, points, first, order
-
-def cell_tone(r):
-    if r is None: return "text-muted-foreground/50"
-    if r <= 5: return "bg-primary/85 text-primary-foreground font-bold"
-    if r <= 10: return "bg-primary/55 text-primary-foreground font-semibold"
-    if r <= 15: return "bg-primary/30 font-semibold"
-    if r <= 20: return "bg-primary/15"
-    return "bg-primary/7"
-
-def ballots_page():
-    ballots, points, first, order = make_ballots()
-    cons = {t: k+1 for k, t in enumerate(order)}
-    rank_of = [{t: r+1 for r, t in enumerate(b)} for b in ballots]
-    hl_voter = 6
-    outliers = []
-    rows = ""
-    for k, t in enumerate(order[:29]):
-        a, n, c, rec = POOL[t]
-        cells = ""
-        for v in range(25):
-            r = rank_of[v].get(t)
-            out = (r is not None and abs(r - cons[t]) >= 7) or (r is None and cons[t] <= 15) or (r is not None and cons[t] > 25 and r <= 18)
-            if out: outliers.append((v, t, r))
-            ring = "ring-2 ring-inset ring-gold" if out else ""
-            col = "outline outline-2 -outline-offset-1 outline-foreground/70" if v == hl_voter else ""
-            cells += f'<td class="p-0"><div class="mx-auto flex h-7 w-[30px] items-center justify-center text-[11px] tabular {cell_tone(r)} {ring} {"bg-accent" if v==hl_voter and r is None else ""}">{r if r else "–"}</div></td>'
-        div = "border-t-2 border-foreground/30" if k == 25 else ""
-        rk = f'{k+1}' if k < 25 else '<span class="text-[10px] text-muted-foreground">RV</span>'
-        sel = "bg-accent/60" if t == 1 else ""
-        rows += f'<tr class="border-b {div} {sel} hover:bg-muted/50"><td class="sticky left-0 z-10 bg-card p-0 pl-3 text-right font-display text-base font-bold tabular {sel}">{rk}</td><td class="sticky left-8 z-10 bg-card px-2 {sel}"><div class="flex w-40 items-center gap-2">{team_mark(a,"size-5 text-[7px]")}<span class="truncate text-[13px] font-semibold">{short(n)}</span></div></td><td class="px-2 text-right text-xs font-semibold tabular">{points[t]}</td><td class="px-2 text-right text-xs text-muted-foreground tabular">{first[t] or ""}</td>{cells}</tr>'
-    vh = "".join(f'<th class="p-0 pb-1 align-bottom"><div class="mx-auto flex h-16 w-[30px] items-end justify-center"><span class="text-[10px] font-medium [writing-mode:vertical-rl] rotate-180 {"font-bold text-foreground" if v==hl_voter else "text-muted-foreground"}">{VOTERS[v]}</span></div></th>' for v in range(25))
-    matrix = f'''<div class="overflow-x-auto rounded-xl border bg-card"><table class="w-full border-collapse text-sm">
-<thead><tr class="border-b"><th class="sticky left-0 z-10 bg-card pl-3 text-right text-[10px] uppercase text-muted-foreground">Rk</th><th class="sticky left-8 z-10 bg-card px-2 text-left text-[10px] uppercase text-muted-foreground">Team</th><th class="px-2 text-right text-[10px] uppercase text-muted-foreground">Pts</th><th class="px-2 text-right text-[10px] uppercase text-muted-foreground">1st</th>{vh}</tr></thead>
-<tbody>{rows}</tbody></table>
-<div class="flex flex-wrap items-center gap-4 border-t px-4 py-2.5 text-[11px] text-muted-foreground"><span>Cell = rank that voter gave the team</span>{"".join(f'<span class="flex items-center gap-1"><span class="size-3 rounded-sm {cell_tone(r)}"></span>{l}</span>' for r,l in [(3,"1–5"),(8,"6–10"),(13,"11–15"),(18,"16–20"),(23,"21–25")])}<span class="flex items-center gap-1"><span class="size-3 rounded-sm ring-2 ring-inset ring-gold"></span>Outlier (≥7 spots from consensus, or omits a top-15 team)</span><span>RV = others receiving votes</span><span class="ml-auto">Example data · all ballots public after release</span></div></div>'''
-    # per-team distribution (Montana State = POOL index 1)
-    t = 1; recv = [rank_of[v].get(t) for v in range(25)]
-    hist = [sum(1 for r in recv if r == k) for k in range(1, 26)]
-    mx = max(hist) or 1
-    bars = "".join(f'<div class="flex flex-1 flex-col items-center justify-end gap-0.5"><span class="text-[9px] tabular text-muted-foreground">{c or ""}</span><div class="w-full rounded-t-sm {"bg-primary" if c else "bg-muted"}" style="height:{max(3, c/mx*64):.0f}px"></div><span class="text-[9px] tabular text-muted-foreground">{k+1 if k<9 or (k+1)%5==0 else ""}</span></div>' for k, c in enumerate(hist))
-    got = sorted(r for r in recv if r)
-    stat = lambda l, v: f'<div><div class="text-[10px] uppercase tracking-wide text-muted-foreground">{l}</div><div class="font-display text-xl font-bold tabular">{v}</div></div>'
-    dist = card(card_header(f"Vote distribution · {POOL[t][1]}", "Ranks received on 25 ballots (example)", select_("Montana St.","h-8 text-xs")) + card_content(f'<div class="flex h-24 items-end gap-0.5">{bars}</div><div class="mt-3 grid grid-cols-4 gap-2">{stat("Consensus", cons[t])}{stat("Median", got[len(got)//2])}{stat("High", got[0])}{stat("Low", got[-1])}</div>', "pb-5 pt-3"), "gap-0")
-    filters = card(card_header("Filter voters", "Highlight or limit columns") + card_content(f'''{input_("Search voters","","search")}<div class="mt-2 flex flex-wrap gap-1.5">{badge("Voter 07 "+icon("x","size-3"),"default")}{badge("+ Add voter","outline","cursor-pointer")}</div>
-<div class="mt-3 grid gap-2 text-sm"><label class="flex items-center justify-between">Outliers only {switch(False)}</label><label class="flex items-center justify-between">Show others receiving votes {switch(True)}</label><label class="flex items-center justify-between">Sort columns by {select_("Ballot order","h-8 text-xs")}</label></div>
-<p class="mt-2 text-[11px] text-muted-foreground">Filters write <span class="font-mono">?voters=07</span>; canonical stays the base URL.</p>''', "pb-5 pt-3"), "gap-0")
-    top_out = "".join(f'<li class="flex items-center gap-2 border-b py-2 text-sm last:border-0"><span class="font-medium">{VOTERS[v]}</span><span class="text-muted-foreground">ranked</span>{team_mark(POOL[tt][0],"size-5 text-[7px]")}<span class="truncate font-semibold">{short(POOL[tt][1])}</span><span class="ml-auto tabular">{("#"+str(r)) if r else "unranked"} <span class="text-muted-foreground">vs #{cons[tt]}</span></span></li>' for v, tt, r in sorted(outliers, key=lambda o: -abs((o[2] or 30) - cons[o[1]]))[:4])
-    outl = card(card_header("Biggest outliers", f"{len(outliers)} flagged cells this week") + card_content(f'<ul>{top_out}</ul>', "pb-4 pt-2"), "gap-0")
-    voter_ballot = card(card_header("Voter 07 · full ballot", "Example voter · notes optional", button("Profile","ghost","xs",icon_right="chev-right")) + card_content('<ol class="grid grid-cols-1 gap-x-6 sm:grid-cols-5">' + "".join(f'<li class="flex items-center gap-2 border-b py-1.5 text-sm"><span class="w-5 text-right font-display font-bold tabular">{r+1}</span>{team_mark(POOL[tt][0],"size-5 text-[7px]")}<span class="flex-1 truncate">{short(POOL[tt][1])}</span>{movement(cons[tt]-(r+1) if cons[tt]<=25 else None) if abs(cons[tt]-(r+1))>=3 else ""}</li>' for r, tt in enumerate(ballots[hl_voter])) + '</ol><p class="mt-3 text-xs text-muted-foreground">Arrows: spots above (▲) or below (▼) consensus. Voter note: "Placeholder note explaining a ranking choice."</p>', "pb-5 pt-2"), "gap-0")
-    head = f'''<div class="pt-5">{crumbs(["College Football","Rankings","FCS","2026","Week 7","Ballots"])}
-<div class="mt-3 flex flex-wrap items-end justify-between gap-4"><div><div class="kicker text-primary">Redshirt Sports Poll · Ballot breakdown</div><h1 class="font-display text-[2.3rem] font-extrabold uppercase leading-none lg:text-headline-lg">FCS Week 7 Ballots</h1>
-<p class="mt-2 text-sm text-muted-foreground">25 voters · every ballot published at release · 25-to-1 scoring · <a href="#" class="text-primary hover:underline">Download CSV</a> · hash <span class="font-mono text-xs">9f2c…e1</span> · example data</p></div>
-<div class="flex items-center gap-2">{select_("2026")}{select_("Week 7")}{button("","outline","icon","share",attrs='aria-label="Share"')}</div></div></div>
-{underline_tabs(["Poll","Ballots","Voters","History","Methodology"],1,"mt-5")}'''
-    # mobile: voter-by-voter view
-    mob_ballot = '<ol class="divide-y rounded-xl border bg-card">' + "".join(f'<li class="flex items-center gap-2 px-3 py-2 text-sm {"bg-gold/10" if abs(cons[tt]-(r+1))>=7 else ""}"><span class="w-5 text-right font-display text-base font-bold tabular">{r+1}</span>{team_mark(POOL[tt][0],"size-6 text-[7px]")}<span class="flex-1 truncate font-medium">{short(POOL[tt][1])}</span><span class="text-xs text-muted-foreground tabular">cons. #{cons[tt]}</span>{badge("Outlier","outline","border-gold text-foreground") if abs(cons[tt]-(r+1))>=7 else ""}</li>' for r, tt in enumerate(ballots[hl_voter][:12])) + '</ol>'
-    body = f'''{ticker()}{header()}
-<main class="mx-auto max-w-site px-4 lg:px-6">{head}
- <div class="hidden lg:block">
-  <div class="grid gap-4 pt-5 lg:grid-cols-3">{filters}{dist}{outl}</div>
-  <div class="mt-4 flex items-center justify-between"><h2 class="font-display text-2xl font-extrabold uppercase">Teams × voters</h2>{tabs(["Matrix","By voter","Outliers"],0)}</div>
-  <div class="mt-3">{matrix}</div>
-  <div class="mt-6">{voter_ballot}</div>
- </div>
- <div class="grid gap-4 pt-4 lg:hidden">
-  {tabs(["By voter","Matrix","By team"],0,"w-full",full=True)}
-  <div class="flex items-center gap-2">{select_("Voter 07","flex-1")}{button("","outline","icon","chev-left",attrs='aria-label="Previous voter"')}{button("","outline","icon","chev-right",attrs='aria-label="Next voter"')}</div>
-  <div class="flex items-center justify-between text-xs text-muted-foreground"><span>Full ballot · 25 teams</span><span>3 outliers</span></div>
-  {mob_ballot}
-  {button("Show all 25","outline","default",cls="w-full")}
-  {dist}
-  {outl}
- </div>
-</main>{footer()}{bottom_nav(1)}'''
-    return page("FCS Week 7 Ballots", body, path="/college-football/rankings/fcs/2026/week-7/ballots")
+    return page("FCS 2026 Bracket Challenge", body, path="/college/football/bracket-challenge/fcs/2026")
 
 # =====================================================================
 # News index and division news
@@ -285,8 +184,8 @@ def news_index():
     river = "".join(river_item(s, i) for i, s in enumerate(MORE[3:10]))
     body = f'''{ticker()}{header()}
 <main class="mx-auto max-w-site px-4 lg:px-6">
- <div class="pt-5">{crumbs(["College Football","News"])}<div class="mt-3 flex flex-wrap items-end justify-between gap-3"><h1 class="font-display text-[2.4rem] font-extrabold uppercase leading-none lg:text-headline-lg">College Football News</h1>{button("Follow College Football","outline","sm","star")}</div>
- <div class="mt-4">{chip_links(divs,"All")}</div><p class="mt-2 text-[11px] text-muted-foreground">Division chips are links to <span class="font-mono">/college-football/{{division}}/news</span> (paths, not filters).</p></div>
+ <div class="pt-5">{crumbs(["College","Football","News"])}<div class="mt-3 flex flex-wrap items-end justify-between gap-3"><h1 class="font-display text-[2.4rem] font-extrabold uppercase leading-none lg:text-headline-lg">College Football News</h1>{button("Follow College Football","outline","sm","star")}</div>
+ <div class="mt-4">{chip_links(divs,"All")}</div><p class="mt-2 text-[11px] text-muted-foreground">Division chips are links to <span class="font-mono">/college/football/{{division}}/news</span> (paths, not filters).</p></div>
  <div class="mt-5">{top_grid()}</div>
  <div class="my-8 flex justify-center">{ad(970,90,"Ad · 970×90 / 320×100 · reserved")}</div>
  <div class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -295,25 +194,25 @@ def news_index():
   <aside class="grid content-start gap-6">{most_read()}{rankings_widget(10)}{ad(300,250)}{newsletter_card()}</aside>
  </div>
 </main>{footer()}{bottom_nav(0)}'''
-    return page("College Football News", body, path="/college-football/news")
+    return page("College Football News", body, path="/college/football/news")
 
 def division_news():
     confs = ["All conferences","Big Sky","CAA","MVFC","SoCon","Patriot","UAC","Southland","Big South-OVC"]
     river = "".join(river_item(s, i) for i, s in enumerate([MORE[i % len(MORE)] for i in range(4, 12)]))
-    band = f'''<div class="border-b bg-gradient-to-b from-muted/60 to-background"><div class="mx-auto max-w-site px-4 pb-0 pt-5 lg:px-6">{crumbs(["College Football","FCS","News"])}
+    band = f'''<div class="border-b bg-gradient-to-b from-muted/60 to-background"><div class="mx-auto max-w-site px-4 pb-0 pt-5 lg:px-6">{crumbs(["College","Football","FCS","News"])}
 <div class="mt-3 flex flex-wrap items-end justify-between gap-3"><div><div class="kicker text-primary">Football Championship Subdivision</div><h1 class="font-display text-[2.4rem] font-extrabold uppercase leading-none lg:text-headline-lg">FCS News</h1></div><div class="flex gap-2">{button("Following FCS","secondary","sm","check")}{button("","outline","icon-sm","bell",attrs='aria-label="Alerts"')}</div></div>
-{path_tabs([("Home","/college-football/fcs"),("News","/college-football/fcs/news"),("Rankings","/college-football/rankings/fcs"),("Bracket Challenge","/college-football/bracket-challenge/fcs"),("Transfer Portal","/college-football/transfer-portal"),("Conferences","/college-football/conferences")],1,"mt-5 border-b-0")}</div></div>'''
+{path_tabs([("Home","/college/football/fcs"),("News","/college/football/fcs/news"),("Rankings","/college/football/rankings/fcs"),("Bracket Challenge","/college/football/bracket-challenge/fcs"),("Transfer Portal","/college/football/transfer-portal"),("Conferences","/college/football/conferences")],1,"mt-5 border-b-0")}</div></div>'''
     body = f'''{ticker()}{header()}{band}
 <main class="mx-auto max-w-site px-4 lg:px-6">
- <div class="pt-4">{chip_links(confs,"All conferences")}<p class="mt-2 text-[11px] text-muted-foreground">Conference chips link to <span class="font-mono">/college-football/conferences/{{conf}}</span>.</p></div>
+ <div class="pt-4">{chip_links(confs,"All conferences")}<p class="mt-2 text-[11px] text-muted-foreground">Conference chips link to <span class="font-mono">/college/football/conferences/{{conf}}</span>.</p></div>
  <div class="grid gap-8 pt-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
   <div><div class="flex items-center justify-between border-b pb-3"><h2 class="font-display text-2xl font-extrabold uppercase">Page 2</h2><span class="text-xs text-muted-foreground">Stories 25–48 of 1,130 (example)</span></div><div class="divide-y">{river}</div>
    <div class="pt-4">{pagination(2,48)}</div>
-   <p class="mt-3 text-center text-[11px] text-muted-foreground">Canonical: <span class="font-mono">/college-football/fcs/news?page=2</span> · page 1 has no parameter</p></div>
+   <p class="mt-3 text-center text-[11px] text-muted-foreground">Canonical: <span class="font-mono">/college/football/fcs/news?page=2</span> · page 1 has no parameter</p></div>
   <aside class="grid content-start gap-6">{rankings_widget(10, False)}{bracket_cta()}{ad(300,250)}{most_read()}</aside>
  </div>
 </main>{footer()}{bottom_nav(0)}'''
-    return page("FCS News · Page 2", body, path="/college-football/fcs/news?page=2")
+    return page("FCS News · Page 2", body, path="/college/football/fcs/news?page=2")
 
 # =====================================================================
 # Transfer portal and recruiting hubs (article-driven)
@@ -322,7 +221,7 @@ def storyline_cards(items):
     return '<div class="grid gap-3 sm:grid-cols-3">' + "".join(f'''<a href="#" class="group rounded-xl border bg-card p-4 hover:bg-accent/40"><div class="kicker text-primary">Storyline</div><div class="mt-1 font-display text-xl font-bold uppercase leading-tight group-hover:underline">{t}</div><p class="mt-1 text-sm text-muted-foreground">{d}</p><div class="mt-3 flex items-center gap-2 text-xs text-muted-foreground">{icon("news","size-3.5")}{n} stories · updated {u}</div></a>''' for t, d, n, u in items) + '</div>'
 
 def hub_band(kicker, title, dek, tabs_items, active, follow_label):
-    return f'''<div class="border-b bg-ink text-ink-foreground"><div class="mx-auto max-w-site px-4 pt-5 lg:px-6"><nav class="flex items-center gap-1 text-xs text-ink-foreground/60">College Football{icon("chev-right","size-3")}<span class="text-ink-foreground">{title}</span></nav>
+    return f'''<div class="border-b bg-ink text-ink-foreground"><div class="mx-auto max-w-site px-4 pt-5 lg:px-6"><nav class="flex items-center gap-1 text-xs text-ink-foreground/60">College{icon("chev-right","size-3")}Football{icon("chev-right","size-3")}<span class="text-ink-foreground">{title}</span></nav>
 <div class="mt-3 flex flex-wrap items-end justify-between gap-3"><div><div class="kicker text-primary">{kicker}</div><h1 class="font-display text-[2.4rem] font-extrabold uppercase leading-none lg:text-headline-lg">{title}</h1><p class="mt-2 max-w-2xl text-sm text-ink-foreground/75">{dek}</p></div>
 <div class="flex gap-2">{button(follow_label,"default","sm","bell")}</div></div>
 <nav class="mt-5 flex gap-6 overflow-x-auto">{"".join(f'<a href="#" class="whitespace-nowrap border-b-2 pb-3 text-sm font-semibold {"border-primary text-ink-foreground" if i==active else "border-transparent text-ink-foreground/60 hover:text-ink-foreground"}">{t}</a>' for i,t in enumerate(tabs_items))}</nav></div></div>'''
@@ -335,7 +234,7 @@ def tracker_table(rows, kind="portal"):
 <td class="p-2">{badge(s, st[s])}</td><td class="hidden p-2 text-muted-foreground md:table-cell">{d}</td><td class="p-2 pr-4 text-right"><a href="#" class="text-xs font-medium text-primary hover:underline">Story</a></td></tr>''' for n,p,fa,f,ta,to,s,d in rows)
     head_from = "From" if kind == "portal" else "High school"
     return f'''<div class="overflow-x-auto rounded-xl border bg-card"><table class="w-full text-sm"><thead><tr class="border-b text-left text-[11px] uppercase tracking-wide text-muted-foreground"><th class="h-9 p-2 pl-4">Name</th><th class="p-2">Pos</th><th class="hidden p-2 sm:table-cell">{head_from}</th><th class="p-2">{"To" if kind=="portal" else "Committed to"}</th><th class="p-2">Status</th><th class="hidden p-2 md:table-cell">Date</th><th class="p-2 pr-4"></th></tr></thead><tbody>{trs}</tbody></table>
-<div class="flex flex-wrap items-center gap-3 border-t px-4 py-2.5 text-[11px] text-muted-foreground">{icon("info","size-3.5")}Editor-maintained in Sanity, not exhaustive. Every row links to a Redshirt story. Last updated Oct 13 (example).<a href="#" class="ml-auto font-medium text-primary">Full list →</a></div></div>'''
+<div class="flex flex-wrap items-center gap-3 border-t px-4 py-2.5 text-[11px] text-muted-foreground">{icon("info","size-3.5")}Editor-maintained in Sanity, not exhaustive. Rows link to a Redshirt story when there is one. Last updated Oct 13 (example).<a href="#" class="ml-auto font-medium text-primary">Full list →</a></div></div>'''
 
 def portal_page():
     rows = [("Example Player A","QB","SIU","S. Illinois","MSU","Montana State","Committed","Oct 12"),
@@ -352,7 +251,7 @@ def portal_page():
    <article class="group grid gap-4 sm:grid-cols-[1.3fr_1fr]">{photo("Lead photo placeholder","aspect-video","rounded-xl")}<div><div class="kicker text-primary">Transfer Portal · Analysis</div><h2 class="mt-1 font-display text-headline font-extrabold uppercase group-hover:underline">{lead[1]}</h2><p class="mt-2 text-sm text-muted-foreground">Placeholder dek for the lead portal story.</p><div class="mt-2 text-xs text-muted-foreground">Writer Six · 1h ago</div></div></article>
    <section><div class="mb-3 flex items-center justify-between"><h2 class="font-display text-2xl font-extrabold uppercase">Storylines</h2>{button("All storylines","link","sm",icon_right="chev-right")}</div>
     {storyline_cards([("FCS → FBS moves","Placeholder: who is leaving for the FBS and what it means.",14,"2h"),("Big Sky window","Placeholder: conference-wide portal roundup.",9,"5h"),("Quarterback carousel","Placeholder: starting QBs on the move.",11,"1d")])}</section>
-   <section><div class="mb-3 flex items-center justify-between"><h2 class="font-display text-2xl font-extrabold uppercase">Tracker</h2>{button("Full tracker","outline","sm",icon_right="chev-right")}</div>{__import__("pages3").head_row()}<ol class="grid gap-2">{"".join(__import__("pages3").portal_row(e) for e in __import__("pages3").ENTRIES[:4])}</ol><p class="mt-2 text-[11px] text-muted-foreground">Latest four entries; the full tracker with filters lives at <span class="font-mono">/transfer-portal</span>.</p></section>
+   <section><div class="mb-3 flex items-center justify-between"><h2 class="font-display text-2xl font-extrabold uppercase">Tracker</h2>{button("Full tracker","outline","sm",icon_right="chev-right")}</div>{__import__("pages3").head_row()}<ol class="grid gap-2">{"".join(__import__("pages3").portal_row(e) for e in __import__("pages3").ENTRIES[:4])}</ol><p class="mt-2 text-[11px] text-muted-foreground">Latest four entries. Story links appear when Redshirt has a story on the player; not every entry has one. The full tracker with filters lives at <span class="font-mono">/transfer-portal</span>.</p></section>
    <section><div class="flex items-center justify-between border-b pb-3"><h2 class="font-display text-2xl font-extrabold uppercase">Latest portal news</h2></div><div class="divide-y">{river}</div><div class="pt-4">{pagination(1,12)}</div></section>
   </div>
   <aside class="grid content-start gap-6">
@@ -362,7 +261,7 @@ def portal_page():
   </aside>
  </div>
 </main>{footer()}{bottom_nav(0)}'''
-    return page("Transfer Portal", body, path="/college-football/transfer-portal")
+    return page("Transfer Portal", body, path="/college/football/transfer-portal")
 
 def recruiting_page():
     commits = [("MSU","Montana State","Example Recruit A","QB","Example High School, MT"),("NDSU","North Dakota State","Example Recruit B","OL","Example High School, ND"),
@@ -383,7 +282,7 @@ def recruiting_page():
   <aside class="grid content-start gap-6">{most_read()}{ad(300,250)}{card(card_content(f'<div class="flex items-center gap-3"><span class="flex size-9 items-center justify-center rounded-full bg-accent text-primary">{icon("star")}</span><div class="flex-1 text-sm"><div class="font-semibold">Follow your team</div><div class="text-muted-foreground">Commit stories go to your For you feed and My Teams email.</div></div></div>',"py-4"))}{newsletter_card()}</aside>
  </div>
 </main>{footer()}{bottom_nav(0)}'''
-    return page("Recruiting", body, path="/college-football/recruiting")
+    return page("Recruiting", body, path="/college/football/recruiting")
 
 # =====================================================================
 # Sport-agnostic team hub: /teams/montana-state-bobcats/football

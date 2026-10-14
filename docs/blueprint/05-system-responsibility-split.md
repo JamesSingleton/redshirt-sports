@@ -34,7 +34,7 @@ sequenceDiagram
   U->>C: Sign up / sign in
   C-->>W: webhook user.created (svix-signed)
   W->>P: upsert users, user_roles
-  U->>W: Request /college-football/news/slug-id
+  U->>W: Request /college/football/news/slug-id
   W->>S: GROQ (cached, tag post:slug)
   W->>P: related rankings (cached, tag rankings:fcs)
   W-->>U: HTML (static shell + streamed dynamic holes)

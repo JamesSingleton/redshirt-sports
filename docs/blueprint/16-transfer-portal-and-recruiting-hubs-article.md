@@ -4,18 +4,18 @@ Hub pages for the two highest-intent off-field topics, with no player databases.
 
 | Page | URL | Content |
 |---|---|---|
-| Portal hub | `/college-football/transfer-portal` (`?page=n`), same for basketball | Lead story, storylines (Sanity `storyline`), river of portal-tagged articles, a 4-row **tracker preview** (same `PortalRow`), link to the full tracker |
+| Portal hub | `/college/football/transfer-portal` (`?page=n`), same for basketball | Lead story, storylines (Sanity `storyline`), river of portal-tagged articles, a 4-row **tracker preview** (same `PortalRow`), link to the full tracker |
 | **Portal tracker** | `/transfer-portal` with `?sport=&division=&status=&position=&conference=&school=&sort=&page=` | Filterable list of `portalEntry` rows (§16.1) |
-| Recruiting hub | `/college-football/recruiting` (`?page=n`) | Commits coverage cards, signing-day package, storylines, river, optional curated commits list (`curatedTracker`, kind `recruiting`) |
+| Recruiting hub | `/college/football/recruiting` (`?page=n`) | Commits coverage cards, signing-day package, storylines, river, optional curated commits list (`curatedTracker`, kind `recruiting`) |
 | Team view | `/teams/{slug}/football/news` | Team's portal/recruiting stories via tags; the team's portal entries in a small `PortalRow` list |
 
 Do not build: player profile pages, player photos, star ratings or grades, NIL valuations, prediction percentages, class rankings, or any ingestion of portal data.
 
 ### 16.1 Portal tracker
 
-> **Status: in scope, UI redesign required before build.** The URL design, `searchParams` rules, Sanity schema, GROQ, caching and the named-`grid-template-areas` technique below are approved for planning. The *visual* design (the `PortalRow` card, filter bar and summary cards shown in the screenshots) will be redone before implementation. Do not build tracker UI from these mockups until James signs off on the redesign; the schema, query and route plumbing can be built first.
->
-> **Story link: under review.** v1.5 required every entry to link a Redshirt story. James notes not every player has a story, so `story` is **optional** until Open Decision #16 is settled: Studio shows a warning (not an error) when it is empty, the GROQ no longer filters out story-less entries, and `PortalRow` hides the Story link when there is none.
+> **Status: in scope, UI redesign required before build (handoff).** The URL design, `searchParams` rules, Sanity schema, GROQ, caching and the named-`grid-template-areas` technique below are approved for planning. The *visual* design (the `PortalRow` card, filter bar and summary cards shown in the screenshots) will be redone before implementation. Do not build tracker UI from these mockups until James signs off on the redesign; the schema, query and route plumbing can be built first.
+
+> **Story link optional (v1.7).** v1.5 required every entry to link a Redshirt story. Not every player has one, so `story` is **optional** until Open Decision #16 is settled: Studio shows a warning (not an error) when it is empty, the GROQ no longer filters out story-less entries, and `PortalRow` shows "No story yet" instead of the Story link.
 
 **Why one root URL with query filters.** The tracker is a *view over one dataset* with many filter combinations, so filters are `searchParams` (as asked), including sport. It lives in its own static root folder, `app/(site)/transfer-portal/page.tsx` (folder = URL, no rewrites; `transfer-portal` is added to `RESERVED_ROOT_SEGMENTS`). Sport hubs link in with the sport preselected (`/transfer-portal?sport=mens-basketball`). Football is the default, so it carries no `sport` param.
 
@@ -344,7 +344,7 @@ export function PortalRow({ entry: e }: { entry: PortalEntryRow }) {
         <Newspaper className="size-3.5" aria-hidden /> Story <ChevronRight className="size-3" aria-hidden />
         <span className="sr-only">: {e.story.title}</span>
       </a>
-      ) : null /* story optional pending §30 #16 */}
+      ) : <span className="[grid-area:story] justify-self-end text-xs text-muted-foreground">No story yet</span> /* story optional pending §30 #16 */}
     </li>
   );
 }
@@ -374,7 +374,7 @@ I fetched `on3.com/transfer-portal/wire/football/` and took Playwright screensho
 | "Last → new" school flow with arrows; "?" when undecided | Previous → new school chips (neutral marks + conference); dashed "?" + "Undecided" when entered; "Returning" when withdrawn. Only previous → new; no multi-school chains |
 | Filter selects above the list (year, sport, team, status, position) | Sport, Division, Status, Position, Conference, School search, Sort, all in `searchParams`, plus removable chips and "Clear all"; mobile `Sheet` |
 | Summary stat cards (in portal, committed, withdrawn) | Same three counts, from Redshirt's own entries and labelled "tracked, not exhaustive" |
-| Not borrowed | Player photos, star ratings, transfer/HS grades, NIL valuations, prediction percentages, ads between rows. (v1.5 also required every row to link a Redshirt story; that rule is under review, §30 #16) |
+| Not borrowed | Player photos, star ratings, transfer/HS grades, NIL valuations, prediction percentages, ads between rows. (v1.5 also required every row to link a Redshirt story; since v1.7 the link is optional pending §30 #16) |
 
 ![Portal tracker, desktop (1440×900)](../mockups/screenshots/portal-tracker-desktop.png)
 

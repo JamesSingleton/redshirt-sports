@@ -39,13 +39,14 @@ def mega():
         links = "".join(f'<li><a href="#" class="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground">{d}{icon("chev-right","size-3.5 opacity-40")}</a></li>' for d in divs)
         cols += f'<div><div class="kicker mb-2 text-primary">{sport}</div><ul class="grid gap-0.5">{links}</ul><div class="mt-3 flex flex-wrap gap-1.5">{badge("News","outline")}{badge("Rankings","outline")}{badge("Bracket Challenge","outline")}{badge("Transfer Portal","outline")}{badge("Recruiting","outline")}{badge("Teams","outline")}</div></div>'
     return f'''<div data-slot="navigation-menu-viewport" class="absolute inset-x-0 top-full z-40 hidden border-b bg-popover shadow-lg [.mega-open_&]:block">
+  <div class="mx-auto flex max-w-site items-center gap-3 border-b px-6 py-2.5 text-sm"><a href="#" title="/college" class="font-semibold hover:underline">College hub{icon("chev-right","size-3.5 inline opacity-60")}</a><span class="font-mono text-xs text-muted-foreground">/college</span><span class="ml-auto text-xs text-muted-foreground">High School: future level (<span class="font-mono">/high-school</span>, not built)</span></div>
   <div class="mx-auto grid max-w-site grid-cols-[1fr_1fr_1fr_1.1fr] gap-8 px-6 py-6">{cols}
    <div class="rounded-xl border bg-muted/50 p-4"><div class="kicker mb-2 text-muted-foreground">Featured</div>{photo("Promo image placeholder","aspect-[16/9]")}<div class="mt-3 font-display text-lg font-bold uppercase leading-tight">FCS Bracket Challenge 2026</div><p class="mt-1 text-sm text-muted-foreground">Pick all 23 games. Create a group for your friends. (example promo)</p></div>
   </div></div>'''
 
 def header(active="College Football", app="web"):
     nav = "".join(f'<button class="inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2.5 text-sm font-semibold {"text-foreground" if s==active else "text-muted-foreground"} hover:bg-accent hover:text-accent-foreground" aria-haspopup="true">{s}{icon("chev-down","size-3.5 opacity-60")}</button>' for s,_ in SPORTS)
-    extra = "".join(f'<a href="#" class="{"hidden xl:block" if x in ("Podcasts","Teams") else ""} shrink-0 whitespace-nowrap px-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground">{x}</a>' for x in ["Rankings","Bracket Challenge","Teams","Podcasts"])
+    extra = "".join(f'<a href="#" class="{"hidden 2xl:block" if x=="Podcasts" else "hidden xl:block" if x=="Teams" else ""} shrink-0 whitespace-nowrap px-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground">{x}</a>' for x in ["Rankings","Bracket Challenge","Teams","Podcasts"])
     return f'''<header class="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
  <div class="relative">
   <div class="mx-auto flex h-14 max-w-site items-center gap-3 px-4 lg:h-16 lg:px-6">

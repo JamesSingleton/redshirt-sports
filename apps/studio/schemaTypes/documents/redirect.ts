@@ -33,6 +33,11 @@ export const redirect = defineType({
     defineField({
       name: "permanent",
       type: "boolean",
+      description: "Legacy redirects are permanent (301). Temporary redirects are not allowed.",
+      validation: (rule) =>
+        rule.required().custom((value) =>
+          value === true ? true : "Redirects must be permanent",
+        ),
     }),
   ],
   initialValue: {

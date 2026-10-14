@@ -1,10 +1,12 @@
 # Build order (Cursor)
 
-Generated from [Appendix D](appendix-d-build-order-for-cursor.md) of blueprint v1.5 (handoff edition), with **Milestone 0: audit the existing repo vs. the blueprint** added at the top. The original "Milestone 0: Monorepo skeleton" is now **Milestone 0b** and is gap-fill only, because the repo already exists.
+Generated from [Appendix D](appendix-d-build-order-for-cursor.md) of blueprint v1.7 (handoff edition), with **Milestone 0: audit the existing repo vs. the blueprint** added at the top. The original "Milestone 0: Monorepo skeleton" is now **Milestone 0b** and is gap-fill only, because the repo already exists.
 
 **How to use:** one milestone = one or more PRs on feature branches. Tick the boxes in the PR that satisfies them. Work strictly against the local stack ([LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)). When the blueprint and the repo differ, the repo's names and paths win, and the blueprint's rules (no rewrites, legacy-301-only redirects, `?page=n`, product refusals) still apply.
 
 **Evolution, not rewrite:** keep www.redshirtsports.com working after every PR. When a route moves, ship the new route and its legacy 301 in the same PR. Existing features (polls, rankings, ballots, RSS, the rankings API) keep working throughout. Milestones 1–3 and 5 are partly done in the repo already (schema, Clerk webhook, Sanity schemas, the poll engine). For those, treat each box as "verify or fill the gap" and don't rebuild what works.
+
+**URLs (v1.6+):** the target is `/college/{sport}/…` (`football`, `mens-basketball`, `womens-basketball`) under a real `/college` level hub, with `/high-school/…` reserved for later. That's the shape the repo already serves, so most sport URLs stay where they are. Only the residual moves in [§27](27-legacy-redirects-from-the-current-site.md) need legacy 301s.
 
 ---
 
@@ -25,32 +27,33 @@ Generated from [Appendix D](appendix-d-build-order-for-cursor.md) of blueprint v
 **Do:** Read `AGENTS.md`, `.cursor/rules/`, `CONTEXT.md`, `CLAUDE.md` and this folder. Complete [REPO_AUDIT.md](REPO_AUDIT.md) by checking every row against the code. Get the local stack running. Add the local-only tooling (`scripts/assert-local-env.mjs`, `scripts/dev-setup.sh`, the `dev:setup`/`env:check` root scripts, the `.env.local.example` files, and the drizzle-config guard). Propose the PR sequence for Milestones 0b–8 mapped onto the existing code.
 
 **Verify the local stack:**
-- [x] Docker running; `pnpm dev:setup` completes (or every step in it, run by hand)
-- [x] `supabase start --workdir apps/web` is up: Postgres on `127.0.0.1:54322`, Studio `:54323`, Inbucket `:54324`
-- [x] `apps/web/.env.local` has `DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres` and `node scripts/assert-local-env.mjs` prints ✓
+- [ ] Docker running; `pnpm dev:setup` completes (or every step in it, run by hand)
+- [ ] `supabase start --workdir apps/web` is up: Postgres on `127.0.0.1:54322`, Studio `:54323`, Inbucket `:54324`
+- [ ] `apps/web/.env.local` has `DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres` and `node scripts/assert-local-env.mjs` prints ✓
 - [ ] `supabase db reset --local --workdir apps/web` applies all migrations (`0000…0022`) and `seed.sql` without errors; `pnpm --filter @redshirt-sports/web db:migrate` then reports nothing pending
 - [ ] Example seed runs locally (fake schools, voters, ballots and one published week), and the rankings page renders from local data
-- [x] `drizzle-kit migrate`/`push` with a non-local `DATABASE_URL` is refused by the guard (try it with a dummy remote URL)
+- [ ] `drizzle-kit migrate`/`push` with a non-local `DATABASE_URL` is refused by the guard (try it with a dummy remote URL)
 - [ ] Sanity Studio runs at `localhost:3333` on the **`development`** dataset (never `production`), and the web app reads from the same dataset
 - [ ] Clerk sign-in works locally with **development instance** keys (`pk_test_`/`sk_test_`)
 - [ ] Email goes to preview/test only (`EMAIL_TRANSPORT=preview`, or Resend test recipients)
 - [ ] `pnpm dev` serves web `:3000`, admin `:3001`, studio `:3333`; `pnpm lint`, `pnpm check:types` and `pnpm test` pass
 - [ ] No `vercel env pull` output, production secrets or `PROD_DATABASE_URL` value in any `.env*` file
 
-Reset did apply `0000`–`0022` and `seed.sql`. `db:migrate` after that is not a no-op (Drizzle's journal is empty, so it tries to re-apply). Example seed did run. The rankings page was not opened. `EMAIL_TRANSPORT=preview` is set; no message was sent. `PROD_DATABASE_URL` is empty and this session did not run `vercel env pull`. PostHog, Sentry, and `NEXT_PUBLIC_SITE_URL` in `.env.local` still point at hosted services, so that last box stays open.
-
 **Audit, accept when:**
-- [x] `REPO_AUDIT.md` has every row verified (✓ / ✗ / n/a) with file references
-- [x] Each conflict (A1–A14) has a recorded decision or an owner question for James
-- [x] Route inventory: every current public URL listed with its §17 target (or "keep") and whether it needs a legacy 301 (Open Decision #18)
-- [x] `rg -n "rewrites|NextResponse.rewrite" apps packages` result recorded (expected: none)
-- [x] Redirect inventory: all Sanity `redirect` docs in the **development** dataset reviewed for non-permanent or slug-change entries (no production writes)
-- [x] Follow-up PR list written (ordered, each mapped to a milestone below)
-- [x] Transfer Portal Tracker noted as **UI redesign pending (#17)** and **story optional (#16)**
+- [ ] `REPO_AUDIT.md` has every row verified (✓ / ✗ / n/a) with file references
+- [ ] Each conflict (A1–A14) has a recorded decision or an owner question for James
+- [ ] Route inventory: every current public URL listed with its v1.6 target. Expected: `/college/{sport}/news`, `/college/news` and sport hubs **keep** their URL; residual moves are listed with their legacy 301 (rankings week segment, `news/{division}` → `{division}/news`, `/college/teams/*`, root `/[slug]`, `/authors/*`, `/vote/*`); see Open Decision #18
+- [ ] Decide whether `app/college/[sport]` stays a dynamic segment (`generateStaticParams` + `dynamicParams = false`, accepted in §17.3) or moves to generated static `college/football|mens-basketball|womens-basketball` folders
+- [ ] `/college` level-hub gap noted (today there is `/college/news` but no `/college` page) and `/high-school` confirmed reserved
+- [ ] `rg -n "rewrites|NextResponse.rewrite" apps packages` result recorded (expected: none)
+- [ ] Redirect inventory: all Sanity `redirect` docs in the **development** dataset reviewed for non-permanent or slug-change entries (no production writes)
+- [ ] Follow-up PR list written (ordered, each mapped to a milestone below)
+- [ ] Transfer Portal Tracker noted as **UI redesign pending (#17)** and **story optional (#16)**
 
 ---
-
 Execution plan. One milestone = one PR against `main` (or your default branch). Do not skip acceptance criteria. Prefer implementing packages before apps that consume them.
+
+
 
 ### Milestone 0b — Monorepo skeleton (gap-fill in the existing repo)
 
@@ -129,19 +132,20 @@ Execution plan. One milestone = one PR against `main` (or your default branch). 
 
 - [ ] **Milestone complete** (all boxes below ticked, PR merged)
 
-**Do:** Route manifest + factory + `pnpm routes:gen` (§17.3); sport hubs, division hubs, news index and division news with `?page=n`, article `/{sport}/news/{slug}`, sport-agnostic team hubs `/teams/{school-nickname}` with sport sections, conference hubs, portal and recruiting hubs (§16), people pages, `@rs/seo` metadata + JSON-LD + news sitemap + OG. Legacy-redirect table stub. **No rewrites.**
+**Do:** Route manifest (`LEVELS` + `SPORTS`) + factory + `pnpm routes:gen` (§17.3); the `/college` level hub and `/college/news`; sport hubs, division hubs, news index and division news with `?page=n`, article `/{sport}/news/{slug}`, sport-agnostic team hubs `/teams/{school-nickname}` with sport sections, conference hubs, portal and recruiting hubs (§16), people pages, `@rs/seo` metadata + JSON-LD + news sitemap + OG. Legacy-redirect table stub. **No rewrites.**
 
 **Accept when:**
-- [ ] `/college-football/news/{slug}` returns 200 with NewsArticle JSON-LD
+- [ ] `/college/football/news/{slug}` returns 200 with NewsArticle JSON-LD
 - [ ] `rg -n "rewrites|NextResponse.rewrite" apps packages` returns nothing; every `page.tsx` path under `app/(site)` equals its public URL
-- [ ] `pnpm routes:gen && git diff --exit-code` passes (stubs are up to date)
-- [ ] `/college-football/news?page=2` renders with canonical `…/news?page=2`; `?page=1` canonicalizes to `/college-football/news` without redirecting; `?page=0`, `?page=abc` and past the last page return 404
+- [ ] `pnpm routes:gen && git diff --exit-code` passes (stubs are up to date; generator reads `LEVELS` + `SPORTS`)
+- [ ] `/college` renders the level hub (sport cards + latest college news) and `/college/news?page=2` paginates; `/college/xyz` and `/high-school` return 404 (reserved, not built)
+- [ ] `/college/football/news?page=2` renders with canonical `…/news?page=2`; `?page=1` canonicalizes to `/college/football/news` without redirecting; `?page=0`, `?page=abc` and past the last page return 404
 - [ ] The news shell is prerendered (PPR); only the river is dynamic and its data comes from a `"use cache"` function keyed by page
-- [ ] `/teams/montana-state-bobcats/football` renders; `/teams/montana-state-bobcats/hockey` and `/college-football/xyz` return 404
+- [ ] `/teams/montana-state-bobcats/football` renders; `/teams/montana-state-bobcats/hockey` and `/college/football/xyz` return 404
 - [ ] Editing a published post's slug is impossible in Studio (read-only)
 - [ ] `/transfer-portal?division=fcs&status=committed&position=qb&sort=name&page=2` filters correctly, canonicalizes to `/transfer-portal?division=fcs&page=2` with `noindex, follow`; `?division=bogus` drops the filter (noindex), `?page=abc` 404s; no redirects
 - [ ] **Blocked on the tracker UI redesign:** `PortalRow` uses a named-`grid-template-areas` `@utility` that restacks below `lg`, and matches the *approved redesign* (the v1.5 `portal-tracker-*.png` shots are layout reference only)
-- [ ] Studio refuses to publish a committed `portalEntry` without `newSchool` and `committedOn`; an entry without a `story` shows a warning but publishes (story optional pending §30 #16); publishing expires `portal:<sport>`
+- [ ] Studio refuses to publish a committed `portalEntry` without `newSchool` and `committedOn`; an entry without a `story` shows a warning but publishes (story optional pending §30 #16) and renders "No story yet"; publishing expires `portal:<sport>`
 - [ ] Root `/about` is a page-builder page; root `/some-old-article-slug` 301s when mapped
 - [ ] Lighthouse CI budgets for an article page meet §26 (or are recorded with a follow-up issue if fonts pending)
 - [ ] Team hub shows outbound schedule/roster link cards when URLs exist
@@ -160,7 +164,10 @@ Execution plan. One milestone = one PR against `main` (or your default branch). 
 - [ ] Voter submits a 25-team ballot on `vote.`; after close it is locked
 - [ ] Tick publishes on `publish_at`; web rankings page updates via tags without redeploy
 - [ ] Public ballots page lists every locked ballot after publish; CSV hash matches `poll_week_summaries.computed_hash`
-- [ ] `/college-football/rankings/fcs/2026/week-7/ballots` shows the teams × voters matrix, flags outliers per the configured rule, filters voters via `?voters=` without changing the canonical, and shows a per-team distribution (matches `ballots-desktop.png`, `ballots-mobile.png`)
+- [ ] `/college/football/rankings/fcs/2026/week-7/ballots` defaults to the **unfiltered** teams × all-voters matrix (no voter pre-selected) with a sticky header row and team column in a two-way scroll container, flags outliers per the configured rule (≥ 8 spots or a top-15 omission), highlights voters via `?voters=` without changing the canonical, and shows a per-team distribution (matches `ballots-desktop.png` / `ballots-mobile.png`)
+- [ ] `…/ballots/by-voter` lists every voter with a full 25-team ballot card, a diff chip vs consensus on every pick, omitted top-15 teams, `?q=` search, `?sort=` and `?page=n` (matches `ballots-by-voter-*.png`)
+- [ ] Poll page shows "On X of N ballots" (from `ballots_listed`), a "See all N ballots" CTA with the live voter count, and **Others receiving votes**, **Dropped out of the Top 25** (with last week's rank) and **No longer receiving votes** (matches `rankings-*.png`)
+- [ ] `…/fcs/voters` roster links every voter to their current ballot and `/people/{slug}`; `…/fcs/history` renders the rank chart, week-by-week table and No. 1 history; `/rankings/methodology` documents points, FPV, eligibility, window automation, transparency, outlier policy and FAQ
 - [ ] Property test: TS `tabulate` ≡ SQL variant on 50 random ballots
 
 ---
@@ -174,7 +181,7 @@ Execution plan. One milestone = one PR against `main` (or your default branch). 
 **Accept when:**
 - [ ] Engine tests green for `fcs24` (23 games, 8 byes, max score 720)
 - [ ] Creating two FCS events for the same season fails at the DB
-- [ ] URL `/college-football/bracket-challenge/fcs/2026` resolves the unique event; `/college-football/bracket-challenge/fcs` renders a landing page (200, no redirect) linking to the current year
+- [ ] URL `/college/football/bracket-challenge/fcs/2026` resolves the unique event; `/college/football/bracket-challenge/fcs` renders a landing page (200, no redirect) linking to the current year
 - [ ] Bracket view matches `bracket-desktop.png` / `bracket-mobile.png`: two halves converge on a centred final, selected game drives the `MatchupPanel`, pick share % comes from our entries only
 - [ ] After lock, saves return `BRACKET_LOCKED`
 - [ ] Staff sets R1 winners → entry scores and group standings update; clearing a result re-scores
@@ -192,8 +199,8 @@ Execution plan. One milestone = one PR against `main` (or your default branch). 
 - [ ] Each format passes engine invariants and a dry-run admin tournament
 - [ ] Newsletter confirm → active → appears in Resend audience
 - [ ] Poll tick and invite-expire crons checked in Sentry
-- [ ] Old `/college/football/rankings/fcs/{year}/{week}` 301s to new poll URL
-- [ ] Root legacy article slugs 301 to `/{sport}/news/{slug}`
+- [ ] `/college/football/news` and `/college/news` serve the new pages with **no** redirect; old numeric rankings weeks (`/college/football/rankings/fcs/2026/7`, `/0`, `/final-rankings`) 301 to `week-7` / `preseason` / `final`; `/college/football/news/fcs` 301s to `/college/football/fcs/news`
+- [ ] Root legacy article slugs 301 to `/college/{sport}/news/{slug}`
 
 ---
 
@@ -220,7 +227,7 @@ Execution plan. One milestone = one PR against `main` (or your default branch). 
 **Do:** `mbb` / `wbb` seasons, divisions, hubs, Top 25 polls, voter invites for basketball panels. No basketball bracket yet unless time remains (then `ncaab68` as Milestone 9).
 
 **Accept when:**
-- [ ] `/mens-college-basketball/rankings/d1` publishes a week
+- [ ] `/college/mens-basketball/rankings/d1` publishes a week
 - [ ] Same poll engine code paths; no sport-specific forks beyond calendar config
 
 ---
@@ -230,16 +237,17 @@ Execution plan. One milestone = one PR against `main` (or your default branch). 
 - Games/scores/standings ingestion or `/scores` / `/games` routes
 - Live blogs or `*/live/*`
 - Rosters or `/players/*`
-- Recruiting/portal databases, feeds or scrapers (the portal tracker is Sanity `portalEntry` docs maintained by editors; the story link is optional pending §30 #16)
+- Recruiting/portal databases, feeds or scrapers (the portal tracker is Sanity `portalEntry` docs maintained by editors, the story link is optional pending §30 #16; §16)
 - Player photos, star ratings, grades, NIL valuations or prediction percentages in the tracker
 - A fan vote or fan-built rankings (removed in v1.5)
 - `apps/workers` or Sportradar/CFBD clients
 - Moving voting back onto `admin.`
 - **Any rewrite**: no `rewrites()` in any `next.config`, no `NextResponse.rewrite` in middleware, no proxy routes. App Router folders must map 1:1 to public URLs (§17)
 - **Any redirect other than one-time legacy 301s** from old Redshirt URLs (§27): no slug-change, sport-change, "latest year", current→archive, `?page=1`, internal-path, case-normalization or role-based redirects. Render in place, set a canonical, or 404
-- An internal `sports/[sport]` folder or a root `[sport]` dynamic segment (use the generated static sport folders, §17.3)
+- An internal `sports/[sport]` folder or a root `[sport]`/`[level]` dynamic segment (use the generated static `college/{sport}` folders, §17.3; a `college/[sport]` segment with `dynamicParams = false` is the only accepted alternative)
+- The pre-1.6 single-segment keyword sport roots (see Changes in 1.6) or any alias for them; building the `/high-school/` level before it is designed
 - Path-based `/page/n` pagination (use `?page=n`, §17.6)
-- Sport-scoped team URLs like `/college-football/teams/{school}` as hubs (team hubs are `/teams/{school-nickname}`)
+- Sport-scoped team URLs like `/college/football/teams/{school}` as hubs (team hubs are `/teams/{school-nickname}`)
 - Custom `next/image` Sanity loader (use `sanity-image` unless James reverses this)
 - A `tailwind.config.js` or hard-coded hex colors in components (tokens only, §32.4)
 - Comments/forums in 2026–27 (§31.9)

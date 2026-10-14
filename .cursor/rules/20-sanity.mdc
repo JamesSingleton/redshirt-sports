@@ -13,5 +13,6 @@ alwaysApply: false
 - Slugs of published documents are immutable (blueprint §12). The existing `functions/auto-redirect` creates slug-change redirects, which conflicts with the "legacy 301s only" rule: leave it as is, and decide its fate in Milestone 0 (don't delete it on your own).
 - Redirect documents (`redirect`) are for **legacy URLs only** and must be `permanent: true`.
 - Images: `sanity-image` with hotspot/crop and LQIP, AVIF/WebP, under 200 KB rendered. Featured images must be at least 1920×1080 (Studio validation).
-- `portalEntry` (blueprint §16.1): editor-maintained, no slug, no photo. **`story` is optional pending Open Decision #16** (warning, not required). Committed entries require `newSchool` and `committedOn`. Publishing expires the tags `portal` and `portal:<sport>`.
-- Revalidation goes webhook → `revalidateTag` (tags documented in §17/§18). Draft mode and Presentation use the Viewer token, which stays server-only.
+- `portalEntry` (blueprint §16.1): editor-maintained, no slug, no photo. **`story` is optional (Decision #16)** (warning, not required). Committed entries require `newSchool` and `committedOn`. Publishing expires the tags `portal` and `portal:<sport>`.
+- Article URLs are `/college/{sport}/news/{slug}`, built from `primarySport` via the `urls` helper. Reserve division/browse-scope slugs (`fbs`, `fcs`, `d2`, …) so no article can take one (the legacy `news/{division}` 301 depends on it).
+- Revalidation goes webhook → `revalidateTag` (tags documented in §17/§18, including `posts:level:<level>` for the `/college` hub and `/college/news`). Draft mode and Presentation use the Viewer token, which stays server-only.

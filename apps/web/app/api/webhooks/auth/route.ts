@@ -4,6 +4,7 @@ import {
   createUser,
   getUserDisplayFields,
   revokeAssignmentsForNonVoters,
+  softDeleteUser,
   updateUser,
 } from "@redshirt-sports/db/queries";
 import { headers } from "next/headers";
@@ -140,6 +141,13 @@ export async function POST(req: Request) {
             is_voter: data.public_metadata.isVoter,
           },
         });
+        break;
+      }
+      case "user.deleted": {
+        if (data.id) {
+          await softDeleteUser(data.id);
+          await revokeAssignmentsForNonVoters(data.id);
+        }
         break;
       }
       default:

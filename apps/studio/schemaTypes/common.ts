@@ -47,6 +47,10 @@ export const documentSlugField = (
     description,
     group,
     ...(slugOptions ? { options: slugOptions } : {}),
+    readOnly: ({ document }) => {
+      const slug = document?.slug as { current?: string } | undefined;
+      return Boolean(document?._rev && slug?.current);
+    },
     components: {
       field: component,
     },

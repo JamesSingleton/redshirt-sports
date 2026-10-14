@@ -1,3 +1,4 @@
+import { AUTHORIZED_PARTIES } from "@redshirt-sports/auth/authorized-parties";
 import { authMiddleware } from "@redshirt-sports/auth/proxy";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -14,7 +15,9 @@ function isProtectedRoute(req: NextRequest) {
 type AuthFn = {
   (): Promise<{
     userId: string | null;
-    sessionClaims?: { metadata?: { onboardingComplete?: boolean } } | null;
+    sessionClaims?: {
+      metadata?: { onboardingComplete?: boolean; isVoter?: boolean };
+    } | null;
   }>;
   protect: () => Promise<unknown>;
 };
@@ -32,14 +35,21 @@ export async function handleAuthProxy(auth: AuthFn, req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (userId && !sessionClaims?.metadata?.onboardingComplete) {
+  // Onboarding is for voters only. A signed-in reader is not sent there.
+  if (
+    userId &&
+    sessionClaims?.metadata?.isVoter &&
+    !sessionClaims.metadata.onboardingComplete
+  ) {
     const onboardingUrl = new URL("/onboarding", req.url);
     onboardingUrl.searchParams.set("redirect_url", req.url);
     return NextResponse.redirect(onboardingUrl);
   }
 }
 
-export default authMiddleware(handleAuthProxy);
+export default authMiddleware(handleAuthProxy, {
+  authorizedParties: [...AUTHORIZED_PARTIES],
+});
 
 export const config = {
   matcher: [

@@ -9,6 +9,7 @@ function makeRequest(path: string) {
 function createAuth(options: {
   userId: string | null;
   onboardingComplete?: boolean;
+  isVoter?: boolean;
   protect?: ReturnType<typeof vi.fn>;
 }) {
   const protect = options.protect ?? vi.fn(async () => undefined);
@@ -19,6 +20,7 @@ function createAuth(options: {
         ? {
             metadata: {
               onboardingComplete: options.onboardingComplete ?? true,
+              isVoter: options.isVoter ?? false,
             },
           }
         : null,
@@ -60,10 +62,11 @@ describe("handleAuthProxy", () => {
     expect(res?.headers.get("location")).toBeNull();
   });
 
-  it("redirects incomplete onboarding users away from non-onboarding routes", async () => {
+  it("redirects voters who have not finished onboarding", async () => {
     const { auth } = createAuth({
       userId: "user-1",
       onboardingComplete: false,
+      isVoter: true,
     });
     // /api/vote is matched by middleware but is not a "protected" path
     // that calls protect — however incomplete onboarding still redirects
@@ -79,6 +82,19 @@ describe("handleAuthProxy", () => {
     expect(res?.status).toBe(307);
     expect(res?.headers.get("location")).toContain("/onboarding");
     expect(res?.headers.get("location")).toContain("redirect_url=");
+  });
+
+  it("does not send a non-voter to onboarding", async () => {
+    const { auth } = createAuth({
+      userId: "user-1",
+      onboardingComplete: false,
+      isVoter: false,
+    });
+    const res = await handleAuthProxy(
+      auth,
+      makeRequest("/vote/college/football/fbs"),
+    );
+    expect(res?.headers.get("location") ?? "").not.toContain("/onboarding");
   });
 
   it("does not redirect non-voters at middleware (poll access is page/API)", async () => {

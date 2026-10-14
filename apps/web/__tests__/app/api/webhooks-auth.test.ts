@@ -3,6 +3,7 @@ const {
   mockUpdateUser,
   mockGetUserDisplayFields,
   mockRevokeAssignments,
+  mockSoftDeleteUser,
   mockAnalyticsCapture,
   mockAnalyticsIdentify,
   mockVerify,
@@ -13,6 +14,7 @@ const {
   mockUpdateUser: vi.fn(),
   mockGetUserDisplayFields: vi.fn(),
   mockRevokeAssignments: vi.fn(),
+  mockSoftDeleteUser: vi.fn(),
   mockAnalyticsCapture: vi.fn(),
   mockAnalyticsIdentify: vi.fn(),
   mockVerify: vi.fn(),
@@ -25,6 +27,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   updateUser: mockUpdateUser,
   getUserDisplayFields: mockGetUserDisplayFields,
   revokeAssignmentsForNonVoters: mockRevokeAssignments,
+  softDeleteUser: mockSoftDeleteUser,
 }));
 
 vi.mock("@redshirt-sports/analytics/server", () => ({
@@ -314,6 +317,17 @@ describe("POST /api/webhooks/auth", () => {
 
     expect(res.status).toBe(500);
     await expect(res.text()).resolves.toBe("Unknown error");
+  });
+
+  it("soft-deletes the user and revokes voter access on user.deleted", async () => {
+    const res = await postWebhook({
+      type: "user.deleted",
+      data: { id: "user_1" },
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockSoftDeleteUser).toHaveBeenCalledWith("user_1");
+    expect(mockRevokeAssignments).toHaveBeenCalledWith("user_1");
   });
 
   it("returns 501 for unsupported event types", async () => {

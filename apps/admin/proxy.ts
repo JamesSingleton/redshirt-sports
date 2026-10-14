@@ -1,8 +1,11 @@
+import { AUTHORIZED_PARTIES } from "@redshirt-sports/auth/authorized-parties";
 import { authMiddleware } from "@redshirt-sports/auth/proxy";
 
 // Auth checks live on resources (layouts / Server Actions via requireAdmin).
 // Keep authMiddleware so Clerk can hydrate the session.
-export default authMiddleware();
+export default authMiddleware(async () => {}, {
+  authorizedParties: [...AUTHORIZED_PARTIES],
+});
 
 export const config = {
   matcher: [

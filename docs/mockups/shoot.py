@@ -5,12 +5,13 @@ out = os.path.join(os.path.dirname(__file__), "screenshots")
 D = {"width": 1440, "height": 900}; M = {"width": 390, "height": 844}
 pages = [("home","index.html"),("article","article.html"),("rankings","rankings.html"),("bracket","bracket.html"),
          ("bracket-picks","bracket-picks.html"),("ballot-vote","ballot.html"),("team-hub","team.html"),("ballots","ballots.html"),
-         ("news","news.html"),("division-news","division-news.html"),("transfer-portal","transfer-portal.html"),("recruiting","recruiting.html"),("portal-tracker","portal-tracker.html")]
+         ("news","news.html"),("division-news","division-news.html"),("transfer-portal","transfer-portal.html"),("recruiting","recruiting.html"),("portal-tracker","portal-tracker.html"),("college","college.html"),
+         ("ballots-by-voter","ballots-by-voter.html"),("rankings-voters","rankings-voters.html"),("rankings-history","rankings-history.html"),("rankings-methodology","rankings-methodology.html")]
 shots = []
 for n,f in pages:
     shots += [(f"{n}-desktop", f, D, ""), (f"{n}-mobile", f, M, "")]
 shots += [("home-desktop-dark","index.html",D,"?dark"),("nav-mega-desktop","index.html",D,"?mega-open"),("nav-sheet-mobile","index.html",M,"?menu-open"),("ballots-desktop-dark","ballots.html",D,"?dark")]
-full = {"home-desktop","article-desktop","rankings-desktop","team-hub-desktop","ballots-desktop","news-desktop","division-news-desktop","transfer-portal-desktop","recruiting-desktop","portal-tracker-desktop"}
+full = {"home-desktop","article-desktop","rankings-desktop","team-hub-desktop","ballots-desktop","news-desktop","division-news-desktop","transfer-portal-desktop","recruiting-desktop","portal-tracker-desktop","college-desktop","ballots-by-voter-desktop","rankings-voters-desktop","rankings-history-desktop","rankings-methodology-desktop","ballots-mobile","rankings-mobile"}
 only = set(sys.argv[1:])
 with sync_playwright() as p:
     b = p.chromium.launch(channel="chrome", args=["--no-sandbox"])

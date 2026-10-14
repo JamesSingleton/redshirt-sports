@@ -104,45 +104,10 @@ def article():
   {rail}
  </div>
 </main>{footer()}{bottom_nav(0)}'''
-    return page("Article", body, path="/college-football/news/example-article-slug")
+    return page("Article", body, path="/college/football/news/example-article-slug")
 
 def pts(i):  # example points for 25 voters
     return max(0, 625 - i*24 - (i*i)//3)
-
-def rankings():
-    fpv = {0:"(18)",1:"(5)",2:"(2)"}
-    rows = ""
-    for i,(a,n,c,r) in enumerate(TEAMS):
-        prev = "—" if MOVES[i] is None else str(i+1+MOVES[i])
-        rows += f'''<tr class="border-b transition-colors hover:bg-muted/50 {"bg-accent/30" if i==1 else ""}">
-<td class="p-2 pl-4 text-right font-display text-xl font-bold tabular">{i+1}</td><td class="p-2 w-12">{movement(MOVES[i])}</td>
-<td class="p-2"><div class="flex items-center gap-3">{team_mark(a,"size-8")}<div><a href="#" class="font-semibold hover:underline">{n}</a> <span class="text-xs text-muted-foreground">{fpv.get(i,"")}</span><div class="text-xs text-muted-foreground sm:hidden">{r} · {c}</div></div>{badge(icon("star","size-3")+"Following","outline","ml-1 hidden text-primary border-primary/40 lg:inline-flex") if i==1 else ""}</div></td>
-<td class="hidden p-2 text-muted-foreground sm:table-cell">{r}</td><td class="hidden p-2 text-muted-foreground md:table-cell">{c}</td>
-<td class="p-2 text-right font-semibold tabular">{pts(i):,}</td><td class="hidden p-2 text-right text-muted-foreground tabular md:table-cell">{prev}</td>
-<td class="hidden p-2 pr-4 text-right lg:table-cell"><div class="ml-auto flex h-2 w-24 overflow-hidden rounded-full bg-muted"><div class="bg-chart-2" style="width:{max(8,100-i*4)}%"></div></div></td></tr>'''
-    table = f'''<div data-slot="table-container" class="relative w-full overflow-x-auto rounded-xl border bg-card"><table data-slot="table" class="w-full caption-bottom text-sm">
-<caption class="py-3 text-xs text-muted-foreground">Example data. 25 voters × 25-to-1 points. First-place votes in parentheses.</caption>
-<thead class="[&_tr]:border-b"><tr class="text-left text-xs uppercase tracking-wide text-muted-foreground"><th class="h-10 p-2 pl-4 text-right">Rk</th><th class="p-2">±</th><th class="p-2">Team</th><th class="hidden p-2 sm:table-cell">Record</th><th class="hidden p-2 md:table-cell">Conf</th><th class="p-2 text-right">Pts</th><th class="hidden p-2 text-right md:table-cell">Prev</th><th class="hidden p-2 pr-4 text-right lg:table-cell">Ballot share</th></tr></thead>
-<tbody>{rows}</tbody></table></div>'''
-    voters = ["Voter A","Voter B","Voter C","Voter D","Voter E","Voter F"]
-    grid_rows = "".join(f'<tr class="border-b"><td class="p-1.5 pl-3 font-display font-bold">{r+1}</td>' + "".join(f'<td class="p-1.5">{team_mark(TEAMS[min(24,(r + (v*3)%5 - 2) if r>1 else r + (v%2))][0] if True else "", "size-6")}</td>' for v in range(6)) + '</tr>' for r in range(8))
-    ballots = card(card_header("Ballot grid","Every ballot is public after release.", button("All","outline","sm",icon_right="chev-right")) + card_content(f'<div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="text-muted-foreground"><th class="p-1.5 pl-3 text-left">#</th>{"".join(f"<th class=\'p-1.5 text-left font-medium\'>{v}</th>" for v in voters)}</tr></thead><tbody>{grid_rows}</tbody></table></div><p class="mt-2 text-xs text-muted-foreground">Placeholder voters and ballots. Outlier picks are highlighted on the full page.</p>',"pb-5 pt-3"),"gap-0")
-    movers = card(card_header("Biggest movers","Week 7 vs Week 6 (example)") + card_content("".join(f'<div class="flex items-center gap-2 border-b py-2 text-sm last:border-0">{team_mark(TEAMS[j][0],"size-6")}<span class="flex-1 truncate font-medium">{TEAMS[j][1]}</span>{movement(MOVES[j])}</div>' for j in [10,6,20,15,9]),"pb-4 pt-2"),"gap-0")
-    notify = card(card_content(f'<div class="flex items-center gap-3"><span class="flex size-9 items-center justify-center rounded-full bg-accent text-primary">{icon("bell")}</span><div class="flex-1 text-sm"><div class="font-semibold">Poll release alerts</div><div class="text-muted-foreground">Email or push when the FCS Top 25 publishes</div></div>{switch(False)}</div>',"py-4"))
-    others = ", ".join(f"Example Team {chr(65+i)} {30-i*3}" for i in range(8))
-    body = f'''{ticker()}{header()}
-<main class="mx-auto max-w-site px-4 lg:px-6">
- <div class="pt-6"><div class="kicker text-primary">Redshirt Sports Poll</div>
-  <div class="mt-1 flex flex-wrap items-end justify-between gap-4"><h1 class="font-display text-[2.6rem] font-extrabold uppercase leading-none lg:text-headline-lg">FCS Top 25 <span class="text-muted-foreground">· Week 7</span></h1>
-  <div class="flex flex-wrap items-center gap-2">{select_("2026")}{select_("Week 7")}{button("","outline","icon","share",attrs='aria-label="Share"')}{button("Notify me","default","default","bell")}</div></div>
-  <p class="mt-2 text-sm text-muted-foreground">Released Oct 13, 2026 · 25 voters · <a href="#" class="text-primary underline-offset-2 hover:underline">Methodology</a> · Example data</p></div>
- {underline_tabs(["Poll","Ballots","Voters","History","Methodology"],0,"mt-5")}
- <div class="grid gap-8 pt-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-  <div class="grid gap-4">{table}<div class="rounded-lg border bg-muted/40 p-4 text-sm"><span class="font-semibold">Others receiving votes:</span> <span class="text-muted-foreground">{others} (example)</span></div><div class="flex flex-wrap gap-4 text-xs text-muted-foreground"><span class="flex items-center gap-1">{movement(2)} moved up</span><span class="flex items-center gap-1">{movement(-2)} moved down</span><span class="flex items-center gap-1">{movement(None)} newly ranked</span><span class="flex items-center gap-1">{movement(0)} unchanged</span></div></div>
-  <aside class="grid content-start gap-6">{ballots}{movers}{notify}{ad(300,250)}</aside>
- </div>
-</main>{footer()}{bottom_nav(1)}'''
-    return page("FCS Top 25", body, path="/college-football/rankings/fcs")
 
 # ---------------- Bracket ----------------
 SEEDS = TEAMS[:8]; UNS = TEAMS[8:24]
@@ -205,7 +170,7 @@ def bracket():
  {underline_tabs(["Bracket","My picks","Leaderboard","Groups","Rules"],1,"mt-5")}
  <div class="hidden gap-4 pt-5 md:grid md:grid-cols-3">{strip}</div><div class="min-w-0 pt-5">{desktop}{mobile}</div><div class="hidden">{side}</div>
 </main>{bottom_nav(2)}'''
-    return page("Bracket Challenge · My picks", body, path="/college-football/bracket-challenge/fcs/2026/my-bracket")
+    return page("Bracket Challenge · My picks", body, path="/college/football/bracket-challenge/fcs/2026/my-bracket")
 
 def vote_header():
     return f'''<header class="sticky top-0 z-30 border-b bg-background/95 backdrop-blur"><div class="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">

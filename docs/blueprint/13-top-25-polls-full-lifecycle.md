@@ -404,6 +404,10 @@ Drafts that were never submitted do not count; they are kept for the voter's own
 
 **Movement**: compare to the previous *published* week of the same poll and season (preseason for week 1). `movement = previous_rank - rank`. Unranked last week → `is_new = true`, display "NR" / "New". Dropped out = ranked last week and not ranked now.
 
+**On X of N ballots** (v1.7, replaces the "ballot share" bar): `poll_results.ballots_listed` is the number of counted ballots that ranked the team anywhere from 1 to 25; the page shows it as "On 18 of 22 ballots" (N = `poll_week_summaries.ballots_counted`). It shows how *broad* support is, which points can hide: a team on every ballot around No. 20 and a team on half the ballots around No. 8 can total similar points.
+
+**No longer receiving votes**: teams with points > 0 in the previous published week (ranked or RV) and no points this week. Derived at read time from the two weeks' `poll_results` (no new column). A team can appear both here and under *Dropped out* (ranked last week, zero votes now).
+
 **Record snapshot** (optional): staff may enter W-L per team in `poll_week_team_records` from `admin./ops/polls/{weekId}`; tabulation copies them into `poll_results.record_*`. If absent, the poll page hides the record column for that team. There is no `standings` or `games` table.
 
 SQL variant (single statement, idempotent; kept in a custom migration for the optional pg_cron path and as an independent cross-check. The primary path is the TypeScript + Drizzle version further below):
@@ -576,15 +580,17 @@ A **property test** asserts that `tabulateAndStore` and the SQL variant produce 
 
 | Page | Route | Content |
 |---|---|---|
-| Poll week | `/college-football/rankings/fcs/2026/week-7` (current: `/college-football/rankings/fcs`) | Rank, team, record, points, first-place votes, previous rank, movement arrow, others receiving votes, dropped out, ballots counted, published time |
-| Voter panel (roster published by admins each season) | `/college-football/rankings/fcs/voters` (archive `/voters/2026`) | Voter names, outlets, bios, disclosed conflicts, ballots submitted this season |
-| Voter ballot | `/college-football/rankings/fcs/2026/week-7/ballots/{voter}` | That voter's 1–25 with comments, deviation from consensus per team |
-| All ballots grid | `/college-football/rankings/fcs/2026/week-7/ballots` | Matrix of voters × ranks; filter by team ("who ranked Montana State where?") |
+| Poll week | `/college/football/rankings/fcs/2026/week-7` (current: `/college/football/rankings/fcs`) | Rank, team, record, points, first-place votes, previous rank, movement arrow, **On X of N ballots**, **Others receiving votes**, **Dropped out of the Top 25** (last week's rank), **No longer receiving votes**, ballots counted, published time, prominent "See all N ballots" CTA |
+| Voter panel (roster published by admins each season) | `/college/football/rankings/fcs/voters` (archive `/voters/2026`) | Voter names, outlet/affiliation (linked), role, coverage area, on panel since, ballots submitted this season, disclosed conflicts; each row links to the voter's current ballot and their `/people/{slug}` profile |
+| Voter ballot | `/college/football/rankings/fcs/2026/week-7/ballots/{voter}` | That voter's 1–25 with comments, deviation from consensus per team |
+| Ballot breakdown, all ballots (default, unfiltered) | `/college/football/rankings/fcs/2026/week-7/ballots` | Teams × all voters grid (sticky header + team column, two-way scroll), outliers ringed, per-team distribution, biggest outliers; `?voters=` highlights only |
+| Ballot breakdown, by voter | `/college/football/rankings/fcs/2026/week-7/ballots/by-voter` (`?q=`, `?sort=`, `?page=n`) | Voter list + one card per voter: full 25-team ballot, +/− vs consensus per pick, outliers, omitted top-15 teams, note |
+| Poll history | `/college/football/rankings/fcs/history` (`/history/2025` for past seasons) | Rank-by-week chart (pick teams), week-by-week table for every team ranked that season, No. 1 by week, past seasons' final No. 1 |
 | Team poll history | `/teams/montana-state-bobcats/football/rankings` | Line chart of rank by week across seasons |
-| Methodology | `/college-football/rankings/methodology` | Points, ties, eligibility, voter rules, schedule, code of conduct |
+| Methodology | `/college/football/rankings/methodology` | 25-to-1 points and ties, first-place votes, "On X of N ballots", others/dropped/no-longer definitions, voter and team eligibility, ballot window + automation timeline, transparency (public ballots, CSV + hash, corrections log), outlier policy, FAQ (`FAQPage`) |
 | Data export | `/api/rankings/cfb/fcs/2026/week-7.csv` | Ballots CSV (voter, rank, team) + results CSV + hash, for independent verification |
 
-**Outlier highlighting**: per-voter deviation = mean absolute difference between voter rank and consensus rank for teams on both lists; highlight teams a voter ranked ≥ 8 spots from consensus. This is a transparency feature, not a punitive one.
+**Outlier highlighting**: per-voter deviation = mean absolute difference between voter rank and consensus rank for teams on both lists; flag a pick when a voter ranked the team **≥ 8 spots** from its published rank, or **left off a team ranked in the top 15** (thresholds are config: `OUTLIER_GAP = 8`, `OUTLIER_OMIT_TOP = 15`). Flags are shown, never acted on automatically. This is a transparency feature, not a punitive one.
 
 ### 13.12 Audit
 
@@ -643,7 +649,7 @@ Because `apps/admin` and `apps/web` are separate deployments, `afterPublish` cal
 ### 13.15 Poll page component sketch
 
 ```tsx
-// apps/web/src/routes/rankings.tsx (pollWeek factory; stub at app/(site)/college-football/rankings/[division]/[year]/[week]/page.tsx)
+// apps/web/src/routes/rankings.tsx (pollWeek factory; stub at app/(site)/college/football/rankings/[division]/[year]/[week]/page.tsx)
 import { cacheLife, cacheTag } from "next/cache";
 import { getPollWeek } from "@rs/db/queries/polls";
 import { pollSlugFor, parseWeekSegment } from "@rs/seo/urls";
@@ -665,4 +671,4 @@ async function loadPoll(sport: string, division: string, year: number, week: str
 }
 ```
 
-URLs follow §17: the current poll lives at `/{sport}/rankings/{division}` and each archived week at `/{sport}/rankings/{division}/{year}/week-N` (`preseason`, `final`). New divisions and sports need no new routes, only new `polls` rows, e.g. `/college-football/rankings/d2`, `/mens-college-basketball/rankings/d1`, `/womens-college-basketball/rankings/d1`.
+URLs follow §17: the current poll lives at `/{sport}/rankings/{division}` and each archived week at `/{sport}/rankings/{division}/{year}/week-N` (`preseason`, `final`). New divisions and sports need no new routes, only new `polls` rows, e.g. `/college/football/rankings/d2`, `/college/mens-basketball/rankings/d1`, `/college/womens-basketball/rankings/d1`.

@@ -1,0 +1,10 @@
+{
+  "extends": "@redshirt-sports/typescript-config/base.json",
+  "include": ["src"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "types": ["vitest/globals"],
+    "module": "ESNext",
+    "moduleResolution": "bundler"
+  }
+}

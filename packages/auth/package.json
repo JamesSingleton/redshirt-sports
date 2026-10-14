@@ -4,12 +4,14 @@
   "type": "module",
   "private": true,
   "exports": {
+    "./authorized-parties": "./authorized-parties.ts",
     "./client": "./client.ts",
     "./components/sign-in": "./components/sign-in.tsx",
     "./components/sign-up": "./components/sign-up.tsx",
     "./keys": "./keys.ts",
     "./provider": "./provider.tsx",
     "./proxy": "./proxy.ts",
+    "./require-role": "./require-role.ts",
     "./server": "./server.ts"
   },
   "scripts": {

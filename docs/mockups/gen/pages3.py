@@ -6,7 +6,7 @@ from pages2 import short, crumbs, most_read
 # (name, pos, class, elig, ht, wt, from_abbr, from_name, from_conf, to_abbr, to_name, status, date, division, story)
 ENTRIES = [
  ("Example Player A","QB","R-Jr","2 yrs","6-2","215","SIU","Southern Illinois","MVFC","MSU","Montana State","Committed","Oct 12","FCS","Example: Why the Bobcats went after a portal QB"),
- ("Example Player B","WR","So","3 yrs","5-11","185","UCD","UC Davis","Big Sky",None,None,"Entered","Oct 11","FCS","Example: UC Davis portal departures tracker story"),
+ ("Example Player B","WR","So","3 yrs","5-11","185","UCD","UC Davis","Big Sky",None,None,"Entered","Oct 11","FCS",None),
  ("Example Player C","LB","Sr","1 yr",None,None,"YSU","Youngstown State","MVFC","NDSU","North Dakota State","Committed","Oct 10","FCS","Example: Bison add a veteran linebacker"),
  ("Example Player D","OL","Jr","2 yrs","6-5","305","LEH","Lehigh","Patriot",None,None,"Withdrawn","Oct 9","FCS","Example: Lineman returns to Lehigh"),
  ("Example Player E","CB","R-So","3 yrs","6-0","180","FUR","Furman","SoCon","MER","Mercer","Committed","Oct 8","FCS","Example: Mercer lands in-conference transfer"),
@@ -38,7 +38,7 @@ def portal_row(e, highlight=False):
  <div class="[grid-area:schools] grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 rounded-lg bg-muted/40 px-2 py-1.5 lg:bg-transparent lg:p-0">{school(fa,fn,fc,muted=True)}<span class="text-muted-foreground">{icon("chev-right","size-4")}</span>{dest}</div>
  <div class="[grid-area:status] justify-self-end lg:justify-self-start">{badge(s, v, extra)}</div>
  <div class="[grid-area:date] text-xs text-muted-foreground tabular lg:pl-0.5"><span class="lg:hidden">{"Committed" if s=="Committed" else ("Withdrew" if s=="Withdrawn" else "Entered")} </span>{d}, 2026</div>
- <a href="#" title="{story}" class="[grid-area:story] inline-flex items-center justify-self-end gap-1 rounded-md px-2 py-1 text-xs font-semibold text-primary hover:bg-accent">{icon("news","size-3.5")}Story{icon("chev-right","size-3")}</a>
+ {f'<a href="#" title="{story}" class="[grid-area:story] inline-flex items-center justify-self-end gap-1 rounded-md px-2 py-1 text-xs font-semibold text-primary hover:bg-accent">{icon("news","size-3.5")}Story{icon("chev-right","size-3")}</a>' if story else '<span class="[grid-area:story] justify-self-end px-2 py-1 text-xs text-muted-foreground" title="No Redshirt story linked (story is optional)">No story yet</span>'}
 </li>'''
 
 def head_row():
@@ -58,8 +58,8 @@ def filters_desktop():
 def tracker():
     rows = "".join(portal_row(e) for i, e in enumerate(ENTRIES))
     stats = f'<div class="grid grid-cols-3 gap-3">{stat("Entered","214","still undecided")}{stat("Committed","131","61% of tracked")}{stat("Withdrawn","9","returned to school")}</div>'
-    note = f'<p class="flex items-center gap-1.5 text-[11px] text-muted-foreground">{icon("info","size-3.5")}Editor-maintained from Redshirt reporting; not every portal entry. Every row links to the story it came from. Counts are for the current filters (example data).</p>'
-    rail = f'''<aside class="hidden content-start gap-6 lg:grid">{card(card_header("Latest portal stories")+card_content("".join(f'<a href="#" class="block border-b py-2.5 text-sm font-semibold leading-snug last:border-0 hover:underline">{e[14]}</a>' for e in ENTRIES[:5]),"pb-3 pt-1"),"gap-0")}{ad(300,250)}{card(card_content(f'<div class="flex items-center gap-3"><span class="flex size-9 items-center justify-center rounded-full bg-accent text-primary">{icon("bell")}</span><div class="flex-1 text-sm"><div class="font-semibold">Portal alerts</div><div class="text-muted-foreground">Followed teams: entries and commitments</div></div>{switch(True)}</div>',"py-4"))}</aside>'''
+    note = f'<p class="flex items-center gap-1.5 text-[11px] text-muted-foreground">{icon("info","size-3.5")}Editor-maintained from Redshirt reporting; not every portal entry. Rows link to a Redshirt story when there is one. Counts are for the current filters (example data).</p>'
+    rail = f'''<aside class="hidden content-start gap-6 lg:grid">{card(card_header("Latest portal stories")+card_content("".join(f'<a href="#" class="block border-b py-2.5 text-sm font-semibold leading-snug last:border-0 hover:underline">{e[14]}</a>' for e in [x for x in ENTRIES if x[14]][:5]),"pb-3 pt-1"),"gap-0")}{ad(300,250)}{card(card_content(f'<div class="flex items-center gap-3"><span class="flex size-9 items-center justify-center rounded-full bg-accent text-primary">{icon("bell")}</span><div class="flex-1 text-sm"><div class="font-semibold">Portal alerts</div><div class="text-muted-foreground">Followed teams: entries and commitments</div></div>{switch(True)}</div>',"py-4"))}</aside>'''
     mobile_filters = f'''<div class="flex items-center gap-2 lg:hidden">{button("Filters · 2","outline","default","list",cls="flex-1")}{select_("Newest","flex-1")}</div>
 <div class="-mx-4 flex gap-1.5 overflow-x-auto px-4 lg:hidden">{badge("Football "+icon("x","size-3"),"secondary","h-7")}{badge("FCS "+icon("x","size-3"),"secondary","h-7")}{"".join(badge(t,"outline","h-7") for t in ["Committed","QB","Big Sky"])}</div>'''
     body = f'''{ticker()}{header()}

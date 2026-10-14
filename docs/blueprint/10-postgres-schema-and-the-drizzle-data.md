@@ -484,7 +484,7 @@ No `players`, `roster_spots`, `recruit_*` or `portal_entries` tables. Cover thos
 -- The app never redirects its own URLs (slugs are immutable after publish).
 create table redirects (
   source_path text primary key,                -- old Redshirt path, e.g. '/my-old-article-slug'
-  destination_path text not null,              -- '/college-football/news/my-old-article-slug'
+  destination_path text not null,              -- '/college/football/news/my-old-article-slug'
   status_code int not null default 308 check (status_code in (301, 308)),  -- Next.js permanentRedirect/permanent:true emit 308; both are permanent
   reason text not null default 'legacy' check (reason in ('legacy','manual_legacy')),
   hits bigint not null default 0,

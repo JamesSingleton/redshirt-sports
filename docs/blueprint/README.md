@@ -1,8 +1,8 @@
-# Redshirt Sports platform blueprint, v1.5 (handoff edition)
+# Redshirt Sports platform blueprint, v1.7 (handoff edition)
 
 The target architecture for evolving this repo. Start with **[BUILD_ORDER.md](BUILD_ORDER.md)** (Milestone 0 is the repo audit plus local-stack check), **[LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)** and **[OPEN_DECISIONS.md](OPEN_DECISIONS.md)**.
 
-> **Handoff notes.** (1) This is an *evolution* of the existing repo: migrate incrementally, keep the site live, and give moved URLs legacy 301s. The repo's package names and paths win over the blueprint's (`@rs/*` → `@redshirt-sports/*`). (2) **Local only:** agents never touch remote or production databases, deploys or secrets. (3) **Transfer Portal Tracker:** in scope, but the **UI needs a redesign before build** (Decision #17), and the **story link is optional pending Decision #16**. (4) Fan vote and build-your-own Top 25 were removed in v1.5. (5) Third-party reference screenshots (On3, MarchArena) are not included.
+> **Handoff notes.** (1) This is an *evolution* of the existing repo: migrate incrementally, keep the site live, and give moved URLs legacy 301s. The repo's package names and paths win over the blueprint's (`@rs/*` → `@redshirt-sports/*`). (2) **Local only:** agents never touch remote or production databases, deploys or secrets. (3) **Transfer Portal Tracker:** in scope, but the **UI needs a redesign before build** (Decision #17), and the **story link is optional pending Decision #16**. (4) **v1.7 rankings and ballots** (§13.9, §13.11, §32.11–32.11d): the ballot breakdown defaults to the unfiltered all-voters grid, a new By voter view (`…/ballots/by-voter`), "On X of N ballots" instead of ballot share, a "See all N ballots" CTA, Dropped out / No longer receiving votes, and Voters, History (`…/fcs/history`) and Methodology tabs. (5) **v1.6 URLs are level → sport:** `/college` level hub, then `/college/football/…`, `/college/mens-basketball/…`, `/college/womens-basketball/…`; `/high-school/…` is reserved for later. This matches the repo's current URL shape, so few redirects are needed. (6) Fan vote and build-your-own Top 25 were removed in v1.5. (7) Third-party reference screenshots (On3, MarchArena) are not included.
 
 ## Working files
 
@@ -10,10 +10,10 @@ The target architecture for evolving this repo. Start with **[BUILD_ORDER.md](BU
 |---|---|
 | [BUILD_ORDER.md](BUILD_ORDER.md) | Milestones with checkboxes (from Appendix D), plus Milestone 0: audit and local-stack check |
 | [REPO_AUDIT.md](REPO_AUDIT.md) | Starter audit: what the repo already matches and the conflicts to decide (A1–A14) |
-| [OPEN_DECISIONS.md](OPEN_DECISIONS.md) | Decisions that shape the first PRs (#16 story link, #17 tracker redesign, #18 URLs, #19 vote subdomain) |
+| [OPEN_DECISIONS.md](OPEN_DECISIONS.md) | Decisions that shape the first PRs (#16 story link, #17 tracker redesign, #18 residual URL moves, #19 vote subdomain) |
 | [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) | Local Supabase, the dev Sanity dataset, Clerk dev keys, Resend test mode, `pnpm dev:setup`, the guard script |
 | [local-dev/](local-dev/) | Example Sanity fixtures (fake) and an outline for the Postgres example seed |
-| [sports-platform-blueprint-v1.5.md](sports-platform-blueprint-v1.5.md) | The whole blueprint in one file (same content as the sections below) |
+| [sports-platform-blueprint-v1.7.md](sports-platform-blueprint-v1.7.md) | The whole blueprint in one file (same content as the sections below) |
 | [../mockups/](../mockups/) | Static HTML mockups, compiled CSS, fonts and screenshots |
 
 ## Sections

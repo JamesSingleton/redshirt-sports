@@ -18,19 +18,6 @@ export default defineBlueprint({
       },
     }),
     defineDocumentFunction({
-      name: "auto-redirect",
-      src: "./functions/auto-redirect",
-      memory: 2,
-      timeout: 30,
-      event: {
-        on: ["create", "update"],
-        filter:
-          "(_type == 'post' || _type == 'author' || _type == 'school') && delta::changedAny(slug.current)",
-        projection:
-          "{_type, 'beforeSlug': before().slug.current, 'slug': after().slug.current}",
-      },
-    }),
-    defineDocumentFunction({
       src: "./functions/auto-summary",
       memory: 2,
       timeout: 30,

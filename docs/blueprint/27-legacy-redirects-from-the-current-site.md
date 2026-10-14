@@ -1,15 +1,23 @@
 ## 27. Legacy redirects from the current site (optional, one-time 301s)
 
-The new site does not keep the old URL scheme. Migration is (a) importing content and poll history and (b) **optionally** 301-redirecting the old Redshirt URLs that actually carry traffic or links. These are the **only redirects in the system**: the app never redirects its own URLs, and there are no rewrites anywhere (§17).
+v1.6 keeps the current site's `/college/{sport}/…` shape, so far fewer URLs move than in earlier versions. Migration is (a) importing content and poll history and (b) **optionally** 301-redirecting the old Redshirt URLs that actually carry traffic or links. These are the **only redirects in the system**: the app never redirects its own URLs, and there are no rewrites anywhere (§17).
 
-### 27.1 Legacy map (keep it small)
+### 27.1 Legacy map (keep it small; v1.6 reassessed)
 
-| Old pattern (current site) | New URL | Mechanism |
+The v1.6 level/sport structure (`/college/{sport}/…`, §17.0) is the **same shape as the current site**, so most sport URLs no longer need a redirect at all. Reassessed against today's routes (`/college/[sport]/news[/division[/conference]]`, `/college/[sport]/rankings/[division]/[year]/[week]`, `/college/teams/[slug]`, `/college/news`, root `/[slug]`, `/authors/[slug]`):
+
+| Old URL (current site) | New URL | Redirect? |
 |---|---|---|
-| `/college/football/rankings/{fbs\|fcs}/{year}/{week}` | `/college-football/rankings/{division}/{year}/week-{week}` (`preseason`/`final` where applicable) | `next.config` `redirects()` pattern, `permanent: true` |
-| `/college/football/rankings/{fbs\|fcs}` | `/college-football/rankings/{division}` | `next.config` pattern |
-| Root-level article URLs (`/{slug}`) | `/{primarySport}/news/{slug}` | `redirects` table, read by the root catch-all only when no Sanity page matches |
-| Old author / school pages that have links or traffic | `/people/{slug}`, `/teams/{school-nickname}` | `redirects` table (top pages only) |
+| `/college/football/news`, `/college/mens-basketball/news`, `/college/womens-basketball/news` | Same | **None**: identical path, served by the new folder |
+| `/college/news` | Same (`/college/news`, all college news) | **None** |
+| `/college/football` (if linked) | Same (sport hub) | **None** |
+| `/college/{sport}/rankings/{division}/{year}/{week}` with a numeric week, `0` or `final-rankings` | `/college/{sport}/rankings/{division}/{year}/week-{n}`, `/preseason`, `/final` | **3 patterns** in `next.config` `redirects()` (only the week segment changes). Optional: adopt the legacy week segments instead and drop these too (Open Decision #18) |
+| `/college/{sport}/news/{division}` | `/college/{sport}/{division}/news` | **1 pattern**, with `:division` constrained to the known division/browse-scope slugs (so it can never catch an article slug; Studio also reserves those slugs) |
+| `/college/{sport}/news/{division}/{conference}` | `/college/{sport}/conferences/{conference}` | **1 pattern** (same constraint) |
+| `/college/teams/{slug}` | `/teams/{school-nickname}` | `redirects` table rows (slug map), only for schools with traffic/links |
+| Root-level article URLs (`/{slug}`) | `/college/{primarySport}/news/{slug}` | `redirects` table, read by the root catch-all only when no Sanity page matches |
+| `/authors/{slug}` | `/people/{slug}` | 1 pattern |
+| `/vote/…` on www | `vote.redshirtsports.com/…` | 1 pattern once `apps/vote` ships |
 | Everything else | Real 404 (never 301 everything to `/`) | — |
 
 ### 27.2 How
@@ -27,11 +35,17 @@ The new site does not keep the old URL scheme. Migration is (a) importing conten
 export default {
   async redirects() {
     return [
-      { source: "/college/football/rankings/:div(fbs|fcs)/:year(\\d{4})/:week(\\d+)", destination: "/college-football/rankings/:div/:year/week-:week", permanent: true },
-      { source: "/college/football/rankings/:div(fbs|fcs)", destination: "/college-football/rankings/:div", permanent: true },
+      // Rankings: only the week segment changed (v1.6). Sport/division paths are already identical.
+      { source: "/college/:sport(football|mens-basketball|womens-basketball)/rankings/:div/:year(\\d{4})/0", destination: "/college/:sport/rankings/:div/:year/preseason", permanent: true },
+      { source: "/college/:sport(football|mens-basketball|womens-basketball)/rankings/:div/:year(\\d{4})/final-rankings", destination: "/college/:sport/rankings/:div/:year/final", permanent: true },
+      { source: "/college/:sport(football|mens-basketball|womens-basketball)/rankings/:div/:year(\\d{4})/:week(\\d{1,2})", destination: "/college/:sport/rankings/:div/:year/week-:week", permanent: true },
+      // Division / conference news moved from news/{division} to {division}/news. DIVS = generated from the manifest.
+      { source: `/college/:sport/news/:div(${DIVS})`, destination: "/college/:sport/:div/news", permanent: true },
+      { source: `/college/:sport/news/:div(${DIVS})/:conf`, destination: "/college/:sport/conferences/:conf", permanent: true },
+      { source: "/authors/:slug", destination: "/people/:slug", permanent: true },
     ];
   },
 } satisfies import("next").NextConfig;
 ```
 
-(Map old week `0`/`1` to `preseason` with explicit entries if the old site numbered preseason. `permanent: true` emits 308 in Next.js; set `statusCode: 301` per entry if you want a literal 301. Either is a permanent redirect for search engines.)
+(Order matters: the `0` and `final-rankings` entries come before the numeric one. Current legacy week segments are documented in the repo's `docs/poll-weeks.md`. `permanent: true` emits 308 in Next.js; set `statusCode: 301` per entry if you want a literal 301. Either is a permanent redirect for search engines.)

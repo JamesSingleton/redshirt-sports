@@ -1,13 +1,17 @@
 # Sports Media Platform Blueprint
 ## Building an On3 / 247Sports / ESPN / Bleacher Report / The Athletic / SI-class platform on Next.js, Sanity, Clerk, Supabase and Turborepo
 
-*Prepared for James Singleton, Redshirt Sports. Oct 14, 2026. Version 1.5.*
+*Prepared for James Singleton, Redshirt Sports. Oct 14, 2026. Version 1.7.*
 
 > **How to read this document.** This is a clean-slate design for the next-generation Redshirt Sports platform. It does not assume or preserve the current codebase or URLs; the goal is the best possible clone of the reference sites. The only migration concern is optional one-time 301s from old URLs (§27); the app itself has zero rewrites and no other redirects (§17). Everything marked **Estimate** is a planning number, not a quote. Facts about the reference sites are described as product features in general terms; no traffic, revenue or subscriber numbers are claimed for them.
 >
 > Library versions move fast. Pin exact versions in `pnpm-workspace.yaml` catalogs at the time you scaffold and check each library's current docs (Next.js caching APIs, Clerk's Supabase integration, Sanity Live) before copying snippets verbatim.
 
-> **Handoff edition (Oct 14, 2026).** This copy of v1.5 is packaged for Cursor inside the **existing** `JamesSingleton/redshirt-sports` repo. Read it as the *target architecture* for evolving that repo, not as a clean-slate rebuild: migrate incrementally, keep www.redshirtsports.com live, and use one-time legacy 301s for any URL that moves. Where the blueprint names something the repo already has, the repo's names win (`@rs/*` packages mean the existing `@redshirt-sports/*` ones; `supabase/migrations` means `apps/web/supabase/migrations`; `pnpm typecheck` means `pnpm check:types`). Development is **local only** (local Supabase on port 54322, a non-production Sanity dataset, Clerk development keys, Resend test mode); see `LOCAL_DEVELOPMENT.md`. Two tracker changes vs. the v1.5 master: (1) the Transfer Portal Tracker stays in scope, but **its UI needs a redesign before anyone builds it**, so treat the §16.1 screenshots and `PortalRow` sketch as layout and data reference only; (2) the "every entry requires a Redshirt story" rule is **under review** (not every player has a story), so `story` is optional pending Open Decision #16 (§30). Third-party reference screenshots (MarchArena, On3) are not included in the handoff.
+> **Handoff edition (Oct 14, 2026).** This copy of v1.7 is packaged for Cursor inside the **existing** `JamesSingleton/redshirt-sports` repo. Read it as the *target architecture* for evolving that repo, not as a clean-slate rebuild: migrate incrementally, keep www.redshirtsports.com live, and use one-time legacy 301s for any URL that moves. Where the blueprint names something the repo already has, the repo's names win (`@rs/*` packages mean the existing `@redshirt-sports/*` ones; the v1.6+ `/college/{sport}/…` URLs already match the repo's current shape; `supabase/migrations` means `apps/web/supabase/migrations`; `pnpm typecheck` means `pnpm check:types`). Development is **local only** (local Supabase on port 54322, a non-production Sanity dataset, Clerk development keys, Resend test mode); see `LOCAL_DEVELOPMENT.md`. Tracker notes: (1) the Transfer Portal Tracker stays in scope, but **its UI needs a redesign before anyone builds it** (a handoff-only flag), so treat the §16.1 screenshots and `PortalRow` sketch as layout and data reference only; (2) the "every entry requires a Redshirt story" rule is **under review** (not every player has a story), so `story` is optional pending Open Decision #16 (§30), as the v1.7 master now also says. Third-party reference screenshots (MarchArena, On3) are not included in the handoff.
+>
+> **Changes in 1.7.** **Rankings and ballot pages reworked from James's mockup feedback** (all mockups use a 22-voter *example* panel). (1) **Ballot breakdown defaults to the unfiltered grid**: all 22 voter columns, sticky header row and team column inside a two-way scroll container, outlier cells ringed in gold; no voter is pre-selected (the old "Voter 07" chip is gone); `?voters=` only highlights and never changes the canonical. (2) New **By voter** view at `…/ballots/by-voter`: a voter list plus one card per voter with the full 25-team ballot, a +/− diff against the published consensus for every pick, outliers tinted, omitted top-15 teams listed, search (`?q=`), sort (`?sort=`) and `?page=n`. (3) **Poll page**: the "Ballot share" bar is now **"On X of 22 ballots"** (how many voters ranked the team anywhere 1–25; already stored as `poll_results.ballots_listed`, §13.9); the small "Ballot grid" rail card is replaced by a prominent **"See all 22 ballots"** CTA; new **Dropped out of the Top 25** (team + last week's rank) and **No longer receiving votes** sections beside **Others receiving votes**. (4) New tab mockups: **Voters** (roster with outlet/affiliation, role, coverage, ballots submitted, disclosures, links to each ballot and `/people/{slug}`), **History** (rank-by-week chart, week-by-week table, season selector, No. 1 history, past seasons; new route `rankings/[division]/history[/year]`), and **Methodology** (25-to-1 points, first-place votes, "On X of N", eligibility, ballot window and automation timeline, transparency, outlier policy, FAQ). Outlier rule unified to **≥ 8 spots from consensus, or leaving off a consensus top-15 team** (config, not code). (5) **Portal story link is optional** in the master too (Open Decision #16): the portal hub, tracker and recruiting footnotes no longer say every row links to a story, and one example row shows "No story yet". New/changed screenshots: `rankings-*`, `ballots-*`, `ballots-by-voter-*`, `rankings-voters-*`, `rankings-history-*`, `rankings-methodology-*`, `transfer-portal-*`, `portal-tracker-*`, `recruiting-*`.
+>
+> **Changes in 1.6.** **URL structure is now level → sport**: `/college/football/…`, `/college/mens-basketball/…`, `/college/womens-basketball/…` (replacing `/college-football/…`, `/mens-college-basketball/…`, `/womens-college-basketball/…`), leaving room for a future `/high-school/football/…` level. `/college` is a real **level hub page** (sport cards, latest college news) with `/college/news`; `/high-school` is reserved, not built. Updated everywhere: §17.0 rationale rewritten (level/sport), route tree `app/(site)/college/{sport}/…` (folders still map 1:1, zero rewrites), route manifest with `LEVELS` + `SPORTS` (`level` field, `sportBase()`), `urls` builder (`level`, `levelNews`), cache tag `posts:level:<level>`, sitemaps, reserved root segments (`college`, `high-school`), bracket paths `/college/football/bracket-challenge/{division}/{year}`, rankings, news and division news. **Legacy map reassessed (§27)**: because the current site already uses `/college/{sport}/…`, sport news and hub URLs need **no redirect**; what remains is the week-segment change in rankings (3 patterns, or zero if the legacy week format is adopted), `news/{division}` → `{division}/news`, team, root-article, author and `/vote` legacy 301s. Mockups re-shot with new paths and a new `college` level-hub mockup.
 >
 > **Changes in 1.5.** (1) **Fan vote removed entirely**: no `fan_ballots` table or RLS policy, no fan poll, no "Fans vs. voters" comparison, no Fan vote tab on rankings/ballots pages, no fan events (`fan_ballot_submitted`, `top25_*`) or retention mentions. Build-your-own Top 25 is removed with it (it lived in the same table); the only Top 25 is the voters' poll. Rankings rail now shows Biggest movers + a poll-release alert; screenshots re-shot. (2) **Transfer Portal Tracker** at `/transfer-portal` (§16.1), studied from On3's Transfer Portal Wire: Sanity `portalEntry` documents maintained by editors (no external data), each requiring a linked Redshirt story; filters for sport, division, status, position, conference and school search plus sort and `?page=n`, all in `searchParams` with a canonical/noindex policy; GROQ query, zod param parsing, cached data function; `PortalRow` built on a `portal-row` Tailwind v4 `@utility` with named `grid-template-areas` that restack on mobile. New screenshots `portal-tracker-desktop.png`, `-desktop-full.png`, `-mobile.png`; the portal hub now previews the tracker. MVP estimate 12.5–15.5 engineer-weeks.
 >
@@ -87,7 +91,7 @@ The stack choices split cleanly by data shape:
 The two signature features are first-class subsystems with their own packages:
 
 - **`@rs/polls`**: invite-only voter onboarding (signed single-use, expiring invites; seasonal rosters; revocation), ballot windows with automated open/close, validation, locking, 25-to-1 tabulation, first-place votes, others receiving votes, week-over-week movement, public ballot transparency, audit and anti-abuse. Voters use **`vote.redshirtsports.com`**.
-- **`@rs/brackets`**: a format registry (FCS 24 with 8 byes, CFP 12 with 4 byes, D-II 28 with 4 byes, D-III 32 with none; NCAA basketball 68 later), pick validation, lock times, scoring systems, deterministic tiebreakers, groups with invite codes, leaderboards from materialized views. **One bracket event per division per season**, at `/college-football/bracket-challenge/{fbs|fcs|d2|d3}/{year}`. **Results are entered by staff** in `admin.` game by game; each entry triggers a rescore.
+- **`@rs/brackets`**: a format registry (FCS 24 with 8 byes, CFP 12 with 4 byes, D-II 28 with 4 byes, D-III 32 with none; NCAA basketball 68 later), pick validation, lock times, scoring systems, deterministic tiebreakers, groups with invite codes, leaderboards from materialized views. **One bracket event per division per season**, at `/college/football/bracket-challenge/{fbs|fcs|d2|d3}/{year}`. **Results are entered by staff** in `admin.` game by game; each entry triggers a rescore.
 
 A realistic path is an MVP in roughly **12.5 to 15.5 engineer-weeks** (design system + newsroom + page builder + polls + FCS bracket + retention basics), and a "season one" platform (all four football brackets, newsletters, push, fan engagement, ads, basketball polls) at roughly **18 to 22** (§28). **Estimate.** Appendix D is the step-by-step build order for Cursor.
 
@@ -288,7 +292,7 @@ sequenceDiagram
   U->>C: Sign up / sign in
   C-->>W: webhook user.created (svix-signed)
   W->>P: upsert users, user_roles
-  U->>W: Request /college-football/news/slug-id
+  U->>W: Request /college/football/news/slug-id
   W->>S: GROQ (cached, tag post:slug)
   W->>P: related rankings (cached, tag rankings:fcs)
   W-->>U: HTML (static shell + streamed dynamic holes)
@@ -1396,7 +1400,7 @@ No `players`, `roster_spots`, `recruit_*` or `portal_entries` tables. Cover thos
 -- The app never redirects its own URLs (slugs are immutable after publish).
 create table redirects (
   source_path text primary key,                -- old Redshirt path, e.g. '/my-old-article-slug'
-  destination_path text not null,              -- '/college-football/news/my-old-article-slug'
+  destination_path text not null,              -- '/college/football/news/my-old-article-slug'
   status_code int not null default 308 check (status_code in (301, 308)),  -- Next.js permanentRedirect/permanent:true emit 308; both are permanent
   reason text not null default 'legacy' check (reason in ('legacy','manual_legacy')),
   hits bigint not null default 0,
@@ -2476,7 +2480,7 @@ export const personCardFragment = /* groq */ `{
 
 - If `hasProfile`, the byline links to `/people/{slug}` and JSON-LD `author` includes `url` plus `sameAs` from socials. If not, the name renders as plain text and JSON-LD carries `name` (and `sameAs` if present) without a `url`. Writers have profiles by default because a linked author page with credentials is a strong trust signal for Google News and AI answer engines.
 - People with profiles disabled are excluded from sitemaps and return 404 at `/people/{slug}`.
-- **Voters**: the poll transparency pages (`/college-football/rankings/fcs/voters/{voter}`) are Postgres data pages and always exist for active voters. If the voter also has a `person` doc with a profile (linked through `voterIds`), the voter page links to it and the person page shows a "Poll ballots" section (pulled from Postgres).
+- **Voters**: the poll transparency pages (`/college/football/rankings/fcs/voters/{voter}`) are Postgres data pages and always exist for active voters. If the voter also has a `person` doc with a profile (linked through `voterIds`), the voter page links to it and the person page shows a "Poll ballots" section (pulled from Postgres).
 
 #### URL: `/people/{slug}` (recommended) vs `/staff/{slug}`
 
@@ -2569,7 +2573,7 @@ export const page = defineType({
 ```ts
 // packages/sanity/src/reserved-paths.ts  (shared by Studio validation and the web router)
 export const RESERVED_ROOT_SEGMENTS = [
-  "college-football", "mens-college-basketball", "womens-college-basketball", "teams", "people", "transfer-portal",
+  "college", "high-school" /* future level, reserved now */, "teams", "people", "transfer-portal",
   "topics", "podcasts", "video", "bracket-challenge", "newsletters", "onboarding", "account", "search", "sign-in", "sign-up", "api", "studio",
   "sitemap.xml", "news-sitemap.xml", "sitemaps", "robots.txt", "feed.xml", "ads.txt", "manifest.webmanifest", "_next",
 ];
@@ -2577,7 +2581,7 @@ export const RESERVED_ROOT_SEGMENTS = [
 
 #### Catch-all route
 
-Sport sections are real static folders (`app/(site)/college-football/…`, §17.3). Static segments always match before the root catch-all, so `[...slug]` only sees paths no folder claims. `RESERVED_ROOT_SEGMENTS` is generated from the route manifest, so editors can't create a page whose slug shadows a section. No rewrites are involved.
+Levels and sport sections are real static folders (`app/(site)/college/…`, `app/(site)/college/football/…`, §17.3). Static segments always match before the root catch-all, so `[...slug]` only sees paths no folder claims. `RESERVED_ROOT_SEGMENTS` is generated from the route manifest, so editors can't create a page whose slug shadows a section. No rewrites are involved.
 
 ```tsx
 // apps/web/app/(site)/[...slug]/page.tsx
@@ -3090,6 +3094,10 @@ Drafts that were never submitted do not count; they are kept for the voter's own
 
 **Movement**: compare to the previous *published* week of the same poll and season (preseason for week 1). `movement = previous_rank - rank`. Unranked last week → `is_new = true`, display "NR" / "New". Dropped out = ranked last week and not ranked now.
 
+**On X of N ballots** (v1.7, replaces the "ballot share" bar): `poll_results.ballots_listed` is the number of counted ballots that ranked the team anywhere from 1 to 25; the page shows it as "On 18 of 22 ballots" (N = `poll_week_summaries.ballots_counted`). It shows how *broad* support is, which points can hide: a team on every ballot around No. 20 and a team on half the ballots around No. 8 can total similar points.
+
+**No longer receiving votes**: teams with points > 0 in the previous published week (ranked or RV) and no points this week. Derived at read time from the two weeks' `poll_results` (no new column). A team can appear both here and under *Dropped out* (ranked last week, zero votes now).
+
 **Record snapshot** (optional): staff may enter W-L per team in `poll_week_team_records` from `admin./ops/polls/{weekId}`; tabulation copies them into `poll_results.record_*`. If absent, the poll page hides the record column for that team. There is no `standings` or `games` table.
 
 SQL variant (single statement, idempotent; kept in a custom migration for the optional pg_cron path and as an independent cross-check. The primary path is the TypeScript + Drizzle version further below):
@@ -3262,15 +3270,17 @@ A **property test** asserts that `tabulateAndStore` and the SQL variant produce 
 
 | Page | Route | Content |
 |---|---|---|
-| Poll week | `/college-football/rankings/fcs/2026/week-7` (current: `/college-football/rankings/fcs`) | Rank, team, record, points, first-place votes, previous rank, movement arrow, others receiving votes, dropped out, ballots counted, published time |
-| Voter panel (roster published by admins each season) | `/college-football/rankings/fcs/voters` (archive `/voters/2026`) | Voter names, outlets, bios, disclosed conflicts, ballots submitted this season |
-| Voter ballot | `/college-football/rankings/fcs/2026/week-7/ballots/{voter}` | That voter's 1–25 with comments, deviation from consensus per team |
-| All ballots grid | `/college-football/rankings/fcs/2026/week-7/ballots` | Matrix of voters × ranks; filter by team ("who ranked Montana State where?") |
+| Poll week | `/college/football/rankings/fcs/2026/week-7` (current: `/college/football/rankings/fcs`) | Rank, team, record, points, first-place votes, previous rank, movement arrow, **On X of N ballots**, **Others receiving votes**, **Dropped out of the Top 25** (last week's rank), **No longer receiving votes**, ballots counted, published time, prominent "See all N ballots" CTA |
+| Voter panel (roster published by admins each season) | `/college/football/rankings/fcs/voters` (archive `/voters/2026`) | Voter names, outlet/affiliation (linked), role, coverage area, on panel since, ballots submitted this season, disclosed conflicts; each row links to the voter's current ballot and their `/people/{slug}` profile |
+| Voter ballot | `/college/football/rankings/fcs/2026/week-7/ballots/{voter}` | That voter's 1–25 with comments, deviation from consensus per team |
+| Ballot breakdown, all ballots (default, unfiltered) | `/college/football/rankings/fcs/2026/week-7/ballots` | Teams × all voters grid (sticky header + team column, two-way scroll), outliers ringed, per-team distribution, biggest outliers; `?voters=` highlights only |
+| Ballot breakdown, by voter | `/college/football/rankings/fcs/2026/week-7/ballots/by-voter` (`?q=`, `?sort=`, `?page=n`) | Voter list + one card per voter: full 25-team ballot, +/− vs consensus per pick, outliers, omitted top-15 teams, note |
+| Poll history | `/college/football/rankings/fcs/history` (`/history/2025` for past seasons) | Rank-by-week chart (pick teams), week-by-week table for every team ranked that season, No. 1 by week, past seasons' final No. 1 |
 | Team poll history | `/teams/montana-state-bobcats/football/rankings` | Line chart of rank by week across seasons |
-| Methodology | `/college-football/rankings/methodology` | Points, ties, eligibility, voter rules, schedule, code of conduct |
+| Methodology | `/college/football/rankings/methodology` | 25-to-1 points and ties, first-place votes, "On X of N ballots", others/dropped/no-longer definitions, voter and team eligibility, ballot window + automation timeline, transparency (public ballots, CSV + hash, corrections log), outlier policy, FAQ (`FAQPage`) |
 | Data export | `/api/rankings/cfb/fcs/2026/week-7.csv` | Ballots CSV (voter, rank, team) + results CSV + hash, for independent verification |
 
-**Outlier highlighting**: per-voter deviation = mean absolute difference between voter rank and consensus rank for teams on both lists; highlight teams a voter ranked ≥ 8 spots from consensus. This is a transparency feature, not a punitive one.
+**Outlier highlighting**: per-voter deviation = mean absolute difference between voter rank and consensus rank for teams on both lists; flag a pick when a voter ranked the team **≥ 8 spots** from its published rank, or **left off a team ranked in the top 15** (thresholds are config: `OUTLIER_GAP = 8`, `OUTLIER_OMIT_TOP = 15`). Flags are shown, never acted on automatically. This is a transparency feature, not a punitive one.
 
 ### 13.12 Audit
 
@@ -3329,7 +3339,7 @@ Because `apps/admin` and `apps/web` are separate deployments, `afterPublish` cal
 ### 13.15 Poll page component sketch
 
 ```tsx
-// apps/web/src/routes/rankings.tsx (pollWeek factory; stub at app/(site)/college-football/rankings/[division]/[year]/[week]/page.tsx)
+// apps/web/src/routes/rankings.tsx (pollWeek factory; stub at app/(site)/college/football/rankings/[division]/[year]/[week]/page.tsx)
 import { cacheLife, cacheTag } from "next/cache";
 import { getPollWeek } from "@rs/db/queries/polls";
 import { pollSlugFor, parseWeekSegment } from "@rs/seo/urls";
@@ -3351,7 +3361,7 @@ async function loadPoll(sport: string, division: string, year: number, week: str
 }
 ```
 
-URLs follow §17: the current poll lives at `/{sport}/rankings/{division}` and each archived week at `/{sport}/rankings/{division}/{year}/week-N` (`preseason`, `final`). New divisions and sports need no new routes, only new `polls` rows, e.g. `/college-football/rankings/d2`, `/mens-college-basketball/rankings/d1`, `/womens-college-basketball/rankings/d1`.
+URLs follow §17: the current poll lives at `/{sport}/rankings/{division}` and each archived week at `/{sport}/rankings/{division}/{year}/week-N` (`preseason`, `final`). New divisions and sports need no new routes, only new `polls` rows, e.g. `/college/football/rankings/d2`, `/college/mens-basketball/rankings/d1`, `/college/womens-basketball/rankings/d1`.
 
 ---
 
@@ -3378,7 +3388,7 @@ Feature list:
 - Leaderboards: national, per group, friends (users you share any group with), per school fan base (optional: "Montana State fans" based on favorite team).
 - Possible points remaining and elimination status, updated when staff enter results.
 - Shareable bracket images (OG) and a printable view.
-- **One event per division per season** (`unique (sport, division, season_id)`), URL `/college-football/bracket-challenge/{division}/{year}`.
+- **One event per division per season** (`unique (sport, division, season_id)`), URL `/college/football/bracket-challenge/{division}/{year}`.
 - Sponsored brackets: sponsor branding on landing page, group, and share images; disclosure.
 - No entry fees and no prizes in the free game unless legal review approves a sweepstakes structure (see §20.5).
 
@@ -3693,7 +3703,7 @@ Ties on rank display: entries tied on (1) share a displayed rank only until the 
 ### 14.7 Groups and invites
 
 - Create group: name, visibility (private by default), optional password for public groups, max members, allow multiple entries per user.
-- **Invite code**: 8 characters from a Crockford base32 alphabet (no I, L, O, U), generated server-side with `crypto.getRandomValues`, unique index, rotatable by the manager. Invite link: `/college-football/bracket-challenge/fcs/2026/join/{code}` (on `www`).
+- **Invite code**: 8 characters from a Crockford base32 alphabet (no I, L, O, U), generated server-side with `crypto.getRandomValues`, unique index, rotatable by the manager. Invite link: `/college/football/bracket-challenge/fcs/2026/join/{code}` (on `www`).
 - Join flow: open link → sign in if needed → choose which of your entries to add (or create one) → joined. Rate limit join attempts per user and per IP to make code guessing infeasible.
 - Manager tools (before lock): rename, rotate code, remove member, set message; after lock: view only. Transfer manager on manager account deletion.
 - **Entries hidden until lock** to prevent copying (other members see names and "picks hidden until kickoff").
@@ -3869,13 +3879,13 @@ async function rescoreEventTx(tx: Tx, event: typeof bracketEvents.$inferSelect) 
 - **Countdown**: lock time in local zone plus ET, persistent banner in the last 24 h.
 - **Save state**: autosave drafts to `localStorage` for signed-out users; on sign-in, offer to save to account.
 - **After lock**: show correct (green), wrong (red, struck through), eliminated future picks (gray), possible points, rank movement.
-- **Share**: OG image route `/college-football/bracket-challenge/fcs/2026/entries/{id}/opengraph-image` renders the champion and final four picks.
+- **Share**: OG image route `/college/football/bracket-challenge/fcs/2026/entries/{id}/opengraph-image` renders the champion and final four picks.
 - **Accessibility**: the bracket is an ordered list of games per round with buttons; the visual tree is decoration. Screen readers announce "Second round, game 3: No. 3 seed Montana State versus winner of first-round game 5. Your pick: Montana State."
 
 ### 14.11 Admin flows
 
 1. **Create event** (status `draft`): choose `sport`, `division` (`fbs|fcs|d2|d3`), season/year, format (default mapped: fbs→cfp12, fcs→fcs24, d2→d2_28, d3→d3_32); scoring config; sponsor. DB rejects a second event for the same sport/division/season.
-2. **Selection day**: "Set field" assigns teams to slots (search by school; validates division membership and no duplicates); set informational `starts_at` / `lock_at`; status → `field_set` → `open` at the public URL `/college-football/bracket-challenge/{division}/{year}`.
+2. **Selection day**: "Set field" assigns teams to slots (search by school; validates division membership and no duplicates); set informational `starts_at` / `lock_at`; status → `field_set` → `open` at the public URL `/college/football/bracket-challenge/{division}/{year}`.
 3. **During the event**: **Results** screen (§14.9) — staff enter winners; each save rescores; optional Broadcast.
 4. **After the final**: status `complete`; standings frozen; Sanity announcement optional.
 5. **Archive**: leaderboards stay public indefinitely.
@@ -3935,18 +3945,18 @@ Hub pages for the two highest-intent off-field topics, with no player databases.
 
 | Page | URL | Content |
 |---|---|---|
-| Portal hub | `/college-football/transfer-portal` (`?page=n`), same for basketball | Lead story, storylines (Sanity `storyline`), river of portal-tagged articles, a 4-row **tracker preview** (same `PortalRow`), link to the full tracker |
+| Portal hub | `/college/football/transfer-portal` (`?page=n`), same for basketball | Lead story, storylines (Sanity `storyline`), river of portal-tagged articles, a 4-row **tracker preview** (same `PortalRow`), link to the full tracker |
 | **Portal tracker** | `/transfer-portal` with `?sport=&division=&status=&position=&conference=&school=&sort=&page=` | Filterable list of `portalEntry` rows (§16.1) |
-| Recruiting hub | `/college-football/recruiting` (`?page=n`) | Commits coverage cards, signing-day package, storylines, river, optional curated commits list (`curatedTracker`, kind `recruiting`) |
+| Recruiting hub | `/college/football/recruiting` (`?page=n`) | Commits coverage cards, signing-day package, storylines, river, optional curated commits list (`curatedTracker`, kind `recruiting`) |
 | Team view | `/teams/{slug}/football/news` | Team's portal/recruiting stories via tags; the team's portal entries in a small `PortalRow` list |
 
 Do not build: player profile pages, player photos, star ratings or grades, NIL valuations, prediction percentages, class rankings, or any ingestion of portal data.
 
 ### 16.1 Portal tracker
 
-> **Status: in scope, UI redesign required before build.** The URL design, `searchParams` rules, Sanity schema, GROQ, caching and the named-`grid-template-areas` technique below are approved for planning. The *visual* design (the `PortalRow` card, filter bar and summary cards shown in the screenshots) will be redone before implementation. Do not build tracker UI from these mockups until James signs off on the redesign; the schema, query and route plumbing can be built first.
->
-> **Story link: under review.** v1.5 required every entry to link a Redshirt story. James notes not every player has a story, so `story` is **optional** until Open Decision #16 is settled: Studio shows a warning (not an error) when it is empty, the GROQ no longer filters out story-less entries, and `PortalRow` hides the Story link when there is none.
+> **Status: in scope, UI redesign required before build (handoff).** The URL design, `searchParams` rules, Sanity schema, GROQ, caching and the named-`grid-template-areas` technique below are approved for planning. The *visual* design (the `PortalRow` card, filter bar and summary cards shown in the screenshots) will be redone before implementation. Do not build tracker UI from these mockups until James signs off on the redesign; the schema, query and route plumbing can be built first.
+
+> **Story link optional (v1.7).** v1.5 required every entry to link a Redshirt story. Not every player has one, so `story` is **optional** until Open Decision #16 is settled: Studio shows a warning (not an error) when it is empty, the GROQ no longer filters out story-less entries, and `PortalRow` shows "No story yet" instead of the Story link.
 
 **Why one root URL with query filters.** The tracker is a *view over one dataset* with many filter combinations, so filters are `searchParams` (as asked), including sport. It lives in its own static root folder, `app/(site)/transfer-portal/page.tsx` (folder = URL, no rewrites; `transfer-portal` is added to `RESERVED_ROOT_SEGMENTS`). Sport hubs link in with the sport preselected (`/transfer-portal?sport=mens-basketball`). Football is the default, so it carries no `sport` param.
 
@@ -4275,7 +4285,7 @@ export function PortalRow({ entry: e }: { entry: PortalEntryRow }) {
         <Newspaper className="size-3.5" aria-hidden /> Story <ChevronRight className="size-3" aria-hidden />
         <span className="sr-only">: {e.story.title}</span>
       </a>
-      ) : null /* story optional pending §30 #16 */}
+      ) : <span className="[grid-area:story] justify-self-end text-xs text-muted-foreground">No story yet</span> /* story optional pending §30 #16 */}
     </li>
   );
 }
@@ -4305,7 +4315,7 @@ I fetched `on3.com/transfer-portal/wire/football/` and took Playwright screensho
 | "Last → new" school flow with arrows; "?" when undecided | Previous → new school chips (neutral marks + conference); dashed "?" + "Undecided" when entered; "Returning" when withdrawn. Only previous → new; no multi-school chains |
 | Filter selects above the list (year, sport, team, status, position) | Sport, Division, Status, Position, Conference, School search, Sort, all in `searchParams`, plus removable chips and "Clear all"; mobile `Sheet` |
 | Summary stat cards (in portal, committed, withdrawn) | Same three counts, from Redshirt's own entries and labelled "tracked, not exhaustive" |
-| Not borrowed | Player photos, star ratings, transfer/HS grades, NIL valuations, prediction percentages, ads between rows. (v1.5 also required every row to link a Redshirt story; that rule is under review, §30 #16) |
+| Not borrowed | Player photos, star ratings, transfer/HS grades, NIL valuations, prediction percentages, ads between rows. (v1.5 also required every row to link a Redshirt story; since v1.7 the link is optional pending §30 #16) |
 
 ![Portal tracker, desktop (1440×900)](../mockups/screenshots/portal-tracker-desktop.png)
 
@@ -4321,7 +4331,7 @@ I fetched `on3.com/transfer-portal/wire/football/` and took Playwright screensho
 
 This route map is designed fresh; old Redshirt URLs get optional one-time 301s (§27). Two hard rules from James (v1.4):
 
-1. **Zero rewrites.** No `rewrites()` in any `next.config`, no middleware rewrites, no proxy routing. **App Router folders map 1:1 to public URLs**: if a URL is `/college-football/fcs/news`, the file is `app/(site)/college-football/[division]/news/page.tsx` (route groups like `(site)` don't appear in URLs by definition).
+1. **Zero rewrites.** No `rewrites()` in any `next.config`, no middleware rewrites, no proxy routing. **App Router folders map 1:1 to public URLs**: if a URL is `/college/football/fcs/news`, the file is `app/(site)/college/football/[division]/news/page.tsx` (route groups like `(site)` don't appear in URLs by definition).
 2. **No routing redirects.** The app never redirects one of its own URLs to another (no "current → archive", no "latest year", no slug-change, no internal-path, no `?page=1` redirects). The only redirects are **optional one-time 301s from legacy Redshirt URLs** (§27). Everything else renders in place with a correct canonical, or returns 404.
 
 ### 17.1 What the reference sites teach about URLs
@@ -4330,33 +4340,43 @@ These are observed URL *patterns*, described generally. Exact paths change over 
 
 | Site | Pattern style | Good | Avoid |
 |---|---|---|---|
-| ESPN | Sport-first paths (`/college-football/...`), sections like rankings; some entity pages use opaque `/_/id/<number>/` segments | Short, keyword-rich sport segment; each view has its own path | Opaque id segments and filters in path params are hard to read and share |
+| ESPN | Sport-first paths (`/college/football/...`), sections like rankings; some entity pages use opaque `/_/id/<number>/` segments | Short, keyword-rich sport segment; each view has its own path | Opaque id segments and filters in path params are hard to read and share |
 | The Athletic | Sport and team landing pages; articles carry an id plus slug | Stable article URLs | Long numeric ids add nothing for readers |
 | 247Sports | Team sites as sub-sites; season-scoped pages | Season in path for rankings | Deep, inconsistent nesting between sections |
 | On3 | Sport-agnostic team pages (school + nickname) with sport sections inside | One brand page per school; nickname makes the slug unambiguous and readable | Mixing URL schemes between sections |
 | Bleacher Report | Short team "stream" pages | Short team URLs | Ambiguous without a nickname or sport section |
 | SI | Team sites under one domain plus sport sections | Shared domain authority | Many sub-brands with different structures |
 
-### 17.0 Sport URL rationale: keep `/college-football/`
+### 17.0 URL rationale: level, then sport (`/college/football/…`)
 
-Keep the full keyword in the first path segment:
+**Decision (James, v1.6):** the first path segment is the **competition level**, the second is the **sport**:
+
+| Level | Sport sections | Status |
+|---|---|---|
+| `/college` | `/college/football`, `/college/mens-basketball`, `/college/womens-basketball` | Built. `/college` itself is a **real level hub page** (all college sports, latest college news), not a redirect or an empty folder |
+| `/high-school` | `/high-school/football` (first candidate) | **Future level, not built.** The segment is reserved now (`RESERVED_ROOT_SEGMENTS`) so no page-builder page can take it |
+
+Why this shape:
 
 | Choice | Example | Verdict |
 |---|---|---|
-| **Recommended** | `/college-football/…`, `/mens-college-basketball/…`, `/womens-college-basketball/…` | Matches how people search ("college football rankings", "men's college basketball"); one segment; gender-disambiguated for basketball; no ambiguity with NFL/NBA |
-| Alternative | `/college-basketball/…` with a gender tab or query | Shorter, but men's and women's content compete for the same URL space and breadcrumbs; reject for this product |
+| **Chosen: level + sport** | `/college/football/…`, `/college/mens-basketball/…`, `/high-school/football/…` later | Leaves room for a second level without renaming anything; the sport segment is the same word everywhere (`football`, `mens-basketball`, `womens-basketball`), matching the team-hub sport sections (`/teams/{school}/football`); breadcrumbs read naturally (College › Football › FCS); and it is the **shape the current Redshirt site already uses** (`/college/{sport}/…`), so many existing URLs survive unchanged and need no legacy redirect (§27) |
+| Replaced (v1.0–1.5) | One keyword segment per sport, e.g. a combined “college + football” segment (exact old paths are listed in the Changes in 1.6 note) | One keyword segment, but it bakes the level into the sport name: a high-school section would need a parallel `/high-school-football/` scheme, and every current `/college/…` URL would have needed a 301 |
+| Rejected | `/football/…` with level as a tab or query | Ambiguous across levels; breaks the folders-equal-URLs rule if level becomes a filter |
 | Rejected | `/cfb/…`, `/ncaaf/…` | Cryptic; weaker for SEO and for editors linking in Sanity |
-| Rejected | `/college/football/…` | Two segments for one idea; the current Redshirt shape — redirected away, not kept |
 
-`SPORT_PATH` in `@rs/seo/urls` is the single place these strings are defined. Basketball stays gendered (`mens-college-basketball`, `womens-college-basketball`). Do not introduce a unisex `/college-basketball/` alias.
-
+Rules that follow from it:
+- `LEVELS` and `SPORTS` in the route manifest (§17.3) are the **single place** these strings are defined; `urls` (§17.8) builds every path as `/{level}/{sport}/…`.
+- Basketball stays gendered (`mens-basketball`, `womens-basketball`). No unisex `/college/basketball/` alias.
+- Search intent ("college football rankings") is served by titles, H1s, breadcrumbs and structured data (`College Football Rankings`), not by cramming the phrase into one segment.
+- Adding high school later = one `LEVELS` entry + its `SPORTS` rows + `pnpm routes:gen`. Team hubs (`/teams/{school-nickname}`) are for colleges; how high-school teams are addressed is decided when that level is designed (out of scope now).
 
 ### 17.2 Design rules
 
-1. **Sport is the first segment** and is a full keyword: `/college-football`, `/mens-college-basketball`, `/womens-college-basketball` (§17.0). Each is a real static folder.
-2. **Section second, scope third, time last**: `/{sport}/{section}/{division}/{season}/{week}`, e.g. `/college-football/rankings/fcs/2026/week-7`.
+1. **Level first, sport second** (§17.0): `/college` (level hub), `/college/football`, `/college/mens-basketball`, `/college/womens-basketball`. Each is a real static folder. `/high-school/…` is a reserved future level.
+2. **Section third, scope fourth, time last**: `/{level}/{sport}/{section}/{division}/{season}/{week}`, e.g. `/college/football/rankings/fcs/2026/week-7`. (Below, `/{sport}/…` is shorthand for `/{level}/{sport}/…`.)
 3. **Readable time segments**: `2026`, `week-7`, `preseason`, `final`. Basketball seasons use the starting year (`2026` = 2026-27).
-4. **"Current" URLs have no time segment** and render the latest (`/college-football/rankings/fcs`); archive URLs have it. Both self-canonicalize. No redirect between them.
+4. **"Current" URLs have no time segment** and render the latest (`/college/football/rankings/fcs`); archive URLs have it. Both self-canonicalize. No redirect between them.
 5. **Articles live at `/{sport}/news/{slug}`**, no id suffix. Slugs are **globally unique** and, together with `primarySport`, **immutable after first publish** (Studio makes both read-only once published; headlines can still change). That removes the need for slug-change redirects. A request whose sport segment doesn't match the article's `primarySport` returns 404 (we never link to it).
 6. **The site root is reserved for page-builder pages** (`/about`, `/privacy`, …) via `app/(site)/[...slug]`. Its only extra job: if no Sanity page matches, look up the legacy-redirect table (one-time 301s from old Redshirt root URLs), else 404.
 7. **Team hubs are sport-agnostic, On3-style**: `/teams/{school-slug-nickname}` (e.g. `/teams/montana-state-bobcats`) with sport sections inside: `/teams/montana-state-bobcats/football`, `/mens-basketball`, `/womens-basketball` (§17.5).
@@ -4366,9 +4386,9 @@ Keep the full keyword in the first path segment:
 11. **Signed-out visits to personal pages render in place**: `/account/*`, `/onboarding`, `…/my-bracket` show an inline Clerk `<SignIn />` card (with `forceRedirectUrl` set to the current path, which is a client navigation after sign-in, not an HTTP redirect) instead of bouncing to `/sign-in`. Middleware does not call `auth.protect()` on `www`.
 12. **Personal and interactive URLs are `noindex`**: account, onboarding, pick editor, group join links, search, all of `vote.` and `admin.`.
 
-### 17.3 Folder strategy: explicit sport folders + a route-config factory
+### 17.3 Folder strategy: explicit level + sport folders + a route-config factory
 
-**Decision:** every public sport section is a **real static folder** (`app/(site)/college-football/…`, `app/(site)/mens-college-basketball/…`, `app/(site)/womens-college-basketball/…`). The page files inside are **two-line stubs** that bind a sport to a shared route module created by a factory in `apps/web/src/routes/`. The stubs are **generated** from a route manifest so the three sport trees can't drift.
+**Decision:** every level and every sport section is a **real static folder**: `app/(site)/college/page.tsx` (level hub), `app/(site)/college/news/page.tsx` (all college news), and `app/(site)/college/football/…`, `app/(site)/college/mens-basketball/…`, `app/(site)/college/womens-basketball/…`. The page files inside are **two-line stubs** that bind a level or sport to a shared route module created by a factory in `apps/web/src/routes/`. The stubs are **generated** from a route manifest (levels × sports × templates) so the sport trees can't drift, and a future `app/(site)/high-school/football/…` is one manifest entry away.
 
 Why this approach:
 
@@ -4377,20 +4397,37 @@ Why this approach:
 | Internal `sports/[sport]` + `beforeFiles` rewrites (v1.3) | No (folder says `/sports/`) | Rewrite + 308 for the internal path | **Rejected** (violates both rules) |
 | Root `[sport]` dynamic segment | Yes | None | **Rejected**: Next.js can't have `[sport]` and the page-builder `[...slug]` as different dynamic siblings at the root; it would also make every unknown root path ambiguous |
 | Middleware routing | No | Rewrites | **Rejected** |
-| **Explicit static sport folders + route factory + codegen stubs** | **Yes** | **None** | **Chosen**: static segments always win over the root catch-all, so `/college-football/...` never collides with page-builder pages; each folder is exactly the URL; shared logic lives once in `src/routes/*`; adding a sport is one manifest line + `pnpm routes:gen` |
+| `college/[sport]` dynamic segment + `generateStaticParams` + `dynamicParams = false` | Yes | None | **Acceptable alternative** since v1.6: under the static `college/` folder a `[sport]` segment no longer competes with the root `[...slug]` (this is also how the current repo is built). Codegen stays the default because per-sport layouts, metadata and division params differ |
+| **Explicit static level + sport folders + route factory + codegen stubs** | **Yes** | **None** | **Chosen**: static segments always win over the root catch-all, so `/college/football/...` never collides with page-builder pages; each folder is exactly the URL; shared logic lives once in `src/routes/*`; adding a sport is one manifest line + `pnpm routes:gen` |
 
 How it works:
 
 ```ts
-// apps/web/src/routes/manifest.ts — single source of truth for sport sections
-export const SPORTS = {
-  cfb: { path: "college-football",          teamPath: "football",          divisions: ["fbs", "fcs", "d2", "d3", "naia"] },
-  mbb: { path: "mens-college-basketball",   teamPath: "mens-basketball",   divisions: ["d1", "d2", "d3"] },
-  wbb: { path: "womens-college-basketball", teamPath: "womens-basketball", divisions: ["d1", "d2", "d3"] },
+// apps/web/src/routes/manifest.ts — single source of truth for levels and sport sections
+export const LEVELS = {
+  college: { path: "college", label: "College" },
+  // "high-school": { path: "high-school", label: "High School" },   // FUTURE level (§17.0): reserved, not built
 } as const;
+export type Level = keyof typeof LEVELS;
+
+export const SPORTS = {
+  cfb: { level: "college", path: "football",          label: "College Football",          teamPath: "football",          divisions: ["fbs", "fcs", "d2", "d3", "naia"] },
+  mbb: { level: "college", path: "mens-basketball",   label: "Men's College Basketball",  teamPath: "mens-basketball",   divisions: ["d1", "d2", "d3"] },
+  wbb: { level: "college", path: "womens-basketball", label: "Women's College Basketball", teamPath: "womens-basketball", divisions: ["d1", "d2", "d3"] },
+  // hsfb: { level: "high-school", path: "football", label: "High School Football", ... }  // future
+} as const satisfies Record<string, { level: Level; path: string; label: string; teamPath: string; divisions: readonly string[] }>;
 export type Sport = keyof typeof SPORTS;
 
-// Templates that exist under every sport folder (relative path → route module export)
+/** `/college/football` — the only place a sport's base path is assembled */
+export const sportBase = (s: Sport) => `/${LEVELS[SPORTS[s].level].path}/${SPORTS[s].path}`;
+
+// Templates under every level folder: app/(site)/{level}/…
+export const LEVEL_TEMPLATES = [
+  ["page.tsx", "levelHub"],                             // /college: every college sport, latest college news, poll snapshots
+  ["news/page.tsx", "levelNews"],                       // /college/news?page=n (all college news)
+] as const;
+
+// Templates that exist under every sport folder: app/(site)/{level}/{sport}/… (relative path → route module export)
 export const SPORT_TEMPLATES = [
   ["page.tsx", "sportHub"],
   ["news/page.tsx", "sportNews"],                       // ?page=n
@@ -4405,8 +4442,11 @@ export const SPORT_TEMPLATES = [
   ["rankings/[division]/page.tsx", "pollCurrent"],
   ["rankings/[division]/voters/page.tsx", "voterPanel"],
   ["rankings/[division]/voters/[voter]/page.tsx", "voterProfile"],
+  ["rankings/[division]/history/page.tsx", "pollHistory"],          // v1.7: static "history" beats [year]
+  ["rankings/[division]/history/[year]/page.tsx", "pollHistorySeason"],
   ["rankings/[division]/[year]/[week]/page.tsx", "pollWeek"],
   ["rankings/[division]/[year]/[week]/ballots/page.tsx", "ballotBreakdown"],
+  ["rankings/[division]/[year]/[week]/ballots/by-voter/page.tsx", "ballotsByVoter"],  // static beats [voter]; "by-voter" is a reserved voter slug
   ["rankings/[division]/[year]/[week]/ballots/[voter]/page.tsx", "ballot"],
   ["transfer-portal/page.tsx", "portalHub"],            // article-driven (§16)
   ["recruiting/page.tsx", "recruitingHub"],             // article-driven (§16)
@@ -4430,7 +4470,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getNewsPage } from "@rs/sanity/queries/news";
 import { parsePage, pageMetadata } from "@rs/seo/pagination";
-import { SPORTS, type Sport } from "./manifest";
+import { SPORTS, sportBase, type Sport } from "./manifest";
 
 export function sportNews(sport: Sport) {
   async function Page({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
@@ -4444,7 +4484,7 @@ export function sportNews(sport: Sport) {
   }
   async function generateMetadata({ searchParams }: { searchParams: Promise<{ page?: string }> }): Promise<Metadata> {
     const page = parsePage((await searchParams).page);
-    return pageMetadata({ base: `/${SPORTS[sport].path}/news`, page, title: `${label(sport)} News` });
+    return pageMetadata({ base: `${sportBase(sport)}/news`, page, title: `${SPORTS[sport].label} News` });
   }
   return { Page, generateMetadata };
 }
@@ -4459,7 +4499,7 @@ async function River({ sport, searchParams }: { sport: Sport; searchParams: Prom
 ```
 
 ```tsx
-// apps/web/app/(site)/college-football/news/page.tsx — GENERATED by `pnpm routes:gen`, do not edit
+// apps/web/app/(site)/college/football/news/page.tsx — GENERATED by `pnpm routes:gen`, do not edit
 import { sportNews } from "@/routes/sport-news";
 const r = sportNews("cfb");
 export default r.Page;
@@ -4467,7 +4507,7 @@ export const generateMetadata = r.generateMetadata;
 ```
 
 ```tsx
-// apps/web/app/(site)/college-football/[division]/page.tsx — GENERATED
+// apps/web/app/(site)/college/football/[division]/page.tsx — GENERATED
 import { divisionHub } from "@/routes/division-hub";
 const r = divisionHub("cfb");
 export default r.Page;
@@ -4476,9 +4516,9 @@ export const generateStaticParams = r.generateStaticParams;   // [{division:"fbs
 export const dynamicParams = false;                            // any other value → 404, no catch-all fallthrough
 ```
 
-`scripts/routes-gen.ts` writes every stub from `SPORTS × SPORT_TEMPLATES` (plus the non-sport routes) and deletes stale ones; CI runs it and fails on `git diff --exit-code`. Shared layouts (`layout.tsx` with sport theming and sub-nav) are stubs too. If James prefers zero codegen, the stubs can be hand-written; the manifest + factory still prevents logic drift.
+`scripts/routes-gen.ts` writes every stub from `LEVELS × LEVEL_TEMPLATES` (into `app/(site)/{level}/`) and `SPORTS × SPORT_TEMPLATES` (into `app/(site)/{level}/{sport}/`), plus the non-sport routes, and deletes stale ones; CI runs it and fails on `git diff --exit-code`. Shared layouts (`layout.tsx` with sport theming and sub-nav) are stubs too. If James prefers zero codegen, the stubs can be hand-written; the manifest + factory still prevents logic drift.
 
-**Why static siblings are safe:** under `college-football/`, static folders (`news`, `rankings`, `conferences`, `teams`, `transfer-portal`, `recruiting`, `bracket-challenge`) always match before the dynamic `[division]`; `[division]` uses `dynamicParams = false`, so `/college-football/anything-else` is a 404 rather than an accidental division page. At the root, the three sport folders and the other static folders win over `[...slug]`.
+**Why static siblings are safe:** under `college/`, the static `news` folder and the three static sport folders are the only children, so `/college/news` is the level news index and `/college/anything-else` matches no `college/*` route; it falls to the root `[...slug]`, which 404s immediately because `college` is a reserved root segment. Under `college/football/`, static folders (`news`, `rankings`, `conferences`, `teams`, `transfer-portal`, `recruiting`, `bracket-challenge`) always match before the dynamic `[division]`; `[division]` uses `dynamicParams = false`, so `/college/football/anything-else` is a 404 rather than an accidental division page. At the root, `college/` and the other static folders win over `[...slug]`. `/high-school/…` 404s until that level exists.
 
 ### 17.4 Full `apps/web` tree
 
@@ -4516,51 +4556,57 @@ apps/web/
 │       ├── layout.tsx                               # ticker, header, footer, bottom nav, ads provider
 │       ├── page.tsx                                 # /
 │       ├── [...slug]/page.tsx                       # Sanity page builder → legacy-301 lookup → 404
-│       ├── college-football/                        # ← GENERATED stubs (same tree for the two basketball folders)
-│       │   ├── layout.tsx                           # sport sub-nav
-│       │   ├── page.tsx                             # /college-football
-│       │   ├── feed.xml/route.ts
-│       │   ├── news/
-│       │   │   ├── page.tsx                         # /college-football/news?page=n
-│       │   │   └── [slug]/page.tsx                  # /college-football/news/{slug}
-│       │   ├── [division]/
-│       │   │   ├── page.tsx                         # /college-football/fcs
-│       │   │   └── news/page.tsx                    # /college-football/fcs/news?page=n
-│       │   ├── conferences/
-│       │   │   ├── page.tsx
-│       │   │   └── [conf]/page.tsx
-│       │   ├── teams/page.tsx                       # directory → links to /teams/{slug}/football
-│       │   ├── rankings/
-│       │   │   ├── page.tsx
-│       │   │   ├── methodology/page.tsx
-│       │   │   └── [division]/
-│       │   │       ├── page.tsx                     # current poll
-│       │   │       ├── voters/page.tsx
-│       │   │       ├── voters/[voter]/page.tsx
-│       │   │       └── [year]/[week]/
-│       │   │           ├── page.tsx                 # archive poll week
-│       │   │           └── ballots/
-│       │   │               ├── page.tsx             # Voter Ballot Breakdown (§13, §32)
-│       │   │               └── [voter]/page.tsx
-│       │   ├── transfer-portal/page.tsx             # article-driven hub ?page=n
-│       │   ├── recruiting/page.tsx                  # article-driven hub ?page=n
-│       │   └── bracket-challenge/
-│       │       ├── page.tsx
-│       │       └── [division]/
-│       │           ├── page.tsx                     # division landing (current + archive), no redirect
-│       │           └── [year]/
-│       │               ├── layout.tsx               # loads THE event (sport, division, year) or 404
-│       │               ├── page.tsx                 # event landing / bracket view
-│       │               ├── opengraph-image.tsx
-│       │               ├── my-bracket/page.tsx
-│       │               ├── leaderboard/page.tsx     # ?page=n
-│       │               ├── entries/[entryId]/page.tsx
-│       │               ├── entries/[entryId]/opengraph-image.tsx
-│       │               ├── groups/page.tsx
-│       │               ├── groups/[groupId]/page.tsx
-│       │               └── join/[code]/page.tsx
-│       ├── mens-college-basketball/                 # same generated tree (divisions d1|d2|d3)
-│       ├── womens-college-basketball/               # same generated tree
+│       ├── college/                                 # LEVEL folder (static); high-school/ is a future sibling, not built
+│       │   ├── page.tsx                             # /college  level hub (all college sports, latest news, polls)
+│       │   ├── news/page.tsx                        # /college/news?page=n (all college news)
+│       │   ├── football/                            # ← GENERATED stubs (same tree for mens-basketball/, womens-basketball/)
+│       │   │   ├── layout.tsx                       # sport sub-nav
+│       │   │   ├── page.tsx                         # /college/football
+│       │   │   ├── feed.xml/route.ts
+│       │   │   ├── news/
+│       │   │   │   ├── page.tsx                     # /college/football/news?page=n
+│       │   │   │   └── [slug]/page.tsx              # /college/football/news/{slug}
+│       │   │   ├── [division]/
+│       │   │   │   ├── page.tsx                     # /college/football/fcs
+│       │   │   │   └── news/page.tsx                # /college/football/fcs/news?page=n
+│       │   │   ├── conferences/
+│       │   │   │   ├── page.tsx
+│       │   │   │   └── [conf]/page.tsx
+│       │   │   ├── teams/page.tsx                   # directory → links to /teams/{slug}/football
+│       │   │   ├── rankings/
+│       │   │   │   ├── page.tsx
+│       │   │   │   ├── methodology/page.tsx
+│       │   │   │   └── [division]/
+│       │   │   │       ├── page.tsx                 # current poll
+│       │   │   │       ├── voters/page.tsx
+│       │   │   │       ├── voters/[voter]/page.tsx
+│       │   │   │       ├── history/page.tsx         # v1.7 poll history (current season)
+│       │   │   │       ├── history/[year]/page.tsx  # past seasons
+│       │   │   │       └── [year]/[week]/
+│       │   │   │           ├── page.tsx             # archive poll week
+│       │   │   │           └── ballots/
+│       │   │   │               ├── page.tsx         # Voter Ballot Breakdown, all ballots (§13, §32)
+│       │   │   │               ├── by-voter/page.tsx # v1.7 by-voter view
+│       │   │   │               └── [voter]/page.tsx
+│       │   │   ├── transfer-portal/page.tsx         # article-driven hub ?page=n
+│       │   │   ├── recruiting/page.tsx              # article-driven hub ?page=n
+│       │   │   └── bracket-challenge/
+│       │   │       ├── page.tsx
+│       │   │       └── [division]/
+│       │   │           ├── page.tsx                 # division landing (current + archive), no redirect
+│       │   │           └── [year]/
+│       │   │               ├── layout.tsx           # loads THE event (sport, division, year) or 404
+│       │   │               ├── page.tsx             # event landing / bracket view
+│       │   │               ├── opengraph-image.tsx
+│       │   │               ├── my-bracket/page.tsx
+│       │   │               ├── leaderboard/page.tsx # ?page=n
+│       │   │               ├── entries/[entryId]/page.tsx
+│       │   │               ├── entries/[entryId]/opengraph-image.tsx
+│       │   │               ├── groups/page.tsx
+│       │   │               ├── groups/[groupId]/page.tsx
+│       │   │               └── join/[code]/page.tsx
+│       │   ├── mens-basketball/                     # same generated tree (divisions d1|d2|d3)
+│       │   └── womens-basketball/                   # same generated tree
 │       ├── teams/
 │       │   ├── page.tsx                             # all schools A–Z, search
 │       │   └── [team]/                              # e.g. montana-state-bobcats
@@ -4607,9 +4653,12 @@ apps/web/
 
 ```text
 /                                         Home
-/college-football                         Sport hub (news, rankings, bracket CTAs, external links)
-/mens-college-basketball                  Sport hub
-/womens-college-basketball                Sport hub
+/college                                  LEVEL hub: every college sport, latest college news, poll snapshots
+/college/news                             All college news (?page=n)
+/college/football                         Sport hub (news, rankings, bracket CTAs, external links)
+/college/mens-basketball                  Sport hub
+/college/womens-basketball                Sport hub
+/high-school/...                          FUTURE level (reserved, 404 until built)
 /teams                                    All schools (search, A–Z)
 /teams/{school-slug-nickname}             Team hub across sports, e.g. /teams/montana-state-bobcats
 /people/{slug}                            Person profile
@@ -4625,26 +4674,30 @@ apps/web/
 
 | URL | Page | Notes |
 |---|---|---|
-| `/college-football` | Sport hub | |
-| `/college-football/{fbs\|fcs\|d2\|d3\|naia}` | Division hub | News, poll, bracket CTA, outbound links |
-| `/college-football/news` (`?page=n`) | All CFB news | §17.6 |
-| `/college-football/news/{slug}` | **Article** | Immutable slug + sport |
-| `/college-football/fcs/news` (`?page=n`) | Division news | |
-| `/college-football/conferences`, `/conferences/{conf}` | Conference index / hub | |
-| `/college-football/teams` | Sport directory | Each row links to `/teams/{slug}/football` |
-| `/college-football/rankings` | Rankings landing | |
-| `/college-football/rankings/fcs` | **Current FCS Top 25** | |
-| `/college-football/rankings/fcs/2026/week-7` | Archive poll week | |
-| `/college-football/rankings/fcs/2026/week-7/ballots` | **Voter Ballot Breakdown** | Matrix, outliers, `?voters=a,b` filter (canonical to base) |
-| `/college-football/rankings/fcs/2026/week-7/ballots/{voter}` | One voter's ballot | |
-| `/college-football/rankings/fcs/voters`, `/voters/{voter}` | Voter panel / profile | |
-| `/college-football/rankings/methodology` | Methodology | |
-| `/college-football/transfer-portal` (`?page=n`) | **Portal hub** (article-driven) | §16 |
+| `/college` | **Level hub** | Sport cards (Football, Men's and Women's Basketball) with top stories and poll snapshot, latest college news, "other levels" note; `index,follow` |
+| `/college/news` (`?page=n`) | All college news | §17.6 |
+| `/college/football` | Sport hub | |
+| `/college/football/{fbs\|fcs\|d2\|d3\|naia}` | Division hub | News, poll, bracket CTA, outbound links |
+| `/college/football/news` (`?page=n`) | All CFB news | §17.6 |
+| `/college/football/news/{slug}` | **Article** | Immutable slug + sport |
+| `/college/football/fcs/news` (`?page=n`) | Division news | |
+| `/college/football/conferences`, `/conferences/{conf}` | Conference index / hub | |
+| `/college/football/teams` | Sport directory | Each row links to `/teams/{slug}/football` |
+| `/college/football/rankings` | Rankings landing | |
+| `/college/football/rankings/fcs` | **Current FCS Top 25** | |
+| `/college/football/rankings/fcs/2026/week-7` | Archive poll week | |
+| `/college/football/rankings/fcs/2026/week-7/ballots` | **Voter Ballot Breakdown** (all ballots) | Unfiltered matrix of all voters by default, outliers; `?voters=a,b` highlights only (canonical to base) |
+| `/college/football/rankings/fcs/2026/week-7/ballots/by-voter` | **Ballots by voter** (v1.7) | Card per voter, full ballot + diff vs consensus; `?q=`, `?sort=` (noindex when set), `?page=n` |
+| `/college/football/rankings/fcs/2026/week-7/ballots/{voter}` | One voter's ballot | |
+| `/college/football/rankings/fcs/voters`, `/voters/{voter}` | Voter panel / profile | Roster links each voter to their ballot and `/people/{slug}` |
+| `/college/football/rankings/fcs/history`, `/history/{year}` | **Poll history** (v1.7) | Chart, week-by-week table, No. 1 history |
+| `/college/football/rankings/methodology` | Methodology | |
+| `/college/football/transfer-portal` (`?page=n`) | **Portal hub** (article-driven) | §16 |
 | `/transfer-portal` (`?division=fcs…`) | **Portal Tracker** (all sports, `portalEntry` rows) | Filters are query params; only sport/division/page are indexable (§16.1) |
-| `/college-football/recruiting` (`?page=n`) | **Recruiting hub** (article-driven) | §16 |
-| `/college-football/bracket-challenge` | Football bracket hub | |
-| `/college-football/bracket-challenge/fcs` | Division landing | Current year card + past years; **renders, never redirects** |
-| `/college-football/bracket-challenge/fcs/2026` | **Event** (rules/countdown before lock; bracket view after) | |
+| `/college/football/recruiting` (`?page=n`) | **Recruiting hub** (article-driven) | §16 |
+| `/college/football/bracket-challenge` | Football bracket hub | |
+| `/college/football/bracket-challenge/fcs` | Division landing | Current year card + past years; **renders, never redirects** |
+| `/college/football/bracket-challenge/fcs/2026` | **Event** (rules/countdown before lock; bracket view after) | |
 | `…/fcs/2026/my-bracket`, `/leaderboard?page=n`, `/entries/{id}`, `/groups`, `/groups/{id}`, `/join/{code}` | Bracket sub-pages | |
 | `/teams/montana-state-bobcats` | **Team hub** (all sports) | Sport tabs + overview |
 | `/teams/montana-state-bobcats/football` | Football section | News, poll history, bracket history, outbound links |
@@ -4653,19 +4706,21 @@ apps/web/
 | `/teams/montana-state-bobcats/mens-basketball`, `/womens-basketball` | Basketball sections | Same sub-pages |
 | `/teams/montana-state-bobcats/news` (`?page=n`) | All-sport team news | |
 
+![College level hub, desktop (1440×900)](../mockups/screenshots/college-desktop.png)
+
 **Team slug rules.** `schools.slug` is the public hub slug `{school}-{nickname}` (lowercase, hyphenated): `montana-state-bobcats`, `north-dakota-state-bison`, `villanova-wildcats`. It is unique, generated once from `short_name` + `nickname`, and immutable (no redirects); a rare rebrand is handled by a manual one-time legacy 301 entry. `schools.short_slug` (`montana-state`) is kept for internal lookups and display, never in URLs.
 
-Basketball mirrors the sport map, e.g. `/mens-college-basketball/rankings/d1/2026/week-9`, `/womens-college-basketball/news/{slug}`.
+Basketball mirrors the sport map, e.g. `/college/mens-basketball/rankings/d1/2026/week-9`, `/college/womens-basketball/news/{slug}`. A future level reuses the same templates: `/high-school/football/news`, `/high-school/football/rankings/…`.
 
 ### 17.6 Pagination: `?page=n` (SI / The Athletic pattern)
 
-Every list page paginates with a query parameter: `/college-football/news?page=2`, `/college-football/fcs/news?page=3`, `/teams/montana-state-bobcats/news?page=2`, `/topics/{slug}?page=2`, `…/leaderboard?page=4`.
+Every list page paginates with a query parameter: `/college/football/news?page=2`, `/college/football/fcs/news?page=3`, `/teams/montana-state-bobcats/news?page=2`, `/topics/{slug}?page=2`, `…/leaderboard?page=4`.
 
 | Rule | Implementation |
 |---|---|
-| Page 1 | No parameter. `/college-football/news` is page 1 and its canonical. |
+| Page 1 | No parameter. `/college/football/news` is page 1 and its canonical. |
 | `?page=1` | Renders page 1 with canonical **without** the parameter (no redirect). |
-| Page n ≥ 2 | **Self-referencing canonical** including the param: `https://www.redshirtsports.com/college-football/news?page=2`. Title/description get " – Page 2". |
+| Page n ≥ 2 | **Self-referencing canonical** including the param: `https://www.redshirtsports.com/college/football/news?page=2`. Title/description get " – Page 2". |
 | Invalid (`page=0`, `-1`, `abc`, `2.5`) or > total pages | `notFound()` → 404. Hard cap 500 to avoid crawl traps. |
 | Other query params (`utm_*`, unknown) | Ignored for rendering; stripped from the canonical. |
 | `rel="prev"/"next"` | **Not needed.** Google stopped using them for indexing in 2019; plain `<a href="?page=n">` links in shadcn `Pagination` are enough. (Harmless to add; we don't.) |
@@ -4760,31 +4815,37 @@ export default async function CatchAll({ params }: { params: Promise<{ slug: str
 
 ```ts
 // packages/seo/src/urls.ts
-import { SPORTS, type Sport } from "@rs/web-routes/manifest";   // or a copy in @rs/seo
+import { LEVELS, SPORTS, sportBase, type Level, type Sport } from "@rs/web-routes/manifest";   // or a copy in @rs/seo
 type Week = number | "preseason" | "final";
 const weekSeg = (w: Week) => (typeof w === "number" ? `week-${w}` : w);
 const q = (page?: number) => (page && page > 1 ? `?page=${page}` : "");
 
 export const urls = {
-  sport: (s: Sport) => `/${SPORTS[s].path}`,
-  division: (s: Sport, d: string) => `/${SPORTS[s].path}/${d}`,
-  news: (s: Sport, page?: number) => `/${SPORTS[s].path}/news${q(page)}`,
-  divisionNews: (s: Sport, d: string, page?: number) => `/${SPORTS[s].path}/${d}/news${q(page)}`,
-  article: (p: { primarySport: Sport; slug: string }) => `/${SPORTS[p.primarySport].path}/news/${p.slug}`,
+  level: (l: Level) => `/${LEVELS[l].path}`,                                                    // /college
+  levelNews: (l: Level, page?: number) => `/${LEVELS[l].path}/news${q(page)}`,                // /college/news
+  sport: (s: Sport) => `${sportBase(s)}`,
+  division: (s: Sport, d: string) => `${sportBase(s)}/${d}`,
+  news: (s: Sport, page?: number) => `${sportBase(s)}/news${q(page)}`,
+  divisionNews: (s: Sport, d: string, page?: number) => `${sportBase(s)}/${d}/news${q(page)}`,
+  article: (p: { primarySport: Sport; slug: string }) => `${sportBase(p.primarySport)}/news/${p.slug}`,
   team: (schoolSlug: string) => `/teams/${schoolSlug}`,                                         // montana-state-bobcats
   teamSport: (schoolSlug: string, s: Sport, tab?: "news" | "rankings", page?: number) =>
     `/teams/${schoolSlug}/${SPORTS[s].teamPath}${tab ? `/${tab}` : ""}${q(page)}`,
   teamNews: (schoolSlug: string, page?: number) => `/teams/${schoolSlug}/news${q(page)}`,
   person: (slug: string, page?: number) => `/people/${slug}${q(page)}`,
-  pollCurrent: (s: Sport, d: string) => `/${SPORTS[s].path}/rankings/${d}`,
-  pollWeek: (s: Sport, d: string, y: number, w: Week) => `/${SPORTS[s].path}/rankings/${d}/${y}/${weekSeg(w)}`,
+  pollCurrent: (s: Sport, d: string) => `${sportBase(s)}/rankings/${d}`,
+  pollWeek: (s: Sport, d: string, y: number, w: Week) => `${sportBase(s)}/rankings/${d}/${y}/${weekSeg(w)}`,
   ballots: (s: Sport, d: string, y: number, w: Week) => `${urls.pollWeek(s, d, y, w)}/ballots`,
   ballot: (s: Sport, d: string, y: number, w: Week, voter: string) => `${urls.ballots(s, d, y, w)}/${voter}`,
-  portal: (s: Sport, page?: number) => `/${SPORTS[s].path}/transfer-portal${q(page)}`,
+  ballotsByVoter: (s: Sport, d: string, y: number, w: Week, page?: number) => `${urls.ballots(s, d, y, w)}/by-voter${q(page)}`,
+  voterPanel: (s: Sport, d: string) => `${sportBase(s)}/rankings/${d}/voters`,
+  pollHistory: (s: Sport, d: string, year?: number) => `${sportBase(s)}/rankings/${d}/history${year ? `/${year}` : ""}`,
+  methodology: (s: Sport) => `${sportBase(s)}/rankings/methodology`,
+  portal: (s: Sport, page?: number) => `${sportBase(s)}/transfer-portal${q(page)}`,
   portalTracker: (f: Partial<PortalFilters> = {}) => portalCanonical({ sport: "football", sort: "newest", page: 1, ...f } as PortalFilters),
-  recruiting: (s: Sport, page?: number) => `/${SPORTS[s].path}/recruiting${q(page)}`,
-  bracketDivision: (s: Sport, d: string) => `/${SPORTS[s].path}/bracket-challenge/${d}`,
-  bracketEvent: (s: Sport, d: string, y: number) => `/${SPORTS[s].path}/bracket-challenge/${d}/${y}`,
+  recruiting: (s: Sport, page?: number) => `${sportBase(s)}/recruiting${q(page)}`,
+  bracketDivision: (s: Sport, d: string) => `${sportBase(s)}/bracket-challenge/${d}`,
+  bracketEvent: (s: Sport, d: string, y: number) => `${sportBase(s)}/bracket-challenge/${d}/${y}`,
   bracketEntry: (s: Sport, d: string, y: number, id: string) => `${urls.bracketEvent(s, d, y)}/entries/${id}`,
   bracketJoin: (s: Sport, d: string, y: number, code: string) => `${urls.bracketEvent(s, d, y)}/join/${code}`,
   voteInvite: (token: string) => `${process.env.NEXT_PUBLIC_VOTE_URL}/invite/${token}`,
@@ -4796,8 +4857,9 @@ export const urls = {
 
 | Decision | Reason |
 |---|---|
-| Static sport folders, no rewrites | Folders = URLs (James's rule); no internal paths to hide; simpler mental model for Cursor and for debugging |
-| Route factory + codegen | One implementation per page type; three sport trees can't drift |
+| Level + sport folders (`/college/football`) | Room for `/high-school/…`; same sport words as team hubs; matches the current site, so fewer legacy 301s (§17.0, §27) |
+| Static level/sport folders, no rewrites | Folders = URLs (James's rule); no internal paths to hide; simpler mental model for Cursor and for debugging |
+| Route factory + codegen | One implementation per page type; sport trees (and a future level) can't drift |
 | Article `/{sport}/news/{slug}`, immutable | Short, keyword-rich; immutability removes slug-change redirects |
 | Sport-agnostic `/teams/{school-nickname}` | On3-style single brand page per school; nickname disambiguates (e.g. two "Miami"s) and reads well; sport sections inside |
 | `?page=n` | Matches SI/The Athletic; fewer folders; caching handled by `"use cache"` data functions (§17.6) |
@@ -4836,7 +4898,7 @@ export default config;
 | Tag | Invalidated by |
 |---|---|
 | `post:<slug>`, `post:<id>` | Sanity webhook |
-| `posts:list`, `posts:<sport>`, `posts:school:<schoolId>`, `posts:conf:<confId>`, `posts:person:<id>` | Sanity webhook (computed from projection) |
+| `posts:list`, `posts:level:<level>` (level hub + `/college/news`), `posts:<sport>`, `posts:school:<schoolId>`, `posts:conf:<confId>`, `posts:person:<id>` | Sanity webhook (computed from projection) |
 | `person:<id>`, `page:<slug>`, `pages:with-people` | Sanity webhook (person changes also expire pages with staff grids) |
 | `school:<schoolId>`, `conference:<confId>` | Sanity webhook, admin |
 | `homepage`, `settings` | Sanity webhook |
@@ -4866,7 +4928,7 @@ Tags do the real work; `revalidate` timers are a safety net in case a webhook is
 import { revalidateTag } from "next/cache";
 import { parseBody } from "next-sanity/webhook";
 
-type Payload = { _id: string; _type: string; slug?: string; oldSlug?: string; schoolIds?: string[]; sport?: string };
+type Payload = { _id: string; _type: string; slug?: string; oldSlug?: string; schoolIds?: string[]; sport?: string; level?: string };
 
 export async function POST(req: Request) {
   const { isValidSignature, body } = await parseBody<Payload>(req, process.env.SANITY_REVALIDATE_SECRET);
@@ -4877,6 +4939,7 @@ export async function POST(req: Request) {
   if (body._type === "post") {
     tags.add("posts:list");
     if (body.sport) tags.add(`posts:${body.sport}`);
+    if (body.level) tags.add(`posts:level:${body.level}`);   // level is projected from SPORTS[primarySport].level
     body.schoolIds?.forEach((id) => tags.add(`posts:school:${id}`));
     tags.add("sitemap:news");
   }
@@ -4934,7 +4997,7 @@ There is no live data. Bracket leaderboards use tag revalidation on result entry
 | Titles/descriptions | `generateMetadata` via `@rs/seo/metadata` builder; Sanity `seo` overrides; title ≤ ~60 chars, description ≤ ~155 |
 | Canonicals | Always absolute, one canonical per piece; syndicated copies point to original |
 | Robots | `noindex` for search, account, join links, pick editor, draft previews; `vote.` and `admin.` are `Disallow: /` |
-| Sitemaps | Index at `/sitemap.xml` → `/sitemaps/posts/[n].xml` (≤ 50,000 URLs each), `/sitemaps/teams.xml`, `/sitemaps/rankings.xml`, `/sitemaps/brackets.xml`, `/sitemaps/pages.xml`, `/sitemaps/people.xml` |
+| Sitemaps | Index at `/sitemap.xml` → `/sitemaps/posts/[n].xml` (≤ 50,000 URLs each), `/sitemaps/teams.xml`, `/sitemaps/rankings.xml`, `/sitemaps/brackets.xml`, `/sitemaps/pages.xml` (includes the level hub `/college`, `/college/news`, sport and division hubs, generated from the route manifest), `/sitemaps/people.xml`. Article URLs are `/college/{sport}/news/{slug}` |
 | News sitemap | `/news-sitemap.xml` with only articles from the **last 48 hours** (Google News requirement), `<news:publication>` name + language, `<news:publication_date>`, `<news:title>` |
 | Google News | Publisher Center listing, clear bylines linked to `/people/{slug}` profiles, dated articles, contact/about/editorial policy pages, no deceptive practices |
 | Structured data | JSON-LD per page type (below), validated in CI with a schema test |
@@ -5195,7 +5258,7 @@ export async function subscribe(input: unknown) {
 
 - Structured JSON logs (pino) with request id; Vercel log drains to a log store (Axiom, Better Stack or Datadog) if needed.
 - Supabase: enable `pg_stat_statements`, review slow queries weekly in season; use Supabase advisors (security and performance lints) in CI.
-- Uptime checks on `/`, `/college-football/rankings/fcs`, `/api/health` (checks DB, Sanity reachability).
+- Uptime checks on `/`, `/college/football/rankings/fcs`, `/api/health` (checks DB, Sanity reachability).
 - Business dashboards: ballots submitted per week vs voters, bracket entries per hour near lock, newsletter growth.
 
 ---
@@ -5371,16 +5434,24 @@ mainImage{
 
 ## 27. Legacy redirects from the current site (optional, one-time 301s)
 
-The new site does not keep the old URL scheme. Migration is (a) importing content and poll history and (b) **optionally** 301-redirecting the old Redshirt URLs that actually carry traffic or links. These are the **only redirects in the system**: the app never redirects its own URLs, and there are no rewrites anywhere (§17).
+v1.6 keeps the current site's `/college/{sport}/…` shape, so far fewer URLs move than in earlier versions. Migration is (a) importing content and poll history and (b) **optionally** 301-redirecting the old Redshirt URLs that actually carry traffic or links. These are the **only redirects in the system**: the app never redirects its own URLs, and there are no rewrites anywhere (§17).
 
-### 27.1 Legacy map (keep it small)
+### 27.1 Legacy map (keep it small; v1.6 reassessed)
 
-| Old pattern (current site) | New URL | Mechanism |
+The v1.6 level/sport structure (`/college/{sport}/…`, §17.0) is the **same shape as the current site**, so most sport URLs no longer need a redirect at all. Reassessed against today's routes (`/college/[sport]/news[/division[/conference]]`, `/college/[sport]/rankings/[division]/[year]/[week]`, `/college/teams/[slug]`, `/college/news`, root `/[slug]`, `/authors/[slug]`):
+
+| Old URL (current site) | New URL | Redirect? |
 |---|---|---|
-| `/college/football/rankings/{fbs\|fcs}/{year}/{week}` | `/college-football/rankings/{division}/{year}/week-{week}` (`preseason`/`final` where applicable) | `next.config` `redirects()` pattern, `permanent: true` |
-| `/college/football/rankings/{fbs\|fcs}` | `/college-football/rankings/{division}` | `next.config` pattern |
-| Root-level article URLs (`/{slug}`) | `/{primarySport}/news/{slug}` | `redirects` table, read by the root catch-all only when no Sanity page matches |
-| Old author / school pages that have links or traffic | `/people/{slug}`, `/teams/{school-nickname}` | `redirects` table (top pages only) |
+| `/college/football/news`, `/college/mens-basketball/news`, `/college/womens-basketball/news` | Same | **None**: identical path, served by the new folder |
+| `/college/news` | Same (`/college/news`, all college news) | **None** |
+| `/college/football` (if linked) | Same (sport hub) | **None** |
+| `/college/{sport}/rankings/{division}/{year}/{week}` with a numeric week, `0` or `final-rankings` | `/college/{sport}/rankings/{division}/{year}/week-{n}`, `/preseason`, `/final` | **3 patterns** in `next.config` `redirects()` (only the week segment changes). Optional: adopt the legacy week segments instead and drop these too (Open Decision #18) |
+| `/college/{sport}/news/{division}` | `/college/{sport}/{division}/news` | **1 pattern**, with `:division` constrained to the known division/browse-scope slugs (so it can never catch an article slug; Studio also reserves those slugs) |
+| `/college/{sport}/news/{division}/{conference}` | `/college/{sport}/conferences/{conference}` | **1 pattern** (same constraint) |
+| `/college/teams/{slug}` | `/teams/{school-nickname}` | `redirects` table rows (slug map), only for schools with traffic/links |
+| Root-level article URLs (`/{slug}`) | `/college/{primarySport}/news/{slug}` | `redirects` table, read by the root catch-all only when no Sanity page matches |
+| `/authors/{slug}` | `/people/{slug}` | 1 pattern |
+| `/vote/…` on www | `vote.redshirtsports.com/…` | 1 pattern once `apps/vote` ships |
 | Everything else | Real 404 (never 301 everything to `/`) | — |
 
 ### 27.2 How
@@ -5398,14 +5469,20 @@ The new site does not keep the old URL scheme. Migration is (a) importing conten
 export default {
   async redirects() {
     return [
-      { source: "/college/football/rankings/:div(fbs|fcs)/:year(\\d{4})/:week(\\d+)", destination: "/college-football/rankings/:div/:year/week-:week", permanent: true },
-      { source: "/college/football/rankings/:div(fbs|fcs)", destination: "/college-football/rankings/:div", permanent: true },
+      // Rankings: only the week segment changed (v1.6). Sport/division paths are already identical.
+      { source: "/college/:sport(football|mens-basketball|womens-basketball)/rankings/:div/:year(\\d{4})/0", destination: "/college/:sport/rankings/:div/:year/preseason", permanent: true },
+      { source: "/college/:sport(football|mens-basketball|womens-basketball)/rankings/:div/:year(\\d{4})/final-rankings", destination: "/college/:sport/rankings/:div/:year/final", permanent: true },
+      { source: "/college/:sport(football|mens-basketball|womens-basketball)/rankings/:div/:year(\\d{4})/:week(\\d{1,2})", destination: "/college/:sport/rankings/:div/:year/week-:week", permanent: true },
+      // Division / conference news moved from news/{division} to {division}/news. DIVS = generated from the manifest.
+      { source: `/college/:sport/news/:div(${DIVS})`, destination: "/college/:sport/:div/news", permanent: true },
+      { source: `/college/:sport/news/:div(${DIVS})/:conf`, destination: "/college/:sport/conferences/:conf", permanent: true },
+      { source: "/authors/:slug", destination: "/people/:slug", permanent: true },
     ];
   },
 } satisfies import("next").NextConfig;
 ```
 
-(Map old week `0`/`1` to `preseason` with explicit entries if the old site numbered preseason. `permanent: true` emits 308 in Next.js; set `statusCode: 301` per entry if you want a literal 301. Either is a permanent redirect for search engines.)
+(Order matters: the `0` and `final-rankings` entries come before the numeric one. Current legacy week segments are documented in the repo's `docs/poll-weeks.md`. `permanent: true` emits 308 in Next.js; set `statusCode: 301` per entry if you want a literal 301. Either is a permanent redirect for search engines.)
 
 ---
 
@@ -5531,9 +5608,9 @@ All figures are **estimates in USD per month**, based on vendors' published list
 | 13 | Risk: staff miss a result entry | | Admin checklist + Slack/email reminder when a `starts_at` has passed with `status=pending` |
 | 14 | Risk: Clerk subdomain cookie issues in local/preview | | Document Allowed Subdomains; use shared preview hostnames or accept re-login across ports |
 | 15 | Image delivery | `sanity-image` vs next-sanity loader | **Decided: `sanity-image`**; next-sanity loader is the documented alternative (§26) |
-| 16 | **Portal tracker: must every entry link a Redshirt story?** (under review) | (a) required, as in v1.5: no story, no row; (b) optional: rows without a story show no Story link; (c) optional, but story-less rows are hidden from the public list until a story exists | **Open.** Built as (b) for now: `story` is optional with a Studio warning. If James picks (a), restore `r.required()` and the `defined(story->slug.current)` filter; if (c), add the filter back to the public query only |
+| 16 | **Portal tracker: must every entry link a Redshirt story?** (under review) | (a) required, as in v1.5: no story, no row; (b) optional: rows without a story show "No story yet"; (c) optional, but story-less rows are hidden from the public list until a story exists | **Open.** Built as (b) since v1.7: `story` is optional with a Studio warning. If James picks (a), restore `r.required()` and the `defined(story->slug.current)` filter; if (c), add the filter back to the public query only |
 | 17 | **Portal tracker UI redesign** | Redesign before build vs ship the v1.5 mockup | **Open: redesign first.** Build schema, GROQ, route and `searchParams` plumbing now; build `PortalRow`, filters and summary cards only after the new design is approved |
-| 18 | URL migration for the existing site | Keep today's `/college/{sport}/…`, `/college/teams/{slug}` and root article slugs, vs move to §17 URLs | Decide per section in Milestone 0; every moved URL gets one permanent legacy 301 (§27) and stays live until then |
+| 18 | Residual URL moves for the existing site (much smaller since v1.6: the repo already uses `/college/{sport}/…`) | Rankings week segment: `…/2026/7` → `…/2026/week-7` (3 legacy patterns) **or** keep the repo's numeric/`final-rankings` segments (zero redirects); `news/{division}` → `{division}/news`; `/college/teams/{slug}` → `/teams/{school-nickname}`; root `/[slug]` articles → `/college/{sport}/news/{slug}`; `/authors/{slug}` → `/people/{slug}` | Decide each in Milestone 0; every moved URL gets one permanent legacy 301 (§27) in the same PR as its new route |
 | 19 | Voting location | Keep `/vote/…` inside `apps/web` vs `apps/vote` on `vote.redshirtsports.com` | Target is `vote.`; migrate after Milestone 0 with a legacy 301 for `/vote/*` |
 
 ---
@@ -6017,7 +6094,7 @@ Notes:
 | `breadcrumb` | Article and hub breadcrumbs |
 | `pagination` | `?page=n` archives (real `<a>` links; page 1 has no param; §17.6) |
 | `sonner` (toast) | "Saved", "Followed", "Ballot submitted" |
-| `chart` (Recharts) | Poll history line, ballot share bars |
+| `chart` (Recharts) | Poll history line chart (rank by week), vote distribution bars |
 | `carousel` (Embla) | Mobile top stories rail, podcast rail |
 | `accordion`, `collapsible` | Methodology, FAQ page-builder section, others receiving votes on mobile |
 | `sidebar` | `apps/admin` shell |
@@ -6084,11 +6161,11 @@ Dark mode uses the same layout with token swaps:
 ### 32.9 Sport hub, news indexes, team hub, portal and recruiting hubs
 
 - **Sport/division hub** = home layout scoped to the sport/division, with the division's poll widget, bracket CTA, conference chips and an "Official sources" link card (NCAA.com scoreboard/bracket).
-- **News index** (`/college-football/news`): breadcrumb, display H1, Follow, **division chips that are links** to `/college-football/{division}/news` (not filters), lead + three secondaries, reserved leaderboard ad, river with "Load more" (progressive enhancement) over shadcn `Pagination` links (`?page=n`, page 1 without a parameter), rail with Most read, rankings widget, ad, newsletter.
-- **Division news** (`/college-football/fcs/news?page=2`): division band with path tabs (Home, News, Rankings, Bracket Challenge, Transfer Portal, Conferences: each a real URL), conference chips linking to conference hubs, a paginated river showing the page number and range, and the canonical note (`…/news?page=2`).
+- **News index** (`/college/football/news`): breadcrumb, display H1, Follow, **division chips that are links** to `/college/football/{division}/news` (not filters), lead + three secondaries, reserved leaderboard ad, river with "Load more" (progressive enhancement) over shadcn `Pagination` links (`?page=n`, page 1 without a parameter), rail with Most read, rankings widget, ad, newsletter.
+- **Division news** (`/college/football/fcs/news?page=2`): division band with path tabs (Home, News, Rankings, Bracket Challenge, Transfer Portal, Conferences: each a real URL), conference chips linking to conference hubs, a paginated river showing the page number and range, and the canonical note (`…/news?page=2`).
 - **Team hub (sport-agnostic, `/teams/montana-state-bobcats`)**: header band with neutral placeholder mark, conference + city kicker, **school + nickname** in display type, per-sport rank/record chips, Follow + alert bell. **Sport tabs are paths**: Overview, Football (`/football`), Men's Basketball (`/mens-basketball`), Women's Basketball (`/womens-basketball`), All news (`/news`); only sports the school plays render. Inside a sport, a secondary chip row (Overview, News, Rankings) maps to `/teams/{slug}/{sport}`, `/news`, `/rankings`. Body: lead story + poll history chart, river with pagination; rail with **official outbound links** for that sport, "Other Bobcats sports" card, ad, bracket history.
-- **Transfer Portal hub** (`/college-football/transfer-portal`, §16): dark `ink` band with Follow-style "Portal alerts", filter tabs (All, FCS, D-II, D-III are client filters on the same list; Storylines and Tracker are in-page anchors), lead story, **storyline cards** (Sanity `storyline`), **tracker preview** (latest four `PortalRow`s and a "Full tracker" link to `/transfer-portal`, §16.1), river + pagination; rail: "Your teams in the portal" (from follows), editor-entered key dates, ad, newsletter.
-- **Recruiting hub** (`/college-football/recruiting`): commitments coverage cards (photo, school mark, "Example Recruit commits to …", position, high school; each card is an article), signing-day package banner, storylines, optional curated commits list, river; rail with Most read and a Follow nudge.
+- **Transfer Portal hub** (`/college/football/transfer-portal`, §16): dark `ink` band with Follow-style "Portal alerts", filter tabs (All, FCS, D-II, D-III are client filters on the same list; Storylines and Tracker are in-page anchors), lead story, **storyline cards** (Sanity `storyline`), **tracker preview** (latest four `PortalRow`s and a "Full tracker" link to `/transfer-portal`, §16.1), river + pagination; rail: "Your teams in the portal" (from follows), editor-entered key dates, ad, newsletter.
+- **Recruiting hub** (`/college/football/recruiting`): commitments coverage cards (photo, school mark, "Example Recruit commits to …", position, high school; each card is an article), signing-day package banner, storylines, optional curated commits list, river; rail with Most read and a Follow nudge.
 
 ![Team hub, sport section, desktop (1440×900)](../mockups/screenshots/team-hub-desktop.png)
 
@@ -6118,15 +6195,18 @@ Dark mode uses the same layout with token swaps:
 ### 32.11 Rankings page (movement + ballot transparency)
 
 - Header: "FCS Top 25 · Week 7", season/week `select`s, Share, **Notify me**; release metadata and methodology link.
-- Underline tabs: Poll, Ballots, Voters, History, Methodology.
-- `RankingsTable`: rank (display numerals), movement indicator (▲ green / ▼ red-orange / NEW blue / — unchanged, each with an `aria-label` and legend), team mark + name + first-place votes in parentheses, record (admin-entered), conference, points, previous rank, ballot-share bar. Followed teams get a subtle highlight and "Following" badge. Others receiving votes in a muted block; legend below.
-- Rail: **Ballot grid** (voters × ranks, links to every ballot), **Biggest movers** (largest rises/falls this week), **Notify me** card (poll-release alert), ad.
+- Underline tabs: Poll, Ballots, Voters, History, Methodology. Each tab is a real URL (§17): `…/rankings/fcs`, `…/fcs/2026/week-7/ballots`, `…/fcs/voters`, `…/fcs/history`, `…/rankings/methodology`.
+- `RankingsTable`: rank (display numerals), movement indicator (▲ green / ▼ red-orange / NEW blue / — unchanged, each with an `aria-label` and legend), team mark + name + first-place votes in parentheses, record (admin-entered), conference, points, previous rank, and **On ballots**: "On 18 of 22" with a thin bar (v1.7, replaces "Ballot share"; the count of ballots that ranked the team 1–25, from `poll_results.ballots_listed`; the caption explains it). Followed teams get a subtle highlight and "Following" badge.
+- **Beyond the Top 25** (full width under the table, three cards side by side on desktop, stacked on mobile): **Others receiving votes** (team, "on N of 22", points), **Dropped out of the Top 25** (team, last week's rank, and whether it still gets votes), **No longer receiving votes** (team, last week's rank or RV points). Definitions in §13.9.
+- Rail: a prominent **"See all 22 ballots"** CTA card (voter count, avatar stack, primary button to the full breakdown, "Browse by voter", CSV + hash) replaces the old small Ballot grid card; on mobile the same CTA is a compact banner above the table. Then **Biggest movers**, **Notify me** (poll-release alert), ad.
 
 ![Rankings, desktop (1440×900)](../mockups/screenshots/rankings-desktop.png)
 
-<p class="shots"><img src="mockups/screenshots/rankings-mobile.png" alt="Rankings, mobile"><img src="mockups/screenshots/ballots-mobile.png" alt="Ballot breakdown, mobile"></p>
+![Rankings, desktop full page: Beyond the Top 25](../mockups/screenshots/rankings-desktop-full.png)
 
-*Above: rankings (mobile) and the ballot breakdown (mobile, by-voter view). On mobile the table collapses record/conference into the team cell and hides previous rank and share bars.*
+<p class="shots"><img src="mockups/screenshots/rankings-mobile.png" alt="Rankings, mobile"><img src="mockups/screenshots/ballots-mobile.png" alt="Ballot breakdown, mobile (all ballots)"><img src="mockups/screenshots/ballots-by-voter-mobile.png" alt="Ballots by voter, mobile"></p>
+
+*Above: rankings (mobile), the ballot breakdown's default all-ballots grid (mobile, swipe for all 22 voters) and the by-voter view (mobile). On mobile the poll table moves record/conference and "On X of 22 ballots" into the team cell and hides previous rank.*
 
 ```tsx
 // packages/ui/src/components/rank-row.tsx (sketch)
@@ -6135,7 +6215,7 @@ import { Badge } from "@rs/ui/components/ui/badge";
 import { MovementIndicator } from "./movement-indicator";
 import { TeamMark } from "./team-mark";
 
-export function RankRow({ r, followed }: { r: PollResultRow; followed: boolean }) {
+export function RankRow({ r, followed, ballotsCounted }: { r: PollResultRow; followed: boolean; ballotsCounted: number }) {
   return (
     <TableRow data-followed={followed} className="data-[followed=true]:bg-accent/30">
       <TableCell className="pl-4 text-right font-display text-xl font-bold tabular">{r.tie ? `T-${r.rank}` : r.rank}</TableCell>
@@ -6150,28 +6230,69 @@ export function RankRow({ r, followed }: { r: PollResultRow; followed: boolean }
       </TableCell>
       <TableCell className="hidden sm:table-cell text-muted-foreground">{r.record ?? "—"}</TableCell>
       <TableCell className="text-right font-semibold tabular">{r.points.toLocaleString()}</TableCell>
+      {/* v1.7: "On X of N ballots" replaces the ballot-share bar; N = poll_week_summaries.ballots_counted */}
+      <TableCell className="hidden lg:table-cell text-right text-xs tabular" title={`Ranked on ${r.ballotsListed} of ${ballotsCounted} ballots`}>
+        On {r.ballotsListed} of {ballotsCounted}
+      </TableCell>
     </TableRow>
   );
 }
 ```
 
-#### 32.11a Voter Ballot Breakdown (`/{sport}/rankings/{division}/{year}/{week}/ballots`)
+#### 32.11a Voter Ballot Breakdown (`/college/{sport}/rankings/{division}/{year}/{week}/ballots`)
 
-Published with the poll (never before). One page per poll week; `…/ballots/{voter}` is the single-voter view.
+Published with the poll (never before). One page per poll week with two views, each a real URL: **All ballots** (`…/ballots`, the default) and **By voter** (`…/ballots/by-voter`); `…/ballots/{voter}` is the single-voter page.
 
-- **Teams × voters matrix** (`BallotMatrix`, shadcn `Table` in a horizontal `ScrollArea`; sticky rank/team columns): rows are teams in published order, then others receiving votes below a divider (RV); columns are voters (vertical labels); each cell is the rank that voter gave (or "–"). Cell shading is a 5-step ramp of `--primary` (1–5 darkest … 21–25 lightest) with the numeral always printed, so it's readable without color. Pts and first-place votes sit next to the team.
-- **Outliers** get `ring-2 ring-inset ring-gold` and are listed in a "Biggest outliers" card. Rule (documented on the methodology page): |voter rank − published rank| ≥ 7, or a voter omits a team ranked in the top 15, or ranks a non-Top-25 team 18th or better. Thresholds are config, not code.
-- **Voter filter** (`Command` in a `Popover` + chips): highlight or restrict columns; "Outliers only" and "Show RV" switches; sort columns by ballot order or name. Filters write `?voters=07,12`; the canonical stays the base URL and the page is still prerendered (the filter is a client-side view over the cached data).
-- **Per-team vote distribution** (`Card` + small bar chart): ranks received on all ballots for the selected team, with consensus, median, high and low. Team picker is a `Select`.
-- **Each voter's full ballot** (`Card`, five columns on desktop): rank, team, ▲/▼ vs consensus when ≥ 3 spots, optional voter note.
-- **Mobile**: default to **By voter** (voter `Select` with previous/next buttons, full 25-team list, outlier rows tinted `bg-gold/10` with an "Outlier" badge), then the distribution and outliers cards; the matrix is still available as a tab (horizontal scroll).
-- Data: one cached query per poll week (`"use cache"`, tags `poll:<weekId>` and `ballots:<weekId>`): `ballot_entries` joined to `ballots` (locked, published week) and `poll_results`; outlier flags and distributions are computed in TypeScript from that one result set. CSV download and the reproducibility hash link to §13.
+**All ballots (default, unfiltered).**
+
+- Summary strip: ballots counted ("22 of 22"), teams on every ballot, first-place votes for No. 1, outlier picks.
+- Toolbar: team search, "All 22 voters" (no voter pre-selected), column order, **Outliers only** and **Show RV** switches. Highlighting voters writes `?voters=07,12`; the canonical stays the base URL and the page is still prerendered (the filter is a client-side view over the cached data).
+- **Teams × voters matrix** (`BallotMatrix`): rows are teams in published order, then others receiving votes below a divider (RV); **every voter is a column** (vertical labels linking to that voter's ballot); each cell is the rank that voter gave (or "–"), plus **On** (ballots listing the team) and **Range** (high–low) columns. Inside one `overflow-auto` container with a max height, the header row is `sticky top-0` and the rank + team columns are `sticky left-*` (corner cells on top), so both stay put while the grid scrolls in either direction. Cell shading is a 5-step ramp of `--primary` (1–5 darkest … 21–25 lightest) with the numeral always printed, so it's readable without color.
+- **Outliers** get `ring-2 ring-inset ring-gold` and are listed in a "Biggest outliers" card. Rule (on the methodology page): |voter rank − published rank| ≥ 8, or a voter leaves off a team ranked in the top 15. Thresholds are config, not code.
+- **Per-team vote distribution** (`Card` + small bar chart): ranks received on all ballots for the selected team, with consensus, median, high and low.
+- Mobile: same grid (sticky team column, swipe hint "Swipe the grid for all 22 voters"), summary as one line, then outliers and distribution.
+
+![Voter Ballot Breakdown, desktop (all ballots, unfiltered)](../mockups/screenshots/ballots-desktop.png)
 
 ![Voter Ballot Breakdown, desktop full page](../mockups/screenshots/ballots-desktop-full.png)
 
+**By voter** (`…/ballots/by-voter`, `?q=` search, `?sort=` closest/farthest from consensus, most outliers, name, outlet; `?page=n`, six cards per page; `q`/`sort` views are `noindex` with the canonical on the base):
+
+- Left rail (desktop): **all 22 voters** with outlet, average gap from consensus and an outlier dot; jump links to cards.
+- One **card per voter**: avatar, name → `/people/{slug}`, outlet · role, "Ballot" link → `…/ballots/{voter}`; chips for average gap, outlier count, how many of their 25 are in the consensus Top 25, and their No. 1; the **full 25-team ballot** in two columns (1–13, 14–25), each pick with a diff chip vs consensus (`+3` ranked higher, `−2` lower, `=` same, `RV` for a team outside the Top 25); outlier picks tinted `bg-gold/15` with a gold ring; a footer listing **omitted top-15 teams** and the optional voter note.
+- Mobile: search + sort, legend, stacked cards, pagination.
+
+![Ballots by voter, desktop](../mockups/screenshots/ballots-by-voter-desktop.png)
+
+- Data: one cached query per poll week (`"use cache"`, tags `poll:<weekId>` and `ballots:<weekId>`): `ballot_entries` joined to `ballots` (locked, published week) and `poll_results`; outlier flags, diffs, distributions and per-voter gaps are computed in TypeScript from that one result set and shared by both views. CSV download and the reproducibility hash link to §13.
+
+#### 32.11b Voters tab (`/college/{sport}/rankings/{division}/voters`)
+
+- Summary: voters (22 in the example), outlets, ballots submitted this season, disclosures.
+- "How voters are chosen" alert linking to Methodology.
+- Search, coverage-area filter, sort; season roster selector (`/voters/2025` archive).
+- Roster `Table` (cards on mobile): voter (avatar, name → `/people/{slug}`, role), outlet/affiliation (external link), coverage area, on panel since, ballots this season (e.g. 8/8), disclosures ("Alma mater: …" or "None disclosed"), and links to the voter's **Week 7 ballot** and **Profile**.
+
+![Voters tab, desktop](../mockups/screenshots/rankings-voters-desktop.png)
+
+#### 32.11c History tab (`/college/{sport}/rankings/{division}/history`, `/history/{year}`)
+
+- Season and "through week" selectors; past seasons are their own URLs (`/history/2025`).
+- **Rank by week** line chart (`chart`, inverted y axis 1–25, Preseason … current week): up to six teams as removable chips plus "Add team"; end labels de-collided.
+- **Week by week** table: every team ranked at least once that season × weeks, shaded like the ballot matrix, current week outlined, plus High, Low and weeks ranked; sticky team column and header; each team links to its team-hub poll history (`/teams/{school-nickname}/football/rankings`).
+- Rail: **No. 1 history** (week, team, first-place votes; weeks-at-No. 1 summary) and **Past seasons** (final No. 1 per season).
+
+![History tab, desktop](../mockups/screenshots/rankings-history-desktop.png)
+
+#### 32.11d Methodology (`/college/{sport}/rankings/methodology`)
+
+One page per sport, shared by all of that sport's divisions. Sticky table of contents (a `Select` on mobile) and the "See all ballots" CTA in the rail. Sections: how the poll works (panel, 25-to-1, every ballot public); **points 25 to 1** with the 25-cell points grid, max points (N × 25) and tie rules (T-12, FPV then alphabetical, T-25 inclusion); **first-place votes** (no bonus); **"On X of N ballots"**; **Others / Dropped out / No longer receiving votes** definitions; **eligibility** (voters: invite-only, no athletics-department employees, disclosures, one ballot, MFA; teams: published eligibility list, transitioning-program rule); **ballot window and automation** timeline (opens Sun 08:00 ET, reminders Sun 18:00 and Mon 09:00, auto-lock Mon 12:00, automatic tabulation + outlier report, admin publish; extensions shown on the poll page; times per §13.3); **transparency** (public ballots at release, CSV + SHA-256 hash, corrections log, no early results); **outlier policy** (≥ 8 spots or omitting a top-15 team; flagged, never altered; voter notes; season-end review; only invalid ballots voided, with reasons); **FAQ** (`Accordion`, `FAQPage` markup).
+
+![Methodology, desktop](../mockups/screenshots/rankings-methodology-desktop.png)
+
 ### 32.12 Bracket Challenge UI
 
-Two separate screens, two URLs: the **bracket view** (`/college-football/bracket-challenge/fcs/2026`, everyone, after lock it's the main page) and the **pick editor** (`…/2026/my-bracket`, the signed-in entry).
+Two separate screens, two URLs: the **bracket view** (`/college/football/bracket-challenge/fcs/2026`, everyone, after lock it's the main page) and the **pick editor** (`…/2026/my-bracket`, the signed-in entry).
 
 #### Studied: MarchArena (marcharena.com)
 
@@ -6280,23 +6401,28 @@ Every mockup shows its public URL in the top ribbon so the folder ↔ URL mappin
 | File | Screen (URL) | Screenshots |
 |---|---|---|
 | `docs/mockups/index.html` | Home `/` (light/dark, mega nav, mobile sheet) | `home-desktop.png`, `home-desktop-full.png`, `home-mobile.png`, `home-desktop-dark.png`, `nav-mega-desktop.png`, `nav-sheet-mobile.png` |
-| `docs/mockups/article.html` | Article `/college-football/news/{slug}` | `article-desktop.png`, `article-desktop-full.png`, `article-mobile.png` |
-| `docs/mockups/news.html` | **News index** `/college-football/news` | `news-desktop.png`, `news-desktop-full.png`, `news-mobile.png` |
-| `docs/mockups/division-news.html` | **Division news** `/college-football/fcs/news?page=2` | `division-news-desktop.png`, `division-news-desktop-full.png`, `division-news-mobile.png` |
-| `docs/mockups/rankings.html` | Rankings `/college-football/rankings/fcs` | `rankings-desktop.png`, `rankings-desktop-full.png`, `rankings-mobile.png` |
-| `docs/mockups/ballots.html` | **Voter Ballot Breakdown** `/college-football/rankings/fcs/2026/week-7/ballots` | `ballots-desktop.png`, `ballots-desktop-full.png`, `ballots-desktop-dark.png`, `ballots-mobile.png` |
-| `docs/mockups/bracket.html` | **Bracket view (MarchArena-inspired)** `/college-football/bracket-challenge/fcs/2026` | `bracket-desktop.png`, `bracket-mobile.png` |
+| `docs/mockups/article.html` | Article `/college/football/news/{slug}` | `article-desktop.png`, `article-desktop-full.png`, `article-mobile.png` |
+| `docs/mockups/news.html` | **News index** `/college/football/news` | `news-desktop.png`, `news-desktop-full.png`, `news-mobile.png` |
+| `docs/mockups/division-news.html` | **Division news** `/college/football/fcs/news?page=2` | `division-news-desktop.png`, `division-news-desktop-full.png`, `division-news-mobile.png` |
+| `docs/mockups/rankings.html` | Rankings, Poll tab `/college/football/rankings/fcs` (v1.7: On X of 22 ballots, See-all-ballots CTA, Beyond the Top 25) | `rankings-desktop.png`, `rankings-desktop-full.png`, `rankings-mobile.png`, `rankings-mobile-full.png` |
+| `docs/mockups/ballots.html` | **Voter Ballot Breakdown, all ballots (unfiltered)** `/college/football/rankings/fcs/2026/week-7/ballots` | `ballots-desktop.png`, `ballots-desktop-full.png`, `ballots-desktop-dark.png`, `ballots-mobile.png`, `ballots-mobile-full.png` |
+| `docs/mockups/ballots-by-voter.html` | **Ballots by voter** (v1.7) `…/2026/week-7/ballots/by-voter` | `ballots-by-voter-desktop.png`, `ballots-by-voter-desktop-full.png`, `ballots-by-voter-mobile.png` |
+| `docs/mockups/rankings-voters.html` | **Voters tab** (v1.7) `/college/football/rankings/fcs/voters` | `rankings-voters-desktop.png`, `rankings-voters-desktop-full.png`, `rankings-voters-mobile.png` |
+| `docs/mockups/rankings-history.html` | **History tab** (v1.7) `/college/football/rankings/fcs/history` | `rankings-history-desktop.png`, `rankings-history-desktop-full.png`, `rankings-history-mobile.png` |
+| `docs/mockups/rankings-methodology.html` | **Methodology** (v1.7) `/college/football/rankings/methodology` | `rankings-methodology-desktop.png`, `rankings-methodology-desktop-full.png`, `rankings-methodology-mobile.png` |
+| `docs/mockups/bracket.html` | **Bracket view (MarchArena-inspired)** `/college/football/bracket-challenge/fcs/2026` | `bracket-desktop.png`, `bracket-mobile.png` |
 | `docs/mockups/bracket-picks.html` | Pick editor `…/fcs/2026/my-bracket` | `bracket-picks-desktop.png`, `bracket-picks-mobile.png` |
 | `docs/mockups/ballot.html` | Ballot on `vote.redshirtsports.com/ballot/fcs/2026/week-7` | `ballot-vote-desktop.png`, `ballot-vote-mobile.png` |
 | `docs/mockups/team.html` | **Team hub, sport section** `/teams/montana-state-bobcats/football` | `team-hub-desktop.png`, `team-hub-desktop-full.png`, `team-hub-mobile.png` |
-| `docs/mockups/transfer-portal.html` | **Transfer Portal hub** `/college-football/transfer-portal` | `transfer-portal-desktop.png`, `transfer-portal-desktop-full.png`, `transfer-portal-mobile.png` |
+| `docs/mockups/transfer-portal.html` | **Transfer Portal hub** `/college/football/transfer-portal` | `transfer-portal-desktop.png`, `transfer-portal-desktop-full.png`, `transfer-portal-mobile.png` |
 | `docs/mockups/portal-tracker.html` | **Portal Tracker** `/transfer-portal?division=fcs` | `portal-tracker-desktop.png`, `portal-tracker-desktop-full.png`, `portal-tracker-mobile.png` |
-| `docs/mockups/recruiting.html` | **Recruiting hub** `/college-football/recruiting` | `recruiting-desktop.png`, `recruiting-desktop-full.png`, `recruiting-mobile.png` |
+| `docs/mockups/college.html` | **College level hub** `/college` (v1.6) | `college-desktop.png`, `college-desktop-full.png`, `college-mobile.png` |
+| `docs/mockups/recruiting.html` | **Recruiting hub** `/college/football/recruiting` | `recruiting-desktop.png`, `recruiting-desktop-full.png`, `recruiting-mobile.png` |
 | (reference, not included) | marcharena.com, studied for §32.12 | Not in the handoff (third-party content) |
 | (reference, not included) | on3.com Transfer Portal Wire, studied for §16.1 | Not in the handoff: real On3 data, study only |
 
-- Source: `docs/mockups/src/app.css` (theme tokens), `docs/mockups/gen/*.py` (`pages.py` v1.3 screens, `pages2.py` v1.4 screens, `pages3.py` v1.5 portal tracker; shadcn-equivalent helpers in `ui.py`, including `pagination()`), compiled CSS `docs/mockups/css/app.css` (Tailwind v4 CLI), fonts in `docs/mockups/fonts/`.
-- Rebuild: `cd docs/mockups && python3 gen/build.py && npx @tailwindcss/cli -i src/app.css -o css/app.css && python shoot.py` (Playwright + Chrome; desktop 1440×900 at 1×, mobile 390×844 at 2×). `shoot.py news ballots` reshoots a subset.
+- Source: `docs/mockups/src/app.css` (theme tokens), `docs/mockups/gen/*.py` (`pages.py` v1.3 screens, `pages2.py` v1.4 screens, `pages3.py` v1.5 portal tracker; `pages4.py` v1.6 college hub; `pages5.py` + `polldata.py` v1.7 rankings/ballots tabs and the shared 22-voter example poll; shadcn-equivalent helpers in `ui.py`, including `pagination()`), compiled CSS `docs/mockups/dist/app.css` (Tailwind v4 CLI), fonts in `docs/mockups/fonts/`.
+- Rebuild: `cd docs/mockups && python3 gen/build.py && npx @tailwindcss/cli -i src/app.css -o dist/app.css && python shoot.py` (Playwright + Chrome; desktop 1440×900 at 1×, mobile 390×844 at 2×). `shoot.py news ballots` reshoots a subset.
 - When building the real apps, port the markup to the React shadcn components named in §32.5; class strings mirror the shadcn defaults.
 
 ## Appendix A: Bracket templates
@@ -6542,19 +6668,20 @@ Hand this appendix to Cursor as the execution plan. One milestone = one PR again
 
 ### Milestone 4 — Public newsroom routes
 
-**Do:** Route manifest + factory + `pnpm routes:gen` (§17.3); sport hubs, division hubs, news index and division news with `?page=n`, article `/{sport}/news/{slug}`, sport-agnostic team hubs `/teams/{school-nickname}` with sport sections, conference hubs, portal and recruiting hubs (§16), people pages, `@rs/seo` metadata + JSON-LD + news sitemap + OG. Legacy-redirect table stub. **No rewrites.**
+**Do:** Route manifest (`LEVELS` + `SPORTS`) + factory + `pnpm routes:gen` (§17.3); the `/college` level hub and `/college/news`; sport hubs, division hubs, news index and division news with `?page=n`, article `/{sport}/news/{slug}`, sport-agnostic team hubs `/teams/{school-nickname}` with sport sections, conference hubs, portal and recruiting hubs (§16), people pages, `@rs/seo` metadata + JSON-LD + news sitemap + OG. Legacy-redirect table stub. **No rewrites.**
 
 **Accept when:**
-- [ ] `/college-football/news/{slug}` returns 200 with NewsArticle JSON-LD
+- [ ] `/college/football/news/{slug}` returns 200 with NewsArticle JSON-LD
 - [ ] `rg -n "rewrites|NextResponse.rewrite" apps packages` returns nothing; every `page.tsx` path under `app/(site)` equals its public URL
-- [ ] `pnpm routes:gen && git diff --exit-code` passes (stubs are up to date)
-- [ ] `/college-football/news?page=2` renders with canonical `…/news?page=2`; `?page=1` canonicalizes to `/college-football/news` without redirecting; `?page=0`, `?page=abc` and past the last page return 404
+- [ ] `pnpm routes:gen && git diff --exit-code` passes (stubs are up to date; generator reads `LEVELS` + `SPORTS`)
+- [ ] `/college` renders the level hub (sport cards + latest college news) and `/college/news?page=2` paginates; `/college/xyz` and `/high-school` return 404 (reserved, not built)
+- [ ] `/college/football/news?page=2` renders with canonical `…/news?page=2`; `?page=1` canonicalizes to `/college/football/news` without redirecting; `?page=0`, `?page=abc` and past the last page return 404
 - [ ] The news shell is prerendered (PPR); only the river is dynamic and its data comes from a `"use cache"` function keyed by page
-- [ ] `/teams/montana-state-bobcats/football` renders; `/teams/montana-state-bobcats/hockey` and `/college-football/xyz` return 404
+- [ ] `/teams/montana-state-bobcats/football` renders; `/teams/montana-state-bobcats/hockey` and `/college/football/xyz` return 404
 - [ ] Editing a published post's slug is impossible in Studio (read-only)
 - [ ] `/transfer-portal?division=fcs&status=committed&position=qb&sort=name&page=2` filters correctly, canonicalizes to `/transfer-portal?division=fcs&page=2` with `noindex, follow`; `?division=bogus` drops the filter (noindex), `?page=abc` 404s; no redirects
 - [ ] **Blocked on the tracker UI redesign:** `PortalRow` uses a named-`grid-template-areas` `@utility` that restacks below `lg`, and matches the *approved redesign* (the v1.5 `portal-tracker-*.png` shots are layout reference only)
-- [ ] Studio refuses to publish a committed `portalEntry` without `newSchool` and `committedOn`; an entry without a `story` shows a warning but publishes (story optional pending §30 #16); publishing expires `portal:<sport>`
+- [ ] Studio refuses to publish a committed `portalEntry` without `newSchool` and `committedOn`; an entry without a `story` shows a warning but publishes (story optional pending §30 #16) and renders "No story yet"; publishing expires `portal:<sport>`
 - [ ] Root `/about` is a page-builder page; root `/some-old-article-slug` 301s when mapped
 - [ ] Lighthouse CI budgets for an article page meet §26 (or are recorded with a follow-up issue if fonts pending)
 - [ ] Team hub shows outbound schedule/roster link cards when URLs exist
@@ -6571,7 +6698,10 @@ Hand this appendix to Cursor as the execution plan. One milestone = one PR again
 - [ ] Voter submits a 25-team ballot on `vote.`; after close it is locked
 - [ ] Tick publishes on `publish_at`; web rankings page updates via tags without redeploy
 - [ ] Public ballots page lists every locked ballot after publish; CSV hash matches `poll_week_summaries.computed_hash`
-- [ ] `/college-football/rankings/fcs/2026/week-7/ballots` shows the teams × voters matrix, flags outliers per the configured rule, filters voters via `?voters=` without changing the canonical, and shows a per-team distribution (matches `ballots-desktop.png`, `ballots-mobile.png`)
+- [ ] `/college/football/rankings/fcs/2026/week-7/ballots` defaults to the **unfiltered** teams × all-voters matrix (no voter pre-selected) with a sticky header row and team column in a two-way scroll container, flags outliers per the configured rule (≥ 8 spots or a top-15 omission), highlights voters via `?voters=` without changing the canonical, and shows a per-team distribution (matches `ballots-desktop.png` / `ballots-mobile.png`)
+- [ ] `…/ballots/by-voter` lists every voter with a full 25-team ballot card, a diff chip vs consensus on every pick, omitted top-15 teams, `?q=` search, `?sort=` and `?page=n` (matches `ballots-by-voter-*.png`)
+- [ ] Poll page shows "On X of N ballots" (from `ballots_listed`), a "See all N ballots" CTA with the live voter count, and **Others receiving votes**, **Dropped out of the Top 25** (with last week's rank) and **No longer receiving votes** (matches `rankings-*.png`)
+- [ ] `…/fcs/voters` roster links every voter to their current ballot and `/people/{slug}`; `…/fcs/history` renders the rank chart, week-by-week table and No. 1 history; `/rankings/methodology` documents points, FPV, eligibility, window automation, transparency, outlier policy and FAQ
 - [ ] Property test: TS `tabulate` ≡ SQL variant on 50 random ballots
 
 ---
@@ -6583,7 +6713,7 @@ Hand this appendix to Cursor as the execution plan. One milestone = one PR again
 **Accept when:**
 - [ ] Engine tests green for `fcs24` (23 games, 8 byes, max score 720)
 - [ ] Creating two FCS events for the same season fails at the DB
-- [ ] URL `/college-football/bracket-challenge/fcs/2026` resolves the unique event; `/college-football/bracket-challenge/fcs` renders a landing page (200, no redirect) linking to the current year
+- [ ] URL `/college/football/bracket-challenge/fcs/2026` resolves the unique event; `/college/football/bracket-challenge/fcs` renders a landing page (200, no redirect) linking to the current year
 - [ ] Bracket view matches `bracket-desktop.png` / `bracket-mobile.png`: two halves converge on a centred final, selected game drives the `MatchupPanel`, pick share % comes from our entries only
 - [ ] After lock, saves return `BRACKET_LOCKED`
 - [ ] Staff sets R1 winners → entry scores and group standings update; clearing a result re-scores
@@ -6599,8 +6729,8 @@ Hand this appendix to Cursor as the execution plan. One milestone = one PR again
 - [ ] Each format passes engine invariants and a dry-run admin tournament
 - [ ] Newsletter confirm → active → appears in Resend audience
 - [ ] Poll tick and invite-expire crons checked in Sentry
-- [ ] Old `/college/football/rankings/fcs/{year}/{week}` 301s to new poll URL
-- [ ] Root legacy article slugs 301 to `/{sport}/news/{slug}`
+- [ ] `/college/football/news` and `/college/news` serve the new pages with **no** redirect; old numeric rankings weeks (`/college/football/rankings/fcs/2026/7`, `/0`, `/final-rankings`) 301 to `week-7` / `preseason` / `final`; `/college/football/news/fcs` 301s to `/college/football/fcs/news`
+- [ ] Root legacy article slugs 301 to `/college/{sport}/news/{slug}`
 
 ---
 
@@ -6623,7 +6753,7 @@ Hand this appendix to Cursor as the execution plan. One milestone = one PR again
 **Do:** `mbb` / `wbb` seasons, divisions, hubs, Top 25 polls, voter invites for basketball panels. No basketball bracket yet unless time remains (then `ncaab68` as Milestone 9).
 
 **Accept when:**
-- [ ] `/mens-college-basketball/rankings/d1` publishes a week
+- [ ] `/college/mens-basketball/rankings/d1` publishes a week
 - [ ] Same poll engine code paths; no sport-specific forks beyond calendar config
 
 ---
@@ -6633,16 +6763,17 @@ Hand this appendix to Cursor as the execution plan. One milestone = one PR again
 - Games/scores/standings ingestion or `/scores` / `/games` routes
 - Live blogs or `*/live/*`
 - Rosters or `/players/*`
-- Recruiting/portal databases, feeds or scrapers (the portal tracker is Sanity `portalEntry` docs maintained by editors; the story link is optional pending §30 #16)
+- Recruiting/portal databases, feeds or scrapers (the portal tracker is Sanity `portalEntry` docs maintained by editors, the story link is optional pending §30 #16; §16)
 - Player photos, star ratings, grades, NIL valuations or prediction percentages in the tracker
 - A fan vote or fan-built rankings (removed in v1.5)
 - `apps/workers` or Sportradar/CFBD clients
 - Moving voting back onto `admin.`
 - **Any rewrite**: no `rewrites()` in any `next.config`, no `NextResponse.rewrite` in middleware, no proxy routes. App Router folders must map 1:1 to public URLs (§17)
 - **Any redirect other than one-time legacy 301s** from old Redshirt URLs (§27): no slug-change, sport-change, "latest year", current→archive, `?page=1`, internal-path, case-normalization or role-based redirects. Render in place, set a canonical, or 404
-- An internal `sports/[sport]` folder or a root `[sport]` dynamic segment (use the generated static sport folders, §17.3)
+- An internal `sports/[sport]` folder or a root `[sport]`/`[level]` dynamic segment (use the generated static `college/{sport}` folders, §17.3; a `college/[sport]` segment with `dynamicParams = false` is the only accepted alternative)
+- The pre-1.6 single-segment keyword sport roots (see Changes in 1.6) or any alias for them; building the `/high-school/` level before it is designed
 - Path-based `/page/n` pagination (use `?page=n`, §17.6)
-- Sport-scoped team URLs like `/college-football/teams/{school}` as hubs (team hubs are `/teams/{school-nickname}`)
+- Sport-scoped team URLs like `/college/football/teams/{school}` as hubs (team hubs are `/teams/{school-nickname}`)
 - Custom `next/image` Sanity loader (use `sanity-image` unless James reverses this)
 - A `tailwind.config.js` or hard-coded hex colors in components (tokens only, §32.4)
 - Comments/forums in 2026–27 (§31.9)

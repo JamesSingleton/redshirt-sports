@@ -21,7 +21,7 @@ Feature list:
 - Leaderboards: national, per group, friends (users you share any group with), per school fan base (optional: "Montana State fans" based on favorite team).
 - Possible points remaining and elimination status, updated when staff enter results.
 - Shareable bracket images (OG) and a printable view.
-- **One event per division per season** (`unique (sport, division, season_id)`), URL `/college-football/bracket-challenge/{division}/{year}`.
+- **One event per division per season** (`unique (sport, division, season_id)`), URL `/college/football/bracket-challenge/{division}/{year}`.
 - Sponsored brackets: sponsor branding on landing page, group, and share images; disclosure.
 - No entry fees and no prizes in the free game unless legal review approves a sweepstakes structure (see §20.5).
 
@@ -336,7 +336,7 @@ Ties on rank display: entries tied on (1) share a displayed rank only until the 
 ### 14.7 Groups and invites
 
 - Create group: name, visibility (private by default), optional password for public groups, max members, allow multiple entries per user.
-- **Invite code**: 8 characters from a Crockford base32 alphabet (no I, L, O, U), generated server-side with `crypto.getRandomValues`, unique index, rotatable by the manager. Invite link: `/college-football/bracket-challenge/fcs/2026/join/{code}` (on `www`).
+- **Invite code**: 8 characters from a Crockford base32 alphabet (no I, L, O, U), generated server-side with `crypto.getRandomValues`, unique index, rotatable by the manager. Invite link: `/college/football/bracket-challenge/fcs/2026/join/{code}` (on `www`).
 - Join flow: open link → sign in if needed → choose which of your entries to add (or create one) → joined. Rate limit join attempts per user and per IP to make code guessing infeasible.
 - Manager tools (before lock): rename, rotate code, remove member, set message; after lock: view only. Transfer manager on manager account deletion.
 - **Entries hidden until lock** to prevent copying (other members see names and "picks hidden until kickoff").
@@ -512,13 +512,13 @@ async function rescoreEventTx(tx: Tx, event: typeof bracketEvents.$inferSelect) 
 - **Countdown**: lock time in local zone plus ET, persistent banner in the last 24 h.
 - **Save state**: autosave drafts to `localStorage` for signed-out users; on sign-in, offer to save to account.
 - **After lock**: show correct (green), wrong (red, struck through), eliminated future picks (gray), possible points, rank movement.
-- **Share**: OG image route `/college-football/bracket-challenge/fcs/2026/entries/{id}/opengraph-image` renders the champion and final four picks.
+- **Share**: OG image route `/college/football/bracket-challenge/fcs/2026/entries/{id}/opengraph-image` renders the champion and final four picks.
 - **Accessibility**: the bracket is an ordered list of games per round with buttons; the visual tree is decoration. Screen readers announce "Second round, game 3: No. 3 seed Montana State versus winner of first-round game 5. Your pick: Montana State."
 
 ### 14.11 Admin flows
 
 1. **Create event** (status `draft`): choose `sport`, `division` (`fbs|fcs|d2|d3`), season/year, format (default mapped: fbs→cfp12, fcs→fcs24, d2→d2_28, d3→d3_32); scoring config; sponsor. DB rejects a second event for the same sport/division/season.
-2. **Selection day**: "Set field" assigns teams to slots (search by school; validates division membership and no duplicates); set informational `starts_at` / `lock_at`; status → `field_set` → `open` at the public URL `/college-football/bracket-challenge/{division}/{year}`.
+2. **Selection day**: "Set field" assigns teams to slots (search by school; validates division membership and no duplicates); set informational `starts_at` / `lock_at`; status → `field_set` → `open` at the public URL `/college/football/bracket-challenge/{division}/{year}`.
 3. **During the event**: **Results** screen (§14.9) — staff enter winners; each save rescores; optional Broadcast.
 4. **After the final**: status `complete`; standings frozen; Sanity announcement optional.
 5. **Archive**: leaderboards stay public indefinitely.

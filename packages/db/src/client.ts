@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
@@ -36,3 +37,27 @@ export const primaryDb = drizzle(client, {
   schema,
   casing: "snake_case",
 });
+
+/** Trusted connection. The local `postgres` role bypasses RLS. Authorize in code first. */
+export const adminDb = primaryDb;
+
+type Tx = Parameters<Parameters<typeof adminDb.transaction>[0]>[0];
+
+/**
+ * Run `fn` as `authenticated` or `anon` so RLS applies.
+ * `set local` stays inside this transaction.
+ */
+export async function withRls<T>(
+  claims: { sub: string; roles?: string[] } | null,
+  fn: (tx: Tx) => Promise<T>,
+): Promise<T> {
+  const role = claims ? "authenticated" : "anon";
+  const jwt = JSON.stringify(claims ? { ...claims, role } : { role });
+  return adminDb.transaction(async (tx) => {
+    await tx.execute(
+      sql`select set_config('request.jwt.claims', ${jwt}, true)`,
+    );
+    await tx.execute(sql.raw(`set local role ${role}`));
+    return fn(tx);
+  });
+}

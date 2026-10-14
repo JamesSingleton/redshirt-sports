@@ -8,7 +8,7 @@ alwaysApply: false
 
 Spec: `docs/blueprint/16-transfer-portal-and-recruiting-hubs-article.md` §16.1.
 
-- **Status: in scope, UI redesign pending (Open Decision #17).** You may build the `portalEntry` schema, GROQ, the zod param parser, canonical/noindex logic, the cached data function and the `/transfer-portal` route with a plain, unstyled list. **Don't** build or polish `PortalRow`, the filter bar or the summary cards from `docs/mockups/portal-tracker.html`. That design is layout reference only until James approves a redesign.
-- **The story link is optional (Open Decision #16 under review).** Show a Studio warning, not `required()`. The GROQ must not filter on `defined(story->slug.current)`, and the row hides the Story link when `story` is null.
+- **Status: in scope, and the uploaded UI is approved (Decision #17).** Build `portalEntry`, GROQ, the zod param parser, canonical/noindex, the cached data function, and the `/transfer-portal` route to match `docs/mockups/portal-tracker.html` (filters, summary cards, and `PortalRow`).
+- **The story link is optional (Decision #16).** Show a Studio warning, not `required()`. The GROQ must not filter on `defined(story->slug.current)`. When `story` is null, the row shows "No story yet".
 - Data comes only from editor-maintained Sanity docs. No external feeds, scrapers, Postgres portal tables, photos, star ratings, grades, NIL or predictions.
 - Example data must be clearly fake ("Example Player A", "Example State").
