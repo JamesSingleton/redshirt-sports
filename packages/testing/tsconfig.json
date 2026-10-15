@@ -1,0 +1,9 @@
+{
+  "extends": "@redshirt-sports/typescript-config/base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true
+  }
+}
