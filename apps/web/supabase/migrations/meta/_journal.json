@@ -162,6 +162,20 @@
       "when": 1789445036122,
       "tag": "0022_postgres_patterns",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792074318034,
+      "tag": "0023_milestone_1_core",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792074326758,
+      "tag": "0024_lock_down_milestone_1",
+      "breakpoints": true
     }
   ]
 }

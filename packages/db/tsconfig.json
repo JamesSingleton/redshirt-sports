@@ -3,7 +3,7 @@
   "include": ["src", "scripts", "keys.ts"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "vitest/globals"],
     "module": "EsNext",
     "moduleResolution": "bundler"
   }

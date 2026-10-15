@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   index,
   integer,
   jsonb,
@@ -10,6 +11,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -112,6 +114,7 @@ export const usersTable = pgTable("users_table", {
   organizationRole: text("organizationRole"),
   isAdmin: boolean("isAdmin").default(false).notNull(),
   isVoter: boolean("isVoter").default(false).notNull(),
+  deletedAt: timestamp("deletedAt", { withTimezone: true }),
 });
 
 export const seasonsTable = pgTable(
@@ -280,7 +283,7 @@ export const weeklyRankings = pgTable(
   ],
 );
 
-/** First-class poll (Sport + Browse Scope operational product). */
+/** First-class poll (sport + division). */
 export const pollsTable = pgTable(
   "polls",
   {
@@ -620,6 +623,157 @@ export const pollRankingsTableRelations = relations(
       references: [schoolsTable.id],
     }),
   }),
+);
+
+/** Invite-only voter onboarding. Does not replace `poll_voters`. */
+export const voterInvitesTable = pgTable(
+  "voter_invites",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => randomUUID()),
+    email: text("email").notNull(),
+    pollId: text("poll_id")
+      .notNull()
+      .references(() => pollsTable.id),
+    seasonId: text("season_id")
+      .notNull()
+      .references(() => seasonsTable.id),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    status: text("status").notNull().default("pending"),
+    invitedBy: text("invited_by")
+      .notNull()
+      .references(() => usersTable.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("voter_invites_one_pending")
+      .on(table.email, table.pollId, table.seasonId)
+      .where(sql`${table.status} = 'pending'`),
+    index("voter_invites_poll_season_status").on(
+      table.pollId,
+      table.seasonId,
+      table.status,
+    ),
+    index("voter_invites_invited_by_index").on(table.invitedBy),
+    check(
+      "voter_invites_status_check",
+      sql`${table.status} in ('pending', 'accepted', 'revoked', 'expired')`,
+    ),
+  ],
+);
+
+export const bracketFormatsTable = pgTable("bracket_formats", {
+  code: text("code").primaryKey(),
+  name: text("name").notNull(),
+  sportId: text("sport_id")
+    .notNull()
+    .references(() => sportsTable.id),
+  teamCount: integer("team_count").notNull(),
+  gameCount: integer("game_count").notNull(),
+  rounds: integer("rounds").notNull(),
+  definition: jsonb("definition").notNull(),
+});
+
+/** One event per sport, division, and season. */
+export const bracketEventsTable = pgTable(
+  "bracket_events",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => randomUUID()),
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id),
+    division: text("division").notNull(),
+    seasonId: text("season_id")
+      .notNull()
+      .references(() => seasonsTable.id),
+    year: integer("year").notNull(),
+    formatCode: text("format_code")
+      .notNull()
+      .references(() => bracketFormatsTable.code),
+    name: text("name").notNull(),
+    status: text("status").notNull().default("draft"),
+    lockAt: timestamp("lock_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    unique("bracket_events_one_per_division_season").on(
+      table.sportId,
+      table.division,
+      table.seasonId,
+    ),
+    index("bracket_events_season_id_index").on(table.seasonId),
+    index("bracket_events_format_code_index").on(table.formatCode),
+  ],
+);
+
+export const bracketEntriesTable = pgTable(
+  "bracket_entries",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => randomUUID()),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => bracketEventsTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => usersTable.id),
+    name: text("name").notNull(),
+    status: text("status").notNull().default("incomplete"),
+    score: integer("score").notNull().default(0),
+  },
+  (table) => [
+    index("bracket_entries_event_id_index").on(table.eventId),
+    index("bracket_entries_user_id_index").on(table.userId),
+  ],
+);
+
+export const newsletterListsTable = pgTable("newsletter_lists", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+});
+
+export const newsletterSubscriptionsTable = pgTable(
+  "newsletter_subscriptions",
+  {
+    email: text("email").notNull(),
+    listId: text("list_id")
+      .notNull()
+      .references(() => newsletterListsTable.id),
+    userId: text("user_id").references(() => usersTable.id),
+    status: text("status").notNull().default("pending"),
+    confirmTokenHash: text("confirm_token_hash"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    unique("newsletter_subscriptions_email_list").on(table.email, table.listId),
+    index("newsletter_subscriptions_user_id_index").on(table.userId),
+  ],
+);
+
+export const contactSubmissionsTable = pgTable(
+  "contact_submissions",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => randomUUID()),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    message: text("message").notNull(),
+    formType: text("form_type").notNull().default("general"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [index("contact_submissions_email_index").on(table.email)],
 );
 
 export type InsertUser = typeof usersTable.$inferInsert;
