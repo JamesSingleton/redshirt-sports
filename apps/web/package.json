@@ -30,6 +30,7 @@
     "@redshirt-sports/next-config": "workspace:*",
     "@redshirt-sports/observability": "workspace:*",
     "@redshirt-sports/sanity": "workspace:*",
+    "@redshirt-sports/seo": "workspace:*",
     "@redshirt-sports/ui": "workspace:*",
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/client": "catalog:",
