@@ -229,6 +229,7 @@ export const structure = async (
     ),
     S.divider().title("People"),
     createList({ S, type: "author", title: "Authors", icon: User }),
+    createList({ S, type: "person", title: "People", icon: User }),
     S.divider().title("Teams & Taxonomy"),
 
     createList({
@@ -263,6 +264,16 @@ export const structure = async (
       type: "sportSubgrouping",
       title: "Sport Subgroupings",
     }),
+    S.divider().title("Content"),
+    createList({ S, type: "category", title: "Categories" }),
+    createList({ S, type: "page", title: "Pages" }),
+    createList({ S, type: "podcastShow", title: "Podcast shows" }),
+    createList({ S, type: "podcastEpisode", title: "Podcast episodes" }),
+    createList({ S, type: "video", title: "Videos" }),
+    createList({ S, type: "pollRelease", title: "Poll releases" }),
+    createList({ S, type: "bracketPromo", title: "Bracket promos" }),
+    createList({ S, type: "jobPosting", title: "Job postings" }),
+    createSingleTon({ S, type: "homepage", title: "Homepage" }),
     S.divider().title("Labeling"),
     createList({
       S,

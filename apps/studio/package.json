@@ -35,6 +35,7 @@
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "@redshirt-sports/seo": "workspace:*",
     "sanity": "catalog:",
     "sanity-plugin-documents-pane": "^4.1.21",
     "sanity-plugin-media": "^6.3.2",

@@ -1,3 +1,4 @@
+import { reservedRootSegment } from "@redshirt-sports/seo/reserved-paths";
 import type { ComponentType } from "react";
 import {
   defineField,
@@ -27,6 +28,8 @@ export const documentSlugField = (
     component?: ComponentType<ObjectFieldProps<SlugValue>>;
     slugOptions?: SlugOptions;
     required?: boolean;
+    /** Reject root segments owned by the public route map. */
+    rejectReserved?: boolean;
   } = {},
 ) => {
   const {
@@ -36,6 +39,7 @@ export const documentSlugField = (
     component = PathnameFieldComponent,
     slugOptions,
     required = false,
+    rejectReserved = false,
   } = options;
 
   const config = getDocumentTypeConfig(documentType);
@@ -55,6 +59,18 @@ export const documentSlugField = (
         Rule.custom(createSlugErrorValidator(config)),
         Rule.custom(createSlugWarningValidator(config)).warning(),
       ];
+
+      if (rejectReserved) {
+        validators.push(
+          Rule.custom((value) => {
+            const current = (value as { current?: string } | undefined)
+              ?.current;
+            if (!current) return true;
+            const reserved = reservedRootSegment(current);
+            return reserved ? `"${reserved}" is a reserved path` : true;
+          }),
+        );
+      }
 
       return required ? [Rule.required(), ...validators] : validators;
     },

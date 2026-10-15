@@ -23,6 +23,8 @@ vi.mock("sanity-image", () => ({
     loading,
     fetchPriority,
     className,
+    preview,
+    hotspot,
   }: {
     alt?: string;
     width?: number;
@@ -30,6 +32,8 @@ vi.mock("sanity-image", () => ({
     loading?: string;
     fetchPriority?: string;
     className?: string;
+    preview?: string;
+    hotspot?: { x: number; y: number };
   }) => (
     <img
       alt={alt ?? ""}
@@ -38,6 +42,8 @@ vi.mock("sanity-image", () => ({
       data-loading={loading}
       data-fetch-priority={fetchPriority}
       className={className}
+      data-preview={preview}
+      data-hotspot={hotspot ? `${hotspot.x},${hotspot.y}` : undefined}
       data-testid="sanity-image"
     />
   ),
@@ -122,6 +128,23 @@ describe("SanityImage", () => {
       "alt",
       "Processed alt",
     );
+  });
+
+  it("forwards preview and hotspot from processed image data", () => {
+    mockProcessImageData.mockReturnValue({
+      id: "image-hot",
+      alt: "Hotspot",
+      preview: "data:image/jpeg;base64,abc",
+      width: 1920,
+      height: 1080,
+      hotspot: { x: 0.4, y: 0.2, width: 0.3, height: 0.3 },
+    });
+
+    render(<SanityImage image={{ asset: { _ref: "image-hot" } } as never} />);
+
+    const img = screen.getByTestId("sanity-image");
+    expect(img).toHaveAttribute("data-preview", "data:image/jpeg;base64,abc");
+    expect(img).toHaveAttribute("data-hotspot", "0.4,0.2");
   });
 
   it("renders the Sanity image wrapper with priority loading", () => {

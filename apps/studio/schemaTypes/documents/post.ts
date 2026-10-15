@@ -3,6 +3,7 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 import { CharacterCountInput } from "@/components/character-count";
 import { documentSlugField } from "@/schemaTypes/common";
 import { GROUP, GROUPS, STORY_TYPES } from "@/utils/constant";
+import { validateFeaturedImageRef } from "@/utils/featured-image";
 import { ogFields } from "@/utils/og-fields";
 import {
   validateH2IsFirst,
@@ -113,10 +114,12 @@ export const post = defineType({
         rule.custom((image, context) => {
           const mainImage = (context.document as { mainImage?: unknown })
             ?.mainImage;
-          if (image || mainImage) {
-            return true;
+          if (!image && !mainImage) {
+            return "Image is required";
           }
-          return "Image is required";
+          const ref = (image as { asset?: { _ref?: string } } | undefined)
+            ?.asset?._ref;
+          return validateFeaturedImageRef(ref);
         }),
       fields: postImageSubfields,
     }),
