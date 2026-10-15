@@ -3,10 +3,17 @@ import { analytics } from "@redshirt-sports/analytics/server";
 import { auth, clerkClient } from "@redshirt-sports/auth/server";
 
 export const completeOnboarding = async (formData: FormData) => {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
 
   if (!userId) {
     return { error: "No Logged In User" };
+  }
+
+  const isVoter = Boolean(
+    (sessionClaims?.metadata as { isVoter?: boolean } | undefined)?.isVoter,
+  );
+  if (!isVoter) {
+    return { error: "Onboarding is for voters" };
   }
 
   try {

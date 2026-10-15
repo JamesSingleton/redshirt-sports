@@ -29,8 +29,24 @@ describe("completeOnboarding", () => {
     });
   });
 
+  it("rejects signed-in users who are not voters", async () => {
+    mockAuth.mockResolvedValue({
+      userId: "user_1",
+      sessionClaims: { metadata: { isVoter: false } },
+    });
+    const formData = new FormData();
+
+    await expect(completeOnboarding(formData)).resolves.toEqual({
+      error: "Onboarding is for voters",
+    });
+    expect(mockClerkClient).not.toHaveBeenCalled();
+  });
+
   it("updates Clerk metadata and captures analytics on success", async () => {
-    mockAuth.mockResolvedValue({ userId: "user_1" });
+    mockAuth.mockResolvedValue({
+      userId: "user_1",
+      sessionClaims: { metadata: { isVoter: true } },
+    });
     const updateUserMetadata = vi.fn().mockResolvedValue({
       publicMetadata: {
         onboardingComplete: true,
@@ -72,7 +88,10 @@ describe("completeOnboarding", () => {
   });
 
   it("returns the Error message when Clerk throws an Error", async () => {
-    mockAuth.mockResolvedValue({ userId: "user_1" });
+    mockAuth.mockResolvedValue({
+      userId: "user_1",
+      sessionClaims: { metadata: { isVoter: true } },
+    });
     mockClerkClient.mockResolvedValue({
       users: {
         updateUserMetadata: vi.fn().mockRejectedValue(new Error("Clerk down")),
@@ -86,7 +105,10 @@ describe("completeOnboarding", () => {
   });
 
   it("returns a fallback message for non-Error throws", async () => {
-    mockAuth.mockResolvedValue({ userId: "user_1" });
+    mockAuth.mockResolvedValue({
+      userId: "user_1",
+      sessionClaims: { metadata: { isVoter: true } },
+    });
     mockClerkClient.mockResolvedValue({
       users: {
         updateUserMetadata: vi.fn().mockRejectedValue("boom"),

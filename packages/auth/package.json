@@ -11,6 +11,8 @@
     "./keys": "./keys.ts",
     "./provider": "./provider.tsx",
     "./proxy": "./proxy.ts",
+    "./require-role": "./require-role.ts",
+    "./roles": "./roles.ts",
     "./server": "./server.ts"
   },
   "scripts": {

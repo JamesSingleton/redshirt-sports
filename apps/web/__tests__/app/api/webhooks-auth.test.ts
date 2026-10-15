@@ -1,6 +1,6 @@
 const {
-  mockCreateUser,
-  mockUpdateUser,
+  mockUpsertUser,
+  mockSoftDeleteUser,
   mockGetUserDisplayFields,
   mockRevokeAssignments,
   mockAnalyticsCapture,
@@ -9,8 +9,8 @@ const {
   mockHeadersGet,
   mockRevalidateTag,
 } = vi.hoisted(() => ({
-  mockCreateUser: vi.fn(),
-  mockUpdateUser: vi.fn(),
+  mockUpsertUser: vi.fn(),
+  mockSoftDeleteUser: vi.fn(),
   mockGetUserDisplayFields: vi.fn(),
   mockRevokeAssignments: vi.fn(),
   mockAnalyticsCapture: vi.fn(),
@@ -21,8 +21,8 @@ const {
 }));
 
 vi.mock("@redshirt-sports/db/queries", () => ({
-  createUser: mockCreateUser,
-  updateUser: mockUpdateUser,
+  upsertUserFromClerk: mockUpsertUser,
+  softDeleteUser: mockSoftDeleteUser,
   getUserDisplayFields: mockGetUserDisplayFields,
   revokeAssignmentsForNonVoters: mockRevokeAssignments,
 }));
@@ -100,8 +100,8 @@ describe("POST /api/webhooks/auth", () => {
 
   beforeEach(() => {
     process.env.CLERK_WEBHOOK_SECRET = "whsec_test";
-    mockCreateUser.mockReset().mockResolvedValue(undefined);
-    mockUpdateUser.mockReset().mockResolvedValue(undefined);
+    mockUpsertUser.mockReset().mockResolvedValue(undefined);
+    mockSoftDeleteUser.mockReset().mockResolvedValue(undefined);
     mockGetUserDisplayFields.mockReset().mockResolvedValue(undefined);
     mockRevokeAssignments.mockReset().mockResolvedValue(undefined);
     mockAnalyticsCapture.mockReset();
@@ -141,7 +141,7 @@ describe("POST /api/webhooks/auth", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(mockCreateUser).toHaveBeenCalledWith({
+    expect(mockUpsertUser).toHaveBeenCalledWith({
       id: "user_1",
       firstName: "Jane",
       lastName: "Doe",
@@ -163,7 +163,7 @@ describe("POST /api/webhooks/auth", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(mockCreateUser).toHaveBeenCalledWith({
+    expect(mockUpsertUser).toHaveBeenCalledWith({
       id: "user_2",
       firstName: "",
       lastName: "",
@@ -184,7 +184,7 @@ describe("POST /api/webhooks/auth", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(mockUpdateUser).toHaveBeenCalledWith(
+    expect(mockUpsertUser).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "user_3",
         firstName: "",
@@ -208,7 +208,7 @@ describe("POST /api/webhooks/auth", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(mockUpdateUser).toHaveBeenCalledWith(
+    expect(mockUpsertUser).toHaveBeenCalledWith(
       expect.objectContaining({ id: "user_1", isVoter: false }),
     );
     expect(mockRevokeAssignments).toHaveBeenCalledWith("user_1");
@@ -285,7 +285,7 @@ describe("POST /api/webhooks/auth", () => {
   });
 
   it("returns 500 when webhook handler throws", async () => {
-    mockCreateUser.mockRejectedValue(new Error("database down"));
+    mockUpsertUser.mockRejectedValue(new Error("database down"));
 
     const res = await postWebhook({
       type: "user.created",
@@ -301,7 +301,7 @@ describe("POST /api/webhooks/auth", () => {
   });
 
   it("returns Unknown error when handler rejects with a non-Error value", async () => {
-    mockCreateUser.mockRejectedValue("boom");
+    mockUpsertUser.mockRejectedValue("boom");
 
     const res = await postWebhook({
       type: "user.created",
@@ -314,6 +314,29 @@ describe("POST /api/webhooks/auth", () => {
 
     expect(res.status).toBe(500);
     await expect(res.text()).resolves.toBe("Unknown error");
+  });
+
+  it("soft-deletes the user on user.deleted", async () => {
+    const res = await postWebhook({
+      type: "user.deleted",
+      data: { id: "user_1", deleted: true },
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockSoftDeleteUser).toHaveBeenCalledWith("user_1");
+    expect(mockUpsertUser).not.toHaveBeenCalled();
+    expect(mockAnalyticsCapture).toHaveBeenCalledWith(
+      expect.objectContaining({ event: "user_deleted" }),
+    );
+  });
+
+  it("returns 400 when user.deleted has no id", async () => {
+    const res = await postWebhook({
+      type: "user.deleted",
+      data: { deleted: true },
+    });
+    expect(res.status).toBe(400);
+    expect(mockSoftDeleteUser).not.toHaveBeenCalled();
   });
 
   it("returns 501 for unsupported event types", async () => {

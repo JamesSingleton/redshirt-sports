@@ -1,10 +1,10 @@
 import { analytics } from "@redshirt-sports/analytics/server";
 import type { WebhookEvent } from "@redshirt-sports/auth/server";
 import {
-  createUser,
   getUserDisplayFields,
   revokeAssignmentsForNonVoters,
-  updateUser,
+  softDeleteUser,
+  upsertUserFromClerk,
 } from "@redshirt-sports/db/queries";
 import { headers } from "next/headers";
 import { Webhook } from "svix";
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
   try {
     switch (type) {
       case "user.created":
-        await createUser({
+        await upsertUserFromClerk({
           id: data.id,
           firstName: data.first_name ?? "",
           lastName: data.last_name ?? "",
@@ -101,7 +101,7 @@ export async function POST(req: Request) {
           nextDisplay,
         );
 
-        await updateUser({
+        await upsertUserFromClerk({
           id: data.id,
           ...nextDisplay,
           isAdmin: data.public_metadata.isAdmin as boolean | undefined,
@@ -138,6 +138,20 @@ export async function POST(req: Request) {
             organization_role: data.public_metadata.organizationRole,
             is_admin: data.public_metadata.isAdmin,
             is_voter: data.public_metadata.isVoter,
+          },
+        });
+        break;
+      }
+      case "user.deleted": {
+        if (!data.id) {
+          return new Response("Missing user id", { status: 400 });
+        }
+        await softDeleteUser(data.id);
+        analytics?.capture({
+          distinctId: data.id,
+          event: "user_deleted",
+          properties: {
+            source: "clerk_webhook",
           },
         });
         break;

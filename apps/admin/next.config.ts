@@ -10,6 +10,10 @@ nextConfig = {
   ...nextConfig,
   cacheComponents: true,
   cacheLife: { default: sanity },
+  experimental: {
+    ...nextConfig.experimental,
+    authInterrupts: true,
+  },
 };
 
 if (env.ANALYZE === "true") {

@@ -9,6 +9,7 @@ function makeRequest(path: string) {
 function createAuth(options: {
   userId: string | null;
   onboardingComplete?: boolean;
+  isVoter?: boolean;
   protect?: ReturnType<typeof vi.fn>;
 }) {
   const protect = options.protect ?? vi.fn(async () => undefined);
@@ -19,6 +20,7 @@ function createAuth(options: {
         ? {
             metadata: {
               onboardingComplete: options.onboardingComplete ?? true,
+              isVoter: options.isVoter ?? false,
             },
           }
         : null,
@@ -45,6 +47,7 @@ describe("handleAuthProxy", () => {
     const { auth, protect } = createAuth({
       userId: "user-1",
       onboardingComplete: false,
+      isVoter: true,
     });
     await handleAuthProxy(auth, makeRequest("/onboarding"));
     expect(protect).not.toHaveBeenCalled();
@@ -54,6 +57,7 @@ describe("handleAuthProxy", () => {
     const { auth } = createAuth({
       userId: "user-1",
       onboardingComplete: false,
+      isVoter: true,
     });
     const res = await handleAuthProxy(auth, makeRequest("/onboarding"));
     expect(res?.status).toBe(200);
@@ -64,6 +68,7 @@ describe("handleAuthProxy", () => {
     const { auth } = createAuth({
       userId: "user-1",
       onboardingComplete: false,
+      isVoter: true,
     });
     // /api/vote is matched by middleware but is not a "protected" path
     // that calls protect — however incomplete onboarding still redirects
@@ -79,6 +84,30 @@ describe("handleAuthProxy", () => {
     expect(res?.status).toBe(307);
     expect(res?.headers.get("location")).toContain("/onboarding");
     expect(res?.headers.get("location")).toContain("redirect_url=");
+  });
+
+  it("does not send incomplete non-voters to onboarding", async () => {
+    const { auth } = createAuth({
+      userId: "user-1",
+      onboardingComplete: false,
+      isVoter: false,
+    });
+    const res = await handleAuthProxy(
+      auth,
+      makeRequest("/vote/college/football/fbs"),
+    );
+    expect(res).toBeUndefined();
+  });
+
+  it("sends a non-voter who opens /onboarding back to the home page", async () => {
+    const { auth } = createAuth({
+      userId: "user-1",
+      onboardingComplete: false,
+      isVoter: false,
+    });
+    const res = await handleAuthProxy(auth, makeRequest("/onboarding"));
+    expect(res?.status).toBe(307);
+    expect(res?.headers.get("location")).toBe("http://localhost:3000/");
   });
 
   it("does not redirect non-voters at middleware (poll access is page/API)", async () => {

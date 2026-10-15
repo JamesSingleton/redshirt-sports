@@ -14,7 +14,9 @@ function isProtectedRoute(req: NextRequest) {
 type AuthFn = {
   (): Promise<{
     userId: string | null;
-    sessionClaims?: { metadata?: { onboardingComplete?: boolean } } | null;
+    sessionClaims?: {
+      metadata?: { onboardingComplete?: boolean; isVoter?: boolean };
+    } | null;
   }>;
   protect: () => Promise<unknown>;
 };
@@ -22,17 +24,21 @@ type AuthFn = {
 /** Inner middleware logic — exported for Vitest without Clerk wrapper. */
 export async function handleAuthProxy(auth: AuthFn, req: NextRequest) {
   const { userId, sessionClaims } = await auth();
+  const isVoter = Boolean(sessionClaims?.metadata?.isVoter);
 
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
 
-  // Convenience redirect only — vote/API pages still enforce auth + poll access.
+  // Onboarding is the voter profile flow (A3). Non-voters are not sent there.
   if (userId && isOnboardingRoute(req)) {
+    if (!isVoter) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
     return NextResponse.next();
   }
 
-  if (userId && !sessionClaims?.metadata?.onboardingComplete) {
+  if (userId && isVoter && !sessionClaims?.metadata?.onboardingComplete) {
     const onboardingUrl = new URL("/onboarding", req.url);
     onboardingUrl.searchParams.set("redirect_url", req.url);
     return NextResponse.redirect(onboardingUrl);

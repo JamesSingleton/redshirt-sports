@@ -19,6 +19,65 @@ export async function createUser({
   });
 }
 
+type ClerkUserFields = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  organization?: string | null;
+  organizationRole?: string | null;
+  isAdmin?: boolean;
+  isVoter?: boolean;
+};
+
+/**
+ * Insert or update a Clerk user. Does not clear `deletedAt`.
+ * A later `user.updated` after `user.deleted` must not resurrect the row.
+ */
+export async function upsertUserFromClerk({
+  id,
+  firstName,
+  lastName,
+  organization,
+  organizationRole,
+  isAdmin,
+  isVoter,
+}: ClerkUserFields) {
+  await db
+    .insert(usersTable)
+    .values({
+      id,
+      firstName,
+      lastName,
+      organization,
+      organizationRole,
+      isAdmin,
+      isVoter,
+    })
+    .onConflictDoUpdate({
+      target: usersTable.id,
+      set: {
+        firstName,
+        lastName,
+        organization,
+        organizationRole,
+        isAdmin,
+        isVoter,
+      },
+    });
+}
+
+/** Soft-delete a Clerk user. Historical ballots stay. */
+export async function softDeleteUser(id: string) {
+  await db
+    .update(usersTable)
+    .set({
+      deletedAt: new Date(),
+      isAdmin: false,
+      isVoter: false,
+    })
+    .where(eq(usersTable.id, id));
+}
+
 export async function getUserDisplayFields(id: string) {
   const [user] = await db
     .select({
