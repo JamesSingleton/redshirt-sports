@@ -1,12 +1,9 @@
 import type { SanityImageData } from "@redshirt-sports/sanity/image";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { CameraIcon } from "lucide-react";
-import Link from "next/link";
 import {
   PortableText,
   type PortableTextBlock,
-  type PortableTextComponentProps,
-  type PortableTextComponents,
   type PortableTextReactComponents,
   type PortableTextTypeComponentProps,
 } from "next-sanity";
@@ -14,6 +11,7 @@ import {
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { ReactTweet as Tweet } from "@/components/tweet";
 import { PortableTable } from "./portable-table";
+import { marks } from "./portable-text-marks";
 import { YouTubeEmbedComponent } from "./youtube-embed";
 
 type TwitterEmbedValue = {
@@ -33,58 +31,8 @@ type YoutubeEmbedValue = {
   width?: number | string;
 };
 
-type SiteLinkMarkValue = {
-  _type: string;
-  href?: string;
-  openInNewTab?: boolean;
-};
-
-type BlockChildrenProps = Pick<
-  PortableTextComponentProps<PortableTextBlock>,
-  "children"
->;
-
-function SmartLink({
-  href,
-  blank,
-  children,
-}: {
-  href?: string;
-  blank?: boolean;
-  children: React.ReactNode;
-}) {
-  if (!href) return <>{children}</>;
-  const external = /^(https?:|mailto:|tel:)/.test(href);
-  if (!external) return <Link href={href}>{children}</Link>;
-  return (
-    <a
-      href={href}
-      {...(blank ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-    >
-      {children}
-    </a>
-  );
-}
-
-export const marks: PortableTextComponents["marks"] = {
-  // Assumes your GROQ resolves customUrl into { href, blank }
-  customLink: ({ value, children }) => (
-    <SmartLink href={value?.customLink?.href} blank={value?.customLink?.blank}>
-      {children}
-    </SmartLink>
-  ),
-  link: ({ value, children }) => (
-    <SmartLink href={value?.href} blank={value?.blank}>
-      {children}
-    </SmartLink>
-  ),
-  internalLink: ({ value, children }) => (
-    <SmartLink href={value?.href}>{children}</SmartLink>
-  ),
-};
-
 export const richTextComponents: Partial<PortableTextReactComponents> = {
-  marks,
+  marks: marks,
   types: {
     twitter: ({ value }: PortableTextTypeComponentProps<TwitterEmbedValue>) => {
       return (

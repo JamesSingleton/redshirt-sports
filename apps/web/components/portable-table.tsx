@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@redshirt-sports/ui/components/table";
 
-import { marks } from "./rich-text";
+import { marks } from "./portable-text-marks";
 import { SanityImage } from "./sanity-image";
 
 // Cells only allow simple text, links, and a small image (see the Studio schema).
