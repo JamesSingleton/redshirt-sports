@@ -30,7 +30,7 @@
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
     "@types/node": "catalog:",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.8",
     "drizzle-kit": "catalog:",
     "tsx": "^4.23.15",
     "typescript": "catalog:"
