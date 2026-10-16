@@ -1,12 +1,4 @@
 import type { SanityImageData } from "@redshirt-sports/sanity/image";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@redshirt-sports/ui/components/table";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { CameraIcon } from "lucide-react";
 import Link from "next/link";
@@ -14,25 +6,15 @@ import {
   PortableText,
   type PortableTextBlock,
   type PortableTextComponentProps,
-  type PortableTextMarkComponentProps,
+  type PortableTextComponents,
   type PortableTextReactComponents,
   type PortableTextTypeComponentProps,
 } from "next-sanity";
 
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { ReactTweet as Tweet } from "@/components/tweet";
+import { PortableTable } from "./portable-table";
 import { YouTubeEmbedComponent } from "./youtube-embed";
-
-type TableType = {
-  _type: "table";
-  _key: string;
-  rows: {
-    _key: string;
-    _type: "tableRow";
-    cells: string[];
-  }[];
-  markDefs: any;
-};
 
 type TwitterEmbedValue = {
   _type: "twitter";
@@ -62,87 +44,47 @@ type BlockChildrenProps = Pick<
   "children"
 >;
 
-function SiteLinkMark({
+function SmartLink({
+  href,
+  blank,
   children,
-  value,
-}: PortableTextMarkComponentProps<SiteLinkMarkValue>) {
-  const href = value?.href;
-  const openInNewTab = value?.openInNewTab;
+}: {
+  href?: string;
+  blank?: boolean;
+  children: React.ReactNode;
+}) {
   if (!href) return <>{children}</>;
-  if (openInNewTab) {
-    return (
-      <a
-        href={href}
-        rel="noreferrer noopener"
-        target="_blank"
-        className="hover:text-muted-foreground underline"
-      >
-        {children}
-      </a>
-    );
-  }
+  const external = /^(https?:|mailto:|tel:)/.test(href);
+  if (!external) return <Link href={href}>{children}</Link>;
   return (
-    <Link
+    <a
       href={href}
-      prefetch={false}
-      className="hover:text-muted-foreground underline"
+      {...(blank ? { target: "_blank", rel: "noopener noreferrer" } : {})}
     >
       {children}
-    </Link>
+    </a>
   );
 }
 
+export const marks: PortableTextComponents["marks"] = {
+  // Assumes your GROQ resolves customUrl into { href, blank }
+  customLink: ({ value, children }) => (
+    <SmartLink href={value?.customLink?.href} blank={value?.customLink?.blank}>
+      {children}
+    </SmartLink>
+  ),
+  link: ({ value, children }) => (
+    <SmartLink href={value?.href} blank={value?.blank}>
+      {children}
+    </SmartLink>
+  ),
+  internalLink: ({ value, children }) => (
+    <SmartLink href={value?.href}>{children}</SmartLink>
+  ),
+};
+
 export const richTextComponents: Partial<PortableTextReactComponents> = {
-  block: {
-    h2: ({ children }: BlockChildrenProps) => {
-      return <h2 className="text-4xl">{children}</h2>;
-    },
-    h3: ({ children }: BlockChildrenProps) => {
-      return <h3 className="text-3xl">{children}</h3>;
-    },
-    h4: ({ children }: BlockChildrenProps) => {
-      return <h4 className="text-2xl">{children}</h4>;
-    },
-    h5: ({ children }: BlockChildrenProps) => {
-      return <h5 className="text-xl">{children}</h5>;
-    },
-    h6: ({ children }: BlockChildrenProps) => {
-      return <h6 className="text-lg">{children}</h6>;
-    },
-  },
-  marks: {
-    customLink: SiteLinkMark,
-    customUrl: SiteLinkMark,
-    internalLink: ({ children, value }: PortableTextMarkComponentProps) => {
-      return (
-        <Link
-          href={value?.href}
-          prefetch={false}
-          className="hover:text-muted-foreground underline"
-        >
-          {children}
-        </Link>
-      );
-    },
-    link: ({ value, children }: PortableTextMarkComponentProps) => {
-      return value?.blank ? (
-        <a
-          className="hover:text-muted-foreground underline"
-          href={value?.href}
-          rel="noreferrer noopener"
-          target="_blank"
-          aria-label={`Opens ${value?.href} in a new tab`}
-          title={`Opens ${value?.href} in a new tab`}
-        >
-          {children}
-        </a>
-      ) : (
-        <a className="hover:text-muted-foreground underline" href={value?.href}>
-          {children}
-        </a>
-      );
-    },
-  },
+  marks,
   types: {
     twitter: ({ value }: PortableTextTypeComponentProps<TwitterEmbedValue>) => {
       return (
@@ -157,7 +99,7 @@ export const richTextComponents: Partial<PortableTextReactComponents> = {
       SanityImageData & { _type: "image" }
     >) => {
       return (
-        <figure className="my-2 flex flex-col items-center self-center rounded-lg shadow-md">
+        <figure className="not-prose my-2 flex flex-col items-center self-center rounded-lg shadow-md">
           <CustomImage
             image={value}
             width={720}
@@ -175,33 +117,7 @@ export const richTextComponents: Partial<PortableTextReactComponents> = {
         </figure>
       );
     },
-    table: ({ value }: PortableTextTypeComponentProps<TableType>) => {
-      const headerRow = value.rows[0];
-      const rows = value.rows.slice(1);
-
-      return (
-        <div className="not-prose">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {headerRow?.cells.map((cell) => (
-                  <TableHead key={cell}>{cell}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow key={row._key}>
-                  {row.cells.map((cell) => (
-                    <TableCell key={cell}>{cell}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      );
-    },
+    table: ({ value }) => <PortableTable value={value} />,
     youtubeEmbed: ({
       value,
     }: PortableTextTypeComponentProps<YoutubeEmbedValue>) => {
