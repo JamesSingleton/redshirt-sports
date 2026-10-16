@@ -9,29 +9,29 @@ allowBuilds:
   utf-8-validate: false
 
 catalog:
-  "@clerk/nextjs": "^7.9.4"
-  "@sanity/client": "^7.27.0"
-  "@sentry/nextjs": "^11.2.0"
+  "@clerk/nextjs": ^7.9.15
+  "@sanity/client": "^8.9.0"
+  "@sentry/nextjs": ^11.8.0
   "@testing-library/jest-dom": "^7.0.1"
   "@testing-library/react": "^16.3.3"
-  "@testing-library/user-event": "^14.6.7"
-  "@types/node": ^26.6.4
+  "@testing-library/user-event": ^14.6.8
+  "@types/node": ^26.6.5
   "@types/react": "^19.3.0"
   "@types/react-dom": "^19.3.0"
-  "@vitejs/plugin-react": "^6.1.1"
+  "@vitejs/plugin-react": ^6.1.2
   drizzle-kit: "^0.31.11"
-  drizzle-orm: "^0.45.3"
-  lucide-react: ^1.49.0
-  next: ^16.3.8
+  drizzle-orm: ^0.45.4
+  lucide-react: ^1.57.0
+  next: ^16.4.1
   next-sanity: "^13.3.4"
   next-themes: "^0.4.6"
-  posthog-js: ^1.435.6
-  posthog-node: ^5.55.0
-  react: "^19.3.0"
-  react-dom: "^19.3.0"
-  sanity: ^6.17.0
+  posthog-js: ^1.438.10
+  posthog-node: ^5.56.1
+  react: ^19.3.1
+  react-dom: ^19.3.1
+  sanity: ^6.19.0
   tailwindcss: "^4.3.3"
   typescript: "^7.0.2"
-  vite: ^8.3.2
-  vitest: "^5.0.3"
-  zod: "^4.6.5"
+  vite: ^8.3.4
+  vitest: ^5.0.4
+  zod: ^4.6.7
