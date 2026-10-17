@@ -1,3 +1,4 @@
+import "./drizzle.local-guard";
 import { createRequire } from "node:module";
 import { defineConfig } from "drizzle-kit";
 

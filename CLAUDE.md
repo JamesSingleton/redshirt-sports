@@ -93,11 +93,13 @@ This is a Turborepo monorepo with three applications and shared packages:
 - Schema defined in `packages/db/src/schema.ts` using Drizzle ORM
 - Database client in `packages/db/src/client.ts`
 - Shared queries in `packages/db/src/queries/`
-- Drizzle Kit config at `packages/db/drizzle.config.ts`
+- Drizzle Kit config at `apps/web/drizzle.config.ts`
 
 **Important**: There are two separate data stores:
 - Sanity = content (posts, authors, editorial content)
 - Postgres = application data (ballots, votes, rankings)
+
+The canonical term for a sport's competitive slice is `division` (Browse Scope is retired; see `CONTEXT.md`). Sanity `functions/auto-redirect` stays active: a slug change writes a permanent redirect. Agents run dev, lint, typecheck, and test only. James runs Studio builds and deploys.
 
 Some entities exist in both systems (e.g., sports, schools) where Sanity is the source of truth for editorial content and Postgres stores the IDs for relational app data.
 
@@ -131,8 +133,7 @@ Internal dashboard for managing ballots and development tools. Shares UI compone
 
 - **Tailwind CSS v4** - All apps use Tailwind for styling
 - **ShadCN UI** - Component library in `packages/ui`
-- Shared Tailwind config in `packages/ui/tailwind.config.ts`
-- Global styles in `packages/ui/src/styles/globals.css`
+- Tailwind v4 is CSS-first: tokens live in `packages/ui/src/styles/globals.css`. There is no `tailwind.config.ts` (the `packages/ui` export map still names `./tailwind.config`, but that file is not in the tree).
 
 ### Testing
 

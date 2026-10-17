@@ -1,6 +1,16 @@
 import { createClient } from "@sanity/client";
 import { documentEventHandler } from "@sanity/functions";
 
+import { redirectsToRepoint } from "./chain";
+
+/**
+ * Public path for the slug as the site serves it today.
+ * These shapes (`/authors/x`, `/college/teams/x`, root `/x`) move with #18.
+ * Update this function in the same PR as each move. Do not emit blueprint
+ * paths (`/people`, `/teams`, `/college/{sport}/news`) before those routes exist.
+ * `primarySport` changes start creating redirects in that same PR: today's
+ * article URL is the root slug, so a sport change does not move a public path yet.
+ */
 function toPublicPath(documentType: string, slug: string): string {
   const segment = slug.replace(/^\//, "");
 
@@ -9,8 +19,8 @@ function toPublicPath(documentType: string, slug: string): string {
       return `/authors/${segment}`;
     case "school":
       return `/college/teams/${segment}`;
-    case "post":
     default:
+      // post, and any other type, uses the slug as a root path today
       return slug.startsWith("/") ? slug : `/${segment}`;
   }
 }
@@ -73,6 +83,18 @@ export const handler = documentEventHandler(async ({ context, event }) => {
     console.log(
       `Redirect from ${source} to ${destination} was created ${JSON.stringify(res)}`,
     );
+
+    const chained = await client.fetch<Array<{ _id: string; source: string }>>(
+      `*[_type == "redirect" && destination.current == $source && !(_id in path("drafts.**"))]{ _id, "source": source.current }`,
+      { source },
+    );
+    for (const row of redirectsToRepoint(chained, source, destination)) {
+      await client
+        .patch(row._id)
+        .set({ "destination.current": destination })
+        .commit();
+      console.log(`Collapsed redirect ${row.source} → ${destination}`);
+    }
   } catch (error) {
     console.error("Failed to create redirect:", error);
   }

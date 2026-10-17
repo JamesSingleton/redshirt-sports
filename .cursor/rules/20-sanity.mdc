@@ -1,0 +1,18 @@
+---
+description: Sanity schema, GROQ, Studio and image rules
+globs: apps/studio/**,packages/sanity/**,**/*.groq
+alwaysApply: false
+---
+
+# Sanity
+
+- Schemas go in `apps/studio/schemaTypes/` (`defineType`/`defineField`, validation for every required editorial rule). Put GROQ in `packages/sanity/src/queries.ts` (or `queries/*.ts`) with `defineQuery`, then run `pnpm --filter @redshirt-sports/studio type` for typegen.
+- Use parameters for GROQ input and never interpolate user input. Whitelist sort keys.
+- **Local/dev dataset only.** `SANITY_STUDIO_DATASET` / `NEXT_PUBLIC_SANITY_DATASET` must not be `production` in a Cursor session. No `sanity deploy`, `sanity schema deploy`, `sanity blueprints deploy` (Functions), or Studio `pnpm build`/`deploy`/`deploy:schema`. Use `pnpm --filter @redshirt-sports/studio dev` and `check:types` instead.
+- Don't run content migrations (`apps/studio/migrations/*`) against any dataset unless James asks. If he does, run them on `development` first.
+- Slugs are editable. `functions/auto-redirect` creates a permanent redirect from the old URL to the new one. Keep its paths in sync with `@redshirt-sports/seo/urls` (today's paths until each #18 move). Do not add slug `readOnly`.
+- Redirect documents (`redirect`) are for **legacy URLs and automatic slug-change 301s** and must be `permanent: true`.
+- Images: `sanity-image` with hotspot/crop and LQIP, AVIF/WebP, under 200 KB rendered. Featured images must be at least 1920×1080 (Studio validation).
+- `portalEntry` (blueprint §16.1): editor-maintained, no slug, no photo. **`story` is optional (Decision #16)** (warning, not required). Committed entries require `newSchool` and `committedOn`. Publishing expires the tags `portal` and `portal:<sport>`.
+- Article URLs are `/college/{sport}/news/{slug}`, built from `primarySport` via the `urls` helper. Reserve division/browse-scope slugs (`fbs`, `fcs`, `d2`, …) so no article can take one (the legacy `news/{division}` 301 depends on it).
+- Revalidation goes webhook → `revalidateTag` (tags documented in §17/§18, including `posts:level:<level>` for `/college/news`). On a slug change, expire both the old and the new paths. Draft mode and Presentation use the Viewer token, which stays server-only. `/college` has no page.

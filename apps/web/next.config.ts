@@ -147,7 +147,7 @@ let nextConfig: NextConfig = {
       .map((redirect) => ({
         source: redirect.source.current,
         destination: redirect.destination.current,
-        permanent: redirect.permanent === true,
+        permanent: true,
       }));
   },
 };
