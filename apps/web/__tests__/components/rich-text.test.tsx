@@ -31,6 +31,22 @@ vi.mock("@/components/sanity-image", () => ({
   IMAGE_SIZES: { articleInline: "test" },
 }));
 
+function tableCell(key: string, text: string) {
+  return {
+    _key: key,
+    _type: "cell",
+    value: [
+      {
+        _key: `${key}-block`,
+        _type: "block",
+        style: "normal",
+        markDefs: [],
+        children: [{ _key: `${key}-span`, _type: "span", marks: [], text }],
+      },
+    ],
+  };
+}
+
 const richText = [
   {
     _type: "block",
@@ -133,16 +149,23 @@ const richText = [
   {
     _type: "table",
     _key: "table-1",
+    headerRows: 1,
     rows: [
       {
         _key: "header",
-        _type: "tableRow",
-        cells: ["Team", "Rank"],
+        _type: "row",
+        cells: [
+          tableCell("header-team", "Team"),
+          tableCell("header-rank", "Rank"),
+        ],
       },
       {
         _key: "row-1",
-        _type: "tableRow",
-        cells: ["Alabama", "1"],
+        _type: "row",
+        cells: [
+          tableCell("row-1-team", "Alabama"),
+          tableCell("row-1-rank", "1"),
+        ],
       },
     ],
   },
@@ -193,11 +216,23 @@ describe("RichText", () => {
     expect(screen.getByTestId("tweet")).toHaveTextContent("tweet-1");
     expect(screen.getByText("Source: Getty")).toBeInTheDocument();
     expect(screen.getByText("Source: AP")).toBeInTheDocument();
+    expect(screen.getByTestId("youtube")).toHaveTextContent("abc");
+    expect(logSpy).toHaveBeenCalled();
+    logSpy.mockRestore();
+  });
+
+  it("renders tables with Portable Text cells and header rows", () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    render(<RichText richText={richText} />);
+
     expect(
       screen.getByRole("columnheader", { name: "Team" }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("youtube")).toHaveTextContent("abc");
-    expect(logSpy).toHaveBeenCalled();
+    expect(
+      screen.getByRole("columnheader", { name: "Rank" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "Alabama" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "1" })).toBeInTheDocument();
     logSpy.mockRestore();
   });
 });

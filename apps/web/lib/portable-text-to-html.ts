@@ -51,16 +51,25 @@ function createComponents(baseUrl: string): PortableTextComponents {
   };
 
   const table: PortableTextTypeComponent<BodyMember<"table">> = ({ value }) => {
-    const [headerRow, ...rows] = value.rows ?? [];
-    if (!headerRow) return "";
-    const renderCells = (cells: string[] | undefined, tag: "th" | "td") =>
-      (cells ?? [])
-        .map((cell) => `<${tag}>${escapeHTML(cell)}</${tag}>`)
-        .join("");
-    const body = rows
-      .map((row) => `<tr>${renderCells(row.cells, "td")}</tr>`)
-      .join("");
-    return `<table><thead><tr>${renderCells(headerRow.cells, "th")}</tr></thead><tbody>${body}</tbody></table>`;
+    const rows = value.rows ?? [];
+    if (rows.length === 0) return "";
+    const headerRows = rows.slice(0, value.headerRows ?? 0);
+    const bodyRows = rows.slice(headerRows.length);
+    const renderRow = (row: (typeof rows)[number], tag: "th" | "td") =>
+      `<tr>${(row.cells ?? [])
+        .map(
+          (cell) =>
+            `<${tag}>${toHTML(cell.value ?? [], {
+              components: createComponents(baseUrl),
+              onMissingComponent: false,
+            })}</${tag}>`,
+        )
+        .join("")}</tr>`;
+    const head = headerRows.length
+      ? `<thead>${headerRows.map((row) => renderRow(row, "th")).join("")}</thead>`
+      : "";
+    const body = bodyRows.map((row) => renderRow(row, "td")).join("");
+    return `<table>${head}<tbody>${body}</tbody></table>`;
   };
 
   const twitter: PortableTextTypeComponent<BodyMember<"twitter">> = ({
