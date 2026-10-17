@@ -4,12 +4,17 @@ type RecordValue = Record<string, unknown>;
 
 const legacyTableFilter =
   'count(body[_type == "table" && count(rows[_type == "tableRow"]) > 0]) > 0';
-const selectedDocumentId = process.env.SANITY_MIGRATION_DOCUMENT_ID?.replace(
-  /^drafts\./,
-  "",
-);
-const documentFilter = selectedDocumentId
-  ? `_id in [${JSON.stringify(selectedDocumentId)}, ${JSON.stringify(`drafts.${selectedDocumentId}`)}] && ${legacyTableFilter}`
+
+const selectedDocumentIds = (process.env.SANITY_MIGRATION_DOCUMENT_IDS ?? "")
+  .split(",")
+  .map((id) => id.trim().replace(/^drafts\./, ""))
+  .filter(Boolean);
+
+const documentFilter = selectedDocumentIds.length
+  ? `_id in ${JSON.stringify([
+      ...selectedDocumentIds,
+      ...selectedDocumentIds.map((id) => `drafts.${id}`),
+    ])} && ${legacyTableFilter}`
   : legacyTableFilter;
 
 function isRecord(value: unknown): value is RecordValue {
@@ -76,7 +81,7 @@ function convertTable(table: RecordValue) {
 
 export default defineMigration({
   title: "Convert @sanity/table blocks to built in Portable Text tables",
-  documentTypes: ["legal", "post"],
+  documentTypes: ["post"],
   filter: documentFilter,
   migrate: {
     document(document) {
