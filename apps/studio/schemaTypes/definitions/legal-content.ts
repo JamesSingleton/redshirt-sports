@@ -44,5 +44,10 @@ export const legalContent = defineType({
         ],
       },
     }),
+    defineArrayMember({
+      name: "table",
+      title: "Table",
+      type: "table",
+    }),
   ],
 });

@@ -3,6 +3,7 @@ import { customUrl } from "./custom-url";
 import { legalContent } from "./legal-content";
 import { socialLinks } from "./social-links";
 import { sportNewsLink } from "./sport-news-link";
+import { table } from "./table";
 import { twitter } from "./twitter";
 
 export const definitions = [
@@ -11,5 +12,6 @@ export const definitions = [
   legalContent,
   socialLinks,
   sportNewsLink,
+  table,
   twitter,
 ];

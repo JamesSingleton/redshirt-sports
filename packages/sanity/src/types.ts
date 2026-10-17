@@ -45,6 +45,45 @@ export type Twitter = {
   id?: string;
 };
 
+export type Table = {
+  _type: "table";
+  headerRows?: number;
+  rows?: Array<{
+    cells?: Array<{
+      value?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          | "normal"
+          | "h1"
+          | "h2"
+          | "h3"
+          | "h4"
+          | "h5"
+          | "h6"
+          | "blockquote";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+      _type: "cell";
+      _key: string;
+    }>;
+    _type: "row";
+    _key: string;
+  }>;
+};
+
 export type SportReference = {
   _ref: string;
   _type: "reference";
@@ -92,24 +131,29 @@ export type SocialLinks = {
   threads?: string;
 };
 
-export type LegalContent = Array<{
-  children?: Array<{
-    marks?: Array<string>;
-    text?: string;
-    _type: "span";
-    _key: string;
-  }>;
-  style?: "normal" | "h2" | "h3" | "h4" | "blockquote";
-  listItem?: "bullet" | "number";
-  markDefs?: Array<{
-    customLink?: CustomUrl;
-    _type: "customLink";
-    _key: string;
-  }>;
-  level?: number;
-  _type: "block";
-  _key: string;
-}>;
+export type LegalContent = Array<
+  | {
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "normal" | "h2" | "h3" | "h4" | "blockquote";
+      listItem?: "bullet" | "number";
+      markDefs?: Array<{
+        customLink?: CustomUrl;
+        _type: "customLink";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }
+  | ({
+      _key: string;
+    } & Table)
+>;
 
 export type PostReference = {
   _ref: string;
@@ -159,7 +203,7 @@ export type BlockContent = Array<
         _type: "span";
         _key: string;
       }>;
-      style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+      style?: "normal" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
       listItem?: "bullet" | "number";
       markDefs?: Array<
         | {
@@ -641,20 +685,6 @@ export type Author = {
   socialLinks?: SocialLinks1;
 };
 
-export type Table = {
-  _type: "table";
-  rows?: Array<
-    {
-      _key: string;
-    } & TableRow
-  >;
-};
-
-export type TableRow = {
-  _type: "tableRow";
-  cells?: Array<string>;
-};
-
 export type MediaFolderReference = {
   _ref: string;
   _type: "reference";
@@ -920,6 +950,7 @@ export type AllSanitySchemaTypes =
   | SeoImage
   | SocialLinks1
   | Twitter
+  | Table
   | SportReference
   | DivisionReference
   | SportSubgroupingReference
@@ -954,8 +985,6 @@ export type AllSanitySchemaTypes =
   | Classification
   | GoverningBody
   | Author
-  | Table
-  | TableRow
   | MediaFolderReference
   | MediaFolder
   | MediaTag
@@ -1262,15 +1291,7 @@ export type QueryPostSlugDataResult = {
           _type: "span";
           _key: string;
         }>;
-        style?:
-          | "blockquote"
-          | "h1"
-          | "h2"
-          | "h3"
-          | "h4"
-          | "h5"
-          | "h6"
-          | "normal";
+        style?: "blockquote" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
         listItem?: "bullet" | "number";
         markDefs: Array<
           | {
@@ -1328,11 +1349,41 @@ export type QueryPostSlugDataResult = {
     | {
         _key: string;
         _type: "table";
-        rows?: Array<
-          {
+        headerRows?: number;
+        rows?: Array<{
+          cells?: Array<{
+            value?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?:
+                | "blockquote"
+                | "h1"
+                | "h2"
+                | "h3"
+                | "h4"
+                | "h5"
+                | "h6"
+                | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+            _type: "cell";
             _key: string;
-          } & TableRow
-        >;
+          }>;
+          _type: "row";
+          _key: string;
+        }>;
         markDefs: null;
       }
     | {
@@ -2706,26 +2757,68 @@ export type QueryLegalDocumentBySlugResult = {
   summary: string;
   effectiveDate: string;
   lastUpdated: string;
-  body: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "blockquote" | "h2" | "h3" | "h4" | "normal";
-    listItem?: "bullet" | "number";
-    markDefs: Array<{
-      customLink?: CustomUrl;
-      _type: "customLink";
-      _key: string;
-      openInNewTab: boolean | null;
-      href: string | null;
-    }> | null;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }>;
+  body: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "blockquote" | "h2" | "h3" | "h4" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs: Array<{
+          customLink?: CustomUrl;
+          _type: "customLink";
+          _key: string;
+          openInNewTab: boolean | null;
+          href: string | null;
+        }> | null;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        _key: string;
+        _type: "table";
+        headerRows?: number;
+        rows?: Array<{
+          cells?: Array<{
+            value?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?:
+                | "blockquote"
+                | "h1"
+                | "h2"
+                | "h3"
+                | "h4"
+                | "h5"
+                | "h6"
+                | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+            _type: "cell";
+            _key: string;
+          }>;
+          _type: "row";
+          _key: string;
+        }>;
+        markDefs: null;
+      }
+  >;
   otherDocuments: Array<{
     _id: string;
     title: string;
@@ -3047,15 +3140,7 @@ export type RssFeedQueryResult = Array<{
           _type: "span";
           _key: string;
         }>;
-        style?:
-          | "blockquote"
-          | "h1"
-          | "h2"
-          | "h3"
-          | "h4"
-          | "h5"
-          | "h6"
-          | "normal";
+        style?: "blockquote" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
         listItem?: "bullet" | "number";
         markDefs: Array<
           | {
@@ -3113,11 +3198,41 @@ export type RssFeedQueryResult = Array<{
     | {
         _key: string;
         _type: "table";
-        rows?: Array<
-          {
+        headerRows?: number;
+        rows?: Array<{
+          cells?: Array<{
+            value?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?:
+                | "blockquote"
+                | "h1"
+                | "h2"
+                | "h3"
+                | "h4"
+                | "h5"
+                | "h6"
+                | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+            _type: "cell";
             _key: string;
-          } & TableRow
-        >;
+          }>;
+          _type: "row";
+          _key: string;
+        }>;
         markDefs: null;
       }
     | {
@@ -3187,15 +3302,7 @@ export type RssFeedBySportQueryResult = Array<{
           _type: "span";
           _key: string;
         }>;
-        style?:
-          | "blockquote"
-          | "h1"
-          | "h2"
-          | "h3"
-          | "h4"
-          | "h5"
-          | "h6"
-          | "normal";
+        style?: "blockquote" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
         listItem?: "bullet" | "number";
         markDefs: Array<
           | {
@@ -3253,11 +3360,41 @@ export type RssFeedBySportQueryResult = Array<{
     | {
         _key: string;
         _type: "table";
-        rows?: Array<
-          {
+        headerRows?: number;
+        rows?: Array<{
+          cells?: Array<{
+            value?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?:
+                | "blockquote"
+                | "h1"
+                | "h2"
+                | "h3"
+                | "h4"
+                | "h5"
+                | "h6"
+                | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+            _type: "cell";
             _key: string;
-          } & TableRow
-        >;
+          }>;
+          _type: "row";
+          _key: string;
+        }>;
         markDefs: null;
       }
     | {
@@ -3327,15 +3464,7 @@ export type RssFeedBySportAndDivisionQueryResult = Array<{
           _type: "span";
           _key: string;
         }>;
-        style?:
-          | "blockquote"
-          | "h1"
-          | "h2"
-          | "h3"
-          | "h4"
-          | "h5"
-          | "h6"
-          | "normal";
+        style?: "blockquote" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
         listItem?: "bullet" | "number";
         markDefs: Array<
           | {
@@ -3393,11 +3522,41 @@ export type RssFeedBySportAndDivisionQueryResult = Array<{
     | {
         _key: string;
         _type: "table";
-        rows?: Array<
-          {
+        headerRows?: number;
+        rows?: Array<{
+          cells?: Array<{
+            value?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?:
+                | "blockquote"
+                | "h1"
+                | "h2"
+                | "h3"
+                | "h4"
+                | "h5"
+                | "h6"
+                | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+            _type: "cell";
             _key: string;
-          } & TableRow
-        >;
+          }>;
+          _type: "row";
+          _key: string;
+        }>;
         markDefs: null;
       }
     | {

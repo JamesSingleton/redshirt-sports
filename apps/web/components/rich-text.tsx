@@ -1,12 +1,4 @@
 import type { SanityImageData } from "@redshirt-sports/sanity/image";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@redshirt-sports/ui/components/table";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { CameraIcon } from "lucide-react";
 import Link from "next/link";
@@ -21,18 +13,8 @@ import {
 
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { ReactTweet as Tweet } from "@/components/tweet";
+import { PortableTable } from "./portable-table";
 import { YouTubeEmbedComponent } from "./youtube-embed";
-
-type TableType = {
-  _type: "table";
-  _key: string;
-  rows: {
-    _key: string;
-    _type: "tableRow";
-    cells: string[];
-  }[];
-  markDefs: any;
-};
 
 type TwitterEmbedValue = {
   _type: "twitter";
@@ -93,23 +75,6 @@ function SiteLinkMark({
 }
 
 export const richTextComponents: Partial<PortableTextReactComponents> = {
-  block: {
-    h2: ({ children }: BlockChildrenProps) => {
-      return <h2 className="text-4xl">{children}</h2>;
-    },
-    h3: ({ children }: BlockChildrenProps) => {
-      return <h3 className="text-3xl">{children}</h3>;
-    },
-    h4: ({ children }: BlockChildrenProps) => {
-      return <h4 className="text-2xl">{children}</h4>;
-    },
-    h5: ({ children }: BlockChildrenProps) => {
-      return <h5 className="text-xl">{children}</h5>;
-    },
-    h6: ({ children }: BlockChildrenProps) => {
-      return <h6 className="text-lg">{children}</h6>;
-    },
-  },
   marks: {
     customLink: SiteLinkMark,
     customUrl: SiteLinkMark,
@@ -175,33 +140,7 @@ export const richTextComponents: Partial<PortableTextReactComponents> = {
         </figure>
       );
     },
-    table: ({ value }: PortableTextTypeComponentProps<TableType>) => {
-      const headerRow = value.rows[0];
-      const rows = value.rows.slice(1);
-
-      return (
-        <div className="not-prose">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {headerRow?.cells.map((cell) => (
-                  <TableHead key={cell}>{cell}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow key={row._key}>
-                  {row.cells.map((cell) => (
-                    <TableCell key={cell}>{cell}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      );
-    },
+    table: ({ value }) => <PortableTable value={value} />,
     youtubeEmbed: ({
       value,
     }: PortableTextTypeComponentProps<YoutubeEmbedValue>) => {

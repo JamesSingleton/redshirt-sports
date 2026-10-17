@@ -38,6 +38,18 @@ function paragraph(
   };
 }
 
+function cell(text: string, markDefs: Array<Record<string, unknown>> = []) {
+  return {
+    _key: `c-${text}`,
+    _type: "cell",
+    value: [paragraph(text, markDefs)],
+  };
+}
+
+function row(key: string, cells?: Array<Record<string, unknown>>) {
+  return { _key: key, _type: "row", ...(cells ? { cells } : {}) };
+}
+
 function render(body: Array<Record<string, unknown>>) {
   return portableTextToHtml(body as Body, baseUrl);
 }
@@ -136,25 +148,132 @@ describe("portableTextToHtml", () => {
     expect(render([{ _type: "image", _key: "i1", alt: "Alt" }])).toBe("");
   });
 
-  it("renders tables with the first row as the header", () => {
-    const html = render([
-      {
-        _type: "table",
-        _key: "t1",
-        rows: [
-          { _key: "r1", _type: "tableRow", cells: ["Team", "W-L"] },
-          { _key: "r2", _type: "tableRow", cells: ["A&M", "5-0"] },
-          { _key: "r3", _type: "tableRow" },
-        ],
-      },
-    ]);
-    expect(html).toBe(
-      "<table><thead><tr><th>Team</th><th>W-L</th></tr></thead><tbody><tr><td>A&amp;M</td><td>5-0</td></tr><tr></tr></tbody></table>",
-    );
-  });
+  describe("tables", () => {
+    it("renders headerRows in thead and the rest in tbody", () => {
+      const html = render([
+        {
+          _type: "table",
+          _key: "t1",
+          headerRows: 1,
+          rows: [
+            row("r1", [cell("Team"), cell("W-L")]),
+            row("r2", [cell("A&M"), cell("5-0")]),
+          ],
+        },
+      ]);
+      expect(html).toBe(
+        "<table><thead><tr><th><p>Team</p></th><th><p>W-L</p></th></tr></thead>" +
+          "<tbody><tr><td><p>A&amp;M</p></td><td><p>5-0</p></td></tr></tbody></table>",
+      );
+    });
 
-  it("skips tables without rows", () => {
-    expect(render([{ _type: "table", _key: "t1" }])).toBe("");
+    it("supports multiple header rows", () => {
+      const html = render([
+        {
+          _type: "table",
+          _key: "t1",
+          headerRows: 2,
+          rows: [
+            row("r1", [cell("H1")]),
+            row("r2", [cell("H2")]),
+            row("r3", [cell("Body")]),
+          ],
+        },
+      ]);
+      expect(html).toBe(
+        "<table><thead><tr><th><p>H1</p></th></tr><tr><th><p>H2</p></th></tr></thead>" +
+          "<tbody><tr><td><p>Body</p></td></tr></tbody></table>",
+      );
+    });
+
+    it.each([undefined, 0])(
+      "omits thead when headerRows is %s",
+      (headerRows) => {
+        const html = render([
+          {
+            _type: "table",
+            _key: "t1",
+            headerRows,
+            rows: [row("r1", [cell("Only")])],
+          },
+        ]);
+        expect(html).toBe(
+          "<table><tbody><tr><td><p>Only</p></td></tr></tbody></table>",
+        );
+      },
+    );
+
+    it("renders marks inside cells", () => {
+      const html = render([
+        {
+          _type: "table",
+          _key: "t1",
+          headerRows: 0,
+          rows: [
+            row("r1", [
+              {
+                _key: "c1",
+                _type: "cell",
+                value: [
+                  {
+                    _type: "block",
+                    _key: "b1",
+                    style: "normal",
+                    markDefs: [],
+                    children: [
+                      {
+                        _type: "span",
+                        _key: "s1",
+                        text: "1.47 M*",
+                        marks: ["strong"],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ]),
+          ],
+        },
+      ]);
+      expect(html).toContain("<td><p><strong>1.47 M*</strong></p></td>");
+    });
+
+    it("renders links inside cells as absolute URLs", () => {
+      const html = render([
+        {
+          _type: "table",
+          _key: "t1",
+          headerRows: 0,
+          rows: [
+            row("r1", [
+              cell("Recap", [{ _type: "link", _key: "m1", href: "/recap" }]),
+            ]),
+          ],
+        },
+      ]);
+      expect(html).toContain(
+        '<td><p><a href="https://www.redshirtsports.com/recap">Recap</a></p></td>',
+      );
+    });
+
+    it("renders empty rows and cells without a value", () => {
+      const html = render([
+        {
+          _type: "table",
+          _key: "t1",
+          headerRows: 0,
+          rows: [row("r1"), row("r2", [{ _key: "c1", _type: "cell" }])],
+        },
+      ]);
+      expect(html).toBe(
+        "<table><tbody><tr></tr><tr><td></td></tr></tbody></table>",
+      );
+    });
+
+    it("skips tables without rows", () => {
+      expect(render([{ _type: "table", _key: "t1" }])).toBe("");
+      expect(render([{ _type: "table", _key: "t2", rows: [] }])).toBe("");
+    });
   });
 
   it("renders tweets as links to the post", () => {
