@@ -95,13 +95,13 @@ const MemoizedNavbar = memo(function Navbar({
   settingsData: QueryGlobalSeoSettingsResult;
   latestRankings: Top25RankingsData | undefined;
 }) {
-  const { siteTitle: settingsSiteTitle, logo } = settingsData ?? {};
+  const { siteTitle: settingsSiteTitle } = settingsData ?? {};
 
   return (
-    <header className="py-3 md:border-b">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-[auto_1fr] items-center gap-4">
-          {logo && <Logo alt={settingsSiteTitle} priority image={logo} />}
+    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-30 border-b backdrop-blur">
+      <div className="relative">
+        <div className="max-w-site mx-auto flex h-14 items-center gap-3 px-4 lg:h-16 lg:px-6">
+          <Logo alt={settingsSiteTitle} priority />
           <NavbarClient
             navbarData={navbarData}
             settingsData={settingsData}
@@ -117,12 +117,12 @@ export { MemoizedNavbar as Navbar };
 
 export function NavbarSkeleton() {
   return (
-    <header className="h-[65px] py-4 md:border-b">
-      <div className="container mx-auto px-4 md:px-6">
-        <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
-          <div className="bg-muted h-[40px] w-[170px] animate-pulse rounded" />
+    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-30 border-b backdrop-blur">
+      <div className="relative">
+        <div className="max-w-site mx-auto flex h-14 items-center gap-3 px-4 lg:h-16 lg:px-6">
+          <div className="bg-muted h-7 w-36 animate-pulse rounded lg:h-8 lg:w-44" />
           <NavbarSkeletonResponsive />
-        </nav>
+        </div>
       </div>
     </header>
   );

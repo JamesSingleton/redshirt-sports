@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { preconnect, prefetchDNS } from "react-dom";
 
 import { FooterSkeleton } from "@/components/footer";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { NavbarSkeleton } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import {
@@ -15,6 +16,7 @@ import {
   DraftAwareLiveAndEditing,
   DraftAwareNavbar,
 } from "@/components/root-layout-chrome";
+import { SiteTicker } from "@/components/site-ticker";
 import { getRootMetadata } from "@/lib/seo";
 
 export const viewport: Viewport = {
@@ -36,6 +38,7 @@ export default function RootLayout({
       <AnalyticsProvider>
         <body className="flex min-h-screen flex-col font-sans antialiased">
           <Providers>
+            <SiteTicker />
             <Suspense fallback={<NavbarSkeleton />}>
               <DraftAwareNavbar />
             </Suspense>
@@ -43,6 +46,7 @@ export default function RootLayout({
             <Suspense fallback={<FooterSkeleton />}>
               <DraftAwareFooter />
             </Suspense>
+            <MobileBottomNav />
           </Providers>
           <Toaster />
           <Suspense>

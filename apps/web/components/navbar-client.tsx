@@ -7,11 +7,6 @@ import type {
 } from "@redshirt-sports/sanity/types";
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@redshirt-sports/ui/components/collapsible";
-import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
@@ -21,6 +16,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@redshirt-sports/ui/components/navigation-menu";
 import { ScrollArea } from "@redshirt-sports/ui/components/scroll-area";
+import { Separator } from "@redshirt-sports/ui/components/separator";
 import {
   Sheet,
   SheetContent,
@@ -28,17 +24,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@redshirt-sports/ui/components/sheet";
-import { ChevronDown, ChevronRight, Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { StegaBranded } from "next-sanity";
 import { memo, useEffect, useMemo, useState } from "react";
 
-import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Logo } from "./logo";
 import { ModeToggle } from "./mode-toggle";
 import type { Top25RankingsData } from "./navbar";
 import { SearchBar } from "./search-bar";
+
+const BRACKET_CHALLENGE_HREF = "/college/football/bracket-challenge/fcs";
 
 const divisionDisplayNames: Record<string, string> = {
   fbs: "FBS",
@@ -50,370 +47,343 @@ const divisionDisplayNames: Record<string, string> = {
   "mid-major": "Mid-Major",
 };
 
-const MobileNavbar = memo(function MobileNavbar({
-  navbarData,
-  settingsData,
-  latestRankings,
-}: {
-  navbarData: StegaBranded<GlobalNavigationQueryResult>;
-  settingsData: QueryGlobalSeoSettingsResult;
-  latestRankings: Top25RankingsData;
-}) {
-  const { siteTitle, logo } = settingsData ?? {};
-  const [isOpen, setIsOpen] = useState(false);
-  const footballRankings = useMemo(
+type NavbarData = StegaBranded<GlobalNavigationQueryResult>;
+
+const megaLinkClass =
+  "hover:bg-accent hover:text-primary focus:bg-accent focus:text-primary flex items-center gap-4 rounded-md px-3 py-2.5 text-sm leading-none font-semibold transition-colors outline-none select-none";
+
+function useFootballRankings(latestRankings: Top25RankingsData) {
+  return useMemo(
     () =>
       latestRankings.find((sportData) => sportData.sport === "football")
         ?.divisions || [],
     [latestRankings],
   );
+}
 
+function rankingHref(ranking: Top25RankingsData[number]["divisions"][number]) {
+  return `/college/football/rankings/${ranking?.division}/${ranking?.year}/${formatWeekSegment(ranking?.week ?? 0)}`;
+}
+
+function rankingLabel(ranking: Top25RankingsData[number]["divisions"][number]) {
+  const division = ranking?.division;
+  return `${division && divisionDisplayNames[division] ? divisionDisplayNames[division] : division} Football Rankings`;
+}
+
+/** Hamburger + left sheet, visible below `lg`. */
+const MobileNavbar = memo(function MobileNavbar({
+  navbarData,
+  settingsData,
+  latestRankings,
+}: {
+  navbarData: NavbarData;
+  settingsData: QueryGlobalSeoSettingsResult;
+  latestRankings: Top25RankingsData;
+}) {
+  const { siteTitle } = settingsData ?? {};
+  const [isOpen, setIsOpen] = useState(false);
+  const footballRankings = useFootballRankings(latestRankings);
   const path = usePathname();
 
   useEffect(() => {
     setIsOpen(false);
   }, [path]);
 
+  const close = () => setIsOpen(false);
+  const rowLinkClass =
+    "hover:bg-muted flex items-center rounded-md px-3 py-2.5 text-base font-semibold transition-colors";
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <div className="flex justify-end">
-        <SheetTrigger asChild>
-          <Button variant="outline" size="icon">
-            <Menu className="size-5" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </SheetTrigger>
-      </div>
-      <SheetContent className="overflow-y-auto">
-        <SheetHeader>
+      <SheetTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="order-first -ml-2 lg:hidden"
+        >
+          <Menu className="size-5" />
+          <span className="sr-only">Open menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent
+        side="left"
+        className="w-[88vw] max-w-sm gap-0 overflow-y-auto p-0"
+      >
+        <SheetHeader className="border-b px-4 py-3">
           <SheetTitle>
-            {logo && <Logo alt={siteTitle} image={logo} />}
+            <Logo alt={siteTitle} />
           </SheetTitle>
         </SheetHeader>
-        <div className="my-4 flex flex-col gap-4">
-          <div className="border-b px-4 py-3">
-            <SearchBar placeholder="Search articles..." className="w-full" />
-          </div>
-          {navbarData.map((sport) => (
-            <Collapsible key={sport._id}>
-              <CollapsibleTrigger className="hover:bg-muted flex w-full items-center justify-between px-4 py-3 text-left font-medium transition-colors">
-                {sport.name}
-                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-4 pb-2">
-                {sport.groupings.map((grouping) => (
-                  <Collapsible key={grouping?._id}>
-                    <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left font-medium transition-colors">
-                      {grouping?.name} ({grouping?.conferences.length})
-                      <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="px-2 pb-1">
-                      <div className="mt-1 grid grid-cols-1 gap-0.5">
-                        {grouping?.conferences.map((conference) => (
-                          <Link
-                            key={conference._id}
-                            href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}
-                            className="hover:bg-muted block rounded px-2 py-1 transition-colors"
-                            onClick={() => setIsOpen(false)}
-                            prefetch={false}
-                          >
-                            {conference.shortName || conference.name}
-                          </Link>
-                        ))}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
-          ))}
-          {latestRankings && (
-            <Collapsible>
-              <CollapsibleTrigger className="hover:bg-muted flex w-full items-center justify-between px-4 py-3 text-left font-medium transition-colors">
-                Rankings
-                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-4 pb-2">
-                {footballRankings && (
-                  <Collapsible>
-                    <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
-                      College Football
-                      <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="px-2 pb-1">
-                      <div className="mt-1 grid grid-cols-1 gap-0.5">
-                        {footballRankings.map((ranking: any) => (
-                          <Link
-                            key={`${ranking?.division}-${ranking?.year}-${ranking?.week}-mobile`}
-                            href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${formatWeekSegment(ranking?.week ?? 0)}`}
-                            className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
-                            onClick={() => setIsOpen(false)}
-                          >
-                            {divisionDisplayNames[ranking?.division] ??
-                              ranking?.division}{" "}
-                            Football Rankings
-                          </Link>
-                        ))}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                )}
+        <div className="flex flex-col gap-6 px-4 py-5">
+          <SearchBar placeholder="Search articles..." className="w-full" />
 
-                <Collapsible>
-                  <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
-                    Men&apos;s Basketball
-                    <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="px-2 pb-1">
-                    <div className="mt-1 grid grid-cols-1 gap-0.5">
-                      <span className="text-muted-foreground py-1 text-sm">
-                        Coming Soon...
-                      </span>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              </CollapsibleContent>
-            </Collapsible>
+          {navbarData.map((sport) => (
+            <section key={sport._id} aria-label={sport.name ?? undefined}>
+              <h3 className="kicker text-muted-foreground mb-2">
+                {sport.name}
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                {sport.groupings.map((grouping) =>
+                  grouping ? (
+                    <Link
+                      key={grouping._id}
+                      href={`/college/${sport.slug}/news/${grouping.slug}`}
+                      className="hover:border-primary hover:text-primary rounded-md border px-3 py-2.5 text-sm font-semibold transition-colors"
+                      onClick={close}
+                      prefetch={false}
+                    >
+                      {grouping.name}
+                    </Link>
+                  ) : null,
+                )}
+              </div>
+            </section>
+          ))}
+
+          {latestRankings && (
+            <section aria-label="Rankings">
+              <h3 className="kicker text-muted-foreground mb-2">Rankings</h3>
+              <div className="flex flex-col">
+                {footballRankings.map((ranking) => (
+                  <Link
+                    key={`${ranking?.division}-${ranking?.year}-${ranking?.week}-mobile`}
+                    href={rankingHref(ranking)}
+                    className={rowLinkClass}
+                    onClick={close}
+                    prefetch={false}
+                  >
+                    {rankingLabel(ranking)}
+                  </Link>
+                ))}
+              </div>
+            </section>
           )}
 
-          <Link
-            href="/college/news"
-            className="hover:bg-muted flex items-center px-4 py-3 text-base font-medium transition-colors"
-            onClick={() => setIsOpen(false)}
-            prefetch={false}
-          >
-            News
-          </Link>
-          {/* <Link
-            href="/recruiting"
-            className="hover:bg-muted flex items-center px-4 py-3 text-base font-medium transition-colors"
-            onClick={() => setIsOpen(false)}
-            prefetch={false}
-          >
-            Recruiting
-          </Link>
-          <Link
-            href="/transfer-portal"
-            className="hover:bg-muted flex items-center px-4 py-3 text-base font-medium transition-colors"
-            onClick={() => setIsOpen(false)}
-            prefetch={false}
-          >
-            Transfer Portal
-          </Link> */}
+          <section aria-label="More" className="flex flex-col">
+            <Link
+              href={BRACKET_CHALLENGE_HREF}
+              className={rowLinkClass}
+              onClick={close}
+              prefetch={false}
+            >
+              Bracket Challenge
+            </Link>
+            <Link
+              href="/college/news"
+              className={rowLinkClass}
+              onClick={close}
+              prefetch={false}
+            >
+              News
+            </Link>
+            <Link
+              href="/about"
+              className={rowLinkClass}
+              onClick={close}
+              prefetch={false}
+            >
+              About
+            </Link>
+          </section>
         </div>
       </SheetContent>
     </Sheet>
   );
 });
 
+/** Sport mega menus + primary links, visible from `lg`. */
 export const DesktopNavbar = memo(function DesktopNavbar({
   navbarData,
   latestRankings,
 }: {
-  navbarData: StegaBranded<GlobalNavigationQueryResult>;
+  navbarData: NavbarData;
   latestRankings: Top25RankingsData;
 }) {
-  const footballRankings = useMemo(
-    () =>
-      latestRankings.find((sportData) => sportData.sport === "football")
-        ?.divisions || [],
-    [latestRankings],
-  );
+  const footballRankings = useFootballRankings(latestRankings);
 
   return (
-    <div className="grid grid-cols-[1fr_auto] items-center gap-8">
-      <NavigationMenu className="hidden lg:flex">
-        <NavigationMenuList>
-          {navbarData.map((sport) => (
-            <NavigationMenuItem key={sport.slug}>
-              <NavigationMenuTrigger>{sport.name}</NavigationMenuTrigger>
-              <NavigationMenuContent key={sport.slug}>
-                <div className="w-[850px] p-4">
-                  <div className="grid grid-cols-4 gap-6">
-                    {sport.groupings.map((grouping) => {
-                      return (
-                        <div className="space-y-3" key={grouping?._id}>
-                          <h3 className="border-b pb-1 text-base font-medium">
-                            {grouping?.name}
-                          </h3>
-                          <ScrollArea
-                            className="h-[280px] pr-4"
-                            scrollHideDelay={0}
-                            type="always"
-                          >
-                            <div className="space-y-1.5">
-                              {grouping?.conferences.map((conference) => (
-                                <Link
-                                  key={conference._id}
-                                  href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}
-                                  className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
-                                  title={conference.name}
-                                  prefetch={false}
-                                >
-                                  {conference.shortName ?? conference.name}
-                                </Link>
-                              ))}
-                            </div>
-                          </ScrollArea>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          ))}
-
-          {latestRankings && (
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="w-[600px] p-4">
-                  <div className="grid grid-cols-2 gap-6">
-                    {footballRankings && (
-                      <div className="space-y-3">
-                        <h3 className="border-b pb-1 text-base font-medium">
-                          College Football
-                        </h3>
-                        <div className="space-y-1.5">
-                          {footballRankings.map((ranking) => (
+    <NavigationMenu className="hidden lg:flex">
+      <NavigationMenuList>
+        {navbarData.map((sport) => (
+          <NavigationMenuItem key={sport.slug}>
+            <NavigationMenuTrigger className="font-display text-base font-bold tracking-wide uppercase">
+              {sport.name}
+            </NavigationMenuTrigger>
+            <NavigationMenuContent key={sport.slug}>
+              <div className="w-[850px] p-4">
+                <div className="grid grid-cols-4 gap-6">
+                  {sport.groupings.map((grouping) => (
+                    <div className="space-y-3" key={grouping?._id}>
+                      <h3 className="kicker text-primary border-b pb-2">
+                        {grouping?.name}
+                      </h3>
+                      <ScrollArea
+                        className="h-[280px] pr-4"
+                        scrollHideDelay={0}
+                        type="always"
+                      >
+                        <div className="space-y-1">
+                          {grouping?.conferences.map((conference) => (
                             <Link
-                              key={`${ranking?.division}-${ranking?.year}-${ranking?.week}`}
-                              href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${formatWeekSegment(ranking?.week ?? 0)}`}
-                              className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
+                              key={conference._id}
+                              href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}
+                              className={megaLinkClass}
+                              title={conference.name}
+                              prefetch={false}
                             >
-                              {ranking?.division &&
-                              divisionDisplayNames[ranking.division]
-                                ? divisionDisplayNames[ranking.division]
-                                : ranking?.division}{" "}
-                              Football Rankings
+                              {conference.shortName ?? conference.name}
                             </Link>
                           ))}
                         </div>
-                      </div>
-                    )}
-                    <div className="space-y-3">
-                      <h3 className="border-b pb-1 text-base font-medium">
-                        Men&apos;s College Basketball
-                      </h3>
-                      <div className="space-y-1.5">
-                        <span className="text-muted-foreground py-1 text-sm">
-                          Coming Soon...
-                        </span>
-                      </div>
+                      </ScrollArea>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        ))}
+
+        <NavigationMenuItem aria-hidden="true">
+          <Separator orientation="vertical" className="mx-2 h-6" />
+        </NavigationMenuItem>
+
+        {latestRankings && (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className="font-display text-base font-bold tracking-wide uppercase">
+              Rankings
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="w-[600px] p-4">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <h3 className="kicker text-primary border-b pb-2">
+                      College Football
+                    </h3>
+                    <div className="space-y-1">
+                      {footballRankings.map((ranking) => (
+                        <Link
+                          key={`${ranking?.division}-${ranking?.year}-${ranking?.week}`}
+                          href={rankingHref(ranking)}
+                          className={megaLinkClass}
+                          prefetch={false}
+                        >
+                          {rankingLabel(ranking)}
+                        </Link>
+                      ))}
                     </div>
                   </div>
+                  <div className="space-y-3">
+                    <h3 className="kicker text-primary border-b pb-2">
+                      Men&apos;s College Basketball
+                    </h3>
+                    <span className="text-muted-foreground block py-1 text-sm">
+                      Coming Soon...
+                    </span>
+                  </div>
                 </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          )}
-
-          <NavigationMenuItem>
-            <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
-              href="/college/news"
-            >
-              News
-            </NavigationMenuLink>
+              </div>
+            </NavigationMenuContent>
           </NavigationMenuItem>
-          {/* <NavigationMenuItem>
-            <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
-              href="/recruiting"
-            >
-              Recruiting
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
-              href="/transfer-portal"
-            >
-              Transfer Portal
-            </NavigationMenuLink>
-          </NavigationMenuItem> */}
-        </NavigationMenuList>
-      </NavigationMenu>
+        )}
 
-      <div className="flex items-center gap-4 justify-self-end">
-        <SearchBar placeholder="Search articles..." />
-        <ModeToggle />
-      </div>
-    </div>
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            className={`${navigationMenuTriggerStyle()} font-display text-base font-bold tracking-wide uppercase`}
+            href={BRACKET_CHALLENGE_HREF}
+          >
+            Bracket Challenge
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+
+        <NavigationMenuItem className="hidden xl:block">
+          <NavigationMenuLink
+            className={`${navigationMenuTriggerStyle()} font-display text-base font-bold tracking-wide uppercase`}
+            href="/college/news"
+          >
+            News
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+    </NavigationMenu>
   );
 });
 
-const ClientSideNavbar = memo(function ClientSideNavbar({
+function NavbarActions() {
+  return (
+    <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/search" prefetch={false} aria-label="Search">
+          <Search className="size-5" />
+        </Link>
+      </Button>
+      <div className="hidden md:block">
+        <ModeToggle />
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        className="hidden md:inline-flex"
+        asChild
+      >
+        <Link href="/" prefetch={false}>
+          Follow teams
+        </Link>
+      </Button>
+      <Button size="sm" asChild>
+        <Link href="/sign-in" prefetch={false}>
+          Sign in
+        </Link>
+      </Button>
+    </div>
+  );
+}
+
+const ResponsiveNavbar = memo(function ResponsiveNavbar({
   navbarData,
   settingsData,
   latestRankings,
 }: {
-  navbarData: StegaBranded<GlobalNavigationQueryResult>;
+  navbarData: NavbarData;
   settingsData: QueryGlobalSeoSettingsResult;
   latestRankings: Top25RankingsData;
 }) {
-  const isMobile = useIsMobile();
-
-  // Show skeleton during initial render/hydration to prevent mismatch
-  if (isMobile === null) {
-    return <NavbarSkeletonResponsive />;
-  }
-
-  return isMobile ? (
-    <MobileNavbar
-      navbarData={navbarData}
-      settingsData={settingsData}
-      latestRankings={latestRankings}
-    />
-  ) : (
-    <DesktopNavbar navbarData={navbarData} latestRankings={latestRankings} />
+  // Fragment: children participate in the header's flex row alongside <Logo />.
+  return (
+    <>
+      <MobileNavbar
+        navbarData={navbarData}
+        settingsData={settingsData}
+        latestRankings={latestRankings}
+      />
+      <DesktopNavbar navbarData={navbarData} latestRankings={latestRankings} />
+      <NavbarActions />
+    </>
   );
 });
-
-function SkeletonMobileNavbar() {
-  return (
-    <div className="md:hidden">
-      <div className="flex justify-end">
-        <div className="bg-muted h-10 w-10 animate-pulse rounded-md" />
-      </div>
-    </div>
-  );
-}
-
-function SkeletonDesktopNavbar() {
-  return (
-    <div className="hidden w-full grid-cols-[1fr_auto] items-center gap-8 md:grid">
-      <div className="flex max-w-max flex-1 items-center justify-center gap-2">
-        {Array.from({ length: 2 }).map((_, index) => (
-          <div
-            key={`nav-item-skeleton-${index.toString()}`}
-            className="bg-muted h-10 w-32 animate-pulse rounded"
-          />
-        ))}
-      </div>
-
-      <div className="justify-self-end">
-        <div className="flex items-center gap-4">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <div
-              key={`nav-button-skeleton-${index.toString()}`}
-              className="bg-muted h-10 w-32 animate-pulse rounded-[10px]"
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function NavbarSkeletonResponsive() {
   return (
     <>
-      <SkeletonMobileNavbar />
-      <SkeletonDesktopNavbar />
+      <div className="bg-muted order-first -ml-2 size-10 animate-pulse rounded-md lg:hidden" />
+      <div className="hidden items-center gap-2 lg:flex">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={`nav-item-skeleton-${index.toString()}`}
+            className="bg-muted h-9 w-24 animate-pulse rounded"
+          />
+        ))}
+      </div>
+      <div className="ml-auto flex items-center gap-2">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <div
+            key={`nav-button-skeleton-${index.toString()}`}
+            className="bg-muted h-9 w-20 animate-pulse rounded-md"
+          />
+        ))}
+      </div>
     </>
   );
 }
 
-// Export the client navbar directly - now SSR-friendly with proper hydration handling
-export const NavbarClient = ClientSideNavbar;
+export const NavbarClient = ResponsiveNavbar;
