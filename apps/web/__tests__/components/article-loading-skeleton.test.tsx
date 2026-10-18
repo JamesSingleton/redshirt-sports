@@ -6,7 +6,9 @@ describe("ArticlePageSkeleton", () => {
   it("renders loading placeholders and status text", () => {
     render(<ArticlePageSkeleton />);
 
-    expect(screen.getAllByText("Written By").length).toBeGreaterThan(0);
+    expect(
+      document.querySelectorAll('[data-slot="skeleton"]').length,
+    ).toBeGreaterThan(5);
     expect(screen.getByText("Loading article...")).toBeInTheDocument();
   });
 });

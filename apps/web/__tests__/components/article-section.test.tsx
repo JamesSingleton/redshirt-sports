@@ -3,13 +3,6 @@ import type { StegaBranded } from "next-sanity";
 
 import ArticleSection from "@/components/article-section";
 
-vi.mock("@/components/article-card", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => (
-    <div data-testid="article-card">{title}</div>
-  ),
-}));
-
 vi.mock("@/components/format-date", () => ({
   __esModule: true,
   default: ({ dateString }: { dateString: string }) => (
@@ -64,7 +57,7 @@ const articles = [
 ] as unknown as StegaBranded<Parameters<typeof ArticleSection>[0]["articles"]>;
 
 describe("ArticleSection", () => {
-  it("renders the section title, lead story, and remaining cards", () => {
+  it("renders the section title, lead story, and compact stories", () => {
     render(
       <ArticleSection
         title="FBS News"
@@ -84,9 +77,9 @@ describe("ArticleSection", () => {
       "href",
       "/college/football/news/fbs",
     );
-    expect(screen.getByTestId("article-card")).toHaveTextContent(
-      "Secondary Story",
-    );
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Secondary Story" }),
+    ).toBeInTheDocument();
   });
 
   it("applies imageFirst ordering classes", () => {
@@ -99,6 +92,19 @@ describe("ArticleSection", () => {
       />,
     );
 
-    expect(container.querySelector(".md\\:order-2")).toBeInTheDocument();
+    expect(container.querySelector(".lg\\:order-2")).toBeInTheDocument();
+  });
+});
+
+describe("ArticleSection empty", () => {
+  it("renders nothing when there are no articles", () => {
+    const { container } = render(
+      <ArticleSection
+        title="FBS News"
+        slug="/college/football/news/fbs"
+        articles={[] as unknown as typeof articles}
+      />,
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 });

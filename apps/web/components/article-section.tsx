@@ -1,16 +1,11 @@
-import type {
-  Author,
-  QueryLatestCollegeSportsArticlesResult,
-} from "@redshirt-sports/sanity/types";
-import { buttonVariants } from "@redshirt-sports/ui/components/button";
+import type { QueryLatestCollegeSportsArticlesResult } from "@redshirt-sports/sanity/types";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { StegaBranded } from "next-sanity";
 
-import ArticleCard from "@/components/article-card";
-import FormatDate from "@/components/format-date";
-import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
+import { StoryCompact } from "@/components/news/story-compact";
+import { StoryLead } from "@/components/news/story-lead";
 
 interface ArticleSectionProps {
   title: string;
@@ -19,101 +14,57 @@ interface ArticleSectionProps {
   imageFirst?: boolean;
 }
 
+/** Division block on the home page: lead story beside compact stories. */
 export default function ArticleSection({
   title,
   slug,
   articles,
   imageFirst = false,
 }: ArticleSectionProps) {
-  const firstArticle = articles[0]!;
-  const remainingArticles = articles.slice(1)!;
+  const [firstArticle, ...remainingArticles] = articles;
+  if (!firstArticle) return null;
 
   return (
-    <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-      <div className="container">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">{title}</h2>
-          <Link
-            href={slug}
-            className={cn(
-              buttonVariants({ variant: "default" }),
-              "flex items-center space-x-2",
-            )}
-            prefetch={false}
-          >
-            <span className="text-sm">View All</span>
-            <span className="sr-only">the {title}</span>
-            <ChevronRight className="h-4 w-4" />
-          </Link>
+    <section className="mt-10 border-t pt-6">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-display text-2xl font-extrabold uppercase">
+          {title}
+        </h2>
+        <Link
+          href={slug}
+          className="text-primary flex items-center gap-1 text-sm font-semibold hover:underline"
+          prefetch={false}
+        >
+          <span>View All</span>
+          <span className="sr-only">the {title}</span>
+          <ChevronRight className="size-4" aria-hidden />
+        </Link>
+      </div>
+      <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-8">
+        <div className={cn(imageFirst && "lg:order-2")}>
+          <StoryLead
+            story={firstArticle}
+            as="h3"
+            sizes="(max-width: 1024px) 100vw, 60vw"
+          />
         </div>
-        <div className="flex flex-col gap-4 pt-4 md:flex-row">
+        {remainingArticles.length > 0 ? (
           <div
             className={cn(
-              "order-1 md:flex md:w-1/2 md:items-center xl:w-1/3",
-              imageFirst ? "md:order-2" : "md:order-1",
+              "grid content-start gap-4",
+              imageFirst ? "lg:order-1" : "lg:border-l lg:pl-8",
             )}
           >
-            <div className="space-y-2 md:flex-1">
-              <h3 className="text-3xl font-semibold lg:text-4xl">
-                <Link
-                  href={`/${firstArticle.slug}`}
-                  className="hover:underline hover:decoration-2 hover:underline-offset-1"
-                  prefetch={false}
-                >
-                  {firstArticle.title}
-                </Link>
-              </h3>
-              <p className="text-muted-foreground">{firstArticle.excerpt}</p>
-              <div className="text-muted-foreground flex items-center gap-2">
-                <Link
-                  href={`/authors/${firstArticle.authors[0]?.slug}`}
-                  className="text-primary flex items-center gap-2"
-                  prefetch={false}
-                >
-                  <CustomImage
-                    image={firstArticle.authors[0]?.image}
-                    width={32}
-                    height={32}
-                    className="mr-2 size-8 rounded-full"
-                  />
-                  {firstArticle.authors[0]?.name}
-                </Link>
-                {firstArticle.publishedAt && (
-                  <FormatDate dateString={firstArticle.publishedAt} />
-                )}
-              </div>
-            </div>
+            {remainingArticles.map((article) => (
+              <StoryCompact
+                key={article._id}
+                story={article}
+                headingLevel="h3"
+                thumbClassName="grid-cols-[7rem_1fr]"
+              />
+            ))}
           </div>
-          <div
-            className={cn(
-              "md:w-1/2 xl:w-2/3",
-              imageFirst ? "md:order-1" : "md:order-2",
-            )}
-          >
-            <CustomImage
-              image={firstArticle.image}
-              width={720}
-              height={480}
-              className="w-full overflow-hidden rounded-lg shadow-md"
-              mode="cover"
-              priority
-              quality={70}
-              sizes={IMAGE_SIZES.articleInline}
-            />
-          </div>
-        </div>
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {remainingArticles.map((article) => (
-            <ArticleCard
-              title={article.title}
-              date={article.publishedAt}
-              image={article.image}
-              slug={article.slug}
-              author={(article.authors[0] as unknown as Author)?.name}
-              key={article._id}
-            />
-          ))}
-        </div>
+        ) : null}
       </div>
     </section>
   );

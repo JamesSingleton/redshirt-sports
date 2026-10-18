@@ -13,9 +13,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { CollectionPage, WithContext } from "schema-dts";
 
-import ArticleFeed from "@/components/article-feed";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
-import PageHeader from "@/components/page-header";
+import {
+  DivisionChips,
+  FOOTBALL_DIVISION_CHIPS,
+} from "@/components/news/division-chips";
+import { NewsAside } from "@/components/news/news-aside";
+import { NewsFeed } from "@/components/news/news-feed";
+import { NewsPageHeader } from "@/components/news/news-page-header";
+import type { StoryLike } from "@/components/news/story";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
@@ -245,21 +251,50 @@ async function cachedRenderDivisionNewsPage({
     },
   ];
 
+  const stories = news.posts as StoryLike[];
+  const isFootball = sport === "football";
+  const pageStart = (pageIndex - 1) * perPage + 1;
+  const pageEnd = Math.min(pageIndex * perPage, news.totalPosts);
+
   return (
     <>
       <JsonLdScript
         data={collectionPageJsonLd}
         id={`collection-page-${sport}-${division}`}
       />
-      <PageHeader
+      <NewsPageHeader
         title={`${divisionOrSubgroupingName} ${sportInfo?.title} News`}
-        // @ts-expect-error for some reason it's not liking the types
+        kicker={sportInfo?.title ? `College ${sportInfo.title}` : undefined}
         breadcrumbs={breadcrumbItems}
       />
-      <section className="container pb-12">
-        <ArticleFeed articles={news.posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
-      </section>
+      <div className="max-w-site mx-auto px-4 pb-12 lg:px-6">
+        {isFootball ? (
+          <DivisionChips
+            chips={FOOTBALL_DIVISION_CHIPS}
+            activeHref={`/college/${sport}/news/${division}`}
+            className="pt-4"
+          />
+        ) : null}
+        <div className="grid gap-8 pt-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <NewsFeed
+            stories={stories}
+            heading={pageIndex > 1 ? `Page ${pageIndex}` : "Latest"}
+            meta={`Stories ${pageStart}–${pageEnd} of ${news.totalPosts}`}
+            pagination={
+              totalPages > 1 ? (
+                <PaginationControls
+                  totalPosts={news.totalPosts}
+                  className="mt-0"
+                />
+              ) : null
+            }
+          />
+          <NewsAside
+            sport={sport}
+            rankingsDivision={isFootball ? division : undefined}
+          />
+        </div>
+      </div>
     </>
   );
 }

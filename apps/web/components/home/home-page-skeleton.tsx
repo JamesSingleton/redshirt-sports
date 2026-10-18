@@ -1,22 +1,30 @@
 import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
-import { cn } from "@redshirt-sports/ui/lib/utils";
 
-function ArticleCardSkeleton({
-  headingClassName,
-}: {
-  headingClassName?: string;
-}) {
+function StoryRowSkeleton() {
   return (
-    <div className="border-border overflow-hidden rounded-lg border shadow-lg">
-      <Skeleton className="h-48 w-full rounded-none" />
-      <div className="bg-background space-y-2 p-4">
-        <Skeleton className={cn("h-5 w-full", headingClassName)} />
-        <Skeleton className="h-5 w-4/5" />
+    <div className="grid grid-cols-[1fr_7.5rem] gap-4 py-4 sm:grid-cols-[1fr_11rem]">
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-6 w-full" />
+        <Skeleton className="h-6 w-4/5" />
         <div className="flex items-center gap-2 pt-1">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-4 w-1" />
-          <Skeleton className="h-4 w-20" />
+          <Skeleton className="size-5 rounded-full" />
+          <Skeleton className="h-3 w-24" />
         </div>
+      </div>
+      <Skeleton className="aspect-[4/3] w-full rounded-md" />
+    </div>
+  );
+}
+
+function TopStorySkeleton() {
+  return (
+    <div className="grid grid-cols-[6.5rem_1fr] gap-3 pb-4">
+      <Skeleton className="aspect-[4/3] w-full rounded-lg" />
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-5 w-full" />
+        <Skeleton className="h-5 w-3/4" />
       </div>
     </div>
   );
@@ -24,108 +32,69 @@ function ArticleCardSkeleton({
 
 function HeroSkeleton() {
   return (
-    <section className="py-12 sm:py-16 lg:py-20 xl:py-24">
-      <div className="container">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <Skeleton className="aspect-2/1 w-full rounded-lg shadow-md" />
-            <div className="mt-4 space-y-2">
-              <Skeleton className="h-8 w-full lg:h-12" />
-              <Skeleton className="h-8 w-3/4 lg:h-12" />
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="h-5 w-5/6" />
-              <div className="flex items-center gap-2 pt-1">
-                <Skeleton className="size-8 rounded-full" />
-                <Skeleton className="h-4 w-28" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-0 lg:grid-cols-1">
-            <ArticleCardSkeleton />
-            <ArticleCardSkeleton />
+    <section className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-8">
+      <div>
+        <Skeleton className="aspect-[16/9] w-full rounded-xl lg:aspect-[2/1]" />
+        <div className="mt-4 space-y-2">
+          <Skeleton className="h-3 w-20" />
+          <Skeleton className="h-9 w-full lg:h-14" />
+          <Skeleton className="h-9 w-3/4 lg:h-14" />
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-5/6" />
+          <div className="flex items-center gap-2 pt-1">
+            <Skeleton className="size-6 rounded-full" />
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-4 w-24" />
           </div>
         </div>
+      </div>
+      <div className="grid content-start gap-4 lg:border-l lg:pl-8">
+        <Skeleton className="h-3 w-24" />
+        <TopStorySkeleton />
+        <TopStorySkeleton />
+        <TopStorySkeleton />
       </div>
     </section>
   );
 }
 
-function LatestNewsSkeleton() {
+function LatestSkeleton() {
   return (
-    <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-      <div className="container">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-36" />
-          <Skeleton className="h-9 w-24 rounded-md" />
-        </div>
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }, (_, index) => (
-            <ArticleCardSkeleton key={index} />
-          ))}
-        </div>
+    <div>
+      <div className="flex items-center justify-between border-b pb-3">
+        <Skeleton className="h-8 w-28" />
+        <Skeleton className="hidden h-9 w-64 rounded-lg sm:block" />
       </div>
-    </section>
+      <div className="divide-y">
+        {Array.from({ length: 4 }, (_, index) => (
+          <StoryRowSkeleton key={index} />
+        ))}
+      </div>
+    </div>
   );
 }
 
-function ArticleSectionSkeleton({
-  imageFirst = false,
-}: {
-  imageFirst?: boolean;
-}) {
+function AsideSkeleton() {
   return (
-    <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-      <div className="container">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-56" />
-          <Skeleton className="h-9 w-24 rounded-md" />
-        </div>
-        <div className="flex flex-col gap-4 pt-4 md:flex-row">
-          <div
-            className={cn(
-              "order-1 space-y-2 md:flex md:w-1/2 md:items-center xl:w-1/3",
-              imageFirst ? "md:order-2" : "md:order-1",
-            )}
-          >
-            <div className="space-y-2 md:flex-1">
-              <Skeleton className="h-9 w-full lg:h-10" />
-              <Skeleton className="h-9 w-4/5 lg:h-10" />
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="h-5 w-11/12" />
-              <div className="flex items-center gap-2 pt-1">
-                <Skeleton className="size-8 rounded-full" />
-                <Skeleton className="h-4 w-28" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </div>
-          </div>
-          <div
-            className={cn(
-              "md:w-1/2 xl:w-2/3",
-              imageFirst ? "md:order-1" : "md:order-2",
-            )}
-          >
-            <Skeleton className="aspect-3/2 w-full rounded-lg shadow-md" />
-          </div>
-        </div>
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }, (_, index) => (
-            <ArticleCardSkeleton key={index} />
-          ))}
-        </div>
-      </div>
-    </section>
+    <div className="grid content-start gap-6">
+      <Skeleton className="h-96 w-full rounded-xl" />
+      <Skeleton className="h-44 w-full rounded-xl" />
+      <Skeleton className="min-h-[250px] w-full max-w-[300px] rounded-md" />
+    </div>
   );
 }
 
 export default function HomePageSkeleton() {
   return (
-    <>
+    <div className="max-w-site mx-auto px-4 lg:px-6">
       <HeroSkeleton />
-      <LatestNewsSkeleton />
-      <ArticleSectionSkeleton />
-      <ArticleSectionSkeleton imageFirst />
-    </>
+      <div className="my-8 flex justify-center">
+        <Skeleton className="min-h-[90px] w-full max-w-[970px] rounded-md" />
+      </div>
+      <section className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <LatestSkeleton />
+        <AsideSkeleton />
+      </section>
+    </div>
   );
 }

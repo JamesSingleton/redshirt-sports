@@ -48,11 +48,8 @@ vi.mock("@/components/home/hero", () => ({
   default: () => <div data-testid="hero" />,
 }));
 
-vi.mock("@/components/article-card", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => (
-    <div data-testid="article-card">{title}</div>
-  ),
+vi.mock("@/components/home/home-aside", () => ({
+  HomeAside: () => <aside data-testid="home-aside" />,
 }));
 
 vi.mock("@/components/article-section", () => ({
@@ -130,14 +127,17 @@ describe("HomePage", () => {
     render(page);
 
     expect(screen.getByTestId("hero")).toBeInTheDocument();
-    expect(screen.queryByText("Latest News")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Latest" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("home-aside")).toBeInTheDocument();
     expect(screen.getByText("FBS College Football News")).toBeInTheDocument();
     expect(screen.getByText("FCS College Football News")).toBeInTheDocument();
     expect(screen.getByText("Division II Football News")).toBeInTheDocument();
     expect(screen.getByText("Division III Football News")).toBeInTheDocument();
   });
 
-  it("renders the Latest News section and article cards when articles exist", async () => {
+  it("renders the Latest section and story rows when articles exist", async () => {
     const article = {
       _id: "1",
       title: "Test Article",
@@ -157,12 +157,14 @@ describe("HomePage", () => {
     });
     render(page);
 
-    expect(screen.getByText("Latest News")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Latest" })).toBeInTheDocument();
     expect(screen.getByText("Test Article")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /View All/ })).toHaveAttribute(
-      "href",
-      "/college/news",
-    );
+    expect(
+      screen.getByRole("link", { name: /View all stories/ }),
+    ).toHaveAttribute("href", "/college/news");
+    expect(
+      screen.getByRole("link", { name: "FCS" }),
+    ).toHaveAttribute("href", "/college/football/news/fcs");
   });
 
   it("passes hero posts to the Hero component", async () => {
