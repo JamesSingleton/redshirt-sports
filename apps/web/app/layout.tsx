@@ -3,7 +3,6 @@ import "@redshirt-sports/ui/globals.css";
 import { AnalyticsProvider } from "@redshirt-sports/analytics/provider";
 import { Toaster } from "@redshirt-sports/ui/components/sonner";
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { preconnect, prefetchDNS } from "react-dom";
 
@@ -17,16 +16,6 @@ import {
   DraftAwareNavbar,
 } from "@/components/root-layout-chrome";
 import { getRootMetadata } from "@/lib/seo";
-
-const fontSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
-
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-});
 
 export const viewport: Viewport = {
   themeColor: "#E80022",
@@ -45,9 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <AnalyticsProvider>
-        <body
-          className={`${fontSans.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
-        >
+        <body className="flex min-h-screen flex-col font-sans antialiased">
           <Providers>
             <Suspense fallback={<NavbarSkeleton />}>
               <DraftAwareNavbar />

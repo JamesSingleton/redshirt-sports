@@ -5,11 +5,6 @@ const { mockDraftMode } = vi.hoisted(() => ({
   mockDraftMode: vi.fn().mockResolvedValue({ isEnabled: false }),
 }));
 
-vi.mock("next/font/google", () => ({
-  Geist: () => ({ variable: "--font-sans" }),
-  Geist_Mono: () => ({ variable: "--font-mono" }),
-}));
-
 vi.mock("next/headers", () => ({
   draftMode: mockDraftMode,
 }));
