@@ -1,6 +1,7 @@
 import posthog from "posthog-js";
 
 import { keys } from "./keys";
+import { posthogBeforeSend } from "./posthog-before-send";
 
 export const initializeAnalytics = () => {
   const { NEXT_PUBLIC_POSTHOG_KEY, NEXT_PUBLIC_POSTHOG_HOST } = keys();
@@ -10,6 +11,7 @@ export const initializeAnalytics = () => {
   }
 
   posthog.init(NEXT_PUBLIC_POSTHOG_KEY, {
+    before_send: posthogBeforeSend,
     api_host: NEXT_PUBLIC_POSTHOG_HOST,
     defaults: "2026-01-30",
     capture_dead_clicks: true,
