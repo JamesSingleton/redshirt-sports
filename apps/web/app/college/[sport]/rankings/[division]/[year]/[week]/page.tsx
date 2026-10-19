@@ -19,16 +19,15 @@ import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Fragment } from "react";
 import type { Graph } from "schema-dts";
 
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { RankingsFilters } from "@/components/rankings/filters";
 import { RankMovement } from "@/components/rankings/rank-movement";
 import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
-import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
+import { RankingsTabs } from "@/components/rankings/rankings-tabs";
 import { TeamPageLink } from "@/components/rankings/team-page-link";
-import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-skeleton";
 import CustomImage from "@/components/sanity-image";
 import { TOP_25 } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
@@ -246,14 +245,39 @@ async function renderCollegeFootballRankingsPage({
   };
 
   return (
-    <div className="container mx-auto gap-8 px-4 py-8">
+    <div className="max-w-site mx-auto gap-8 px-4 py-8 lg:px-6">
       <JsonLdScript
         data={jsonLd}
         id={`json-ld-${sport}-${division}-${year}-${week}`}
       />
-      <Card>
+      <div>
+        <div className="kicker text-primary">
+          Redshirt Sports Poll · {division.toUpperCase()}
+        </div>
+        <h1 className="font-display mt-1 text-3xl font-extrabold tracking-tight uppercase lg:text-4xl">
+          {year} {titleWeek} Top 25
+        </h1>
+        <p className="text-muted-foreground mt-2 text-sm">
+          {division.toUpperCase()} college football rankings.{" "}
+          <Link
+            href={`/college/${sport}/rankings/methodology`}
+            className="text-primary underline-offset-2 hover:underline"
+            prefetch={false}
+          >
+            Methodology
+          </Link>
+        </p>
+        <RankingsTabs
+          sport={sport}
+          division={division}
+          year={year}
+          week={week}
+          active="poll"
+        />
+      </div>
+      <Card className="mt-6">
         <CardHeader>
-          <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
+          <h2 className="font-display text-xl font-bold tracking-wide uppercase">{`${year} ${titleWeek} ${division.toUpperCase()} Top 25`}</h2>
           <CardDescription>
             Our {division.toUpperCase()} Top 25 uses a point system: 25 points
             for a first-place vote down to 1 point for a 25th-place vote. Total
@@ -391,18 +415,15 @@ async function renderCollegeFootballRankingsPage({
         </CardFooter>
       </Card>
       {top25.length > 0 ? (
-        <Suspense fallback={<VoterBreakdownSkeleton />}>
-          <RankingsVoterBreakdown
-            division={division}
-            year={yearNumber}
-            week={weekNumber}
-            sport={sportParam}
-            consensusRanks={top25.map((team) => ({
-              id: team._id,
-              rank: team.rank as number,
-            }))}
-          />
-        </Suspense>
+        <div className="mt-6">
+          <Link
+            href={`/college/${sport}/rankings/${division}/${year}/${week}/ballots`}
+            className={buttonVariants()}
+            prefetch={false}
+          >
+            See all ballots
+          </Link>
+        </div>
       ) : null}
     </div>
   );
