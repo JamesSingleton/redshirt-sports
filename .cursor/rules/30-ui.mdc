@@ -1,0 +1,17 @@
+---
+description: Tailwind v4 CSS-first + shadcn design-system rules for UI code
+globs: packages/ui/**,apps/*/components/**,apps/*/app/**/*.tsx,**/*.css
+alwaysApply: false
+---
+
+# UI (Tailwind v4 + shadcn)
+
+- Tokens are defined only in `packages/ui/src/styles/globals.css` (`@theme inline`, oklch, light/dark via `.dark`). The reference token set is blueprint §32.4, with the compiled mockup CSS in `docs/mockups/src/app.css`. No `tailwind.config.*` and no hex colors or arbitrary color values in components.
+- Custom utilities use v4 `@utility` (with nested `@variant` for breakpoints) in the shared CSS, not plugins.
+- Add shadcn primitives to `packages/ui/src/components` via `components.json` (see `.agents/skills/shadcn`). App-specific compositions live in `apps/*/components`.
+- Fonts: Barlow Condensed (display), Inter (UI) and Source Serif 4 (article body), via `next/font`.
+- Screens should match the mockups in `docs/mockups/` (open the `.html` files or compare against `docs/mockups/screenshots/*.png`), including the Transfer Portal Tracker (`portal-tracker.html`). The tracker row uses the shared `.portal-grid` in `docs/mockups/src/app.css` (one grid for the header and the rows, switched with container queries).
+- Accessibility: AA contrast for every token pair, visible focus states, semantic lists and tables, `aria-hidden` on decorative icons, and real `<a href="?page=n">` pagination links.
+- Ads reserve their height (CLS ≤ 0.05). No sign-in modals on load. Follow and save prompts respect the prompt budget (§31).
+- Images: use the `SanityImage` wrapper (`sanity-image`), AVIF/WebP, under 200 KB, with explicit dimensions, `priority` only on the LCP hero, and no upscaling.
+- **Poll and ballot pages (v1.7, §32.11–32.11d):** the ballot breakdown opens on the **unfiltered** grid of all voters (no voter pre-selected), with a sticky header row and team column inside one `overflow-auto` container and gold-ring outliers (≥ 8 spots or a top-15 omission, thresholds from config). Show support as "On X of N ballots" (`ballots_listed` of `ballots_counted`), never as a "ballot share" percentage bar. The poll page links to the breakdown with a prominent "See all N ballots" CTA (live voter count) and lists Others receiving votes, Dropped out of the Top 25 (last week's rank) and No longer receiving votes. Use the `rankings-*`, `ballots-*` and `ballots-by-voter-*` screenshots as the visual reference.

@@ -1,0 +1,14 @@
+---
+description: Transfer Portal Tracker (portalEntry, /transfer-portal) status and constraints
+globs: **/*portal*,**/*portal*/**,**/transfer-portal/**
+alwaysApply: false
+---
+
+# Transfer Portal Tracker
+
+Spec: `docs/blueprint/16-transfer-portal-and-recruiting-hubs-article.md` §16.1.
+
+- **Status: in scope, and the uploaded UI is approved (Decision #17).** Build `portalEntry`, GROQ, the zod param parser, canonical/noindex, the cached data function, and the `/transfer-portal` route to match `docs/mockups/portal-tracker.html` (filters, summary cards, and `PortalRow`).
+- **The story link is optional (Decision #16).** Show a Studio warning, not `required()`. The GROQ must not filter on `defined(story->slug.current)`. When `story` is null, the row shows "No story yet".
+- Data comes only from editor-maintained Sanity docs. No external feeds, scrapers, Postgres portal tables, photos, star ratings, grades, NIL or predictions.
+- Example data must be clearly fake ("Example Player A", "Example State").
