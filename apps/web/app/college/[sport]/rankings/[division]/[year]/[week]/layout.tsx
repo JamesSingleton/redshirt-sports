@@ -18,11 +18,11 @@ export default function RankingsWeekLayout({
   }>;
 }) {
   return (
-    <main className="mx-auto max-w-site px-4 lg:px-6">
+    <>
       <Suspense fallback={<RankingsWeekChromeSkeleton />}>
         <RankingsWeekChrome params={params} />
       </Suspense>
       {children}
-    </main>
+    </>
   );
 }

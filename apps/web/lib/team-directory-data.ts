@@ -2,6 +2,10 @@ import {
   queryTeamDirectorySchools,
   queryTeamDirectorySchoolsByIds,
 } from "@redshirt-sports/sanity/queries";
+import type {
+  QueryTeamDirectorySchoolsByIdsResult,
+  QueryTeamDirectorySchoolsResult,
+} from "@redshirt-sports/sanity/types";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { getCachedRankedSchoolSanityIds } from "@/lib/rankings-data";
@@ -39,7 +43,9 @@ export async function getCachedTeamDirectory(): Promise<TeamDirectorySchool[]> {
 
   const byId = new Map<string, TeamDirectorySchool>();
 
-  for (const row of withPosts ?? []) {
+  const schoolsWithPosts = (withPosts ??
+    []) as QueryTeamDirectorySchoolsResult;
+  for (const row of schoolsWithPosts) {
     const mapped = mapTeamDirectorySchool(row);
     if (mapped) {
       byId.set(mapped._id, mapped);
@@ -55,7 +61,9 @@ export async function getCachedTeamDirectory(): Promise<TeamDirectorySchool[]> {
       stega: false,
     });
 
-    for (const row of rankedOnly ?? []) {
+    const rankedSchools = (rankedOnly ??
+      []) as QueryTeamDirectorySchoolsByIdsResult;
+    for (const row of rankedSchools) {
       const mapped = mapTeamDirectorySchool(row);
       if (mapped) {
         byId.set(mapped._id, mapped);

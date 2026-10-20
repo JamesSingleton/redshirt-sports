@@ -1,12 +1,9 @@
 import { formatWeekSegment } from "@redshirt-sports/clients/espn";
-import { sportInfoBySlug } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { RankingsBreadcrumb } from "@/components/rankings/rankings-breadcrumb";
 import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
-import { RankingsTabs } from "@/components/rankings/rankings-tabs";
 import { RankingsVotersPanel } from "@/components/rankings/rankings-voters-panel";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
@@ -15,10 +12,8 @@ import {
   getCachedPollWeekBallotContext,
   getCachedActivePollVoters,
 } from "@/lib/rankings-data";
-import { buildRankingsTabs, rankingsMethodologyHref } from "@/lib/rankings-nav";
+import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
-import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { sportNavLabel } from "@/lib/sport-nav";
 import { voterBallotSlug } from "@/lib/voter-ballot-slug";
 import type { SportParam } from "@/utils/espn";
 
@@ -60,7 +55,6 @@ async function renderVotersPage({
 }) {
   const sportParam = sport as SportParam;
   const divisionName = pollDivisionLabel(division);
-  const rankingsIndexHref = `/college/${sport}/rankings`;
   const methodologyHref = rankingsMethodologyHref(sport, division);
 
   const latest = await getCachedLatestFinalRankings({ division });
@@ -68,15 +62,7 @@ async function renderVotersPage({
     notFound();
   }
 
-  const weekSegment = formatWeekSegment(latest.week);
-  const tabs = buildRankingsTabs({
-    sport,
-    division,
-    year: String(latest.year),
-    weekSegment,
-  });
-
-  const [voters, ballotContext, sportMeta] = await Promise.all([
+  const [voters, ballotContext] = await Promise.all([
     getCachedActivePollVoters({ division, sport: sportParam }),
     getCachedPollWeekBallotContext({
       year: latest.year,
@@ -84,18 +70,9 @@ async function renderVotersPage({
       division,
       sport: sportParam,
     }),
-    sanityFetchPage({
-      query: sportInfoBySlug,
-      params: { slug: sportParam },
-      perspective: "published",
-      stega: false,
-    }),
   ]);
 
-  const sportTitle = sportMeta.data?.title as string | undefined;
-  const sportLabel = sportNavLabel(sportParam, sportTitle ?? sport);
-
-  const weekPath = `/college/${sport}/rankings/${division}/${latest.year}/${weekSegment}`;
+  const weekPath = `/college/${sport}/rankings/${division}/${latest.year}/${formatWeekSegment(latest.week)}`;
   const byVoterHref = `${weekPath}/ballots/by-voter`;
 
   const voterRows = voters.map((row) => {
@@ -127,36 +104,26 @@ async function renderVotersPage({
   ).size;
 
   return (
-    <main className="mx-auto max-w-site px-4 lg:px-6">
-      <div className="pt-5">
-        <RankingsBreadcrumb
-          sport={sport}
-          sportLabel={sportLabel}
-          divisionName={divisionName}
-          rankingsIndexHref={rankingsIndexHref}
-        />
-        <div className="mt-3">
-          <div className="kicker text-primary">
-            Redshirt Sports Poll · {divisionName}
-          </div>
-          <h1 className="font-display text-[2.3rem] font-extrabold uppercase leading-none lg:text-headline-lg">
-            {divisionName} Poll Voters
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {latest.year} panel · {voterRows.length} voters · published by
-            admins each season ·{" "}
-            <Link
-              href={methodologyHref}
-              prefetch={false}
-              className="text-primary underline-offset-2 hover:underline"
-            >
-              Methodology
-            </Link>
-          </p>
+    <>
+      <div className="mt-3">
+        <div className="kicker text-primary">
+          Redshirt Sports Poll · {divisionName}
         </div>
+        <h1 className="font-display text-[2.3rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+          {divisionName} Poll Voters
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {latest.year} panel · {voterRows.length} voters · published by admins
+          each season ·{" "}
+          <Link
+            href={methodologyHref}
+            prefetch={false}
+            className="text-primary underline-offset-2 hover:underline"
+          >
+            Methodology
+          </Link>
+        </p>
       </div>
-
-      <RankingsTabs tabs={tabs} active="voters" />
 
       <RankingsVotersPanel
         voters={voterRows}
@@ -167,6 +134,6 @@ async function renderVotersPage({
         disclosureCount={0}
         methodologyHref={methodologyHref}
       />
-    </main>
+    </>
   );
 }

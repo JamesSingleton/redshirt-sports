@@ -2,9 +2,7 @@ import { formatWeekSegment } from "@redshirt-sports/clients/espn";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { RankingsBreadcrumb } from "@/components/rankings/rankings-breadcrumb";
 import { RankingsMethodologyContent } from "@/components/rankings/rankings-methodology-content";
-import { RankingsTabsNav } from "@/components/rankings/rankings-tabs-nav";
 import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
@@ -67,27 +65,17 @@ async function renderMethodologyPage({
   const weekSegment = formatWeekSegment(shell.weekNumber);
 
   return (
-    <main className="mx-auto max-w-site px-4 lg:px-6">
-      <div className="pt-5">
-        <RankingsBreadcrumb
-          sport={sport}
-          sportLabel={shell.sportLabel}
-          divisionName={shell.divisionName}
-          rankingsIndexHref={shell.rankingsIndexHref}
-        />
-        <div className="mt-3">
-          <div className="kicker text-primary">Redshirt Sports Poll</div>
-          <h1 className="font-display text-[2.3rem] font-extrabold uppercase leading-none lg:text-headline-lg">
-            How the Top 25 works
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Applies to every Redshirt Sports {shell.sportLabel} poll ·{" "}
-            {shell.divisionName} example shown
-          </p>
-        </div>
+    <>
+      <div className="mt-3">
+        <div className="kicker text-primary">Redshirt Sports Poll</div>
+        <h1 className="font-display text-[2.3rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+          How the Top 25 works
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Applies to every Redshirt Sports {shell.sportLabel} poll ·{" "}
+          {shell.divisionName} example shown
+        </p>
       </div>
-
-      <RankingsTabsNav tabs={shell.tabs} active="methodology" />
 
       <RankingsMethodologyContent
         sport={sport}
@@ -101,6 +89,6 @@ async function renderMethodologyPage({
           ballotContext?.voterChips.length ?? ballotContext?.ballotsCounted ?? 0
         }
       />
-    </main>
+    </>
   );
 }
