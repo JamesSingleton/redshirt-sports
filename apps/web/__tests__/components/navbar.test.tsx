@@ -49,7 +49,7 @@ const settingsData = {
 const latestRankings = [{ sport: "football", divisions: [] }];
 
 describe("Navbar", () => {
-  it("renders the logo and client navbar", () => {
+  it("renders the client navbar", () => {
     render(
       <Navbar
         navbarData={navbarData as never}
@@ -58,11 +58,10 @@ describe("Navbar", () => {
       />,
     );
 
-    expect(screen.getByText("Redshirt Sports")).toBeInTheDocument();
     expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
   });
 
-  it("renders without a logo and falls back to empty rankings", () => {
+  it("renders with empty rankings", () => {
     render(
       <Navbar
         navbarData={navbarData as never}
@@ -72,7 +71,6 @@ describe("Navbar", () => {
     );
 
     expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
-    expect(screen.queryByText("Redshirt Sports")).not.toBeInTheDocument();
   });
 });
 

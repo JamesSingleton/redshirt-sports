@@ -14,9 +14,8 @@ import type {
 import type { StegaBranded } from "next-sanity";
 import { memo } from "react";
 
+import { NavbarClient, NavbarSkeletonResponsive } from "@/components/navbar-client";
 import { getCachedNavbarLatestRankings } from "@/lib/rankings-data";
-import { Logo } from "./logo";
-import { NavbarClient, NavbarSkeletonResponsive } from "./navbar-client";
 
 export interface RankingPeriod {
   division: string;
@@ -38,10 +37,6 @@ export async function DynamicNavbarServer() {
   return <CachedNavbarServer perspective={perspective} stega={stega} />;
 }
 
-/**
- * Sanity chrome for the navbar. Separate from rankings so Content Lake
- * revalidation does not re-query Postgres for Top 25 week pointers.
- */
 async function getCachedNavbarSanity({
   perspective,
   stega,
@@ -62,11 +57,6 @@ async function getCachedNavbarSanity({
   return { navbarData, settingsData };
 }
 
-/**
- * Composer (no `"use cache"` here): runs two sibling cache scopes in parallel.
- * Nested `"use cache"` under a parent cache previously deadlocked the shared
- * postgres client while other Suspense boundaries filled.
- */
 export async function CachedNavbarServer({
   perspective,
   stega,
@@ -85,7 +75,6 @@ export async function CachedNavbarServer({
   );
 }
 
-// Memoize the main Navbar component to prevent unnecessary re-renders
 const MemoizedNavbar = memo(function Navbar({
   navbarData,
   settingsData,
@@ -95,13 +84,10 @@ const MemoizedNavbar = memo(function Navbar({
   settingsData: QueryGlobalSeoSettingsResult;
   latestRankings: Top25RankingsData | undefined;
 }) {
-  const { siteTitle: settingsSiteTitle, logo } = settingsData ?? {};
-
   return (
-    <header className="py-3 md:border-b">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-[auto_1fr] items-center gap-4">
-          {logo && <Logo alt={settingsSiteTitle} priority image={logo} />}
+    <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="relative">
+        <div className="mx-auto flex h-14 max-w-site items-center gap-3 px-4 lg:h-16 lg:px-6">
           <NavbarClient
             navbarData={navbarData}
             settingsData={settingsData}
@@ -117,12 +103,10 @@ export { MemoizedNavbar as Navbar };
 
 export function NavbarSkeleton() {
   return (
-    <header className="h-[65px] py-4 md:border-b">
-      <div className="container mx-auto px-4 md:px-6">
-        <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
-          <div className="bg-muted h-[40px] w-[170px] animate-pulse rounded" />
-          <NavbarSkeletonResponsive />
-        </nav>
+    <header className="sticky top-0 z-30 border-b bg-background/95">
+      <div className="mx-auto flex h-14 max-w-site items-center gap-3 px-4 lg:h-16 lg:px-6">
+        <div className="bg-muted h-7 w-[169px] animate-pulse rounded" />
+        <NavbarSkeletonResponsive />
       </div>
     </header>
   );
