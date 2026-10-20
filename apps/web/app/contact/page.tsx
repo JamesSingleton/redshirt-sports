@@ -4,13 +4,16 @@ import {
 } from "@redshirt-sports/sanity/live";
 import { querySettingsData } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
-import type { ContactPage, WithContext } from "schema-dts";
+import type { ContactPage as ContactPageJsonLd, WithContext } from "schema-dts";
 
 import { ContactPageContent } from "@/components/contact/contact-page-content";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl, getSiteEmailDomain } from "@/lib/get-base-url";
-import { fetchGlobalSeoSettings, getPageMetadata } from "@/lib/global-seo-settings";
+import {
+  fetchGlobalSeoSettings,
+  getPageMetadata,
+} from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const baseUrl = getBaseUrl();
 
-const contactPageJsonLd: WithContext<ContactPage> = {
+const contactPageJsonLd: WithContext<ContactPageJsonLd> = {
   "@context": "https://schema.org",
   "@type": "ContactPage",
   "@id": `${baseUrl}/contact`,

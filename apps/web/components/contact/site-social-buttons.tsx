@@ -14,7 +14,7 @@ function labelFromUrl(url: string, network: string): string {
     const host = new URL(url).hostname.replace(/^www\./, "");
     if (network === "twitter") {
       const handle = url.split("/").filter(Boolean).pop();
-      return handle ? `@${handle}` : host;
+      return `@${handle}`;
     }
     return host;
   } catch {

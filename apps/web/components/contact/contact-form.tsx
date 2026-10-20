@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { type ChangeEvent, type FormEvent, useState } from "react";
 
 const TOPICS = [
   "General",
@@ -66,7 +66,10 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor="contact-name">
-              Name <span className="text-primary" aria-hidden>*</span>
+              Name{" "}
+              <span className="text-primary" aria-hidden>
+                *
+              </span>
             </Label>
             <Input
               id="contact-name"
@@ -79,7 +82,10 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="contact-email">
-              Email address <span className="text-primary" aria-hidden>*</span>
+              Email address{" "}
+              <span className="text-primary" aria-hidden>
+                *
+              </span>
             </Label>
             <Input
               id="contact-email"
@@ -94,7 +100,10 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="contact-topic">
-            Topic <span className="text-primary" aria-hidden>*</span>
+            Topic{" "}
+            <span className="text-primary" aria-hidden>
+              *
+            </span>
           </Label>
           <Select
             value={topic}
@@ -131,7 +140,10 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="contact-message">
-            Message <span className="text-primary" aria-hidden>*</span>
+            Message{" "}
+            <span className="text-primary" aria-hidden>
+              *
+            </span>
           </Label>
           <textarea
             id="contact-message"
@@ -146,7 +158,10 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
             aria-describedby="contact-message-hint"
             className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
           />
-          <p id="contact-message-hint" className="text-xs text-muted-foreground">
+          <p
+            id="contact-message-hint"
+            className="text-xs text-muted-foreground"
+          >
             Up to 2,000 characters.
           </p>
         </div>

@@ -3,14 +3,14 @@ import { ListOrdered } from "lucide-react";
 import Link from "next/link";
 
 import { SiteBreadcrumb } from "@/components/chrome/site-breadcrumb";
+import { SiteSocialButtons } from "@/components/contact/site-social-buttons";
 import { MostReadCard } from "@/components/most-read-card";
 import { ArchivePublishedTime } from "@/components/news/archive-published-time";
+import PaginationControls from "@/components/pagination-controls";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
-import { SiteSocialButtons } from "@/components/contact/site-social-buttons";
+import { perPage } from "@/lib/constants";
 import type { MostReadItem } from "@/lib/most-read-data";
 import { postArchiveKicker } from "@/lib/news-archive";
-import PaginationControls from "@/components/pagination-controls";
-import { perPage } from "@/lib/constants";
 
 type PersonAuthor = {
   name: string;
@@ -91,7 +91,11 @@ export function PersonPageContent({
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {voterBallotHref && voterBallotLabel ? (
-                <Button size="sm" className="h-7 gap-1.5 px-2.5 text-xs" asChild>
+                <Button
+                  size="sm"
+                  className="h-7 gap-1.5 px-2.5 text-xs"
+                  asChild
+                >
                   <Link href={voterBallotHref} prefetch={false}>
                     <ListOrdered className="size-3.5" aria-hidden />
                     {voterBallotLabel}
@@ -200,7 +204,9 @@ export function PersonPageContent({
                     >
                       <CustomImage
                         image={
-                          post.image as Parameters<typeof CustomImage>[0]["image"]
+                          post.image as Parameters<
+                            typeof CustomImage
+                          >[0]["image"]
                         }
                         width={144}
                         height={108}

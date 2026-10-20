@@ -99,15 +99,12 @@ export function RankingsHistoryWeekMatrix({
       </div>
       <div
         className="isolate max-h-[min(70vh,38rem)] w-full max-w-full overflow-auto overscroll-contain"
-        tabIndex={0}
         aria-label="Week-by-week rankings table, scrollable"
       >
         <table className="w-max border-collapse text-sm">
           <thead>
             <tr className="border-b">
-              <th
-                className="sticky top-0 left-0 z-50 border-r bg-card p-2 text-left text-[10px] uppercase tracking-wide text-muted-foreground shadow-[4px_0_6px_-4px_rgba(0,0,0,0.25)]"
-              >
+              <th className="sticky top-0 left-0 z-50 border-r bg-card p-2 text-left text-[10px] uppercase tracking-wide text-muted-foreground shadow-[4px_0_6px_-4px_rgba(0,0,0,0.25)]">
                 Team
               </th>
               {activeSeason.weeks.map((week, weekIndex) => (
@@ -141,47 +138,45 @@ export function RankingsHistoryWeekMatrix({
           </thead>
           <tbody>
             {rows.map((team) => (
-                <tr key={team.teamId} className="group border-b">
+              <tr key={team.teamId} className="group border-b">
+                <td className="sticky left-0 z-30 border-r bg-card px-3 py-1 shadow-[4px_0_6px_-4px_rgba(0,0,0,0.2)] group-hover:bg-muted">
+                  <div className="relative z-10 flex w-36 max-w-[9rem] items-center gap-2 bg-inherit sm:w-40 sm:max-w-none">
+                    <TeamPageLink
+                      slug={team.teamSlug}
+                      className="truncate text-[13px] font-semibold hover:underline"
+                    >
+                      {team.teamShortName}
+                    </TeamPageLink>
+                  </div>
+                </td>
+                {team.ranks.map((rank, weekIndex) => (
                   <td
-                    className="sticky left-0 z-30 border-r bg-card px-3 py-1 shadow-[4px_0_6px_-4px_rgba(0,0,0,0.2)] group-hover:bg-muted"
+                    key={`${team.teamId}-${weekIndex}`}
+                    className="relative z-0 p-0.5"
                   >
-                    <div className="relative z-10 flex w-36 max-w-[9rem] items-center gap-2 bg-inherit sm:w-40 sm:max-w-none">
-                      <TeamPageLink
-                        slug={team.teamSlug}
-                        className="truncate text-[13px] font-semibold hover:underline"
-                      >
-                        {team.teamShortName}
-                      </TeamPageLink>
+                    <div
+                      className={`mx-auto flex h-7 w-9 items-center justify-center rounded-sm text-[11px] tabular sm:w-10 ${rankCellClass(rank)}`}
+                      title={
+                        rank != null
+                          ? `${team.teamShortName} · ${activeSeason.weeks[weekIndex]?.weekLabel}: #${rank}`
+                          : undefined
+                      }
+                    >
+                      {rank ?? "–"}
                     </div>
                   </td>
-                  {team.ranks.map((rank, weekIndex) => (
-                    <td
-                      key={`${team.teamId}-${weekIndex}`}
-                      className="relative z-0 p-0.5"
-                    >
-                      <div
-                        className={`mx-auto flex h-7 w-9 items-center justify-center rounded-sm text-[11px] tabular sm:w-10 ${rankCellClass(rank)}`}
-                        title={
-                          rank != null
-                            ? `${team.teamShortName} · ${activeSeason.weeks[weekIndex]?.weekLabel}: #${rank}`
-                            : undefined
-                        }
-                      >
-                        {rank ?? "–"}
-                      </div>
-                    </td>
-                  ))}
-                  <td className="px-2 text-center text-xs tabular">
-                    {team.high ?? "–"}
-                  </td>
-                  <td className="px-2 text-center text-xs tabular text-muted-foreground">
-                    {team.low ?? "–"}
-                  </td>
-                  <td className="px-2 pr-4 text-center text-xs tabular text-muted-foreground">
-                    {team.weeksRanked}
-                  </td>
-                </tr>
-              ))}
+                ))}
+                <td className="px-2 text-center text-xs tabular">
+                  {team.high ?? "–"}
+                </td>
+                <td className="px-2 text-center text-xs tabular text-muted-foreground">
+                  {team.low ?? "–"}
+                </td>
+                <td className="px-2 pr-4 text-center text-xs tabular text-muted-foreground">
+                  {team.weeksRanked}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -192,9 +187,11 @@ export function RankingsHistoryWeekMatrix({
           appeared in the Top 25.
         </span>{" "}
         Team names link to the team hub at{" "}
-        <span className="font-mono text-foreground/80">/college/teams/[slug]</span>{" "}
-        when a profile exists. Scroll
-        inside the table to see more teams and weeks.
+        <span className="font-mono text-foreground/80">
+          /college/teams/[slug]
+        </span>{" "}
+        when a profile exists. Scroll inside the table to see more teams and
+        weeks.
       </p>
     </div>
   );

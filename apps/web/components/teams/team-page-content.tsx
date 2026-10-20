@@ -63,7 +63,6 @@ export function TeamPageContent({
     rankingHistory.polls,
     footballDivisionSlug,
   );
-  const footballPosts = postsBySport.get("football") ?? [];
 
   const jumpLinks = [
     { id: "latest", label: "Latest" },

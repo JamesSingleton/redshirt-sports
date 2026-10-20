@@ -99,7 +99,7 @@ describe("AboutPage", () => {
       screen.getByRole("heading", { name: /Every level of college sports/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/Our mission/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Jane Author" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Jane Author/i })).toHaveAttribute(
       "href",
       "/people/jane-author",
     );
@@ -107,6 +107,13 @@ describe("AboutPage", () => {
       "href",
       "/contact",
     );
+  });
+
+  it("renders when authors data is null", async () => {
+    mockSanityFetchPage.mockResolvedValue({ data: null });
+    const page = await AboutPage();
+    render(page as ReactNode);
+    expect(screen.getByText("Our staff")).toBeInTheDocument();
   });
 
   it("renders authors without roles", async () => {

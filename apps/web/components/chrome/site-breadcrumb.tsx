@@ -15,7 +15,10 @@ export function SiteBreadcrumb({ items }: { items: SiteBreadcrumbItem[] }) {
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
         return (
-          <span key={`${item.label}-${index}`} className="inline-flex items-center gap-1">
+          <span
+            key={`${item.label}-${index}`}
+            className="inline-flex items-center gap-1"
+          >
             {index > 0 ? (
               <ChevronRight className="size-3 shrink-0" aria-hidden />
             ) : null}
@@ -24,7 +27,11 @@ export function SiteBreadcrumb({ items }: { items: SiteBreadcrumbItem[] }) {
                 {item.label}
               </span>
             ) : (
-              <Link href={item.href} prefetch={false} className="hover:text-foreground">
+              <Link
+                href={item.href}
+                prefetch={false}
+                className="hover:text-foreground"
+              >
                 {item.label}
               </Link>
             )}

@@ -30,7 +30,7 @@ export async function generateMetadata({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string | string[] }>;
 }): Promise<Metadata> {
   const { slug } = await params;
   const { page } = await searchParams;
@@ -78,7 +78,7 @@ export default function Page({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string | string[] }>;
 }) {
   return searchParamsPage(null, () =>
     renderPersonPage({ params, searchParams }),
@@ -90,7 +90,7 @@ async function renderPersonPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string | string[] }>;
 }) {
   const [{ slug }, { page }] = await Promise.all([params, searchParams]);
   const pageIndex = validatePageIndex(page);
@@ -115,21 +115,23 @@ async function cachedRenderPersonPage({
   const to = pageIndex * perPage;
   const profileUrl = `${baseUrl}${personHref(slug)}`;
 
-  const [{ data: author }, { data: authorPosts }, mostRead] = await Promise.all([
-    sanityFetchPage({
-      query: authorBySlug,
-      params: { slug },
-      perspective,
-      stega,
-    }),
-    sanityFetchPage({
-      query: postsByAuthor,
-      params: { slug, from, to },
-      perspective,
-      stega,
-    }),
-    getCachedMostReadPosts(),
-  ]);
+  const [{ data: author }, { data: authorPosts }, mostRead] = await Promise.all(
+    [
+      sanityFetchPage({
+        query: authorBySlug,
+        params: { slug },
+        perspective,
+        stega,
+      }),
+      sanityFetchPage({
+        query: postsByAuthor,
+        params: { slug, from, to },
+        perspective,
+        stega,
+      }),
+      getCachedMostReadPosts(),
+    ],
+  );
 
   if (!author) {
     notFound();
@@ -238,7 +240,9 @@ async function cachedRenderPersonPage({
             publishedAt: post.publishedAt,
             image: post.image,
             sport:
-              post.sport && typeof post.sport === "object" && "slug" in post.sport
+              post.sport &&
+              typeof post.sport === "object" &&
+              "slug" in post.sport
                 ? {
                     slug: (post.sport as { slug?: string | null }).slug ?? null,
                     title:
@@ -248,7 +252,8 @@ async function cachedRenderPersonPage({
             division:
               post.division && typeof post.division === "object"
                 ? {
-                    name: (post.division as { name?: string | null }).name ?? null,
+                    name:
+                      (post.division as { name?: string | null }).name ?? null,
                   }
                 : null,
             sportSubgrouping:
@@ -258,8 +263,8 @@ async function cachedRenderPersonPage({
                       (post.sportSubgrouping as { shortName?: string | null })
                         .shortName ?? null,
                     name:
-                      (post.sportSubgrouping as { name?: string | null }).name ??
-                      null,
+                      (post.sportSubgrouping as { name?: string | null })
+                        .name ?? null,
                   }
                 : null,
             tags: Array.isArray(post.tags)

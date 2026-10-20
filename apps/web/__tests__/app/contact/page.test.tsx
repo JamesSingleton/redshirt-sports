@@ -73,6 +73,34 @@ describe("ContactPage", () => {
     );
   });
 
+  it("falls back to contact@ domain email when settings email is blank", async () => {
+    mockSanityFetchPage.mockResolvedValueOnce({
+      data: { contactEmail: "   " },
+    });
+    const page = await ContactPage();
+    render(page as ReactNode);
+
+    const emailLinks = screen.getAllByRole("link", {
+      name: /contact@redshirtsports\.com/i,
+    });
+    expect(emailLinks[0]).toHaveAttribute(
+      "href",
+      expect.stringContaining("mailto:contact@redshirtsports.com"),
+    );
+  });
+
+  it("renders social follow section when seo settings include links", async () => {
+    mockFetchGlobalSeoSettings.mockResolvedValueOnce({
+      socialLinks: { twitter: "https://twitter.com/redshirt" },
+    });
+    const page = await ContactPage();
+    render(page as ReactNode);
+
+    expect(
+      screen.getByRole("heading", { name: /Follow Redshirt Sports/i }),
+    ).toBeInTheDocument();
+  });
+
   it("renders contact sections with email from settings", async () => {
     const page = await ContactPage();
     render(page as ReactNode);

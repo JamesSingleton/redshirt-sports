@@ -3,9 +3,9 @@ import Link from "next/link";
 
 import { SiteBreadcrumb } from "@/components/chrome/site-breadcrumb";
 import CustomImage from "@/components/sanity-image";
+import { getSiteEmailDomain } from "@/lib/get-base-url";
 import { personHref } from "@/lib/person-href";
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
-import { getSiteEmailDomain } from "@/lib/get-base-url";
 
 const COVERAGE = [
   {
@@ -46,7 +46,9 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
 
   return (
     <main id="main" className="mx-auto max-w-site px-4 pt-5 lg:px-6">
-      <SiteBreadcrumb items={[{ label: "Home", href: "/" }, { label: "About" }]} />
+      <SiteBreadcrumb
+        items={[{ label: "Home", href: "/" }, { label: "About" }]}
+      />
 
       <section className="border-b pb-10 pt-6" data-block="hero">
         <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
@@ -56,9 +58,9 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
               Every level of college sports
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
-              Independent coverage for fans of the programs the big outlets skip:
-              FCS, Division II, Division III and mid-major basketball, plus a
-              transparent, fan-readable Top 25.
+              Independent coverage for fans of the programs the big outlets
+              skip: FCS, Division II, Division III and mid-major basketball,
+              plus a transparent, fan-readable Top 25.
             </p>
           </div>
           <div
@@ -79,9 +81,9 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
             Our mission
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Redshirt Sports covers college athletics at all levels with reporting,
-            analysis and rankings, and publishes every poll ballot so readers can
-            see exactly how the Top 25 is made.
+            Redshirt Sports covers college athletics at all levels with
+            reporting, analysis and rankings, and publishes every poll ballot so
+            readers can see exactly how the Top 25 is made.
           </p>
         </div>
       </section>
@@ -112,9 +114,9 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
               The Top 25, in the open
             </h2>
             <p className="mt-2 max-w-2xl text-muted-foreground">
-              An invite-only panel of media who cover the sport votes each week, 25
-              points for first down to 1 for 25th. Every ballot is published with
-              the poll.
+              An invite-only panel of media who cover the sport votes each week,
+              25 points for first down to 1 for 25th. Every ballot is published
+              with the poll.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -149,7 +151,9 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
                 className="group flex h-full flex-col items-center rounded-xl border bg-card p-4 text-center hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 <CustomImage
-                  image={author.image as Parameters<typeof CustomImage>[0]["image"]}
+                  image={
+                    author.image as Parameters<typeof CustomImage>[0]["image"]
+                  }
                   width={96}
                   height={96}
                   className="size-24 rounded-full object-cover object-top"
@@ -181,7 +185,9 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
           </div>
           <div className="flex flex-wrap items-center gap-2 md:justify-end">
             <Button asChild>
-              <Link href="/contact" prefetch={false}>Contact us</Link>
+              <Link href="/contact" prefetch={false}>
+                Contact us
+              </Link>
             </Button>
             <Button
               variant="outline"

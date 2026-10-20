@@ -58,7 +58,9 @@ export function ContactPageContent({
 
   return (
     <main id="main" className="mx-auto max-w-site px-4 pt-5 lg:px-6">
-      <SiteBreadcrumb items={[{ label: "Home", href: "/" }, { label: "Contact" }]} />
+      <SiteBreadcrumb
+        items={[{ label: "Home", href: "/" }, { label: "Contact" }]}
+      />
 
       <section className="border-b pb-10 pt-6" data-block="hero">
         <div className="max-w-3xl">
@@ -67,8 +69,8 @@ export function ContactPageContent({
             Get in touch
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Tips, corrections, partnerships or poll questions: here&apos;s how to
-            reach the Redshirt Sports team.
+            Tips, corrections, partnerships or poll questions: here&apos;s how
+            to reach the Redshirt Sports team.
           </p>
         </div>
       </section>
@@ -111,9 +113,12 @@ export function ContactPageContent({
             </h2>
             <ul className="grid gap-2 text-sm text-muted-foreground">
               <li>
-                Corrections: include the article link and what should change. See
-                our{" "}
-                <Link href="/legal/corrections" className="text-primary underline">
+                Corrections: include the article link and what should change.
+                See our{" "}
+                <Link
+                  href="/legal/corrections"
+                  className="text-primary underline"
+                >
                   corrections policy
                 </Link>
                 .

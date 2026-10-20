@@ -123,6 +123,16 @@ describe("PersonPage", () => {
     mockNotFound.mockClear();
   });
 
+  it("generateMetadata calls notFound when author is missing", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({ data: null });
+    await expect(
+      generateMetadata({
+        params: Promise.resolve({ slug: "missing" }),
+        searchParams: Promise.resolve({}),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
   it("generateMetadata uses /people canonical URLs", async () => {
     mockSanityFetchMetadata.mockResolvedValue({ data: sampleAuthor });
     await generateMetadata({
@@ -137,6 +147,35 @@ describe("PersonPage", () => {
     );
   });
 
+  it("generateMetadata ignores non-string page search params", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({ data: sampleAuthor });
+    await generateMetadata({
+      params: Promise.resolve({ slug: "jane-author" }),
+      searchParams: Promise.resolve({ page: ["2"] }),
+    });
+    expect(mockGetPageMetadata).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "/people/jane-author",
+      }),
+      "published",
+    );
+  });
+
+  it("generateMetadata ignores invalid page values", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({ data: sampleAuthor });
+    await generateMetadata({
+      params: Promise.resolve({ slug: "jane-author" }),
+      searchParams: Promise.resolve({ page: "not-a-page" }),
+    });
+    expect(mockGetPageMetadata).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "/people/jane-author",
+        title: expect.not.stringContaining("Page"),
+      }),
+      "published",
+    );
+  });
+
   it("redirects page=1 to canonical person URL", async () => {
     await expect(
       PersonPage({
@@ -144,6 +183,28 @@ describe("PersonPage", () => {
         searchParams: Promise.resolve({ page: "1" }),
       }),
     ).rejects.toThrow("NEXT_REDIRECT:/people/jane-author");
+  });
+
+  it("renders json-ld when biography and social links are absent", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({
+        data: {
+          ...sampleAuthor,
+          biography: null,
+          image: {},
+          socialLinks: null,
+        },
+      })
+      .mockResolvedValueOnce({ data: undefined });
+
+    const page = await PersonPage({
+      params: Promise.resolve({ slug: "jane-author" }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page as ReactNode);
+
+    expect(screen.getByTestId("json-ld")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "About" })).toBeInTheDocument();
   });
 
   it("renders author profile and article list", async () => {
@@ -176,6 +237,68 @@ describe("PersonPage", () => {
     expect(screen.getByText("Covers college football.")).toBeInTheDocument();
     expect(screen.getByText("Latest Story")).toBeInTheDocument();
     expect(screen.getByTestId("social-buttons")).toBeInTheDocument();
+  });
+
+  it("calls notFound when author is missing at render time", async () => {
+    mockSanityFetchPage.mockResolvedValue({ data: null });
+    await expect(
+      PersonPage({
+        params: Promise.resolve({ slug: "missing" }),
+        searchParams: Promise.resolve({}),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("maps nested post fields and drops posts without slugs", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({ data: sampleAuthor })
+      .mockResolvedValueOnce({
+        data: {
+          posts: [
+            { _id: "skip", title: "Skip", slug: "" },
+            {
+              _id: "rich",
+              title: "Rich Story",
+              slug: "rich-story",
+              publishedAt: "2026-02-01",
+              sport: { slug: "football", title: "Football" },
+              division: { name: "FCS" },
+              sportSubgrouping: { shortName: "SoCon", name: "Southern" },
+              tags: [{ name: "News" }, "invalid", null],
+              storyType: "feature",
+            },
+            {
+              _id: "sparse",
+              title: "Sparse Story",
+              slug: "sparse-story",
+              sport: { title: "Football" },
+              division: "FCS",
+              sportSubgrouping: null,
+              tags: "not-array",
+            },
+            {
+              _id: "nullish",
+              title: "Nullish Story",
+              slug: "nullish-story",
+              sport: { slug: null, title: null },
+              division: { name: null },
+              sportSubgrouping: { shortName: null, name: null },
+              tags: [{ name: null }],
+            },
+          ],
+          totalPosts: 2,
+        },
+      });
+
+    const page = await PersonPage({
+      params: Promise.resolve({ slug: "jane-author" }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page as ReactNode);
+
+    expect(screen.getByText("Rich Story")).toBeInTheDocument();
+    expect(screen.getByText("Sparse Story")).toBeInTheDocument();
+    expect(screen.queryByText("Skip")).not.toBeInTheDocument();
   });
 
   it("renders staff layout when there are no posts", async () => {
