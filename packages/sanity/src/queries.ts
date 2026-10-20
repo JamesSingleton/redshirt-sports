@@ -443,6 +443,23 @@ export const queryLatestArticles = defineQuery(/* groq */ `
   }
 `);
 
+/** Headlines for the Most read rail (full fields resolved after PostHog slug ranking). */
+export const queryPostsBySlugs = defineQuery(/* groq */ `
+  *[_type == "post" && slug.current in $slugs]{
+    _id,
+    title,
+    "slug": slug.current
+  }
+`);
+
+export const queryMostReadFallbackPosts = defineQuery(/* groq */ `
+  *[_type == "post"] | order(publishedAt desc)[0...5]{
+    _id,
+    title,
+    "slug": slug.current
+  }
+`);
+
 export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
   *[_type == "post" && (division->name == $division || sportSubgrouping->name == $division) && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{
     _id,
