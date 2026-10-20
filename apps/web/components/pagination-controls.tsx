@@ -9,14 +9,17 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@redshirt-sports/ui/components/pagination";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { perPage } from "@/lib/constants";
 
 export default function PaginationControls({
   totalPosts,
+  className,
 }: {
   totalPosts: number;
+  className?: string;
 }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -60,7 +63,7 @@ export default function PaginationControls({
     totalPages > 3 && (currentPage < totalPages - 1 || currentPage > 2);
 
   return (
-    <Pagination className="mt-12">
+    <Pagination className={cn("mt-12", className)}>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious

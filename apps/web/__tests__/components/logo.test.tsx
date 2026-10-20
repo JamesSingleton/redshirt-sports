@@ -7,10 +7,15 @@ vi.mock("next/link", () => ({
   default: ({
     children,
     href,
+    ...props
   }: {
     children: React.ReactNode;
     href: string;
-  }) => <a href={href}>{children}</a>,
+  } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("next/image", () => ({
@@ -59,7 +64,7 @@ describe("Logo", () => {
     );
   });
 
-  it("renders a fallback Next image when no Sanity image is provided", () => {
+  it("renders a fallback Next image when src is provided", () => {
     render(<Logo src="https://example.com/logo.svg" alt="Fallback logo" />);
 
     expect(screen.getByRole("img", { name: "Fallback logo" })).toHaveAttribute(
@@ -68,10 +73,13 @@ describe("Logo", () => {
     );
   });
 
-  it("uses the default logo URL when src is omitted", () => {
+  it("renders the display wordmark when src and image are omitted", () => {
     render(<Logo alt={null} />);
 
-    const img = screen.getByRole("img", { name: "logo" });
-    expect(img.getAttribute("src")).toContain("cdn.sanity.io");
+    expect(
+      screen.getByRole("link", { name: "Redshirt Sports home" }),
+    ).toHaveAttribute("href", "/");
+    expect(screen.getByText("Redshirt")).toBeInTheDocument();
+    expect(screen.getByText("Sports")).toBeInTheDocument();
   });
 });

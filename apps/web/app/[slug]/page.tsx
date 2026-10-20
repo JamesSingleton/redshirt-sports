@@ -9,21 +9,24 @@ import {
   queryPostSlugData,
 } from "@redshirt-sports/sanity/queries";
 import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
-import { badgeVariants } from "@redshirt-sports/ui/components/badge";
-import { CameraIcon } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { toPlainText } from "next-sanity";
 
-import ArticleCard from "@/components/article-card";
+import { ArticleAside } from "@/components/article/article-aside";
+import { ArticleByline } from "@/components/article/article-byline";
+import { ArticleHeroImage } from "@/components/article/article-hero-image";
+import {
+  type ArticleTagLink,
+  ArticleTags,
+} from "@/components/article/article-tags";
+import { FollowTeamCta } from "@/components/article/follow-team-cta";
+import { UpNext } from "@/components/article/up-next";
 import ArticleLoadingSkeleton from "@/components/article-loading-skeleton";
-import FormatDate from "@/components/format-date";
 import { buildSafeImageUrl, PostPageJsonLd } from "@/components/json-ld";
-import { LargeArticleSocialShare } from "@/components/posts/article-share";
-import { AuthorSection, MobileAuthorSection } from "@/components/posts/author";
+import { BreadcrumbTrail } from "@/components/news/breadcrumb-trail";
+import type { StoryLike } from "@/components/news/story";
 import { RichText } from "@/components/rich-text";
-import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { getArticleTagNames } from "@/lib/article-seo";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
@@ -116,6 +119,58 @@ async function renderPostPage(
     notFound();
   }
 
+  const plainText = toPlainText(data.body);
+  const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+  const readingMinutes = Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
+
+  const sportSlug = data.sport?.slug;
+  const sportTitle = data.sport?.title;
+  const usesSubgrouping = data.division?.name === "D1" && data.sportSubgrouping;
+  const divisionSlug = usesSubgrouping
+    ? data.sportSubgrouping?.slug
+    : data.division?.slug;
+  const divisionLabel = usesSubgrouping
+    ? data.sportSubgrouping?.shortName
+    : data.division?.name;
+
+  const breadcrumbs = [
+    sportSlug && sportTitle
+      ? { title: sportTitle, href: `/college/${sportSlug}/news` }
+      : null,
+    sportSlug && divisionSlug && divisionLabel
+      ? {
+          title: divisionLabel,
+          href: `/college/${sportSlug}/news/${divisionSlug}`,
+        }
+      : null,
+  ].filter((crumb) => crumb !== null);
+
+  const conferenceTags: ArticleTagLink[] =
+    sportSlug && data.conferences
+      ? data.conferences.map((conference) => {
+          const matchingAffiliation =
+            conference.sportSubdivisionAffiliations?.find(
+              (affiliation) => affiliation.sport._id === data.sport?._id,
+            );
+          const divisionPathSegment =
+            matchingAffiliation?.subgrouping.slug || conference.division.slug;
+
+          return {
+            label: conference.shortName ?? conference.name,
+            href: `/college/${sportSlug}/news/${divisionPathSegment}/${conference.slug}`,
+          };
+        })
+      : [];
+  const topicTags: ArticleTagLink[] = (data.tags ?? []).map((tag) => ({
+    label: tag.name,
+  }));
+
+  const kicker = [divisionLabel, sportTitle].filter(Boolean).join(" · ");
+  const relatedStories = (data.relatedPosts ?? []) as StoryLike[];
+  const [upNext, ...moreRelated] = relatedStories;
+  const followName =
+    data.teams?.[0]?.shortName ?? data.teams?.[0]?.name ?? sportTitle;
+
   return (
     <>
       <PostPageJsonLd
@@ -125,143 +180,56 @@ async function renderPostPage(
           logo: buildSafeImageUrl(settings?.logo),
         }}
       />
-      <section className="mt-8 pb-8">
-        <div className="container">
-          <h1
-            id="article-title"
-            className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl"
-          >
-            {data.title}
-          </h1>
-          <p
-            id="article-excerpt"
-            className="mt-4 text-lg font-normal lg:text-xl"
-          >
-            {data.excerpt}
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            {data.sport &&
-              (data.division || data.sportSubgrouping || data.conferences) && (
-                <div className="flex flex-wrap items-center gap-3">
-                  <Link
-                    href={`/college/${data.sport.slug}/news`}
-                    className={badgeVariants({ variant: "default" })}
-                    prefetch={false}
-                  >
-                    {data.sport.title}
-                  </Link>
-
-                  {data.division && (
-                    <Link
-                      href={`/college/${data.sport.slug}/news/${
-                        data.division.name === "D1" && data.sportSubgrouping
-                          ? data.sportSubgrouping.slug
-                          : data.division.slug
-                      }`}
-                      className={badgeVariants({ variant: "default" })}
-                      prefetch={false}
-                    >
-                      {data.division.name === "D1" && data.sportSubgrouping
-                        ? data.sportSubgrouping.shortName
-                        : data.division.name}
-                    </Link>
-                  )}
-
-                  {data.sport &&
-                    data.conferences?.map((conference) => {
-                      const articleSportId = data.sport?._id;
-
-                      const matchingAffiliation =
-                        conference.sportSubdivisionAffiliations?.find(
-                          (affiliation) =>
-                            affiliation.sport._id === articleSportId,
-                        );
-
-                      const divisionPathSegment =
-                        matchingAffiliation?.subgrouping.slug ||
-                        conference.division.slug;
-
-                      const conferenceHref = `/college/${data.sport?.slug}/news/${divisionPathSegment}/${conference.slug}`;
-
-                      return (
-                        <Link
-                          key={conference.slug}
-                          href={conferenceHref}
-                          className={badgeVariants({ variant: "default" })}
-                          prefetch={false}
-                        >
-                          {conference.shortName ?? conference.name}
-                        </Link>
-                      );
-                    })}
-                </div>
-              )}
-
-            {data.sport && (data.division || data.conferences) && (
-              <span className="text-sm">•</span>
-            )}
-            {data.publishedAt && <FormatDate dateString={data.publishedAt} />}
-          </div>
+      <div className="max-w-site mx-auto px-4 lg:px-6">
+        <BreadcrumbTrail items={breadcrumbs} className="pt-5" />
+        <div className="grid gap-10 pt-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <article className="min-w-0">
+            {kicker ? (
+              <div className="kicker text-primary">{kicker}</div>
+            ) : null}
+            <h1
+              id="article-title"
+              className="font-display lg:text-headline-lg mt-2 max-w-4xl text-[2.4rem] leading-[0.98] font-extrabold uppercase"
+            >
+              {data.title}
+            </h1>
+            {data.excerpt ? (
+              <p
+                id="article-excerpt"
+                className="text-muted-foreground mt-4 max-w-3xl font-serif text-xl"
+              >
+                {data.excerpt}
+              </p>
+            ) : null}
+            <ArticleByline
+              authors={data.authors ?? []}
+              publishedAt={data.publishedAt}
+              readingMinutes={readingMinutes}
+              slug={slug}
+              title={data.title}
+            />
+            {data.image ? (
+              <ArticleHeroImage image={data.image} credit={data.image.credit} />
+            ) : null}
+            <div className="mx-auto mt-8 max-w-prose">
+              <RichText
+                richText={data.body}
+                className="prose-headings:font-display prose-headings:font-bold prose-headings:uppercase prose-a:text-primary font-serif"
+              />
+              <ArticleTags tags={[...conferenceTags, ...topicTags]} />
+              {followName ? <FollowTeamCta name={followName} /> : null}
+            </div>
+            {upNext ? <UpNext story={upNext} kicker={kicker} /> : null}
+          </article>
+          <ArticleAside
+            sport={sportSlug}
+            rankingsDivision={
+              sportSlug === "football" ? (divisionSlug ?? "fcs") : null
+            }
+            relatedStories={moreRelated}
+          />
         </div>
-      </section>
-      <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="container">
-          <div className="flex flex-col gap-8 lg:flex-row lg:gap-20 xl:gap-24">
-            <div className="lg:w-64 lg:shrink-0">
-              <div className="hidden lg:sticky lg:top-24 lg:left-0 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:self-start">
-                <AuthorSection authors={data.authors} />
-                <LargeArticleSocialShare slug={slug} title={data.title} />
-              </div>
-              <MobileAuthorSection authors={data.authors} />
-            </div>
-            <article className="max-w-full space-y-8 lg:flex-1 lg:space-y-12">
-              {data.image && (
-                <figure className="mb-8 space-y-1.5">
-                  <CustomImage
-                    image={data.image}
-                    width={1200}
-                    height={675}
-                    className="h-auto w-full rounded-lg"
-                    priority
-                    mode="cover"
-                    sizes={IMAGE_SIZES.articleHero}
-                  />
-                  {data.image.credit ? (
-                    <figcaption className="text-muted-foreground flex items-center gap-2 text-sm">
-                      <CameraIcon className="h-4 w-4" />
-                      <span>Source: {data.image.credit}</span>
-                    </figcaption>
-                  ) : null}
-                </figure>
-              )}
-              <RichText richText={data.body} />
-            </article>
-          </div>
-        </div>
-      </section>
-      {data.relatedPosts.length > 0 && (
-        <section className="border-border border-y py-12 sm:py-16 lg:py-20 xl:py-24">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-                You Might Also Like
-              </h2>
-            </div>
-            <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-3 lg:mt-12 xl:gap-16">
-              {data.relatedPosts.map((morePost: any) => (
-                <ArticleCard
-                  key={morePost._id}
-                  title={morePost.title}
-                  date={morePost.publishedAt}
-                  image={morePost.image}
-                  slug={morePost.slug}
-                  author={morePost.authors[0].name}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      </div>
     </>
   );
 }

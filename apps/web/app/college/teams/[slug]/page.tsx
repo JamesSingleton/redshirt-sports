@@ -215,7 +215,7 @@ async function renderSchoolTeamPage(
         schoolImage={school.image}
       />
 
-      <div className="mx-auto grid max-w-437.5 grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8 lg:p-6">
+      <div className="max-w-site mx-auto grid grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8 lg:px-6">
         <section className="min-w-0">
           {featuredPosts.length > 0 ? (
             <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -288,8 +288,8 @@ function TeamNavBar({
   schoolImage: NonNullable<SchoolBySlugQueryResult>["image"];
 }) {
   return (
-    <nav className="sticky top-0 z-40 border-b border-border bg-card">
-      <div className="mx-auto flex h-14 max-w-437.5 items-center gap-4 overflow-x-auto px-4 [-webkit-overflow-scrolling:touch]">
+    <nav className="bg-card sticky top-0 z-40 border-b">
+      <div className="max-w-site mx-auto flex h-14 items-center gap-4 overflow-x-auto px-4 lg:px-6">
         <div className="flex shrink-0 items-center gap-2.5">
           {schoolImage ? (
             <CustomImage
@@ -299,9 +299,9 @@ function TeamNavBar({
               className="flex size-7 shrink-0 items-center justify-center"
             />
           ) : (
-            <div className="size-7 shrink-0 rounded-full bg-muted" />
+            <div className="bg-muted size-7 shrink-0 rounded-full" />
           )}
-          <h1 className="text-sm font-bold tracking-wide whitespace-nowrap">
+          <h1 className="font-display text-xl font-extrabold tracking-tight whitespace-nowrap uppercase">
             {teamName}
           </h1>
         </div>

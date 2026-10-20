@@ -4,13 +4,6 @@ import type { StegaBranded } from "next-sanity";
 
 import Hero from "@/components/home/hero";
 
-vi.mock("@/components/article-card", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => (
-    <div data-testid="article-card">{title}</div>
-  ),
-}));
-
 vi.mock("@/components/format-date", () => ({
   __esModule: true,
   default: ({ dateString }: { dateString: string }) => (
@@ -77,7 +70,7 @@ const heroPosts = [
 ];
 
 describe("Hero", () => {
-  it("renders the lead story and recent article cards", () => {
+  it("renders the lead story and top stories rail", () => {
     render(
       <Hero
         heroPosts={
@@ -94,8 +87,31 @@ describe("Hero", () => {
       "href",
       "/authors/jane-doe",
     );
-    expect(screen.getByTestId("article-card")).toHaveTextContent(
-      "Secondary Story",
+    expect(screen.getByText("Top stories")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Secondary Story" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Secondary Story" })).toHaveAttribute(
+      "href",
+      "/secondary-story",
     );
+  });
+
+  it("renders nothing when there are no hero posts", () => {
+    const { container } = render(
+      <Hero heroPosts={[] as unknown as StegaBranded<QueryHomePageDataResult>} />,
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("omits the top stories rail when only the lead story exists", () => {
+    render(
+      <Hero
+        heroPosts={
+          [heroPosts[0]] as unknown as StegaBranded<QueryHomePageDataResult>
+        }
+      />,
+    );
+    expect(screen.queryByText("Top stories")).not.toBeInTheDocument();
   });
 });

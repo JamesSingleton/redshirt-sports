@@ -11,8 +11,16 @@ import {
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import ArticleFeed from "@/components/article-feed";
-import PageHeader from "@/components/page-header";
+import { LeaderboardAd } from "@/components/ad-slot";
+import {
+  DivisionChips,
+  FOOTBALL_DIVISION_CHIPS,
+} from "@/components/news/division-chips";
+import { NewsAside } from "@/components/news/news-aside";
+import { NewsFeed } from "@/components/news/news-feed";
+import { NewsLeadBlock } from "@/components/news/news-lead-block";
+import { NewsPageHeader } from "@/components/news/news-page-header";
+import type { StoryLike } from "@/components/news/story";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
@@ -143,16 +151,56 @@ async function cachedRenderSportNewsPage({
     },
   ];
 
+  const stories = news.posts as StoryLike[];
+  const isFirstPage = pageIndex <= 1;
+  const leadStories = isFirstPage ? stories.slice(0, 4) : [];
+  const listStories = isFirstPage ? stories.slice(4) : stories;
+  const isFootball = sport === "football";
+
   return (
     <>
-      <PageHeader
+      <NewsPageHeader
         title={`College ${sportInfo?.title} News`}
         breadcrumbs={breadcrumbItems}
       />
-      <section className="container pb-12">
-        <ArticleFeed articles={news.posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
-      </section>
+      <div className="max-w-site mx-auto px-4 pb-12 lg:px-6">
+        {isFootball ? (
+          <DivisionChips
+            chips={FOOTBALL_DIVISION_CHIPS}
+            activeHref={`/college/${sport}/news`}
+            className="pt-4"
+          />
+        ) : null}
+        {leadStories.length > 0 ? (
+          <div className="mt-5">
+            <NewsLeadBlock stories={leadStories} />
+          </div>
+        ) : null}
+        <LeaderboardAd />
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          {listStories.length > 0 ? (
+            <NewsFeed
+              stories={listStories}
+              meta={`Page ${pageIndex} of ${totalPages}`}
+              leadingPriorityCount={isFirstPage ? 0 : 2}
+              pagination={
+                totalPages > 1 ? (
+                  <PaginationControls
+                    totalPosts={news.totalPosts}
+                    className="mt-0"
+                  />
+                ) : null
+              }
+            />
+          ) : (
+            <div />
+          )}
+          <NewsAside
+            sport={sport}
+            rankingsDivision={isFootball ? "fcs" : undefined}
+          />
+        </div>
+      </div>
     </>
   );
 }

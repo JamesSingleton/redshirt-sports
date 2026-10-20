@@ -289,13 +289,14 @@ export async function VotePageAuth({
     : await getLatestVoterBallotWithSchools(userId, division, sport, year);
 
   return (
-    <div className="container">
+    <div className="max-w-site mx-auto px-4 py-8 lg:px-6">
       {title && subtitle && (
-        <div className="flex flex-col gap-4 pt-12 text-center">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+        <div className="flex flex-col gap-2 pb-6">
+          <div className="kicker text-primary">Voter ballot</div>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight uppercase sm:text-4xl">
             {title}
           </h1>
-          <p className="text-muted-foreground text-lg">{subtitle}</p>
+          <p className="text-muted-foreground text-sm">{subtitle}</p>
         </div>
       )}
       {hasVoted ? (

@@ -7,16 +7,15 @@ import {
   queryLatestArticles,
   queryLatestCollegeSportsArticles,
 } from "@redshirt-sports/sanity/queries";
-import { buttonVariants } from "@redshirt-sports/ui/components/button";
-import { cn } from "@redshirt-sports/ui/lib/utils";
-import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { WebPage, WithContext } from "schema-dts";
 
-import ArticleCard from "@/components/article-card";
+import { LeaderboardAd } from "@/components/ad-slot";
 import ArticleSection from "@/components/article-section";
+import { FollowTeamsBanner } from "@/components/home/follow-teams-banner";
 import Hero from "@/components/home/hero";
+import { HomeAside } from "@/components/home/home-aside";
+import { LatestSection } from "@/components/home/latest-section";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
@@ -145,53 +144,29 @@ export async function CachedHomePage({
   return (
     <>
       <JsonLdScript data={webPageJson} id="home-webpage-json-ld" />
-      <Hero heroPosts={homePageData} />
-      {latestArticles.length > 0 && (
-        <section className="pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-          <div className="container">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Latest News</h2>
-              <Link
-                href="/college/news"
-                prefetch={false}
-                className={cn(
-                  buttonVariants({ variant: "default" }),
-                  "flex items-center space-x-2",
-                )}
-              >
-                <span className="text-sm">View All</span>
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {latestArticles?.map((article) => (
-                <ArticleCard
-                  title={article.title}
-                  date={article.publishedAt}
-                  image={article.image}
-                  slug={article.slug}
-                  key={article._id}
-                  author={article.authors[0]!.name}
-                />
-              ))}
-            </div>
-          </div>
+      <FollowTeamsBanner />
+      <div className="max-w-site mx-auto px-4 lg:px-6">
+        <Hero heroPosts={homePageData} />
+        <LeaderboardAd />
+        <section className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <LatestSection articles={latestArticles} />
+          <HomeAside />
         </section>
-      )}
-      {sectionOrder.map((key) => {
-        const section = divisionsWithArticles.find((d) => d.key === key);
-        if (!section || section.articles === undefined) return null;
+        {sectionOrder.map((key) => {
+          const section = divisionsWithArticles.find((d) => d.key === key);
+          if (!section || section.articles === undefined) return null;
 
-        return (
-          <ArticleSection
-            key={section.key}
-            title={section.title}
-            slug={section.slug}
-            articles={section.articles}
-            imageFirst={section.imageFirst}
-          />
-        );
-      })}
+          return (
+            <ArticleSection
+              key={section.key}
+              title={section.title}
+              slug={section.slug}
+              articles={section.articles}
+              imageFirst={section.imageFirst}
+            />
+          );
+        })}
+      </div>
     </>
   );
 }
