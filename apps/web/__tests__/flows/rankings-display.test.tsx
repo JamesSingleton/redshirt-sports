@@ -7,12 +7,25 @@ import { sampleRankingTeam } from "../helpers/vote-fixtures";
  * Complements rankings-week page smoke with a focused display contract.
  */
 
-const { mockGetCachedYears, mockGetCachedWeeks, mockGetCachedFinalRankings } =
-  vi.hoisted(() => ({
-    mockGetCachedYears: vi.fn(),
-    mockGetCachedWeeks: vi.fn(),
-    mockGetCachedFinalRankings: vi.fn(),
-  }));
+const {
+  mockGetCachedYears,
+  mockGetCachedWeeks,
+  mockGetCachedFinalRankings,
+  mockGetCachedPollWeekBallotContext,
+  mockSanityFetchPage,
+} = vi.hoisted(() => ({
+  mockGetCachedYears: vi.fn(),
+  mockGetCachedWeeks: vi.fn(),
+  mockGetCachedFinalRankings: vi.fn(),
+  mockGetCachedPollWeekBallotContext: vi.fn().mockResolvedValue({
+    ballotsCounted: 10,
+    ballotsListedBySanityId: {},
+    voterChips: [],
+  }),
+  mockSanityFetchPage: vi.fn().mockResolvedValue({
+    data: { title: "College Football" },
+  }),
+}));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
   getDynamicFetchOptions: vi.fn().mockResolvedValue({
@@ -33,10 +46,15 @@ vi.mock("@/lib/draft-cache", () => ({
   ) => render(await params),
 }));
 
+vi.mock("@/lib/sanity-fetch", () => ({
+  sanityFetchPage: mockSanityFetchPage,
+}));
+
 vi.mock("@/lib/rankings-data", () => ({
   getCachedYearsThatHaveVotes: mockGetCachedYears,
   getCachedWeeksThatHaveVotes: mockGetCachedWeeks,
   getCachedFinalRankings: mockGetCachedFinalRankings,
+  getCachedPollWeekBallotContext: mockGetCachedPollWeekBallotContext,
   RANKINGS_CACHE_LIFE: { stale: 300, revalidate: 604800, expire: 2592000 },
   RANKINGS_CACHE_TAG: "rankings",
   rankingsSportTag: (sport: string) => `rankings:${sport}`,
@@ -70,10 +88,6 @@ vi.mock("@/components/json-ld", () => ({
 
 vi.mock("@/components/rankings/filters", () => ({
   RankingsFilters: () => null,
-}));
-
-vi.mock("@/components/rankings/rankings-voter-breakdown", () => ({
-  RankingsVoterBreakdown: () => null,
 }));
 
 vi.mock("@/components/sanity-image", () => ({
@@ -112,7 +126,7 @@ describe("rankings display flow", () => {
     });
 
     render(page);
-    expect(screen.getByLabelText("up 4")).toBeInTheDocument();
+    expect(screen.getByLabelText("Up 4")).toBeInTheDocument();
     expect(screen.getByText("Team A")).toBeInTheDocument();
   });
 });

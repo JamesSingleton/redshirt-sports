@@ -3,11 +3,12 @@ import { cacheLife, cacheTag } from "next/cache";
 
 import {
   getCachedFinalRankings,
-  getCachedLatestFinalRankings,
+  getCachedLatestFinalRankingsBySportSlug,
   getCachedWeeksThatHaveVotes,
   RANKINGS_CACHE_LIFE,
   RANKINGS_CACHE_TAG,
 } from "@/lib/rankings-data";
+import { rankingsSportTag } from "@redshirt-sports/db/rankings-cache-tags";
 import {
   buildRankBySchoolId,
   getMovement,
@@ -16,8 +17,8 @@ import {
 } from "@/lib/rankings-movement";
 import type { SportParam } from "@/utils/espn";
 
-export const WIDGET_DIVISIONS = ["fcs", "fbs", "d2", "d3"] as const;
-export type WidgetDivision = (typeof WIDGET_DIVISIONS)[number];
+export const FOOTBALL_WIDGET_DIVISIONS = ["fcs", "fbs", "d2", "d3"] as const;
+export const BASKETBALL_WIDGET_DIVISIONS = ["d1", "d2", "d3"] as const;
 
 export type RankingsWidgetTeam = {
   _id: string;
@@ -30,7 +31,7 @@ export type RankingsWidgetTeam = {
 };
 
 export type RankingsWidgetPoll = {
-  division: WidgetDivision;
+  division: string;
   label: string;
   week: number;
   year: number;
@@ -39,18 +40,41 @@ export type RankingsWidgetPoll = {
   teams: RankingsWidgetTeam[];
 };
 
-const DIVISION_LABEL: Record<WidgetDivision, string> = {
+const DIVISION_LABEL: Record<string, string> = {
   fcs: "FCS",
   fbs: "FBS",
+  d1: "D-I",
   d2: "D-II",
   d3: "D-III",
+  naia: "NAIA",
 };
 
+function widgetDivisionsForSport(sport: SportParam): readonly string[] {
+  switch (sport) {
+    case "football":
+      return FOOTBALL_WIDGET_DIVISIONS;
+    case "mens-basketball":
+    case "womens-basketball":
+      return BASKETBALL_WIDGET_DIVISIONS;
+    default:
+      return [];
+  }
+}
+
+export function pollDivisionLabel(division: string): string {
+  return DIVISION_LABEL[division] ?? division.toUpperCase();
+}
+
+function divisionLabel(division: string): string {
+  return pollDivisionLabel(division);
+}
+
 async function loadWidgetPoll(
-  division: WidgetDivision,
-  sport: SportParam = "football",
+  division: string,
+  sport: SportParam,
 ): Promise<RankingsWidgetPoll | null> {
-  const latest = await getCachedLatestFinalRankings({ division });
+  const latestForSport = await getCachedLatestFinalRankingsBySportSlug(sport);
+  const latest = latestForSport.find((row) => row.division === division);
   if (!latest) {
     return null;
   }
@@ -92,7 +116,7 @@ async function loadWidgetPoll(
 
   return {
     division,
-    label: DIVISION_LABEL[division],
+    label: divisionLabel(division),
     week,
     year,
     weekHref: `/college/${sport}/rankings/${division}/${year}/${weekSegment}`,
@@ -112,16 +136,70 @@ async function loadWidgetPoll(
   };
 }
 
-export async function getCachedRankingsWidgetPolls(): Promise<
-  RankingsWidgetPoll[]
-> {
+export async function getCachedRankingsWidgetPolls(
+  sport: SportParam = "football",
+): Promise<RankingsWidgetPoll[]> {
   "use cache";
-  cacheTag(RANKINGS_CACHE_TAG);
+  cacheTag(RANKINGS_CACHE_TAG, rankingsSportTag(sport));
   cacheLife(RANKINGS_CACHE_LIFE);
 
+  const divisions = widgetDivisionsForSport(sport);
   const polls = await Promise.all(
-    WIDGET_DIVISIONS.map((division) => loadWidgetPoll(division)),
+    divisions.map((division) => loadWidgetPoll(division, sport)),
   );
 
   return polls.filter((poll): poll is RankingsWidgetPoll => poll !== null);
+}
+
+export type RankingsIndexCard =
+  | {
+      status: "live";
+      division: string;
+      label: string;
+      title: string;
+      poll: RankingsWidgetPoll;
+      teams: RankingsWidgetTeam[];
+      sport: SportParam;
+    }
+  | {
+      status: "coming-soon";
+      division: string;
+      label: string;
+      title: string;
+    };
+
+export async function getCachedRankingsIndexCards(
+  sport: SportParam,
+): Promise<RankingsIndexCard[]> {
+  "use cache";
+  cacheTag(RANKINGS_CACHE_TAG, rankingsSportTag(sport));
+  cacheLife(RANKINGS_CACHE_LIFE);
+
+  const divisions = widgetDivisionsForSport(sport);
+  const cards = await Promise.all(
+    divisions.map(async (division) => {
+      const poll = await loadWidgetPoll(division, sport);
+      const label = divisionLabel(division);
+      const title = `${label} Top 25`;
+      if (!poll) {
+        return {
+          status: "coming-soon" as const,
+          division,
+          label,
+          title,
+        };
+      }
+      return {
+        status: "live" as const,
+        division,
+        label,
+        title,
+        poll,
+        teams: poll.teams.slice(0, 5),
+        sport,
+      };
+    }),
+  );
+
+  return cards;
 }

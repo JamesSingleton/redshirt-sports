@@ -33,11 +33,14 @@ import {
   type NewsArchiveSearchParams,
 } from "@/lib/news-archive";
 import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
+import { validateSport } from "@/lib/vote-ballot";
 import { getDivisionFeed, getSportFeed } from "@/lib/rss-feed-links";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { buildSportNewsFilterOptions } from "@/lib/sport-news-filters";
 import type { DivisionDisplayMeta } from "@/lib/division-display-meta";
 import { validatePageIndex } from "@/utils/validate-page-index";
+
+import DivisionNewsRouteLoading from "./loading";
 
 export async function generateMetadata({
   params,
@@ -119,8 +122,9 @@ export default function Page({
   params: Promise<{ sport: string; division: string }>;
   searchParams: Promise<NewsArchiveSearchParams>;
 }) {
-  return searchParamsPage(null, () =>
-    renderDivisionNewsPage({ params, searchParams }),
+  return searchParamsPage(
+    <DivisionNewsRouteLoading />,
+    () => renderDivisionNewsPage({ params, searchParams }),
   );
 }
 
@@ -220,7 +224,7 @@ async function cachedRenderDivisionNewsPage({
       stega,
     }),
     getCachedMostReadPosts(),
-    getCachedRankingsWidgetPolls(),
+    getCachedRankingsWidgetPolls(validateSport(sport)),
   ]);
 
   const news = newsResponse.data as {

@@ -1,16 +1,29 @@
 import Link from "next/link";
 
 import type { HomePost } from "@/components/home/home-page-content";
+import { ArchivePublishedTime } from "@/components/news/archive-published-time";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { RelativeTime } from "@/components/relative-time";
-import {
-  formatRiverTime,
-  groupPostsByDay,
-  postArchiveKicker,
-  type NewsDayGroup,
-} from "@/lib/news-archive";
+import { postArchiveKicker } from "@/lib/news-archive";
 
-function LeadStory({ post }: { post: HomePost }) {
+function sportBadgeClass(sportSlug?: string | null): string {
+  switch (sportSlug) {
+    case "football":
+      return "bg-primary/10 text-primary";
+    case "mens-basketball":
+      return "bg-secondary text-secondary-foreground";
+    default:
+      return "bg-muted text-foreground";
+  }
+}
+
+function LeadStory({
+  post,
+  showSportLabel,
+}: {
+  post: HomePost;
+  showSportLabel?: boolean;
+}) {
   const author = post.authors?.[0]?.name;
 
   return (
@@ -30,7 +43,16 @@ function LeadStory({ post }: { post: HomePost }) {
         />
       </Link>
       <div>
-        <div className="kicker text-primary">Latest · {postArchiveKicker(post)}</div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {showSportLabel && post.sportTitle ? (
+            <span
+              className={`rounded px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${sportBadgeClass(post.sportSlug)}`}
+            >
+              {post.sportTitle}
+            </span>
+          ) : null}
+          <div className="kicker text-primary">Latest · {postArchiveKicker(post)}</div>
+        </div>
         <h2 className="mt-1 font-display text-2xl font-extrabold uppercase leading-tight group-hover:underline">
           <Link href={`/${post.slug}`} prefetch={false}>{post.title}</Link>
         </h2>
@@ -53,27 +75,37 @@ function LeadStory({ post }: { post: HomePost }) {
   );
 }
 
-function RiverRow({ post }: { post: HomePost }) {
+function RiverRow({
+  post,
+  showSportLabel,
+}: {
+  post: HomePost;
+  showSportLabel?: boolean;
+}) {
   const author = post.authors?.[0]?.name;
-  const timeLabel = post.publishedAt
-    ? formatRiverTime(post.publishedAt)
-    : "";
 
   return (
     <li>
-      <article className="group relative grid grid-cols-[4.5rem_1fr_5.5rem] items-start gap-3 py-3 sm:grid-cols-[5.5rem_1fr_7rem] sm:gap-4">
+      <article className="group relative grid grid-cols-[5.5rem_1fr_5.5rem] items-start gap-3 py-3 sm:grid-cols-[6.5rem_1fr_7rem] sm:gap-4">
         {post.publishedAt ? (
-          <time
-            className="pt-0.5 text-xs font-medium text-muted-foreground tabular"
-            dateTime={post.publishedAt}
-          >
-            {timeLabel}
-          </time>
+          <ArchivePublishedTime
+            dateString={post.publishedAt}
+            className="pt-0.5 text-xs font-medium text-muted-foreground tabular-nums"
+          />
         ) : (
           <span />
         )}
         <div className="min-w-0">
-          <div className="kicker text-primary">{postArchiveKicker(post)}</div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {showSportLabel && post.sportTitle ? (
+              <span
+                className={`rounded px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${sportBadgeClass(post.sportSlug)}`}
+              >
+                {post.sportTitle}
+              </span>
+            ) : null}
+            <div className="kicker text-primary">{postArchiveKicker(post)}</div>
+          </div>
           <h3 className="mt-0.5 font-semibold leading-snug group-hover:underline">
             <Link
               href={`/${post.slug}`}
@@ -106,44 +138,29 @@ function RiverRow({ post }: { post: HomePost }) {
   );
 }
 
-function DaySection({ group }: { group: NewsDayGroup }) {
-  return (
-    <section aria-labelledby={`news-day-${group.id}`}>
-      <h3
-        id={`news-day-${group.id}`}
-        className="sticky top-14 z-10 border-b bg-background/95 py-2 text-xs font-bold uppercase tracking-widest text-muted-foreground backdrop-blur lg:top-16"
-      >
-        {group.label}
-      </h3>
-      <ol className="divide-y">
-        {group.posts.map((post) => (
-          <RiverRow key={post._id} post={post} />
-        ))}
-      </ol>
-    </section>
-  );
-}
-
 export function NewsArchiveRiver({
   posts,
   pageIndex,
   totalPosts,
   totalPages,
+  showSportLabels = false,
 }: {
   posts: HomePost[];
   pageIndex: number;
   totalPosts: number;
   totalPages: number;
+  showSportLabels?: boolean;
 }) {
   const showLead = pageIndex === 1 && posts.length > 0;
   const lead = showLead ? posts[0] : null;
   const riverPosts = showLead ? posts.slice(1) : posts;
-  const dayGroups = groupPostsByDay(riverPosts);
 
   return (
     <div>
       <h2 className="sr-only">Stories</h2>
-      {lead ? <LeadStory post={lead} /> : null}
+      {lead ? (
+        <LeadStory post={lead} showSportLabel={showSportLabels} />
+      ) : null}
       <div className="mt-6 flex items-center justify-between">
         <p className="text-sm text-muted-foreground" aria-live="polite">
           {totalPosts.toLocaleString()} stories
@@ -154,11 +171,15 @@ export function NewsArchiveRiver({
           </span>
         ) : null}
       </div>
-      <div className="mt-2 grid gap-6">
-        {dayGroups.map((group) => (
-          <DaySection key={group.id} group={group} />
+      <ol className="mt-2 divide-y">
+        {riverPosts.map((post) => (
+          <RiverRow
+            key={post._id}
+            post={post}
+            showSportLabel={showSportLabels}
+          />
         ))}
-      </div>
+      </ol>
     </div>
   );
 }

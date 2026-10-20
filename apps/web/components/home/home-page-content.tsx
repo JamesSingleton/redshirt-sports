@@ -24,6 +24,8 @@ export type HomePost = {
   }> | null;
   divisionLabel?: string | null;
   tagNames?: string[] | null;
+  sportTitle?: string | null;
+  sportSlug?: string | null;
 };
 
 function postKicker(post: HomePost): string {

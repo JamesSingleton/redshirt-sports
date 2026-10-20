@@ -28,10 +28,13 @@ import {
   type NewsArchiveSearchParams,
 } from "@/lib/news-archive";
 import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
+import { validateSport } from "@/lib/vote-ballot";
 import { getSportFeed } from "@/lib/rss-feed-links";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { buildSportNewsFilterOptions } from "@/lib/sport-news-filters";
 import { sportNavLabel } from "@/lib/sport-nav";
+
+import SportNewsRouteLoading from "./loading";
 
 export async function generateMetadata({
   params,
@@ -87,8 +90,9 @@ export default function Page({
   params: Promise<{ sport: string }>;
   searchParams: Promise<NewsArchiveSearchParams>;
 }) {
-  return searchParamsPage(null, () =>
-    renderSportNewsPage({ params, searchParams }),
+  return searchParamsPage(
+    <SportNewsRouteLoading />,
+    () => renderSportNewsPage({ params, searchParams }),
   );
 }
 
@@ -171,7 +175,7 @@ async function cachedRenderSportNewsPage({
       stega,
     }),
     getCachedMostReadPosts(),
-    getCachedRankingsWidgetPolls(),
+    getCachedRankingsWidgetPolls(validateSport(sport)),
   ]);
 
   const news = newsResponse.data as {

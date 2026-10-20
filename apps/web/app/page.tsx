@@ -21,6 +21,8 @@ import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
+import HomeRouteLoading from "./home-route-loading";
+
 const baseUrl = getBaseUrl();
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -38,7 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function HomePage() {
-  return draftAwarePage(null, CachedHomePage);
+  return draftAwarePage(<HomeRouteLoading />, CachedHomePage);
 }
 
 export async function CachedHomePage({

@@ -40,6 +40,7 @@ export function buildSportNewsFilterOptions(
         slug: conference.slug,
         name: conference.shortName ?? conference.name ?? conference.slug,
         divisionSlug: grouping.slug,
+        sportSlug,
       });
     }
   }

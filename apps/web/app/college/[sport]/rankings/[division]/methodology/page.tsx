@@ -1,0 +1,106 @@
+import { formatWeekSegment } from "@redshirt-sports/clients/espn";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+
+import { RankingsBreadcrumb } from "@/components/rankings/rankings-breadcrumb";
+import { RankingsMethodologyContent } from "@/components/rankings/rankings-methodology-content";
+import { RankingsTabsNav } from "@/components/rankings/rankings-tabs-nav";
+import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
+import { draftAwareParamsPage } from "@/lib/draft-cache";
+import { getPageMetadata } from "@/lib/global-seo-settings";
+import { getCachedPollWeekBallotContext } from "@/lib/rankings-data";
+import { loadRankingsDivisionShell } from "@/lib/rankings-week-shell";
+import { pollDivisionLabel } from "@/lib/rankings-widget-data";
+import type { SportParam } from "@/utils/espn";
+import { weekTitle } from "@/utils/espn";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ sport: string; division: string }>;
+}): Promise<Metadata> {
+  const { sport, division } = await params;
+  const divisionName = pollDivisionLabel(division);
+  return getPageMetadata(
+    {
+      title: `How our ${divisionName} Top 25 poll works`,
+      description:
+        "Points, transparency, ballot windows, and outlier policy for Redshirt Sports polls.",
+      slug: `/college/${sport}/rankings/${division}/methodology`,
+    },
+    "published",
+  );
+}
+
+export default function RankingsDivisionMethodologyPage({
+  params,
+}: {
+  params: Promise<{ sport: string; division: string }>;
+}) {
+  return draftAwareParamsPage(
+    params,
+    <RankingsTabSkeleton variant="methodology" />,
+    (resolved) => renderMethodologyPage(resolved),
+  );
+}
+
+async function renderMethodologyPage({
+  sport,
+  division,
+}: {
+  sport: string;
+  division: string;
+}) {
+  const shell = await loadRankingsDivisionShell({ sport, division });
+  if (!shell) {
+    notFound();
+  }
+
+  const sportParam = sport as SportParam;
+  const ballotContext = await getCachedPollWeekBallotContext({
+    year: shell.yearNumber,
+    week: shell.weekNumber,
+    division,
+    sport: sportParam,
+  });
+
+  const weekSegment = formatWeekSegment(shell.weekNumber);
+
+  return (
+    <main className="mx-auto max-w-site px-4 lg:px-6">
+      <div className="pt-5">
+        <RankingsBreadcrumb
+          sport={sport}
+          sportLabel={shell.sportLabel}
+          divisionName={shell.divisionName}
+          rankingsIndexHref={shell.rankingsIndexHref}
+        />
+        <div className="mt-3">
+          <div className="kicker text-primary">Redshirt Sports Poll</div>
+          <h1 className="font-display text-[2.3rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+            How the Top 25 works
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Applies to every Redshirt Sports {shell.sportLabel} poll ·{" "}
+            {shell.divisionName} example shown
+          </p>
+        </div>
+      </div>
+
+      <RankingsTabsNav tabs={shell.tabs} active="methodology" />
+
+      <RankingsMethodologyContent
+        sport={sport}
+        rankingsIndexHref={shell.rankingsIndexHref}
+        ballotsHref={shell.ballotsHref}
+        byVoterHref={shell.byVoterHref}
+        ballotsCounted={ballotContext?.ballotsCounted ?? 0}
+        voterChips={ballotContext?.voterChips ?? []}
+        weekLabel={weekTitle(shell.weekNumber)}
+        panelSize={
+          ballotContext?.voterChips.length ?? ballotContext?.ballotsCounted ?? 0
+        }
+      />
+    </main>
+  );
+}

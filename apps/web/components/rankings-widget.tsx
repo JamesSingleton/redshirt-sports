@@ -19,7 +19,7 @@ import { TeamMark } from "@/components/rankings/team-mark";
 import type { RankingsWidgetPoll } from "@/lib/rankings-widget-data";
 
 export function RankingsWidget({ polls }: { polls: RankingsWidgetPoll[] }) {
-  const [active, setActive] = useState(polls[0]?.division ?? "fcs");
+  const [active, setActive] = useState(polls[0]?.division ?? "");
 
   const activePoll = useMemo(
     () => polls.find((poll) => poll.division === active) ?? polls[0],

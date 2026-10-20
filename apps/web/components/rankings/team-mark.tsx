@@ -5,7 +5,7 @@ type TeamMarkProps = {
   shortName?: string | null;
   abbreviation?: string | null;
   name?: string | null;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "table";
   schoolLabel?: string;
 };
 
@@ -26,7 +26,7 @@ export function TeamMark({
   size = "sm",
   schoolLabel,
 }: TeamMarkProps) {
-  const dim = size === "sm" ? 28 : 40;
+  const dim = size === "sm" ? 28 : size === "table" ? 32 : 40;
   const label =
     schoolLabel ?? `${shortName ?? name ?? "Team"} logo`;
 
@@ -39,7 +39,9 @@ export function TeamMark({
         className={
           size === "sm"
             ? "size-7 shrink-0 object-contain"
-            : "size-10 shrink-0 object-contain"
+            : size === "table"
+              ? "size-8 shrink-0 object-contain"
+              : "size-10 shrink-0 object-contain"
         }
         mode="contain"
         alt={label}
@@ -49,7 +51,11 @@ export function TeamMark({
 
   return (
     <span
-      className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-dashed border-muted-foreground/40 bg-muted font-display text-[0.62em] font-bold tracking-wide text-muted-foreground"
+      className={
+        size === "table"
+          ? "inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-dashed border-muted-foreground/40 bg-muted font-display text-[0.62em] font-bold tracking-wide text-muted-foreground"
+          : "inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-dashed border-muted-foreground/40 bg-muted font-display text-[0.62em] font-bold tracking-wide text-muted-foreground"
+      }
       title={shortName ?? name ?? undefined}
       aria-hidden
     >

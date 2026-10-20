@@ -1,11 +1,19 @@
 import {
+  countBallotsForPollWeek,
+  getBallotsListedBySanityIdForPollWeek,
   getFinalRankingsForWeekAndYear,
   getLatestFinalRankings,
   getLatestFinalRankingsBySportSlug,
+  getPollBySportAndSlug,
+  getPollWeekVoterChips,
   getRankedSchoolSanityIds,
   getSchoolRankingHistory,
+  getSportIdBySlug,
+  getVotesForWeekAndYearByVoter,
   getWeeksThatHaveVotes,
   getYearsThatHaveVotes,
+  listActivePollVoters,
+  resolveWeekIdForLegacyWeek,
   schoolHasPollRankings,
 } from "@redshirt-sports/db/queries";
 import {
@@ -137,6 +145,15 @@ export async function getCachedLatestFinalRankings({
   return getLatestFinalRankings({ division });
 }
 
+export async function getCachedLatestFinalRankingsBySportSlug(
+  sportSlug: string,
+) {
+  "use cache";
+  cacheTag(RANKINGS_CACHE_TAG, rankingsSportTag(sportSlug));
+  cacheLife(RANKINGS_CACHE_LIFE);
+  return getLatestFinalRankingsBySportSlug(sportSlug);
+}
+
 export async function getCachedSchoolRankingHistory(
   sanityId: string,
 ): Promise<SchoolRankingHistory> {
@@ -160,4 +177,123 @@ export async function getCachedRankedSchoolSanityIds(): Promise<string[]> {
   cacheTag(RANKINGS_CACHE_TAG);
   cacheLife(RANKINGS_CACHE_LIFE);
   return getRankedSchoolSanityIds();
+}
+
+export type PollWeekBallotContext = {
+  ballotsCounted: number;
+  ballotsListedBySanityId: Record<string, number>;
+  voterChips: Array<{ id: string; label: string }>;
+};
+
+export async function getCachedPollWeekBallotContext({
+  year,
+  week,
+  division,
+  sport,
+}: {
+  year: number;
+  week: number;
+  division: string;
+  sport: SportParam;
+}): Promise<PollWeekBallotContext | null> {
+  "use cache";
+  cacheTag(
+    RANKINGS_CACHE_TAG,
+    rankingsSportTag(sport),
+    rankingsDivisionTag(sport, division),
+    rankingsWeekTag(sport, division, year, week),
+  );
+  cacheLife(RANKINGS_CACHE_LIFE);
+
+  const sportId = await getSportIdBySlug(sport);
+  if (!sportId) {
+    return null;
+  }
+
+  const poll = await getPollBySportAndSlug({ sportId, slug: division });
+  if (!poll) {
+    return null;
+  }
+
+  const weekId = await resolveWeekIdForLegacyWeek({
+    sportId,
+    year,
+    legacyWeek: week,
+  });
+  if (!weekId) {
+    return null;
+  }
+
+  const [ballotsCounted, listedMap, voterChips] = await Promise.all([
+    countBallotsForPollWeek({ pollId: poll.id, weekId }),
+    getBallotsListedBySanityIdForPollWeek({ pollId: poll.id, weekId }),
+    getPollWeekVoterChips({ pollId: poll.id, weekId }),
+  ]);
+
+  return {
+    ballotsCounted,
+    ballotsListedBySanityId: Object.fromEntries(listedMap),
+    voterChips,
+  };
+}
+
+export async function getCachedVotesForWeekAndYearByVoter({
+  year,
+  week,
+  division,
+  sport,
+}: {
+  year: number;
+  week: number;
+  division: string;
+  sport: SportParam;
+}) {
+  "use cache";
+  cacheTag(
+    RANKINGS_CACHE_TAG,
+    rankingsSportTag(sport),
+    rankingsDivisionTag(sport, division),
+    rankingsWeekTag(sport, division, year, week),
+  );
+  cacheLife(RANKINGS_CACHE_LIFE);
+
+  const sportId = await getSportIdBySlug(sport);
+  if (!sportId) {
+    return null;
+  }
+
+  return getVotesForWeekAndYearByVoter({
+    year,
+    week,
+    division,
+    sportId,
+  });
+}
+
+export async function getCachedActivePollVoters({
+  division,
+  sport,
+}: {
+  division: string;
+  sport: SportParam;
+}) {
+  "use cache";
+  cacheTag(
+    RANKINGS_CACHE_TAG,
+    rankingsSportTag(sport),
+    rankingsDivisionTag(sport, division),
+  );
+  cacheLife(RANKINGS_CACHE_LIFE);
+
+  const sportId = await getSportIdBySlug(sport);
+  if (!sportId) {
+    return [];
+  }
+
+  const poll = await getPollBySportAndSlug({ sportId, slug: division });
+  if (!poll) {
+    return [];
+  }
+
+  return listActivePollVoters(poll.id);
 }

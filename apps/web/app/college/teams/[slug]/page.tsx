@@ -6,6 +6,7 @@ import {
 } from "@redshirt-sports/sanity/live";
 import {
   MIN_TEAM_PAGE_POSTS,
+  TEAM_PAGE_NEWS_FETCH_SIZE,
   postsBySchoolAndStoryTypeQuery,
   postsBySchoolQuery,
   querySchoolPaths,
@@ -19,20 +20,13 @@ import type {
   SchoolSlugsByIdsQueryResult,
 } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { StegaBranded } from "next-sanity";
 
 import { TeamPageJsonLd } from "@/components/json-ld";
-import CustomImage from "@/components/sanity-image";
-import { TeamConnectWidget } from "@/components/teams/team-connect-widget";
-import { TeamFeedList } from "@/components/teams/team-feed-list";
-import {
-  TeamFeaturedArticle,
-  TeamNewsItem,
-} from "@/components/teams/team-post-card";
-import { TeamRankingHistory } from "@/components/teams/team-ranking-history";
+import { TeamPageContent } from "@/components/teams/team-page-content";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
+import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import {
   fetchGlobalSeoSettings,
   getPageMetadata,
@@ -44,6 +38,8 @@ import {
 } from "@/lib/rankings-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { isTeamPageEligible } from "@/lib/team-page-eligibility";
+
+import TeamHubRouteLoading from "./loading";
 
 function defaultTeamPageTitle({
   name,
@@ -144,7 +140,11 @@ export default async function SchoolTeamPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  return draftAwareParamsPage(params, null, renderSchoolTeamPage);
+  return draftAwareParamsPage(
+    params,
+    <TeamHubRouteLoading />,
+    renderSchoolTeamPage,
+  );
 }
 
 async function renderSchoolTeamPage(
@@ -168,10 +168,11 @@ async function renderSchoolTeamPage(
     { data: recruitingPosts },
     globalSettings,
     rankingHistory,
+    mostRead,
   ] = await Promise.all([
     sanityFetchPage({
       query: postsBySchoolQuery,
-      params: { schoolId: school._id, from: 0, to: MIN_TEAM_PAGE_POSTS },
+      params: { schoolId: school._id, from: 0, to: TEAM_PAGE_NEWS_FETCH_SIZE },
       perspective,
       stega,
     }) as Promise<{ data: StegaBranded<PostsBySchoolQueryResult> | null }>,
@@ -185,6 +186,7 @@ async function renderSchoolTeamPage(
     }>,
     fetchGlobalSeoSettings(perspective),
     getCachedSchoolRankingHistory(school._id),
+    getCachedMostReadPosts(),
   ]);
 
   if (
@@ -200,112 +202,18 @@ async function renderSchoolTeamPage(
   const featuredPosts = posts.slice(0, 3);
   const sportsPosts = posts.slice(3, 8);
 
-  const teamShortName = school.shortName ?? school.name ?? "Team";
-
-  const sportsFooterLinks = [
-    { label: "View All Football", href: "/college/football/news" },
-    { label: "View All Basketball", href: "/college/mens-basketball/news" },
-  ];
-
   return (
     <div className="min-h-screen bg-background">
       <TeamPageJsonLd school={school} />
-      <TeamNavBar
-        teamName={school.shortName ?? school.name ?? "Team"}
-        schoolImage={school.image}
+      <TeamPageContent
+        school={school}
+        featuredPosts={featuredPosts}
+        sportsPosts={sportsPosts}
+        recruitingPosts={recruitingPosts ?? []}
+        rankingHistory={rankingHistory}
+        mostRead={mostRead}
+        globalSettings={globalSettings}
       />
-
-      <div className="mx-auto grid max-w-437.5 grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8 lg:p-6">
-        <section className="min-w-0">
-          {featuredPosts.length > 0 ? (
-            <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-              {featuredPosts.map((post) => (
-                <TeamFeaturedArticle key={post._id} post={post} />
-              ))}
-            </section>
-          ) : null}
-
-          <TeamFeedList
-            title={`${teamShortName} Sports`}
-            posts={sportsPosts}
-            footerLinks={sportsFooterLinks}
-          />
-
-          <TeamRankingHistory
-            history={rankingHistory}
-            teamName={teamShortName}
-          />
-
-          {recruitingPosts && recruitingPosts.length > 0 ? (
-            <section className="mb-8">
-              <h2 className="mb-5 text-[22px] font-bold text-foreground">
-                {teamShortName} Recruiting
-              </h2>
-              <ul className="flex flex-col gap-5">
-                {recruitingPosts.map((post) => (
-                  <li key={post._id}>
-                    <TeamNewsItem post={post} />
-                  </li>
-                ))}
-              </ul>
-              <footer className="mt-5 flex flex-wrap gap-6">
-                <Link
-                  href="/recruiting"
-                  className="text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
-                >
-                  View All Recruiting
-                </Link>
-                <Link
-                  href="/transfer-portal"
-                  className="text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
-                >
-                  View All Transfers
-                </Link>
-              </footer>
-            </section>
-          ) : null}
-        </section>
-
-        <aside className="hidden min-w-0 lg:block">
-          {/* <NilWidget teamShortName={teamShortName} /> */}
-          <TeamConnectWidget
-            schoolName={teamShortName}
-            schoolSocialLinks={school.socialLinks}
-            globalSocialLinks={globalSettings?.socialLinks}
-          />
-          {/* <CommitmentsWidget teamShortName={teamShortName} /> */}
-        </aside>
-      </div>
     </div>
-  );
-}
-
-function TeamNavBar({
-  teamName,
-  schoolImage,
-}: {
-  teamName: string;
-  schoolImage: NonNullable<SchoolBySlugQueryResult>["image"];
-}) {
-  return (
-    <nav className="sticky top-0 z-40 border-b border-border bg-card">
-      <div className="mx-auto flex h-14 max-w-437.5 items-center gap-4 overflow-x-auto px-4 [-webkit-overflow-scrolling:touch]">
-        <div className="flex shrink-0 items-center gap-2.5">
-          {schoolImage ? (
-            <CustomImage
-              image={schoolImage}
-              width={28}
-              height={28}
-              className="flex size-7 shrink-0 items-center justify-center"
-            />
-          ) : (
-            <div className="size-7 shrink-0 rounded-full bg-muted" />
-          )}
-          <h1 className="text-sm font-bold tracking-wide whitespace-nowrap">
-            {teamName}
-          </h1>
-        </div>
-      </div>
-    </nav>
   );
 }

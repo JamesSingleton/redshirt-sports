@@ -26,7 +26,10 @@ export function NewsArchiveHeader({
         aria-label="Breadcrumb"
       >
         {items.map((item, index) => (
-          <span key={item.href} className="inline-flex items-center gap-1">
+          <span
+            key={`${index}-${item.title}`}
+            className="inline-flex items-center gap-1"
+          >
             {index > 0 ? (
               <ChevronRight className="size-3 shrink-0" aria-hidden />
             ) : null}

@@ -28,9 +28,11 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   SPORT_MEGA_KEY,
   type SportMegaKey,
+  sportHasRankingsNav,
   sportHubPath,
   sportNavLabel,
   sportRankingsIndexPath,
+  globalRankingsNavHref,
 } from "@/lib/sport-nav";
 
 function useBrand(settingsData: QueryGlobalSeoSettingsResult) {
@@ -56,6 +58,7 @@ const MobileNavbar = memo(function MobileNavbar({
 }) {
   const brand = useBrand(settingsData);
   const path = usePathname();
+  const globalRankingsHref = globalRankingsNavHref(latestRankings);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -137,14 +140,16 @@ const MobileNavbar = memo(function MobileNavbar({
                   >
                     All {sportNavLabel(sport.slug, sport.name)} news
                   </Link>
-                  <Link
-                    href={sportRankingsIndexPath(sport.slug)}
-                    className="rounded-md px-2 py-2 text-sm hover:bg-accent"
-                    prefetch={false}
-                    onClick={close}
-                  >
-                    Rankings
-                  </Link>
+                  {sportHasRankingsNav(latestRankings, sport.slug) ? (
+                    <Link
+                      href={sportRankingsIndexPath(sport.slug)}
+                      className="rounded-md px-2 py-2 text-sm hover:bg-accent"
+                      prefetch={false}
+                      onClick={close}
+                    >
+                      Rankings
+                    </Link>
+                  ) : null}
                   {sport.groupings.map((grouping) =>
                     grouping?.slug ? (
                       <Link
@@ -175,14 +180,16 @@ const MobileNavbar = memo(function MobileNavbar({
                 /college/teams
               </span>
             </Link>
-            <Link
-              href="/college/football/rankings"
-              className="rounded-md px-2 py-2 hover:bg-accent"
-              prefetch={false}
-              onClick={close}
-            >
-              Rankings
-            </Link>
+            {globalRankingsHref ? (
+              <Link
+                href={globalRankingsHref}
+                className="rounded-md px-2 py-2 hover:bg-accent"
+                prefetch={false}
+                onClick={close}
+              >
+                Rankings
+              </Link>
+            ) : null}
           </div>
         </SheetContent>
       </Sheet>
@@ -192,13 +199,16 @@ const MobileNavbar = memo(function MobileNavbar({
 
 const DesktopNavbar = memo(function DesktopNavbar({
   navbarData,
+  latestRankings,
   activeMega,
   setActiveMega,
 }: {
   navbarData: StegaBranded<GlobalNavigationQueryResult>;
+  latestRankings: Top25RankingsData;
   activeMega: SportMegaKey | null;
   setActiveMega: (key: SportMegaKey | null) => void;
 }) {
+  const globalRankingsHref = globalRankingsNavHref(latestRankings);
   return (
     <div className="hidden min-w-0 flex-1 items-center lg:flex">
       <nav
@@ -230,13 +240,15 @@ const DesktopNavbar = memo(function DesktopNavbar({
           );
         })}
         <span className="mx-2 h-5 w-px bg-border" aria-hidden />
-        <Link
-          href="/college/football/rankings"
-          className="shrink-0 whitespace-nowrap px-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
-          prefetch={false}
-        >
-          Rankings
-        </Link>
+        {globalRankingsHref ? (
+          <Link
+            href={globalRankingsHref}
+            className="shrink-0 whitespace-nowrap px-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
+            prefetch={false}
+          >
+            Rankings
+          </Link>
+        ) : null}
         <Link
           href="/college/teams"
           className="shrink-0 whitespace-nowrap px-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
@@ -317,6 +329,7 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
         {!isMobile ? (
           <DesktopNavbar
             navbarData={navbarData}
+            latestRankings={latestRankings}
             activeMega={activeMega}
             setActiveMega={setActiveMega}
           />

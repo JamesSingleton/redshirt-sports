@@ -1,41 +1,30 @@
+import { formatWeekSegment } from "@redshirt-sports/clients/espn";
 import { PUBLISHED_FETCH_OPTIONS } from "@redshirt-sports/sanity/live";
-import { buttonVariants } from "@redshirt-sports/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-} from "@redshirt-sports/ui/components/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@redshirt-sports/ui/components/table";
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Fragment, Suspense } from "react";
 import type { Graph } from "schema-dts";
 
+import { AdSlot } from "@/components/ad-slot";
 import { JsonLdScript, websiteId } from "@/components/json-ld";
-import { RankingsFilters } from "@/components/rankings/filters";
-import { RankMovement } from "@/components/rankings/rank-movement";
+import { RankingsBallotsCta } from "@/components/rankings/rankings-ballots-cta";
+import { RankingsBeyondTop25 } from "@/components/rankings/rankings-beyond-top-25";
+import { RankingsBiggestMovers } from "@/components/rankings/rankings-biggest-movers";
+import { RankingsMovementLegend } from "@/components/rankings/rankings-movement-legend";
+import {
+  type PollTableTeam,
+  RankingsPollTable,
+} from "@/components/rankings/rankings-poll-table";
+import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
-import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
-import { TeamPageLink } from "@/components/rankings/team-page-link";
-import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-skeleton";
-import CustomImage from "@/components/sanity-image";
 import { TOP_25 } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
   getCachedFinalRankings,
+  getCachedPollWeekBallotContext,
   getCachedWeeksThatHaveVotes,
   getCachedYearsThatHaveVotes,
   RANKINGS_CACHE_LIFE,
@@ -44,9 +33,10 @@ import {
   rankingsSportTag,
   rankingsWeekTag,
 } from "@/lib/rankings-data";
+import { pollDivisionLabel } from "@/lib/rankings-widget-data";
 import {
   buildRankBySchoolId,
-  displayName,
+  getBiggestMovers,
   getDroppedFromVotes,
   getDroppedOutOfTop25,
   getMovement,
@@ -86,11 +76,12 @@ export async function generateMetadata({
   resolveYearNumber(year);
   const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
+  const divisionName = pollDivisionLabel(division);
 
   return getPageMetadata(
     {
-      title: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings`,
-      description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
+      title: `${year} ${titleWeek} ${divisionName} Top 25 Rankings`,
+      description: `Discover the ${year} ${titleWeek} ${divisionName} Top 25 rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
       slug: `/college/${sport}/rankings/${division}/${year}/${week}`,
     },
     perspective,
@@ -128,7 +119,9 @@ async function renderCollegeFootballRankingsPage({
   const yearNumber = resolveYearNumber(year);
   const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
+  const weekSegment = formatWeekSegment(weekNumber);
   const sportParam = sport as SportParam;
+  const divisionName = pollDivisionLabel(division);
 
   cacheTag(
     RANKINGS_CACHE_TAG,
@@ -138,12 +131,11 @@ async function renderCollegeFootballRankingsPage({
   );
   cacheLife(RANKINGS_CACHE_LIFE);
 
-  const [yearsWithVotesResult, weeksWithVotesResult] = await Promise.allSettled(
-    [
+  const [yearsWithVotesResult, weeksWithVotesResult] =
+    await Promise.allSettled([
       getCachedYearsThatHaveVotes({ division }),
       getCachedWeeksThatHaveVotes({ year: yearNumber, division }),
-    ],
-  );
+    ]);
 
   const yearsWithVotes =
     yearsWithVotesResult.status === "fulfilled"
@@ -160,7 +152,7 @@ async function renderCollegeFootballRankingsPage({
 
   const previousWeek = getPreviousWeek(weeksWithVotes, weekNumber);
 
-  const [finalRankingsResult, previousRankingsResult] =
+  const [finalRankingsResult, previousRankingsResult, ballotContext] =
     await Promise.allSettled([
       getCachedFinalRankings({
         year: yearNumber,
@@ -176,6 +168,12 @@ async function renderCollegeFootballRankingsPage({
             sport: sportParam,
           })
         : Promise.resolve(null),
+      getCachedPollWeekBallotContext({
+        year: yearNumber,
+        week: weekNumber,
+        division,
+        sport: sportParam,
+      }),
     ]);
 
   if (finalRankingsResult.status === "rejected") {
@@ -193,10 +191,24 @@ async function renderCollegeFootballRankingsPage({
     ? buildRankBySchoolId(previousRankings)
     : null;
 
+  const ballotsCounted =
+    ballotContext.status === "fulfilled" && ballotContext.value
+      ? ballotContext.value.ballotsCounted
+      : 0;
+  const ballotsListedBySanityId =
+    ballotContext.status === "fulfilled" && ballotContext.value
+      ? ballotContext.value.ballotsListedBySanityId
+      : {};
+  const voterChips =
+    ballotContext.status === "fulfilled" && ballotContext.value
+      ? ballotContext.value.voterChips
+      : [];
+
   const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25);
-  const outsideTop25 = rankings.filter(
-    (team) => !team.rank || team.rank > TOP_25,
-  );
+  const outsideTop25 = [...rankings]
+    .filter((team) => !team.rank || team.rank > TOP_25)
+    .sort((a, b) => b._points - a._points);
+  const currentRankingsById = new Map(rankings.map((team) => [team._id, team]));
 
   const droppedOutOfTop25 = previousRankings
     ? getDroppedOutOfTop25(previousRankings, rankings)
@@ -208,28 +220,57 @@ async function renderCollegeFootballRankingsPage({
       )
     : [];
 
+  const pollTableTeams: PollTableTeam[] = top25.map((team) => {
+    const prev = previousRankById?.get(team._id) ?? null;
+    const prevTop25 =
+      typeof prev === "number" && prev > 0 && prev <= TOP_25 ? prev : null;
+    return {
+      ...team,
+      movement: previousRankById
+        ? getMovement(team.rank, prev)
+        : null,
+      ballotsListed: ballotsListedBySanityId[team._id] ?? 0,
+      previousRank: prevTop25,
+    };
+  });
+
+  const biggestMovers = getBiggestMovers(top25, previousRankById);
+  const previousWeekTitle =
+    previousWeek != null ? weekTitle(previousWeek) : null;
+  const moversSubtitle =
+    previousWeekTitle != null
+      ? `${titleWeek} vs ${previousWeekTitle}`
+      : titleWeek;
+
+  const weekPath = `/college/${sport}/rankings/${division}/${year}/${weekSegment}`;
+  const ballotsHref = `${weekPath}/ballots`;
+  const byVoterHref = `${ballotsHref}/by-voter`;
+  const methodologyHref = rankingsMethodologyHref(sport, division);
+  const voterWord = ballotsCounted === 1 ? "voter" : "voters";
+  const ballotWord = ballotsCounted === 1 ? "ballot" : "ballots";
+
   const jsonLd: Graph = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,
-        url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
-        name: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-        description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
+        "@id": `${baseUrl}${weekPath}#webpage`,
+        url: `${baseUrl}${weekPath}`,
+        name: `${year} ${titleWeek} ${divisionName} Top 25 Rankings | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+        description: `Discover the ${year} ${titleWeek} ${divisionName} Top 25 rankings presented by Redshirt Sports.`,
         isPartOf: {
           "@type": "WebSite",
           "@id": websiteId,
         },
         inLanguage: "en-US",
         mainEntity: {
-          "@id": `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
+          "@id": `${baseUrl}${weekPath}#rankings`,
         },
       },
       {
         "@type": "ItemList",
-        "@id": `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
-        url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
+        "@id": `${baseUrl}${weekPath}#rankings`,
+        url: `${baseUrl}${weekPath}`,
         numberOfItems: top25.length,
         itemListOrder: "https://schema.org/ItemListOrderAscending",
         itemListElement: top25.map((team) => ({
@@ -246,164 +287,85 @@ async function renderCollegeFootballRankingsPage({
   };
 
   return (
-    <div className="container mx-auto gap-8 px-4 py-8">
+    <>
       <JsonLdScript
         data={jsonLd}
         id={`json-ld-${sport}-${division}-${year}-${week}`}
       />
-      <Card>
-        <CardHeader>
-          <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
-          <CardDescription>
-            Our {division.toUpperCase()} Top 25 uses a point system: 25 points
-            for a first-place vote down to 1 point for a 25th-place vote. Total
-            points determine the final rankings.
-          </CardDescription>
-          <CardDescription className="flex items-center space-x-4 pt-4">
-            <RankingsFilters years={yearsWithVotes} weeks={weeksWithVotes} />
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {top25.length > 0 && (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Rank</TableHead>
-                  <TableHead>Trend</TableHead>
-                  <TableHead>School (1st Place Votes)</TableHead>
-                  <TableHead>Points</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {top25.map((team) => {
-                  const movement = previousRankById
-                    ? getMovement(team.rank, previousRankById.get(team._id))
-                    : null;
-
-                  return (
-                    <TableRow key={team._id}>
-                      <TableCell>
-                        {team.isTie ? `T-${team.rank}` : team.rank}
-                      </TableCell>
-                      <TableCell>
-                        {movement ? (
-                          <RankMovement movement={movement} />
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <TeamPageLink
-                            slug={team.slug}
-                            className="flex items-center hover:underline"
-                          >
-                            <CustomImage
-                              image={
-                                team.image as Parameters<
-                                  typeof CustomImage
-                                >[0]["image"]
-                              }
-                              width={40}
-                              height={40}
-                              className="mr-2 size-10 shrink-0 object-contain"
-                              mode="contain"
-                            />
-                            {team.shortName ?? team.abbreviation ?? team.name}
-                          </TeamPageLink>
-                          {team.firstPlaceVotes ? (
-                            <span className="text-muted-foreground ml-2 tracking-wider">
-                              ({team.firstPlaceVotes})
-                            </span>
-                          ) : null}
-                        </div>
-                      </TableCell>
-                      <TableCell>{team._points}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
-          {top25.length === 0 && (
-            <div className="mx-auto max-w-md text-center">
-              <h2 className="text-foreground mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
-                Top 25 Poll Not Found
-              </h2>
-              <p className="text-muted-foreground mt-4">
-                We&apos;re sorry, but the selected Top 25 poll could not be
-                found. Please try again or check back later.
-              </p>
-              <div className="mt-6">
-                <Link href="/" className={buttonVariants()} prefetch={false}>
-                  Go back Home
-                </Link>
-              </div>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter>
-          {(droppedOutOfTop25.length > 0 ||
-            outsideTop25.length > 0 ||
-            noLongerReceivingVotes.length > 0) && (
-            <div className="mt-4 space-y-2">
-              {droppedOutOfTop25.length > 0 && (
-                <p>
-                  <strong>Dropped Out of Top 25:</strong>{" "}
-                  {droppedOutOfTop25.map((team, index) => (
-                    <Fragment key={team._id}>
-                      {index > 0 ? ", " : null}
-                      <TeamPageLink slug={team.slug}>
-                        {displayName(team)} ({team.previousRank})
-                      </TeamPageLink>
-                    </Fragment>
-                  ))}
-                </p>
-              )}
-              {outsideTop25.length > 0 && (
-                <p>
-                  <strong>Others receiving votes:</strong>{" "}
-                  {outsideTop25.map((team, index) => (
-                    <Fragment key={team._id}>
-                      {index > 0 ? ", " : null}
-                      <TeamPageLink slug={team.slug}>
-                        {team.shortName} {team._points}
-                      </TeamPageLink>
-                    </Fragment>
-                  ))}
-                </p>
-              )}
-              {noLongerReceivingVotes.length > 0 && (
-                <p>
-                  <strong>No longer receiving votes:</strong>{" "}
-                  {noLongerReceivingVotes.map((team, index) => (
-                    <Fragment key={team._id}>
-                      {index > 0 ? ", " : null}
-                      <TeamPageLink slug={team.slug}>
-                        {displayName(team)}
-                      </TeamPageLink>
-                    </Fragment>
-                  ))}
-                </p>
-              )}
-            </div>
-          )}
-        </CardFooter>
-      </Card>
-      {top25.length > 0 ? (
-        <Suspense fallback={<VoterBreakdownSkeleton />}>
-          <RankingsVoterBreakdown
-            division={division}
-            year={yearNumber}
-            week={weekNumber}
-            sport={sportParam}
-            consensusRanks={top25.map((team) => ({
-              id: team._id,
-              rank: team.rank as number,
-            }))}
-          />
-        </Suspense>
+      {ballotsCounted > 0 ? (
+        <p className="pt-4 text-sm text-muted-foreground">
+          {ballotsCounted} {voterWord} · {ballotsCounted} {ballotWord} counted
+        </p>
       ) : null}
-    </div>
+
+      {top25.length > 0 ? (
+        <>
+          <div className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="grid content-start gap-4">
+              <RankingsBallotsCta
+                variant="mobile"
+                ballotsHref={ballotsHref}
+                byVoterHref={byVoterHref}
+                ballotsCounted={ballotsCounted}
+                voterChips={voterChips}
+                weekLabel={titleWeek}
+              />
+              <RankingsPollTable
+                teams={pollTableTeams}
+                ballotsCounted={ballotsCounted}
+                methodologyHref={methodologyHref}
+              />
+              <RankingsMovementLegend />
+            </div>
+            <aside className="grid content-start gap-6">
+              <RankingsBallotsCta
+                variant="desktop"
+                ballotsHref={ballotsHref}
+                byVoterHref={byVoterHref}
+                ballotsCounted={ballotsCounted}
+                voterChips={voterChips}
+                weekLabel={titleWeek}
+              />
+              <RankingsBiggestMovers
+                movers={biggestMovers}
+                weekComparisonLabel={moversSubtitle}
+              />
+              <AdSlot
+                width={300}
+                height={250}
+                className="mx-auto hidden lg:flex"
+              />
+            </aside>
+          </div>
+          <RankingsBeyondTop25
+            othersReceivingVotes={outsideTop25}
+            droppedOut={droppedOutOfTop25}
+            noLongerReceivingVotes={noLongerReceivingVotes}
+            ballotsCounted={ballotsCounted}
+            currentRankingsById={currentRankingsById}
+            ballotsListedBySanityId={ballotsListedBySanityId}
+          />
+        </>
+      ) : (
+        <div className="mx-auto max-w-md py-16 text-center">
+          <h2 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">
+            Top 25 Poll Not Found
+          </h2>
+          <p className="text-muted-foreground mt-4">
+            We&apos;re sorry, but the selected Top 25 poll could not be found.
+            Please try again or check back later.
+          </p>
+          <div className="mt-6">
+            <Link
+              href="/"
+              prefetch={false}
+              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+            >
+              Go back Home
+            </Link>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

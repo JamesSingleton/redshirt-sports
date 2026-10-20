@@ -6,15 +6,19 @@ const {
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
+  mockGetCachedMostReadPosts,
+  mockGetCachedRankingsWidgetPolls,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
   mockGetDynamicFetchOptions: vi
     .fn()
     .mockResolvedValue({ perspective: "published", stega: false }),
-  mockGetPageMetadata: vi.fn(() => ({ title: "College Sports News" })),
+  mockGetPageMetadata: vi.fn(() => ({ title: "College News" })),
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
+  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
+  mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
@@ -26,6 +30,14 @@ vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
 }));
 
+vi.mock("@/lib/most-read-data", () => ({
+  getCachedMostReadPosts: mockGetCachedMostReadPosts,
+}));
+
+vi.mock("@/lib/rankings-widget-data", () => ({
+  getCachedRankingsWidgetPolls: mockGetCachedRankingsWidgetPolls,
+}));
+
 vi.mock("@redshirt-sports/sanity/live", () => ({
   PUBLISHED_FETCH_OPTIONS: {
     perspective: "published",
@@ -35,11 +47,9 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
-  collegeNewsQuery: "collegeNewsQuery",
-}));
-
-vi.mock("@/lib/get-base-url", () => ({
-  getBaseUrl: () => "https://redshirtsports.com",
+  queryCollegeNews: "queryCollegeNews",
+  queryCollegeNewsOldest: "queryCollegeNewsOldest",
+  globalNavigationQuery: "globalNavigationQuery",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
@@ -48,28 +58,9 @@ vi.mock("@/lib/global-seo-settings", () => ({
 
 vi.mock("next/navigation", () => ({
   notFound: mockNotFound,
-}));
-
-vi.mock("@/components/json-ld", () => ({
-  JsonLdScript: () => <script data-testid="json-ld" />,
-  organizationId: "org-id",
-  websiteId: "website-id",
-}));
-
-vi.mock("@/components/page-header", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => <h1>{title}</h1>,
-}));
-
-vi.mock("@/components/article-feed", () => ({
-  __esModule: true,
-  default: ({ articles }: { articles: Array<{ title: string }> }) => (
-    <div data-testid="article-feed">
-      {articles.map((a) => (
-        <div key={a.title}>{a.title}</div>
-      ))}
-    </div>
-  ),
+  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => "/college/news",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/pagination-controls", () => ({
@@ -77,18 +68,24 @@ vi.mock("@/components/pagination-controls", () => ({
   default: () => <nav data-testid="pagination" />,
 }));
 
+import CollegeNewsLoading from "@/app/college/news/loading";
 import CollegeNewsPage, { generateMetadata } from "@/app/college/news/page";
 
 const samplePost = {
   _id: "1",
   title: "College Headline",
   slug: "college-headline",
+  publishedAt: "2026-10-19T12:00:00.000Z",
+  sportTitle: "College Football",
+  sportSlug: "football",
 };
 
 describe("CollegeNewsPage", () => {
   beforeEach(() => {
     mockSanityFetchPage.mockReset();
     mockNotFound.mockClear();
+    mockGetCachedMostReadPosts.mockResolvedValue([]);
+    mockGetCachedRankingsWidgetPolls.mockResolvedValue([]);
   });
 
   it("generateMetadata uses paginated title for page > 1", async () => {
@@ -110,7 +107,7 @@ describe("CollegeNewsPage", () => {
     });
     expect(mockGetPageMetadata).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "College Sports News",
+        title: "College News",
         slug: "/college/news",
       }),
       "published",
@@ -126,30 +123,41 @@ describe("CollegeNewsPage", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
-  it("renders college news feed", async () => {
-    mockSanityFetchPage.mockResolvedValue({
-      data: { posts: [samplePost], totalPosts: 1 },
+  it("renders college news archive", async () => {
+    mockSanityFetchPage.mockImplementation(({ query }: { query: string }) => {
+      if (query === "globalNavigationQuery") {
+        return Promise.resolve({ data: [] });
+      }
+      return Promise.resolve({
+        data: { posts: [samplePost], totalPosts: 1 },
+      });
     });
 
     const page = await CollegeNewsPage({ searchParams: Promise.resolve({}) });
     render(page as ReactNode);
 
     expect(
-      screen.getByRole("heading", { name: "College Sports News" }),
+      screen.getByRole("heading", { name: "College News" }),
     ).toBeInTheDocument();
     expect(screen.getByText("College Headline")).toBeInTheDocument();
+    expect(screen.getByText("College Football")).toBeInTheDocument();
   });
 
   it("renders pagination when multiple pages exist", async () => {
-    mockSanityFetchPage.mockResolvedValue({
-      data: {
-        posts: Array.from({ length: 12 }, (_, i) => ({
-          ...samplePost,
-          _id: String(i),
-          title: `Post ${i}`,
-        })),
-        totalPosts: 24,
-      },
+    mockSanityFetchPage.mockImplementation(({ query }: { query: string }) => {
+      if (query === "globalNavigationQuery") {
+        return Promise.resolve({ data: [] });
+      }
+      return Promise.resolve({
+        data: {
+          posts: Array.from({ length: 12 }, (_, i) => ({
+            ...samplePost,
+            _id: String(i),
+            title: `Post ${i}`,
+          })),
+          totalPosts: 24,
+        },
+      });
     });
 
     const page = await CollegeNewsPage({
@@ -158,5 +166,10 @@ describe("CollegeNewsPage", () => {
     render(page as ReactNode);
 
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
+  });
+
+  it("loading route renders archive skeleton", () => {
+    render(<CollegeNewsLoading />);
+    expect(screen.getByRole("status")).toHaveTextContent("Loading");
   });
 });

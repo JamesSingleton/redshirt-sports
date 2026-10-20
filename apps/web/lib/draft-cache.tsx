@@ -51,8 +51,11 @@ async function DraftAwareParamsRender<P>({
 /**
  * Layer 1 branch for routes with dynamic `params`.
  * This Suspense is required so `draftMode()` can prerender a shell. It is
- * the nearest boundary, so `loading.tsx` does not run unless `fallback`
- * is that loading UI.
+ * the nearest boundary during client navigations, so segment `loading.tsx`
+ * does not show unless `fallback` is the same UI (import the route's
+ * `loading` default export and pass `<RouteLoading />`). Avoid a root
+ * `app/loading.tsx` — Next.js can show it while navigating to unrelated
+ * routes (e.g. home skeleton on article pages).
  */
 export function draftAwareParamsPage<P>(
   params: Promise<P>,

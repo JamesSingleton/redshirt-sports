@@ -8,13 +8,19 @@ const {
   mockGetCachedYears,
   mockGetCachedWeeks,
   mockGetCachedFinalRankings,
+  mockGetCachedPollWeekBallotContext,
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockDraftAwareParamsPage,
+  mockSanityFetchPage,
 } = vi.hoisted(() => ({
   mockGetCachedYears: vi.fn(),
   mockGetCachedWeeks: vi.fn(),
   mockGetCachedFinalRankings: vi.fn(),
+  mockGetCachedPollWeekBallotContext: vi.fn(),
+  mockSanityFetchPage: vi.fn().mockResolvedValue({
+    data: { title: "College Football" },
+  }),
   mockGetDynamicFetchOptions: vi.fn().mockResolvedValue({
     perspective: "published",
     stega: false,
@@ -41,10 +47,15 @@ vi.mock("@/lib/draft-cache", () => ({
   draftAwareParamsPage: mockDraftAwareParamsPage,
 }));
 
+vi.mock("@/lib/sanity-fetch", () => ({
+  sanityFetchPage: mockSanityFetchPage,
+}));
+
 vi.mock("@/lib/rankings-data", () => ({
   getCachedYearsThatHaveVotes: mockGetCachedYears,
   getCachedWeeksThatHaveVotes: mockGetCachedWeeks,
   getCachedFinalRankings: mockGetCachedFinalRankings,
+  getCachedPollWeekBallotContext: mockGetCachedPollWeekBallotContext,
   RANKINGS_CACHE_LIFE: { stale: 300, revalidate: 604800, expire: 2592000 },
   RANKINGS_CACHE_TAG: "rankings",
   rankingsSportTag: (sport: string) => `rankings:${sport}`,
@@ -88,10 +99,6 @@ vi.mock("@/components/rankings/filters", () => ({
   RankingsFilters: () => <div data-testid="rankings-filters" />,
 }));
 
-vi.mock("@/components/rankings/rankings-voter-breakdown", () => ({
-  RankingsVoterBreakdown: () => <div data-testid="voter-breakdown" />,
-}));
-
 vi.mock("@/components/sanity-image", () => ({
   __esModule: true,
   default: () => <img alt="" data-testid="school-logo" />,
@@ -112,6 +119,15 @@ describe("CollegeFootballRankingsPage", () => {
     mockGetCachedYears.mockReset();
     mockGetCachedWeeks.mockReset();
     mockGetCachedFinalRankings.mockReset();
+    mockGetCachedPollWeekBallotContext.mockReset();
+    mockGetCachedPollWeekBallotContext.mockResolvedValue({
+      ballotsCounted: 22,
+      ballotsListedBySanityId: {},
+      voterChips: [
+        { id: "user-1", label: "AB" },
+        { id: "user-2", label: "CD" },
+      ],
+    });
     mockGetPageMetadata.mockClear();
     mockDraftAwareParamsPage.mockClear();
   });
@@ -280,13 +296,14 @@ describe("CollegeFootballRankingsPage", () => {
 
     render(page);
 
-    expect(screen.getByLabelText("down 1")).toBeInTheDocument();
-    expect(screen.getByLabelText("new to rankings")).toBeInTheDocument();
-    expect(screen.getByText(/Dropped Out of Top 25/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Mercer (24)" })).toHaveAttribute(
+    expect(screen.getByLabelText("Down 1")).toBeInTheDocument();
+    expect(screen.getByLabelText("Newly ranked")).toBeInTheDocument();
+    expect(screen.getByText(/Dropped out of the Top 25/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Mercer" })).toHaveAttribute(
       "href",
       "/college/teams/mercer",
     );
+    expect(screen.getByText("No. 24")).toBeInTheDocument();
     expect(screen.getByText(/Others receiving votes/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /ORV Team/ })).toHaveAttribute(
       "href",

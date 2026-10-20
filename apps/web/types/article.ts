@@ -1,5 +1,5 @@
 import type {
-  CollegeNewsQueryResult,
+  QueryCollegeNewsResult,
   PostsByStoryTypeQueryResult,
   QueryArticlesBySportDivisionAndConferenceResult,
   QuerySportsAndDivisionNewsResult,
@@ -11,5 +11,5 @@ export type ArticleFeedItem =
   | QuerySportsNewsResult["posts"][number]
   | QuerySportsAndDivisionNewsResult["posts"][number]
   | QueryArticlesBySportDivisionAndConferenceResult["posts"][number]
-  | CollegeNewsQueryResult["posts"][number]
+  | QueryCollegeNewsResult["posts"][number]
   | PostsByStoryTypeQueryResult["posts"][number];

@@ -9,6 +9,7 @@ const {
   mockGetCachedRankedSchoolSanityIds,
   mockGetCachedSchoolRankingHistory,
   mockGetCachedSchoolHasPollRankings,
+  mockGetCachedMostReadPosts,
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
@@ -20,6 +21,7 @@ const {
   mockGetCachedRankedSchoolSanityIds: vi.fn().mockResolvedValue([]),
   mockGetCachedSchoolRankingHistory: vi.fn().mockResolvedValue({ polls: [] }),
   mockGetCachedSchoolHasPollRankings: vi.fn().mockResolvedValue(false),
+  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
   mockGetDynamicFetchOptions: vi
     .fn()
     .mockResolvedValue({ perspective: "published", stega: false }),
@@ -58,7 +60,8 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
-  MIN_TEAM_PAGE_POSTS: 8,
+  MIN_TEAM_PAGE_POSTS: 1,
+  TEAM_PAGE_NEWS_FETCH_SIZE: 8,
   postsBySchoolAndStoryTypeQuery: "postsBySchoolAndStoryTypeQuery",
   postsBySchoolQuery: "postsBySchoolQuery",
   querySchoolPaths: "querySchoolPaths",
@@ -75,6 +78,10 @@ vi.mock("@/lib/rankings-data", () => ({
   getCachedRankedSchoolSanityIds: mockGetCachedRankedSchoolSanityIds,
   getCachedSchoolHasPollRankings: mockGetCachedSchoolHasPollRankings,
   getCachedSchoolRankingHistory: mockGetCachedSchoolRankingHistory,
+}));
+
+vi.mock("@/lib/most-read-data", () => ({
+  getCachedMostReadPosts: mockGetCachedMostReadPosts,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -210,7 +217,7 @@ describe("TeamPage", () => {
 
   it("generateMetadata throws notFound when school is ineligible", async () => {
     mockSanityFetchMetadata.mockResolvedValue({
-      data: { ...sampleSchool, postCount: 1 },
+      data: { ...sampleSchool, postCount: 0 },
     });
     mockGetCachedSchoolHasPollRankings.mockResolvedValue(false);
 
@@ -228,10 +235,13 @@ describe("TeamPage", () => {
     render(page as ReactNode);
 
     expect(
-      screen.getByRole("heading", { name: "Alabama" }),
+      screen.getByRole("heading", {
+        name: "Alabama Crimson Tide",
+        level: 1,
+      }),
     ).toBeInTheDocument();
     expect(screen.getByText("Post 0")).toBeInTheDocument();
-    expect(screen.getByText("Alabama Sports")).toBeInTheDocument();
+    expect(screen.getAllByText("Alabama Sports").length).toBeGreaterThan(0);
     expect(screen.getByText("Top Recruit")).toBeInTheDocument();
     expect(screen.getByTestId("connect-widget")).toBeInTheDocument();
   });
@@ -245,7 +255,7 @@ describe("TeamPage", () => {
 
   it("throws notFound when school is ineligible", async () => {
     mockSanityFetchPage.mockResolvedValue({
-      data: { ...sampleSchool, postCount: 1 },
+      data: { ...sampleSchool, postCount: 0 },
     });
     mockGetCachedSchoolRankingHistory.mockResolvedValue({ polls: [] });
 
@@ -367,8 +377,10 @@ describe("TeamPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
-    expect(screen.getByText("Team Sports")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Team Crimson Tide", level: 1 }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Team Sports").length).toBeGreaterThan(0);
   });
 
   it("renders team page without featured posts or recruiting when feeds are empty", async () => {
@@ -385,7 +397,7 @@ describe("TeamPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByText("Alabama Sports")).toBeInTheDocument();
+    expect(screen.getAllByText("Alabama Sports").length).toBeGreaterThan(0);
     expect(screen.queryByTestId("featured")).not.toBeInTheDocument();
     expect(screen.queryByText("Alabama Recruiting")).not.toBeInTheDocument();
   });

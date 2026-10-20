@@ -42,71 +42,18 @@ export function postArchiveKicker(post: HomePost): string {
   return "News";
 }
 
-export type NewsDayGroup = {
-  id: string;
-  label: string;
-  posts: HomePost[];
-};
+import {
+  differenceInDays,
+  format,
+  formatDistanceToNow,
+  parseISO,
+} from "date-fns";
 
-function dayKey(iso: string): string {
-  return iso.slice(0, 10);
-}
-
-function formatDayLabel(dayKeyStr: string, now = new Date()): string {
-  const parts = dayKeyStr.split("-").map(Number);
-  const y = parts[0] ?? 0;
-  const m = parts[1] ?? 1;
-  const d = parts[2] ?? 1;
-  const dayDate = new Date(y, m - 1, d);
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  const dayOnly = new Date(
-    dayDate.getFullYear(),
-    dayDate.getMonth(),
-    dayDate.getDate(),
-  );
-
-  const weekday = dayDate.toLocaleDateString("en-US", { weekday: "short" });
-  const monthDay = dayDate.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-
-  if (dayOnly.getTime() === today.getTime()) {
-    return `Today · ${weekday}, ${monthDay}`;
+/** Relative label for recent posts; calendar date for older ones. */
+export function formatArchivePublishedAt(iso: string, now = new Date()): string {
+  const date = parseISO(iso);
+  if (differenceInDays(now, date) < 7) {
+    return formatDistanceToNow(date, { addSuffix: true });
   }
-  if (dayOnly.getTime() === yesterday.getTime()) {
-    return `Yesterday · ${weekday}, ${monthDay}`;
-  }
-  return `${weekday}, ${monthDay}`;
-}
-
-export function groupPostsByDay(posts: HomePost[]): NewsDayGroup[] {
-  const groups = new Map<string, HomePost[]>();
-
-  for (const post of posts) {
-    const published = post.publishedAt;
-    if (!published) continue;
-    const key = dayKey(published);
-    const list = groups.get(key) ?? [];
-    list.push(post);
-    groups.set(key, list);
-  }
-
-  return [...groups.entries()]
-    .sort(([a], [b]) => b.localeCompare(a))
-    .map(([key, dayPosts]) => ({
-      id: key,
-      label: formatDayLabel(key),
-      posts: dayPosts,
-    }));
-}
-
-export function formatRiverTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  return format(date, "M/d/yyyy");
 }

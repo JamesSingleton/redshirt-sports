@@ -19,6 +19,7 @@ export type NewsFilterConference = {
   slug: string;
   name: string;
   divisionSlug: string;
+  sportSlug?: string;
 };
 
 export function NewsArchiveFilters({

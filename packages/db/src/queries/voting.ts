@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
@@ -93,6 +93,75 @@ export async function countBallotsForPollWeek({
       and(eq(ballotsTable.pollId, pollId), eq(ballotsTable.weekId, weekId)),
     );
   return row?.count ?? 0;
+}
+
+/** Ballots that listed each school anywhere on the Top 25 (by Sanity school id). */
+export async function getBallotsListedBySanityIdForPollWeek({
+  pollId,
+  weekId,
+}: {
+  pollId: string;
+  weekId: string;
+}): Promise<Map<string, number>> {
+  const rows = await db
+    .select({
+      sanityId: schoolsTable.sanityId,
+      listed: sql<number>`count(distinct ${ballotsTable.id})::int`,
+    })
+    .from(ballotEntriesTable)
+    .innerJoin(ballotsTable, eq(ballotEntriesTable.ballotId, ballotsTable.id))
+    .innerJoin(schoolsTable, eq(ballotEntriesTable.schoolId, schoolsTable.id))
+    .where(
+      and(eq(ballotsTable.pollId, pollId), eq(ballotsTable.weekId, weekId)),
+    )
+    .groupBy(schoolsTable.sanityId);
+
+  const map = new Map<string, number>();
+  for (const row of rows) {
+    if (row.sanityId) {
+      map.set(row.sanityId, row.listed);
+    }
+  }
+  return map;
+}
+
+export type PollWeekVoterChip = {
+  id: string;
+  label: string;
+};
+
+export async function getPollWeekVoterChips({
+  pollId,
+  weekId,
+  limit = 6,
+}: {
+  pollId: string;
+  weekId: string;
+  limit?: number;
+}): Promise<PollWeekVoterChip[]> {
+  const rows = await db
+    .selectDistinct({
+      userId: ballotsTable.userId,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+    })
+    .from(ballotsTable)
+    .innerJoin(usersTable, eq(ballotsTable.userId, usersTable.id))
+    .where(
+      and(eq(ballotsTable.pollId, pollId), eq(ballotsTable.weekId, weekId)),
+    )
+    .limit(limit);
+
+  return rows.map((row, index) => {
+    const first = row.firstName?.trim().charAt(0) ?? "";
+    const last = row.lastName?.trim().charAt(0) ?? "";
+    const initials = `${first}${last}`.toUpperCase();
+    const label =
+      initials.length >= 2
+        ? initials
+        : `V${String(index + 1).padStart(2, "0")}`;
+    return { id: row.userId, label };
+  });
 }
 
 function pollWeekKey(pollId: string, weekId: string) {

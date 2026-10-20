@@ -3,161 +3,194 @@ import {
   getDynamicFetchOptions,
   PUBLISHED_FETCH_OPTIONS,
 } from "@redshirt-sports/sanity/live";
-import { collegeNewsQuery } from "@redshirt-sports/sanity/queries";
+import {
+  globalNavigationQuery,
+  queryCollegeNews,
+  queryCollegeNewsOldest,
+} from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import type { CollectionPage, WithContext } from "schema-dts";
 
-import ArticleFeed from "@/components/article-feed";
-import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
-import PageHeader from "@/components/page-header";
+import type { HomePost } from "@/components/home/home-page-content";
+import { CollegeNewsArchiveFilters } from "@/components/news/college-news-archive-filters";
+import { NewsArchiveHeader } from "@/components/news/news-archive-header";
+import { NewsArchiveRiver } from "@/components/news/news-archive-river";
+import { NewsArchiveSidebar } from "@/components/news/news-archive-sidebar";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
+import { buildCollegeNewsFilterOptions } from "@/lib/college-news-filters";
 import { searchParamsPage } from "@/lib/draft-cache";
-import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { getCachedMostReadPosts } from "@/lib/most-read-data";
+import {
+  parseNewsArchiveFilters,
+  type NewsArchiveSearchParams,
+} from "@/lib/news-archive";
+import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { validatePageIndex } from "@/utils/validate-page-index";
 
-const baseUrl = getBaseUrl();
+import CollegeNewsRouteLoading from "./loading";
 
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: Promise<NewsArchiveSearchParams>;
 }): Promise<Metadata> {
-  const params = await searchParams;
+  const { page } = await searchParams;
+  const pageIndex = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
   const { perspective } = PUBLISHED_FETCH_OPTIONS;
-  const page = params.page;
-
-  const pageNumber = typeof page === "string" ? parseInt(page, 10) : 1;
-  const isFirstPage = !page || pageNumber <= 1;
-
-  const appName = process.env.NEXT_PUBLIC_APP_NAME;
-
-  const baseTitle = `College Sports News`;
-  const baseCanonical = `/college/news`;
 
   let title: string;
   let description: string;
-  let canonical: string;
+  let canonicalUrl = "/college/news";
 
-  if (isFirstPage) {
-    title = baseTitle;
-    description = `Stay updated with comprehensive college sports coverage: breaking news, game highlights, recruiting, & in-depth analysis from across the NCAA. Get the latest from ${appName}.`;
-    canonical = baseCanonical;
+  if (pageIndex > 1) {
+    title = `College News - Page ${pageIndex}`;
+    description = `Page ${pageIndex} of college sports news from ${process.env.NEXT_PUBLIC_APP_NAME}.`;
+    canonicalUrl = `${canonicalUrl}?page=${pageIndex}`;
   } else {
-    title = `${baseTitle} - Page ${pageNumber}`;
-    description = `Continue reading more college sports news on Page ${pageNumber}. Find the latest updates, player features, and postseason analysis from ${appName}.`;
-    canonical = `${baseCanonical}?page=${pageNumber}`;
+    title = "College News";
+    description =
+      "Every Redshirt story across college football and basketball, newest first.";
   }
 
   return getPageMetadata(
     {
       title,
       description,
-      slug: canonical,
+      slug: canonicalUrl,
     },
     perspective,
   );
 }
 
-const breadcrumbItems = [
-  {
-    title: "News",
-    href: "/college/news",
-  },
-];
-
-export default function CollegeSportsNews({
+export default function CollegeNewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<NewsArchiveSearchParams>;
 }) {
-  return searchParamsPage(null, () => renderCollegeSportsNews(searchParams));
+  return searchParamsPage(
+    <CollegeNewsRouteLoading />,
+    () => renderCollegeNewsPage(searchParams),
+  );
 }
 
-async function renderCollegeSportsNews(
-  searchParams: Promise<{ page?: string }>,
+async function renderCollegeNewsPage(
+  searchParams: Promise<NewsArchiveSearchParams>,
 ) {
-  const { page } = await searchParams;
-  const pageIndex = validatePageIndex(page);
+  const filters = await searchParams;
+  const { pageIndex, search, storyType, sort } =
+    parseNewsArchiveFilters(filters);
   const { perspective, stega } = await getDynamicFetchOptions();
-  return cachedRenderCollegeSportsNews({ pageIndex, perspective, stega });
+  return cachedRenderCollegeNewsPage({
+    pageIndex,
+    search,
+    storyType,
+    sort,
+    perspective,
+    stega,
+    filterParams: filters,
+  });
 }
 
-async function cachedRenderCollegeSportsNews({
+async function cachedRenderCollegeNewsPage({
   pageIndex,
+  search,
+  storyType,
+  sort,
   perspective,
   stega,
-}: DynamicFetchOptions & { pageIndex: number }) {
+  filterParams,
+}: DynamicFetchOptions & {
+  pageIndex: number;
+  search: string;
+  storyType: string;
+  sort: "newest" | "oldest";
+  filterParams: NewsArchiveSearchParams;
+}) {
   "use cache";
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
-  const {
-    data: { posts, totalPosts },
-  } = await sanityFetchPage({
-    query: collegeNewsQuery,
-    params: { from, to },
-    perspective,
-    stega,
-  });
+  const newsQuery =
+    sort === "oldest" ? queryCollegeNewsOldest : queryCollegeNews;
 
-  if (posts.length === 0) {
+  const queryParams = {
+    from,
+    to,
+    search,
+    storyType,
+  };
+
+  const [newsResponse, navResponse, mostRead, rankingsPolls] =
+    await Promise.all([
+      sanityFetchPage({
+        query: newsQuery,
+        params: queryParams,
+        perspective,
+        stega,
+      }),
+      sanityFetchPage({
+        query: globalNavigationQuery,
+        perspective,
+        stega,
+      }),
+      getCachedMostReadPosts(),
+      getCachedRankingsWidgetPolls(),
+    ]);
+
+  const news = newsResponse.data as {
+    posts?: HomePost[];
+    totalPosts?: number;
+  } | null;
+
+  if (!news?.posts?.length) {
     notFound();
   }
 
-  const totalPages = Math.ceil(totalPosts / perPage);
+  const totalPages = Math.ceil((news.totalPosts ?? 0) / perPage);
+  const { sports, divisions, conferences } = buildCollegeNewsFilterOptions(
+    navResponse.data,
+  );
 
-  const newsJsonLd: WithContext<CollectionPage> = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: "College Sports News",
-    url: `${baseUrl}/college/news`,
-    description: `Stay updated with comprehensive college sports coverage: breaking news, game highlights, recruiting, & in-depth analysis from across the NCAA. Get the latest from ${process.env.NEXT_PUBLIC_APP_NAME}.`,
-    isPartOf: {
-      "@type": "WebSite",
-      "@id": websiteId,
-    },
-    publisher: {
-      "@type": "Organization",
-      "@id": organizationId,
-    },
-    mainEntity: {
-      "@type": "ItemList",
-      itemListElement: posts.map((post, index: number) => ({
-        "@id": `${baseUrl}/${post.slug}#article`,
-        position: index + 1,
-      })),
-      numberOfItems: posts.length,
-    },
-    breadcrumb: {
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: baseUrl,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "College Sports News",
-          item: `${baseUrl}/college/news`,
-        },
-      ],
-    },
-  };
+  const breadcrumbItems = [
+    { title: "College", href: "/college/news" },
+    { title: "News", href: "/college/news" },
+  ];
 
   return (
-    <>
-      <JsonLdScript data={newsJsonLd} id="college-sports-news-json-ld" />
-      <PageHeader title="College Sports News" breadcrumbs={breadcrumbItems} />
-      <section className="container pb-12">
-        <ArticleFeed articles={posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={totalPosts} />}
-      </section>
-    </>
+    <div className="mx-auto max-w-site px-4 lg:px-6">
+      <NewsArchiveHeader
+        breadcrumbs={breadcrumbItems}
+        kicker="All sports · Archive"
+        title="College News"
+        description="Every Redshirt story across college football and basketball, newest first."
+      />
+      <CollegeNewsArchiveFilters
+        sports={sports}
+        divisions={divisions}
+        conferences={conferences}
+        initial={filterParams}
+      />
+      <div className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div>
+          <NewsArchiveRiver
+            posts={news.posts}
+            pageIndex={pageIndex}
+            totalPosts={news.totalPosts ?? news.posts.length}
+            totalPages={totalPages}
+            showSportLabels
+          />
+          {totalPages > 1 ? (
+            <nav aria-label="Pagination" className="pt-6">
+              <PaginationControls totalPosts={news.totalPosts ?? 0} />
+            </nav>
+          ) : null}
+        </div>
+        <NewsArchiveSidebar
+          mostRead={mostRead}
+          rankingsPolls={rankingsPolls}
+        />
+      </div>
+    </div>
   );
 }

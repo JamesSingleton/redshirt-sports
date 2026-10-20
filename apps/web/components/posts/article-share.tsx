@@ -8,7 +8,7 @@ import {
 } from "@redshirt-sports/ui/components/card";
 import { Input } from "@redshirt-sports/ui/components/input";
 import { Label } from "@redshirt-sports/ui/components/label";
-import { LinkIcon } from "lucide-react";
+import { LinkIcon, Share2 } from "lucide-react";
 import { useState } from "react";
 
 import { Facebook, Twitter } from "@/components/icons";
@@ -67,6 +67,43 @@ const ShareButtons = ({ url, title }: { url: string; title: string }) => (
     </Button>
   </>
 );
+
+export function ArticleShareToolbar({
+  slug,
+  title,
+}: {
+  slug: string;
+  title: string;
+}) {
+  const articleUrl = `${getBaseUrl()}/${slug}`;
+
+  const onShare = async () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ url: articleUrl, title });
+        return;
+      } catch {
+        // User dismissed share sheet.
+      }
+    }
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      await navigator.clipboard.writeText(articleUrl);
+    }
+  };
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      className="size-8"
+      onClick={() => void onShare()}
+      aria-label="Share"
+    >
+      <Share2 className="size-4" aria-hidden />
+    </Button>
+  );
+}
 
 export const LargeArticleSocialShare = ({
   slug,

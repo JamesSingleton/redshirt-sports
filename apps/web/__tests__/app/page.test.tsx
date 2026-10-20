@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { isValidElement, Suspense, type ReactElement, type ReactNode } from "react";
 import type { Mock } from "vitest";
 
+import HomeRouteLoading from "@/app/home-route-loading";
 import HomePage, { CachedHomePage, generateMetadata } from "@/app/page";
 
 const { mockSanityFetchPage, mockGetDynamicFetchOptions } = vi.hoisted(() => ({
@@ -151,6 +152,16 @@ describe("HomePage", () => {
     const page = HomePage();
     expect(page).toBeTruthy();
     expect(mockGetDynamicFetchOptions).not.toHaveBeenCalled();
+  });
+
+  it("uses the home route loading UI as the nearest Suspense fallback", () => {
+    const tree = HomePage();
+    expect(isValidElement(tree)).toBe(true);
+    expect(tree.type).toBe(Suspense);
+    const fallback = (tree as ReactElement<{ fallback: ReactElement }>).props
+      .fallback;
+    expect(isValidElement(fallback)).toBe(true);
+    expect(fallback.type).toBe(HomeRouteLoading);
   });
 
   it("falls back to app name and undefined description when SEO settings are missing", async () => {
