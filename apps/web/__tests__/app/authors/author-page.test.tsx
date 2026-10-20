@@ -8,10 +8,6 @@ vi.mock("next/navigation", () => ({
   permanentRedirect: mockPermanentRedirect,
 }));
 
-vi.mock("@/app/people/[slug]/page", () => ({
-  generateMetadata: vi.fn(),
-}));
-
 import AuthorPage from "@/app/authors/[slug]/page";
 
 describe("AuthorPage (legacy)", () => {
