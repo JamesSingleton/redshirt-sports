@@ -26,11 +26,13 @@ export function NewsArchiveFilters({
   divisions,
   conferences,
   initial,
+  variant = "sport",
 }: {
   sportSlug: string;
   divisions: NewsFilterDivision[];
   conferences: NewsFilterConference[];
   initial: NewsArchiveSearchParams;
+  variant?: "sport" | "folder";
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -81,48 +83,52 @@ export function NewsArchiveFilters({
           applyQueryFilters();
         }}
       >
-        <div className="grid gap-1">
-          <label
-            htmlFor="news-f-div"
-            className="text-xs font-semibold text-muted-foreground"
-          >
-            Division
-          </label>
-          <select
-            id="news-f-div"
-            className="border-input h-9 rounded-md border bg-background px-2.5 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            defaultValue=""
-            onChange={(e) => onDivisionChange(e.target.value)}
-          >
-            <option value="">All divisions</option>
-            {divisions.map((division) => (
-              <option key={division.slug} value={division.slug}>
-                {division.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="grid gap-1">
-          <label
-            htmlFor="news-f-conf"
-            className="text-xs font-semibold text-muted-foreground"
-          >
-            Conference
-          </label>
-          <select
-            id="news-f-conf"
-            className="border-input h-9 rounded-md border bg-background px-2.5 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            defaultValue=""
-            onChange={(e) => onConferenceChange(e.target.value)}
-          >
-            <option value="">All conferences</option>
-            {conferences.map((conference) => (
-              <option key={conference.slug} value={conference.slug}>
-                {conference.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        {variant === "sport" ? (
+          <>
+            <div className="grid gap-1">
+              <label
+                htmlFor="news-f-div"
+                className="text-xs font-semibold text-muted-foreground"
+              >
+                Division
+              </label>
+              <select
+                id="news-f-div"
+                className="border-input h-9 rounded-md border bg-background px-2.5 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                defaultValue=""
+                onChange={(e) => onDivisionChange(e.target.value)}
+              >
+                <option value="">All divisions</option>
+                {divisions.map((division) => (
+                  <option key={division.slug} value={division.slug}>
+                    {division.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="grid gap-1">
+              <label
+                htmlFor="news-f-conf"
+                className="text-xs font-semibold text-muted-foreground"
+              >
+                Conference
+              </label>
+              <select
+                id="news-f-conf"
+                className="border-input h-9 rounded-md border bg-background px-2.5 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                defaultValue=""
+                onChange={(e) => onConferenceChange(e.target.value)}
+              >
+                <option value="">All conferences</option>
+                {conferences.map((conference) => (
+                  <option key={conference.slug} value={conference.slug}>
+                    {conference.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        ) : null}
         <div className="grid gap-1">
           <label
             htmlFor="news-f-type"

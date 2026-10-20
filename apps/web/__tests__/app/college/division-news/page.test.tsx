@@ -7,6 +7,8 @@ const {
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
+  mockGetCachedMostReadPosts,
+  mockGetCachedRankingsWidgetPolls,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
   mockSanityFetchMetadata: vi.fn(),
@@ -17,6 +19,8 @@ const {
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
+  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
+  mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
@@ -26,6 +30,14 @@ vi.mock("@/lib/draft-cache", () => ({
 
 vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
+}));
+
+vi.mock("@/lib/most-read-data", () => ({
+  getCachedMostReadPosts: mockGetCachedMostReadPosts,
+}));
+
+vi.mock("@/lib/rankings-widget-data", () => ({
+  getCachedRankingsWidgetPolls: mockGetCachedRankingsWidgetPolls,
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -41,7 +53,9 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
   queryDivisionOrSubgroupingDisplayName:
     "queryDivisionOrSubgroupingDisplayName",
   querySportsAndDivisionNews: "querySportsAndDivisionNews",
+  querySportsAndDivisionNewsOldest: "querySportsAndDivisionNewsOldest",
   sportInfoBySlug: "sportInfoBySlug",
+  globalNavigationQuery: "globalNavigationQuery",
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
@@ -54,6 +68,9 @@ vi.mock("@/lib/global-seo-settings", () => ({
 
 vi.mock("next/navigation", () => ({
   notFound: mockNotFound,
+  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => "/college/football/news/fbs",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/json-ld", () => ({
@@ -68,22 +85,6 @@ vi.mock("@/components/json-ld", () => ({
   websiteId: "website-id",
 }));
 
-vi.mock("@/components/page-header", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => <h1>{title}</h1>,
-}));
-
-vi.mock("@/components/article-feed", () => ({
-  __esModule: true,
-  default: ({ articles }: { articles: Array<{ title: string }> }) => (
-    <div data-testid="article-feed">
-      {articles.map((a) => (
-        <div key={a.title}>{a.title}</div>
-      ))}
-    </div>
-  ),
-}));
-
 vi.mock("@/components/pagination-controls", () => ({
   __esModule: true,
   default: () => <nav data-testid="pagination" />,
@@ -93,11 +94,27 @@ import DivisionNewsPage, {
   generateMetadata,
 } from "@/app/college/[sport]/news/[division]/page";
 
+function mockDivisionFetches(
+  posts: Array<{ _id: string; title: string; slug: string; publishedAt?: string }>,
+  totalPosts: number,
+  divisionMeta: { displayName?: string; archiveKicker?: string } | null,
+) {
+  mockSanityFetchPage
+    .mockResolvedValueOnce({
+      data: { posts, totalPosts },
+    })
+    .mockResolvedValueOnce({ data: { title: "Football" } })
+    .mockResolvedValueOnce({ data: divisionMeta })
+    .mockResolvedValueOnce({ data: [] });
+}
+
 describe("DivisionNewsPage", () => {
   beforeEach(() => {
     mockSanityFetchPage.mockReset();
     mockSanityFetchMetadata.mockReset();
     mockNotFound.mockClear();
+    mockGetCachedMostReadPosts.mockResolvedValue([]);
+    mockGetCachedRankingsWidgetPolls.mockResolvedValue([]);
   });
 
   it("generateMetadata throws notFound when sport or division is missing", async () => {
@@ -147,10 +164,7 @@ describe("DivisionNewsPage", () => {
   });
 
   it("throws notFound when there are no posts", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({ data: { posts: [], totalPosts: 0 } })
-      .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+    mockDivisionFetches([], 0, { displayName: "FBS" });
 
     await expect(
       DivisionNewsPage({
@@ -161,15 +175,18 @@ describe("DivisionNewsPage", () => {
   });
 
   it("renders division news feed", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          posts: [{ _id: "1", title: "FBS Story", slug: "fbs-story" }],
-          totalPosts: 1,
+    mockDivisionFetches(
+      [
+        {
+          _id: "1",
+          title: "FBS Story",
+          slug: "fbs-story",
+          publishedAt: "2026-01-01T12:00:00Z",
         },
-      })
-      .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+      ],
+      1,
+      { displayName: "FBS" },
+    );
 
     const page = await DivisionNewsPage({
       params: Promise.resolve({ sport: "football", division: "fbs" }),
@@ -185,19 +202,16 @@ describe("DivisionNewsPage", () => {
   });
 
   it("renders pagination when multiple pages exist", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          posts: Array.from({ length: 12 }, (_, i) => ({
-            _id: String(i),
-            title: `Story ${i}`,
-            slug: `story-${i}`,
-          })),
-          totalPosts: 24,
-        },
-      })
-      .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+    mockDivisionFetches(
+      Array.from({ length: 12 }, (_, i) => ({
+        _id: String(i),
+        title: `Story ${i}`,
+        slug: `story-${i}`,
+        publishedAt: "2026-01-01T12:00:00Z",
+      })),
+      24,
+      { displayName: "FBS" },
+    );
 
     const page = await DivisionNewsPage({
       params: Promise.resolve({ sport: "football", division: "fbs" }),
@@ -208,15 +222,18 @@ describe("DivisionNewsPage", () => {
   });
 
   it("falls back to empty division title in JSON-LD when displayName is missing", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          posts: [{ _id: "1", title: "FBS Story", slug: "fbs-story" }],
-          totalPosts: 1,
+    mockDivisionFetches(
+      [
+        {
+          _id: "1",
+          title: "FBS Story",
+          slug: "fbs-story",
+          publishedAt: "2026-01-01T12:00:00Z",
         },
-      })
-      .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: null });
+      ],
+      1,
+      null,
+    );
 
     const page = await DivisionNewsPage({
       params: Promise.resolve({ sport: "football", division: "fbs" }),

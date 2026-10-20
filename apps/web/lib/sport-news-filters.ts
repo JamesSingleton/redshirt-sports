@@ -46,3 +46,10 @@ export function buildSportNewsFilterOptions(
 
   return { divisions, conferences };
 }
+
+export function getDivisionConferences(
+  conferences: NewsFilterConference[],
+  divisionSlug: string,
+): NewsFilterConference[] {
+  return conferences.filter((c) => c.divisionSlug === divisionSlug);
+}

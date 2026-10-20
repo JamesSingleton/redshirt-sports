@@ -7,6 +7,8 @@ const {
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
+  mockGetCachedMostReadPosts,
+  mockGetCachedRankingsWidgetPolls,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
   mockSanityFetchMetadata: vi.fn(),
@@ -17,6 +19,8 @@ const {
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
+  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
+  mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
@@ -26,6 +30,14 @@ vi.mock("@/lib/draft-cache", () => ({
 
 vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
+}));
+
+vi.mock("@/lib/most-read-data", () => ({
+  getCachedMostReadPosts: mockGetCachedMostReadPosts,
+}));
+
+vi.mock("@/lib/rankings-widget-data", () => ({
+  getCachedRankingsWidgetPolls: mockGetCachedRankingsWidgetPolls,
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -41,9 +53,12 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
   conferenceInfoBySlugQuery: "conferenceInfoBySlugQuery",
   queryArticlesBySportDivisionAndConference:
     "queryArticlesBySportDivisionAndConference",
+  queryArticlesBySportDivisionAndConferenceOldest:
+    "queryArticlesBySportDivisionAndConferenceOldest",
   queryDivisionOrSubgroupingDisplayName:
     "queryDivisionOrSubgroupingDisplayName",
   sportInfoBySlug: "sportInfoBySlug",
+  globalNavigationQuery: "globalNavigationQuery",
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
@@ -56,6 +71,9 @@ vi.mock("@/lib/global-seo-settings", () => ({
 
 vi.mock("next/navigation", () => ({
   notFound: mockNotFound,
+  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => "/college/football/news/fbs/sec",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/json-ld", () => ({
@@ -70,37 +88,6 @@ vi.mock("@/components/json-ld", () => ({
   websiteId: "website-id",
 }));
 
-vi.mock("@/components/page-header", () => ({
-  __esModule: true,
-  default: ({
-    title,
-    breadcrumbs,
-  }: {
-    title: string;
-    breadcrumbs?: Array<{ title?: string | null; href: string }>;
-  }) => (
-    <div>
-      <h1>{title}</h1>
-      {breadcrumbs?.map((item) => (
-        <span key={item.href} data-testid={`crumb-${item.href}`}>
-          {item.title ?? ""}
-        </span>
-      ))}
-    </div>
-  ),
-}));
-
-vi.mock("@/components/article-feed", () => ({
-  __esModule: true,
-  default: ({ articles }: { articles: Array<{ title: string }> }) => (
-    <div data-testid="article-feed">
-      {articles.map((a) => (
-        <div key={a.title}>{a.title}</div>
-      ))}
-    </div>
-  ),
-}));
-
 vi.mock("@/components/pagination-controls", () => ({
   __esModule: true,
   default: () => <nav data-testid="pagination" />,
@@ -110,11 +97,28 @@ import ConferenceNewsPage, {
   generateMetadata,
 } from "@/app/college/[sport]/news/[division]/[conference]/page";
 
+function mockConferenceFetches(
+  data: {
+    posts: Array<{ _id: string; title: string; slug: string; publishedAt?: string }>;
+    totalPosts: number;
+    conferenceInfo: { name: string; shortName?: string | null } | null;
+  },
+  divisionMeta: { displayName?: string } | null,
+) {
+  mockSanityFetchPage
+    .mockResolvedValueOnce({ data })
+    .mockResolvedValueOnce({ data: { title: "Football" } })
+    .mockResolvedValueOnce({ data: divisionMeta })
+    .mockResolvedValueOnce({ data: [] });
+}
+
 describe("ConferenceNewsPage", () => {
   beforeEach(() => {
     mockSanityFetchPage.mockReset();
     mockSanityFetchMetadata.mockReset();
     mockNotFound.mockClear();
+    mockGetCachedMostReadPosts.mockResolvedValue([]);
+    mockGetCachedRankingsWidgetPolls.mockResolvedValue([]);
   });
 
   it("generateMetadata throws notFound when conference data is missing", async () => {
@@ -187,12 +191,10 @@ describe("ConferenceNewsPage", () => {
   });
 
   it("throws notFound when there are no posts", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: { posts: [], totalPosts: 0, conferenceInfo: null },
-      })
-      .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+    mockConferenceFetches(
+      { posts: [], totalPosts: 0, conferenceInfo: null },
+      { displayName: "FBS" },
+    );
 
     await expect(
       ConferenceNewsPage({
@@ -207,16 +209,14 @@ describe("ConferenceNewsPage", () => {
   });
 
   it("throws notFound when conference info is missing on render", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          posts: [{ _id: "1", title: "SEC Story", slug: "sec-story" }],
-          totalPosts: 1,
-          conferenceInfo: null,
-        },
-      })
-      .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+    mockConferenceFetches(
+      {
+        posts: [{ _id: "1", title: "SEC Story", slug: "sec-story" }],
+        totalPosts: 1,
+        conferenceInfo: null,
+      },
+      { displayName: "FBS" },
+    );
 
     await expect(
       ConferenceNewsPage({
@@ -231,16 +231,21 @@ describe("ConferenceNewsPage", () => {
   });
 
   it("renders conference news feed", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          posts: [{ _id: "1", title: "SEC Story", slug: "sec-story" }],
-          totalPosts: 1,
-          conferenceInfo: { name: "Southeastern Conference", shortName: "SEC" },
-        },
-      })
-      .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+    mockConferenceFetches(
+      {
+        posts: [
+          {
+            _id: "1",
+            title: "SEC Story",
+            slug: "sec-story",
+            publishedAt: "2026-01-01T12:00:00Z",
+          },
+        ],
+        totalPosts: 1,
+        conferenceInfo: { name: "Southeastern Conference", shortName: "SEC" },
+      },
+      { displayName: "FBS" },
+    );
 
     const page = await ConferenceNewsPage({
       params: Promise.resolve({
@@ -259,19 +264,22 @@ describe("ConferenceNewsPage", () => {
   });
 
   it("uses conference name when shortName is missing", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          posts: [{ _id: "1", title: "Conference Story", slug: "conf-story" }],
-          totalPosts: 24,
-          conferenceInfo: {
-            name: "Southeastern Conference",
-            shortName: null,
-          },
+    mockConferenceFetches(
+      {
+        posts: Array.from({ length: 12 }, (_, i) => ({
+          _id: String(i),
+          title: `Story ${i}`,
+          slug: `story-${i}`,
+          publishedAt: "2026-01-01T12:00:00Z",
+        })),
+        totalPosts: 24,
+        conferenceInfo: {
+          name: "Southeastern Conference",
+          shortName: null,
         },
-      })
-      .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: { displayName: "FBS" } });
+      },
+      { displayName: "FBS" },
+    );
 
     const page = await ConferenceNewsPage({
       params: Promise.resolve({
@@ -291,17 +299,22 @@ describe("ConferenceNewsPage", () => {
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
   });
 
-  it("falls back to empty division names in breadcrumbs when displayName is missing", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          posts: [{ _id: "1", title: "SEC Story", slug: "sec-story" }],
-          totalPosts: 1,
-          conferenceInfo: { name: "Southeastern Conference", shortName: "SEC" },
-        },
-      })
-      .mockResolvedValueOnce({ data: { title: "Football" } })
-      .mockResolvedValueOnce({ data: null });
+  it("falls back to empty division names in JSON-LD when displayName is missing", async () => {
+    mockConferenceFetches(
+      {
+        posts: [
+          {
+            _id: "1",
+            title: "SEC Story",
+            slug: "sec-story",
+            publishedAt: "2026-01-01T12:00:00Z",
+          },
+        ],
+        totalPosts: 1,
+        conferenceInfo: { name: "Southeastern Conference", shortName: "SEC" },
+      },
+      null,
+    );
 
     const page = await ConferenceNewsPage({
       params: Promise.resolve({
@@ -319,8 +332,5 @@ describe("ConferenceNewsPage", () => {
       (item: { position: number }) => item.position === 4,
     );
     expect(divisionCrumb.name).toBe("");
-    expect(
-      screen.getByTestId("crumb-/college/football/news/fbs"),
-    ).toHaveTextContent("");
   });
 });

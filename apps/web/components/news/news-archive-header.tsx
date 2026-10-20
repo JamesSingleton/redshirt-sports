@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import type { BreadcrumbProps } from "@/types";
 
@@ -7,10 +8,14 @@ export function NewsArchiveHeader({
   breadcrumbs,
   title,
   description,
+  kicker = "Archive",
+  children,
 }: {
   breadcrumbs: BreadcrumbProps;
   title: string;
-  description: string;
+  description?: string;
+  kicker?: string;
+  children?: ReactNode;
 }) {
   const items = breadcrumbs.filter(Boolean);
 
@@ -36,11 +41,14 @@ export function NewsArchiveHeader({
         ))}
       </nav>
       <div className="mt-3">
-        <div className="kicker text-primary">Archive</div>
+        <div className="kicker text-primary">{kicker}</div>
         <h1 className="font-display text-[2.4rem] font-extrabold uppercase leading-none lg:text-headline-lg">
           {title}
         </h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">{description}</p>
+        {description ? (
+          <p className="mt-2 max-w-2xl text-muted-foreground">{description}</p>
+        ) : null}
+        {children}
       </div>
     </div>
   );

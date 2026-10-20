@@ -357,25 +357,30 @@ export const querySportsNewsOldest = defineQuery(/* groq */ `
   }
 `);
 
+const sportsDivisionNewsFilter = /* groq */ `
+  _type == "post" &&
+  sport->slug.current == $sport &&
+  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&
+  $division != "d1" &&
+  ($search == "" || title match "*" + $search + "*") &&
+  ($storyType == "" || $storyType in tags[]->name)
+`;
+
 export const querySportsAndDivisionNews = defineQuery(/* groq */ `
   {
-    "posts": *[
-      _type == "post" &&
-      sport->slug.current == $sport &&
-      (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&
-      $division != "d1"
-    ] | order(publishedAt desc)[$from...$to]{
-      ...,
-      ${postImageFragment},
-      "slug": slug.current,
-      ${postAuthorFragment}
+    "posts": *[${sportsDivisionNewsFilter}] | order(publishedAt desc)[$from...$to]{
+      ${homePostCardFragment}
     },
-    "totalPosts": count(*[
-      _type == "post" &&
-      sport->slug.current == $sport &&
-      (division->slug.current == $division || sportSubgrouping->slug.current == $division) &&
-      $division != "d1"
-    ])
+    "totalPosts": count(*[${sportsDivisionNewsFilter}])
+  }
+`);
+
+export const querySportsAndDivisionNewsOldest = defineQuery(/* groq */ `
+  {
+    "posts": *[${sportsDivisionNewsFilter}] | order(publishedAt asc)[$from...$to]{
+      ${homePostCardFragment}
+    },
+    "totalPosts": count(*[${sportsDivisionNewsFilter}])
   }
 `);
 
@@ -537,25 +542,43 @@ export const querySitemapData = defineQuery(/* groq */ `{
   },
 }`);
 
+const sportDivisionConferenceNewsFilter = /* groq */ `
+  _type == "post" &&
+  sport->slug.current == $sport &&
+  $conference in conferences[]->slug.current &&
+  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&
+  $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current &&
+  ($search == "" || title match "*" + $search + "*") &&
+  ($storyType == "" || $storyType in tags[]->name)
+`;
+
 export const queryArticlesBySportDivisionAndConference =
   defineQuery(/* groq */ `
   {
-    "posts": *[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (
-      sportSubgrouping->slug.current == $division || division->slug.current == $division
-    ) && $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current] | order(publishedAt desc) [$from...$to]{
-      ...,
-      ${postImageFragment},
-      "slug": slug.current,
-      ${postAuthorFragment}
+    "posts": *[${sportDivisionConferenceNewsFilter}] | order(publishedAt desc) [$from...$to]{
+      ${homePostCardFragment}
     },
     "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))][0]{
       _id,
       name,
       shortName
     },
-    "totalPosts": count(*[_type == "post" && sport->slug.current == $sport && $conference in conferences[]->slug.current && (
-      sportSubgrouping->slug.current == $division || division->slug.current == $division
-    ) && $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current]),
+    "totalPosts": count(*[${sportDivisionConferenceNewsFilter}]),
+  }
+`);
+
+export const queryArticlesBySportDivisionAndConferenceOldest =
+  defineQuery(/* groq */ `
+  {
+    "posts": *[${sportDivisionConferenceNewsFilter}] | order(publishedAt asc) [$from...$to]{
+      ${homePostCardFragment}
+    },
+    "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))][0]{
+      _id,
+      name,
+      shortName
+    },
+    "totalPosts": count(*[${sportDivisionConferenceNewsFilter}]),
   }
 `);
 
@@ -1043,6 +1066,10 @@ export const queryDivisionOrSubgroupingDisplayName = defineQuery(
     _type,
     "displayName": select(
       _type == "sportSubgrouping" => shortName,
+      _type == "division" => title
+    ),
+    "archiveKicker": select(
+      _type == "sportSubgrouping" => name,
       _type == "division" => title
     )
   }
