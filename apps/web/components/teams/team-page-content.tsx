@@ -1,38 +1,41 @@
 import type { SchoolRankingHistory } from "@redshirt-sports/db/utils/school-ranking-history";
 import type { SchoolBySlugQueryResult } from "@redshirt-sports/sanity/types";
+import { Badge } from "@redshirt-sports/ui/components/badge";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { AdSlot } from "@/components/ad-slot";
 import { MostReadCard } from "@/components/most-read-card";
 import CustomImage from "@/components/sanity-image";
-import { TeamConnectWidget } from "@/components/teams/team-connect-widget";
-import { TeamFeedList } from "@/components/teams/team-feed-list";
+import { TeamInfoLinks } from "@/components/teams/team-info-links";
+import { TeamPollRankInline } from "@/components/teams/team-poll-rank-inline";
 import {
   TeamFeaturedArticle,
   TeamNewsItem,
   type TeamPost,
 } from "@/components/teams/team-post-card";
-import { TeamRankingHistory } from "@/components/teams/team-ranking-history";
-import type { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import type { MostReadItem } from "@/lib/most-read-data";
+import {
+  footballAffiliationDivisionSlug,
+  groupTeamPostsBySport,
+  pickFootballRankingPoll,
+  TEAM_HUB_SPORT_SECTIONS,
+} from "@/lib/team-hub";
+import {
+  buildTeamHubKicker,
+  type TeamConferenceAffiliationInput,
+} from "@/lib/team-school-affiliations";
 
 export function TeamPageContent({
   school,
-  featuredPosts,
-  sportsPosts,
-  recruitingPosts,
+  posts,
   rankingHistory,
   mostRead,
-  globalSettings,
 }: {
   school: NonNullable<SchoolBySlugQueryResult>;
-  featuredPosts: TeamPost[];
-  sportsPosts: TeamPost[];
-  recruitingPosts: TeamPost[];
+  posts: TeamPost[];
   rankingHistory: SchoolRankingHistory;
   mostRead: MostReadItem[];
-  globalSettings: Awaited<ReturnType<typeof fetchGlobalSeoSettings>> | null;
 }) {
   const teamShortName = school.shortName ?? school.name ?? "Team";
   const displayName = [
@@ -42,21 +45,41 @@ export function TeamPageContent({
     .filter(Boolean)
     .join(" ");
 
+  const affiliations = (school.conferenceAffiliations ?? null) as
+    | TeamConferenceAffiliationInput[]
+    | null;
+  const hubKicker = buildTeamHubKicker(affiliations);
+  const postsBySport = groupTeamPostsBySport(posts);
+  const latestLead = posts[0] ?? null;
+  const latestRest = posts.slice(1, 5);
+  const latestPostIds = new Set(
+    [latestLead, ...latestRest]
+      .filter((post): post is TeamPost => post != null)
+      .map((post) => post._id),
+  );
+
+  const footballDivisionSlug = footballAffiliationDivisionSlug(affiliations);
+  const footballPoll = pickFootballRankingPoll(
+    rankingHistory.polls,
+    footballDivisionSlug,
+  );
+  const footballPosts = postsBySport.get("football") ?? [];
+
   const jumpLinks = [
     { id: "latest", label: "Latest" },
-    { id: "sports", label: `${teamShortName} Sports` },
-    ...(rankingHistory.polls.length > 0
-      ? [{ id: "rankings", label: "Rankings" }]
-      : []),
-    ...(recruitingPosts.length > 0
-      ? [{ id: "recruiting", label: "Recruiting" }]
-      : []),
+    ...TEAM_HUB_SPORT_SECTIONS.filter((section) => {
+      const sectionPosts = (postsBySport.get(section.sportSlug) ?? []).filter(
+        (post) => !latestPostIds.has(post._id),
+      );
+      if (section.sportSlug === "football") {
+        return sectionPosts.length > 0 || footballPoll != null;
+      }
+      return sectionPosts.length > 0;
+    }).map((section) => ({
+      id: section.id,
+      label: section.title,
+    })),
     { id: "info", label: "Info & links" },
-  ];
-
-  const sportsFooterLinks = [
-    { label: "View All Football", href: "/college/football/news" },
-    { label: "View All Basketball", href: "/college/mens-basketball/news" },
   ];
 
   return (
@@ -97,10 +120,21 @@ export function TeamPageContent({
             />
           )}
           <div className="min-w-0 flex-1">
-            <div className="kicker text-primary">Team hub</div>
-            <h1 className="font-display text-[2.2rem] font-extrabold uppercase leading-none lg:text-headline-lg">
-              {displayName}
-            </h1>
+            {hubKicker ? (
+              <div className="kicker text-primary">{hubKicker}</div>
+            ) : (
+              <div className="kicker text-primary">Team hub</div>
+            )}
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="font-display text-[2.2rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+                {displayName}
+              </h1>
+              {footballPoll ? (
+                <Badge variant="secondary" className="text-sm">
+                  {footballPoll.pollName} rankings
+                </Badge>
+              ) : null}
+            </div>
             {school.overview ? (
               <p className="mt-2 max-w-2xl text-muted-foreground">
                 {school.overview}
@@ -127,11 +161,18 @@ export function TeamPageContent({
             <h2 className="font-display text-2xl font-extrabold uppercase">
               Latest
             </h2>
-            {featuredPosts.length > 0 ? (
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                {featuredPosts.map((post) => (
-                  <TeamFeaturedArticle key={post._id} post={post} />
-                ))}
+            {latestLead ? (
+              <div className="mt-4 space-y-5">
+                <TeamFeaturedArticle post={latestLead} />
+                {latestRest.length > 0 ? (
+                  <ul className="flex flex-col gap-5">
+                    {latestRest.map((post) => (
+                      <li key={post._id}>
+                        <TeamNewsItem post={post} />
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </div>
             ) : (
               <p className="mt-3 text-sm text-muted-foreground">
@@ -140,88 +181,74 @@ export function TeamPageContent({
             )}
           </section>
 
-          <section id="sports" className="scroll-mt-24 border-t pt-6">
-            <TeamFeedList
-              title={`${teamShortName} Sports`}
-              posts={sportsPosts}
-              footerLinks={sportsFooterLinks}
-            />
-          </section>
+          {TEAM_HUB_SPORT_SECTIONS.map((section) => {
+            const sectionPosts = (
+              postsBySport.get(section.sportSlug) ?? []
+            ).filter((post) => !latestPostIds.has(post._id));
+            if (sectionPosts.length === 0 && section.sportSlug !== "football") {
+              return null;
+            }
+            if (
+              section.sportSlug === "football" &&
+              sectionPosts.length === 0 &&
+              !footballPoll
+            ) {
+              return null;
+            }
 
-          {rankingHistory.polls.length > 0 ? (
-            <section id="rankings" className="scroll-mt-24 border-t pt-6">
-              <TeamRankingHistory
-                history={rankingHistory}
-                teamName={teamShortName}
-              />
-            </section>
-          ) : null}
-
-          {recruitingPosts.length > 0 ? (
-            <section id="recruiting" className="scroll-mt-24 border-t pt-6">
-              <h2 className="mb-5 font-display text-2xl font-extrabold uppercase">
-                {teamShortName} Recruiting
-              </h2>
-              <ul className="flex flex-col gap-5">
-                {recruitingPosts.map((post) => (
-                  <li key={post._id}>
-                    <TeamNewsItem post={post} />
-                  </li>
-                ))}
-              </ul>
-              <footer className="mt-5 flex flex-wrap gap-6 text-sm font-semibold">
-                <Link
-                  href="/recruiting"
-                  className="text-primary hover:underline"
-                >
-                  View All Recruiting
-                </Link>
-                <Link
-                  href="/transfer-portal"
-                  className="text-primary hover:underline"
-                >
-                  View All Transfers
-                </Link>
-              </footer>
-            </section>
-          ) : null}
+            return (
+              <section
+                key={section.id}
+                id={section.id}
+                className="scroll-mt-24 border-t pt-6"
+              >
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <h2 className="font-display text-2xl font-extrabold uppercase">
+                    {section.title}
+                  </h2>
+                  <Link
+                    href={section.newsHref}
+                    prefetch={false}
+                    className="text-sm font-semibold text-primary hover:underline"
+                  >
+                    All {section.title.toLowerCase()} news
+                  </Link>
+                </div>
+                {section.sportSlug === "football" && footballPoll ? (
+                  <div className="mt-4">
+                    <TeamPollRankInline
+                      poll={footballPoll}
+                      teamName={teamShortName}
+                    />
+                  </div>
+                ) : null}
+                {sectionPosts.length > 0 ? (
+                  <ul className="mt-5 flex flex-col gap-5">
+                    {sectionPosts.slice(0, 6).map((post) => (
+                      <li key={post._id}>
+                        <TeamNewsItem post={post} />
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    No {section.title.toLowerCase()} stories yet.
+                  </p>
+                )}
+              </section>
+            );
+          })}
 
           <section id="info" className="scroll-mt-24 border-t pt-6">
             <h2 className="font-display text-2xl font-extrabold uppercase">
               Info &amp; links
             </h2>
-            <dl className="mt-4 grid gap-3 text-sm">
-              <div>
-                <dt className="font-semibold">School</dt>
-                <dd className="text-muted-foreground">{school.name}</dd>
-              </div>
-              {school.websiteUrl ? (
-                <div>
-                  <dt className="font-semibold">Website</dt>
-                  <dd>
-                    <a
-                      href={school.websiteUrl}
-                      className="text-primary hover:underline"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      {school.websiteUrl.replace(/^https?:\/\//, "")}
-                      <span className="sr-only"> (opens school site)</span>
-                    </a>
-                  </dd>
-                </div>
-              ) : null}
-            </dl>
+            <TeamInfoLinks school={school} />
           </section>
         </div>
 
         <aside className="grid content-start gap-6 lg:sticky lg:top-20 lg:self-start">
           <MostReadCard items={mostRead} />
-          <TeamConnectWidget
-            schoolName={teamShortName}
-            schoolSocialLinks={school.socialLinks}
-            globalSocialLinks={globalSettings?.socialLinks}
-          />
           <AdSlot
             width={300}
             height={250}

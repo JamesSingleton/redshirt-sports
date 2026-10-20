@@ -5,7 +5,6 @@ const {
   mockSanityFetchPage,
   mockSanityFetchMetadata,
   mockSanityFetchStaticParams,
-  mockFetchGlobalSeoSettings,
   mockGetCachedRankedSchoolSanityIds,
   mockGetCachedSchoolRankingHistory,
   mockGetCachedSchoolHasPollRankings,
@@ -17,7 +16,6 @@ const {
   mockSanityFetchPage: vi.fn(),
   mockSanityFetchMetadata: vi.fn(),
   mockSanityFetchStaticParams: vi.fn(),
-  mockFetchGlobalSeoSettings: vi.fn().mockResolvedValue({ socialLinks: {} }),
   mockGetCachedRankedSchoolSanityIds: vi.fn().mockResolvedValue([]),
   mockGetCachedSchoolRankingHistory: vi.fn().mockResolvedValue({ polls: [] }),
   mockGetCachedSchoolHasPollRankings: vi.fn().mockResolvedValue(false),
@@ -62,7 +60,6 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 vi.mock("@redshirt-sports/sanity/queries", () => ({
   MIN_TEAM_PAGE_POSTS: 1,
   TEAM_PAGE_NEWS_FETCH_SIZE: 8,
-  postsBySchoolAndStoryTypeQuery: "postsBySchoolAndStoryTypeQuery",
   postsBySchoolQuery: "postsBySchoolQuery",
   querySchoolPaths: "querySchoolPaths",
   schoolBySlugQuery: "schoolBySlugQuery",
@@ -70,7 +67,6 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
-  fetchGlobalSeoSettings: mockFetchGlobalSeoSettings,
   getPageMetadata: mockGetPageMetadata,
 }));
 
@@ -104,12 +100,8 @@ vi.mock("@/components/sanity-image", () => ({
   default: () => <img alt="" />,
 }));
 
-vi.mock("@/components/teams/team-connect-widget", () => ({
-  TeamConnectWidget: () => <div data-testid="connect-widget" />,
-}));
-
-vi.mock("@/components/teams/team-feed-list", () => ({
-  TeamFeedList: ({ title }: { title: string }) => <section>{title}</section>,
+vi.mock("@/components/teams/team-poll-rank-inline", () => ({
+  TeamPollRankInline: () => <div data-testid="football-rank-inline" />,
 }));
 
 vi.mock("@/components/teams/team-post-card", () => ({
@@ -119,10 +111,6 @@ vi.mock("@/components/teams/team-post-card", () => ({
   TeamNewsItem: ({ post }: { post: { title: string } }) => (
     <div data-testid="news-item">{post.title}</div>
   ),
-}));
-
-vi.mock("@/components/teams/team-ranking-history", () => ({
-  TeamRankingHistory: () => <div data-testid="ranking-history" />,
 }));
 
 import TeamPage, {
@@ -150,11 +138,9 @@ function mockTeamPageFetches() {
         posts: Array.from({ length: 8 }, (_, i) => ({
           _id: `post-${i}`,
           title: `Post ${i}`,
+          sport: { slug: "football", title: "Football" },
         })),
       },
-    })
-    .mockResolvedValueOnce({
-      data: [{ _id: "recruit-1", title: "Top Recruit" }],
     });
 }
 
@@ -240,10 +226,9 @@ describe("TeamPage", () => {
         level: 1,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Post 0")).toBeInTheDocument();
-    expect(screen.getAllByText("Alabama Sports").length).toBeGreaterThan(0);
-    expect(screen.getByText("Top Recruit")).toBeInTheDocument();
-    expect(screen.getByTestId("connect-widget")).toBeInTheDocument();
+    expect(screen.getByTestId("featured")).toHaveTextContent("Post 0");
+    expect(screen.getByRole("heading", { name: "Football", level: 2 }));
+    expect(screen.getAllByTestId("news-item").length).toBeGreaterThan(0);
   });
 
   it("throws notFound when school is missing", async () => {
@@ -342,11 +327,9 @@ describe("TeamPage", () => {
           posts: Array.from({ length: 8 }, (_, i) => ({
             _id: `post-${i}`,
             title: `Post ${i}`,
+            sport: { slug: "football", title: "Football" },
           })),
         },
-      })
-      .mockResolvedValueOnce({
-        data: [{ _id: "recruit-1", title: "Top Recruit" }],
       });
 
     const page = await TeamPage({
@@ -366,10 +349,9 @@ describe("TeamPage", () => {
           name: null,
         },
       })
-      .mockResolvedValueOnce({ data: null })
-      .mockResolvedValueOnce({ data: [] });
+      .mockResolvedValueOnce({ data: { posts: [] } });
     mockGetCachedSchoolRankingHistory.mockResolvedValue({
-      polls: [{ pollId: "poll-1" }],
+      polls: [{ pollId: "poll-1", sportSlug: "football", pollSlug: "fcs" }],
     });
 
     const page = await TeamPage({
@@ -380,13 +362,12 @@ describe("TeamPage", () => {
     expect(
       screen.getByRole("heading", { name: "Team Crimson Tide", level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText("Team Sports").length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: "Latest", level: 2 }));
   });
 
-  it("treats a null recruiting feed as empty", async () => {
+  it("treats a null news payload as an empty post list", async () => {
     mockSanityFetchPage
       .mockResolvedValueOnce({ data: sampleSchool })
-      .mockResolvedValueOnce({ data: { posts: [] } })
       .mockResolvedValueOnce({ data: null });
     mockGetCachedSchoolRankingHistory.mockResolvedValue({ polls: [] });
 
@@ -395,16 +376,24 @@ describe("TeamPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.queryByText("Alabama Recruiting")).not.toBeInTheDocument();
+    expect(screen.getByText("No recent stories yet.")).toBeInTheDocument();
   });
 
-  it("renders team page without featured posts or recruiting when feeds are empty", async () => {
+  it("renders team page without posts when news feed is empty", async () => {
     mockSanityFetchPage
       .mockResolvedValueOnce({ data: sampleSchool })
-      .mockResolvedValueOnce({ data: { posts: [] } })
-      .mockResolvedValueOnce({ data: [] });
+      .mockResolvedValueOnce({ data: { posts: [] } });
     mockGetCachedSchoolRankingHistory.mockResolvedValue({
-      polls: [{ pollId: "poll-1" }],
+      polls: [
+        {
+          pollId: "poll-1",
+          sportSlug: "football",
+          pollSlug: "fcs",
+          pollName: "FCS",
+          years: [2025],
+          seriesByYear: {},
+        },
+      ],
     });
 
     const page = await TeamPage({
@@ -412,8 +401,8 @@ describe("TeamPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getAllByText("Alabama Sports").length).toBeGreaterThan(0);
+    expect(screen.getByText("No recent stories yet.")).toBeInTheDocument();
     expect(screen.queryByTestId("featured")).not.toBeInTheDocument();
-    expect(screen.queryByText("Alabama Recruiting")).not.toBeInTheDocument();
+    expect(screen.getByTestId("football-rank-inline")).toBeInTheDocument();
   });
 });

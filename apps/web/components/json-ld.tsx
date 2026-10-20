@@ -216,7 +216,7 @@ export function buildPostPageJsonLd(
             "@type": "Person",
             name: author?.name ?? undefined,
             url: author?.slug
-              ? `${resolvedBaseUrl}/authors/${author.slug}`
+              ? `${resolvedBaseUrl}/people/${author.slug}`
               : undefined,
           } as Person;
         })

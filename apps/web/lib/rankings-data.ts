@@ -5,6 +5,7 @@ import {
   getLatestFinalRankings,
   getLatestFinalRankingsBySportSlug,
   getPollBySportAndSlug,
+  getPollVoterBallotStatsForSeason,
   getPollWeekVoterChips,
   getRankedSchoolSanityIds,
   getSchoolRankingHistory,
@@ -296,4 +297,35 @@ export async function getCachedActivePollVoters({
   }
 
   return listActivePollVoters(poll.id);
+}
+
+export async function getCachedPollVoterBallotStatsForSeason({
+  division,
+  sport,
+  year,
+}: {
+  division: string;
+  sport: SportParam;
+  year: number;
+}) {
+  "use cache";
+  cacheTag(
+    RANKINGS_CACHE_TAG,
+    rankingsSportTag(sport),
+    rankingsDivisionTag(sport, division),
+    rankingsDivisionYearsTag(division),
+  );
+  cacheLife(RANKINGS_CACHE_LIFE);
+
+  const sportId = await getSportIdBySlug(sport);
+  if (!sportId) {
+    return new Map();
+  }
+
+  const poll = await getPollBySportAndSlug({ sportId, slug: division });
+  if (!poll) {
+    return new Map();
+  }
+
+  return getPollVoterBallotStatsForSeason({ pollId: poll.id, year });
 }

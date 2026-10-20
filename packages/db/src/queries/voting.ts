@@ -774,3 +774,61 @@ export async function reassignBallotWeek({
     return updated;
   });
 }
+
+export type PollVoterBallotStats = {
+  seasonBallotCount: number;
+  voterSince: Date | null;
+};
+
+/** Submitted ballots per voter for a poll season, plus first ballot date on the poll. */
+export async function getPollVoterBallotStatsForSeason({
+  pollId,
+  year,
+}: {
+  pollId: string;
+  year: number;
+}): Promise<Map<string, PollVoterBallotStats>> {
+  const [seasonRows, sinceRows] = await Promise.all([
+    db
+      .select({
+        userId: ballotsTable.userId,
+        seasonBallotCount: count(),
+      })
+      .from(ballotsTable)
+      .innerJoin(weeksTable, eq(ballotsTable.weekId, weeksTable.id))
+      .innerJoin(
+        seasonTypesTable,
+        eq(weeksTable.seasonTypeId, seasonTypesTable.id),
+      )
+      .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
+      .where(and(eq(ballotsTable.pollId, pollId), eq(seasonsTable.year, year)))
+      .groupBy(ballotsTable.userId),
+    db
+      .select({
+        userId: ballotsTable.userId,
+        voterSince: sql<Date>`min(${ballotsTable.submittedAt})`,
+      })
+      .from(ballotsTable)
+      .where(eq(ballotsTable.pollId, pollId))
+      .groupBy(ballotsTable.userId),
+  ]);
+
+  const map = new Map<string, PollVoterBallotStats>();
+
+  for (const row of sinceRows) {
+    map.set(row.userId, {
+      seasonBallotCount: 0,
+      voterSince: row.voterSince,
+    });
+  }
+
+  for (const row of seasonRows) {
+    const existing = map.get(row.userId);
+    map.set(row.userId, {
+      seasonBallotCount: row.seasonBallotCount,
+      voterSince: existing?.voterSince ?? null,
+    });
+  }
+
+  return map;
+}

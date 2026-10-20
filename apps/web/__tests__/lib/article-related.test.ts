@@ -3,51 +3,74 @@ import { describe, expect, it } from "vitest";
 import { getArticleRelatedPosts } from "@/lib/article-related";
 
 describe("getArticleRelatedPosts", () => {
-  const basePost = {
-    _id: "post-1",
-    title: "Current",
-    slug: "current",
-    publishedAt: "2026-10-10T12:00:00Z",
-  };
+  it("skips related sources without slugs", () => {
+    expect(
+      getArticleRelatedPosts({
+        _id: "current",
+        relatedPosts: [{ _id: "r1", title: "X", slug: null }],
+      } as never),
+    ).toEqual([]);
+    expect(
+      getArticleRelatedPosts({
+        _id: "current",
+        upNextInFeed: { _id: "u1", title: "Up", slug: null },
+      } as never),
+    ).toEqual([]);
+  });
 
-  it("returns related posts with slugs up to the limit", () => {
-    const result = getArticleRelatedPosts({
-      ...basePost,
+  it("dedupes related posts and up next", () => {
+    const post = {
+      _id: "current",
       relatedPosts: [
-        { _id: "r1", title: "One", slug: "one", tagNames: ["News"] },
-        { _id: "r2", title: "Two", slug: "two" },
-        { _id: "r3", title: "Three", slug: "three" },
-        { _id: "r4", title: "Four", slug: "four" },
+        {
+          _id: "r1",
+          title: "One",
+          slug: "one",
+          sportSubgrouping: { shortName: "FBS" },
+        },
+        {
+          _id: "r2",
+          title: "Two",
+          slug: null,
+        },
+        {
+          _id: "r3",
+          title: "Three",
+          slug: "three",
+        },
       ],
-    } as never);
-
-    expect(result).toHaveLength(3);
-    expect(result.map((p) => p.slug)).toEqual(["one", "two", "three"]);
-  });
-
-  it("adds upNextInFeed when related list is short", () => {
-    const result = getArticleRelatedPosts({
-      ...basePost,
-      relatedPosts: [{ _id: "r1", title: "Related", slug: "related" }],
       upNextInFeed: {
-        _id: "feed",
-        title: "Older",
-        slug: "older",
-        division: { name: "FCS" },
+        _id: "r1",
+        title: "One duplicate",
+        slug: "one-dup",
       },
-    } as never);
+    } as never;
 
-    expect(result).toHaveLength(2);
-    expect(result[1]?.slug).toBe("older");
+    const related = getArticleRelatedPosts(post, 1);
+    expect(related).toHaveLength(1);
+    expect(related[0]?.slug).toBe("one");
   });
 
-  it("dedupes upNextInFeed when already in related", () => {
-    const result = getArticleRelatedPosts({
-      ...basePost,
-      relatedPosts: [{ _id: "same", title: "Same", slug: "same" }],
-      upNextInFeed: { _id: "same", title: "Same", slug: "same" },
-    } as never);
-
-    expect(result).toHaveLength(1);
+  it("uses subgrouping and division labels in kickers", () => {
+    const post = {
+      _id: "current",
+      relatedPosts: [
+        {
+          _id: "r3",
+          title: "Three",
+          slug: "three",
+          sportSubgrouping: { name: "FCS" },
+        },
+        {
+          _id: "r4",
+          title: "Four",
+          slug: "four",
+          division: { name: "Division I" },
+        },
+      ],
+    } as never;
+    const related = getArticleRelatedPosts(post, 5);
+    expect(related[0]?.kicker).toBe("FCS");
+    expect(related[1]?.kicker).toBe("Division I");
   });
 });

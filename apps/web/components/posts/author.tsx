@@ -21,7 +21,7 @@ export const AuthorItem = (author: PostAuthor) => {
             {author.name}
           </p>
         ) : (
-          <Link href={`/authors/${author.slug}`} prefetch={false}>
+          <Link href={`/people/${author.slug}`} prefetch={false}>
             <p className="mr-1 text-sm font-semibold tracking-[-.01em] hover:underline">
               {author.name}
             </p>

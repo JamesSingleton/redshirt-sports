@@ -146,22 +146,15 @@ export async function getCachedRankingsWidgetPolls(
   return polls.filter((poll): poll is RankingsWidgetPoll => poll !== null);
 }
 
-export type RankingsIndexCard =
-  | {
-      status: "live";
-      division: string;
-      label: string;
-      title: string;
-      poll: RankingsWidgetPoll;
-      teams: RankingsWidgetTeam[];
-      sport: SportParam;
-    }
-  | {
-      status: "coming-soon";
-      division: string;
-      label: string;
-      title: string;
-    };
+export type RankingsIndexCard = {
+  status: "live";
+  division: string;
+  label: string;
+  title: string;
+  poll: RankingsWidgetPoll;
+  teams: RankingsWidgetTeam[];
+  sport: SportParam;
+};
 
 export async function getCachedRankingsIndexCards(
   sport: SportParam,
@@ -177,12 +170,7 @@ export async function getCachedRankingsIndexCards(
       const label = divisionLabel(division);
       const title = `${label} Top 25`;
       if (!poll) {
-        return {
-          status: "coming-soon" as const,
-          division,
-          label,
-          title,
-        };
+        return null;
       }
       return {
         status: "live" as const,
@@ -196,5 +184,5 @@ export async function getCachedRankingsIndexCards(
     }),
   );
 
-  return cards;
+  return cards.filter((card): card is RankingsIndexCard => card !== null);
 }

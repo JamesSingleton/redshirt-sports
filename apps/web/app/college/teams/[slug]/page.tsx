@@ -6,7 +6,6 @@ import {
 } from "@redshirt-sports/sanity/live";
 import {
   MIN_TEAM_PAGE_POSTS,
-  postsBySchoolAndStoryTypeQuery,
   postsBySchoolQuery,
   querySchoolPaths,
   schoolBySlugQuery,
@@ -14,7 +13,6 @@ import {
   TEAM_PAGE_NEWS_FETCH_SIZE,
 } from "@redshirt-sports/sanity/queries";
 import type {
-  PostsBySchoolAndStoryTypeQueryResult,
   PostsBySchoolQueryResult,
   SchoolBySlugQueryResult,
   SchoolSlugsByIdsQueryResult,
@@ -26,10 +24,7 @@ import type { StegaBranded } from "next-sanity";
 import { TeamPageJsonLd } from "@/components/json-ld";
 import { TeamPageContent } from "@/components/teams/team-page-content";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
-import {
-  fetchGlobalSeoSettings,
-  getPageMetadata,
-} from "@/lib/global-seo-settings";
+import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import {
   getCachedRankedSchoolSanityIds,
@@ -162,28 +157,13 @@ async function renderSchoolTeamPage(
     notFound();
   }
 
-  const [
-    { data: newsData },
-    { data: recruitingPosts },
-    globalSettings,
-    rankingHistory,
-    mostRead,
-  ] = await Promise.all([
+  const [{ data: newsData }, rankingHistory, mostRead] = await Promise.all([
     sanityFetchPage({
       query: postsBySchoolQuery,
       params: { schoolId: school._id, from: 0, to: TEAM_PAGE_NEWS_FETCH_SIZE },
       perspective,
       stega,
     }) as Promise<{ data: StegaBranded<PostsBySchoolQueryResult> | null }>,
-    sanityFetchPage({
-      query: postsBySchoolAndStoryTypeQuery,
-      params: { schoolId: school._id, storyType: "recruiting" },
-      perspective,
-      stega,
-    }) as Promise<{
-      data: StegaBranded<PostsBySchoolAndStoryTypeQueryResult> | null;
-    }>,
-    fetchGlobalSeoSettings(perspective),
     getCachedSchoolRankingHistory(school._id),
     getCachedMostReadPosts(),
   ]);
@@ -198,20 +178,15 @@ async function renderSchoolTeamPage(
   }
 
   const posts = newsData?.posts ?? [];
-  const featuredPosts = posts.slice(0, 3);
-  const sportsPosts = posts.slice(3, 8);
 
   return (
     <div className="min-h-screen bg-background">
       <TeamPageJsonLd school={school} />
       <TeamPageContent
         school={school}
-        featuredPosts={featuredPosts}
-        sportsPosts={sportsPosts}
-        recruitingPosts={recruitingPosts ?? []}
+        posts={posts}
         rankingHistory={rankingHistory}
         mostRead={mostRead}
-        globalSettings={globalSettings}
       />
     </div>
   );

@@ -6,10 +6,12 @@ import { notFound } from "next/navigation";
 import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { RankingsVotersPanel } from "@/components/rankings/rankings-voters-panel";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
+import { formatVoterSince } from "@/lib/format-voter-since";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
   getCachedActivePollVoters,
   getCachedLatestFinalRankings,
+  getCachedPollVoterBallotStatsForSeason,
   getCachedPollWeekBallotContext,
 } from "@/lib/rankings-data";
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
@@ -62,7 +64,7 @@ async function renderVotersPage({
     notFound();
   }
 
-  const [voters, ballotContext] = await Promise.all([
+  const [voters, ballotContext, ballotStats] = await Promise.all([
     getCachedActivePollVoters({ division, sport: sportParam }),
     getCachedPollWeekBallotContext({
       year: latest.year,
@@ -70,27 +72,25 @@ async function renderVotersPage({
       division,
       sport: sportParam,
     }),
+    getCachedPollVoterBallotStatsForSeason({
+      division,
+      sport: sportParam,
+      year: latest.year,
+    }),
   ]);
 
   const weekPath = `/college/${sport}/rankings/${division}/${latest.year}/${formatWeekSegment(latest.week)}`;
   const byVoterHref = `${weekPath}/ballots/by-voter`;
 
   const voterRows = voters.map((row) => {
-    const created = row.createdAt;
-    const onPanelSince =
-      created instanceof Date
-        ? created.getFullYear().toString()
-        : created
-          ? String(created).slice(0, 4)
-          : "—";
+    const stats = ballotStats.get(row.userId);
     return {
       id: row.id,
       name: `${row.user.firstName ?? ""} ${row.user.lastName ?? ""}`.trim(),
       organization: row.user.organization ?? "",
       organizationRole: row.user.organizationRole ?? "",
-      onPanelSince,
-      ballotsSubmittedLabel: "—",
-      disclosure: null,
+      ballotsSubmittedLabel: String(stats?.seasonBallotCount ?? 0),
+      voterSinceLabel: formatVoterSince(stats?.voterSince),
       latestBallotHref: `${byVoterHref}?voter=${voterBallotSlug(
         `${row.user.firstName ?? ""} ${row.user.lastName ?? ""}`.trim(),
       )}`,
@@ -131,7 +131,6 @@ async function renderVotersPage({
         divisionName={divisionName}
         ballotsSubmittedLabel={ballotsSubmittedLabel}
         outletCount={outletCount}
-        disclosureCount={0}
         methodologyHref={methodologyHref}
       />
     </>

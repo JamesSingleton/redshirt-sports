@@ -1,9 +1,31 @@
 import { describe, expect, it } from "vitest";
 
-import { mapTeamDirectorySchool } from "@/lib/team-directory";
+import {
+  groupTeamsByLetter,
+  mapTeamDirectorySchool,
+} from "@/lib/team-directory";
 
 describe("team directory", () => {
   it("maps school display fields and search haystack", () => {
+    expect(
+      mapTeamDirectorySchool({
+        _id: "2",
+        name: "University of Example",
+        shortName: null,
+        nickname: "Eagles",
+        slug: "example-eagles",
+      }),
+    ).toEqual({
+      _id: "2",
+      name: "University of Example",
+      shortName: null,
+      nickname: "Eagles",
+      slug: "example-eagles",
+      image: undefined,
+      sortName: "University of Example",
+      searchHaystack: "university of example eagles",
+    });
+
     expect(
       mapTeamDirectorySchool({
         _id: "1",
@@ -23,6 +45,35 @@ describe("team directory", () => {
       sortName: "Abilene Christian",
       searchHaystack: "abilene christian university abilene christian wildcats",
     });
+  });
+
+  it("groups teams by first letter with non-alpha bucket", () => {
+    const team = (sortName: string) =>
+      mapTeamDirectorySchool({
+        _id: sortName,
+        name: sortName,
+        shortName: sortName,
+        nickname: null,
+        slug: `${sortName}-slug`,
+      })!;
+    const groups = groupTeamsByLetter([
+      team("Beta"),
+      team("Alpha"),
+      team("9ers"),
+    ]);
+    expect(groups.map((g) => g.letter)).toEqual(["#", "A", "B"]);
+  });
+
+  it("drops schools without slugs in directory mapping", () => {
+    expect(
+      mapTeamDirectorySchool({
+        _id: "1",
+        name: "No Slug U",
+        shortName: "No Slug",
+        nickname: null,
+        slug: "",
+      }),
+    ).toBeNull();
   });
 
   it("drops schools without slugs", () => {

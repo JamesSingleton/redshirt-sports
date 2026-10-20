@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isOutlierPick } from "@/lib/ballot-outliers";
+import { isOutlierPick, rankHeatCellClass } from "@/lib/ballot-outliers";
 
 describe("isOutlierPick", () => {
   it("flags ≥8-spot gap vs published rank (including RV teams in the poll)", () => {
@@ -14,5 +14,16 @@ describe("isOutlierPick", () => {
 
   it("counts omitting a consensus top-15 team as an outlier", () => {
     expect(isOutlierPick({ voterRank: null, publishedRank: 10 })).toBe(true);
+  });
+});
+
+describe("rankHeatCellClass", () => {
+  it("returns tiered heat classes by rank", () => {
+    expect(rankHeatCellClass(1)).toContain("primary");
+    expect(rankHeatCellClass(8)).toContain("primary");
+    expect(rankHeatCellClass(12)).toContain("primary");
+    expect(rankHeatCellClass(18)).toContain("primary");
+    expect(rankHeatCellClass(22)).toContain("primary");
+    expect(rankHeatCellClass(30)).toContain("muted");
   });
 });

@@ -22,7 +22,7 @@ export function mapTeamDirectorySchool(school: {
   }
 
   const sortName = school.shortName ?? school.name;
-  const haystack = [school.name, sortName, school.nickname]
+  const haystack = [school.name, school.shortName, school.nickname]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();

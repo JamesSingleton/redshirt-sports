@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
-import { ExternalLink, Search, Users } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -19,9 +19,8 @@ export type VotersPanelRow = {
   name: string;
   organization: string;
   organizationRole: string;
-  onPanelSince: string;
+  voterSinceLabel: string;
   ballotsSubmittedLabel: string;
-  disclosure: string | null;
   latestBallotHref: string;
 };
 
@@ -61,7 +60,6 @@ export function RankingsVotersPanel({
   divisionName,
   ballotsSubmittedLabel,
   outletCount,
-  disclosureCount,
   methodologyHref,
 }: {
   voters: VotersPanelRow[];
@@ -69,7 +67,6 @@ export function RankingsVotersPanel({
   divisionName: string;
   ballotsSubmittedLabel: string;
   outletCount: number;
-  disclosureCount: number;
   methodologyHref: string;
 }) {
   const [query, setQuery] = useState("");
@@ -89,7 +86,7 @@ export function RankingsVotersPanel({
 
   return (
     <div className="grid gap-4 pt-6">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <StatCard
           label="Voters"
           value={String(voters.length)}
@@ -105,11 +102,6 @@ export function RankingsVotersPanel({
           value={ballotsSubmittedLabel}
           detail="latest published week"
         />
-        <StatCard
-          label="Disclosures"
-          value={String(disclosureCount)}
-          detail="shown next to each ballot when provided"
-        />
       </div>
 
       <div className="rounded-xl border border-primary/20 bg-accent/30 p-4 sm:p-5">
@@ -121,8 +113,7 @@ export function RankingsVotersPanel({
             <div className="font-semibold">How voters are chosen</div>
             <p className="mt-1 text-muted-foreground">
               Invite-only: admins credential media who regularly cover{" "}
-              {divisionName}; no athletics-department employees; conflicts are
-              disclosed and shown here and beside each ballot.{" "}
+              {divisionName}.{" "}
               <Link
                 href={methodologyHref}
                 prefetch={false}
@@ -169,13 +160,10 @@ export function RankingsVotersPanel({
                 Outlet / affiliation
               </th>
               <th className="p-2 text-right text-xs uppercase tracking-wide text-muted-foreground">
-                On panel since
+                Voter since
               </th>
               <th className="p-2 text-right text-xs uppercase tracking-wide text-muted-foreground">
                 {seasonYear} ballots
-              </th>
-              <th className="p-2 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                Disclosures
               </th>
               <th className="p-2 pr-4 text-right text-xs uppercase tracking-wide text-muted-foreground">
                 Links
@@ -201,26 +189,13 @@ export function RankingsVotersPanel({
                   </div>
                 </td>
                 <td className="p-2 text-muted-foreground">
-                  {voter.organization ? (
-                    <span className="inline-flex items-center gap-1">
-                      {voter.organization}
-                      <ExternalLink
-                        className="size-3 text-muted-foreground"
-                        aria-hidden
-                      />
-                    </span>
-                  ) : (
-                    "—"
-                  )}
+                  {voter.organization || "—"}
                 </td>
                 <td className="p-2 text-right tabular text-muted-foreground">
-                  {voter.onPanelSince}
+                  {voter.voterSinceLabel}
                 </td>
                 <td className="p-2 text-right tabular">
                   {voter.ballotsSubmittedLabel}
-                </td>
-                <td className="p-2 text-xs text-muted-foreground">
-                  {voter.disclosure ?? "None disclosed"}
                 </td>
                 <td className="p-2 pr-4 text-right">
                   <div className="flex justify-end gap-1.5">
@@ -252,19 +227,17 @@ export function RankingsVotersPanel({
                   {voter.organization}
                   {voter.organizationRole ? ` · ${voter.organizationRole}` : ""}
                 </div>
+                <div className="text-xs text-muted-foreground">
+                  Since {voter.voterSinceLabel} · {voter.ballotsSubmittedLabel}{" "}
+                  {seasonYear} ballots
+                </div>
               </div>
-              <span className="text-xs tabular text-muted-foreground">
-                {voter.ballotsSubmittedLabel}
-              </span>
             </div>
-            <div className="mt-2 flex items-center justify-between gap-2 text-xs">
-              <span className="text-muted-foreground">
-                {voter.disclosure ?? "No disclosures"}
-              </span>
+            <div className="mt-2 flex justify-end">
               <Link
                 href={voter.latestBallotHref}
                 prefetch={false}
-                className="rounded-md border px-2 py-1 font-medium"
+                className="rounded-md border px-2 py-1 text-xs font-medium"
               >
                 Ballot
               </Link>

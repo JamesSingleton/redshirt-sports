@@ -8,30 +8,6 @@ import { TeamMark } from "@/components/rankings/team-mark";
 import type { RankingsIndexCard } from "@/lib/rankings-widget-data";
 
 export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
-  if (card.status === "coming-soon") {
-    return (
-      <Card
-        className="gap-0 border-dashed bg-muted/30 p-5 shadow-none"
-        aria-disabled="true"
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="kicker text-muted-foreground">
-              Redshirt Sports Poll · {card.label}
-            </div>
-            <h2 className="font-display text-3xl font-extrabold uppercase leading-none text-muted-foreground">
-              {card.title}
-            </h2>
-          </div>
-          <Badge variant="outline">Coming soon</Badge>
-        </div>
-        <p className="mt-3 text-sm text-muted-foreground">
-          This poll will appear here once we publish a week.
-        </p>
-      </Card>
-    );
-  }
-
   const { poll, teams, sport } = card;
   const votersHref = `/college/${sport}/rankings/${poll.division}/voters`;
   const historyHref = `/college/${sport}/rankings/${poll.division}/history`;

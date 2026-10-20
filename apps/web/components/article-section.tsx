@@ -66,7 +66,7 @@ export default function ArticleSection({
               <p className="text-muted-foreground">{firstArticle.excerpt}</p>
               <div className="text-muted-foreground flex items-center gap-2">
                 <Link
-                  href={`/authors/${firstArticle.authors[0]?.slug}`}
+                  href={`/people/${firstArticle.authors[0]?.slug}`}
                   className="text-primary flex items-center gap-2"
                   prefetch={false}
                 >

@@ -9,6 +9,7 @@ import { cn } from "@redshirt-sports/ui/lib/utils";
 
 import { TeamMark } from "@/components/rankings/team-mark";
 import { TeamPageLink } from "@/components/rankings/team-page-link";
+import { formatPollPoints } from "@/lib/format-poll-points";
 import type { DroppedOutTeam, RankingTeamRef } from "@/lib/rankings-movement";
 import { displayName } from "@/lib/rankings-movement";
 
@@ -124,7 +125,7 @@ export function RankingsBeyondTop25({
             orvInGrid ? "text-right sm:w-14" : "text-right sm:w-12",
           )}
         >
-          {team._points} pts
+          {formatPollPoints(team._points)}
         </span>
       </li>
     );
@@ -211,7 +212,7 @@ function DroppedOutCard({
           {droppedOut.map((team) => {
             const current = currentRankingsById.get(team._id);
             const thisWeek = current
-              ? `This week: receiving votes · ${current._points} pts`
+              ? `This week: receiving votes · ${formatPollPoints(current._points)}`
               : "This week: no votes";
 
             return (
@@ -298,7 +299,7 @@ function NoLongerCard({ teams }: { teams: RankingTeamRef[] }) {
                   </b>
                 ) : (
                   <b className="text-sm tabular-nums">
-                    RV · {team._points} pts
+                    RV · {formatPollPoints(team._points)}
                   </b>
                 )}
               </span>

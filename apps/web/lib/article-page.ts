@@ -118,14 +118,15 @@ export function conferenceNewsHref(
   conference: NonNullable<ArticlePost["conferences"]>[number],
 ): string | null {
   const sportSlug = post.sport?.slug;
-  if (!sportSlug) return null;
+  if (!sportSlug || !conference.slug) return null;
 
   const articleSportId = post.sport?._id;
   const matchingAffiliation = conference.sportSubdivisionAffiliations?.find(
     (affiliation) => affiliation.sport._id === articleSportId,
   );
   const divisionPathSegment =
-    matchingAffiliation?.subgrouping.slug || conference.division.slug;
+    matchingAffiliation?.subgrouping.slug || conference.division?.slug;
+  if (!divisionPathSegment) return null;
 
   return `/college/${sportSlug}/news/${divisionPathSegment}/${conference.slug}`;
 }

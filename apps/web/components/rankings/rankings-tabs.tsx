@@ -32,7 +32,6 @@ export function RankingsTabs({
           <Link
             key={tab.id}
             href={tab.href}
-            prefetch={true}
             className={cn(
               "border-b-2 px-1 pt-1 pb-3 text-sm font-semibold whitespace-nowrap",
               isActive

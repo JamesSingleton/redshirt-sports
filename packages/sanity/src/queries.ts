@@ -1192,7 +1192,12 @@ export const schoolBySlugQuery = defineQuery(/* groq */ `
         _id,
         name,
         shortName,
-        "slug": slug.current
+        "slug": slug.current,
+        primaryClassification->{ "slug": slug.current, name },
+        sportSubdivisions[]{
+          sport->{ "slug": slug.current },
+          subdivision->{ shortName, name, "slug": slug.current }
+        }
       }
     }
   }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ballotMatrixColumnModeQueryValue,
   ballotMatrixShowPtsFirstColumns,
   ballotMatrixShowVoterColumns,
   parseBallotMatrixColumnMode,
@@ -53,6 +54,17 @@ describe("parseBallotMatrixColumnMode", () => {
 
   it("parses on-range", () => {
     expect(parseBallotMatrixColumnMode("on-range")).toBe("on-range");
+  });
+
+  it("ignores unknown values", () => {
+    expect(parseBallotMatrixColumnMode("nope")).toBe("all");
+  });
+});
+
+describe("ballotMatrixColumnModeQueryValue", () => {
+  it("omits all mode from the query string", () => {
+    expect(ballotMatrixColumnModeQueryValue("all")).toBeNull();
+    expect(ballotMatrixColumnModeQueryValue("summary")).toBe("summary");
   });
 });
 

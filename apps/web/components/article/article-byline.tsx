@@ -68,7 +68,7 @@ export function ArticleByline({
               primary.name
             ) : (
               <Link
-                href={`/authors/${primary.slug}`}
+                href={`/people/${primary.slug}`}
                 className="hover:underline"
                 prefetch={false}
               >

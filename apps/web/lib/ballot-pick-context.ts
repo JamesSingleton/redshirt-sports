@@ -26,9 +26,8 @@ export function describeBallotPickContext(pick: BallotPickRow): string {
   }
 
   if (isOutlier) {
-    const gap =
-      consensusRank != null ? Math.abs(voterRank - consensusRank) : null;
-    if (gap != null && gap >= OUTLIER_RANK_GAP) {
+    const gap = Math.abs(voterRank - consensusRank);
+    if (gap >= OUTLIER_RANK_GAP) {
       lines.push(
         `Outlier: ${gap} spots from the published position (≥${OUTLIER_RANK_GAP}).`,
       );
