@@ -418,6 +418,23 @@ export const queryNavbarData = defineQuery(/* groq */ `
   }
 `);
 
+const homePostCardFragment = /* groq */ `
+  _id,
+  title,
+  excerpt,
+  "slug": slug.current,
+  publishedAt,
+  ${postImageFragment},
+  ${postAuthorFragment},
+  "divisionLabel": coalesce(
+    sportSubgrouping->shortName,
+    sportSubgrouping->name,
+    division->shortName,
+    division->name
+  ),
+  "tagNames": tags[]->name
+`;
+
 export const queryHomePageData = defineQuery(/* groq */ `
   *[_type == "post"] | order(publishedAt desc)[0...3]{
     _id,
@@ -428,6 +445,12 @@ export const queryHomePageData = defineQuery(/* groq */ `
     ${postImageFragment},
     publishedAt,
     ${postAuthorFragment}
+  }
+`);
+
+export const queryHomeFeed = defineQuery(/* groq */ `
+  *[_type == "post"] | order(publishedAt desc)[0...12]{
+    ${homePostCardFragment}
   }
 `);
 
