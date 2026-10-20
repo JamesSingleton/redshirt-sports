@@ -58,7 +58,14 @@ export type Table = {
           _key: string;
         }>;
         style?:
-          "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+          | "normal"
+          | "h1"
+          | "h2"
+          | "h3"
+          | "h4"
+          | "h5"
+          | "h6"
+          | "blockquote";
         listItem?: "bullet" | "number";
         markDefs?: Array<{
           href?: string;
@@ -394,7 +401,12 @@ export type Post = {
   title: string;
   slug?: Slug;
   storyType:
-    "news" | "recruiting" | "transfer" | "analysis" | "opinion" | "game-recap";
+    | "news"
+    | "recruiting"
+    | "transfer"
+    | "analysis"
+    | "opinion"
+    | "game-recap";
   authors: Array<
     {
       _key: string;
@@ -1054,7 +1066,12 @@ export type QueryPostSlugDataResult = {
   title: string;
   slug: string | null;
   storyType:
-    "analysis" | "game-recap" | "news" | "opinion" | "recruiting" | "transfer";
+    | "analysis"
+    | "game-recap"
+    | "news"
+    | "opinion"
+    | "recruiting"
+    | "transfer";
   authors: Array<{
     _id: string;
     _type: "author";

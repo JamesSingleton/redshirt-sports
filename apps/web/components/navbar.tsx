@@ -14,7 +14,10 @@ import type {
 import type { StegaBranded } from "next-sanity";
 import { memo } from "react";
 
-import { NavbarClient, NavbarSkeletonResponsive } from "@/components/navbar-client";
+import {
+  NavbarClient,
+  NavbarSkeletonResponsive,
+} from "@/components/navbar-client";
 import { getCachedNavbarLatestRankings } from "@/lib/rankings-data";
 
 export interface RankingPeriod {

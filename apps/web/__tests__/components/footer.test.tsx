@@ -208,6 +208,28 @@ describe("CachedFooterServer", () => {
     expect(screen.queryByLabelText(/Follow us/i)).not.toBeInTheDocument();
   });
 
+  it("omits link lists when a column has no links", async () => {
+    mockSanityFetch
+      .mockResolvedValueOnce({
+        data: {
+          ...footerData,
+          columns: [{ _key: "empty-col", title: "Empty", links: [] }],
+        },
+      })
+      .mockResolvedValueOnce({ data: settingsData });
+
+    const component = await CachedFooterServer({
+      perspective: "published",
+      stega: false,
+    });
+    render(component);
+
+    expect(screen.getByText("Empty")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "About" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("uses a hash fallback for social links without URLs", async () => {
     mockSanityFetch
       .mockResolvedValueOnce({ data: footerData })

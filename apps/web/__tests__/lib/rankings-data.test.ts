@@ -7,6 +7,14 @@ const {
   mockGetRankedSchoolSanityIds,
   mockGetLatestFinalRankings,
   mockGetLatestFinalRankingsBySportSlug,
+  mockGetSportIdBySlug,
+  mockGetPollBySportAndSlug,
+  mockResolveWeekIdForLegacyWeek,
+  mockCountBallotsForPollWeek,
+  mockGetBallotsListedBySanityIdForPollWeek,
+  mockGetPollWeekVoterChips,
+  mockGetVotesForWeekAndYearByVoter,
+  mockListActivePollVoters,
 } = vi.hoisted(() => ({
   mockGetYearsThatHaveVotes: vi.fn(),
   mockGetWeeksThatHaveVotes: vi.fn(),
@@ -16,6 +24,14 @@ const {
   mockGetRankedSchoolSanityIds: vi.fn(),
   mockGetLatestFinalRankings: vi.fn(),
   mockGetLatestFinalRankingsBySportSlug: vi.fn(),
+  mockGetSportIdBySlug: vi.fn(),
+  mockGetPollBySportAndSlug: vi.fn(),
+  mockResolveWeekIdForLegacyWeek: vi.fn(),
+  mockCountBallotsForPollWeek: vi.fn(),
+  mockGetBallotsListedBySanityIdForPollWeek: vi.fn(),
+  mockGetPollWeekVoterChips: vi.fn(),
+  mockGetVotesForWeekAndYearByVoter: vi.fn(),
+  mockListActivePollVoters: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
@@ -32,15 +48,28 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   getRankedSchoolSanityIds: mockGetRankedSchoolSanityIds,
   getLatestFinalRankings: mockGetLatestFinalRankings,
   getLatestFinalRankingsBySportSlug: mockGetLatestFinalRankingsBySportSlug,
+  getSportIdBySlug: mockGetSportIdBySlug,
+  getPollBySportAndSlug: mockGetPollBySportAndSlug,
+  resolveWeekIdForLegacyWeek: mockResolveWeekIdForLegacyWeek,
+  countBallotsForPollWeek: mockCountBallotsForPollWeek,
+  getBallotsListedBySanityIdForPollWeek:
+    mockGetBallotsListedBySanityIdForPollWeek,
+  getPollWeekVoterChips: mockGetPollWeekVoterChips,
+  getVotesForWeekAndYearByVoter: mockGetVotesForWeekAndYearByVoter,
+  listActivePollVoters: mockListActivePollVoters,
 }));
 
 import {
+  getCachedActivePollVoters,
   getCachedFinalRankings,
   getCachedLatestFinalRankings,
+  getCachedLatestFinalRankingsBySportSlug,
   getCachedNavbarLatestRankings,
+  getCachedPollWeekBallotContext,
   getCachedRankedSchoolSanityIds,
   getCachedSchoolHasPollRankings,
   getCachedSchoolRankingHistory,
+  getCachedVotesForWeekAndYearByVoter,
   getCachedWeeksThatHaveVotes,
   getCachedYearsThatHaveVotes,
 } from "@/lib/rankings-data";
@@ -134,5 +163,124 @@ describe("rankings-data", () => {
       week: 2,
       year: 2026,
     });
+  });
+
+  it("getCachedLatestFinalRankingsBySportSlug delegates to db", async () => {
+    mockGetLatestFinalRankingsBySportSlug.mockResolvedValue([]);
+    await expect(
+      getCachedLatestFinalRankingsBySportSlug("football"),
+    ).resolves.toEqual([]);
+    expect(mockGetLatestFinalRankingsBySportSlug).toHaveBeenCalledWith(
+      "football",
+    );
+  });
+
+  it("getCachedPollWeekBallotContext returns null when sport is unknown", async () => {
+    mockGetSportIdBySlug.mockResolvedValue(null);
+    await expect(
+      getCachedPollWeekBallotContext({
+        sport: "football",
+        division: "fbs",
+        year: 2025,
+        week: 1,
+      }),
+    ).resolves.toBeNull();
+  });
+
+  it("getCachedPollWeekBallotContext aggregates ballot context", async () => {
+    mockGetSportIdBySlug.mockResolvedValue("sport-1");
+    mockGetPollBySportAndSlug.mockResolvedValue({ id: "poll-1" });
+    mockResolveWeekIdForLegacyWeek.mockResolvedValue("week-1");
+    mockCountBallotsForPollWeek.mockResolvedValue(3);
+    mockGetBallotsListedBySanityIdForPollWeek.mockResolvedValue(
+      new Map([["school-1", 2]]),
+    );
+    mockGetPollWeekVoterChips.mockResolvedValue([
+      { id: "voter-1", label: "AB" },
+    ]);
+
+    await expect(
+      getCachedPollWeekBallotContext({
+        sport: "football",
+        division: "fbs",
+        year: 2025,
+        week: 1,
+      }),
+    ).resolves.toEqual({
+      ballotsCounted: 3,
+      ballotsListedBySanityId: { "school-1": 2 },
+      voterChips: [{ id: "voter-1", label: "AB" }],
+    });
+  });
+
+  it("getCachedPollWeekBallotContext returns null when poll or week is missing", async () => {
+    mockGetSportIdBySlug.mockResolvedValue("sport-1");
+    mockGetPollBySportAndSlug.mockResolvedValue(null);
+    await expect(
+      getCachedPollWeekBallotContext({
+        sport: "football",
+        division: "fbs",
+        year: 2025,
+        week: 1,
+      }),
+    ).resolves.toBeNull();
+
+    mockGetPollBySportAndSlug.mockResolvedValue({ id: "poll-1" });
+    mockResolveWeekIdForLegacyWeek.mockResolvedValue(null);
+    await expect(
+      getCachedPollWeekBallotContext({
+        sport: "football",
+        division: "fbs",
+        year: 2025,
+        week: 1,
+      }),
+    ).resolves.toBeNull();
+  });
+
+  it("getCachedVotesForWeekAndYearByVoter returns null without sport id", async () => {
+    mockGetSportIdBySlug.mockResolvedValue(null);
+    await expect(
+      getCachedVotesForWeekAndYearByVoter({
+        sport: "football",
+        division: "fbs",
+        year: 2025,
+        week: 1,
+      }),
+    ).resolves.toBeNull();
+  });
+
+  it("getCachedVotesForWeekAndYearByVoter delegates to db", async () => {
+    mockGetSportIdBySlug.mockResolvedValue("sport-1");
+    mockGetVotesForWeekAndYearByVoter.mockResolvedValue({ ballots: [] });
+    await expect(
+      getCachedVotesForWeekAndYearByVoter({
+        sport: "football",
+        division: "fbs",
+        year: 2025,
+        week: 1,
+      }),
+    ).resolves.toEqual({ ballots: [] });
+  });
+
+  it("getCachedActivePollVoters returns empty when sport or poll is missing", async () => {
+    mockGetSportIdBySlug.mockResolvedValue(null);
+    await expect(
+      getCachedActivePollVoters({ sport: "football", division: "fbs" }),
+    ).resolves.toEqual([]);
+
+    mockGetSportIdBySlug.mockResolvedValue("sport-1");
+    mockGetPollBySportAndSlug.mockResolvedValue(null);
+    await expect(
+      getCachedActivePollVoters({ sport: "football", division: "fbs" }),
+    ).resolves.toEqual([]);
+  });
+
+  it("getCachedActivePollVoters lists voters for the poll", async () => {
+    mockGetSportIdBySlug.mockResolvedValue("sport-1");
+    mockGetPollBySportAndSlug.mockResolvedValue({ id: "poll-1" });
+    mockListActivePollVoters.mockResolvedValue([{ id: "voter-1" }]);
+    await expect(
+      getCachedActivePollVoters({ sport: "football", division: "fbs" }),
+    ).resolves.toEqual([{ id: "voter-1" }]);
   });
 });

@@ -78,8 +78,9 @@ export function globalRankingsNavHref(
   if (slugs.length === 0) {
     return null;
   }
-  const slug =
-    slugs.includes("football") ? "football" : (slugs[0] as string | undefined);
+  const slug = slugs.includes("football")
+    ? "football"
+    : (slugs[0] as string | undefined);
   return slug ? sportRankingsIndexPath(slug) : null;
 }
 

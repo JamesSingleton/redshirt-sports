@@ -8,9 +8,9 @@ import { RankingsVotersPanel } from "@/components/rankings/rankings-voters-panel
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
+  getCachedActivePollVoters,
   getCachedLatestFinalRankings,
   getCachedPollWeekBallotContext,
-  getCachedActivePollVoters,
 } from "@/lib/rankings-data";
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";

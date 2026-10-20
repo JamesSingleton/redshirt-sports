@@ -50,7 +50,10 @@ import {
 } from "date-fns";
 
 /** Relative label for recent posts; calendar date for older ones. */
-export function formatArchivePublishedAt(iso: string, now = new Date()): string {
+export function formatArchivePublishedAt(
+  iso: string,
+  now = new Date(),
+): string {
   const date = parseISO(iso);
   if (differenceInDays(now, date) < 7) {
     return formatDistanceToNow(date, { addSuffix: true });

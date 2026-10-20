@@ -24,16 +24,15 @@ import { searchParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import {
-  parseNewsArchiveFilters,
   type NewsArchiveSearchParams,
+  parseNewsArchiveFilters,
 } from "@/lib/news-archive";
 import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
-import { validateSport } from "@/lib/vote-ballot";
 import { getSportFeed } from "@/lib/rss-feed-links";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { buildSportNewsFilterOptions } from "@/lib/sport-news-filters";
 import { sportNavLabel } from "@/lib/sport-nav";
-
+import { buildSportNewsFilterOptions } from "@/lib/sport-news-filters";
+import { validateSport } from "@/lib/vote-ballot";
 import SportNewsRouteLoading from "./loading";
 
 export async function generateMetadata({
@@ -90,9 +89,8 @@ export default function Page({
   params: Promise<{ sport: string }>;
   searchParams: Promise<NewsArchiveSearchParams>;
 }) {
-  return searchParamsPage(
-    <SportNewsRouteLoading />,
-    () => renderSportNewsPage({ params, searchParams }),
+  return searchParamsPage(<SportNewsRouteLoading />, () =>
+    renderSportNewsPage({ params, searchParams }),
   );
 }
 
@@ -139,8 +137,7 @@ async function cachedRenderSportNewsPage({
   "use cache";
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
-  const newsQuery =
-    sort === "oldest" ? querySportsNewsOldest : querySportsNews;
+  const newsQuery = sort === "oldest" ? querySportsNewsOldest : querySportsNews;
 
   const queryParams = {
     sport,
@@ -231,10 +228,7 @@ async function cachedRenderSportNewsPage({
             </nav>
           ) : null}
         </div>
-        <NewsArchiveSidebar
-          mostRead={mostRead}
-          rankingsPolls={rankingsPolls}
-        />
+        <NewsArchiveSidebar mostRead={mostRead} rankingsPolls={rankingsPolls} />
       </div>
     </div>
   );

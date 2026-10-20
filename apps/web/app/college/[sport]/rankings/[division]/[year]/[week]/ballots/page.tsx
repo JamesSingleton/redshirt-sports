@@ -6,10 +6,10 @@ import { BallotsMatrixPanel } from "@/components/rankings/ballots-matrix-panel";
 import { BallotsViewToggle } from "@/components/rankings/ballots-view-toggle";
 import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { getCachedBallotsPageMatrix } from "@/lib/ballots-page-data";
-import { resolveVoterHighlightUserIds } from "@/lib/voter-ballot-slug";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { loadRankingsWeekShell } from "@/lib/rankings-week-shell";
+import { resolveVoterHighlightUserIds } from "@/lib/voter-ballot-slug";
 
 export async function generateMetadata({
   params,
@@ -83,7 +83,10 @@ async function renderBallotsPage(
 
   const highlightTokens = [
     ...(query.voter ? [query.voter.trim()] : []),
-    ...(query.voters?.split(",").map((t) => t.trim()).filter(Boolean) ?? []),
+    ...(query.voters
+      ?.split(",")
+      .map((t) => t.trim())
+      .filter(Boolean) ?? []),
   ];
   const highlightVoterIds = resolveVoterHighlightUserIds(
     highlightTokens,

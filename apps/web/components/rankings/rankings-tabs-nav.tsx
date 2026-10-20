@@ -2,9 +2,11 @@
 
 import { usePathname } from "next/navigation";
 
+import {
+  type RankingsTabId,
+  RankingsTabs,
+} from "@/components/rankings/rankings-tabs";
 import { rankingsTabActiveFromPath } from "@/lib/rankings-tab-active";
-
-import { RankingsTabs, type RankingsTabId } from "@/components/rankings/rankings-tabs";
 
 export function RankingsTabsNav({
   tabs,

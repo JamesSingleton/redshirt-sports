@@ -1,24 +1,16 @@
 import { cn } from "@redshirt-sports/ui/lib/utils";
 
-export function BallotDiffChip({
-  diff,
-}: {
-  diff: number | "rv" | "equal";
-}) {
+export function BallotDiffChip({ diff }: { diff: number | "rv" | "equal" }) {
   if (diff === "rv") {
     return (
-      <span
-        className="inline-flex min-w-9 justify-center rounded px-1 text-[10px] font-bold text-new bg-new/10"
-      >
+      <span className="inline-flex min-w-9 justify-center rounded px-1 text-[10px] font-bold text-new bg-new/10">
         RV
       </span>
     );
   }
   if (diff === "equal") {
     return (
-      <span
-        className="inline-flex min-w-9 justify-center rounded px-1 text-[10px] font-semibold text-muted-foreground"
-      >
+      <span className="inline-flex min-w-9 justify-center rounded px-1 text-[10px] font-semibold text-muted-foreground">
         =
       </span>
     );

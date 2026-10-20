@@ -15,6 +15,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { MouseEvent } from "react";
 import { useCallback, useMemo, useState } from "react";
 
+import { TeamMark } from "@/components/rankings/team-mark";
 import { rankHeatCellClass } from "@/lib/ballot-outliers";
 import {
   ballotMatrixColumnModeQueryValue,
@@ -24,7 +25,6 @@ import {
   voterHasOutlierByIndex,
 } from "@/lib/ballots-matrix-filters";
 import type { BallotsPageMatrix } from "@/lib/ballots-page-data";
-import { TeamMark } from "@/components/rankings/team-mark";
 
 function isHighlightModeActive(
   highlightVoter: string,
@@ -152,7 +152,12 @@ export function BallotsMatrixPanel({
       indexes = indexes.filter((index) => voterOutlierFlags[index]);
     }
     return indexes;
-  }, [showVoterColumns, matrix.voters, votersWithOutliersOnly, voterOutlierFlags]);
+  }, [
+    showVoterColumns,
+    matrix.voters,
+    votersWithOutliersOnly,
+    voterOutlierFlags,
+  ]);
 
   const filteredRows = useMemo(() => {
     const q = teamQuery.trim().toLowerCase();
@@ -186,9 +191,7 @@ export function BallotsMatrixPanel({
             <Input
               id="ballots-team-search"
               value={teamQuery}
-              onChange={(e) =>
-                patchQuery({ q: e.target.value.trim() || null })
-              }
+              onChange={(e) => patchQuery({ q: e.target.value.trim() || null })}
               placeholder="Filter teams…"
               className="mt-1 h-9"
             />
@@ -405,7 +408,10 @@ export function BallotsMatrixPanel({
               >
                 On
               </th>
-              <th scope="col" className="px-2 text-center text-xs font-semibold">
+              <th
+                scope="col"
+                className="px-2 text-center text-xs font-semibold"
+              >
                 Range
               </th>
             </tr>
@@ -434,9 +440,7 @@ export function BallotsMatrixPanel({
                   className="sticky left-0 z-[15] w-10 min-w-10 bg-muted/40"
                   aria-hidden
                 />
-                <td
-                  className="sticky left-10 z-[15] min-w-[9rem] border-r bg-muted/40 px-2 py-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:min-w-[10rem] sm:text-sm"
-                >
+                <td className="sticky left-10 z-[15] min-w-[9rem] border-r bg-muted/40 px-2 py-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:min-w-[10rem] sm:text-sm">
                   Others receiving votes
                 </td>
                 <td
@@ -648,7 +652,8 @@ function MatrixRow({
                     className={cn(
                       "mx-auto flex h-9 min-w-10 w-10 items-center justify-center text-sm font-semibold tabular sm:h-10 sm:min-w-11 sm:w-11",
                       rankHeatCellClass(rank),
-                      emphasized && "ring-2 ring-primary/60 ring-offset-1 ring-offset-card",
+                      emphasized &&
+                        "ring-2 ring-primary/60 ring-offset-1 ring-offset-card",
                       cell?.isOutlier && "ring-2 ring-inset ring-gold",
                     )}
                     title={cell?.isOutlier ? "Outlier pick" : undefined}
@@ -659,7 +664,10 @@ function MatrixRow({
                     ) : null}
                   </div>
                 ) : (
-                  <div className="mx-auto h-9 min-w-10 w-10 sm:h-10 sm:w-11" aria-hidden />
+                  <div
+                    className="mx-auto h-9 min-w-10 w-10 sm:h-10 sm:w-11"
+                    aria-hidden
+                  />
                 )}
               </td>
             );

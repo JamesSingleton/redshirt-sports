@@ -11,9 +11,7 @@ const LOGO_URL =
 interface LogoProps {
   src?: Maybe<string>;
   image?: Maybe<NonNullable<QueryGlobalSeoSettingsResult>["logo"]>;
-  footerLogo?: Maybe<
-    NonNullable<QueryGlobalSeoSettingsResult>["footerLogo"]
-  >;
+  footerLogo?: Maybe<NonNullable<QueryGlobalSeoSettingsResult>["footerLogo"]>;
   footerLogoDarkMode?: Maybe<
     NonNullable<QueryGlobalSeoSettingsResult>["footerLogoDarkMode"]
   >;

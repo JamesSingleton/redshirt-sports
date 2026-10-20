@@ -10,11 +10,7 @@ export function ArchivePublishedTime({
   className?: string;
 }) {
   return (
-    <time
-      dateTime={dateString}
-      className={className}
-      suppressHydrationWarning
-    >
+    <time dateTime={dateString} className={className} suppressHydrationWarning>
       {formatArchivePublishedAt(dateString)}
     </time>
   );

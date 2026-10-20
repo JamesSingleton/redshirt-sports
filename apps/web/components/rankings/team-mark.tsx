@@ -27,8 +27,7 @@ export function TeamMark({
   schoolLabel,
 }: TeamMarkProps) {
   const dim = size === "sm" ? 28 : size === "table" ? 32 : 40;
-  const label =
-    schoolLabel ?? `${shortName ?? name ?? "Team"} logo`;
+  const label = schoolLabel ?? `${shortName ?? name ?? "Team"} logo`;
 
   if (image) {
     return (

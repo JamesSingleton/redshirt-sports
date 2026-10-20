@@ -99,7 +99,12 @@ import ConferenceNewsPage, {
 
 function mockConferenceFetches(
   data: {
-    posts: Array<{ _id: string; title: string; slug: string; publishedAt?: string }>;
+    posts: Array<{
+      _id: string;
+      title: string;
+      slug: string;
+      publishedAt?: string;
+    }>;
     totalPosts: number;
     conferenceInfo: { name: string; shortName?: string | null } | null;
   },

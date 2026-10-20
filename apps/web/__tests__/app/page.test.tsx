@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { isValidElement, Suspense, type ReactElement, type ReactNode } from "react";
+import { isValidElement, type ReactElement, Suspense } from "react";
 import type { Mock } from "vitest";
 
 import HomeRouteLoading from "@/app/home-route-loading";
@@ -13,7 +13,9 @@ const { mockSanityFetchPage, mockGetDynamicFetchOptions } = vi.hoisted(() => ({
   }),
 }));
 
-const mockGetCachedMostReadPosts = vi.hoisted(() => vi.fn().mockResolvedValue([]));
+const mockGetCachedMostReadPosts = vi.hoisted(() =>
+  vi.fn().mockResolvedValue([]),
+);
 const mockGetCachedRankingsWidgetPolls = vi.hoisted(() =>
   vi.fn().mockResolvedValue([]),
 );
@@ -162,6 +164,20 @@ describe("HomePage", () => {
       .fallback;
     expect(isValidElement(fallback)).toBe(true);
     expect(fallback.type).toBe(HomeRouteLoading);
+  });
+
+  it("uses the current date in JSON-LD when the home feed is empty", async () => {
+    mockFetch.mockResolvedValueOnce({ data: null });
+
+    const page = await CachedHomePage({
+      perspective: "published",
+      stega: false,
+    });
+    render(page);
+
+    const jsonLd = screen.getByTestId("home-json-ld");
+    const data = JSON.parse(jsonLd.innerHTML);
+    expect(data.dateModified).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
   it("falls back to app name and undefined description when SEO settings are missing", async () => {

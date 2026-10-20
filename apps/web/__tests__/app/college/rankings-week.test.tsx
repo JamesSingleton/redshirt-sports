@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { isValidElement, type ReactElement, type ReactNode } from "react";
 
 import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
@@ -296,14 +296,14 @@ describe("CollegeFootballRankingsPage", () => {
 
     render(page);
 
-    expect(screen.getByLabelText("Down 1")).toBeInTheDocument();
-    expect(screen.getByLabelText("Newly ranked")).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Down 1").length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText("Newly ranked").length).toBeGreaterThan(0);
     expect(screen.getByText(/Dropped out of the Top 25/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Mercer" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "Mercer" })[0]).toHaveAttribute(
       "href",
       "/college/teams/mercer",
     );
-    expect(screen.getByText("No. 24")).toBeInTheDocument();
+    expect(screen.getAllByText("No. 24").length).toBeGreaterThan(0);
     expect(screen.getByText(/Others receiving votes/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /ORV Team/ })).toHaveAttribute(
       "href",
@@ -325,6 +325,79 @@ describe("CollegeFootballRankingsPage", () => {
       (n: { "@type": string }) => n["@type"] === "ItemList",
     );
     expect(itemList.numberOfItems).toBe(2); // stay + new in Top 25
+  });
+
+  it("renders when ballot context lookup fails", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("stay", 1, 200, "Alabama")],
+    });
+    mockGetCachedPollWeekBallotContext.mockRejectedValue(
+      new Error("ballots unavailable"),
+    );
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    expect(screen.queryByText(/ballots counted/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Alabama" })).toBeInTheDocument();
+  });
+
+  it("uses singular voter and ballot copy for one counted ballot", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("stay", 1, 200, "Alabama")],
+    });
+    mockGetCachedPollWeekBallotContext.mockResolvedValue({
+      ballotsCounted: 1,
+      ballotsListedBySanityId: {},
+      voterChips: [{ id: "user-1", label: "AB" }],
+    });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    expect(screen.getByText(/1 voter · 1 ballot counted/i)).toBeInTheDocument();
+  });
+
+  it("skips week-over-week movement when there is no prior week", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("stay", 1, 200, "Alabama")],
+    });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    const pollTable = screen.getByRole("table");
+    expect(within(pollTable).queryByLabelText(/Up /i)).not.toBeInTheDocument();
+    expect(
+      within(pollTable).queryByLabelText(/Down /i),
+    ).not.toBeInTheDocument();
   });
 
   it("renders poll-not-found message when rankings data is empty", async () => {
@@ -444,11 +517,13 @@ describe("CollegeFootballRankingsPage", () => {
     render(page);
 
     expect(
-      screen.getByRole("link", { name: "Mercer (24)" }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("link", { name: "Mercer" }).length,
+    ).toBeGreaterThan(0);
     expect(
-      screen.getByRole("link", { name: "Samford (25)" }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("link", { name: "Samford" }).length,
+    ).toBeGreaterThan(0);
+    expect(screen.getAllByText("No. 24").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("No. 25").length).toBeGreaterThan(0);
     expect(
       screen.getByRole("link", { name: "Vanished A" }),
     ).toBeInTheDocument();

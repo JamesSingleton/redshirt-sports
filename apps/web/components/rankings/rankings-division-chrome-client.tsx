@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 
 import { RankingsBreadcrumb } from "@/components/rankings/rankings-breadcrumb";
 import { RankingsTabsNav } from "@/components/rankings/rankings-tabs-nav";

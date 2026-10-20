@@ -17,7 +17,6 @@ import { getCachedRankingsIndexCards } from "@/lib/rankings-widget-data";
 import { sportNavLabel } from "@/lib/sport-nav";
 import { validateSport } from "@/lib/vote-ballot";
 import type { SportParam } from "@/utils/espn";
-
 import RankingsIndexRouteLoading from "./loading";
 
 export async function generateMetadata({
@@ -95,7 +94,11 @@ async function renderSportRankingsIndex(
           className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
           aria-label="Breadcrumb"
         >
-          <Link href="/college/news" className="hover:text-foreground" prefetch={false}>
+          <Link
+            href="/college/news"
+            className="hover:text-foreground"
+            prefetch={false}
+          >
             College
           </Link>
           <ChevronRight className="size-3 shrink-0" aria-hidden />
@@ -137,7 +140,11 @@ async function renderSportRankingsIndex(
           ))}
         </div>
         <aside className="grid content-start gap-6" aria-label="Sidebar">
-          <AdSlot width={300} height={250} className="mx-auto w-full max-w-[300px]" />
+          <AdSlot
+            width={300}
+            height={250}
+            className="mx-auto w-full max-w-[300px]"
+          />
         </aside>
       </div>
     </main>

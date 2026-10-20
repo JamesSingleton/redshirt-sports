@@ -17,9 +17,7 @@ function posthogApiHost(): string | null {
  * Top article pathnames from PostHog $pageview in the past 24 hours.
  * Requires POSTHOG_PERSONAL_API_KEY and POSTHOG_PROJECT_ID (server-only).
  */
-export async function fetchMostReadPathnames(
-  limit = 10,
-): Promise<string[]> {
+export async function fetchMostReadPathnames(limit = 10): Promise<string[]> {
   const personalApiKey = process.env.POSTHOG_PERSONAL_API_KEY;
   const projectId = process.env.POSTHOG_PROJECT_ID;
   const apiHost = posthogApiHost();

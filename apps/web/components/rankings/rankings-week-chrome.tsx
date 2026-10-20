@@ -1,8 +1,6 @@
-import { loadRankingsWeekShell } from "@/lib/rankings-week-shell";
-
 import { RankingsWeekChromeClient } from "@/components/rankings/rankings-week-chrome-client";
-
 import { RankingsWeekChromeSkeleton } from "@/components/rankings/rankings-week-chrome-skeleton";
+import { loadRankingsWeekShell } from "@/lib/rankings-week-shell";
 
 export async function RankingsWeekChrome({
   params,

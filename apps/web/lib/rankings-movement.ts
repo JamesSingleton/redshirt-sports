@@ -90,6 +90,13 @@ export type DroppedOutTeam = RankingTeamRef & { previousRank: number };
  * (still receiving votes or off the ballot entirely).
  * Sorted by previous rank ascending.
  */
+export function movementMagnitude(movement: Movement): number {
+  if (movement.kind === "up" || movement.kind === "down") {
+    return movement.delta;
+  }
+  return 0;
+}
+
 export function getBiggestMovers(
   top25: RankingTeamRef[],
   previousRankById: Map<string, number | null> | null,
@@ -109,17 +116,9 @@ export function getBiggestMovers(
         entry.movement.kind === "up" || entry.movement.kind === "down",
     );
 
-  movers.sort((a, b) => {
-    const deltaA =
-      a.movement.kind === "up" || a.movement.kind === "down"
-        ? a.movement.delta
-        : 0;
-    const deltaB =
-      b.movement.kind === "up" || b.movement.kind === "down"
-        ? b.movement.delta
-        : 0;
-    return deltaB - deltaA;
-  });
+  movers.sort(
+    (a, b) => movementMagnitude(b.movement) - movementMagnitude(a.movement),
+  );
 
   return movers.slice(0, limit);
 }

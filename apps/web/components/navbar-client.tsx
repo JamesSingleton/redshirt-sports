@@ -26,20 +26,18 @@ import type { Top25RankingsData } from "@/components/navbar";
 import { SearchBar } from "@/components/search-bar";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
+  globalRankingsNavHref,
   SPORT_MEGA_KEY,
   type SportMegaKey,
   sportHasRankingsNav,
   sportHubPath,
   sportNavLabel,
   sportRankingsIndexPath,
-  globalRankingsNavHref,
 } from "@/lib/sport-nav";
 
 function useBrand(settingsData: QueryGlobalSeoSettingsResult) {
   return (
-    settingsData?.siteBrand ??
-    settingsData?.siteTitle ??
-    "Redshirt Sports"
+    settingsData?.siteBrand ?? settingsData?.siteTitle ?? "Redshirt Sports"
   );
 }
 
@@ -57,12 +55,7 @@ const MobileNavbar = memo(function MobileNavbar({
   setMenuOpen: (open: boolean) => void;
 }) {
   const brand = useBrand(settingsData);
-  const path = usePathname();
   const globalRankingsHref = globalRankingsNavHref(latestRankings);
-
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [path, setMenuOpen]);
 
   const close = useCallback(() => setMenuOpen(false), [setMenuOpen]);
 
@@ -122,9 +115,7 @@ const MobileNavbar = memo(function MobileNavbar({
           <nav aria-label="Sports" className="divide-y">
             {navbarData.map((sport) => (
               <details key={sport._id} className="group py-1" open>
-                <summary
-                  className="flex cursor-pointer list-none items-center justify-between rounded-md px-2 py-2.5 font-display text-base font-bold uppercase tracking-wide hover:bg-accent [&::-webkit-details-marker]:hidden"
-                >
+                <summary className="flex cursor-pointer list-none items-center justify-between rounded-md px-2 py-2.5 font-display text-base font-bold uppercase tracking-wide hover:bg-accent [&::-webkit-details-marker]:hidden">
                   {sportNavLabel(sport.slug, sport.name)}
                   <ChevronDown
                     className="size-4 opacity-60 transition-transform group-open:rotate-180"
@@ -287,9 +278,14 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
   latestRankings: Top25RankingsData;
 }) {
   const isMobile = useIsMobile();
+  const path = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMega, setActiveMega] = useState<SportMegaKey | null>(null);
   const brand = useBrand(settingsData);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [path]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

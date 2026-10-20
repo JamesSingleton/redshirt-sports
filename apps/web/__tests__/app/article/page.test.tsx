@@ -322,7 +322,9 @@ describe("PostPage", () => {
     expect(
       screen.getByRole("heading", { name: "Big Game Preview" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: "Breadcrumb" }),
+    ).toBeInTheDocument();
     const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
     expect(
       within(breadcrumb).getByRole("link", { name: "College Football" }),
@@ -379,7 +381,9 @@ describe("PostPage", () => {
       within(breadcrumb).getByRole("link", { name: "Division II" }),
     ).toHaveAttribute("href", "/college/football/news/d2");
     expect(
-      within(breadcrumb).getByRole("link", { name: "Great American Conference" }),
+      within(breadcrumb).getByRole("link", {
+        name: "Great American Conference",
+      }),
     ).toHaveAttribute("href", "/college/football/news/d2/gac");
     expect(
       screen.getByLabelText("Schools tagged on this article"),
@@ -403,10 +407,9 @@ describe("PostPage", () => {
     render(page as ReactNode);
 
     const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(within(breadcrumb).getByRole("link", { name: "FBS" })).toHaveAttribute(
-      "href",
-      "/college/football/news/fbs",
-    );
+    expect(
+      within(breadcrumb).getByRole("link", { name: "FBS" }),
+    ).toHaveAttribute("href", "/college/football/news/fbs");
   });
 
   it("renders hero without photo credit when credit is missing", async () => {
@@ -448,9 +451,8 @@ describe("PostPage", () => {
     render(page as ReactNode);
 
     const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(within(breadcrumb).getByRole("link", { name: "SEC" })).toHaveAttribute(
-      "href",
-      "/college/football/news/fbs/sec",
-    );
+    expect(
+      within(breadcrumb).getByRole("link", { name: "SEC" }),
+    ).toHaveAttribute("href", "/college/football/news/fbs/sec");
   });
 });

@@ -36,7 +36,11 @@ export function NewsArchiveHeader({
             {index === items.length - 1 ? (
               <span className="text-foreground">{item.title}</span>
             ) : (
-              <Link href={item.href} className="hover:text-foreground" prefetch={false}>
+              <Link
+                href={item.href}
+                className="hover:text-foreground"
+                prefetch={false}
+              >
                 {item.title}
               </Link>
             )}

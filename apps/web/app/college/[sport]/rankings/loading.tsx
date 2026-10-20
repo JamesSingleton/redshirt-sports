@@ -3,10 +3,15 @@ import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 export default function RankingsIndexRouteLoading() {
   return (
     <main className="mx-auto max-w-site px-4 pb-12 lg:px-6" aria-busy="true">
-      <span className="sr-only" role="status">Loading…</span>
+      <span className="sr-only" role="status">
+        Loading…
+      </span>
       <div className="pt-5">
         <Skeleton className="h-3 w-56 motion-reduce:animate-none" aria-hidden />
-        <Skeleton className="mt-3 h-4 w-32 motion-reduce:animate-none" aria-hidden />
+        <Skeleton
+          className="mt-3 h-4 w-32 motion-reduce:animate-none"
+          aria-hidden
+        />
         <Skeleton
           className="mt-2 h-12 w-full max-w-sm motion-reduce:animate-none"
           aria-hidden

@@ -19,7 +19,11 @@ export function ArticleSidebar({
   return (
     <aside className="hidden content-start gap-6 lg:grid" aria-label="Sidebar">
       <div className="sticky top-24 grid gap-6">
-        <AdSlot width={300} height={250} className="mx-auto w-full max-w-[300px]" />
+        <AdSlot
+          width={300}
+          height={250}
+          className="mx-auto w-full max-w-[300px]"
+        />
         <MostReadCard items={mostRead} />
         {rankingsPolls.length > 0 ? (
           <RankingsWidget polls={rankingsPolls} />

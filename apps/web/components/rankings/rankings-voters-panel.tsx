@@ -216,7 +216,9 @@ export function RankingsVotersPanel({
                 <td className="p-2 text-right tabular text-muted-foreground">
                   {voter.onPanelSince}
                 </td>
-                <td className="p-2 text-right tabular">{voter.ballotsSubmittedLabel}</td>
+                <td className="p-2 text-right tabular">
+                  {voter.ballotsSubmittedLabel}
+                </td>
                 <td className="p-2 text-xs text-muted-foreground">
                   {voter.disclosure ?? "None disclosed"}
                 </td>

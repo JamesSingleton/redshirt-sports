@@ -1,6 +1,5 @@
-import { loadRankingsDivisionShell } from "@/lib/rankings-week-shell";
-
 import { RankingsDivisionChromeClient } from "@/components/rankings/rankings-division-chrome-client";
+import { loadRankingsDivisionShell } from "@/lib/rankings-week-shell";
 
 export async function RankingsDivisionChrome({
   params,

@@ -64,12 +64,15 @@ export function RankingsBeyondTop25({
 
   const orvCount = othersReceivingVotes.length;
   const sideCardCount =
-    (droppedOut.length > 0 ? 1 : 0) + (noLongerReceivingVotes.length > 0 ? 1 : 0);
+    (droppedOut.length > 0 ? 1 : 0) +
+    (noLongerReceivingVotes.length > 0 ? 1 : 0);
   const orvOnly = orvCount > 0 && sideCardCount === 0;
   /** ORV beside dropped / no-longer cards in one column is too narrow for a grid. */
   const useStackedSection = orvCount > 0 && sideCardCount > 0;
   const orvFullWidth = orvOnly || useStackedSection || orvCount > 8;
-  const orvGridClass = orvFullWidth ? othersReceivingVotesGridClass(orvCount) : null;
+  const orvGridClass = orvFullWidth
+    ? othersReceivingVotesGridClass(orvCount)
+    : null;
   const orvInGrid = orvGridClass != null;
 
   const orvList = othersReceivingVotes.map((team) => {
@@ -127,25 +130,26 @@ export function RankingsBeyondTop25({
     );
   });
 
-  const orvCard = orvCount > 0 ? (
-    <Card
-      className={cn(
-        "gap-0 shadow-xs",
-        orvFullWidth && !useStackedSection && "md:col-span-3",
-        useStackedSection && "w-full",
-      )}
-    >
-      <CardHeader className="px-5 pt-5">
-        <CardTitle className="font-display text-xl font-bold uppercase leading-none tracking-wide">
-          Others receiving votes
-        </CardTitle>
-        <CardDescription>Points &gt; 0, outside the Top 25</CardDescription>
-      </CardHeader>
-      <CardContent className="px-5 pt-2 pb-4">
-        <ul className={cn(orvGridClass)}>{orvList}</ul>
-      </CardContent>
-    </Card>
-  ) : null;
+  const orvCard =
+    orvCount > 0 ? (
+      <Card
+        className={cn(
+          "gap-0 shadow-xs",
+          orvFullWidth && !useStackedSection && "md:col-span-3",
+          useStackedSection && "w-full",
+        )}
+      >
+        <CardHeader className="px-5 pt-5">
+          <CardTitle className="font-display text-xl font-bold uppercase leading-none tracking-wide">
+            Others receiving votes
+          </CardTitle>
+          <CardDescription>Points &gt; 0, outside the Top 25</CardDescription>
+        </CardHeader>
+        <CardContent className="px-5 pt-2 pb-4">
+          <ul className={cn(orvGridClass)}>{orvList}</ul>
+        </CardContent>
+      </Card>
+    ) : null;
 
   return (
     <section className="pt-8" aria-label="Beyond the Top 25">

@@ -1,7 +1,7 @@
 import type {
-  QueryCollegeNewsResult,
   PostsByStoryTypeQueryResult,
   QueryArticlesBySportDivisionAndConferenceResult,
+  QueryCollegeNewsResult,
   QuerySportsAndDivisionNewsResult,
   QuerySportsNewsResult,
 } from "@redshirt-sports/sanity/types";

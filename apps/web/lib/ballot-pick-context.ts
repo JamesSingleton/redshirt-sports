@@ -1,7 +1,6 @@
 import { OUTLIER_RANK_GAP } from "@/lib/ballot-outliers";
-import { TOP_25 } from "@/lib/constants";
-
 import type { BallotPickRow } from "@/lib/ballots-by-voter-data";
+import { TOP_25 } from "@/lib/constants";
 
 export function describeBallotPickContext(pick: BallotPickRow): string {
   const { voterRank, consensusRank, diff, isOutlier, shortName } = pick;

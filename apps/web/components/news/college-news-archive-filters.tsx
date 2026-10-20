@@ -5,15 +5,15 @@ import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 
+import type { NewsFilterConference } from "@/components/news/news-archive-filters";
 import type {
   CollegeNewsDivisionOption,
   CollegeNewsSport,
 } from "@/lib/college-news-filters";
 import {
-  STORY_TYPE_OPTIONS,
   type NewsArchiveSearchParams,
+  STORY_TYPE_OPTIONS,
 } from "@/lib/news-archive";
-import type { NewsFilterConference } from "@/components/news/news-archive-filters";
 
 export function CollegeNewsArchiveFilters({
   sports,
@@ -54,7 +54,9 @@ export function CollegeNewsArchiveFilters({
 
   const onDivisionChange = (value: string) => {
     if (!value) return;
-    const division = divisions.find((d) => `${d.sportSlug}/${d.slug}` === value);
+    const division = divisions.find(
+      (d) => `${d.sportSlug}/${d.slug}` === value,
+    );
     if (!division) return;
     router.push(`/college/${division.sportSlug}/news/${division.slug}`);
   };
@@ -62,8 +64,7 @@ export function CollegeNewsArchiveFilters({
   const onConferenceChange = (value: string) => {
     if (!value) return;
     const conference = conferences.find(
-      (c) =>
-        `${c.sportSlug ?? ""}/${c.divisionSlug}/${c.slug}` === value,
+      (c) => `${c.sportSlug ?? ""}/${c.divisionSlug}/${c.slug}` === value,
     );
     if (!conference?.sportSlug) return;
     router.push(
@@ -217,9 +218,9 @@ export function CollegeNewsArchiveFilters({
       </form>
       <p className="mt-2 text-[11px] text-muted-foreground">
         Sport navigates to{" "}
-        <span className="font-mono">/college/[sport]/news</span>, division/conference
-        to their folder routes; type, sort and search are query params. Pagination:{" "}
-        <span className="font-mono">?page=n</span>.
+        <span className="font-mono">/college/[sport]/news</span>,
+        division/conference to their folder routes; type, sort and search are
+        query params. Pagination: <span className="font-mono">?page=n</span>.
       </p>
     </div>
   );

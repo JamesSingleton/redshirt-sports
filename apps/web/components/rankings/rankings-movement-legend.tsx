@@ -18,7 +18,10 @@ export function RankingsMovementLegend() {
         newly ranked
       </span>
       <span className="flex items-center gap-1">
-        <span className="inline-flex items-center text-muted-foreground" aria-hidden>
+        <span
+          className="inline-flex items-center text-muted-foreground"
+          aria-hidden
+        >
           <Minus className="size-3.5" />
         </span>
         unchanged

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { articleTeamsInStory, buildArticleBreadcrumbs } from "@/lib/article-page";
+import {
+  articleTeamsInStory,
+  buildArticleBreadcrumbs,
+} from "@/lib/article-page";
 
 describe("articleTeamsInStory", () => {
   it("returns labeled team links with slugs", () => {

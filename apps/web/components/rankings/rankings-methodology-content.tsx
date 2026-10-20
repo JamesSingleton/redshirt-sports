@@ -9,10 +9,7 @@ import Link from "next/link";
 
 import { AdSlot } from "@/components/ad-slot";
 import { RankingsBallotsCta } from "@/components/rankings/rankings-ballots-cta";
-import {
-  OUTLIER_RANK_GAP,
-  OUTLIER_TOP_OMIT_RANK,
-} from "@/lib/ballot-outliers";
+import { OUTLIER_RANK_GAP, OUTLIER_TOP_OMIT_RANK } from "@/lib/ballot-outliers";
 import { TOP_25 } from "@/lib/constants";
 
 const SECTIONS = [
@@ -29,12 +26,36 @@ const SECTIONS = [
 ] as const;
 
 const TIMELINE = [
-  ["Sun 08:00 ET", "Window opens", "Voters receive email with their ballot link."],
-  ["Sun 18:00 ET", "Reminder 1", "Automatic reminder to voters who have not submitted."],
-  ["Mon 09:00 ET", "Reminder 2", "Final automatic reminder; admins see who is outstanding."],
-  ["Mon 12:00 ET", "Window closes", "Ballots lock automatically unless an extension is posted on the poll page."],
-  ["Mon 12:01 ET", "Tabulation", "Points, ranks, movement, and outlier flags are computed."],
-  ["Mon / Tue", "Publish", "An admin reviews the outlier report and publishes; ballots go public at the same moment."],
+  [
+    "Sun 08:00 ET",
+    "Window opens",
+    "Voters receive email with their ballot link.",
+  ],
+  [
+    "Sun 18:00 ET",
+    "Reminder 1",
+    "Automatic reminder to voters who have not submitted.",
+  ],
+  [
+    "Mon 09:00 ET",
+    "Reminder 2",
+    "Final automatic reminder; admins see who is outstanding.",
+  ],
+  [
+    "Mon 12:00 ET",
+    "Window closes",
+    "Ballots lock automatically unless an extension is posted on the poll page.",
+  ],
+  [
+    "Mon 12:01 ET",
+    "Tabulation",
+    "Points, ranks, movement, and outlier flags are computed.",
+  ],
+  [
+    "Mon / Tue",
+    "Publish",
+    "An admin reviews the outlier report and publishes; ballots go public at the same moment.",
+  ],
 ] as const;
 
 const FAQ = [
@@ -67,7 +88,9 @@ function MethodSection({
 }) {
   return (
     <section id={id} className="scroll-mt-24 border-b pb-8 last:border-0">
-      <h2 className="font-display text-2xl font-extrabold uppercase">{title}</h2>
+      <h2 className="font-display text-2xl font-extrabold uppercase">
+        {title}
+      </h2>
       <div className="mt-3 grid gap-3 text-[15px] leading-relaxed text-foreground/90">
         {children}
       </div>
@@ -89,7 +112,9 @@ function TriCard({
       <span className="flex size-9 items-center justify-center rounded-lg bg-accent text-primary">
         {icon}
       </span>
-      <div className="mt-3 font-display text-xl font-bold uppercase">{title}</div>
+      <div className="mt-3 font-display text-xl font-bold uppercase">
+        {title}
+      </div>
       <p className="text-sm text-muted-foreground">{description}</p>
     </div>
   );
@@ -245,8 +270,12 @@ export function RankingsMethodologyContent({
             <div className="rounded-xl border bg-card p-4">
               <div className="font-semibold">Teams</div>
               <ul className="mt-1 grid gap-1 pl-5 text-sm text-muted-foreground [list-style:disc]">
-                <li>Programs in the division per the published eligibility list</li>
-                <li>Transitioning programs follow the season rule on this page</li>
+                <li>
+                  Programs in the division per the published eligibility list
+                </li>
+                <li>
+                  Transitioning programs follow the season rule on this page
+                </li>
               </ul>
             </div>
           </div>

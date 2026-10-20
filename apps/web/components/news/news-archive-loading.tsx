@@ -33,7 +33,9 @@ export function NewsArchiveLoading({
       aria-live="polite"
       className="mx-auto max-w-site px-4 lg:px-6"
     >
-      <span className="sr-only" role="status">Loading…</span>
+      <span className="sr-only" role="status">
+        Loading…
+      </span>
       <div aria-hidden="true">
         <div className="border-b pb-5 pt-5">
           <Skeleton className="h-3 w-40" />

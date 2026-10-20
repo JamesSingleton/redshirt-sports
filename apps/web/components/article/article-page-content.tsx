@@ -2,11 +2,10 @@ import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-import { ArticleTaggedTeamsRow } from "@/components/article/article-tagged-teams-row";
 import { ArticleByline } from "@/components/article/article-byline";
-import { ArticleSidebar } from "@/components/article/article-sidebar";
 import { ArticleRelatedPosts } from "@/components/article/article-related-posts";
-import { getArticleRelatedPosts } from "@/lib/article-related";
+import { ArticleSidebar } from "@/components/article/article-sidebar";
+import { ArticleTaggedTeamsRow } from "@/components/article/article-tagged-teams-row";
 import { RichText } from "@/components/rich-text";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import {
@@ -14,6 +13,7 @@ import {
   articleTeamsInStory,
   buildArticleBreadcrumbs,
 } from "@/lib/article-page";
+import { getArticleRelatedPosts } from "@/lib/article-related";
 import type { MostReadItem } from "@/lib/most-read-data";
 import type { RankingsWidgetPoll } from "@/lib/rankings-widget-data";
 
@@ -37,9 +37,11 @@ export function ArticlePageContent({
   const primaryAuthor = post.authors?.[0];
   const relatedArticles = getArticleRelatedPosts(post);
   const moreFromAuthor =
-    (post as ArticlePost & {
-      moreFromAuthor?: Array<{ _id: string; title: string; slug: string }>;
-    }).moreFromAuthor ?? [];
+    (
+      post as ArticlePost & {
+        moreFromAuthor?: Array<{ _id: string; title: string; slug: string }>;
+      }
+    ).moreFromAuthor ?? [];
 
   return (
     <main className="mx-auto max-w-site px-4 lg:px-6">
@@ -59,7 +61,11 @@ export function ArticlePageContent({
               {index === breadcrumbs.length - 1 ? (
                 <span className="text-foreground">{item.title}</span>
               ) : (
-                <Link href={item.href} className="hover:text-foreground" prefetch={false}>
+                <Link
+                  href={item.href}
+                  className="hover:text-foreground"
+                  prefetch={false}
+                >
                   {item.title}
                 </Link>
               )}

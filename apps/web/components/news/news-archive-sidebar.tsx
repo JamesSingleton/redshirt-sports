@@ -17,7 +17,11 @@ export function NewsArchiveSidebar({
       {rankingsPolls.length > 0 ? (
         <RankingsWidget polls={rankingsPolls} />
       ) : null}
-      <AdSlot width={300} height={250} className="mx-auto w-full max-w-[300px]" />
+      <AdSlot
+        width={300}
+        height={250}
+        className="mx-auto w-full max-w-[300px]"
+      />
     </aside>
   );
 }

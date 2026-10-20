@@ -7,7 +7,9 @@ export default function ArticlePageSkeleton() {
       aria-live="polite"
       className="mx-auto max-w-site px-4 lg:px-6"
     >
-      <span className="sr-only" role="status">Loading…</span>
+      <span className="sr-only" role="status">
+        Loading…
+      </span>
       <div aria-hidden="true">
         <Skeleton className="mt-5 h-3 w-48" />
         <div className="grid gap-10 pt-4 lg:grid-cols-[minmax(0,1fr)_300px]">

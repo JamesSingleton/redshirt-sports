@@ -2,15 +2,7 @@
 
 import { Badge } from "@redshirt-sports/ui/components/badge";
 import { Button } from "@redshirt-sports/ui/components/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@redshirt-sports/ui/components/tooltip";
-import {
-  Card,
-} from "@redshirt-sports/ui/components/card";
+import { Card } from "@redshirt-sports/ui/components/card";
 import { Input } from "@redshirt-sports/ui/components/input";
 import {
   Select,
@@ -19,6 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@redshirt-sports/ui/components/tooltip";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
@@ -28,9 +26,9 @@ import { useEffect, useMemo, useState } from "react";
 import { BallotDiffChip } from "@/components/rankings/ballot-diff-chip";
 import { BallotMatchRadial } from "@/components/rankings/ballot-match-radial";
 import { TeamMark } from "@/components/rankings/team-mark";
-import type { VoterBallotCardData } from "@/lib/ballots-by-voter-data";
-import { describeBallotPickContext } from "@/lib/ballot-pick-context";
 import { OUTLIER_RANK_GAP } from "@/lib/ballot-outliers";
+import { describeBallotPickContext } from "@/lib/ballot-pick-context";
+import type { VoterBallotCardData } from "@/lib/ballots-by-voter-data";
 
 const PAGE_SIZE = 6;
 
@@ -264,7 +262,8 @@ export function BallotsByVoterPanel({
           </Select>
           <span className="ml-auto hidden text-xs text-muted-foreground sm:block">
             Showing {(safePage - 1) * PAGE_SIZE + 1}–
-            {Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+            {Math.min(safePage * PAGE_SIZE, filtered.length)} of{" "}
+            {filtered.length}
           </span>
         </div>
 

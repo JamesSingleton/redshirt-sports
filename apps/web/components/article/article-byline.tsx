@@ -1,3 +1,4 @@
+import { urlFor } from "@redshirt-sports/sanity/client";
 import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
 import {
   Avatar,
@@ -7,9 +8,8 @@ import {
 import Link from "next/link";
 
 import FormatDate from "@/components/format-date";
-import { RelativeTime } from "@/components/relative-time";
 import { ArticleShareToolbar } from "@/components/posts/article-share";
-import { urlFor } from "@redshirt-sports/sanity/client";
+import { RelativeTime } from "@/components/relative-time";
 
 type PostAuthor = NonNullable<QueryPostSlugDataResult>["authors"][0];
 

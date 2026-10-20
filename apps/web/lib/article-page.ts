@@ -129,4 +129,3 @@ export function conferenceNewsHref(
 
   return `/college/${sportSlug}/news/${divisionPathSegment}/${conference.slug}`;
 }
-

@@ -68,6 +68,31 @@ const ShareButtons = ({ url, title }: { url: string; title: string }) => (
   </>
 );
 
+type ShareArticleNavigator = {
+  share?: Navigator["share"];
+  clipboard?: Pick<Clipboard, "writeText"> | null;
+};
+
+export async function shareArticleUrl({
+  url,
+  title,
+  navigator: nav = globalThis.navigator,
+}: {
+  url: string;
+  title: string;
+  navigator?: ShareArticleNavigator;
+}) {
+  if (typeof nav.share === "function") {
+    try {
+      await nav.share({ url, title });
+      return;
+    } catch {
+      // User dismissed share sheet.
+    }
+  }
+  await nav.clipboard?.writeText(url);
+}
+
 export function ArticleShareToolbar({
   slug,
   title,
@@ -78,17 +103,7 @@ export function ArticleShareToolbar({
   const articleUrl = `${getBaseUrl()}/${slug}`;
 
   const onShare = async () => {
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({ url: articleUrl, title });
-        return;
-      } catch {
-        // User dismissed share sheet.
-      }
-    }
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      await navigator.clipboard.writeText(articleUrl);
-    }
+    await shareArticleUrl({ url: articleUrl, title });
   };
 
   return (

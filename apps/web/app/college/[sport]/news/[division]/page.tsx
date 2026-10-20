@@ -16,30 +16,29 @@ import { notFound } from "next/navigation";
 import type { CollectionPage, WithContext } from "schema-dts";
 
 import type { HomePost } from "@/components/home/home-page-content";
+import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import { DivisionConferencePicker } from "@/components/news/division-conference-picker";
 import { NewsArchiveFilters } from "@/components/news/news-archive-filters";
 import { NewsArchiveHeader } from "@/components/news/news-archive-header";
 import { NewsArchiveRiver } from "@/components/news/news-archive-river";
 import { NewsArchiveSidebar } from "@/components/news/news-archive-sidebar";
-import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
+import type { DivisionDisplayMeta } from "@/lib/division-display-meta";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import {
-  parseNewsArchiveFilters,
   type NewsArchiveSearchParams,
+  parseNewsArchiveFilters,
 } from "@/lib/news-archive";
 import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
-import { validateSport } from "@/lib/vote-ballot";
 import { getDivisionFeed, getSportFeed } from "@/lib/rss-feed-links";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { buildSportNewsFilterOptions } from "@/lib/sport-news-filters";
-import type { DivisionDisplayMeta } from "@/lib/division-display-meta";
+import { validateSport } from "@/lib/vote-ballot";
 import { validatePageIndex } from "@/utils/validate-page-index";
-
 import DivisionNewsRouteLoading from "./loading";
 
 export async function generateMetadata({
@@ -122,9 +121,8 @@ export default function Page({
   params: Promise<{ sport: string; division: string }>;
   searchParams: Promise<NewsArchiveSearchParams>;
 }) {
-  return searchParamsPage(
-    <DivisionNewsRouteLoading />,
-    () => renderDivisionNewsPage({ params, searchParams }),
+  return searchParamsPage(<DivisionNewsRouteLoading />, () =>
+    renderDivisionNewsPage({ params, searchParams }),
   );
 }
 

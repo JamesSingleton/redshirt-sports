@@ -1,9 +1,6 @@
 import { Avatar, AvatarFallback } from "@redshirt-sports/ui/components/avatar";
 import { Button } from "@redshirt-sports/ui/components/button";
-import {
-  Card,
-  CardContent,
-} from "@redshirt-sports/ui/components/card";
+import { Card, CardContent } from "@redshirt-sports/ui/components/card";
 import { ChevronRight, Grid3x3 } from "lucide-react";
 import Link from "next/link";
 

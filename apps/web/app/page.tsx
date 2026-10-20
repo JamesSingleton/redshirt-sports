@@ -20,7 +20,6 @@ import {
 import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-
 import HomeRouteLoading from "./home-route-loading";
 
 const baseUrl = getBaseUrl();

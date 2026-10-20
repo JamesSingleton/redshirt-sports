@@ -1,10 +1,10 @@
-import type { SchoolBySlugQueryResult } from "@redshirt-sports/sanity/types";
 import type { SchoolRankingHistory } from "@redshirt-sports/db/utils/school-ranking-history";
+import type { SchoolBySlugQueryResult } from "@redshirt-sports/sanity/types";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-import { MostReadCard } from "@/components/most-read-card";
 import { AdSlot } from "@/components/ad-slot";
+import { MostReadCard } from "@/components/most-read-card";
 import CustomImage from "@/components/sanity-image";
 import { TeamConnectWidget } from "@/components/teams/team-connect-widget";
 import { TeamFeedList } from "@/components/teams/team-feed-list";
@@ -14,8 +14,8 @@ import {
   type TeamPost,
 } from "@/components/teams/team-post-card";
 import { TeamRankingHistory } from "@/components/teams/team-ranking-history";
-import type { MostReadItem } from "@/lib/most-read-data";
 import type { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
+import type { MostReadItem } from "@/lib/most-read-data";
 
 export function TeamPageContent({
   school,
@@ -69,7 +69,11 @@ export function TeamPageContent({
           Home
         </Link>
         <ChevronRight className="size-3 shrink-0" aria-hidden />
-        <Link href="/college/teams" className="hover:text-foreground" prefetch={false}>
+        <Link
+          href="/college/teams"
+          className="hover:text-foreground"
+          prefetch={false}
+        >
           Teams
         </Link>
         <ChevronRight className="size-3 shrink-0" aria-hidden />
@@ -87,7 +91,10 @@ export function TeamPageContent({
               mode="contain"
             />
           ) : (
-            <div className="size-20 shrink-0 rounded-full bg-muted" aria-hidden />
+            <div
+              className="size-20 shrink-0 rounded-full bg-muted"
+              aria-hidden
+            />
           )}
           <div className="min-w-0 flex-1">
             <div className="kicker text-primary">Team hub</div>
@@ -101,10 +108,7 @@ export function TeamPageContent({
             ) : null}
           </div>
         </div>
-        <nav
-          className="mt-5 flex flex-wrap gap-2"
-          aria-label="Jump to section"
-        >
+        <nav className="mt-5 flex flex-wrap gap-2" aria-label="Jump to section">
           {jumpLinks.map((link) => (
             <a
               key={link.id}
@@ -166,7 +170,10 @@ export function TeamPageContent({
                 ))}
               </ul>
               <footer className="mt-5 flex flex-wrap gap-6 text-sm font-semibold">
-                <Link href="/recruiting" className="text-primary hover:underline">
+                <Link
+                  href="/recruiting"
+                  className="text-primary hover:underline"
+                >
                   View All Recruiting
                 </Link>
                 <Link
@@ -215,7 +222,11 @@ export function TeamPageContent({
             schoolSocialLinks={school.socialLinks}
             globalSocialLinks={globalSettings?.socialLinks}
           />
-          <AdSlot width={300} height={250} className="mx-auto w-full max-w-[300px]" />
+          <AdSlot
+            width={300}
+            height={250}
+            className="mx-auto w-full max-w-[300px]"
+          />
         </aside>
       </div>
     </main>

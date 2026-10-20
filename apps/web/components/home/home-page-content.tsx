@@ -3,10 +3,10 @@ import { Button } from "@redshirt-sports/ui/components/button";
 import Link from "next/link";
 
 import { AdSlot } from "@/components/ad-slot";
-import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { MostReadCard } from "@/components/most-read-card";
 import { RankingsWidget } from "@/components/rankings-widget";
 import { RelativeTime } from "@/components/relative-time";
+import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import type { MostReadItem } from "@/lib/most-read-data";
 import type { RankingsWidgetPoll } from "@/lib/rankings-widget-data";
 
@@ -72,9 +72,7 @@ export function HomePageContent({
           <Link href={`/${lead.slug}`} prefetch={false} className="block">
             <div className="relative aspect-[16/9] overflow-hidden rounded-xl lg:aspect-[2/1]">
               <CustomImage
-                image={
-                  lead.image as Parameters<typeof CustomImage>[0]["image"]
-                }
+                image={lead.image as Parameters<typeof CustomImage>[0]["image"]}
                 width={1200}
                 height={600}
                 className="h-full w-full object-cover object-top"

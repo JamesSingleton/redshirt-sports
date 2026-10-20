@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 export function RankingsBreadcrumb({
   sport,
@@ -17,7 +17,11 @@ export function RankingsBreadcrumb({
       className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
       aria-label="Breadcrumb"
     >
-      <Link href="/college/news" prefetch={false} className="hover:text-foreground">
+      <Link
+        href="/college/news"
+        prefetch={false}
+        className="hover:text-foreground"
+      >
         College
       </Link>
       <ChevronRight className="size-3 shrink-0" aria-hidden />

@@ -95,7 +95,12 @@ import DivisionNewsPage, {
 } from "@/app/college/[sport]/news/[division]/page";
 
 function mockDivisionFetches(
-  posts: Array<{ _id: string; title: string; slug: string; publishedAt?: string }>,
+  posts: Array<{
+    _id: string;
+    title: string;
+    slug: string;
+    publishedAt?: string;
+  }>,
   totalPosts: number,
   divisionMeta: { displayName?: string; archiveKicker?: string } | null,
 ) {

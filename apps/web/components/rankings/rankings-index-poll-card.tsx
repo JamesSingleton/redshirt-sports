@@ -44,7 +44,11 @@ export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
             Redshirt Sports Poll · {card.label}
           </div>
           <h2 className="font-display text-3xl font-extrabold uppercase leading-none">
-            <Link href={poll.weekHref} className="hover:underline" prefetch={false}>
+            <Link
+              href={poll.weekHref}
+              className="hover:underline"
+              prefetch={false}
+            >
               {card.title}
             </Link>
           </h2>
@@ -68,7 +72,9 @@ export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
               shortName={team.shortName}
               abbreviation={team.abbreviation}
             />
-            <span className="flex-1 truncate font-medium">{team.shortName}</span>
+            <span className="flex-1 truncate font-medium">
+              {team.shortName}
+            </span>
             <span className="w-9 text-right">
               {team.movement ? (
                 <RankMovement movement={team.movement} />
@@ -99,11 +105,19 @@ export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
             Ballots
           </Link>
           {" · "}
-          <Link href={votersHref} className="hover:text-foreground" prefetch={false}>
+          <Link
+            href={votersHref}
+            className="hover:text-foreground"
+            prefetch={false}
+          >
             Voters
           </Link>
           {" · "}
-          <Link href={historyHref} className="hover:text-foreground" prefetch={false}>
+          <Link
+            href={historyHref}
+            className="hover:text-foreground"
+            prefetch={false}
+          >
             History
           </Link>
         </span>

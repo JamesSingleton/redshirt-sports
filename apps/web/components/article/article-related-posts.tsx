@@ -3,7 +3,11 @@ import Link from "next/link";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import type { ArticleRelatedPost } from "@/lib/article-related";
 
-export function ArticleRelatedPosts({ posts }: { posts: ArticleRelatedPost[] }) {
+export function ArticleRelatedPosts({
+  posts,
+}: {
+  posts: ArticleRelatedPost[];
+}) {
   if (posts.length === 0) {
     return null;
   }

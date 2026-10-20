@@ -21,8 +21,7 @@ describe("team directory", () => {
       slug: "abilene-christian-wildcats",
       image: null,
       sortName: "Abilene Christian",
-      searchHaystack:
-        "abilene christian university abilene christian wildcats",
+      searchHaystack: "abilene christian university abilene christian wildcats",
     });
   });
 

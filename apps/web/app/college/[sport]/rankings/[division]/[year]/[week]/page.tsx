@@ -12,12 +12,11 @@ import { RankingsBallotsCta } from "@/components/rankings/rankings-ballots-cta";
 import { RankingsBeyondTop25 } from "@/components/rankings/rankings-beyond-top-25";
 import { RankingsBiggestMovers } from "@/components/rankings/rankings-biggest-movers";
 import { RankingsMovementLegend } from "@/components/rankings/rankings-movement-legend";
+import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
 import {
   type PollTableTeam,
   RankingsPollTable,
 } from "@/components/rankings/rankings-poll-table";
-import { rankingsMethodologyHref } from "@/lib/rankings-nav";
-import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
 import { TOP_25 } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
@@ -33,7 +32,6 @@ import {
   rankingsSportTag,
   rankingsWeekTag,
 } from "@/lib/rankings-data";
-import { pollDivisionLabel } from "@/lib/rankings-widget-data";
 import {
   buildRankBySchoolId,
   getBiggestMovers,
@@ -42,6 +40,8 @@ import {
   getMovement,
   getPreviousWeek,
 } from "@/lib/rankings-movement";
+import { rankingsMethodologyHref } from "@/lib/rankings-nav";
+import { pollDivisionLabel } from "@/lib/rankings-widget-data";
 import { parseWeekSegment, type SportParam, weekTitle } from "@/utils/espn";
 
 const baseUrl = getBaseUrl();
@@ -131,11 +131,12 @@ async function renderCollegeFootballRankingsPage({
   );
   cacheLife(RANKINGS_CACHE_LIFE);
 
-  const [yearsWithVotesResult, weeksWithVotesResult] =
-    await Promise.allSettled([
+  const [yearsWithVotesResult, weeksWithVotesResult] = await Promise.allSettled(
+    [
       getCachedYearsThatHaveVotes({ division }),
       getCachedWeeksThatHaveVotes({ year: yearNumber, division }),
-    ]);
+    ],
+  );
 
   const yearsWithVotes =
     yearsWithVotesResult.status === "fulfilled"
@@ -226,9 +227,7 @@ async function renderCollegeFootballRankingsPage({
       typeof prev === "number" && prev > 0 && prev <= TOP_25 ? prev : null;
     return {
       ...team,
-      movement: previousRankById
-        ? getMovement(team.rank, prev)
-        : null,
+      movement: previousRankById ? getMovement(team.rank, prev) : null,
       ballotsListed: ballotsListedBySanityId[team._id] ?? 0,
       previousRank: prevTop25,
     };

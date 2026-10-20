@@ -7,7 +7,9 @@ export default function RankingsTabSkeleton({
 }) {
   return (
     <div className="pt-6" aria-busy="true">
-      <span className="sr-only" role="status">Loading…</span>
+      <span className="sr-only" role="status">
+        Loading…
+      </span>
       <div className="motion-reduce:animate-none" aria-hidden>
         <div className="pt-2">
           {variant === "ballots" ? (

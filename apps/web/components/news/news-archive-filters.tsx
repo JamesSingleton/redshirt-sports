@@ -6,8 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import {
-  STORY_TYPE_OPTIONS,
   type NewsArchiveSearchParams,
+  STORY_TYPE_OPTIONS,
 } from "@/lib/news-archive";
 
 export type NewsFilterDivision = {
@@ -68,9 +68,7 @@ export function NewsArchiveFilters({
     if (!value) return;
     const conf = conferences.find((c) => c.slug === value);
     if (!conf) return;
-    router.push(
-      `/college/${sportSlug}/news/${conf.divisionSlug}/${conf.slug}`,
-    );
+    router.push(`/college/${sportSlug}/news/${conf.divisionSlug}/${conf.slug}`);
   };
 
   return (

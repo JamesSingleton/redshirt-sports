@@ -43,7 +43,9 @@ export function DivisionConferencePicker({
   }, [divisionConferences, search]);
 
   const popular = divisionConferences.slice(0, 5);
-  const active = divisionConferences.find((c) => c.slug === activeConferenceSlug);
+  const active = divisionConferences.find(
+    (c) => c.slug === activeConferenceSlug,
+  );
   const triggerLabel = active?.name ?? `All conferences`;
 
   return (
@@ -64,7 +66,10 @@ export function DivisionConferencePicker({
             </span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 max-w-[calc(100vw-2rem)] p-0" align="start">
+        <PopoverContent
+          className="w-80 max-w-[calc(100vw-2rem)] p-0"
+          align="start"
+        >
           <div className="flex items-center gap-2 border-b px-3">
             <Search className="size-4 opacity-50" aria-hidden />
             <label htmlFor="conf-picker-search" className="sr-only">
@@ -80,7 +85,6 @@ export function DivisionConferencePicker({
             />
           </div>
           <ul
-            role="listbox"
             aria-label={`${divisionLabel} conferences`}
             className="max-h-72 overflow-y-auto p-1"
           >
@@ -95,11 +99,16 @@ export function DivisionConferencePicker({
               </Link>
             </li>
             {filtered.map((conference) => (
-              <li key={conference.slug} role="option" aria-selected={conference.slug === activeConferenceSlug}>
+              <li key={conference.slug}>
                 <Link
                   href={`/college/${sportSlug}/news/${divisionSlug}/${conference.slug}`}
                   className="flex items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
                   prefetch={false}
+                  aria-current={
+                    conference.slug === activeConferenceSlug
+                      ? "page"
+                      : undefined
+                  }
                   onClick={() => setOpen(false)}
                 >
                   <span>{conference.name}</span>

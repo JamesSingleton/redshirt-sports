@@ -9,7 +9,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@redshirt-sports/ui/components/card";
-import { Tabs, TabsList, TabsTrigger } from "@redshirt-sports/ui/components/tabs";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "@redshirt-sports/ui/components/tabs";
 import { Eye } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -87,7 +91,10 @@ export function RankingsWidget({ polls }: { polls: RankingsWidgetPoll[] }) {
                 {team.movement ? (
                   <RankMovement movement={team.movement} />
                 ) : (
-                  <span className="text-muted-foreground" aria-label="No change">
+                  <span
+                    className="text-muted-foreground"
+                    aria-label="No change"
+                  >
                     —
                   </span>
                 )}

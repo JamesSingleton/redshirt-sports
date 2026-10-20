@@ -9,16 +9,14 @@ export type TeamDirectorySchool = {
   searchHaystack: string;
 };
 
-export function mapTeamDirectorySchool(
-  school: {
-    _id: string;
-    name: string;
-    shortName: string | null;
-    nickname: string | null;
-    slug: string | null;
-    image?: unknown;
-  },
-): TeamDirectorySchool | null {
+export function mapTeamDirectorySchool(school: {
+  _id: string;
+  name: string;
+  shortName: string | null;
+  nickname: string | null;
+  slug: string | null;
+  image?: unknown;
+}): TeamDirectorySchool | null {
   if (!school.slug) {
     return null;
   }

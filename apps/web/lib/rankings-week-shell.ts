@@ -2,16 +2,16 @@ import { formatWeekSegment } from "@redshirt-sports/clients/espn";
 import { sportInfoBySlug } from "@redshirt-sports/sanity/queries";
 import { notFound } from "next/navigation";
 
-import { buildRankingsTabs, rankingsMethodologyHref } from "@/lib/rankings-nav";
-import {
-  resolveRankingsWeek,
-  resolveRankingsYear,
-} from "@/lib/rankings-params";
 import {
   getCachedLatestFinalRankingsBySportSlug,
   getCachedWeeksThatHaveVotes,
   getCachedYearsThatHaveVotes,
 } from "@/lib/rankings-data";
+import { buildRankingsTabs, rankingsMethodologyHref } from "@/lib/rankings-nav";
+import {
+  resolveRankingsWeek,
+  resolveRankingsYear,
+} from "@/lib/rankings-params";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { sportNavLabel } from "@/lib/sport-nav";

@@ -66,9 +66,7 @@ async function renderHistoryPage(
     notFound();
   }
 
-  const yearNumber = query.year
-    ? Number(query.year)
-    : latest.year;
+  const yearNumber = query.year ? Number(query.year) : latest.year;
   if (!years.some((row) => row.year === yearNumber)) {
     notFound();
   }

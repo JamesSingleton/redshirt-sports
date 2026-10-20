@@ -2,8 +2,8 @@ import Link from "next/link";
 
 import type { HomePost } from "@/components/home/home-page-content";
 import { ArchivePublishedTime } from "@/components/news/archive-published-time";
-import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { RelativeTime } from "@/components/relative-time";
+import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { postArchiveKicker } from "@/lib/news-archive";
 
 function sportBadgeClass(sportSlug?: string | null): string {
@@ -51,10 +51,14 @@ function LeadStory({
               {post.sportTitle}
             </span>
           ) : null}
-          <div className="kicker text-primary">Latest · {postArchiveKicker(post)}</div>
+          <div className="kicker text-primary">
+            Latest · {postArchiveKicker(post)}
+          </div>
         </div>
         <h2 className="mt-1 font-display text-2xl font-extrabold uppercase leading-tight group-hover:underline">
-          <Link href={`/${post.slug}`} prefetch={false}>{post.title}</Link>
+          <Link href={`/${post.slug}`} prefetch={false}>
+            {post.title}
+          </Link>
         </h2>
         {post.excerpt ? (
           <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
@@ -158,9 +162,7 @@ export function NewsArchiveRiver({
   return (
     <div>
       <h2 className="sr-only">Stories</h2>
-      {lead ? (
-        <LeadStory post={lead} showSportLabel={showSportLabels} />
-      ) : null}
+      {lead ? <LeadStory post={lead} showSportLabel={showSportLabels} /> : null}
       <div className="mt-6 flex items-center justify-between">
         <p className="text-sm text-muted-foreground" aria-live="polite">
           {totalPosts.toLocaleString()} stories

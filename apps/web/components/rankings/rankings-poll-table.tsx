@@ -53,8 +53,8 @@ export function RankingsPollTable({
     <div className="relative w-full overflow-x-auto rounded-xl border bg-card">
       <Table>
         <TableCaption className="px-4 py-3 text-left text-xs text-muted-foreground">
-          {ballotsCounted} voters × 25-to-1 points (max{" "}
-          {ballotsCounted * 25}). First-place votes in parentheses.{" "}
+          {ballotsCounted} voters × 25-to-1 points (max {ballotsCounted * 25}).
+          First-place votes in parentheses.{" "}
           <strong className="font-semibold text-foreground">
             On X of {ballotsCounted} {ballotWord}
           </strong>{" "}
@@ -151,9 +151,7 @@ export function RankingsPollTable({
                     </span>
                     <div className="flex h-1.5 w-16 overflow-hidden rounded-full bg-muted">
                       <div
-                        className={
-                          fullSupport ? "bg-chart-2" : "bg-chart-2/60"
-                        }
+                        className={fullSupport ? "bg-chart-2" : "bg-chart-2/60"}
                         style={{ width: `${barWidth}%` }}
                       />
                     </div>

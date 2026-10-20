@@ -9,11 +9,11 @@ import type {
 import { cacheLife, cacheTag } from "next/cache";
 
 import { getCachedRankedSchoolSanityIds } from "@/lib/rankings-data";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 import {
   mapTeamDirectorySchool,
   type TeamDirectorySchool,
 } from "@/lib/team-directory";
-import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 const TEAM_DIRECTORY_CACHE_TAG = "team-directory";
 
@@ -43,8 +43,7 @@ export async function getCachedTeamDirectory(): Promise<TeamDirectorySchool[]> {
 
   const byId = new Map<string, TeamDirectorySchool>();
 
-  const schoolsWithPosts = (withPosts ??
-    []) as QueryTeamDirectorySchoolsResult;
+  const schoolsWithPosts = (withPosts ?? []) as QueryTeamDirectorySchoolsResult;
   for (const row of schoolsWithPosts) {
     const mapped = mapTeamDirectorySchool(row);
     if (mapped) {

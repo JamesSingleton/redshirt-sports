@@ -1,4 +1,5 @@
 import { formatWeekSegment } from "@redshirt-sports/clients/espn";
+import { rankingsSportTag } from "@redshirt-sports/db/rankings-cache-tags";
 import { cacheLife, cacheTag } from "next/cache";
 
 import {
@@ -8,7 +9,6 @@ import {
   RANKINGS_CACHE_LIFE,
   RANKINGS_CACHE_TAG,
 } from "@/lib/rankings-data";
-import { rankingsSportTag } from "@redshirt-sports/db/rankings-cache-tags";
 import {
   buildRankBySchoolId,
   getMovement,
@@ -87,9 +87,7 @@ async function loadWidgetPoll(
     sport,
   });
 
-  const top = current.rankings
-    .filter((team) => team.rank != null)
-    .slice(0, 10);
+  const top = current.rankings.filter((team) => team.rank != null).slice(0, 10);
 
   if (top.length === 0) {
     return null;
@@ -128,10 +126,7 @@ async function loadWidgetPoll(
       slug: team.slug,
       image: team.image,
       abbreviation: team.abbreviation ?? "",
-      movement: getMovement(
-        team.rank,
-        previousRankById?.get(team._id),
-      ),
+      movement: getMovement(team.rank, previousRankById?.get(team._id)),
     })),
   };
 }

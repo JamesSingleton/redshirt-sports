@@ -383,6 +383,21 @@ describe("TeamPage", () => {
     expect(screen.getAllByText("Team Sports").length).toBeGreaterThan(0);
   });
 
+  it("treats a null recruiting feed as empty", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({ data: sampleSchool })
+      .mockResolvedValueOnce({ data: { posts: [] } })
+      .mockResolvedValueOnce({ data: null });
+    mockGetCachedSchoolRankingHistory.mockResolvedValue({ polls: [] });
+
+    const page = await TeamPage({
+      params: Promise.resolve({ slug: "alabama" }),
+    });
+    render(page as ReactNode);
+
+    expect(screen.queryByText("Alabama Recruiting")).not.toBeInTheDocument();
+  });
+
   it("renders team page without featured posts or recruiting when feeds are empty", async () => {
     mockSanityFetchPage
       .mockResolvedValueOnce({ data: sampleSchool })

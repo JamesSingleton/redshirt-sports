@@ -88,9 +88,7 @@ export function TeamsDirectory({ teams }: { teams: TeamDirectorySchool[] }) {
   const letterHasVisible = (letter: string) => {
     const group = groups.find((g) => g.letter === letter);
     if (!group) return false;
-    return group.teams.some((team) =>
-      teamMatchesSearch(team, normalizedQuery),
-    );
+    return group.teams.some((team) => teamMatchesSearch(team, normalizedQuery));
   };
 
   return (
@@ -98,7 +96,9 @@ export function TeamsDirectory({ teams }: { teams: TeamDirectorySchool[] }) {
       <div className="sticky top-14 z-20 -mx-4 border-b bg-background/95 px-4 py-3 backdrop-blur lg:top-16 lg:-mx-6 lg:px-6">
         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1 sm:max-w-md">
-            <label htmlFor="team-q" className="sr-only">Search schools</label>
+            <label htmlFor="team-q" className="sr-only">
+              Search schools
+            </label>
             <Search
               className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden

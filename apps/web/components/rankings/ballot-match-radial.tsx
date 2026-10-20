@@ -79,9 +79,7 @@ export function BallotMatchRadial({
         )}
       >
         <span className={spec.percentClass}>{clamped}%</span>
-        {spec.showLabel ? (
-          <span className={spec.labelClass}>Match</span>
-        ) : null}
+        {spec.showLabel ? <span className={spec.labelClass}>Match</span> : null}
       </div>
     </div>
   );

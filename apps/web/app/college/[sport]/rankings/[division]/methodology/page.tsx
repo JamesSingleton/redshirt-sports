@@ -1,4 +1,3 @@
-import { formatWeekSegment } from "@redshirt-sports/clients/espn";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -61,8 +60,6 @@ async function renderMethodologyPage({
     division,
     sport: sportParam,
   });
-
-  const weekSegment = formatWeekSegment(shell.weekNumber);
 
   return (
     <>

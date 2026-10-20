@@ -6,12 +6,12 @@ import {
 } from "@redshirt-sports/sanity/live";
 import {
   MIN_TEAM_PAGE_POSTS,
-  TEAM_PAGE_NEWS_FETCH_SIZE,
   postsBySchoolAndStoryTypeQuery,
   postsBySchoolQuery,
   querySchoolPaths,
   schoolBySlugQuery,
   schoolSlugsByIdsQuery,
+  TEAM_PAGE_NEWS_FETCH_SIZE,
 } from "@redshirt-sports/sanity/queries";
 import type {
   PostsBySchoolAndStoryTypeQueryResult,
@@ -26,11 +26,11 @@ import type { StegaBranded } from "next-sanity";
 import { TeamPageJsonLd } from "@/components/json-ld";
 import { TeamPageContent } from "@/components/teams/team-page-content";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
-import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import {
   fetchGlobalSeoSettings,
   getPageMetadata,
 } from "@/lib/global-seo-settings";
+import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import {
   getCachedRankedSchoolSanityIds,
   getCachedSchoolHasPollRankings,
@@ -38,7 +38,6 @@ import {
 } from "@/lib/rankings-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { isTeamPageEligible } from "@/lib/team-page-eligibility";
-
 import TeamHubRouteLoading from "./loading";
 
 function defaultTeamPageTitle({

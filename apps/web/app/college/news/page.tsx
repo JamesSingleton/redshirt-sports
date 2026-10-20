@@ -17,18 +17,17 @@ import { NewsArchiveHeader } from "@/components/news/news-archive-header";
 import { NewsArchiveRiver } from "@/components/news/news-archive-river";
 import { NewsArchiveSidebar } from "@/components/news/news-archive-sidebar";
 import PaginationControls from "@/components/pagination-controls";
-import { perPage } from "@/lib/constants";
 import { buildCollegeNewsFilterOptions } from "@/lib/college-news-filters";
+import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import {
-  parseNewsArchiveFilters,
   type NewsArchiveSearchParams,
+  parseNewsArchiveFilters,
 } from "@/lib/news-archive";
 import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-
 import CollegeNewsRouteLoading from "./loading";
 
 export async function generateMetadata({
@@ -69,9 +68,8 @@ export default function CollegeNewsPage({
 }: {
   searchParams: Promise<NewsArchiveSearchParams>;
 }) {
-  return searchParamsPage(
-    <CollegeNewsRouteLoading />,
-    () => renderCollegeNewsPage(searchParams),
+  return searchParamsPage(<CollegeNewsRouteLoading />, () =>
+    renderCollegeNewsPage(searchParams),
   );
 }
 
@@ -186,10 +184,7 @@ async function cachedRenderCollegeNewsPage({
             </nav>
           ) : null}
         </div>
-        <NewsArchiveSidebar
-          mostRead={mostRead}
-          rankingsPolls={rankingsPolls}
-        />
+        <NewsArchiveSidebar mostRead={mostRead} rankingsPolls={rankingsPolls} />
       </div>
     </div>
   );

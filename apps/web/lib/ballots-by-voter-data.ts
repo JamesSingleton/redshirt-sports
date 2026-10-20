@@ -2,14 +2,16 @@ import {
   getSportIdBySlug,
   getVotesForWeekAndYearByVoter,
 } from "@redshirt-sports/db/queries";
+import { client } from "@redshirt-sports/sanity/client";
+import { schoolsByIdsQuery } from "@redshirt-sports/sanity/queries";
+import { token } from "@redshirt-sports/sanity/token";
 import { cacheLife, cacheTag } from "next/cache";
 
 import {
   ABSENT_RANK,
-  computeBallotMatchPercent,
   type ConsensusRank,
+  computeBallotMatchPercent,
 } from "@/lib/ballot-match";
-import { voterBallotSlug } from "@/lib/voter-ballot-slug";
 import { isOutlierPick, OUTLIER_TOP_OMIT_RANK } from "@/lib/ballot-outliers";
 import { TOP_25 } from "@/lib/constants";
 import {
@@ -20,10 +22,8 @@ import {
   rankingsSportTag,
   rankingsWeekTag,
 } from "@/lib/rankings-data";
+import { voterBallotSlug } from "@/lib/voter-ballot-slug";
 import type { SportParam } from "@/utils/espn";
-import { client } from "@redshirt-sports/sanity/client";
-import { schoolsByIdsQuery } from "@redshirt-sports/sanity/queries";
-import { token } from "@redshirt-sports/sanity/token";
 
 export type BallotPickRow = {
   teamId: string;
@@ -142,7 +142,11 @@ export async function getCachedBallotsByVoterCards({
         abbreviation: string;
         image: unknown;
       }>
-    >(schoolsByIdsQuery, { ids: missingIds }, { token, perspective: "published" });
+    >(
+      schoolsByIdsQuery,
+      { ids: missingIds },
+      { token, perspective: "published" },
+    );
     for (const school of schools) {
       teamMeta.set(school._id, {
         name: school.name,
@@ -175,8 +179,7 @@ export async function getCachedBallotsByVoterCards({
       if (!meta) continue;
 
       const consensus = consensusById.get(vote.teamId);
-      const consensusRank =
-        consensus != null ? consensus.rank : null;
+      const consensusRank = consensus != null ? consensus.rank : null;
       const publishedRank = publishedRankById.get(vote.teamId) ?? null;
       const isOutlier = isOutlierPick({
         voterRank: vote.rank,
@@ -242,5 +245,7 @@ export async function getCachedBallotsByVoterCards({
     });
   }
 
-  return cards.sort((a, b) => b.outlierCount - a.outlierCount || b.avgGap - a.avgGap);
+  return cards.sort(
+    (a, b) => b.outlierCount - a.outlierCount || b.avgGap - a.avgGap,
+  );
 }

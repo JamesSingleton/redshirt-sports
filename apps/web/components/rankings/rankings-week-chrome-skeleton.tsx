@@ -3,7 +3,9 @@ import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 export function RankingsWeekChromeSkeleton() {
   return (
     <div className="pt-5 motion-reduce:animate-none" aria-busy="true">
-      <span className="sr-only" role="status">Loading rankings…</span>
+      <span className="sr-only" role="status">
+        Loading rankings…
+      </span>
       <Skeleton className="h-4 w-48" />
       <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-2">

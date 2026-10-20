@@ -126,7 +126,7 @@ describe("rankings display flow", () => {
     });
 
     render(page);
-    expect(screen.getByLabelText("Up 4")).toBeInTheDocument();
-    expect(screen.getByText("Team A")).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Up 4").length).toBeGreaterThan(0);
+    expect(screen.getByRole("cell", { name: /Team A/ })).toBeInTheDocument();
   });
 });
