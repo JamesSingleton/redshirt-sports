@@ -180,6 +180,23 @@ const postAuthorFragment = /* groq */ `
   }
 `;
 
+const homePostCardFragment = /* groq */ `
+  _id,
+  title,
+  excerpt,
+  "slug": slug.current,
+  publishedAt,
+  ${postImageFragment},
+  ${postAuthorFragment},
+  "divisionLabel": coalesce(
+    sportSubgrouping->shortName,
+    sportSubgrouping->name,
+    division->shortName,
+    division->name
+  ),
+  "tagNames": tags[]->name
+`;
+
 const postSportFragment = /* groq */ `
   sport->{
     _id,
@@ -315,15 +332,28 @@ export const querySchoolPaths = defineQuery(/* groq */ `
   ] | order(_updatedAt desc) [0...100]{"slug": slug.current}
 `);
 
+const sportsNewsFilter = /* groq */ `
+  _type == "post" &&
+  sport->slug.current == $sport &&
+  ($search == "" || title match "*" + $search + "*") &&
+  ($storyType == "" || $storyType in tags[]->name)
+`;
+
 export const querySportsNews = defineQuery(/* groq */ `
   {
-    "posts": *[_type == "post" && sport->slug.current == $sport] | order(publishedAt desc)[$from...$to]{
-      ...,
-      ${postImageFragment},
-      "slug": slug.current,
-      ${postAuthorFragment}
+    "posts": *[${sportsNewsFilter}] | order(publishedAt desc)[$from...$to]{
+      ${homePostCardFragment}
     },
-    "totalPosts": count(*[_type == "post" && sport->slug.current == $sport])
+    "totalPosts": count(*[${sportsNewsFilter}])
+  }
+`);
+
+export const querySportsNewsOldest = defineQuery(/* groq */ `
+  {
+    "posts": *[${sportsNewsFilter}] | order(publishedAt asc)[$from...$to]{
+      ${homePostCardFragment}
+    },
+    "totalPosts": count(*[${sportsNewsFilter}])
   }
 `);
 
@@ -417,23 +447,6 @@ export const queryNavbarData = defineQuery(/* groq */ `
     "siteTitle": *[_type == "settings"][0].siteTitle,
   }
 `);
-
-const homePostCardFragment = /* groq */ `
-  _id,
-  title,
-  excerpt,
-  "slug": slug.current,
-  publishedAt,
-  ${postImageFragment},
-  ${postAuthorFragment},
-  "divisionLabel": coalesce(
-    sportSubgrouping->shortName,
-    sportSubgrouping->name,
-    division->shortName,
-    division->name
-  ),
-  "tagNames": tags[]->name
-`;
 
 export const queryHomePageData = defineQuery(/* groq */ `
   *[_type == "post"] | order(publishedAt desc)[0...3]{

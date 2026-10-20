@@ -1,26 +1,27 @@
 import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 
-import { LoadingArticle } from "@/components/loading-article";
-
 export default function Loading() {
   return (
-    <>
-      <section className="py-12">
-        <div className="container">
-          <div className="md:max-w-3xl xl:max-w-5xl">
-            <Skeleton className="mt-8 h-10 w-3/4 rounded" />
-            <Skeleton className="mt-2 h-6 w-3/4 rounded" />
-          </div>
+    <div className="mx-auto max-w-site px-4 lg:px-6">
+      <div className="border-b pb-5 pt-5">
+        <Skeleton className="h-4 w-48" />
+        <Skeleton className="mt-4 h-4 w-20" />
+        <Skeleton className="mt-3 h-12 w-full max-w-xl" />
+        <Skeleton className="mt-2 h-5 w-full max-w-md" />
+      </div>
+      <Skeleton className="mt-5 h-24 w-full rounded-xl" />
+      <div className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <Skeleton className="h-40 w-full rounded-xl" />
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
         </div>
-      </section>
-      <section className="container pb-12 sm:pb-16 lg:pb-20 xl:pb-24">
-        <div className="mt-8 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:gap-16">
-          <LoadingArticle />
-          <LoadingArticle />
-          <LoadingArticle />
-          <LoadingArticle />
+        <div className="space-y-6">
+          <Skeleton className="h-64 w-full rounded-xl" />
+          <Skeleton className="mx-auto h-[250px] w-full max-w-[300px] rounded-md" />
         </div>
-      </section>
-    </>
+      </div>
+    </div>
   );
 }

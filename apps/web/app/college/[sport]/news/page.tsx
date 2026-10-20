@@ -5,32 +5,44 @@ import {
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
 import {
+  globalNavigationQuery,
   querySportsNews,
+  querySportsNewsOldest,
   sportInfoBySlug,
 } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import ArticleFeed from "@/components/article-feed";
-import PageHeader from "@/components/page-header";
+import type { HomePost } from "@/components/home/home-page-content";
+import { NewsArchiveFilters } from "@/components/news/news-archive-filters";
+import { NewsArchiveHeader } from "@/components/news/news-archive-header";
+import { NewsArchiveRiver } from "@/components/news/news-archive-river";
+import { NewsArchiveSidebar } from "@/components/news/news-archive-sidebar";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { searchParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { getCachedMostReadPosts } from "@/lib/most-read-data";
+import {
+  parseNewsArchiveFilters,
+  type NewsArchiveSearchParams,
+} from "@/lib/news-archive";
+import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
 import { getSportFeed } from "@/lib/rss-feed-links";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { validatePageIndex } from "@/utils/validate-page-index";
+import { buildSportNewsFilterOptions } from "@/lib/sport-news-filters";
+import { sportNavLabel } from "@/lib/sport-nav";
 
 export async function generateMetadata({
   params,
   searchParams,
 }: {
   params: Promise<{ sport: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<NewsArchiveSearchParams>;
 }): Promise<Metadata> {
   const { sport } = await params;
   const { page } = await searchParams;
-  const pageIndex = validatePageIndex(page);
+  const pageIndex = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
   const { perspective } = PUBLISHED_FETCH_OPTIONS;
 
   const { data: sportData } = await sanityFetchMetadata({
@@ -43,18 +55,18 @@ export async function generateMetadata({
     notFound();
   }
 
-  const sportTitle = sportData.title;
+  const sportLabel = sportNavLabel(sport, sportData.title);
   let title: string;
   let description: string;
   let canonicalUrl = `/college/${sport}/news`;
 
   if (pageIndex > 1) {
-    title = `College ${sportTitle} News & Updates - Page ${pageIndex}`;
-    description = `Continue exploring comprehensive college ${sportTitle} news, game analysis, and feature stories. This is page ${page} of our in-depth coverage.`;
-    canonicalUrl = `${canonicalUrl}?page=${page}`;
+    title = `${sportLabel} News - Page ${pageIndex}`;
+    description = `Page ${pageIndex} of ${sportLabel} news and analysis from ${process.env.NEXT_PUBLIC_APP_NAME}.`;
+    canonicalUrl = `${canonicalUrl}?page=${pageIndex}`;
   } else {
-    title = `College ${sportTitle} News & Updates`;
-    description = `Find comprehensive college ${sportTitle} news, detailed game results, expert analysis, and valuable insights. Your trusted source for NCAA ${sportTitle} information.`;
+    title = `${sportLabel} News`;
+    description = `Every ${sportLabel} story, newest first.`;
   }
 
   return getPageMetadata(
@@ -62,7 +74,7 @@ export async function generateMetadata({
       title,
       description,
       slug: canonicalUrl,
-      rssFeeds: [getSportFeed({ slug: sport, title: sportTitle })],
+      rssFeeds: [getSportFeed({ slug: sport, title: sportData.title })],
     },
     perspective,
   );
@@ -73,7 +85,7 @@ export default function Page({
   searchParams,
 }: {
   params: Promise<{ sport: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<NewsArchiveSearchParams>;
 }) {
   return searchParamsPage(null, () =>
     renderSportNewsPage({ params, searchParams }),
@@ -85,33 +97,65 @@ async function renderSportNewsPage({
   searchParams,
 }: {
   params: Promise<{ sport: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<NewsArchiveSearchParams>;
 }) {
-  const [{ sport }, { page }] = await Promise.all([params, searchParams]);
-  const pageIndex = validatePageIndex(page);
+  const [{ sport }, filters] = await Promise.all([params, searchParams]);
+  const { pageIndex, search, storyType, sort } =
+    parseNewsArchiveFilters(filters);
   const { perspective, stega } = await getDynamicFetchOptions();
   return cachedRenderSportNewsPage({
     sport,
     pageIndex,
+    search,
+    storyType,
+    sort,
     perspective,
     stega,
+    filterParams: filters,
   });
 }
 
 async function cachedRenderSportNewsPage({
   sport,
   pageIndex,
+  search,
+  storyType,
+  sort,
   perspective,
   stega,
-}: DynamicFetchOptions & { sport: string; pageIndex: number }) {
+  filterParams,
+}: DynamicFetchOptions & {
+  sport: string;
+  pageIndex: number;
+  search: string;
+  storyType: string;
+  sort: "newest" | "oldest";
+  filterParams: NewsArchiveSearchParams;
+}) {
   "use cache";
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
+  const newsQuery =
+    sort === "oldest" ? querySportsNewsOldest : querySportsNews;
 
-  const [newsResponse, sportInfoResponse] = await Promise.all([
+  const queryParams = {
+    sport,
+    from,
+    to,
+    search,
+    storyType,
+  };
+
+  const [
+    newsResponse,
+    sportInfoResponse,
+    navResponse,
+    mostRead,
+    rankingsPolls,
+  ] = await Promise.all([
     sanityFetchPage({
-      query: querySportsNews,
-      params: { sport, from, to },
+      query: newsQuery,
+      params: queryParams,
       perspective,
       stega,
     }),
@@ -121,38 +165,73 @@ async function cachedRenderSportNewsPage({
       perspective,
       stega,
     }),
+    sanityFetchPage({
+      query: globalNavigationQuery,
+      perspective,
+      stega,
+    }),
+    getCachedMostReadPosts(),
+    getCachedRankingsWidgetPolls(),
   ]);
 
-  const news = newsResponse.data;
+  const news = newsResponse.data as {
+    posts?: HomePost[];
+    totalPosts?: number;
+  } | null;
   const sportInfo = sportInfoResponse?.data;
 
   if (!news?.posts?.length) {
     notFound();
   }
 
-  const totalPages = Math.ceil(news.totalPosts / perPage);
+  const totalPages = Math.ceil((news.totalPosts ?? 0) / perPage);
+  const sportLabel = sportNavLabel(sport, sportInfo?.title ?? sport);
+  const { divisions, conferences } = buildSportNewsFilterOptions(
+    sport,
+    navResponse.data,
+  );
 
   const breadcrumbItems = [
+    { title: "College", href: "/college/news" },
     {
-      title: "News",
-      href: "/college/news",
-    },
-    {
-      title: sportInfo!.title,
+      title: sportInfo?.title ?? sport,
       href: `/college/${sport}/news`,
     },
+    { title: "News", href: `/college/${sport}/news` },
   ];
 
   return (
-    <>
-      <PageHeader
-        title={`College ${sportInfo?.title} News`}
+    <div className="mx-auto max-w-site px-4 lg:px-6">
+      <NewsArchiveHeader
         breadcrumbs={breadcrumbItems}
+        title={`${sportLabel} News`}
+        description={`Every ${sportLabel} story, newest first.`}
       />
-      <section className="container pb-12">
-        <ArticleFeed articles={news.posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
-      </section>
-    </>
+      <NewsArchiveFilters
+        sportSlug={sport}
+        divisions={divisions}
+        conferences={conferences}
+        initial={filterParams}
+      />
+      <div className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div>
+          <NewsArchiveRiver
+            posts={news.posts}
+            pageIndex={pageIndex}
+            totalPosts={news.totalPosts ?? news.posts.length}
+            totalPages={totalPages}
+          />
+          {totalPages > 1 ? (
+            <nav aria-label="Pagination" className="pt-6">
+              <PaginationControls totalPosts={news.totalPosts ?? 0} />
+            </nav>
+          ) : null}
+        </div>
+        <NewsArchiveSidebar
+          mostRead={mostRead}
+          rankingsPolls={rankingsPolls}
+        />
+      </div>
+    </div>
   );
 }

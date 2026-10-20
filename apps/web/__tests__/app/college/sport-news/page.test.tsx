@@ -7,6 +7,8 @@ const {
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
+  mockGetCachedMostReadPosts,
+  mockGetCachedRankingsWidgetPolls,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
   mockSanityFetchMetadata: vi.fn(),
@@ -17,6 +19,8 @@ const {
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
+  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
+  mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
@@ -26,6 +30,14 @@ vi.mock("@/lib/draft-cache", () => ({
 
 vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
+}));
+
+vi.mock("@/lib/most-read-data", () => ({
+  getCachedMostReadPosts: mockGetCachedMostReadPosts,
+}));
+
+vi.mock("@/lib/rankings-widget-data", () => ({
+  getCachedRankingsWidgetPolls: mockGetCachedRankingsWidgetPolls,
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -39,7 +51,9 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
   querySportsNews: "querySportsNews",
+  querySportsNewsOldest: "querySportsNewsOldest",
   sportInfoBySlug: "sportInfoBySlug",
+  globalNavigationQuery: "globalNavigationQuery",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
@@ -48,22 +62,9 @@ vi.mock("@/lib/global-seo-settings", () => ({
 
 vi.mock("next/navigation", () => ({
   notFound: mockNotFound,
-}));
-
-vi.mock("@/components/page-header", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => <h1>{title}</h1>,
-}));
-
-vi.mock("@/components/article-feed", () => ({
-  __esModule: true,
-  default: ({ articles }: { articles: Array<{ title: string }> }) => (
-    <div data-testid="article-feed">
-      {articles.map((a) => (
-        <div key={a.title}>{a.title}</div>
-      ))}
-    </div>
-  ),
+  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => "/college/football/news",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/pagination-controls", () => ({
@@ -81,6 +82,8 @@ describe("SportNewsPage", () => {
     mockSanityFetchPage.mockReset();
     mockSanityFetchMetadata.mockReset();
     mockNotFound.mockClear();
+    mockGetCachedMostReadPosts.mockResolvedValue([]);
+    mockGetCachedRankingsWidgetPolls.mockResolvedValue([]);
   });
 
   it("generateMetadata throws notFound when sport is missing", async () => {
@@ -116,7 +119,7 @@ describe("SportNewsPage", () => {
     });
     expect(mockGetPageMetadata).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "College Football News & Updates",
+        title: "College Football News",
         slug: "/college/football/news",
       }),
       "published",
@@ -126,7 +129,8 @@ describe("SportNewsPage", () => {
   it("throws notFound when there are no posts", async () => {
     mockSanityFetchPage
       .mockResolvedValueOnce({ data: { posts: [], totalPosts: 0 } })
-      .mockResolvedValueOnce({ data: { title: "Football" } });
+      .mockResolvedValueOnce({ data: { title: "Football" } })
+      .mockResolvedValueOnce({ data: [] });
 
     await expect(
       SportNewsPage({
@@ -140,11 +144,19 @@ describe("SportNewsPage", () => {
     mockSanityFetchPage
       .mockResolvedValueOnce({
         data: {
-          posts: [{ _id: "1", title: "Football Story" }],
+          posts: [
+            {
+              _id: "1",
+              title: "Football Story",
+              slug: "football-story",
+              publishedAt: "2026-01-01T12:00:00Z",
+            },
+          ],
           totalPosts: 1,
         },
       })
-      .mockResolvedValueOnce({ data: { title: "Football" } });
+      .mockResolvedValueOnce({ data: { title: "Football" } })
+      .mockResolvedValueOnce({ data: [] });
 
     const page = await SportNewsPage({
       params: Promise.resolve({ sport: "football" }),
@@ -165,11 +177,14 @@ describe("SportNewsPage", () => {
           posts: Array.from({ length: 12 }, (_, i) => ({
             _id: String(i),
             title: `Story ${i}`,
+            slug: `story-${i}`,
+            publishedAt: "2026-01-01T12:00:00Z",
           })),
           totalPosts: 24,
         },
       })
-      .mockResolvedValueOnce({ data: { title: "Football" } });
+      .mockResolvedValueOnce({ data: { title: "Football" } })
+      .mockResolvedValueOnce({ data: [] });
 
     const page = await SportNewsPage({
       params: Promise.resolve({ sport: "football" }),
