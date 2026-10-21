@@ -24,8 +24,15 @@ const {
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) =>
-    render(),
+  draftAwareParamsPage: (
+    _params: unknown,
+    _fallback: unknown,
+    render: (
+      resolved: { sport: string },
+      options: { perspective: string; stega: boolean },
+    ) => Promise<unknown>,
+  ) =>
+    render({ sport: "football" }, { perspective: "published", stega: false }),
 }));
 
 vi.mock("@/lib/sanity-fetch", () => ({

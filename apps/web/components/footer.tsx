@@ -1,6 +1,5 @@
 import {
   type DynamicFetchOptions,
-  getDynamicFetchOptions,
   sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import {
@@ -14,6 +13,7 @@ import type {
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 
+import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 import {
   BlueSkyIcon,
   Facebook,
@@ -35,8 +35,7 @@ interface FooterProps {
 }
 
 export async function DynamicFooterServer() {
-  const { perspective, stega } = await getDynamicFetchOptions();
-  return <CachedFooterServer perspective={perspective} stega={stega} />;
+  return <CachedFooterServer {...(await resolveDynamicFetchOptions())} />;
 }
 
 export async function CachedFooterServer({

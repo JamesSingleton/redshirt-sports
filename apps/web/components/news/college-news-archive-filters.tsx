@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 
+import { NewsArchiveFilterSelect } from "@/components/news/news-archive-filter-select";
 import type { NewsFilterConference } from "@/components/news/news-archive-filters";
 import type {
   CollegeNewsDivisionOption,
@@ -83,113 +84,62 @@ export function CollegeNewsArchiveFilters({
           applyQueryFilters();
         }}
       >
-        <div className="grid gap-1">
-          <label
-            htmlFor="news-f-sport"
-            className="text-xs font-semibold text-muted-foreground"
-          >
-            Sport
-          </label>
-          <select
-            id="news-f-sport"
-            className="border-input h-9 rounded-md border bg-background px-2.5 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            defaultValue=""
-            onChange={(e) => onSportChange(e.target.value)}
-          >
-            <option value="">All sports</option>
-            {sports.map((sport) => (
-              <option key={sport.slug} value={sport.slug}>
-                {sport.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="grid gap-1">
-          <label
-            htmlFor="news-f-div"
-            className="text-xs font-semibold text-muted-foreground"
-          >
-            Division
-          </label>
-          <select
-            id="news-f-div"
-            className="border-input h-9 rounded-md border bg-background px-2.5 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            defaultValue=""
-            onChange={(e) => onDivisionChange(e.target.value)}
-          >
-            <option value="">All divisions</option>
-            {divisions.map((division) => (
-              <option
-                key={`${division.sportSlug}/${division.slug}`}
-                value={`${division.sportSlug}/${division.slug}`}
-              >
-                {division.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="grid gap-1">
-          <label
-            htmlFor="news-f-conf"
-            className="text-xs font-semibold text-muted-foreground"
-          >
-            Conference
-          </label>
-          <select
-            id="news-f-conf"
-            className="border-input h-9 rounded-md border bg-background px-2.5 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            defaultValue=""
-            onChange={(e) => onConferenceChange(e.target.value)}
-          >
-            <option value="">All conferences</option>
-            {conferences.map((conference) => (
-              <option
-                key={`${conference.sportSlug}/${conference.divisionSlug}/${conference.slug}`}
-                value={`${conference.sportSlug}/${conference.divisionSlug}/${conference.slug}`}
-              >
-                {conference.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="grid gap-1">
-          <label
-            htmlFor="news-f-type"
-            className="text-xs font-semibold text-muted-foreground"
-          >
-            Type
-          </label>
-          <select
-            id="news-f-type"
-            className="border-input h-9 rounded-md border bg-background px-2.5 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            value={storyType}
-            onChange={(e) => setStoryType(e.target.value)}
-          >
-            <option value="">All types</option>
-            {STORY_TYPE_OPTIONS.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="grid gap-1">
-          <label
-            htmlFor="news-f-sort"
-            className="text-xs font-semibold text-muted-foreground"
-          >
-            Sort
-          </label>
-          <select
-            id="news-f-sort"
-            className="border-input h-9 rounded-md border bg-background px-2.5 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-          >
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
-          </select>
-        </div>
+        <NewsArchiveFilterSelect
+          id="news-f-sport"
+          label="Sport"
+          defaultValue=""
+          onValueChange={onSportChange}
+          allLabel="All sports"
+          options={sports.map((sport) => ({
+            value: sport.slug,
+            label: sport.name,
+          }))}
+        />
+        <NewsArchiveFilterSelect
+          id="news-f-div"
+          label="Division"
+          defaultValue=""
+          onValueChange={onDivisionChange}
+          allLabel="All divisions"
+          options={divisions.map((division) => ({
+            value: `${division.sportSlug}/${division.slug}`,
+            label: division.name,
+          }))}
+        />
+        <NewsArchiveFilterSelect
+          id="news-f-conf"
+          label="Conference"
+          defaultValue=""
+          onValueChange={onConferenceChange}
+          allLabel="All conferences"
+          options={conferences.map((conference) => ({
+            value: `${conference.sportSlug}/${conference.divisionSlug}/${conference.slug}`,
+            label: conference.name,
+          }))}
+        />
+        <NewsArchiveFilterSelect
+          id="news-f-type"
+          label="Type"
+          value={storyType}
+          onValueChange={setStoryType}
+          allLabel="All types"
+          options={STORY_TYPE_OPTIONS.map((type) => ({
+            value: type,
+            label: type,
+          }))}
+        />
+        <NewsArchiveFilterSelect
+          id="news-f-sort"
+          label="Sort"
+          value={sort}
+          onValueChange={setSort}
+          allLabel="Newest first"
+          includeAllOption={false}
+          options={[
+            { value: "newest", label: "Newest first" },
+            { value: "oldest", label: "Oldest first" },
+          ]}
+        />
         <div className="grid min-w-56 flex-1 basis-56 gap-1">
           <label
             htmlFor="news-f-q"

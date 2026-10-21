@@ -12,6 +12,7 @@ import Link from "next/link";
 import { RankMovement } from "@/components/rankings/rank-movement";
 import { TeamMark } from "@/components/rankings/team-mark";
 import { TeamPageLink } from "@/components/rankings/team-page-link";
+import { TeamHubLogoTransition } from "@/components/view-transitions/team-hub-logo-transition";
 import type { Movement, RankingTeamRef } from "@/lib/rankings-movement";
 import { displayName } from "@/lib/rankings-movement";
 
@@ -106,13 +107,25 @@ export function RankingsPollTable({
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <TeamMark
-                      image={team.image}
-                      shortName={team.shortName}
-                      abbreviation={team.abbreviation}
-                      name={team.name}
-                      size="table"
-                    />
+                    {team.slug ? (
+                      <TeamHubLogoTransition slug={team.slug}>
+                        <TeamMark
+                          image={team.image}
+                          shortName={team.shortName}
+                          abbreviation={team.abbreviation}
+                          name={team.name}
+                          size="table"
+                        />
+                      </TeamHubLogoTransition>
+                    ) : (
+                      <TeamMark
+                        image={team.image}
+                        shortName={team.shortName}
+                        abbreviation={team.abbreviation}
+                        name={team.name}
+                        size="table"
+                      />
+                    )}
                     <div className="min-w-0">
                       <TeamPageLink
                         slug={team.slug}

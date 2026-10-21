@@ -17,7 +17,7 @@ import { ChevronDown, Menu, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { StegaBranded } from "next-sanity";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, Suspense, use, useCallback, useEffect, useState } from "react";
 
 import { SportMegaPanel } from "@/components/chrome/sport-mega-panel";
 import { Logo } from "@/components/logo";
@@ -394,4 +394,61 @@ export function NavbarSkeletonResponsive() {
   );
 }
 
-export const NavbarClient = ClientSideNavbar;
+function NavbarClientResolved({
+  navbarData,
+  settingsData,
+  latestRankingsPromise,
+}: {
+  navbarData: StegaBranded<GlobalNavigationQueryResult>;
+  settingsData: QueryGlobalSeoSettingsResult;
+  latestRankingsPromise: Promise<Top25RankingsData>;
+}) {
+  const latestRankings = use(latestRankingsPromise);
+  return (
+    <ClientSideNavbar
+      navbarData={navbarData}
+      settingsData={settingsData}
+      latestRankings={latestRankings}
+    />
+  );
+}
+
+export function NavbarClient({
+  navbarData,
+  settingsData,
+  latestRankings,
+  latestRankingsPromise,
+}: {
+  navbarData: StegaBranded<GlobalNavigationQueryResult>;
+  settingsData: QueryGlobalSeoSettingsResult;
+  latestRankings?: Top25RankingsData;
+  latestRankingsPromise?: Promise<Top25RankingsData>;
+}) {
+  if (latestRankingsPromise) {
+    return (
+      <Suspense
+        fallback={
+          <ClientSideNavbar
+            navbarData={navbarData}
+            settingsData={settingsData}
+            latestRankings={[]}
+          />
+        }
+      >
+        <NavbarClientResolved
+          navbarData={navbarData}
+          settingsData={settingsData}
+          latestRankingsPromise={latestRankingsPromise}
+        />
+      </Suspense>
+    );
+  }
+
+  return (
+    <ClientSideNavbar
+      navbarData={navbarData}
+      settingsData={settingsData}
+      latestRankings={latestRankings ?? []}
+    />
+  );
+}

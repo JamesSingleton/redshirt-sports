@@ -24,8 +24,18 @@ const {
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) =>
-    render(),
+  draftAwareParamsPage: (
+    _params: unknown,
+    _fallback: unknown,
+    render: (
+      resolved: { sport: string; division: string },
+      options: { perspective: string; stega: boolean },
+    ) => Promise<unknown>,
+  ) =>
+    render(
+      { sport: "football", division: "fbs" },
+      { perspective: "published", stega: false },
+    ),
 }));
 
 vi.mock("@/lib/sanity-fetch", () => ({
@@ -90,6 +100,15 @@ vi.mock("@/components/pagination-controls", () => ({
   default: () => <nav data-testid="pagination" />,
 }));
 
+vi.mock("@/lib/news-archive/cached-nav-chrome", () => ({
+  FolderConferencePickerSlot: () => <div data-testid="picker" />,
+  FolderNewsFiltersBelowHeaderSlot: () => <div data-testid="filters" />,
+}));
+
+vi.mock("@/lib/news-archive/cached-sidebar", () => ({
+  NewsArchiveSidebarSlot: () => <aside data-testid="sidebar" />,
+}));
+
 import DivisionNewsPage, {
   generateMetadata,
 } from "@/app/college/[sport]/news/[division]/page";
@@ -109,8 +128,7 @@ function mockDivisionFetches(
       data: { posts, totalPosts },
     })
     .mockResolvedValueOnce({ data: { title: "Football" } })
-    .mockResolvedValueOnce({ data: divisionMeta })
-    .mockResolvedValueOnce({ data: [] });
+    .mockResolvedValueOnce({ data: divisionMeta });
 }
 
 describe("DivisionNewsPage", () => {
@@ -226,7 +244,7 @@ describe("DivisionNewsPage", () => {
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
   });
 
-  it("falls back to empty division title in JSON-LD when displayName is missing", async () => {
+  it("falls back to the division slug in JSON-LD when displayName is missing", async () => {
     mockDivisionFetches(
       [
         {
@@ -251,6 +269,6 @@ describe("DivisionNewsPage", () => {
     const divisionCrumb = data.breadcrumb.itemListElement.find(
       (item: { position: number }) => item.position === 4,
     );
-    expect(divisionCrumb.name).toBe("");
+    expect(divisionCrumb.name).toBe("fbs");
   });
 });

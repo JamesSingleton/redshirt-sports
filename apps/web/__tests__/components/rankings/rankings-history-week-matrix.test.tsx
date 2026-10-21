@@ -151,6 +151,7 @@ describe("RankingsHistoryWeekMatrix", () => {
     await user.click(screen.getByTestId("year-select"));
     expect(mockPush).toHaveBeenCalledWith(
       "/college/football/rankings/fbs/history?year=2024",
+      { transitionTypes: ["nav-lateral"] },
     );
   });
 });

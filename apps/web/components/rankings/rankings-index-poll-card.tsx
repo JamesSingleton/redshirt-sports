@@ -6,6 +6,7 @@ import Link from "next/link";
 import { RankMovement } from "@/components/rankings/rank-movement";
 import { TeamMark } from "@/components/rankings/team-mark";
 import type { RankingsIndexCard } from "@/lib/rankings-widget-data";
+import { NAV_FORWARD_TRANSITION } from "@/lib/view-transition-nav";
 
 export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
   const { poll, teams, sport } = card;
@@ -23,7 +24,8 @@ export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
             <Link
               href={poll.weekHref}
               className="hover:underline"
-              prefetch={false}
+              prefetch={true}
+              transitionTypes={[...NAV_FORWARD_TRANSITION]}
             >
               {card.title}
             </Link>
@@ -66,7 +68,8 @@ export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-sm">
         <Link
           href={poll.weekHref}
-          prefetch={false}
+          prefetch={true}
+          transitionTypes={[...NAV_FORWARD_TRANSITION]}
           className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
         >
           Full Top 25

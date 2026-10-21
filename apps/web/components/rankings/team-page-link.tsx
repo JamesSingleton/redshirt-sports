@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { NAV_FORWARD_TRANSITION } from "@/lib/view-transition-nav";
+
 export function TeamPageLink({
   slug,
   children,
@@ -18,7 +20,8 @@ export function TeamPageLink({
     <Link
       href={`/college/teams/${slug}`}
       className={className ?? "hover:underline"}
-      prefetch={false}
+      prefetch={true}
+      transitionTypes={[...NAV_FORWARD_TRANSITION]}
     >
       {children}
     </Link>

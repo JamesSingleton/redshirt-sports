@@ -14,6 +14,7 @@ import { useMemo, useState } from "react";
 import { TeamPageLink } from "@/components/rankings/team-page-link";
 import type { PollHistorySeason } from "@/lib/poll-history-data";
 import { shortPollWeekLabel } from "@/lib/rankings-history-week-label";
+import { NAV_LATERAL_TRANSITION } from "@/lib/view-transition-nav";
 
 function rankCellClass(rank: number | null): string {
   if (rank == null) {
@@ -81,6 +82,7 @@ export function RankingsHistoryWeekMatrix({
             onValueChange={(value) => {
               router.push(
                 `/college/${sport}/rankings/${division}/history?year=${value}`,
+                { transitionTypes: [...NAV_LATERAL_TRANSITION] },
               );
             }}
           >

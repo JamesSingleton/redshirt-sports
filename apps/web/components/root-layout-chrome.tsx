@@ -3,35 +3,24 @@ import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
 
 import { DisableDraftMode } from "@/components/disable-draft-mode";
-import { CachedFooterServer, DynamicFooterServer } from "@/components/footer";
-import {
-  CachedCombinedJsonLd,
-  DynamicCombinedJsonLd,
-} from "@/components/json-ld";
-import { CachedNavbarServer, DynamicNavbarServer } from "@/components/navbar";
+import { CachedFooterServer } from "@/components/footer";
+import { CachedCombinedJsonLd } from "@/components/json-ld";
+import { CachedNavbarServer } from "@/components/navbar";
+import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 
 export async function DraftAwareNavbar() {
-  const isDraftMode = (await draftMode()).isEnabled;
-  if (isDraftMode) {
-    return <DynamicNavbarServer />;
-  }
-  return <CachedNavbarServer perspective="published" stega={false} />;
+  const options = await resolveDynamicFetchOptions();
+  return <CachedNavbarServer {...options} />;
 }
 
 export async function DraftAwareFooter() {
-  const isDraftMode = (await draftMode()).isEnabled;
-  if (isDraftMode) {
-    return <DynamicFooterServer />;
-  }
-  return <CachedFooterServer perspective="published" stega={false} />;
+  const options = await resolveDynamicFetchOptions();
+  return <CachedFooterServer {...options} />;
 }
 
 export async function DraftAwareJsonLd() {
-  const isDraftMode = (await draftMode()).isEnabled;
-  if (isDraftMode) {
-    return <DynamicCombinedJsonLd />;
-  }
-  return <CachedCombinedJsonLd perspective="published" stega={false} />;
+  const options = await resolveDynamicFetchOptions();
+  return <CachedCombinedJsonLd {...options} />;
 }
 
 export async function DraftAwareLiveAndEditing() {

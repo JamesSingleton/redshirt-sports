@@ -1,8 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 
-const { mockDraftMode } = vi.hoisted(() => ({
+const { mockDraftMode, mockResolveDynamicFetchOptions } = vi.hoisted(() => ({
   mockDraftMode: vi.fn().mockResolvedValue({ isEnabled: false }),
+  mockResolveDynamicFetchOptions: vi
+    .fn()
+    .mockResolvedValue({ perspective: "published", stega: false }),
+}));
+
+vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
+  resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
 }));
 
 vi.mock("next/font/local", () => ({
@@ -132,15 +139,19 @@ describe("DraftAware layout chrome", () => {
 
   it("renders draft-mode UI when draft mode is enabled", async () => {
     mockDraftMode.mockResolvedValue({ isEnabled: true });
+    mockResolveDynamicFetchOptions.mockResolvedValue({
+      perspective: "previewDrafts",
+      stega: true,
+    });
 
     render(await DraftAwareNavbar());
-    expect(screen.getByTestId("dynamic-navbar")).toBeInTheDocument();
+    expect(screen.getByTestId("navbar")).toBeInTheDocument();
 
     render(await DraftAwareFooter());
-    expect(screen.getByTestId("dynamic-footer")).toBeInTheDocument();
+    expect(screen.getByTestId("footer")).toBeInTheDocument();
 
     render(await DraftAwareJsonLd());
-    expect(screen.getByTestId("dynamic-json-ld")).toBeInTheDocument();
+    expect(screen.getByTestId("json-ld")).toBeInTheDocument();
 
     render(await DraftAwareLiveAndEditing());
     expect(screen.getByTestId("visual-editing")).toBeInTheDocument();

@@ -23,6 +23,7 @@ import type { StegaBranded } from "next-sanity";
 
 import { TeamPageJsonLd } from "@/components/json-ld";
 import { TeamPageContent } from "@/components/teams/team-page-content";
+import { DirectionalPageTransition } from "@/components/view-transitions/directional-page-transition";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedMostReadPosts } from "@/lib/most-read-data";
@@ -33,7 +34,6 @@ import {
 } from "@/lib/rankings-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { isTeamPageEligible } from "@/lib/team-page-eligibility";
-import TeamHubRouteLoading from "./loading";
 
 function defaultTeamPageTitle({
   name,
@@ -134,11 +134,7 @@ export default async function SchoolTeamPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  return draftAwareParamsPage(
-    params,
-    <TeamHubRouteLoading />,
-    renderSchoolTeamPage,
-  );
+  return draftAwareParamsPage(params, null, renderSchoolTeamPage);
 }
 
 async function renderSchoolTeamPage(
@@ -180,14 +176,16 @@ async function renderSchoolTeamPage(
   const posts = newsData?.posts ?? [];
 
   return (
-    <div className="min-h-screen bg-background">
-      <TeamPageJsonLd school={school} />
-      <TeamPageContent
-        school={school}
-        posts={posts}
-        rankingHistory={rankingHistory}
-        mostRead={mostRead}
-      />
-    </div>
+    <DirectionalPageTransition>
+      <div className="min-h-screen bg-background">
+        <TeamPageJsonLd school={school} />
+        <TeamPageContent
+          school={school}
+          posts={posts}
+          rankingHistory={rankingHistory}
+          mostRead={mostRead}
+        />
+      </div>
+    </DirectionalPageTransition>
   );
 }

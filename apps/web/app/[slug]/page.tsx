@@ -14,8 +14,8 @@ import { notFound } from "next/navigation";
 import { toPlainText } from "next-sanity";
 
 import { ArticlePageContent } from "@/components/article/article-page-content";
-import ArticleLoadingSkeleton from "@/components/article-loading-skeleton";
 import { buildSafeImageUrl, PostPageJsonLd } from "@/components/json-ld";
+import { DirectionalPageTransition } from "@/components/view-transitions/directional-page-transition";
 import { getArticleTagNames } from "@/lib/article-seo";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
@@ -85,11 +85,7 @@ export default async function PostPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  return draftAwareParamsPage(
-    params,
-    <ArticleLoadingSkeleton />,
-    renderPostPage,
-  );
+  return draftAwareParamsPage(params, null, renderPostPage);
 }
 
 async function renderPostPage(
@@ -124,7 +120,7 @@ async function renderPostPage(
   ]);
 
   return (
-    <>
+    <DirectionalPageTransition>
       <PostPageJsonLd
         article={data}
         publisher={{
@@ -139,6 +135,6 @@ async function renderPostPage(
         mostRead={mostRead}
         rankingsPolls={rankingsPolls}
       />
-    </>
+    </DirectionalPageTransition>
   );
 }

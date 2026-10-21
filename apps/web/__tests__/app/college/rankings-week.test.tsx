@@ -1,7 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { isValidElement, type ReactElement, type ReactNode } from "react";
 
-import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
 import { sampleRankingTeam } from "../../helpers/vote-fixtures";
 
 const {
@@ -149,7 +148,7 @@ describe("CollegeFootballRankingsPage", () => {
     );
   });
 
-  it("passes the route loading UI as the nearest Suspense fallback", async () => {
+  it("passes null as the Suspense fallback so segment loading.tsx owns the skeleton", async () => {
     mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
     mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
     mockGetCachedFinalRankings.mockResolvedValue({
@@ -166,8 +165,7 @@ describe("CollegeFootballRankingsPage", () => {
     });
 
     const fallback = mockDraftAwareParamsPage.mock.calls[0]?.[1];
-    expect(isValidElement(fallback)).toBe(true);
-    expect((fallback as ReactElement).type).toBe(RankingsPageSkeleton);
+    expect(fallback).toBeNull();
   });
 
   it("throws notFound when rankings fetch rejects", async () => {

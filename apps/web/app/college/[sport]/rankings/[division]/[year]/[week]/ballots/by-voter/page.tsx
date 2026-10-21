@@ -4,7 +4,6 @@ import { Suspense } from "react";
 
 import { BallotsByVoterPanel } from "@/components/rankings/ballots-by-voter-panel";
 import { BallotsViewToggle } from "@/components/rankings/ballots-view-toggle";
-import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { getCachedBallotsByVoterCards } from "@/lib/ballots-by-voter-data";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
@@ -44,14 +43,10 @@ export default function RankingsBallotsByVoterPage({
   }>;
   searchParams: Promise<{ voter?: string }>;
 }) {
-  return draftAwareParamsPage(
-    params,
-    <RankingsTabSkeleton variant="ballots" />,
-    async (resolved) => {
-      const query = await searchParams;
-      return renderByVoterPage(resolved, query);
-    },
-  );
+  return draftAwareParamsPage(params, null, async (resolved) => {
+    const query = await searchParams;
+    return renderByVoterPage(resolved, query);
+  });
 }
 
 async function renderByVoterPage(

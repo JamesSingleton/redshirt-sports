@@ -1,6 +1,5 @@
 import {
   type DynamicFetchOptions,
-  getDynamicFetchOptions,
   PUBLISHED_FETCH_OPTIONS,
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
@@ -17,7 +16,7 @@ import {
 } from "@/components/json-ld";
 import { PersonPageContent } from "@/components/people/person-page-content";
 import { perPage } from "@/lib/constants";
-import { searchParamsPage } from "@/lib/draft-cache";
+import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedMostReadPosts } from "@/lib/most-read-data";
@@ -80,27 +79,16 @@ export default function Page({
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ page?: string | string[] }>;
 }) {
-  return searchParamsPage(null, () =>
-    renderPersonPage({ params, searchParams }),
-  );
-}
+  return draftAwareParamsPage(params, null, async ({ slug }, options) => {
+    const { page } = await searchParams;
+    const pageIndex = validatePageIndex(page);
 
-async function renderPersonPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string | string[] }>;
-}) {
-  const [{ slug }, { page }] = await Promise.all([params, searchParams]);
-  const pageIndex = validatePageIndex(page);
+    if (page && typeof page === "string" && pageIndex === 1) {
+      redirect(personHref(slug));
+    }
 
-  if (page && pageIndex === 1) {
-    redirect(personHref(slug));
-  }
-
-  const { perspective, stega } = await getDynamicFetchOptions();
-  return cachedRenderPersonPage({ slug, pageIndex, perspective, stega });
+    return cachedRenderPersonPage({ slug, pageIndex, ...options });
+  });
 }
 
 async function cachedRenderPersonPage({

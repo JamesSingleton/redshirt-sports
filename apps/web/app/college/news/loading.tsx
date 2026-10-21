@@ -1,5 +1,1 @@
-import { NewsArchiveLoading } from "@/components/news/news-archive-loading";
-
-export default function Loading() {
-  return <NewsArchiveLoading filterBarSize="college" />;
-}
+export { collegeNewsArchivePageFallback as default } from "@/lib/news-archive/page-loading";

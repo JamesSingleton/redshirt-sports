@@ -8,13 +8,23 @@ import {
 } from "@/components/navbar";
 
 const {
-  mockGetDynamicFetchOptions,
+  mockResolveDynamicFetchOptions,
   mockSanityFetch,
+  mockGetCachedGlobalNavigation,
   mockGetCachedNavbarLatestRankings,
 } = vi.hoisted(() => ({
-  mockGetDynamicFetchOptions: vi.fn(),
+  mockResolveDynamicFetchOptions: vi.fn(),
   mockSanityFetch: vi.fn(),
+  mockGetCachedGlobalNavigation: vi.fn(),
   mockGetCachedNavbarLatestRankings: vi.fn(),
+}));
+
+vi.mock("@/lib/news-archive/cached-global-navigation", () => ({
+  getCachedGlobalNavigation: mockGetCachedGlobalNavigation,
+}));
+
+vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
+  resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -22,7 +32,6 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
     perspective: "published",
     stega: false,
   },
-  getDynamicFetchOptions: mockGetDynamicFetchOptions,
   sanityFetch: mockSanityFetch,
 }));
 
@@ -86,9 +95,8 @@ describe("NavbarSkeleton", () => {
 describe("CachedNavbarServer", () => {
   beforeEach(() => {
     mockGetCachedNavbarLatestRankings.mockResolvedValue(latestRankings);
-    mockSanityFetch
-      .mockResolvedValueOnce({ data: navbarData })
-      .mockResolvedValueOnce({ data: settingsData });
+    mockGetCachedGlobalNavigation.mockResolvedValue({ data: navbarData });
+    mockSanityFetch.mockResolvedValue({ data: settingsData });
   });
 
   it("fetches navbar data and renders the memoized navbar", async () => {
@@ -104,15 +112,15 @@ describe("CachedNavbarServer", () => {
 });
 
 describe("DynamicNavbarServer", () => {
-  it("loads dynamic fetch options before rendering", async () => {
-    mockGetDynamicFetchOptions.mockResolvedValue({
+  it("resolves fetch options before rendering", async () => {
+    mockResolveDynamicFetchOptions.mockResolvedValue({
       perspective: "published",
       stega: false,
     });
 
     const component = await DynamicNavbarServer();
 
-    expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
+    expect(mockResolveDynamicFetchOptions).toHaveBeenCalled();
     expect(component).toBeTruthy();
   });
 });

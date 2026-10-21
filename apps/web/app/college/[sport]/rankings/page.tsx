@@ -13,11 +13,10 @@ import { AdSlot } from "@/components/ad-slot";
 import { RankingsIndexPollCard } from "@/components/rankings/rankings-index-poll-card";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
-import { getCachedRankingsIndexCards } from "@/lib/rankings-widget-data";
+import { loadRankingsIndexCards } from "@/lib/rankings/read-model";
 import { sportNavLabel } from "@/lib/sport-nav";
 import { validateSport } from "@/lib/vote-ballot";
 import type { SportParam } from "@/utils/espn";
-import RankingsIndexRouteLoading from "./loading";
 
 export async function generateMetadata({
   params,
@@ -58,11 +57,7 @@ export default async function SportRankingsIndexPage({
 }: {
   params: Promise<{ sport: string }>;
 }) {
-  return draftAwareParamsPage(
-    params,
-    <RankingsIndexRouteLoading />,
-    renderSportRankingsIndex,
-  );
+  return draftAwareParamsPage(params, null, renderSportRankingsIndex);
 }
 
 async function renderSportRankingsIndex(
@@ -85,7 +80,7 @@ async function renderSportRankingsIndex(
   }
 
   const sportLabel = sportNavLabel(sport, sportData.title);
-  const cards = await getCachedRankingsIndexCards(sport);
+  const cards = await loadRankingsIndexCards(sport);
 
   return (
     <main className="mx-auto max-w-site px-4 pb-12 lg:px-6">

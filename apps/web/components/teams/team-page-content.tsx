@@ -14,6 +14,7 @@ import {
   TeamNewsItem,
   type TeamPost,
 } from "@/components/teams/team-post-card";
+import { TeamHubLogoTransition } from "@/components/view-transitions/team-hub-logo-transition";
 import type { MostReadItem } from "@/lib/most-read-data";
 import {
   footballAffiliationDivisionSlug,
@@ -105,13 +106,25 @@ export function TeamPageContent({
       <header className="mt-4 border-b pb-6">
         <div className="flex flex-wrap items-start gap-5">
           {school.image ? (
-            <CustomImage
-              image={school.image}
-              width={80}
-              height={80}
-              className="size-20 shrink-0 object-contain"
-              mode="contain"
-            />
+            school.slug ? (
+              <TeamHubLogoTransition slug={school.slug}>
+                <CustomImage
+                  image={school.image}
+                  width={80}
+                  height={80}
+                  className="size-20 shrink-0 object-contain"
+                  mode="contain"
+                />
+              </TeamHubLogoTransition>
+            ) : (
+              <CustomImage
+                image={school.image}
+                width={80}
+                height={80}
+                className="size-20 shrink-0 object-contain"
+                mode="contain"
+              />
+            )
           ) : (
             <div
               className="size-20 shrink-0 rounded-full bg-muted"

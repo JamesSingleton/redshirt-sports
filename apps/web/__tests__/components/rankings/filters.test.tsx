@@ -52,6 +52,8 @@ vi.mock("@redshirt-sports/ui/components/select", () => ({
             onValueChange?.("");
           } else if (selectedValue === "bad-week") {
             onValueChange?.("not-a-week");
+          } else if (selectedValue === "2") {
+            onValueChange?.("1");
           } else {
             onValueChange?.("final-rankings");
           }
@@ -124,7 +126,27 @@ describe("RankingsFilters", () => {
     );
     expect(mockPush).toHaveBeenCalledWith(
       "/college/football/rankings/fbs/2024/0",
+      { transitionTypes: ["nav-lateral"] },
     );
+  });
+
+  it("uses nav-back when the selected week is earlier than the route week", async () => {
+    mockParams.week = "2";
+    const user = userEvent.setup();
+    render(
+      <RankingsFilters
+        years={[{ year: 2025 }]}
+        weeks={[{ week: 1 }, { week: 2 }]}
+      />,
+    );
+
+    await user.click(screen.getByTestId("trigger-2"));
+
+    expect(mockPush).toHaveBeenCalledWith(
+      "/college/football/rankings/fbs/2025/1",
+      { transitionTypes: ["nav-back"] },
+    );
+    mockParams.week = "1";
   });
 
   it("navigates with week segment when week changes", async () => {
@@ -147,6 +169,7 @@ describe("RankingsFilters", () => {
     );
     expect(mockPush).toHaveBeenCalledWith(
       "/college/football/rankings/fbs/2025/final-rankings",
+      { transitionTypes: ["nav-forward"] },
     );
   });
 
@@ -216,6 +239,25 @@ describe("RankingsFilters", () => {
     mockParams.sport = "football";
   });
 
+  it("uses lateral transitions when the route week param is missing", async () => {
+    mockParams.week = undefined as never;
+    const user = userEvent.setup();
+    render(
+      <RankingsFilters
+        years={[{ year: 2025 }]}
+        weeks={[{ week: 1 }, { week: 999 }]}
+      />,
+    );
+
+    await user.click(screen.getByTestId("trigger-empty"));
+
+    expect(mockPush).toHaveBeenCalledWith(
+      "/college/football/rankings/fbs/2025/final-rankings",
+      { transitionTypes: ["nav-lateral"] },
+    );
+    mockParams.week = "1";
+  });
+
   it("ignores week changes when the year route param is missing", async () => {
     mockParams.year = undefined as never;
     const user = userEvent.setup();
@@ -251,6 +293,7 @@ describe("RankingsFilters", () => {
 
     expect(mockPush).toHaveBeenCalledWith(
       "/college/football/rankings/fbs/2024/0",
+      { transitionTypes: ["nav-lateral"] },
     );
 
     mockParams.sport = "football";

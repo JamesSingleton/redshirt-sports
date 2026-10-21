@@ -6,9 +6,13 @@ import {
   FooterSkeleton,
 } from "@/components/footer";
 
-const { mockGetDynamicFetchOptions, mockSanityFetch } = vi.hoisted(() => ({
-  mockGetDynamicFetchOptions: vi.fn(),
+const { mockResolveDynamicFetchOptions, mockSanityFetch } = vi.hoisted(() => ({
+  mockResolveDynamicFetchOptions: vi.fn(),
   mockSanityFetch: vi.fn(),
+}));
+
+vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
+  resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -16,7 +20,6 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
     perspective: "published",
     stega: false,
   },
-  getDynamicFetchOptions: mockGetDynamicFetchOptions,
   sanityFetch: mockSanityFetch,
 }));
 
@@ -261,15 +264,15 @@ describe("CachedFooterServer", () => {
 });
 
 describe("DynamicFooterServer", () => {
-  it("loads dynamic fetch options before rendering the cached footer", async () => {
-    mockGetDynamicFetchOptions.mockResolvedValue({
+  it("resolves fetch options before rendering the cached footer", async () => {
+    mockResolveDynamicFetchOptions.mockResolvedValue({
       perspective: "published",
       stega: false,
     });
 
     const component = await DynamicFooterServer();
 
-    expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
+    expect(mockResolveDynamicFetchOptions).toHaveBeenCalled();
     expect(component).toBeTruthy();
   });
 });

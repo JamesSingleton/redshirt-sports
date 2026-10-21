@@ -106,6 +106,23 @@ const latestRankings = [
 ] as never;
 
 describe("NavbarClient", () => {
+  it("renders the shell before deferred rankings resolve", () => {
+    mockUseIsMobile.mockReturnValue(false);
+
+    const rankingsPromise = new Promise<typeof latestRankings>(() => {});
+
+    render(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={settingsData}
+        latestRankingsPromise={rankingsPromise}
+      />,
+    );
+
+    expect(screen.getByText("Redshirt Sports")).toBeInTheDocument();
+    expect(screen.queryByText("Rankings")).not.toBeInTheDocument();
+  });
+
   it("renders the responsive skeleton while mobile state is unknown", () => {
     mockUseIsMobile.mockReturnValue(null);
     const { container } = render(

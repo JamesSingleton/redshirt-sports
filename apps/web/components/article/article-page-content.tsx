@@ -8,6 +8,7 @@ import { ArticleSidebar } from "@/components/article/article-sidebar";
 import { ArticleTaggedTeamsRow } from "@/components/article/article-tagged-teams-row";
 import { RichText } from "@/components/rich-text";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
+import { ArticleHeroTransition } from "@/components/view-transitions/article-hero-transition";
 import {
   articleKicker,
   articleTeamsInStory,
@@ -103,15 +104,17 @@ export function ArticlePageContent({
 
           {post.image ? (
             <figure className="mt-6">
-              <CustomImage
-                image={post.image}
-                width={1200}
-                height={675}
-                className="aspect-video w-full rounded-xl object-cover"
-                priority
-                mode="cover"
-                sizes={IMAGE_SIZES.articleHero}
-              />
+              <ArticleHeroTransition slug={slug}>
+                <CustomImage
+                  image={post.image}
+                  width={1200}
+                  height={675}
+                  className="aspect-video w-full rounded-xl object-cover"
+                  priority
+                  mode="cover"
+                  sizes={IMAGE_SIZES.articleHero}
+                />
+              </ArticleHeroTransition>
               {post.image.credit ? (
                 <figcaption className="mt-2 text-xs text-muted-foreground">
                   {post.image.caption

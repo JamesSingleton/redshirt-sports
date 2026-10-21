@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { RankingsMethodologyContent } from "@/components/rankings/rankings-methodology-content";
-import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedPollWeekBallotContext } from "@/lib/rankings-data";
@@ -34,10 +33,8 @@ export default function RankingsDivisionMethodologyPage({
 }: {
   params: Promise<{ sport: string; division: string }>;
 }) {
-  return draftAwareParamsPage(
-    params,
-    <RankingsTabSkeleton variant="methodology" />,
-    (resolved) => renderMethodologyPage(resolved),
+  return draftAwareParamsPage(params, null, (resolved) =>
+    renderMethodologyPage(resolved),
   );
 }
 
