@@ -1,20 +1,14 @@
-import {
-  type DynamicFetchOptions,
-  getDynamicFetchOptions,
-} from "@redshirt-sports/sanity/live";
-import { draftMode } from "next/headers";
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { type ReactNode, Suspense } from "react";
+
+import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 
 async function DraftAwareRender({
   render,
 }: {
   render: (options: DynamicFetchOptions) => Promise<ReactNode>;
 }) {
-  const { isEnabled: isDraftMode } = await draftMode();
-  if (isDraftMode) {
-    return render(await getDynamicFetchOptions());
-  }
-  return render({ perspective: "published", stega: false });
+  return render(await resolveDynamicFetchOptions());
 }
 
 /** Layer 1 branch: Suspense around draft/runtime reads so Cache Components can prerender a shell. */
@@ -36,23 +30,24 @@ async function DraftAwareParamsRender<P>({
   params: Promise<P>;
   render: (resolved: P, options: DynamicFetchOptions) => Promise<ReactNode>;
 }) {
-  const [{ isEnabled: isDraftMode }, resolved] = await Promise.all([
-    draftMode(),
+  const [options, resolved] = await Promise.all([
+    resolveDynamicFetchOptions(),
     params,
   ]);
 
-  if (isDraftMode) {
-    return render(resolved, await getDynamicFetchOptions());
-  }
-
-  return render(resolved, { perspective: "published", stega: false });
+  return render(resolved, options);
 }
 
 /**
  * Layer 1 branch for routes with dynamic `params`.
  * This Suspense is required so `draftMode()` can prerender a shell. It is
- * the nearest boundary, so `loading.tsx` does not run unless `fallback`
- * is that loading UI.
+ * the nearest Suspense boundary during client navigations. When a segment has
+ * `loading.tsx`, pass the same fallback component exported from that segment's
+ * `loading.tsx` (see `lib/news-archive/page-loading.tsx`) so the skeleton
+ * stays visible if the segment shell streams before async work finishes.
+ * Passing `null` here leaves a blank gap after `loading.tsx` unmounts. Routes
+ * without `loading.tsx` should pass an explicit fallback (e.g. home). Avoid a root
+ * `app/loading.tsx` — it can show while navigating to unrelated routes.
  */
 export function draftAwareParamsPage<P>(
   params: Promise<P>,
@@ -66,6 +61,40 @@ export function draftAwareParamsPage<P>(
   );
 }
 
+async function DraftAwareSearchParamsRender<P>({
+  searchParams,
+  render,
+}: {
+  searchParams: Promise<P>;
+  render: (resolved: P, options: DynamicFetchOptions) => Promise<ReactNode>;
+}) {
+  const [options, resolved] = await Promise.all([
+    resolveDynamicFetchOptions(),
+    searchParams,
+  ]);
+
+  return render(resolved, options);
+}
+
+/**
+ * Layer 1 branch for routes with dynamic `searchParams` (no route `params`).
+ * Resolves draft/runtime fetch options outside `"use cache"` scopes.
+ */
+export function draftAwareSearchParamsPage<P>(
+  searchParams: Promise<P>,
+  fallback: ReactNode,
+  render: (resolved: P, options: DynamicFetchOptions) => Promise<ReactNode>,
+) {
+  return (
+    <Suspense fallback={fallback}>
+      <DraftAwareSearchParamsRender
+        searchParams={searchParams}
+        render={render}
+      />
+    </Suspense>
+  );
+}
+
 async function SearchParamsDynamic({
   render,
 }: {
@@ -74,7 +103,10 @@ async function SearchParamsDynamic({
   return render();
 }
 
-/** For routes that always read searchParams or other dynamic APIs — no draftMode branch. */
+/**
+ * Suspense around searchParams only — no draft branch. Prefer
+ * `draftAwareSearchParamsPage` when the render path uses Sanity perspective/stega.
+ */
 export function searchParamsPage(
   fallback: ReactNode,
   render: () => Promise<ReactNode>,

@@ -85,6 +85,7 @@ const securityHeaders = [
 let nextConfig: NextConfig = {
   ...config,
   cacheComponents: true,
+  partialPrefetching: true,
   cacheLife: { default: sanity },
   async headers() {
     const headers: Header[] = [
@@ -138,7 +139,7 @@ let nextConfig: NextConfig = {
         }>
       >(query);
 
-    return results
+    const cmsRedirects = results
       .filter(
         (redirect) =>
           redirect.source.current.startsWith("/") &&
@@ -149,6 +150,15 @@ let nextConfig: NextConfig = {
         destination: redirect.destination.current,
         permanent: redirect.permanent === true,
       }));
+
+    return [
+      {
+        source: "/authors/:slug",
+        destination: "/people/:slug",
+        permanent: true,
+      },
+      ...cmsRedirects,
+    ];
   },
 };
 

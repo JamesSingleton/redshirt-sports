@@ -39,7 +39,7 @@ describe("Author components", () => {
 
     expect(screen.getByRole("link", { name: "Jane Doe" })).toHaveAttribute(
       "href",
-      "/authors/jane-doe",
+      "/people/jane-doe",
     );
     expect(screen.getByText("Writer, Editor")).toBeInTheDocument();
   });

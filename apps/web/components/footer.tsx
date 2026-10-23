@@ -1,6 +1,5 @@
 import {
   type DynamicFetchOptions,
-  getDynamicFetchOptions,
   sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import {
@@ -14,6 +13,7 @@ import type {
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 
+import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 import {
   BlueSkyIcon,
   Facebook,
@@ -22,7 +22,7 @@ import {
   Twitter,
   YouTubeIcon,
 } from "./icons";
-import CustomImage from "./sanity-image";
+import { Logo } from "./logo";
 
 interface SocialLinksProps {
   data: NonNullable<NonNullable<QueryGlobalSeoSettingsResult>["socialLinks"]>;
@@ -35,8 +35,7 @@ interface FooterProps {
 }
 
 export async function DynamicFooterServer() {
-  const { perspective, stega } = await getDynamicFetchOptions();
-  return <CachedFooterServer perspective={perspective} stega={stega} />;
+  return <CachedFooterServer {...(await resolveDynamicFetchOptions())} />;
 }
 
 export async function CachedFooterServer({
@@ -103,7 +102,7 @@ function SocialLinks({ data }: SocialLinksProps) {
   ].filter((link): link is typeof link & { url: string } => Boolean(link.url));
 
   return (
-    <ul className="text-muted-foreground flex items-center space-x-6">
+    <ul className="flex items-center space-x-6 text-ink-foreground/70">
       {socialLinks.map(({ url, Icon, label }, index) => (
         <li
           key={`social-link-${url}-${index.toString()}`}
@@ -178,74 +177,71 @@ export function FooterSkeleton() {
 
 function Footer({ data, settingsData, copyrightYear }: FooterProps) {
   const { subtitle, columns } = data;
-  const { footerLogo, footerLogoDarkMode, socialLinks } = settingsData;
+  const { logo, footerLogo, footerLogoDarkMode, socialLinks, siteBrand } =
+    settingsData;
+  const brand = siteBrand ?? "Redshirt Sports";
 
   return (
-    <footer className="mt-20 pb-8" aria-labelledby="footer-heading">
+    <footer
+      className="mt-16 bg-ink text-ink-foreground pb-20 lg:pb-0"
+      aria-labelledby="footer-heading"
+    >
       <h2 className="sr-only" id="footer-heading">
         Footer Navigation and Information
       </h2>
-      <div className="container mx-auto">
-        <section className="h-[500px] lg:h-auto">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-10 px-4 text-center md:px-6 lg:flex-row lg:text-left">
-            <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
-              <div>
-                <span className="flex items-center justify-center gap-4 lg:justify-start">
-                  <CustomImage
-                    image={footerLogo}
-                    className="block dark:hidden"
-                  />
-                  <CustomImage
-                    image={footerLogoDarkMode}
-                    className="hidden dark:block"
-                  />
-                </span>
-                {subtitle && (
-                  <p className="text-muted-foreground mt-6 text-sm dark:text-zinc-400">
-                    {subtitle}
-                  </p>
-                )}
-              </div>
-              {socialLinks && <SocialLinks data={socialLinks} />}
+      <div className="mx-auto grid max-w-site gap-10 px-4 py-12 lg:grid-cols-[1.4fr_repeat(4,1fr)] lg:px-6">
+        <div>
+          <Logo
+            alt={brand}
+            image={logo}
+            footerLogo={footerLogo}
+            footerLogoDarkMode={footerLogoDarkMode}
+            variant="footer"
+            priority={false}
+          />
+          {subtitle ? (
+            <p className="mt-3 max-w-xs text-sm text-ink-foreground/70">
+              {subtitle}
+            </p>
+          ) : null}
+          {socialLinks ? (
+            <div className="mt-6">
+              <SocialLinks data={socialLinks} />
             </div>
-            {Array.isArray(columns) && columns?.length > 0 && (
-              <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-12">
-                {columns.map((column) => (
-                  <div key={`column-${column?._key}`}>
-                    <h3 className="mb-6 font-semibold">{column?.title}</h3>
-                    {column?.links && column?.links?.length > 0 && (
-                      <ul className="text-muted-foreground space-y-4 text-sm">
-                        {column?.links?.map((link) => (
-                          <li
-                            key={`${link?._key}-column-${column?._key}`}
-                            className="hover:text-primary font-medium"
-                          >
-                            <Link
-                              href={link.href ?? "#"}
-                              target={link.openInNewTab ? "_blank" : undefined}
-                              rel={
-                                link.openInNewTab
-                                  ? "noopener noreferrer"
-                                  : undefined
-                              }
-                            >
-                              {link.name}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
+          ) : null}
+        </div>
+        {Array.isArray(columns) &&
+          columns.map((column) => (
+            <div key={`column-${column?._key}`}>
+              <div className="kicker mb-3 text-ink-foreground/60">
+                {column?.title}
               </div>
-            )}
-          </div>
-          <div className="mt-20 border-t pt-8">
-            <div className="text-muted-foreground mx-auto flex max-w-7xl flex-col justify-between gap-4 px-4 text-center text-sm font-normal md:px-6 lg:flex-row lg:items-center lg:text-left">
-              <p>© {copyrightYear} Redshirt Sports LLC. All rights reserved.</p>
+              {column?.links && column.links.length > 0 ? (
+                <ul className="grid gap-2 text-sm">
+                  {column.links.map((link) => (
+                    <li key={`${link?._key}-column-${column?._key}`}>
+                      <Link
+                        href={link.href ?? "#"}
+                        className="hover:underline"
+                        target={link.openInNewTab ? "_blank" : undefined}
+                        rel={
+                          link.openInNewTab ? "noopener noreferrer" : undefined
+                        }
+                        prefetch={false}
+                      >
+                        {link.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
-          </div>
-        </section>
+          ))}
+      </div>
+      <div className="border-t border-ink-foreground/10">
+        <p className="mx-auto max-w-site px-4 py-6 text-center text-sm text-ink-foreground/70 lg:px-6 lg:text-left">
+          © {copyrightYear} Redshirt Sports LLC. All rights reserved.
+        </p>
       </div>
     </footer>
   );

@@ -3,7 +3,7 @@ import { MIN_TEAM_PAGE_POSTS } from "@redshirt-sports/sanity/queries";
 import { isTeamPageEligible } from "@/lib/team-page-eligibility";
 
 describe("isTeamPageEligible", () => {
-  it("allows schools with enough posts", () => {
+  it("allows schools with at least one post", () => {
     expect(
       isTeamPageEligible({
         postCount: MIN_TEAM_PAGE_POSTS,
@@ -21,10 +21,10 @@ describe("isTeamPageEligible", () => {
     ).toBe(true);
   });
 
-  it("rejects schools with neither enough posts nor rankings", () => {
+  it("rejects schools with no posts and no rankings", () => {
     expect(
       isTeamPageEligible({
-        postCount: MIN_TEAM_PAGE_POSTS - 1,
+        postCount: 0,
         hasRankings: false,
       }),
     ).toBe(false);

@@ -31,11 +31,31 @@ describe("college rankings sitemap", () => {
     ]);
 
     const entries = await sitemap();
+    const urls = entries.map((e) => e.url);
 
-    expect(entries.map((e) => e.url)).toEqual([
+    expect(urls).toContain(
+      "https://redshirtsports.com/college/football/rankings",
+    );
+    expect(urls).toContain(
       "https://redshirtsports.com/college/football/rankings/fbs/2025/0",
+    );
+    expect(urls).toContain(
+      "https://redshirtsports.com/college/football/rankings/fbs/2025/0/ballots",
+    );
+    expect(urls).toContain(
       "https://redshirtsports.com/college/football/rankings/fcs/2025/3",
+    );
+    expect(urls).toContain(
       "https://redshirtsports.com/college/football/rankings/d2/2024/final-rankings",
-    ]);
+    );
+    expect(urls).toContain(
+      "https://redshirtsports.com/college/football/rankings/fbs/voters",
+    );
+    expect(urls).toContain(
+      "https://redshirtsports.com/college/football/rankings/fcs/history",
+    );
+    expect(urls).toContain(
+      "https://redshirtsports.com/college/football/rankings/d2/methodology",
+    );
   });
 });

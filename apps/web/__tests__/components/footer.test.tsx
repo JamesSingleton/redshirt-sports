@@ -6,9 +6,13 @@ import {
   FooterSkeleton,
 } from "@/components/footer";
 
-const { mockGetDynamicFetchOptions, mockSanityFetch } = vi.hoisted(() => ({
-  mockGetDynamicFetchOptions: vi.fn(),
+const { mockResolveDynamicFetchOptions, mockSanityFetch } = vi.hoisted(() => ({
+  mockResolveDynamicFetchOptions: vi.fn(),
   mockSanityFetch: vi.fn(),
+}));
+
+vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
+  resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -16,7 +20,6 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
     perspective: "published",
     stega: false,
   },
-  getDynamicFetchOptions: mockGetDynamicFetchOptions,
   sanityFetch: mockSanityFetch,
 }));
 
@@ -208,6 +211,28 @@ describe("CachedFooterServer", () => {
     expect(screen.queryByLabelText(/Follow us/i)).not.toBeInTheDocument();
   });
 
+  it("omits link lists when a column has no links", async () => {
+    mockSanityFetch
+      .mockResolvedValueOnce({
+        data: {
+          ...footerData,
+          columns: [{ _key: "empty-col", title: "Empty", links: [] }],
+        },
+      })
+      .mockResolvedValueOnce({ data: settingsData });
+
+    const component = await CachedFooterServer({
+      perspective: "published",
+      stega: false,
+    });
+    render(component);
+
+    expect(screen.getByText("Empty")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "About" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("uses a hash fallback for social links without URLs", async () => {
     mockSanityFetch
       .mockResolvedValueOnce({ data: footerData })
@@ -239,15 +264,15 @@ describe("CachedFooterServer", () => {
 });
 
 describe("DynamicFooterServer", () => {
-  it("loads dynamic fetch options before rendering the cached footer", async () => {
-    mockGetDynamicFetchOptions.mockResolvedValue({
+  it("resolves fetch options before rendering the cached footer", async () => {
+    mockResolveDynamicFetchOptions.mockResolvedValue({
       perspective: "published",
       stega: false,
     });
 
     const component = await DynamicFooterServer();
 
-    expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
+    expect(mockResolveDynamicFetchOptions).toHaveBeenCalled();
     expect(component).toBeTruthy();
   });
 });

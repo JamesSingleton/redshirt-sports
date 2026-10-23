@@ -1,163 +1,54 @@
-import {
-  type DynamicFetchOptions,
-  getDynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
-} from "@redshirt-sports/sanity/live";
-import { collegeNewsQuery } from "@redshirt-sports/sanity/queries";
+import { PUBLISHED_FETCH_OPTIONS } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import type { CollectionPage, WithContext } from "schema-dts";
 
-import ArticleFeed from "@/components/article-feed";
-import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
-import PageHeader from "@/components/page-header";
-import PaginationControls from "@/components/pagination-controls";
-import { perPage } from "@/lib/constants";
-import { searchParamsPage } from "@/lib/draft-cache";
-import { getBaseUrl } from "@/lib/get-base-url";
+import { draftAwareSearchParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
-import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { validatePageIndex } from "@/utils/validate-page-index";
-
-const baseUrl = getBaseUrl();
+import type { NewsArchiveSearchParams } from "@/lib/news-archive";
+import { collegeNewsArchivePageFallback } from "@/lib/news-archive/page-loading";
+import { renderNewsArchiveFromFilters } from "@/lib/news-archive/render-from-filters";
 
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: Promise<NewsArchiveSearchParams>;
 }): Promise<Metadata> {
-  const params = await searchParams;
+  const { page } = await searchParams;
+  const pageIndex = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
   const { perspective } = PUBLISHED_FETCH_OPTIONS;
-  const page = params.page;
-
-  const pageNumber = typeof page === "string" ? parseInt(page, 10) : 1;
-  const isFirstPage = !page || pageNumber <= 1;
-
-  const appName = process.env.NEXT_PUBLIC_APP_NAME;
-
-  const baseTitle = `College Sports News`;
-  const baseCanonical = `/college/news`;
 
   let title: string;
   let description: string;
-  let canonical: string;
+  let canonicalUrl = "/college/news";
 
-  if (isFirstPage) {
-    title = baseTitle;
-    description = `Stay updated with comprehensive college sports coverage: breaking news, game highlights, recruiting, & in-depth analysis from across the NCAA. Get the latest from ${appName}.`;
-    canonical = baseCanonical;
+  if (pageIndex > 1) {
+    title = `College News - Page ${pageIndex}`;
+    description = `Page ${pageIndex} of college sports news from ${process.env.NEXT_PUBLIC_APP_NAME}.`;
+    canonicalUrl = `${canonicalUrl}?page=${pageIndex}`;
   } else {
-    title = `${baseTitle} - Page ${pageNumber}`;
-    description = `Continue reading more college sports news on Page ${pageNumber}. Find the latest updates, player features, and postseason analysis from ${appName}.`;
-    canonical = `${baseCanonical}?page=${pageNumber}`;
+    title = "College News";
+    description =
+      "Every Redshirt story across college football and basketball, newest first.";
   }
 
   return getPageMetadata(
     {
       title,
       description,
-      slug: canonical,
+      slug: canonicalUrl,
     },
     perspective,
   );
 }
 
-const breadcrumbItems = [
-  {
-    title: "News",
-    href: "/college/news",
-  },
-];
-
-export default function CollegeSportsNews({
+export default function CollegeNewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<NewsArchiveSearchParams>;
 }) {
-  return searchParamsPage(null, () => renderCollegeSportsNews(searchParams));
-}
-
-async function renderCollegeSportsNews(
-  searchParams: Promise<{ page?: string }>,
-) {
-  const { page } = await searchParams;
-  const pageIndex = validatePageIndex(page);
-  const { perspective, stega } = await getDynamicFetchOptions();
-  return cachedRenderCollegeSportsNews({ pageIndex, perspective, stega });
-}
-
-async function cachedRenderCollegeSportsNews({
-  pageIndex,
-  perspective,
-  stega,
-}: DynamicFetchOptions & { pageIndex: number }) {
-  "use cache";
-  const from = (pageIndex - 1) * perPage;
-  const to = pageIndex * perPage;
-  const {
-    data: { posts, totalPosts },
-  } = await sanityFetchPage({
-    query: collegeNewsQuery,
-    params: { from, to },
-    perspective,
-    stega,
-  });
-
-  if (posts.length === 0) {
-    notFound();
-  }
-
-  const totalPages = Math.ceil(totalPosts / perPage);
-
-  const newsJsonLd: WithContext<CollectionPage> = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: "College Sports News",
-    url: `${baseUrl}/college/news`,
-    description: `Stay updated with comprehensive college sports coverage: breaking news, game highlights, recruiting, & in-depth analysis from across the NCAA. Get the latest from ${process.env.NEXT_PUBLIC_APP_NAME}.`,
-    isPartOf: {
-      "@type": "WebSite",
-      "@id": websiteId,
-    },
-    publisher: {
-      "@type": "Organization",
-      "@id": organizationId,
-    },
-    mainEntity: {
-      "@type": "ItemList",
-      itemListElement: posts.map((post, index: number) => ({
-        "@id": `${baseUrl}/${post.slug}#article`,
-        position: index + 1,
-      })),
-      numberOfItems: posts.length,
-    },
-    breadcrumb: {
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: baseUrl,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "College Sports News",
-          item: `${baseUrl}/college/news`,
-        },
-      ],
-    },
-  };
-
-  return (
-    <>
-      <JsonLdScript data={newsJsonLd} id="college-sports-news-json-ld" />
-      <PageHeader title="College Sports News" breadcrumbs={breadcrumbItems} />
-      <section className="container pb-12">
-        <ArticleFeed articles={posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={totalPosts} />}
-      </section>
-    </>
+  return draftAwareSearchParamsPage(
+    searchParams,
+    collegeNewsArchivePageFallback(),
+    (filters, options) =>
+      renderNewsArchiveFromFilters({ type: "college" }, filters, options),
   );
 }

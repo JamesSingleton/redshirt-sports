@@ -1,342 +1,267 @@
 "use client";
 
-import { formatWeekSegment } from "@redshirt-sports/clients/espn";
 import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
 } from "@redshirt-sports/sanity/types";
 import { Button } from "@redshirt-sports/ui/components/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@redshirt-sports/ui/components/collapsible";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@redshirt-sports/ui/components/navigation-menu";
-import { ScrollArea } from "@redshirt-sports/ui/components/scroll-area";
+import { Input } from "@redshirt-sports/ui/components/input";
+import { Separator } from "@redshirt-sports/ui/components/separator";
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@redshirt-sports/ui/components/sheet";
-import { ChevronDown, ChevronRight, Menu } from "lucide-react";
+import { cn } from "@redshirt-sports/ui/lib/utils";
+import { ChevronDown, Menu, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { StegaBranded } from "next-sanity";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, Suspense, use, useCallback, useEffect, useState } from "react";
 
+import { SportMegaPanel } from "@/components/chrome/sport-mega-panel";
+import { Logo } from "@/components/logo";
+import { ModeToggle } from "@/components/mode-toggle";
+import type { Top25RankingsData } from "@/components/navbar";
+import { SearchBar } from "@/components/search-bar";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { Logo } from "./logo";
-import { ModeToggle } from "./mode-toggle";
-import type { Top25RankingsData } from "./navbar";
-import { SearchBar } from "./search-bar";
+import {
+  globalRankingsNavHref,
+  SPORT_MEGA_KEY,
+  type SportMegaKey,
+  sportHasRankingsNav,
+  sportHubPath,
+  sportNavLabel,
+  sportRankingsIndexPath,
+} from "@/lib/sport-nav";
 
-const divisionDisplayNames: Record<string, string> = {
-  fbs: "FBS",
-  fcs: "FCS",
-  d2: "Division II",
-  d3: "Division III",
-  naia: "NAIA",
-  "power-conference": "Power Conference",
-  "mid-major": "Mid-Major",
-};
+function useBrand(settingsData: QueryGlobalSeoSettingsResult) {
+  return (
+    settingsData?.siteBrand ?? settingsData?.siteTitle ?? "Redshirt Sports"
+  );
+}
 
 const MobileNavbar = memo(function MobileNavbar({
   navbarData,
   settingsData,
   latestRankings,
+  menuOpen,
+  setMenuOpen,
 }: {
   navbarData: StegaBranded<GlobalNavigationQueryResult>;
   settingsData: QueryGlobalSeoSettingsResult;
   latestRankings: Top25RankingsData;
+  menuOpen: boolean;
+  setMenuOpen: (open: boolean) => void;
 }) {
-  const { siteTitle, logo } = settingsData ?? {};
-  const [isOpen, setIsOpen] = useState(false);
-  const footballRankings = useMemo(
-    () =>
-      latestRankings.find((sportData) => sportData.sport === "football")
-        ?.divisions || [],
-    [latestRankings],
-  );
+  const brand = useBrand(settingsData);
+  const globalRankingsHref = globalRankingsNavHref(latestRankings);
 
-  const path = usePathname();
-
-  useEffect(() => {
-    setIsOpen(false);
-  }, [path]);
+  const close = useCallback(() => setMenuOpen(false), [setMenuOpen]);
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <div className="flex justify-end">
-        <SheetTrigger asChild>
-          <Button variant="outline" size="icon">
-            <Menu className="size-5" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </SheetTrigger>
-      </div>
-      <SheetContent className="overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>
-            {logo && <Logo alt={siteTitle} image={logo} />}
-          </SheetTitle>
-        </SheetHeader>
-        <div className="my-4 flex flex-col gap-4">
-          <div className="border-b px-4 py-3">
-            <SearchBar placeholder="Search articles..." className="w-full" />
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="-ml-1 lg:hidden"
+        aria-label="Open menu"
+        onClick={() => setMenuOpen(true)}
+      >
+        <Menu className="size-5" />
+      </Button>
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent
+          side="left"
+          className="flex w-[85%] max-w-sm flex-col gap-2 overflow-y-auto p-5"
+          aria-label="Site menu"
+        >
+          <SheetTitle className="sr-only">Site menu</SheetTitle>
+          <div className="flex items-center justify-between">
+            <Logo
+              alt={brand}
+              image={settingsData?.logo}
+              footerLogo={settingsData?.footerLogo}
+              footerLogoDarkMode={settingsData?.footerLogoDarkMode}
+              priority
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              aria-label="Close menu"
+              onClick={close}
+            >
+              <X className="size-4" />
+            </Button>
           </div>
-          {navbarData.map((sport) => (
-            <Collapsible key={sport._id}>
-              <CollapsibleTrigger className="hover:bg-muted flex w-full items-center justify-between px-4 py-3 text-left font-medium transition-colors">
-                {sport.name}
-                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-4 pb-2">
-                {sport.groupings.map((grouping) => (
-                  <Collapsible key={grouping?._id}>
-                    <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left font-medium transition-colors">
-                      {grouping?.name} ({grouping?.conferences.length})
-                      <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="px-2 pb-1">
-                      <div className="mt-1 grid grid-cols-1 gap-0.5">
-                        {grouping?.conferences.map((conference) => (
-                          <Link
-                            key={conference._id}
-                            href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}
-                            className="hover:bg-muted block rounded px-2 py-1 transition-colors"
-                            onClick={() => setIsOpen(false)}
-                            prefetch={false}
-                          >
-                            {conference.shortName || conference.name}
-                          </Link>
-                        ))}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
-          ))}
-          {latestRankings && (
-            <Collapsible>
-              <CollapsibleTrigger className="hover:bg-muted flex w-full items-center justify-between px-4 py-3 text-left font-medium transition-colors">
+          <label className="sr-only" htmlFor="sheet-search">
+            Search Redshirt Sports
+          </label>
+          <div className="relative mt-3">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              id="sheet-search"
+              type="search"
+              placeholder="Search Redshirt Sports"
+              className="pl-8"
+            />
+          </div>
+          <nav aria-label="Sports" className="divide-y">
+            {navbarData.map((sport) => (
+              <details key={sport._id} className="group py-1" open>
+                <summary className="flex cursor-pointer list-none items-center justify-between rounded-md px-2 py-2.5 font-display text-base font-bold uppercase tracking-wide hover:bg-accent [&::-webkit-details-marker]:hidden">
+                  {sportNavLabel(sport.slug, sport.name)}
+                  <ChevronDown
+                    className="size-4 opacity-60 transition-transform group-open:rotate-180"
+                    aria-hidden
+                  />
+                </summary>
+                <div className="grid grid-cols-2 gap-1 pb-2 pl-2">
+                  <Link
+                    href={sportHubPath(sport.slug)}
+                    className="rounded-md px-2 py-2 text-sm hover:bg-accent"
+                    prefetch={false}
+                    onClick={close}
+                  >
+                    All {sportNavLabel(sport.slug, sport.name)} news
+                  </Link>
+                  {sportHasRankingsNav(latestRankings, sport.slug) ? (
+                    <Link
+                      href={sportRankingsIndexPath(sport.slug)}
+                      className="rounded-md px-2 py-2 text-sm hover:bg-accent"
+                      prefetch={false}
+                      onClick={close}
+                    >
+                      Rankings
+                    </Link>
+                  ) : null}
+                  {sport.groupings.map((grouping) =>
+                    grouping?.slug ? (
+                      <Link
+                        key={grouping._id}
+                        href={`/college/${sport.slug}/news/${grouping.slug}`}
+                        className="rounded-md px-2 py-2 text-sm hover:bg-accent"
+                        prefetch={false}
+                        onClick={close}
+                      >
+                        {grouping.name} news
+                      </Link>
+                    ) : null,
+                  )}
+                </div>
+              </details>
+            ))}
+          </nav>
+          <Separator />
+          <div className="grid gap-1 text-sm">
+            <Link
+              href="/college/teams"
+              className="flex items-center justify-between rounded-md px-2 py-2 font-semibold hover:bg-accent"
+              prefetch={false}
+              onClick={close}
+            >
+              All teams A–Z
+              <span className="font-mono text-xs font-normal text-muted-foreground">
+                /college/teams
+              </span>
+            </Link>
+            {globalRankingsHref ? (
+              <Link
+                href={globalRankingsHref}
+                className="rounded-md px-2 py-2 hover:bg-accent"
+                prefetch={false}
+                onClick={close}
+              >
                 Rankings
-                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-4 pb-2">
-                {footballRankings && (
-                  <Collapsible>
-                    <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
-                      College Football
-                      <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="px-2 pb-1">
-                      <div className="mt-1 grid grid-cols-1 gap-0.5">
-                        {footballRankings.map((ranking: any) => (
-                          <Link
-                            key={`${ranking?.division}-${ranking?.year}-${ranking?.week}-mobile`}
-                            href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${formatWeekSegment(ranking?.week ?? 0)}`}
-                            className="hover:bg-muted block rounded px-2 py-1 text-xs transition-colors"
-                            onClick={() => setIsOpen(false)}
-                          >
-                            {divisionDisplayNames[ranking?.division] ??
-                              ranking?.division}{" "}
-                            Football Rankings
-                          </Link>
-                        ))}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                )}
-
-                <Collapsible>
-                  <CollapsibleTrigger className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium transition-colors">
-                    Men&apos;s Basketball
-                    <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="px-2 pb-1">
-                    <div className="mt-1 grid grid-cols-1 gap-0.5">
-                      <span className="text-muted-foreground py-1 text-sm">
-                        Coming Soon...
-                      </span>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-
-          <Link
-            href="/college/news"
-            className="hover:bg-muted flex items-center px-4 py-3 text-base font-medium transition-colors"
-            onClick={() => setIsOpen(false)}
-            prefetch={false}
-          >
-            News
-          </Link>
-          {/* <Link
-            href="/recruiting"
-            className="hover:bg-muted flex items-center px-4 py-3 text-base font-medium transition-colors"
-            onClick={() => setIsOpen(false)}
-            prefetch={false}
-          >
-            Recruiting
-          </Link>
-          <Link
-            href="/transfer-portal"
-            className="hover:bg-muted flex items-center px-4 py-3 text-base font-medium transition-colors"
-            onClick={() => setIsOpen(false)}
-            prefetch={false}
-          >
-            Transfer Portal
-          </Link> */}
-        </div>
-      </SheetContent>
-    </Sheet>
+              </Link>
+            ) : null}
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 });
 
-export const DesktopNavbar = memo(function DesktopNavbar({
+const DesktopNavbar = memo(function DesktopNavbar({
   navbarData,
   latestRankings,
+  activeMega,
+  setActiveMega,
 }: {
   navbarData: StegaBranded<GlobalNavigationQueryResult>;
   latestRankings: Top25RankingsData;
+  activeMega: SportMegaKey | null;
+  setActiveMega: (key: SportMegaKey | null) => void;
 }) {
-  const footballRankings = useMemo(
-    () =>
-      latestRankings.find((sportData) => sportData.sport === "football")
-        ?.divisions || [],
-    [latestRankings],
-  );
-
+  const globalRankingsHref = globalRankingsNavHref(latestRankings);
   return (
-    <div className="grid grid-cols-[1fr_auto] items-center gap-8">
-      <NavigationMenu className="hidden lg:flex">
-        <NavigationMenuList>
-          {navbarData.map((sport) => (
-            <NavigationMenuItem key={sport.slug}>
-              <NavigationMenuTrigger>{sport.name}</NavigationMenuTrigger>
-              <NavigationMenuContent key={sport.slug}>
-                <div className="w-[850px] p-4">
-                  <div className="grid grid-cols-4 gap-6">
-                    {sport.groupings.map((grouping) => {
-                      return (
-                        <div className="space-y-3" key={grouping?._id}>
-                          <h3 className="border-b pb-1 text-base font-medium">
-                            {grouping?.name}
-                          </h3>
-                          <ScrollArea
-                            className="h-[280px] pr-4"
-                            scrollHideDelay={0}
-                            type="always"
-                          >
-                            <div className="space-y-1.5">
-                              {grouping?.conferences.map((conference) => (
-                                <Link
-                                  key={conference._id}
-                                  href={`/college/${sport.slug}/news/${grouping.slug}/${conference.slug}`}
-                                  className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
-                                  title={conference.name}
-                                  prefetch={false}
-                                >
-                                  {conference.shortName ?? conference.name}
-                                </Link>
-                              ))}
-                            </div>
-                          </ScrollArea>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          ))}
-
-          {latestRankings && (
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="w-[600px] p-4">
-                  <div className="grid grid-cols-2 gap-6">
-                    {footballRankings && (
-                      <div className="space-y-3">
-                        <h3 className="border-b pb-1 text-base font-medium">
-                          College Football
-                        </h3>
-                        <div className="space-y-1.5">
-                          {footballRankings.map((ranking) => (
-                            <Link
-                              key={`${ranking?.division}-${ranking?.year}-${ranking?.week}`}
-                              href={`/college/football/rankings/${ranking?.division}/${ranking?.year}/${formatWeekSegment(ranking?.week ?? 0)}`}
-                              className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-4 rounded-md p-3 text-sm leading-none font-semibold transition-colors outline-none select-none"
-                            >
-                              {ranking?.division &&
-                              divisionDisplayNames[ranking.division]
-                                ? divisionDisplayNames[ranking.division]
-                                : ranking?.division}{" "}
-                              Football Rankings
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    <div className="space-y-3">
-                      <h3 className="border-b pb-1 text-base font-medium">
-                        Men&apos;s College Basketball
-                      </h3>
-                      <div className="space-y-1.5">
-                        <span className="text-muted-foreground py-1 text-sm">
-                          Coming Soon...
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          )}
-
-          <NavigationMenuItem>
-            <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
-              href="/college/news"
+    <div className="hidden min-w-0 flex-1 items-center lg:flex">
+      <nav
+        className="ml-6 flex flex-1 items-center"
+        aria-label="Sports"
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setActiveMega(null);
+        }}
+      >
+        {navbarData.map((sport) => {
+          const megaKey = SPORT_MEGA_KEY[sport.slug];
+          if (!megaKey) return null;
+          const isOpen = activeMega === megaKey;
+          return (
+            <button
+              key={sport._id}
+              type="button"
+              className={cn(
+                "inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2.5 text-sm font-semibold hover:bg-accent hover:text-accent-foreground",
+                isOpen ? "text-foreground" : "text-muted-foreground",
+              )}
+              aria-expanded={isOpen}
+              aria-controls={`mega-${megaKey}`}
+              onClick={() => setActiveMega(isOpen ? null : megaKey)}
             >
-              News
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-          {/* <NavigationMenuItem>
-            <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
-              href="/recruiting"
-            >
-              Recruiting
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NavigationMenuLink
-              className={navigationMenuTriggerStyle()}
-              href="/transfer-portal"
-            >
-              Transfer Portal
-            </NavigationMenuLink>
-          </NavigationMenuItem> */}
-        </NavigationMenuList>
-      </NavigationMenu>
-
-      <div className="flex items-center gap-4 justify-self-end">
-        <SearchBar placeholder="Search articles..." />
+              {sportNavLabel(sport.slug, sport.name)}
+              <ChevronDown className="size-3.5 opacity-60" aria-hidden />
+            </button>
+          );
+        })}
+        <span className="mx-2 h-5 w-px bg-border" aria-hidden />
+        {globalRankingsHref ? (
+          <Link
+            href={globalRankingsHref}
+            className="shrink-0 whitespace-nowrap px-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
+            prefetch={false}
+          >
+            Rankings
+          </Link>
+        ) : null}
+        <Link
+          href="/college/teams"
+          className="shrink-0 whitespace-nowrap px-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
+          prefetch={false}
+        >
+          Teams
+        </Link>
+      </nav>
+      <div className="ml-auto flex items-center gap-1.5">
+        <SearchBar
+          placeholder="Search Redshirt Sports"
+          className="hidden md:flex"
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          aria-label="Search"
+        >
+          <Search className="size-4" />
+        </Button>
         <ModeToggle />
       </div>
     </div>
@@ -353,54 +278,108 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
   latestRankings: Top25RankingsData;
 }) {
   const isMobile = useIsMobile();
+  const path = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeMega, setActiveMega] = useState<SportMegaKey | null>(null);
+  const brand = useBrand(settingsData);
 
-  // Show skeleton during initial render/hydration to prevent mismatch
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [path]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActiveMega(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const activeSport = navbarData.find(
+    (s) => SPORT_MEGA_KEY[s.slug] === activeMega,
+  );
+
   if (isMobile === null) {
     return <NavbarSkeletonResponsive />;
   }
 
-  return isMobile ? (
-    <MobileNavbar
-      navbarData={navbarData}
-      settingsData={settingsData}
-      latestRankings={latestRankings}
-    />
-  ) : (
-    <DesktopNavbar navbarData={navbarData} latestRankings={latestRankings} />
+  return (
+    <>
+      <div className="flex w-full flex-1 items-center gap-3">
+        {isMobile ? (
+          <MobileNavbar
+            navbarData={navbarData}
+            settingsData={settingsData}
+            latestRankings={latestRankings}
+            menuOpen={menuOpen}
+            setMenuOpen={setMenuOpen}
+          />
+        ) : null}
+        <Logo
+          alt={brand}
+          image={settingsData?.logo}
+          footerLogo={settingsData?.footerLogo}
+          footerLogoDarkMode={settingsData?.footerLogoDarkMode}
+          priority
+        />
+        {!isMobile ? (
+          <DesktopNavbar
+            navbarData={navbarData}
+            latestRankings={latestRankings}
+            activeMega={activeMega}
+            setActiveMega={setActiveMega}
+          />
+        ) : (
+          <div className="ml-auto flex items-center gap-1.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Search"
+            >
+              <Search className="size-4" />
+            </Button>
+            <ModeToggle />
+          </div>
+        )}
+      </div>
+      {!isMobile && activeMega && activeSport ? (
+        <div
+          className="absolute inset-x-0 top-full z-40 border-b bg-popover shadow-lg"
+          onMouseLeave={() => setActiveMega(null)}
+        >
+          <div
+            id={`mega-${activeMega}`}
+            role="region"
+            aria-label={`${sportNavLabel(activeSport.slug, activeSport.name)} menu`}
+          >
+            <SportMegaPanel
+              sport={activeSport}
+              latestRankings={latestRankings}
+              onNavigate={() => setActiveMega(null)}
+            />
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 });
 
 function SkeletonMobileNavbar() {
   return (
-    <div className="md:hidden">
-      <div className="flex justify-end">
-        <div className="bg-muted h-10 w-10 animate-pulse rounded-md" />
-      </div>
+    <div className="flex flex-1 justify-end lg:hidden">
+      <div className="bg-muted size-9 animate-pulse rounded-md" />
     </div>
   );
 }
 
 function SkeletonDesktopNavbar() {
   return (
-    <div className="hidden w-full grid-cols-[1fr_auto] items-center gap-8 md:grid">
-      <div className="flex max-w-max flex-1 items-center justify-center gap-2">
-        {Array.from({ length: 2 }).map((_, index) => (
-          <div
-            key={`nav-item-skeleton-${index.toString()}`}
-            className="bg-muted h-10 w-32 animate-pulse rounded"
-          />
-        ))}
-      </div>
-
-      <div className="justify-self-end">
-        <div className="flex items-center gap-4">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <div
-              key={`nav-button-skeleton-${index.toString()}`}
-              className="bg-muted h-10 w-32 animate-pulse rounded-[10px]"
-            />
-          ))}
-        </div>
+    <div className="hidden flex-1 items-center justify-between lg:flex">
+      <div className="bg-muted h-9 w-64 animate-pulse rounded-md" />
+      <div className="flex gap-2">
+        <div className="bg-muted size-9 animate-pulse rounded-md" />
+        <div className="bg-muted size-9 animate-pulse rounded-md" />
       </div>
     </div>
   );
@@ -415,5 +394,61 @@ export function NavbarSkeletonResponsive() {
   );
 }
 
-// Export the client navbar directly - now SSR-friendly with proper hydration handling
-export const NavbarClient = ClientSideNavbar;
+function NavbarClientResolved({
+  navbarData,
+  settingsData,
+  latestRankingsPromise,
+}: {
+  navbarData: StegaBranded<GlobalNavigationQueryResult>;
+  settingsData: QueryGlobalSeoSettingsResult;
+  latestRankingsPromise: Promise<Top25RankingsData>;
+}) {
+  const latestRankings = use(latestRankingsPromise);
+  return (
+    <ClientSideNavbar
+      navbarData={navbarData}
+      settingsData={settingsData}
+      latestRankings={latestRankings}
+    />
+  );
+}
+
+export function NavbarClient({
+  navbarData,
+  settingsData,
+  latestRankings,
+  latestRankingsPromise,
+}: {
+  navbarData: StegaBranded<GlobalNavigationQueryResult>;
+  settingsData: QueryGlobalSeoSettingsResult;
+  latestRankings?: Top25RankingsData;
+  latestRankingsPromise?: Promise<Top25RankingsData>;
+}) {
+  if (latestRankingsPromise) {
+    return (
+      <Suspense
+        fallback={
+          <ClientSideNavbar
+            navbarData={navbarData}
+            settingsData={settingsData}
+            latestRankings={[]}
+          />
+        }
+      >
+        <NavbarClientResolved
+          navbarData={navbarData}
+          settingsData={settingsData}
+          latestRankingsPromise={latestRankingsPromise}
+        />
+      </Suspense>
+    );
+  }
+
+  return (
+    <ClientSideNavbar
+      navbarData={navbarData}
+      settingsData={settingsData}
+      latestRankings={latestRankings ?? []}
+    />
+  );
+}

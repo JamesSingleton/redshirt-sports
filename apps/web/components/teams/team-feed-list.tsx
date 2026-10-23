@@ -11,7 +11,7 @@ import {
 function TeamArticleFeedItem({ post }: { post: TeamPost }) {
   const href = post.slug ? `/${post.slug}` : null;
   const author = post.authors[0];
-  const authorHref = author?.slug ? `/authors/${author.slug}` : null;
+  const authorHref = author?.slug ? `/people/${author.slug}` : null;
 
   return (
     <article className="flex gap-4 py-5" data-ui="feed-article">

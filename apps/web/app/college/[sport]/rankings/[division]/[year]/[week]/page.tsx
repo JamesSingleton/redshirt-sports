@@ -1,60 +1,15 @@
 import { PUBLISHED_FETCH_OPTIONS } from "@redshirt-sports/sanity/live";
-import { buttonVariants } from "@redshirt-sports/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-} from "@redshirt-sports/ui/components/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@redshirt-sports/ui/components/table";
 import type { Metadata } from "next";
-import { cacheLife, cacheTag } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Fragment, Suspense } from "react";
-import type { Graph } from "schema-dts";
 
-import { JsonLdScript, websiteId } from "@/components/json-ld";
-import { RankingsFilters } from "@/components/rankings/filters";
-import { RankMovement } from "@/components/rankings/rank-movement";
-import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
-import { RankingsVoterBreakdown } from "@/components/rankings/rankings-voter-breakdown";
-import { TeamPageLink } from "@/components/rankings/team-page-link";
-import { VoterBreakdownSkeleton } from "@/components/rankings/voter-breakdown-skeleton";
-import CustomImage from "@/components/sanity-image";
-import { TOP_25 } from "@/lib/constants";
+import { RankingsWeekPageBody } from "@/components/rankings/rankings-week-page-body";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
-import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
-  getCachedFinalRankings,
-  getCachedWeeksThatHaveVotes,
-  getCachedYearsThatHaveVotes,
-  RANKINGS_CACHE_LIFE,
-  RANKINGS_CACHE_TAG,
-  rankingsDivisionTag,
-  rankingsSportTag,
-  rankingsWeekTag,
-} from "@/lib/rankings-data";
-import {
-  buildRankBySchoolId,
-  displayName,
-  getDroppedFromVotes,
-  getDroppedOutOfTop25,
-  getMovement,
-  getPreviousWeek,
-} from "@/lib/rankings-movement";
-import { parseWeekSegment, type SportParam, weekTitle } from "@/utils/espn";
-
-const baseUrl = getBaseUrl();
+  loadRankingsWeekPageModel,
+  pollDivisionLabel,
+} from "@/lib/rankings/read-model";
+import { parseWeekSegment, weekTitle } from "@/utils/espn";
 
 function resolveYearNumber(year: string): number {
   if (!/^\d{4}$/.test(year)) {
@@ -86,11 +41,12 @@ export async function generateMetadata({
   resolveYearNumber(year);
   const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
+  const divisionName = pollDivisionLabel(division);
 
   return getPageMetadata(
     {
-      title: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings`,
-      description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
+      title: `${year} ${titleWeek} ${divisionName} Top 25 Rankings`,
+      description: `Discover the ${year} ${titleWeek} ${divisionName} Top 25 rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
       slug: `/college/${sport}/rankings/${division}/${year}/${week}`,
     },
     perspective,
@@ -107,7 +63,7 @@ export default function CollegeFootballRankingsPage({
     week: string;
   }>;
 }) {
-  return draftAwareParamsPage(params, <RankingsPageSkeleton />, (resolved) =>
+  return draftAwareParamsPage(params, null, (resolved) =>
     renderCollegeFootballRankingsPage(resolved),
   );
 }
@@ -124,286 +80,11 @@ async function renderCollegeFootballRankingsPage({
   week: string;
 }) {
   "use cache";
-
-  const yearNumber = resolveYearNumber(year);
-  const weekNumber = resolveWeekNumber(week);
-  const titleWeek = weekTitle(weekNumber);
-  const sportParam = sport as SportParam;
-
-  cacheTag(
-    RANKINGS_CACHE_TAG,
-    rankingsSportTag(sportParam),
-    rankingsDivisionTag(sportParam, division),
-    rankingsWeekTag(sportParam, division, yearNumber, weekNumber),
-  );
-  cacheLife(RANKINGS_CACHE_LIFE);
-
-  const [yearsWithVotesResult, weeksWithVotesResult] = await Promise.allSettled(
-    [
-      getCachedYearsThatHaveVotes({ division }),
-      getCachedWeeksThatHaveVotes({ year: yearNumber, division }),
-    ],
-  );
-
-  const yearsWithVotes =
-    yearsWithVotesResult.status === "fulfilled"
-      ? yearsWithVotesResult.value
-      : [];
-  const weeksWithVotes =
-    weeksWithVotesResult.status === "fulfilled"
-      ? weeksWithVotesResult.value
-      : [];
-
-  if (!yearsWithVotes.length || !weeksWithVotes.length) {
-    notFound();
-  }
-
-  const previousWeek = getPreviousWeek(weeksWithVotes, weekNumber);
-
-  const [finalRankingsResult, previousRankingsResult] =
-    await Promise.allSettled([
-      getCachedFinalRankings({
-        year: yearNumber,
-        week: weekNumber,
-        division,
-        sport: sportParam,
-      }),
-      previousWeek != null
-        ? getCachedFinalRankings({
-            year: yearNumber,
-            week: previousWeek,
-            division,
-            sport: sportParam,
-          })
-        : Promise.resolve(null),
-    ]);
-
-  if (finalRankingsResult.status === "rejected") {
-    notFound();
-  }
-
-  const { rankings } = finalRankingsResult.value;
-  const previousRankings =
-    previousRankingsResult.status === "fulfilled" &&
-    previousRankingsResult.value != null
-      ? previousRankingsResult.value.rankings
-      : null;
-
-  const previousRankById = previousRankings
-    ? buildRankBySchoolId(previousRankings)
-    : null;
-
-  const top25 = rankings.filter((team) => team.rank && team.rank <= TOP_25);
-  const outsideTop25 = rankings.filter(
-    (team) => !team.rank || team.rank > TOP_25,
-  );
-
-  const droppedOutOfTop25 = previousRankings
-    ? getDroppedOutOfTop25(previousRankings, rankings)
-    : [];
-  const droppedOutIds = new Set(droppedOutOfTop25.map((t) => t._id));
-  const noLongerReceivingVotes = previousRankings
-    ? getDroppedFromVotes(previousRankings, rankings).filter(
-        (t) => !droppedOutIds.has(t._id),
-      )
-    : [];
-
-  const jsonLd: Graph = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebPage",
-        "@id": `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#webpage`,
-        url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
-        name: `${year} ${titleWeek} ${division.toUpperCase()} Top 25 Rankings | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-        description: `Discover the ${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
-        isPartOf: {
-          "@type": "WebSite",
-          "@id": websiteId,
-        },
-        inLanguage: "en-US",
-        mainEntity: {
-          "@id": `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
-        },
-      },
-      {
-        "@type": "ItemList",
-        "@id": `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}#rankings`,
-        url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${week}`,
-        numberOfItems: top25.length,
-        itemListOrder: "https://schema.org/ItemListOrderAscending",
-        itemListElement: top25.map((team) => ({
-          "@type": "ListItem" as const,
-          position: team.rank as number,
-          item: {
-            "@type": "SportsTeam" as const,
-            name: team.shortName,
-            sport: sport,
-          },
-        })),
-      },
-    ],
-  };
-
-  return (
-    <div className="container mx-auto gap-8 px-4 py-8">
-      <JsonLdScript
-        data={jsonLd}
-        id={`json-ld-${sport}-${division}-${year}-${week}`}
-      />
-      <Card>
-        <CardHeader>
-          <h1 className="text-2xl leading-none font-semibold tracking-tight">{`${year} ${titleWeek} ${division.toUpperCase()} Top 25 College Football Rankings`}</h1>
-          <CardDescription>
-            Our {division.toUpperCase()} Top 25 uses a point system: 25 points
-            for a first-place vote down to 1 point for a 25th-place vote. Total
-            points determine the final rankings.
-          </CardDescription>
-          <CardDescription className="flex items-center space-x-4 pt-4">
-            <RankingsFilters years={yearsWithVotes} weeks={weeksWithVotes} />
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {top25.length > 0 && (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Rank</TableHead>
-                  <TableHead>Trend</TableHead>
-                  <TableHead>School (1st Place Votes)</TableHead>
-                  <TableHead>Points</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {top25.map((team) => {
-                  const movement = previousRankById
-                    ? getMovement(team.rank, previousRankById.get(team._id))
-                    : null;
-
-                  return (
-                    <TableRow key={team._id}>
-                      <TableCell>
-                        {team.isTie ? `T-${team.rank}` : team.rank}
-                      </TableCell>
-                      <TableCell>
-                        {movement ? (
-                          <RankMovement movement={movement} />
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <TeamPageLink
-                            slug={team.slug}
-                            className="flex items-center hover:underline"
-                          >
-                            <CustomImage
-                              image={
-                                team.image as Parameters<
-                                  typeof CustomImage
-                                >[0]["image"]
-                              }
-                              width={40}
-                              height={40}
-                              className="mr-2 size-10 shrink-0 object-contain"
-                              mode="contain"
-                            />
-                            {team.shortName ?? team.abbreviation ?? team.name}
-                          </TeamPageLink>
-                          {team.firstPlaceVotes ? (
-                            <span className="text-muted-foreground ml-2 tracking-wider">
-                              ({team.firstPlaceVotes})
-                            </span>
-                          ) : null}
-                        </div>
-                      </TableCell>
-                      <TableCell>{team._points}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
-          {top25.length === 0 && (
-            <div className="mx-auto max-w-md text-center">
-              <h2 className="text-foreground mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
-                Top 25 Poll Not Found
-              </h2>
-              <p className="text-muted-foreground mt-4">
-                We&apos;re sorry, but the selected Top 25 poll could not be
-                found. Please try again or check back later.
-              </p>
-              <div className="mt-6">
-                <Link href="/" className={buttonVariants()} prefetch={false}>
-                  Go back Home
-                </Link>
-              </div>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter>
-          {(droppedOutOfTop25.length > 0 ||
-            outsideTop25.length > 0 ||
-            noLongerReceivingVotes.length > 0) && (
-            <div className="mt-4 space-y-2">
-              {droppedOutOfTop25.length > 0 && (
-                <p>
-                  <strong>Dropped Out of Top 25:</strong>{" "}
-                  {droppedOutOfTop25.map((team, index) => (
-                    <Fragment key={team._id}>
-                      {index > 0 ? ", " : null}
-                      <TeamPageLink slug={team.slug}>
-                        {displayName(team)} ({team.previousRank})
-                      </TeamPageLink>
-                    </Fragment>
-                  ))}
-                </p>
-              )}
-              {outsideTop25.length > 0 && (
-                <p>
-                  <strong>Others receiving votes:</strong>{" "}
-                  {outsideTop25.map((team, index) => (
-                    <Fragment key={team._id}>
-                      {index > 0 ? ", " : null}
-                      <TeamPageLink slug={team.slug}>
-                        {team.shortName} {team._points}
-                      </TeamPageLink>
-                    </Fragment>
-                  ))}
-                </p>
-              )}
-              {noLongerReceivingVotes.length > 0 && (
-                <p>
-                  <strong>No longer receiving votes:</strong>{" "}
-                  {noLongerReceivingVotes.map((team, index) => (
-                    <Fragment key={team._id}>
-                      {index > 0 ? ", " : null}
-                      <TeamPageLink slug={team.slug}>
-                        {displayName(team)}
-                      </TeamPageLink>
-                    </Fragment>
-                  ))}
-                </p>
-              )}
-            </div>
-          )}
-        </CardFooter>
-      </Card>
-      {top25.length > 0 ? (
-        <Suspense fallback={<VoterBreakdownSkeleton />}>
-          <RankingsVoterBreakdown
-            division={division}
-            year={yearNumber}
-            week={weekNumber}
-            sport={sportParam}
-            consensusRanks={top25.map((team) => ({
-              id: team._id,
-              rank: team.rank as number,
-            }))}
-          />
-        </Suspense>
-      ) : null}
-    </div>
-  );
+  const model = await loadRankingsWeekPageModel({
+    sport,
+    division,
+    year,
+    week,
+  });
+  return <RankingsWeekPageBody model={model} />;
 }

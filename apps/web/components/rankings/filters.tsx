@@ -14,6 +14,9 @@ import {
 } from "@redshirt-sports/ui/components/select";
 import { useParams, useRouter } from "next/navigation";
 
+import { rankingsWeekNavTransitionTypes } from "@/lib/rankings-week-nav-transition";
+import { NAV_LATERAL_TRANSITION } from "@/lib/view-transition-nav";
+
 type Week = {
   week: number;
 };
@@ -55,6 +58,7 @@ export const RankingsFilters = ({
     });
     router.push(
       `/college/${sportSlug}/rankings/${divisionSlug}/${nextYear}/${formatWeekSegment(0)}`,
+      { transitionTypes: [...NAV_LATERAL_TRANSITION] },
     );
   };
 
@@ -79,8 +83,11 @@ export const RankingsFilters = ({
       division: divisionSlug,
       year: yearSlug,
     });
+    const transitionTypes = rankingsWeekNavTransitionTypes(weekSlug, segment);
+
     router.push(
       `/college/${sportSlug}/rankings/${divisionSlug}/${yearSlug}/${segment}`,
+      { transitionTypes: [...transitionTypes] },
     );
   };
 

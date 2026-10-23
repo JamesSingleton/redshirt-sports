@@ -1,7 +1,6 @@
 import { urlFor } from "@redshirt-sports/sanity/client";
 import {
   type DynamicFetchOptions,
-  getDynamicFetchOptions,
   sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import { querySettingsData } from "@redshirt-sports/sanity/queries";
@@ -22,6 +21,7 @@ import type {
 
 import { getArticleTagNames } from "@/lib/article-seo";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 import { getCollegeSportSection } from "@/lib/sport-section";
 
 const baseUrl = getBaseUrl();
@@ -216,7 +216,7 @@ export function buildPostPageJsonLd(
             "@type": "Person",
             name: author?.name ?? undefined,
             url: author?.slug
-              ? `${resolvedBaseUrl}/authors/${author.slug}`
+              ? `${resolvedBaseUrl}/people/${author.slug}`
               : undefined,
           } as Person;
         })
@@ -467,8 +467,7 @@ export function WebSiteJsonLd({ settings }: { settings: any }) {
 }
 
 export async function DynamicCombinedJsonLd() {
-  const { perspective, stega } = await getDynamicFetchOptions();
-  return <CachedCombinedJsonLd perspective={perspective} stega={stega} />;
+  return <CachedCombinedJsonLd {...(await resolveDynamicFetchOptions())} />;
 }
 
 export async function CachedCombinedJsonLd({

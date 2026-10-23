@@ -8,8 +8,10 @@ import {
 import userEvent from "@testing-library/user-event";
 
 import {
+  ArticleShareToolbar,
   LargeArticleSocialShare,
   SmallArticleSocialShare,
+  shareArticleUrl,
 } from "@/components/posts/article-share";
 
 vi.mock("@/lib/get-base-url", () => ({
@@ -20,13 +22,30 @@ describe("Article share components", () => {
   const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
   const writeText = vi.fn().mockResolvedValue(undefined);
 
+  const installNavigator = (overrides?: {
+    share?: unknown;
+    clipboard?: unknown;
+  }) => {
+    const navigatorStub = {
+      share: undefined,
+      clipboard: { writeText },
+      ...overrides,
+    };
+    vi.stubGlobal("navigator", navigatorStub);
+    Object.defineProperty(window, "navigator", {
+      configurable: true,
+      value: navigatorStub,
+    });
+  };
+
   beforeEach(() => {
     openSpy.mockClear();
     writeText.mockClear();
-    Object.defineProperty(globalThis.navigator, "clipboard", {
-      configurable: true,
-      value: { writeText },
-    });
+    installNavigator();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   afterAll(() => {
@@ -123,6 +142,73 @@ describe("Article share components", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("no-ops in the toolbar when share and clipboard are unavailable", async () => {
+    installNavigator({ share: undefined, clipboard: undefined });
+
+    const user = userEvent.setup();
+    render(<ArticleShareToolbar slug="toolbar-game" title="Toolbar Game" />);
+
+    await user.click(screen.getByRole("button", { name: "Share" }));
+
+    expect(writeText).not.toHaveBeenCalled();
+  });
+
+  it("falls back to clipboard when Web Share is dismissed", async () => {
+    const share = vi.fn().mockRejectedValue(new Error("dismissed"));
+
+    await shareArticleUrl({
+      url: "https://redshirtsports.com/toolbar-game",
+      title: "Toolbar Game",
+      navigator: { share, clipboard: { writeText } },
+    });
+
+    expect(share).toHaveBeenCalledWith({
+      url: "https://redshirtsports.com/toolbar-game",
+      title: "Toolbar Game",
+    });
+    expect(writeText).toHaveBeenCalledWith(
+      "https://redshirtsports.com/toolbar-game",
+    );
+  });
+
+  it("ignores a dismissed share sheet when clipboard is unavailable", async () => {
+    const share = vi.fn().mockRejectedValue(new Error("dismissed"));
+    installNavigator({ share, clipboard: undefined });
+
+    const user = userEvent.setup();
+    render(<ArticleShareToolbar slug="toolbar-game" title="Toolbar Game" />);
+
+    await user.click(screen.getByRole("button", { name: "Share" }));
+    expect(writeText).not.toHaveBeenCalled();
+  });
+
+  it("uses the Web Share API in the toolbar when available", async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    installNavigator({ share });
+
+    const user = userEvent.setup();
+    render(<ArticleShareToolbar slug="toolbar-game" title="Toolbar Game" />);
+
+    await user.click(screen.getByRole("button", { name: "Share" }));
+
+    expect(share).toHaveBeenCalledWith({
+      url: "https://redshirtsports.com/toolbar-game",
+      title: "Toolbar Game",
+    });
+  });
+
+  it("falls back to clipboard when Web Share is unavailable", async () => {
+    await shareArticleUrl({
+      url: "https://redshirtsports.com/toolbar-game",
+      title: "Toolbar Game",
+      navigator: { clipboard: { writeText } },
+    });
+
+    expect(writeText).toHaveBeenCalledWith(
+      "https://redshirtsports.com/toolbar-game",
+    );
   });
 
   it("resets copied state after the clipboard timeout on the small layout", async () => {

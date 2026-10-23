@@ -1,14 +1,18 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import {
-  DesktopNavbar,
   NavbarClient,
   NavbarSkeletonResponsive,
 } from "@/components/navbar-client";
 
-const { mockUseIsMobile } = vi.hoisted(() => ({
+const { mockUseIsMobile, mockUsePathname } = vi.hoisted(() => ({
   mockUseIsMobile: vi.fn(),
+  mockUsePathname: vi.fn(() => "/"),
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: mockUsePathname,
 }));
 
 vi.mock("@/hooks/use-is-mobile", () => ({
@@ -45,30 +49,12 @@ vi.mock("@/components/mode-toggle", () => ({
   ModeToggle: () => <button type="button">Toggle theme</button>,
 }));
 
-vi.mock("@redshirt-sports/ui/components/navigation-menu", () => ({
-  NavigationMenu: ({ children }: { children: React.ReactNode }) => (
-    <nav>{children}</nav>
+vi.mock("@/components/chrome/sport-mega-panel", () => ({
+  SportMegaPanel: ({ onNavigate }: { onNavigate: () => void }) => (
+    <button type="button" data-testid="sport-mega-panel" onClick={onNavigate}>
+      Mega
+    </button>
   ),
-  NavigationMenuList: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  NavigationMenuItem: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  NavigationMenuTrigger: ({ children }: { children: React.ReactNode }) => (
-    <button type="button">{children}</button>
-  ),
-  NavigationMenuContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  NavigationMenuLink: ({
-    children,
-    href,
-  }: {
-    children: React.ReactNode;
-    href: string;
-  }) => <a href={href}>{children}</a>,
-  navigationMenuTriggerStyle: () => "nav-link",
 }));
 
 const navbarData = [
@@ -88,34 +74,55 @@ const navbarData = [
             shortName: "SEC",
             slug: "sec",
           },
-          {
-            _id: "conf-2",
-            name: "Atlantic Coast Conference",
-            shortName: null,
-            slug: "acc",
-          },
         ],
       },
+      {
+        _id: "group-2",
+        name: "Invalid",
+        slug: null,
+        conferences: [],
+      },
     ],
+  },
+  {
+    _id: "sport-2",
+    name: "Lacrosse",
+    slug: "lacrosse",
+    groupings: [],
   },
 ] as never;
 
 const settingsData = {
   siteTitle: "Redshirt Sports",
+  siteBrand: "Redshirt Sports",
   logo: { alt: "Logo" },
 } as never;
 
 const latestRankings = [
   {
     sport: "football",
-    divisions: [
-      { division: "fbs", week: 1, year: 2025 },
-      { division: "fcs", week: 1, year: 2025 },
-    ],
+    divisions: [{ division: "fcs", week: 7, year: 2026 }],
   },
 ] as never;
 
 describe("NavbarClient", () => {
+  it("renders the shell before deferred rankings resolve", () => {
+    mockUseIsMobile.mockReturnValue(false);
+
+    const rankingsPromise = new Promise<typeof latestRankings>(() => {});
+
+    render(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={settingsData}
+        latestRankingsPromise={rankingsPromise}
+      />,
+    );
+
+    expect(screen.getByText("Redshirt Sports")).toBeInTheDocument();
+    expect(screen.queryByText("Rankings")).not.toBeInTheDocument();
+  });
+
   it("renders the responsive skeleton while mobile state is unknown", () => {
     mockUseIsMobile.mockReturnValue(null);
     const { container } = render(
@@ -131,7 +138,7 @@ describe("NavbarClient", () => {
     );
   });
 
-  it("renders the desktop navbar", () => {
+  it("renders the desktop navbar with sport mega trigger and utility links", () => {
     mockUseIsMobile.mockReturnValue(false);
     render(
       <NavbarClient
@@ -141,52 +148,22 @@ describe("NavbarClient", () => {
       />,
     );
 
-    expect(screen.getByText("Football")).toBeInTheDocument();
-    expect(screen.getByText("Rankings")).toBeInTheDocument();
-    expect(screen.getByText("News")).toBeInTheDocument();
-    expect(screen.getByLabelText("Search articles...")).toBeInTheDocument();
-  });
-
-  it("renders the mobile navbar menu trigger", () => {
-    mockUseIsMobile.mockReturnValue(true);
-    render(
-      <NavbarClient
-        navbarData={navbarData}
-        settingsData={settingsData}
-        latestRankings={latestRankings}
-      />,
-    );
-
     expect(
-      screen.getByRole("button", { name: "Open menu" }),
+      screen.getByRole("button", { name: /College Football/i }),
     ).toBeInTheDocument();
-  });
-
-  it("opens mobile conference and rankings navigation", async () => {
-    mockUseIsMobile.mockReturnValue(true);
-    const user = userEvent.setup();
-    render(
-      <NavbarClient
-        navbarData={navbarData}
-        settingsData={settingsData}
-        latestRankings={latestRankings}
-      />,
-    );
-
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-    await user.click(screen.getByRole("button", { name: "Football" }));
-    await user.click(screen.getByRole("button", { name: /FBS \(2\)/i }));
-
-    const conferenceLink = screen.getByRole("link", { name: "SEC" });
-    expect(conferenceLink).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Rankings" })).toHaveAttribute(
       "href",
-      "/college/football/news/fbs/sec",
+      "/college/football/rankings",
     );
-    await user.click(conferenceLink);
+    expect(screen.getByRole("link", { name: "Teams" })).toHaveAttribute(
+      "href",
+      "/college/teams",
+    );
+    expect(screen.getByLabelText("Search Redshirt Sports")).toBeInTheDocument();
   });
 
-  it("opens mobile rankings navigation", async () => {
-    mockUseIsMobile.mockReturnValue(true);
+  it("opens the desktop sport mega panel with division news links", async () => {
+    mockUseIsMobile.mockReturnValue(false);
     const user = userEvent.setup();
     render(
       <NavbarClient
@@ -196,195 +173,181 @@ describe("NavbarClient", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-    await user.click(screen.getByRole("button", { name: "Rankings" }));
     await user.click(screen.getByRole("button", { name: /College Football/i }));
 
-    const rankingsLink = screen.getByRole("link", {
-      name: /FBS Football Rankings/i,
-    });
-    expect(rankingsLink).toHaveAttribute(
-      "href",
-      "/college/football/rankings/fbs/2025/1",
-    );
-    await user.click(rankingsLink);
-
-    // Link onClick closes the sheet; reopen to assert remaining nav.
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-    expect(screen.getByRole("link", { name: "News" })).toHaveAttribute(
-      "href",
-      "/college/news",
-    );
+    expect(screen.getByTestId("sport-mega-panel")).toBeInTheDocument();
   });
 
-  it("navigates every mobile menu path including basketball and conference fallbacks", async () => {
+  it("renders the mobile menu trigger and sheet navigation", async () => {
     mockUseIsMobile.mockReturnValue(true);
     const user = userEvent.setup();
-    const rankingsWithUnknownDivision = [
-      {
-        sport: "football",
-        divisions: [{ division: "custom-division", week: 2, year: 2025 }],
-      },
-    ] as never;
-
     render(
       <NavbarClient
         navbarData={navbarData}
         settingsData={settingsData}
-        latestRankings={rankingsWithUnknownDivision}
+        latestRankings={latestRankings}
       />,
     );
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
-    await user.click(screen.getByRole("button", { name: "Football" }));
-    await user.click(screen.getByRole("button", { name: /FBS \(2\)/i }));
 
-    const accLink = screen.getByRole("link", {
-      name: "Atlantic Coast Conference",
-    });
-    expect(accLink).toHaveAttribute("href", "/college/football/news/fbs/acc");
-    await user.click(accLink);
+    expect(
+      screen.getByRole("link", { name: /All College Football news/i }),
+    ).toHaveAttribute("href", "/college/football/news");
+    const rankingsLinks = screen.getAllByRole("link", { name: "Rankings" });
+    expect(
+      rankingsLinks.some(
+        (link) => link.getAttribute("href") === "/college/football/rankings",
+      ),
+    ).toBe(true);
 
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-    await user.click(screen.getByRole("button", { name: "Rankings" }));
-    await user.click(screen.getByRole("button", { name: /College Football/i }));
-    await user.click(
-      screen.getByRole("link", { name: /custom-division Football Rankings/i }),
+    expect(screen.getByRole("link", { name: /FBS news/i })).toHaveAttribute(
+      "href",
+      "/college/football/news/fbs",
     );
 
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-    await user.click(screen.getByRole("button", { name: "Rankings" }));
-    await user.click(screen.getByRole("button", { name: /Men's Basketball/i }));
-    expect(screen.getByText("Coming Soon...")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("link", { name: "News" }));
-  });
-});
-
-describe("DesktopNavbar", () => {
-  it("renders football rankings links with display names", () => {
-    render(
-      <DesktopNavbar navbarData={navbarData} latestRankings={latestRankings} />,
-    );
-
-    expect(
-      screen.getByRole("link", { name: /FBS Football Rankings/i }),
-    ).toHaveAttribute("href", "/college/football/rankings/fbs/2025/1");
-    expect(
-      screen.getByRole("link", { name: /FCS Football Rankings/i }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Coming Soon...")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Close menu" }));
   });
 
-  it("falls back when ranking week and division labels are missing", () => {
-    render(
-      <DesktopNavbar
-        navbarData={
-          [
-            {
-              _id: "sport-1",
-              name: "Football",
-              slug: "football",
-              groupings: [
-                {
-                  _id: "group-1",
-                  name: "FBS",
-                  slug: "fbs",
-                  conferences: [
-                    {
-                      _id: "conf-1",
-                      name: "Big Ten Conference",
-                      shortName: null,
-                      slug: "big-ten",
-                    },
-                  ],
-                },
-              ],
-            },
-          ] as never
-        }
-        latestRankings={
-          [
-            {
-              sport: "football",
-              divisions: [{ division: undefined, week: undefined, year: 2025 }],
-            },
-          ] as never
-        }
-      />,
-    );
-
-    expect(
-      screen.getByRole("link", { name: "Big Ten Conference" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /Football Rankings/i }),
-    ).toHaveAttribute("href", "/college/football/rankings/undefined/2025/0");
-  });
-
-  it("uses an empty divisions list when football rankings are absent", () => {
-    render(
-      <DesktopNavbar
+  it("cleans up the global Escape listener on unmount", () => {
+    mockUseIsMobile.mockReturnValue(false);
+    const { unmount } = render(
+      <NavbarClient
         navbarData={navbarData}
-        latestRankings={[{ sport: "basketball", divisions: [] }] as never}
+        settingsData={settingsData}
+        latestRankings={latestRankings}
       />,
     );
 
-    expect(screen.getByText("Rankings")).toBeInTheDocument();
+    unmount();
+    fireEvent.keyDown(window, { key: "Escape" });
+  });
+
+  it("opens the desktop mega panel and closes it with Escape", async () => {
+    mockUseIsMobile.mockReturnValue(false);
+    const user = userEvent.setup();
+    render(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={settingsData}
+        latestRankings={latestRankings}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: /College Football/i });
+    await user.click(trigger);
+    expect(screen.getByTestId("sport-mega-panel")).toBeInTheDocument();
+
+    await user.click(trigger);
+    expect(screen.queryByTestId("sport-mega-panel")).not.toBeInTheDocument();
+
+    await user.click(trigger);
+    fireEvent.keyDown(screen.getByRole("navigation", { name: "Sports" }), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("sport-mega-panel")).not.toBeInTheDocument();
+
+    await user.click(trigger);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByTestId("sport-mega-panel")).not.toBeInTheDocument();
+
+    await user.click(trigger);
+    const region = screen.getByRole("region", {
+      name: /College Football menu/i,
+    });
+    fireEvent.mouseLeave(region.parentElement!);
+    expect(screen.queryByTestId("sport-mega-panel")).not.toBeInTheDocument();
+
+    await user.click(trigger);
+    await user.click(screen.getByTestId("sport-mega-panel"));
+    expect(screen.queryByTestId("sport-mega-panel")).not.toBeInTheDocument();
+  });
+
+  it("renders the mobile search control when the menu is closed", () => {
+    mockUseIsMobile.mockReturnValue(true);
+    render(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={settingsData}
+        latestRankings={[]}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Search" })).toBeInTheDocument();
     expect(
-      screen.queryByRole("link", { name: /Football Rankings/i }),
+      screen.queryByRole("link", { name: "Rankings" }),
     ).not.toBeInTheDocument();
   });
-});
 
-describe("NavbarClient mobile edge cases", () => {
-  it("handles missing settings and ranking week fallbacks on mobile", async () => {
-    mockUseIsMobile.mockReturnValue(true);
-    const user = userEvent.setup();
-
+  it("uses site title when site brand is missing", () => {
+    mockUseIsMobile.mockReturnValue(false);
     render(
       <NavbarClient
         navbarData={navbarData}
-        settingsData={null as never}
-        latestRankings={
-          [
-            {
-              sport: "football",
-              divisions: [{ division: "fbs", year: 2025 }],
-            },
-          ] as never
+        settingsData={
+          { siteTitle: "Fallback Title", logo: { alt: "Logo" } } as never
         }
+        latestRankings={latestRankings}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-    await user.click(screen.getByRole("button", { name: "Rankings" }));
-    await user.click(screen.getByRole("button", { name: /College Football/i }));
-
-    expect(
-      screen.getByRole("link", { name: /FBS Football Rankings/i }),
-    ).toHaveAttribute("href", "/college/football/rankings/fbs/2025/0");
+    expect(screen.getByText("Fallback Title")).toBeInTheDocument();
   });
 
-  it("uses an empty football divisions list when the sport is missing", async () => {
-    mockUseIsMobile.mockReturnValue(true);
-    const user = userEvent.setup();
+  it("falls back to the default brand label when settings are sparse", () => {
+    mockUseIsMobile.mockReturnValue(false);
+    render(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={{ logo: { alt: "Logo" } } as never}
+        latestRankings={latestRankings}
+      />,
+    );
 
+    expect(screen.getByText("Redshirt Sports")).toBeInTheDocument();
+  });
+
+  it("hides global rankings links when there is no latest poll data", () => {
+    mockUseIsMobile.mockReturnValue(false);
     render(
       <NavbarClient
         navbarData={navbarData}
         settingsData={settingsData}
-        latestRankings={[] as never}
+        latestRankings={[]}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("link", { name: "Rankings" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("closes the mobile sheet when the pathname changes", async () => {
+    mockUseIsMobile.mockReturnValue(true);
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={settingsData}
+        latestRankings={latestRankings}
       />,
     );
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
-    await user.click(screen.getByRole("button", { name: "Rankings" }));
-    await user.click(screen.getByRole("button", { name: /Men's Basketball/i }));
-    expect(screen.getByText("Coming Soon...")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("link", { name: /Football Rankings/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog")).toHaveAttribute("data-state", "open");
+
+    mockUsePathname.mockReturnValue("/college/football/news");
+    rerender(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={settingsData}
+        latestRankings={[...latestRankings]}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
   });
 });
 

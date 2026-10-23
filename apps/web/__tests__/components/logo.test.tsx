@@ -71,7 +71,19 @@ describe("Logo", () => {
   it("uses the default logo URL when src is omitted", () => {
     render(<Logo alt={null} />);
 
-    const img = screen.getByRole("img", { name: "logo" });
+    const img = screen.getByRole("img", { name: "Redshirt Sports" });
     expect(img.getAttribute("src")).toContain("cdn.sanity.io");
+  });
+
+  it("renders header light and dark wordmarks when both footer logos exist", () => {
+    render(
+      <Logo
+        variant="header"
+        footerLogo={{ alt: "Wordmark" } as never}
+        footerLogoDarkMode={{ alt: "Wordmark dark" } as never}
+      />,
+    );
+
+    expect(screen.getAllByTestId("sanity-logo")).toHaveLength(2);
   });
 });

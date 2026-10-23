@@ -92,7 +92,7 @@ describe("Hero", () => {
     expect(screen.getByText("Lead story excerpt")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Jane Doe/ })).toHaveAttribute(
       "href",
-      "/authors/jane-doe",
+      "/people/jane-doe",
     );
     expect(screen.getByTestId("article-card")).toHaveTextContent(
       "Secondary Story",

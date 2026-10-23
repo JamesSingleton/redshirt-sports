@@ -9,7 +9,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
-  MIN_TEAM_PAGE_POSTS: 8,
+  MIN_TEAM_PAGE_POSTS: 1,
   schoolSlugsByIdsQuery: "schoolSlugsByIdsQuery",
   schoolSlugsForSitemapQuery: "schoolSlugsForSitemapQuery",
 }));
