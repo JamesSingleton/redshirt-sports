@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  check,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -10,6 +12,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -604,6 +607,183 @@ export const ballotEntriesTableRelations = relations(
   }),
 );
 
+/**
+ * Football subdivision for a playoff bracket (FCS, FBS). Basketball has no row:
+ * one NCAA tournament covers every poll slice.
+ */
+export const bracketDivisionsTable = pgTable(
+  "bracket_divisions",
+  {
+    ...defaultColumns,
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id),
+    slug: text("slug").notNull(),
+    label: text("label").notNull(),
+  },
+  (table) => [
+    unique("bracket_divisions_sport_id_slug_unique").on(
+      table.sportId,
+      table.slug,
+    ),
+  ],
+);
+
+/** Versioned bracket tree. `spec` is the empty skeleton, not a seeded field. */
+export const bracketFormatsTable = pgTable(
+  "bracket_formats",
+  {
+    ...defaultColumns,
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id),
+    divisionId: text("division_id").references(() => bracketDivisionsTable.id),
+    key: text("key").notNull().unique(),
+    effectiveFromYear: integer("effective_from_year").notNull(),
+    /** Inclusive. Null means the format is still current. */
+    effectiveToYear: integer("effective_to_year"),
+    spec: jsonb("spec").notNull(),
+  },
+  (table) => [
+    index("bracket_formats_sport_id_index").on(table.sportId),
+    index("bracket_formats_division_id_index").on(table.divisionId),
+  ],
+);
+
+export const bracketEditionsTable = pgTable(
+  "bracket_editions",
+  {
+    ...defaultColumns,
+    formatId: text("format_id")
+      .notNull()
+      .references(() => bracketFormatsTable.id),
+    seasonId: text("season_id")
+      .notNull()
+      .references(() => seasonsTable.id),
+    kind: text("kind").notNull(),
+    status: text("status").notNull(),
+    sourceWeekId: text("source_week_id")
+      .notNull()
+      .references(() => weeksTable.id),
+    revision: integer("revision").notNull(),
+    clonedFromEditionId: text("cloned_from_edition_id"),
+    articleUrl: text("article_url"),
+    publicNote: text("public_note"),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    publishedByUserId: text("published_by_user_id").references(
+      () => usersTable.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+  },
+  (table) => [
+    check(
+      "bracket_editions_kind_check",
+      sql`${table.kind} in ('projection', 'official')`,
+    ),
+    check(
+      "bracket_editions_status_check",
+      sql`${table.status} in ('draft', 'published', 'superseded')`,
+    ),
+    check(
+      "bracket_editions_article_url_check",
+      sql`${table.articleUrl} is null or ${table.articleUrl} ~ '^https?://'`,
+    ),
+    uniqueIndex("bracket_editions_projection_identity")
+      .on(table.formatId, table.seasonId, table.sourceWeekId, table.revision)
+      .where(sql`${table.kind} = 'projection'`),
+    uniqueIndex("bracket_editions_official_draft")
+      .on(table.formatId, table.seasonId)
+      .where(sql`${table.kind} = 'official' and ${table.status} = 'draft'`),
+    uniqueIndex("bracket_editions_official_published")
+      .on(table.formatId, table.seasonId)
+      .where(sql`${table.kind} = 'official' and ${table.status} = 'published'`),
+    foreignKey({
+      columns: [table.clonedFromEditionId],
+      foreignColumns: [table.id],
+      name: "bracket_editions_cloned_from_edition_id_fk",
+    }).onDelete("set null"),
+    index("bracket_editions_season_id_index").on(table.seasonId),
+    index("bracket_editions_source_week_id_index").on(table.sourceWeekId),
+    index("bracket_editions_published_by_user_id_index").on(
+      table.publishedByUserId,
+    ),
+    index("bracket_editions_cloned_from_edition_id_index").on(
+      table.clonedFromEditionId,
+    ),
+  ],
+);
+
+export const bracketSlotsTable = pgTable(
+  "bracket_slots",
+  {
+    ...defaultColumns,
+    editionId: text("edition_id")
+      .notNull()
+      .references(() => bracketEditionsTable.id, { onDelete: "cascade" }),
+    slotKey: text("slot_key").notNull(),
+    seed: integer("seed"),
+    region: text("region"),
+    showSeed: boolean("show_seed").notNull(),
+    schoolId: text("school_id").references(() => schoolsTable.id),
+    bidType: text("bid_type"),
+    bidLabel: text("bid_label"),
+  },
+  (table) => [
+    unique("bracket_slots_edition_id_slot_key_unique").on(
+      table.editionId,
+      table.slotKey,
+    ),
+    uniqueIndex("bracket_slots_edition_school")
+      .on(table.editionId, table.schoolId)
+      .where(sql`${table.schoolId} is not null`),
+    check(
+      "bracket_slots_bid_type_check",
+      sql`${table.bidType} is null or ${table.bidType} in ('auto', 'at-large')`,
+    ),
+    index("bracket_slots_school_id_index").on(table.schoolId),
+  ],
+);
+
+export const bracketGamesTable = pgTable(
+  "bracket_games",
+  {
+    ...defaultColumns,
+    editionId: text("edition_id")
+      .notNull()
+      .references(() => bracketEditionsTable.id, { onDelete: "cascade" }),
+    gameKey: text("game_key").notNull(),
+    roundKey: text("round_key").notNull(),
+    roundLabel: text("round_label").notNull(),
+    sideASlotKey: text("side_a_slot_key"),
+    sideBSlotKey: text("side_b_slot_key"),
+    sideAFromGameKey: text("side_a_from_game_key"),
+    sideBFromGameKey: text("side_b_from_game_key"),
+    homeSide: text("home_side"),
+    siteLabel: text("site_label"),
+    status: text("status").notNull().default("scheduled"),
+    winnerSchoolId: text("winner_school_id").references(() => schoolsTable.id),
+    homeScore: integer("home_score"),
+    awayScore: integer("away_score"),
+  },
+  (table) => [
+    unique("bracket_games_edition_id_game_key_unique").on(
+      table.editionId,
+      table.gameKey,
+    ),
+    check(
+      "bracket_games_home_side_check",
+      sql`${table.homeSide} is null or ${table.homeSide} in ('a', 'b')`,
+    ),
+    check(
+      "bracket_games_status_check",
+      sql`${table.status} in ('scheduled', 'final')`,
+    ),
+    index("bracket_games_winner_school_id_index").on(table.winnerSchoolId),
+  ],
+);
+
 export const pollRankingsTableRelations = relations(
   pollRankingsTable,
   ({ one }) => ({
@@ -636,3 +816,85 @@ export type SelectWeeklyRankings = typeof weeklyRankings.$inferSelect;
 export type SelectPoll = typeof pollsTable.$inferSelect;
 export type SelectBallot = typeof ballotsTable.$inferSelect;
 export type SelectPollRanking = typeof pollRankingsTable.$inferSelect;
+
+export const bracketDivisionsTableRelations = relations(
+  bracketDivisionsTable,
+  ({ one, many }) => ({
+    sport: one(sportsTable, {
+      fields: [bracketDivisionsTable.sportId],
+      references: [sportsTable.id],
+    }),
+    formats: many(bracketFormatsTable),
+  }),
+);
+
+export const bracketFormatsTableRelations = relations(
+  bracketFormatsTable,
+  ({ one, many }) => ({
+    sport: one(sportsTable, {
+      fields: [bracketFormatsTable.sportId],
+      references: [sportsTable.id],
+    }),
+    division: one(bracketDivisionsTable, {
+      fields: [bracketFormatsTable.divisionId],
+      references: [bracketDivisionsTable.id],
+    }),
+    editions: many(bracketEditionsTable),
+  }),
+);
+
+export const bracketEditionsTableRelations = relations(
+  bracketEditionsTable,
+  ({ one, many }) => ({
+    format: one(bracketFormatsTable, {
+      fields: [bracketEditionsTable.formatId],
+      references: [bracketFormatsTable.id],
+    }),
+    season: one(seasonsTable, {
+      fields: [bracketEditionsTable.seasonId],
+      references: [seasonsTable.id],
+    }),
+    sourceWeek: one(weeksTable, {
+      fields: [bracketEditionsTable.sourceWeekId],
+      references: [weeksTable.id],
+    }),
+    publishedBy: one(usersTable, {
+      fields: [bracketEditionsTable.publishedByUserId],
+      references: [usersTable.id],
+    }),
+    clonedFrom: one(bracketEditionsTable, {
+      fields: [bracketEditionsTable.clonedFromEditionId],
+      references: [bracketEditionsTable.id],
+    }),
+    slots: many(bracketSlotsTable),
+    games: many(bracketGamesTable),
+  }),
+);
+
+export const bracketSlotsTableRelations = relations(
+  bracketSlotsTable,
+  ({ one }) => ({
+    edition: one(bracketEditionsTable, {
+      fields: [bracketSlotsTable.editionId],
+      references: [bracketEditionsTable.id],
+    }),
+    school: one(schoolsTable, {
+      fields: [bracketSlotsTable.schoolId],
+      references: [schoolsTable.id],
+    }),
+  }),
+);
+
+export const bracketGamesTableRelations = relations(
+  bracketGamesTable,
+  ({ one }) => ({
+    edition: one(bracketEditionsTable, {
+      fields: [bracketGamesTable.editionId],
+      references: [bracketEditionsTable.id],
+    }),
+    winner: one(schoolsTable, {
+      fields: [bracketGamesTable.winnerSchoolId],
+      references: [schoolsTable.id],
+    }),
+  }),
+);
