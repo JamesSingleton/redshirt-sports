@@ -21,7 +21,7 @@
     "@portabletext/toolkit": "^6.0.0",
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/assist": "^6.2.5",
-    "@sanity/blueprints": "^0.28.0",
+    "@sanity/blueprints": "^0.29.0",
     "@sanity/client": "catalog:",
     "@sanity/dashboard": "^6.0.22",
     "@sanity/functions": "^1.10.1",

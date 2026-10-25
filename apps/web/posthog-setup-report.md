@@ -6,27 +6,27 @@ The wizard has completed a deep integration of PostHog analytics into the Redshi
 
 ### Setup Files Created/Modified
 
-| File | Change |
-|------|--------|
-| `instrumentation-client.ts` | Added PostHog initialization alongside existing Sentry config |
-| `lib/posthog-server.ts` | Created server-side PostHog client for API routes |
-| `next.config.ts` | Added reverse proxy rewrites and CSP headers for PostHog |
-| `components/contact-email-link.tsx` | Created client component for tracked email links |
-| `.env` / `.env.example` | Added PostHog environment variables |
+| File                                | Change                                                        |
+| ----------------------------------- | ------------------------------------------------------------- |
+| `instrumentation-client.ts`         | Added PostHog initialization alongside existing Sentry config |
+| `lib/posthog-server.ts`             | Created server-side PostHog client for API routes             |
+| `next.config.ts`                    | Added reverse proxy rewrites and CSP headers for PostHog      |
+| `components/contact-email-link.tsx` | Created client component for tracked email links              |
+| `.env` / `.env.example`             | Added PostHog environment variables                           |
 
 ### Events Implemented
 
-| Event Name | Description | File(s) |
-|------------|-------------|---------|
-| `ballot_submitted` | Voter successfully submits their Top 25 ballot | `app/api/vote/college/[sport]/rankings/[division]/route.ts` |
-| `ballot_submission_error` | Error occurs when submitting a ballot | `components/forms/top-25.tsx` |
-| `previous_ballot_populated` | User populates form with their previous ballot | `components/vote-form-wrapper.tsx` |
-| `onboarding_completed` | User completes the onboarding process | `actions/complete-onboarding.ts` |
-| `user_created` | New user created via Clerk webhook | `app/api/webhooks/auth/route.ts` |
-| `user_updated` | User profile updated via Clerk webhook | `app/api/webhooks/auth/route.ts` |
-| `search_performed` | User performs a search query | `components/search.tsx` |
-| `rankings_filter_changed` | User changes year/week filter on rankings | `components/rankings/filters.tsx` |
-| `contact_email_clicked` | User clicks on a contact email link | `app/contact/page.tsx` (via `contact-email-link.tsx`) |
+| Event Name                  | Description                                    | File(s)                                                     |
+| --------------------------- | ---------------------------------------------- | ----------------------------------------------------------- |
+| `ballot_submitted`          | Voter successfully submits their Top 25 ballot | `app/api/vote/college/[sport]/rankings/[division]/route.ts` |
+| `ballot_submission_error`   | Error occurs when submitting a ballot          | `components/forms/top-25.tsx`                               |
+| `previous_ballot_populated` | User populates form with their previous ballot | `components/vote-form-wrapper.tsx`                          |
+| `onboarding_completed`      | User completes the onboarding process          | `actions/complete-onboarding.ts`                            |
+| `user_created`              | New user created via Clerk webhook             | `app/api/webhooks/auth/route.ts`                            |
+| `user_updated`              | User profile updated via Clerk webhook         | `app/api/webhooks/auth/route.ts`                            |
+| `search_performed`          | User performs a search query                   | `components/search.tsx`                                     |
+| `rankings_filter_changed`   | User changes year/week filter on rankings      | `components/rankings/filters.tsx`                           |
+| `contact_email_clicked`     | User clicks on a contact email link            | `app/contact/page.tsx` (via `contact-email-link.tsx`)       |
 
 ### User Identification
 
@@ -38,9 +38,11 @@ The wizard has completed a deep integration of PostHog analytics into the Redshi
 We've built some insights and a dashboard for you to keep an eye on user behavior, based on the events we just instrumented:
 
 ### Dashboard
+
 - [Analytics basics](https://us.posthog.com/project/310977/dashboard/1269811) - Core analytics dashboard with key metrics
 
 ### Insights
+
 - [Ballots Submitted Over Time](https://us.posthog.com/project/310977/insights/rKgZIhIV) - Tracks ballot submission volume
 - [Onboarding Funnel](https://us.posthog.com/project/310977/insights/9jXcRPCd) - User creation to onboarding completion conversion
 - [Search Activity](https://us.posthog.com/project/310977/insights/wN36rGjG) - Search usage trends
