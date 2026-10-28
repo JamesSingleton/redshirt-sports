@@ -13,7 +13,7 @@ import {
   SheetTitle,
 } from "@redshirt-sports/ui/components/sheet";
 import { cn } from "@redshirt-sports/ui/lib/utils";
-import { ChevronDown, Menu, Search, X } from "lucide-react";
+import { ChevronDown, Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { StegaBranded } from "next-sanity";
@@ -86,16 +86,6 @@ const MobileNavbar = memo(function MobileNavbar({
               footerLogoDarkMode={settingsData?.footerLogoDarkMode}
               priority
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              aria-label="Close menu"
-              onClick={close}
-            >
-              <X className="size-4" />
-            </Button>
           </div>
           <label className="sr-only" htmlFor="sheet-search">
             Search Redshirt Sports
@@ -167,9 +157,6 @@ const MobileNavbar = memo(function MobileNavbar({
               onClick={close}
             >
               All teams A–Z
-              <span className="font-mono text-xs font-normal text-muted-foreground">
-                /college/teams
-              </span>
             </Link>
             {globalRankingsHref ? (
               <Link

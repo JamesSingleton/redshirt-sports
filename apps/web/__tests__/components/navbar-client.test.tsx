@@ -206,7 +206,11 @@ describe("NavbarClient", () => {
       "/college/football/news/fbs",
     );
 
-    await user.click(screen.getByRole("button", { name: "Close menu" }));
+    await user.click(screen.getByRole("button", { name: "Close" }));
+
+    expect(
+      screen.queryByRole("link", { name: /All College Football news/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("cleans up the global Escape listener on unmount", () => {

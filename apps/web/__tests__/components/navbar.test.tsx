@@ -10,17 +10,11 @@ import {
 const {
   mockResolveDynamicFetchOptions,
   mockSanityFetch,
-  mockGetCachedGlobalNavigation,
   mockGetCachedNavbarLatestRankings,
 } = vi.hoisted(() => ({
   mockResolveDynamicFetchOptions: vi.fn(),
   mockSanityFetch: vi.fn(),
-  mockGetCachedGlobalNavigation: vi.fn(),
   mockGetCachedNavbarLatestRankings: vi.fn(),
-}));
-
-vi.mock("@/lib/news-archive/cached-global-navigation", () => ({
-  getCachedGlobalNavigation: mockGetCachedGlobalNavigation,
 }));
 
 vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
@@ -95,7 +89,6 @@ describe("NavbarSkeleton", () => {
 describe("CachedNavbarServer", () => {
   beforeEach(() => {
     mockGetCachedNavbarLatestRankings.mockResolvedValue(latestRankings);
-    mockGetCachedGlobalNavigation.mockResolvedValue({ data: navbarData });
     mockSanityFetch.mockResolvedValue({ data: settingsData });
   });
 
@@ -106,6 +99,7 @@ describe("CachedNavbarServer", () => {
     });
     render(component);
 
+    expect(mockSanityFetch).toHaveBeenCalledTimes(2);
     expect(mockGetCachedNavbarLatestRankings).toHaveBeenCalled();
     expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
   });

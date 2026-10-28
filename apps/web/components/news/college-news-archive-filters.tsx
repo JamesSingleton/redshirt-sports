@@ -166,12 +166,6 @@ export function CollegeNewsArchiveFilters({
           Apply
         </Button>
       </form>
-      <p className="mt-2 text-[11px] text-muted-foreground">
-        Sport navigates to{" "}
-        <span className="font-mono">/college/[sport]/news</span>,
-        division/conference to their folder routes; type, sort and search are
-        query params. Pagination: <span className="font-mono">?page=n</span>.
-      </p>
     </div>
   );
 }

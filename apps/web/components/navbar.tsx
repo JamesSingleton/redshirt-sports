@@ -2,7 +2,10 @@ import {
   type DynamicFetchOptions,
   sanityFetch,
 } from "@redshirt-sports/sanity/live";
-import { queryGlobalSeoSettings } from "@redshirt-sports/sanity/queries";
+import {
+  globalNavigationQuery,
+  queryGlobalSeoSettings,
+} from "@redshirt-sports/sanity/queries";
 import type {
   GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
@@ -14,7 +17,6 @@ import {
   NavbarClient,
   NavbarSkeletonResponsive,
 } from "@/components/navbar-client";
-import { getCachedGlobalNavigation } from "@/lib/news-archive/cached-global-navigation";
 import { getCachedNavbarLatestRankings } from "@/lib/rankings-data";
 import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 
@@ -42,15 +44,21 @@ async function getCachedNavbarSanity({
   stega,
 }: DynamicFetchOptions) {
   "use cache";
-  const [navResponse, { data: settingsData }] = await Promise.all([
-    getCachedGlobalNavigation({ perspective, stega }),
+  // Fetch here. Awaiting another `"use cache"` function joins a promise created
+  // outside this fill, which deadlocks the homepage prerender.
+  const [{ data: navbarData }, { data: settingsData }] = await Promise.all([
+    sanityFetch({
+      query: globalNavigationQuery,
+      perspective,
+      stega,
+    }),
     sanityFetch({
       query: queryGlobalSeoSettings,
       perspective,
       stega,
     }),
   ]);
-  return { navbarData: navResponse.data, settingsData };
+  return { navbarData, settingsData };
 }
 
 export async function CachedNavbarServer({
