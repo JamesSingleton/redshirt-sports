@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback } from "@redshirt-sports/ui/components/avatar";
 import { Button } from "@redshirt-sports/ui/components/button";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import Link from "next/link";
 
 import { AdSlot } from "@/components/ad-slot";
@@ -7,6 +8,7 @@ import { MostReadCard } from "@/components/most-read-card";
 import { RankingsWidget } from "@/components/rankings-widget";
 import { RelativeTime } from "@/components/relative-time";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
+import type { AdvertisementCreative } from "@/lib/advertisement";
 import type { MostReadItem } from "@/lib/most-read-data";
 import type { RankingsWidgetPoll } from "@/lib/rankings-widget-data";
 
@@ -50,10 +52,14 @@ export function HomePageContent({
   posts,
   mostRead,
   rankingsPolls,
+  leaderboardAd,
+  sidebarAd,
 }: {
   posts: HomePost[];
   mostRead: MostReadItem[];
   rankingsPolls: RankingsWidgetPoll[];
+  leaderboardAd: AdvertisementCreative | null;
+  sidebarAd: AdvertisementCreative | null;
 }) {
   const lead = posts[0];
   const topStories = posts.slice(1, 6);
@@ -68,7 +74,7 @@ export function HomePageContent({
   return (
     <div className="mx-auto max-w-site px-4 lg:px-6">
       <section className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-8">
-        <article className="group">
+        <article className="group min-w-0">
           <Link href={`/${lead.slug}`} prefetch={false} className="block">
             <div className="relative aspect-[16/9] overflow-hidden rounded-xl lg:aspect-[2/1]">
               <CustomImage
@@ -118,7 +124,7 @@ export function HomePageContent({
             ) : null}
           </div>
         </article>
-        <div className="grid content-start gap-4 lg:border-l lg:pl-8">
+        <div className="grid min-w-0 content-start gap-4 lg:border-l lg:pl-8">
           <div className="kicker text-muted-foreground">Top stories</div>
           {topStories.map((post) => (
             <article
@@ -163,12 +169,21 @@ export function HomePageContent({
         </div>
       </section>
 
-      <div className="my-8 flex justify-center">
-        <AdSlot width={970} height={90} className="max-w-full" />
-      </div>
+      {leaderboardAd ? (
+        <AdSlot
+          placement="home-leaderboard"
+          creative={leaderboardAd}
+          className="my-8 max-w-full"
+        />
+      ) : null}
 
-      <section className="grid gap-8 pb-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div>
+      <section
+        className={cn(
+          "grid gap-8 pb-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]",
+          leaderboardAd ? undefined : "mt-10",
+        )}
+      >
+        <div className="min-w-0">
           <div className="flex items-center justify-between border-b pb-3">
             <h2 className="font-display text-2xl font-extrabold uppercase">
               Latest
@@ -178,7 +193,7 @@ export function HomePageContent({
             {riverPosts.map((post) => (
               <article
                 key={post._id}
-                className="group grid grid-cols-[1fr_7.5rem] gap-4 py-4 sm:grid-cols-[1fr_11rem]"
+                className="group grid min-w-0 grid-cols-[minmax(0,1fr)_7.5rem] gap-4 py-4 sm:grid-cols-[minmax(0,1fr)_11rem]"
               >
                 <div className="min-w-0">
                   <div className="kicker text-primary">{postKicker(post)}</div>
@@ -205,7 +220,7 @@ export function HomePageContent({
                 <Link
                   href={`/${post.slug}`}
                   prefetch={false}
-                  className="relative aspect-[4/3] overflow-hidden rounded-md"
+                  className="relative block aspect-[4/3] w-full overflow-hidden rounded-md"
                 >
                   <CustomImage
                     image={
@@ -213,7 +228,7 @@ export function HomePageContent({
                     }
                     width={176}
                     height={132}
-                    className="h-full w-full object-cover"
+                    className="absolute inset-0 h-full w-full object-cover"
                     mode="cover"
                   />
                 </Link>
@@ -228,10 +243,13 @@ export function HomePageContent({
             </Button>
           </div>
         </div>
-        <aside className="grid content-start gap-6" aria-label="Sidebar">
+        <aside
+          className="grid min-w-0 content-start gap-6"
+          aria-label="Sidebar"
+        >
           <RankingsWidget polls={rankingsPolls} />
           <MostReadCard items={mostRead} />
-          <AdSlot width={300} height={250} />
+          <AdSlot placement="home-sidebar" creative={sidebarAd} />
         </aside>
       </section>
     </div>

@@ -24,6 +24,7 @@ import type { StegaBranded } from "next-sanity";
 import { TeamPageJsonLd } from "@/components/json-ld";
 import { TeamPageContent } from "@/components/teams/team-page-content";
 import { DirectionalPageTransition } from "@/components/view-transitions/directional-page-transition";
+import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedMostReadPosts } from "@/lib/most-read-data";
@@ -174,6 +175,18 @@ async function renderSchoolTeamPage(
   }
 
   const posts = newsData?.posts ?? [];
+  const sportSlugs = [
+    ...new Set(
+      (school.conferenceAffiliations ?? [])
+        .map((affiliation) => affiliation.sport?.slug)
+        .filter((slug): slug is string => Boolean(slug)),
+    ),
+  ];
+  const advertisement = await loadAdvertisement({
+    placement: "team-sidebar",
+    sportSlugs,
+    fetchOptions: { perspective, stega },
+  });
 
   return (
     <DirectionalPageTransition>
@@ -184,6 +197,7 @@ async function renderSchoolTeamPage(
           posts={posts}
           rankingHistory={rankingHistory}
           mostRead={mostRead}
+          advertisement={advertisement}
         />
       </div>
     </DirectionalPageTransition>

@@ -38,6 +38,7 @@ vi.mock("@/lib/rankings-widget-data", () => ({
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
   queryHomeFeed: "mock-home-feed",
+  queryActiveAdvertisement: "queryActiveAdvertisement",
 }));
 
 vi.mock("@/components/home/home-page-content", () => ({

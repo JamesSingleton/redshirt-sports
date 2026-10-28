@@ -9,6 +9,7 @@ import Link from "next/link";
 
 import { AdSlot } from "@/components/ad-slot";
 import { RankingsBallotsCta } from "@/components/rankings/rankings-ballots-cta";
+import type { AdvertisementCreative } from "@/lib/advertisement";
 import { OUTLIER_RANK_GAP, OUTLIER_TOP_OMIT_RANK } from "@/lib/ballot-outliers";
 import { TOP_25 } from "@/lib/constants";
 
@@ -128,6 +129,7 @@ export function RankingsMethodologyContent({
   voterChips,
   weekLabel,
   panelSize,
+  advertisement = null,
 }: {
   sport: string;
   rankingsIndexHref: string;
@@ -137,6 +139,7 @@ export function RankingsMethodologyContent({
   voterChips: Array<{ id: string; label: string }>;
   weekLabel: string;
   panelSize: number;
+  advertisement?: AdvertisementCreative | null;
 }) {
   const maxPoints = panelSize * TOP_25;
 
@@ -363,7 +366,11 @@ export function RankingsMethodologyContent({
           voterChips={voterChips}
           weekLabel={weekLabel}
         />
-        <AdSlot width={300} height={250} className="mx-auto hidden lg:flex" />
+        <AdSlot
+          placement="rankings-methodology-sidebar"
+          creative={advertisement}
+          className="hidden lg:block"
+        />
       </aside>
     </div>
   );

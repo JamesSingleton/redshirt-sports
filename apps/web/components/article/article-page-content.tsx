@@ -9,6 +9,7 @@ import { ArticleTaggedTeamsRow } from "@/components/article/article-tagged-teams
 import { RichText } from "@/components/rich-text";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { ArticleHeroTransition } from "@/components/view-transitions/article-hero-transition";
+import type { AdvertisementCreative } from "@/lib/advertisement";
 import {
   articleKicker,
   articleTeamsInStory,
@@ -26,12 +27,14 @@ export function ArticlePageContent({
   readingTimeMinutes,
   mostRead,
   rankingsPolls,
+  advertisement,
 }: {
   post: ArticlePost;
   slug: string;
   readingTimeMinutes: number;
   mostRead: MostReadItem[];
   rankingsPolls: RankingsWidgetPoll[];
+  advertisement: AdvertisementCreative | null;
 }) {
   const breadcrumbs = buildArticleBreadcrumbs(post);
   const teamsInStory = articleTeamsInStory(post);
@@ -144,6 +147,7 @@ export function ArticlePageContent({
           rankingsPolls={rankingsPolls}
           moreFromAuthor={moreFromAuthor}
           authorName={primaryAuthor?.archived ? null : primaryAuthor?.name}
+          advertisement={advertisement}
         />
       </div>
     </main>

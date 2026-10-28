@@ -21,7 +21,12 @@ export async function CachedNewsArchiveSidebarInner({
   ]);
 
   return (
-    <NewsArchiveSidebar mostRead={mostRead} rankingsPolls={rankingsPolls} />
+    <NewsArchiveSidebar
+      mostRead={mostRead}
+      rankingsPolls={rankingsPolls}
+      sportSlug={sportSlug}
+      fetchOptions={{ perspective, stega }}
+    />
   );
 }
 

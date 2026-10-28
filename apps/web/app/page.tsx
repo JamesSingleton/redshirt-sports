@@ -11,6 +11,7 @@ import {
   type HomePost,
 } from "@/components/home/home-page-content";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
+import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import {
@@ -57,6 +58,11 @@ export async function CachedHomePage({
     ]);
 
   const posts = (feedPosts ?? []) as HomePost[];
+  const fetchOptions = { perspective, stega };
+  const [leaderboardAd, sidebarAd] = await Promise.all([
+    loadAdvertisement({ placement: "home-leaderboard", fetchOptions }),
+    loadAdvertisement({ placement: "home-sidebar", fetchOptions }),
+  ]);
 
   const webPageJson: WithContext<WebPage> = {
     "@context": "https://schema.org",
@@ -95,6 +101,8 @@ export async function CachedHomePage({
         posts={posts}
         mostRead={mostRead}
         rankingsPolls={rankingsPolls}
+        leaderboardAd={leaderboardAd}
+        sidebarAd={sidebarAd}
       />
     </>
   );

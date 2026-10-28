@@ -16,6 +16,7 @@ import { toPlainText } from "next-sanity";
 import { ArticlePageContent } from "@/components/article/article-page-content";
 import { buildSafeImageUrl, PostPageJsonLd } from "@/components/json-ld";
 import { DirectionalPageTransition } from "@/components/view-transitions/directional-page-transition";
+import { loadAdvertisement } from "@/lib/advertisement";
 import { getArticleTagNames } from "@/lib/article-seo";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
@@ -112,11 +113,16 @@ async function renderPostPage(
   const readingTimeMinutes = Math.ceil(wordCount / WORDS_PER_MINUTE);
 
   const sportSlug = data.sport?.slug;
-  const [mostRead, rankingsPolls] = await Promise.all([
+  const [mostRead, rankingsPolls, advertisement] = await Promise.all([
     getCachedMostReadPosts(),
     sportSlug
       ? getCachedRankingsWidgetPolls(validateSport(sportSlug))
       : Promise.resolve([]),
+    loadAdvertisement({
+      placement: "article-sidebar",
+      sportSlugs: sportSlug ? [sportSlug] : [],
+      fetchOptions: { perspective, stega },
+    }),
   ]);
 
   return (
@@ -134,6 +140,7 @@ async function renderPostPage(
         readingTimeMinutes={readingTimeMinutes}
         mostRead={mostRead}
         rankingsPolls={rankingsPolls}
+        advertisement={advertisement}
       />
     </DirectionalPageTransition>
   );

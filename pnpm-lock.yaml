@@ -368,6 +368,9 @@ importers:
       '@portabletext/toolkit':
         specifier: ^6.0.0
         version: 6.0.0
+      '@redshirt-sports/sanity':
+        specifier: workspace:*
+        version: link:../../packages/sanity
       '@sanity/asset-utils':
         specifier: ^2.3.0
         version: 2.3.0

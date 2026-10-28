@@ -15,6 +15,7 @@ import {
   type TeamPost,
 } from "@/components/teams/team-post-card";
 import { TeamHubLogoTransition } from "@/components/view-transitions/team-hub-logo-transition";
+import type { AdvertisementCreative } from "@/lib/advertisement";
 import type { MostReadItem } from "@/lib/most-read-data";
 import {
   footballAffiliationDivisionSlug,
@@ -32,11 +33,13 @@ export function TeamPageContent({
   posts,
   rankingHistory,
   mostRead,
+  advertisement,
 }: {
   school: NonNullable<SchoolBySlugQueryResult>;
   posts: TeamPost[];
   rankingHistory: SchoolRankingHistory;
   mostRead: MostReadItem[];
+  advertisement: AdvertisementCreative | null;
 }) {
   const teamShortName = school.shortName ?? school.name ?? "Team";
   const displayName = [
@@ -262,9 +265,9 @@ export function TeamPageContent({
         <aside className="grid content-start gap-6 lg:sticky lg:top-20 lg:self-start">
           <MostReadCard items={mostRead} />
           <AdSlot
-            width={300}
-            height={250}
-            className="mx-auto w-full max-w-[300px]"
+            placement="team-sidebar"
+            creative={advertisement}
+            className="w-full max-w-[300px]"
           />
         </aside>
       </div>

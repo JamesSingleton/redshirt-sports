@@ -69,6 +69,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 vi.mock("@redshirt-sports/sanity/queries", () => ({
   queryPostPaths: "queryPostPaths",
   queryPostSlugData: "queryPostSlugData",
+  queryActiveAdvertisement: "queryActiveAdvertisement",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({

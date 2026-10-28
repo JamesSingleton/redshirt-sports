@@ -11,6 +11,7 @@ import { notFound } from "next/navigation";
 
 import { AdSlot } from "@/components/ad-slot";
 import { RankingsIndexPollCard } from "@/components/rankings/rankings-index-poll-card";
+import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { loadRankingsIndexCards } from "@/lib/rankings/read-model";
@@ -62,7 +63,7 @@ export default async function SportRankingsIndexPage({
 
 async function renderSportRankingsIndex(
   { sport: sportSlug }: { sport: string },
-  { perspective }: DynamicFetchOptions,
+  { perspective, stega }: DynamicFetchOptions,
 ) {
   const sport = validateSport(sportSlug) as SportParam | null;
   if (!sport) {
@@ -80,7 +81,14 @@ async function renderSportRankingsIndex(
   }
 
   const sportLabel = sportNavLabel(sport, sportData.title);
-  const cards = await loadRankingsIndexCards(sport);
+  const [cards, advertisement] = await Promise.all([
+    loadRankingsIndexCards(sport),
+    loadAdvertisement({
+      placement: "rankings-index-sidebar",
+      sportSlugs: [sport],
+      fetchOptions: { perspective, stega },
+    }),
+  ]);
 
   return (
     <main className="mx-auto max-w-site px-4 pb-12 lg:px-6">
@@ -136,9 +144,9 @@ async function renderSportRankingsIndex(
         </div>
         <aside className="grid content-start gap-6" aria-label="Sidebar">
           <AdSlot
-            width={300}
-            height={250}
-            className="mx-auto w-full max-w-[300px]"
+            placement="rankings-index-sidebar"
+            creative={advertisement}
+            className="w-full max-w-[300px]"
           />
         </aside>
       </div>

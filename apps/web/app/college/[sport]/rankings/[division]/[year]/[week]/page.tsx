@@ -1,8 +1,12 @@
-import { PUBLISHED_FETCH_OPTIONS } from "@redshirt-sports/sanity/live";
+import {
+  type DynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS,
+} from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { RankingsWeekPageBody } from "@/components/rankings/rankings-week-page-body";
+import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
@@ -63,22 +67,25 @@ export default function CollegeFootballRankingsPage({
     week: string;
   }>;
 }) {
-  return draftAwareParamsPage(params, null, (resolved) =>
-    renderCollegeFootballRankingsPage(resolved),
+  return draftAwareParamsPage(params, null, (resolved, options) =>
+    renderCollegeFootballRankingsPage(resolved, options),
   );
 }
 
-async function renderCollegeFootballRankingsPage({
-  division,
-  year,
-  week,
-  sport,
-}: {
-  sport: string;
-  division: string;
-  year: string;
-  week: string;
-}) {
+async function renderCollegeFootballRankingsPage(
+  {
+    division,
+    year,
+    week,
+    sport,
+  }: {
+    sport: string;
+    division: string;
+    year: string;
+    week: string;
+  },
+  fetchOptions: DynamicFetchOptions = PUBLISHED_FETCH_OPTIONS,
+) {
   "use cache";
   const model = await loadRankingsWeekPageModel({
     sport,
@@ -86,5 +93,10 @@ async function renderCollegeFootballRankingsPage({
     year,
     week,
   });
-  return <RankingsWeekPageBody model={model} />;
+  const advertisement = await loadAdvertisement({
+    placement: "rankings-week-sidebar",
+    sportSlugs: [sport],
+    fetchOptions,
+  });
+  return <RankingsWeekPageBody model={model} advertisement={advertisement} />;
 }

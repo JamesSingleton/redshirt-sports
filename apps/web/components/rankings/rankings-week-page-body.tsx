@@ -7,12 +7,15 @@ import { RankingsBeyondTop25 } from "@/components/rankings/rankings-beyond-top-2
 import { RankingsBiggestMovers } from "@/components/rankings/rankings-biggest-movers";
 import { RankingsMovementLegend } from "@/components/rankings/rankings-movement-legend";
 import { RankingsPollTable } from "@/components/rankings/rankings-poll-table";
+import type { AdvertisementCreative } from "@/lib/advertisement";
 import type { RankingsWeekPageModel } from "@/lib/rankings/read-model/week-page-model";
 
 export function RankingsWeekPageBody({
   model,
+  advertisement = null,
 }: {
   model: RankingsWeekPageModel;
+  advertisement?: AdvertisementCreative | null;
 }) {
   const {
     jsonLd,
@@ -84,9 +87,9 @@ export function RankingsWeekPageBody({
                 weekComparisonLabel={moversSubtitle}
               />
               <AdSlot
-                width={300}
-                height={250}
-                className="mx-auto hidden lg:flex"
+                placement="rankings-week-sidebar"
+                creative={advertisement}
+                className="hidden lg:block"
               />
             </aside>
           </div>

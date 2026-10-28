@@ -64,6 +64,7 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
   querySchoolPaths: "querySchoolPaths",
   schoolBySlugQuery: "schoolBySlugQuery",
   schoolSlugsByIdsQuery: "schoolSlugsByIdsQuery",
+  queryActiveAdvertisement: "queryActiveAdvertisement",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
@@ -229,6 +230,42 @@ describe("TeamPage", () => {
     expect(screen.getByTestId("featured")).toHaveTextContent("Post 0");
     expect(screen.getByRole("heading", { name: "Football", level: 2 }));
     expect(screen.getAllByTestId("news-item").length).toBeGreaterThan(0);
+  });
+
+  it("passes unique conference sport slugs to the team sidebar sponsorship", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({
+        data: {
+          ...sampleSchool,
+          conferenceAffiliations: [
+            { sport: { slug: "football" } },
+            { sport: { slug: "football" } },
+            { sport: { slug: "basketball" } },
+            { sport: null },
+            { sport: { slug: "" } },
+          ],
+        },
+      })
+      .mockResolvedValueOnce({ data: { posts: [] } });
+    mockGetCachedSchoolRankingHistory.mockResolvedValue({
+      polls: [{ pollId: "poll-1" }],
+    });
+
+    const page = await TeamPage({
+      params: Promise.resolve({ slug: "alabama" }),
+    });
+    render(page as ReactNode);
+
+    expect(mockSanityFetchPage).toHaveBeenNthCalledWith(
+      3,
+      expect.objectContaining({
+        query: "queryActiveAdvertisement",
+        params: expect.objectContaining({
+          placement: "team-sidebar",
+          sportSlugs: ["football", "basketball"],
+        }),
+      }),
+    );
   });
 
   it("throws notFound when school is missing", async () => {

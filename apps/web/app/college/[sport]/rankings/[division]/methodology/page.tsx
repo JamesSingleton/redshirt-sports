@@ -1,7 +1,12 @@
+import {
+  type DynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS,
+} from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { RankingsMethodologyContent } from "@/components/rankings/rankings-methodology-content";
+import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedPollWeekBallotContext } from "@/lib/rankings-data";
@@ -33,30 +38,40 @@ export default function RankingsDivisionMethodologyPage({
 }: {
   params: Promise<{ sport: string; division: string }>;
 }) {
-  return draftAwareParamsPage(params, null, (resolved) =>
-    renderMethodologyPage(resolved),
+  return draftAwareParamsPage(params, null, (resolved, options) =>
+    renderMethodologyPage(resolved, options),
   );
 }
 
-async function renderMethodologyPage({
-  sport,
-  division,
-}: {
-  sport: string;
-  division: string;
-}) {
+async function renderMethodologyPage(
+  {
+    sport,
+    division,
+  }: {
+    sport: string;
+    division: string;
+  },
+  fetchOptions: DynamicFetchOptions = PUBLISHED_FETCH_OPTIONS,
+) {
   const shell = await loadRankingsDivisionShell({ sport, division });
   if (!shell) {
     notFound();
   }
 
   const sportParam = sport as SportParam;
-  const ballotContext = await getCachedPollWeekBallotContext({
-    year: shell.yearNumber,
-    week: shell.weekNumber,
-    division,
-    sport: sportParam,
-  });
+  const [ballotContext, advertisement] = await Promise.all([
+    getCachedPollWeekBallotContext({
+      year: shell.yearNumber,
+      week: shell.weekNumber,
+      division,
+      sport: sportParam,
+    }),
+    loadAdvertisement({
+      placement: "rankings-methodology-sidebar",
+      sportSlugs: [sport],
+      fetchOptions,
+    }),
+  ]);
 
   return (
     <>
@@ -82,6 +97,7 @@ async function renderMethodologyPage({
         panelSize={
           ballotContext?.voterChips.length ?? ballotContext?.ballotsCounted ?? 0
         }
+        advertisement={advertisement}
       />
     </>
   );

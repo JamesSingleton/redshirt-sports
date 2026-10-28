@@ -1277,3 +1277,46 @@ export const schoolSlugsByIdsQuery = defineQuery(/* groq */ `
     _updatedAt
   }
 `);
+
+/**
+ * Highest-priority live sponsorship for one placement.
+ * `$includeScheduled` is true in draft preview so editors can see a flight
+ * before its start date. An empty `$sportSlugs` list matches only sponsorships
+ * that are not limited to a sport.
+ */
+export const queryActiveAdvertisement = defineQuery(/* groq */ `
+  *[
+    _type == "advertisement" &&
+    active == true &&
+    defined(image.asset) &&
+    $placement in placements &&
+    (
+      $includeScheduled == true ||
+      (
+        (!defined(startsAt) || startsAt <= now()) &&
+        (!defined(endsAt) || endsAt >= now())
+      )
+    ) &&
+    (
+      !defined(sports) ||
+      count(sports) == 0 ||
+      count(sports[@->slug.current in $sportSlugs]) > 0
+    )
+  ] | order(priority desc, _updatedAt desc)[0]{
+    _id,
+    sponsorName,
+    "openInNewTab": url.openInNewTab,
+    ${customUrlHrefFragment},
+    image{
+      ...,
+      "id": asset._ref,
+      "alt": coalesce(alt, asset->altText, ^.sponsorName, "Advertisement"),
+      "width": asset->metadata.dimensions.width,
+      "height": asset->metadata.dimensions.height,
+      hotspot { x, y, height, width },
+      crop { bottom, left, right, top },
+      "preview": asset->metadata.lqip,
+      "dominantColor": asset->metadata.palette.dominant.background
+    }
+  }
+`);
