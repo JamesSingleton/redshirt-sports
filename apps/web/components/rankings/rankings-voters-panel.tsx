@@ -21,6 +21,7 @@ export type VotersPanelRow = {
   organizationRole: string;
   voterSinceLabel: string;
   ballotsSubmittedLabel: string;
+  totalBallotsLabel: string;
   latestBallotHref: string;
 };
 
@@ -74,11 +75,15 @@ export function RankingsVotersPanel({
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return voters;
-    return voters.filter(
-      (v) =>
-        v.name.toLowerCase().includes(q) ||
-        v.organization.toLowerCase().includes(q),
+    const rows = q
+      ? voters.filter(
+          (v) =>
+            v.name.toLowerCase().includes(q) ||
+            v.organization.toLowerCase().includes(q),
+        )
+      : voters;
+    return [...rows].sort((a, b) =>
+      a.name.localeCompare(b.name, "en", { sensitivity: "base" }),
     );
   }, [query, voters]);
 
@@ -166,6 +171,9 @@ export function RankingsVotersPanel({
               <th className="p-2 text-right text-sm uppercase tracking-wide text-muted-foreground">
                 {seasonYear} ballots
               </th>
+              <th className="p-2 text-right text-sm uppercase tracking-wide text-muted-foreground">
+                Total ballots
+              </th>
               <th className="p-2 pr-4 text-right text-sm uppercase tracking-wide text-muted-foreground">
                 Links
               </th>
@@ -197,6 +205,9 @@ export function RankingsVotersPanel({
                 </td>
                 <td className="p-2 text-right tabular">
                   {voter.ballotsSubmittedLabel}
+                </td>
+                <td className="p-2 text-right tabular">
+                  {voter.totalBallotsLabel}
                 </td>
                 <td className="p-2 pr-4 text-right">
                   <div className="flex justify-end gap-1.5">
@@ -230,7 +241,7 @@ export function RankingsVotersPanel({
                 </div>
                 <div className="text-sm text-muted-foreground">
                   Since {voter.voterSinceLabel} · {voter.ballotsSubmittedLabel}{" "}
-                  {seasonYear} ballots
+                  {seasonYear} ballots · {voter.totalBallotsLabel} total
                 </div>
               </div>
             </div>

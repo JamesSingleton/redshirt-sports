@@ -95,12 +95,16 @@ async function renderVotersPage({
       organization: row.user.organization ?? "",
       organizationRole: row.user.organizationRole ?? "",
       ballotsSubmittedLabel: String(stats?.seasonBallotCount ?? 0),
+      totalBallotsLabel: String(stats?.totalBallotCount ?? 0),
       voterSinceLabel: formatVoterSince(stats?.voterSince),
       latestBallotHref: `${byVoterHref}?voter=${voterBallotSlug(
         `${row.user.firstName ?? ""} ${row.user.lastName ?? ""}`.trim(),
       )}`,
     };
   });
+  voterRows.sort((a, b) =>
+    a.name.localeCompare(b.name, "en", { sensitivity: "base" }),
+  );
 
   const ballotsCounted = ballotContext?.ballotsCounted ?? 0;
   const ballotsSubmittedLabel = `${ballotsCounted} / ${voterRows.length}`;

@@ -777,10 +777,11 @@ export async function reassignBallotWeek({
 
 export type PollVoterBallotStats = {
   seasonBallotCount: number;
+  totalBallotCount: number;
   voterSince: Date | null;
 };
 
-/** Submitted ballots per voter for a poll season, plus first ballot date on the poll. */
+/** Season ballot counts, plus every ballot submitted on this poll and the first one. */
 export async function getPollVoterBallotStatsForSeason({
   pollId,
   year,
@@ -788,7 +789,7 @@ export async function getPollVoterBallotStatsForSeason({
   pollId: string;
   year: number;
 }): Promise<Map<string, PollVoterBallotStats>> {
-  const [seasonRows, sinceRows] = await Promise.all([
+  const [seasonRows, careerRows] = await Promise.all([
     db
       .select({
         userId: ballotsTable.userId,
@@ -806,6 +807,7 @@ export async function getPollVoterBallotStatsForSeason({
     db
       .select({
         userId: ballotsTable.userId,
+        totalBallotCount: count(),
         voterSince: sql<Date>`min(${ballotsTable.submittedAt})`,
       })
       .from(ballotsTable)
@@ -815,9 +817,10 @@ export async function getPollVoterBallotStatsForSeason({
 
   const map = new Map<string, PollVoterBallotStats>();
 
-  for (const row of sinceRows) {
+  for (const row of careerRows) {
     map.set(row.userId, {
       seasonBallotCount: 0,
+      totalBallotCount: row.totalBallotCount,
       voterSince: row.voterSince,
     });
   }
@@ -826,6 +829,7 @@ export async function getPollVoterBallotStatsForSeason({
     const existing = map.get(row.userId);
     map.set(row.userId, {
       seasonBallotCount: row.seasonBallotCount,
+      totalBallotCount: existing?.totalBallotCount ?? row.seasonBallotCount,
       voterSince: existing?.voterSince ?? null,
     });
   }
