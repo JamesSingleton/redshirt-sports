@@ -6,7 +6,15 @@ export function describeBallotPickContext(pick: BallotPickRow): string {
   const { voterRank, consensusRank, diff, isOutlier, shortName } = pick;
 
   if (consensusRank == null || consensusRank > TOP_25) {
-    return `${shortName}: ranked No. ${voterRank} on this ballot — not in the published Top 25.`;
+    const line = `${shortName}: ranked No. ${voterRank} on this ballot — not in the published Top 25.`;
+    if (!isOutlier) {
+      return line;
+    }
+    if (consensusRank == null) {
+      return `${line} Outlier: ${OUTLIER_RANK_GAP} or more spots from the published order.`;
+    }
+    const gap = Math.abs(voterRank - consensusRank);
+    return `${line} Outlier: ${gap} spots from the published order (≥${OUTLIER_RANK_GAP}).`;
   }
 
   const lines = [

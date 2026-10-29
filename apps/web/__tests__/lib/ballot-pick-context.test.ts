@@ -31,6 +31,31 @@ describe("describeBallotPickContext", () => {
         pick({ voterRank: 3, consensusRank: null, diff: "rv" }),
       ),
     ).toContain("not in the published Top 25");
+    expect(
+      describeBallotPickContext(
+        pick({ voterRank: 25, consensusRank: 28, diff: "rv" }),
+      ),
+    ).not.toContain("Outlier");
+    expect(
+      describeBallotPickContext(
+        pick({
+          voterRank: 25,
+          consensusRank: 34,
+          diff: "rv",
+          isOutlier: true,
+        }),
+      ),
+    ).toContain("Outlier: 9 spots");
+    expect(
+      describeBallotPickContext(
+        pick({
+          voterRank: 25,
+          consensusRank: null,
+          diff: "rv",
+          isOutlier: true,
+        }),
+      ),
+    ).toContain("Outlier: 8 or more spots");
   });
 
   it("describes equal and numeric diffs", () => {

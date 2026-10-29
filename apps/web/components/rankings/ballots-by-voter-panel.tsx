@@ -26,7 +26,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BallotDiffChip } from "@/components/rankings/ballot-diff-chip";
 import { BallotMatchRadial } from "@/components/rankings/ballot-match-radial";
 import { TeamMark } from "@/components/rankings/team-mark";
-import { OUTLIER_RANK_GAP } from "@/lib/ballot-outliers";
+import { OUTLIER_RANK_GAP, OUTLIER_TOP_OMIT_RANK } from "@/lib/ballot-outliers";
 import { describeBallotPickContext } from "@/lib/ballot-pick-context";
 import type { VoterBallotCardData } from "@/lib/ballots-by-voter-data";
 
@@ -279,7 +279,8 @@ export function BallotsByVoterPanel({
           <span>team outside the Top 25</span>
           <span className="inline-flex items-center gap-1">
             <span className="size-3 rounded-sm bg-gold/15 ring-1 ring-inset ring-gold" />
-            outlier (≥{OUTLIER_RANK_GAP} spots)
+            outlier (≥{OUTLIER_RANK_GAP} spots, or left off the Top{" "}
+            {OUTLIER_TOP_OMIT_RANK})
           </span>
         </div>
 
