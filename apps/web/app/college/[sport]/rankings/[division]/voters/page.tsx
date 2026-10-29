@@ -1,4 +1,7 @@
-import { formatWeekSegment } from "@redshirt-sports/clients/espn";
+import {
+  formatWeekSegment,
+  type SportParam,
+} from "@redshirt-sports/clients/espn";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -20,7 +23,6 @@ import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
 import { sportNavLabel } from "@/lib/sport-nav";
 import { voterBallotSlug } from "@/lib/voter-ballot-slug";
-import type { SportParam } from "@/utils/espn";
 
 export async function generateMetadata({
   params,

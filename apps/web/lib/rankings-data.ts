@@ -1,3 +1,4 @@
+import type { SportParam } from "@redshirt-sports/clients/espn";
 import {
   countBallotsForPollWeek,
   getBallotsListedBySanityIdForPollWeek,
@@ -28,8 +29,6 @@ import {
 } from "@redshirt-sports/db/rankings-cache-tags";
 import type { SchoolRankingHistory } from "@redshirt-sports/db/utils/school-ranking-history";
 import { cacheLife, cacheTag } from "next/cache";
-
-import type { SportParam } from "@/utils/espn";
 
 /**
  * Next.js `weeks` profile: 5m client stale, 1w background revalidate,

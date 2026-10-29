@@ -1,3 +1,4 @@
+import type { SportParam } from "@redshirt-sports/clients/espn";
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
@@ -23,7 +24,6 @@ import {
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
 import { sportNavLabel } from "@/lib/sport-nav";
-import type { SportParam } from "@/utils/espn";
 
 export async function generateMetadata({
   params,

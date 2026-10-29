@@ -1,4 +1,7 @@
-import { formatWeekSegment } from "@redshirt-sports/clients/espn";
+import {
+  formatWeekSegment,
+  type SportParam,
+} from "@redshirt-sports/clients/espn";
 import { rankingsSportTag } from "@redshirt-sports/db/rankings-cache-tags";
 import { cacheLife, cacheTag } from "next/cache";
 
@@ -15,7 +18,6 @@ import {
   getPreviousWeek,
   type Movement,
 } from "@/lib/rankings-movement";
-import type { SportParam } from "@/utils/espn";
 
 export const FOOTBALL_WIDGET_DIVISIONS = ["fcs", "fbs", "d2", "d3"] as const;
 export const BASKETBALL_WIDGET_DIVISIONS = ["d1", "d2", "d3"] as const;

@@ -1,4 +1,8 @@
-import { formatWeekSegment } from "@redshirt-sports/clients/espn";
+import {
+  formatWeekSegment,
+  type SportParam,
+  weekTitle,
+} from "@redshirt-sports/clients/espn";
 import { sportInfoBySlug } from "@redshirt-sports/sanity/queries";
 import { notFound } from "next/navigation";
 
@@ -15,8 +19,6 @@ import {
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { sportNavLabel } from "@/lib/sport-nav";
-import type { SportParam } from "@/utils/espn";
-import { weekTitle } from "@/utils/espn";
 
 export async function loadRankingsWeekShell({
   sport,

@@ -329,3 +329,26 @@ export async function getVotingSeasonInfoBySportIds(
 
   return bySportId;
 }
+
+/** Current voting season for one sport, from synced season and week rows. */
+export async function getVotingSeasonInfo(
+  sportId: string,
+  date = new Date(),
+): Promise<VotingSeasonInfo | null> {
+  const bySportId = await getVotingSeasonInfoBySportIds([sportId], date);
+  return bySportId.get(sportId) ?? null;
+}
+
+export async function requireVotingSeasonInfo(
+  sportId: string,
+  sportLabel = sportId,
+  date = new Date(),
+): Promise<VotingSeasonInfo> {
+  const season = await getVotingSeasonInfo(sportId, date);
+  if (!season) {
+    throw new Error(
+      `No voting season is loaded for ${sportLabel}. Load seasons before opening voting.`,
+    );
+  }
+  return season;
+}

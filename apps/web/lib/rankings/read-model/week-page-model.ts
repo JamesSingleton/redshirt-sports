@@ -1,4 +1,9 @@
-import { formatWeekSegment } from "@redshirt-sports/clients/espn";
+import {
+  formatWeekSegment,
+  parseWeekSegment,
+  type SportParam,
+  weekTitle,
+} from "@redshirt-sports/clients/espn";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import type { Graph } from "schema-dts";
@@ -29,7 +34,6 @@ import {
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
 import { sportNavLabel } from "@/lib/sport-nav";
-import { parseWeekSegment, type SportParam, weekTitle } from "@/utils/espn";
 
 const baseUrl = getBaseUrl();
 

@@ -1,6 +1,5 @@
+import { parseWeekSegment } from "@redshirt-sports/clients/espn";
 import { notFound } from "next/navigation";
-
-import { parseWeekSegment } from "@/utils/espn";
 
 export function resolveRankingsYear(year: string): number {
   if (!/^\d{4}$/.test(year)) {

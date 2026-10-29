@@ -1,8 +1,8 @@
+import { parseWeekSegment } from "@redshirt-sports/clients/espn";
 import { NextResponse } from "next/server";
 
 import { resolvePublicRankings } from "@/lib/rankings-api";
 import { rankingsApiRatelimit } from "@/server/ratelimit";
-import { parseWeekSegment } from "@/utils/espn";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",

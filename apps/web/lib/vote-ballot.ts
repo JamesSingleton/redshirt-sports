@@ -1,4 +1,4 @@
-import type { SportParam } from "@/utils/espn";
+import type { SportParam } from "@redshirt-sports/clients/espn";
 
 export const SPORT_SLUG_MAP: Record<string, SportParam> = {
   football: "football",

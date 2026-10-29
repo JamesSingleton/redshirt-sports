@@ -77,6 +77,6 @@ Operational model:
 ## Related code
 
 - Mapping: `packages/db/src/utils/week-mapping.ts`, `packages/clients/src/espn/week-url.ts`
-- Voting week: `getVotingWeek` / `getSeasonInfo().votingWeek` in `packages/clients/src/espn/api.ts`
+- Voting week at runtime: `getVotingSeasonInfo` in `packages/db/src/queries/seasons.ts`. ESPN is only called by the admin season loader that fills those rows.
 - Public rankings API week segments: [rankings-api.md](./rankings-api.md)
 - Domain glossary: [CONTEXT.md](../CONTEXT.md) (Week)

@@ -1,3 +1,4 @@
+import type { SportParam } from "@redshirt-sports/clients/espn";
 import {
   type DynamicFetchOptions,
   PUBLISHED_FETCH_OPTIONS,
@@ -20,7 +21,6 @@ import { loadRankingsIndexCards } from "@/lib/rankings/read-model";
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { sportNavLabel } from "@/lib/sport-nav";
 import { validateSport } from "@/lib/vote-ballot";
-import type { SportParam } from "@/utils/espn";
 import RankingsIndexRouteLoading from "./loading";
 
 export async function generateMetadata({

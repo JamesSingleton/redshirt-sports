@@ -25,7 +25,7 @@ const {
   mockSubmitBallot,
   mockArePollRankingsPublished,
   mockGetVoterBallots,
-  mockGetSeasonInfo,
+  mockRequireVotingSeasonInfo,
   mockRatelimit,
   PollWeekLockedError,
 } = vi.hoisted(() => {
@@ -48,7 +48,7 @@ const {
     mockSubmitBallot: vi.fn(),
     mockArePollRankingsPublished: vi.fn(),
     mockGetVoterBallots: vi.fn(),
-    mockGetSeasonInfo: vi.fn(),
+    mockRequireVotingSeasonInfo: vi.fn(),
     mockRatelimit: vi.fn(),
     PollWeekLockedError,
   };
@@ -68,11 +68,8 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   submitBallot: mockSubmitBallot,
   arePollRankingsPublished: mockArePollRankingsPublished,
   getVoterBallots: mockGetVoterBallots,
+  requireVotingSeasonInfo: mockRequireVotingSeasonInfo,
   PollWeekLockedError,
-}));
-
-vi.mock("@/utils/espn", () => ({
-  getSeasonInfo: mockGetSeasonInfo,
 }));
 
 vi.mock("@redshirt-sports/analytics/server", () => ({
@@ -111,7 +108,9 @@ describe("vote submit flow", () => {
     mockGetSchoolsBySanityIds.mockReset().mockResolvedValue(schoolIdMap());
     mockSubmitBallot.mockReset().mockResolvedValue(undefined);
     mockArePollRankingsPublished.mockReset().mockResolvedValue(false);
-    mockGetSeasonInfo.mockReset().mockResolvedValue(seasonInfoInSeason);
+    mockRequireVotingSeasonInfo
+      .mockReset()
+      .mockResolvedValue(seasonInfoInSeason);
     mockRatelimit.mockReset().mockResolvedValue({ success: true });
   });
 

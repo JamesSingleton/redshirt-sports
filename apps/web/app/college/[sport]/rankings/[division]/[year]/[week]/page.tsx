@@ -1,3 +1,4 @@
+import { parseWeekSegment, weekTitle } from "@redshirt-sports/clients/espn";
 import {
   type DynamicFetchOptions,
   PUBLISHED_FETCH_OPTIONS,
@@ -15,7 +16,6 @@ import {
   pollDivisionLabel,
 } from "@/lib/rankings/read-model";
 import { sportNavLabel } from "@/lib/sport-nav";
-import { parseWeekSegment, weekTitle } from "@/utils/espn";
 
 function resolveYearNumber(year: string): number {
   if (!/^\d{4}$/.test(year)) {

@@ -1,4 +1,5 @@
 import { auth } from "@redshirt-sports/auth/server";
+import { type SportParam, SportSchema } from "@redshirt-sports/clients/espn";
 import {
   arePollRankingsPublished,
   getLatestVoterBallot,
@@ -6,6 +7,7 @@ import {
   getSportIdBySlug,
   getVoterBallots,
   hasVoterVoted,
+  requireVotingSeasonInfo,
   resolveWeekIdForLegacyWeek,
 } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
@@ -29,12 +31,6 @@ import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { userCanVoteOnPoll } from "@/lib/require-poll-voter";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { noIndexRobots } from "@/lib/seo";
-import {
-  getCurrentSeason,
-  getVotingWeek,
-  type SportParam,
-  SportSchema,
-} from "@/utils/espn";
 
 const ParamsSchema = z.object({
   sport: SportSchema,
@@ -209,11 +205,11 @@ export async function VotePageAuth({
     notFound();
   }
 
-  const [votingWeek, { year }, query] = await Promise.all([
-    getVotingWeek(sport),
-    getCurrentSeason(sport),
+  const [season, query] = await Promise.all([
+    requireVotingSeasonInfo(sportId, sport),
     searchParams ?? Promise.resolve({} as { edit?: string }),
   ]);
+  const { year, votingWeek } = season;
   const wantsEdit = query.edit === "1";
 
   const pollPromise = getPollBySportAndSlug({ sportId, slug: division });

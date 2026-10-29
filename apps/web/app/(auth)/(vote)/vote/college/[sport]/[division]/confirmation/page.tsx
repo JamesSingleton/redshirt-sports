@@ -4,7 +4,9 @@ import {
   getPollBySportAndSlug,
   getSportIdBySlug,
   getVoterBallots,
+  requireVotingSeasonInfo,
   resolveWeekIdForLegacyWeek,
+  type SportParam,
 } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
 import { schoolsByIdQuery } from "@redshirt-sports/sanity/queries";
@@ -16,7 +18,6 @@ import { Suspense } from "react";
 
 import CustomImage from "@/components/sanity-image";
 import { noIndexRobots } from "@/lib/seo";
-import { getCurrentSeason, getVotingWeek, type SportParam } from "@/utils/espn";
 import { transformBallotToTeamIds } from "@/utils/process-ballots";
 
 function generateConfirmationHeader(sport: string, division: string) {
@@ -72,11 +73,10 @@ export async function VoteConfirmationContent({
   const header = generateConfirmationHeader(sport, division);
   const { userId } = await auth.protect();
 
-  const [votingWeek, { year }, sportId] = await Promise.all([
-    getVotingWeek(sport as SportParam),
-    getCurrentSeason(sport as SportParam),
-    getSportIdBySlug(sport as SportParam),
-  ]);
+  const sportId = await getSportIdBySlug(sport as SportParam);
+  const season = sportId ? await requireVotingSeasonInfo(sportId, sport) : null;
+  const year = season?.year ?? 0;
+  const votingWeek = season?.votingWeek ?? 0;
 
   const ballot = await getVoterBallots({
     year,

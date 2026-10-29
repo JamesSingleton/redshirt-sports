@@ -1,4 +1,7 @@
-import { formatWeekSegment } from "@redshirt-sports/clients/espn";
+import {
+  formatWeekSegment,
+  type SportParam,
+} from "@redshirt-sports/clients/espn";
 import { getPollBySportSlugAndPollSlug } from "@redshirt-sports/db/queries";
 import {
   calendarWeekKey,
@@ -16,7 +19,6 @@ import {
   validateDivision,
   validateSport,
 } from "@/lib/vote-ballot";
-import type { SportParam } from "@/utils/espn";
 
 const TOP_25_MAX_RANK = 25;
 

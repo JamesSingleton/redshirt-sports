@@ -143,7 +143,7 @@ export async function getMultipleSeasonsData(
 
 /**
  * Calendar week currently in progress on ESPN (legacy ints).
- * Prefer {@link getVotingWeek} for ballot / rankings attachment.
+ * The season loader uses this client. Ballot attachment reads Postgres.
  */
 export async function getCurrentWeek(
   sport: SportParam = "football",
@@ -154,8 +154,8 @@ export async function getCurrentWeek(
 }
 
 /**
- * Ballot / rankings week: last regular week eligible for voting
- * (`endDate - 48h`), else Preseason, else Final Rankings after regular season ends.
+ * Ballot / rankings week from a live ESPN season payload.
+ * App runtime reads synced rows via `getVotingSeasonInfo` instead.
  * See docs/poll-weeks.md.
  */
 export async function getVotingWeek(

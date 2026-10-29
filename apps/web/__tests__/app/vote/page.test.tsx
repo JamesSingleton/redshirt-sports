@@ -5,8 +5,7 @@ const {
   mockGetSportIdBySlug,
   mockUserCanVoteOnPoll,
   mockHasVoterVoted,
-  mockGetVotingWeek,
-  mockGetCurrentSeason,
+  mockRequireVotingSeasonInfo,
   mockSanityFetchPage,
   mockGetLatestVoterBallot,
   mockGetPollBySportAndSlug,
@@ -21,8 +20,7 @@ const {
   mockGetSportIdBySlug: vi.fn(),
   mockUserCanVoteOnPoll: vi.fn(),
   mockHasVoterVoted: vi.fn(),
-  mockGetVotingWeek: vi.fn(),
-  mockGetCurrentSeason: vi.fn(),
+  mockRequireVotingSeasonInfo: vi.fn(),
   mockSanityFetchPage: vi.fn(),
   mockGetLatestVoterBallot: vi.fn(),
   mockGetPollBySportAndSlug: vi.fn(),
@@ -45,6 +43,7 @@ vi.mock("@redshirt-sports/auth/server", () => ({
 vi.mock("@redshirt-sports/db/queries", () => ({
   getSportIdBySlug: mockGetSportIdBySlug,
   hasVoterVoted: mockHasVoterVoted,
+  requireVotingSeasonInfo: mockRequireVotingSeasonInfo,
   getLatestVoterBallot: mockGetLatestVoterBallot,
   getPollBySportAndSlug: mockGetPollBySportAndSlug,
   resolveWeekIdForLegacyWeek: mockResolveWeekIdForLegacyWeek,
@@ -55,15 +54,6 @@ vi.mock("@redshirt-sports/db/queries", () => ({
 vi.mock("@/lib/require-poll-voter", () => ({
   userCanVoteOnPoll: mockUserCanVoteOnPoll,
 }));
-
-vi.mock("@/utils/espn", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/utils/espn")>();
-  return {
-    ...actual,
-    getVotingWeek: mockGetVotingWeek,
-    getCurrentSeason: mockGetCurrentSeason,
-  };
-});
 
 vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
@@ -135,8 +125,15 @@ describe("VotePageAuth", () => {
     mockGetSportIdBySlug.mockReset().mockResolvedValue("sport_football");
     mockUserCanVoteOnPoll.mockReset().mockResolvedValue(true);
     mockHasVoterVoted.mockReset().mockResolvedValue(false);
-    mockGetVotingWeek.mockReset().mockResolvedValue(1);
-    mockGetCurrentSeason.mockReset().mockResolvedValue({ year: 2025 });
+    mockRequireVotingSeasonInfo.mockReset().mockResolvedValue({
+      sportId: "sport_football",
+      year: 2025,
+      votingWeek: 1,
+      weekId: "week-1",
+      isPreseason: false,
+      isRegularSeason: true,
+      isPostseason: false,
+    });
     mockSanityFetchPage.mockReset().mockResolvedValue({
       data: [{ _id: "school-1", shortName: "Alabama" }],
     });

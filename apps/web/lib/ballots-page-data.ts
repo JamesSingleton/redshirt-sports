@@ -1,3 +1,4 @@
+import type { SportParam } from "@redshirt-sports/clients/espn";
 import {
   getSportIdBySlug,
   getVotesForWeekAndYearByVoter,
@@ -16,7 +17,6 @@ import {
   rankingsWeekTag,
 } from "@/lib/rankings-data";
 import { voterBallotSlug } from "@/lib/voter-ballot-slug";
-import type { SportParam } from "@/utils/espn";
 
 export type BallotsMatrixVoter = {
   userId: string;

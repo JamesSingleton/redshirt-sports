@@ -35,7 +35,6 @@ export default defineConfig({
         "app/__transfer-portal/**",
         "app/__recruiting/**",
         "app/__players/**",
-        "utils/espn.ts",
         ...PHASE1_COVERAGE_EXCLUDES,
       ],
       thresholds: {

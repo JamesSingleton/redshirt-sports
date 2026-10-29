@@ -1,9 +1,10 @@
 "use server";
 
 import { clerkClient } from "@redshirt-sports/auth/server";
-import { getSeasonInfo } from "@redshirt-sports/clients/espn";
 import {
   getPollRankingPublishPreview,
+  getSportIdBySlug,
+  getVotingSeasonInfo,
   listLegacyWeeksForSportYear,
   listPolls,
   listSeasonYearsForSport,
@@ -156,12 +157,14 @@ export async function unpublishRankings({
   });
 
   const parsed = parseCalendarWeekKey(weekKey);
-  const seasonInfo = await getSeasonInfo(sport);
+  const sportId = await getSportIdBySlug(sport);
+  const seasonInfo = sportId ? await getVotingSeasonInfo(sportId) : null;
   const unpublishedLegacy = parsed
     ? seasonTypeAndNumberToLegacyWeek(parsed.seasonType, parsed.weekNumber)
     : null;
   const votersCanEdit =
     unpublishedLegacy != null &&
+    seasonInfo != null &&
     year === seasonInfo.year &&
     unpublishedLegacy === seasonInfo.votingWeek;
 

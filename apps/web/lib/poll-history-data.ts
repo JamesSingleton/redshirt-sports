@@ -1,4 +1,8 @@
-import { formatWeekSegment } from "@redshirt-sports/clients/espn";
+import {
+  formatWeekSegment,
+  type SportParam,
+  weekTitle,
+} from "@redshirt-sports/clients/espn";
 import { cacheLife, cacheTag } from "next/cache";
 
 import {
@@ -10,8 +14,6 @@ import {
   rankingsDivisionTag,
   rankingsSportTag,
 } from "@/lib/rankings-data";
-import type { SportParam } from "@/utils/espn";
-import { weekTitle } from "@/utils/espn";
 
 export type PollWeekNumberOne = {
   week: number;
