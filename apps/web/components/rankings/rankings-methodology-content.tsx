@@ -10,7 +10,7 @@ import { Eye, List, Users } from "lucide-react";
 import { AdSlot } from "@/components/ad-slot";
 import { MethodologySectionNav } from "@/components/rankings/methodology-section-nav";
 import type { AdvertisementCreative } from "@/lib/advertisement";
-import { OUTLIER_RANK_GAP, OUTLIER_TOP_OMIT_RANK } from "@/lib/ballot-outliers";
+import { OUTLIER_RANK_GAP } from "@/lib/ballot-outliers";
 import { TOP_25 } from "@/lib/constants";
 
 const SECTIONS = [
@@ -282,19 +282,17 @@ export function RankingsMethodologyContent({
 
         <MethodSection id="outliers" title="Outlier policy">
           <p>
-            A pick is an outlier in two cases: the voter ranks a team{" "}
-            <b>{OUTLIER_RANK_GAP} or more spots</b> from its published rank, or{" "}
-            <b>
-              leaves off a team in the published Top {OUTLIER_TOP_OMIT_RANK}
-            </b>
-            . The published rank includes teams that received votes outside the
-            Top {OUTLIER_TOP_OMIT_RANK}.
+            An outlier is a rank <b>{OUTLIER_RANK_GAP} or more spots</b> from
+            that team&apos;s published rank. The published rank includes teams
+            that received votes outside the Top {TOP_25}.
           </p>
           <p>
-            Ranking a team that missed the Top {OUTLIER_TOP_OMIT_RANK} is not an
-            outlier by itself. A 25th-place vote for a team the poll placed just
-            outside, within {OUTLIER_RANK_GAP - 1} spots, stays unflagged. A
-            team with no published rank is unflagged too.
+            Leaving a published Top {TOP_25} team off a ballot is listed on its
+            own, separate from outliers. Ranking a team that missed the Top{" "}
+            {TOP_25} is an outlier only when the gap is {OUTLIER_RANK_GAP} spots
+            or more. A 25th-place vote for a team the poll placed just outside,
+            within {OUTLIER_RANK_GAP - 1} spots, stays unflagged. A team with no
+            published rank is unflagged too.
           </p>
           <ul className="grid gap-2 pl-5 [list-style:disc]">
             <li>Flags are informational; ballots are never altered.</li>

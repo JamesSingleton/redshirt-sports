@@ -30,8 +30,8 @@ function matrixFixture(): BallotsPageMatrix {
         rankMin: 1,
         rankMax: 2,
         cells: [
-          { rank: 1, isOutlier: false },
-          { rank: 10, isOutlier: true },
+          { rank: 1, isOutlier: false, isLeftOff: false },
+          { rank: 10, isOutlier: true, isLeftOff: false },
         ],
       },
     ],
@@ -40,6 +40,7 @@ function matrixFixture(): BallotsPageMatrix {
     unanimousTeamCount: 0,
     topFirstPlaceVotes: 5,
     outlierPickCount: 1,
+    leftOffCount: 0,
   };
 }
 
@@ -83,5 +84,15 @@ describe("ballot matrix column visibility", () => {
 describe("voterHasOutlierByIndex", () => {
   it("marks only voters with at least one outlier cell", () => {
     expect(voterHasOutlierByIndex(matrixFixture())).toEqual([false, true]);
+  });
+
+  it("ignores a voter whose only flag is a left-off Top 25 team", () => {
+    const matrix = matrixFixture();
+    const row = matrix.rows[0];
+    if (!row) {
+      throw new Error("missing row");
+    }
+    row.cells[1] = { rank: null, isOutlier: false, isLeftOff: true };
+    expect(voterHasOutlierByIndex(matrix)).toEqual([false, false]);
   });
 });

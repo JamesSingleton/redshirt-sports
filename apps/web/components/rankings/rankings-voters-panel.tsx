@@ -150,7 +150,7 @@ export function RankingsVotersPanel({
         </Select>
       </div>
 
-      <div className="hidden overflow-x-auto rounded-xl border bg-card md:block">
+      <div className="hidden max-w-full overflow-x-auto overflow-y-clip overscroll-x-contain rounded-xl border bg-card md:block">
         <table className="w-full text-base">
           <thead>
             <tr className="border-b">

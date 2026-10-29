@@ -12,7 +12,7 @@ import {
   type ConsensusRank,
   computeBallotMatchPercent,
 } from "@/lib/ballot-match";
-import { isOutlierPick, OUTLIER_TOP_OMIT_RANK } from "@/lib/ballot-outliers";
+import { isOutlierPick } from "@/lib/ballot-outliers";
 import { TOP_25 } from "@/lib/constants";
 import {
   getCachedFinalRankings,
@@ -122,9 +122,7 @@ export async function getCachedBallotsByVoterCards({
   }
 
   const consensusRanks: ConsensusRank[] = [...consensusById.values()];
-  const omissionRankIds = consensusRanks
-    .filter((c) => c.rank <= OUTLIER_TOP_OMIT_RANK)
-    .map((c) => c.id);
+  const omissionRankIds = consensusRanks.map((c) => c.id);
 
   const allBallotTeamIds = new Set<string>();
   for (const entry of Object.values(votesByVoter)) {
@@ -218,7 +216,6 @@ export async function getCachedBallotsByVoterCards({
         shortName: meta.shortName,
         consensusRank: consensus.rank,
       });
-      outlierCount += 1;
       gapSum += Math.abs(ABSENT_RANK - consensus.rank);
       gapCount += 1;
     }

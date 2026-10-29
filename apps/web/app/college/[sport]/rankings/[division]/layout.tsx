@@ -11,7 +11,7 @@ export default function RankingsDivisionLayout({
   params: Promise<{ sport: string; division: string }>;
 }) {
   return (
-    <div className="mx-auto max-w-site px-4 lg:px-6">
+    <div className="mx-auto w-full min-w-0 max-w-site px-4 lg:px-6">
       <Suspense fallback={<RankingsWeekChromeSkeleton />}>
         <RankingsDivisionChrome params={params} />
       </Suspense>

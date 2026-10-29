@@ -51,7 +51,7 @@ export function RankingsPollTable({
   const ballotWord = ballotsCounted === 1 ? "ballot" : "ballots";
 
   return (
-    <div className="relative w-full overflow-x-auto rounded-xl border bg-card">
+    <div className="relative w-full min-w-0 overflow-clip rounded-xl border bg-card">
       <Table>
         <TableCaption className="px-4 py-3 text-left text-sm text-muted-foreground">
           {ballotsCounted} voters × 25-to-1 points (max {ballotsCounted * 25}).

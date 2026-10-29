@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { JsonLdScript } from "@/components/json-ld";
+import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { RankingsVotersPanel } from "@/components/rankings/rankings-voters-panel";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { formatVoterSince } from "@/lib/format-voter-since";
@@ -44,8 +45,10 @@ export default function RankingsVotersPage({
 }: {
   params: Promise<{ sport: string; division: string }>;
 }) {
-  return draftAwareParamsPage(params, null, (resolved) =>
-    renderVotersPage(resolved),
+  return draftAwareParamsPage(
+    params,
+    <RankingsTabSkeleton variant="voters" />,
+    (resolved) => renderVotersPage(resolved),
   );
 }
 

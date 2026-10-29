@@ -131,6 +131,7 @@ describe("getCachedBallotsByVoterCards", () => {
         expect.objectContaining({ teamId: "t20", consensusRank: 20 }),
       ]),
     );
+    expect(cards[0]?.outlierCount).toBe(0);
   });
 
   it("fetches missing school metadata from Sanity", async () => {

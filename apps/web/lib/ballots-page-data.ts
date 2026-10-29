@@ -4,7 +4,7 @@ import {
 } from "@redshirt-sports/db/queries";
 import { cacheLife, cacheTag } from "next/cache";
 
-import { isOutlierPick } from "@/lib/ballot-outliers";
+import { isLeftOffTop25, isOutlierPick } from "@/lib/ballot-outliers";
 import { TOP_25 } from "@/lib/constants";
 import {
   getCachedFinalRankings,
@@ -28,6 +28,7 @@ export type BallotsMatrixVoter = {
 export type BallotsMatrixCell = {
   rank: number | null;
   isOutlier: boolean;
+  isLeftOff: boolean;
 };
 
 export type BallotsMatrixRow = {
@@ -54,6 +55,7 @@ export type BallotsPageMatrix = {
   unanimousTeamCount: number;
   topFirstPlaceVotes: number;
   outlierPickCount: number;
+  leftOffCount: number;
 };
 
 function voterShortLabel(firstName: string, lastName: string): string {
@@ -155,6 +157,7 @@ export async function getCachedBallotsPageMatrix({
   const rowTeams = [...top25, ...receivingVotes];
 
   let outlierPickCount = 0;
+  let leftOffCount = 0;
   const rows: BallotsMatrixRow[] = rowTeams.map((team) => {
     const publishedRank = team.rank;
     const ranks: number[] = [];
@@ -167,10 +170,17 @@ export async function getCachedBallotsPageMatrix({
         voterRank,
         publishedRank,
       });
+      const isLeftOff = isLeftOffTop25({
+        voterRank,
+        publishedRank,
+      });
       if (isOutlier) {
         outlierPickCount += 1;
       }
-      return { rank: voterRank, isOutlier };
+      if (isLeftOff) {
+        leftOffCount += 1;
+      }
+      return { rank: voterRank, isOutlier, isLeftOff };
     });
 
     const rankMin = ranks.length > 0 ? Math.min(...ranks) : null;
@@ -208,5 +218,6 @@ export async function getCachedBallotsPageMatrix({
     unanimousTeamCount,
     topFirstPlaceVotes,
     outlierPickCount,
+    leftOffCount,
   };
 }

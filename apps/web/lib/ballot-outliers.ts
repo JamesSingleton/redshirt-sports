@@ -2,8 +2,6 @@ import { TOP_25 } from "@/lib/constants";
 
 /** Spots from the published rank that flag a pick. */
 export const OUTLIER_RANK_GAP = 8;
-/** Leaving off a team at this published rank or better is an outlier. */
-export const OUTLIER_TOP_OMIT_RANK = TOP_25;
 
 export function isOutlierPick({
   voterRank,
@@ -12,15 +10,21 @@ export function isOutlierPick({
   voterRank: number | null;
   publishedRank: number | null;
 }): boolean {
-  if (publishedRank != null && publishedRank <= OUTLIER_TOP_OMIT_RANK) {
-    if (voterRank === null) {
-      return true;
-    }
-  }
   if (voterRank === null || publishedRank == null) {
     return false;
   }
   return Math.abs(voterRank - publishedRank) >= OUTLIER_RANK_GAP;
+}
+
+/** A published Top 25 team this voter left off the ballot. */
+export function isLeftOffTop25({
+  voterRank,
+  publishedRank,
+}: {
+  voterRank: number | null;
+  publishedRank: number | null;
+}): boolean {
+  return voterRank === null && publishedRank != null && publishedRank <= TOP_25;
 }
 
 export function rankHeatCellClass(rank: number): string {

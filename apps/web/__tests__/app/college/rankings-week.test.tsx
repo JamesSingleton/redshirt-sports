@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
-import { isValidElement, type ReactElement, type ReactNode } from "react";
+import { createElement, type ReactNode } from "react";
 
+import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { sampleRankingTeam } from "../../helpers/vote-fixtures";
 
 const {
@@ -148,7 +149,7 @@ describe("CollegeFootballRankingsPage", () => {
     );
   });
 
-  it("passes null as the Suspense fallback so segment loading.tsx owns the skeleton", async () => {
+  it("keeps the poll tab skeleton as the Suspense fallback during client navigation", async () => {
     mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
     mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
     mockGetCachedFinalRankings.mockResolvedValue({
@@ -165,7 +166,9 @@ describe("CollegeFootballRankingsPage", () => {
     });
 
     const fallback = mockDraftAwareParamsPage.mock.calls[0]?.[1];
-    expect(fallback).toBeNull();
+    expect(fallback).toEqual(
+      createElement(RankingsTabSkeleton, { variant: "poll" }),
+    );
   });
 
   it("throws notFound when rankings fetch rejects", async () => {

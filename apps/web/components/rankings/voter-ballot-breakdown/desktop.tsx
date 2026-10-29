@@ -45,7 +45,10 @@ export default function VoterBreakdownDesktop({
   return (
     <div className="hidden md:block">
       <div className="relative">
-        <div ref={scrollRef} className="relative overflow-x-auto rounded-md">
+        <div
+          ref={scrollRef}
+          className="relative max-w-full overflow-x-auto overflow-y-clip overscroll-x-contain rounded-md"
+        >
           <Table className="min-w-max">
             <TableHeader>
               <TableRow className="hover:bg-transparent">

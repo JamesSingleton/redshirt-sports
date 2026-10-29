@@ -5,6 +5,7 @@ import {
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { RankingsWeekPageBody } from "@/components/rankings/rankings-week-page-body";
 import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
@@ -69,8 +70,10 @@ export default function CollegeFootballRankingsPage({
     week: string;
   }>;
 }) {
-  return draftAwareParamsPage(params, null, (resolved, options) =>
-    renderCollegeFootballRankingsPage(resolved, options),
+  return draftAwareParamsPage(
+    params,
+    <RankingsTabSkeleton variant="poll" />,
+    (resolved, options) => renderCollegeFootballRankingsPage(resolved, options),
   );
 }
 

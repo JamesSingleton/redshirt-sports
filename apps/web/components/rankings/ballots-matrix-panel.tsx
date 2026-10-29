@@ -13,14 +13,10 @@ import { Switch } from "@redshirt-sports/ui/components/switch";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { MouseEvent } from "react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { TeamMark } from "@/components/rankings/team-mark";
-import {
-  OUTLIER_RANK_GAP,
-  OUTLIER_TOP_OMIT_RANK,
-  rankHeatCellClass,
-} from "@/lib/ballot-outliers";
+import { OUTLIER_RANK_GAP, rankHeatCellClass } from "@/lib/ballot-outliers";
 import {
   ballotMatrixColumnModeQueryValue,
   ballotMatrixShowPtsFirstColumns,
@@ -29,6 +25,7 @@ import {
   voterHasOutlierByIndex,
 } from "@/lib/ballots-matrix-filters";
 import type { BallotsPageMatrix } from "@/lib/ballots-page-data";
+import { TOP_25 } from "@/lib/constants";
 
 function isHighlightModeActive(
   highlightVoter: string,
@@ -66,9 +63,50 @@ function matrixHoverBackground(
   return "bg-muted";
 }
 
+/**
+ * One background per cell. Hover paints the row and column crosshair.
+ * A selected voter keeps that wash so it does not swap to the hover fill
+ * and slide over the sticky team column.
+ */
+function voterCellSurface(
+  emphasized: boolean,
+  rowHovered: boolean,
+  colHovered: boolean,
+) {
+  if (emphasized) {
+    if (rowHovered && colHovered) {
+      return "bg-primary/20";
+    }
+    if (rowHovered || colHovered) {
+      return "bg-primary/15";
+    }
+    return "bg-primary/10";
+  }
+  return matrixHoverBackground(rowHovered, colHovered);
+}
+
+/**
+ * The heat fill covers the cell background. A translucent inset wash lets the
+ * row and column show through without replacing the rank color.
+ */
+function rankHoverWash(rowHovered: boolean, colHovered: boolean) {
+  if (rowHovered && colHovered) {
+    return "shadow-[inset_0_0_0_999px_color-mix(in_oklch,var(--accent)_62%,transparent)]";
+  }
+  if (rowHovered || colHovered) {
+    return "shadow-[inset_0_0_0_999px_color-mix(in_oklch,var(--muted)_48%,transparent)]";
+  }
+  return undefined;
+}
+
 function stickyRowZ(rowHovered: boolean) {
+  // Below the header (z-30) so a hovered row cannot cover the sticky names.
   return rowHovered ? "z-20" : "z-10";
 }
+
+/** Covers the sticky-column seam on small screens without a visible rule or extra scroll width. */
+const stickyColumnEdge =
+  "border-r-0 shadow-[1px_0_0_0_var(--card)] sm:border-r sm:shadow-none";
 
 function leaveVoterColumn(
   event: MouseEvent,
@@ -114,8 +152,23 @@ export function BallotsMatrixPanel({
 
   const teamQuery = searchParams.get("q") ?? "";
   const columnMode = parseBallotMatrixColumnMode(searchParams.get("columns"));
-  const votersWithOutliersOnly = searchParams.get("outliers") === "1";
-  const showReceivingVotes = searchParams.get("rv") !== "0";
+  const outliersFromUrl = searchParams.get("outliers") === "1";
+  const receivingVotesFromUrl = searchParams.get("rv") !== "0";
+  // The URL is the source of truth, but the switch flips before the navigation
+  // finishes. On a phone that gap reads as a dead toggle.
+  const [votersWithOutliersOnly, setVotersWithOutliersOnly] =
+    useState(outliersFromUrl);
+  const [showReceivingVotes, setShowReceivingVotes] = useState(
+    receivingVotesFromUrl,
+  );
+
+  useEffect(() => {
+    setVotersWithOutliersOnly(outliersFromUrl);
+  }, [outliersFromUrl]);
+
+  useEffect(() => {
+    setShowReceivingVotes(receivingVotesFromUrl);
+  }, [receivingVotesFromUrl]);
 
   const highlightVoter = useMemo(() => {
     const fromUrl = searchParams.get("voter")?.trim();
@@ -185,10 +238,10 @@ export function BallotsMatrixPanel({
   const highlightMode = isHighlightModeActive(highlightVoter, highlightSet);
 
   return (
-    <div className="grid gap-4">
-      <div className="rounded-xl border bg-card p-4 sm:p-5">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
+    <div className="grid min-w-0 gap-4">
+      <div className="rounded-xl border bg-card p-3 sm:p-5">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+          <div className="min-w-0 sm:col-span-2 lg:col-span-1">
             <Label htmlFor="ballots-team-search" className="text-sm">
               Team search
             </Label>
@@ -200,88 +253,94 @@ export function BallotsMatrixPanel({
               className="mt-1 h-9"
             />
           </div>
-          <div>
-            <Label htmlFor="ballots-highlight-voter" className="text-sm">
-              Highlight voter
-            </Label>
-            <Select
-              value={highlightVoter}
-              onValueChange={(slug) =>
-                patchQuery({
-                  voter: slug === "__all__" ? null : slug,
-                  voters: null,
-                })
-              }
-            >
-              <SelectTrigger id="ballots-highlight-voter" className="mt-1 h-9">
-                <SelectValue placeholder="All voters" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__all__">All voters</SelectItem>
-                {matrix.voters.map((voter) => (
-                  <SelectItem key={voter.userId} value={voter.slug}>
-                    {voter.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="ballots-columns" className="text-sm">
-              Columns
-            </Label>
-            <Select
-              value={columnMode}
-              onValueChange={(v) =>
-                patchQuery({
-                  columns: ballotMatrixColumnModeQueryValue(
-                    parseBallotMatrixColumnMode(v),
-                  ),
-                })
-              }
-            >
-              <SelectTrigger id="ballots-columns" className="mt-1 h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All voters</SelectItem>
-                <SelectItem value="summary">Summary only</SelectItem>
-                <SelectItem value="on-range">On &amp; range</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="mt-1 text-sm leading-snug text-muted-foreground">
-              {columnMode === "all"
-                ? "Full matrix with every voter column."
-                : columnMode === "summary"
-                  ? "Pts, 1st, On, and Range — no voter columns."
-                  : "Only On and Range — no voters, points, or first-place votes."}
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:justify-end">
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ballots-outliers" className="text-sm">
-                Voters with outliers
+          <div className="grid min-w-0 grid-cols-2 gap-3 sm:contents">
+            <div className="min-w-0">
+              <Label htmlFor="ballots-highlight-voter" className="text-sm">
+                Highlight voter
               </Label>
+              <Select
+                value={highlightVoter}
+                onValueChange={(slug) =>
+                  patchQuery({
+                    voter: slug === "__all__" ? null : slug,
+                    voters: null,
+                  })
+                }
+              >
+                <SelectTrigger
+                  id="ballots-highlight-voter"
+                  className="mt-1 h-9 w-full min-w-0"
+                >
+                  <SelectValue placeholder="All voters" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">All voters</SelectItem>
+                  {matrix.voters.map((voter) => (
+                    <SelectItem key={voter.userId} value={voter.slug}>
+                      {voter.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="min-w-0">
+              <Label htmlFor="ballots-columns" className="text-sm">
+                Columns
+              </Label>
+              <Select
+                value={columnMode}
+                onValueChange={(v) =>
+                  patchQuery({
+                    columns: ballotMatrixColumnModeQueryValue(
+                      parseBallotMatrixColumnMode(v),
+                    ),
+                  })
+                }
+              >
+                <SelectTrigger
+                  id="ballots-columns"
+                  className="mt-1 h-9 w-full min-w-0"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All voters</SelectItem>
+                  <SelectItem value="summary">Summary only</SelectItem>
+                  <SelectItem value="on-range">On &amp; range</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="mt-1 hidden text-sm leading-snug text-muted-foreground sm:block">
+                {columnMode === "all"
+                  ? "Full matrix with every voter column."
+                  : columnMode === "summary"
+                    ? "Pts, 1st, On, and Range — no voter columns."
+                    : "Only On and Range — no voters, points, or first-place votes."}
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-1 sm:col-span-2 sm:grid-cols-2 sm:gap-x-6 lg:col-span-1 lg:grid-cols-1 lg:content-end">
+            <Label className="flex min-h-11 cursor-pointer items-center justify-between gap-3">
+              <span className="text-sm">Voters with outliers only</span>
               <Switch
-                id="ballots-outliers"
+                className="touch-manipulation"
                 checked={votersWithOutliersOnly}
-                onCheckedChange={(checked) =>
-                  patchQuery({ outliers: checked ? "1" : null })
-                }
+                onCheckedChange={(checked) => {
+                  setVotersWithOutliersOnly(checked);
+                  patchQuery({ outliers: checked ? "1" : null });
+                }}
               />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ballots-rv" className="text-sm">
-                Show RV rows
-              </Label>
+            </Label>
+            <Label className="flex min-h-11 cursor-pointer items-center justify-between gap-3">
+              <span className="text-sm">Show RV rows</span>
               <Switch
-                id="ballots-rv"
+                className="touch-manipulation"
                 checked={showReceivingVotes}
-                onCheckedChange={(checked) =>
-                  patchQuery({ rv: checked ? null : "0" })
-                }
+                onCheckedChange={(checked) => {
+                  setShowReceivingVotes(checked);
+                  patchQuery({ rv: checked ? null : "0" });
+                }}
               />
-            </div>
+            </Label>
           </div>
         </div>
       </div>
@@ -290,9 +349,10 @@ export function BallotsMatrixPanel({
         <b className="text-foreground">{matrix.ballotsCounted}</b> ballots ·{" "}
         <b className="text-foreground">{matrix.unanimousTeamCount}</b> on every
         ballot · <b className="text-foreground">{matrix.outlierPickCount}</b>{" "}
-        outlier picks
+        outlier picks · <b className="text-foreground">{matrix.leftOffCount}</b>{" "}
+        left off
       </p>
-      <div className="hidden grid-cols-2 gap-3 sm:grid lg:grid-cols-4">
+      <div className="hidden grid-cols-2 gap-3 sm:grid lg:grid-cols-5">
         <StatCard
           label="Ballots counted"
           value={`${matrix.ballotsCounted} of ${matrix.panelSize}`}
@@ -311,7 +371,12 @@ export function BallotsMatrixPanel({
         <StatCard
           label="Outlier picks"
           value={String(matrix.outlierPickCount)}
-          detail={`≥${OUTLIER_RANK_GAP} spots or left off the Top ${OUTLIER_TOP_OMIT_RANK}`}
+          detail={`${OUTLIER_RANK_GAP}+ spots from the published rank`}
+        />
+        <StatCard
+          label="Left off"
+          value={String(matrix.leftOffCount)}
+          detail={`Published Top ${TOP_25} teams missing from a ballot`}
         />
       </div>
 
@@ -322,69 +387,179 @@ export function BallotsMatrixPanel({
           No voters have outlier picks this week.
         </p>
       ) : null}
+      {votersWithOutliersOnly && visibleVoterIndexes.length > 0 ? (
+        <p className="text-sm text-muted-foreground">
+          A dash is a published Top {TOP_25} team that voter left off. A gold
+          outline is a rank {OUTLIER_RANK_GAP} or more spots from the published
+          order.
+        </p>
+      ) : null}
 
-      <div
-        className="relative w-full overflow-x-auto rounded-xl border bg-card [-webkit-overflow-scrolling:touch] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        // Keyboard users need a tab stop so they can scroll this overflow region.
-        // biome-ignore lint/a11y/noNoninteractiveTabindex: scrollable region has no focusable cells
-        tabIndex={0}
-        aria-label="Ballot matrix"
-      >
-        <table
-          className="w-full min-w-max caption-bottom text-sm sm:text-base"
-          onMouseLeave={() => {
-            setHoverRowId(null);
-            setHoverVoterIndex(null);
-          }}
+      <div className="min-w-0 overflow-clip rounded-xl border bg-card">
+        <div
+          className="relative w-full min-w-0 max-w-full overflow-x-auto overflow-y-clip overscroll-x-contain pe-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          // Keyboard users need a tab stop so they can scroll this overflow region.
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: scrollable region has no focusable cells
+          tabIndex={0}
+          aria-label="Ballot matrix"
         >
-          <caption className="sr-only">
-            Ballot matrix: team ranks by voter
-          </caption>
-          <thead>
-            <tr className="border-b">
-              <th
-                scope="col"
-                className="sticky left-0 z-20 w-10 min-w-10 bg-card p-2 pl-2 text-right font-display text-sm font-bold sm:text-sm"
-              >
-                Rk
-              </th>
-              <th
-                scope="col"
-                className="sticky left-10 z-20 min-w-[9rem] border-r bg-card px-2 text-left text-sm font-semibold sm:min-w-[10rem] sm:text-sm"
-              >
-                Team
-              </th>
-              {showPtsFirstColumns ? (
-                <>
+          <table
+            className="w-full min-w-max caption-bottom text-sm sm:text-base"
+            onMouseLeave={() => {
+              setHoverRowId(null);
+              setHoverVoterIndex(null);
+            }}
+          >
+            <caption className="sr-only">
+              Ballot matrix: team ranks by voter
+            </caption>
+            <thead>
+              <tr className="border-b">
+                <th
+                  scope="col"
+                  className="sticky left-0 z-30 w-8 min-w-8 bg-card p-2 pl-2 text-right font-display text-sm font-bold sm:w-10 sm:min-w-10 sm:text-sm"
+                >
+                  Rk
+                </th>
+                <th
+                  scope="col"
+                  className={cn(
+                    "sticky left-8 z-30 w-[7.25rem] max-w-[7.25rem] bg-card px-2 text-left text-sm font-semibold sm:left-10 sm:w-auto sm:max-w-none sm:min-w-[10rem] sm:text-sm",
+                    stickyColumnEdge,
+                  )}
+                >
+                  Team
+                </th>
+                {showPtsFirstColumns ? (
+                  <>
+                    <th
+                      scope="col"
+                      className="hidden px-2 text-right text-sm font-semibold sm:table-cell"
+                    >
+                      Pts
+                    </th>
+                    <th
+                      scope="col"
+                      className="hidden px-2 text-right text-sm font-semibold sm:table-cell"
+                    >
+                      1st
+                    </th>
+                  </>
+                ) : null}
+                {visibleVoterIndexes.length > 0
+                  ? visibleVoterIndexes.map((voterIndex) => {
+                      const voter = matrix.voters[voterIndex];
+                      if (!voter) return null;
+                      const emphasized = isVoterColumnHighlighted(
+                        voter,
+                        highlightVoter,
+                        highlightSet,
+                      );
+                      const colHovered = hoverVoterIndex === voterIndex;
+                      const dimmed = highlightMode && !emphasized;
+                      return (
+                        <th
+                          key={voter.userId}
+                          scope="col"
+                          data-voter-col={voterIndex}
+                          onMouseEnter={() => setHoverVoterIndex(voterIndex)}
+                          onMouseLeave={(event) =>
+                            leaveVoterColumn(event, voterIndex, () =>
+                              setHoverVoterIndex(null),
+                            )
+                          }
+                          className={cn(
+                            "p-0 text-center align-bottom transition-colors",
+                            emphasized
+                              ? "bg-primary/15"
+                              : colHovered && "bg-muted",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "inline-block max-h-28 min-w-9 overflow-hidden px-0.5 pb-2 text-sm font-semibold [writing-mode:vertical-rl] rotate-180 sm:min-w-11 sm:text-sm",
+                              emphasized && "text-primary",
+                              dimmed && "opacity-35",
+                            )}
+                            title={voter.label}
+                          >
+                            {voter.shortLabel}
+                          </span>
+                        </th>
+                      );
+                    })
+                  : null}
+                <th
+                  scope="col"
+                  className={cn(
+                    "px-2 text-center text-sm font-semibold",
+                    !showVoterColumns && "border-l",
+                  )}
+                >
+                  On
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 text-center text-sm font-semibold"
+                >
+                  Range
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {top25Rows.map((row) => (
+                <MatrixRow
+                  key={row.teamId}
+                  row={row}
+                  voters={matrix.voters}
+                  showPtsFirstColumns={showPtsFirstColumns}
+                  visibleVoterIndexes={visibleVoterIndexes}
+                  highlightVoter={highlightVoter}
+                  highlightSet={highlightSet}
+                  highlightMode={highlightMode}
+                  hoverRowId={hoverRowId}
+                  hoverVoterIndex={hoverVoterIndex}
+                  onHoverRowId={setHoverRowId}
+                  onHoverVoterIndex={setHoverVoterIndex}
+                />
+              ))}
+              {rvRows.length > 0 ? (
+                <tr className="border-b">
                   <th
-                    scope="col"
-                    className="px-2 text-right text-sm font-semibold"
+                    scope="row"
+                    className="sticky left-0 z-[15] w-8 min-w-8 bg-muted/40 sm:w-10 sm:min-w-10"
+                    aria-hidden
+                  />
+                  <td
+                    className={cn(
+                      "sticky left-8 z-[15] w-[7.25rem] max-w-[7.25rem] bg-muted/40 px-2 py-2.5 text-sm font-semibold uppercase tracking-wide text-muted-foreground sm:left-10 sm:w-auto sm:max-w-none sm:min-w-[10rem] sm:text-sm",
+                      stickyColumnEdge,
+                    )}
                   >
-                    Pts
-                  </th>
-                  <th
-                    scope="col"
-                    className="hidden px-2 text-right text-sm font-semibold sm:table-cell"
-                  >
-                    1st
-                  </th>
-                </>
-              ) : null}
-              {visibleVoterIndexes.length > 0
-                ? visibleVoterIndexes.map((voterIndex) => {
+                    <span
+                      className="block truncate"
+                      title="Others receiving votes"
+                    >
+                      Others receiving votes
+                    </span>
+                  </td>
+                  {showPtsFirstColumns ? (
+                    <>
+                      <td className="hidden bg-muted/40 sm:table-cell" />
+                      <td className="hidden bg-muted/40 sm:table-cell" />
+                    </>
+                  ) : null}
+                  {visibleVoterIndexes.map((voterIndex) => {
                     const voter = matrix.voters[voterIndex];
-                    if (!voter) return null;
                     const emphasized = isVoterColumnHighlighted(
                       voter,
                       highlightVoter,
                       highlightSet,
                     );
-                    const dimmed = highlightMode && !emphasized;
                     const colHovered = hoverVoterIndex === voterIndex;
                     return (
-                      <th
-                        key={voter.userId}
-                        scope="col"
+                      <td
+                        key={`rv-gap-${voterIndex}`}
                         data-voter-col={voterIndex}
                         onMouseEnter={() => setHoverVoterIndex(voterIndex)}
                         onMouseLeave={(event) =>
@@ -393,101 +568,42 @@ export function BallotsMatrixPanel({
                           )
                         }
                         className={cn(
-                          "p-0 text-center align-bottom transition-[opacity,box-shadow,background-color]",
-                          emphasized &&
-                            "shadow-[inset_0_0_0_2px_var(--primary)]",
-                          dimmed && "text-muted-foreground",
-                          matrixHoverBackground(false, colHovered),
+                          "transition-colors",
+                          emphasized
+                            ? colHovered
+                              ? "bg-primary/15"
+                              : "bg-primary/10"
+                            : colHovered
+                              ? "bg-muted"
+                              : "bg-muted/40",
                         )}
-                      >
-                        <span
-                          className={cn(
-                            "inline-block max-h-28 min-w-10 overflow-hidden px-0.5 pb-2 text-sm font-semibold [writing-mode:vertical-rl] rotate-180 sm:min-w-11 sm:text-sm",
-                            emphasized && "text-primary",
-                          )}
-                          title={voter.label}
-                        >
-                          {voter.shortLabel}
-                        </span>
-                      </th>
+                      />
                     );
-                  })
-                : null}
-              <th
-                scope="col"
-                className={cn(
-                  "px-2 text-center text-sm font-semibold",
-                  !showVoterColumns && "border-l",
-                )}
-              >
-                On
-              </th>
-              <th
-                scope="col"
-                className="px-2 text-center text-sm font-semibold"
-              >
-                Range
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {top25Rows.map((row) => (
-              <MatrixRow
-                key={row.teamId}
-                row={row}
-                voters={matrix.voters}
-                showPtsFirstColumns={showPtsFirstColumns}
-                visibleVoterIndexes={visibleVoterIndexes}
-                highlightVoter={highlightVoter}
-                highlightSet={highlightSet}
-                highlightMode={highlightMode}
-                hoverRowId={hoverRowId}
-                hoverVoterIndex={hoverVoterIndex}
-                onHoverRowId={setHoverRowId}
-                onHoverVoterIndex={setHoverVoterIndex}
-              />
-            ))}
-            {rvRows.length > 0 ? (
-              <tr className="border-b">
-                <th
-                  scope="row"
-                  className="sticky left-0 z-[15] w-10 min-w-10 bg-muted/40"
-                  aria-hidden
+                  })}
+                  <td className="bg-muted/40" />
+                  <td className="bg-muted/40" aria-hidden />
+                </tr>
+              ) : null}
+              {rvRows.map((row) => (
+                <MatrixRow
+                  key={row.teamId}
+                  row={row}
+                  voters={matrix.voters}
+                  showPtsFirstColumns={showPtsFirstColumns}
+                  visibleVoterIndexes={visibleVoterIndexes}
+                  highlightVoter={highlightVoter}
+                  highlightSet={highlightSet}
+                  highlightMode={highlightMode}
+                  hoverRowId={hoverRowId}
+                  hoverVoterIndex={hoverVoterIndex}
+                  onHoverRowId={setHoverRowId}
+                  onHoverVoterIndex={setHoverVoterIndex}
+                  receivingVotes
                 />
-                <td className="sticky left-10 z-[15] min-w-[9rem] border-r bg-muted/40 px-2 py-2.5 text-sm font-semibold uppercase tracking-wide text-muted-foreground sm:min-w-[10rem] sm:text-sm">
-                  Others receiving votes
-                </td>
-                <td
-                  colSpan={
-                    2 +
-                    (showPtsFirstColumns ? 2 : 0) +
-                    visibleVoterIndexes.length +
-                    2
-                  }
-                  className="bg-muted/40 py-2.5"
-                  aria-hidden
-                />
-              </tr>
-            ) : null}
-            {rvRows.map((row) => (
-              <MatrixRow
-                key={row.teamId}
-                row={row}
-                voters={matrix.voters}
-                showPtsFirstColumns={showPtsFirstColumns}
-                visibleVoterIndexes={visibleVoterIndexes}
-                highlightVoter={highlightVoter}
-                highlightSet={highlightSet}
-                highlightMode={highlightMode}
-                hoverRowId={hoverRowId}
-                hoverVoterIndex={hoverVoterIndex}
-                onHoverRowId={setHoverRowId}
-                onHoverVoterIndex={setHoverVoterIndex}
-                receivingVotes
-              />
-            ))}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-4 border-t px-1 py-2.5 text-sm text-muted-foreground">
@@ -514,7 +630,13 @@ export function BallotsMatrixPanel({
         </span>
         <span className="flex items-center gap-1">
           <span className="size-3 rounded-sm ring-2 ring-inset ring-gold" />
-          Outlier
+          {OUTLIER_RANK_GAP}+ spots off the published rank
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="font-semibold text-gold" aria-hidden>
+            —
+          </span>
+          Left off a Top {TOP_25} team
         </span>
         <span>RV = others receiving votes</span>
       </div>
@@ -582,7 +704,7 @@ function MatrixRow({
       <th
         scope="row"
         className={cn(
-          "sticky left-0 w-10 min-w-10 p-0 pl-2 text-right font-display text-base font-bold tabular transition-colors sm:text-lg",
+          "sticky left-0 w-8 min-w-8 p-0 pl-2 text-right font-display text-base font-bold tabular transition-colors sm:w-10 sm:min-w-10 sm:text-lg",
           stickyRowZ(rowHovered),
           matrixHoverBackground(rowHovered, false, true),
         )}
@@ -591,12 +713,13 @@ function MatrixRow({
       </th>
       <td
         className={cn(
-          "sticky left-10 min-w-[9rem] border-r px-2 py-1 transition-colors sm:min-w-[10rem]",
+          "sticky left-8 w-[7.25rem] max-w-[7.25rem] px-2 py-1 transition-colors sm:left-10 sm:w-auto sm:max-w-none sm:min-w-[10rem]",
+          stickyColumnEdge,
           stickyRowZ(rowHovered),
           matrixHoverBackground(rowHovered, false, true),
         )}
       >
-        <div className="flex min-w-0 items-center gap-2.5">
+        <div className="flex w-[6.25rem] max-w-[6.25rem] items-center gap-1.5 overflow-hidden sm:w-auto sm:max-w-none sm:gap-2.5">
           <TeamMark
             image={row.image}
             shortName={row.shortName}
@@ -604,7 +727,10 @@ function MatrixRow({
             name={row.name}
             size="sm"
           />
-          <span className="truncate text-sm font-semibold sm:text-sm">
+          <span
+            className="truncate text-sm font-semibold"
+            title={row.shortName}
+          >
             {row.shortName}
           </span>
         </div>
@@ -613,7 +739,7 @@ function MatrixRow({
         <>
           <td
             className={cn(
-              "px-2 text-right text-sm font-semibold tabular transition-colors sm:text-base",
+              "hidden px-2 text-right text-sm font-semibold tabular transition-colors sm:table-cell sm:text-base",
               matrixHoverBackground(rowHovered, false),
             )}
           >
@@ -640,6 +766,7 @@ function MatrixRow({
               highlightSet,
             );
             const colHovered = hoverVoterIndex === voterIndex;
+            const dimmed = highlightMode && !emphasized;
             return (
               <td
                 key={voter?.userId ?? voterIndex}
@@ -651,21 +778,17 @@ function MatrixRow({
                   )
                 }
                 className={cn(
-                  "p-0 transition-[opacity,box-shadow,background-color]",
-                  emphasized &&
-                    !rowHovered &&
-                    !colHovered &&
-                    "shadow-[inset_0_0_0_2px_var(--primary)]",
-                  matrixHoverBackground(rowHovered, colHovered),
+                  "p-0 transition-colors",
+                  voterCellSurface(emphasized, rowHovered, colHovered),
                 )}
               >
                 {rank != null ? (
                   <div
                     className={cn(
-                      "mx-auto flex h-9 min-w-10 w-10 items-center justify-center text-sm font-semibold tabular sm:h-10 sm:min-w-11 sm:w-11",
+                      "mx-auto flex h-8 min-w-9 w-9 items-center justify-center text-sm font-semibold tabular sm:h-10 sm:min-w-11 sm:w-11",
                       rankHeatCellClass(rank),
-                      emphasized &&
-                        "ring-2 ring-primary/60 ring-offset-1 ring-offset-card",
+                      rankHoverWash(rowHovered, colHovered),
+                      dimmed && "opacity-35",
                       cell?.isOutlier && "ring-2 ring-inset ring-gold",
                     )}
                     title={cell?.isOutlier ? "Outlier pick" : undefined}
@@ -675,9 +798,22 @@ function MatrixRow({
                       <span className="sr-only">Outlier</span>
                     ) : null}
                   </div>
+                ) : cell?.isLeftOff ? (
+                  <div
+                    className={cn(
+                      "mx-auto flex h-8 min-w-9 w-9 items-center justify-center text-base font-semibold text-gold sm:h-10 sm:min-w-11 sm:w-11",
+                      dimmed && "opacity-35",
+                    )}
+                    title="Left off the published Top 25"
+                  >
+                    <span aria-hidden>—</span>
+                    <span className="sr-only">
+                      Left off the published Top 25
+                    </span>
+                  </div>
                 ) : (
                   <div
-                    className="mx-auto h-9 min-w-10 w-10 sm:h-10 sm:w-11"
+                    className="mx-auto h-8 min-w-9 w-9 sm:h-10 sm:w-11"
                     aria-hidden
                   />
                 )}

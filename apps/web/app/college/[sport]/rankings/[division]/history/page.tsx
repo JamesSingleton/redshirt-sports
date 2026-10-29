@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { JsonLdScript } from "@/components/json-ld";
 import { RankingsHistoryContent } from "@/components/rankings/rankings-history-content";
+import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
@@ -49,10 +50,14 @@ export default function RankingsHistoryPage({
   params: Promise<{ sport: string; division: string }>;
   searchParams: Promise<{ year?: string }>;
 }) {
-  return draftAwareParamsPage(params, null, async (resolved) => {
-    const query = await searchParams;
-    return renderHistoryPage(resolved, query);
-  });
+  return draftAwareParamsPage(
+    params,
+    <RankingsTabSkeleton variant="history" />,
+    async (resolved) => {
+      const query = await searchParams;
+      return renderHistoryPage(resolved, query);
+    },
+  );
 }
 
 async function renderHistoryPage(

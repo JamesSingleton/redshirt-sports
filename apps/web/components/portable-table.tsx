@@ -34,7 +34,7 @@ export function PortableTable({ value }: { value: TableValue }) {
   const bodyRows = rows.slice(headerCount);
 
   return (
-    <div className="not-prose my-6 w-full overflow-x-auto rounded-md border">
+    <div className="not-prose my-6 w-full max-w-full overflow-x-auto overflow-y-clip overscroll-x-contain rounded-md border">
       <Table>
         {headerRows.length > 0 && (
           <TableHeader className="bg-muted">

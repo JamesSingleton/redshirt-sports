@@ -58,7 +58,7 @@ export function RankingsHistoryWeekMatrix({
   }, [activeSeason.teams, normalized]);
 
   return (
-    <div className="min-w-0 max-w-full overflow-hidden rounded-xl border bg-card shadow-xs">
+    <div className="w-full min-w-0 max-w-full overflow-clip rounded-xl border bg-card shadow-xs">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b px-5 py-5">
         <div className="min-w-0">
           <h2 className="font-display text-xl font-bold uppercase tracking-wide">
@@ -100,13 +100,14 @@ export function RankingsHistoryWeekMatrix({
         </div>
       </div>
       <div
-        className="isolate max-h-[min(70vh,38rem)] w-full max-w-full overflow-auto overscroll-contain"
+        className="isolate w-full max-w-full overflow-x-auto overflow-y-clip overscroll-x-contain md:max-h-[min(70vh,38rem)] md:overflow-y-auto md:overscroll-contain"
+        role="region"
         aria-label="Week-by-week rankings table, scrollable"
       >
         <table className="w-max border-collapse text-sm">
           <thead>
             <tr className="border-b">
-              <th className="sticky top-0 left-0 z-50 border-r bg-card p-2 text-left text-sm uppercase tracking-wide text-muted-foreground shadow-[4px_0_6px_-4px_rgba(0,0,0,0.25)]">
+              <th className="sticky top-0 left-0 z-50 border-r-0 bg-card p-2 text-left text-sm uppercase tracking-wide text-muted-foreground shadow-[1px_0_0_0_var(--card)] sm:border-r sm:shadow-[4px_0_6px_-4px_rgba(0,0,0,0.25)]">
                 Team
               </th>
               {activeSeason.weeks.map((week, weekIndex) => (
@@ -141,7 +142,7 @@ export function RankingsHistoryWeekMatrix({
           <tbody>
             {rows.map((team) => (
               <tr key={team.teamId} className="group border-b">
-                <td className="sticky left-0 z-30 border-r bg-card px-3 py-1 shadow-[4px_0_6px_-4px_rgba(0,0,0,0.2)] group-hover:bg-muted">
+                <td className="sticky left-0 z-30 border-r-0 bg-card px-3 py-1 shadow-[1px_0_0_0_var(--card)] group-hover:bg-muted sm:border-r sm:shadow-[4px_0_6px_-4px_rgba(0,0,0,0.2)]">
                   <div className="relative z-10 flex w-36 max-w-[9rem] items-center gap-2 bg-inherit sm:w-40 sm:max-w-none">
                     <TeamPageLink
                       slug={team.teamSlug}

@@ -23,7 +23,7 @@ export function RankingsTabs({
 }) {
   return (
     <nav
-      className="mt-5 flex gap-6 overflow-x-auto border-b"
+      className="mt-5 flex min-w-0 max-w-full gap-6 overflow-x-auto overflow-y-clip overscroll-x-contain border-b"
       aria-label="Rankings sections"
     >
       {tabs.map((tab) => {

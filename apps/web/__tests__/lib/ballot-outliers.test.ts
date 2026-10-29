@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { isOutlierPick, rankHeatCellClass } from "@/lib/ballot-outliers";
+import {
+  isLeftOffTop25,
+  isOutlierPick,
+  rankHeatCellClass,
+} from "@/lib/ballot-outliers";
 
 describe("isOutlierPick", () => {
   it("flags ≥8-spot gap vs published rank (including RV teams in the poll)", () => {
@@ -12,11 +16,25 @@ describe("isOutlierPick", () => {
     expect(isOutlierPick({ voterRank: 20, publishedRank: null })).toBe(false);
   });
 
-  it("counts omitting any published Top 25 team as an outlier", () => {
-    expect(isOutlierPick({ voterRank: null, publishedRank: 10 })).toBe(true);
-    expect(isOutlierPick({ voterRank: null, publishedRank: 16 })).toBe(true);
-    expect(isOutlierPick({ voterRank: null, publishedRank: 25 })).toBe(true);
-    expect(isOutlierPick({ voterRank: null, publishedRank: 26 })).toBe(false);
+  it("does not treat a left-off Top 25 team as an outlier", () => {
+    expect(isOutlierPick({ voterRank: null, publishedRank: 10 })).toBe(false);
+    expect(isOutlierPick({ voterRank: null, publishedRank: 25 })).toBe(false);
+  });
+});
+
+describe("isLeftOffTop25", () => {
+  it("flags a published Top 25 team the voter left off", () => {
+    expect(isLeftOffTop25({ voterRank: null, publishedRank: 10 })).toBe(true);
+    expect(isLeftOffTop25({ voterRank: null, publishedRank: 16 })).toBe(true);
+    expect(isLeftOffTop25({ voterRank: null, publishedRank: 25 })).toBe(true);
+  });
+
+  it("ignores a ranked team and a team outside the Top 25", () => {
+    expect(isLeftOffTop25({ voterRank: 10, publishedRank: 10 })).toBe(false);
+    expect(isLeftOffTop25({ voterRank: null, publishedRank: 26 })).toBe(false);
+    expect(isLeftOffTop25({ voterRank: null, publishedRank: null })).toBe(
+      false,
+    );
   });
 });
 

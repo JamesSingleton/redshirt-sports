@@ -129,6 +129,14 @@ describe("RankingsHistoryWeekMatrix", () => {
       "/college/teams/alabama",
     );
     expect(screen.getByTitle("BAMA · Preseason: #1")).toHaveTextContent("1");
+    const scroller = screen.getByRole("region", {
+      name: "Week-by-week rankings table, scrollable",
+    });
+    expect(scroller).toHaveClass("overflow-y-clip", "overflow-x-auto");
+    expect(scroller).not.toHaveClass("overflow-auto");
+    expect(
+      screen.getByRole("link", { name: "BAMA" }).closest("td"),
+    ).toHaveClass("border-r-0", "sm:border-r");
 
     await user.type(screen.getByLabelText("Find a team"), "georgia");
     expect(

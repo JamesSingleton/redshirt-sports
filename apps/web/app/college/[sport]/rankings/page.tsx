@@ -21,6 +21,7 @@ import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { sportNavLabel } from "@/lib/sport-nav";
 import { validateSport } from "@/lib/vote-ballot";
 import type { SportParam } from "@/utils/espn";
+import RankingsIndexRouteLoading from "./loading";
 
 export async function generateMetadata({
   params,
@@ -61,7 +62,11 @@ export default async function SportRankingsIndexPage({
 }: {
   params: Promise<{ sport: string }>;
 }) {
-  return draftAwareParamsPage(params, null, renderSportRankingsIndex);
+  return draftAwareParamsPage(
+    params,
+    <RankingsIndexRouteLoading />,
+    renderSportRankingsIndex,
+  );
 }
 
 async function renderSportRankingsIndex(
