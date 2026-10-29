@@ -42,10 +42,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${baseUrl}/college/football/rankings/${division}/history`,
         priority: 0.55,
       },
-      {
-        url: `${baseUrl}/college/football/rankings/${division}/methodology`,
-        priority: 0.5,
-      },
     ],
   );
 

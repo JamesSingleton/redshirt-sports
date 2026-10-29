@@ -12,18 +12,21 @@ describe("isOutlierPick", () => {
     expect(isOutlierPick({ voterRank: 20, publishedRank: null })).toBe(false);
   });
 
-  it("counts omitting a consensus top-15 team as an outlier", () => {
+  it("counts omitting any published Top 25 team as an outlier", () => {
     expect(isOutlierPick({ voterRank: null, publishedRank: 10 })).toBe(true);
+    expect(isOutlierPick({ voterRank: null, publishedRank: 16 })).toBe(true);
+    expect(isOutlierPick({ voterRank: null, publishedRank: 25 })).toBe(true);
+    expect(isOutlierPick({ voterRank: null, publishedRank: 26 })).toBe(false);
   });
 });
 
 describe("rankHeatCellClass", () => {
   it("returns tiered heat classes by rank", () => {
-    expect(rankHeatCellClass(1)).toContain("primary");
-    expect(rankHeatCellClass(8)).toContain("primary");
-    expect(rankHeatCellClass(12)).toContain("primary");
-    expect(rankHeatCellClass(18)).toContain("primary");
-    expect(rankHeatCellClass(22)).toContain("primary");
-    expect(rankHeatCellClass(30)).toContain("muted");
+    expect(rankHeatCellClass(1)).toContain("heat-1");
+    expect(rankHeatCellClass(8)).toContain("heat-2");
+    expect(rankHeatCellClass(12)).toContain("heat-3");
+    expect(rankHeatCellClass(18)).toContain("heat-4");
+    expect(rankHeatCellClass(22)).toContain("heat-5");
+    expect(rankHeatCellClass(30)).toContain("heat-rv");
   });
 });

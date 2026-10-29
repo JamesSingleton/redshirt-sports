@@ -1,4 +1,6 @@
-import { formatDistanceToNow, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
+
+import { formatRelativeTime } from "@/lib/format-relative-time";
 
 export function RelativeTime({
   dateString,
@@ -11,7 +13,7 @@ export function RelativeTime({
 
   return (
     <time dateTime={dateString} className={className} suppressHydrationWarning>
-      {formatDistanceToNow(date, { addSuffix: true })}
+      {formatRelativeTime(date)}
     </time>
   );
 }

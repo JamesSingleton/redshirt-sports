@@ -53,7 +53,7 @@ export function RankingsHistoryContent({
         </div>
         <div className="max-h-[min(70vh,28rem)] overflow-y-auto px-5 pb-5 pt-3">
           {leaders.length > 0 ? (
-            <p className="mb-3 text-xs text-muted-foreground">
+            <p className="mb-3 text-sm text-muted-foreground">
               {leaders
                 .slice(0, 3)
                 .map(
@@ -69,7 +69,7 @@ export function RankingsHistoryContent({
                 key={`no1-${week.week}`}
                 className="flex items-center gap-2 border-b py-2 text-sm last:border-0"
               >
-                <span className="w-24 shrink-0 text-xs text-muted-foreground">
+                <span className="w-24 shrink-0 text-sm text-muted-foreground">
                   {week.weekLabel}
                 </span>
                 <span className="min-w-0 truncate font-medium">

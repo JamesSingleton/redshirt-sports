@@ -4,11 +4,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@redshirt-sports/ui/components/accordion";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import { Eye, List, Users } from "lucide-react";
-import Link from "next/link";
 
 import { AdSlot } from "@/components/ad-slot";
-import { RankingsBallotsCta } from "@/components/rankings/rankings-ballots-cta";
+import { MethodologySectionNav } from "@/components/rankings/methodology-section-nav";
 import type { AdvertisementCreative } from "@/lib/advertisement";
 import { OUTLIER_RANK_GAP, OUTLIER_TOP_OMIT_RANK } from "@/lib/ballot-outliers";
 import { TOP_25 } from "@/lib/constants";
@@ -20,7 +20,7 @@ const SECTIONS = [
   { id: "onballots", label: "“On X of N ballots”" },
   { id: "lists", label: "Others, dropped out, no longer receiving votes" },
   { id: "eligibility", label: "Eligibility" },
-  { id: "window", label: "Ballot window and automation" },
+  { id: "window", label: "Ballot window" },
   { id: "transparency", label: "Transparency" },
   { id: "outliers", label: "Outlier policy" },
   { id: "faq", label: "FAQ" },
@@ -28,41 +28,36 @@ const SECTIONS = [
 
 const TIMELINE = [
   [
-    "Sun 08:00 ET",
-    "Window opens",
-    "Voters receive email with their ballot link.",
+    "48 hours before the week ends",
+    "Voting opens",
+    "The ballot for that week opens on the sports calendar, 48 hours before the week's window closes. It is not a fixed Saturday time.",
   ],
   [
-    "Sun 18:00 ET",
-    "Reminder 1",
-    "Automatic reminder to voters who have not submitted.",
+    "Before the deadline",
+    "Reminders",
+    "Voters who haven't submitted may be reminded ahead of the deadline.",
   ],
   [
-    "Mon 09:00 ET",
-    "Reminder 2",
-    "Final automatic reminder; admins see who is outstanding.",
+    "Mon., 9 a.m. Central",
+    "Publish deadline",
+    "Ballots are due by 9 a.m. Central (8 a.m. Mountain). A ballot stays editable until that week's poll is published.",
   ],
   [
-    "Mon 12:00 ET",
-    "Window closes",
-    "Ballots lock automatically unless an extension is posted on the poll page.",
-  ],
-  [
-    "Mon 12:01 ET",
+    "When the poll publishes",
     "Tabulation",
-    "Points, ranks, movement, and outlier flags are computed.",
+    "Points, ranks, movement, and outlier flags are calculated.",
   ],
   [
-    "Mon / Tue",
+    "Same moment",
     "Publish",
-    "An admin reviews the outlier report and publishes; ballots go public at the same moment.",
+    "An admin reviews the outlier report and publishes the poll, and the ballots go public at the same moment.",
   ],
 ] as const;
 
 const FAQ = [
   [
     "Why can a team with fewer first-place votes rank higher?",
-    "Rank is decided by total points, not first-place votes. First-place votes are shown for context and only break display order when points tie.",
+    "The Top 25 is ordered by total points, not first-place votes. A team that's ranked high on more ballots can pass one with more No. 1 votes.",
   ],
   [
     "What does “On 12 of 22 ballots” mean?",
@@ -74,7 +69,7 @@ const FAQ = [
   ],
   [
     "Does an outlier ballot get thrown out?",
-    "No. Outliers are flagged so readers can see them, never changed or removed. Only invalid ballots can be voided, with the reason published.",
+    "No. Outliers are flagged so readers can see them. They are never changed or removed.",
   ],
 ] as const;
 
@@ -88,7 +83,7 @@ function MethodSection({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-24 border-b pb-8 last:border-0">
+    <section id={id} className="scroll-mt-28 border-b pb-8 last:border-0">
       <h2 className="font-display text-2xl font-extrabold uppercase">
         {title}
       </h2>
@@ -122,48 +117,19 @@ function TriCard({
 }
 
 export function RankingsMethodologyContent({
-  rankingsIndexHref,
-  ballotsHref,
-  byVoterHref,
-  ballotsCounted,
-  voterChips,
-  weekLabel,
-  panelSize,
   advertisement = null,
 }: {
-  sport: string;
-  rankingsIndexHref: string;
-  ballotsHref: string;
-  byVoterHref: string;
-  ballotsCounted: number;
-  voterChips: Array<{ id: string; label: string }>;
-  weekLabel: string;
-  panelSize: number;
   advertisement?: AdvertisementCreative | null;
 }) {
-  const maxPoints = panelSize * TOP_25;
-
   return (
-    <div className="grid gap-10 pt-6 lg:grid-cols-[240px_minmax(0,1fr)_300px]">
+    <div
+      className={cn(
+        "grid gap-10 pt-6 lg:grid-cols-[240px_minmax(0,1fr)]",
+        advertisement && "lg:grid-cols-[240px_minmax(0,1fr)_300px]",
+      )}
+    >
       <aside className="hidden lg:block">
-        <nav
-          className="sticky top-20 grid gap-0.5 text-sm"
-          aria-label="On this page"
-        >
-          {SECTIONS.map((section, index) => (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              className={
-                index === 0
-                  ? "rounded-md bg-muted px-2 py-1.5 font-semibold text-foreground"
-                  : "rounded-md px-2 py-1.5 text-muted-foreground hover:text-foreground"
-              }
-            >
-              {section.label}
-            </a>
-          ))}
-        </nav>
+        <MethodologySectionNav sections={SECTIONS} />
       </aside>
 
       <article className="grid max-w-3xl content-start gap-8">
@@ -176,8 +142,8 @@ export function RankingsMethodologyContent({
           <div className="grid gap-3 sm:grid-cols-3">
             <TriCard
               icon={<Users className="size-5" aria-hidden />}
-              title={`${panelSize} voters`}
-              description="Invite-only panel, published every season"
+              title="Invite-only voters"
+              description="An invite-only panel, published every season"
             />
             <TriCard
               icon={<List className="size-5" aria-hidden />}
@@ -195,9 +161,8 @@ export function RankingsMethodologyContent({
         <MethodSection id="points" title="Points: 25 to 1">
           <p>
             A team earns <b>26 minus its rank</b> on each ballot (25 for first,
-            down to 1 for 25th). A team left off gets 0 from that voter. With{" "}
-            {panelSize} voters the maximum is <b>{maxPoints} points</b> (
-            {panelSize} × 25).
+            down to 1 for 25th). A team left off gets 0 from that voter. The
+            maximum is <b>25 points times the number of voters</b>.
           </p>
           <div className="grid grid-cols-5 gap-1 sm:grid-cols-[repeat(13,minmax(0,1fr))]">
             {Array.from({ length: TOP_25 }, (_, i) => TOP_25 - i).map(
@@ -206,7 +171,7 @@ export function RankingsMethodologyContent({
                   key={points}
                   className="rounded-md border bg-card px-1 py-1.5 text-center"
                 >
-                  <div className="text-[10px] text-muted-foreground">
+                  <div className="text-sm text-muted-foreground">
                     #{index + 1}
                   </div>
                   <div className="font-display text-base font-bold tabular">
@@ -233,9 +198,9 @@ export function RankingsMethodologyContent({
 
         <MethodSection id="onballots" title="“On X of N ballots”">
           <p>
-            <b>On X of {panelSize} ballots</b> means X voters ranked that team
-            somewhere from 1 to 25, and the rest left it off. It measures how{" "}
-            <i>broad</i> support is, which points alone can hide.
+            <b>On X of N ballots</b> means X voters ranked that team somewhere
+            from 1 to 25, and the rest left it off. It measures how <i>broad</i>{" "}
+            support is, which points alone can hide.
           </p>
         </MethodSection>
 
@@ -264,33 +229,39 @@ export function RankingsMethodologyContent({
             <div className="rounded-xl border bg-card p-4">
               <div className="font-semibold">Voters</div>
               <ul className="mt-1 grid gap-1 pl-5 text-sm text-muted-foreground [list-style:disc]">
-                <li>Invite-only credentialed media</li>
-                <li>No athletics-department employees</li>
-                <li>Conflicts disclosed publicly</li>
-                <li>One ballot per voter per week</li>
+                <li>
+                  Voting is by invitation only. The panel includes media members
+                  and others who follow the sport closely.
+                </li>
+                <li>
+                  Each voter&apos;s affiliation is listed on the voter roster.
+                </li>
+                <li>One ballot per voter per week.</li>
               </ul>
             </div>
             <div className="rounded-xl border bg-card p-4">
               <div className="font-semibold">Teams</div>
               <ul className="mt-1 grid gap-1 pl-5 text-sm text-muted-foreground [list-style:disc]">
                 <li>
-                  Programs in the division per the published eligibility list
-                </li>
-                <li>
-                  Transitioning programs follow the season rule on this page
+                  Every program in the division is eligible, including schools
+                  moving up from another division. Transitioning programs
+                  aren&apos;t held out or penalized.
                 </li>
               </ul>
             </div>
           </div>
         </MethodSection>
 
-        <MethodSection id="window" title="Ballot window and automation">
-          <p>The weekly cycle (times are configurable per poll):</p>
+        <MethodSection id="window" title="Ballot window">
+          <p>
+            Opening time follows the sports calendar for that week. The Monday
+            deadline below is Central.
+          </p>
           <ol className="relative grid gap-4 border-l pl-5">
             {TIMELINE.map(([time, title, body]) => (
               <li key={time} className="relative">
                 <span className="absolute -left-[27px] top-1 size-3 rounded-full border-2 border-primary bg-card" />
-                <div className="text-xs font-semibold uppercase tracking-wide text-primary">
+                <div className="text-sm font-semibold uppercase tracking-wide text-primary">
                   {time}
                 </div>
                 <div className="font-semibold">{title}</div>
@@ -306,14 +277,6 @@ export function RankingsMethodologyContent({
               <b>All ballots are public</b> when the poll publishes: the grid,
               each voter&apos;s ballot, and the voter roster.
             </li>
-            <li>
-              <b>Downloadable data</b>: ballots and results CSV with a
-              reproducibility hash (coming soon).
-            </li>
-            <li>
-              <b>Corrections log</b>: republish, void, or window extensions are
-              listed on the poll page with a reason.
-            </li>
           </ul>
         </MethodSection>
 
@@ -321,13 +284,13 @@ export function RankingsMethodologyContent({
           <p>
             A pick is flagged when a voter ranks a team{" "}
             <b>{OUTLIER_RANK_GAP} or more spots</b> from its published rank, or{" "}
-            <b>leaves off a team ranked in the top {OUTLIER_TOP_OMIT_RANK}</b>.
-            Thresholds are configuration, not code.
+            <b>
+              leaves off a team in the published Top {OUTLIER_TOP_OMIT_RANK}
+            </b>
+            .
           </p>
           <ul className="grid gap-2 pl-5 [list-style:disc]">
             <li>Flags are informational; ballots are never altered.</li>
-            <li>Voters may add a short note shown with the ballot.</li>
-            <li>Only invalid ballots are voided, with the reason published.</li>
           </ul>
         </MethodSection>
 
@@ -345,33 +308,17 @@ export function RankingsMethodologyContent({
             ))}
           </Accordion>
         </MethodSection>
-
-        <p className="text-sm text-muted-foreground">
-          <Link
-            href={rankingsIndexHref}
-            prefetch={false}
-            className="text-primary underline-offset-2 hover:underline"
-          >
-            Back to rankings
-          </Link>
-        </p>
       </article>
 
-      <aside className="hidden content-start gap-6 lg:grid">
-        <RankingsBallotsCta
-          variant="desktop"
-          ballotsHref={ballotsHref}
-          byVoterHref={byVoterHref}
-          ballotsCounted={ballotsCounted}
-          voterChips={voterChips}
-          weekLabel={weekLabel}
-        />
-        <AdSlot
-          placement="rankings-methodology-sidebar"
-          creative={advertisement}
-          className="hidden lg:block"
-        />
-      </aside>
+      {advertisement ? (
+        <aside className="hidden content-start lg:grid">
+          <AdSlot
+            placement="rankings-methodology-sidebar"
+            creative={advertisement}
+            className="hidden lg:block"
+          />
+        </aside>
+      ) : null}
     </div>
   );
 }

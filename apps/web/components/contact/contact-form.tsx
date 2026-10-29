@@ -133,7 +133,7 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
             name="url"
             type="url"
             inputMode="url"
-            placeholder="https://www.redshirtsports.xyz/college/…"
+            placeholder="https://example.com/your-story"
             value={articleUrl}
             onChange={(e) => setArticleUrl(e.target.value)}
           />
@@ -160,14 +160,14 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
           />
           <p
             id="contact-message-hint"
-            className="text-xs text-muted-foreground"
+            className="text-sm text-muted-foreground"
           >
             Up to 2,000 characters.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Button type="submit">Send message</Button>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Opens your email app with the message pre-filled.
           </p>
         </div>

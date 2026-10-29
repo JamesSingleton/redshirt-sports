@@ -174,7 +174,7 @@ function PollRankingChart({
           )}
           <Link
             href={rankingsHref}
-            className="text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
+            className="text-sm font-bold tracking-wide text-destructive uppercase hover:underline"
           >
             View rankings
           </Link>

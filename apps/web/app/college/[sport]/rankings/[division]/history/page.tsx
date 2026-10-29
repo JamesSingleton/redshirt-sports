@@ -3,9 +3,11 @@ import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { JsonLdScript } from "@/components/json-ld";
 import { RankingsHistoryContent } from "@/components/rankings/rankings-history-content";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
 import {
   getCachedPollHistoryForDivision,
   getCachedPollHistoryYears,
@@ -19,6 +21,7 @@ import {
 } from "@/lib/rankings-data";
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
+import { sportNavLabel } from "@/lib/sport-nav";
 import type { SportParam } from "@/utils/espn";
 
 export async function generateMetadata({
@@ -28,10 +31,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { sport, division } = await params;
   const divisionName = pollDivisionLabel(division);
+  const sportLabel = sportNavLabel(sport, sport);
   return getPageMetadata(
     {
-      title: `${divisionName} Poll History`,
-      description: `Weekly No. 1 teams and poll history for the ${divisionName} Top 25.`,
+      title: `${sportLabel} ${divisionName} Poll History`,
+      description: `Weekly No. 1 teams and poll history for the ${sportLabel} ${divisionName} Top 25.`,
       slug: `/college/${sport}/rankings/${division}/history`,
     },
     "published",
@@ -65,7 +69,8 @@ async function renderHistoryPage(
   cacheLife(RANKINGS_CACHE_LIFE);
 
   const divisionName = pollDivisionLabel(division);
-  const methodologyHref = rankingsMethodologyHref(sport, division);
+  const sportLabel = sportNavLabel(sport, sport);
+  const methodologyHref = rankingsMethodologyHref();
 
   const [years, latest] = await Promise.all([
     getCachedPollHistoryYears(division),
@@ -90,8 +95,29 @@ async function renderHistoryPage(
     notFound();
   }
 
+  const historyPath = `/college/${sport}/rankings/${division}/history`;
+
   return (
     <>
+      <JsonLdScript
+        id={`rankings-history-${sport}-${division}`}
+        data={buildIndexedPageJsonLd({
+          pageType: "CollectionPage",
+          name: `${sportLabel} ${divisionName} Poll History`,
+          description: `Weekly No. 1 teams and poll history for the ${sportLabel} ${divisionName} Top 25.`,
+          path: query.year ? `${historyPath}?year=${yearNumber}` : historyPath,
+          breadcrumbs: [
+            { name: "Home", path: "/" },
+            { name: sportLabel, path: `/college/${sport}/news` },
+            { name: "Rankings", path: `/college/${sport}/rankings` },
+            { name: "History", path: historyPath },
+          ],
+          items: years.map((row) => ({
+            name: String(row.year),
+            path: `${historyPath}?year=${row.year}`,
+          })),
+        })}
+      />
       <div className="mt-3">
         <div className="kicker text-primary">
           Redshirt Sports Poll · {divisionName}

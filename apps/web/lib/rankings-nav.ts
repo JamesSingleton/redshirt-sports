@@ -1,7 +1,9 @@
 import type { RankingsTabId } from "@/components/rankings/rankings-tabs";
 
-export function rankingsMethodologyHref(sport: string, division: string) {
-  return `/college/${sport}/rankings/${division}/methodology`;
+export const RANKINGS_METHODOLOGY_PATH = "/rankings/methodology";
+
+export function rankingsMethodologyHref() {
+  return RANKINGS_METHODOLOGY_PATH;
 }
 
 export function rankingsWeekPath(
@@ -42,7 +44,7 @@ export function buildRankingsTabs({
     {
       id: "methodology" as const,
       label: "Methodology",
-      href: rankingsMethodologyHref(sport, division),
+      href: rankingsMethodologyHref(),
     },
   ];
 }

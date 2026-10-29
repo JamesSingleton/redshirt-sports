@@ -1,8 +1,9 @@
 import { TOP_25 } from "@/lib/constants";
 
-/** Configurable thresholds — see methodology / §32.11a */
+/** Spots from the published rank that flag a pick. */
 export const OUTLIER_RANK_GAP = 8;
-export const OUTLIER_TOP_OMIT_RANK = 15;
+/** Leaving off a team at this published rank or better is an outlier. */
+export const OUTLIER_TOP_OMIT_RANK = TOP_25;
 
 export function isOutlierPick({
   voterRank,
@@ -24,19 +25,19 @@ export function isOutlierPick({
 
 export function rankHeatCellClass(rank: number): string {
   if (rank <= 5) {
-    return "bg-primary/85 text-primary-foreground font-bold";
+    return "bg-heat-1 text-heat-1-foreground font-bold";
   }
   if (rank <= 10) {
-    return "bg-primary/55 text-primary-foreground font-semibold";
+    return "bg-heat-2 text-heat-2-foreground font-semibold";
   }
   if (rank <= 15) {
-    return "bg-primary/30 font-semibold";
+    return "bg-heat-3 text-heat-3-foreground font-semibold";
   }
   if (rank <= 20) {
-    return "bg-primary/15";
+    return "bg-heat-4 text-heat-4-foreground";
   }
   if (rank <= TOP_25) {
-    return "bg-primary/7";
+    return "bg-heat-5 text-heat-5-foreground";
   }
-  return "bg-muted text-muted-foreground";
+  return "bg-heat-rv text-heat-rv-foreground";
 }

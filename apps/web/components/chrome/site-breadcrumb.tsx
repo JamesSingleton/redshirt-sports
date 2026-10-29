@@ -9,7 +9,7 @@ export type SiteBreadcrumbItem = {
 export function SiteBreadcrumb({ items }: { items: SiteBreadcrumbItem[] }) {
   return (
     <nav
-      className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+      className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground"
       aria-label="Breadcrumb"
     >
       {items.map((item, index) => {

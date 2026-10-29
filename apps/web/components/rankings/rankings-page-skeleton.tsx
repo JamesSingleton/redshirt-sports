@@ -1,6 +1,6 @@
 export default function RankingsPageSkeleton() {
   return (
-    <main className="mx-auto max-w-site px-4 lg:px-6">
+    <div className="mx-auto max-w-site px-4 lg:px-6">
       <div className="pt-5">
         <div className="bg-muted h-4 w-48 animate-pulse rounded" />
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
@@ -34,6 +34,6 @@ export default function RankingsPageSkeleton() {
           <div className="bg-muted h-48 animate-pulse rounded-xl" />
         </div>
       </div>
-    </main>
+    </div>
   );
 }

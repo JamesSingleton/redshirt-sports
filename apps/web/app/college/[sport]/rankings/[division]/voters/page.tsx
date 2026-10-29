@@ -3,10 +3,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { JsonLdScript } from "@/components/json-ld";
 import { RankingsVotersPanel } from "@/components/rankings/rankings-voters-panel";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { formatVoterSince } from "@/lib/format-voter-since";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
 import {
   getCachedActivePollVoters,
   getCachedLatestFinalRankings,
@@ -15,6 +17,7 @@ import {
 } from "@/lib/rankings-data";
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
+import { sportNavLabel } from "@/lib/sport-nav";
 import { voterBallotSlug } from "@/lib/voter-ballot-slug";
 import type { SportParam } from "@/utils/espn";
 
@@ -25,10 +28,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { sport, division } = await params;
   const divisionName = pollDivisionLabel(division);
+  const sportLabel = sportNavLabel(sport, sport);
   return getPageMetadata(
     {
-      title: `${divisionName} Poll Voters`,
-      description: `Meet the credentialed voters on the ${divisionName} Top 25 panel.`,
+      title: `${sportLabel} ${divisionName} Poll Voters`,
+      description: `Meet the credentialed voters on the ${sportLabel} ${divisionName} Top 25 panel.`,
       slug: `/college/${sport}/rankings/${division}/voters`,
     },
     "published",
@@ -54,7 +58,8 @@ async function renderVotersPage({
 }) {
   const sportParam = sport as SportParam;
   const divisionName = pollDivisionLabel(division);
-  const methodologyHref = rankingsMethodologyHref(sport, division);
+  const sportLabel = sportNavLabel(sport, sport);
+  const methodologyHref = rankingsMethodologyHref();
 
   const latest = await getCachedLatestFinalRankings({ division });
   if (!latest) {
@@ -100,8 +105,29 @@ async function renderVotersPage({
     voterRows.map((v) => v.organization).filter(Boolean),
   ).size;
 
+  const votersPath = `/college/${sport}/rankings/${division}/voters`;
+
   return (
     <>
+      <JsonLdScript
+        id={`rankings-voters-${sport}-${division}`}
+        data={buildIndexedPageJsonLd({
+          pageType: "CollectionPage",
+          name: `${sportLabel} ${divisionName} Poll Voters`,
+          description: `Meet the credentialed voters on the ${sportLabel} ${divisionName} Top 25 panel.`,
+          path: votersPath,
+          breadcrumbs: [
+            { name: "Home", path: "/" },
+            { name: sportLabel, path: `/college/${sport}/news` },
+            { name: "Rankings", path: `/college/${sport}/rankings` },
+            { name: "Voters", path: votersPath },
+          ],
+          items: voterRows.map((voter) => ({
+            name: voter.name || "Voter",
+            path: voter.latestBallotHref,
+          })),
+        })}
+      />
       <div className="mt-3">
         <div className="kicker text-primary">
           Redshirt Sports Poll · {divisionName}

@@ -17,7 +17,15 @@ import { ChevronDown, Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { StegaBranded } from "next-sanity";
-import { memo, Suspense, use, useCallback, useEffect, useState } from "react";
+import {
+  memo,
+  Suspense,
+  use,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { SportMegaPanel } from "@/components/chrome/sport-mega-panel";
 import { Logo } from "@/components/logo";
@@ -180,18 +188,27 @@ const DesktopNavbar = memo(function DesktopNavbar({
   latestRankings,
   activeMega,
   setActiveMega,
+  onOpenMega,
+  onPointerLeave,
+  onPointerEnter,
 }: {
   navbarData: StegaBranded<GlobalNavigationQueryResult>;
   latestRankings: Top25RankingsData;
   activeMega: SportMegaKey | null;
   setActiveMega: (key: SportMegaKey | null) => void;
+  onOpenMega: (key: SportMegaKey) => void;
+  onPointerLeave: () => void;
+  onPointerEnter: () => void;
 }) {
   const globalRankingsHref = globalRankingsNavHref(latestRankings);
+  const openedByPointer = useRef(false);
   return (
     <div className="hidden min-w-0 flex-1 items-center lg:flex">
       <nav
         className="ml-6 flex flex-1 items-center"
         aria-label="Sports"
+        onMouseEnter={onPointerEnter}
+        onMouseLeave={onPointerLeave}
         onKeyDown={(e) => {
           if (e.key === "Escape") setActiveMega(null);
         }}
@@ -210,7 +227,22 @@ const DesktopNavbar = memo(function DesktopNavbar({
               )}
               aria-expanded={isOpen}
               aria-controls={`mega-${megaKey}`}
-              onClick={() => setActiveMega(isOpen ? null : megaKey)}
+              onMouseEnter={() => {
+                openedByPointer.current = activeMega !== megaKey;
+                onOpenMega(megaKey);
+              }}
+              onFocus={() => onOpenMega(megaKey)}
+              onClick={(event) => {
+                if (openedByPointer.current) {
+                  openedByPointer.current = false;
+                  return;
+                }
+                if (event.detail === 0) {
+                  setActiveMega(megaKey);
+                  return;
+                }
+                setActiveMega(isOpen ? null : megaKey);
+              }}
             >
               {sportNavLabel(sport.slug, sport.name)}
               <ChevronDown className="size-3.5 opacity-60" aria-hidden />
@@ -268,7 +300,25 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
   const path = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMega, setActiveMega] = useState<SportMegaKey | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const brand = useBrand(settingsData);
+  const cancelMegaClose = useCallback(() => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  }, []);
+  const scheduleMegaClose = useCallback(() => {
+    cancelMegaClose();
+    closeTimer.current = setTimeout(() => setActiveMega(null), 180);
+  }, [cancelMegaClose]);
+  const openMega = useCallback(
+    (key: SportMegaKey) => {
+      cancelMegaClose();
+      setActiveMega(key);
+    },
+    [cancelMegaClose],
+  );
 
   useEffect(() => {
     setMenuOpen(false);
@@ -279,8 +329,11 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
       if (e.key === "Escape") setActiveMega(null);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      cancelMegaClose();
+    };
+  }, [cancelMegaClose]);
 
   const activeSport = navbarData.find(
     (s) => SPORT_MEGA_KEY[s.slug] === activeMega,
@@ -315,6 +368,9 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
             latestRankings={latestRankings}
             activeMega={activeMega}
             setActiveMega={setActiveMega}
+            onOpenMega={openMega}
+            onPointerEnter={cancelMegaClose}
+            onPointerLeave={scheduleMegaClose}
           />
         ) : (
           <div className="ml-auto flex items-center gap-1.5">
@@ -333,7 +389,11 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
       {!isMobile && activeMega && activeSport ? (
         <div
           className="absolute inset-x-0 top-full z-40 border-b bg-popover shadow-lg"
-          onMouseLeave={() => setActiveMega(null)}
+          onMouseEnter={cancelMegaClose}
+          onMouseLeave={() => {
+            cancelMegaClose();
+            setActiveMega(null);
+          }}
         >
           <div
             id={`mega-${activeMega}`}

@@ -54,10 +54,10 @@ export function ContactPageContent({
     threads?: string | null;
   } | null;
 }) {
-  const methodologyHref = rankingsMethodologyHref("football", "fcs");
+  const methodologyHref = rankingsMethodologyHref();
 
   return (
-    <main id="main" className="mx-auto max-w-site px-4 pt-5 lg:px-6">
+    <div className="mx-auto max-w-site px-4 pt-5 lg:px-6">
       <SiteBreadcrumb
         items={[{ label: "Home", href: "/" }, { label: "Contact" }]}
       />
@@ -144,6 +144,6 @@ export function ContactPageContent({
           <SiteSocialButtons socialLinks={socialLinks} className="mt-4" />
         </section>
       ) : null}
-    </main>
+    </div>
   );
 }

@@ -19,8 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const { perspective } = PUBLISHED_FETCH_OPTIONS;
   return getPageMetadata(
     {
-      title: `Search Results | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-      description: `Explore the latest articles, news, and analysis on college football. Find what you're looking for across FCS, FBS, D2, D3, and NAIA at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
+      title: "Search Results",
+      description: `Search ${process.env.NEXT_PUBLIC_APP_NAME} stories across college football and basketball.`,
       slug: "/search",
       noIndex: true,
     },

@@ -35,13 +35,13 @@ function StatCard({
 }) {
   return (
     <div className="rounded-xl border bg-card p-3 sm:p-4">
-      <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+      <div className="text-sm uppercase tracking-wide text-muted-foreground sm:text-sm">
         {label}
       </div>
       <div className="font-display text-2xl font-extrabold tabular sm:text-3xl">
         {value}
       </div>
-      <div className="text-xs text-muted-foreground">{detail}</div>
+      <div className="text-sm text-muted-foreground">{detail}</div>
     </div>
   );
 }
@@ -136,11 +136,12 @@ export function RankingsVotersPanel({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search voters or outlets"
+            aria-label="Search voters or outlets"
             className="h-9 pl-8"
           />
         </div>
         <Select defaultValue="name">
-          <SelectTrigger className="h-9 w-[10rem]">
+          <SelectTrigger className="h-9 w-[10rem]" aria-label="Sort voters">
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
           <SelectContent>
@@ -153,19 +154,19 @@ export function RankingsVotersPanel({
         <table className="w-full text-base">
           <thead>
             <tr className="border-b">
-              <th className="p-2 pl-4 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <th className="p-2 pl-4 text-left text-sm uppercase tracking-wide text-muted-foreground">
                 Voter
               </th>
-              <th className="p-2 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <th className="p-2 text-left text-sm uppercase tracking-wide text-muted-foreground">
                 Outlet / affiliation
               </th>
-              <th className="p-2 text-right text-xs uppercase tracking-wide text-muted-foreground">
+              <th className="p-2 text-right text-sm uppercase tracking-wide text-muted-foreground">
                 Voter since
               </th>
-              <th className="p-2 text-right text-xs uppercase tracking-wide text-muted-foreground">
+              <th className="p-2 text-right text-sm uppercase tracking-wide text-muted-foreground">
                 {seasonYear} ballots
               </th>
-              <th className="p-2 pr-4 text-right text-xs uppercase tracking-wide text-muted-foreground">
+              <th className="p-2 pr-4 text-right text-sm uppercase tracking-wide text-muted-foreground">
                 Links
               </th>
             </tr>
@@ -176,13 +177,13 @@ export function RankingsVotersPanel({
                 <td className="p-2 pl-4">
                   <div className="flex items-center gap-3">
                     <Avatar className="size-9">
-                      <AvatarFallback className="text-xs">
+                      <AvatarFallback className="text-sm">
                         {initials(voter.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="font-semibold">{voter.name}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-sm text-muted-foreground">
                         {voter.organizationRole || "—"}
                       </div>
                     </div>
@@ -202,7 +203,7 @@ export function RankingsVotersPanel({
                     <Link
                       href={voter.latestBallotHref}
                       prefetch={false}
-                      className="inline-flex h-7 items-center rounded-md border px-2 text-xs font-medium hover:bg-accent"
+                      className="inline-flex h-7 items-center rounded-md border px-2 text-sm font-medium hover:bg-accent"
                     >
                       Latest ballot
                     </Link>
@@ -223,11 +224,11 @@ export function RankingsVotersPanel({
               </Avatar>
               <div className="min-w-0 flex-1">
                 <div className="font-semibold">{voter.name}</div>
-                <div className="truncate text-xs text-muted-foreground">
+                <div className="truncate text-sm text-muted-foreground">
                   {voter.organization}
                   {voter.organizationRole ? ` · ${voter.organizationRole}` : ""}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-sm text-muted-foreground">
                   Since {voter.voterSinceLabel} · {voter.ballotsSubmittedLabel}{" "}
                   {seasonYear} ballots
                 </div>
@@ -237,7 +238,7 @@ export function RankingsVotersPanel({
               <Link
                 href={voter.latestBallotHref}
                 prefetch={false}
-                className="rounded-md border px-2 py-1 text-xs font-medium"
+                className="rounded-md border px-2 py-1 text-sm font-medium"
               >
                 Ballot
               </Link>

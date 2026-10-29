@@ -86,7 +86,7 @@ export function RankingsHistoryWeekMatrix({
               );
             }}
           >
-            <SelectTrigger className="h-9 w-[7rem] text-xs">
+            <SelectTrigger className="h-9 w-[7rem] text-sm" aria-label="Season">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -106,33 +106,33 @@ export function RankingsHistoryWeekMatrix({
         <table className="w-max border-collapse text-sm">
           <thead>
             <tr className="border-b">
-              <th className="sticky top-0 left-0 z-50 border-r bg-card p-2 text-left text-[10px] uppercase tracking-wide text-muted-foreground shadow-[4px_0_6px_-4px_rgba(0,0,0,0.25)]">
+              <th className="sticky top-0 left-0 z-50 border-r bg-card p-2 text-left text-sm uppercase tracking-wide text-muted-foreground shadow-[4px_0_6px_-4px_rgba(0,0,0,0.25)]">
                 Team
               </th>
               {activeSeason.weeks.map((week, weekIndex) => (
                 <th
                   key={week.week}
                   title={week.weekLabel}
-                  className="sticky top-0 z-40 bg-card p-2 text-center text-[10px] uppercase tracking-wide text-muted-foreground"
+                  className="sticky top-0 z-40 bg-card p-2 text-center text-sm uppercase tracking-wide text-muted-foreground"
                 >
                   {shortPollWeekLabel(week, weekIndex)}
                 </th>
               ))}
               <th
                 title="Best rank this season (lowest number)"
-                className="sticky top-0 z-40 bg-card p-2 text-center text-[10px] uppercase tracking-wide text-muted-foreground"
+                className="sticky top-0 z-40 bg-card p-2 text-center text-sm uppercase tracking-wide text-muted-foreground"
               >
                 High
               </th>
               <th
                 title="Worst rank this season (highest number)"
-                className="sticky top-0 z-40 bg-card p-2 text-center text-[10px] uppercase tracking-wide text-muted-foreground"
+                className="sticky top-0 z-40 bg-card p-2 text-center text-sm uppercase tracking-wide text-muted-foreground"
               >
                 Low
               </th>
               <th
                 title="Weeks ranked in the Top 25"
-                className="sticky top-0 z-40 bg-card p-2 pr-4 text-center text-[10px] uppercase tracking-wide text-muted-foreground"
+                className="sticky top-0 z-40 bg-card p-2 pr-4 text-center text-sm uppercase tracking-wide text-muted-foreground"
               >
                 Wks
               </th>
@@ -157,7 +157,7 @@ export function RankingsHistoryWeekMatrix({
                     className="relative z-0 p-0.5"
                   >
                     <div
-                      className={`mx-auto flex h-7 w-9 items-center justify-center rounded-sm text-[11px] tabular sm:w-10 ${rankCellClass(rank)}`}
+                      className={`mx-auto flex h-7 w-9 items-center justify-center rounded-sm text-sm tabular sm:w-10 ${rankCellClass(rank)}`}
                       title={
                         rank != null
                           ? `${team.teamShortName} · ${activeSeason.weeks[weekIndex]?.weekLabel}: #${rank}`
@@ -168,13 +168,13 @@ export function RankingsHistoryWeekMatrix({
                     </div>
                   </td>
                 ))}
-                <td className="px-2 text-center text-xs tabular">
+                <td className="px-2 text-center text-sm tabular">
                   {team.high ?? "–"}
                 </td>
-                <td className="px-2 text-center text-xs tabular text-muted-foreground">
+                <td className="px-2 text-center text-sm tabular text-muted-foreground">
                   {team.low ?? "–"}
                 </td>
-                <td className="px-2 pr-4 text-center text-xs tabular text-muted-foreground">
+                <td className="px-2 pr-4 text-center text-sm tabular text-muted-foreground">
                   {team.weeksRanked}
                 </td>
               </tr>
@@ -182,18 +182,13 @@ export function RankingsHistoryWeekMatrix({
           </tbody>
         </table>
       </div>
-      <p className="border-t px-5 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+      <p className="border-t px-5 py-2.5 text-sm leading-relaxed text-muted-foreground">
         “–” = unranked that week.{" "}
         <span className="text-foreground/80">
           High / Low = best and worst rank in the season. Wks = weeks the team
           appeared in the Top 25.
         </span>{" "}
-        Team names link to the team hub at{" "}
-        <span className="font-mono text-foreground/80">
-          /college/teams/[slug]
-        </span>{" "}
-        when a profile exists. Scroll inside the table to see more teams and
-        weeks.
+        Scroll inside the table to see more teams and weeks.
       </p>
     </div>
   );

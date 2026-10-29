@@ -54,6 +54,7 @@ vi.mock("next/link", () => ({
 
 vi.mock("@/components/json-ld", () => ({
   JsonLdScript: () => <script data-testid="json-ld" />,
+  organizationId: "organization-id",
   websiteId: "website-id",
 }));
 

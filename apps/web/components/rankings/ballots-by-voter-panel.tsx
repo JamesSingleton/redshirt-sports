@@ -112,19 +112,18 @@ function VoterBallotCard({
         ))}
       </ol>
       <div className="mt-3 grid gap-1 border-t px-4 py-3 text-muted-foreground sm:px-5">
-        {card.omittedTop15.length > 0 ? (
+        {card.omittedTop25.length > 0 ? (
           <p className="text-sm">
             <span className="font-semibold text-foreground">
-              Left off the ballot (but in the published top 15):
+              Left off the ballot (but in the published Top 25):
             </span>{" "}
-            {card.omittedTop15
+            {card.omittedTop25
               .map((t) => `${t.shortName} (No. ${t.consensusRank})`)
               .join(", ")}
           </p>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Included every team that was ranked in the published top 15 this
-            week.
+            Included every team in the published Top 25 this week.
           </p>
         )}
       </div>
@@ -240,6 +239,7 @@ export function BallotsByVoterPanel({
                 }
               }}
               placeholder="Search voters or outlets"
+              aria-label="Search voters or outlets"
               className="h-9 pl-8"
             />
           </div>
@@ -250,7 +250,7 @@ export function BallotsByVoterPanel({
               setPage(1);
             }}
           >
-            <SelectTrigger className="h-9 w-[11rem]">
+            <SelectTrigger className="h-9 w-[11rem]" aria-label="Sort ballots">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -260,14 +260,14 @@ export function BallotsByVoterPanel({
               <SelectItem value="name">Name A–Z</SelectItem>
             </SelectContent>
           </Select>
-          <span className="ml-auto hidden text-xs text-muted-foreground sm:block">
+          <span className="ml-auto hidden text-sm text-muted-foreground sm:block">
             Showing {(safePage - 1) * PAGE_SIZE + 1}–
             {Math.min(safePage * PAGE_SIZE, filtered.length)} of{" "}
             {filtered.length}
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span>Diff vs consensus:</span>
           <BallotDiffChip diff={3} />
           <span>ranked higher</span>

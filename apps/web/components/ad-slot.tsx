@@ -32,7 +32,7 @@ export function AdSlot({ placement, creative, className }: AdSlotProps) {
       className={cn("mx-auto w-full", className)}
       style={{ maxWidth: spec.width }}
     >
-      <p className="mb-1 text-center text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+      <p className="mb-1 text-center text-sm font-semibold uppercase tracking-widest text-muted-foreground">
         Advertisement
       </p>
       <a href={creative.href} target={newTab ? "_blank" : undefined} rel={rel}>

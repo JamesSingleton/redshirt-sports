@@ -91,7 +91,7 @@ export function TeamPollRankInline({
         <Link
           href={rankingsHref}
           prefetch={false}
-          className="mt-3 block text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
+          className="mt-3 block text-sm font-bold tracking-wide text-destructive uppercase hover:underline"
         >
           View poll
         </Link>

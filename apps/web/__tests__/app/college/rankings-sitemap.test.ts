@@ -54,8 +54,11 @@ describe("college rankings sitemap", () => {
     expect(urls).toContain(
       "https://redshirtsports.com/college/football/rankings/fcs/history",
     );
-    expect(urls).toContain(
+    expect(urls).not.toContain(
       "https://redshirtsports.com/college/football/rankings/d2/methodology",
+    );
+    expect(urls).not.toContain(
+      "https://redshirtsports.com/college/football/rankings/fcs/methodology",
     );
   });
 });

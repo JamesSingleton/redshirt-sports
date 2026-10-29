@@ -28,7 +28,7 @@ export function NewsArchiveLoading({
   filterBarSize?: "sport" | "college";
 }) {
   return (
-    <main
+    <div
       aria-busy="true"
       aria-live="polite"
       className="mx-auto max-w-site px-4 lg:px-6"
@@ -80,6 +80,6 @@ export function NewsArchiveLoading({
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

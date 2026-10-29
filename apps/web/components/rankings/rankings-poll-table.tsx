@@ -53,7 +53,7 @@ export function RankingsPollTable({
   return (
     <div className="relative w-full overflow-x-auto rounded-xl border bg-card">
       <Table>
-        <TableCaption className="px-4 py-3 text-left text-xs text-muted-foreground">
+        <TableCaption className="px-4 py-3 text-left text-sm text-muted-foreground">
           {ballotsCounted} voters × 25-to-1 points (max {ballotsCounted * 25}).
           First-place votes in parentheses.{" "}
           <strong className="font-semibold text-foreground">
@@ -63,13 +63,13 @@ export function RankingsPollTable({
           <Link
             href={methodologyHref}
             prefetch={false}
-            className="text-primary hover:underline"
+            className="font-medium text-primary underline underline-offset-2"
           >
             How it works
           </Link>
         </TableCaption>
         <TableHeader>
-          <TableRow className="text-left text-xs uppercase tracking-wide text-muted-foreground hover:bg-transparent">
+          <TableRow className="text-left text-sm uppercase tracking-wide text-muted-foreground hover:bg-transparent">
             <TableHead className="h-10 pl-4 text-right">Rk</TableHead>
             <TableHead className="w-12">±</TableHead>
             <TableHead>Team</TableHead>
@@ -134,12 +134,12 @@ export function RankingsPollTable({
                         {displayName(team)}
                       </TeamPageLink>
                       {team.firstPlaceVotes ? (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-sm text-muted-foreground">
                           {" "}
                           ({team.firstPlaceVotes})
                         </span>
                       ) : null}
-                      <div className="text-xs text-muted-foreground lg:hidden">
+                      <div className="text-sm text-muted-foreground lg:hidden">
                         {onBallotsLabel} {ballotWord}
                       </div>
                     </div>
@@ -156,8 +156,8 @@ export function RankingsPollTable({
                     <span
                       className={
                         fullSupport
-                          ? "text-xs font-semibold tabular-nums"
-                          : "text-xs tabular-nums text-muted-foreground"
+                          ? "text-sm font-semibold tabular-nums"
+                          : "text-sm tabular-nums text-muted-foreground"
                       }
                     >
                       {onBallotsLabel}

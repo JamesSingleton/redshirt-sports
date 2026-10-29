@@ -2,7 +2,7 @@ import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 
 export default function PersonRouteLoading() {
   return (
-    <main
+    <div
       className="mx-auto max-w-site px-4 py-6 lg:px-6"
       aria-busy="true"
       aria-labelledby="person-loading-heading"
@@ -31,6 +31,6 @@ export default function PersonRouteLoading() {
           />
         </div>
       </div>
-    </main>
+    </div>
   );
 }

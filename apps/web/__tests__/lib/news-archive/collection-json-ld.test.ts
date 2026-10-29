@@ -1,7 +1,9 @@
 import type { HomePost } from "@/components/home/home-page-content";
 import {
+  buildCollegeNewsCollectionJsonLd,
   buildConferenceNewsCollectionJsonLd,
   buildDivisionNewsCollectionJsonLd,
+  buildSportNewsCollectionJsonLd,
 } from "@/lib/news-archive/collection-json-ld";
 
 function post(slug: string): HomePost {
@@ -103,5 +105,38 @@ describe("news archive collection JSON-LD", () => {
     };
 
     expect(breadcrumb.itemListElement?.[2]?.name).toBe("football");
+  });
+
+  it("builds college and sport collection pages", () => {
+    const college = buildCollegeNewsCollectionJsonLd({
+      pageIndex: 2,
+      posts: [post("story-a")],
+      totalPosts: 12,
+    });
+    const sport = buildSportNewsCollectionJsonLd({
+      sport: "football",
+      sportTitle: null,
+      pageIndex: 1,
+      posts: [post("story-a")],
+    });
+
+    const firstPage = buildCollegeNewsCollectionJsonLd({
+      pageIndex: 1,
+      posts: [],
+    });
+    const namedSport = buildSportNewsCollectionJsonLd({
+      sport: "football",
+      sportTitle: "Football",
+      pageIndex: 2,
+      posts: [post("story-b")],
+      totalPosts: 4,
+    });
+
+    expect(college.url).toContain("/college/news?page=2");
+    expect(firstPage.url).not.toContain("page=");
+    expect(college["@type"]).toBe("CollectionPage");
+    expect(sport.name).toBe("football News");
+    expect(namedSport.name).toBe("Football News");
+    expect(namedSport.url).toContain("?page=2");
   });
 });

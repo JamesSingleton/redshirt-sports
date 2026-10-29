@@ -16,7 +16,11 @@ import type { MouseEvent } from "react";
 import { useCallback, useMemo, useState } from "react";
 
 import { TeamMark } from "@/components/rankings/team-mark";
-import { rankHeatCellClass } from "@/lib/ballot-outliers";
+import {
+  OUTLIER_RANK_GAP,
+  OUTLIER_TOP_OMIT_RANK,
+  rankHeatCellClass,
+} from "@/lib/ballot-outliers";
 import {
   ballotMatrixColumnModeQueryValue,
   ballotMatrixShowPtsFirstColumns,
@@ -185,7 +189,7 @@ export function BallotsMatrixPanel({
       <div className="rounded-xl border bg-card p-4 sm:p-5">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <Label htmlFor="ballots-team-search" className="text-xs">
+            <Label htmlFor="ballots-team-search" className="text-sm">
               Team search
             </Label>
             <Input
@@ -197,7 +201,9 @@ export function BallotsMatrixPanel({
             />
           </div>
           <div>
-            <Label className="text-xs">Highlight voter</Label>
+            <Label htmlFor="ballots-highlight-voter" className="text-sm">
+              Highlight voter
+            </Label>
             <Select
               value={highlightVoter}
               onValueChange={(slug) =>
@@ -207,7 +213,7 @@ export function BallotsMatrixPanel({
                 })
               }
             >
-              <SelectTrigger className="mt-1 h-9">
+              <SelectTrigger id="ballots-highlight-voter" className="mt-1 h-9">
                 <SelectValue placeholder="All voters" />
               </SelectTrigger>
               <SelectContent>
@@ -221,7 +227,9 @@ export function BallotsMatrixPanel({
             </Select>
           </div>
           <div>
-            <Label className="text-xs">Columns</Label>
+            <Label htmlFor="ballots-columns" className="text-sm">
+              Columns
+            </Label>
             <Select
               value={columnMode}
               onValueChange={(v) =>
@@ -232,7 +240,7 @@ export function BallotsMatrixPanel({
                 })
               }
             >
-              <SelectTrigger className="mt-1 h-9">
+              <SelectTrigger id="ballots-columns" className="mt-1 h-9">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -241,7 +249,7 @@ export function BallotsMatrixPanel({
                 <SelectItem value="on-range">On &amp; range</SelectItem>
               </SelectContent>
             </Select>
-            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+            <p className="mt-1 text-sm leading-snug text-muted-foreground">
               {columnMode === "all"
                 ? "Full matrix with every voter column."
                 : columnMode === "summary"
@@ -251,7 +259,7 @@ export function BallotsMatrixPanel({
           </div>
           <div className="flex flex-col gap-3 sm:justify-end">
             <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ballots-outliers" className="text-xs">
+              <Label htmlFor="ballots-outliers" className="text-sm">
                 Voters with outliers
               </Label>
               <Switch
@@ -263,7 +271,7 @@ export function BallotsMatrixPanel({
               />
             </div>
             <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ballots-rv" className="text-xs">
+              <Label htmlFor="ballots-rv" className="text-sm">
                 Show RV rows
               </Label>
               <Switch
@@ -303,7 +311,7 @@ export function BallotsMatrixPanel({
         <StatCard
           label="Outlier picks"
           value={String(matrix.outlierPickCount)}
-          detail="≥8 spots or top-15 omission"
+          detail={`≥${OUTLIER_RANK_GAP} spots or left off the Top ${OUTLIER_TOP_OMIT_RANK}`}
         />
       </div>
 
@@ -315,7 +323,13 @@ export function BallotsMatrixPanel({
         </p>
       ) : null}
 
-      <div className="relative w-full overflow-x-auto rounded-xl border bg-card [-webkit-overflow-scrolling:touch]">
+      <div
+        className="relative w-full overflow-x-auto rounded-xl border bg-card [-webkit-overflow-scrolling:touch] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        // Keyboard users need a tab stop so they can scroll this overflow region.
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: scrollable region has no focusable cells
+        tabIndex={0}
+        aria-label="Ballot matrix"
+      >
         <table
           className="w-full min-w-max caption-bottom text-sm sm:text-base"
           onMouseLeave={() => {
@@ -330,13 +344,13 @@ export function BallotsMatrixPanel({
             <tr className="border-b">
               <th
                 scope="col"
-                className="sticky left-0 z-20 w-10 min-w-10 bg-card p-2 pl-2 text-right font-display text-xs font-bold sm:text-sm"
+                className="sticky left-0 z-20 w-10 min-w-10 bg-card p-2 pl-2 text-right font-display text-sm font-bold sm:text-sm"
               >
                 Rk
               </th>
               <th
                 scope="col"
-                className="sticky left-10 z-20 min-w-[9rem] border-r bg-card px-2 text-left text-xs font-semibold sm:min-w-[10rem] sm:text-sm"
+                className="sticky left-10 z-20 min-w-[9rem] border-r bg-card px-2 text-left text-sm font-semibold sm:min-w-[10rem] sm:text-sm"
               >
                 Team
               </th>
@@ -381,14 +395,14 @@ export function BallotsMatrixPanel({
                         className={cn(
                           "p-0 text-center align-bottom transition-[opacity,box-shadow,background-color]",
                           emphasized &&
-                            "bg-primary/15 shadow-[inset_0_0_0_2px_hsl(var(--primary))]",
-                          dimmed && "opacity-35",
+                            "shadow-[inset_0_0_0_2px_var(--primary)]",
+                          dimmed && "text-muted-foreground",
                           matrixHoverBackground(false, colHovered),
                         )}
                       >
                         <span
                           className={cn(
-                            "inline-block max-h-28 min-w-10 overflow-hidden px-0.5 pb-2 text-xs font-semibold [writing-mode:vertical-rl] rotate-180 sm:min-w-11 sm:text-sm",
+                            "inline-block max-h-28 min-w-10 overflow-hidden px-0.5 pb-2 text-sm font-semibold [writing-mode:vertical-rl] rotate-180 sm:min-w-11 sm:text-sm",
                             emphasized && "text-primary",
                           )}
                           title={voter.label}
@@ -402,7 +416,7 @@ export function BallotsMatrixPanel({
               <th
                 scope="col"
                 className={cn(
-                  "px-2 text-center text-xs font-semibold",
+                  "px-2 text-center text-sm font-semibold",
                   !showVoterColumns && "border-l",
                 )}
               >
@@ -410,7 +424,7 @@ export function BallotsMatrixPanel({
               </th>
               <th
                 scope="col"
-                className="px-2 text-center text-xs font-semibold"
+                className="px-2 text-center text-sm font-semibold"
               >
                 Range
               </th>
@@ -440,7 +454,7 @@ export function BallotsMatrixPanel({
                   className="sticky left-0 z-[15] w-10 min-w-10 bg-muted/40"
                   aria-hidden
                 />
-                <td className="sticky left-10 z-[15] min-w-[9rem] border-r bg-muted/40 px-2 py-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:min-w-[10rem] sm:text-sm">
+                <td className="sticky left-10 z-[15] min-w-[9rem] border-r bg-muted/40 px-2 py-2.5 text-sm font-semibold uppercase tracking-wide text-muted-foreground sm:min-w-[10rem] sm:text-sm">
                   Others receiving votes
                 </td>
                 <td
@@ -476,26 +490,26 @@ export function BallotsMatrixPanel({
         </table>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 border-t px-1 py-2.5 text-[11px] text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-4 border-t px-1 py-2.5 text-sm text-muted-foreground">
         <span>Cell = rank that voter gave the team</span>
         <span className="flex items-center gap-1">
-          <span className="size-3 rounded-sm bg-primary/85" />
+          <span className="size-3 rounded-sm bg-heat-1" />
           1–5
         </span>
         <span className="flex items-center gap-1">
-          <span className="size-3 rounded-sm bg-primary/55" />
+          <span className="size-3 rounded-sm bg-heat-2" />
           6–10
         </span>
         <span className="flex items-center gap-1">
-          <span className="size-3 rounded-sm bg-primary/30" />
+          <span className="size-3 rounded-sm bg-heat-3" />
           11–15
         </span>
         <span className="flex items-center gap-1">
-          <span className="size-3 rounded-sm bg-primary/15" />
+          <span className="size-3 rounded-sm bg-heat-4" />
           16–20
         </span>
         <span className="flex items-center gap-1">
-          <span className="size-3 rounded-sm bg-primary/7" />
+          <span className="size-3 rounded-sm bg-heat-5" />
           21–25
         </span>
         <span className="flex items-center gap-1">
@@ -519,13 +533,13 @@ function StatCard({
 }) {
   return (
     <div className="rounded-xl border bg-card p-3 sm:p-4">
-      <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+      <div className="text-sm uppercase tracking-wide text-muted-foreground sm:text-sm">
         {label}
       </div>
       <div className="font-display text-2xl font-extrabold tabular sm:text-3xl">
         {value}
       </div>
-      <div className="text-xs text-muted-foreground">{detail}</div>
+      <div className="text-sm text-muted-foreground">{detail}</div>
     </div>
   );
 }
@@ -590,7 +604,7 @@ function MatrixRow({
             name={row.name}
             size="sm"
           />
-          <span className="truncate text-xs font-semibold sm:text-sm">
+          <span className="truncate text-sm font-semibold sm:text-sm">
             {row.shortName}
           </span>
         </div>
@@ -625,7 +639,6 @@ function MatrixRow({
               highlightVoter,
               highlightSet,
             );
-            const dimmed = highlightMode && !emphasized;
             const colHovered = hoverVoterIndex === voterIndex;
             return (
               <td
@@ -642,8 +655,7 @@ function MatrixRow({
                   emphasized &&
                     !rowHovered &&
                     !colHovered &&
-                    "bg-primary/12 shadow-[inset_0_0_0_2px_hsl(var(--primary))]",
-                  dimmed && "opacity-35",
+                    "shadow-[inset_0_0_0_2px_var(--primary)]",
                   matrixHoverBackground(rowHovered, colHovered),
                 )}
               >

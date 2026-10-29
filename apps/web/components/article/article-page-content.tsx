@@ -48,10 +48,10 @@ export function ArticlePageContent({
     ).moreFromAuthor ?? [];
 
   return (
-    <main className="mx-auto max-w-site px-4 lg:px-6">
+    <div className="mx-auto max-w-site px-4 lg:px-6">
       {breadcrumbs.length > 0 ? (
         <nav
-          className="flex flex-wrap items-center gap-1 pt-5 text-xs text-muted-foreground"
+          className="flex flex-wrap items-center gap-1 pt-5 text-sm text-muted-foreground"
           aria-label="Breadcrumb"
         >
           {breadcrumbs.map((item, index) => (
@@ -119,13 +119,13 @@ export function ArticlePageContent({
                 />
               </ArticleHeroTransition>
               {post.image.credit ? (
-                <figcaption className="mt-2 text-xs text-muted-foreground">
+                <figcaption className="mt-2 text-sm text-muted-foreground">
                   {post.image.caption
                     ? `${post.image.caption} · Photo: ${post.image.credit}`
                     : `Photo: ${post.image.credit}`}
                 </figcaption>
               ) : post.image.caption ? (
-                <figcaption className="mt-2 text-xs text-muted-foreground">
+                <figcaption className="mt-2 text-sm text-muted-foreground">
                   {post.image.caption}
                 </figcaption>
               ) : null}
@@ -150,6 +150,6 @@ export function ArticlePageContent({
           advertisement={advertisement}
         />
       </div>
-    </main>
+    </div>
   );
 }

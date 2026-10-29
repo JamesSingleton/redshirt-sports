@@ -131,6 +131,29 @@ describe("buildPostPageJsonLd", () => {
       "@type": "SpeakableSpecification",
       cssSelector: ["#article-title", "#article-excerpt"],
     });
+
+    const breadcrumb = data?.["@graph"]?.find(
+      (node) =>
+        typeof node === "object" && node?.["@type"] === "BreadcrumbList",
+    ) as { itemListElement?: Array<{ name?: string }> };
+    expect(breadcrumb.itemListElement?.map((item) => item.name)).toEqual([
+      "Home",
+      "College Football",
+      "Test Article",
+    ]);
+  });
+
+  it("uses the sport slug for the breadcrumb when the sport title is missing", () => {
+    const data = buildPostPageJsonLd({
+      ...sampleArticle,
+      sport: { slug: "mens-basketball", title: null },
+    });
+    const breadcrumb = data?.["@graph"]?.find(
+      (node) =>
+        typeof node === "object" && node?.["@type"] === "BreadcrumbList",
+    ) as { itemListElement?: Array<{ name?: string }> };
+
+    expect(breadcrumb.itemListElement?.[1]?.name).toBe("Men's Basketball");
   });
 
   it("returns null when article slug is missing", () => {
@@ -231,7 +254,8 @@ describe("buildPostPageJsonLd", () => {
     ) as Record<string, unknown> | undefined;
 
     expect(team?.name).toBeUndefined();
-    expect(breadcrumb?.itemListElement?.[1]?.name).toBe("Team");
+    expect(breadcrumb?.itemListElement?.[1]?.name).toBe("Teams");
+    expect(breadcrumb?.itemListElement?.[2]?.name).toBe("Team");
     expect(webPage?.name).toBeUndefined();
   });
 

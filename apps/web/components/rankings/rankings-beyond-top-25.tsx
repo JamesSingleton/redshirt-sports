@@ -108,14 +108,14 @@ export function RankingsBeyondTop25({
               {displayName(team)}
             </TeamPageLink>
             {orvInGrid ? (
-              <span className="block text-xs text-muted-foreground tabular-nums">
+              <span className="block text-sm text-muted-foreground tabular-nums">
                 {listed}
               </span>
             ) : null}
           </span>
         </div>
         {!orvInGrid ? (
-          <span className="hidden text-xs text-muted-foreground tabular-nums sm:inline">
+          <span className="hidden text-sm text-muted-foreground tabular-nums sm:inline">
             {listed}
           </span>
         ) : null}
@@ -234,12 +234,12 @@ function DroppedOutCard({
                   >
                     {displayName(team)}
                   </TeamPageLink>
-                  <span className="block text-xs text-muted-foreground">
+                  <span className="block text-sm text-muted-foreground">
                     {thisWeek}
                   </span>
                 </span>
                 <span className="text-right">
-                  <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <span className="block text-sm uppercase tracking-wide text-muted-foreground">
                     Last week
                   </span>
                   <b className="font-display text-lg tabular-nums">
@@ -285,12 +285,12 @@ function NoLongerCard({ teams }: { teams: RankingTeamRef[] }) {
                 >
                   {displayName(team)}
                 </TeamPageLink>
-                <span className="block text-xs text-muted-foreground">
+                <span className="block text-sm text-muted-foreground">
                   This week: 0 points
                 </span>
               </span>
               <span className="text-right">
-                <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
+                <span className="block text-sm uppercase tracking-wide text-muted-foreground">
                   Last week
                 </span>
                 {team.rank != null && team.rank <= 25 ? (

@@ -60,7 +60,7 @@ export function SiteSocialButtons({
             className="inline-flex h-9 items-center gap-2 rounded-md border bg-background px-3 text-sm font-medium hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring"
           >
             {item.label}
-            <span className="text-xs text-muted-foreground">{item.hint}</span>
+            <span className="text-sm text-muted-foreground">{item.hint}</span>
             <span className="sr-only"> (opens {item.label})</span>
           </Link>
         </li>

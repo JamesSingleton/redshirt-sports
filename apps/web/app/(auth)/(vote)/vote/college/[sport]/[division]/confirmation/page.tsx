@@ -15,6 +15,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import CustomImage from "@/components/sanity-image";
+import { noIndexRobots } from "@/lib/seo";
 import { getCurrentSeason, getVotingWeek, type SportParam } from "@/utils/espn";
 import { transformBallotToTeamIds } from "@/utils/process-ballots";
 
@@ -44,16 +45,9 @@ function generateConfirmationHeader(sport: string, division: string) {
 }
 
 export const metadata: Metadata = {
-  title: `Vote Confirmation | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-  description: "Thank you for voting for the top 25 college football teams.",
-  robots: {
-    follow: false,
-    index: false,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
-  },
+  title: "Vote Confirmation",
+  description: "Your Top 25 ballot has been submitted.",
+  robots: noIndexRobots,
 };
 
 export default function VoteConfirmationPage({

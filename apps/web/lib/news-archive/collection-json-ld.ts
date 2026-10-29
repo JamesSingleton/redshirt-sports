@@ -75,6 +75,112 @@ export function buildDivisionNewsCollectionJsonLd({
   };
 }
 
+function newsItemList(posts: HomePost[], listUrl: string, totalPosts?: number) {
+  return {
+    "@type": "ItemList" as const,
+    itemListElement: posts.map((post, index) => ({
+      "@id": `${baseUrl}/${post.slug}#article`,
+      position: index + 1,
+    })),
+    numberOfItems: totalPosts,
+    url: listUrl,
+  };
+}
+
+export function buildCollegeNewsCollectionJsonLd({
+  pageIndex,
+  posts,
+  totalPosts,
+}: {
+  pageIndex: number;
+  posts: HomePost[];
+  totalPosts?: number;
+}): WithContext<CollectionPage> {
+  const path = `/college/news${pageIndex > 1 ? `?page=${pageIndex}` : ""}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "College News",
+    description:
+      "Every Redshirt story across college football and basketball, newest first.",
+    url: `${baseUrl}${path}`,
+    isPartOf: { "@id": websiteId, "@type": "WebSite" },
+    publisher: { "@id": organizationId, "@type": "Organization" },
+    mainEntity: newsItemList(posts, `${baseUrl}/college/news`, totalPosts),
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: baseUrl,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "News",
+          item: `${baseUrl}/college/news`,
+        },
+      ],
+    },
+  };
+}
+
+export function buildSportNewsCollectionJsonLd({
+  sport,
+  sportTitle,
+  pageIndex,
+  posts,
+  totalPosts,
+}: {
+  sport: string;
+  sportTitle?: string | null;
+  pageIndex: number;
+  posts: HomePost[];
+  totalPosts?: number;
+}): WithContext<CollectionPage> {
+  const name = `${sportTitle ?? sport} News`;
+  const path = `/college/${sport}/news${pageIndex > 1 ? `?page=${pageIndex}` : ""}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name,
+    description: `Every ${sportTitle ?? sport} story, newest first.`,
+    url: `${baseUrl}${path}`,
+    isPartOf: { "@id": websiteId, "@type": "WebSite" },
+    publisher: { "@id": organizationId, "@type": "Organization" },
+    mainEntity: newsItemList(
+      posts,
+      `${baseUrl}/college/${sport}/news`,
+      totalPosts,
+    ),
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: baseUrl,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "News",
+          item: `${baseUrl}/college/news`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: sportTitle ?? sport,
+          item: `${baseUrl}/college/${sport}/news`,
+        },
+      ],
+    },
+  };
+}
+
 export function buildConferenceNewsCollectionJsonLd({
   sport,
   division,

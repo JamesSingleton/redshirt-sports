@@ -49,14 +49,14 @@ export async function generateMetadata({
   let canonical = personHref(slug);
 
   let title = `${author.name} - ${roles}`;
-  let description = `Learn more about ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Read their latest articles and get insights into their expertise in college football.`;
+  let description = `Read articles by ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}.`;
 
   if (page && typeof page === "string") {
     const pageNum = validatePageIndex(page);
     if (pageNum > 1) {
       canonical = `${personHref(slug)}?page=${pageNum}`;
       title = `${author.name} - ${roles} (Page ${pageNum})`;
-      description = `Page ${pageNum} of articles by ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}. Discover their latest insights into college football.`;
+      description = `Page ${pageNum} of articles by ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}.`;
     }
   }
 
@@ -150,6 +150,12 @@ async function cachedRenderPersonPage({
             {
               "@type": "ListItem",
               position: 2,
+              name: "About",
+              item: `${baseUrl}/about`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
               name: author.name,
               item: profileUrl,
             },

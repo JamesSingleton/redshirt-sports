@@ -51,7 +51,7 @@ export type VoterBallotCardData = {
   organizationRole: string;
   matchPercent: number;
   picks: BallotPickRow[];
-  omittedTop15: OmittedConsensusTeam[];
+  omittedTop25: OmittedConsensusTeam[];
   avgGap: number;
   outlierCount: number;
   consensusTop25Count: number;
@@ -122,7 +122,7 @@ export async function getCachedBallotsByVoterCards({
   }
 
   const consensusRanks: ConsensusRank[] = [...consensusById.values()];
-  const top15Ids = consensusRanks
+  const omissionRankIds = consensusRanks
     .filter((c) => c.rank <= OUTLIER_TOP_OMIT_RANK)
     .map((c) => c.id);
 
@@ -207,13 +207,13 @@ export async function getCachedBallotsByVoterCards({
       });
     }
 
-    const omittedTop15: OmittedConsensusTeam[] = [];
-    for (const teamId of top15Ids) {
+    const omittedTop25: OmittedConsensusTeam[] = [];
+    for (const teamId of omissionRankIds) {
       if (voterRankByTeam.has(teamId)) continue;
       const consensus = consensusById.get(teamId);
       const meta = teamMeta.get(teamId);
       if (!consensus || !meta) continue;
-      omittedTop15.push({
+      omittedTop25.push({
         teamId,
         shortName: meta.shortName,
         consensusRank: consensus.rank,
@@ -237,7 +237,7 @@ export async function getCachedBallotsByVoterCards({
         consensusRanks,
       ),
       picks,
-      omittedTop15,
+      omittedTop25,
       avgGap: gapCount > 0 ? gapSum / gapCount : 0,
       outlierCount,
       consensusTop25Count,

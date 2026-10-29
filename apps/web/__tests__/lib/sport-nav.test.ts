@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   globalRankingsNavHref,
   globalRankingsNavIsMultiSport,
+  navLatestPolls,
+  pollNavLabel,
   sportHasRankingsNav,
   sportHubPath,
   sportNavLabel,
@@ -75,6 +77,20 @@ describe("sport nav rankings helpers", () => {
       ),
     ).toBe(false);
     expect(sportSlugsWithRankingsNav(footballOnly)).toEqual(["football"]);
+    expect(pollNavLabel("fcs")).toBe("FCS");
+    expect(pollNavLabel("custom")).toBe("CUSTOM");
+    expect(
+      navLatestPolls([
+        { division: "fbs", week: 8, year: 2026 },
+        undefined,
+        { division: "fcs", week: 8, year: 2026 },
+        { division: "zzz", week: 1, year: 2026 },
+        { division: "aaa", week: 2, year: 2026 },
+        { division: "", week: 1, year: 2026 },
+        { division: "d2", week: null as never, year: 2026 },
+        { division: "d3", week: 1, year: null as never },
+      ]).map((poll) => poll.division),
+    ).toEqual(["fcs", "fbs", "zzz", "aaa"]);
     expect(globalRankingsNavHref([])).toBeNull();
     expect(
       globalRankingsNavHref([

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { JsonLdScript } from "@/components/json-ld";
 import { BallotsMatrixPanel } from "@/components/rankings/ballots-matrix-panel";
 import { BallotsViewToggle } from "@/components/rankings/ballots-view-toggle";
 import { getCachedBallotsPageMatrix } from "@/lib/ballots-page-data";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
 import { loadRankingsWeekShell } from "@/lib/rankings-week-shell";
 import { resolveVoterHighlightUserIds } from "@/lib/voter-ballot-slug";
 
@@ -24,8 +26,8 @@ export async function generateMetadata({
   const shell = await loadRankingsWeekShell({ sport, division, year, week });
   return getPageMetadata(
     {
-      title: `${year} ${shell.titleWeek} ${shell.divisionName} Ballots`,
-      description: `Full voter ballots for the ${shell.divisionName} Top 25, ${shell.titleWeek} ${year}.`,
+      title: `${year} ${shell.titleWeek} ${shell.divisionName} ${shell.sportLabel} Ballots`,
+      description: `Full voter ballots for the ${shell.sportLabel} ${shell.divisionName} Top 25, ${shell.titleWeek} ${year}.`,
       slug: `${shell.weekPath}/ballots`,
     },
     "published",
@@ -90,6 +92,29 @@ async function renderBallotsPage(
 
   return (
     <>
+      <JsonLdScript
+        id={`rankings-ballots-${sport}-${division}-${year}-${week}`}
+        data={buildIndexedPageJsonLd({
+          pageType: "CollectionPage",
+          name: `${year} ${shell.titleWeek} ${shell.divisionName} ${shell.sportLabel} Ballots`,
+          description: `Full voter ballots for the ${shell.sportLabel} ${shell.divisionName} Top 25, ${shell.titleWeek} ${year}.`,
+          path: shell.ballotsHref,
+          breadcrumbs: [
+            { name: "Home", path: "/" },
+            { name: shell.sportLabel, path: `/college/${sport}/news` },
+            { name: "Rankings", path: shell.rankingsIndexHref },
+            {
+              name: `${year} ${shell.titleWeek} ${shell.divisionName}`,
+              path: shell.weekPath,
+            },
+            { name: "Ballots", path: shell.ballotsHref },
+          ],
+          items: matrix.voters.map((voter) => ({
+            name: voter.label,
+            path: `${shell.byVoterHref}?voter=${voter.slug}`,
+          })),
+        })}
+      />
       <p className="pt-4 text-sm text-muted-foreground">
         {matrix.ballotsCounted} ballots counted
       </p>

@@ -9,9 +9,7 @@ import {
 
 describe("rankings nav helpers", () => {
   it("builds week and methodology hrefs", () => {
-    expect(rankingsMethodologyHref("football", "fbs")).toBe(
-      "/college/football/rankings/fbs/methodology",
-    );
+    expect(rankingsMethodologyHref()).toBe("/rankings/methodology");
     expect(rankingsWeekPath("football", "fbs", "2026", "7")).toBe(
       "/college/football/rankings/fbs/2026/7",
     );
@@ -32,6 +30,9 @@ describe("rankings nav helpers", () => {
       "methodology",
     ]);
     expect(tabs[1]?.href).toBe("/college/football/rankings/fbs/2026/7/ballots");
+    expect(tabs.find((tab) => tab.id === "methodology")?.href).toBe(
+      "/rankings/methodology",
+    );
   });
 
   it("resolves href for active tab with fallback", () => {

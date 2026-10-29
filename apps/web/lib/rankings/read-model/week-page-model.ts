@@ -28,6 +28,7 @@ import {
 } from "@/lib/rankings-movement";
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
+import { sportNavLabel } from "@/lib/sport-nav";
 import { parseWeekSegment, type SportParam, weekTitle } from "@/utils/espn";
 
 const baseUrl = getBaseUrl();
@@ -66,6 +67,7 @@ export async function loadRankingsWeekPageModel({
   const weekSegment = formatWeekSegment(weekNumber);
   const sportParam = sport as SportParam;
   const divisionName = pollDivisionLabel(division);
+  const sportLabel = sportNavLabel(sport, sport);
 
   cacheTag(
     RANKINGS_CACHE_TAG,
@@ -188,7 +190,7 @@ export async function loadRankingsWeekPageModel({
   const weekPath = `/college/${sport}/rankings/${division}/${year}/${weekSegment}`;
   const ballotsHref = `${weekPath}/ballots`;
   const byVoterHref = `${ballotsHref}/by-voter`;
-  const methodologyHref = rankingsMethodologyHref(sport, division);
+  const methodologyHref = rankingsMethodologyHref();
   const voterWord = ballotsCounted === 1 ? "voter" : "voters";
   const ballotWord = ballotsCounted === 1 ? "ballot" : "ballots";
 
@@ -199,13 +201,43 @@ export async function loadRankingsWeekPageModel({
         "@type": "WebPage",
         "@id": `${baseUrl}${weekPath}#webpage`,
         url: `${baseUrl}${weekPath}`,
-        name: `${year} ${titleWeek} ${divisionName} Top 25 Rankings | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-        description: `Discover the ${year} ${titleWeek} ${divisionName} Top 25 rankings presented by Redshirt Sports.`,
+        name: `${year} ${titleWeek} ${divisionName} ${sportLabel} Top 25 Rankings | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+        description: `Discover the ${year} ${titleWeek} ${divisionName} ${sportLabel} Top 25 rankings presented by Redshirt Sports.`,
         isPartOf: {
           "@type": "WebSite",
           "@id": websiteId,
         },
         inLanguage: "en-US",
+        breadcrumb: {
+          "@type": "BreadcrumbList",
+          "@id": `${baseUrl}${weekPath}#breadcrumb`,
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: baseUrl,
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: sportLabel,
+              item: `${baseUrl}/college/${sport}/news`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: "Rankings",
+              item: `${baseUrl}/college/${sport}/rankings`,
+            },
+            {
+              "@type": "ListItem",
+              position: 4,
+              name: `${year} ${titleWeek} ${divisionName}`,
+              item: `${baseUrl}${weekPath}`,
+            },
+          ],
+        },
         mainEntity: {
           "@id": `${baseUrl}${weekPath}#rankings`,
         },

@@ -30,8 +30,10 @@ import {
 } from "@/lib/news-archive/cached-nav-chrome";
 import { NewsArchiveSidebarSlot } from "@/lib/news-archive/cached-sidebar";
 import {
+  buildCollegeNewsCollectionJsonLd,
   buildConferenceNewsCollectionJsonLd,
   buildDivisionNewsCollectionJsonLd,
+  buildSportNewsCollectionJsonLd,
 } from "@/lib/news-archive/collection-json-ld";
 import type { NewsArchiveScope } from "@/lib/news-archive/scope";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
@@ -211,20 +213,30 @@ export async function cachedRenderNewsArchivePage(
     ];
 
     return (
-      <div className="mx-auto max-w-site px-4 lg:px-6">
-        <NewsArchiveHeader
-          breadcrumbs={breadcrumbItems}
-          kicker="All sports · Archive"
-          title="College News"
-          description="Every Redshirt story across college football and basketball, newest first."
+      <>
+        <JsonLdScript
+          data={buildCollegeNewsCollectionJsonLd({
+            pageIndex,
+            posts: news.posts,
+            totalPosts: news.totalPosts,
+          })}
+          id="collection-page-college-news"
         />
-        <CollegeNewsFiltersSlot
-          filterParams={filterParams}
-          perspective={perspective}
-          stega={stega}
-        />
-        {grid}
-      </div>
+        <div className="mx-auto max-w-site px-4 lg:px-6">
+          <NewsArchiveHeader
+            breadcrumbs={breadcrumbItems}
+            kicker="All sports · Archive"
+            title="College News"
+            description="Every Redshirt story across college football and basketball, newest first."
+          />
+          <CollegeNewsFiltersSlot
+            filterParams={filterParams}
+            perspective={perspective}
+            stega={stega}
+          />
+          {grid}
+        </div>
+      </>
     );
   }
 
@@ -239,20 +251,32 @@ export async function cachedRenderNewsArchivePage(
 
   if (scope.type === "sport") {
     return (
-      <div className="mx-auto max-w-site px-4 lg:px-6">
-        <NewsArchiveHeader
-          breadcrumbs={breadcrumbItems}
-          title={`${sportLabel} News`}
-          description={`Every ${sportLabel} story, newest first.`}
+      <>
+        <JsonLdScript
+          data={buildSportNewsCollectionJsonLd({
+            sport,
+            sportTitle: sportLabel,
+            pageIndex,
+            posts: news.posts,
+            totalPosts: news.totalPosts,
+          })}
+          id={`collection-page-${sport}-news`}
         />
-        <SportNewsFiltersSlot
-          sportSlug={sport}
-          filterParams={filterParams}
-          perspective={perspective}
-          stega={stega}
-        />
-        {grid}
-      </div>
+        <div className="mx-auto max-w-site px-4 lg:px-6">
+          <NewsArchiveHeader
+            breadcrumbs={breadcrumbItems}
+            title={`${sportLabel} News`}
+            description={`Every ${sportLabel} story, newest first.`}
+          />
+          <SportNewsFiltersSlot
+            sportSlug={sport}
+            filterParams={filterParams}
+            perspective={perspective}
+            stega={stega}
+          />
+          {grid}
+        </div>
+      </>
     );
   }
 

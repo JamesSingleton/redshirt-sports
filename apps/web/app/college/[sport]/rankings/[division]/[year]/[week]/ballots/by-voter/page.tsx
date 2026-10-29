@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { JsonLdScript } from "@/components/json-ld";
 import { BallotsByVoterPanel } from "@/components/rankings/ballots-by-voter-panel";
 import { BallotsViewToggle } from "@/components/rankings/ballots-view-toggle";
 import { getCachedBallotsByVoterCards } from "@/lib/ballots-by-voter-data";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
 import { loadRankingsWeekShell } from "@/lib/rankings-week-shell";
 
 export async function generateMetadata({
@@ -23,8 +25,8 @@ export async function generateMetadata({
   const shell = await loadRankingsWeekShell({ sport, division, year, week });
   return getPageMetadata(
     {
-      title: `${year} ${shell.titleWeek} ${shell.divisionName} Ballots by voter`,
-      description: `Each voter's full Top 25 ballot for ${shell.titleWeek} ${year}.`,
+      title: `${year} ${shell.titleWeek} ${shell.divisionName} ${shell.sportLabel} Ballots by voter`,
+      description: `Each voter's full ${shell.sportLabel} ${shell.divisionName} Top 25 ballot for ${shell.titleWeek} ${year}.`,
       slug: `${shell.weekPath}/ballots/by-voter`,
     },
     "published",
@@ -78,6 +80,30 @@ async function renderByVoterPage(
 
   return (
     <>
+      <JsonLdScript
+        id={`rankings-ballots-by-voter-${sport}-${division}-${year}-${week}`}
+        data={buildIndexedPageJsonLd({
+          pageType: "CollectionPage",
+          name: `${year} ${shell.titleWeek} ${shell.divisionName} ${shell.sportLabel} Ballots by voter`,
+          description: `Each voter's full ${shell.sportLabel} ${shell.divisionName} Top 25 ballot for ${shell.titleWeek} ${year}.`,
+          path: shell.byVoterHref,
+          breadcrumbs: [
+            { name: "Home", path: "/" },
+            { name: shell.sportLabel, path: `/college/${sport}/news` },
+            { name: "Rankings", path: shell.rankingsIndexHref },
+            {
+              name: `${year} ${shell.titleWeek} ${shell.divisionName}`,
+              path: shell.weekPath,
+            },
+            { name: "Ballots", path: shell.ballotsHref },
+            { name: "By voter", path: shell.byVoterHref },
+          ],
+          items: cards.map((card) => ({
+            name: card.name || "Voter",
+            path: `${shell.byVoterHref}?voter=${card.slug}`,
+          })),
+        })}
+      />
       <p className="pt-4 text-sm text-muted-foreground">
         {cards.length} voters · full 25-team ballot for each · diff vs the
         published consensus

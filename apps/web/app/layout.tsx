@@ -42,7 +42,9 @@ export default function RootLayout({
             <Suspense fallback={<NavbarSkeleton />}>
               <DraftAwareNavbar />
             </Suspense>
-            <main className="flex-1">{children}</main>
+            <main id="main" className="flex-1">
+              {children}
+            </main>
             <Suspense fallback={<FooterSkeleton />}>
               <DraftAwareFooter />
             </Suspense>

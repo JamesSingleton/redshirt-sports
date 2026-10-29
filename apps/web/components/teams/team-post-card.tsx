@@ -3,13 +3,14 @@ import type {
   PostsBySchoolQueryResult,
 } from "@redshirt-sports/sanity/types";
 import { cn } from "@redshirt-sports/ui/lib/utils";
-import { formatDistanceToNow, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import Link from "next/link";
 import type { StegaBranded } from "next-sanity";
 
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { ArticleHeroTransition } from "@/components/view-transitions/article-hero-transition";
+import { formatRelativeTime } from "@/lib/format-relative-time";
 import { NAV_FORWARD_TRANSITION } from "@/lib/view-transition-nav";
 
 export type TeamPost = StegaBranded<
@@ -50,7 +51,7 @@ export function TeamSportCategory({
     <Link
       href={href}
       className={cn(
-        "mb-1.5 block text-[11px] font-semibold tracking-wide text-destructive uppercase hover:underline dark:text-destructive-foreground",
+        "mb-1.5 block text-sm font-semibold tracking-wide text-destructive uppercase hover:underline",
         className,
       )}
       prefetch={false}
@@ -97,7 +98,7 @@ export function TeamRelativeDate({ dateString }: { dateString: string }) {
 
   return (
     <time dateTime={dateString} suppressHydrationWarning>
-      {formatDistanceToNow(date, { addSuffix: true })}
+      {formatRelativeTime(date)}
     </time>
   );
 }
@@ -213,7 +214,7 @@ export function TeamNewsItem({ post }: { post: StegaBranded<TeamPost> }) {
             post.title
           )}
         </h3>
-        <TeamPostMeta post={post} className="text-xs" />
+        <TeamPostMeta post={post} className="text-sm" />
       </div>
     </article>
   );

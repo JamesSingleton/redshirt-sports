@@ -55,7 +55,7 @@ export function ArticleByline({
           {avatarUrl ? (
             <AvatarImage src={avatarUrl} alt={primary.name ?? "Author"} />
           ) : null}
-          <AvatarFallback className="text-xs font-semibold">
+          <AvatarFallback className="text-sm font-semibold">
             {authorInitials(primary.name)}
           </AvatarFallback>
         </Avatar>

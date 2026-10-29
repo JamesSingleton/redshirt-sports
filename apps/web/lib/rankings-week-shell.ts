@@ -36,7 +36,7 @@ export async function loadRankingsWeekShell({
   const sportParam = sport as SportParam;
   const divisionName = pollDivisionLabel(division);
   const rankingsIndexHref = `/college/${sport}/rankings`;
-  const methodologyHref = rankingsMethodologyHref(sport, division);
+  const methodologyHref = rankingsMethodologyHref();
 
   const [yearsWithVotes, weeksWithVotes, sportMeta] = await Promise.all([
     getCachedYearsThatHaveVotes({ division }),

@@ -19,7 +19,7 @@ export default function CollegeTeamsLoading() {
           />
         </div>
       </div>
-      <main className="mx-auto max-w-site px-4 lg:px-6" aria-busy="true">
+      <div className="mx-auto max-w-site px-4 lg:px-6" aria-busy="true">
         <span className="sr-only" role="status">
           Loading…
         </span>
@@ -44,7 +44,7 @@ export default function CollegeTeamsLoading() {
             ))}
           </div>
         </div>
-      </main>
+      </div>
     </>
   );
 }

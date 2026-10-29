@@ -30,7 +30,7 @@ export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
               {card.title}
             </Link>
           </h2>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground">
             Week {poll.week} · {poll.year}
           </p>
         </div>
@@ -57,7 +57,11 @@ export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
               {team.movement ? (
                 <RankMovement movement={team.movement} />
               ) : (
-                <span className="text-muted-foreground" aria-label="No change">
+                <span
+                  className="text-muted-foreground"
+                  role="img"
+                  aria-label="No change"
+                >
                   —
                 </span>
               )}
@@ -75,7 +79,7 @@ export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
           Full Top 25
           <ChevronRight className="size-4" aria-hidden />
         </Link>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           <Link
             href={poll.ballotsHref}
             className="hover:text-foreground"

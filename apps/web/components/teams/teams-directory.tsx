@@ -35,7 +35,7 @@ function TeamCard({ team }: { team: TeamDirectorySchool }) {
     <li data-team data-q={team.searchHaystack}>
       <Link
         href={`/college/teams/${team.slug}`}
-        title={`/college/teams/${team.slug}`}
+        title={displayName}
         className="group flex h-full items-center gap-3 rounded-xl border bg-card p-3 shadow-xs transition-colors hover:border-primary/50 hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         prefetch={false}
       >

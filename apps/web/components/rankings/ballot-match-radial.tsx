@@ -8,8 +8,8 @@ const SIZE = {
     box: "size-9",
     radius: 14,
     stroke: 3,
-    percentClass: "text-[11px] font-bold tabular",
-    labelClass: "text-[8px] text-muted-foreground",
+    percentClass: "text-sm font-bold tabular",
+    labelClass: "text-sm text-muted-foreground",
     showLabel: false,
   },
   md: {
@@ -17,7 +17,7 @@ const SIZE = {
     radius: 26,
     stroke: 5,
     percentClass: "font-display text-base font-extrabold tabular sm:text-lg",
-    labelClass: "text-[10px] text-muted-foreground",
+    labelClass: "text-sm text-muted-foreground",
     showLabel: true,
   },
 } as const;

@@ -61,7 +61,7 @@ export function DivisionConferencePicker({
           >
             <ListFilter className="size-4" aria-hidden />
             {triggerLabel}
-            <span className="text-xs text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               ({divisionConferences.length})
             </span>
           </Button>
@@ -120,7 +120,7 @@ export function DivisionConferencePicker({
       </Popover>
       {popular.length > 0 ? (
         <>
-          <span className="text-xs text-muted-foreground">Popular:</span>
+          <span className="text-sm text-muted-foreground">Popular:</span>
           {popular.map((conference) => (
             <Link
               key={conference.slug}

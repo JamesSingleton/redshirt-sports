@@ -134,10 +134,6 @@ export function TeamInfoLinks({
           ) : null}
         </div>
       ) : null}
-      <p className="text-xs text-muted-foreground lg:col-span-2">
-        Redshirt doesn&apos;t host rosters, scores, or schedules on team pages.
-        Use the athletics site and social links above for official program info.
-      </p>
     </div>
   );
 }

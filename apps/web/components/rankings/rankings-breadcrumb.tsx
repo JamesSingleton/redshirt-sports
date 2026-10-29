@@ -14,7 +14,7 @@ export function RankingsBreadcrumb({
 }) {
   return (
     <nav
-      className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+      className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground"
       aria-label="Breadcrumb"
     >
       <Link

@@ -1,4 +1,7 @@
+import { differenceInDays, format, parseISO } from "date-fns";
+
 import type { HomePost } from "@/components/home/home-page-content";
+import { formatRelativeTime } from "@/lib/format-relative-time";
 
 export type NewsArchiveSearchParams = {
   page?: string;
@@ -42,13 +45,6 @@ export function postArchiveKicker(post: HomePost): string {
   return "News";
 }
 
-import {
-  differenceInDays,
-  format,
-  formatDistanceToNow,
-  parseISO,
-} from "date-fns";
-
 /** Relative label for recent posts; calendar date for older ones. */
 export function formatArchivePublishedAt(
   iso: string,
@@ -56,7 +52,7 @@ export function formatArchivePublishedAt(
 ): string {
   const date = parseISO(iso);
   if (differenceInDays(now, date) < 7) {
-    return formatDistanceToNow(date, { addSuffix: true });
+    return formatRelativeTime(date);
   }
   return format(date, "M/d/yyyy");
 }

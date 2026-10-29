@@ -28,6 +28,7 @@ import {
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { userCanVoteOnPoll } from "@/lib/require-poll-voter";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
+import { noIndexRobots } from "@/lib/seo";
 import {
   getCurrentSeason,
   getVotingWeek,
@@ -93,16 +94,9 @@ async function getLatestVoterBallotWithSchools(
 }
 
 export const metadata: Metadata = {
-  title: `College Football Top 25 Voting | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-  description: "Vote for the top 25 college football teams.",
-  robots: {
-    follow: false,
-    index: false,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
-  },
+  title: "Top 25 Voting",
+  description: "Cast your ballot for a Redshirt Sports Top 25 poll.",
+  robots: noIndexRobots,
 };
 
 const divisionHeader = [

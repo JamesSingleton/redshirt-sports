@@ -138,7 +138,7 @@ export default function VoterBallotBreakdown({ voterBreakdown }: Props) {
               value={String(pageSize)}
               onValueChange={(v) => setPageSize(Number(v))}
             >
-              <SelectTrigger className="min-w-43.75">
+              <SelectTrigger className="min-w-43.75" aria-label="Rows per page">
                 <SelectValue placeholder="Rows per page" />
               </SelectTrigger>
               <SelectContent side="top">

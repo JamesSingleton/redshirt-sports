@@ -3,8 +3,10 @@ import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { JsonLdScript } from "@/components/json-ld";
 import { TeamsDirectory } from "@/components/teams/teams-directory";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
 import { getCachedTeamDirectory } from "@/lib/team-directory-data";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,6 +27,24 @@ export default async function CollegeTeamsPage() {
 
   return (
     <>
+      <JsonLdScript
+        id="college-teams-json-ld"
+        data={buildIndexedPageJsonLd({
+          pageType: "CollectionPage",
+          name: "College Teams",
+          description:
+            "Every school we've covered. Pick a team for news and rankings across football and basketball.",
+          path: "/college/teams",
+          breadcrumbs: [
+            { name: "Home", path: "/" },
+            { name: "Teams", path: "/college/teams" },
+          ],
+          items: teams.map((team) => ({
+            name: team.name,
+            path: `/college/teams/${team.slug}`,
+          })),
+        })}
+      />
       <a
         href="#teams-grid"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:shadow"
@@ -34,7 +54,7 @@ export default async function CollegeTeamsPage() {
       <div className="border-b bg-gradient-to-b from-muted/60 to-background">
         <div className="mx-auto max-w-site px-4 pt-5 pb-6 lg:px-6">
           <nav
-            className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+            className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground"
             aria-label="Breadcrumb"
           >
             <Link href="/" className="hover:text-foreground" prefetch={false}>
@@ -52,13 +72,12 @@ export default async function CollegeTeamsPage() {
           </p>
         </div>
       </div>
-      <main
-        id="main"
+      <div
         className="mx-auto min-w-0 max-w-site overflow-x-clip px-4 lg:px-6"
         aria-busy="false"
       >
         <TeamsDirectory teams={teams} />
-      </main>
+      </div>
     </>
   );
 }

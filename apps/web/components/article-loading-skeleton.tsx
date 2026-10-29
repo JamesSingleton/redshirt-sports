@@ -2,7 +2,7 @@ import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 
 export default function ArticlePageSkeleton() {
   return (
-    <main
+    <div
       aria-busy="true"
       aria-live="polite"
       className="mx-auto max-w-site px-4 lg:px-6"
@@ -39,6 +39,6 @@ export default function ArticlePageSkeleton() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

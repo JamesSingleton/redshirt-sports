@@ -42,36 +42,25 @@ type AboutAuthor = {
 
 export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
   const emailDomain = getSiteEmailDomain();
-  const methodologyHref = rankingsMethodologyHref("football", "fcs");
+  const methodologyHref = rankingsMethodologyHref();
 
   return (
-    <main id="main" className="mx-auto max-w-site px-4 pt-5 lg:px-6">
+    <div className="mx-auto max-w-site px-4 pt-5 lg:px-6">
       <SiteBreadcrumb
         items={[{ label: "Home", href: "/" }, { label: "About" }]}
       />
 
       <section className="border-b pb-10 pt-6" data-block="hero">
-        <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
-          <div className="max-w-3xl">
-            <div className="kicker text-primary">About Redshirt Sports</div>
-            <h1 className="mt-2 font-display text-[2.6rem] font-extrabold uppercase leading-none lg:text-headline-lg">
-              Every level of college sports
-            </h1>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Independent coverage for fans of the programs the big outlets
-              skip: FCS, Division II, Division III and mid-major basketball,
-              plus a transparent, fan-readable Top 25.
-            </p>
-          </div>
-          <div
-            className="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted"
-            role="img"
-            aria-label="Hero photo placeholder"
-          >
-            <span className="absolute bottom-2 left-2 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              Hero photo
-            </span>
-          </div>
+        <div className="max-w-3xl">
+          <div className="kicker text-primary">About Redshirt Sports</div>
+          <h1 className="mt-2 font-display text-[2.6rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+            Every level of college sports
+          </h1>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Independent coverage for fans of the programs the big outlets skip:
+            FCS, Division II, Division III and mid-major basketball, plus a
+            transparent, fan-readable Top 25.
+          </p>
         </div>
       </section>
 
@@ -139,8 +128,7 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
           Our staff
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Writers and editors. Each profile lives at{" "}
-          <span className="font-mono">/people/[slug]</span>.
+          Writers and editors. Open a name to read their profile.
         </p>
         <ul className="mt-5 grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(min(100%,11rem),1fr))]">
           {authors.map((author) => (
@@ -163,7 +151,7 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
                   {author.name}
                 </span>
                 {author.roles?.length ? (
-                  <span className="mt-0.5 text-xs text-muted-foreground">
+                  <span className="mt-0.5 text-sm text-muted-foreground">
                     {author.roles.join(" · ")}
                   </span>
                 ) : null}
@@ -201,6 +189,6 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

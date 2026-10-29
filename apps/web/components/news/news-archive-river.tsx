@@ -46,7 +46,7 @@ function LeadStory({
         <div className="flex flex-wrap items-center gap-1.5">
           {showSportLabel && post.sportTitle ? (
             <span
-              className={`rounded px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${sportBadgeClass(post.sportSlug)}`}
+              className={`rounded px-1.5 py-0.5 text-sm font-bold uppercase tracking-wide ${sportBadgeClass(post.sportSlug)}`}
             >
               {post.sportTitle}
             </span>
@@ -65,7 +65,7 @@ function LeadStory({
             {post.excerpt}
           </p>
         ) : null}
-        <div className="mt-2 text-xs text-muted-foreground">
+        <div className="mt-2 text-sm text-muted-foreground">
           {author}
           {post.publishedAt ? (
             <>
@@ -94,7 +94,7 @@ function RiverRow({
         {post.publishedAt ? (
           <ArchivePublishedTime
             dateString={post.publishedAt}
-            className="pt-0.5 text-xs font-medium text-muted-foreground tabular-nums"
+            className="pt-0.5 text-sm font-medium text-muted-foreground tabular-nums"
           />
         ) : (
           <span />
@@ -103,7 +103,7 @@ function RiverRow({
           <div className="flex flex-wrap items-center gap-1.5">
             {showSportLabel && post.sportTitle ? (
               <span
-                className={`rounded px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${sportBadgeClass(post.sportSlug)}`}
+                className={`rounded px-1.5 py-0.5 text-sm font-bold uppercase tracking-wide ${sportBadgeClass(post.sportSlug)}`}
               >
                 {post.sportTitle}
               </span>
@@ -120,7 +120,7 @@ function RiverRow({
             </Link>
           </h3>
           {author ? (
-            <div className="mt-1 text-xs text-muted-foreground">{author}</div>
+            <div className="mt-1 text-sm text-muted-foreground">{author}</div>
           ) : null}
         </div>
         <Link
@@ -168,7 +168,7 @@ export function NewsArchiveRiver({
           {totalPosts.toLocaleString()} stories
         </p>
         {totalPages > 1 ? (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             Page {pageIndex} of {totalPages}
           </span>
         ) : null}

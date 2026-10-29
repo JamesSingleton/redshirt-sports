@@ -65,7 +65,7 @@ export function LegalSidebar({
         <nav aria-labelledby="legal-toc-heading" className="hidden lg:block">
           <h2
             id="legal-toc-heading"
-            className="mb-4 text-xs font-semibold tracking-wider uppercase"
+            className="mb-4 text-sm font-semibold tracking-wider uppercase"
           >
             On this page
           </h2>
@@ -76,7 +76,7 @@ export function LegalSidebar({
         <nav aria-labelledby="legal-docs-heading">
           <h2
             id="legal-docs-heading"
-            className="mb-4 text-xs font-semibold tracking-wider uppercase"
+            className="mb-4 text-sm font-semibold tracking-wider uppercase"
           >
             Other legal documents
           </h2>

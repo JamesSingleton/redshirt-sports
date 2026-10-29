@@ -2,16 +2,12 @@ import { SignUp } from "@redshirt-sports/auth/components/sign-up";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { noIndexRobots } from "@/lib/seo";
+
 export const metadata: Metadata = {
-  title: "Sign Up | Redshirt Sports",
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
-  },
+  title: "Sign Up",
+  description: "Create a Redshirt Sports account.",
+  robots: noIndexRobots,
 };
 
 export default function SignUpPage() {

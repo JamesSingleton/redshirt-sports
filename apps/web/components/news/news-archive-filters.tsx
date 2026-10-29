@@ -135,7 +135,7 @@ export function NewsArchiveFilters({
         <div className="grid min-w-56 flex-1 basis-56 gap-1">
           <label
             htmlFor="news-f-q"
-            className="text-xs font-semibold text-muted-foreground"
+            className="text-sm font-semibold text-muted-foreground"
           >
             Search headlines
           </label>

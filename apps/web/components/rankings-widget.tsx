@@ -11,6 +11,7 @@ import {
 } from "@redshirt-sports/ui/components/card";
 import {
   Tabs,
+  TabsContent,
   TabsList,
   TabsTrigger,
 } from "@redshirt-sports/ui/components/tabs";
@@ -50,13 +51,23 @@ export function RankingsWidget({ polls }: { polls: RankingsWidgetPoll[] }) {
             value={active}
             onValueChange={(value) => setActive(value as typeof active)}
           >
-            <TabsList className="h-8 text-xs">
+            <TabsList className="h-8 text-sm">
               {polls.map((poll) => (
                 <TabsTrigger key={poll.division} value={poll.division}>
                   {poll.label}
                 </TabsTrigger>
               ))}
             </TabsList>
+            {polls.map((poll) => (
+              <TabsContent
+                key={poll.division}
+                value={poll.division}
+                forceMount
+                className="sr-only"
+              >
+                {poll.label} rankings
+              </TabsContent>
+            ))}
           </Tabs>
         ) : null}
       </CardHeader>
@@ -93,6 +104,7 @@ export function RankingsWidget({ polls }: { polls: RankingsWidgetPoll[] }) {
                 ) : (
                   <span
                     className="text-muted-foreground"
+                    role="img"
                     aria-label="No change"
                   >
                     —

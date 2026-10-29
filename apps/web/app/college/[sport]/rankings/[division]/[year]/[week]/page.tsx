@@ -13,6 +13,7 @@ import {
   loadRankingsWeekPageModel,
   pollDivisionLabel,
 } from "@/lib/rankings/read-model";
+import { sportNavLabel } from "@/lib/sport-nav";
 import { parseWeekSegment, weekTitle } from "@/utils/espn";
 
 function resolveYearNumber(year: string): number {
@@ -46,11 +47,12 @@ export async function generateMetadata({
   const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
   const divisionName = pollDivisionLabel(division);
+  const sportLabel = sportNavLabel(sport, sport);
 
   return getPageMetadata(
     {
-      title: `${year} ${titleWeek} ${divisionName} Top 25 Rankings`,
-      description: `Discover the ${year} ${titleWeek} ${divisionName} Top 25 rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
+      title: `${year} ${titleWeek} ${divisionName} ${sportLabel} Top 25 Rankings`,
+      description: `Discover the ${year} ${titleWeek} ${divisionName} ${sportLabel} Top 25 rankings presented by Redshirt Sports. See how the voters ranked the top teams.`,
       slug: `/college/${sport}/rankings/${division}/${year}/${week}`,
     },
     perspective,

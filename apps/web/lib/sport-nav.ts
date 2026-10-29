@@ -25,6 +25,46 @@ export function sportRankingsIndexPath(slug: string): string {
   return `/college/${slug}/rankings`;
 }
 
+const POLL_NAV_ORDER = ["fcs", "fbs", "d1", "d2", "d3", "naia"] as const;
+
+const POLL_NAV_LABEL: Record<string, string> = {
+  fcs: "FCS",
+  fbs: "FBS",
+  d1: "D-I",
+  d2: "D-II",
+  d3: "D-III",
+  naia: "NAIA",
+};
+
+export function pollNavLabel(division: string): string {
+  return POLL_NAV_LABEL[division] ?? division.toUpperCase();
+}
+
+function pollNavOrder(division: string): number {
+  const index = POLL_NAV_ORDER.indexOf(
+    division as (typeof POLL_NAV_ORDER)[number],
+  );
+  return index === -1 ? POLL_NAV_ORDER.length : index;
+}
+
+export type NavPollWeek = {
+  division: string;
+  week: number;
+  year: number;
+};
+
+/** Published polls for a sport menu, FCS before FBS. Incomplete rows are dropped. */
+export function navLatestPolls<T extends NavPollWeek>(
+  polls: readonly (T | undefined)[],
+): T[] {
+  return polls
+    .filter(
+      (poll): poll is T =>
+        Boolean(poll?.division) && poll?.week != null && poll?.year != null,
+    )
+    .sort((a, b) => pollNavOrder(a.division) - pollNavOrder(b.division));
+}
+
 /** Navbar / mega-menu: at least one published poll week exists for this sport. */
 export function sportHasRankingsNav(
   latestRankings: ReadonlyArray<{

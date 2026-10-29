@@ -22,7 +22,7 @@ export function NewsArchiveHeader({
   return (
     <div className="border-b pb-5 pt-5">
       <nav
-        className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+        className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground"
         aria-label="Breadcrumb"
       >
         {items.map((item, index) => (

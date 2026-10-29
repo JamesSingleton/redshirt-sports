@@ -194,6 +194,8 @@ const homePostCardFragment = /* groq */ `
     division->shortName,
     division->name
   ),
+  "divisionSlug": division->slug.current,
+  "subgroupingSlug": sportSubgrouping->slug.current,
   "tagNames": tags[]->name,
   "sportTitle": sport->title,
   "sportSlug": sport->slug.current
@@ -538,7 +540,7 @@ export const queryHomePageData = defineQuery(/* groq */ `
 `);
 
 export const queryHomeFeed = defineQuery(/* groq */ `
-  *[_type == "post"] | order(publishedAt desc)[0...12]{
+  *[_type == "post"] | order(publishedAt desc)[0...48]{
     ${homePostCardFragment}
   }
 `);

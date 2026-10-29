@@ -103,6 +103,34 @@ describe("getCachedBallotsByVoterCards", () => {
     expect(cards[0]?.slug).toBe("jane-doe");
     expect(cards[0]?.picks).toHaveLength(2);
     expect(cards[0]?.numberOneShortName).toBe("T1");
+    expect(cards[0]?.omittedTop25.map((team) => team.teamId)).not.toContain(
+      "t20",
+    );
+  });
+
+  it("flags a published Top 25 team left off outside the old top 15", async () => {
+    mockGetVotesForWeekAndYearByVoter.mockResolvedValue({
+      u1: {
+        userData: {
+          firstName: "Jane",
+          lastName: "Doe",
+          organization: "",
+          organizationRole: "",
+        },
+        votes: [{ teamId: "t1", rank: 1 }],
+      },
+    });
+    const cards = await getCachedBallotsByVoterCards({
+      sport: "football",
+      division: "fbs",
+      year: 2026,
+      week: 7,
+    });
+    expect(cards[0]?.omittedTop25).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ teamId: "t20", consensusRank: 20 }),
+      ]),
+    );
   });
 
   it("fetches missing school metadata from Sanity", async () => {

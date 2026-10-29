@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import type { AboutPage as AboutPageSchema, WithContext } from "schema-dts";
 
 import { AboutPageContent } from "@/components/about/about-page-content";
-import { JsonLdScript, websiteId } from "@/components/json-ld";
+import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
@@ -29,8 +29,10 @@ const aboutPageJsonLd: WithContext<AboutPageSchema> = {
   "@context": "https://schema.org",
   "@type": "AboutPage",
   "@id": `${getBaseUrl()}/about`,
+  name: "About",
   url: `${getBaseUrl()}/about`,
-  description: `Meet the team at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
+  description: `Meet the team at ${process.env.NEXT_PUBLIC_APP_NAME}. Independent coverage of college sports at every level, plus transparent Top 25 rankings.`,
+  publisher: { "@type": "Organization", "@id": organizationId },
   isPartOf: {
     "@type": "WebSite",
     "@id": websiteId,

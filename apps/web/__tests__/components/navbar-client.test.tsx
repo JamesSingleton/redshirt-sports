@@ -178,6 +178,48 @@ describe("NavbarClient", () => {
     expect(screen.getByTestId("sport-mega-panel")).toBeInTheDocument();
   });
 
+  it("closes the desktop sport menu after the pointer leaves the nav", async () => {
+    mockUseIsMobile.mockReturnValue(false);
+    render(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={settingsData}
+        latestRankings={latestRankings}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: /College Football/i });
+    fireEvent.mouseEnter(trigger);
+    expect(screen.getByTestId("sport-mega-panel")).toBeInTheDocument();
+
+    const nav = screen.getByRole("navigation", { name: "Sports" });
+    fireEvent.mouseLeave(nav);
+    fireEvent.mouseEnter(nav);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    expect(screen.getByTestId("sport-mega-panel")).toBeInTheDocument();
+
+    fireEvent.mouseLeave(nav);
+    await waitFor(() => {
+      expect(screen.queryByTestId("sport-mega-panel")).not.toBeInTheDocument();
+    });
+  });
+
+  it("opens the desktop sport menu on hover", async () => {
+    mockUseIsMobile.mockReturnValue(false);
+    const user = userEvent.setup();
+    render(
+      <NavbarClient
+        navbarData={navbarData}
+        settingsData={settingsData}
+        latestRankings={latestRankings}
+      />,
+    );
+
+    await user.hover(screen.getByRole("button", { name: /College Football/i }));
+
+    expect(screen.getByTestId("sport-mega-panel")).toBeInTheDocument();
+  });
+
   it("renders the mobile menu trigger and sheet navigation", async () => {
     mockUseIsMobile.mockReturnValue(true);
     const user = userEvent.setup();
@@ -240,6 +282,9 @@ describe("NavbarClient", () => {
 
     const trigger = screen.getByRole("button", { name: /College Football/i });
     await user.click(trigger);
+    expect(screen.getByTestId("sport-mega-panel")).toBeInTheDocument();
+
+    fireEvent.click(trigger);
     expect(screen.getByTestId("sport-mega-panel")).toBeInTheDocument();
 
     await user.click(trigger);

@@ -1,49 +1,24 @@
-import localFont from "next/font/local";
+import { Barlow_Condensed, Inter, Source_Serif_4 } from "next/font/google";
 
-export const fontBarlow = localFont({
-  src: [
-    {
-      path: "./fonts/barlow-condensed-latin-500-normal.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "./fonts/barlow-condensed-latin-600-normal.woff2",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "./fonts/barlow-condensed-latin-700-normal.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "./fonts/barlow-condensed-latin-800-normal.woff2",
-      weight: "800",
-      style: "normal",
-    },
-  ],
+// Module scope: Next downloads, subsets, and self-hosts these once at build time.
+export const fontBarlow = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
   variable: "--font-barlow",
   display: "swap",
 });
 
-export const fontInter = localFont({
-  src: "./fonts/inter-latin-wght-normal.woff2",
+export const fontInter = Inter({
+  subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
 });
 
-export const fontSourceSerif = localFont({
-  src: [
-    {
-      path: "./fonts/source-serif-4-latin-wght-normal.woff2",
-      style: "normal",
-    },
-    {
-      path: "./fonts/source-serif-4-latin-wght-italic.woff2",
-      style: "italic",
-    },
-  ],
+// Article body face. Skip the homepage preload.
+export const fontSourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
   variable: "--font-source-serif",
   display: "swap",
+  preload: false,
 });

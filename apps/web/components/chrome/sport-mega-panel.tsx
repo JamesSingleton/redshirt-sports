@@ -6,6 +6,8 @@ import type { StegaBranded } from "next-sanity";
 
 import type { Top25RankingsData } from "@/components/navbar";
 import {
+  navLatestPolls,
+  pollNavLabel,
   sportHasRankingsNav,
   sportHubPath,
   sportNavLabel,
@@ -23,9 +25,9 @@ export function SportMegaPanel({
 }) {
   const label = sportNavLabel(sport.slug, sport.name);
   const showRankings = sportHasRankingsNav(latestRankings, sport.slug);
-  const sportRankings =
-    latestRankings.find((r) => r.sport === sport.slug)?.divisions ?? [];
-  const latestPoll = sportRankings[0];
+  const latestPolls = navLatestPolls(
+    latestRankings.find((r) => r.sport === sport.slug)?.divisions ?? [],
+  );
 
   return (
     <>
@@ -108,29 +110,26 @@ export function SportMegaPanel({
         </div>
         <div className="rounded-xl border bg-muted/50 p-4">
           <div className="kicker mb-2 text-muted-foreground">Latest Top 25</div>
-          {latestPoll?.division &&
-          latestPoll.year &&
-          latestPoll.week != null ? (
-            <>
-              <div className="ad-slot relative aspect-[16/9] overflow-hidden rounded-lg">
-                <span className="absolute bottom-2 left-2 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Poll graphic placeholder
-                </span>
-              </div>
-              <div className="mt-3 font-display text-lg font-bold uppercase leading-tight">
-                {label} Top 25
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                <Link
-                  href={`/college/${sport.slug}/rankings/${latestPoll.division}/${latestPoll.year}/${formatWeekSegment(latestPoll.week)}`}
-                  className="font-semibold text-foreground hover:underline"
-                  prefetch={false}
-                  onClick={onNavigate}
-                >
-                  Week {latestPoll.week} poll and ballots
-                </Link>
-              </p>
-            </>
+          {latestPolls.length > 0 ? (
+            <ul className="grid gap-3">
+              {latestPolls.map((poll) => (
+                <li key={poll.division}>
+                  <Link
+                    href={`/college/${sport.slug}/rankings/${poll.division}/${poll.year}/${formatWeekSegment(poll.week)}`}
+                    className="block rounded-md hover:underline"
+                    prefetch={false}
+                    onClick={onNavigate}
+                  >
+                    <span className="font-display text-lg font-bold uppercase leading-tight">
+                      {pollNavLabel(poll.division)} Top 25
+                    </span>
+                    <span className="mt-0.5 block text-sm text-muted-foreground">
+                      Week {poll.week} poll and ballots
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           ) : (
             <p className="text-sm text-muted-foreground">Coming soon</p>
           )}

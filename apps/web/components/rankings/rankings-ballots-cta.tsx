@@ -38,7 +38,7 @@ export function RankingsBallotsCta({
           <span className="block font-display text-lg font-bold uppercase leading-tight">
             See all {ballotsCounted} {ballotWord}
           </span>
-          <span className="block text-xs text-muted-foreground">
+          <span className="block text-sm text-muted-foreground">
             Every voter&apos;s full Top 25, outliers flagged
           </span>
         </span>
@@ -78,7 +78,7 @@ export function RankingsBallotsCta({
               </Avatar>
             ))}
             {extraVoters > 0 ? (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 +{extraVoters} more voters
               </span>
             ) : null}
@@ -90,7 +90,7 @@ export function RankingsBallotsCta({
             <ChevronRight className="size-4" aria-hidden />
           </Link>
         </Button>
-        <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center justify-between text-sm">
           <Link
             href={byVoterHref}
             prefetch={false}

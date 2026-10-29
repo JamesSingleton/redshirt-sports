@@ -38,8 +38,11 @@ describe("formatArchivePublishedAt", () => {
   it("uses relative time inside a week", () => {
     const now = new Date("2026-01-10T12:00:00Z");
     vi.setSystemTime(now);
-    expect(formatArchivePublishedAt("2026-01-09T12:00:00Z", now)).toMatch(
-      /ago$/,
+    expect(formatArchivePublishedAt("2026-01-09T12:00:00Z", now)).toBe(
+      "1 day ago",
+    );
+    expect(formatArchivePublishedAt("2026-01-10T06:00:00Z", now)).toBe(
+      "6 hours ago",
     );
     vi.useRealTimers();
   });

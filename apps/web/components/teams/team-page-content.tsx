@@ -86,9 +86,9 @@ export function TeamPageContent({
   ];
 
   return (
-    <main className="mx-auto max-w-site px-4 pb-12 lg:px-6">
+    <div className="mx-auto max-w-site px-4 pb-12 lg:px-6">
       <nav
-        className="flex flex-wrap items-center gap-1 pt-5 text-xs text-muted-foreground"
+        className="flex flex-wrap items-center gap-1 pt-5 text-sm text-muted-foreground"
         aria-label="Breadcrumb"
       >
         <Link href="/" className="hover:text-foreground" prefetch={false}>
@@ -271,6 +271,6 @@ export function TeamPageContent({
           />
         </aside>
       </div>
-    </main>
+    </div>
   );
 }

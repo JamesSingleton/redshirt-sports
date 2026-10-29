@@ -93,7 +93,7 @@ export function PersonPageContent({
               {voterBallotHref && voterBallotLabel ? (
                 <Button
                   size="sm"
-                  className="h-7 gap-1.5 px-2.5 text-xs"
+                  className="h-7 gap-1.5 px-2.5 text-sm"
                   asChild
                 >
                   <Link href={voterBallotHref} prefetch={false}>
@@ -103,7 +103,7 @@ export function PersonPageContent({
                 </Button>
               ) : null}
               {hasArticles ? (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {totalPosts} article{totalPosts === 1 ? "" : "s"}
                 </span>
               ) : (
@@ -132,7 +132,7 @@ export function PersonPageContent({
     return (
       <>
         {hero}
-        <main id="main" className="mx-auto max-w-site px-4 pb-12 pt-6 lg:px-6">
+        <div className="mx-auto max-w-site px-4 pb-12 pt-6 lg:px-6">
           <div className="mx-auto max-w-3xl">
             <section className="border-t pt-6">
               <h2 className="font-display text-3xl font-extrabold uppercase">
@@ -145,7 +145,7 @@ export function PersonPageContent({
               </p>
             </section>
           </div>
-        </main>
+        </div>
       </>
     );
   }
@@ -153,7 +153,7 @@ export function PersonPageContent({
   return (
     <>
       {hero}
-      <main id="main" className="mx-auto max-w-site px-4 lg:px-6">
+      <div className="mx-auto max-w-site px-4 lg:px-6">
         <div className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div>
             <div className="flex items-center justify-between border-b pb-3">
@@ -161,7 +161,7 @@ export function PersonPageContent({
                 Latest from {author.name.split(" ")[0]}
               </h2>
               {totalPages > 1 ? (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   Page {pageIndex} of {totalPages}
                 </span>
               ) : null}
@@ -193,7 +193,7 @@ export function PersonPageContent({
                       {post.publishedAt ? (
                         <ArchivePublishedTime
                           dateString={post.publishedAt}
-                          className="mt-1 block text-xs text-muted-foreground"
+                          className="mt-1 block text-sm text-muted-foreground"
                         />
                       ) : null}
                     </div>
@@ -229,7 +229,7 @@ export function PersonPageContent({
             {mostRead.length > 0 ? <MostReadCard items={mostRead} /> : null}
           </aside>
         </div>
-      </main>
+      </div>
     </>
   );
 }

@@ -34,13 +34,13 @@ export default function VoterBreakdownMobile({
             <div className="mb-2 flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="leading-tight font-medium">{voter.name}</div>
-                <div className="text-muted-foreground text-xs italic">
+                <div className="text-sm text-muted-foreground italic">
                   {voter.organization}
                   {voter.organizationRole ? ` (${voter.organizationRole})` : ""}
                 </div>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
-                <span className="text-muted-foreground text-[10px] leading-none tracking-wide uppercase">
+                <span className="text-muted-foreground text-sm leading-none tracking-wide uppercase">
                   Match %
                 </span>
                 <BallotMatchBadge matchPercent={voter.matchPercent} />
@@ -62,7 +62,7 @@ export default function VoterBreakdownMobile({
                         className="flex shrink-0 snap-start flex-col items-center gap-1"
                         aria-label={`Rank ${rank}${vote ? `: ${vote.shortName ?? vote.name}` : ""}`}
                       >
-                        <div className="text-muted-foreground text-[10px] leading-none">
+                        <div className="text-muted-foreground text-sm leading-none">
                           {rank}
                         </div>
                         {vote ? (
@@ -81,7 +81,7 @@ export default function VoterBreakdownMobile({
       </ul>
 
       <div className="mt-4 flex items-center justify-between">
-        <div className="text-muted-foreground text-xs">
+        <div className="text-sm text-muted-foreground">
           Page {page} of {pageCount}
         </div>
         <div className="flex items-center gap-2">

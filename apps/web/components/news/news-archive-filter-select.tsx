@@ -47,7 +47,7 @@ export function NewsArchiveFilterSelect({
     <div className="grid gap-1">
       <label
         htmlFor={id}
-        className="text-xs font-semibold text-muted-foreground"
+        className="text-sm font-semibold text-muted-foreground"
       >
         {label}
       </label>

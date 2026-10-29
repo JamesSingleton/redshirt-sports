@@ -2,7 +2,7 @@ import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 
 export default function RankingsIndexRouteLoading() {
   return (
-    <main className="mx-auto max-w-site px-4 pb-12 lg:px-6" aria-busy="true">
+    <div className="mx-auto max-w-site px-4 pb-12 lg:px-6" aria-busy="true">
       <span className="sr-only" role="status">
         Loading…
       </span>
@@ -36,6 +36,6 @@ export default function RankingsIndexRouteLoading() {
           aria-hidden
         />
       </div>
-    </main>
+    </div>
   );
 }

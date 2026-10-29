@@ -41,7 +41,7 @@ const contactPageJsonLd: WithContext<ContactPageJsonLd> = {
     "@type": "WebSite",
     "@id": websiteId,
   },
-  inLanguage: "en-us",
+  inLanguage: "en-US",
   breadcrumb: {
     "@type": "BreadcrumbList",
     "@id": `${baseUrl}/contact#breadcrumb`,

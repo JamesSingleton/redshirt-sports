@@ -4,7 +4,7 @@ import { RankMovement } from "@/components/rankings/rank-movement";
 
 export function RankingsMovementLegend() {
   return (
-    <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
       <span className="flex items-center gap-1">
         <RankMovement movement={{ kind: "up", delta: 2 }} />
         moved up
