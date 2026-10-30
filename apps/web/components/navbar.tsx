@@ -92,7 +92,10 @@ const MemoizedNavbar = memo(function Navbar({
   latestRankingsPromise?: Promise<Top25RankingsData>;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header
+      className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+      data-testid="site-header"
+    >
       <div className="relative">
         <div className="mx-auto flex h-14 max-w-site items-center gap-3 px-4 lg:h-16 lg:px-6">
           <NavbarClient
