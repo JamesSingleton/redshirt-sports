@@ -3,13 +3,6 @@
 import { Avatar, AvatarFallback } from "@redshirt-sports/ui/components/avatar";
 import { Button } from "@redshirt-sports/ui/components/button";
 import { Input } from "@redshirt-sports/ui/components/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@redshirt-sports/ui/components/select";
 import { Search, Users } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -35,7 +28,7 @@ function StatCard({
   detail: string;
 }) {
   return (
-    <div className="rounded-xl border bg-card p-3 sm:p-4">
+    <div className="min-w-0 rounded-xl border bg-card p-3 sm:p-4">
       <div className="text-sm uppercase tracking-wide text-muted-foreground sm:text-sm">
         {label}
       </div>
@@ -90,8 +83,8 @@ export function RankingsVotersPanel({
   const mobileRows = showAllMobile ? filtered : filtered.slice(0, 8);
 
   return (
-    <div className="grid gap-4 pt-6">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+    <div className="grid min-w-0 grid-cols-1 gap-4 overflow-x-clip pt-6">
+      <div className="grid min-w-0 grid-cols-2 gap-3 lg:grid-cols-3">
         <StatCard
           label="Voters"
           value={String(voters.length)}
@@ -114,7 +107,7 @@ export function RankingsVotersPanel({
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-primary">
             <Users className="size-5" aria-hidden />
           </span>
-          <div className="text-sm">
+          <div className="min-w-0 text-sm">
             <div className="font-semibold">How voters are chosen</div>
             <p className="mt-1 text-muted-foreground">
               Invite-only: admins credential media who regularly cover{" "}
@@ -131,94 +124,82 @@ export function RankingsVotersPanel({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative w-full sm:w-72">
-          <Search
-            className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden
-          />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search voters or outlets"
-            aria-label="Search voters or outlets"
-            className="h-9 pl-8"
-          />
-        </div>
-        <Select defaultValue="name">
-          <SelectTrigger className="h-9 w-[10rem]" aria-label="Sort voters">
-            <SelectValue placeholder="Sort" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="name">Sort: name A–Z</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="relative w-full sm:w-72">
+        <Search
+          className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden
+        />
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search voters or outlets"
+          aria-label="Search voters or outlets"
+          className="h-9 pl-8"
+        />
       </div>
 
-      <div className="hidden max-w-full overflow-x-auto overflow-y-clip overscroll-x-contain rounded-xl border bg-card md:block">
-        <table className="w-full text-base">
+      <div className="hidden w-full min-w-0 max-w-full overflow-x-auto overflow-y-clip overscroll-x-contain rounded-xl border bg-card md:block">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b">
-              <th className="p-2 pl-4 text-left text-sm uppercase tracking-wide text-muted-foreground">
+              <th className="px-3 py-1.5 text-left text-xs uppercase tracking-wide text-muted-foreground">
                 Voter
               </th>
-              <th className="p-2 text-left text-sm uppercase tracking-wide text-muted-foreground">
+              <th className="px-3 py-1.5 text-left text-xs uppercase tracking-wide text-muted-foreground">
                 Outlet / affiliation
               </th>
-              <th className="p-2 text-right text-sm uppercase tracking-wide text-muted-foreground">
-                Voter since
+              <th className="px-3 py-1.5 text-right text-xs uppercase tracking-wide text-muted-foreground">
+                Since
               </th>
-              <th className="p-2 text-right text-sm uppercase tracking-wide text-muted-foreground">
-                {seasonYear} ballots
+              <th className="px-3 py-1.5 text-right text-xs uppercase tracking-wide text-muted-foreground">
+                Season
               </th>
-              <th className="p-2 text-right text-sm uppercase tracking-wide text-muted-foreground">
-                Total ballots
+              <th className="px-3 py-1.5 text-right text-xs uppercase tracking-wide text-muted-foreground">
+                Total
               </th>
-              <th className="p-2 pr-4 text-right text-sm uppercase tracking-wide text-muted-foreground">
-                Links
+              <th className="px-3 py-1.5 text-right text-xs uppercase tracking-wide text-muted-foreground">
+                <span className="sr-only">Ballot</span>
               </th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((voter) => (
               <tr key={voter.id} className="border-b hover:bg-muted/50">
-                <td className="p-2 pl-4">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="size-9">
-                      <AvatarFallback className="text-sm">
+                <td className="px-3 py-1.5">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Avatar className="size-7">
+                      <AvatarFallback className="text-xs">
                         {initials(voter.name)}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <div className="font-semibold">{voter.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {voter.organizationRole || "—"}
-                      </div>
-                    </div>
+                    <span className="truncate font-semibold">{voter.name}</span>
                   </div>
                 </td>
-                <td className="p-2 text-muted-foreground">
-                  {voter.organization || "—"}
+                <td className="max-w-64 px-3 py-1.5 text-muted-foreground">
+                  <span className="line-clamp-1">
+                    {voter.organization || "—"}
+                    {voter.organizationRole
+                      ? ` · ${voter.organizationRole}`
+                      : ""}
+                  </span>
                 </td>
-                <td className="p-2 text-right tabular text-muted-foreground">
+                <td className="px-3 py-1.5 text-right tabular text-muted-foreground">
                   {voter.voterSinceLabel}
                 </td>
-                <td className="p-2 text-right tabular">
+                <td className="px-3 py-1.5 text-right tabular">
                   {voter.ballotsSubmittedLabel}
                 </td>
-                <td className="p-2 text-right tabular">
+                <td className="px-3 py-1.5 text-right tabular">
                   {voter.totalBallotsLabel}
                 </td>
-                <td className="p-2 pr-4 text-right">
-                  <div className="flex justify-end gap-1.5">
-                    <Link
-                      href={voter.latestBallotHref}
-                      prefetch={false}
-                      className="inline-flex h-7 items-center rounded-md border px-2 text-sm font-medium hover:bg-accent"
-                    >
-                      Latest ballot
-                    </Link>
-                  </div>
+                <td className="px-3 py-1.5 text-right">
+                  <Link
+                    href={voter.latestBallotHref}
+                    prefetch={false}
+                    className="inline-flex h-7 items-center rounded-md border px-2 text-sm font-medium hover:bg-accent"
+                  >
+                    Ballot
+                  </Link>
                 </td>
               </tr>
             ))}
@@ -226,34 +207,35 @@ export function RankingsVotersPanel({
         </table>
       </div>
 
-      <ul className="grid gap-2 md:hidden">
+      <ul className="grid min-w-0 grid-cols-1 gap-2 md:hidden">
         {mobileRows.map((voter) => (
-          <li key={voter.id} className="rounded-xl border bg-card p-3">
-            <div className="flex items-center gap-3">
-              <Avatar className="size-10">
-                <AvatarFallback>{initials(voter.name)}</AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <div className="font-semibold">{voter.name}</div>
-                <div className="truncate text-sm text-muted-foreground">
-                  {voter.organization}
-                  {voter.organizationRole ? ` · ${voter.organizationRole}` : ""}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Since {voter.voterSinceLabel} · {voter.ballotsSubmittedLabel}{" "}
-                  {seasonYear} ballots · {voter.totalBallotsLabel} total
-                </div>
+          <li
+            key={voter.id}
+            className="flex min-w-0 items-center gap-2 overflow-x-clip rounded-xl border bg-card px-2.5 py-2"
+          >
+            <Avatar className="size-8">
+              <AvatarFallback className="text-xs">
+                {initials(voter.name)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-semibold">{voter.name}</div>
+              <div className="truncate text-xs text-muted-foreground">
+                {voter.organization || "—"}
+                {voter.organizationRole ? ` · ${voter.organizationRole}` : ""}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Since {voter.voterSinceLabel} · {voter.ballotsSubmittedLabel}{" "}
+                this season · {voter.totalBallotsLabel} total
               </div>
             </div>
-            <div className="mt-2 flex justify-end">
-              <Link
-                href={voter.latestBallotHref}
-                prefetch={false}
-                className="rounded-md border px-2 py-1 text-sm font-medium"
-              >
-                Ballot
-              </Link>
-            </div>
+            <Link
+              href={voter.latestBallotHref}
+              prefetch={false}
+              className="inline-flex h-7 shrink-0 items-center rounded-md border px-2 text-sm font-medium"
+            >
+              Ballot
+            </Link>
           </li>
         ))}
         {filtered.length > 8 && !showAllMobile ? (
