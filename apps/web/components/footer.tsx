@@ -42,8 +42,17 @@ export async function CachedFooterServer({
   perspective,
   stega,
 }: DynamicFetchOptions) {
+  const copyrightYear = await getCopyrightYear();
+  return CachedFooterBody({ perspective, stega, copyrightYear });
+}
+
+async function CachedFooterBody({
+  perspective,
+  stega,
+  copyrightYear,
+}: DynamicFetchOptions & { copyrightYear: number }) {
   "use cache";
-  const [response, settingsResponse, copyrightYear] = await Promise.all([
+  const [response, settingsResponse] = await Promise.all([
     sanityFetch({
       query: queryFooterData,
       perspective,
@@ -54,7 +63,6 @@ export async function CachedFooterServer({
       perspective,
       stega,
     }),
-    getCopyrightYear(),
   ]);
 
   if (!response?.data || !settingsResponse?.data) return <FooterSkeleton />;

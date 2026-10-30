@@ -1,4 +1,7 @@
-import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
+import {
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
 import {
   rssFeedBySportQuery,
   sportInfoBySlug,
@@ -8,17 +11,17 @@ import { createRssResponse, rssNotFound } from "@/lib/rss-feed";
 import { getSportFeed } from "@/lib/rss-feed-links";
 
 async function fetchSportFeed(sport: string) {
-  "use cache";
+  const { perspective } = await getDynamicFetchOptions();
   const [{ data: sportInfo }, { data: posts }] = await Promise.all([
     sanityFetchMetadata({
       query: sportInfoBySlug,
       params: { slug: sport },
-      perspective: "published",
+      perspective,
     }),
     sanityFetchMetadata({
       query: rssFeedBySportQuery,
       params: { sport },
-      perspective: "published",
+      perspective,
     }),
   ]);
   return { sportTitle: sportInfo?.title, posts: posts ?? [] };

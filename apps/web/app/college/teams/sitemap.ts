@@ -1,4 +1,7 @@
-import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
+import {
+  PUBLISHED_FETCH_OPTIONS,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
 import {
   MIN_TEAM_PAGE_POSTS,
   schoolSlugsByIdsQuery,
@@ -16,11 +19,12 @@ import { getCachedRankedSchoolSanityIds } from "@/lib/rankings-data";
 const baseUrl = getBaseUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const perspective = PUBLISHED_FETCH_OPTIONS.perspective;
   const [{ data: postQualified }, rankedSanityIds] = await Promise.all([
     sanityFetchMetadata({
       query: schoolSlugsForSitemapQuery,
       params: { minPosts: MIN_TEAM_PAGE_POSTS },
-      perspective: "published",
+      perspective,
     }) as Promise<{ data: SchoolSlugsForSitemapQueryResult | null }>,
     getCachedRankedSchoolSanityIds(),
   ]);
@@ -31,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           await sanityFetchMetadata({
             query: schoolSlugsByIdsQuery,
             params: { ids: rankedSanityIds },
-            perspective: "published",
+            perspective,
           })
         ).data as SchoolSlugsByIdsQueryResult | null)
       : [];

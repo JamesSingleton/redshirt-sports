@@ -12,9 +12,8 @@ export async function CachedNewsArchiveSidebarInner({
   stega,
   sportSlug,
 }: DynamicFetchOptions & { sportSlug: string | null }) {
-  "use cache";
   const [mostRead, rankingsPolls] = await Promise.all([
-    getCachedMostReadPosts(),
+    getCachedMostReadPosts({ perspective, stega }),
     sportSlug
       ? getCachedRankingsWidgetPolls(validateSport(sportSlug))
       : getCachedRankingsWidgetPolls(),

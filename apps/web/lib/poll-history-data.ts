@@ -3,16 +3,11 @@ import {
   type SportParam,
   weekTitle,
 } from "@redshirt-sports/clients/espn";
-import { cacheLife, cacheTag } from "next/cache";
 
 import {
   getCachedFinalRankings,
   getCachedWeeksThatHaveVotes,
   getCachedYearsThatHaveVotes,
-  RANKINGS_CACHE_LIFE,
-  RANKINGS_CACHE_TAG,
-  rankingsDivisionTag,
-  rankingsSportTag,
 } from "@/lib/rankings-data";
 
 export type PollWeekNumberOne = {
@@ -53,14 +48,6 @@ export async function getCachedPollHistoryForDivision({
   division: string;
   year: number;
 }): Promise<PollHistorySeason | null> {
-  "use cache";
-  cacheTag(
-    RANKINGS_CACHE_TAG,
-    rankingsSportTag(sport),
-    rankingsDivisionTag(sport, division),
-  );
-  cacheLife(RANKINGS_CACHE_LIFE);
-
   const weeksWithVotes = await getCachedWeeksThatHaveVotes({
     year,
     division,

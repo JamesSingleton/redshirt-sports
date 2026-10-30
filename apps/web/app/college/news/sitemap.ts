@@ -1,4 +1,7 @@
-import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
+import {
+  PUBLISHED_FETCH_OPTIONS,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
 import {
   countOfPostsQuery,
   postsForSitemapQuery,
@@ -15,10 +18,9 @@ const baseUrl = getBaseUrl();
 const urlsPerSitemap = 50000;
 
 async function fetchPostCountForSitemap() {
-  "use cache";
   const { data } = (await sanityFetchMetadata({
     query: countOfPostsQuery,
-    perspective: "published",
+    perspective: PUBLISHED_FETCH_OPTIONS.perspective,
   })) as { data: CountOfPostsQueryResult | null };
   return data ?? 0;
 }
@@ -30,11 +32,10 @@ async function fetchPostsForSitemap({
   start: number;
   end: number;
 }) {
-  "use cache";
   const { data } = (await sanityFetchMetadata({
     query: postsForSitemapQuery,
     params: { start, end },
-    perspective: "published",
+    perspective: PUBLISHED_FETCH_OPTIONS.perspective,
   })) as { data: PostsForSitemapQueryResult | null };
   return data ?? [];
 }

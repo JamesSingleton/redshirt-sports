@@ -7,7 +7,6 @@ export async function getCachedGlobalNavigation({
   perspective,
   stega,
 }: DynamicFetchOptions) {
-  "use cache";
   return sanityFetchPage({
     query: globalNavigationQuery,
     perspective,

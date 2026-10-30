@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
 import { searchQuery } from "@redshirt-sports/sanity/queries";
 import type { SearchQueryResult } from "@redshirt-sports/sanity/types";
@@ -16,7 +16,7 @@ import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
   return getPageMetadata(
     {
       title: "Search Results",
@@ -55,7 +55,6 @@ async function cachedRenderSearchPage({
   perspective,
   stega,
 }: DynamicFetchOptions & { query?: string; pageIndex: number }) {
-  "use cache";
   const subheadingText = query ? `Search results for "${query}"` : null;
 
   let searchResults: StegaBranded<SearchQueryResult> = {

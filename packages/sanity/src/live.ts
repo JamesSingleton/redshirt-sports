@@ -1,5 +1,5 @@
 import { cookies, draftMode } from "next/headers";
-import type { ClientReturn, QueryParams } from "next-sanity";
+import type { QueryParams } from "next-sanity";
 import {
   defineLive,
   type LivePerspective,
@@ -46,18 +46,31 @@ export async function getDynamicFetchOptions(): Promise<DynamicFetchOptions> {
   return { perspective: perspective ?? "drafts", stega: true };
 }
 
-/** For usage within `generateStaticParams` only. */
-export async function sanityFetchStaticParams<
-  const QueryString extends string,
->({
+/**
+ * The app's one shared `'use cache'` boundary. `sanityFetch` calls
+ * `cacheTag` / `cacheLife` and does not create the boundary itself.
+ * Callers must not add another `'use cache'` around this function.
+ */
+export async function cachedSanity<const QueryString extends string>({
   query,
   params = {},
+  perspective,
+  stega,
 }: {
   query: QueryString;
   params?: QueryParams;
-}): Promise<{ data: ClientReturn<QueryString, unknown> }> {
+  perspective: LivePerspective;
+  stega: boolean;
+}) {
   "use cache";
-  const { data } = await sanityFetch({
+  return sanityFetch({ query, params, perspective, stega });
+}
+
+/** For usage within `generateStaticParams` only. */
+export async function sanityFetchStaticParams<
+  const QueryString extends string,
+>({ query, params = {} }: { query: QueryString; params?: QueryParams }) {
+  const { data } = await cachedSanity({
     query,
     params,
     perspective: "published",
@@ -65,6 +78,8 @@ export async function sanityFetchStaticParams<
   });
   return { data };
 }
+
+export const cachedSanityStaticParams = sanityFetchStaticParams;
 
 /** For `generateMetadata`, `sitemap.ts`, `robots.ts`, etc. (no stega; pass perspective). */
 export async function sanityFetchMetadata<const QueryString extends string>({
@@ -75,9 +90,8 @@ export async function sanityFetchMetadata<const QueryString extends string>({
   query: QueryString;
   params?: QueryParams;
   perspective: LivePerspective;
-}): Promise<{ data: ClientReturn<QueryString, unknown> }> {
-  "use cache";
-  const { data } = await sanityFetch({
+}) {
+  const { data } = await cachedSanity({
     query,
     params,
     perspective,
@@ -85,3 +99,5 @@ export async function sanityFetchMetadata<const QueryString extends string>({
   });
   return { data };
 }
+
+export const cachedSanityMetadata = sanityFetchMetadata;

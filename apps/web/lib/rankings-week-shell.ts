@@ -3,6 +3,7 @@ import {
   type SportParam,
   weekTitle,
 } from "@redshirt-sports/clients/espn";
+import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import { sportInfoBySlug } from "@redshirt-sports/sanity/queries";
 import { notFound } from "next/navigation";
 
@@ -25,11 +26,13 @@ export async function loadRankingsWeekShell({
   division,
   year,
   week,
+  fetchOptions,
 }: {
   sport: string;
   division: string;
   year: string;
   week: string;
+  fetchOptions: DynamicFetchOptions;
 }) {
   const yearNumber = resolveRankingsYear(year);
   const weekNumber = resolveRankingsWeek(week);
@@ -46,8 +49,8 @@ export async function loadRankingsWeekShell({
     sanityFetchPage({
       query: sportInfoBySlug,
       params: { slug: sportParam },
-      perspective: "published",
-      stega: false,
+      perspective: fetchOptions.perspective,
+      stega: fetchOptions.stega,
     }),
   ]);
 
@@ -89,9 +92,11 @@ export async function loadRankingsWeekShell({
 export async function loadRankingsDivisionShell({
   sport,
   division,
+  fetchOptions,
 }: {
   sport: string;
   division: string;
+  fetchOptions: DynamicFetchOptions;
 }) {
   const sportParam = sport as SportParam;
   const divisions = await getCachedLatestFinalRankingsBySportSlug(sportParam);
@@ -107,5 +112,6 @@ export async function loadRankingsDivisionShell({
     division,
     year,
     week: weekSegment,
+    fetchOptions,
   });
 }

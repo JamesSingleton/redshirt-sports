@@ -1,6 +1,7 @@
 import { parseWeekSegment, weekTitle } from "@redshirt-sports/clients/espn";
 import {
   type DynamicFetchOptions,
+  getDynamicFetchOptions,
   PUBLISHED_FETCH_OPTIONS,
 } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
@@ -43,7 +44,7 @@ export async function generateMetadata({
   }>;
 }): Promise<Metadata> {
   const { division, year, week, sport } = await params;
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
   resolveYearNumber(year);
   const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
@@ -91,7 +92,6 @@ async function renderCollegeFootballRankingsPage(
   },
   fetchOptions: DynamicFetchOptions = PUBLISHED_FETCH_OPTIONS,
 ) {
-  "use cache";
   const model = await loadRankingsWeekPageModel({
     sport,
     division,

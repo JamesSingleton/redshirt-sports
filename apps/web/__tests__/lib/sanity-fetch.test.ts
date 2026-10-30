@@ -3,7 +3,7 @@ const { mockSanityFetch } = vi.hoisted(() => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
-  sanityFetch: mockSanityFetch,
+  cachedSanity: mockSanityFetch,
 }));
 
 import { sanityFetchPage } from "@/lib/sanity-fetch";
@@ -13,7 +13,7 @@ describe("sanityFetchPage", () => {
     mockSanityFetch.mockReset();
   });
 
-  it("delegates to sanityFetch with perspective and stega", async () => {
+  it("delegates to cachedSanity with perspective and stega", async () => {
     mockSanityFetch.mockResolvedValue({ data: { title: "Hello" } });
 
     await expect(

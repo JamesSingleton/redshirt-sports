@@ -1,10 +1,14 @@
 import {
+  cachedSanity,
   type DynamicFetchOptions,
-  sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import type { QueryParams } from "next-sanity";
 
-/** Page content fetch with draft-aware perspective and stega. Must run inside `'use cache'`. */
+/**
+ * Page content fetch. Delegates to the single `cachedSanity` boundary.
+ * Callers must not themselves be `"use cache"`: awaiting that boundary from
+ * inside another cache fill deadlocks until the function timeout in production.
+ */
 export async function sanityFetchPage<const QueryString extends string>({
   query,
   params = {},
@@ -14,6 +18,5 @@ export async function sanityFetchPage<const QueryString extends string>({
   query: QueryString;
   params?: QueryParams;
 } & DynamicFetchOptions) {
-  "use cache";
-  return sanityFetch({ query, params, perspective, stega });
+  return cachedSanity({ query, params, perspective, stega });
 }

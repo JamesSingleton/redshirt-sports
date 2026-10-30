@@ -1,12 +1,14 @@
 import { render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { isValidElement, type ReactNode } from "react";
 
-const { mockDraftMode, mockResolveDynamicFetchOptions } = vi.hoisted(() => ({
-  mockDraftMode: vi.fn().mockResolvedValue({ isEnabled: false }),
-  mockResolveDynamicFetchOptions: vi
-    .fn()
-    .mockResolvedValue({ perspective: "published", stega: false }),
-}));
+const { mockConnection, mockDraftMode, mockResolveDynamicFetchOptions } =
+  vi.hoisted(() => ({
+    mockConnection: vi.fn().mockResolvedValue(undefined),
+    mockDraftMode: vi.fn().mockResolvedValue({ isEnabled: false }),
+    mockResolveDynamicFetchOptions: vi
+      .fn()
+      .mockResolvedValue({ perspective: "published", stega: false }),
+  }));
 
 vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
   resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
@@ -28,6 +30,10 @@ vi.mock("next/headers", () => ({
   draftMode: mockDraftMode,
 }));
 
+vi.mock("next/server", () => ({
+  connection: mockConnection,
+}));
+
 vi.mock("react-dom", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react-dom")>();
   return {
@@ -42,8 +48,13 @@ vi.mock("@redshirt-sports/analytics/provider", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
-  SanityLive: (props: { waitFor?: string }) => (
-    <div data-testid="sanity-live" data-wait-for={props.waitFor ?? ""} />
+  PUBLISHED_FETCH_OPTIONS: { perspective: "published", stega: false },
+  SanityLive: (props: { waitFor?: string; includeDrafts?: boolean }) => (
+    <div
+      data-testid="sanity-live"
+      data-wait-for={props.waitFor ?? ""}
+      data-include-drafts={String(props.includeDrafts ?? false)}
+    />
   ),
 }));
 
@@ -94,8 +105,32 @@ import {
   DraftAwareNavbar,
 } from "@/components/root-layout-chrome";
 
+function findComponent(
+  node: ReactNode,
+  name: string,
+): (() => Promise<unknown>) | null {
+  if (!isValidElement(node)) {
+    return null;
+  }
+  if (typeof node.type === "function" && node.type.name === name) {
+    return node.type as () => Promise<unknown>;
+  }
+  const children = (node.props as { children?: ReactNode }).children;
+  if (Array.isArray(children)) {
+    for (const child of children) {
+      const found = findComponent(child, name);
+      if (found) {
+        return found;
+      }
+    }
+    return null;
+  }
+  return children ? findComponent(children, name) : null;
+}
+
 describe("RootLayout", () => {
   beforeEach(() => {
+    mockConnection.mockClear();
     mockDraftMode.mockReset().mockResolvedValue({ isEnabled: false });
   });
 
@@ -104,18 +139,55 @@ describe("RootLayout", () => {
     expect(viewport).toEqual({ themeColor: "#E80022" });
   });
 
-  it("does not call draftMode in the layout shell itself", () => {
-    RootLayout({ children: <div>Page content</div> });
-    expect(mockDraftMode).not.toHaveBeenCalled();
+  it("renders published navbar and footer in the shell", async () => {
+    const layout = await RootLayout({ children: <div>Page content</div> });
+    render(layout);
+
+    expect(mockDraftMode).toHaveBeenCalled();
+    expect(screen.getByTestId("navbar")).toBeInTheDocument();
+    expect(screen.getByText("Page content")).toBeInTheDocument();
+    expect(screen.getByTestId("footer")).toBeInTheDocument();
+    expect(screen.getByTestId("json-ld")).toBeInTheDocument();
+    expect(screen.getByTestId("sanity-live")).toBeInTheDocument();
+    expect(screen.queryByTestId("navbar-skeleton")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("visual-editing")).not.toBeInTheDocument();
+    expect(screen.getByTestId("sanity-live")).not.toHaveAttribute(
+      "data-wait-for",
+      "function",
+    );
+
+    const marker = findComponent(layout, "MetadataConnectionMarker");
+    if (!marker) {
+      throw new Error("expected metadata connection marker");
+    }
+    await expect(marker()).resolves.toBeNull();
+    expect(mockConnection).toHaveBeenCalled();
   });
 
-  it("renders Suspense fallbacks around draft-aware chrome", () => {
-    const layout = RootLayout({ children: <div>Page content</div> });
+  it("waits for Sanity functions in production", async () => {
+    const originalEnv = process.env.VERCEL_ENV;
+    process.env.VERCEL_ENV = "production";
+    try {
+      const layout = await RootLayout({ children: <div>Page content</div> });
+      render(layout);
+      expect(screen.getByTestId("sanity-live")).toHaveAttribute(
+        "data-wait-for",
+        "function",
+      );
+    } finally {
+      process.env.VERCEL_ENV = originalEnv;
+    }
+  });
+
+  it("streams draft chrome behind Suspense", async () => {
+    mockDraftMode.mockResolvedValue({ isEnabled: true });
+    const layout = await RootLayout({ children: <div>Page content</div> });
     render(layout);
 
     expect(screen.getByTestId("navbar-skeleton")).toBeInTheDocument();
-    expect(screen.getByText("Page content")).toBeInTheDocument();
     expect(screen.getByTestId("footer-skeleton")).toBeInTheDocument();
+    expect(screen.getByTestId("visual-editing")).toBeInTheDocument();
+    expect(screen.getByTestId("disable-draft")).toBeInTheDocument();
   });
 });
 

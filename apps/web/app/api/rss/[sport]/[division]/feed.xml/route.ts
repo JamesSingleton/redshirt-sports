@@ -1,4 +1,7 @@
-import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
+import {
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
 import {
   queryDivisionOrSubgroupingDisplayName,
   rssFeedBySportAndDivisionQuery,
@@ -10,23 +13,23 @@ import { createRssResponse, rssNotFound } from "@/lib/rss-feed";
 import { getDivisionFeed } from "@/lib/rss-feed-links";
 
 async function fetchDivisionFeed(sport: string, division: string) {
-  "use cache";
+  const { perspective } = await getDynamicFetchOptions();
   const [{ data: sportInfo }, { data: divisionInfo }, { data: posts }] =
     await Promise.all([
       sanityFetchMetadata({
         query: sportInfoBySlug,
         params: { slug: sport },
-        perspective: "published",
+        perspective,
       }),
       sanityFetchMetadata({
         query: queryDivisionOrSubgroupingDisplayName,
         params: { slugOrShortName: division },
-        perspective: "published",
+        perspective,
       }),
       sanityFetchMetadata({
         query: rssFeedBySportAndDivisionQuery,
         params: { sport, division },
-        perspective: "published",
+        perspective,
       }),
     ]);
   return {

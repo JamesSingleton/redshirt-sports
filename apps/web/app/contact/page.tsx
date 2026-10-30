@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
 import { querySettingsData } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
@@ -17,7 +17,7 @@ import {
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
   return getPageMetadata(
     {
       title: "Contact",
@@ -68,7 +68,6 @@ export default async function ContactPage() {
 }
 
 async function renderContactPage({ perspective, stega }: DynamicFetchOptions) {
-  "use cache";
   const [{ data: settings }, seoSettings] = await Promise.all([
     sanityFetchPage({
       query: querySettingsData,

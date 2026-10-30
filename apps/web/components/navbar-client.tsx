@@ -287,6 +287,14 @@ const DesktopNavbar = memo(function DesktopNavbar({
   );
 });
 
+function CloseMenuOnNavigate({ onNavigate }: { onNavigate: () => void }) {
+  const path = usePathname();
+  useEffect(() => {
+    onNavigate();
+  }, [path, onNavigate]);
+  return null;
+}
+
 const ClientSideNavbar = memo(function ClientSideNavbar({
   navbarData,
   settingsData,
@@ -297,7 +305,6 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
   latestRankings: Top25RankingsData;
 }) {
   const isMobile = useIsMobile();
-  const path = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMega, setActiveMega] = useState<SportMegaKey | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -320,9 +327,7 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
     [cancelMegaClose],
   );
 
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [path]);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -345,6 +350,9 @@ const ClientSideNavbar = memo(function ClientSideNavbar({
 
   return (
     <>
+      <Suspense fallback={null}>
+        <CloseMenuOnNavigate onNavigate={closeMenu} />
+      </Suspense>
       <div className="flex w-full flex-1 items-center gap-3">
         {isMobile ? (
           <MobileNavbar

@@ -23,6 +23,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { getCachedMostReadPosts } from "@/lib/most-read-data";
 
+const published = { perspective: "published" as const, stega: false };
+
 describe("getCachedMostReadPosts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -37,7 +39,7 @@ describe("getCachedMostReadPosts", () => {
         { _id: "2", title: "B", slug: "story-b" },
       ],
     });
-    await expect(getCachedMostReadPosts()).resolves.toEqual([
+    await expect(getCachedMostReadPosts(published)).resolves.toEqual([
       { _id: "1", title: "A", slug: "story-a" },
       { _id: "2", title: "B", slug: "story-b" },
     ]);
@@ -47,7 +49,7 @@ describe("getCachedMostReadPosts", () => {
     mockSanityFetch
       .mockResolvedValueOnce({ data: null })
       .mockResolvedValueOnce({ data: null });
-    await expect(getCachedMostReadPosts()).resolves.toEqual([]);
+    await expect(getCachedMostReadPosts(published)).resolves.toEqual([]);
   });
 
   it("dedupes duplicate slugs from analytics", async () => {
@@ -55,7 +57,7 @@ describe("getCachedMostReadPosts", () => {
     mockSanityFetch.mockResolvedValueOnce({
       data: [{ _id: "1", title: "A", slug: "story-a" }],
     });
-    await expect(getCachedMostReadPosts()).resolves.toEqual([
+    await expect(getCachedMostReadPosts(published)).resolves.toEqual([
       { _id: "1", title: "A", slug: "story-a" },
     ]);
   });
@@ -64,7 +66,7 @@ describe("getCachedMostReadPosts", () => {
     mockSanityFetch.mockResolvedValueOnce({ data: [] }).mockResolvedValueOnce({
       data: [{ _id: "f1", title: "Fallback", slug: "fallback" }],
     });
-    await expect(getCachedMostReadPosts()).resolves.toEqual([
+    await expect(getCachedMostReadPosts(published)).resolves.toEqual([
       { _id: "f1", title: "Fallback", slug: "fallback" },
     ]);
   });
@@ -74,7 +76,7 @@ describe("getCachedMostReadPosts", () => {
     mockSanityFetch.mockResolvedValueOnce({
       data: [{ _id: "f1", title: "Fallback", slug: "fallback" }],
     });
-    await expect(getCachedMostReadPosts()).resolves.toEqual([
+    await expect(getCachedMostReadPosts(published)).resolves.toEqual([
       { _id: "f1", title: "Fallback", slug: "fallback" },
     ]);
   });
@@ -83,7 +85,7 @@ describe("getCachedMostReadPosts", () => {
     mockSanityFetch.mockResolvedValueOnce({ data: [] }).mockResolvedValueOnce({
       data: [{ _id: "f1", title: "Fallback", slug: "fallback" }],
     });
-    await expect(getCachedMostReadPosts()).resolves.toEqual([
+    await expect(getCachedMostReadPosts(published)).resolves.toEqual([
       { _id: "f1", title: "Fallback", slug: "fallback" },
     ]);
   });

@@ -8,7 +8,6 @@ import { getSEOMetadata, type PageMetadataInput } from "@/lib/seo";
 export async function fetchGlobalSeoSettings(
   perspective: LivePerspective = "published",
 ) {
-  "use cache";
   const { data } = await sanityFetchMetadata({
     query: queryGlobalSeoSettings,
     perspective,

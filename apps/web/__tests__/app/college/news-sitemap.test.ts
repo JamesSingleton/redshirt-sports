@@ -3,6 +3,7 @@ const { mockSanityFetchMetadata } = vi.hoisted(() => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
+  PUBLISHED_FETCH_OPTIONS: { perspective: "published", stega: false },
   sanityFetchMetadata: mockSanityFetchMetadata,
 }));
 

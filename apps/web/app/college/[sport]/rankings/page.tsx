@@ -1,7 +1,7 @@
 import type { SportParam } from "@redshirt-sports/clients/espn";
 import {
   type DynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
 import { sportInfoBySlug } from "@redshirt-sports/sanity/queries";
@@ -33,7 +33,7 @@ export async function generateMetadata({
   if (!sport) {
     notFound();
   }
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
 
   const { data: sportData } = await sanityFetchMetadata({
     query: sportInfoBySlug,

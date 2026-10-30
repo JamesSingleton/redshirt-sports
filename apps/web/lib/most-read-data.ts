@@ -1,5 +1,5 @@
 import {
-  PUBLISHED_FETCH_OPTIONS,
+  type DynamicFetchOptions,
   sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import {
@@ -29,12 +29,14 @@ async function getMostReadSlugs(): Promise<string[]> {
   return [...new Set(slugs)].slice(0, 5);
 }
 
-export async function getCachedMostReadPosts(): Promise<MostReadItem[]> {
+export async function getCachedMostReadPosts({
+  perspective,
+  stega,
+}: DynamicFetchOptions): Promise<MostReadItem[]> {
   "use cache";
   cacheTag(MOST_READ_CACHE_TAG);
   cacheLife("minutes");
 
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
   const slugs = await getMostReadSlugs();
 
   if (slugs.length > 0) {
@@ -42,7 +44,7 @@ export async function getCachedMostReadPosts(): Promise<MostReadItem[]> {
       query: queryPostsBySlugs,
       params: { slugs },
       perspective,
-      stega: false,
+      stega,
     });
 
     const postRows = (posts ?? []) as MostReadItem[];
@@ -61,7 +63,7 @@ export async function getCachedMostReadPosts(): Promise<MostReadItem[]> {
   const { data: fallback } = await sanityFetch({
     query: queryMostReadFallbackPosts,
     perspective,
-    stega: false,
+    stega,
   });
 
   return (fallback ?? []) as MostReadItem[];
