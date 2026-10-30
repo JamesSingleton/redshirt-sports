@@ -9,6 +9,7 @@ import {
   schoolsTable,
   seasonsTable,
   seasonTypesTable,
+  sportsTable,
   usersTable,
   weeksTable,
 } from "../schema";
@@ -499,9 +500,11 @@ export async function getYearsWithVotes() {
       weekNumber: weeksTable.number,
       seasonType: seasonTypesTable.type,
       division: pollsTable.slug,
+      sport: sportsTable.slug,
     })
     .from(pollRankingsTable)
     .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
+    .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
     .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
     .innerJoin(
       seasonTypesTable,
@@ -513,6 +516,7 @@ export async function getYearsWithVotes() {
     year: row.year,
     week: seasonTypeAndNumberToLegacyWeek(row.seasonType, row.weekNumber),
     division: row.division,
+    sport: row.sport,
   }));
 }
 
