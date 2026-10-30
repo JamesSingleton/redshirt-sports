@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   PortableText,
   type PortableTextBlock,
-  type PortableTextComponentProps,
   type PortableTextMarkComponentProps,
   type PortableTextReactComponents,
   type PortableTextTypeComponentProps,
@@ -38,11 +37,6 @@ type SiteLinkMarkValue = {
   href?: string;
   openInNewTab?: boolean;
 };
-
-type BlockChildrenProps = Pick<
-  PortableTextComponentProps<PortableTextBlock>,
-  "children"
->;
 
 function SiteLinkMark({
   children,

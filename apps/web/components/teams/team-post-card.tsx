@@ -3,12 +3,15 @@ import type {
   PostsBySchoolQueryResult,
 } from "@redshirt-sports/sanity/types";
 import { cn } from "@redshirt-sports/ui/lib/utils";
-import { formatDistanceToNow, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import Link from "next/link";
 import type { StegaBranded } from "next-sanity";
 
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
+import { ArticleHeroTransition } from "@/components/view-transitions/article-hero-transition";
+import { formatRelativeTime } from "@/lib/format-relative-time";
+import { NAV_FORWARD_TRANSITION } from "@/lib/view-transition-nav";
 
 export type TeamPost = StegaBranded<
   | PostsBySchoolQueryResult["posts"][number]
@@ -48,7 +51,7 @@ export function TeamSportCategory({
     <Link
       href={href}
       className={cn(
-        "mb-1.5 block text-[11px] font-semibold tracking-wide text-destructive uppercase hover:underline dark:text-destructive-foreground",
+        "mb-1.5 block text-sm font-semibold tracking-wide text-destructive uppercase hover:underline",
         className,
       )}
       prefetch={false}
@@ -95,7 +98,7 @@ export function TeamRelativeDate({ dateString }: { dateString: string }) {
 
   return (
     <time dateTime={dateString} suppressHydrationWarning>
-      {formatDistanceToNow(date, { addSuffix: true })}
+      {formatRelativeTime(date)}
     </time>
   );
 }
@@ -107,22 +110,37 @@ export function TeamFeaturedArticle({
 }) {
   const href = post.slug ? `/${post.slug}` : null;
 
+  const slug = post.slug ?? "";
+  const featuredImage = (
+    <TeamPostImage
+      image={post.image}
+      width={400}
+      height={225}
+      className="h-full w-full object-cover"
+      sizes={IMAGE_SIZES.teamFeatured}
+    />
+  );
   const image = (
     <div className="relative aspect-video overflow-hidden bg-muted">
-      <TeamPostImage
-        image={post.image}
-        width={400}
-        height={225}
-        className="h-full w-full object-cover"
-        sizes={IMAGE_SIZES.teamFeatured}
-      />
+      {href ? (
+        <ArticleHeroTransition slug={slug}>
+          {featuredImage}
+        </ArticleHeroTransition>
+      ) : (
+        featuredImage
+      )}
     </div>
   );
 
   return (
     <article className="relative flex h-full flex-col overflow-hidden rounded-lg">
       {href ? (
-        <Link href={href} className="block" prefetch={false}>
+        <Link
+          href={href}
+          className="block"
+          prefetch={true}
+          transitionTypes={[...NAV_FORWARD_TRANSITION]}
+        >
           {image}
         </Link>
       ) : (
@@ -132,7 +150,11 @@ export function TeamFeaturedArticle({
         <TeamSportCategory post={post} />
         <h2 className="mb-2 line-clamp-3 overflow-hidden text-[15px] leading-snug font-bold">
           {href ? (
-            <Link href={href} prefetch={false}>
+            <Link
+              href={href}
+              prefetch={true}
+              transitionTypes={[...NAV_FORWARD_TRANSITION]}
+            >
               {post.title}
             </Link>
           ) : (
@@ -147,30 +169,52 @@ export function TeamFeaturedArticle({
 
 export function TeamNewsItem({ post }: { post: StegaBranded<TeamPost> }) {
   const href = post.slug ? `/${post.slug}` : null;
+  const slug = post.slug ?? "";
+
+  const thumbnail = (
+    <TeamPostImage
+      image={post.image}
+      width={180}
+      height={110}
+      className="h-full w-full object-cover"
+      sizes={IMAGE_SIZES.teamThumbnail}
+    />
+  );
 
   return (
     <article className="flex gap-4 border-b border-border pb-5">
       <div className="h-[90px] w-[140px] shrink-0 overflow-hidden rounded bg-muted md:h-[110px] md:w-[180px]">
-        <TeamPostImage
-          image={post.image}
-          width={180}
-          height={110}
-          className="h-full w-full object-cover"
-          sizes={IMAGE_SIZES.teamThumbnail}
-        />
+        {href ? (
+          <Link
+            href={href}
+            className="block h-full"
+            prefetch={true}
+            transitionTypes={[...NAV_FORWARD_TRANSITION]}
+          >
+            <ArticleHeroTransition slug={slug}>
+              {thumbnail}
+            </ArticleHeroTransition>
+          </Link>
+        ) : (
+          thumbnail
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <TeamSportCategory post={post} />
         <h3 className="mb-2 text-base leading-snug font-bold text-foreground">
           {href ? (
-            <Link href={href} prefetch={false}>
+            <Link
+              href={href}
+              prefetch={true}
+              transitionTypes={[...NAV_FORWARD_TRANSITION]}
+            >
               {post.title}
             </Link>
           ) : (
             post.title
           )}
         </h3>
-        <TeamPostMeta post={post} className="text-xs" />
+        <TeamPostMeta post={post} className="text-sm" />
       </div>
     </article>
   );

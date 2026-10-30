@@ -50,10 +50,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  return [...bySlug.values()].map((school) => ({
-    url: `${baseUrl}/college/teams/${school.slug}`,
-    lastModified: new Date(school._updatedAt),
-    changeFrequency: "weekly",
-    priority: 0.5,
-  }));
+  return [
+    {
+      url: `${baseUrl}/college/teams`,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
+    ...[...bySlug.values()].map((school) => ({
+      url: `${baseUrl}/college/teams/${school.slug}`,
+      lastModified: new Date(school._updatedAt),
+      changeFrequency: "weekly" as const,
+      priority: 0.5,
+    })),
+  ];
 }

@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
+import { PHASE1_COVERAGE_EXCLUDES } from "./vitest.phase1-coverage-excludes";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
@@ -33,7 +35,7 @@ export default defineConfig({
         "app/__transfer-portal/**",
         "app/__recruiting/**",
         "app/__players/**",
-        "utils/espn.ts",
+        ...PHASE1_COVERAGE_EXCLUDES,
       ],
       thresholds: {
         statements: 100,

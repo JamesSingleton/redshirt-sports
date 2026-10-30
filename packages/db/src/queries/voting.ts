@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
@@ -9,6 +9,7 @@ import {
   schoolsTable,
   seasonsTable,
   seasonTypesTable,
+  sportsTable,
   usersTable,
   weeksTable,
 } from "../schema";
@@ -93,6 +94,75 @@ export async function countBallotsForPollWeek({
       and(eq(ballotsTable.pollId, pollId), eq(ballotsTable.weekId, weekId)),
     );
   return row?.count ?? 0;
+}
+
+/** Ballots that listed each school anywhere on the Top 25 (by Sanity school id). */
+export async function getBallotsListedBySanityIdForPollWeek({
+  pollId,
+  weekId,
+}: {
+  pollId: string;
+  weekId: string;
+}): Promise<Map<string, number>> {
+  const rows = await db
+    .select({
+      sanityId: schoolsTable.sanityId,
+      listed: sql<number>`count(distinct ${ballotsTable.id})::int`,
+    })
+    .from(ballotEntriesTable)
+    .innerJoin(ballotsTable, eq(ballotEntriesTable.ballotId, ballotsTable.id))
+    .innerJoin(schoolsTable, eq(ballotEntriesTable.schoolId, schoolsTable.id))
+    .where(
+      and(eq(ballotsTable.pollId, pollId), eq(ballotsTable.weekId, weekId)),
+    )
+    .groupBy(schoolsTable.sanityId);
+
+  const map = new Map<string, number>();
+  for (const row of rows) {
+    if (row.sanityId) {
+      map.set(row.sanityId, row.listed);
+    }
+  }
+  return map;
+}
+
+export type PollWeekVoterChip = {
+  id: string;
+  label: string;
+};
+
+export async function getPollWeekVoterChips({
+  pollId,
+  weekId,
+  limit = 6,
+}: {
+  pollId: string;
+  weekId: string;
+  limit?: number;
+}): Promise<PollWeekVoterChip[]> {
+  const rows = await db
+    .selectDistinct({
+      userId: ballotsTable.userId,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+    })
+    .from(ballotsTable)
+    .innerJoin(usersTable, eq(ballotsTable.userId, usersTable.id))
+    .where(
+      and(eq(ballotsTable.pollId, pollId), eq(ballotsTable.weekId, weekId)),
+    )
+    .limit(limit);
+
+  return rows.map((row, index) => {
+    const first = row.firstName?.trim().charAt(0) ?? "";
+    const last = row.lastName?.trim().charAt(0) ?? "";
+    const initials = `${first}${last}`.toUpperCase();
+    const label =
+      initials.length >= 2
+        ? initials
+        : `V${String(index + 1).padStart(2, "0")}`;
+    return { id: row.userId, label };
+  });
 }
 
 function pollWeekKey(pollId: string, weekId: string) {
@@ -430,9 +500,11 @@ export async function getYearsWithVotes() {
       weekNumber: weeksTable.number,
       seasonType: seasonTypesTable.type,
       division: pollsTable.slug,
+      sport: sportsTable.slug,
     })
     .from(pollRankingsTable)
     .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
+    .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
     .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
     .innerJoin(
       seasonTypesTable,
@@ -444,6 +516,7 @@ export async function getYearsWithVotes() {
     year: row.year,
     week: seasonTypeAndNumberToLegacyWeek(row.seasonType, row.weekNumber),
     division: row.division,
+    sport: row.sport,
   }));
 }
 
@@ -704,4 +777,66 @@ export async function reassignBallotWeek({
 
     return updated;
   });
+}
+
+export type PollVoterBallotStats = {
+  seasonBallotCount: number;
+  totalBallotCount: number;
+  voterSince: Date | null;
+};
+
+/** Season ballot counts, plus every ballot submitted on this poll and the first one. */
+export async function getPollVoterBallotStatsForSeason({
+  pollId,
+  year,
+}: {
+  pollId: string;
+  year: number;
+}): Promise<Map<string, PollVoterBallotStats>> {
+  const [seasonRows, careerRows] = await Promise.all([
+    db
+      .select({
+        userId: ballotsTable.userId,
+        seasonBallotCount: count(),
+      })
+      .from(ballotsTable)
+      .innerJoin(weeksTable, eq(ballotsTable.weekId, weeksTable.id))
+      .innerJoin(
+        seasonTypesTable,
+        eq(weeksTable.seasonTypeId, seasonTypesTable.id),
+      )
+      .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
+      .where(and(eq(ballotsTable.pollId, pollId), eq(seasonsTable.year, year)))
+      .groupBy(ballotsTable.userId),
+    db
+      .select({
+        userId: ballotsTable.userId,
+        totalBallotCount: count(),
+        voterSince: sql<Date>`min(${ballotsTable.submittedAt})`,
+      })
+      .from(ballotsTable)
+      .where(eq(ballotsTable.pollId, pollId))
+      .groupBy(ballotsTable.userId),
+  ]);
+
+  const map = new Map<string, PollVoterBallotStats>();
+
+  for (const row of careerRows) {
+    map.set(row.userId, {
+      seasonBallotCount: 0,
+      totalBallotCount: row.totalBallotCount,
+      voterSince: row.voterSince,
+    });
+  }
+
+  for (const row of seasonRows) {
+    const existing = map.get(row.userId);
+    map.set(row.userId, {
+      seasonBallotCount: row.seasonBallotCount,
+      totalBallotCount: existing?.totalBallotCount ?? row.seasonBallotCount,
+      voterSince: existing?.voterSince ?? null,
+    });
+  }
+
+  return map;
 }

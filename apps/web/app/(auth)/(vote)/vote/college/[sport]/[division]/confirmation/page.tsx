@@ -4,7 +4,9 @@ import {
   getPollBySportAndSlug,
   getSportIdBySlug,
   getVoterBallots,
+  requireVotingSeasonInfo,
   resolveWeekIdForLegacyWeek,
+  type SportParam,
 } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
 import { schoolsByIdQuery } from "@redshirt-sports/sanity/queries";
@@ -15,7 +17,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import CustomImage from "@/components/sanity-image";
-import { getCurrentSeason, getVotingWeek, type SportParam } from "@/utils/espn";
+import { noIndexRobots } from "@/lib/seo";
 import { transformBallotToTeamIds } from "@/utils/process-ballots";
 
 function generateConfirmationHeader(sport: string, division: string) {
@@ -44,16 +46,9 @@ function generateConfirmationHeader(sport: string, division: string) {
 }
 
 export const metadata: Metadata = {
-  title: `Vote Confirmation | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-  description: "Thank you for voting for the top 25 college football teams.",
-  robots: {
-    follow: false,
-    index: false,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
-  },
+  title: "Vote Confirmation",
+  description: "Your Top 25 ballot has been submitted.",
+  robots: noIndexRobots,
 };
 
 export default function VoteConfirmationPage({
@@ -78,11 +73,10 @@ export async function VoteConfirmationContent({
   const header = generateConfirmationHeader(sport, division);
   const { userId } = await auth.protect();
 
-  const [votingWeek, { year }, sportId] = await Promise.all([
-    getVotingWeek(sport as SportParam),
-    getCurrentSeason(sport as SportParam),
-    getSportIdBySlug(sport as SportParam),
-  ]);
+  const sportId = await getSportIdBySlug(sport as SportParam);
+  const season = sportId ? await requireVotingSeasonInfo(sportId, sport) : null;
+  const year = season?.year ?? 0;
+  const votingWeek = season?.votingWeek ?? 0;
 
   const ballot = await getVoterBallots({
     year,

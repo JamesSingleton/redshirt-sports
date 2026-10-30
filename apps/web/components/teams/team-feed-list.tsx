@@ -11,7 +11,7 @@ import {
 function TeamArticleFeedItem({ post }: { post: TeamPost }) {
   const href = post.slug ? `/${post.slug}` : null;
   const author = post.authors[0];
-  const authorHref = author?.slug ? `/authors/${author.slug}` : null;
+  const authorHref = author?.slug ? `/people/${author.slug}` : null;
 
   return (
     <article className="flex gap-4 py-5" data-ui="feed-article">
@@ -37,7 +37,7 @@ function TeamArticleFeedItem({ post }: { post: TeamPost }) {
         ) : (
           <h3 className="text-base leading-snug font-bold">{post.title}</h3>
         )}
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           {author?.name ? (
             authorHref ? (
               <Link href={authorHref} className="hover:underline">
@@ -110,7 +110,7 @@ export function TeamFeedList({
             <Link
               key={link.href}
               href={link.href}
-              className="text-xs font-bold tracking-wide text-destructive-foreground uppercase hover:underline"
+              className="text-sm font-bold tracking-wide text-destructive uppercase hover:underline"
             >
               {link.label}
             </Link>

@@ -1,36 +1,29 @@
 import {
-  type DynamicFetchOptions,
-  getDynamicFetchOptions,
   PUBLISHED_FETCH_OPTIONS,
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
-import {
-  querySportsNews,
-  sportInfoBySlug,
-} from "@redshirt-sports/sanity/queries";
+import { sportInfoBySlug } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import ArticleFeed from "@/components/article-feed";
-import PageHeader from "@/components/page-header";
-import PaginationControls from "@/components/pagination-controls";
-import { perPage } from "@/lib/constants";
-import { searchParamsPage } from "@/lib/draft-cache";
+import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import type { NewsArchiveSearchParams } from "@/lib/news-archive";
+import { sportNewsArchivePageFallback } from "@/lib/news-archive/page-loading";
+import { renderNewsArchiveFromFilters } from "@/lib/news-archive/render-from-filters";
 import { getSportFeed } from "@/lib/rss-feed-links";
-import { sanityFetchPage } from "@/lib/sanity-fetch";
-import { validatePageIndex } from "@/utils/validate-page-index";
+import { sportNavLabel } from "@/lib/sport-nav";
 
 export async function generateMetadata({
   params,
   searchParams,
 }: {
   params: Promise<{ sport: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<NewsArchiveSearchParams>;
 }): Promise<Metadata> {
   const { sport } = await params;
   const { page } = await searchParams;
-  const pageIndex = validatePageIndex(page);
+  const pageIndex = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
   const { perspective } = PUBLISHED_FETCH_OPTIONS;
 
   const { data: sportData } = await sanityFetchMetadata({
@@ -43,18 +36,18 @@ export async function generateMetadata({
     notFound();
   }
 
-  const sportTitle = sportData.title;
+  const sportLabel = sportNavLabel(sport, sportData.title);
   let title: string;
   let description: string;
   let canonicalUrl = `/college/${sport}/news`;
 
   if (pageIndex > 1) {
-    title = `College ${sportTitle} News & Updates - Page ${pageIndex}`;
-    description = `Continue exploring comprehensive college ${sportTitle} news, game analysis, and feature stories. This is page ${page} of our in-depth coverage.`;
-    canonicalUrl = `${canonicalUrl}?page=${page}`;
+    title = `${sportLabel} News - Page ${pageIndex}`;
+    description = `Page ${pageIndex} of ${sportLabel} news and analysis from ${process.env.NEXT_PUBLIC_APP_NAME}.`;
+    canonicalUrl = `${canonicalUrl}?page=${pageIndex}`;
   } else {
-    title = `College ${sportTitle} News & Updates`;
-    description = `Find comprehensive college ${sportTitle} news, detailed game results, expert analysis, and valuable insights. Your trusted source for NCAA ${sportTitle} information.`;
+    title = `${sportLabel} News`;
+    description = `Every ${sportLabel} story, newest first.`;
   }
 
   return getPageMetadata(
@@ -62,7 +55,7 @@ export async function generateMetadata({
       title,
       description,
       slug: canonicalUrl,
-      rssFeeds: [getSportFeed({ slug: sport, title: sportTitle })],
+      rssFeeds: [getSportFeed({ slug: sport, title: sportData.title })],
     },
     perspective,
   );
@@ -73,86 +66,18 @@ export default function Page({
   searchParams,
 }: {
   params: Promise<{ sport: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<NewsArchiveSearchParams>;
 }) {
-  return searchParamsPage(null, () =>
-    renderSportNewsPage({ params, searchParams }),
-  );
-}
-
-async function renderSportNewsPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ sport: string }>;
-  searchParams: Promise<{ page?: string }>;
-}) {
-  const [{ sport }, { page }] = await Promise.all([params, searchParams]);
-  const pageIndex = validatePageIndex(page);
-  const { perspective, stega } = await getDynamicFetchOptions();
-  return cachedRenderSportNewsPage({
-    sport,
-    pageIndex,
-    perspective,
-    stega,
-  });
-}
-
-async function cachedRenderSportNewsPage({
-  sport,
-  pageIndex,
-  perspective,
-  stega,
-}: DynamicFetchOptions & { sport: string; pageIndex: number }) {
-  "use cache";
-  const from = (pageIndex - 1) * perPage;
-  const to = pageIndex * perPage;
-
-  const [newsResponse, sportInfoResponse] = await Promise.all([
-    sanityFetchPage({
-      query: querySportsNews,
-      params: { sport, from, to },
-      perspective,
-      stega,
-    }),
-    sanityFetchPage({
-      query: sportInfoBySlug,
-      params: { slug: sport },
-      perspective,
-      stega,
-    }),
-  ]);
-
-  const news = newsResponse.data;
-  const sportInfo = sportInfoResponse?.data;
-
-  if (!news?.posts?.length) {
-    notFound();
-  }
-
-  const totalPages = Math.ceil(news.totalPosts / perPage);
-
-  const breadcrumbItems = [
-    {
-      title: "News",
-      href: "/college/news",
+  return draftAwareParamsPage(
+    params,
+    sportNewsArchivePageFallback(),
+    async ({ sport }, options) => {
+      const filters = await searchParams;
+      return renderNewsArchiveFromFilters(
+        { type: "sport", sport },
+        filters,
+        options,
+      );
     },
-    {
-      title: sportInfo!.title,
-      href: `/college/${sport}/news`,
-    },
-  ];
-
-  return (
-    <>
-      <PageHeader
-        title={`College ${sportInfo?.title} News`}
-        breadcrumbs={breadcrumbItems}
-      />
-      <section className="container pb-12">
-        <ArticleFeed articles={news.posts} />
-        {totalPages > 1 && <PaginationControls totalPosts={news.totalPosts} />}
-      </section>
-    </>
   );
 }

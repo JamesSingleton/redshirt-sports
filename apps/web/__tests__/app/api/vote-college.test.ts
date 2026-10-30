@@ -23,7 +23,7 @@ const {
   mockUpdateBallot,
   mockArePollRankingsPublished,
   mockGetVoterBallots,
-  mockGetSeasonInfo,
+  mockRequireVotingSeasonInfo,
   mockAnalyticsCapture,
   mockSentryCapture,
   mockRatelimit,
@@ -49,7 +49,7 @@ const {
     mockUpdateBallot: vi.fn(),
     mockArePollRankingsPublished: vi.fn(),
     mockGetVoterBallots: vi.fn(),
-    mockGetSeasonInfo: vi.fn(),
+    mockRequireVotingSeasonInfo: vi.fn(),
     mockAnalyticsCapture: vi.fn(),
     mockSentryCapture: vi.fn(),
     mockRatelimit: vi.fn(),
@@ -72,11 +72,8 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   updateBallot: mockUpdateBallot,
   arePollRankingsPublished: mockArePollRankingsPublished,
   getVoterBallots: mockGetVoterBallots,
+  requireVotingSeasonInfo: mockRequireVotingSeasonInfo,
   PollWeekLockedError,
-}));
-
-vi.mock("@/utils/espn", () => ({
-  getSeasonInfo: mockGetSeasonInfo,
 }));
 
 vi.mock("@redshirt-sports/analytics/server", () => ({
@@ -146,7 +143,7 @@ function resetHappyPathMocks() {
   mockUpdateBallot.mockReset().mockResolvedValue(undefined);
   mockArePollRankingsPublished.mockReset().mockResolvedValue(false);
   mockGetVoterBallots.mockReset().mockResolvedValue([]);
-  mockGetSeasonInfo.mockReset().mockResolvedValue(seasonInfoInSeason);
+  mockRequireVotingSeasonInfo.mockReset().mockResolvedValue(seasonInfoInSeason);
   mockAnalyticsCapture.mockReset();
   mockSentryCapture.mockReset();
   mockRatelimit.mockReset().mockResolvedValue({ success: true });
@@ -244,7 +241,7 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
   });
 
   it("returns 400 during off-season", async () => {
-    mockGetSeasonInfo.mockResolvedValue(seasonInfoOffSeason);
+    mockRequireVotingSeasonInfo.mockResolvedValue(seasonInfoOffSeason);
     const res = await POST(postRequest(ballotBody()), {
       params: voteParams(),
     });
@@ -383,7 +380,7 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
   });
 
   it("records preseason season_type in analytics", async () => {
-    mockGetSeasonInfo.mockResolvedValue({
+    mockRequireVotingSeasonInfo.mockResolvedValue({
       ...seasonInfoInSeason,
       isPreseason: true,
       isRegularSeason: false,
@@ -401,7 +398,7 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
   });
 
   it("records postseason season_type in analytics", async () => {
-    mockGetSeasonInfo.mockResolvedValue({
+    mockRequireVotingSeasonInfo.mockResolvedValue({
       ...seasonInfoInSeason,
       isPreseason: false,
       isRegularSeason: false,

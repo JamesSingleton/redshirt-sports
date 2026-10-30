@@ -5,11 +5,11 @@ vi.mock("@/components/home/home-page-skeleton", () => ({
   default: () => <div data-testid="home-skeleton">Loading home</div>,
 }));
 
-import Loading from "@/app/loading";
+import HomeRouteLoading from "@/app/home-route-loading";
 
-describe("RootLoading", () => {
+describe("HomeRouteLoading", () => {
   it("renders the home page skeleton", () => {
-    render(<Loading />);
+    render(<HomeRouteLoading />);
     expect(screen.getByTestId("home-skeleton")).toBeInTheDocument();
   });
 });

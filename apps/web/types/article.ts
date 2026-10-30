@@ -1,7 +1,7 @@
 import type {
-  CollegeNewsQueryResult,
   PostsByStoryTypeQueryResult,
   QueryArticlesBySportDivisionAndConferenceResult,
+  QueryCollegeNewsResult,
   QuerySportsAndDivisionNewsResult,
   QuerySportsNewsResult,
 } from "@redshirt-sports/sanity/types";
@@ -11,5 +11,5 @@ export type ArticleFeedItem =
   | QuerySportsNewsResult["posts"][number]
   | QuerySportsAndDivisionNewsResult["posts"][number]
   | QueryArticlesBySportDivisionAndConferenceResult["posts"][number]
-  | CollegeNewsQueryResult["posts"][number]
+  | QueryCollegeNewsResult["posts"][number]
   | PostsByStoryTypeQueryResult["posts"][number];

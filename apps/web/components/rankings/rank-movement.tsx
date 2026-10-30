@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 
 import type { Movement } from "@/lib/rankings-movement";
 
@@ -7,36 +7,43 @@ export function RankMovement({ movement }: { movement: Movement }) {
     case "up":
       return (
         <span
-          className="inline-flex items-center text-emerald-600 dark:text-emerald-400"
-          aria-label={`up ${movement.delta}`}
+          className="inline-flex items-center gap-0.5 text-sm font-bold text-up tabular-nums"
+          role="img"
+          aria-label={`Up ${movement.delta}`}
         >
-          <ArrowUp className="size-3.5" aria-hidden />
-          <span className="text-xs font-medium">{movement.delta}</span>
+          <ArrowUp className="size-3.5 shrink-0" aria-hidden />
+          {movement.delta}
         </span>
       );
     case "down":
       return (
         <span
-          className="inline-flex items-center text-red-600 dark:text-red-400"
-          aria-label={`down ${movement.delta}`}
+          className="inline-flex items-center gap-0.5 text-sm font-bold text-down tabular-nums"
+          role="img"
+          aria-label={`Down ${movement.delta}`}
         >
-          <ArrowDown className="size-3.5" aria-hidden />
-          <span className="text-xs font-medium">{movement.delta}</span>
+          <ArrowDown className="size-3.5 shrink-0" aria-hidden />
+          {movement.delta}
         </span>
       );
     case "same":
       return (
-        <span className="text-muted-foreground text-xs" aria-label="unchanged">
-          —
+        <span
+          className="inline-flex items-center text-muted-foreground"
+          role="img"
+          aria-label="No change"
+        >
+          <Minus className="size-3.5 shrink-0" aria-hidden />
         </span>
       );
     case "nr":
       return (
         <span
-          className="text-muted-foreground text-xs font-medium tracking-wide"
-          aria-label="new to rankings"
+          className="inline-flex items-center gap-0.5 text-sm font-bold text-new"
+          role="img"
+          aria-label="Newly ranked"
         >
-          NR
+          NEW
         </span>
       );
   }

@@ -1,5 +1,5 @@
-import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
+import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 
 export default function Loading() {
-  return <RankingsPageSkeleton />;
+  return <RankingsTabSkeleton variant="poll" />;
 }

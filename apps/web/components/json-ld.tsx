@@ -1,7 +1,6 @@
 import { urlFor } from "@redshirt-sports/sanity/client";
 import {
   type DynamicFetchOptions,
-  getDynamicFetchOptions,
   sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import { querySettingsData } from "@redshirt-sports/sanity/queries";
@@ -22,6 +21,8 @@ import type {
 
 import { getArticleTagNames } from "@/lib/article-seo";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
+import { sportNavLabel } from "@/lib/sport-nav";
 import { getCollegeSportSection } from "@/lib/sport-section";
 
 const baseUrl = getBaseUrl();
@@ -152,26 +153,34 @@ export function buildPostPageJsonLd(
     ? `${article.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`
     : undefined;
 
+  const breadcrumbCrumbs = [
+    { name: "Home", item: resolvedBaseUrl },
+    ...(article.sport?.slug
+      ? [
+          {
+            name: sportNavLabel(
+              article.sport.slug,
+              article.sport.title ?? article.sport.slug,
+            ),
+            item: `${resolvedBaseUrl}/college/${article.sport.slug}/news`,
+          },
+        ]
+      : []),
+    { name: article.title ?? "Article", item: articleUrl },
+  ];
+
   const breadcrumb: BreadcrumbList = {
     "@type": "BreadcrumbList",
     "@id": breadcrumbId,
     name: article.title
       ? `${article.title} breadcrumbs`
       : "Article breadcrumbs",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: resolvedBaseUrl,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: article.title ?? "Article",
-        item: articleUrl,
-      },
-    ],
+    itemListElement: breadcrumbCrumbs.map((crumb, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: crumb.name,
+      item: crumb.item,
+    })),
   };
 
   const webPage: WebPage = {
@@ -216,7 +225,7 @@ export function buildPostPageJsonLd(
             "@type": "Person",
             name: author?.name ?? undefined,
             url: author?.slug
-              ? `${resolvedBaseUrl}/authors/${author.slug}`
+              ? `${resolvedBaseUrl}/people/${author.slug}`
               : undefined,
           } as Person;
         })
@@ -356,6 +365,12 @@ export function buildTeamPageJsonLd(school: TeamSchool) {
       {
         "@type": "ListItem",
         position: 2,
+        name: "Teams",
+        item: `${resolvedBaseUrl}/college/teams`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
         name: teamName || school.name || "Team",
         item: teamUrl,
       },
@@ -467,8 +482,7 @@ export function WebSiteJsonLd({ settings }: { settings: any }) {
 }
 
 export async function DynamicCombinedJsonLd() {
-  const { perspective, stega } = await getDynamicFetchOptions();
-  return <CachedCombinedJsonLd perspective={perspective} stega={stega} />;
+  return <CachedCombinedJsonLd {...(await resolveDynamicFetchOptions())} />;
 }
 
 export async function CachedCombinedJsonLd({

@@ -1,12 +1,12 @@
-import "@redshirt-sports/ui/globals.css";
+import "./styles/redshirt.css";
 
 import { AnalyticsProvider } from "@redshirt-sports/analytics/provider";
 import { Toaster } from "@redshirt-sports/ui/components/sonner";
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { preconnect, prefetchDNS } from "react-dom";
 
+import { fontBarlow, fontInter, fontSourceSerif } from "@/app/fonts";
 import { FooterSkeleton } from "@/components/footer";
 import { NavbarSkeleton } from "@/components/navbar";
 import { Providers } from "@/components/providers";
@@ -17,16 +17,6 @@ import {
   DraftAwareNavbar,
 } from "@/components/root-layout-chrome";
 import { getRootMetadata } from "@/lib/seo";
-
-const fontSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
-
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-});
 
 export const viewport: Viewport = {
   themeColor: "#E80022",
@@ -46,13 +36,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <AnalyticsProvider>
         <body
-          className={`${fontSans.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
+          className={`${fontBarlow.variable} ${fontInter.variable} ${fontSourceSerif.variable} flex min-h-screen flex-col font-sans antialiased`}
         >
           <Providers>
             <Suspense fallback={<NavbarSkeleton />}>
               <DraftAwareNavbar />
             </Suspense>
-            <main className="flex-1">{children}</main>
+            <main id="main" className="min-w-0 flex-1 overflow-x-clip">
+              {children}
+            </main>
             <Suspense fallback={<FooterSkeleton />}>
               <DraftAwareFooter />
             </Suspense>

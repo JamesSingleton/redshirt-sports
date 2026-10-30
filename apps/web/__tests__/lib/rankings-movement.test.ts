@@ -1,10 +1,12 @@
 import {
   buildRankBySchoolId,
   displayName,
+  getBiggestMovers,
   getDroppedFromVotes,
   getDroppedOutOfTop25,
   getMovement,
   getPreviousWeek,
+  movementMagnitude,
   type RankingTeamRef,
 } from "@/lib/rankings-movement";
 
@@ -80,6 +82,38 @@ describe("getDroppedFromVotes", () => {
     const current = [team("a", 2)];
     expect(getDroppedFromVotes(previous, current).map((t) => t._id)).toEqual([
       "b",
+    ]);
+  });
+});
+
+describe("movementMagnitude", () => {
+  it("returns delta for up and down movement", () => {
+    expect(movementMagnitude({ kind: "up", delta: 3 })).toBe(3);
+    expect(movementMagnitude({ kind: "down", delta: 2 })).toBe(2);
+  });
+
+  it("returns zero for same and newly ranked", () => {
+    expect(movementMagnitude({ kind: "same" })).toBe(0);
+    expect(movementMagnitude({ kind: "nr" })).toBe(0);
+  });
+});
+
+describe("getBiggestMovers", () => {
+  it("returns empty when there is no previous-week map", () => {
+    expect(getBiggestMovers([team("a", 1)], null)).toEqual([]);
+  });
+
+  it("returns up and down movers sorted by delta and limited", () => {
+    const top25 = [team("up", 3), team("down", 10), team("flat", 5)];
+    const previous = new Map<string, number | null>([
+      ["up", 7],
+      ["down", 5],
+      ["flat", 5],
+    ]);
+
+    expect(getBiggestMovers(top25, previous, 2)).toEqual([
+      { team: top25[1], movement: { kind: "down", delta: 5 } },
+      { team: top25[0], movement: { kind: "up", delta: 4 } },
     ]);
   });
 });

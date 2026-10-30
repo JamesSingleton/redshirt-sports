@@ -11,43 +11,100 @@ const LOGO_URL =
 interface LogoProps {
   src?: Maybe<string>;
   image?: Maybe<NonNullable<QueryGlobalSeoSettingsResult>["logo"]>;
+  footerLogo?: Maybe<NonNullable<QueryGlobalSeoSettingsResult>["footerLogo"]>;
+  footerLogoDarkMode?: Maybe<
+    NonNullable<QueryGlobalSeoSettingsResult>["footerLogoDarkMode"]
+  >;
   alt?: Maybe<string>;
   width?: number;
   height?: number;
   priority?: boolean;
+  /** Header wordmark sizing (mockup default). */
+  variant?: "header" | "footer";
 }
 
 export function Logo({
   src,
-  alt = "logo",
+  alt = "Redshirt Sports",
   image,
-  width = 70,
-  height = 40,
+  footerLogo,
+  footerLogoDarkMode,
+  width,
+  height,
   priority = true,
+  variant = "header",
 }: LogoProps) {
-  return (
-    <Link href="/" prefetch={false}>
-      {image ? (
+  const label = alt ?? "Redshirt Sports";
+
+  const headerWordmark =
+    footerLogo && footerLogoDarkMode ? (
+      <>
         <CustomImage
-          image={image}
-          width={width}
-          className="h-10 w-auto"
-          height={height}
+          image={footerLogo}
+          alt={label}
+          width={width ?? 169}
+          height={height ?? 28}
+          className="h-6 w-auto lg:h-7 dark:hidden"
           priority={priority}
           quality={100}
         />
-      ) : (
-        <Image
-          src={src ?? LOGO_URL}
-          alt={alt ?? "logo"}
-          width={width}
-          className="h-10 w-auto"
-          height={height}
-          loading="eager"
+        <CustomImage
+          image={footerLogoDarkMode}
+          alt={label}
+          width={width ?? 169}
+          height={height ?? 28}
+          className="hidden h-6 w-auto lg:h-7 dark:block"
           priority={priority}
-          decoding="sync"
+          quality={100}
         />
-      )}
+      </>
+    ) : null;
+
+  const footerWordmark = footerLogoDarkMode ? (
+    <CustomImage
+      image={footerLogoDarkMode}
+      alt={label}
+      width={width ?? 193}
+      height={height ?? 32}
+      className="h-8 w-auto"
+      priority={priority}
+      quality={100}
+    />
+  ) : null;
+
+  const markFallback = image ? (
+    <CustomImage
+      image={image}
+      alt={label}
+      width={width ?? 70}
+      height={height ?? 40}
+      className="h-10 w-auto"
+      priority={priority}
+      quality={100}
+    />
+  ) : (
+    <Image
+      src={src ?? LOGO_URL}
+      alt={label}
+      width={width ?? 70}
+      height={height ?? 40}
+      className="h-10 w-auto"
+      loading="eager"
+      priority={priority}
+      decoding="sync"
+    />
+  );
+
+  let logoContent = markFallback;
+  if (variant === "footer" && footerWordmark) {
+    logoContent = footerWordmark;
+  } else if (variant === "header" && headerWordmark) {
+    logoContent = headerWordmark;
+  }
+
+  return (
+    <Link href="/" prefetch={false} className="inline-flex shrink-0">
+      {logoContent}
     </Link>
   );
 }

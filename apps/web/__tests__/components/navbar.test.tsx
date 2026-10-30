@@ -8,13 +8,17 @@ import {
 } from "@/components/navbar";
 
 const {
-  mockGetDynamicFetchOptions,
+  mockResolveDynamicFetchOptions,
   mockSanityFetch,
   mockGetCachedNavbarLatestRankings,
 } = vi.hoisted(() => ({
-  mockGetDynamicFetchOptions: vi.fn(),
+  mockResolveDynamicFetchOptions: vi.fn(),
   mockSanityFetch: vi.fn(),
   mockGetCachedNavbarLatestRankings: vi.fn(),
+}));
+
+vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
+  resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -22,7 +26,6 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
     perspective: "published",
     stega: false,
   },
-  getDynamicFetchOptions: mockGetDynamicFetchOptions,
   sanityFetch: mockSanityFetch,
 }));
 
@@ -49,7 +52,7 @@ const settingsData = {
 const latestRankings = [{ sport: "football", divisions: [] }];
 
 describe("Navbar", () => {
-  it("renders the logo and client navbar", () => {
+  it("renders the client navbar", () => {
     render(
       <Navbar
         navbarData={navbarData as never}
@@ -58,11 +61,10 @@ describe("Navbar", () => {
       />,
     );
 
-    expect(screen.getByText("Redshirt Sports")).toBeInTheDocument();
     expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
   });
 
-  it("renders without a logo and falls back to empty rankings", () => {
+  it("renders with empty rankings", () => {
     render(
       <Navbar
         navbarData={navbarData as never}
@@ -72,7 +74,6 @@ describe("Navbar", () => {
     );
 
     expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
-    expect(screen.queryByText("Redshirt Sports")).not.toBeInTheDocument();
   });
 });
 
@@ -88,9 +89,7 @@ describe("NavbarSkeleton", () => {
 describe("CachedNavbarServer", () => {
   beforeEach(() => {
     mockGetCachedNavbarLatestRankings.mockResolvedValue(latestRankings);
-    mockSanityFetch
-      .mockResolvedValueOnce({ data: navbarData })
-      .mockResolvedValueOnce({ data: settingsData });
+    mockSanityFetch.mockResolvedValue({ data: settingsData });
   });
 
   it("fetches navbar data and renders the memoized navbar", async () => {
@@ -100,21 +99,22 @@ describe("CachedNavbarServer", () => {
     });
     render(component);
 
+    expect(mockSanityFetch).toHaveBeenCalledTimes(2);
     expect(mockGetCachedNavbarLatestRankings).toHaveBeenCalled();
     expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
   });
 });
 
 describe("DynamicNavbarServer", () => {
-  it("loads dynamic fetch options before rendering", async () => {
-    mockGetDynamicFetchOptions.mockResolvedValue({
+  it("resolves fetch options before rendering", async () => {
+    mockResolveDynamicFetchOptions.mockResolvedValue({
       perspective: "published",
       stega: false,
     });
 
     const component = await DynamicNavbarServer();
 
-    expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
+    expect(mockResolveDynamicFetchOptions).toHaveBeenCalled();
     expect(component).toBeTruthy();
   });
 });

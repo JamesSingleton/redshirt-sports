@@ -106,6 +106,24 @@ async function renderLegalDocumentPage(
     inLanguage: "en-US",
     isPartOf: { "@type": "WebSite", "@id": websiteId },
     publisher: { "@type": "Organization", "@id": organizationId },
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      "@id": `${url}#breadcrumb`,
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: baseUrl,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: data.title,
+          item: url,
+        },
+      ],
+    },
   };
 
   return (

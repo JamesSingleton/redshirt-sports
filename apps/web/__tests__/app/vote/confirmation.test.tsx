@@ -4,8 +4,7 @@ const {
   mockAuthProtect,
   mockGetSportIdBySlug,
   mockGetVoterBallots,
-  mockGetVotingWeek,
-  mockGetCurrentSeason,
+  mockRequireVotingSeasonInfo,
   mockGetPollBySportAndSlug,
   mockResolveWeekIdForLegacyWeek,
   mockArePollRankingsPublished,
@@ -15,8 +14,7 @@ const {
   mockAuthProtect: vi.fn(),
   mockGetSportIdBySlug: vi.fn(),
   mockGetVoterBallots: vi.fn(),
-  mockGetVotingWeek: vi.fn(),
-  mockGetCurrentSeason: vi.fn(),
+  mockRequireVotingSeasonInfo: vi.fn(),
   mockGetPollBySportAndSlug: vi.fn(),
   mockResolveWeekIdForLegacyWeek: vi.fn(),
   mockArePollRankingsPublished: vi.fn(),
@@ -33,14 +31,10 @@ vi.mock("@redshirt-sports/auth/server", () => ({
 vi.mock("@redshirt-sports/db/queries", () => ({
   getSportIdBySlug: mockGetSportIdBySlug,
   getVoterBallots: mockGetVoterBallots,
+  requireVotingSeasonInfo: mockRequireVotingSeasonInfo,
   getPollBySportAndSlug: mockGetPollBySportAndSlug,
   resolveWeekIdForLegacyWeek: mockResolveWeekIdForLegacyWeek,
   arePollRankingsPublished: mockArePollRankingsPublished,
-}));
-
-vi.mock("@/utils/espn", () => ({
-  getVotingWeek: mockGetVotingWeek,
-  getCurrentSeason: mockGetCurrentSeason,
 }));
 
 vi.mock("@redshirt-sports/sanity/client", () => ({
@@ -77,8 +71,15 @@ describe("VoteConfirmationContent", () => {
   beforeEach(() => {
     mockAuthProtect.mockReset().mockResolvedValue({ userId: "user-1" });
     mockGetSportIdBySlug.mockReset().mockResolvedValue("sport_football");
-    mockGetVotingWeek.mockReset().mockResolvedValue(1);
-    mockGetCurrentSeason.mockReset().mockResolvedValue({ year: 2025 });
+    mockRequireVotingSeasonInfo.mockReset().mockResolvedValue({
+      sportId: "sport_football",
+      year: 2025,
+      votingWeek: 1,
+      weekId: "week-1",
+      isPreseason: false,
+      isRegularSeason: true,
+      isPostseason: false,
+    });
     mockGetVoterBallots.mockReset();
     mockGetPollBySportAndSlug.mockReset().mockResolvedValue({ id: "poll-1" });
     mockResolveWeekIdForLegacyWeek.mockReset().mockResolvedValue("week-1");

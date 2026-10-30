@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { isValidElement, type ReactElement, Suspense } from "react";
 import type { Mock } from "vitest";
 
+import HomeRouteLoading from "@/app/home-route-loading";
 import HomePage, { CachedHomePage, generateMetadata } from "@/app/page";
 
 const { mockSanityFetchPage, mockGetDynamicFetchOptions } = vi.hoisted(() => ({
@@ -12,6 +13,13 @@ const { mockSanityFetchPage, mockGetDynamicFetchOptions } = vi.hoisted(() => ({
   }),
 }));
 
+const mockGetCachedMostReadPosts = vi.hoisted(() =>
+  vi.fn().mockResolvedValue([]),
+);
+const mockGetCachedRankingsWidgetPolls = vi.hoisted(() =>
+  vi.fn().mockResolvedValue([]),
+);
+
 vi.mock("next/headers", () => ({
   draftMode: vi.fn().mockResolvedValue({ isEnabled: false }),
 }));
@@ -20,45 +28,35 @@ vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
 }));
 
+vi.mock("@/lib/most-read-data", () => ({
+  getCachedMostReadPosts: mockGetCachedMostReadPosts,
+}));
+
+vi.mock("@/lib/rankings-widget-data", () => ({
+  getCachedRankingsWidgetPolls: mockGetCachedRankingsWidgetPolls,
+}));
+
 vi.mock("@redshirt-sports/sanity/queries", () => ({
-  queryHomePageData: "mock-home",
-  queryLatestArticles: "mock-latest",
-  queryLatestCollegeSportsArticles: "mock-college",
+  queryHomeFeed: "mock-home-feed",
+  queryActiveAdvertisement: "queryActiveAdvertisement",
 }));
 
-vi.mock("next/link", () => ({
-  __esModule: true,
-  default: ({
-    children,
-    href,
-    className,
+vi.mock("@/components/home/home-page-content", () => ({
+  HomePageContent: ({
+    posts,
+    mostRead,
+    rankingsPolls,
   }: {
-    children: ReactNode;
-    href: string;
-    className?: string;
+    posts: { title: string }[];
+    mostRead: unknown[];
+    rankingsPolls: unknown[];
   }) => (
-    <a href={href} className={className}>
-      {children}
-    </a>
-  ),
-}));
-
-vi.mock("@/components/home/hero", () => ({
-  __esModule: true,
-  default: () => <div data-testid="hero" />,
-}));
-
-vi.mock("@/components/article-card", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => (
-    <div data-testid="article-card">{title}</div>
-  ),
-}));
-
-vi.mock("@/components/article-section", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => (
-    <div data-testid="article-section">{title}</div>
+    <div data-testid="home-page-content">
+      <span data-testid="post-count">{posts.length}</span>
+      <span data-testid="most-read-count">{mostRead.length}</span>
+      <span data-testid="rankings-poll-count">{rankingsPolls.length}</span>
+      {posts[0]?.title ? <span>{posts[0].title}</span> : null}
+    </div>
   ),
 }));
 
@@ -105,6 +103,8 @@ const mockFetch = mockSanityFetchPage as Mock;
 
 beforeEach(() => {
   mockFetch.mockResolvedValue({ data: [] });
+  mockGetCachedMostReadPosts.mockResolvedValue([]);
+  mockGetCachedRankingsWidgetPolls.mockResolvedValue([]);
 });
 
 describe("HomePage", () => {
@@ -122,34 +122,21 @@ describe("HomePage", () => {
     );
   });
 
-  it("renders the hero and four division sections when no articles exist", async () => {
-    const page = await CachedHomePage({
-      perspective: "published",
-      stega: false,
-    });
-    render(page);
-
-    expect(screen.getByTestId("hero")).toBeInTheDocument();
-    expect(screen.queryByText("Latest News")).not.toBeInTheDocument();
-    expect(screen.getByText("FBS College Football News")).toBeInTheDocument();
-    expect(screen.getByText("FCS College Football News")).toBeInTheDocument();
-    expect(screen.getByText("Division II Football News")).toBeInTheDocument();
-    expect(screen.getByText("Division III Football News")).toBeInTheDocument();
-  });
-
-  it("renders the Latest News section and article cards when articles exist", async () => {
+  it("renders home page content with feed and rail data", async () => {
     const article = {
       _id: "1",
       title: "Test Article",
       publishedAt: "2026-01-01T00:00:00Z",
-      image: null,
       slug: "test-article",
-      authors: [{ name: "Test Author" }],
     };
 
-    mockFetch
-      .mockResolvedValueOnce({ data: [article] })
-      .mockResolvedValueOnce({ data: [article] });
+    mockFetch.mockResolvedValueOnce({ data: [article] });
+    mockGetCachedMostReadPosts.mockResolvedValueOnce([
+      { title: "Popular", slug: "popular", href: "/p" },
+    ]);
+    mockGetCachedRankingsWidgetPolls.mockResolvedValueOnce([
+      { division: "fcs", label: "FCS" },
+    ]);
 
     const page = await CachedHomePage({
       perspective: "published",
@@ -157,88 +144,41 @@ describe("HomePage", () => {
     });
     render(page);
 
-    expect(screen.getByText("Latest News")).toBeInTheDocument();
+    expect(screen.getByTestId("home-page-content")).toBeInTheDocument();
+    expect(screen.getByTestId("post-count")).toHaveTextContent("1");
     expect(screen.getByText("Test Article")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /View All/ })).toHaveAttribute(
-      "href",
-      "/college/news",
-    );
-  });
-
-  it("passes hero posts to the Hero component", async () => {
-    const heroArticle = {
-      _id: "hero",
-      title: "Hero Article",
-      publishedAt: "2026-01-01T00:00:00Z",
-      image: null,
-      slug: "hero-article",
-      authors: [{ name: "Hero Author" }],
-    };
-
-    mockFetch.mockResolvedValueOnce({ data: [heroArticle] });
-
-    const page = await CachedHomePage({
-      perspective: "published",
-      stega: false,
-    });
-    render(page);
-
-    expect(screen.getByTestId("hero")).toBeInTheDocument();
-  });
-
-  it("renders division article sections when division data is returned", async () => {
-    const divisionArticle = {
-      _id: "division-1",
-      title: "FBS Article",
-      publishedAt: "2026-01-01T00:00:00Z",
-      image: null,
-      slug: "fbs-article",
-      authors: [{ name: "Division Author" }],
-    };
-
-    mockFetch
-      .mockResolvedValueOnce({ data: [] })
-      .mockResolvedValueOnce({ data: [] })
-      .mockResolvedValueOnce({ data: [divisionArticle] })
-      .mockResolvedValueOnce({ data: [] })
-      .mockResolvedValueOnce({ data: [] })
-      .mockResolvedValueOnce({ data: [] });
-
-    const page = await CachedHomePage({
-      perspective: "published",
-      stega: false,
-    });
-    render(page);
-
-    expect(screen.getByText("FBS College Football News")).toBeInTheDocument();
-    expect(screen.getAllByTestId("article-section")).toHaveLength(4);
-  });
-
-  it("skips division sections when article data is missing", async () => {
-    mockFetch
-      .mockResolvedValueOnce({ data: [] })
-      .mockResolvedValueOnce({ data: [] })
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({ data: [] })
-      .mockResolvedValueOnce({ data: [] })
-      .mockResolvedValueOnce({ data: [] });
-
-    const page = await CachedHomePage({
-      perspective: "published",
-      stega: false,
-    });
-    render(page);
-
-    expect(
-      screen.queryByText("FBS College Football News"),
-    ).not.toBeInTheDocument();
-    expect(screen.getAllByTestId("article-section")).toHaveLength(3);
+    expect(screen.getByTestId("most-read-count")).toHaveTextContent("1");
+    expect(screen.getByTestId("rankings-poll-count")).toHaveTextContent("1");
   });
 
   it("default export wraps CachedHomePage in draftAware Suspense", () => {
     const page = HomePage();
     expect(page).toBeTruthy();
     expect(mockGetDynamicFetchOptions).not.toHaveBeenCalled();
+  });
+
+  it("uses the home route loading UI as the nearest Suspense fallback", () => {
+    const tree = HomePage();
+    expect(isValidElement(tree)).toBe(true);
+    expect(tree.type).toBe(Suspense);
+    const fallback = (tree as ReactElement<{ fallback: ReactElement }>).props
+      .fallback;
+    expect(isValidElement(fallback)).toBe(true);
+    expect(fallback.type).toBe(HomeRouteLoading);
+  });
+
+  it("uses the current date in JSON-LD when the home feed is empty", async () => {
+    mockFetch.mockResolvedValueOnce({ data: null });
+
+    const page = await CachedHomePage({
+      perspective: "published",
+      stega: false,
+    });
+    render(page);
+
+    const jsonLd = screen.getByTestId("home-json-ld");
+    const data = JSON.parse(jsonLd.innerHTML);
+    expect(data.dateModified).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
   it("falls back to app name and undefined description when SEO settings are missing", async () => {

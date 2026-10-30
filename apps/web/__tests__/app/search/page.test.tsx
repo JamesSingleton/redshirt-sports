@@ -11,8 +11,17 @@ const { mockSanityFetchPage, mockGetDynamicFetchOptions, mockGetPageMetadata } =
   }));
 
 vi.mock("@/lib/draft-cache", () => ({
-  searchParamsPage: (_fallback: unknown, render: () => Promise<unknown>) =>
-    render(),
+  draftAwareSearchParamsPage: (
+    searchParams: Promise<Record<string, string>>,
+    _fallback: unknown,
+    render: (
+      resolved: Record<string, string>,
+      options: { perspective: string; stega: boolean },
+    ) => Promise<unknown>,
+  ) =>
+    searchParams.then((resolved) =>
+      render(resolved, { perspective: "published", stega: false }),
+    ),
 }));
 
 vi.mock("@/lib/sanity-fetch", () => ({

@@ -6,6 +6,7 @@ import { noIndexRobots } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Onboarding",
+  description: "Finish setting up your Redshirt Sports account.",
   robots: noIndexRobots,
 };
 

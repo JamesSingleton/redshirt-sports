@@ -81,7 +81,10 @@ export function SyncedScroll({ group, className, children, ...rest }: Props) {
   return (
     <div
       ref={ref}
-      className={cn("overflow-x-auto overscroll-x-contain", className)}
+      className={cn(
+        "overflow-x-auto overflow-y-clip overscroll-x-contain",
+        className,
+      )}
       {...rest}
     >
       {children}

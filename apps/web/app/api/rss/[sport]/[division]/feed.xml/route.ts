@@ -5,6 +5,7 @@ import {
   sportInfoBySlug,
 } from "@redshirt-sports/sanity/queries";
 
+import type { DivisionDisplayMeta } from "@/lib/division-display-meta";
 import { createRssResponse, rssNotFound } from "@/lib/rss-feed";
 import { getDivisionFeed } from "@/lib/rss-feed-links";
 
@@ -30,7 +31,7 @@ async function fetchDivisionFeed(sport: string, division: string) {
     ]);
   return {
     sportTitle: sportInfo?.title,
-    divisionName: divisionInfo?.displayName,
+    divisionName: (divisionInfo as DivisionDisplayMeta)?.displayName,
     posts: posts ?? [],
   };
 }

@@ -1,4 +1,5 @@
 import { auth } from "@redshirt-sports/auth/server";
+import { type SportParam, SportSchema } from "@redshirt-sports/clients/espn";
 import {
   arePollRankingsPublished,
   getLatestVoterBallot,
@@ -6,6 +7,7 @@ import {
   getSportIdBySlug,
   getVoterBallots,
   hasVoterVoted,
+  requireVotingSeasonInfo,
   resolveWeekIdForLegacyWeek,
 } from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
@@ -28,12 +30,7 @@ import {
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { userCanVoteOnPoll } from "@/lib/require-poll-voter";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
-import {
-  getCurrentSeason,
-  getVotingWeek,
-  type SportParam,
-  SportSchema,
-} from "@/utils/espn";
+import { noIndexRobots } from "@/lib/seo";
 
 const ParamsSchema = z.object({
   sport: SportSchema,
@@ -93,16 +90,9 @@ async function getLatestVoterBallotWithSchools(
 }
 
 export const metadata: Metadata = {
-  title: `College Football Top 25 Voting | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-  description: "Vote for the top 25 college football teams.",
-  robots: {
-    follow: false,
-    index: false,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
-  },
+  title: "Top 25 Voting",
+  description: "Cast your ballot for a Redshirt Sports Top 25 poll.",
+  robots: noIndexRobots,
 };
 
 const divisionHeader = [
@@ -215,11 +205,11 @@ export async function VotePageAuth({
     notFound();
   }
 
-  const [votingWeek, { year }, query] = await Promise.all([
-    getVotingWeek(sport),
-    getCurrentSeason(sport),
+  const [season, query] = await Promise.all([
+    requireVotingSeasonInfo(sportId, sport),
     searchParams ?? Promise.resolve({} as { edit?: string }),
   ]);
+  const { year, votingWeek } = season;
   const wantsEdit = query.edit === "1";
 
   const pollPromise = getPollBySportAndSlug({ sportId, slug: division });

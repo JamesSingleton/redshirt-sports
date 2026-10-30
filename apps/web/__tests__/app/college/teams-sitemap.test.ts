@@ -9,7 +9,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
-  MIN_TEAM_PAGE_POSTS: 8,
+  MIN_TEAM_PAGE_POSTS: 1,
   schoolSlugsByIdsQuery: "schoolSlugsByIdsQuery",
   schoolSlugsForSitemapQuery: "schoolSlugsForSitemapQuery",
 }));
@@ -23,6 +23,12 @@ vi.mock("@/lib/rankings-data", () => ({
 }));
 
 import teamsSitemap from "@/app/college/teams/sitemap";
+
+const teamsHub = {
+  url: "https://redshirtsports.com/college/teams",
+  changeFrequency: "weekly" as const,
+  priority: 0.6,
+};
 
 describe("teams sitemap", () => {
   beforeEach(() => {
@@ -44,6 +50,7 @@ describe("teams sitemap", () => {
 
     expect(urls).toEqual(
       expect.arrayContaining([
+        teamsHub,
         {
           url: "https://redshirtsports.com/college/teams/alabama",
           lastModified: new Date("2026-01-01T00:00:00Z"),
@@ -67,7 +74,15 @@ describe("teams sitemap", () => {
     mockGetCachedRankedSchoolSanityIds.mockResolvedValue([]);
 
     const urls = await teamsSitemap();
-    expect(urls).toHaveLength(1);
+    expect(urls).toEqual([
+      teamsHub,
+      {
+        url: "https://redshirtsports.com/college/teams/alabama",
+        lastModified: new Date("2026-01-01T00:00:00Z"),
+        changeFrequency: "weekly",
+        priority: 0.5,
+      },
+    ]);
     expect(mockSanityFetchMetadata).toHaveBeenCalledTimes(1);
   });
 
@@ -83,6 +98,7 @@ describe("teams sitemap", () => {
 
     const urls = await teamsSitemap();
     expect(urls).toEqual([
+      teamsHub,
       {
         url: "https://redshirtsports.com/college/teams/alabama",
         lastModified: new Date("2026-03-01T00:00:00Z"),
@@ -97,7 +113,7 @@ describe("teams sitemap", () => {
     mockGetCachedRankedSchoolSanityIds.mockResolvedValue([]);
 
     const urls = await teamsSitemap();
-    expect(urls).toEqual([]);
+    expect(urls).toEqual([teamsHub]);
   });
 
   it("treats null ranked slug payload as empty", async () => {
@@ -110,6 +126,7 @@ describe("teams sitemap", () => {
 
     const urls = await teamsSitemap();
     expect(urls).toEqual([
+      teamsHub,
       {
         url: "https://redshirtsports.com/college/teams/alabama",
         lastModified: new Date("2026-01-01T00:00:00Z"),
@@ -131,6 +148,7 @@ describe("teams sitemap", () => {
 
     const urls = await teamsSitemap();
     expect(urls).toEqual([
+      teamsHub,
       {
         url: "https://redshirtsports.com/college/teams/alabama",
         lastModified: new Date("2026-03-01T00:00:00Z"),

@@ -41,7 +41,7 @@ const Hero = ({
               </p>
               <div className="text-muted-foreground flex flex-wrap items-center space-x-2 text-base">
                 <Link
-                  href={`/authors/${heroArticle.authors[0]?.slug}`}
+                  href={`/people/${heroArticle.authors[0]?.slug}`}
                   className="flex items-center gap-2"
                   prefetch={false}
                 >

@@ -9,9 +9,11 @@ import {
   hasVoterVoted,
   isUserAssignedToPoll,
   PollWeekLockedError,
+  requireVotingSeasonInfo,
   resolveWeekIdForLegacyWeek,
   submitBallot,
   updateBallot,
+  type VotingSeasonInfo,
 } from "@redshirt-sports/db/queries";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
@@ -23,7 +25,6 @@ import {
   validateSport,
 } from "@/lib/vote-ballot";
 import { ratelimit } from "@/server/ratelimit";
-import { getSeasonInfo } from "@/utils/espn";
 
 const RANKINGS_PUBLISHED_MESSAGE =
   "Voting is closed for this week because rankings have been published";
@@ -48,7 +49,7 @@ type VoteWriteContext = {
   year: number;
   votingWeek: number;
   weekId: string;
-  seasonInfo: Awaited<ReturnType<typeof getSeasonInfo>>;
+  seasonInfo: VotingSeasonInfo;
   entries: Array<{ schoolId: string; rank: number; points: number }>;
 };
 
@@ -117,7 +118,7 @@ async function resolveVoteWrite(
     return jsonError("You are not assigned as a voter for this poll", 403);
   }
 
-  const seasonInfo = await getSeasonInfo(validatedSport);
+  const seasonInfo = await requireVotingSeasonInfo(sportId, validatedSport);
   const { year, votingWeek } = seasonInfo;
 
   if (
@@ -190,9 +191,7 @@ async function resolveVoteWrite(
   };
 }
 
-function seasonTypeLabel(
-  seasonInfo: Awaited<ReturnType<typeof getSeasonInfo>>,
-) {
+function seasonTypeLabel(seasonInfo: VotingSeasonInfo) {
   if (seasonInfo.isPreseason) return "preseason";
   if (seasonInfo.isPostseason) return "postseason";
   return "regular_season";
@@ -372,7 +371,7 @@ export async function GET(
       return jsonError("You are not assigned as a voter for this poll", 403);
     }
 
-    const seasonInfo = await getSeasonInfo(validatedSport);
+    const seasonInfo = await requireVotingSeasonInfo(sportId, validatedSport);
     const { year, votingWeek } = seasonInfo;
 
     const existingVotePromise = getVoterBallots({

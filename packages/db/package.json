@@ -7,6 +7,8 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "check:types": "tsc --noEmit --emitDeclarationOnly false",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:seed:users-with-ballots": "tsx seeds/users-with-ballots.ts"
   },
   "exports": {
@@ -18,7 +20,8 @@
     "./utils/week-mapping": "./src/utils/week-mapping.ts",
     "./utils/school-ranking-history": "./src/utils/school-ranking-history.ts",
     "./rankings-cache-tags": "./src/rankings-cache-tags.ts",
-    "./keys": "./keys.ts"
+    "./keys": "./keys.ts",
+    "./playoff-bracket": "./src/playoff-bracket/index.ts"
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.13.11",
@@ -30,9 +33,10 @@
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
     "@types/node": "catalog:",
-    "dotenv": "^18.0.8",
+    "dotenv": "^18.0.9",
     "drizzle-kit": "catalog:",
     "tsx": "^4.23.15",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

@@ -1,3 +1,4 @@
+import { advertisement } from "./advertisement";
 import { author } from "./author";
 import { classification } from "./classification";
 import { conference } from "./conference";
@@ -17,6 +18,7 @@ import { tag } from "./tag";
 export const singletons = [footer, navbar, settings];
 
 export const documents = [
+  advertisement,
   author,
   conference,
   division,

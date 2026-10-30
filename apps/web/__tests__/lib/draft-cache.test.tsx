@@ -20,6 +20,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 import {
   draftAwarePage,
   draftAwareParamsPage,
+  draftAwareSearchParamsPage,
   searchParamsPage,
 } from "@/lib/draft-cache";
 
@@ -138,6 +139,72 @@ describe("draftAwareParamsPage", () => {
     expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
     expect(renderFn).toHaveBeenCalledWith(
       { slug: "hello" },
+      { perspective: "previewDrafts", stega: true },
+    );
+  });
+});
+
+describe("draftAwareSearchParamsPage", () => {
+  beforeEach(() => {
+    mockDraftMode.mockReset();
+    mockGetDynamicFetchOptions.mockReset();
+  });
+
+  it("passes published options when draft mode is off", async () => {
+    mockDraftMode.mockResolvedValue({ isEnabled: false });
+    const renderFn = vi.fn(async () => <div>archive</div>);
+    const tree = draftAwareSearchParamsPage(
+      Promise.resolve({ page: "2" }),
+      null,
+      renderFn,
+    );
+
+    expect(isValidElement(tree)).toBe(true);
+    expect(tree.type).toBe(Suspense);
+
+    const child = (tree.props as { children: React.ReactElement }).children;
+    await (
+      child.type as (p: {
+        searchParams: Promise<{ page: string }>;
+        render: typeof renderFn;
+      }) => Promise<unknown>
+    )({
+      searchParams: Promise.resolve({ page: "2" }),
+      render: renderFn,
+    });
+
+    expect(renderFn).toHaveBeenCalledWith(
+      { page: "2" },
+      { perspective: "published", stega: false },
+    );
+  });
+
+  it("loads dynamic fetch options when draft mode is on", async () => {
+    mockDraftMode.mockResolvedValue({ isEnabled: true });
+    mockGetDynamicFetchOptions.mockResolvedValue({
+      perspective: "previewDrafts",
+      stega: true,
+    });
+    const renderFn = vi.fn(async () => <div>draft archive</div>);
+    const tree = draftAwareSearchParamsPage(
+      Promise.resolve({}),
+      null,
+      renderFn,
+    );
+    const child = (tree.props as { children: React.ReactElement }).children;
+    await (
+      child.type as (p: {
+        searchParams: Promise<Record<string, never>>;
+        render: typeof renderFn;
+      }) => Promise<unknown>
+    )({
+      searchParams: Promise.resolve({}),
+      render: renderFn,
+    });
+
+    expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
+    expect(renderFn).toHaveBeenCalledWith(
+      {},
       { perspective: "previewDrafts", stega: true },
     );
   });

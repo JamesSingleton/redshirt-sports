@@ -1,6 +1,5 @@
 import {
   type DynamicFetchOptions,
-  getDynamicFetchOptions,
   PUBLISHED_FETCH_OPTIONS,
 } from "@redshirt-sports/sanity/live";
 import { searchQuery } from "@redshirt-sports/sanity/queries";
@@ -12,7 +11,7 @@ import ArticleCard from "@/components/article-card";
 import PageHeader from "@/components/page-header";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
-import { searchParamsPage } from "@/lib/draft-cache";
+import { draftAwareSearchParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
@@ -20,8 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const { perspective } = PUBLISHED_FETCH_OPTIONS;
   return getPageMetadata(
     {
-      title: `Search Results | ${process.env.NEXT_PUBLIC_APP_NAME}`,
-      description: `Explore the latest articles, news, and analysis on college football. Find what you're looking for across FCS, FBS, D2, D3, and NAIA at ${process.env.NEXT_PUBLIC_APP_NAME}.`,
+      title: "Search Results",
+      description: `Search ${process.env.NEXT_PUBLIC_APP_NAME} stories across college football and basketball.`,
       slug: "/search",
       noIndex: true,
     },
@@ -34,16 +33,20 @@ export default function Page({
 }: {
   searchParams: Promise<{ [key: string]: string }>;
 }) {
-  return searchParamsPage(null, () => renderSearchPage(searchParams));
-}
-
-async function renderSearchPage(
-  searchParams: Promise<{ [key: string]: string }>,
-) {
-  const { q: query, page } = await searchParams;
-  const pageIndex = page !== undefined ? Number.parseInt(page, 10) : 1;
-  const { perspective, stega } = await getDynamicFetchOptions();
-  return cachedRenderSearchPage({ query, pageIndex, perspective, stega });
+  return draftAwareSearchParamsPage(
+    searchParams,
+    null,
+    async (resolved, options) => {
+      const { q: query, page } = resolved;
+      const pageIndex = page !== undefined ? Number.parseInt(page, 10) : 1;
+      return cachedRenderSearchPage({
+        query,
+        pageIndex,
+        perspective: options.perspective,
+        stega: options.stega,
+      });
+    },
+  );
 }
 
 async function cachedRenderSearchPage({

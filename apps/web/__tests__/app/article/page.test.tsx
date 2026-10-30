@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
 const {
@@ -9,6 +9,8 @@ const {
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
+  mockGetCachedMostReadPosts,
+  mockGetCachedRankingsWidgetPolls,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
   mockSanityFetchMetadata: vi.fn(),
@@ -24,6 +26,8 @@ const {
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
+  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
+  mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
@@ -44,6 +48,14 @@ vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
 }));
 
+vi.mock("@/lib/most-read-data", () => ({
+  getCachedMostReadPosts: mockGetCachedMostReadPosts,
+}));
+
+vi.mock("@/lib/rankings-widget-data", () => ({
+  getCachedRankingsWidgetPolls: mockGetCachedRankingsWidgetPolls,
+}));
+
 vi.mock("@redshirt-sports/sanity/live", () => ({
   PUBLISHED_FETCH_OPTIONS: {
     perspective: "published",
@@ -57,6 +69,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 vi.mock("@redshirt-sports/sanity/queries", () => ({
   queryPostPaths: "queryPostPaths",
   queryPostSlugData: "queryPostSlugData",
+  queryActiveAdvertisement: "queryActiveAdvertisement",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
@@ -75,20 +88,27 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("next-sanity", () => ({
-  toPlainText: () => "word ".repeat(250),
+vi.mock("next-sanity", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next-sanity")>();
+  return {
+    ...actual,
+    toPlainText: () => "word ".repeat(250),
+  };
+});
+
+vi.mock("@redshirt-sports/sanity/client", () => ({
+  urlFor: () => ({
+    width: () => ({
+      height: () => ({
+        url: () => "https://example.com/avatar.jpg",
+      }),
+    }),
+  }),
 }));
 
 vi.mock("@/components/json-ld", () => ({
   PostPageJsonLd: () => <script data-testid="post-json-ld" />,
   buildSafeImageUrl: () => "https://example.com/image.jpg",
-}));
-
-vi.mock("@/components/article-card", () => ({
-  __esModule: true,
-  default: ({ title }: { title: string }) => (
-    <div data-testid="article-card">{title}</div>
-  ),
 }));
 
 vi.mock("@/components/article-loading-skeleton", () => ({
@@ -103,13 +123,14 @@ vi.mock("@/components/format-date", () => ({
   ),
 }));
 
-vi.mock("@/components/posts/article-share", () => ({
-  LargeArticleSocialShare: () => <div data-testid="social-share" />,
+vi.mock("@/components/relative-time", () => ({
+  RelativeTime: ({ dateString }: { dateString: string }) => (
+    <span>{dateString}</span>
+  ),
 }));
 
-vi.mock("@/components/posts/author", () => ({
-  AuthorSection: () => <div data-testid="author-section" />,
-  MobileAuthorSection: () => <div data-testid="mobile-author" />,
+vi.mock("@/components/posts/article-share", () => ({
+  ArticleShareToolbar: () => <div data-testid="share-toolbar" />,
 }));
 
 vi.mock("@/components/rich-text", () => ({
@@ -119,7 +140,23 @@ vi.mock("@/components/rich-text", () => ({
 vi.mock("@/components/sanity-image", () => ({
   __esModule: true,
   default: () => <img alt="" data-testid="hero-image" />,
-  IMAGE_SIZES: { articleHero: "100vw" },
+  IMAGE_SIZES: { articleHero: "100vw", articleCard: "192px" },
+}));
+
+vi.mock("@/components/ad-slot", () => ({
+  AdSlot: () => <div data-testid="ad-slot" />,
+}));
+
+vi.mock("@/components/most-read-card", () => ({
+  MostReadCard: () => <div data-testid="most-read" />,
+}));
+
+vi.mock("@/components/rankings-widget", () => ({
+  RankingsWidget: () => <div data-testid="rankings-widget" />,
+}));
+
+vi.mock("@/components/article/more-from-author-card", () => ({
+  MoreFromAuthorCard: () => <div data-testid="more-from-author" />,
 }));
 
 import PostPage, {
@@ -135,7 +172,7 @@ const samplePost = {
   _updatedAt: "2026-01-02T00:00:00Z",
   body: [],
   image: { credit: "Getty" },
-  authors: [{ name: "Reporter" }],
+  authors: [{ name: "Reporter", slug: "reporter", archived: false }],
   tags: [],
   sport: { slug: "football", title: "Football", _id: "sport-1" },
   division: { name: "D1", slug: "d1" },
@@ -169,6 +206,10 @@ describe("PostPage", () => {
     mockSanityFetchMetadata.mockReset();
     mockSanityFetchStaticParams.mockReset();
     mockNotFound.mockClear();
+    mockGetCachedMostReadPosts.mockResolvedValue([]);
+    mockGetCachedRankingsWidgetPolls.mockResolvedValue([
+      { id: "poll-1", label: "FBS" },
+    ]);
   });
 
   it("generateStaticParams maps slugs from Sanity", async () => {
@@ -245,7 +286,7 @@ describe("PostPage", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
-  it("renders article without sport badges or related posts", async () => {
+  it("renders article without sport context or related block", async () => {
     mockSanityFetchPage.mockResolvedValue({
       data: {
         ...samplePost,
@@ -265,10 +306,13 @@ describe("PostPage", () => {
     expect(
       screen.getByRole("heading", { name: "Big Game Preview" }),
     ).toBeInTheDocument();
-    expect(screen.queryByText("You Might Also Like")).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Articles you might also like"),
+    ).not.toBeInTheDocument();
+    expect(mockGetCachedRankingsWidgetPolls).not.toHaveBeenCalled();
   });
 
-  it("renders article content with sport badges and related posts", async () => {
+  it("renders article with breadcrumbs, photo credit, and related articles", async () => {
     mockSanityFetchPage.mockResolvedValue({ data: samplePost });
 
     const page = await PostPage({
@@ -279,12 +323,19 @@ describe("PostPage", () => {
     expect(
       screen.getByRole("heading", { name: "Big Game Preview" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Football" })).toHaveAttribute(
-      "href",
-      "/college/football/news",
-    );
-    expect(screen.getByText("You Might Also Like")).toBeInTheDocument();
-    expect(screen.getByText("Source: Getty")).toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: "Breadcrumb" }),
+    ).toBeInTheDocument();
+    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(
+      within(breadcrumb).getByRole("link", { name: "College Football" }),
+    ).toHaveAttribute("href", "/college/football/news");
+    expect(
+      screen.getByLabelText("Articles you might also like"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Related Article")).toBeInTheDocument();
+    expect(screen.getByText("Photo: Getty")).toBeInTheDocument();
+    expect(mockGetCachedRankingsWidgetPolls).toHaveBeenCalledWith("football");
   });
 
   it("generateStaticParams returns empty array when Sanity has no paths", async () => {
@@ -292,7 +343,7 @@ describe("PostPage", () => {
     await expect(generateStaticParams()).resolves.toEqual([]);
   });
 
-  it("renders non-D1 division badges and conference links without shortName", async () => {
+  it("renders division breadcrumb and in-this-story teams for non-D1", async () => {
     mockSanityFetchPage.mockResolvedValue({
       data: {
         ...samplePost,
@@ -308,6 +359,16 @@ describe("PostPage", () => {
           },
         ],
         relatedPosts: [],
+        teams: [
+          {
+            _id: "team-1",
+            name: "Henderson State",
+            shortName: "Henderson State",
+            nickname: "Reddies",
+            slug: "henderson-state-reddies",
+            image: null,
+          },
+        ],
       },
     });
 
@@ -316,16 +377,24 @@ describe("PostPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("link", { name: "Division II" })).toHaveAttribute(
-      "href",
-      "/college/football/news/d2",
-    );
+    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
     expect(
-      screen.getByRole("link", { name: "Great American Conference" }),
+      within(breadcrumb).getByRole("link", { name: "Division II" }),
+    ).toHaveAttribute("href", "/college/football/news/d2");
+    expect(
+      within(breadcrumb).getByRole("link", {
+        name: "Great American Conference",
+      }),
     ).toHaveAttribute("href", "/college/football/news/d2/gac");
+    expect(
+      screen.getByLabelText("Schools tagged on this article"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Henderson State Reddies/i }),
+    ).toHaveAttribute("href", "/college/teams/henderson-state-reddies");
   });
 
-  it("uses sportSubgrouping slug for D1 division badges", async () => {
+  it("includes FBS in breadcrumbs for D1 football", async () => {
     mockSanityFetchPage.mockResolvedValue({
       data: {
         ...samplePost,
@@ -338,19 +407,20 @@ describe("PostPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("link", { name: "FBS" })).toHaveAttribute(
-      "href",
-      "/college/football/news/fbs",
-    );
+    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(
+      within(breadcrumb).getByRole("link", { name: "FBS" }),
+    ).toHaveAttribute("href", "/college/football/news/fbs");
   });
 
-  it("renders sport badge with only sportSubgrouping and no bullet without division/conferences", async () => {
+  it("renders hero without photo credit when credit is missing", async () => {
     mockSanityFetchPage.mockResolvedValue({
       data: {
         ...samplePost,
         division: null,
         conferences: null,
         image: { credit: null },
+        relatedPosts: [],
       },
     });
 
@@ -359,13 +429,14 @@ describe("PostPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByRole("link", { name: "Football" })).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: "College Football" }).length,
+    ).toBeGreaterThanOrEqual(1);
     expect(screen.getByTestId("hero-image")).toBeInTheDocument();
-    expect(screen.queryByText(/Source:/)).not.toBeInTheDocument();
-    expect(screen.queryByText("•")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Photo:/)).not.toBeInTheDocument();
   });
 
-  it("renders bullet separator when sport has conferences but no division", async () => {
+  it("renders conference in breadcrumb when sport has conferences but no division", async () => {
     mockSanityFetchPage.mockResolvedValue({
       data: {
         ...samplePost,
@@ -380,6 +451,9 @@ describe("PostPage", () => {
     });
     render(page as ReactNode);
 
-    expect(screen.getByText("•")).toBeInTheDocument();
+    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(
+      within(breadcrumb).getByRole("link", { name: "SEC" }),
+    ).toHaveAttribute("href", "/college/football/news/fbs/sec");
   });
 });

@@ -1,20 +1,26 @@
-import { render, screen } from "@testing-library/react";
-import { isValidElement, type ReactElement, type ReactNode } from "react";
+import { render, screen, within } from "@testing-library/react";
+import { createElement, type ReactNode } from "react";
 
-import RankingsPageSkeleton from "@/components/rankings/rankings-page-skeleton";
+import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { sampleRankingTeam } from "../../helpers/vote-fixtures";
 
 const {
   mockGetCachedYears,
   mockGetCachedWeeks,
   mockGetCachedFinalRankings,
+  mockGetCachedPollWeekBallotContext,
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockDraftAwareParamsPage,
+  mockSanityFetchPage,
 } = vi.hoisted(() => ({
   mockGetCachedYears: vi.fn(),
   mockGetCachedWeeks: vi.fn(),
   mockGetCachedFinalRankings: vi.fn(),
+  mockGetCachedPollWeekBallotContext: vi.fn(),
+  mockSanityFetchPage: vi.fn().mockResolvedValue({
+    data: { title: "College Football" },
+  }),
   mockGetDynamicFetchOptions: vi.fn().mockResolvedValue({
     perspective: "published",
     stega: false,
@@ -41,10 +47,15 @@ vi.mock("@/lib/draft-cache", () => ({
   draftAwareParamsPage: mockDraftAwareParamsPage,
 }));
 
+vi.mock("@/lib/sanity-fetch", () => ({
+  sanityFetchPage: mockSanityFetchPage,
+}));
+
 vi.mock("@/lib/rankings-data", () => ({
   getCachedYearsThatHaveVotes: mockGetCachedYears,
   getCachedWeeksThatHaveVotes: mockGetCachedWeeks,
   getCachedFinalRankings: mockGetCachedFinalRankings,
+  getCachedPollWeekBallotContext: mockGetCachedPollWeekBallotContext,
   RANKINGS_CACHE_LIFE: { stale: 300, revalidate: 604800, expire: 2592000 },
   RANKINGS_CACHE_TAG: "rankings",
   rankingsSportTag: (sport: string) => `rankings:${sport}`,
@@ -88,10 +99,6 @@ vi.mock("@/components/rankings/filters", () => ({
   RankingsFilters: () => <div data-testid="rankings-filters" />,
 }));
 
-vi.mock("@/components/rankings/rankings-voter-breakdown", () => ({
-  RankingsVoterBreakdown: () => <div data-testid="voter-breakdown" />,
-}));
-
 vi.mock("@/components/sanity-image", () => ({
   __esModule: true,
   default: () => <img alt="" data-testid="school-logo" />,
@@ -112,6 +119,15 @@ describe("CollegeFootballRankingsPage", () => {
     mockGetCachedYears.mockReset();
     mockGetCachedWeeks.mockReset();
     mockGetCachedFinalRankings.mockReset();
+    mockGetCachedPollWeekBallotContext.mockReset();
+    mockGetCachedPollWeekBallotContext.mockResolvedValue({
+      ballotsCounted: 22,
+      ballotsListedBySanityId: {},
+      voterChips: [
+        { id: "user-1", label: "AB" },
+        { id: "user-2", label: "CD" },
+      ],
+    });
     mockGetPageMetadata.mockClear();
     mockDraftAwareParamsPage.mockClear();
   });
@@ -133,7 +149,7 @@ describe("CollegeFootballRankingsPage", () => {
     );
   });
 
-  it("passes the route loading UI as the nearest Suspense fallback", async () => {
+  it("keeps the poll tab skeleton as the Suspense fallback during client navigation", async () => {
     mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
     mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
     mockGetCachedFinalRankings.mockResolvedValue({
@@ -150,8 +166,9 @@ describe("CollegeFootballRankingsPage", () => {
     });
 
     const fallback = mockDraftAwareParamsPage.mock.calls[0]?.[1];
-    expect(isValidElement(fallback)).toBe(true);
-    expect((fallback as ReactElement).type).toBe(RankingsPageSkeleton);
+    expect(fallback).toEqual(
+      createElement(RankingsTabSkeleton, { variant: "poll" }),
+    );
   });
 
   it("throws notFound when rankings fetch rejects", async () => {
@@ -280,13 +297,14 @@ describe("CollegeFootballRankingsPage", () => {
 
     render(page);
 
-    expect(screen.getByLabelText("down 1")).toBeInTheDocument();
-    expect(screen.getByLabelText("new to rankings")).toBeInTheDocument();
-    expect(screen.getByText(/Dropped Out of Top 25/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Mercer (24)" })).toHaveAttribute(
+    expect(screen.getAllByLabelText("Down 1").length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText("Newly ranked").length).toBeGreaterThan(0);
+    expect(screen.getByText(/Dropped out of the Top 25/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Mercer" })[0]).toHaveAttribute(
       "href",
       "/college/teams/mercer",
     );
+    expect(screen.getAllByText("No. 24").length).toBeGreaterThan(0);
     expect(screen.getByText(/Others receiving votes/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /ORV Team/ })).toHaveAttribute(
       "href",
@@ -308,6 +326,79 @@ describe("CollegeFootballRankingsPage", () => {
       (n: { "@type": string }) => n["@type"] === "ItemList",
     );
     expect(itemList.numberOfItems).toBe(2); // stay + new in Top 25
+  });
+
+  it("renders when ballot context lookup fails", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("stay", 1, 200, "Alabama")],
+    });
+    mockGetCachedPollWeekBallotContext.mockRejectedValue(
+      new Error("ballots unavailable"),
+    );
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    expect(screen.queryByText(/ballots counted/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Alabama" })).toBeInTheDocument();
+  });
+
+  it("uses singular voter and ballot copy for one counted ballot", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("stay", 1, 200, "Alabama")],
+    });
+    mockGetCachedPollWeekBallotContext.mockResolvedValue({
+      ballotsCounted: 1,
+      ballotsListedBySanityId: {},
+      voterChips: [{ id: "user-1", label: "AB" }],
+    });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    expect(screen.getByText(/1 voter · 1 ballot counted/i)).toBeInTheDocument();
+  });
+
+  it("skips week-over-week movement when there is no prior week", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("stay", 1, 200, "Alabama")],
+    });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    const pollTable = screen.getByRole("table");
+    expect(within(pollTable).queryByLabelText(/Up /i)).not.toBeInTheDocument();
+    expect(
+      within(pollTable).queryByLabelText(/Down /i),
+    ).not.toBeInTheDocument();
   });
 
   it("renders poll-not-found message when rankings data is empty", async () => {
@@ -427,11 +518,13 @@ describe("CollegeFootballRankingsPage", () => {
     render(page);
 
     expect(
-      screen.getByRole("link", { name: "Mercer (24)" }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("link", { name: "Mercer" }).length,
+    ).toBeGreaterThan(0);
     expect(
-      screen.getByRole("link", { name: "Samford (25)" }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("link", { name: "Samford" }).length,
+    ).toBeGreaterThan(0);
+    expect(screen.getAllByText("No. 24").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("No. 25").length).toBeGreaterThan(0);
     expect(
       screen.getByRole("link", { name: "Vanished A" }),
     ).toBeInTheDocument();
