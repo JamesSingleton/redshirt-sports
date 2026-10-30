@@ -137,14 +137,14 @@ async function renderVotersPage({
           })),
         })}
       />
-      <div className="mt-3">
+      <div className="mt-3 min-w-0">
         <div className="kicker text-primary">
           Redshirt Sports Poll · {divisionName}
         </div>
         <h1 className="font-display text-[2.3rem] font-extrabold uppercase leading-none lg:text-headline-lg">
           {divisionName} Poll Voters
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 max-w-full text-sm text-muted-foreground">
           {latest.year} panel · {voterRows.length} voters · published by admins
           each season ·{" "}
           <Link
