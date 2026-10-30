@@ -16,10 +16,41 @@ export type TeamConferenceAffiliationInput = {
         slug: string | null;
       } | null;
     }> | null;
+    sportSubdivisionAffiliations?: Array<{
+      sport: { slug: string | null } | null;
+      subgrouping: {
+        shortName: string | null;
+        name: string | null;
+        slug: string | null;
+      } | null;
+    }> | null;
   } | null;
 };
 
 const FOOTBALL_SPORT_SLUG = "football";
+
+type SportSubgroup = {
+  shortName: string | null;
+  name: string | null;
+  slug: string | null;
+};
+
+function sportSubgroup(
+  conference: NonNullable<TeamConferenceAffiliationInput["conference"]>,
+  sportSlug: string,
+): SportSubgroup | null {
+  const fromAffiliations = conference.sportSubdivisionAffiliations?.find(
+    (row) => row.sport?.slug === sportSlug,
+  )?.subgrouping;
+  if (fromAffiliations) {
+    return fromAffiliations;
+  }
+
+  const fromSubdivisions = conference.sportSubdivisions?.find(
+    (row) => row.sport?.slug === sportSlug,
+  )?.subdivision;
+  return fromSubdivisions ?? null;
+}
 
 function footballSubdivisionSlug(
   affiliations: TeamConferenceAffiliationInput[] | null | undefined,
@@ -27,14 +58,10 @@ function footballSubdivisionSlug(
   const football = affiliations?.find(
     (row) => row.sport?.slug === FOOTBALL_SPORT_SLUG && row.conference,
   );
-  const subdivisions = football?.conference?.sportSubdivisions;
-  if (!subdivisions?.length) {
+  if (!football?.conference) {
     return null;
   }
-  const match = subdivisions.find(
-    (row) => row.sport?.slug === FOOTBALL_SPORT_SLUG,
-  );
-  return match?.subdivision?.slug ?? null;
+  return sportSubgroup(football.conference, FOOTBALL_SPORT_SLUG)?.slug ?? null;
 }
 
 export function buildTeamHubKicker(
@@ -68,17 +95,23 @@ export function buildTeamHubKicker(
     if (!row?.conference) {
       continue;
     }
-    const classSlug = row.conference.primaryClassification?.slug;
+    const subgroup = sportSubgroup(row.conference, sportSlug);
+    const classSlug =
+      subgroup?.slug ?? row.conference.primaryClassification?.slug;
     const label =
-      classSlug === "d1"
-        ? "D-I basketball"
-        : classSlug === "d2"
-          ? "D-II basketball"
-          : classSlug === "d3"
-            ? "D-III basketball"
-            : row.sport?.slug === "womens-basketball"
-              ? "Women's basketball"
-              : "Men's basketball";
+      classSlug === "mid-major"
+        ? "Mid-Major basketball"
+        : classSlug === "power-conferences" || classSlug === "power-conference"
+          ? "Power Conference basketball"
+          : classSlug === "d1"
+            ? "D-I basketball"
+            : classSlug === "d2"
+              ? "D-II basketball"
+              : classSlug === "d3"
+                ? "D-III basketball"
+                : row.sport?.slug === "womens-basketball"
+                  ? "Women's basketball"
+                  : "Men's basketball";
     parts.push(label);
   }
 
@@ -89,14 +122,14 @@ export type TeamInfoFactRow = { label: string; value: string };
 
 function conferenceLabel(
   conference: NonNullable<TeamConferenceAffiliationInput["conference"]>,
-): string {
-  return conference.shortName ?? conference.name ?? "—";
+): string | null {
+  return conference.shortName ?? conference.name ?? null;
 }
 
 function classificationDisplayName(
   slug: string | null | undefined,
   name: string | null | undefined,
-): string {
+): string | null {
   if (slug === "d1") {
     return "Division I";
   }
@@ -109,19 +142,32 @@ function classificationDisplayName(
   if (slug === "naia") {
     return "NAIA";
   }
-  return name ?? "—";
+  if (slug === "mid-major") {
+    return "Mid-Major";
+  }
+  if (slug === "power-conferences" || slug === "power-conference") {
+    return "Power Conference";
+  }
+  const trimmed = name?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function subgroupDisplayName(subgroup: SportSubgroup): string | null {
+  return (
+    classificationDisplayName(subgroup.slug, null) ??
+    subgroup.shortName ??
+    subgroup.name
+  );
 }
 
 function footballSubdivisionLabel(
   conference: NonNullable<TeamConferenceAffiliationInput["conference"]>,
 ): string | null {
-  const match = conference.sportSubdivisions?.find(
-    (row) => row.sport?.slug === FOOTBALL_SPORT_SLUG,
-  );
+  const match = sportSubgroup(conference, FOOTBALL_SPORT_SLUG);
   return (
-    match?.subdivision?.shortName ??
-    match?.subdivision?.name ??
-    (match?.subdivision?.slug ? match.subdivision.slug.toUpperCase() : null)
+    match?.shortName ??
+    match?.name ??
+    (match?.slug ? match.slug.toUpperCase() : null)
   );
 }
 
@@ -137,14 +183,23 @@ function sportAffiliationValue(
 
   if (sportSlug === FOOTBALL_SPORT_SLUG) {
     const subdivision = footballSubdivisionLabel(conference);
-    return subdivision ? `${subdivision} · ${conf}` : conf;
+    if (subdivision && conf) {
+      return `${subdivision} · ${conf}`;
+    }
+    return subdivision ?? conf;
   }
 
-  const division = classificationDisplayName(
-    conference.primaryClassification?.slug,
-    conference.primaryClassification?.name,
-  );
-  return `${division} · ${conf}`;
+  const subgroup = sportSubgroup(conference, sportSlug);
+  const division = subgroup
+    ? subgroupDisplayName(subgroup)
+    : classificationDisplayName(
+        conference.primaryClassification?.slug,
+        conference.primaryClassification?.name,
+      );
+  if (division && conf) {
+    return `${division} · ${conf}`;
+  }
+  return division ?? conf;
 }
 
 export function buildTeamInfoFactRows(
@@ -219,17 +274,10 @@ export function conferenceNewsHrefForAffiliation(
     return null;
   }
 
-  let divisionSegment: string | null = null;
-  if (sportSlug === FOOTBALL_SPORT_SLUG) {
-    divisionSegment =
-      conference.sportSubdivisions?.find(
-        (row) => row.sport?.slug === FOOTBALL_SPORT_SLUG,
-      )?.subdivision?.slug ??
-      conference.primaryClassification?.slug ??
-      null;
-  } else {
-    divisionSegment = conference.primaryClassification?.slug ?? null;
-  }
+  const divisionSegment =
+    sportSubgroup(conference, sportSlug)?.slug ??
+    conference.primaryClassification?.slug ??
+    null;
 
   if (!divisionSegment) {
     return null;

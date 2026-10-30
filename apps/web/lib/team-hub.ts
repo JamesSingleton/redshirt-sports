@@ -73,7 +73,18 @@ export function footballAffiliationDivisionSlug(
   const football = affiliations?.find(
     (row) => row.sport?.slug === "football" && row.conference,
   );
-  const subdivisions = football?.conference?.sportSubdivisions;
-  const match = subdivisions?.find((row) => row.sport?.slug === "football");
+  const conference = football?.conference;
+  if (!conference) {
+    return null;
+  }
+  const fromAffiliations = conference.sportSubdivisionAffiliations?.find(
+    (row) => row.sport?.slug === "football",
+  )?.subgrouping?.slug;
+  if (fromAffiliations) {
+    return fromAffiliations;
+  }
+  const match = conference.sportSubdivisions?.find(
+    (row) => row.sport?.slug === "football",
+  );
   return match?.subdivision?.slug ?? null;
 }

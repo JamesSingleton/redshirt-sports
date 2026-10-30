@@ -215,6 +215,87 @@ describe("team school affiliations", () => {
       ]).find((row) => row.label === "Basketball"),
     ).toEqual({ label: "Basketball", value: "Division I · Horizon" });
 
+    expect(
+      buildTeamInfoFactRows(
+        { name: "University of Richmond", nickname: "Spiders" },
+        [
+          {
+            sport: { slug: "mens-basketball" },
+            conference: {
+              name: "Atlantic 10 Conference",
+              shortName: "Atlantic 10",
+              slug: "atlantic-10-conference",
+              primaryClassification: null,
+              sportSubdivisionAffiliations: [
+                {
+                  sport: { slug: "mens-basketball" },
+                  subgrouping: {
+                    shortName: "Mid-Major",
+                    name: "Mid-Major",
+                    slug: "mid-major",
+                  },
+                },
+              ],
+            },
+          },
+          {
+            sport: { slug: "womens-basketball" },
+            conference: {
+              name: "Atlantic 10 Conference",
+              shortName: "Atlantic 10",
+              slug: "atlantic-10-conference",
+              sportSubdivisionAffiliations: [
+                {
+                  sport: { slug: "womens-basketball" },
+                  subgrouping: {
+                    shortName: "Mid-Major",
+                    name: "Mid-Major",
+                    slug: "mid-major",
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      ).find((row) => row.label === "Basketball"),
+    ).toEqual({ label: "Basketball", value: "Mid-Major · Atlantic 10" });
+
+    expect(
+      buildTeamInfoFactRows({ name: "School", nickname: null }, [
+        {
+          sport: { slug: "mens-basketball" },
+          conference: {
+            name: null,
+            shortName: "ACC",
+            slug: "acc",
+            sportSubdivisions: [
+              {
+                sport: { slug: "mens-basketball" },
+                subdivision: {
+                  shortName: null,
+                  name: null,
+                  slug: "power-conferences",
+                },
+              },
+            ],
+          },
+        },
+      ]).find((row) => row.label === "Basketball"),
+    ).toEqual({ label: "Basketball", value: "Power Conference · ACC" });
+
+    expect(
+      buildTeamInfoFactRows({ name: "School", nickname: null }, [
+        {
+          sport: { slug: "mens-basketball" },
+          conference: {
+            name: "Atlantic 10 Conference",
+            shortName: "Atlantic 10",
+            slug: "atlantic-10-conference",
+          },
+        },
+      ]).find((row) => row.label === "Basketball"),
+    ).toEqual({ label: "Basketball", value: "Atlantic 10" });
+
     expect(buildTeamSocialLinks(null)).toEqual([]);
     expect(
       conferenceNewsHrefForAffiliation({

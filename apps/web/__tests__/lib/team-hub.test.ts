@@ -79,5 +79,49 @@ describe("team hub helpers", () => {
         },
       ]),
     ).toBeNull();
+    expect(
+      footballAffiliationDivisionSlug([
+        {
+          sport: { slug: "football" },
+          conference: {
+            name: null,
+            shortName: null,
+            sportSubdivisionAffiliations: [
+              {
+                sport: { slug: "football" },
+                subgrouping: { slug: "fbs", shortName: "FBS", name: "FBS" },
+              },
+            ],
+          },
+        },
+      ]),
+    ).toBe("fbs");
+    expect(
+      footballAffiliationDivisionSlug([
+        {
+          sport: { slug: "football" },
+          conference: {
+            name: null,
+            shortName: null,
+            sportSubdivisionAffiliations: [
+              {
+                sport: { slug: "mens-basketball" },
+                subgrouping: {
+                  slug: "mid-major",
+                  shortName: "Mid-Major",
+                  name: "Mid-Major",
+                },
+              },
+            ],
+            sportSubdivisions: [
+              {
+                sport: { slug: "football" },
+                subdivision: { slug: "fcs", shortName: "FCS", name: "FCS" },
+              },
+            ],
+          },
+        },
+      ]),
+    ).toBe("fcs");
   });
 });
