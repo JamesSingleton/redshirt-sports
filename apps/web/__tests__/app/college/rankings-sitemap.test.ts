@@ -88,4 +88,28 @@ describe("college rankings sitemap", () => {
       "https://redshirtsports.com/college/football/rankings/fcs/methodology",
     );
   });
+
+  it("skips sports and weeks that are not public ranking sports", async () => {
+    mockListSports.mockResolvedValue([
+      { slug: "football" },
+      { slug: "soccer" },
+    ]);
+    mockGetYearsWithVotes.mockResolvedValue([
+      { year: 2025, week: 1, division: "fbs", sport: "football" },
+      { year: 2025, week: 1, division: "d1", sport: "soccer" },
+    ]);
+
+    const entries = await sitemap();
+    const urls = entries.map((entry) => entry.url);
+
+    expect(urls).toContain(
+      "https://redshirtsports.com/college/football/rankings/fbs/2025/1",
+    );
+    expect(urls).not.toContain(
+      "https://redshirtsports.com/college/soccer/rankings",
+    );
+    expect(urls).not.toContain(
+      "https://redshirtsports.com/college/soccer/rankings/d1/2025/1",
+    );
+  });
 });
