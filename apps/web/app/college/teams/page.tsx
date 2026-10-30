@@ -1,16 +1,21 @@
-import { PUBLISHED_FETCH_OPTIONS } from "@redshirt-sports/sanity/live";
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { JsonLdScript } from "@/components/json-ld";
 import { TeamsDirectory } from "@/components/teams/teams-directory";
+import { draftAwarePage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
 import { getCachedTeamDirectory } from "@/lib/team-directory-data";
+import CollegeTeamsLoading from "./loading";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
   return getPageMetadata(
     {
       title: "College Teams",
@@ -23,7 +28,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CollegeTeamsPage() {
-  const teams = await getCachedTeamDirectory();
+  return draftAwarePage(<CollegeTeamsLoading />, renderCollegeTeamsPage);
+}
+
+async function renderCollegeTeamsPage({
+  perspective,
+  stega,
+}: DynamicFetchOptions) {
+  const teams = await getCachedTeamDirectory({ perspective, stega });
 
   return (
     <>

@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
 import { authorsListNotArchived } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
@@ -14,7 +14,7 @@ import { getPageMetadata } from "@/lib/global-seo-settings";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
   return getPageMetadata(
     {
       title: "About",
@@ -62,7 +62,6 @@ export default async function AboutPage() {
 }
 
 async function renderAboutPage({ perspective, stega }: DynamicFetchOptions) {
-  "use cache";
   const { data: authors } = await sanityFetchPage({
     query: authorsListNotArchived,
     perspective,

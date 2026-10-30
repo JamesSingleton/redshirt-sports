@@ -1,4 +1,4 @@
-import { PUBLISHED_FETCH_OPTIONS } from "@redshirt-sports/sanity/live";
+import { getDynamicFetchOptions } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 
 import { draftAwareSearchParamsPage } from "@/lib/draft-cache";
@@ -14,7 +14,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { page } = await searchParams;
   const pageIndex = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
 
   let title: string;
   let description: string;

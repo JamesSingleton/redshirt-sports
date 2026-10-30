@@ -18,7 +18,6 @@ export async function CachedCollegeNewsFiltersInner({
   perspective,
   stega,
 }: DynamicFetchOptions & { filterParams: NewsArchiveSearchParams }) {
-  "use cache";
   const navResponse = await getCachedGlobalNavigation({ perspective, stega });
   const { sports, divisions, conferences } = buildCollegeNewsFilterOptions(
     navResponse.data,
@@ -61,7 +60,6 @@ export async function CachedSportNewsFiltersInner({
   sportSlug: string;
   filterParams: NewsArchiveSearchParams;
 }) {
-  "use cache";
   const navResponse = await getCachedGlobalNavigation({ perspective, stega });
   const { divisions, conferences } = buildSportNewsFilterOptions(
     sportSlug,
@@ -139,7 +137,6 @@ export async function CachedFolderConferencePicker({
   divisionLabel: string;
   activeConferenceSlug?: string;
 }) {
-  "use cache";
   const navResponse = await getCachedGlobalNavigation({ perspective, stega });
   const { conferences } = buildSportNewsFilterOptions(
     sportSlug,
@@ -179,7 +176,6 @@ export async function CachedFolderNewsFiltersBelowHeaderInner({
   sportSlug: string;
   filterParams: NewsArchiveSearchParams;
 }) {
-  "use cache";
   const navResponse = await getCachedGlobalNavigation({ perspective, stega });
   const { divisions, conferences } = buildSportNewsFilterOptions(
     sportSlug,

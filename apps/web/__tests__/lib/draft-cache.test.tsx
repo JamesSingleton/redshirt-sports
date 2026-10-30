@@ -30,23 +30,20 @@ describe("draftAwarePage", () => {
     mockGetDynamicFetchOptions.mockReset();
   });
 
-  it("always wraps content in Suspense", () => {
+  it("renders published content without Suspense", async () => {
     mockDraftMode.mockResolvedValue({ isEnabled: false });
-    const result = draftAwarePage(null, async () => <div>content</div>);
-    expect(isValidElement(result)).toBe(true);
-    expect(result.type).toBe(Suspense);
+    const result = await draftAwarePage(null, async () => <div>content</div>);
+    if (!isValidElement(result)) {
+      throw new Error("expected element");
+    }
+    expect(result.type).not.toBe(Suspense);
   });
 
   it("passes published options when draft mode is off", async () => {
     mockDraftMode.mockResolvedValue({ isEnabled: false });
     const renderFn = vi.fn(async () => <div>ok</div>);
 
-    const tree = draftAwarePage(null, renderFn);
-    // Invoke the Suspense child (DraftAwareRender) directly
-    const child = (tree.props as { children: React.ReactElement }).children;
-    await (child.type as (p: { render: typeof renderFn }) => Promise<unknown>)({
-      render: renderFn,
-    });
+    await draftAwarePage(null, renderFn);
 
     expect(renderFn).toHaveBeenCalledWith({
       perspective: "published",
@@ -63,7 +60,11 @@ describe("draftAwarePage", () => {
     });
     const renderFn = vi.fn(async () => <div>draft</div>);
 
-    const tree = draftAwarePage(null, renderFn);
+    const tree = await draftAwarePage(null, renderFn);
+    if (!isValidElement(tree)) {
+      throw new Error("expected element");
+    }
+    expect(tree.type).toBe(Suspense);
     const child = (tree.props as { children: React.ReactElement }).children;
     await (child.type as (p: { render: typeof renderFn }) => Promise<unknown>)({
       render: renderFn,
@@ -125,6 +126,61 @@ describe("draftAwareParamsPage", () => {
       null,
       renderFn,
     );
+    const child = (tree.props as { children: React.ReactElement }).children;
+    await (
+      child.type as (p: {
+        params: Promise<{ slug: string }>;
+        render: typeof renderFn;
+      }) => Promise<unknown>
+    )({
+      params: Promise.resolve({ slug: "hello" }),
+      render: renderFn,
+    });
+
+    expect(mockGetDynamicFetchOptions).toHaveBeenCalled();
+    expect(renderFn).toHaveBeenCalledWith(
+      { slug: "hello" },
+      { perspective: "previewDrafts", stega: true },
+    );
+  });
+
+  it("renders published params content without Suspense when prerendering", async () => {
+    mockDraftMode.mockResolvedValue({ isEnabled: false });
+    const renderFn = vi.fn(async () => <div>published</div>);
+    const tree = await draftAwareParamsPage(
+      Promise.resolve({ slug: "hello" }),
+      null,
+      renderFn,
+      { prerenderPublished: true },
+    );
+    if (!isValidElement(tree)) {
+      throw new Error("expected element");
+    }
+    expect(tree.type).not.toBe(Suspense);
+    expect(renderFn).toHaveBeenCalledWith(
+      { slug: "hello" },
+      { perspective: "published", stega: false },
+    );
+  });
+
+  it("keeps draft params behind Suspense when prerendering published content", async () => {
+    mockDraftMode.mockResolvedValue({ isEnabled: true });
+    mockGetDynamicFetchOptions.mockResolvedValue({
+      perspective: "previewDrafts",
+      stega: true,
+    });
+    const renderFn = vi.fn(async () => <div>draft</div>);
+    const tree = await draftAwareParamsPage(
+      Promise.resolve({ slug: "hello" }),
+      null,
+      renderFn,
+      { prerenderPublished: true },
+    );
+    if (!isValidElement(tree)) {
+      throw new Error("expected element");
+    }
+    expect(tree.type).toBe(Suspense);
+
     const child = (tree.props as { children: React.ReactElement }).children;
     await (
       child.type as (p: {

@@ -1,4 +1,7 @@
-import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
+import {
+  PUBLISHED_FETCH_OPTIONS,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
 import { querySitemapData } from "@redshirt-sports/sanity/queries";
 import type { MetadataRoute } from "next";
 
@@ -9,7 +12,7 @@ const baseUrl = getBaseUrl();
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data } = await sanityFetchMetadata({
     query: querySitemapData,
-    perspective: "published",
+    perspective: PUBLISHED_FETCH_OPTIONS.perspective,
   });
   const authors = data?.authors ?? [];
   const legal = data?.legal ?? [];

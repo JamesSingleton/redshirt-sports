@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
 import { queryHomeFeed } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
@@ -26,7 +26,7 @@ import HomeRouteLoading from "./home-route-loading";
 const baseUrl = getBaseUrl();
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
   const settings = await fetchGlobalSeoSettings(perspective);
 
   return getPageMetadata(
@@ -39,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
   return draftAwarePage(<HomeRouteLoading />, CachedHomePage);
 }
 
@@ -47,13 +47,11 @@ export async function CachedHomePage({
   perspective,
   stega,
 }: DynamicFetchOptions) {
-  "use cache";
-
   const [{ data: feedPosts }, settings, mostRead, rankingsPolls] =
     await Promise.all([
       sanityFetchPage({ query: queryHomeFeed, perspective, stega }),
       fetchGlobalSeoSettings(perspective),
-      getCachedMostReadPosts(),
+      getCachedMostReadPosts({ perspective, stega }),
       getCachedRankingsWidgetPolls(),
     ]);
 
@@ -80,7 +78,7 @@ export async function CachedHomePage({
     },
     inLanguage: "en-US",
     datePublished: "2021-12-13T00:00:00-07:00",
-    dateModified: posts[0]?.publishedAt || new Date().toISOString(),
+    dateModified: posts[0]?.publishedAt || "2021-12-13T00:00:00-07:00",
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [

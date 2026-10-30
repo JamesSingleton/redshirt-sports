@@ -151,15 +151,25 @@ describe("HomePage", () => {
     expect(screen.getByTestId("rankings-poll-count")).toHaveTextContent("1");
   });
 
-  it("default export wraps CachedHomePage in draftAware Suspense", () => {
-    const page = HomePage();
-    expect(page).toBeTruthy();
+  it("renders published home content without Suspense", async () => {
+    mockGetDynamicFetchOptions.mockClear();
+    const page = await HomePage();
+    if (!isValidElement(page)) {
+      throw new Error("expected element");
+    }
+    expect(page.type).not.toBe(Suspense);
     expect(mockGetDynamicFetchOptions).not.toHaveBeenCalled();
   });
 
-  it("uses the home route loading UI as the nearest Suspense fallback", () => {
-    const tree = HomePage();
-    expect(isValidElement(tree)).toBe(true);
+  it("uses the home route loading UI when draft mode is on", async () => {
+    const { draftMode } = await import("next/headers");
+    vi.mocked(draftMode).mockResolvedValueOnce({
+      isEnabled: true,
+    } as Awaited<ReturnType<typeof draftMode>>);
+    const tree = await HomePage();
+    if (!isValidElement(tree)) {
+      throw new Error("expected element");
+    }
     expect(tree.type).toBe(Suspense);
     const fallback = (tree as ReactElement<{ fallback: ReactElement }>).props
       .fallback;
@@ -167,7 +177,7 @@ describe("HomePage", () => {
     expect(fallback.type).toBe(HomeRouteLoading);
   });
 
-  it("uses the current date in JSON-LD when the home feed is empty", async () => {
+  it("uses the site launch date in JSON-LD when the home feed is empty", async () => {
     mockFetch.mockResolvedValueOnce({ data: null });
 
     const page = await CachedHomePage({
@@ -178,7 +188,7 @@ describe("HomePage", () => {
 
     const jsonLd = screen.getByTestId("home-json-ld");
     const data = JSON.parse(jsonLd.innerHTML);
-    expect(data.dateModified).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(data.dateModified).toBe("2021-12-13T00:00:00-07:00");
   });
 
   it("falls back to app name and undefined description when SEO settings are missing", async () => {

@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
   sanityFetchMetadata,
   sanityFetchStaticParams,
 } from "@redshirt-sports/sanity/live";
@@ -91,7 +91,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const [{ slug }, { perspective }] = await Promise.all([
     params,
-    Promise.resolve(PUBLISHED_FETCH_OPTIONS),
+    getDynamicFetchOptions(),
   ]);
   const { data: school } = (await sanityFetchMetadata({
     query: schoolBySlugQuery,
@@ -135,14 +135,15 @@ export default async function SchoolTeamPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  return draftAwareParamsPage(params, null, renderSchoolTeamPage);
+  return draftAwareParamsPage(params, null, renderSchoolTeamPage, {
+    prerenderPublished: true,
+  });
 }
 
 async function renderSchoolTeamPage(
   { slug }: { slug: string },
   { perspective, stega }: DynamicFetchOptions,
 ) {
-  "use cache";
   const { data: school } = (await sanityFetchPage({
     query: schoolBySlugQuery,
     params: { slug },
@@ -162,7 +163,7 @@ async function renderSchoolTeamPage(
       stega,
     }) as Promise<{ data: StegaBranded<PostsBySchoolQueryResult> | null }>,
     getCachedSchoolRankingHistory(school._id),
-    getCachedMostReadPosts(),
+    getCachedMostReadPosts({ perspective, stega }),
   ]);
 
   if (

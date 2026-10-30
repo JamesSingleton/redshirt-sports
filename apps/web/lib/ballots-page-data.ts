@@ -76,7 +76,7 @@ function voterDisplayLabel(
   return name;
 }
 
-export async function getCachedBallotsPageMatrix({
+export async function getCachedWeekVotesByVoter({
   year,
   week,
   division,
@@ -86,7 +86,7 @@ export async function getCachedBallotsPageMatrix({
   week: number;
   division: string;
   sport: SportParam;
-}): Promise<BallotsPageMatrix | null> {
+}) {
   "use cache";
   cacheTag(
     RANKINGS_CACHE_TAG,
@@ -101,11 +101,29 @@ export async function getCachedBallotsPageMatrix({
     return null;
   }
 
+  return getVotesForWeekAndYearByVoter({ year, week, division, sportId });
+}
+
+export async function getCachedBallotsPageMatrix({
+  year,
+  week,
+  division,
+  sport,
+}: {
+  year: number;
+  week: number;
+  division: string;
+  sport: SportParam;
+}): Promise<BallotsPageMatrix | null> {
   const [rankingsResult, ballotContext, votesByVoter] = await Promise.all([
     getCachedFinalRankings({ year, week, division, sport }),
     getCachedPollWeekBallotContext({ year, week, division, sport }),
-    getVotesForWeekAndYearByVoter({ year, week, division, sportId }),
+    getCachedWeekVotesByVoter({ year, week, division, sport }),
   ]);
+
+  if (!votesByVoter) {
+    return null;
+  }
 
   const { rankings } = rankingsResult;
   const ballotsListed =

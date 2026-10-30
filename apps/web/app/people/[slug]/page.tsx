@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
 import { authorBySlug, postsByAuthor } from "@redshirt-sports/sanity/queries";
@@ -33,7 +33,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const { page } = await searchParams;
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
 
   const { data: author } = await sanityFetchMetadata({
     query: authorBySlug,
@@ -97,7 +97,6 @@ async function cachedRenderPersonPage({
   perspective,
   stega,
 }: DynamicFetchOptions & { slug: string; pageIndex: number }) {
-  "use cache";
   const baseUrl = getBaseUrl();
   const from = (pageIndex - 1) * perPage;
   const to = pageIndex * perPage;
@@ -117,7 +116,7 @@ async function cachedRenderPersonPage({
         perspective,
         stega,
       }),
-      getCachedMostReadPosts(),
+      getCachedMostReadPosts({ perspective, stega }),
     ],
   );
 

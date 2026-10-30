@@ -1,5 +1,9 @@
-import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
-import { type ReactNode, Suspense } from "react";
+import {
+  type DynamicFetchOptions,
+  PUBLISHED_FETCH_OPTIONS,
+} from "@redshirt-sports/sanity/live";
+import { draftMode } from "next/headers";
+import { type ReactElement, type ReactNode, Suspense } from "react";
 
 import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 
@@ -11,16 +15,23 @@ async function DraftAwareRender({
   return render(await resolveDynamicFetchOptions());
 }
 
-/** Layer 1 branch: Suspense around draft/runtime reads so Cache Components can prerender a shell. */
-export function draftAwarePage(
+/**
+ * Published pages render outside Suspense so cached content joins the static
+ * shell. Draft mode still resolves cookies inside Suspense.
+ */
+export async function draftAwarePage(
   fallback: ReactNode,
   render: (options: DynamicFetchOptions) => Promise<ReactNode>,
 ) {
-  return (
-    <Suspense fallback={fallback}>
-      <DraftAwareRender render={render} />
-    </Suspense>
-  );
+  const { isEnabled } = await draftMode();
+  if (isEnabled) {
+    return (
+      <Suspense fallback={fallback}>
+        <DraftAwareRender render={render} />
+      </Suspense>
+    );
+  }
+  return render(PUBLISHED_FETCH_OPTIONS);
 }
 
 async function DraftAwareParamsRender<P>({
@@ -53,12 +64,43 @@ export function draftAwareParamsPage<P>(
   params: Promise<P>,
   fallback: ReactNode,
   render: (resolved: P, options: DynamicFetchOptions) => Promise<ReactNode>,
-) {
+): ReactElement;
+export function draftAwareParamsPage<P>(
+  params: Promise<P>,
+  fallback: ReactNode,
+  render: (resolved: P, options: DynamicFetchOptions) => Promise<ReactNode>,
+  options: { prerenderPublished: true },
+): Promise<ReactNode>;
+export function draftAwareParamsPage<P>(
+  params: Promise<P>,
+  fallback: ReactNode,
+  render: (resolved: P, options: DynamicFetchOptions) => Promise<ReactNode>,
+  options?: { prerenderPublished?: boolean },
+): ReactElement | Promise<ReactNode> {
+  if (options?.prerenderPublished) {
+    return prerenderPublishedParamsPage(params, fallback, render);
+  }
   return (
     <Suspense fallback={fallback}>
       <DraftAwareParamsRender params={params} render={render} />
     </Suspense>
   );
+}
+
+async function prerenderPublishedParamsPage<P>(
+  params: Promise<P>,
+  fallback: ReactNode,
+  render: (resolved: P, options: DynamicFetchOptions) => Promise<ReactNode>,
+) {
+  const { isEnabled } = await draftMode();
+  if (isEnabled) {
+    return (
+      <Suspense fallback={fallback}>
+        <DraftAwareParamsRender params={params} render={render} />
+      </Suspense>
+    );
+  }
+  return render(await params, PUBLISHED_FETCH_OPTIONS);
 }
 
 async function DraftAwareSearchParamsRender<P>({

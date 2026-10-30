@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 
@@ -14,7 +14,7 @@ import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
 import { RANKINGS_METHODOLOGY_PATH } from "@/lib/rankings-nav";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
   return getPageMetadata(
     {
       title: "How our Top 25 polls work",
@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 }
 
-export default function RankingsMethodologyPage() {
+export default async function RankingsMethodologyPage() {
   return draftAwarePage(null, CachedRankingsMethodologyPage);
 }
 
@@ -34,8 +34,6 @@ async function CachedRankingsMethodologyPage({
   perspective,
   stega,
 }: DynamicFetchOptions) {
-  "use cache";
-
   const advertisement = await loadAdvertisement({
     placement: "rankings-methodology-sidebar",
     fetchOptions: { perspective, stega },

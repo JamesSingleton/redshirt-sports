@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
   sanityFetchMetadata,
   sanityFetchStaticParams,
 } from "@redshirt-sports/sanity/live";
@@ -43,7 +43,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
   const { data } = (await sanityFetchMetadata({
     query: queryPostSlugData,
     params: { slug },
@@ -86,14 +86,15 @@ export default async function PostPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  return draftAwareParamsPage(params, null, renderPostPage);
+  return draftAwareParamsPage(params, null, renderPostPage, {
+    prerenderPublished: true,
+  });
 }
 
 async function renderPostPage(
   { slug }: { slug: string },
   { perspective, stega }: DynamicFetchOptions,
 ) {
-  "use cache";
   const [{ data }, settings] = await Promise.all([
     sanityFetchPage({
       query: queryPostSlugData,
@@ -114,7 +115,7 @@ async function renderPostPage(
 
   const sportSlug = data.sport?.slug;
   const [mostRead, rankingsPolls, advertisement] = await Promise.all([
-    getCachedMostReadPosts(),
+    getCachedMostReadPosts({ perspective, stega }),
     sportSlug
       ? getCachedRankingsWidgetPolls(validateSport(sportSlug))
       : Promise.resolve([]),

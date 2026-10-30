@@ -94,7 +94,6 @@ function newsQueryParams(
 export async function cachedRenderNewsArchivePage(
   input: CachedNewsArchiveInput,
 ) {
-  "use cache";
   const {
     scope,
     pageIndex,

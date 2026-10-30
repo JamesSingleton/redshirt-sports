@@ -55,8 +55,15 @@ describe("rankings week shell", () => {
       division: "fbs",
       year: "2026",
       week: "7",
+      fetchOptions: { perspective: "published", stega: false },
     });
     expect(shell.divisionName).toBe("FBS");
+    expect(mockSanityFetchPage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        perspective: "published",
+        stega: false,
+      }),
+    );
     expect(shell.tabs).toHaveLength(5);
     expect(shell.ballotsHref).toContain("/ballots");
   });
@@ -68,7 +75,11 @@ describe("rankings week shell", () => {
       division: "fbs",
       year: "2026",
       week: "7",
+      fetchOptions: { perspective: "drafts", stega: true },
     });
+    expect(mockSanityFetchPage).toHaveBeenCalledWith(
+      expect.objectContaining({ perspective: "drafts", stega: true }),
+    );
     expect(shell.sportLabel).toBe("College Football");
   });
 
@@ -80,6 +91,7 @@ describe("rankings week shell", () => {
         division: "fbs",
         year: "2026",
         week: "7",
+        fetchOptions: { perspective: "published", stega: false },
       }),
     ).rejects.toThrow("NOT_FOUND");
   });
@@ -91,6 +103,7 @@ describe("rankings week shell", () => {
     const shell = await loadRankingsDivisionShell({
       sport: "football",
       division: "fbs",
+      fetchOptions: { perspective: "published", stega: false },
     });
     expect(shell.yearNumber).toBe(2026);
     expect(shell.weekNumber).toBe(7);
@@ -99,7 +112,11 @@ describe("rankings week shell", () => {
   it("throws notFound when division has no rankings", async () => {
     mockGetCachedLatestFinalRankingsBySportSlug.mockResolvedValue([]);
     await expect(
-      loadRankingsDivisionShell({ sport: "football", division: "fbs" }),
+      loadRankingsDivisionShell({
+        sport: "football",
+        division: "fbs",
+        fetchOptions: { perspective: "published", stega: false },
+      }),
     ).rejects.toThrow("NOT_FOUND");
   });
 });

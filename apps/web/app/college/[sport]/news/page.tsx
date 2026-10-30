@@ -1,5 +1,5 @@
 import {
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
 import { sportInfoBySlug } from "@redshirt-sports/sanity/queries";
@@ -24,7 +24,7 @@ export async function generateMetadata({
   const { sport } = await params;
   const { page } = await searchParams;
   const pageIndex = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
 
   const { data: sportData } = await sanityFetchMetadata({
     query: sportInfoBySlug,

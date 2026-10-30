@@ -4,7 +4,6 @@ import {
   type SportParam,
   weekTitle,
 } from "@redshirt-sports/clients/espn";
-import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import type { Graph } from "schema-dts";
 
@@ -17,11 +16,6 @@ import {
   getCachedPollWeekBallotContext,
   getCachedWeeksThatHaveVotes,
   getCachedYearsThatHaveVotes,
-  RANKINGS_CACHE_LIFE,
-  RANKINGS_CACHE_TAG,
-  rankingsDivisionTag,
-  rankingsSportTag,
-  rankingsWeekTag,
 } from "@/lib/rankings-data";
 import {
   buildRankBySchoolId,
@@ -63,8 +57,6 @@ export async function loadRankingsWeekPageModel({
   year: string;
   week: string;
 }) {
-  "use cache";
-
   const yearNumber = resolveYearNumber(year);
   const weekNumber = resolveWeekNumber(week);
   const titleWeek = weekTitle(weekNumber);
@@ -72,14 +64,6 @@ export async function loadRankingsWeekPageModel({
   const sportParam = sport as SportParam;
   const divisionName = pollDivisionLabel(division);
   const sportLabel = sportNavLabel(sport, sport);
-
-  cacheTag(
-    RANKINGS_CACHE_TAG,
-    rankingsSportTag(sportParam),
-    rankingsDivisionTag(sportParam, division),
-    rankingsWeekTag(sportParam, division, yearNumber, weekNumber),
-  );
-  cacheLife(RANKINGS_CACHE_LIFE);
 
   const [yearsWithVotesResult, weeksWithVotesResult] = await Promise.allSettled(
     [

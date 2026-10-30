@@ -1,12 +1,7 @@
 import type { SportParam } from "@redshirt-sports/clients/espn";
-import {
-  getSportIdBySlug,
-  getVotesForWeekAndYearByVoter,
-} from "@redshirt-sports/db/queries";
 import { client } from "@redshirt-sports/sanity/client";
 import { schoolsByIdsQuery } from "@redshirt-sports/sanity/queries";
 import { token } from "@redshirt-sports/sanity/token";
-import { cacheLife, cacheTag } from "next/cache";
 
 import {
   ABSENT_RANK,
@@ -14,15 +9,9 @@ import {
   computeBallotMatchPercent,
 } from "@/lib/ballot-match";
 import { isOutlierPick } from "@/lib/ballot-outliers";
+import { getCachedWeekVotesByVoter } from "@/lib/ballots-page-data";
 import { TOP_25 } from "@/lib/constants";
-import {
-  getCachedFinalRankings,
-  RANKINGS_CACHE_LIFE,
-  RANKINGS_CACHE_TAG,
-  rankingsDivisionTag,
-  rankingsSportTag,
-  rankingsWeekTag,
-} from "@/lib/rankings-data";
+import { getCachedFinalRankings } from "@/lib/rankings-data";
 import { voterBallotSlug } from "@/lib/voter-ballot-slug";
 
 export type BallotPickRow = {
@@ -82,24 +71,14 @@ export async function getCachedBallotsByVoterCards({
   division: string;
   sport: SportParam;
 }): Promise<VoterBallotCardData[]> {
-  "use cache";
-  cacheTag(
-    RANKINGS_CACHE_TAG,
-    rankingsSportTag(sport),
-    rankingsDivisionTag(sport, division),
-    rankingsWeekTag(sport, division, year, week),
-  );
-  cacheLife(RANKINGS_CACHE_LIFE);
-
-  const sportId = await getSportIdBySlug(sport);
-  if (!sportId) {
-    return [];
-  }
-
   const [{ rankings }, votesByVoter] = await Promise.all([
     getCachedFinalRankings({ year, week, division, sport }),
-    getVotesForWeekAndYearByVoter({ year, week, division, sportId }),
+    getCachedWeekVotesByVoter({ year, week, division, sport }),
   ]);
+
+  if (!votesByVoter) {
+    return [];
+  }
 
   const consensusById = new Map<string, ConsensusRank>();
   const publishedRankById = new Map<string, number | null>();

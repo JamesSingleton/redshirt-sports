@@ -1,3 +1,7 @@
+import {
+  type DynamicFetchOptions,
+  getDynamicFetchOptions,
+} from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -23,15 +27,24 @@ export async function generateMetadata({
     week: string;
   }>;
 }): Promise<Metadata> {
-  const { sport, division, year, week } = await params;
-  const shell = await loadRankingsWeekShell({ sport, division, year, week });
+  const [{ sport, division, year, week }, fetchOptions] = await Promise.all([
+    params,
+    getDynamicFetchOptions(),
+  ]);
+  const shell = await loadRankingsWeekShell({
+    sport,
+    division,
+    year,
+    week,
+    fetchOptions,
+  });
   return getPageMetadata(
     {
       title: `${year} ${shell.titleWeek} ${shell.divisionName} ${shell.sportLabel} Ballots`,
       description: `Full voter ballots for the ${shell.sportLabel} ${shell.divisionName} Top 25, ${shell.titleWeek} ${year}.`,
       slug: `${shell.weekPath}/ballots`,
     },
-    "published",
+    fetchOptions.perspective,
   );
 }
 
@@ -50,9 +63,9 @@ export default function RankingsBallotsPage({
   return draftAwareParamsPage(
     params,
     <RankingsTabSkeleton variant="ballots" />,
-    async (resolved) => {
+    async (resolved, options) => {
       const query = await searchParams;
-      return renderBallotsPage(resolved, query);
+      return renderBallotsPage(resolved, query, options);
     },
   );
 }
@@ -70,8 +83,15 @@ async function renderBallotsPage(
     week: string;
   },
   query: { voters?: string; voter?: string },
+  fetchOptions: DynamicFetchOptions,
 ) {
-  const shell = await loadRankingsWeekShell({ sport, division, year, week });
+  const shell = await loadRankingsWeekShell({
+    sport,
+    division,
+    year,
+    week,
+    fetchOptions,
+  });
   const matrix = await getCachedBallotsPageMatrix({
     year: shell.yearNumber,
     week: shell.weekNumber,

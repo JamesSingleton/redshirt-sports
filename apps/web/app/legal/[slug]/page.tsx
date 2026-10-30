@@ -1,6 +1,6 @@
 import {
   type DynamicFetchOptions,
-  PUBLISHED_FETCH_OPTIONS,
+  getDynamicFetchOptions,
   sanityFetchMetadata,
   sanityFetchStaticParams,
 } from "@redshirt-sports/sanity/live";
@@ -39,7 +39,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const { perspective } = PUBLISHED_FETCH_OPTIONS;
+  const { perspective } = await getDynamicFetchOptions();
   const { data } = await sanityFetchMetadata({
     query: queryLegalDocumentBySlug,
     params: { slug },
@@ -65,7 +65,9 @@ export default async function LegalDocumentPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  return draftAwareParamsPage(params, null, renderLegalDocumentPage);
+  return draftAwareParamsPage(params, null, renderLegalDocumentPage, {
+    prerenderPublished: true,
+  });
 }
 
 /** Sanity `date` fields are calendar dates, so format them without a timezone shift. */
@@ -77,7 +79,6 @@ async function renderLegalDocumentPage(
   { slug }: { slug: string },
   { perspective, stega }: DynamicFetchOptions,
 ) {
-  "use cache";
   const { data } = await sanityFetchPage({
     query: queryLegalDocumentBySlug,
     params: { slug },

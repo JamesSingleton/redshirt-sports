@@ -1,14 +1,17 @@
-import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
+import {
+  getDynamicFetchOptions,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
 import { rssFeedQuery } from "@redshirt-sports/sanity/queries";
 
 import { createRssResponse } from "@/lib/rss-feed";
 import { getSiteFeed } from "@/lib/rss-feed-links";
 
 async function fetchPostsForFeed() {
-  "use cache";
+  const { perspective } = await getDynamicFetchOptions();
   const { data } = await sanityFetchMetadata({
     query: rssFeedQuery,
-    perspective: "published",
+    perspective,
   });
   return data ?? [];
 }

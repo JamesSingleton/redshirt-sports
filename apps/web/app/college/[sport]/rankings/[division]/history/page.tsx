@@ -1,6 +1,5 @@
 import type { SportParam } from "@redshirt-sports/clients/espn";
 import type { Metadata } from "next";
-import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -14,13 +13,7 @@ import {
   getCachedPollHistoryForDivision,
   getCachedPollHistoryYears,
 } from "@/lib/poll-history-data";
-import {
-  getCachedLatestFinalRankings,
-  RANKINGS_CACHE_LIFE,
-  RANKINGS_CACHE_TAG,
-  rankingsDivisionTag,
-  rankingsSportTag,
-} from "@/lib/rankings-data";
+import { getCachedLatestFinalRankings } from "@/lib/rankings-data";
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
 import { sportNavLabel } from "@/lib/sport-nav";
@@ -64,14 +57,7 @@ async function renderHistoryPage(
   { sport, division }: { sport: string; division: string },
   query: { year?: string },
 ) {
-  "use cache";
   const sportParam = sport as SportParam;
-  cacheTag(
-    RANKINGS_CACHE_TAG,
-    rankingsSportTag(sportParam),
-    rankingsDivisionTag(sportParam, division),
-  );
-  cacheLife(RANKINGS_CACHE_LIFE);
 
   const divisionName = pollDivisionLabel(division);
   const sportLabel = sportNavLabel(sport, sport);

@@ -2,15 +2,11 @@ import {
   formatWeekSegment,
   type SportParam,
 } from "@redshirt-sports/clients/espn";
-import { rankingsSportTag } from "@redshirt-sports/db/rankings-cache-tags";
-import { cacheLife, cacheTag } from "next/cache";
 
 import {
   getCachedFinalRankings,
   getCachedLatestFinalRankingsBySportSlug,
   getCachedWeeksThatHaveVotes,
-  RANKINGS_CACHE_LIFE,
-  RANKINGS_CACHE_TAG,
 } from "@/lib/rankings-data";
 import {
   buildRankBySchoolId,
@@ -136,10 +132,6 @@ async function loadWidgetPoll(
 export async function getCachedRankingsWidgetPolls(
   sport: SportParam = "football",
 ): Promise<RankingsWidgetPoll[]> {
-  "use cache";
-  cacheTag(RANKINGS_CACHE_TAG, rankingsSportTag(sport));
-  cacheLife(RANKINGS_CACHE_LIFE);
-
   const divisions = widgetDivisionsForSport(sport);
   const polls = await Promise.all(
     divisions.map((division) => loadWidgetPoll(division, sport)),
@@ -161,10 +153,6 @@ export type RankingsIndexCard = {
 export async function getCachedRankingsIndexCards(
   sport: SportParam,
 ): Promise<RankingsIndexCard[]> {
-  "use cache";
-  cacheTag(RANKINGS_CACHE_TAG, rankingsSportTag(sport));
-  cacheLife(RANKINGS_CACHE_LIFE);
-
   const divisions = widgetDivisionsForSport(sport);
   const cards = await Promise.all(
     divisions.map(async (division) => {

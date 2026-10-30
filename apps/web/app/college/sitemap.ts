@@ -1,4 +1,7 @@
-import { sanityFetchMetadata } from "@redshirt-sports/sanity/live";
+import {
+  PUBLISHED_FETCH_OPTIONS,
+  sanityFetchMetadata,
+} from "@redshirt-sports/sanity/live";
 import { queryForCollegeSitemap } from "@redshirt-sports/sanity/queries";
 import type { QueryForCollegeSitemapResult } from "@redshirt-sports/sanity/types";
 import type { MetadataRoute } from "next";
@@ -11,7 +14,7 @@ const baseUrl = getBaseUrl();
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data } = (await sanityFetchMetadata({
     query: queryForCollegeSitemap,
-    perspective: "published",
+    perspective: PUBLISHED_FETCH_OPTIONS.perspective,
   })) as { data: QueryForCollegeSitemapResult | null };
   const posts = data ?? [];
   const urls = new Map<string, string>();
