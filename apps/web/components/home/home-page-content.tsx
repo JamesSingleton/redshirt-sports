@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback } from "@redshirt-sports/ui/components/avatar";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import Link from "next/link";
 
@@ -166,7 +165,7 @@ export function HomePageContent({
   const leadAuthor = lead.authors?.[0];
 
   return (
-    <div className="mx-auto max-w-site px-4 lg:px-6">
+    <div className="mx-auto max-w-site px-4 lg:px-6" data-testid="home-feed">
       <section className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-8">
         <article className="group min-w-0">
           <Link href={`/${lead.slug}`} prefetch={false} className="block">
@@ -200,11 +199,6 @@ export function HomePageContent({
                 className="flex items-center gap-2"
                 prefetch={false}
               >
-                <Avatar className="size-6">
-                  <AvatarFallback className="text-[0.7em] font-semibold">
-                    {authorInitials(leadAuthor.name)}
-                  </AvatarFallback>
-                </Avatar>
                 <span className="font-medium text-foreground">
                   {leadAuthor.name}
                 </span>

@@ -87,6 +87,11 @@ let nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   cacheLife: { default: sanity },
+  experimental: {
+    ...config.experimental,
+    // Compiled into the build. Set only for the local instant-navigation rig.
+    exposeTestingApiInProductionBuild: process.env.EXPOSE_TESTING_API === "1",
+  },
   async headers() {
     const headers: Header[] = [
       {
