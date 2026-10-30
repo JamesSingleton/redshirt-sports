@@ -253,9 +253,9 @@ export function buildPostPageJsonLd(
     inLanguage: "en-US",
     ...(articleSection ? { articleSection } : {}),
     ...(tagNames.length > 0 ? { keywords: tagNames.join(", ") } : {}),
-    copyrightYear: article.publishedAt
-      ? new Date(article.publishedAt).getFullYear()
-      : new Date().getFullYear(),
+    ...(article.publishedAt
+      ? { copyrightYear: new Date(article.publishedAt).getFullYear() }
+      : {}),
     copyrightHolder: { "@id": organizationId },
     potentialAction: [
       {

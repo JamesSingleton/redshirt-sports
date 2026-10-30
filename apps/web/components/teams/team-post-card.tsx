@@ -3,22 +3,21 @@ import type {
   PostsBySchoolQueryResult,
 } from "@redshirt-sports/sanity/types";
 import { cn } from "@redshirt-sports/ui/lib/utils";
-import { parseISO } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
 import Link from "next/link";
 import type { StegaBranded } from "next-sanity";
 
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
+import { TeamRelativeDate } from "@/components/teams/team-relative-date";
+
+export { TeamRelativeDate };
+
 import { ArticleHeroTransition } from "@/components/view-transitions/article-hero-transition";
-import { formatRelativeTime } from "@/lib/format-relative-time";
 import { NAV_FORWARD_TRANSITION } from "@/lib/view-transition-nav";
 
 export type TeamPost = StegaBranded<
   | PostsBySchoolQueryResult["posts"][number]
   | PostsBySchoolAndStoryTypeQueryResult[number]
 >;
-
-const TIME_ZONE = "America/Phoenix";
 
 const DEFAULT_SPORT_CATEGORY = {
   label: "College News",
@@ -90,16 +89,6 @@ function TeamPostImage({
       quality={quality}
       sizes={sizes}
     />
-  );
-}
-
-export function TeamRelativeDate({ dateString }: { dateString: string }) {
-  const date = toZonedTime(parseISO(dateString), TIME_ZONE);
-
-  return (
-    <time dateTime={dateString} suppressHydrationWarning>
-      {formatRelativeTime(date)}
-    </time>
   );
 }
 
