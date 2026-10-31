@@ -10,10 +10,12 @@ import {
 const {
   mockResolveDynamicFetchOptions,
   mockSanityFetch,
+  mockFetchGlobalSeoSettings,
   mockGetCachedNavbarLatestRankings,
 } = vi.hoisted(() => ({
   mockResolveDynamicFetchOptions: vi.fn(),
   mockSanityFetch: vi.fn(),
+  mockFetchGlobalSeoSettings: vi.fn(),
   mockGetCachedNavbarLatestRankings: vi.fn(),
 }));
 
@@ -21,12 +23,16 @@ vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
   resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
 }));
 
+vi.mock("@/lib/global-seo-settings", () => ({
+  fetchGlobalSeoSettings: mockFetchGlobalSeoSettings,
+}));
+
 vi.mock("@redshirt-sports/sanity/live", () => ({
   PUBLISHED_FETCH_OPTIONS: {
     perspective: "published",
     stega: false,
   },
-  sanityFetch: mockSanityFetch,
+  cachedSanity: mockSanityFetch,
 }));
 
 vi.mock("@/lib/rankings-data", () => ({
@@ -89,7 +95,8 @@ describe("NavbarSkeleton", () => {
 describe("CachedNavbarServer", () => {
   beforeEach(() => {
     mockGetCachedNavbarLatestRankings.mockResolvedValue(latestRankings);
-    mockSanityFetch.mockResolvedValue({ data: settingsData });
+    mockSanityFetch.mockResolvedValue({ data: navbarData });
+    mockFetchGlobalSeoSettings.mockResolvedValue(settingsData);
   });
 
   it("fetches navbar data and renders the memoized navbar", async () => {
@@ -99,7 +106,8 @@ describe("CachedNavbarServer", () => {
     });
     render(component);
 
-    expect(mockSanityFetch).toHaveBeenCalledTimes(2);
+    expect(mockSanityFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetchGlobalSeoSettings).toHaveBeenCalledTimes(1);
     expect(mockGetCachedNavbarLatestRankings).toHaveBeenCalled();
     expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
   });

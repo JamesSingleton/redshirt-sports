@@ -9,7 +9,6 @@ const {
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
-  mockGetCachedMostReadPosts,
   mockGetCachedRankingsWidgetPolls,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
@@ -26,7 +25,6 @@ const {
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
-  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
   mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
 }));
 
@@ -46,10 +44,6 @@ vi.mock("@/lib/draft-cache", () => ({
 
 vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
-}));
-
-vi.mock("@/lib/most-read-data", () => ({
-  getCachedMostReadPosts: mockGetCachedMostReadPosts,
 }));
 
 vi.mock("@/lib/rankings-widget-data", () => ({
@@ -147,10 +141,6 @@ vi.mock("@/components/ad-slot", () => ({
   AdSlot: () => <div data-testid="ad-slot" />,
 }));
 
-vi.mock("@/components/most-read-card", () => ({
-  MostReadCard: () => <div data-testid="most-read" />,
-}));
-
 vi.mock("@/components/rankings-widget", () => ({
   RankingsWidget: () => <div data-testid="rankings-widget" />,
 }));
@@ -206,7 +196,6 @@ describe("PostPage", () => {
     mockSanityFetchMetadata.mockReset();
     mockSanityFetchStaticParams.mockReset();
     mockNotFound.mockClear();
-    mockGetCachedMostReadPosts.mockResolvedValue([]);
     mockGetCachedRankingsWidgetPolls.mockResolvedValue([
       { id: "poll-1", label: "FBS" },
     ]);

@@ -1,7 +1,7 @@
 import { urlFor } from "@redshirt-sports/sanity/client";
 import {
+  cachedSanity,
   type DynamicFetchOptions,
-  sanityFetch,
 } from "@redshirt-sports/sanity/live";
 import { querySettingsData } from "@redshirt-sports/sanity/queries";
 import { toPlainText } from "next-sanity";
@@ -489,8 +489,7 @@ export async function CachedCombinedJsonLd({
   perspective,
   stega,
 }: DynamicFetchOptions) {
-  "use cache";
-  const { data: res } = await sanityFetch({
+  const { data: res } = await cachedSanity({
     query: querySettingsData,
     perspective,
     stega,

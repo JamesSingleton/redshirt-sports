@@ -13,6 +13,7 @@ import type { DivisionDisplayMeta } from "@/lib/division-display-meta";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import type { NewsArchiveSearchParams } from "@/lib/news-archive";
+import { divisionNewsMetaDescription } from "@/lib/news-archive/meta-descriptions";
 import { divisionNewsArchivePageFallback } from "@/lib/news-archive/page-loading";
 import { renderNewsArchiveFromFilters } from "@/lib/news-archive/render-from-filters";
 import { getDivisionFeed, getSportFeed } from "@/lib/rss-feed-links";
@@ -52,23 +53,23 @@ export async function generateMetadata({
   }
 
   const baseTitle = `${divisionName} ${sportTitle} News, Updates & Analysis`;
-  const baseDescription = `Complete ${divisionName} ${sportTitle} coverage including breaking news, game analysis, player spotlights, and coaching updates. Your go-to source for ${sportTitle} insights.`;
-
   const baseCanonical = `/college/${sport}/news/${division}`;
 
   const isFirstPage = !page || pageIndex <= 1;
 
   let title: string;
-  let description: string;
   let canonical: string;
+  const description = divisionNewsMetaDescription(
+    divisionName,
+    sportTitle,
+    isFirstPage ? 1 : pageIndex,
+  );
 
   if (isFirstPage) {
     title = baseTitle;
-    description = baseDescription;
     canonical = baseCanonical;
   } else {
     title = `${baseTitle} - Page ${pageIndex}`;
-    description = `More ${divisionName} ${sportTitle} stories on Page ${pageIndex}. Continued coverage of recruiting updates, game previews, injury reports, and in-depth team analysis.`;
     canonical = `${baseCanonical}?page=${pageIndex}`;
   }
 

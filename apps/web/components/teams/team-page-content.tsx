@@ -5,7 +5,6 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { AdSlot } from "@/components/ad-slot";
-import { MostReadCard } from "@/components/most-read-card";
 import CustomImage from "@/components/sanity-image";
 import { TeamInfoLinks } from "@/components/teams/team-info-links";
 import { TeamPollRankInline } from "@/components/teams/team-poll-rank-inline";
@@ -16,7 +15,6 @@ import {
 } from "@/components/teams/team-post-card";
 import { TeamHubLogoTransition } from "@/components/view-transitions/team-hub-logo-transition";
 import type { AdvertisementCreative } from "@/lib/advertisement";
-import type { MostReadItem } from "@/lib/most-read-data";
 import {
   footballAffiliationDivisionSlug,
   groupTeamPostsBySport,
@@ -32,13 +30,11 @@ export function TeamPageContent({
   school,
   posts,
   rankingHistory,
-  mostRead,
   advertisement,
 }: {
   school: NonNullable<SchoolBySlugQueryResult>;
   posts: TeamPost[];
   rankingHistory: SchoolRankingHistory;
-  mostRead: MostReadItem[];
   advertisement: AdvertisementCreative | null;
 }) {
   const teamShortName = school.shortName ?? school.name ?? "Team";
@@ -263,7 +259,6 @@ export function TeamPageContent({
         </div>
 
         <aside className="grid content-start gap-6 lg:sticky lg:top-20 lg:self-start">
-          <MostReadCard items={mostRead} />
           <AdSlot
             placement="team-sidebar"
             creative={advertisement}

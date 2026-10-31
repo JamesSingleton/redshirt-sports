@@ -5,7 +5,7 @@ import {
 } from "@redshirt-sports/clients/espn";
 
 import {
-  getCachedFinalRankings,
+  getCachedFinalRankingsForLegacyWeeksInYear,
   getCachedWeeksThatHaveVotes,
   getCachedYearsThatHaveVotes,
 } from "@/lib/rankings-data";
@@ -67,55 +67,55 @@ export async function getCachedPollHistoryForDivision({
   };
 
   const teamMeta = new Map<string, TeamMeta>();
+  const legacyWeeks = weeksWithVotes.map(({ week }) => week);
+  const rankingsByWeek = await getCachedFinalRankingsForLegacyWeeksInYear({
+    year,
+    division,
+    sport,
+    legacyWeeks,
+  });
 
-  const weekResults = await Promise.allSettled(
-    weeksWithVotes.map(async ({ week }) => {
-      const { rankings } = await getCachedFinalRankings({
-        year,
-        week,
-        division,
-        sport,
-      });
-      const numberOne = rankings.find((t) => t.rank === 1);
-      if (!numberOne) {
-        return null;
-      }
-      const weekSegment = formatWeekSegment(week);
-      const ranksByTeamId = new Map<string, number>();
-      for (const team of rankings) {
-        if (team.rank != null) {
-          ranksByTeamId.set(team._id, team.rank);
-          if (!teamMeta.has(team._id)) {
-            teamMeta.set(team._id, {
-              teamName: team.name,
-              teamShortName: team.shortName,
-              teamSlug: team.slug ?? null,
-            });
-          }
+  const builtWeeks: WeekBuild[] = [];
+  for (const { week } of weeksWithVotes) {
+    const weekRankings = rankingsByWeek.get(week);
+    if (!weekRankings) {
+      continue;
+    }
+
+    const numberOne = weekRankings.rankings.find((team) => team.rank === 1);
+    if (!numberOne) {
+      continue;
+    }
+
+    const weekSegment = formatWeekSegment(week);
+    const ranksByTeamId = new Map<string, number>();
+    for (const team of weekRankings.rankings) {
+      if (team.rank != null) {
+        ranksByTeamId.set(team._id, team.rank);
+        if (!teamMeta.has(team._id)) {
+          teamMeta.set(team._id, {
+            teamName: team.name,
+            teamShortName: team.shortName,
+            teamSlug: team.slug ?? null,
+          });
         }
       }
-      return {
-        week,
-        weekSegment,
-        weekLabel: weekTitle(week),
-        teamId: numberOne._id,
-        teamName: numberOne.name,
-        teamShortName: numberOne.shortName,
-        points: numberOne._points,
-        pollHref: `/college/${sport}/rankings/${division}/${year}/${weekSegment}`,
-        ranksByTeamId,
-      } satisfies WeekBuild;
-    }),
-  );
+    }
 
-  const builtWeeks = weekResults
-    .filter(
-      (result): result is PromiseFulfilledResult<WeekBuild | null> =>
-        result.status === "fulfilled",
-    )
-    .map((result) => result.value)
-    .filter((row): row is WeekBuild => row != null)
-    .sort((a, b) => a.week - b.week);
+    builtWeeks.push({
+      week,
+      weekSegment,
+      weekLabel: weekTitle(week),
+      teamId: numberOne._id,
+      teamName: numberOne.name,
+      teamShortName: numberOne.shortName,
+      points: numberOne._points,
+      pollHref: `/college/${sport}/rankings/${division}/${year}/${weekSegment}`,
+      ranksByTeamId,
+    });
+  }
+
+  builtWeeks.sort((a, b) => a.week - b.week);
 
   if (!builtWeeks.length) {
     return null;

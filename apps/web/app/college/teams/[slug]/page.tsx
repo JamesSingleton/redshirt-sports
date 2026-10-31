@@ -27,7 +27,6 @@ import { DirectionalPageTransition } from "@/components/view-transitions/directi
 import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
-import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import {
   getCachedRankedSchoolSanityIds,
   getCachedSchoolHasPollRankings,
@@ -50,8 +49,12 @@ function defaultTeamPageTitle({
   return `${teamName} Sports Coverage, Recruiting News & Updates`;
 }
 
+import { trimMetaDescription } from "@/lib/meta-description";
+
 function defaultTeamPageDescription(schoolName: string) {
-  return `Your source for ${schoolName} news, recruiting updates, transfer portal coverage, game previews, recaps, analysis, and more.`;
+  return trimMetaDescription(
+    `Your source for ${schoolName} news, recruiting updates, transfer portal coverage, game previews, recaps, and analysis from Redshirt Sports across every level of college athletics.`,
+  );
 }
 
 export async function generateStaticParams() {
@@ -155,7 +158,7 @@ async function renderSchoolTeamPage(
     notFound();
   }
 
-  const [{ data: newsData }, rankingHistory, mostRead] = await Promise.all([
+  const [{ data: newsData }, rankingHistory] = await Promise.all([
     sanityFetchPage({
       query: postsBySchoolQuery,
       params: { schoolId: school._id, from: 0, to: TEAM_PAGE_NEWS_FETCH_SIZE },
@@ -163,7 +166,6 @@ async function renderSchoolTeamPage(
       stega,
     }) as Promise<{ data: StegaBranded<PostsBySchoolQueryResult> | null }>,
     getCachedSchoolRankingHistory(school._id),
-    getCachedMostReadPosts({ perspective, stega }),
   ]);
 
   if (
@@ -197,7 +199,6 @@ async function renderSchoolTeamPage(
           school={school}
           posts={posts}
           rankingHistory={rankingHistory}
-          mostRead={mostRead}
           advertisement={advertisement}
         />
       </div>

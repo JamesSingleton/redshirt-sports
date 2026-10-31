@@ -70,8 +70,10 @@ function divisionLabel(division: string): string {
 async function loadWidgetPoll(
   division: string,
   sport: SportParam,
+  latestForSport: Awaited<
+    ReturnType<typeof getCachedLatestFinalRankingsBySportSlug>
+  >,
 ): Promise<RankingsWidgetPoll | null> {
-  const latestForSport = await getCachedLatestFinalRankingsBySportSlug(sport);
   const latest = latestForSport.find((row) => row.division === division);
   if (!latest) {
     return null;
@@ -133,8 +135,11 @@ export async function getCachedRankingsWidgetPolls(
   sport: SportParam = "football",
 ): Promise<RankingsWidgetPoll[]> {
   const divisions = widgetDivisionsForSport(sport);
+  const latestForSport = await getCachedLatestFinalRankingsBySportSlug(sport);
   const polls = await Promise.all(
-    divisions.map((division) => loadWidgetPoll(division, sport)),
+    divisions.map((division) =>
+      loadWidgetPoll(division, sport, latestForSport),
+    ),
   );
 
   return polls.filter((poll): poll is RankingsWidgetPoll => poll !== null);
@@ -154,9 +159,10 @@ export async function getCachedRankingsIndexCards(
   sport: SportParam,
 ): Promise<RankingsIndexCard[]> {
   const divisions = widgetDivisionsForSport(sport);
+  const latestForSport = await getCachedLatestFinalRankingsBySportSlug(sport);
   const cards = await Promise.all(
     divisions.map(async (division) => {
-      const poll = await loadWidgetPoll(division, sport);
+      const poll = await loadWidgetPoll(division, sport, latestForSport);
       const label = divisionLabel(division);
       const title = `${label} Top 25`;
       if (!poll) {

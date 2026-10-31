@@ -6,7 +6,6 @@ const {
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
-  mockGetCachedMostReadPosts,
   mockGetCachedRankingsWidgetPolls,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
@@ -17,7 +16,6 @@ const {
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
-  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
   mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
 }));
 
@@ -34,10 +32,6 @@ vi.mock("@/lib/draft-cache", () => ({
 
 vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
-}));
-
-vi.mock("@/lib/most-read-data", () => ({
-  getCachedMostReadPosts: mockGetCachedMostReadPosts,
 }));
 
 vi.mock("@/lib/rankings-widget-data", () => ({
@@ -90,7 +84,6 @@ describe("CollegeNewsPage", () => {
   beforeEach(() => {
     mockSanityFetchPage.mockReset();
     mockNotFound.mockClear();
-    mockGetCachedMostReadPosts.mockResolvedValue([]);
     mockGetCachedRankingsWidgetPolls.mockResolvedValue([]);
   });
 

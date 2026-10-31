@@ -16,7 +16,6 @@ import {
   buildArticleBreadcrumbs,
 } from "@/lib/article-page";
 import { getArticleRelatedPosts } from "@/lib/article-related";
-import type { MostReadItem } from "@/lib/most-read-data";
 import type { RankingsWidgetPoll } from "@/lib/rankings-widget-data";
 
 type ArticlePost = NonNullable<QueryPostSlugDataResult>;
@@ -25,14 +24,12 @@ export function ArticlePageContent({
   post,
   slug,
   readingTimeMinutes,
-  mostRead,
   rankingsPolls,
   advertisement,
 }: {
   post: ArticlePost;
   slug: string;
   readingTimeMinutes: number;
-  mostRead: MostReadItem[];
   rankingsPolls: RankingsWidgetPoll[];
   advertisement: AdvertisementCreative | null;
 }) {
@@ -143,7 +140,6 @@ export function ArticlePageContent({
         </article>
 
         <ArticleSidebar
-          mostRead={mostRead}
           rankingsPolls={rankingsPolls}
           moreFromAuthor={moreFromAuthor}
           authorName={primaryAuthor?.archived ? null : primaryAuthor?.name}

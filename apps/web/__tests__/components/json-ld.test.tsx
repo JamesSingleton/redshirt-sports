@@ -27,7 +27,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
     perspective: "published",
     stega: false,
   },
-  sanityFetch: mockSanityFetch,
+  cachedSanity: mockSanityFetch,
 }));
 
 vi.mock("@/lib/get-base-url", () => ({

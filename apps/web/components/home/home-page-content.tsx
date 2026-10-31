@@ -2,13 +2,11 @@ import { cn } from "@redshirt-sports/ui/lib/utils";
 import Link from "next/link";
 
 import { AdSlot } from "@/components/ad-slot";
-import { MostReadCard } from "@/components/most-read-card";
 import { RankingsWidget } from "@/components/rankings-widget";
 import { RelativeTime } from "@/components/relative-time";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import type { AdvertisementCreative } from "@/lib/advertisement";
 import { buildHomeCoverageSections } from "@/lib/home-sections";
-import type { MostReadItem } from "@/lib/most-read-data";
 import type { RankingsWidgetPoll } from "@/lib/rankings-widget-data";
 
 type SanityImage = Parameters<typeof CustomImage>[0]["image"];
@@ -142,13 +140,11 @@ function authorInitials(name?: string | null): string {
 
 export function HomePageContent({
   posts,
-  mostRead,
   rankingsPolls,
   leaderboardAd,
   sidebarAd,
 }: {
   posts: HomePost[];
-  mostRead: MostReadItem[];
   rankingsPolls: RankingsWidgetPoll[];
   leaderboardAd: AdvertisementCreative | null;
   sidebarAd: AdvertisementCreative | null;
@@ -336,7 +332,6 @@ export function HomePageContent({
           aria-label="Sidebar"
         >
           <RankingsWidget polls={rankingsPolls} />
-          <MostReadCard items={mostRead} />
           <AdSlot placement="home-sidebar" creative={sidebarAd} />
         </aside>
       </section>

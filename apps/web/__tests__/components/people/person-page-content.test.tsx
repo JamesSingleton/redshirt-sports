@@ -19,10 +19,6 @@ vi.mock("@/components/pagination-controls", () => ({
   default: () => <nav data-testid="pagination" />,
 }));
 
-vi.mock("@/components/most-read-card", () => ({
-  MostReadCard: () => <div data-testid="most-read" />,
-}));
-
 vi.mock("@/components/news/archive-published-time", () => ({
   ArchivePublishedTime: ({ dateString }: { dateString: string }) => (
     <time>{dateString}</time>
@@ -54,7 +50,6 @@ describe("PersonPageContent", () => {
         ]}
         totalPosts={1}
         pageIndex={1}
-        mostRead={[]}
       />,
     );
 
@@ -69,7 +64,6 @@ describe("PersonPageContent", () => {
         posts={[]}
         totalPosts={0}
         pageIndex={1}
-        mostRead={[]}
       />,
     );
 
@@ -77,7 +71,7 @@ describe("PersonPageContent", () => {
     expect(screen.queryByTestId("pagination")).not.toBeInTheDocument();
   });
 
-  it("renders articles, voter link, pagination, and sidebar", () => {
+  it("renders articles, voter link, and pagination", () => {
     render(
       <PersonPageContent
         author={author}
@@ -94,7 +88,6 @@ describe("PersonPageContent", () => {
         ]}
         totalPosts={13}
         pageIndex={2}
-        mostRead={[{ _id: "mr-1", slug: "hot-story", title: "Hot" }]}
         voterBallotHref="/ballots/jane"
         voterBallotLabel="View ballots"
       />,
@@ -111,6 +104,5 @@ describe("PersonPageContent", () => {
       "/story-title",
     );
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
-    expect(screen.getByTestId("most-read")).toBeInTheDocument();
   });
 });

@@ -14,6 +14,7 @@ import { getCachedBallotsByVoterCards } from "@/lib/ballots-by-voter-data";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
+import { rankingsBallotsByVoterMetaDescription } from "@/lib/rankings/meta-descriptions";
 import { loadRankingsWeekShell } from "@/lib/rankings-week-shell";
 
 export async function generateMetadata({
@@ -40,7 +41,12 @@ export async function generateMetadata({
   return getPageMetadata(
     {
       title: `${year} ${shell.titleWeek} ${shell.divisionName} ${shell.sportLabel} Ballots by voter`,
-      description: `Each voter's full ${shell.sportLabel} ${shell.divisionName} Top 25 ballot for ${shell.titleWeek} ${year}.`,
+      description: rankingsBallotsByVoterMetaDescription(
+        shell.sportLabel,
+        shell.divisionName,
+        shell.titleWeek,
+        year,
+      ),
       slug: `${shell.weekPath}/ballots/by-voter`,
     },
     fetchOptions.perspective,
@@ -110,7 +116,12 @@ async function renderByVoterPage(
         data={buildIndexedPageJsonLd({
           pageType: "CollectionPage",
           name: `${year} ${shell.titleWeek} ${shell.divisionName} ${shell.sportLabel} Ballots by voter`,
-          description: `Each voter's full ${shell.sportLabel} ${shell.divisionName} Top 25 ballot for ${shell.titleWeek} ${year}.`,
+          description: rankingsBallotsByVoterMetaDescription(
+            shell.sportLabel,
+            shell.divisionName,
+            shell.titleWeek,
+            year,
+          ),
           path: shell.byVoterHref,
           breadcrumbs: [
             { name: "Home", path: "/" },

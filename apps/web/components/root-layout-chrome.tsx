@@ -27,12 +27,7 @@ export async function DraftAwareLiveAndEditing() {
   const isDraftMode = (await draftMode()).isEnabled;
   return (
     <>
-      <SanityLive
-        includeDrafts={isDraftMode}
-        waitFor={
-          process.env.VERCEL_ENV === "production" ? "function" : undefined
-        }
-      />
+      <SanityLive includeDrafts={isDraftMode} />
       {isDraftMode ? (
         <>
           <VisualEditing />

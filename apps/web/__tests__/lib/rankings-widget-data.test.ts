@@ -66,6 +66,9 @@ describe("rankings widget data", () => {
     const polls = await getCachedRankingsWidgetPolls("football");
     expect(polls.length).toBeGreaterThan(0);
     expect(polls[0]?.teams[0]?.shortName).toBe("Alabama");
+    expect(mockGetCachedLatestFinalRankingsBySportSlug).toHaveBeenCalledTimes(
+      1,
+    );
   });
 
   it("getCachedRankingsIndexCards omits divisions without rankings", async () => {

@@ -164,21 +164,6 @@ describe("RootLayout", () => {
     expect(mockConnection).toHaveBeenCalled();
   });
 
-  it("waits for Sanity functions in production", async () => {
-    const originalEnv = process.env.VERCEL_ENV;
-    process.env.VERCEL_ENV = "production";
-    try {
-      const layout = await RootLayout({ children: <div>Page content</div> });
-      render(layout);
-      expect(screen.getByTestId("sanity-live")).toHaveAttribute(
-        "data-wait-for",
-        "function",
-      );
-    } finally {
-      process.env.VERCEL_ENV = originalEnv;
-    }
-  });
-
   it("streams draft chrome behind Suspense", async () => {
     mockDraftMode.mockResolvedValue({ isEnabled: true });
     const layout = await RootLayout({ children: <div>Page content</div> });
@@ -232,7 +217,7 @@ describe("DraftAware layout chrome", () => {
     expect(screen.getByTestId("disable-draft")).toBeInTheDocument();
   });
 
-  it("uses production waitFor mode for SanityLive when VERCEL_ENV is production", async () => {
+  it("does not force SanityLive waitFor=function in production", async () => {
     const originalEnv = process.env.VERCEL_ENV;
     process.env.VERCEL_ENV = "production";
 
@@ -240,7 +225,7 @@ describe("DraftAware layout chrome", () => {
 
     expect(screen.getByTestId("sanity-live")).toHaveAttribute(
       "data-wait-for",
-      "function",
+      "",
     );
     process.env.VERCEL_ENV = originalEnv;
   });

@@ -2,6 +2,7 @@ import type { SportParam } from "@redshirt-sports/clients/espn";
 import {
   countBallotsForPollWeek,
   getBallotsListedBySanityIdForPollWeek,
+  getFinalRankingsForLegacyWeeksInYear,
   getFinalRankingsForWeekAndYear,
   getLatestFinalRankings,
   getLatestFinalRankingsBySportSlug,
@@ -132,6 +133,33 @@ export async function getCachedFinalRankings({
   );
   cacheLife(RANKINGS_CACHE_LIFE);
   return getFinalRankingsForWeekAndYear({ year, week, division, sport });
+}
+
+export async function getCachedFinalRankingsForLegacyWeeksInYear({
+  year,
+  division,
+  sport,
+  legacyWeeks,
+}: {
+  year: number;
+  division: string;
+  sport: SportParam;
+  legacyWeeks: number[];
+}) {
+  "use cache";
+  cacheTag(
+    RANKINGS_CACHE_TAG,
+    rankingsSportTag(sport),
+    rankingsDivisionTag(sport, division),
+    rankingsDivisionWeeksTag(division, year),
+  );
+  cacheLife(RANKINGS_CACHE_LIFE);
+  return getFinalRankingsForLegacyWeeksInYear({
+    year,
+    division,
+    sport,
+    legacyWeeks,
+  });
 }
 
 export async function getCachedLatestFinalRankings({

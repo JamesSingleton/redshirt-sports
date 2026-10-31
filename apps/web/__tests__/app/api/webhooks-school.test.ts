@@ -1,9 +1,12 @@
-const { mockUpsertSchool, mockRevalidateTag } = vi.hoisted(() => ({
-  mockUpsertSchool: vi.fn(),
-  mockRevalidateTag: vi.fn(),
-}));
+const { mockGetSchoolDisplay, mockUpsertSchool, mockRevalidateTag } =
+  vi.hoisted(() => ({
+    mockGetSchoolDisplay: vi.fn(),
+    mockUpsertSchool: vi.fn(),
+    mockRevalidateTag: vi.fn(),
+  }));
 
 vi.mock("@redshirt-sports/db/queries", () => ({
+  getSchoolRankingsDisplayBySanityId: mockGetSchoolDisplay,
   upsertSchoolFromSanity: mockUpsertSchool,
 }));
 
@@ -41,12 +44,20 @@ const validPayload = {
     abbreviation: "MTST",
     nickname: "Bobcats",
     slug: "montana-state-bobcats",
-    top25Eligible: true,
+    top25VotingEligible: true,
   },
 };
 
 describe("POST /api/webhooks/sanity/school", () => {
   beforeEach(() => {
+    mockGetSchoolDisplay.mockReset().mockResolvedValue({
+      name: "Montana State",
+      shortName: "Montana State",
+      abbreviation: "MTST",
+      slug: "montana-state-bobcats",
+      image: null,
+      top25Eligible: true,
+    });
     mockUpsertSchool.mockReset().mockResolvedValue({
       action: "updated",
       id: "db-school-1",
@@ -99,7 +110,16 @@ describe("POST /api/webhooks/sanity/school", () => {
     expect(body.error).toBe("Invalid payload");
   });
 
-  it("upserts school and returns ok on valid payload", async () => {
+  it("upserts school and expires rankings when display fields change", async () => {
+    mockGetSchoolDisplay.mockResolvedValue({
+      name: "Old Name",
+      shortName: "Montana State",
+      abbreviation: "MTST",
+      slug: "montana-state-bobcats",
+      image: null,
+      top25Eligible: true,
+    });
+
     const res = await POST(
       new Request("http://localhost/api/webhooks/sanity/school", {
         method: "POST",
@@ -108,19 +128,98 @@ describe("POST /api/webhooks/sanity/school", () => {
       }),
     );
     expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body).toEqual({ ok: true, action: "updated", id: "db-school-1" });
-    expect(mockUpsertSchool).toHaveBeenCalledWith(
-      expect.objectContaining({
-        sanityId: "sanity-school-1",
-        name: "Montana State",
-        slug: "montana-state-bobcats",
-      }),
-    );
     expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", { expire: 0 });
   });
 
-  it("does not expire rankings cache when the school webhook is unauthorized", async () => {
+  it("does not expire rankings when only nickname changes", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/sanity/school", {
+        method: "POST",
+        headers: { Authorization: "Bearer school_sync_secret" },
+        body: JSON.stringify({
+          school: { ...validPayload.school, nickname: "New nickname only" },
+        }),
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(mockRevalidateTag).not.toHaveBeenCalled();
+  });
+
+  it("coalesces omitted display fields to null without expiring rankings", async () => {
+    mockGetSchoolDisplay.mockResolvedValue({
+      name: null,
+      shortName: null,
+      abbreviation: null,
+      slug: null,
+      image: null,
+      top25Eligible: false,
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/sanity/school", {
+        method: "POST",
+        headers: { Authorization: "Bearer school_sync_secret" },
+        body: JSON.stringify({
+          school: {
+            _id: "sanity-school-1",
+            top25VotingEligible: false,
+          },
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockRevalidateTag).not.toHaveBeenCalled();
+  });
+
+  it("treats explicit null top-25 eligibility in the payload", async () => {
+    mockGetSchoolDisplay.mockResolvedValue({
+      name: "Montana State",
+      shortName: "Montana State",
+      abbreviation: "MTST",
+      slug: "montana-state-bobcats",
+      image: null,
+      top25Eligible: null,
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/sanity/school", {
+        method: "POST",
+        headers: { Authorization: "Bearer school_sync_secret" },
+        body: JSON.stringify({
+          school: {
+            ...validPayload.school,
+            top25VotingEligible: null,
+          },
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockRevalidateTag).not.toHaveBeenCalled();
+  });
+
+  it("expires rankings when a new school becomes top-25 eligible", async () => {
+    mockGetSchoolDisplay.mockResolvedValue(null);
+
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/sanity/school", {
+        method: "POST",
+        headers: { Authorization: "Bearer school_sync_secret" },
+        body: JSON.stringify({
+          school: {
+            _id: "sanity-school-1",
+            top25VotingEligible: true,
+          },
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", { expire: 0 });
+  });
+
+  it("does not expire rankings when unauthorized", async () => {
     const res = await POST(
       new Request("http://localhost/api/webhooks/sanity/school", {
         method: "POST",

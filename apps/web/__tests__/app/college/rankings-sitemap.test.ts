@@ -60,7 +60,7 @@ describe("college rankings sitemap", () => {
     expect(urls).toContain(
       "https://redshirtsports.com/college/football/rankings/fbs/2025/0",
     );
-    expect(urls).toContain(
+    expect(urls).not.toContain(
       "https://redshirtsports.com/college/football/rankings/fbs/2025/0/ballots",
     );
     expect(urls).toContain(

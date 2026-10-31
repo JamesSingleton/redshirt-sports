@@ -8,7 +8,6 @@ const {
   mockGetPageMetadata,
   mockRedirect,
   mockNotFound,
-  mockGetCachedMostReadPosts,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
   mockSanityFetchMetadata: vi.fn(),
@@ -22,7 +21,6 @@ const {
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
-  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
@@ -41,10 +39,6 @@ vi.mock("@/lib/draft-cache", () => ({
 
 vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
-}));
-
-vi.mock("@/lib/most-read-data", () => ({
-  getCachedMostReadPosts: mockGetCachedMostReadPosts,
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -97,10 +91,6 @@ vi.mock("@/components/sanity-image", () => ({
   __esModule: true,
   default: () => <img alt="" />,
   IMAGE_SIZES: { articleCard: "144px" },
-}));
-
-vi.mock("@/components/most-read-card", () => ({
-  MostReadCard: () => <div data-testid="most-read" />,
 }));
 
 vi.mock("@/components/news/archive-published-time", () => ({
