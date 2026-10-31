@@ -14,6 +14,7 @@ import {
   fetchGlobalSeoSettings,
   getPageMetadata,
 } from "@/lib/global-seo-settings";
+import { contactPageMetaDescription } from "@/lib/page-meta-descriptions";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return getPageMetadata(
     {
       title: "Contact",
-      description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME} for tips, corrections, advertising, or poll questions.`,
+      description: contactPageMetaDescription(),
       slug: "/contact",
     },
     perspective,
@@ -35,7 +36,7 @@ const contactPageJsonLd: WithContext<ContactPageJsonLd> = {
   "@type": "ContactPage",
   "@id": `${baseUrl}/contact`,
   name: "Contact",
-  description: `Contact ${process.env.NEXT_PUBLIC_APP_NAME}.`,
+  description: contactPageMetaDescription(),
   url: `${baseUrl}/contact`,
   isPartOf: {
     "@type": "WebSite",

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { draftAwareSearchParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import type { NewsArchiveSearchParams } from "@/lib/news-archive";
+import { collegeNewsMetaDescription } from "@/lib/news-archive/meta-descriptions";
 import { collegeNewsArchivePageFallback } from "@/lib/news-archive/page-loading";
 import { renderNewsArchiveFromFilters } from "@/lib/news-archive/render-from-filters";
 
@@ -17,17 +18,14 @@ export async function generateMetadata({
   const { perspective } = await getDynamicFetchOptions();
 
   let title: string;
-  let description: string;
+  const description = collegeNewsMetaDescription(pageIndex);
   let canonicalUrl = "/college/news";
 
   if (pageIndex > 1) {
     title = `College News - Page ${pageIndex}`;
-    description = `Page ${pageIndex} of college sports news from ${process.env.NEXT_PUBLIC_APP_NAME}.`;
     canonicalUrl = `${canonicalUrl}?page=${pageIndex}`;
   } else {
     title = "College News";
-    description =
-      "Every Redshirt story across college football and basketball, newest first.";
   }
 
   return getPageMetadata(

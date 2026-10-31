@@ -13,9 +13,6 @@ const { mockSanityFetchPage, mockGetDynamicFetchOptions } = vi.hoisted(() => ({
   }),
 }));
 
-const mockGetCachedMostReadPosts = vi.hoisted(() =>
-  vi.fn().mockResolvedValue([]),
-);
 const mockGetCachedRankingsWidgetPolls = vi.hoisted(() =>
   vi.fn().mockResolvedValue([]),
 );
@@ -26,10 +23,6 @@ vi.mock("next/headers", () => ({
 
 vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
-}));
-
-vi.mock("@/lib/most-read-data", () => ({
-  getCachedMostReadPosts: mockGetCachedMostReadPosts,
 }));
 
 vi.mock("@/lib/rankings-widget-data", () => ({
@@ -44,16 +37,13 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
 vi.mock("@/components/home/home-page-content", () => ({
   HomePageContent: ({
     posts,
-    mostRead,
     rankingsPolls,
   }: {
     posts: { title: string }[];
-    mostRead: unknown[];
     rankingsPolls: unknown[];
   }) => (
     <div data-testid="home-page-content">
       <span data-testid="post-count">{posts.length}</span>
-      <span data-testid="most-read-count">{mostRead.length}</span>
       <span data-testid="rankings-poll-count">{rankingsPolls.length}</span>
       {posts[0]?.title ? <span>{posts[0].title}</span> : null}
     </div>
@@ -103,7 +93,6 @@ const mockFetch = mockSanityFetchPage as Mock;
 
 beforeEach(() => {
   mockFetch.mockResolvedValue({ data: [] });
-  mockGetCachedMostReadPosts.mockResolvedValue([]);
   mockGetCachedRankingsWidgetPolls.mockResolvedValue([]);
 });
 
@@ -131,9 +120,6 @@ describe("HomePage", () => {
     };
 
     mockFetch.mockResolvedValueOnce({ data: [article] });
-    mockGetCachedMostReadPosts.mockResolvedValueOnce([
-      { title: "Popular", slug: "popular", href: "/p" },
-    ]);
     mockGetCachedRankingsWidgetPolls.mockResolvedValueOnce([
       { division: "fcs", label: "FCS" },
     ]);
@@ -147,7 +133,6 @@ describe("HomePage", () => {
     expect(screen.getByTestId("home-page-content")).toBeInTheDocument();
     expect(screen.getByTestId("post-count")).toHaveTextContent("1");
     expect(screen.getByText("Test Article")).toBeInTheDocument();
-    expect(screen.getByTestId("most-read-count")).toHaveTextContent("1");
     expect(screen.getByTestId("rankings-poll-count")).toHaveTextContent("1");
   });
 

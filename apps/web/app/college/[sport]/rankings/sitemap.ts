@@ -3,9 +3,12 @@ import {
   type SportParam,
 } from "@redshirt-sports/clients/espn";
 import { getYearsWithVotes, listSports } from "@redshirt-sports/db/queries";
+import { RANKINGS_CACHE_TAG } from "@redshirt-sports/db/rankings-cache-tags";
 import type { MetadataRoute } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 
 import { getBaseUrl } from "@/lib/get-base-url";
+import { RANKINGS_CACHE_LIFE } from "@/lib/rankings-data";
 import { SPORT_SLUG_MAP } from "@/lib/vote-ballot";
 
 const baseUrl = getBaseUrl();
@@ -16,11 +19,15 @@ function sportParam(slug: string): SportParam | null {
 
 async function fetchYearsWithVotesForSitemap() {
   "use cache";
+  cacheTag(RANKINGS_CACHE_TAG);
+  cacheLife(RANKINGS_CACHE_LIFE);
   return getYearsWithVotes();
 }
 
 async function fetchSportsForSitemap() {
   "use cache";
+  cacheTag(RANKINGS_CACHE_TAG);
+  cacheLife(RANKINGS_CACHE_LIFE);
   return listSports();
 }
 
@@ -54,11 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const weekSegment = formatWeekSegment(week);
     const base = `${baseUrl}/college/${sport}/rankings/${division}/${year}/${weekSegment}`;
-    weekEntries.push(
-      { url: base, priority: 0.7 },
-      { url: `${base}/ballots`, priority: 0.65 },
-      { url: `${base}/ballots/by-voter`, priority: 0.6 },
-    );
+    weekEntries.push({ url: base, priority: 0.7 });
   }
 
   const divisionEntries: MetadataRoute.Sitemap = [];

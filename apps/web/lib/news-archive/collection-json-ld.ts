@@ -2,6 +2,12 @@ import type { CollectionPage, WithContext } from "schema-dts";
 
 import type { HomePost } from "@/components/home/home-page-content";
 import { getBaseUrl } from "@/lib/get-base-url";
+import {
+  collegeNewsMetaDescription,
+  conferenceNewsMetaDescription,
+  divisionNewsMetaDescription,
+  sportNewsMetaDescription,
+} from "@/lib/news-archive/meta-descriptions";
 
 const baseUrl = getBaseUrl();
 const websiteId = `${baseUrl}/#website`;
@@ -30,7 +36,11 @@ export function buildDivisionNewsCollectionJsonLd({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: `${divisionTitle} ${sportTitle} News`,
-    description: `Stay informed with breaking ${divisionOrSubgroupingName} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
+    description: divisionNewsMetaDescription(
+      divisionOrSubgroupingName,
+      sportTitle ?? sport,
+      pageIndex,
+    ),
     url: `${baseUrl}/college/${sport}/news/${division}${pageIndex > 1 ? `?page=${pageIndex}` : ""}`,
     isPartOf: { "@id": websiteId, "@type": "WebSite" },
     publisher: { "@id": organizationId, "@type": "Organization" },
@@ -101,8 +111,7 @@ export function buildCollegeNewsCollectionJsonLd({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "College News",
-    description:
-      "Every Redshirt story across college football and basketball, newest first.",
+    description: collegeNewsMetaDescription(pageIndex),
     url: `${baseUrl}${path}`,
     isPartOf: { "@id": websiteId, "@type": "WebSite" },
     publisher: { "@id": organizationId, "@type": "Organization" },
@@ -146,7 +155,7 @@ export function buildSportNewsCollectionJsonLd({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name,
-    description: `Every ${sportTitle ?? sport} story, newest first.`,
+    description: sportNewsMetaDescription(sportTitle ?? sport, pageIndex),
     url: `${baseUrl}${path}`,
     isPartOf: { "@id": websiteId, "@type": "WebSite" },
     publisher: { "@id": organizationId, "@type": "Organization" },
@@ -212,7 +221,12 @@ export function buildConferenceNewsCollectionJsonLd({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: title,
-    description: `Stay informed with breaking ${conferenceShortName ?? conferenceName} ${divisionOrSubgroupingName} ${sportTitle} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`,
+    description: conferenceNewsMetaDescription(
+      conferenceShortName ?? conferenceName,
+      divisionOrSubgroupingName,
+      sportTitle ?? sport,
+      pageIndex,
+    ),
     url: `${baseUrl}/college/${sport}/news/${division}/${conference}${pageIndex > 1 ? `?page=${pageIndex}` : ""}`,
     isPartOf: { "@id": websiteId, "@type": "WebSite" },
     publisher: { "@id": organizationId, "@type": "Organization" },

@@ -2,6 +2,7 @@ const {
   mockGetYearsThatHaveVotes,
   mockGetWeeksThatHaveVotes,
   mockGetFinalRankingsForWeekAndYear,
+  mockGetFinalRankingsForLegacyWeeksInYear,
   mockGetSchoolRankingHistory,
   mockSchoolHasPollRankings,
   mockGetRankedSchoolSanityIds,
@@ -20,6 +21,7 @@ const {
   mockGetYearsThatHaveVotes: vi.fn(),
   mockGetWeeksThatHaveVotes: vi.fn(),
   mockGetFinalRankingsForWeekAndYear: vi.fn(),
+  mockGetFinalRankingsForLegacyWeeksInYear: vi.fn(),
   mockGetSchoolRankingHistory: vi.fn(),
   mockSchoolHasPollRankings: vi.fn(),
   mockGetRankedSchoolSanityIds: vi.fn(),
@@ -45,6 +47,8 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   getYearsThatHaveVotes: mockGetYearsThatHaveVotes,
   getWeeksThatHaveVotes: mockGetWeeksThatHaveVotes,
   getFinalRankingsForWeekAndYear: mockGetFinalRankingsForWeekAndYear,
+  getFinalRankingsForLegacyWeeksInYear:
+    mockGetFinalRankingsForLegacyWeeksInYear,
   getSchoolRankingHistory: mockGetSchoolRankingHistory,
   schoolHasPollRankings: mockSchoolHasPollRankings,
   getRankedSchoolSanityIds: mockGetRankedSchoolSanityIds,
@@ -65,6 +69,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
 import {
   getCachedActivePollVoters,
   getCachedFinalRankings,
+  getCachedFinalRankingsForLegacyWeeksInYear,
   getCachedLatestFinalRankings,
   getCachedLatestFinalRankingsBySportSlug,
   getCachedNavbarLatestRankings,
@@ -133,6 +138,24 @@ describe("rankings-data", () => {
         sport: "football",
       }),
     ).resolves.toEqual([]);
+  });
+
+  it("getCachedFinalRankingsForLegacyWeeksInYear delegates to db", async () => {
+    mockGetFinalRankingsForLegacyWeeksInYear.mockResolvedValue(new Map());
+    await expect(
+      getCachedFinalRankingsForLegacyWeeksInYear({
+        year: 2025,
+        division: "fbs",
+        sport: "football",
+        legacyWeeks: [1, 2, 3],
+      }),
+    ).resolves.toEqual(new Map());
+    expect(mockGetFinalRankingsForLegacyWeeksInYear).toHaveBeenCalledWith({
+      year: 2025,
+      division: "fbs",
+      sport: "football",
+      legacyWeeks: [1, 2, 3],
+    });
   });
 
   it("getCachedSchoolRankingHistory delegates to db", async () => {

@@ -13,6 +13,7 @@ import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { formatVoterSince } from "@/lib/format-voter-since";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
+import { rankingsVotersMetaDescription } from "@/lib/rankings/meta-descriptions";
 import {
   getCachedActivePollVoters,
   getCachedLatestFinalRankings,
@@ -35,7 +36,7 @@ export async function generateMetadata({
   return getPageMetadata(
     {
       title: `${sportLabel} ${divisionName} Poll Voters`,
-      description: `Meet the credentialed voters on the ${sportLabel} ${divisionName} Top 25 panel.`,
+      description: rankingsVotersMetaDescription(sportLabel, divisionName),
       slug: `/college/${sport}/rankings/${division}/voters`,
     },
     "published",
@@ -123,7 +124,7 @@ async function renderVotersPage({
         data={buildIndexedPageJsonLd({
           pageType: "CollectionPage",
           name: `${sportLabel} ${divisionName} Poll Voters`,
-          description: `Meet the credentialed voters on the ${sportLabel} ${divisionName} Top 25 panel.`,
+          description: rankingsVotersMetaDescription(sportLabel, divisionName),
           path: votersPath,
           breadcrumbs: [
             { name: "Home", path: "/" },

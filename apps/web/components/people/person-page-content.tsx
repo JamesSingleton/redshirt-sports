@@ -4,12 +4,10 @@ import Link from "next/link";
 
 import { SiteBreadcrumb } from "@/components/chrome/site-breadcrumb";
 import { SiteSocialButtons } from "@/components/contact/site-social-buttons";
-import { MostReadCard } from "@/components/most-read-card";
 import { ArchivePublishedTime } from "@/components/news/archive-published-time";
 import PaginationControls from "@/components/pagination-controls";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { perPage } from "@/lib/constants";
-import type { MostReadItem } from "@/lib/most-read-data";
 import { postArchiveKicker } from "@/lib/news-archive";
 
 type PersonAuthor = {
@@ -43,7 +41,6 @@ export function PersonPageContent({
   posts,
   totalPosts,
   pageIndex,
-  mostRead,
   voterBallotHref,
   voterBallotLabel,
 }: {
@@ -51,7 +48,6 @@ export function PersonPageContent({
   posts: PersonPost[];
   totalPosts: number;
   pageIndex: number;
-  mostRead: MostReadItem[];
   voterBallotHref?: string | null;
   voterBallotLabel?: string | null;
 }) {
@@ -154,7 +150,7 @@ export function PersonPageContent({
     <>
       {hero}
       <div className="mx-auto max-w-site px-4 lg:px-6">
-        <div className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="pt-6">
           <div>
             <div className="flex items-center justify-between border-b pb-3">
               <h2 className="font-display text-2xl font-extrabold uppercase">
@@ -225,9 +221,6 @@ export function PersonPageContent({
               </div>
             ) : null}
           </div>
-          <aside className="grid content-start gap-6" aria-label="Sidebar">
-            {mostRead.length > 0 ? <MostReadCard items={mostRead} /> : null}
-          </aside>
         </div>
       </div>
     </>

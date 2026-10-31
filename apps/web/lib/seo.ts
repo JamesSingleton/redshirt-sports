@@ -1,6 +1,7 @@
 import { urlFor } from "@redshirt-sports/sanity/client";
 import type { Metadata } from "next";
 
+import { trimMetaDescription } from "@/lib/meta-description";
 import { getBaseUrl } from "./get-base-url";
 import { getSiteFeed, type RssFeedLink } from "./rss-feed-links";
 
@@ -187,8 +188,9 @@ export function getSEOMetadata(data: PageMetadataInput = {}): Metadata {
     : TWITTER_HANDLE;
 
   const metaTitle = seoTitle ?? ogTitle ?? title ?? DEFAULT_META_TITLE;
-  const metaDescription =
-    seoDescription ?? ogDescription ?? description ?? DEFAULT_META_DESCRIPTION;
+  const metaDescription = trimMetaDescription(
+    seoDescription ?? ogDescription ?? description ?? DEFAULT_META_DESCRIPTION,
+  );
 
   const brandName = siteBrand ?? SITE_BRAND;
   const fullTitle = `${metaTitle} | ${brandName}`;

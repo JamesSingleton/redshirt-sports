@@ -13,6 +13,7 @@ import {
   getCachedPollHistoryForDivision,
   getCachedPollHistoryYears,
 } from "@/lib/poll-history-data";
+import { rankingsHistoryMetaDescription } from "@/lib/rankings/meta-descriptions";
 import { getCachedLatestFinalRankings } from "@/lib/rankings-data";
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { pollDivisionLabel } from "@/lib/rankings-widget-data";
@@ -29,7 +30,7 @@ export async function generateMetadata({
   return getPageMetadata(
     {
       title: `${sportLabel} ${divisionName} Poll History`,
-      description: `Weekly No. 1 teams and poll history for the ${sportLabel} ${divisionName} Top 25.`,
+      description: rankingsHistoryMetaDescription(sportLabel, divisionName),
       slug: `/college/${sport}/rankings/${division}/history`,
     },
     "published",
@@ -95,7 +96,7 @@ async function renderHistoryPage(
         data={buildIndexedPageJsonLd({
           pageType: "CollectionPage",
           name: `${sportLabel} ${divisionName} Poll History`,
-          description: `Weekly No. 1 teams and poll history for the ${sportLabel} ${divisionName} Top 25.`,
+          description: rankingsHistoryMetaDescription(sportLabel, divisionName),
           path: query.year ? `${historyPath}?year=${yearNumber}` : historyPath,
           breadcrumbs: [
             { name: "Home", path: "/" },

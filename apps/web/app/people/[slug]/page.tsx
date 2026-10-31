@@ -19,7 +19,7 @@ import { perPage } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
-import { getCachedMostReadPosts } from "@/lib/most-read-data";
+import { personArchiveMetaDescription } from "@/lib/page-meta-descriptions";
 import { personHref } from "@/lib/person-href";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { validatePageIndex } from "@/utils/validate-page-index";
@@ -47,18 +47,24 @@ export async function generateMetadata({
 
   const roles = author.roles.join(", ");
   let canonical = personHref(slug);
+  let pageIndex = 1;
 
   let title = `${author.name} - ${roles}`;
-  let description = `Read articles by ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}.`;
 
   if (page && typeof page === "string") {
-    const pageNum = validatePageIndex(page);
-    if (pageNum > 1) {
-      canonical = `${personHref(slug)}?page=${pageNum}`;
-      title = `${author.name} - ${roles} (Page ${pageNum})`;
-      description = `Page ${pageNum} of articles by ${author.name}, ${roles} at ${process.env.NEXT_PUBLIC_APP_NAME}.`;
+    pageIndex = validatePageIndex(page);
+    if (pageIndex > 1) {
+      canonical = `${personHref(slug)}?page=${pageIndex}`;
+      title = `${author.name} - ${roles} (Page ${pageIndex})`;
     }
   }
+
+  const description = personArchiveMetaDescription({
+    name: author.name,
+    roles,
+    biography: author.biography,
+    pageIndex,
+  });
 
   return getPageMetadata(
     {
@@ -102,23 +108,20 @@ async function cachedRenderPersonPage({
   const to = pageIndex * perPage;
   const profileUrl = `${baseUrl}${personHref(slug)}`;
 
-  const [{ data: author }, { data: authorPosts }, mostRead] = await Promise.all(
-    [
-      sanityFetchPage({
-        query: authorBySlug,
-        params: { slug },
-        perspective,
-        stega,
-      }),
-      sanityFetchPage({
-        query: postsByAuthor,
-        params: { slug, from, to },
-        perspective,
-        stega,
-      }),
-      getCachedMostReadPosts({ perspective, stega }),
-    ],
-  );
+  const [{ data: author }, { data: authorPosts }] = await Promise.all([
+    sanityFetchPage({
+      query: authorBySlug,
+      params: { slug },
+      perspective,
+      stega,
+    }),
+    sanityFetchPage({
+      query: postsByAuthor,
+      params: { slug, from, to },
+      perspective,
+      stega,
+    }),
+  ]);
 
   if (!author) {
     notFound();
@@ -271,7 +274,6 @@ async function cachedRenderPersonPage({
           }))}
         totalPosts={totalPosts}
         pageIndex={pageIndex}
-        mostRead={mostRead}
       />
     </>
   );

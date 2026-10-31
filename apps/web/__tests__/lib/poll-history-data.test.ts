@@ -1,10 +1,10 @@
 const {
   mockGetCachedWeeksThatHaveVotes,
-  mockGetCachedFinalRankings,
+  mockGetCachedFinalRankingsForLegacyWeeksInYear,
   mockGetCachedYearsThatHaveVotes,
 } = vi.hoisted(() => ({
   mockGetCachedWeeksThatHaveVotes: vi.fn(),
-  mockGetCachedFinalRankings: vi.fn(),
+  mockGetCachedFinalRankingsForLegacyWeeksInYear: vi.fn(),
   mockGetCachedYearsThatHaveVotes: vi.fn(),
 }));
 
@@ -15,7 +15,8 @@ vi.mock("next/cache", () => ({
 
 vi.mock("@/lib/rankings-data", () => ({
   getCachedWeeksThatHaveVotes: mockGetCachedWeeksThatHaveVotes,
-  getCachedFinalRankings: mockGetCachedFinalRankings,
+  getCachedFinalRankingsForLegacyWeeksInYear:
+    mockGetCachedFinalRankingsForLegacyWeeksInYear,
   getCachedYearsThatHaveVotes: mockGetCachedYearsThatHaveVotes,
   RANKINGS_CACHE_TAG: "rankings",
   RANKINGS_CACHE_LIFE: {},
@@ -30,6 +31,24 @@ import {
   getCachedPollHistoryYears,
 } from "@/lib/poll-history-data";
 
+function rankingsForWeek(week: number) {
+  return {
+    rankings:
+      week === 1
+        ? []
+        : [
+            {
+              _id: "t1",
+              rank: 1,
+              name: "Alabama",
+              shortName: "Alabama",
+              slug: "alabama",
+              _points: 50,
+            },
+          ],
+  };
+}
+
 describe("poll history data", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -37,21 +56,15 @@ describe("poll history data", () => {
       { week: 1 },
       { week: 2 },
     ]);
-    mockGetCachedFinalRankings.mockImplementation(async ({ week }) => ({
-      rankings:
-        week === 1
-          ? []
-          : [
-              {
-                _id: "t1",
-                rank: 1,
-                name: "Alabama",
-                shortName: "Alabama",
-                slug: "alabama",
-                _points: 50,
-              },
-            ],
-    }));
+    mockGetCachedFinalRankingsForLegacyWeeksInYear.mockImplementation(
+      async ({ legacyWeeks }) => {
+        const map = new Map<number, ReturnType<typeof rankingsForWeek>>();
+        for (const week of legacyWeeks as number[]) {
+          map.set(week, rankingsForWeek(week));
+        }
+        return map;
+      },
+    );
     mockGetCachedYearsThatHaveVotes.mockResolvedValue([2025, 2026]);
   });
 
@@ -66,23 +79,31 @@ describe("poll history data", () => {
     ).resolves.toBeNull();
   });
 
-  it("ignores rejected week fetches", async () => {
-    mockGetCachedFinalRankings.mockImplementation(async ({ week }) => {
-      if (week === 1) {
-        throw new Error("fail");
-      }
-      return {
-        rankings: [
+  it("ignores weeks without a number one", async () => {
+    mockGetCachedFinalRankingsForLegacyWeeksInYear.mockResolvedValue(
+      new Map([
+        [
+          1,
           {
-            _id: "t1",
-            rank: 1,
-            name: "Alabama",
-            shortName: "Alabama",
-            _points: 50,
+            rankings: [],
           },
         ],
-      };
-    });
+        [
+          2,
+          {
+            rankings: [
+              {
+                _id: "t1",
+                rank: 1,
+                name: "Alabama",
+                shortName: "Alabama",
+                _points: 50,
+              },
+            ],
+          },
+        ],
+      ]),
+    );
     const season = await getCachedPollHistoryForDivision({
       sport: "football",
       division: "fbs",
@@ -96,17 +117,38 @@ describe("poll history data", () => {
       { week: 2 },
       { week: 1 },
     ]);
-    mockGetCachedFinalRankings.mockResolvedValue({
-      rankings: [
-        {
-          _id: "t1",
-          rank: 1,
-          name: "Alabama",
-          shortName: "Alabama",
-          _points: 50,
-        },
-      ],
-    });
+    mockGetCachedFinalRankingsForLegacyWeeksInYear.mockResolvedValue(
+      new Map([
+        [
+          1,
+          {
+            rankings: [
+              {
+                _id: "t1",
+                rank: 1,
+                name: "Alabama",
+                shortName: "Alabama",
+                _points: 50,
+              },
+            ],
+          },
+        ],
+        [
+          2,
+          {
+            rankings: [
+              {
+                _id: "t1",
+                rank: 1,
+                name: "Alabama",
+                shortName: "Alabama",
+                _points: 50,
+              },
+            ],
+          },
+        ],
+      ]),
+    );
     const season = await getCachedPollHistoryForDivision({
       sport: "football",
       division: "fbs",
@@ -117,10 +159,13 @@ describe("poll history data", () => {
     expect(season?.weeks[1]?.week).toBe(2);
     expect(season?.teams).toHaveLength(1);
     expect(season?.teams[0]?.ranks).toHaveLength(2);
+    expect(
+      mockGetCachedFinalRankingsForLegacyWeeksInYear,
+    ).toHaveBeenCalledTimes(1);
   });
 
   it("returns null when no weeks produce a number one", async () => {
-    mockGetCachedFinalRankings.mockResolvedValue({ rankings: [] });
+    mockGetCachedFinalRankingsForLegacyWeeksInYear.mockResolvedValue(new Map());
     await expect(
       getCachedPollHistoryForDivision({
         sport: "football",

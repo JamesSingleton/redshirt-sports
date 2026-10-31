@@ -14,6 +14,7 @@ import type { DivisionDisplayMeta } from "@/lib/division-display-meta";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import type { NewsArchiveSearchParams } from "@/lib/news-archive";
+import { conferenceNewsMetaDescription } from "@/lib/news-archive/meta-descriptions";
 import { conferenceNewsArchivePageFallback } from "@/lib/news-archive/page-loading";
 import { renderNewsArchiveFromFilters } from "@/lib/news-archive/render-from-filters";
 import { validatePageIndex } from "@/utils/validate-page-index";
@@ -58,19 +59,21 @@ export async function generateMetadata({
 
   const conferenceName =
     conferenceInfo.data?.shortName ?? conferenceInfo.data?.name;
-  let canonical = `/college/${sport}/news/${division}/${conference}`;
-
   const divisionLabel = (divisionDisplayName?.data as DivisionDisplayMeta)
     ?.displayName;
   const baseTitle = `${conferenceName} ${divisionLabel} ${sportTitle.data.title} News, Updates & Analysis`;
-  const baseDescription = `Stay informed with breaking ${conferenceName} ${divisionLabel} ${sportTitle.data.title} news and in-depth analysis. ${process.env.NEXT_PUBLIC_APP_NAME} delivers comprehensive coverage, articles, and updates you need.`;
+  let canonical = `/college/${sport}/news/${division}/${conference}`;
 
   let finalTitle = baseTitle;
-  let finalDescription = baseDescription;
+  const finalDescription = conferenceNewsMetaDescription(
+    conferenceName ?? conference,
+    divisionLabel ?? division,
+    sportTitle.data.title,
+    pageIndex > 1 ? pageIndex : 1,
+  );
 
   if (pageIndex && pageIndex > 1) {
     finalTitle = `${baseTitle} - Page ${pageIndex}`;
-    finalDescription = `Continue exploring coverage of ${conferenceName} ${divisionLabel} ${sportTitle.data.title} on Page ${pageIndex}. Find more detailed articles, updates, and analysis at ${process.env.NEXT_PUBLIC_APP_NAME}.`;
     canonical = `/college/${sport}/news/${division}/${conference}?page=${pageIndex}`;
   }
 

@@ -16,10 +16,6 @@ vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
 }));
 
-vi.mock("@/lib/most-read-data", () => ({
-  getCachedMostReadPosts: vi.fn().mockResolvedValue([]),
-}));
-
 vi.mock("@/lib/rankings-widget-data", () => ({
   getCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
 }));

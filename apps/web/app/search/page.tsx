@@ -13,6 +13,7 @@ import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import { draftAwareSearchParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { searchPageMetaDescription } from "@/lib/page-meta-descriptions";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return getPageMetadata(
     {
       title: "Search Results",
-      description: `Search ${process.env.NEXT_PUBLIC_APP_NAME} stories across college football and basketball.`,
+      description: searchPageMetaDescription(),
       slug: "/search",
       noIndex: true,
     },

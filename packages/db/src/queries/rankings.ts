@@ -19,8 +19,33 @@ import { getPollBySportAndSlug } from "./polls";
 import { getSportIdBySlug, type SportParam } from "./sports";
 import {
   resolveWeekIdForLegacyWeek,
+  resolveWeekIdsForLegacyWeekLookups,
   seasonTypeAndNumberToLegacyWeek,
+  weekLookupKey,
 } from "./weeks";
+
+/** Omit Sanity LQIP `preview` from school logos in rankings projections. */
+const schoolLogoImage = sql<unknown>`
+  CASE
+    WHEN ${schoolsTable.image} IS NULL THEN NULL
+    ELSE jsonb_strip_nulls(
+      jsonb_build_object(
+        'id', coalesce(
+          ${schoolsTable.image}->>'id',
+          ${schoolsTable.image}->'asset'->>'_ref'
+        ),
+        'alt', coalesce(
+          ${schoolsTable.image}->>'alt',
+          ${schoolsTable.image}->>'caption'
+        ),
+        'width', ${schoolsTable.image}->'width',
+        'height', ${schoolsTable.image}->'height',
+        'hotspot', ${schoolsTable.image}->'hotspot',
+        'crop', ${schoolsTable.image}->'crop'
+      )
+    )
+  END
+`;
 
 type FinalRankings = {
   id: string;
@@ -135,30 +160,7 @@ export async function getFinalRankingsForWeekAndYear({
   });
   if (!weekId) throw new Error("Rankings not found");
 
-  // Project only fields CustomImage/processImageData need. Omit `preview`
-  // (Sanity LQIP data URI) — browsers cannot cache it and it dominated egress.
-  const schoolLogoImage = sql<unknown>`
-    CASE
-      WHEN ${schoolsTable.image} IS NULL THEN NULL
-      ELSE jsonb_strip_nulls(
-        jsonb_build_object(
-          'id', coalesce(
-            ${schoolsTable.image}->>'id',
-            ${schoolsTable.image}->'asset'->>'_ref'
-          ),
-          'alt', coalesce(
-            ${schoolsTable.image}->>'alt',
-            ${schoolsTable.image}->>'caption'
-          ),
-          'width', ${schoolsTable.image}->'width',
-          'height', ${schoolsTable.image}->'height',
-          'hotspot', ${schoolsTable.image}->'hotspot',
-          'crop', ${schoolsTable.image}->'crop'
-        )
-      )
-    END
-  `;
-
+  // Project only fields CustomImage/processImageData need.
   const rows = await db
     .select({
       id: pollRankingsTable.id,
@@ -210,6 +212,154 @@ export async function getFinalRankingsForWeekAndYear({
   };
 }
 
+function mapRankingRowsToFinalRankings({
+  division,
+  year,
+  legacyWeek,
+  rows,
+}: {
+  division: string;
+  year: number;
+  legacyWeek: number;
+  rows: Array<{
+    id: string;
+    rank: number | null;
+    points: number;
+    firstPlaceVotes: number;
+    isTie: boolean;
+    sanityId: string | null;
+    name: string | null;
+    shortName: string | null;
+    abbreviation: string | null;
+    slug: string | null;
+    image: unknown;
+  }>;
+}): FinalRankings {
+  return {
+    id: `${division}:${year}:${legacyWeek}`,
+    division,
+    week: legacyWeek,
+    year,
+    rankings: rows.map((row) => ({
+      _id: row.sanityId ?? "",
+      _points: row.points,
+      name: row.name ?? "",
+      shortName: row.shortName ?? "",
+      abbreviation: row.abbreviation ?? "",
+      slug: row.slug ?? null,
+      image: row.image,
+      rank: row.rank,
+      firstPlaceVotes: row.firstPlaceVotes,
+      isTie: row.isTie,
+    })),
+  };
+}
+
+/** One round trip for every published week in a poll season (poll history matrix). */
+export async function getFinalRankingsForLegacyWeeksInYear({
+  year,
+  division,
+  sport,
+  legacyWeeks,
+}: {
+  year: number;
+  division: string;
+  sport: SportParam;
+  legacyWeeks: number[];
+}): Promise<Map<number, FinalRankings>> {
+  const results = new Map<number, FinalRankings>();
+  if (legacyWeeks.length === 0) {
+    return results;
+  }
+
+  const sportId = await getSportIdBySlug(sport);
+  if (!sportId) {
+    throw new Error(`Unable to find sport by slug. Slug: ${sport}`);
+  }
+
+  const poll = await getPollBySportAndSlug({ sportId, slug: division });
+  if (!poll) {
+    throw new Error(`Poll not found: ${sport}/${division}`);
+  }
+
+  const weekIdByLookup = await resolveWeekIdsForLegacyWeekLookups(
+    legacyWeeks.map((legacyWeek) => ({ sportId, year, legacyWeek })),
+  );
+
+  const weekIdToLegacy = new Map<string, number>();
+  const weekIds: string[] = [];
+  for (const legacyWeek of legacyWeeks) {
+    const weekId = weekIdByLookup.get(
+      weekLookupKey({ sportId, year, legacyWeek }),
+    );
+    if (weekId) {
+      weekIds.push(weekId);
+      weekIdToLegacy.set(weekId, legacyWeek);
+    }
+  }
+
+  if (weekIds.length === 0) {
+    return results;
+  }
+
+  const rows = await db
+    .select({
+      weekId: pollRankingsTable.weekId,
+      id: pollRankingsTable.id,
+      rank: pollRankingsTable.rank,
+      points: pollRankingsTable.points,
+      firstPlaceVotes: pollRankingsTable.firstPlaceVotes,
+      isTie: pollRankingsTable.isTie,
+      sanityId: schoolsTable.sanityId,
+      name: schoolsTable.name,
+      shortName: schoolsTable.shortName,
+      abbreviation: schoolsTable.abbreviation,
+      slug: schoolsTable.slug,
+      image: schoolLogoImage,
+    })
+    .from(pollRankingsTable)
+    .innerJoin(schoolsTable, eq(pollRankingsTable.schoolId, schoolsTable.id))
+    .where(
+      and(
+        eq(pollRankingsTable.pollId, poll.id),
+        inArray(pollRankingsTable.weekId, weekIds),
+      ),
+    )
+    .orderBy(
+      asc(pollRankingsTable.weekId),
+      sql`${pollRankingsTable.rank} ASC NULLS LAST`,
+      desc(pollRankingsTable.points),
+    );
+
+  const rowsByWeekId = new Map<string, typeof rows>();
+  for (const row of rows) {
+    const bucket = rowsByWeekId.get(row.weekId);
+    if (bucket) {
+      bucket.push(row);
+    } else {
+      rowsByWeekId.set(row.weekId, [row]);
+    }
+  }
+
+  for (const [weekId, legacyWeek] of weekIdToLegacy) {
+    const weekRows = rowsByWeekId.get(weekId);
+    if (!weekRows?.length) {
+      continue;
+    }
+    results.set(
+      legacyWeek,
+      mapRankingRowsToFinalRankings({
+        division,
+        year,
+        legacyWeek,
+        rows: weekRows,
+      }),
+    );
+  }
+
+  return results;
+}
+
 export async function getLatestFinalRankings({
   division,
 }: {
@@ -251,37 +401,21 @@ export async function getLatestFinalRankings({
 }
 
 export async function getLatestFinalRankingsBySportSlug(sportSlug: string) {
-  const results = await db
-    .selectDistinctOn([pollsTable.slug], {
-      division: pollsTable.slug,
-      weekNumber: weeksTable.number,
-      seasonType: seasonTypesTable.type,
-      year: seasonsTable.year,
-    })
-    .from(pollRankingsTable)
-    .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
+  const pollSlugs = await db
+    .select({ slug: pollsTable.slug })
+    .from(pollsTable)
     .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
-    .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
-    .innerJoin(
-      seasonTypesTable,
-      eq(weeksTable.seasonTypeId, seasonTypesTable.id),
-    )
-    .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
-    .where(eq(sportsTable.slug, sportSlug))
-    // Season type before week number: postseason week 1 (final rankings)
-    // must beat regular-season week 13.
-    .orderBy(
-      pollsTable.slug,
-      desc(seasonsTable.year),
-      desc(seasonTypesTable.type),
-      desc(weeksTable.number),
-    );
+    .where(eq(sportsTable.slug, sportSlug));
 
-  return results.map((row) => ({
-    division: row.division,
-    week: seasonTypeAndNumberToLegacyWeek(row.seasonType, row.weekNumber),
-    year: row.year,
-  }));
+  const latestRows = await Promise.all(
+    pollSlugs.map(async ({ slug }) =>
+      getLatestFinalRankings({ division: slug }),
+    ),
+  );
+
+  return latestRows.filter(
+    (row): row is NonNullable<(typeof latestRows)[number]> => row != null,
+  );
 }
 
 export async function arePollRankingsPublished({

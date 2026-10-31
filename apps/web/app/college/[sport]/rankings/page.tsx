@@ -17,6 +17,7 @@ import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
+import { sportRankingsHubMetaDescription } from "@/lib/rankings/meta-descriptions";
 import { loadRankingsIndexCards } from "@/lib/rankings/read-model";
 import { rankingsMethodologyHref } from "@/lib/rankings-nav";
 import { sportNavLabel } from "@/lib/sport-nav";
@@ -50,7 +51,7 @@ export async function generateMetadata({
   return getPageMetadata(
     {
       title: `${sportLabel} Rankings`,
-      description: `Every Redshirt Sports poll for ${sportLabel}. Each poll is voted by a public panel; every ballot is published with the poll.`,
+      description: sportRankingsHubMetaDescription(sportLabel),
       slug: `/college/${sport}/rankings`,
     },
     perspective,
@@ -105,7 +106,7 @@ async function renderSportRankingsIndex(
         data={buildIndexedPageJsonLd({
           pageType: "CollectionPage",
           name: `${sportLabel} Rankings`,
-          description: `Every Redshirt Sports poll for ${sportLabel}. Each poll is voted by a public panel; every ballot is published with the poll.`,
+          description: sportRankingsHubMetaDescription(sportLabel),
           path: `/college/${sport}/rankings`,
           breadcrumbs: [
             { name: "Home", path: "/" },

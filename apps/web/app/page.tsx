@@ -18,7 +18,6 @@ import {
   fetchGlobalSeoSettings,
   getPageMetadata,
 } from "@/lib/global-seo-settings";
-import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import HomeRouteLoading from "./home-route-loading";
@@ -47,13 +46,11 @@ export async function CachedHomePage({
   perspective,
   stega,
 }: DynamicFetchOptions) {
-  const [{ data: feedPosts }, settings, mostRead, rankingsPolls] =
-    await Promise.all([
-      sanityFetchPage({ query: queryHomeFeed, perspective, stega }),
-      fetchGlobalSeoSettings(perspective),
-      getCachedMostReadPosts({ perspective, stega }),
-      getCachedRankingsWidgetPolls(),
-    ]);
+  const [{ data: feedPosts }, settings, rankingsPolls] = await Promise.all([
+    sanityFetchPage({ query: queryHomeFeed, perspective, stega }),
+    fetchGlobalSeoSettings(perspective),
+    getCachedRankingsWidgetPolls(),
+  ]);
 
   const posts = (feedPosts ?? []) as HomePost[];
   const fetchOptions = { perspective, stega };
@@ -97,7 +94,6 @@ export async function CachedHomePage({
       <JsonLdScript data={webPageJson} id="home-webpage-json-ld" />
       <HomePageContent
         posts={posts}
-        mostRead={mostRead}
         rankingsPolls={rankingsPolls}
         leaderboardAd={leaderboardAd}
         sidebarAd={sidebarAd}

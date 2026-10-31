@@ -8,7 +8,6 @@ const {
   mockGetCachedRankedSchoolSanityIds,
   mockGetCachedSchoolRankingHistory,
   mockGetCachedSchoolHasPollRankings,
-  mockGetCachedMostReadPosts,
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
@@ -19,7 +18,6 @@ const {
   mockGetCachedRankedSchoolSanityIds: vi.fn().mockResolvedValue([]),
   mockGetCachedSchoolRankingHistory: vi.fn().mockResolvedValue({ polls: [] }),
   mockGetCachedSchoolHasPollRankings: vi.fn().mockResolvedValue(false),
-  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
   mockGetDynamicFetchOptions: vi
     .fn()
     .mockResolvedValue({ perspective: "published", stega: false }),
@@ -75,10 +73,6 @@ vi.mock("@/lib/rankings-data", () => ({
   getCachedRankedSchoolSanityIds: mockGetCachedRankedSchoolSanityIds,
   getCachedSchoolHasPollRankings: mockGetCachedSchoolHasPollRankings,
   getCachedSchoolRankingHistory: mockGetCachedSchoolRankingHistory,
-}));
-
-vi.mock("@/lib/most-read-data", () => ({
-  getCachedMostReadPosts: mockGetCachedMostReadPosts,
 }));
 
 vi.mock("next/navigation", () => ({

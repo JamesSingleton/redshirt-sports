@@ -1,9 +1,15 @@
-import { upsertSchoolFromSanity } from "@redshirt-sports/db/queries";
+import {
+  getSchoolRankingsDisplayBySanityId,
+  upsertSchoolFromSanity,
+} from "@redshirt-sports/db/queries";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { env } from "@/env";
-import { expireRankingsCache } from "@/lib/expire-rankings-cache";
+import {
+  expireRankingsCache,
+  schoolRankingsDisplayChanged,
+} from "@/lib/expire-rankings-cache";
 import { safeCompare } from "@/lib/safe-compare";
 
 const SchoolPayloadSchema = z.object({
@@ -41,6 +47,7 @@ export async function POST(request: Request) {
   }
 
   const school = parsed.data.school;
+  const previousDisplay = await getSchoolRankingsDisplayBySanityId(school._id);
   const result = await upsertSchoolFromSanity({
     sanityId: school._id,
     name: school.name,
@@ -52,7 +59,18 @@ export async function POST(request: Request) {
     top25Eligible: school.top25VotingEligible,
   });
 
-  expireRankingsCache();
+  const nextDisplay = {
+    name: school.name ?? null,
+    shortName: school.shortName ?? null,
+    abbreviation: school.abbreviation ?? null,
+    slug: school.slug ?? null,
+    image: school.image ?? null,
+    top25Eligible: school.top25VotingEligible ?? null,
+  };
+
+  if (schoolRankingsDisplayChanged(previousDisplay, nextDisplay)) {
+    expireRankingsCache();
+  }
 
   return NextResponse.json({
     ok: true,

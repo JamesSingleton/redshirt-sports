@@ -10,17 +10,21 @@ import { JsonLdScript } from "@/components/json-ld";
 import { TeamsDirectory } from "@/components/teams/teams-directory";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { trimMetaDescription } from "@/lib/meta-description";
 import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
 import { getCachedTeamDirectory } from "@/lib/team-directory-data";
 import CollegeTeamsLoading from "./loading";
+
+const COLLEGE_TEAMS_META_DESCRIPTION = trimMetaDescription(
+  "Browse every college team Redshirt Sports covers. Open a school hub for football and basketball news, recruiting updates, poll history, and transparent Top 25 rankings.",
+);
 
 export async function generateMetadata(): Promise<Metadata> {
   const { perspective } = await getDynamicFetchOptions();
   return getPageMetadata(
     {
       title: "College Teams",
-      description:
-        "Every school we've covered. Pick a team for news and rankings across football and basketball.",
+      description: COLLEGE_TEAMS_META_DESCRIPTION,
       slug: "/college/teams",
     },
     perspective,
@@ -44,8 +48,7 @@ async function renderCollegeTeamsPage({
         data={buildIndexedPageJsonLd({
           pageType: "CollectionPage",
           name: "College Teams",
-          description:
-            "Every school we've covered. Pick a team for news and rankings across football and basketball.",
+          description: COLLEGE_TEAMS_META_DESCRIPTION,
           path: "/college/teams",
           breadcrumbs: [
             { name: "Home", path: "/" },

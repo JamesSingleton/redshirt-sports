@@ -1,16 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import type { ReactElement } from "react";
 
-const { mockGetCachedMostReadPosts } = vi.hoisted(() => ({
-  mockGetCachedMostReadPosts: vi.fn().mockResolvedValue([]),
-}));
-
-vi.mock("@/lib/most-read-data", () => ({
-  getCachedMostReadPosts: mockGetCachedMostReadPosts,
+const { mockGetCachedRankingsWidgetPolls } = vi.hoisted(() => ({
+  mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/lib/rankings-widget-data", () => ({
-  getCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
+  getCachedRankingsWidgetPolls: mockGetCachedRankingsWidgetPolls,
 }));
 
 vi.mock("@/components/news/news-archive-sidebar", () => ({
@@ -35,7 +31,7 @@ describe("cached news archive sidebar", () => {
   });
 
   it("shows a skeleton fallback while the slot loads", () => {
-    mockGetCachedMostReadPosts.mockReturnValue(new Promise(() => {}));
+    mockGetCachedRankingsWidgetPolls.mockReturnValue(new Promise(() => {}));
 
     const { container } = render(
       <NewsArchiveSidebarSlot

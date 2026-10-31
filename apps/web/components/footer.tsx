@@ -1,19 +1,17 @@
 import {
+  cachedSanity,
   type DynamicFetchOptions,
-  sanityFetch,
 } from "@redshirt-sports/sanity/live";
-import {
-  queryFooterData,
-  queryGlobalSeoSettings,
-} from "@redshirt-sports/sanity/queries";
+import { queryFooterData } from "@redshirt-sports/sanity/queries";
 import type {
   QueryFooterDataResult,
   QueryGlobalSeoSettingsResult,
 } from "@redshirt-sports/sanity/types";
-import { cacheLife } from "next/cache";
 import Link from "next/link";
 
+import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
+import { CopyrightYear } from "./copyright-year";
 import {
   BlueSkyIcon,
   Facebook,
@@ -31,7 +29,6 @@ interface SocialLinksProps {
 interface FooterProps {
   data: NonNullable<QueryFooterDataResult>;
   settingsData: NonNullable<QueryGlobalSeoSettingsResult>;
-  copyrightYear: number;
 }
 
 export async function DynamicFooterServer() {
@@ -42,43 +39,21 @@ export async function CachedFooterServer({
   perspective,
   stega,
 }: DynamicFetchOptions) {
-  const copyrightYear = await getCopyrightYear();
-  return CachedFooterBody({ perspective, stega, copyrightYear });
+  return CachedFooterBody({ perspective, stega });
 }
 
-async function CachedFooterBody({
-  perspective,
-  stega,
-  copyrightYear,
-}: DynamicFetchOptions & { copyrightYear: number }) {
-  "use cache";
-  const [response, settingsResponse] = await Promise.all([
-    sanityFetch({
+async function CachedFooterBody({ perspective, stega }: DynamicFetchOptions) {
+  const [response, settingsData] = await Promise.all([
+    cachedSanity({
       query: queryFooterData,
       perspective,
       stega,
     }),
-    sanityFetch({
-      query: queryGlobalSeoSettings,
-      perspective,
-      stega,
-    }),
+    fetchGlobalSeoSettings(perspective),
   ]);
 
-  if (!response?.data || !settingsResponse?.data) return <FooterSkeleton />;
-  return (
-    <Footer
-      data={response.data}
-      settingsData={settingsResponse.data}
-      copyrightYear={copyrightYear}
-    />
-  );
-}
-
-async function getCopyrightYear() {
-  "use cache";
-  cacheLife("days");
-  return new Date().getFullYear();
+  if (!response?.data || !settingsData) return <FooterSkeleton />;
+  return <Footer data={response.data} settingsData={settingsData} />;
 }
 
 function SocialLinks({ data }: SocialLinksProps) {
@@ -183,7 +158,7 @@ export function FooterSkeleton() {
   );
 }
 
-function Footer({ data, settingsData, copyrightYear }: FooterProps) {
+function Footer({ data, settingsData }: FooterProps) {
   const { subtitle, columns } = data;
   const { logo, footerLogo, footerLogoDarkMode, socialLinks, siteBrand } =
     settingsData;
@@ -248,7 +223,11 @@ function Footer({ data, settingsData, copyrightYear }: FooterProps) {
       </div>
       <div className="border-t border-ink-foreground/10">
         <p className="mx-auto max-w-site px-4 py-6 text-center text-sm text-ink-foreground/70 lg:px-6 lg:text-left">
-          © {copyrightYear} Redshirt Sports LLC. All rights reserved.
+          ©{" "}
+          <span suppressHydrationWarning>
+            <CopyrightYear />
+          </span>{" "}
+          Redshirt Sports LLC. All rights reserved.
         </p>
       </div>
     </footer>

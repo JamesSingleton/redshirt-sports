@@ -24,7 +24,6 @@ import {
   fetchGlobalSeoSettings,
   getPageMetadata,
 } from "@/lib/global-seo-settings";
-import { getCachedMostReadPosts } from "@/lib/most-read-data";
 import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getCollegeSportSection } from "@/lib/sport-section";
@@ -114,8 +113,7 @@ async function renderPostPage(
   const readingTimeMinutes = Math.ceil(wordCount / WORDS_PER_MINUTE);
 
   const sportSlug = data.sport?.slug;
-  const [mostRead, rankingsPolls, advertisement] = await Promise.all([
-    getCachedMostReadPosts({ perspective, stega }),
+  const [rankingsPolls, advertisement] = await Promise.all([
     sportSlug
       ? getCachedRankingsWidgetPolls(validateSport(sportSlug))
       : Promise.resolve([]),
@@ -139,7 +137,6 @@ async function renderPostPage(
         post={data}
         slug={slug}
         readingTimeMinutes={readingTimeMinutes}
-        mostRead={mostRead}
         rankingsPolls={rankingsPolls}
         advertisement={advertisement}
       />

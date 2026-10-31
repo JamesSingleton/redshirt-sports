@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import type { NewsArchiveSearchParams } from "@/lib/news-archive";
+import { sportNewsMetaDescription } from "@/lib/news-archive/meta-descriptions";
 import { sportNewsArchivePageFallback } from "@/lib/news-archive/page-loading";
 import { renderNewsArchiveFromFilters } from "@/lib/news-archive/render-from-filters";
 import { getSportFeed } from "@/lib/rss-feed-links";
@@ -38,16 +39,14 @@ export async function generateMetadata({
 
   const sportLabel = sportNavLabel(sport, sportData.title);
   let title: string;
-  let description: string;
+  const description = sportNewsMetaDescription(sportLabel, pageIndex);
   let canonicalUrl = `/college/${sport}/news`;
 
   if (pageIndex > 1) {
     title = `${sportLabel} News - Page ${pageIndex}`;
-    description = `Page ${pageIndex} of ${sportLabel} news and analysis from ${process.env.NEXT_PUBLIC_APP_NAME}.`;
     canonicalUrl = `${canonicalUrl}?page=${pageIndex}`;
   } else {
     title = `${sportLabel} News`;
-    description = `Every ${sportLabel} story, newest first.`;
   }
 
   return getPageMetadata(

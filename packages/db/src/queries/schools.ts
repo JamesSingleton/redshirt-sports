@@ -1,4 +1,4 @@
-import { inArray, sql } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import { schoolsTable } from "../schema";
@@ -41,6 +41,32 @@ export async function getSchoolIdsBySanityIds(sanityIds: string[]) {
   return new Map(
     [...schools.entries()].map(([sanityId, s]) => [sanityId, s.id]),
   );
+}
+
+export type SchoolRankingsDisplay = {
+  name: string | null;
+  shortName: string | null;
+  abbreviation: string | null;
+  slug: string | null;
+  image: unknown;
+  top25Eligible: boolean | null;
+};
+
+export async function getSchoolRankingsDisplayBySanityId(sanityId: string) {
+  const [row] = await db
+    .select({
+      name: schoolsTable.name,
+      shortName: schoolsTable.shortName,
+      abbreviation: schoolsTable.abbreviation,
+      slug: schoolsTable.slug,
+      image: schoolsTable.image,
+      top25Eligible: schoolsTable.top25Eligible,
+    })
+    .from(schoolsTable)
+    .where(eq(schoolsTable.sanityId, sanityId))
+    .limit(1);
+
+  return row ?? null;
 }
 
 export type SanitySchoolSyncPayload = {
