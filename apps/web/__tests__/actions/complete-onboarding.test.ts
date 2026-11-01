@@ -15,6 +15,15 @@ vi.mock("@redshirt-sports/analytics/server", () => ({
 
 import { completeOnboarding } from "@/actions/complete-onboarding";
 
+const notOnboarded = vi.fn().mockResolvedValue({ publicMetadata: {} });
+
+function validFormData() {
+  const formData = new FormData();
+  formData.set("organizationName", "ACME");
+  formData.set("organizationRole", "Editor");
+  return formData;
+}
+
 describe("completeOnboarding", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -39,11 +48,11 @@ describe("completeOnboarding", () => {
       },
     });
     mockClerkClient.mockResolvedValue({
-      users: { updateUserMetadata },
+      users: { getUser: notOnboarded, updateUserMetadata },
     });
 
     const formData = new FormData();
-    formData.set("organizationName", "ACME");
+    formData.set("organizationName", "  ACME ");
     formData.set("organizationRole", "Editor");
 
     await expect(completeOnboarding(formData)).resolves.toEqual({
@@ -71,31 +80,56 @@ describe("completeOnboarding", () => {
     });
   });
 
-  it("returns the Error message when Clerk throws an Error", async () => {
+  it("returns a generic message when Clerk throws", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
     mockAuth.mockResolvedValue({ userId: "user_1" });
     mockClerkClient.mockResolvedValue({
       users: {
+        getUser: notOnboarded,
         updateUserMetadata: vi.fn().mockRejectedValue(new Error("Clerk down")),
       },
     });
 
-    const formData = new FormData();
-    await expect(completeOnboarding(formData)).resolves.toEqual({
-      error: "Clerk down",
+    await expect(completeOnboarding(validFormData())).resolves.toEqual({
+      error: "There was an error updating your user.",
     });
   });
 
-  it("returns a fallback message for non-Error throws", async () => {
+  it("rejects missing organization fields without calling Clerk", async () => {
     mockAuth.mockResolvedValue({ userId: "user_1" });
+
+    await expect(completeOnboarding(new FormData())).resolves.toEqual({
+      error: expect.any(String),
+    });
+    expect(mockClerkClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects overly long organization names", async () => {
+    mockAuth.mockResolvedValue({ userId: "user_1" });
+    const formData = validFormData();
+    formData.set("organizationName", "x".repeat(101));
+
+    await expect(completeOnboarding(formData)).resolves.toEqual({
+      error: "Organization Name must be at most 100 characters",
+    });
+    expect(mockClerkClient).not.toHaveBeenCalled();
+  });
+
+  it("refuses to re-run after onboarding is complete", async () => {
+    mockAuth.mockResolvedValue({ userId: "user_1" });
+    const updateUserMetadata = vi.fn();
     mockClerkClient.mockResolvedValue({
       users: {
-        updateUserMetadata: vi.fn().mockRejectedValue("boom"),
+        getUser: vi
+          .fn()
+          .mockResolvedValue({ publicMetadata: { onboardingComplete: true } }),
+        updateUserMetadata,
       },
     });
 
-    const formData = new FormData();
-    await expect(completeOnboarding(formData)).resolves.toEqual({
-      error: "There was an error updating your user.",
+    await expect(completeOnboarding(validFormData())).resolves.toEqual({
+      error: "Onboarding is already complete",
     });
+    expect(updateUserMetadata).not.toHaveBeenCalled();
   });
 });
