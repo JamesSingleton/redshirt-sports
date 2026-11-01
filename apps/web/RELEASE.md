@@ -23,6 +23,19 @@ Staged builds talk to production Postgres, Clerk, and Sanity. Anything you submi
 2. GitHub repo secret `VERCEL_TOKEN`: a Vercel access token scoped to the team.
 3. GitHub repo variables `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` (values in `apps/web/.vercel/project.json`).
 
+### Sanity content migrations
+
+Content migrations live in `apps/studio/migrations` and run with the Sanity CLI from `apps/studio`. They dry-run by default:
+
+```bash
+pnpm exec sanity migration run <id>              # preview patches
+pnpm exec sanity migration run <id> --no-dry-run # apply
+```
+
+Run a migration **before** promoting the web build that depends on it: builds bake Sanity content into static pages. Example: `navbar-columns-to-items` must run before the Sanity-driven navbar ships, or the nav renders empty.
+
+`apps/studio/scripts/one-off/` holds old scripts that write as soon as they are imported. They are kept out of `migrations/` so `sanity migration` never loads them.
+
 ## Smoke checklist
 
 Run against the **staged deployment URL** before promoting (~20 min). This is the primary guard for real auth, env, and DB integration while Playwright E2E is deferred.

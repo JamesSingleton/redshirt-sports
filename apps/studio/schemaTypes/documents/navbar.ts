@@ -1,5 +1,7 @@
+import { StarIcon } from "@sanity/icons/Star";
+import { ThLargeIcon } from "@sanity/icons/ThLarge";
 import { LayoutPanelLeft, Link, PanelTop } from "lucide-react";
-import { defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from "sanity";
 
 import {
   type CustomUrlPreviewInput,
@@ -122,6 +124,86 @@ const navbarColumn = defineField({
   },
 });
 
+const navSportMenu = defineArrayMember({
+  name: "navSportMenu",
+  type: "object",
+  icon: ThLargeIcon,
+  title: "Sport Menu",
+  description:
+    "A sport's dropdown: its news hub, division news, and the sport's Top 25 polls (set on the sport document).",
+  fields: [
+    defineField({
+      name: "sport",
+      type: "reference",
+      to: [{ type: "sport" }],
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "label",
+      type: "string",
+      description:
+        'Optional menu label, e.g. "College Football". Defaults to the sport title.',
+    }),
+    defineField({
+      name: "divisions",
+      title: "Division News Links",
+      description: 'Shown as "By division" news links, in this order.',
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "reference",
+          to: [{ type: "sportSubgrouping" }, { type: "division" }],
+        }),
+      ],
+      validation: (rule) => rule.unique(),
+    }),
+  ],
+  preview: {
+    select: {
+      label: "label",
+      sportTitle: "sport.title",
+      divisions: "divisions",
+    },
+    prepare: ({ label, sportTitle, divisions = [] }) => ({
+      title: label || sportTitle || "Untitled sport menu",
+      subtitle: `${divisions.length} division link${divisions.length === 1 ? "" : "s"}`,
+      media: ThLargeIcon,
+    }),
+  },
+});
+
+const navRankingsMenu = defineArrayMember({
+  name: "navRankingsMenu",
+  type: "object",
+  icon: StarIcon,
+  title: "Rankings Menu",
+  description:
+    "Lists each sport's Top 25 polls (set on the sport document), grouped by sport.",
+  fields: [
+    defineField({
+      name: "label",
+      type: "string",
+      initialValue: "Rankings",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "sports",
+      description: "Sports to include, in display order.",
+      type: "array",
+      of: [defineArrayMember({ type: "reference", to: [{ type: "sport" }] })],
+      validation: (rule) => [rule.required().min(1), rule.unique()],
+    }),
+  ],
+  preview: {
+    select: { label: "label", sports: "sports" },
+    prepare: ({ label, sports = [] }) => ({
+      title: label || "Rankings",
+      subtitle: `${sports.length} sport${sports.length === 1 ? "" : "s"}`,
+      media: StarIcon,
+    }),
+  },
+});
+
 export const navbar = defineType({
   name: "navbar",
   title: "Site Navigation",
@@ -139,11 +221,22 @@ export const navbar = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "items",
+      type: "array",
+      title: "Menu Items",
+      description:
+        "Top-level navigation, left to right: sport menus, a rankings menu, single links, or columns of links.",
+      of: [navSportMenu, navRankingsMenu, navbarLink, navbarColumn],
+    }),
+    defineField({
       name: "columns",
       type: "array",
-      title: "Navigation Structure",
-      description:
-        "Build your navigation menu using columns and links. Add either a column of links or individual links.",
+      title: "Navigation Structure (Deprecated)",
+      deprecated: {
+        reason: 'Replaced by "Menu Items". Will be removed after migration.',
+      },
+      readOnly: true,
+      hidden: ({ value }) => value === undefined,
       of: [navbarColumn, navbarLink],
     }),
   ],
