@@ -45,7 +45,14 @@ function headingForPath(shell: WeekShell, pathname: string) {
   );
 }
 
-export function RankingsWeekChromeClient({ shell }: { shell: WeekShell }) {
+export function RankingsWeekChromeClient({
+  shell,
+  pinSelection = false,
+}: {
+  shell: WeekShell;
+  /** Latest-poll page: the URL has no year/week, so select the shell's week. */
+  pinSelection?: boolean;
+}) {
   const pathname = usePathname();
   const shareTitle = shareTitleForPath(shell, pathname);
   return (
@@ -71,6 +78,12 @@ export function RankingsWeekChromeClient({ shell }: { shell: WeekShell }) {
         <RankingsFilters
           years={shell.yearsWithVotes}
           weeks={shell.weeksWithVotes}
+          {...(pinSelection
+            ? {
+                selectedYear: String(shell.yearNumber),
+                selectedWeek: shell.weekSegment,
+              }
+            : {})}
         />
         <RankingsShareButton title={shareTitle} />
       </div>

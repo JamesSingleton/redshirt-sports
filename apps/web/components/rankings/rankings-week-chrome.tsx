@@ -6,6 +6,7 @@ import { loadRankingsWeekShell } from "@/lib/rankings-week-shell";
 
 export async function RankingsWeekChrome({
   params,
+  pinSelection = false,
 }: {
   params: Promise<{
     sport: string;
@@ -13,6 +14,8 @@ export async function RankingsWeekChrome({
     year: string;
     week: string;
   }>;
+  /** See `RankingsWeekChromeClient`. */
+  pinSelection?: boolean;
 }) {
   const [{ sport, division, year, week }, fetchOptions] = await Promise.all([
     params,
@@ -25,7 +28,7 @@ export async function RankingsWeekChrome({
     week,
     fetchOptions,
   });
-  return <RankingsWeekChromeClient shell={shell} />;
+  return <RankingsWeekChromeClient shell={shell} pinSelection={pinSelection} />;
 }
 
 export { RankingsWeekChromeSkeleton };

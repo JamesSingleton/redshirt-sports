@@ -301,4 +301,27 @@ describe("RankingsFilters", () => {
     mockParams.year = "2025";
     mockParams.week = "1";
   });
+
+  it("uses the pinned selection on the latest-poll page, whose URL has no year/week", async () => {
+    const saved = { ...mockParams };
+    mockParams.year = undefined;
+    mockParams.week = undefined;
+    const user = userEvent.setup();
+    render(
+      <RankingsFilters
+        years={[{ year: 2026 }]}
+        weeks={[{ week: 5 }, { week: 6 }]}
+        selectedYear="2026"
+        selectedWeek="6"
+      />,
+    );
+
+    await user.click(screen.getByTestId("trigger-6"));
+
+    expect(mockPush).toHaveBeenCalledWith(
+      "/college/football/rankings/fbs/2026/final-rankings",
+      expect.anything(),
+    );
+    Object.assign(mockParams, saved);
+  });
 });

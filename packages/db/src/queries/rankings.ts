@@ -360,10 +360,17 @@ export async function getFinalRankingsForLegacyWeeksInYear({
   return results;
 }
 
+/**
+ * Most recent published week for a poll. Pass `sport` to disambiguate poll
+ * slugs shared across sports (e.g. a football and a basketball `d2`).
+ * `publishedAt` is when that week's rankings were written.
+ */
 export async function getLatestFinalRankings({
   division,
+  sport,
 }: {
   division: string;
+  sport?: string;
 }) {
   const row = await db
     .select({
@@ -371,16 +378,23 @@ export async function getLatestFinalRankings({
       weekNumber: weeksTable.number,
       seasonType: seasonTypesTable.type,
       year: seasonsTable.year,
+      publishedAt: pollRankingsTable.createdAt,
     })
     .from(pollRankingsTable)
     .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
+    .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
     .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
     .innerJoin(
       seasonTypesTable,
       eq(weeksTable.seasonTypeId, seasonTypesTable.id),
     )
     .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
-    .where(eq(pollsTable.slug, division))
+    .where(
+      and(
+        eq(pollsTable.slug, division),
+        ...(sport ? [eq(sportsTable.slug, sport)] : []),
+      ),
+    )
     // Season type before week number: postseason week 1 (final rankings)
     // must beat regular-season week 13.
     .orderBy(
@@ -397,6 +411,7 @@ export async function getLatestFinalRankings({
     division: match.division,
     week: seasonTypeAndNumberToLegacyWeek(match.seasonType, match.weekNumber),
     year: match.year,
+    publishedAt: match.publishedAt,
   };
 }
 
@@ -409,7 +424,7 @@ export async function getLatestFinalRankingsBySportSlug(sportSlug: string) {
 
   const latestRows = await Promise.all(
     pollSlugs.map(async ({ slug }) =>
-      getLatestFinalRankings({ division: slug }),
+      getLatestFinalRankings({ division: slug, sport: sportSlug }),
     ),
   );
 

@@ -33,17 +33,22 @@ function paramValue(value: string | string[] | undefined): string | undefined {
 export const RankingsFilters = ({
   years,
   weeks,
+  selectedYear,
+  selectedWeek,
 }: {
   years: Year[];
   weeks: Week[];
+  /** Selection for routes without year/week in the URL (the latest-poll page). */
+  selectedYear?: string;
+  selectedWeek?: string;
 }) => {
   const router = useRouter();
   const { division, year, week, sport } = useParams();
 
   const sportSlug = paramValue(sport);
   const divisionSlug = paramValue(division);
-  const yearSlug = paramValue(year);
-  const weekSlug = paramValue(week);
+  const yearSlug = selectedYear ?? paramValue(year);
+  const weekSlug = selectedWeek ?? paramValue(week);
 
   const handleYearChange = (nextYear: string) => {
     if (!nextYear || !sportSlug || !divisionSlug || nextYear === yearSlug) {
