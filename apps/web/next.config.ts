@@ -132,17 +132,6 @@ let nextConfig: NextConfig = {
 
     return headers;
   },
-  async rewrites() {
-    return {
-      // Before the filesystem, so it wins over the [division] page.
-      beforeFiles: [
-        {
-          source: "/college/:sport/rankings/sitemap.xml",
-          destination: "/api/sitemaps/rankings/:sport",
-        },
-      ],
-    };
-  },
   async redirects() {
     const query =
       '*[_type == "redirect" && !(_id in path("drafts.**")) && defined(source.current) && defined(destination.current)]{source,destination,permanent}';
@@ -174,9 +163,9 @@ let nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        // Rankings sitemaps were one id-numbered file; each sport now has its own.
+        // The rankings sitemap moved from under [sport] to one site-wide file.
         source: "/college/:sport/rankings/sitemap/0.xml",
-        destination: "/college/:sport/rankings/sitemap.xml",
+        destination: "/rankings/sitemap.xml",
         permanent: true,
       },
       ...cmsRedirects,
