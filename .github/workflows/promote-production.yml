@@ -13,9 +13,9 @@ on:
         description: "Deployment ID or URL to promote. Leave empty for the newest ready staged build."
         required: false
         type: string
-  schedule:
-    # 10:00 UTC = 3am PT / 6am ET, ahead of morning traffic.
-    - cron: "0 10 * * *"
+  # schedule:
+  #   # 10:00 UTC = 3am PT / 6am ET, ahead of morning traffic.
+  #   - cron: "0 10 * * *"
 
 permissions:
   contents: read
