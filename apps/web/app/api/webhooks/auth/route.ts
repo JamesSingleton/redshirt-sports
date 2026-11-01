@@ -2,10 +2,12 @@ import { analytics } from "@redshirt-sports/analytics/server";
 import type { WebhookEvent } from "@redshirt-sports/auth/server";
 import {
   createUser,
+  deactivateUser,
   getUserDisplayFields,
   revokeAssignmentsForNonVoters,
   updateUser,
 } from "@redshirt-sports/db/queries";
+import * as Sentry from "@sentry/nextjs";
 import { headers } from "next/headers";
 import { Webhook } from "svix";
 
@@ -14,6 +16,31 @@ import {
   expireRankingsCache,
   rankingsVoterDisplayChanged,
 } from "@/lib/expire-rankings-cache";
+
+function optionalString(value: unknown) {
+  return typeof value === "string" ? value : undefined;
+}
+
+function optionalBoolean(value: unknown) {
+  return typeof value === "boolean" ? value : undefined;
+}
+
+/** Postgres-facing fields from a Clerk user payload's names and public metadata. */
+function clerkUserFields(data: {
+  first_name: string | null;
+  last_name: string | null;
+  public_metadata?: Record<string, unknown>;
+}) {
+  const metadata = data.public_metadata ?? {};
+  return {
+    firstName: data.first_name ?? "",
+    lastName: data.last_name ?? "",
+    organization: optionalString(metadata.organization),
+    organizationRole: optionalString(metadata.organizationRole),
+    isAdmin: optionalBoolean(metadata.isAdmin),
+    isVoter: metadata.isVoter === true,
+  };
+}
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = env.CLERK_WEBHOOK_SECRET;
@@ -35,8 +62,8 @@ export async function POST(req: Request) {
     });
   }
 
-  const payload = await req.json();
-  const body = JSON.stringify(payload);
+  // Svix signs the exact bytes sent, so verify the raw body (not re-serialized JSON).
+  const body = await req.text();
 
   // Create a new Svix instance with your secret.
   const wh = new Webhook(WEBHOOK_SECRET);
@@ -55,18 +82,13 @@ export async function POST(req: Request) {
     });
   }
 
-  const evt = payload as WebhookEvent;
-
-  const { type, data } = evt;
+  const evt = JSON.parse(body) as WebhookEvent;
 
   try {
-    switch (type) {
-      case "user.created":
-        await createUser({
-          id: data.id,
-          firstName: data.first_name ?? "",
-          lastName: data.last_name ?? "",
-        });
+    switch (evt.type) {
+      case "user.created": {
+        const { data } = evt;
+        await createUser({ id: data.id, ...clerkUserFields(data) });
 
         // Capture user_created event and identify user in PostHog
         analytics?.capture({
@@ -85,16 +107,10 @@ export async function POST(req: Request) {
           },
         });
         break;
+      }
       case "user.updated": {
-        const isVoter = Boolean(data.public_metadata.isVoter);
-        const nextDisplay = {
-          firstName: data.first_name ?? "",
-          lastName: data.last_name ?? "",
-          organization: data.public_metadata.organization as string | undefined,
-          organizationRole: data.public_metadata.organizationRole as
-            | string
-            | undefined,
-        };
+        const { data } = evt;
+        const { isVoter, isAdmin, ...nextDisplay } = clerkUserFields(data);
         const currentDisplay = await getUserDisplayFields(data.id);
         const displayChanged = rankingsVoterDisplayChanged(
           currentDisplay,
@@ -104,7 +120,7 @@ export async function POST(req: Request) {
         await updateUser({
           id: data.id,
           ...nextDisplay,
-          isAdmin: data.public_metadata.isAdmin as boolean | undefined,
+          isAdmin,
           isVoter,
         });
 
@@ -142,12 +158,22 @@ export async function POST(req: Request) {
         });
         break;
       }
+      case "user.deleted": {
+        const { id } = evt.data;
+        if (id) {
+          await deactivateUser(id);
+          await revokeAssignmentsForNonVoters(id);
+        }
+        break;
+      }
       default:
-        return new Response("", { status: 501 });
+        // Acknowledge events we don't handle so Svix doesn't retry them.
+        break;
     }
     return new Response("", { status: 200 });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(message, { status: 500 });
+    Sentry.captureException(error);
+    console.error("Clerk webhook handler failed:", error);
+    return new Response("Webhook handler failed", { status: 500 });
   }
 }

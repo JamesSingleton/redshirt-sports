@@ -1,6 +1,7 @@
 const {
   mockCreateUser,
   mockUpdateUser,
+  mockDeactivateUser,
   mockGetUserDisplayFields,
   mockRevokeAssignments,
   mockAnalyticsCapture,
@@ -8,9 +9,11 @@ const {
   mockVerify,
   mockHeadersGet,
   mockRevalidateTag,
+  mockSentryCapture,
 } = vi.hoisted(() => ({
   mockCreateUser: vi.fn(),
   mockUpdateUser: vi.fn(),
+  mockDeactivateUser: vi.fn(),
   mockGetUserDisplayFields: vi.fn(),
   mockRevokeAssignments: vi.fn(),
   mockAnalyticsCapture: vi.fn(),
@@ -18,11 +21,13 @@ const {
   mockVerify: vi.fn(),
   mockHeadersGet: vi.fn(),
   mockRevalidateTag: vi.fn(),
+  mockSentryCapture: vi.fn(),
 }));
 
 vi.mock("@redshirt-sports/db/queries", () => ({
   createUser: mockCreateUser,
   updateUser: mockUpdateUser,
+  deactivateUser: mockDeactivateUser,
   getUserDisplayFields: mockGetUserDisplayFields,
   revokeAssignmentsForNonVoters: mockRevokeAssignments,
 }));
@@ -32,6 +37,10 @@ vi.mock("@redshirt-sports/analytics/server", () => ({
     capture: mockAnalyticsCapture,
     identify: mockAnalyticsIdentify,
   },
+}));
+
+vi.mock("@sentry/nextjs", () => ({
+  captureException: mockSentryCapture,
 }));
 
 vi.mock("next/headers", () => ({
@@ -102,6 +111,8 @@ describe("POST /api/webhooks/auth", () => {
     process.env.CLERK_WEBHOOK_SECRET = "whsec_test";
     mockCreateUser.mockReset().mockResolvedValue(undefined);
     mockUpdateUser.mockReset().mockResolvedValue(undefined);
+    mockDeactivateUser.mockReset().mockResolvedValue(undefined);
+    mockSentryCapture.mockReset();
     mockGetUserDisplayFields.mockReset().mockResolvedValue(undefined);
     mockRevokeAssignments.mockReset().mockResolvedValue(undefined);
     mockAnalyticsCapture.mockReset();
@@ -145,6 +156,10 @@ describe("POST /api/webhooks/auth", () => {
       id: "user_1",
       firstName: "Jane",
       lastName: "Doe",
+      organization: undefined,
+      organizationRole: undefined,
+      isAdmin: undefined,
+      isVoter: false,
     });
     expect(mockAnalyticsCapture).toHaveBeenCalledWith(
       expect.objectContaining({ event: "user_created" }),
@@ -163,11 +178,97 @@ describe("POST /api/webhooks/auth", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(mockCreateUser).toHaveBeenCalledWith({
-      id: "user_2",
-      firstName: "",
-      lastName: "",
+    expect(mockCreateUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "user_2",
+        firstName: "",
+        lastName: "",
+      }),
+    );
+  });
+
+  it("stores public metadata set at creation on user.created", async () => {
+    const res = await postWebhook({
+      type: "user.created",
+      data: {
+        id: "user_4",
+        first_name: "Pat",
+        last_name: "Lee",
+        public_metadata: {
+          isVoter: true,
+          isAdmin: true,
+          organization: "ESPN",
+          organizationRole: "Analyst",
+        },
+      },
     });
+
+    expect(res.status).toBe(200);
+    expect(mockCreateUser).toHaveBeenCalledWith({
+      id: "user_4",
+      firstName: "Pat",
+      lastName: "Lee",
+      organization: "ESPN",
+      organizationRole: "Analyst",
+      isAdmin: true,
+      isVoter: true,
+    });
+  });
+
+  it("verifies the raw request body, byte for byte", async () => {
+    const raw =
+      '{"type":"user.created","data":{"id":"user_5","first_name":"Ren\\u00e9","last_name":"D"}}';
+    const res = await POST(
+      new Request("http://localhost/api/webhooks/auth", {
+        method: "POST",
+        body: raw,
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockVerify).toHaveBeenCalledWith(raw, expect.any(Object));
+    expect(mockCreateUser).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "user_5", firstName: "René" }),
+    );
+  });
+
+  it("treats a non-boolean isVoter as not a voter", async () => {
+    const res = await postWebhook({
+      type: "user.updated",
+      data: {
+        id: "user_6",
+        first_name: "A",
+        last_name: "B",
+        public_metadata: { isVoter: "false" },
+      },
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockUpdateUser).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "user_6", isVoter: false }),
+    );
+    expect(mockRevokeAssignments).toHaveBeenCalledWith("user_6");
+  });
+
+  it("deactivates the user and revokes assignments on user.deleted", async () => {
+    const res = await postWebhook({
+      type: "user.deleted",
+      data: { id: "user_7", deleted: true, object: "user" },
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockDeactivateUser).toHaveBeenCalledWith("user_7");
+    expect(mockRevokeAssignments).toHaveBeenCalledWith("user_7");
+  });
+
+  it("acknowledges user.deleted without an id", async () => {
+    const res = await postWebhook({
+      type: "user.deleted",
+      data: { deleted: true, object: "user" },
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockDeactivateUser).not.toHaveBeenCalled();
   });
 
   it("defaults null first/last names to empty strings on user.updated", async () => {
@@ -284,7 +385,8 @@ describe("POST /api/webhooks/auth", () => {
     expect(mockRevalidateTag).not.toHaveBeenCalled();
   });
 
-  it("returns 500 when webhook handler throws", async () => {
+  it("returns 500 without leaking the error when the handler throws", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
     mockCreateUser.mockRejectedValue(new Error("database down"));
 
     const res = await postWebhook({
@@ -297,31 +399,16 @@ describe("POST /api/webhooks/auth", () => {
     });
 
     expect(res.status).toBe(500);
-    await expect(res.text()).resolves.toBe("database down");
+    await expect(res.text()).resolves.toBe("Webhook handler failed");
+    expect(mockSentryCapture).toHaveBeenCalled();
   });
 
-  it("returns Unknown error when handler rejects with a non-Error value", async () => {
-    mockCreateUser.mockRejectedValue("boom");
-
-    const res = await postWebhook({
-      type: "user.created",
-      data: {
-        id: "user_1",
-        first_name: "Jane",
-        last_name: "Doe",
-      },
-    });
-
-    expect(res.status).toBe(500);
-    await expect(res.text()).resolves.toBe("Unknown error");
-  });
-
-  it("returns 501 for unsupported event types", async () => {
+  it("acknowledges unsupported event types with 200 so Svix does not retry", async () => {
     const res = await postWebhook({
       type: "session.created",
       data: {},
     });
-    expect(res.status).toBe(501);
+    expect(res.status).toBe(200);
   });
 
   it("throws when webhook secret is missing", async () => {
