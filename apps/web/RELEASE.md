@@ -53,7 +53,7 @@ Run against the **staged deployment URL** before promoting (~20 min). This is th
 6. **Rankings publish** — Cron or admin publish; public rankings page shows correct points, ties, ORV, movement arrows
 7. **Rankings filters** — Year/week dropdowns navigate; `preseason` and `final-rankings` URLs work
 8. **School sync** — Sanity school update triggers webhook; rankings page shows updated school name/logo
-9. **Sitemap** — `/college/football/rankings/sitemap/0.xml` includes `preseason` and `final-rankings` URLs
+9. **Sitemap** — `/college/football/rankings/sitemap.xml` lists only football and includes `preseason` and `final-rankings` URLs; `robots.txt` lists one rankings sitemap per sport with a published poll
 
 ## Auth / content
 
