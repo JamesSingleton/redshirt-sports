@@ -346,8 +346,9 @@ export const queryPostSlugData = defineQuery(/* groq */ `
   }
 `);
 
+/** Newest-first post slugs for `generateStaticParams`; `$limit` caps the count. */
 export const queryPostPaths = defineQuery(/* groq */ `
-  *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...50]{"slug": slug.current}
+  *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...$limit]{"slug": slug.current}
 `);
 
 /** Minimum published posts tagging a school before its team hub is public (matches team directory). */
