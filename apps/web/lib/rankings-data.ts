@@ -44,17 +44,6 @@ export const RANKINGS_CACHE_LIFE = {
   expire: 2592000,
 } as const;
 
-export type NavbarLatestRanking = {
-  division: string;
-  week: number;
-  year: number;
-};
-
-export type NavbarLatestRankingsBySport = {
-  sport: string;
-  divisions: NavbarLatestRanking[];
-};
-
 export {
   RANKINGS_CACHE_TAG,
   rankingsDivisionTag,
@@ -64,30 +53,6 @@ export {
   rankingsSportTag,
   rankingsWeekTag,
 };
-
-/**
- * Latest rankings week pointers for the navbar.
- * Own `"use cache"` scope so Sanity publishes do not re-hit Postgres.
- * Publish and display-field webhooks bust {@link RANKINGS_CACHE_TAG}.
- */
-export async function getCachedNavbarLatestRankings(): Promise<
-  NavbarLatestRankingsBySport[]
-> {
-  "use cache";
-  cacheTag(RANKINGS_CACHE_TAG);
-  cacheLife(RANKINGS_CACHE_LIFE);
-
-  const [latestFootballRankings, latestMensBasketballRankings] =
-    await Promise.all([
-      getLatestFinalRankingsBySportSlug("football"),
-      getLatestFinalRankingsBySportSlug("mens-basketball"),
-    ]);
-
-  return [
-    { sport: "football", divisions: latestFootballRankings },
-    { sport: "mens-basketball", divisions: latestMensBasketballRankings },
-  ];
-}
 
 export async function getCachedYearsThatHaveVotes({
   division,

@@ -72,7 +72,6 @@ import {
   getCachedFinalRankingsForLegacyWeeksInYear,
   getCachedLatestFinalRankings,
   getCachedLatestFinalRankingsBySportSlug,
-  getCachedNavbarLatestRankings,
   getCachedPollVoterBallotStatsForSeason,
   getCachedPollWeekBallotContext,
   getCachedRankedSchoolSanityIds,
@@ -86,29 +85,6 @@ import {
 describe("rankings-data", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it("getCachedNavbarLatestRankings aggregates football and basketball", async () => {
-    mockGetLatestFinalRankingsBySportSlug
-      .mockResolvedValueOnce([{ division: "fbs", week: 1, year: 2025 }])
-      .mockResolvedValueOnce([{ division: "d1", week: 2, year: 2025 }]);
-
-    await expect(getCachedNavbarLatestRankings()).resolves.toEqual([
-      {
-        sport: "football",
-        divisions: [{ division: "fbs", week: 1, year: 2025 }],
-      },
-      {
-        sport: "mens-basketball",
-        divisions: [{ division: "d1", week: 2, year: 2025 }],
-      },
-    ]);
-    expect(mockGetLatestFinalRankingsBySportSlug).toHaveBeenCalledWith(
-      "football",
-    );
-    expect(mockGetLatestFinalRankingsBySportSlug).toHaveBeenCalledWith(
-      "mens-basketball",
-    );
   });
 
   it("getCachedYearsThatHaveVotes delegates to db", async () => {
