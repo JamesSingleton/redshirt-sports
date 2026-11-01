@@ -3,7 +3,7 @@ import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 export default function RankingsTabSkeleton({
   variant = "poll",
 }: {
-  variant?: "poll" | "ballots" | "voters" | "history" | "methodology";
+  variant?: "poll" | "ballots" | "voters" | "history";
 }) {
   return (
     <div className="pt-6" aria-busy="true">
@@ -14,11 +14,6 @@ export default function RankingsTabSkeleton({
         <div className="pt-2">
           {variant === "ballots" ? (
             <Skeleton className="h-[28rem] w-full rounded-xl" />
-          ) : variant === "methodology" ? (
-            <div className="grid gap-4">
-              <Skeleton className="h-32 w-full rounded-xl" />
-              <Skeleton className="h-48 w-full rounded-xl" />
-            </div>
           ) : (
             <Skeleton className="h-64 w-full rounded-xl" />
           )}

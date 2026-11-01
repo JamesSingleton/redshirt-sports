@@ -22,7 +22,7 @@ export default function robots(): MetadataRoute.Robots {
     },
     sitemap: [
       `${baseUrl}/sitemap.xml`,
-      `${baseUrl}/college/football/rankings/sitemap/0.xml`,
+      `${baseUrl}/rankings/sitemap.xml`,
       `${baseUrl}/college/sitemap.xml`,
       `${baseUrl}/college/news/sitemap/0.xml`,
       `${baseUrl}/college/teams/sitemap.xml`,

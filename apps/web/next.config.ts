@@ -162,6 +162,12 @@ let nextConfig: NextConfig = {
         destination: "/people/:slug",
         permanent: true,
       },
+      {
+        // The rankings sitemap moved from under [sport] to one site-wide file.
+        source: "/college/:sport/rankings/sitemap/0.xml",
+        destination: "/rankings/sitemap.xml",
+        permanent: true,
+      },
       ...cmsRedirects,
     ];
   },
