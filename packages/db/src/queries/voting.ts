@@ -21,6 +21,24 @@ import {
   seasonTypeAndNumberToLegacyWeek,
 } from "./weeks";
 
+type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+type DbExecutor = typeof db | DbTransaction;
+
+/**
+ * Serialize ballot writes and rankings publish for one poll/week.
+ * Transaction-scoped advisory lock: released on commit/rollback, and safe
+ * through the Supavisor transaction pooler.
+ */
+export async function lockPollWeek(
+  tx: DbTransaction,
+  pollId: string,
+  weekId: string,
+) {
+  await tx.execute(
+    sql`select pg_advisory_xact_lock(hashtextextended(${`${pollId}:${weekId}`}, 0))`,
+  );
+}
+
 interface GetUsersVote {
   year: number;
   week: number;
@@ -249,16 +267,19 @@ function mapBallotEntryRows(
   }));
 }
 
-async function selectBallotEntriesForPollWeek({
-  pollId,
-  weekId,
-  userId,
-}: {
-  pollId: string;
-  weekId: string;
-  userId?: string;
-}) {
-  return db
+async function selectBallotEntriesForPollWeek(
+  {
+    pollId,
+    weekId,
+    userId,
+  }: {
+    pollId: string;
+    weekId: string;
+    userId?: string;
+  },
+  executor: DbExecutor = db,
+) {
+  return executor
     .select({
       id: ballotEntriesTable.id,
       userId: ballotsTable.userId,
@@ -335,25 +356,31 @@ export async function getBallotsByWeekYearDivisionAndSport({
   return mapBallotEntryRows(rows, { division, week, year, sportId });
 }
 
-export async function getBallotVotesForPollWeek({
-  pollId,
-  weekId,
-  sportId,
-  division,
-  year,
-  legacyWeek,
-}: {
-  pollId: string;
-  weekId: string;
-  sportId: string;
-  division: string;
-  year: number;
-  legacyWeek: number;
-}) {
-  const rows = await selectBallotEntriesForPollWeek({
+export async function getBallotVotesForPollWeek(
+  {
     pollId,
     weekId,
-  });
+    sportId,
+    division,
+    year,
+    legacyWeek,
+  }: {
+    pollId: string;
+    weekId: string;
+    sportId: string;
+    division: string;
+    year: number;
+    legacyWeek: number;
+  },
+  executor: DbExecutor = db,
+) {
+  const rows = await selectBallotEntriesForPollWeek(
+    {
+      pollId,
+      weekId,
+    },
+    executor,
+  );
 
   return mapBallotEntryRows(rows, {
     division,
@@ -606,6 +633,7 @@ export async function submitBallot({
   entries: Array<{ schoolId: string; rank: number; points: number }>;
 }) {
   return db.transaction(async (tx) => {
+    await lockPollWeek(tx, pollId, weekId);
     await assertPollWeekUnlocked(tx, pollId, weekId);
 
     const [ballot] = await tx
@@ -642,7 +670,7 @@ export class PollWeekLockedError extends Error {
 }
 
 async function assertPollWeekUnlocked(
-  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  tx: DbTransaction,
   pollId: string,
   weekId: string,
 ) {
@@ -674,6 +702,7 @@ export async function updateBallot({
   entries: Array<{ schoolId: string; rank: number; points: number }>;
 }) {
   return db.transaction(async (tx) => {
+    await lockPollWeek(tx, pollId, weekId);
     await assertPollWeekUnlocked(tx, pollId, weekId);
 
     const [existing] = await tx
@@ -739,6 +768,10 @@ export async function reassignBallotWeek({
   }
 
   return db.transaction(async (tx) => {
+    // Lock in a stable order so two reassignments can't deadlock.
+    for (const weekId of [fromWeekId, toWeekId].sort()) {
+      await lockPollWeek(tx, pollId, weekId);
+    }
     await assertPollWeekUnlocked(tx, pollId, fromWeekId);
     await assertPollWeekUnlocked(tx, pollId, toWeekId);
 
