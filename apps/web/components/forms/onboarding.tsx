@@ -23,26 +23,21 @@ import { Input } from "@redshirt-sports/ui/components/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { completeOnboarding } from "@/actions/complete-onboarding";
-
-const FormSchema = z.object({
-  organizationName: z.string().min(2, {
-    error: "Organization Name must be at least 2 characters",
-  }),
-  organizationRole: z.string().min(2, {
-    error: "Organization Role must be at least 2 characters",
-  }),
-});
+import { safeRedirectPath } from "@/lib/safe-redirect";
+import {
+  type OnboardingValues,
+  onboardingSchema,
+} from "@/lib/schemas/onboarding";
 
 export default function Onboarding() {
   const { user } = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<OnboardingValues>({
+    resolver: zodResolver(onboardingSchema),
     defaultValues: {
       organizationName: "",
       organizationRole: "",
@@ -57,7 +52,10 @@ export default function Onboarding() {
     if (res?.message) {
       await user?.reload();
       toast.success("Onboarding completed successfully!");
-      const redirectUrl = searchParams.get("redirect_url");
+      const redirectUrl = safeRedirectPath(
+        searchParams.get("redirect_url"),
+        window.location.origin,
+      );
       if (redirectUrl) {
         router.push(redirectUrl);
       }

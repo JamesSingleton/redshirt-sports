@@ -88,6 +88,30 @@ describe("Onboarding", () => {
     });
   });
 
+  it("ignores an off-site redirect_url", async () => {
+    mockSearchParams.mockReturnValue(
+      new URLSearchParams("redirect_url=https://evil.example/phish"),
+    );
+    mockCompleteOnboarding.mockResolvedValue({ message: "ok" });
+    const user = userEvent.setup();
+    render(<Onboarding />);
+
+    await user.type(
+      screen.getByPlaceholderText("Enter your organization's name"),
+      "Redshirt Sports",
+    );
+    await user.type(
+      screen.getByPlaceholderText("Enter your job title or role"),
+      "Editor",
+    );
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalled();
+    });
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
   it("skips redirect when no redirect_url search param is present", async () => {
     mockSearchParams.mockReturnValue(new URLSearchParams());
     mockCompleteOnboarding.mockResolvedValue({ message: "ok" });
