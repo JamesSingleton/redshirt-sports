@@ -2,10 +2,10 @@ import {
   cachedSanity,
   type DynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
-import { globalNavigationQuery } from "@redshirt-sports/sanity/queries";
+import { queryNavbarData } from "@redshirt-sports/sanity/queries";
 import type {
-  GlobalNavigationQueryResult,
   QueryGlobalSeoSettingsResult,
+  QueryNavbarDataResult,
 } from "@redshirt-sports/sanity/types";
 import type { StegaBranded } from "next-sanity";
 import { memo } from "react";
@@ -15,69 +15,55 @@ import {
   NavbarSkeletonResponsive,
 } from "@/components/navbar-client";
 import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
-import { getCachedNavbarLatestRankings } from "@/lib/rankings-data";
 import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 
-export interface RankingPeriod {
-  division: string;
-  week: number;
-  year: number;
-}
-
-export type RankingPeriodOrUndefined = RankingPeriod | undefined;
-
-export interface SportRankings {
-  sport: string;
-  divisions: RankingPeriodOrUndefined[];
-}
-
-export type Top25RankingsData = SportRankings[];
+export type NavbarItems = NonNullable<
+  NonNullable<StegaBranded<QueryNavbarDataResult>>["items"]
+>;
+export type NavbarItem = NavbarItems[number];
+export type NavSportMenuItem = Extract<NavbarItem, { _type: "navSportMenu" }>;
+export type NavRankingsMenuItem = Extract<
+  NavbarItem,
+  { _type: "navRankingsMenu" }
+>;
+export type NavColumnItem = Extract<NavbarItem, { _type: "navbarColumn" }>;
+export type NavLinkItem = Extract<NavbarItem, { _type: "navbarLink" }>;
 
 export async function DynamicNavbarServer() {
   return <CachedNavbarServer {...(await resolveDynamicFetchOptions())} />;
 }
 
+/**
+ * Navigation comes only from the Sanity `navbar` singleton (and the sports and
+ * divisions it references). No Postgres data: the navbar is in every page's
+ * static shell, so anything it reads would invalidate every page.
+ */
 async function getNavbarSanity({ perspective, stega }: DynamicFetchOptions) {
   const [{ data: navbarData }, settingsData] = await Promise.all([
     cachedSanity({
-      query: globalNavigationQuery,
+      query: queryNavbarData,
       perspective,
       stega,
     }),
     fetchGlobalSeoSettings(perspective),
   ]);
-  return { navbarData, settingsData };
+  return { items: navbarData?.items ?? [], settingsData };
 }
 
 export async function CachedNavbarServer({
   perspective,
   stega,
 }: DynamicFetchOptions) {
-  const { navbarData, settingsData } = await getNavbarSanity({
-    perspective,
-    stega,
-  });
-  const latestRankingsPromise = getCachedNavbarLatestRankings();
-
-  return (
-    <MemoizedNavbar
-      navbarData={navbarData}
-      settingsData={settingsData}
-      latestRankingsPromise={latestRankingsPromise}
-    />
-  );
+  const { items, settingsData } = await getNavbarSanity({ perspective, stega });
+  return <MemoizedNavbar items={items} settingsData={settingsData} />;
 }
 
 const MemoizedNavbar = memo(function Navbar({
-  navbarData,
+  items,
   settingsData,
-  latestRankings,
-  latestRankingsPromise,
 }: {
-  navbarData: StegaBranded<GlobalNavigationQueryResult>;
+  items: NavbarItems;
   settingsData: QueryGlobalSeoSettingsResult;
-  latestRankings?: Top25RankingsData;
-  latestRankingsPromise?: Promise<Top25RankingsData>;
 }) {
   return (
     <header
@@ -86,12 +72,7 @@ const MemoizedNavbar = memo(function Navbar({
     >
       <div className="relative">
         <div className="mx-auto flex h-14 max-w-site items-center gap-3 px-4 lg:h-16 lg:px-6">
-          <NavbarClient
-            navbarData={navbarData}
-            settingsData={settingsData}
-            latestRankings={latestRankings}
-            latestRankingsPromise={latestRankingsPromise}
-          />
+          <NavbarClient items={items} settingsData={settingsData} />
         </div>
       </div>
     </header>

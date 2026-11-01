@@ -7,7 +7,6 @@ export type RankingsDataMocks = {
   getCachedWeeksThatHaveVotes: Mock;
   getCachedFinalRankings: Mock;
   getCachedBallotsForWeek: Mock;
-  getCachedNavbarLatestRankings: Mock;
   getCachedSchoolRankingHistory: Mock;
   getCachedSchoolHasPollRankings: Mock;
   getCachedRankedSchoolSanityIds: Mock;
@@ -31,12 +30,6 @@ export function createRankingsDataMocks(): RankingsDataMocks {
     getCachedWeeksThatHaveVotes: vi.fn().mockResolvedValue(sampleWeeks),
     getCachedFinalRankings: vi.fn().mockResolvedValue(sampleFinalRankings),
     getCachedBallotsForWeek: vi.fn().mockResolvedValue([]),
-    getCachedNavbarLatestRankings: vi.fn().mockResolvedValue([
-      {
-        sport: "football",
-        divisions: [{ division: "fbs", week: 1, year: 2025 }],
-      },
-    ]),
     getCachedSchoolRankingHistory: vi.fn().mockResolvedValue({}),
     getCachedSchoolHasPollRankings: vi.fn().mockResolvedValue(true),
     getCachedRankedSchoolSanityIds: vi

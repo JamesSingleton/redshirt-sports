@@ -497,33 +497,53 @@ export const queryGlobalSeoSettings = defineQuery(/* groq */ `
   }
 `);
 
+const navSportFragment = /* groq */ `
+  _id,
+  "name": title,
+  "slug": slug.current,
+  "polls": polls[defined(slug)]{ _key, slug, label }
+`;
+
+/**
+ * Site navigation from the `navbar` singleton. Reads only that document and
+ * the sports/divisions it references, so post publishes don't change its
+ * cache tags (the navbar is in every page's static shell).
+ */
 export const queryNavbarData = defineQuery(/* groq */ `
   *[_type == "navbar" && _id == "navbar"][0]{
     _id,
-    columns[]{
+    "items": items[]{
       _key,
+      _type,
+      _type == "navSportMenu" => {
+        label,
+        "sport": sport->{ ${navSportFragment} },
+        "divisions": divisions[defined(@->slug.current)]->{
+          _id,
+          "name": coalesce(shortName, name, title),
+          "slug": slug.current
+        }
+      },
+      _type == "navRankingsMenu" => {
+        "label": coalesce(label, "Rankings"),
+        "sports": sports[defined(@->slug.current)]->{ ${navSportFragment} }
+      },
       _type == "navbarColumn" => {
-        "type": "column",
         title,
         links[]{
           _key,
           name,
-          icon,
           description,
           "openInNewTab": url.openInNewTab,
           ${customUrlHrefFragment}
         }
       },
       _type == "navbarLink" => {
-        "type": "link",
         name,
-        description,
         "openInNewTab": url.openInNewTab,
         ${customUrlHrefFragment}
       }
-    },
-    "logo": *[_type == "settings"][0].logo.asset->url + "?w=70&h=40&dpr=3&fit=max",
-    "siteTitle": *[_type == "settings"][0].siteTitle,
+    }
   }
 `);
 

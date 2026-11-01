@@ -11,12 +11,12 @@ const {
   mockResolveDynamicFetchOptions,
   mockSanityFetch,
   mockFetchGlobalSeoSettings,
-  mockGetCachedNavbarLatestRankings,
+  mockNavbarClient,
 } = vi.hoisted(() => ({
   mockResolveDynamicFetchOptions: vi.fn(),
   mockSanityFetch: vi.fn(),
   mockFetchGlobalSeoSettings: vi.fn(),
-  mockGetCachedNavbarLatestRankings: vi.fn(),
+  mockNavbarClient: vi.fn(),
 }));
 
 vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
@@ -35,12 +35,11 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
   cachedSanity: mockSanityFetch,
 }));
 
-vi.mock("@/lib/rankings-data", () => ({
-  getCachedNavbarLatestRankings: mockGetCachedNavbarLatestRankings,
-}));
-
 vi.mock("@/components/navbar-client", () => ({
-  NavbarClient: () => <nav data-testid="navbar-client">Client navbar</nav>,
+  NavbarClient: (props: { items: unknown[] }) => {
+    mockNavbarClient(props);
+    return <nav data-testid="navbar-client">Client navbar</nav>;
+  },
   NavbarSkeletonResponsive: () => (
     <div data-testid="navbar-skeleton-responsive">Skeleton</div>
   ),
@@ -50,34 +49,23 @@ vi.mock("@/components/logo", () => ({
   Logo: ({ alt }: { alt?: string | null }) => <div>{alt}</div>,
 }));
 
-const navbarData = [{ _id: "sport-1", name: "Football", slug: "football" }];
+const items = [{ _key: "teams", _type: "navbarLink", name: "Teams" }];
 const settingsData = {
   siteTitle: "Redshirt Sports",
   logo: { alt: "Logo" },
 };
-const latestRankings = [{ sport: "football", divisions: [] }];
 
 describe("Navbar", () => {
   it("renders the client navbar", () => {
     render(
-      <Navbar
-        navbarData={navbarData as never}
-        settingsData={settingsData as never}
-        latestRankings={latestRankings}
-      />,
+      <Navbar items={items as never} settingsData={settingsData as never} />,
     );
 
     expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
   });
 
-  it("renders with empty rankings", () => {
-    render(
-      <Navbar
-        navbarData={navbarData as never}
-        settingsData={null as never}
-        latestRankings={undefined}
-      />,
-    );
+  it("renders with empty settings", () => {
+    render(<Navbar items={[]} settingsData={null as never} />);
 
     expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
   });
@@ -94,12 +82,12 @@ describe("NavbarSkeleton", () => {
 
 describe("CachedNavbarServer", () => {
   beforeEach(() => {
-    mockGetCachedNavbarLatestRankings.mockResolvedValue(latestRankings);
-    mockSanityFetch.mockResolvedValue({ data: navbarData });
+    mockSanityFetch.mockReset().mockResolvedValue({ data: { items } });
     mockFetchGlobalSeoSettings.mockResolvedValue(settingsData);
+    mockNavbarClient.mockReset();
   });
 
-  it("fetches navbar data and renders the memoized navbar", async () => {
+  it("renders the navbar document's items, with no Postgres reads", async () => {
     const component = await CachedNavbarServer({
       perspective: "published",
       stega: false,
@@ -108,8 +96,20 @@ describe("CachedNavbarServer", () => {
 
     expect(mockSanityFetch).toHaveBeenCalledTimes(1);
     expect(mockFetchGlobalSeoSettings).toHaveBeenCalledTimes(1);
-    expect(mockGetCachedNavbarLatestRankings).toHaveBeenCalled();
-    expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
+    expect(mockNavbarClient).toHaveBeenCalledWith(
+      expect.objectContaining({ items }),
+    );
+  });
+
+  it("renders an empty nav when the navbar document is missing", async () => {
+    mockSanityFetch.mockResolvedValue({ data: null });
+    render(
+      await CachedNavbarServer({ perspective: "published", stega: false }),
+    );
+
+    expect(mockNavbarClient).toHaveBeenCalledWith(
+      expect.objectContaining({ items: [] }),
+    );
   });
 });
 

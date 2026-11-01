@@ -1,140 +1,104 @@
-import { formatWeekSegment } from "@redshirt-sports/clients/espn";
-import type { GlobalNavigationQueryResult } from "@redshirt-sports/sanity/types";
-import { ChevronRight } from "lucide-react";
+import { NavigationMenuLink } from "@redshirt-sports/ui/components/navigation-menu";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import type { StegaBranded } from "next-sanity";
 
-import type { Top25RankingsData } from "@/components/navbar";
 import {
-  navLatestPolls,
-  pollNavLabel,
-  sportHasRankingsNav,
+  NavListItem,
+  NavSectionLabel,
+} from "@/components/chrome/nav-list-item";
+import type { NavSportMenuItem } from "@/components/navbar";
+import { pollLatestPath } from "@/lib/rankings/poll-paths";
+import {
+  navPollLabel,
   sportHubPath,
   sportNavLabel,
   sportRankingsIndexPath,
 } from "@/lib/sport-nav";
 
-export function SportMegaPanel({
-  sport,
-  latestRankings,
-  onNavigate,
-}: {
-  sport: StegaBranded<GlobalNavigationQueryResult>[number];
-  latestRankings: Top25RankingsData;
-  onNavigate?: () => void;
-}) {
-  const label = sportNavLabel(sport.slug, sport.name);
-  const showRankings = sportHasRankingsNav(latestRankings, sport.slug);
-  const latestPolls = navLatestPolls(
-    latestRankings.find((r) => r.sport === sport.slug)?.divisions ?? [],
+export function sportMenuLabel(item: NavSportMenuItem): string {
+  return item.label?.trim() || sportNavLabel(item.sport.slug, item.sport.name);
+}
+
+/** One-line summary for the hub card, built from the menu's divisions. */
+export function sportHubBlurb(names: string[]): string {
+  if (names.length === 0) return "Every story, all season long.";
+  if (names.length === 1) return `Every story from ${names[0]}.`;
+  return `Every story from ${names.slice(0, -1).join(", ")} and ${names.at(-1)}.`;
+}
+
+/** Sport dropdown: hub card, the sport's Top 25 polls, and division news. */
+export function SportMenuContent({ item }: { item: NavSportMenuItem }) {
+  const { sport } = item;
+  const label = sportMenuLabel(item);
+  const polls = sport.polls ?? [];
+  const divisions = (item.divisions ?? []).filter(
+    (division): division is typeof division & { slug: string } =>
+      Boolean(division.slug),
   );
 
   return (
-    <>
-      <div className="mx-auto flex max-w-site items-center gap-3 border-b px-6 py-2.5 text-sm">
+    <div className="grid w-[560px] gap-3 p-1 lg:w-[620px] lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
+      <NavigationMenuLink asChild>
         <Link
           href={sportHubPath(sport.slug)}
-          className="font-semibold hover:underline"
           prefetch={false}
-          onClick={onNavigate}
+          className="flex h-full min-h-44 flex-col justify-end rounded-md bg-linear-to-br from-primary/15 via-muted/60 to-muted p-5 no-underline outline-hidden select-none focus:shadow-md"
         >
-          {label} hub
-          <ChevronRight className="ml-0.5 inline size-3.5 opacity-60" />
+          <span className="kicker text-primary">News hub</span>
+          <span className="mt-1 font-display text-2xl font-bold uppercase leading-tight">
+            {label}
+          </span>
+          <span className="mt-2 text-sm leading-snug text-muted-foreground">
+            {sportHubBlurb(divisions.map((division) => division.name))}
+          </span>
+          <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium">
+            All {label} news
+            <ArrowRight className="size-3.5" aria-hidden />
+          </span>
         </Link>
-      </div>
-      <div className="mx-auto grid max-w-site grid-cols-[1fr_1fr_1fr_1.1fr] gap-8 px-6 py-6">
-        <div>
-          <div className="kicker mb-2 text-primary">{label}</div>
-          <ul className="grid gap-0.5">
-            <li>
-              <Link
-                href={sportHubPath(sport.slug)}
-                className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
-                prefetch={false}
-                onClick={onNavigate}
-              >
-                All {label} news
-                <ChevronRight className="size-3.5 opacity-40" />
-              </Link>
-            </li>
-            {showRankings ? (
-              <li>
-                <Link
-                  href={sportRankingsIndexPath(sport.slug)}
-                  className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
-                  prefetch={false}
-                  onClick={onNavigate}
+      </NavigationMenuLink>
+      <div className="grid content-start gap-3">
+        {polls.length > 0 ? (
+          <div>
+            <NavSectionLabel>Top 25</NavSectionLabel>
+            <ul className="grid gap-0.5">
+              {polls.map((poll) => (
+                <NavListItem
+                  key={poll._key}
+                  href={pollLatestPath(sport.slug, poll.slug)}
+                  title={`${navPollLabel(poll)} Top 25`}
                 >
-                  Rankings
-                  <ChevronRight className="size-3.5 opacity-40" />
-                </Link>
-              </li>
-            ) : null}
-          </ul>
-        </div>
-        <div>
-          <div className="kicker mb-2 text-muted-foreground">By division</div>
-          <ul className="grid gap-0.5">
-            {sport.groupings.map((grouping) =>
-              grouping?.slug ? (
-                <li key={grouping._id}>
-                  <Link
-                    href={`/college/${sport.slug}/news/${grouping.slug}`}
-                    className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
-                    prefetch={false}
-                    onClick={onNavigate}
-                  >
-                    {grouping.name} news
-                    <ChevronRight className="size-3.5 opacity-40" />
-                  </Link>
-                </li>
-              ) : null,
-            )}
-          </ul>
-        </div>
-        <div>
-          <div className="kicker mb-2 text-muted-foreground">Teams</div>
-          <ul className="grid gap-0.5">
-            <li>
-              <Link
-                href="/college/teams"
-                className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm font-semibold hover:bg-accent hover:text-accent-foreground"
-                prefetch={false}
-                onClick={onNavigate}
-              >
-                All teams A–Z
-                <ChevronRight className="size-3.5 opacity-40" />
-              </Link>
-            </li>
-          </ul>
-        </div>
-        <div className="rounded-xl border bg-muted/50 p-4">
-          <div className="kicker mb-2 text-muted-foreground">Latest Top 25</div>
-          {latestPolls.length > 0 ? (
-            <ul className="grid gap-3">
-              {latestPolls.map((poll) => (
-                <li key={poll.division}>
-                  <Link
-                    href={`/college/${sport.slug}/rankings/${poll.division}/${poll.year}/${formatWeekSegment(poll.week)}`}
-                    className="block rounded-md hover:underline"
-                    prefetch={false}
-                    onClick={onNavigate}
-                  >
-                    <span className="font-display text-lg font-bold uppercase leading-tight">
-                      {pollNavLabel(poll.division)} Top 25
-                    </span>
-                    <span className="mt-0.5 block text-sm text-muted-foreground">
-                      Week {poll.week} poll and ballots
-                    </span>
-                  </Link>
+                  Latest poll and every voter&apos;s ballot
+                </NavListItem>
+              ))}
+              <NavListItem
+                href={sportRankingsIndexPath(sport.slug)}
+                title="All rankings"
+              />
+            </ul>
+          </div>
+        ) : null}
+        {divisions.length > 0 ? (
+          <div>
+            <NavSectionLabel>News by division</NavSectionLabel>
+            <ul className="flex flex-wrap gap-1.5 px-2">
+              {divisions.map((division) => (
+                <li key={division._id}>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href={`/college/${sport.slug}/news/${division.slug}`}
+                      prefetch={false}
+                      className="inline-flex flex-row items-center rounded-full border px-3 py-1 text-xs font-medium"
+                    >
+                      {division.name}
+                    </Link>
+                  </NavigationMenuLink>
                 </li>
               ))}
             </ul>
-          ) : (
-            <p className="text-sm text-muted-foreground">Coming soon</p>
-          )}
-        </div>
+          </div>
+        ) : null}
       </div>
-    </>
+    </div>
   );
 }
