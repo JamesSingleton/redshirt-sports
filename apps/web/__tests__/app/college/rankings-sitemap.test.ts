@@ -2,14 +2,17 @@ import sitemap, {
   generateSitemaps,
 } from "@/app/college/[sport]/rankings/sitemap";
 
-const { mockGetYearsWithVotes, mockListSports } = vi.hoisted(() => ({
-  mockGetYearsWithVotes: vi.fn(),
-  mockListSports: vi.fn(),
-}));
+const { mockGetYearsWithVotes, mockListSports, mockGetLatestFinalRankings } =
+  vi.hoisted(() => ({
+    mockGetYearsWithVotes: vi.fn(),
+    mockListSports: vi.fn(),
+    mockGetLatestFinalRankings: vi.fn(),
+  }));
 
 vi.mock("@redshirt-sports/db/queries", () => ({
   getYearsWithVotes: mockGetYearsWithVotes,
   listSports: mockListSports,
+  getLatestFinalRankings: mockGetLatestFinalRankings,
 }));
 
 vi.mock("@/lib/get-base-url", () => ({
@@ -19,6 +22,7 @@ vi.mock("@/lib/get-base-url", () => ({
 describe("college rankings sitemap", () => {
   beforeEach(() => {
     mockGetYearsWithVotes.mockReset();
+    mockGetLatestFinalRankings.mockReset().mockResolvedValue(undefined);
     mockListSports
       .mockReset()
       .mockResolvedValue([
@@ -87,6 +91,56 @@ describe("college rankings sitemap", () => {
     expect(urls).not.toContain(
       "https://redshirtsports.com/college/football/rankings/fcs/methodology",
     );
+  });
+
+  it("lists each published poll's stable URL with its latest publish date", async () => {
+    const publishedAt = new Date("2026-10-26T15:00:00Z");
+    mockGetYearsWithVotes.mockResolvedValue([
+      { year: 2026, week: 7, division: "fcs", sport: "football" },
+      { year: 2026, week: 8, division: "fcs", sport: "football" },
+      { year: 2026, week: 1, division: "mid-major", sport: "mens-basketball" },
+    ]);
+    mockGetLatestFinalRankings.mockImplementation(
+      async ({ division }: { division: string }) =>
+        division === "fcs"
+          ? { division, week: 8, year: 2026, publishedAt }
+          : { division, week: 1, year: 2026, publishedAt: null },
+    );
+
+    const entries = await sitemap();
+    const fcs = entries.filter(
+      (entry) =>
+        entry.url ===
+        "https://redshirtsports.com/college/football/rankings/fcs",
+    );
+    const midMajor = entries.find(
+      (entry) =>
+        entry.url ===
+        "https://redshirtsports.com/college/mens-basketball/rankings/mid-major",
+    );
+
+    expect(fcs).toEqual([
+      {
+        url: "https://redshirtsports.com/college/football/rankings/fcs",
+        changeFrequency: "weekly",
+        priority: 0.8,
+        lastModified: publishedAt,
+      },
+    ]);
+    expect(midMajor).toEqual({
+      url: "https://redshirtsports.com/college/mens-basketball/rankings/mid-major",
+      changeFrequency: "weekly",
+      priority: 0.8,
+    });
+    expect(mockGetLatestFinalRankings).toHaveBeenCalledWith({
+      division: "fcs",
+      sport: "football",
+    });
+    expect(
+      entries.some((entry) =>
+        entry.url.endsWith("/rankings/power-conferences"),
+      ),
+    ).toBe(false);
   });
 
   it("skips sports and weeks that are not public ranking sports", async () => {

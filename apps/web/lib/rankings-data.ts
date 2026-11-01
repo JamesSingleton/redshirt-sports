@@ -138,6 +138,25 @@ export async function getCachedLatestFinalRankings({
   return getLatestFinalRankings({ division });
 }
 
+/**
+ * Latest published week for one sport's poll, for the stable
+ * `/college/{sport}/rankings/{poll}` page. Tagged with the poll's division
+ * tag, which publish/unpublish expire, so the page moves to a new week as
+ * soon as it is published.
+ */
+export async function getCachedLatestPublishedPoll({
+  sport,
+  division,
+}: {
+  sport: string;
+  division: string;
+}) {
+  "use cache";
+  cacheTag(rankingsDivisionTag(sport, division));
+  cacheLife(RANKINGS_CACHE_LIFE);
+  return (await getLatestFinalRankings({ division, sport })) ?? null;
+}
+
 export async function getCachedLatestFinalRankingsBySportSlug(
   sportSlug: string,
 ) {

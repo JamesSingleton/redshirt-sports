@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { AdSlot } from "@/components/ad-slot";
 import { JsonLdScript } from "@/components/json-ld";
@@ -13,9 +14,12 @@ import type { RankingsWeekPageModel } from "@/lib/rankings/read-model/week-page-
 export function RankingsWeekPageBody({
   model,
   advertisement = null,
+  context = null,
 }: {
   model: RankingsWeekPageModel;
   advertisement?: AdvertisementCreative | null;
+  /** Line above the poll: "latest poll" details or a link to the latest poll. */
+  context?: ReactNode;
 }) {
   const {
     jsonLd,
@@ -48,6 +52,7 @@ export function RankingsWeekPageBody({
         data={jsonLd}
         id={`json-ld-${sport}-${division}-${year}-${weekSegment}`}
       />
+      {context}
       {ballotsCounted > 0 ? (
         <p className="pt-4 text-sm text-muted-foreground">
           {ballotsCounted} {voterWord} · {ballotsCounted} {ballotWord} counted

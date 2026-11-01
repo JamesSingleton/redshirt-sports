@@ -66,12 +66,15 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   getPollVoterBallotStatsForSeason: mockGetPollVoterBallotStatsForSeason,
 }));
 
+import { cacheTag } from "next/cache";
+
 import {
   getCachedActivePollVoters,
   getCachedFinalRankings,
   getCachedFinalRankingsForLegacyWeeksInYear,
   getCachedLatestFinalRankings,
   getCachedLatestFinalRankingsBySportSlug,
+  getCachedLatestPublishedPoll,
   getCachedPollVoterBallotStatsForSeason,
   getCachedPollWeekBallotContext,
   getCachedRankedSchoolSanityIds,
@@ -151,6 +154,31 @@ describe("rankings-data", () => {
   it("getCachedRankedSchoolSanityIds delegates to db", async () => {
     mockGetRankedSchoolSanityIds.mockResolvedValue(["a", "b"]);
     await expect(getCachedRankedSchoolSanityIds()).resolves.toEqual(["a", "b"]);
+  });
+
+  it("getCachedLatestPublishedPoll scopes by sport and tags the poll", async () => {
+    const latest = { division: "fcs", week: 8, year: 2026, publishedAt: null };
+    mockGetLatestFinalRankings.mockResolvedValueOnce(latest);
+
+    await expect(
+      getCachedLatestPublishedPoll({ sport: "football", division: "fcs" }),
+    ).resolves.toEqual(latest);
+    expect(mockGetLatestFinalRankings).toHaveBeenCalledWith({
+      division: "fcs",
+      sport: "football",
+    });
+    expect(cacheTag).toHaveBeenCalledWith("rankings:football:fcs");
+  });
+
+  it("getCachedLatestPublishedPoll returns null before the first publish", async () => {
+    mockGetLatestFinalRankings.mockResolvedValueOnce(undefined);
+
+    await expect(
+      getCachedLatestPublishedPoll({
+        sport: "mens-basketball",
+        division: "power-conferences",
+      }),
+    ).resolves.toBeNull();
   });
 
   it("getCachedLatestFinalRankings delegates to db", async () => {

@@ -7,6 +7,7 @@ import {
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { RankingsLatestPollLink } from "@/components/rankings/rankings-poll-context";
 import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { RankingsWeekPageBody } from "@/components/rankings/rankings-week-page-body";
 import { loadAdvertisement } from "@/lib/advertisement";
@@ -103,5 +104,17 @@ async function renderCollegeFootballRankingsPage(
     sportSlugs: [sport],
     fetchOptions,
   });
-  return <RankingsWeekPageBody model={model} advertisement={advertisement} />;
+  return (
+    <RankingsWeekPageBody
+      model={model}
+      advertisement={advertisement}
+      context={
+        <RankingsLatestPollLink
+          sport={sport}
+          division={division}
+          divisionName={pollDivisionLabel(division)}
+        />
+      }
+    />
+  );
 }
