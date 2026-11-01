@@ -9,7 +9,8 @@
     "check:types": "tsc --noEmit --emitDeclarationOnly false",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:seed:users-with-ballots": "tsx seeds/users-with-ballots.ts"
+    "db:seed:users-with-ballots": "tsx seeds/users-with-ballots.ts",
+    "test:integration": "vitest run --config vitest.integration.config.mts"
   },
   "exports": {
     "./client": "./src/client.ts",

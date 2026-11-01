@@ -43,6 +43,7 @@ Redshirt Sports is a college sports news website built as a Turborepo monorepo w
 **Packages**:
 - `packages/ui` - Run `pnpm test` or `pnpm test:watch` for component tests
 - `packages/clients` - Run `pnpm test` or `pnpm test:watch` for API client tests
+- `packages/db` - `pnpm test:integration` runs real-Postgres tests (locking, upserts, transactions) against a throwaway `redshirt_it` database on the local Supabase stack; it refuses any non-local host or other database name
 
 ### Running Individual Tests
 To run a specific test file:
