@@ -1,6 +1,5 @@
 import { ComposeIcon } from "@sanity/icons/Compose";
 import { LinkIcon } from "@sanity/icons/Link";
-import { RocketIcon } from "@sanity/icons/Rocket";
 import {
   CogIcon,
   FileText,
@@ -23,7 +22,6 @@ import type {
 } from "sanity/structure";
 import DocumentsPane from "sanity-plugin-documents-pane";
 
-import { DeadLinksCheck, EditorialCheck, Preflight } from "@/plugins/preflight";
 import type { SchemaType, SingletonType } from "@/schemaTypes";
 import { getTitleCase } from "@/utils/helper";
 
@@ -69,14 +67,6 @@ export const getDefaultDocumentNode: DefaultDocumentNodeResolver = (
     case "post":
       return S.document().views([
         S.view.form().icon(ComposeIcon),
-        S.view
-          .component(
-            Preflight({
-              checks: [DeadLinksCheck(), EditorialCheck()],
-            }),
-          )
-          .title("Preflight")
-          .icon(RocketIcon),
         postReferences(S),
       ]);
     case "conference":

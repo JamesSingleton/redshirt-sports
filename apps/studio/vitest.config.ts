@@ -12,5 +12,7 @@ export default defineConfig({
   },
   test: {
     globals: true,
+    // Studio currently has no unit tests; keep `pnpm test` green until it does.
+    passWithNoTests: true,
   },
 });
