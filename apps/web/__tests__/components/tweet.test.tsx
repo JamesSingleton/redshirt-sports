@@ -2,10 +2,23 @@ import { act, render, screen } from "@testing-library/react";
 
 import { getAndCacheTweet, ReactTweet, TweetContent } from "@/components/tweet";
 
-const { mockFetchTweet, mockRedisSet, mockRedisDel } = vi.hoisted(() => ({
+const {
+  mockFetchTweet,
+  mockRedisGet,
+  mockRedisSet,
+  mockRedisDel,
+  mockCacheLife,
+} = vi.hoisted(() => ({
   mockFetchTweet: vi.fn(),
+  mockRedisGet: vi.fn(),
   mockRedisSet: vi.fn(),
   mockRedisDel: vi.fn(),
+  mockCacheLife: vi.fn(),
+}));
+
+vi.mock("next/cache", () => ({
+  cacheLife: mockCacheLife,
+  cacheTag: vi.fn(),
 }));
 
 vi.mock("react-tweet/api", () => ({
@@ -16,14 +29,12 @@ vi.mock("react-tweet", () => ({
   EmbeddedTweet: ({ tweet }: { tweet: { id_str: string } }) => (
     <div data-testid="embedded-tweet">{tweet.id_str}</div>
   ),
-  TweetNotFound: ({ error }: { error?: unknown }) => (
-    <div data-testid="tweet-not-found">{error ? "error" : "missing"}</div>
-  ),
   TweetSkeleton: () => <div data-testid="tweet-skeleton">loading</div>,
 }));
 
 vi.mock("@/utils/redis", () => ({
   default: {
+    get: mockRedisGet,
     set: mockRedisSet,
     del: mockRedisDel,
   },
@@ -32,8 +43,10 @@ vi.mock("@/utils/redis", () => ({
 describe("getAndCacheTweet", () => {
   beforeEach(() => {
     mockFetchTweet.mockReset();
+    mockRedisGet.mockReset().mockResolvedValue(null);
     mockRedisSet.mockReset();
     mockRedisDel.mockReset();
+    mockCacheLife.mockReset();
   });
 
   it("caches fetched tweet data", async () => {
@@ -43,8 +56,24 @@ describe("getAndCacheTweet", () => {
       notFound: false,
     });
 
-    await expect(getAndCacheTweet("123")).resolves.toEqual({ id_str: "123" });
+    await expect(getAndCacheTweet("123")).resolves.toEqual({
+      status: "ok",
+      tweet: { id_str: "123" },
+    });
     expect(mockRedisSet).toHaveBeenCalledWith("tweet:123", { id_str: "123" });
+    expect(mockCacheLife).toHaveBeenCalledWith("max");
+  });
+
+  it("serves a stored tweet from redis without calling Twitter", async () => {
+    mockRedisGet.mockResolvedValue({ id_str: "456" });
+
+    await expect(getAndCacheTweet("456")).resolves.toEqual({
+      status: "ok",
+      tweet: { id_str: "456" },
+    });
+    expect(mockRedisGet).toHaveBeenCalledWith("tweet:456");
+    expect(mockFetchTweet).not.toHaveBeenCalled();
+    expect(mockCacheLife).toHaveBeenCalledWith("max");
   });
 
   it("deletes cache entries for tombstoned tweets", async () => {
@@ -54,8 +83,11 @@ describe("getAndCacheTweet", () => {
       notFound: false,
     });
 
-    await expect(getAndCacheTweet("missing")).resolves.toBeUndefined();
+    await expect(getAndCacheTweet("missing")).resolves.toEqual({
+      status: "unavailable",
+    });
     expect(mockRedisDel).toHaveBeenCalledWith("tweet:missing");
+    expect(mockCacheLife).toHaveBeenCalledWith("days");
   });
 
   it("deletes cache entries when tweet is not found", async () => {
@@ -65,7 +97,9 @@ describe("getAndCacheTweet", () => {
       notFound: true,
     });
 
-    await expect(getAndCacheTweet("not-found")).resolves.toBeUndefined();
+    await expect(getAndCacheTweet("not-found")).resolves.toEqual({
+      status: "unavailable",
+    });
     expect(mockRedisDel).toHaveBeenCalledWith("tweet:not-found");
   });
 
@@ -76,16 +110,40 @@ describe("getAndCacheTweet", () => {
       notFound: false,
     });
 
-    await expect(getAndCacheTweet("empty")).resolves.toBeUndefined();
+    await expect(getAndCacheTweet("empty")).resolves.toEqual({
+      status: "error",
+    });
     expect(mockRedisDel).not.toHaveBeenCalled();
     expect(mockRedisSet).not.toHaveBeenCalled();
+    expect(mockCacheLife).toHaveBeenCalledWith("hours");
+  });
+
+  it("still fetches from Twitter when redis is unavailable", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockRedisGet.mockRejectedValue(new Error("ECONNREFUSED"));
+    mockRedisSet.mockRejectedValue(new Error("ECONNREFUSED"));
+    mockFetchTweet.mockResolvedValue({
+      data: { id_str: "321" },
+      tombstone: false,
+      notFound: false,
+    });
+
+    await expect(getAndCacheTweet("321")).resolves.toEqual({
+      status: "ok",
+      tweet: { id_str: "321" },
+    });
+    expect(mockCacheLife).toHaveBeenCalledWith("max");
+    consoleSpy.mockRestore();
   });
 
   it("logs and returns undefined when fetch fails", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockFetchTweet.mockRejectedValue(new Error("network"));
 
-    await expect(getAndCacheTweet("error")).resolves.toBeUndefined();
+    await expect(getAndCacheTweet("error")).resolves.toEqual({
+      status: "error",
+    });
+    expect(mockCacheLife).toHaveBeenCalledWith("hours");
     consoleSpy.mockRestore();
   });
 });
@@ -93,8 +151,10 @@ describe("getAndCacheTweet", () => {
 describe("TweetContent", () => {
   beforeEach(() => {
     mockFetchTweet.mockReset();
+    mockRedisGet.mockReset().mockResolvedValue(null);
     mockRedisSet.mockReset();
     mockRedisDel.mockReset();
+    mockCacheLife.mockReset();
   });
 
   it("renders the embedded tweet when data exists", async () => {
@@ -108,15 +168,24 @@ describe("TweetContent", () => {
     expect(screen.getByTestId("embedded-tweet")).toHaveTextContent("123");
   });
 
-  it("renders not found when tweet data is missing", async () => {
+  it("renders nothing for a deleted tweet", async () => {
     mockFetchTweet.mockResolvedValue({
       data: undefined,
-      tombstone: false,
-      notFound: true,
+      tombstone: true,
+      notFound: false,
     });
 
-    render(await TweetContent({ id: "missing" }));
-    expect(screen.getByTestId("tweet-not-found")).toHaveTextContent("missing");
+    await expect(TweetContent({ id: "missing" })).resolves.toBeNull();
+  });
+
+  it("links to the post on X when Twitter can't be reached", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mockFetchTweet.mockRejectedValue(new Error("network"));
+
+    render(await TweetContent({ id: "789" }));
+    expect(
+      screen.getByRole("link", { name: "View this post on X" }),
+    ).toHaveAttribute("href", "https://x.com/i/status/789");
   });
 });
 
