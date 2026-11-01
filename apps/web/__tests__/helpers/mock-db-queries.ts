@@ -13,6 +13,7 @@ export type DbQueryMocks = {
   getLatestVoterBallot: Mock;
   createUser: Mock;
   updateUser: Mock;
+  deactivateUser: Mock;
   getUserDisplayFields: Mock;
   revokeAssignmentsForNonVoters: Mock;
   upsertSchoolFromSanity: Mock;
@@ -40,6 +41,7 @@ export function createDbQueryMocks(): DbQueryMocks {
     getLatestVoterBallot: vi.fn(),
     createUser: vi.fn(),
     updateUser: vi.fn(),
+    deactivateUser: vi.fn(),
     getUserDisplayFields: vi.fn(),
     revokeAssignmentsForNonVoters: vi.fn(),
     upsertSchoolFromSanity: vi.fn(),
