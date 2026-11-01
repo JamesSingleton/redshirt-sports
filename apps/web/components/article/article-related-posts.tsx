@@ -42,7 +42,7 @@ export function ArticleRelatedPosts({
                     height={96}
                     className="h-full w-full object-cover"
                     mode="cover"
-                    sizes={IMAGE_SIZES.articleCard}
+                    sizes={IMAGE_SIZES.relatedThumb}
                   />
                 </div>
               ) : null}

@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 
-import CustomImage from "@/components/sanity-image";
+import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import type { ArticleTeamInStory } from "@/lib/article-page";
 
 function useScrollFades(scrollerRef: RefObject<HTMLElement | null>) {
@@ -97,6 +97,7 @@ export function ArticleTaggedTeamsRow({
                     height={32}
                     className="size-8 shrink-0 object-contain"
                     mode="contain"
+                    sizes={IMAGE_SIZES.logoChip}
                   />
                 ) : null}
                 <span className="line-clamp-2 min-w-0 flex-1 leading-snug">

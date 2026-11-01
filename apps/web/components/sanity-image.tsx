@@ -17,6 +17,10 @@ export const IMAGE_SIZES = {
   articleInline: "(max-width: 1024px) 100vw, min(720px, 70vw)",
   teamFeatured: "(max-width: 768px) 100vw, 50vw",
   teamThumbnail: "180px",
+  /** "Articles you might also like" thumbnail: 6rem, 8rem from `sm`. */
+  relatedThumb: "(min-width: 640px) 128px, 96px",
+  /** School logo chips (e.g. "Schools in this article"). */
+  logoChip: "32px",
 } as const;
 
 type CustomSanityImageProps = SanityImageProps & {
@@ -26,6 +30,31 @@ type CustomSanityImageProps = SanityImageProps & {
 
 function ImageWrapper(props: WrapperProps<"img">) {
   return <BaseSanityImage baseUrl={SANITY_BASE_URL} {...props} />;
+}
+
+/**
+ * Render dimensions: explicit props first; a missing side is derived from the
+ * asset's aspect ratio; with neither prop, fall back to the asset's size.
+ */
+export function renderSize(
+  width: number | undefined,
+  height: number | undefined,
+  assetWidth: number | undefined,
+  assetHeight: number | undefined,
+): { width?: number; height?: number } {
+  const ratio =
+    assetWidth && assetHeight ? assetHeight / assetWidth : undefined;
+  if (width && height) return { width, height };
+  if (width) {
+    return ratio ? { width, height: Math.round(width * ratio) } : { width };
+  }
+  if (height) {
+    return ratio ? { width: Math.round(height / ratio), height } : { height };
+  }
+  return {
+    ...(assetWidth ? { width: assetWidth } : {}),
+    ...(assetHeight ? { height: assetHeight } : {}),
+  };
 }
 
 function warnMissingAlt(id: string, alt: string) {
@@ -59,7 +88,7 @@ export function SanityImage({
         width={width}
         height={height}
         className={className}
-        loading={priority ? "eager" : loading}
+        loading={priority ? "eager" : (loading ?? "lazy")}
         fetchPriority={priority ? "high" : undefined}
         sizes={sizes}
       />
@@ -75,16 +104,28 @@ export function SanityImage({
   const resolvedAlt = alt ?? processedImageData.alt;
   warnMissingAlt(processedImageData.id, resolvedAlt);
 
+  const {
+    width: assetWidth,
+    height: assetHeight,
+    ...imageData
+  } = processedImageData;
+
   return (
     <ImageWrapper
       {...props}
-      width={width ?? processedImageData.width}
-      height={height ?? processedImageData.height}
+      {...imageData}
+      // The caller's render size wins over the asset's original dimensions,
+      // which would otherwise build a full-size srcset for small images.
+      {...renderSize(width, height, assetWidth, assetHeight)}
       className={className}
-      loading={priority ? "eager" : loading}
-      fetchPriority={priority ? "high" : undefined}
+      // Only pass `loading` when set: an explicit `undefined` overrides
+      // sanity-image's `lazy` default and makes every image load eagerly.
+      {...(priority
+        ? { loading: "eager" as const, fetchPriority: "high" as const }
+        : loading
+          ? { loading }
+          : {})}
       sizes={sizes}
-      {...processedImageData}
       alt={resolvedAlt}
       queryParams={{ ...queryParams, q: quality }}
     />

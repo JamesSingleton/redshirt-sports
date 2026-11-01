@@ -1,6 +1,9 @@
 import { render, screen } from "@testing-library/react";
 
-import SanityImage, { IMAGE_SIZES } from "@/components/sanity-image";
+import SanityImage, {
+  IMAGE_SIZES,
+  renderSize,
+} from "@/components/sanity-image";
 
 const { mockProcessImageData } = vi.hoisted(() => ({
   mockProcessImageData: vi.fn(),
@@ -16,14 +19,7 @@ vi.mock("@redshirt-sports/sanity/image", async (importOriginal) => {
 });
 
 vi.mock("sanity-image", () => ({
-  SanityImage: ({
-    alt,
-    width,
-    height,
-    loading,
-    fetchPriority,
-    className,
-  }: {
+  SanityImage: (props: {
     alt?: string;
     width?: number;
     height?: number;
@@ -32,12 +28,14 @@ vi.mock("sanity-image", () => ({
     className?: string;
   }) => (
     <img
-      alt={alt ?? ""}
-      width={width}
-      height={height}
-      data-loading={loading}
-      data-fetch-priority={fetchPriority}
-      className={className}
+      alt={props.alt ?? ""}
+      width={props.width}
+      height={props.height}
+      data-loading={props.loading}
+      // sanity-image defaults to lazy only when no `loading` key is passed.
+      data-has-loading-key={String(Object.hasOwn(props, "loading"))}
+      data-fetch-priority={props.fetchPriority}
+      className={props.className}
       data-testid="sanity-image"
     />
   ),
@@ -145,6 +143,67 @@ describe("SanityImage", () => {
     expect(img).toHaveAttribute("data-fetch-priority", "high");
   });
 
+  it("defaults plain img sources to lazy loading", () => {
+    render(<SanityImage image="https://example.com/x.jpg" alt="X" />);
+    expect(screen.getByRole("img", { name: "X" })).toHaveAttribute(
+      "loading",
+      "lazy",
+    );
+  });
+
+  it("leaves loading to sanity-image's lazy default when not set", () => {
+    mockProcessImageData.mockReturnValue({
+      id: "image-4",
+      alt: "Logo",
+      width: 1000,
+      height: 1000,
+    });
+
+    render(<SanityImage image={{ asset: { _ref: "image-4" } } as never} />);
+
+    expect(screen.getByTestId("sanity-image")).toHaveAttribute(
+      "data-has-loading-key",
+      "false",
+    );
+  });
+
+  it("passes an explicit loading value through", () => {
+    mockProcessImageData.mockReturnValue({ id: "image-5", alt: "A" });
+
+    render(
+      <SanityImage
+        image={{ asset: { _ref: "image-5" } } as never}
+        loading="eager"
+      />,
+    );
+
+    expect(screen.getByTestId("sanity-image")).toHaveAttribute(
+      "data-loading",
+      "eager",
+    );
+  });
+
+  it("renders at the requested size, not the asset's original size", () => {
+    mockProcessImageData.mockReturnValue({
+      id: "image-6",
+      alt: "School",
+      width: 1000,
+      height: 1000,
+    });
+
+    render(
+      <SanityImage
+        image={{ asset: { _ref: "image-6" } } as never}
+        width={32}
+        height={32}
+      />,
+    );
+
+    const img = screen.getByTestId("sanity-image");
+    expect(img).toHaveAttribute("width", "32");
+    expect(img).toHaveAttribute("height", "32");
+  });
+
   it("warns in development when alt text is missing", () => {
     vi.stubEnv("NODE_ENV", "development");
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -161,5 +220,39 @@ describe("SanityImage", () => {
       "[SanityImage] Missing alt text for image: image-2",
     );
     warnSpy.mockRestore();
+  });
+});
+
+describe("renderSize", () => {
+  it("keeps both requested sides", () => {
+    expect(renderSize(32, 32, 1000, 500)).toEqual({ width: 32, height: 32 });
+  });
+
+  it("derives the missing side from the asset ratio", () => {
+    expect(renderSize(200, undefined, 1000, 500)).toEqual({
+      width: 200,
+      height: 100,
+    });
+    expect(renderSize(undefined, 100, 1000, 500)).toEqual({
+      width: 200,
+      height: 100,
+    });
+  });
+
+  it("keeps a single side when the asset ratio is unknown", () => {
+    expect(renderSize(200, undefined, undefined, undefined)).toEqual({
+      width: 200,
+    });
+    expect(renderSize(undefined, 100, 1000, undefined)).toEqual({
+      height: 100,
+    });
+  });
+
+  it("falls back to the asset size when nothing is requested", () => {
+    expect(renderSize(undefined, undefined, 1000, 500)).toEqual({
+      width: 1000,
+      height: 500,
+    });
+    expect(renderSize(undefined, undefined, undefined, undefined)).toEqual({});
   });
 });
