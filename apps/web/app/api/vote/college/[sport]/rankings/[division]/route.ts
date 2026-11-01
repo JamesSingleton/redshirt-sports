@@ -40,6 +40,57 @@ function jsonError(
   });
 }
 
+/** Expected request failure whose message is safe to return to the client. */
+class VoteRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = "VoteRequestError";
+  }
+}
+
+function parseRouteParams(sport: string, division: string) {
+  try {
+    return {
+      validatedSport: validateSport(sport),
+      validatedDivision: validateDivision(division),
+    };
+  } catch (error) {
+    throw new VoteRequestError((error as Error).message, 400);
+  }
+}
+
+async function requireSportId(sport: ReturnType<typeof validateSport>) {
+  const sportId = await getSportIdBySlug(sport);
+  if (!sportId) {
+    throw new VoteRequestError(`Sport not found: ${sport}`, 404);
+  }
+  return sportId;
+}
+
+async function requireSeasonInfo(
+  sportId: string,
+  sport: ReturnType<typeof validateSport>,
+) {
+  try {
+    return await requireVotingSeasonInfo(sportId, sport);
+  } catch (error) {
+    Sentry.captureException(error);
+    throw new VoteRequestError("Voting is not open for this sport yet", 503);
+  }
+}
+
+/** Postgres unique_violation, possibly wrapped by Drizzle as `cause`. */
+function isUniqueViolation(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const cause = error.cause as { code?: unknown } | undefined;
+  return (
+    (error as { code?: unknown }).code === "23505" || cause?.code === "23505"
+  );
+}
+
 type VoteWriteContext = {
   userId: string;
   sport: ReturnType<typeof validateSport>;
@@ -58,8 +109,10 @@ async function resolveVoteWrite(
   params: Promise<{ sport: string; division: string }>,
 ): Promise<VoteWriteContext | Response> {
   const { sport: sportSlug, division } = await params;
-  const validatedSport = validateSport(sportSlug);
-  const validatedDivision = validateDivision(division);
+  const { validatedSport, validatedDivision } = parseRouteParams(
+    sportSlug,
+    division,
+  );
 
   const user = await auth();
   if (!user.userId) {
@@ -93,10 +146,7 @@ async function resolveVoteWrite(
     );
   }
 
-  const sportId = await getSportIdBySlug(validatedSport);
-  if (!sportId) {
-    throw new Error(`Sport not found: ${validatedSport}`);
-  }
+  const sportId = await requireSportId(validatedSport);
 
   const pollSlug = validatedBody.division || validatedDivision;
   const poll = await getPollBySportAndSlug({
@@ -118,7 +168,7 @@ async function resolveVoteWrite(
     return jsonError("You are not assigned as a voter for this poll", 403);
   }
 
-  const seasonInfo = await requireVotingSeasonInfo(sportId, validatedSport);
+  const seasonInfo = await requireSeasonInfo(sportId, validatedSport);
   const { year, votingWeek } = seasonInfo;
 
   if (
@@ -197,8 +247,14 @@ function seasonTypeLabel(seasonInfo: VotingSeasonInfo) {
   return "regular_season";
 }
 
-function handleVoteWriteError(error: unknown) {
-  Sentry.captureException(error);
+/**
+ * Map known failures to client-safe responses. Anything else is reported to
+ * Sentry and returned as a generic 500 so DB/driver messages never leak.
+ */
+function handleVoteError(error: unknown) {
+  if (error instanceof VoteRequestError) {
+    return jsonError(error.message, error.status);
+  }
 
   if (error instanceof PollWeekLockedError) {
     return jsonError(error.message, 403);
@@ -214,10 +270,16 @@ function handleVoteWriteError(error: unknown) {
     );
   }
 
-  if (error instanceof Error) {
-    return jsonError(error.message, 400);
+  if (error instanceof SyntaxError) {
+    return jsonError("Request body must be valid JSON", 400);
   }
 
+  // Concurrent duplicate submit lost the race on the ballots unique constraint.
+  if (isUniqueViolation(error)) {
+    return jsonError("You have already voted for this week", 409);
+  }
+
+  Sentry.captureException(error);
   return jsonError("Internal server error", 500);
 }
 
@@ -273,7 +335,7 @@ export async function POST(
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
-    return handleVoteWriteError(error);
+    return handleVoteError(error);
   }
 }
 
@@ -329,7 +391,7 @@ export async function PATCH(
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
-    return handleVoteWriteError(error);
+    return handleVoteError(error);
   }
 }
 
@@ -339,18 +401,17 @@ export async function GET(
 ) {
   try {
     const { sport: sportSlug, division } = await params;
-    const validatedSport = validateSport(sportSlug);
-    const validatedDivision = validateDivision(division);
+    const { validatedSport, validatedDivision } = parseRouteParams(
+      sportSlug,
+      division,
+    );
 
     const user = await auth();
     if (!user.userId) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    const sportId = await getSportIdBySlug(validatedSport);
-    if (!sportId) {
-      throw new Error(`Sport not found: ${validatedSport}`);
-    }
+    const sportId = await requireSportId(validatedSport);
 
     const poll = await getPollBySportAndSlug({
       sportId,
@@ -371,7 +432,7 @@ export async function GET(
       return jsonError("You are not assigned as a voter for this poll", 403);
     }
 
-    const seasonInfo = await requireVotingSeasonInfo(sportId, validatedSport);
+    const seasonInfo = await requireSeasonInfo(sportId, validatedSport);
     const { year, votingWeek } = seasonInfo;
 
     const existingVotePromise = getVoterBallots({
@@ -418,13 +479,9 @@ export async function GET(
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
-    Sentry.captureException(error);
-    console.error("Vote retrieval error:", error);
-
-    if (error instanceof Error) {
-      return jsonError(error.message, 400);
+    if (!(error instanceof VoteRequestError)) {
+      console.error("Vote retrieval error:", error);
     }
-
-    return jsonError("Internal server error", 500);
+    return handleVoteError(error);
   }
 }

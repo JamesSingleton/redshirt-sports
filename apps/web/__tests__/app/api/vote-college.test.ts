@@ -434,14 +434,77 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
     expect(body.details).toBeDefined();
   });
 
-  it("returns 400 when sport lookup fails on POST", async () => {
+  it("returns 404 when sport lookup fails on POST", async () => {
     mockGetSportIdBySlug.mockResolvedValue(null);
     const res = await POST(postRequest(ballotBody()), {
       params: voteParams(),
     });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
     const body = await res.json();
     expect(body.error).toMatch(/Sport not found/);
+  });
+
+  it("returns 409 when a concurrent submit hits the ballots unique constraint", async () => {
+    mockSubmitBallot.mockRejectedValue(
+      Object.assign(new Error("Failed query"), {
+        cause: Object.assign(new Error("duplicate key value"), {
+          code: "23505",
+        }),
+      }),
+    );
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.error).toMatch(/already voted/i);
+  });
+
+  it("returns 409 when the driver error itself is a unique violation", async () => {
+    mockSubmitBallot.mockRejectedValue(
+      Object.assign(new Error("duplicate key value"), { code: "23505" }),
+    );
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(409);
+  });
+
+  it("returns 503 when no voting season is loaded", async () => {
+    mockRequireVotingSeasonInfo.mockRejectedValue(
+      new Error("No voting season is loaded for football."),
+    );
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toBe("Voting is not open for this sport yet");
+  });
+
+  it("does not leak database error messages", async () => {
+    mockSubmitBallot.mockRejectedValue(
+      new Error('relation "ballots" does not exist'),
+    );
+    const res = await POST(postRequest(ballotBody()), {
+      params: voteParams(),
+    });
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBe("Internal server error");
+    expect(mockSentryCapture).toHaveBeenCalled();
+  });
+
+  it("returns 400 for a malformed JSON body", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/vote/college/football/rankings/fbs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{not json",
+      }),
+      { params: voteParams() },
+    );
+    expect(res.status).toBe(400);
   });
 
   it("returns 500 for unexpected POST errors", async () => {
@@ -602,11 +665,11 @@ describe("GET /api/vote/college/[sport]/rankings/[division]", () => {
     expect(res.status).toBe(404);
   });
 
-  it("returns 400 when sport lookup fails on GET", async () => {
+  it("returns 404 when sport lookup fails on GET", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockGetSportIdBySlug.mockResolvedValue(null);
     const res = await GET(getRequest(), { params: voteParams() });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
     const body = await res.json();
     expect(body.error).toMatch(/Sport not found/);
     consoleSpy.mockRestore();
