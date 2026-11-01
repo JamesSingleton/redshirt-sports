@@ -1,0 +1,119 @@
+name: Promote production
+
+# Merges to main build staged production deployments (Vercel "Auto-assign
+# Custom Production Domains" is off), so nothing goes live on merge. This
+# workflow promotes one, batching changes into fewer live deploys: each live
+# deploy starts with an empty ISR cache that crawlers refill, so fewer
+# promotions mean fewer ISR writes. See apps/web/RELEASE.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment:
+        description: "Deployment ID or URL to promote. Leave empty for the newest ready staged build."
+        required: false
+        type: string
+  schedule:
+    # 10:00 UTC = 3am PT / 6am ET, ahead of morning traffic.
+    - cron: "0 10 * * *"
+
+permissions:
+  contents: read
+  checks: read
+
+concurrency:
+  group: promote-production
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Promote staged deployment
+    runs-on: ubuntu-latest
+    # Set the repo variable PROMOTE_PAUSED=true (e.g. after an instant
+    # rollback) to stop scheduled runs from re-promoting a bad build.
+    if: github.event_name == 'workflow_dispatch' || vars.PROMOTE_PAUSED != 'true'
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      GH_TOKEN: ${{ github.token }}
+      REQUESTED_DEPLOYMENT: ${{ inputs.deployment }}
+      IS_SCHEDULED: ${{ github.event_name == 'schedule' }}
+    steps:
+      - name: Promote
+        run: |
+          set -euo pipefail
+
+          api() {
+            curl -fsS -H "Authorization: Bearer $VERCEL_TOKEN" "$@"
+          }
+          base="https://api.vercel.com"
+          team="teamId=$VERCEL_ORG_ID"
+
+          live=$(api "$base/v9/projects/$VERCEL_PROJECT_ID?$team")
+          live_id=$(jq -r '.targets.production.id // empty' <<<"$live")
+          live_created=$(jq -r '.targets.production.createdAt // 0' <<<"$live")
+          echo "Live: ${live_id:-none}"
+
+          if [ -n "$REQUESTED_DEPLOYMENT" ]; then
+            target=$(api "$base/v13/deployments/$(jq -rn --arg d "$REQUESTED_DEPLOYMENT" '$d|@uri')?$team")
+          else
+            target=$(api "$base/v7/deployments?projectId=$VERCEL_PROJECT_ID&$team&target=production&state=READY&limit=1" \
+              | jq '.deployments[0] // empty')
+          fi
+
+          if [ -z "$target" ]; then
+            echo "No ready production deployment found."
+            exit 0
+          fi
+
+          id=$(jq -r '.uid // .id' <<<"$target")
+          url=$(jq -r '.url' <<<"$target")
+          created=$(jq -r '.createdAt // .created' <<<"$target")
+          state=$(jq -r '.readyState // .state' <<<"$target")
+          sha=$(jq -r '.meta.githubCommitSha // empty' <<<"$target")
+          echo "Candidate: $id ($url) sha=${sha:-unknown} state=$state"
+
+          if [ "$state" != "READY" ]; then
+            echo "::error::Deployment $id is $state, not READY."
+            exit 1
+          fi
+
+          if [ "$id" = "$live_id" ]; then
+            echo "Already live. Nothing to promote."
+            exit 0
+          fi
+
+          # Scheduled runs only move forward; promoting an older build is a
+          # rollback and should be a deliberate manual run.
+          if [ -z "$REQUESTED_DEPLOYMENT" ] && [ "$created" -le "$live_created" ]; then
+            echo "Newest ready build is not newer than live. Nothing to promote."
+            exit 0
+          fi
+
+          if [ -z "$sha" ]; then
+            echo "::error::Deployment $id has no Git commit; refusing to promote."
+            exit 1
+          fi
+
+          ci=$(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/check-runs" \
+            --jq '[.check_runs[] | select(.name == "Lint and Test")][0].conclusion // "missing"')
+          if [ "$ci" != "success" ]; then
+            msg="CI (Lint and Test) for $sha is '$ci'; not promoting."
+            if [ "$IS_SCHEDULED" = "true" ]; then
+              echo "::warning::$msg"
+              exit 0
+            fi
+            echo "::error::$msg"
+            exit 1
+          fi
+
+          api -X POST "$base/v10/projects/$VERCEL_PROJECT_ID/promote/$id?$team" >/dev/null
+          echo "Promoted $id ($url, $sha) to production."
+          {
+            echo "### Promoted to production"
+            echo ""
+            echo "- Deployment: \`$id\` (https://$url)"
+            echo "- Commit: \`$sha\`"
+            echo "- Previously live: \`${live_id:-none}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
