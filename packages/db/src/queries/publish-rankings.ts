@@ -13,7 +13,7 @@ import {
 import { getPollBySportAndSlug, listActivePollVoters } from "./polls";
 import { deletePollRankings, replacePollRankings } from "./rankings";
 import { getSportIdBySlug, type SportParam } from "./sports";
-import { getBallotVotesForPollWeek } from "./voting";
+import { getBallotVotesForPollWeek, lockPollWeek } from "./voting";
 import {
   calendarWeekKey,
   legacyWeekLabel,
@@ -477,34 +477,46 @@ export async function publishPollRankingsForWeek({
     resolvedWeekNumber,
   );
 
-  const votes = await getBallotVotesForPollWeek({
-    pollId: poll.id,
-    weekId,
-    sportId,
-    division,
-    year,
-    legacyWeek,
+  // Read ballots and write rankings under the poll/week lock that ballot
+  // submit/update also take, so no ballot can land between tally and publish.
+  return db.transaction(async (tx) => {
+    await lockPollWeek(tx, poll.id, weekId);
+
+    const votes = await getBallotVotesForPollWeek(
+      {
+        pollId: poll.id,
+        weekId,
+        sportId,
+        division,
+        year,
+        legacyWeek,
+      },
+      tx,
+    );
+    if (!votes.length) {
+      throw new Error("No ballots found for this week");
+    }
+
+    const rankings = toRankingRows(
+      tallyTeamPoints(votes as BallotVote[]),
+    ).filter((row) => row.schoolId);
+
+    await replacePollRankings(
+      {
+        pollId: poll.id,
+        weekId,
+        rankings,
+      },
+      tx,
+    );
+
+    return {
+      pollId: poll.id,
+      weekId,
+      teams: rankings.length,
+      ballots: new Set(votes.map((vote) => vote.userId)).size,
+    };
   });
-  if (!votes.length) {
-    throw new Error("No ballots found for this week");
-  }
-
-  const rankings = toRankingRows(tallyTeamPoints(votes as BallotVote[])).filter(
-    (row) => row.schoolId,
-  );
-
-  await replacePollRankings({
-    pollId: poll.id,
-    weekId,
-    rankings,
-  });
-
-  return {
-    pollId: poll.id,
-    weekId,
-    teams: rankings.length,
-    ballots: new Set(votes.map((vote) => vote.userId)).size,
-  };
 }
 
 export async function unpublishPollRankingsForWeek({

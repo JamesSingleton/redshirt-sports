@@ -459,22 +459,28 @@ export async function deletePollRankings({
   return { deleted: deleted.length };
 }
 
-export async function replacePollRankings({
-  pollId,
-  weekId,
-  rankings,
-}: {
-  pollId: string;
-  weekId: string;
-  rankings: Array<{
-    schoolId: string;
-    rank: number | null;
-    points: number;
-    firstPlaceVotes: number;
-    isTie: boolean;
-  }>;
-}) {
-  await db.transaction(async (tx) => {
+/**
+ * Pass `executor` to run inside a caller's transaction (as a savepoint).
+ */
+export async function replacePollRankings(
+  {
+    pollId,
+    weekId,
+    rankings,
+  }: {
+    pollId: string;
+    weekId: string;
+    rankings: Array<{
+      schoolId: string;
+      rank: number | null;
+      points: number;
+      firstPlaceVotes: number;
+      isTie: boolean;
+    }>;
+  },
+  executor: Pick<typeof db, "transaction"> = db,
+) {
+  await executor.transaction(async (tx) => {
     await tx
       .delete(pollRankingsTable)
       .where(
