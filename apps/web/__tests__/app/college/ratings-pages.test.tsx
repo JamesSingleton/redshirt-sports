@@ -104,7 +104,6 @@ import TeamSheetsPage, {
 import WeekTeamPage, {
   generateMetadata as weekTeamMeta,
 } from "@/app/college/[sport]/ratings/[pool]/[year]/[week]/teams/[slug]/page";
-import { GET as seasonRedirect } from "@/app/college/[sport]/ratings/[pool]/[year]/route";
 import AccuracyPage, {
   generateMetadata as accuracyMeta,
 } from "@/app/college/[sport]/ratings/[pool]/accuracy/page";
@@ -177,29 +176,6 @@ describe("ratings pages", () => {
       "/college/football/ratings/fcs/2025/postseason",
     );
     expect(screen.getByTestId("week-view")).toHaveAttribute("data-sort", "sor");
-  });
-
-  it("a season URL redirects (307) to that season's latest week", async () => {
-    const res = await seasonRedirect(
-      new Request("https://x.test/college/football/ratings/fcs/2025"),
-      { params: p({ ...pool, year: "2025" }) },
-    );
-    expect(res.status).toBe(307);
-    expect(res.headers.get("location")).toBe(
-      "https://x.test/college/football/ratings/fcs/2025/postseason",
-    );
-    data.loadRatingsSeason.mockResolvedValueOnce({
-      pool: model.pool,
-      weeks: [],
-      years: [],
-    });
-    const empty = await seasonRedirect(
-      new Request("https://x.test/college/football/ratings/fcs/2025"),
-      { params: p({ ...pool, year: "2025" }) },
-    );
-    expect(empty.headers.get("location")).toBe(
-      "https://x.test/college/football/ratings/fcs/2025/",
-    );
   });
 
   it("latest team sheet is indexable; archived one is noindex", async () => {

@@ -197,3 +197,64 @@ describe("week URL segments", () => {
     }
   });
 });
+
+/** Does a 5-field cron expression fire at this UTC minute? Supports *, a-b, lists, and step. */
+function cronFires(expression: string, at: Date): boolean {
+  const [minute, hour, day, month, weekday] = expression.split(" ");
+  const matches = (field: string | undefined, value: number) =>
+    (field ?? "*").split(",").some((part) => {
+      const [range, step] = part.split("/");
+      const [low, high] =
+        range === "*"
+          ? [Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY]
+          : (range ?? "").split("-").map(Number);
+      const lo = low ?? 0;
+      const hi = high ?? lo;
+      if (value < lo || value > hi) return false;
+      return step
+        ? (value - (Number.isFinite(lo) ? lo : 0)) % Number(step) === 0
+        : true;
+    });
+  return (
+    matches(minute, at.getUTCMinutes()) &&
+    matches(hour, at.getUTCHours()) &&
+    matches(day, at.getUTCDate()) &&
+    matches(month, at.getUTCMonth() + 1) &&
+    matches(weekday, at.getUTCDay())
+  );
+}
+
+describe("vercel.json cron schedule", () => {
+  const crons = JSON.parse(
+    fs.readFileSync(path.join(repoRoot, "apps/web/vercel.json"), "utf8"),
+  ).crons as Array<{ path: string; schedule: string }>;
+  const schedule = poolScheduleSchema.parse(seededJson("cadence"));
+  // Every 30-minute slot of one week, starting Sunday 2026-11-01 00:00 UTC.
+  const slots = Array.from(
+    { length: 7 * 48 },
+    (_, i) => new Date(Date.UTC(2026, 10, 1) + i * 30 * 60 * 1000),
+  );
+  const fires = (at: Date) =>
+    crons.some(
+      (cron) =>
+        cron.path === "/api/cron/ratings" && cronFires(cron.schedule, at),
+    );
+
+  it("fires in every slot where the FCS pool's window is open", () => {
+    const missed = slots.filter(
+      (at) => scheduleIsOpen(schedule, at) && !fires(at),
+    );
+    expect(missed.map((at) => at.toISOString())).toEqual([]);
+  });
+
+  it("never fires when no pool would act", () => {
+    const wasted = slots.filter(
+      (at) => fires(at) && !scheduleIsOpen(schedule, at),
+    );
+    expect(wasted.map((at) => at.toISOString())).toEqual([]);
+  });
+
+  it("is 44 calls a week", () => {
+    expect(slots.filter(fires)).toHaveLength(44);
+  });
+});

@@ -24,7 +24,6 @@ describe("ratings format", () => {
   it("builds every pool path", () => {
     const paths = ratingsPaths("football", "fcs");
     expect(paths.latest).toBe("/college/football/ratings/fcs");
-    expect(paths.season(2025)).toBe("/college/football/ratings/fcs/2025");
     expect(paths.week(2025, "3")).toBe("/college/football/ratings/fcs/2025/3");
     expect(paths.team("x")).toBe("/college/football/ratings/fcs/teams/x");
     expect(paths.weekTeam(2025, "postseason", "x")).toBe(

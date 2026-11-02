@@ -13,9 +13,12 @@ import { safeCompare } from "@/lib/safe-compare";
 export const maxDuration = 300;
 
 /**
- * Vercel Cron, every 30 minutes. Each active pool decides for itself whether its
- * window is open and whether its weekend is complete, so adding a pool never
- * changes vercel.json. Publishing expires that pool's public pages.
+ * Vercel Cron, every 30 minutes but only during the pools' windows (UTC):
+ * Saturday 16:00 through Sunday noon, and Monday/Tuesday 15:00 sweeps. That's
+ * 44 calls a week. Each active pool still checks its own window and whether its
+ * weekend is complete. A pool with different windows (basketball's nightly
+ * runs, say) needs matching entries in vercel.json; a test checks they agree.
+ * Publishing expires that pool's public pages.
  */
 export async function GET(request: Request) {
   // Read the request first so this always runs per request, never at build time.

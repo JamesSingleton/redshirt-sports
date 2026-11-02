@@ -10,7 +10,6 @@ export function ratingsPaths(sport: string, pool: string) {
   const base = `/college/${sport}/ratings/${pool}`;
   return {
     latest: base,
-    season: (year: number | string) => `${base}/${year}`,
     week: (year: number | string, segment: string) =>
       `${base}/${year}/${segment}`,
     team: (slug: string) => `${base}/teams/${slug}`,
