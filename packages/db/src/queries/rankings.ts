@@ -15,7 +15,8 @@ import {
   buildSchoolRankingHistory,
   type SchoolRankingHistory,
 } from "../utils/school-ranking-history";
-import { getPollBySportAndSlug } from "./polls";
+import { hasRankingsFor } from "./has-rankings";
+import { getPollBySportAndSlug, resolvePollWeekBySlugs } from "./polls";
 import { getSportIdBySlug, type SportParam } from "./sports";
 import {
   resolveWeekIdForLegacyWeek,
@@ -133,9 +134,19 @@ export async function getFinalRankingsForWeekAndYear({
   division: string;
   sport?: SportParam;
 }): Promise<FinalRankings> {
-  let sportId: string | null = null;
+  let pollId: string;
+  let weekId: string | null;
   if (sport) {
-    sportId = await getSportIdBySlug(sport);
+    // Sport, poll, and week in one round trip.
+    const resolved = await resolvePollWeekBySlugs({
+      sport,
+      division,
+      year,
+      legacyWeek: week,
+    });
+    if (!resolved) throw new Error("Rankings not found");
+    pollId = resolved.poll.id;
+    weekId = resolved.weekId;
   } else {
     // Infer sport from poll slug when only one active poll matches
     const [poll] = await db
@@ -143,27 +154,26 @@ export async function getFinalRankingsForWeekAndYear({
       .from(pollsTable)
       .where(eq(pollsTable.slug, division))
       .limit(1);
-    sportId = poll?.sportId ?? null;
+    if (!poll) {
+      throw new Error(`Unable to resolve sport for division ${division}`);
+    }
+    const found = await getPollBySportAndSlug({
+      sportId: poll.sportId,
+      slug: division,
+    });
+    if (!found) throw new Error("Rankings not found");
+    pollId = found.id;
+    weekId = await resolveWeekIdForLegacyWeek({
+      sportId: poll.sportId,
+      year,
+      legacyWeek: week,
+    });
   }
-
-  if (!sportId) {
-    throw new Error(`Unable to resolve sport for division ${division}`);
-  }
-
-  const poll = await getPollBySportAndSlug({ sportId, slug: division });
-  if (!poll) throw new Error("Rankings not found");
-
-  const weekId = await resolveWeekIdForLegacyWeek({
-    sportId,
-    year,
-    legacyWeek: week,
-  });
   if (!weekId) throw new Error("Rankings not found");
 
   // Project only fields CustomImage/processImageData need.
   const rows = await db
     .select({
-      id: pollRankingsTable.id,
       rank: pollRankingsTable.rank,
       points: pollRankingsTable.points,
       firstPlaceVotes: pollRankingsTable.firstPlaceVotes,
@@ -179,7 +189,7 @@ export async function getFinalRankingsForWeekAndYear({
     .innerJoin(schoolsTable, eq(pollRankingsTable.schoolId, schoolsTable.id))
     .where(
       and(
-        eq(pollRankingsTable.pollId, poll.id),
+        eq(pollRankingsTable.pollId, pollId),
         eq(pollRankingsTable.weekId, weekId),
       ),
     )
@@ -193,7 +203,7 @@ export async function getFinalRankingsForWeekAndYear({
   }
 
   return {
-    id: `${poll.id}:${weekId}`,
+    id: `${pollId}:${weekId}`,
     division,
     week,
     year,
@@ -372,27 +382,31 @@ export async function getLatestFinalRankings({
   division: string;
   sport?: string;
 }) {
+  // Walk the poll's weeks newest-first and stop at the first with rankings,
+  // instead of sorting every ranking row the poll has ever published.
   const row = await db
     .select({
       division: pollsTable.slug,
       weekNumber: weeksTable.number,
       seasonType: seasonTypesTable.type,
       year: seasonsTable.year,
-      publishedAt: pollRankingsTable.createdAt,
+      publishedAt: sql<Date | null>`(
+        select ${pollRankingsTable.createdAt} from ${pollRankingsTable}
+        where ${pollRankingsTable.pollId} = ${pollsTable.id}
+          and ${pollRankingsTable.weekId} = ${weeksTable.id}
+        limit 1
+      )`.mapWith(pollRankingsTable.createdAt),
     })
-    .from(pollRankingsTable)
-    .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
+    .from(pollsTable)
     .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
-    .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
-    .innerJoin(
-      seasonTypesTable,
-      eq(weeksTable.seasonTypeId, seasonTypesTable.id),
-    )
-    .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
+    .innerJoin(seasonsTable, eq(seasonsTable.sportId, pollsTable.sportId))
+    .innerJoin(seasonTypesTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
+    .innerJoin(weeksTable, eq(weeksTable.seasonTypeId, seasonTypesTable.id))
     .where(
       and(
         eq(pollsTable.slug, division),
         ...(sport ? [eq(sportsTable.slug, sport)] : []),
+        hasRankingsFor(pollsTable.id, weeksTable.id),
       ),
     )
     // Season type before week number: postseason week 1 (final rankings)
@@ -592,25 +606,25 @@ export async function getSchoolRankingHistory(
   const pollIds = [...new Set(pollYearPairs.map((p) => p.pollId))];
   const years = [...new Set(pollYearPairs.map((p) => p.year))];
 
+  // Each poll's weeks in those years that have rankings (one index probe per
+  // week), not every ranking row de-duplicated.
   const publishedWeekRows = await db
-    .selectDistinct({
-      pollId: pollRankingsTable.pollId,
+    .select({
+      pollId: pollsTable.id,
       year: seasonsTable.year,
       seasonType: seasonTypesTable.type,
       weekNumber: weeksTable.number,
       weekText: weeksTable.text,
     })
-    .from(pollRankingsTable)
-    .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
-    .innerJoin(
-      seasonTypesTable,
-      eq(weeksTable.seasonTypeId, seasonTypesTable.id),
-    )
-    .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
+    .from(pollsTable)
+    .innerJoin(seasonsTable, eq(seasonsTable.sportId, pollsTable.sportId))
+    .innerJoin(seasonTypesTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
+    .innerJoin(weeksTable, eq(weeksTable.seasonTypeId, seasonTypesTable.id))
     .where(
       and(
-        inArray(pollRankingsTable.pollId, pollIds),
+        inArray(pollsTable.id, pollIds),
         inArray(seasonsTable.year, years),
+        hasRankingsFor(pollsTable.id, weeksTable.id),
       ),
     );
 

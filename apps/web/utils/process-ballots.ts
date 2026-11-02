@@ -76,6 +76,8 @@ export async function processVoterBallots(
   return voterBallot;
 }
 
-export const transformBallotToTeamIds = (ballot: Ballot[]) => {
-  return ballot.map((b: Ballot) => ({ id: b.teamId, rank: b.rank }));
+export const transformBallotToTeamIds = (
+  ballot: Array<Pick<Ballot, "teamId" | "rank">>,
+) => {
+  return ballot.map((b) => ({ id: b.teamId, rank: b.rank }));
 };

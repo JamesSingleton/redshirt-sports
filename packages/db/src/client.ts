@@ -23,8 +23,11 @@ const client = postgres(keys().DATABASE_URL, {
   // all 200 on 2026-11-02. 3 per instance roughly halves a burst and still
   // leaves a connection free beside a poll/week lock holder and its waiter.
   max: 3,
-  // Release idle connections quickly while the instance is still running.
-  idle_timeout: 10,
+  // Release idle connections while the instance is still running. Not too
+  // eagerly: each reconnect is a TLS handshake plus Supavisor auth on the
+  // request path (pgbouncer.get_auth ran ~230k times before 2026-11-02), and
+  // the cap above, not this, is what keeps a burst under the limit.
+  idle_timeout: 30,
   max_lifetime: 0,
   // Default is 30s; keep tighter so hung pooler connects fail fast on serverless.
   connect_timeout: 10,

@@ -22,6 +22,7 @@ import {
   usersTable,
   weeksTable,
 } from "../schema";
+import { hasRankingsFor } from "./has-rankings";
 import { getPollBySportAndSlug } from "./polls";
 import type { SportParam } from "./sports";
 import { getSportIdBySlug } from "./sports";
@@ -446,17 +447,20 @@ export async function getYearsThatHaveVotes({
 }: {
   division: string;
 }) {
+  // Seasons with at least one ranked week for the poll: an index probe per
+  // week, not every ranking row de-duplicated.
   const rows = await db
     .selectDistinct({ year: seasonsTable.year })
-    .from(pollRankingsTable)
-    .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
-    .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
-    .innerJoin(
-      seasonTypesTable,
-      eq(weeksTable.seasonTypeId, seasonTypesTable.id),
+    .from(pollsTable)
+    .innerJoin(seasonsTable, eq(seasonsTable.sportId, pollsTable.sportId))
+    .innerJoin(seasonTypesTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
+    .innerJoin(weeksTable, eq(weeksTable.seasonTypeId, seasonTypesTable.id))
+    .where(
+      and(
+        eq(pollsTable.slug, division),
+        hasRankingsFor(pollsTable.id, weeksTable.id),
+      ),
     )
-    .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
-    .where(eq(pollsTable.slug, division))
     .orderBy(desc(seasonsTable.year));
 
   return rows.map((row) => ({ year: row.year, division }));
@@ -474,15 +478,22 @@ export async function getWeeksThatHaveVotes({
       weekNumber: weeksTable.number,
       seasonType: seasonTypesTable.type,
     })
-    .from(pollRankingsTable)
-    .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
-    .innerJoin(weeksTable, eq(pollRankingsTable.weekId, weeksTable.id))
+    .from(pollsTable)
     .innerJoin(
-      seasonTypesTable,
-      eq(weeksTable.seasonTypeId, seasonTypesTable.id),
+      seasonsTable,
+      and(
+        eq(seasonsTable.sportId, pollsTable.sportId),
+        eq(seasonsTable.year, year),
+      ),
     )
-    .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
-    .where(and(eq(pollsTable.slug, division), eq(seasonsTable.year, year)));
+    .innerJoin(seasonTypesTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
+    .innerJoin(weeksTable, eq(weeksTable.seasonTypeId, seasonTypesTable.id))
+    .where(
+      and(
+        eq(pollsTable.slug, division),
+        hasRankingsFor(pollsTable.id, weeksTable.id),
+      ),
+    );
 
   return rows
     .map((row) => ({
@@ -516,39 +527,27 @@ export async function getVotesForWeekAndYearByVoter({
 
 /**
  * Each voter's ballot for a poll week, keyed by user id, for callers that
- * already resolved the poll and week. Voter names come back with the entries.
+ * already resolved the poll and week. The ballots pages read only each pick's
+ * team and rank, so that's all this selects (teamId is the school's Sanity id,
+ * else its row id), and voter names come from one small query per page rather
+ * than repeated on all 25 picks of every ballot.
  */
 export async function getVotesForPollWeekByVoter({
   pollId,
   weekId,
-  sportId,
-  division,
-  year,
-  week,
 }: {
   pollId: string;
   weekId: string;
-  sportId: string;
-  division: string;
-  year: number;
-  week: number;
+  sportId?: string;
+  division?: string;
+  year?: number;
+  week?: number;
 }) {
-  const rows = await db
+  const votes = await db
     .select({
-      id: ballotEntriesTable.id,
       userId: ballotsTable.userId,
-      submittedAt: ballotsTable.submittedAt,
-      schoolId: ballotEntriesTable.schoolId,
-      sanityId: schoolsTable.sanityId,
       rank: ballotEntriesTable.rank,
-      points: ballotEntriesTable.points,
-      user: {
-        id: usersTable.id,
-        firstName: usersTable.firstName,
-        lastName: usersTable.lastName,
-        organization: usersTable.organization,
-        organizationRole: usersTable.organizationRole,
-      },
+      teamId: sql<string>`coalesce(${schoolsTable.sanityId}, ${ballotEntriesTable.schoolId})`,
     })
     .from(ballotsTable)
     .innerJoin(
@@ -556,27 +555,39 @@ export async function getVotesForPollWeekByVoter({
       eq(ballotEntriesTable.ballotId, ballotsTable.id),
     )
     .innerJoin(schoolsTable, eq(ballotEntriesTable.schoolId, schoolsTable.id))
-    .leftJoin(usersTable, eq(usersTable.id, ballotsTable.userId))
     .where(
       and(eq(ballotsTable.pollId, pollId), eq(ballotsTable.weekId, weekId)),
     )
     .orderBy(asc(ballotEntriesTable.rank));
+  if (votes.length === 0) return {};
 
-  const votes = mapBallotEntryRows(rows, { division, week, year, sportId });
+  const users = await db
+    .select({
+      id: usersTable.id,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      organization: usersTable.organization,
+      organizationRole: usersTable.organizationRole,
+    })
+    .from(usersTable)
+    .where(inArray(usersTable.id, [...new Set(votes.map((v) => v.userId))]));
+  const userById = new Map(users.map((user) => [user.id, user]));
+
   const userBallots: {
     [key: string]: {
       votes: typeof votes;
-      userData: NonNullable<(typeof rows)[number]["user"]> | undefined;
+      userData: (typeof users)[number] | undefined;
     };
   } = {};
-
-  rows.forEach((row, index) => {
-    if (!userBallots[row.userId]) {
-      userBallots[row.userId] = { votes: [], userData: row.user ?? undefined };
+  for (const vote of votes) {
+    if (!userBallots[vote.userId]) {
+      userBallots[vote.userId] = {
+        votes: [],
+        userData: userById.get(vote.userId),
+      };
     }
-    userBallots[row.userId]!.votes.push(votes[index]!);
-  });
-
+    userBallots[vote.userId]!.votes.push(vote);
+  }
   return userBallots;
 }
 
