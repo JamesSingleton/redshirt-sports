@@ -2,7 +2,7 @@ import {
   getPublicPool,
   getPublishedRun,
   getPublishedTeamSheet,
-  listPoolPredictions,
+  listPoolPredictionGroups,
   listPublicPools,
   listPublishedRunExplanations,
   listPublishedWeeks,
@@ -19,6 +19,8 @@ import {
 } from "@redshirt-sports/db/ratings/cache-tags";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
+
+import { MARGIN_EDGES } from "@/lib/ratings/accuracy";
 
 /**
  * Publish and rollback expire these tags immediately (cron or admin). The long
@@ -90,7 +92,8 @@ export async function getCachedTeamSheet(
   return getPublishedTeamSheet(runId, slug);
 }
 
-export async function getCachedPredictions(
+/** Accuracy totals by week and margin bucket, summed in Postgres. */
+export async function getCachedPredictionGroups(
   sport: string,
   pool: string,
   poolId: string,
@@ -98,7 +101,7 @@ export async function getCachedPredictions(
   "use cache";
   cacheTag(RATINGS_CACHE_TAG, ratingsPoolTag(sport, pool));
   cacheLife(RATINGS_CACHE_LIFE);
-  return listPoolPredictions(poolId);
+  return listPoolPredictionGroups(poolId, MARGIN_EDGES);
 }
 
 export type RatingsWeekModel = {

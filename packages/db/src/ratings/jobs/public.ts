@@ -418,16 +418,9 @@ export type PoolPrediction = {
  * (plus its home field) against the following week's final games. This is the
  * pick record the accuracy page shows.
  */
-async function readListPoolPredictions(
-  poolId: string,
-): Promise<PoolPrediction[]> {
-  const rows = await db.execute<{
-    year: number;
-    season_type: number;
-    week_number: number;
-    predicted: number;
-    actual: number;
-  }>(sql`
+/** One row per out-of-sample prediction (see readListPoolPredictions). */
+function poolPredictionsQuery(poolId: string) {
+  return sql`
     with ordered as (
       select w.id, st.season_id, st.type, w.number,
         lag(w.id) over (partition by st.season_id order by st.type, w.number) as previous_week
@@ -455,14 +448,89 @@ async function readListPoolPredictions(
     join rating_snapshots ph on ph.run_id = runs.id and ph.school_id = g.home_school_id
     join rating_snapshots pa on pa.run_id = runs.id and pa.school_id = g.away_school_id
     where g.status = 'final' and g.home_score is not null and g.away_score is not null
-    order by s.year, o.type, o.number
-  `);
+  `;
+}
+
+async function readListPoolPredictions(
+  poolId: string,
+): Promise<PoolPrediction[]> {
+  const rows = await db.execute<{
+    year: number;
+    season_type: number;
+    week_number: number;
+    predicted: number;
+    actual: number;
+  }>(sql`${poolPredictionsQuery(poolId)} order by s.year, o.type, o.number`);
   return rows.map((row) => ({
     year: Number(row.year),
     seasonType: Number(row.season_type),
     weekNumber: Number(row.week_number),
     predicted: Number(row.predicted),
     actual: Number(row.actual),
+  }));
+}
+
+/**
+ * Pick-record totals for one week and predicted-margin bucket. Bucket i holds
+ * |predicted| in [marginEdges[i-1], marginEdges[i]): 0 below the first edge,
+ * marginEdges.length at or above the last.
+ */
+export type PoolPredictionGroup = {
+  year: number;
+  seasonType: number;
+  weekNumber: number;
+  bucket: number;
+  /** All predictions, including ties. */
+  predictions: number;
+  /** Predictions whose game had a winner. */
+  decided: number;
+  /** Decided games where the predicted winner won. */
+  correct: number;
+  /** Sum of |predicted - actual| over all predictions. */
+  missSum: number;
+};
+
+/**
+ * The accuracy page's totals, summed in Postgres: a few hundred rows instead
+ * of every prediction (~2,900 rows, ~240 kB).
+ */
+async function readListPoolPredictionGroups(
+  poolId: string,
+  marginEdges: number[],
+): Promise<PoolPredictionGroup[]> {
+  const edges = sql`array[${sql.join(
+    marginEdges.map((edge) => sql`${edge}`),
+    sql`, `,
+  )}]::float8[]`;
+  const rows = await db.execute<{
+    year: number;
+    season_type: number;
+    week_number: number;
+    bucket: number;
+    predictions: number;
+    decided: number;
+    correct: number;
+    miss_sum: number;
+  }>(sql`
+    select year, season_type, week_number,
+      width_bucket(abs(predicted), ${edges}) as bucket,
+      count(*)::int as predictions,
+      (count(*) filter (where actual <> 0))::int as decided,
+      (count(*) filter (where actual <> 0 and sign(predicted) = sign(actual)))::int as correct,
+      sum(abs(predicted - actual))::float as miss_sum
+    from (${poolPredictionsQuery(poolId)}) p
+    group by year, season_type, week_number, bucket
+    order by year, season_type, week_number, bucket
+  `);
+  return rows.map((row) => ({
+    year: Number(row.year),
+    seasonType: Number(row.season_type),
+    weekNumber: Number(row.week_number),
+    bucket: Number(row.bucket),
+    predictions: Number(row.predictions),
+    decided: Number(row.decided),
+    correct: Number(row.correct),
+    missSum: Number(row.miss_sum),
   }));
 }
 
@@ -500,4 +568,15 @@ export function getPublishedTeamSheet(runId: string, slug: string) {
 /** Every pool-vs-pool game predicted out of sample (see readListPoolPredictions). */
 export function listPoolPredictions(poolId: string) {
   return orNothingPublished(() => readListPoolPredictions(poolId), []);
+}
+
+/** Pick-record totals by week and margin bucket (see readListPoolPredictionGroups). */
+export function listPoolPredictionGroups(
+  poolId: string,
+  marginEdges: number[],
+) {
+  return orNothingPublished(
+    () => readListPoolPredictionGroups(poolId, marginEdges),
+    [],
+  );
 }

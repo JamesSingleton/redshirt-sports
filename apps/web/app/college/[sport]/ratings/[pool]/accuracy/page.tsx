@@ -4,8 +4,8 @@ import { Suspense } from "react";
 import { RatingsAccuracy } from "@/components/ratings/ratings-accuracy";
 import { RatingsSkeleton } from "@/components/ratings/ratings-skeleton";
 import { getPageMetadata } from "@/lib/global-seo-settings";
-import { summarizePredictions } from "@/lib/ratings/accuracy";
-import { getCachedPredictions, requirePool } from "@/lib/ratings/data";
+import { summarizePredictionGroups } from "@/lib/ratings/accuracy";
+import { getCachedPredictionGroups, requirePool } from "@/lib/ratings/data";
 import { RATINGS_METHODOLOGY_PATH, ratingsPaths } from "@/lib/ratings/format";
 import { validationReport } from "@/lib/ratings/validation";
 
@@ -28,11 +28,11 @@ export async function generateMetadata({
 async function Accuracy({ params }: { params: Params }) {
   const { sport, pool } = await params;
   const found = await requirePool(sport, pool);
-  const predictions = await getCachedPredictions(sport, pool, found.id);
+  const groups = await getCachedPredictionGroups(sport, pool, found.id);
   return (
     <RatingsAccuracy
       poolName={found.name}
-      summary={summarizePredictions(predictions)}
+      summary={summarizePredictionGroups(groups)}
       report={validationReport(sport, pool)}
       methodologyHref={RATINGS_METHODOLOGY_PATH}
       ratingsHref={ratingsPaths(sport, pool).latest}

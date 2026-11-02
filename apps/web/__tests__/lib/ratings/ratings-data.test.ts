@@ -4,7 +4,7 @@ const db = vi.hoisted(() => ({
   getPublicPool: vi.fn(),
   getPublishedRun: vi.fn(),
   getPublishedTeamSheet: vi.fn(),
-  listPoolPredictions: vi.fn(),
+  listPoolPredictionGroups: vi.fn(),
   listPublicPools: vi.fn(),
   listPublishedRunExplanations: vi.fn(),
   listPublishedWeeks: vi.fn(),
@@ -23,7 +23,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 import {
-  getCachedPredictions,
+  getCachedPredictionGroups,
   getCachedPublicPools,
   loadRatingsSeason,
   loadRatingsSeasonRuns,
@@ -66,11 +66,15 @@ describe("ratings data", () => {
   });
 
   it("loads a pool's predictions", async () => {
-    db.listPoolPredictions.mockResolvedValue([]);
+    db.listPoolPredictionGroups.mockResolvedValue([]);
     await expect(
-      getCachedPredictions("football", "fcs", "pool-1"),
+      getCachedPredictionGroups("football", "fcs", "pool-1"),
     ).resolves.toEqual([]);
-    expect(db.listPoolPredictions).toHaveBeenCalledWith("pool-1");
+    // Totals are summed in Postgres, bucketed at the page's margin edges.
+    expect(db.listPoolPredictionGroups).toHaveBeenCalledWith(
+      "pool-1",
+      [3, 7, 14, 21],
+    );
   });
 
   it("lists public pools", async () => {

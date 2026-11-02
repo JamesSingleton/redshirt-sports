@@ -15,7 +15,7 @@ const data = vi.hoisted(() => ({
   getCachedPublicPools: vi.fn(),
   getCachedWeeks: vi.fn(),
   getCachedRun: vi.fn(),
-  getCachedPredictions: vi.fn(),
+  getCachedPredictionGroups: vi.fn(),
 }));
 const mockGetPageMetadata = vi.hoisted(() => vi.fn((input: unknown) => input));
 const mockValidationReport = vi.hoisted(() => vi.fn());
@@ -141,8 +141,17 @@ describe("ratings pages", () => {
     });
     data.requirePool.mockResolvedValue(model.pool);
     data.getCachedPublicPools.mockResolvedValue([model.pool]);
-    data.getCachedPredictions.mockResolvedValue([
-      { year: 2025, seasonType: 2, weekNumber: 2, predicted: 3, actual: 7 },
+    data.getCachedPredictionGroups.mockResolvedValue([
+      {
+        year: 2025,
+        seasonType: 2,
+        weekNumber: 2,
+        bucket: 1,
+        predictions: 1,
+        decided: 1,
+        correct: 1,
+        missSum: 4,
+      },
     ]);
     mockValidationReport.mockReturnValue({ championRanks: [] });
   });
@@ -254,7 +263,7 @@ describe("ratings pages", () => {
     });
     render(await resolveSuspense(AccuracyPage({ params: p(pool) })));
     expect(screen.getByTestId("accuracy")).toHaveTextContent("FCS 1");
-    expect(data.getCachedPredictions).toHaveBeenCalledWith(
+    expect(data.getCachedPredictionGroups).toHaveBeenCalledWith(
       "football",
       "fcs",
       "pool-1",
