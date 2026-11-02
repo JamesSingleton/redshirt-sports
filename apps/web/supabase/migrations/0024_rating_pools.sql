@@ -207,7 +207,7 @@ SELECT
   false,
   '{"type":"espn_group","groupId":"81"}'::jsonb,
   '{"espnLeague":"football/college-football","scoreboardGroups":"81","regulationPeriods":4,"ncaaPath":"football/fcs","levelGroups":{"FBS":"80","FCS":"81","DII":"57","DIII":"58"}}'::jsonb,
-  '{"cadence":"weekly","windows":[{"day":6,"startHour":16,"endHour":36},{"day":1,"startHour":15,"endHour":16},{"day":2,"startHour":15,"endHour":16}]}'::jsonb,
+  '{"cadence":"weekly","windows":[{"day":6,"startHour":16,"endHour":36}]}'::jsonb,
   '{"marginTransform":{"type":"cap","cap":35},"overtimeMargin":3,"priorGames":2,"priorCarryover":0.85,"newcomerPrior":-6,"homeFieldPrior":0,"homeFieldPriorGames":20,"powerHalfLifeWeeks":12,"sigma":14.72,"benchmark":8.98,"minRankedGames":3,"provisionalMinAverageGames":4,"tierFloors":[0.5,0.25,0.1],"posteriorSamples":1000,"seed":1}'::jsonb,
   1
 FROM "division_sports"

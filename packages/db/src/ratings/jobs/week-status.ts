@@ -16,7 +16,7 @@ export type WeekStatus = {
 /**
  * Has the weekend finished? Every game that has kicked off is terminal, none is
  * live, and no remaining game starts within 24 hours. A lone Monday game doesn't
- * hold up Sunday's publish; the Monday/Tuesday sweep republishes with it.
+ * hold up Sunday's publish; it counts in the next weekend's ratings.
  */
 export function weekStatus(
   games: Array<{ status: string; kickoffAt: Date | null }>,

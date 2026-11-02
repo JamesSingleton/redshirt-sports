@@ -165,7 +165,7 @@ export type PipelineResult = {
 };
 
 /**
- * The weekend job. Sync this week (plus two back for stat corrections), and once
+ * The weekend job. Sync this week (plus two back, in case ESPN corrected a score), and once
  * the weekend is complete, compute and publish. Safe to call as often as you like:
  * unchanged inputs and an already-published checksum are no-ops.
  */
@@ -234,9 +234,9 @@ export async function runPipeline(input: {
         fallbackWeekId: week.id,
       });
 
-      // Publish the latest week that has games played. On Monday ESPN's
-      // calendar has already moved on, but the weekend just finished is still
-      // the one to publish (with any stat corrections).
+      // Publish the latest week that has games played. Late in the window ESPN's
+      // calendar can already have moved to next week, but the weekend just
+      // finished is still the one to publish.
       const statuses = await Promise.all(
         weeks.map(async (candidate) => ({
           week: candidate,

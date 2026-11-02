@@ -60,12 +60,12 @@ describe("cron windows", () => {
     );
   });
 
-  it("has Monday and Tuesday correction sweeps and is closed midweek", () => {
-    expect(scheduleIsOpen(schedule, new Date("2026-11-02T15:30:00Z"))).toBe(
-      true,
+  it("is closed after Sunday noon, so a published week stays put through the ballot deadline", () => {
+    expect(scheduleIsOpen(schedule, new Date("2026-11-02T15:00:00Z"))).toBe(
+      false,
     );
-    expect(scheduleIsOpen(schedule, new Date("2026-11-03T15:00:00Z"))).toBe(
-      true,
+    expect(scheduleIsOpen(schedule, new Date("2026-11-03T15:30:00Z"))).toBe(
+      false,
     );
     expect(scheduleIsOpen(schedule, new Date("2026-11-04T15:30:00Z"))).toBe(
       false,
@@ -254,7 +254,7 @@ describe("vercel.json cron schedule", () => {
     expect(wasted.map((at) => at.toISOString())).toEqual([]);
   });
 
-  it("is 44 calls a week", () => {
-    expect(slots.filter(fires)).toHaveLength(44);
+  it("is 40 calls a week", () => {
+    expect(slots.filter(fires)).toHaveLength(40);
   });
 });
