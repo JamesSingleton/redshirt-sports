@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { engineConfigSchema } from "./engine/config";
 import { dedupeKey } from "./jobs/dedupe";
-import { latestPlayedWeek, weekStatus } from "./jobs/week-status";
+import { latestPlayedWeek, weekIsFrozen, weekStatus } from "./jobs/week-status";
 import { poolScheduleSchema, scheduleIsOpen } from "./pools";
 
 const repoRoot = path.resolve(__dirname, "../../../..");
@@ -60,7 +60,22 @@ describe("cron windows", () => {
     );
   });
 
-  it("is closed after Sunday noon, so a published week stays put through the ballot deadline", () => {
+  it("is open Monday 22:00 through Tuesday 08:00 UTC, for Monday games like Labor Day", () => {
+    expect(scheduleIsOpen(schedule, new Date("2026-11-02T21:59:00Z"))).toBe(
+      false,
+    );
+    expect(scheduleIsOpen(schedule, new Date("2026-11-02T22:00:00Z"))).toBe(
+      true,
+    );
+    expect(scheduleIsOpen(schedule, new Date("2026-11-03T07:30:00Z"))).toBe(
+      true,
+    );
+    expect(scheduleIsOpen(schedule, new Date("2026-11-03T08:00:00Z"))).toBe(
+      false,
+    );
+  });
+
+  it("is closed the rest of the week", () => {
     expect(scheduleIsOpen(schedule, new Date("2026-11-02T15:00:00Z"))).toBe(
       false,
     );
@@ -71,25 +86,54 @@ describe("cron windows", () => {
       false,
     );
   });
+
+  it("freezes a week 10 hours after its last kickoff", () => {
+    expect(schedule.freezeAfterHours).toBe(10);
+  });
 });
 
 describe("weekend completeness", () => {
   const now = new Date("2026-11-01T05:00:00Z");
   const at = (iso: string) => new Date(iso);
 
-  it("is complete when everything kicked off is over and nothing starts within a day", () => {
+  it("is complete when every game is over", () => {
     const status = weekStatus(
       [
         { status: "final", kickoffAt: at("2026-10-31T17:00:00Z") },
         { status: "final", kickoffAt: at("2026-11-01T01:00:00Z") },
         { status: "cancelled", kickoffAt: at("2026-10-31T19:00:00Z") },
-        // A Monday night game doesn't hold up Sunday's publish.
-        { status: "scheduled", kickoffAt: at("2026-11-03T00:30:00Z") },
       ],
       now,
     );
     expect(status.complete).toBe(true);
     expect(status.final).toBe(2);
+  });
+
+  it("waits for a Monday night game, and is complete once it ends", () => {
+    const saturday = { status: "final", kickoffAt: at("2026-10-31T17:00:00Z") };
+    const monday = at("2026-11-03T00:30:00Z");
+    expect(
+      weekStatus([saturday, { status: "scheduled", kickoffAt: monday }], now)
+        .complete,
+    ).toBe(false);
+    const after = weekStatus(
+      [saturday, { status: "final", kickoffAt: monday }],
+      at("2026-11-03T04:00:00Z"),
+    );
+    expect(after.complete).toBe(true);
+    expect(after.latestKickoff).toEqual(monday);
+  });
+
+  it("doesn't wait for a game rescheduled to later in the week", () => {
+    expect(
+      weekStatus(
+        [
+          { status: "final", kickoffAt: at("2026-10-31T17:00:00Z") },
+          { status: "scheduled", kickoffAt: at("2026-11-04T23:00:00Z") },
+        ],
+        now,
+      ).complete,
+    ).toBe(true);
   });
 
   it("waits for a live game", () => {
@@ -152,6 +196,35 @@ describe("weekend completeness", () => {
 
   it("is never complete with no games", () => {
     expect(weekStatus([], now).complete).toBe(false);
+  });
+});
+
+describe("week freeze", () => {
+  const status = weekStatus(
+    [{ status: "final", kickoffAt: new Date("2026-11-01T02:00:00Z") }],
+    new Date("2026-11-01T06:00:00Z"),
+  );
+
+  it("lets corrections republish until 10 hours after the last kickoff", () => {
+    expect(
+      weekIsFrozen(status, true, 10, new Date("2026-11-01T11:59:00Z")),
+    ).toBe(false);
+    expect(
+      weekIsFrozen(status, true, 10, new Date("2026-11-01T12:00:00Z")),
+    ).toBe(true);
+  });
+
+  it("never freezes a week that hasn't been published", () => {
+    expect(
+      weekIsFrozen(status, false, 10, new Date("2026-11-03T00:00:00Z")),
+    ).toBe(false);
+  });
+
+  it("can't freeze a week with nothing kicked off", () => {
+    const empty = weekStatus([], new Date("2026-11-01T06:00:00Z"));
+    expect(
+      weekIsFrozen(empty, true, 10, new Date("2026-11-03T00:00:00Z")),
+    ).toBe(false);
   });
 });
 
@@ -254,7 +327,7 @@ describe("vercel.json cron schedule", () => {
     expect(wasted.map((at) => at.toISOString())).toEqual([]);
   });
 
-  it("is 40 calls a week", () => {
-    expect(slots.filter(fires)).toHaveLength(40);
+  it("is 60 calls a week", () => {
+    expect(slots.filter(fires)).toHaveLength(60);
   });
 });

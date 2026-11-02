@@ -10,7 +10,7 @@ import {
   publishRun,
   withJob,
 } from "./lifecycle";
-import { resolveMembership, saveMembership } from "./membership";
+import { loadMembers, resolveMembership, saveMembership } from "./membership";
 import {
   type CalendarWeek,
   loadSeasonCalendar,
@@ -20,11 +20,12 @@ import {
   weekAt,
 } from "./store";
 import { loadTeamLevels, relinkGames, syncWeek } from "./sync";
-import { latestPlayedWeek, weekStatus } from "./week-status";
+import { latestPlayedWeek, weekIsFrozen, weekStatus } from "./week-status";
 
 export {
   latestPlayedWeek,
   type WeekStatus,
+  weekIsFrozen,
   weekStatus,
 } from "./week-status";
 
@@ -155,6 +156,7 @@ export type PipelineResult = {
   status:
     | "published"
     | "unchanged"
+    | "frozen"
     | "waiting"
     | "outside_window"
     | "no_week"
@@ -164,17 +166,33 @@ export type PipelineResult = {
   lines: string[];
 };
 
+async function hasPublishedRun(poolId: string, weekId: string) {
+  const [row] = await db
+    .select({ id: ratingRunsTable.id })
+    .from(ratingRunsTable)
+    .where(
+      and(
+        eq(ratingRunsTable.poolId, poolId),
+        eq(ratingRunsTable.weekId, weekId),
+        eq(ratingRunsTable.status, "published"),
+      ),
+    )
+    .limit(1);
+  return Boolean(row);
+}
+
 /**
- * The weekend job. Sync this week (plus two back, in case ESPN corrected a score), and once
- * the weekend is complete, compute and publish. Safe to call as often as you like:
- * unchanged inputs and an already-published checksum are no-ops.
+ * The weekly job. Sync this week (plus two back, in case ESPN corrected a score), and once
+ * the week's last game is over, compute and publish. Republishes on a correction until the
+ * week freezes (schedule.freezeAfterHours after its last kickoff). Safe to call as often as
+ * you like: unchanged inputs and an already-published checksum are no-ops.
  */
 export async function runPipeline(input: {
   pool: Pool;
   trigger: JobTrigger;
   now?: Date;
   actor?: string | null;
-  /** Ignore the cron window (admin "Run now"). */
+  /** Ignore the cron window and the week freeze (admin "Run now"). */
   ignoreSchedule?: boolean;
   /** Publish even if the weekend isn't complete (admin override). */
   ignoreCompleteness?: boolean;
@@ -202,6 +220,11 @@ export async function runPipeline(input: {
     };
   }
 
+  const position = calendar.weeks.indexOf(week);
+  const weeks = calendar.weeks.slice(Math.max(0, position - 2), position + 1);
+  const freezeAfterHours = pool.schedule.freezeAfterHours;
+  const freezes = !input.ignoreSchedule;
+
   type Outcome = {
     status: PipelineResult["status"];
     message: string;
@@ -220,11 +243,6 @@ export async function runPipeline(input: {
       },
     },
     async (job) => {
-      const position = calendar.weeks.indexOf(week);
-      const weeks = calendar.weeks.slice(
-        Math.max(0, position - 2),
-        position + 1,
-      );
       const { memberIds, blockers } = await syncPoolWeeks({
         pool,
         calendar,
@@ -266,6 +284,23 @@ export async function runPipeline(input: {
         job.log(message);
         return {
           value: { status: "waiting" as const, message },
+          status: "skipped" as const,
+        };
+      }
+
+      if (
+        freezes &&
+        weekIsFrozen(
+          status,
+          await hasPublishedRun(pool.id, target.id),
+          freezeAfterHours,
+          now,
+        )
+      ) {
+        const message = `${target.label} is frozen (${freezeAfterHours} hours after its last kickoff); republish from admin to change it.`;
+        job.log(message);
+        return {
+          value: { status: "frozen" as const, message },
           status: "skipped" as const,
         };
       }

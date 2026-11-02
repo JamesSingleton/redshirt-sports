@@ -301,12 +301,12 @@ export function RatingsMethodology({ pools }: { pools: MethodologyPool[] }) {
               handled.
             </li>
             <li>
-              Ratings publish on their own once every game that has kicked off
-              that week is final and nothing else starts within a day, usually
-              early Sunday morning. Score corrections from ESPN are picked up
-              until Sunday noon UTC; after that a week's numbers don't change on
-              their own. A rare Monday game counts in the next weekend's
-              ratings.
+              Ratings publish on their own once the week's last game is final,
+              usually early Sunday morning, or after a Monday game when the week
+              has one. Score corrections from ESPN are picked up for 10 hours
+              after the week's last kickoff; after that a week's numbers don't
+              change on their own. A game moved to midweek counts the following
+              week.
             </li>
             <li>
               Each published week is kept exactly as published, with its method

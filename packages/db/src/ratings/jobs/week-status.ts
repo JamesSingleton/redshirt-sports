@@ -1,5 +1,6 @@
 const TERMINAL = new Set(["final", "postponed", "cancelled"]);
-const DAY_MS = 86_400_000;
+/** A game this far off doesn't hold the week up: it was moved, and counts next week. */
+const HORIZON_MS = 3 * 86_400_000;
 
 export type WeekStatus = {
   total: number;
@@ -9,14 +10,14 @@ export type WeekStatus = {
   postponedOrCancelled: number;
   nextKickoff: Date | null;
   latestKickoff: Date | null;
-  /** At least one game is final, everything that kicked off is over, and nothing else starts within a day. */
+  /** At least one game is final, everything that kicked off is over, and nothing else starts within three days. */
   complete: boolean;
 };
 
 /**
- * Has the weekend finished? Every game that has kicked off is terminal, none is
- * live, and no remaining game starts within 24 hours. A lone Monday game doesn't
- * hold up Sunday's publish; it counts in the next weekend's ratings.
+ * Has the week finished? Every game that has kicked off is terminal, none is
+ * live, and no remaining game starts within three days. A Monday game (Labor
+ * Day, say) holds the week until it ends; a game rescheduled to midweek doesn't.
  */
 export function weekStatus(
   games: Array<{ status: string; kickoffAt: Date | null }>,
@@ -45,7 +46,7 @@ export function weekStatus(
       if (
         !kickoff ||
         kickoff <= now ||
-        kickoff.getTime() - now.getTime() < DAY_MS
+        kickoff.getTime() - now.getTime() < HORIZON_MS
       )
         blocking = true;
       if (kickoff && kickoff > now && (!nextKickoff || kickoff < nextKickoff))
@@ -74,4 +75,22 @@ export function latestPlayedWeek<W>(
     if (entry && entry.status.final > 0) return entry;
   }
   return null;
+}
+
+/**
+ * A published week stops changing this many hours after its last kickoff, so
+ * voters see the same numbers until ballots are due. Before then the cron
+ * republishes if ESPN corrects a score.
+ */
+export function weekIsFrozen(
+  status: WeekStatus,
+  hasPublishedRun: boolean,
+  freezeAfterHours: number,
+  now: Date,
+): boolean {
+  if (!hasPublishedRun || !status.latestKickoff) return false;
+  return (
+    now.getTime() - status.latestKickoff.getTime() >=
+    freezeAfterHours * 3_600_000
+  );
 }

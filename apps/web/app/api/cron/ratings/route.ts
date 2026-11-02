@@ -13,11 +13,13 @@ import { safeCompare } from "@/lib/safe-compare";
 export const maxDuration = 300;
 
 /**
- * Vercel Cron, every 30 minutes but only during the weekend window (UTC):
- * Saturday 16:00 through Sunday noon, 40 calls a week. Each active pool checks
- * its own window and publishes once its weekend is complete, then republishes
- * only if ESPN corrects something before the window closes. After that the week
- * is frozen; any later change is a deliberate republish from admin. A pool with
+ * Vercel Cron, every 30 minutes inside two windows (UTC): Saturday 16:00 through
+ * Sunday noon, and Monday 22:00 through Tuesday 08:00 for Monday games, 60 calls
+ * a week. Each active pool checks its own window and publishes once its week's
+ * last game is over, then republishes on an ESPN correction until the week
+ * freezes, 10 hours after its last kickoff. Later changes are a deliberate
+ * republish from admin. A Monday-night call in a week with no Monday game syncs,
+ * finds the week frozen, and stops. A pool with
  * different windows needs matching entries in vercel.json; a test checks they
  * agree. Publishing expires that pool's public pages.
  */

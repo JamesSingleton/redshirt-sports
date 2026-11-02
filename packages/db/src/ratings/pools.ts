@@ -44,6 +44,8 @@ const windowSchema = z.object({
  */
 export const poolScheduleSchema = z.object({
   cadence: z.enum(["weekly", "daily"]),
+  /** Hours after a week's last kickoff when its published run stops changing. */
+  freezeAfterHours: z.number().positive().default(10),
   windows: z.array(windowSchema),
 });
 

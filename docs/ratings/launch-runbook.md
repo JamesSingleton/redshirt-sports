@@ -46,8 +46,10 @@ unset DATABASE_URL
 
 ## After launch
 
-- **Saturday 16:00 UTC through Sunday noon UTC**, every 30 minutes: the cron syncs this week and publishes once every game is final, usually early Sunday. If ESPN corrects a score before noon, it republishes.
-- **Sunday noon UTC (6:00 AM CST):** the window closes and the week is frozen. Voters work from it all Sunday, and it doesn't move before ballots are due Monday at 9:00 AM CST. If a stuck ESPN game holds up the publish, it shows in Sentry and the Job log; publish that week from admin. To fix something later, recompute and publish it from admin (the Runs table shows the before/after diff first).
-- A rare Monday game counts in the next weekend's ratings.
+- **Saturday 16:00 UTC through Sunday noon UTC**, every 30 minutes: the cron syncs this week and publishes once the week's last game is final, usually early Sunday.
+- **Freeze:** a published week stops changing 10 hours after its last kickoff. A normal week freezes by Sunday noon UTC (6:00 AM CST), so voters work from the same numbers all Sunday and up to Monday's 9:00 AM CST ballot deadline. Until then, an ESPN score correction republishes it.
+- **Monday games (Labor Day):** the week doesn't publish Sunday. The Monday 22:00 UTC through Tuesday 08:00 UTC window publishes it once the Monday game is final. In a week with no Monday game those calls find the week already frozen and publish nothing.
+- A game moved to midweek (three or more days out) doesn't hold the week up; it counts the following week.
+- If a stuck ESPN game holds up a publish, it shows in Sentry and the Job log; publish that week from admin. To change a frozen week, recompute and publish it from admin (the Runs table shows the before/after diff first).
 - Every run is in admin → Ratings → Job log. Failures and blocked publishes go to Sentry.
 - To pause: switch the cron off. To pull the pages: switch Public off. To undo a bad week: publish an older run from the Runs table.

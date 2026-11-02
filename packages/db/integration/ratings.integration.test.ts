@@ -94,7 +94,7 @@ beforeEach(async () => {
         regulationPeriods: 4,
         ncaaPath: null,
       },
-      schedule: { cadence: "weekly", windows: [] },
+      schedule: { cadence: "weekly", freezeAfterHours: 10, windows: [] },
       config: FCS_FOOTBALL_DEFAULTS,
       methodVersion: 1,
     })
