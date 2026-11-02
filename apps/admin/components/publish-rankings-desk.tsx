@@ -615,7 +615,9 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
             </p>
           ) : (
             sheetVoter && (
-              <div className="px-4">
+              // The sheet is a fixed, viewport-tall panel; a 25-team ballot
+              // is taller than a phone, so the list scrolls under the header.
+              <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
                 <Table>
                   <TableHeader>
                     <TableRow>
