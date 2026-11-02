@@ -171,6 +171,17 @@ let nextConfig: NextConfig = {
       ...cmsRedirects,
     ];
   },
+  async rewrites() {
+    return [
+      // iOS, iMessage previews, and crawlers request these at the root
+      // regardless of the <link rel="apple-touch-icon"> tag; serve app/apple-icon.png.
+      { source: "/apple-touch-icon.png", destination: "/apple-icon.png" },
+      {
+        source: "/apple-touch-icon-precomposed.png",
+        destination: "/apple-icon.png",
+      },
+    ];
+  },
 };
 
 if (env.VERCEL) {

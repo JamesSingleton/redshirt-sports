@@ -66,6 +66,11 @@ describe("getRootMetadata", () => {
     expect(openGraph.description).toContain("Redshirt Sports");
   });
 
+  it("leaves icons to the app/ icon files", () => {
+    // Setting `icons` makes Next skip app/icon* and app/apple-icon* tags.
+    expect(getRootMetadata().icons).toBeUndefined();
+  });
+
   it("advertises the site-wide RSS feed", () => {
     expect(getRootMetadata().alternates?.types).toEqual({
       "application/rss+xml": [

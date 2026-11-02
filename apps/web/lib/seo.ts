@@ -124,18 +124,6 @@ export function getRootMetadata(): Metadata {
     },
     description: DEFAULT_META_DESCRIPTION,
     creator: SITE_BRAND,
-    icons: {
-      icon: [
-        {
-          url: "/icon1.png",
-          sizes: "16x16",
-        },
-        {
-          url: "/icon2.png",
-          sizes: "32x32",
-        },
-      ],
-    },
     twitter: {
       card: "summary_large_image",
       site: TWITTER_HANDLE,
