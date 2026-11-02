@@ -52,3 +52,6 @@ apps/web/supabase/seed/*.dump
 docs/mockups/
 docs/blueprint/
 scripts/
+
+# Ignore test-results
+**/*/test-results/
