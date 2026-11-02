@@ -2,19 +2,22 @@
 
 import {
   createPoll,
+  listAutoPublishSchedule,
   listPolls,
   listSports,
   updatePoll,
 } from "@redshirt-sports/db/queries";
 import { revalidatePath } from "next/cache";
 
+import { describeAutoPublish } from "@/lib/auto-publish-label";
 import { requireAdmin } from "@/lib/require-admin";
 
 export async function getPollsManagerData() {
   await requireAdmin();
-  const [polls, sports] = await Promise.all([
+  const [polls, sports, schedule] = await Promise.all([
     listPolls({ activeOnly: false }),
     listSports(),
+    listAutoPublishSchedule(),
   ]);
   return {
     sports,
@@ -23,6 +26,11 @@ export async function getPollsManagerData() {
       name: poll.name,
       slug: poll.slug,
       isActive: poll.isActive,
+      autoPublish: poll.autoPublish,
+      autoPublishLabel: (() => {
+        const next = schedule.get(poll.id);
+        return next ? describeAutoPublish(next) : null;
+      })(),
       sportId: poll.sportId,
       sportSlug: poll.sport?.slug ?? "",
       sportName: poll.sport?.name ?? "",
@@ -56,14 +64,16 @@ export async function updatePollAction({
   slug,
   name,
   isActive,
+  autoPublish,
 }: {
   id: string;
   slug?: string;
   name?: string;
   isActive?: boolean;
+  autoPublish?: boolean;
 }) {
   await requireAdmin();
-  const updated = await updatePoll({ id, slug, name, isActive });
+  const updated = await updatePoll({ id, slug, name, isActive, autoPublish });
   revalidatePath("/polls");
   revalidatePath("/rankings");
   revalidatePath("/voters");

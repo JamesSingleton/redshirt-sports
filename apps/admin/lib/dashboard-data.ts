@@ -1,4 +1,7 @@
-import { getAdminDashboardSnapshot } from "@redshirt-sports/db/queries";
+import {
+  getAdminDashboardSnapshot,
+  listAutoPublishSchedule,
+} from "@redshirt-sports/db/queries";
 
 import {
   buildDashboardData,
@@ -11,6 +14,9 @@ export { buildDashboardData } from "@/lib/build-dashboard-data";
 
 export async function getDashboardData(): Promise<DashboardData> {
   await requireAdmin();
-  const snapshot = await getAdminDashboardSnapshot();
-  return buildDashboardData(snapshot);
+  const [snapshot, autoPublish] = await Promise.all([
+    getAdminDashboardSnapshot(),
+    listAutoPublishSchedule(),
+  ]);
+  return buildDashboardData(snapshot, autoPublish);
 }

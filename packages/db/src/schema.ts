@@ -295,6 +295,8 @@ export const pollsTable = pgTable(
     slug: varchar("slug", { length: 100 }).notNull(),
     name: varchar("name", { length: 256 }).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
+    /** Publish the voting week from the Monday 9 AM Central cron. Off = manual only. */
+    autoPublish: boolean("auto_publish").default(false).notNull(),
     divisionSportId: text("division_sport_id").references(
       () => divisionSportsTable.id,
     ),
@@ -318,6 +320,8 @@ export const pollVotersTable = pgTable(
       .notNull()
       .references(() => usersTable.id),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    /** Set with revoked_at when unexcused missed ballots hit the limit. */
+    lockedOutAt: timestamp("locked_out_at", { withTimezone: true }),
   },
   (table) => [
     unique().on(table.pollId, table.userId),
@@ -373,6 +377,35 @@ export const ballotEntriesTable = pgTable(
     unique().on(table.ballotId, table.schoolId),
     index().on(table.ballotId),
     index().on(table.schoolId),
+  ],
+);
+
+/**
+ * An assigned voter with no ballot when a poll week was published. Written at
+ * publish (the assignment as it was then), cleared if a later re-publish finds
+ * their ballot. Excused misses never count toward the lockout.
+ */
+export const pollMissedBallotsTable = pgTable(
+  "poll_missed_ballots",
+  {
+    ...defaultColumns,
+    pollId: text("poll_id")
+      .notNull()
+      .references(() => pollsTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => usersTable.id),
+    weekId: text("week_id")
+      .notNull()
+      .references(() => weeksTable.id),
+    excusedAt: timestamp("excused_at", { withTimezone: true }),
+    excuseNote: text("excuse_note"),
+  },
+  (table) => [
+    unique().on(table.pollId, table.userId, table.weekId),
+    index().on(table.pollId, table.weekId),
+    index().on(table.userId),
+    index().on(table.weekId),
   ],
 );
 

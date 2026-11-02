@@ -35,6 +35,8 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { createPollAction, updatePollAction } from "@/actions/polls";
+import { AutoPublishNote } from "@/components/auto-publish-note";
+import type { AutoPublishLabel } from "@/lib/auto-publish-label";
 
 type SportOption = {
   id: string;
@@ -49,6 +51,8 @@ type PollRow = {
   name: string;
   slug: string;
   isActive: boolean;
+  autoPublish: boolean;
+  autoPublishLabel: AutoPublishLabel | null;
   sportId: string;
   sportSlug: string;
   sportName: string;
@@ -104,6 +108,24 @@ export function PollsManager({
     });
   }
 
+  function toggleAutoPublish(poll: PollRow, autoPublish: boolean) {
+    startPending(async () => {
+      try {
+        await updatePollAction({ id: poll.id, autoPublish });
+        toast.success(
+          autoPublish
+            ? "Publishes Mondays at 9 AM Central"
+            : "Auto-publish off; publish manually",
+        );
+        refresh();
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to update poll",
+        );
+      }
+    });
+  }
+
   function savePoll(poll: PollRow, nextName: string, nextSlug: string) {
     startPending(async () => {
       try {
@@ -139,6 +161,12 @@ export function PollsManager({
               <TableHead>Slug</TableHead>
               <TableHead>Sport</TableHead>
               <TableHead className="text-center">Active</TableHead>
+              <TableHead
+                className="text-center"
+                title="Publish the voting week Mondays at 9 AM Central (regular season only)"
+              >
+                Auto-publish
+              </TableHead>
               <TableHead className="w-28" />
             </TableRow>
           </TableHeader>
@@ -149,13 +177,14 @@ export function PollsManager({
                 poll={poll}
                 pending={pending}
                 onToggle={toggleActive}
+                onToggleAutoPublish={toggleAutoPublish}
                 onSave={savePoll}
               />
             ))}
             {initialPolls.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="text-muted-foreground text-center"
                 >
                   No polls yet. Create FBS, FCS, D2, D3 (and basketball scopes)
@@ -235,11 +264,13 @@ function PollEditorRow({
   poll,
   pending,
   onToggle,
+  onToggleAutoPublish,
   onSave,
 }: {
   poll: PollRow;
   pending: boolean;
   onToggle: (poll: PollRow, isActive: boolean) => void;
+  onToggleAutoPublish: (poll: PollRow, autoPublish: boolean) => void;
   onSave: (poll: PollRow, name: string, slug: string) => void;
 }) {
   const [name, setName] = useState(poll.name);
@@ -277,6 +308,22 @@ function PollEditorRow({
           aria-label={`Active ${poll.name}`}
           onCheckedChange={(checked) => onToggle(poll, checked)}
         />
+      </TableCell>
+      <TableCell>
+        <div className="flex flex-col items-center gap-1">
+          <Switch
+            checked={poll.autoPublish}
+            disabled={pending || !poll.isActive}
+            aria-label={`Auto-publish ${poll.name}`}
+            onCheckedChange={(checked) => onToggleAutoPublish(poll, checked)}
+          />
+          {poll.autoPublish && poll.autoPublishLabel ? (
+            <AutoPublishNote
+              label={poll.autoPublishLabel}
+              className="max-w-48 text-center"
+            />
+          ) : null}
+        </div>
       </TableCell>
       <TableCell>
         {dirty ? (

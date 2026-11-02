@@ -10,6 +10,10 @@ import {
   seasonTypesTable,
   weeksTable,
 } from "../schema";
+import {
+  clearUnexcusedMissesForPollWeek,
+  recordMissedBallotsForPollWeek,
+} from "./missed-ballots";
 import { getPollBySportAndSlug, listActivePollVoters } from "./polls";
 import { deletePollRankings, replacePollRankings } from "./rankings";
 import { getSportIdBySlug, type SportParam } from "./sports";
@@ -510,11 +514,16 @@ export async function publishPollRankingsForWeek({
       tx,
     );
 
+    const { missedUserIds, lockedOutUserIds } =
+      await recordMissedBallotsForPollWeek({ pollId: poll.id, weekId }, tx);
+
     return {
       pollId: poll.id,
       weekId,
       teams: rankings.length,
       ballots: new Set(votes.map((vote) => vote.userId)).size,
+      missed: missedUserIds.length,
+      lockedOutUserIds,
     };
   });
 }
@@ -551,6 +560,7 @@ export async function unpublishPollRankingsForWeek({
     pollId: poll.id,
     weekId,
   });
+  await clearUnexcusedMissesForPollWeek({ pollId: poll.id, weekId });
 
   return {
     pollId: poll.id,

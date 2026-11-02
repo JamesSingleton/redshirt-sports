@@ -11,6 +11,9 @@ import {
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { getAttendanceData } from "@/actions/attendance";
+import { AutoPublishNote } from "@/components/auto-publish-note";
+import { MissedBallotsCard } from "@/components/missed-ballots-card";
 import { getDashboardData } from "@/lib/dashboard-data";
 import { PUBLIC_SITE_URL, publicSiteLabel } from "@/lib/site";
 
@@ -33,7 +36,10 @@ function progressPercent(submitted: number | null, assigned: number) {
 }
 
 async function DashboardContent() {
-  const data = await getDashboardData();
+  const [data, attendance] = await Promise.all([
+    getDashboardData(),
+    getAttendanceData(),
+  ]);
   const outstanding = data.panels.reduce((sum, panel) => {
     if (panel.submittedCount == null) return sum;
     return sum + Math.max(0, panel.assignedCount - panel.submittedCount);
@@ -108,6 +114,9 @@ async function DashboardContent() {
                       {panel.sportTitle}
                       {panel.weekLabel ? ` · ${panel.weekLabel}` : ""}
                     </span>
+                    {panel.autoPublish ? (
+                      <AutoPublishNote label={panel.autoPublish} />
+                    ) : null}
                   </div>
 
                   <div className="flex w-full flex-col gap-2 sm:max-w-xs sm:flex-1">
@@ -143,6 +152,8 @@ async function DashboardContent() {
           </ul>
         )}
       </section>
+
+      <MissedBallotsCard attendance={attendance} />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <section

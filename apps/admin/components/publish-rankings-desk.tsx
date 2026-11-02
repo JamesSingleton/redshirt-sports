@@ -180,8 +180,14 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           year,
           weekKey,
         });
+        const lockedOut = result.lockedOutUserIds?.length ?? 0;
         toast.success(
           `Published ${result.teams} teams from ${result.ballots} ballots`,
+          result.missed
+            ? {
+                description: `${result.missed} missed${lockedOut ? `, ${lockedOut} locked out` : ""}. See Missed ballots on the dashboard.`,
+              }
+            : undefined,
         );
         setConfirmOpen(false);
         const next = await previewRankingsPublish({

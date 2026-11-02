@@ -1,5 +1,13 @@
-import type { AdminDashboardSnapshot } from "@redshirt-sports/db/queries";
+import type {
+  AdminDashboardSnapshot,
+  AutoPublishSchedule,
+} from "@redshirt-sports/db/queries";
 import { weekTitle } from "@redshirt-sports/db/utils/week-mapping";
+
+import {
+  type AutoPublishLabel,
+  describeAutoPublish,
+} from "@/lib/auto-publish-label";
 
 function sportTitle(slug: string) {
   switch (slug) {
@@ -25,6 +33,8 @@ export type DashboardPanel = {
   submittedCount: number | null;
   weekLabel: string | null;
   year: number | null;
+  /** What Monday's auto-publish run will do for this poll. */
+  autoPublish: AutoPublishLabel | null;
 };
 
 export type DashboardData = {
@@ -44,6 +54,7 @@ export type DashboardData = {
 /** Pure mapping from DB snapshot → page view model (testable without DB/auth). */
 export function buildDashboardData(
   snapshot: AdminDashboardSnapshot,
+  autoPublish: Map<string, AutoPublishSchedule> = new Map(),
 ): DashboardData {
   const panels: DashboardPanel[] = snapshot.panels.map((panel) => ({
     id: panel.id,
@@ -56,6 +67,10 @@ export function buildDashboardData(
     submittedCount: panel.submittedCount,
     weekLabel: panel.votingWeek != null ? weekTitle(panel.votingWeek) : null,
     year: panel.year,
+    autoPublish: (() => {
+      const schedule = autoPublish.get(panel.id);
+      return schedule ? describeAutoPublish(schedule) : null;
+    })(),
   }));
 
   const primaryPanel =
