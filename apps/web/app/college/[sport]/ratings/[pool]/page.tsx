@@ -6,7 +6,7 @@ import { RatingsSkeleton } from "@/components/ratings/ratings-skeleton";
 import { RatingsWeekView } from "@/components/ratings/ratings-week-view";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { loadRatingsWeek } from "@/lib/ratings/data";
-import { parseSort, ratingsPaths } from "@/lib/ratings/format";
+import { parseSort, parseSortDir, ratingsPaths } from "@/lib/ratings/format";
 
 type Params = Promise<{ sport: string; pool: string }>;
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -42,6 +42,7 @@ async function LatestRatings({
     <RatingsWeekView
       model={model}
       sort={parseSort(query.sort)}
+      dir={parseSortDir(query.dir)}
       basePath={ratingsPaths(sport, pool).latest}
     />
   );

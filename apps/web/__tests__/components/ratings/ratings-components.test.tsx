@@ -276,13 +276,17 @@ describe("RatingsTable", () => {
     expect(screen.getByText(/#1 <0\.1% · #25 —/)).toBeInTheDocument();
   });
 
-  const renderTable = (sort: Parameters<typeof RatingsTable>[0]["sort"]) =>
+  const renderTable = (
+    sort: Parameters<typeof RatingsTable>[0]["sort"],
+    dir: Parameters<typeof RatingsTable>[0]["dir"] = "asc",
+  ) =>
     render(
       <RatingsTable
         rows={rows()}
         poolName="FCS"
         benchmark={8.98}
         sort={sort}
+        dir={dir}
         basePath="/base"
         teamHref={(slug) => `/t/${slug}`}
       />,
@@ -306,7 +310,11 @@ describe("RatingsTable", () => {
     renderTable("sor");
     expect(screen.getByRole("link", { name: "SOR" })).toHaveAttribute(
       "href",
-      "/base",
+      "/base?sort=sor&dir=desc",
+    );
+    expect(screen.getByRole("columnheader", { name: "SOR" })).toHaveAttribute(
+      "aria-sort",
+      "ascending",
     );
     expect(screen.getByRole("link", { name: "SOR" })).toHaveAttribute(
       "aria-current",
@@ -335,6 +343,31 @@ describe("RatingsTable", () => {
       );
     },
   );
+
+  it("flips a descending column back to the default sort", () => {
+    renderTable("sos", "desc");
+    expect(screen.getByRole("link", { name: "SOS" })).toHaveAttribute(
+      "href",
+      "/base",
+    );
+    expect(screen.getByRole("columnheader", { name: "SOS" })).toHaveAttribute(
+      "aria-sort",
+      "descending",
+    );
+    expect(screen.getByRole("link", { name: "SOR" })).toHaveAttribute(
+      "href",
+      "/base",
+    );
+  });
+
+  it("keeps remaining-schedule ranks when reversed", () => {
+    renderTable("remaining", "desc");
+    const cells = screen
+      .getAllByRole("row")
+      .slice(1)
+      .map((row) => within(row).getAllByRole("cell")[0]?.textContent);
+    expect(cells).toEqual(["2", "1", "3"]);
+  });
 
   it("numbers rows by position when sorting by remaining schedule", () => {
     renderTable("remaining");

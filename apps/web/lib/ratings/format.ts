@@ -74,6 +74,32 @@ export function parseSort(value: string | string[] | undefined): SortKey {
   return SORT_KEYS.includes(key as SortKey) ? (key as SortKey) : "sor";
 }
 
+/** "asc" is each column's natural order (best rank first); "desc" flips it. */
+export type SortDir = "asc" | "desc";
+
+export function parseSortDir(value: string | string[] | undefined): SortDir {
+  const dir = Array.isArray(value) ? value[0] : value;
+  return dir === "desc" ? "desc" : "asc";
+}
+
+/**
+ * Where a header link goes: a new column starts in its natural order, the
+ * current column flips to descending, and a descending column resets to the
+ * default (SOR, best first).
+ */
+export function sortHref(
+  basePath: string,
+  column: SortKey,
+  current: { sort: SortKey; dir: SortDir },
+): string {
+  if (column === current.sort) {
+    return current.dir === "asc"
+      ? `${basePath}?sort=${column}&dir=desc`
+      : basePath;
+  }
+  return column === "sor" ? basePath : `${basePath}?sort=${column}`;
+}
+
 type Sortable = Pick<
   PublishedTeamRow,
   | "name"
@@ -89,8 +115,39 @@ type Sortable = Pick<
 /**
  * Order rows by a metric's rank. Unranked teams (too few pool games) sort after
  * ranked ones, by power. Remaining SOS has no rank, so it sorts by value.
+ * Descending reverses the ranked teams; unranked ones stay at the bottom.
  */
-export function sortRows<T extends Sortable>(rows: T[], key: SortKey): T[] {
+export function sortRows<T extends Sortable>(
+  rows: T[],
+  key: SortKey,
+  dir: SortDir = "asc",
+): T[] {
+  const ascending = sortRowsAscending(rows, key);
+  if (dir === "asc") return ascending;
+  const hasValue = (row: T) =>
+    key === "remaining" ? row.remainingSos != null : rankOf(row, key) != null;
+  return [
+    ...ascending.filter(hasValue).reverse(),
+    ...ascending.filter((row) => !hasValue(row)),
+  ];
+}
+
+const RANK_COLUMN = {
+  sor: "sorRank",
+  power: "powerRank",
+  sos: "sosRank",
+  sov: "sovRank",
+  "record-sos": "recordSosRank",
+} as const satisfies Record<Exclude<SortKey, "remaining">, keyof Sortable>;
+
+function rankOf(
+  row: Sortable,
+  key: Exclude<SortKey, "remaining">,
+): number | null {
+  return row[RANK_COLUMN[key]];
+}
+
+function sortRowsAscending<T extends Sortable>(rows: T[], key: SortKey): T[] {
   if (key === "remaining") {
     return [...rows].sort(
       (a, b) =>
@@ -98,17 +155,9 @@ export function sortRows<T extends Sortable>(rows: T[], key: SortKey): T[] {
         a.powerRank - b.powerRank,
     );
   }
-  const column = {
-    sor: "sorRank",
-    power: "powerRank",
-    sos: "sosRank",
-    sov: "sovRank",
-    "record-sos": "recordSosRank",
-  } as const satisfies Record<Exclude<SortKey, "remaining">, keyof Sortable>;
-  const rankOf = (row: T): number | null => row[column[key]];
   return [...rows].sort((a, b) => {
-    const ra = rankOf(a);
-    const rb = rankOf(b);
+    const ra = rankOf(a, key);
+    const rb = rankOf(b, key);
     if (ra != null && rb != null)
       return ra - rb || a.name.localeCompare(b.name);
     if (ra != null) return -1;
