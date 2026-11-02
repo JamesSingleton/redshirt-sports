@@ -169,6 +169,13 @@
       "when": 1792796301665,
       "tag": "0023_playoff_bracket",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793573387605,
+      "tag": "0024_rating_pools",
+      "breakpoints": true
     }
   ]
 }

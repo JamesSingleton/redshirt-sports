@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./espn": "./src/espn.ts"
+    "./espn": "./src/espn.ts",
+    "./scores": "./src/scores.ts"
   },
   "dependencies": {
     "zod": "catalog:"

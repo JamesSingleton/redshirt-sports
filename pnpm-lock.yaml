@@ -733,6 +733,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@redshirt-sports/clients':
+        specifier: workspace:*
+        version: link:../clients
       '@t3-oss/env-nextjs':
         specifier: ^0.13.11
         version: 0.13.11(typescript@7.0.2)(valibot@1.5.0(typescript@7.0.2))(zod@4.6.7)

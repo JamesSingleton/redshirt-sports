@@ -17,7 +17,9 @@
     "format": "biome format --write .",
     "check:format": "biome check .",
     "check:types": "turbo run check:types",
-    "ci": "turbo run lint check:types test --affected"
+    "ci": "turbo run lint check:types test --affected",
+    "db:sync-from-prod": "pnpm --filter @redshirt-sports/db db:sync-from-prod",
+    "ratings": "pnpm --filter @redshirt-sports/db ratings"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.4",
