@@ -11,7 +11,7 @@ import {
 } from "../src/ratings/jobs/lifecycle";
 import {
   getPublishedRun,
-  getPublishedTeamExplanation,
+  getPublishedTeamSheet,
   listPublishedRunExplanations,
   listPublishedWeeks,
 } from "../src/ratings/jobs/public";
@@ -22,6 +22,7 @@ import {
   ratingPoolsTable,
   ratingRunsTable,
   ratingSnapshotsTable,
+  schoolsTable,
   seasonsTable,
 } from "../src/schema";
 import {
@@ -219,9 +220,14 @@ describe("job lock", () => {
     const [first, second] = fixture.schoolIds;
     await addSnapshot(run, first!, 1);
     await addSnapshot(run, second!, 2);
+    const slug = `team-${first}`;
+    await db
+      .update(schoolsTable)
+      .set({ slug })
+      .where(eq(schoolsTable.id, first!));
 
     // Unpublished: nothing is readable.
-    expect(await getPublishedTeamExplanation(run, first!)).toBeNull();
+    expect(await getPublishedTeamSheet(run, slug)).toBeNull();
     expect((await listPublishedRunExplanations(run)).size).toBe(0);
 
     await publishRun(run, null);
@@ -229,11 +235,21 @@ describe("job lock", () => {
     expect(published?.rows).toHaveLength(2);
     expect(published?.rows[0]).not.toHaveProperty("explanation");
 
-    expect(await getPublishedTeamExplanation(run, first!)).toEqual({
+    // A team sheet gets its own row and explanation, plus every team's slug.
+    const sheet = await getPublishedTeamSheet(run, slug);
+    expect(sheet?.run.id).toBe(run);
+    expect(sheet?.row.schoolId).toBe(first);
+    expect(sheet?.row.powerRank).toBe(1);
+    expect(sheet?.row.explanation).toEqual({
       games: [{ note: `games for ${first}` }],
       remaining: [],
       excluded: [],
     });
+    expect(sheet?.teams.map((team) => team.schoolId).sort()).toEqual(
+      [first, second].sort(),
+    );
+    expect(await getPublishedTeamSheet(run, "no-such-team")).toBeNull();
+
     const all = await listPublishedRunExplanations(run);
     expect([...all.keys()].sort()).toEqual([first, second].sort());
   });

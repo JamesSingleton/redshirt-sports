@@ -1,12 +1,13 @@
 import {
   getPublicPool,
   getPublishedRun,
-  getPublishedTeamExplanation,
+  getPublishedTeamSheet,
   listPoolPredictions,
   listPublicPools,
   listPublishedRunExplanations,
   listPublishedWeeks,
   type PublicPool,
+  type PublishedRunTeam,
   type PublishedTeamRow,
   type PublishedTeamSheetRow,
   type PublishedWeek,
@@ -76,17 +77,17 @@ export async function getCachedRunExplanations(
   return Object.fromEntries(await listPublishedRunExplanations(runId));
 }
 
-/** One team's explanation in a run, for its team sheet. */
-export async function getCachedTeamExplanation(
+/** One team sheet in a run: run, the team's row and explanation, and every team's slug. */
+export async function getCachedTeamSheet(
   sport: string,
   pool: string,
   runId: string,
-  schoolId: string,
+  slug: string,
 ) {
   "use cache";
   cacheTag(RATINGS_CACHE_TAG, ratingsPoolTag(sport, pool));
   cacheLife(RATINGS_CACHE_LIFE);
-  return getPublishedTeamExplanation(runId, schoolId);
+  return getPublishedTeamSheet(runId, slug);
 }
 
 export async function getCachedPredictions(
@@ -134,6 +135,26 @@ export async function loadRatingsWeek(input: {
   year?: string;
   week?: string;
 }): Promise<RatingsWeekModel> {
+  const { pool, week, weeks } = await resolveRatingsWeek(input);
+  const published = await getCachedRun(input.sport, input.pool, week.runId);
+  if (!published) notFound();
+  return {
+    pool,
+    week,
+    weeks,
+    run: published.run,
+    rows: published.rows,
+    isLatest: week.runId === weeks[0]?.runId,
+  };
+}
+
+/** The pool, the requested (or latest) published week, and its week list, or a 404. */
+async function resolveRatingsWeek(input: {
+  sport: string;
+  pool: string;
+  year?: string;
+  week?: string;
+}) {
   const pool = await requirePool(input.sport, input.pool);
   const weeks = await getCachedWeeks(input.sport, input.pool, pool.id);
   let week: PublishedWeek | undefined;
@@ -152,38 +173,44 @@ export async function loadRatingsWeek(input: {
       : undefined;
   }
   if (!week) notFound();
-  const published = await getCachedRun(input.sport, input.pool, week.runId);
-  if (!published) notFound();
-  return {
-    pool,
-    week,
-    weeks,
-    run: published.run,
-    rows: published.rows,
-    isLatest: week.runId === weeks[0]?.runId,
-  };
+  return { pool, week, weeks };
 }
 
-/** One team's row in a published week (latest when no year/week), or a 404. */
+/** A team sheet's page model: the week, the run, and every team's slug (no full table). */
+export type RatingsTeamModel = Omit<RatingsWeekModel, "rows"> & {
+  teams: PublishedRunTeam[];
+};
+
+/**
+ * One team's sheet in a published week (latest when no year/week), or a 404.
+ * Loads that team's row and explanation plus a slug list, not the whole run.
+ */
 export async function loadRatingsTeam(input: {
   sport: string;
   pool: string;
   slug: string;
   year?: string;
   week?: string;
-}) {
-  const model = await loadRatingsWeek(input);
-  const found = model.rows.find((candidate) => candidate.slug === input.slug);
-  if (!found) notFound();
-  const explanation = await getCachedTeamExplanation(
+}): Promise<{ model: RatingsTeamModel; row: PublishedTeamSheetRow }> {
+  const { pool, week, weeks } = await resolveRatingsWeek(input);
+  const sheet = await getCachedTeamSheet(
     input.sport,
     input.pool,
-    model.run.id,
-    found.schoolId,
+    week.runId,
+    input.slug,
   );
-  if (!explanation) notFound();
-  const row: PublishedTeamSheetRow = { ...found, explanation };
-  return { model, row };
+  if (!sheet) notFound();
+  return {
+    model: {
+      pool,
+      week,
+      weeks,
+      run: sheet.run,
+      teams: sheet.teams,
+      isLatest: week.runId === weeks[0]?.runId,
+    },
+    row: sheet.row,
+  };
 }
 
 /** A published week with every team's explanation, or a 404. */

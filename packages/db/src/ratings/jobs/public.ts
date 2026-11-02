@@ -1,4 +1,12 @@
-import { and, asc, desc, eq, getTableColumns, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  getTableColumns,
+  type SQL,
+  sql,
+} from "drizzle-orm";
 
 import { primaryDb as db } from "../../client";
 import {
@@ -213,9 +221,10 @@ export type PublishedTeamSheetRow = PublishedTeamRow & {
 const { explanation: _explanation, ...snapshotTableColumns } =
   getTableColumns(ratingSnapshotsTable);
 
-async function readGetPublishedRun(
+/** Run details, or null unless the run is published. */
+async function readPublishedRunMeta(
   runId: string,
-): Promise<{ run: PublishedRun; rows: PublishedTeamRow[] } | null> {
+): Promise<PublishedRun | null> {
   const [run] = await db
     .select({
       id: ratingRunsTable.id,
@@ -231,7 +240,20 @@ async function readGetPublishedRun(
     .where(eq(ratingRunsTable.id, runId))
     .limit(1);
   if (run?.status !== "published") return null;
-  const snapshots = await db
+  return {
+    id: run.id,
+    methodVersion: run.methodVersion,
+    params: run.params as EngineConfig,
+    diagnostics: run.diagnostics as RatingDiagnostics,
+    checksum: run.checksum,
+    gameCount: run.gameCount,
+    computedAt: run.computedAt.toISOString(),
+  };
+}
+
+/** Snapshot rows (without explanations) with their school and conference. */
+function selectSnapshotRows(where: SQL | undefined) {
+  return db
     .select({
       snapshot: snapshotTableColumns,
       name: schoolsTable.shortName,
@@ -248,8 +270,14 @@ async function readGetPublishedRun(
       conferencesTable,
       eq(conferencesTable.id, ratingSnapshotsTable.conferenceId),
     )
-    .where(eq(ratingSnapshotsTable.runId, runId));
-  const rows = snapshots.map(({ snapshot: s, ...school }) => ({
+    .where(where);
+}
+
+function toPublishedRow({
+  snapshot: s,
+  ...school
+}: Awaited<ReturnType<typeof selectSnapshotRows>>[number]): PublishedTeamRow {
+  return {
     schoolId: s.schoolId,
     name: school.name ?? school.fullName ?? s.schoolId,
     fullName: school.fullName,
@@ -291,19 +319,58 @@ async function readGetPublishedRun(
     poolGames: s.poolGames,
     tierRecords: s.tierRecords as PublishedTeamRow["tierRecords"],
     isProvisional: s.isProvisional,
-  }));
-  return {
-    run: {
-      id: run.id,
-      methodVersion: run.methodVersion,
-      params: run.params as EngineConfig,
-      diagnostics: run.diagnostics as RatingDiagnostics,
-      checksum: run.checksum,
-      gameCount: run.gameCount,
-      computedAt: run.computedAt.toISOString(),
-    },
-    rows,
   };
+}
+
+async function readGetPublishedRun(
+  runId: string,
+): Promise<{ run: PublishedRun; rows: PublishedTeamRow[] } | null> {
+  const run = await readPublishedRunMeta(runId);
+  if (!run) return null;
+  const snapshots = await selectSnapshotRows(
+    eq(ratingSnapshotsTable.runId, runId),
+  );
+  return { run, rows: snapshots.map(toPublishedRow) };
+}
+
+/** Each team in a run's school id and slug, so a team sheet can link opponents. */
+export type PublishedRunTeam = { schoolId: string; slug: string | null };
+
+/**
+ * One team sheet: the run, the team's row with its explanation, and the run's
+ * id/slug list. About 10 kB instead of the ~150 kB full run.
+ */
+async function readGetPublishedTeamSheet(
+  runId: string,
+  slug: string,
+): Promise<{
+  run: PublishedRun;
+  row: PublishedTeamSheetRow;
+  teams: PublishedRunTeam[];
+} | null> {
+  const run = await readPublishedRunMeta(runId);
+  if (!run) return null;
+  const [found] = await selectSnapshotRows(
+    and(eq(ratingSnapshotsTable.runId, runId), eq(schoolsTable.slug, slug)),
+  ).limit(1);
+  if (!found) return null;
+  const [explanations, teams] = await Promise.all([
+    readListRunExplanations(runId, found.snapshot.schoolId),
+    db
+      .select({
+        schoolId: ratingSnapshotsTable.schoolId,
+        slug: schoolsTable.slug,
+      })
+      .from(ratingSnapshotsTable)
+      .innerJoin(
+        schoolsTable,
+        eq(schoolsTable.id, ratingSnapshotsTable.schoolId),
+      )
+      .where(eq(ratingSnapshotsTable.runId, runId)),
+  ]);
+  const explanation = explanations.get(found.snapshot.schoolId);
+  if (!explanation) return null;
+  return { run, row: { ...toPublishedRow(found), explanation }, teams };
 }
 
 /**
@@ -425,16 +492,9 @@ export function listPublishedRunExplanations(runId: string) {
   );
 }
 
-/** One team's explanation in a published run, or null. */
-export async function getPublishedTeamExplanation(
-  runId: string,
-  schoolId: string,
-) {
-  const explanations = await orNothingPublished(
-    () => readListRunExplanations(runId, schoolId),
-    new Map<string, TeamExplanation>(),
-  );
-  return explanations.get(schoolId) ?? null;
+/** One team sheet in a published run (see readGetPublishedTeamSheet), or null. */
+export function getPublishedTeamSheet(runId: string, slug: string) {
+  return orNothingPublished(() => readGetPublishedTeamSheet(runId, slug), null);
 }
 
 /** Every pool-vs-pool game predicted out of sample (see readListPoolPredictions). */

@@ -1,7 +1,7 @@
 import type { PublishedTeamSheetRow } from "@redshirt-sports/db/ratings";
 import type { ReactElement, ReactNode } from "react";
 
-import type { RatingsSheetsModel } from "@/lib/ratings/data";
+import type { RatingsSheetsModel, RatingsTeamModel } from "@/lib/ratings/data";
 
 const record = (wins: number, losses: number, ties = 0) => ({
   wins,
@@ -316,4 +316,18 @@ export async function resolveSuspense(element: ReactNode): Promise<ReactNode> {
   const inner = suspense.props.children;
   const component = inner.type as (props: unknown) => Promise<ReactNode>;
   return component(inner.props);
+}
+
+/** A team sheet's model: the week without its table, plus every team's slug. */
+export function teamModel(
+  overrides: Partial<RatingsSheetsModel> = {},
+): RatingsTeamModel & { rows: RatingsSheetsModel["rows"] } {
+  const model = weekModel(overrides);
+  return {
+    ...model,
+    teams: model.rows.map((row) => ({
+      schoolId: row.schoolId,
+      slug: row.slug,
+    })),
+  };
 }

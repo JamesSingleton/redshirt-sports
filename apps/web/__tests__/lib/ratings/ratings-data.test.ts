@@ -3,7 +3,7 @@ import { weekModel } from "@/__tests__/helpers/ratings-fixtures";
 const db = vi.hoisted(() => ({
   getPublicPool: vi.fn(),
   getPublishedRun: vi.fn(),
-  getPublishedTeamExplanation: vi.fn(),
+  getPublishedTeamSheet: vi.fn(),
   listPoolPredictions: vi.fn(),
   listPublicPools: vi.fn(),
   listPublishedRunExplanations: vi.fn(),
@@ -43,13 +43,21 @@ describe("ratings data", () => {
       .mockReset()
       .mockResolvedValue({ run: model.run, rows: model.rows });
     db.listPublicPools.mockReset().mockResolvedValue([model.pool]);
-    db.getPublishedTeamExplanation
+    db.getPublishedTeamSheet
       .mockReset()
-      .mockImplementation(
-        async (_runId: string, schoolId: string) =>
-          model.rows.find((row) => row.schoolId === schoolId)?.explanation ??
-          null,
-      );
+      .mockImplementation(async (_runId: string, slug: string) => {
+        const row = model.rows.find((candidate) => candidate.slug === slug);
+        return row
+          ? {
+              run: model.run,
+              row,
+              teams: model.rows.map((r) => ({
+                schoolId: r.schoolId,
+                slug: r.slug,
+              })),
+            }
+          : null;
+      });
     db.listPublishedRunExplanations
       .mockReset()
       .mockResolvedValue(
@@ -129,32 +137,23 @@ describe("ratings data", () => {
   });
 
   it("loads one team by slug, or 404s", async () => {
-    const { row } = await loadRatingsTeam({
+    const { model: teamPage, row } = await loadRatingsTeam({
       sport: "football",
       pool: "fcs",
       slug: "montana-state-bobcats",
     });
     expect(row.name).toBe("Montana State");
-    // Only this team's explanation is loaded, not the whole run's.
     expect(row.explanation.games).toHaveLength(3);
-    expect(db.getPublishedTeamExplanation).toHaveBeenCalledWith(
-      model.run.id,
-      row.schoolId,
+    // Only this team's sheet and a slug list, never the whole run.
+    expect(db.getPublishedTeamSheet).toHaveBeenCalledWith(
+      model.weeks[0]?.runId,
+      "montana-state-bobcats",
     );
-    expect(db.listPublishedRunExplanations).not.toHaveBeenCalled();
+    expect(db.getPublishedRun).not.toHaveBeenCalled();
+    expect(teamPage.teams).toHaveLength(model.rows.length);
+    expect(teamPage.isLatest).toBe(true);
     await expect(
       loadRatingsTeam({ sport: "football", pool: "fcs", slug: "nobody" }),
-    ).rejects.toThrow("NEXT_NOT_FOUND");
-  });
-
-  it("404s a team sheet whose explanation is missing", async () => {
-    db.getPublishedTeamExplanation.mockResolvedValue(null);
-    await expect(
-      loadRatingsTeam({
-        sport: "football",
-        pool: "fcs",
-        slug: "montana-state-bobcats",
-      }),
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
