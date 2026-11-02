@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import {
@@ -21,6 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 async function Methodology() {
+  // Decide 404 vs page per request: prerendered at build, a pool made public
+  // later stays a 404 on any deployment whose ratings cache admin doesn't expire.
+  await connection();
   const pools: MethodologyPool[] = (await getCachedPublicPools()).map(
     (pool) => {
       const paths = ratingsPaths(pool.sportSlug, pool.slug);

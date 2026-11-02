@@ -76,6 +76,9 @@ vi.mock("@/components/ratings/team-sheet", () => ({
   ),
   TierLegend: () => <div data-testid="legend" />,
 }));
+vi.mock("next/server", () => ({
+  connection: vi.fn().mockResolvedValue(undefined),
+}));
 vi.mock("@/components/ratings/ratings-methodology", () => ({
   RatingsMethodology: ({ pools }: { pools: Array<{ label: string }> }) => (
     <div data-testid="method">{pools.map((pool) => pool.label).join(",")}</div>

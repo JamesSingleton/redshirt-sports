@@ -176,6 +176,13 @@
       "when": 1793573387605,
       "tag": "0024_rating_pools",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793634473154,
+      "tag": "0025_voter_attendance",
+      "breakpoints": true
     }
   ]
 }

@@ -58,7 +58,7 @@ Effects:
 
 - Through Week 0 / mid Week 1 (more than 48h before Week 1 `endDate`) → Preseason ballots
 - From Week N `endDate - 48h` until Week N+1 `endDate - 48h` → Week N ballots (including after the real `endDate`)
-- Monday **8:00 AM America/Denver** is the operational nudge/publish deadline — not the week-flip clock, and not the Ballot edit lock (that lock is Rankings publish)
+- Monday **9:00 AM America/Chicago** is the publish deadline: polls with Auto-publish on publish then (regular-season weeks only), which also locks Ballot edits. It is not the week-flip clock
 
 Admin publish desk selects weeks by `weekKey`. Public rankings URLs still use legacy segments (`0`, `N`, `final-rankings`).
 

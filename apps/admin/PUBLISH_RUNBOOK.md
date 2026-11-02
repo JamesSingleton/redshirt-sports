@@ -1,6 +1,21 @@
 # Weekly Top 25 rankings publish
 
-Publishing is manual from the admin **Rankings** desk.
+Regular-season weeks publish automatically at **9 AM Central every Monday** for polls with **Auto-publish** on (Polls page). Preseason, Final Rankings, and polls with Auto-publish off are published by hand from the admin **Rankings** desk.
+
+## Auto-publish
+
+- Web cron `/api/cron/rankings` (Vercel, Mondays 14:00 and 15:00 UTC; whichever is 9 AM Central publishes, the other no-ops). Needs `CRON_SECRET` on web, the same one the ratings cron uses.
+- It publishes each auto-publish poll's current voting week once. A week that is already published or has no ballots is skipped.
+- Turn Auto-publish off for a poll that stops before its sport does (FCS at the playoffs), before that Monday.
+- The dashboard's Panel readiness rows (and the Polls page, under each switch) show what the next run will do: "Auto-publishes Week 10 · Mon, Nov 9, 9:00 AM CST", or why it won't (off, already published, Preseason/Final Rankings publish manually). Once the week due to publish is open for voting and still has no ballots, it turns into a red warning that the run will skip it.
+
+## Missed ballots and lockout
+
+- Every publish (manual or auto) records a miss for each assigned voter with no ballot that week.
+- **3 unexcused misses in a season** removes the voter from that poll (shown as Locked out on the dashboard).
+- On the dashboard's **Missed ballots** card: click a missed week to excuse it (with an optional note); excused weeks don't count. Excusing doesn't reinstate; use **Reinstate** for that. A reinstated voter stays on until their next miss.
+- **Excuse ahead** (button on each poll's panel): when a voter tells you before the week publishes, pick them and one of the next three unpublished weeks. It shows as a dashed "(ahead)" chip, publishes as an excused miss, and disappears if they vote anyway. Click the chip to edit the note or **Remove excuse** until that week publishes.
+- Unpublishing a week drops its unexcused misses (ballots reopen); re-publishing records them again and clears any voter whose ballot came in.
 
 ## Before voting week opens
 

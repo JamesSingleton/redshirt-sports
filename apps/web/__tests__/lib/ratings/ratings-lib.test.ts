@@ -13,9 +13,11 @@ import {
   formatSor,
   formatThrough,
   parseSort,
+  parseSortDir,
   RATINGS_METHODOLOGY_PATH,
   ratingsPaths,
   siteLabel,
+  sortHref,
   sortRows,
 } from "@/lib/ratings/format";
 import { validationReport } from "@/lib/ratings/validation";
@@ -69,6 +71,46 @@ describe("ratings format", () => {
     expect(parseSort(["power", "sos"])).toBe("power");
     expect(parseSort("bogus")).toBe("sor");
     expect(parseSort(undefined)).toBe("sor");
+  });
+
+  it("parses sort direction and falls back to ascending", () => {
+    expect(parseSortDir("desc")).toBe("desc");
+    expect(parseSortDir(["desc", "asc"])).toBe("desc");
+    expect(parseSortDir("sideways")).toBe("asc");
+    expect(parseSortDir(undefined)).toBe("asc");
+  });
+
+  it("cycles a header link through ascending, descending, and reset", () => {
+    expect(sortHref("/b", "sor", { sort: "sor", dir: "asc" })).toBe(
+      "/b?sort=sor&dir=desc",
+    );
+    expect(sortHref("/b", "sor", { sort: "sor", dir: "desc" })).toBe("/b");
+    expect(sortHref("/b", "sos", { sort: "sor", dir: "asc" })).toBe(
+      "/b?sort=sos",
+    );
+    expect(sortHref("/b", "sos", { sort: "sos", dir: "asc" })).toBe(
+      "/b?sort=sos&dir=desc",
+    );
+    expect(sortHref("/b", "sos", { sort: "sos", dir: "desc" })).toBe("/b");
+    expect(sortHref("/b", "sor", { sort: "sos", dir: "desc" })).toBe("/b");
+  });
+
+  it("reverses ranked teams when descending and keeps unranked last", () => {
+    const data = [
+      teamRow({ schoolId: "u", sorRank: null, remainingSos: null }),
+      teamRow({ schoolId: "one", sorRank: 1, remainingSos: 0.2 }),
+      teamRow({ schoolId: "two", sorRank: 2, remainingSos: 0.6 }),
+    ];
+    expect(sortRows(data, "sor", "desc").map((r) => r.schoolId)).toEqual([
+      "two",
+      "one",
+      "u",
+    ]);
+    expect(sortRows(data, "remaining", "desc").map((r) => r.schoolId)).toEqual([
+      "one",
+      "two",
+      "u",
+    ]);
   });
 
   it("sorts ranked teams first, unranked by power, and remaining SOS by value", () => {

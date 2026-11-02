@@ -48,6 +48,7 @@ export async function listPolls(options?: { activeOnly?: boolean }) {
       slug: pollsTable.slug,
       name: pollsTable.name,
       isActive: pollsTable.isActive,
+      autoPublish: pollsTable.autoPublish,
       divisionSportId: pollsTable.divisionSportId,
       sport: {
         id: sportsTable.id,
@@ -85,12 +86,14 @@ export async function createPoll({
   slug,
   name,
   isActive = true,
+  autoPublish = false,
   divisionSportId,
 }: {
   sportId: string;
   slug: string;
   name: string;
   isActive?: boolean;
+  autoPublish?: boolean;
   divisionSportId?: string | null;
 }) {
   const normalizedSlug = slug.trim().toLowerCase();
@@ -105,6 +108,7 @@ export async function createPoll({
       slug: normalizedSlug,
       name: name.trim(),
       isActive,
+      autoPublish,
       divisionSportId: divisionSportId || null,
     })
     .returning();
@@ -117,12 +121,14 @@ export async function updatePoll({
   slug,
   name,
   isActive,
+  autoPublish,
   divisionSportId,
 }: {
   id: string;
   slug?: string;
   name?: string;
   isActive?: boolean;
+  autoPublish?: boolean;
   divisionSportId?: string | null;
 }) {
   if (!id) throw new Error("id is required");
@@ -133,6 +139,7 @@ export async function updatePoll({
   if (slug != null) patch.slug = slug.trim().toLowerCase();
   if (name != null) patch.name = name.trim();
   if (isActive != null) patch.isActive = isActive;
+  if (autoPublish != null) patch.autoPublish = autoPublish;
   if (divisionSportId !== undefined) {
     patch.divisionSportId = divisionSportId || null;
   }
@@ -289,7 +296,7 @@ export async function assignVoterToPoll({
     if (existing.revokedAt) {
       await db
         .update(pollVotersTable)
-        .set({ revokedAt: null, updatedAt: new Date() })
+        .set({ revokedAt: null, lockedOutAt: null, updatedAt: new Date() })
         .where(eq(pollVotersTable.id, existing.id));
     }
     return existing.id;

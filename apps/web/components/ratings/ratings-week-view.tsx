@@ -3,16 +3,18 @@ import { RatingsHeader } from "@/components/ratings/ratings-header";
 import { RatingsTable } from "@/components/ratings/ratings-table";
 import type { RatingsWeekModel } from "@/lib/ratings/data";
 import { buildRatingsDatasetJsonLd } from "@/lib/ratings/dataset-json-ld";
-import { ratingsPaths, type SortKey } from "@/lib/ratings/format";
+import { ratingsPaths, type SortDir, type SortKey } from "@/lib/ratings/format";
 
 /** The latest page and every archived week render the same view. */
 export function RatingsWeekView({
   model,
   sort,
+  dir = "asc",
   basePath,
 }: {
   model: RatingsWeekModel;
   sort: SortKey;
+  dir?: SortDir;
   basePath: string;
 }) {
   const { pool, week } = model;
@@ -33,6 +35,7 @@ export function RatingsWeekView({
         poolName={pool.name}
         benchmark={model.run.params.benchmark}
         sort={sort}
+        dir={dir}
         basePath={basePath}
         teamHref={teamHref}
       />

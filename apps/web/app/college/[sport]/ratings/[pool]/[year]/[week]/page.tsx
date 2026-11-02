@@ -6,7 +6,7 @@ import { RatingsSkeleton } from "@/components/ratings/ratings-skeleton";
 import { RatingsWeekView } from "@/components/ratings/ratings-week-view";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { loadRatingsWeek } from "@/lib/ratings/data";
-import { parseSort, ratingsPaths } from "@/lib/ratings/format";
+import { parseSort, parseSortDir, ratingsPaths } from "@/lib/ratings/format";
 
 type Params = Promise<{
   sport: string;
@@ -46,6 +46,7 @@ async function WeekRatings({
     <RatingsWeekView
       model={model}
       sort={parseSort(query.sort)}
+      dir={parseSortDir(query.dir)}
       basePath={ratingsPaths(sport, pool).week(
         model.week.year,
         model.week.segment,

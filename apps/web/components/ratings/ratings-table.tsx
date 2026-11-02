@@ -8,7 +8,9 @@ import {
   formatRecord,
   formatScore,
   formatSor,
+  type SortDir,
   type SortKey,
+  sortHref,
   sortRows,
 } from "@/lib/ratings/format";
 import { scaleGuide } from "@/lib/ratings/scale";
@@ -130,13 +132,15 @@ export function RatingsLegend({ poolName }: { poolName: string }) {
 
 /**
  * The pool table: one value per column, every column explained in the legend.
- * Sorting is a link (?sort=), so it works without JavaScript and caches per sort.
+ * Sorting is a link (?sort=&dir=), so it works without JavaScript and caches
+ * per sort. Clicking the current column flips it; clicking it again resets.
  */
 export function RatingsTable({
   rows,
   poolName,
   benchmark,
   sort,
+  dir = "asc",
   basePath,
   teamHref,
 }: {
@@ -145,10 +149,15 @@ export function RatingsTable({
   /** The #25-level team's strength for this run (run.params.benchmark). */
   benchmark: number;
   sort: SortKey;
+  dir?: SortDir;
   basePath: string;
   teamHref: (slug: string) => string;
 }) {
-  const sorted = sortRows(rows, sort);
+  const sorted = sortRows(rows, sort, dir);
+  // Remaining SOS has no stored rank, so number teams by their ascending position.
+  const remainingRank = new Map(
+    sortRows(rows, "remaining").map((row, index) => [row.schoolId, index + 1]),
+  );
   const cols = ratingsColumns(poolName);
   const cell = "px-3 py-2 tabular-nums whitespace-nowrap";
   return (
@@ -160,6 +169,7 @@ export function RatingsTable({
           <caption className="sr-only">
             {poolName} teams sorted by{" "}
             {cols.find((column) => column.key === sort)?.label}
+            {dir === "desc" ? ", reversed" : ""}
           </caption>
           <thead className="bg-muted/50 text-left">
             <tr>
@@ -174,15 +184,18 @@ export function RatingsTable({
                   key={column.label}
                   scope="col"
                   title={column.meaning}
+                  aria-sort={
+                    column.key === sort
+                      ? dir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : undefined
+                  }
                   className="px-3 py-2 whitespace-nowrap"
                 >
                   {column.key ? (
                     <Link
-                      href={
-                        column.key === "sor"
-                          ? basePath
-                          : `${basePath}?sort=${column.key}`
-                      }
+                      href={sortHref(basePath, column.key, { sort, dir })}
                       aria-current={column.key === sort ? "true" : undefined}
                       className={
                         column.key === sort
@@ -192,6 +205,11 @@ export function RatingsTable({
                       scroll={false}
                     >
                       {column.label}
+                      {column.key === sort ? (
+                        <span aria-hidden="true">
+                          {dir === "asc" ? " ↑" : " ↓"}
+                        </span>
+                      ) : null}
                     </Link>
                   ) : (
                     column.label
@@ -201,9 +219,10 @@ export function RatingsTable({
             </tr>
           </thead>
           <tbody>
-            {sorted.map((row, index) => {
+            {sorted.map((row) => {
               const rank =
-                rankFor(row, sort) ?? (sort === "remaining" ? index + 1 : null);
+                rankFor(row, sort) ??
+                (sort === "remaining" ? remainingRank.get(row.schoolId) : null);
               return (
                 <tr key={row.schoolId} className="border-t">
                   <td className="px-3 py-2 text-right font-semibold tabular-nums">
