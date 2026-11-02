@@ -181,8 +181,8 @@ function MobileNavItem({
       if (sports.length === 0) return null;
       return (
         <MobileSection label={item.label}>
-          {sports.flatMap((sport) =>
-            sport.polls.map((poll) => (
+          {sports.flatMap((sport) => [
+            ...sport.polls.map((poll) => (
               <Link
                 key={`${sport._id}-${poll._key}`}
                 href={pollLatestPath(sport.slug, poll.slug)}
@@ -196,7 +196,21 @@ function MobileNavItem({
                 Top 25
               </Link>
             )),
-          )}
+            ...sport.links.map((link) => (
+              <Link
+                key={`${sport._id}-${link._key}`}
+                href={link.href}
+                className={mobileLinkClass}
+                prefetch={false}
+                onClick={onNavigate}
+                {...(link.openInNewTab
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
+              >
+                {link.name}
+              </Link>
+            )),
+          ])}
         </MobileSection>
       );
     }

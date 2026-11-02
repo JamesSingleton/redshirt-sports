@@ -63,6 +63,56 @@ export const singleSportRankingsMenu = {
   sports: [footballSport],
 } as unknown as NavRankingsMenuItem;
 
+/** Polls plus editor links, including a links-only sport and links that are dropped. */
+export const linksRankingsMenu = {
+  _key: "menu-rankings-links",
+  _type: "navRankingsMenu",
+  label: "Rankings",
+  sports: [footballSport, noPollsSport],
+  links: [
+    {
+      _key: "link-ratings",
+      name: "FCS Ratings & SOS",
+      description: "Computer ratings, FCS games only",
+      sportId: "sport-fb",
+      openInNewTab: false,
+      href: "/college/football/ratings/fcs",
+    },
+    {
+      _key: "link-method",
+      name: "How the ratings work",
+      description: null,
+      sportId: "sport-fb",
+      openInNewTab: true,
+      href: "/ratings/methodology",
+    },
+    {
+      _key: "link-wbb",
+      name: "WBB Bracketology",
+      description: null,
+      sportId: "sport-wbb",
+      openInNewTab: false,
+      href: "/college/womens-basketball/bracketology",
+    },
+    {
+      _key: "link-no-url",
+      name: "No URL",
+      description: null,
+      sportId: "sport-fb",
+      openInNewTab: false,
+      href: null,
+    },
+    {
+      _key: "link-other-sport",
+      name: "Not In Menu",
+      description: null,
+      sportId: "sport-mbb",
+      openInNewTab: false,
+      href: "/elsewhere",
+    },
+  ],
+} as unknown as NavRankingsMenuItem;
+
 export const emptyRankingsMenu = {
   _key: "menu-rankings-empty",
   _type: "navRankingsMenu",
