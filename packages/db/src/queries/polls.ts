@@ -1,14 +1,26 @@
-import { and, asc, count, desc, eq, inArray, isNull } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  getTableColumns,
+  inArray,
+  isNull,
+} from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import {
   pollsTable,
   pollVotersTable,
+  seasonsTable,
+  seasonTypesTable,
   sportsTable,
   usersTable,
+  weeksTable,
 } from "../schema";
+import { legacyWeekToSeasonTypeAndNumber } from "../utils/week-mapping";
 import type { SportParam } from "./sports";
-import { getSportIdBySlug } from "./sports";
 
 export async function getPollBySportAndSlug({
   sportId,
@@ -25,6 +37,74 @@ export async function getPollBySportAndSlug({
   return poll;
 }
 
+export type Poll = typeof pollsTable.$inferSelect;
+
+/**
+ * A poll by its sport and poll slugs, plus (given a year and legacy week)
+ * that week's id, in one round trip. Callers used to chain sport → poll →
+ * week lookups, three round trips holding a pooler connection each time.
+ * `weekId` is null when no week was asked for or it doesn't exist.
+ */
+export async function resolvePollWeekBySlugs({
+  sport,
+  division,
+  year,
+  legacyWeek,
+}: {
+  sport: SportParam;
+  division: string;
+  year?: number;
+  legacyWeek?: number;
+}): Promise<{ sportId: string; poll: Poll; weekId: string | null } | null> {
+  const bySlugs = and(
+    eq(sportsTable.slug, sport),
+    eq(pollsTable.slug, division),
+  );
+  if (year == null || legacyWeek == null) {
+    const [row] = await db
+      .select({ poll: getTableColumns(pollsTable) })
+      .from(pollsTable)
+      .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
+      .where(bySlugs)
+      .limit(1);
+    return row
+      ? { sportId: row.poll.sportId, poll: row.poll, weekId: null }
+      : null;
+  }
+  const { seasonType, weekNumber } =
+    legacyWeekToSeasonTypeAndNumber(legacyWeek);
+  const [row] = await db
+    .select({ poll: getTableColumns(pollsTable), weekId: weeksTable.id })
+    .from(pollsTable)
+    .innerJoin(sportsTable, eq(pollsTable.sportId, sportsTable.id))
+    .leftJoin(
+      seasonsTable,
+      and(
+        eq(seasonsTable.sportId, pollsTable.sportId),
+        eq(seasonsTable.year, year),
+      ),
+    )
+    .leftJoin(
+      seasonTypesTable,
+      and(
+        eq(seasonTypesTable.seasonId, seasonsTable.id),
+        eq(seasonTypesTable.type, seasonType),
+      ),
+    )
+    .leftJoin(
+      weeksTable,
+      and(
+        eq(weeksTable.seasonTypeId, seasonTypesTable.id),
+        eq(weeksTable.number, weekNumber),
+      ),
+    )
+    .where(bySlugs)
+    .limit(1);
+  return row
+    ? { sportId: row.poll.sportId, poll: row.poll, weekId: row.weekId ?? null }
+    : null;
+}
+
 export async function getPollBySportSlugAndPollSlug({
   sportSlug,
   pollSlug,
@@ -32,9 +112,10 @@ export async function getPollBySportSlugAndPollSlug({
   sportSlug: SportParam;
   pollSlug: string;
 }) {
-  const sportId = await getSportIdBySlug(sportSlug);
-  if (!sportId) return null;
-  return getPollBySportAndSlug({ sportId, slug: pollSlug });
+  return (
+    (await resolvePollWeekBySlugs({ sport: sportSlug, division: pollSlug }))
+      ?.poll ?? null
+  );
 }
 
 export async function listPolls(options?: { activeOnly?: boolean }) {

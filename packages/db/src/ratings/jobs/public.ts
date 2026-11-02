@@ -215,11 +215,19 @@ export type PublishedTeamSheetRow = PublishedTeamRow & {
   explanation: TeamExplanation;
 };
 
-// Every snapshot column except `explanation`. Explanations are about 77% of a
+// The snapshot columns a published row needs. Explanations are about 77% of a
 // run on the wire (~700 kB with, ~160 kB without), and only team sheets and
-// full downloads render them, so tables and archives never load them.
-const { explanation: _explanation, ...snapshotTableColumns } =
-  getTableColumns(ratingSnapshotsTable);
+// full downloads render them, so tables and archives never load them. Row ids,
+// timestamps, and the run/conference ids aren't shown anywhere either.
+const {
+  explanation: _explanation,
+  id: _id,
+  createdAt: _createdAt,
+  updatedAt: _updatedAt,
+  runId: _runId,
+  conferenceId: _conferenceId,
+  ...snapshotTableColumns
+} = getTableColumns(ratingSnapshotsTable);
 
 /** Run details, or null unless the run is published. */
 async function readPublishedRunMeta(
