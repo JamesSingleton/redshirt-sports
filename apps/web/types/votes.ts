@@ -19,8 +19,11 @@ export type VoterData = {
   organizationRole: string | null;
 };
 
+/** One pick on a voter's ballot: the ballots pages need only the team and rank. */
+export type BallotPick = Pick<Ballot, "userId" | "rank" | "teamId">;
+
 export type BallotAndVoterData = {
-  votes: Ballot[];
+  votes: BallotPick[];
   userData: VoterData | undefined;
 };
 
