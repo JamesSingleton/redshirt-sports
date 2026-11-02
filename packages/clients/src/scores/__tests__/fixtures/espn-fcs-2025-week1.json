@@ -1,0 +1,282 @@
+{
+  "season": {
+    "type": 2,
+    "year": 2025
+  },
+  "week": {
+    "number": 1
+  },
+  "events": [
+    {
+      "id": "401767476",
+      "date": "2025-08-23T17:00Z",
+      "season": {
+        "year": 2025,
+        "type": 2,
+        "slug": "regular-season"
+      },
+      "week": {
+        "number": 1
+      },
+      "competitions": [
+        {
+          "neutralSite": false,
+          "date": "2025-08-23T17:00Z",
+          "status": {
+            "period": 4,
+            "type": {
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "state": "post",
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "shortDetail": "Final"
+            }
+          },
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "20",
+              "team": {
+                "id": "2447",
+                "displayName": "Nicholls Colonels",
+                "location": "Nicholls",
+                "name": "Colonels",
+                "abbreviation": "NICH"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "6",
+              "team": {
+                "id": "2916",
+                "displayName": "Incarnate Word Cardinals",
+                "location": "Incarnate Word",
+                "name": "Cardinals",
+                "abbreviation": "UIW"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401767126",
+      "date": "2025-08-23T20:30Z",
+      "season": {
+        "year": 2025,
+        "type": 2,
+        "slug": "regular-season"
+      },
+      "week": {
+        "number": 1
+      },
+      "competitions": [
+        {
+          "neutralSite": false,
+          "date": "2025-08-23T20:30Z",
+          "status": {
+            "period": 4,
+            "type": {
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "state": "post",
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "shortDetail": "Final"
+            }
+          },
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "0",
+              "team": {
+                "id": "2502",
+                "displayName": "Portland State Vikings",
+                "location": "Portland State",
+                "name": "Vikings",
+                "abbreviation": "PRST"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "42",
+              "team": {
+                "id": "2627",
+                "displayName": "Tarleton State Texans",
+                "location": "Tarleton State",
+                "name": "Texans",
+                "abbreviation": "TAR"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401767410",
+      "date": "2025-08-23T23:30Z",
+      "season": {
+        "year": 2025,
+        "type": 2,
+        "slug": "regular-season"
+      },
+      "week": {
+        "number": 1
+      },
+      "competitions": [
+        {
+          "neutralSite": true,
+          "date": "2025-08-23T23:30Z",
+          "status": {
+            "period": 4,
+            "type": {
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "state": "post",
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "shortDetail": "Final"
+            }
+          },
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "14",
+              "team": {
+                "id": "2582",
+                "displayName": "Southern Jaguars",
+                "location": "Southern",
+                "name": "Jaguars",
+                "abbreviation": "SOU"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "31",
+              "team": {
+                "id": "2428",
+                "displayName": "North Carolina Central Eagles",
+                "location": "North Carolina Central",
+                "name": "Eagles",
+                "abbreviation": "NCCU"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401760371",
+      "date": "2025-08-23T20:00Z",
+      "season": {
+        "year": 2025,
+        "type": 2,
+        "slug": "regular-season"
+      },
+      "week": {
+        "number": 1
+      },
+      "competitions": [
+        {
+          "neutralSite": false,
+          "date": "2025-08-23T20:00Z",
+          "status": {
+            "period": 4,
+            "type": {
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "state": "post",
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "shortDetail": "Final"
+            }
+          },
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "38",
+              "team": {
+                "id": "2439",
+                "displayName": "UNLV Rebels",
+                "location": "UNLV",
+                "name": "Rebels",
+                "abbreviation": "UNLV"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "31",
+              "team": {
+                "id": "304",
+                "displayName": "Idaho State Bengals",
+                "location": "Idaho State",
+                "name": "Bengals",
+                "abbreviation": "IDST"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401762790",
+      "date": "2025-08-28T22:00Z",
+      "season": {
+        "year": 2025,
+        "type": 2,
+        "slug": "regular-season"
+      },
+      "week": {
+        "number": 1
+      },
+      "competitions": [
+        {
+          "neutralSite": false,
+          "date": "2025-08-28T22:00Z",
+          "status": {
+            "period": 4,
+            "type": {
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "state": "post",
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "shortDetail": "Final"
+            }
+          },
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "26",
+              "team": {
+                "id": "189",
+                "displayName": "Bowling Green Falcons",
+                "location": "Bowling Green",
+                "name": "Falcons",
+                "abbreviation": "BGSU"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "7",
+              "team": {
+                "id": "322",
+                "displayName": "Lafayette Leopards",
+                "location": "Lafayette",
+                "name": "Leopards",
+                "abbreviation": "LAF"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {}
+  ]
+}

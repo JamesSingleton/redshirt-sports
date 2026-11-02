@@ -7,7 +7,12 @@ const sanityRevalidateSecret = process.env.SANITY_REVALIDATE_SECRET;
 const cacheRevalidateSecret = process.env.CACHE_REVALIDATE_SECRET;
 
 function isAllowlistedCacheTag(tag: string) {
-  return tag === "rankings" || tag.startsWith("rankings:");
+  return (
+    tag === "rankings" ||
+    tag.startsWith("rankings:") ||
+    tag === "ratings" ||
+    tag.startsWith("ratings:")
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -77,7 +82,9 @@ export async function POST(request: NextRequest) {
 
   if (!cacheTags.every(isAllowlistedCacheTag)) {
     return Response.json(
-      { error: "cacheTags must be rankings or rankings:*" },
+      {
+        error: "cacheTags must be rankings, rankings:*, ratings, or ratings:*",
+      },
       { status: 400 },
     );
   }

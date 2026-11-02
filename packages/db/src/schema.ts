@@ -3,6 +3,7 @@ import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   check,
+  doublePrecision,
   foreignKey,
   index,
   integer,
@@ -898,3 +899,401 @@ export const bracketGamesTableRelations = relations(
     }),
   }),
 );
+
+// ---------------------------------------------------------------------------
+// Rating pools: computer ratings and strength of schedule counted only on games
+// where both teams belong to the same pool (FCS vs FCS, mid-major vs mid-major…).
+// ---------------------------------------------------------------------------
+
+export const EXTERNAL_ID_PROVIDERS = ["espn", "ncaa"] as const;
+
+/**
+ * A school's id at an outside data provider. Providers use one id per school across
+ * sports (ESPN's McNeese is 2377 in football and both basketballs). Edited in admin.
+ */
+export const schoolExternalIdsTable = pgTable(
+  "school_external_ids",
+  {
+    ...defaultColumns,
+    schoolId: text("school_id")
+      .notNull()
+      .references(() => schoolsTable.id, { onDelete: "cascade" }),
+    provider: text("provider").notNull(),
+    externalId: text("external_id").notNull(),
+  },
+  (table) => [
+    unique("school_external_ids_provider_external_id_unique").on(
+      table.provider,
+      table.externalId,
+    ),
+    unique("school_external_ids_school_id_provider_unique").on(
+      table.schoolId,
+      table.provider,
+    ),
+    check(
+      "school_external_ids_provider_check",
+      sql`${table.provider} in ('espn', 'ncaa')`,
+    ),
+  ],
+);
+
+export const GAME_SOURCES = ["espn", "ncaa"] as const;
+
+/** Every game ingested for a sport's season. Sides that aren't Redshirt schools keep their raw names. */
+export const gamesTable = pgTable(
+  "games",
+  {
+    ...defaultColumns,
+    seasonId: text("season_id")
+      .notNull()
+      .references(() => seasonsTable.id, { onDelete: "cascade" }),
+    weekId: text("week_id").references(() => weeksTable.id),
+    seasonType: integer("season_type").notNull(),
+    homeSchoolId: text("home_school_id").references(() => schoolsTable.id),
+    awaySchoolId: text("away_school_id").references(() => schoolsTable.id),
+    homeExternalId: text("home_external_id"),
+    awayExternalId: text("away_external_id"),
+    homeName: text("home_name").notNull(),
+    awayName: text("away_name").notNull(),
+    /** Without the mascot ("Arizona"). */
+    homeShortName: text("home_short_name"),
+    awayShortName: text("away_short_name"),
+    /** Level that season ("FBS", "FCS", "DII", "DIII"), from the pool's levelGroups; null if unknown. */
+    homeLevel: text("home_level"),
+    awayLevel: text("away_level"),
+    homeScore: integer("home_score"),
+    awayScore: integer("away_score"),
+    neutralSite: boolean("neutral_site").notNull().default(false),
+    overtime: boolean("overtime").notNull().default(false),
+    status: text("status").notNull(),
+    kickoffAt: timestamp("kickoff_at", { withTimezone: true }),
+    source: text("source").notNull(),
+    sourceGameId: text("source_game_id").notNull(),
+    /** Kickoff date + both sides, so two sources can never store the same game twice. */
+    dedupeKey: text("dedupe_key").notNull(),
+  },
+  (table) => [
+    unique("games_source_source_game_id_unique").on(
+      table.source,
+      table.sourceGameId,
+    ),
+    unique("games_season_id_dedupe_key_unique").on(
+      table.seasonId,
+      table.dedupeKey,
+    ),
+    check(
+      "games_status_check",
+      sql`${table.status} in ('scheduled', 'in_progress', 'final', 'postponed', 'cancelled')`,
+    ),
+    check("games_source_check", sql`${table.source} in ('espn', 'ncaa')`),
+    index("games_week_id_index").on(table.weekId),
+    index("games_home_school_id_index").on(table.homeSchoolId),
+    index("games_away_school_id_index").on(table.awaySchoolId),
+  ],
+);
+
+/**
+ * A rated group of teams within one sport (FCS football, mid-major men's basketball…).
+ * Membership, data sources, schedule, and model parameters are config, so a new pool is a new row.
+ */
+export const ratingPoolsTable = pgTable(
+  "rating_pools",
+  {
+    ...defaultColumns,
+    divisionSportId: text("division_sport_id")
+      .notNull()
+      .references(() => divisionSportsTable.id),
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id),
+    /** URL segment, matching the division slug: /college/{sport}/ratings/{slug}. */
+    slug: varchar("slug", { length: 100 }).notNull(),
+    name: varchar("name", { length: 256 }).notNull(),
+    /** Synced and computed by the cron. */
+    isActive: boolean("is_active").notNull().default(false),
+    /** Published on the public site and in the sitemap. */
+    isPublic: boolean("is_public").notNull().default(false),
+    /** See PoolDefinition in ratings/pools.ts. */
+    membership: jsonb("membership").notNull(),
+    source: jsonb("source").notNull(),
+    schedule: jsonb("schedule").notNull(),
+    config: jsonb("config").notNull(),
+    methodVersion: integer("method_version").notNull(),
+  },
+  (table) => [
+    unique("rating_pools_sport_id_slug_unique").on(table.sportId, table.slug),
+    index("rating_pools_division_sport_id_index").on(table.divisionSportId),
+  ],
+);
+
+/** Who was in a pool in a given season, and their conference that season. */
+export const ratingPoolMembersTable = pgTable(
+  "rating_pool_members",
+  {
+    ...defaultColumns,
+    poolId: text("pool_id")
+      .notNull()
+      .references(() => ratingPoolsTable.id, { onDelete: "cascade" }),
+    seasonId: text("season_id")
+      .notNull()
+      .references(() => seasonsTable.id, { onDelete: "cascade" }),
+    schoolId: text("school_id")
+      .notNull()
+      .references(() => schoolsTable.id),
+    conferenceId: text("conference_id").references(() => conferencesTable.id),
+    /** The conference that season, from the provider (realignment-proof). */
+    conferenceName: text("conference_name"),
+  },
+  (table) => [
+    unique("rating_pool_members_pool_season_school_unique").on(
+      table.poolId,
+      table.seasonId,
+      table.schoolId,
+    ),
+    index("rating_pool_members_season_id_index").on(table.seasonId),
+    index("rating_pool_members_school_id_index").on(table.schoolId),
+  ],
+);
+
+export const RATING_RUN_STATUSES = [
+  "draft",
+  "published",
+  "superseded",
+] as const;
+export const RATING_TRIGGERS = ["cron", "admin", "cli"] as const;
+
+/** One computation of a pool as of one week. Immutable once written; publishing only flips status. */
+export const ratingRunsTable = pgTable(
+  "rating_runs",
+  {
+    ...defaultColumns,
+    poolId: text("pool_id")
+      .notNull()
+      .references(() => ratingPoolsTable.id, { onDelete: "cascade" }),
+    seasonId: text("season_id")
+      .notNull()
+      .references(() => seasonsTable.id),
+    weekId: text("week_id")
+      .notNull()
+      .references(() => weeksTable.id),
+    /** Latest kickoff counted, so a page can say "through Saturday's games". */
+    throughAt: timestamp("through_at", { withTimezone: true }),
+    methodVersion: integer("method_version").notNull(),
+    /** The exact config used, so any run can be reproduced. */
+    params: jsonb("params").notNull(),
+    diagnostics: jsonb("diagnostics").notNull(),
+    /** sha256 of every input game, the membership, and the params. */
+    checksum: text("checksum").notNull(),
+    gameCount: integer("game_count").notNull(),
+    status: text("status").notNull().default("draft"),
+    trigger: text("trigger").notNull(),
+    computedAt: timestamp("computed_at", { withTimezone: true })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    publishedBy: text("published_by"),
+  },
+  (table) => [
+    check(
+      "rating_runs_status_check",
+      sql`${table.status} in ('draft', 'published', 'superseded')`,
+    ),
+    check(
+      "rating_runs_trigger_check",
+      sql`${table.trigger} in ('cron', 'admin', 'cli')`,
+    ),
+    uniqueIndex("rating_runs_one_published_per_week")
+      .on(table.poolId, table.weekId)
+      .where(sql`${table.status} = 'published'`),
+    index("rating_runs_pool_week_index").on(table.poolId, table.weekId),
+    index("rating_runs_season_id_index").on(table.seasonId),
+    index("rating_runs_week_id_index").on(table.weekId),
+  ],
+);
+
+/** One team's numbers in one run. See ratings/engine/types.ts TeamRating for meanings. */
+export const ratingSnapshotsTable = pgTable(
+  "rating_snapshots",
+  {
+    ...defaultColumns,
+    runId: text("run_id")
+      .notNull()
+      .references(() => ratingRunsTable.id, { onDelete: "cascade" }),
+    schoolId: text("school_id")
+      .notNull()
+      .references(() => schoolsTable.id),
+    conferenceId: text("conference_id").references(() => conferencesTable.id),
+    /** Conference as of this run's season, frozen with the run. */
+    conferenceName: text("conference_name"),
+    power: doublePrecision("power").notNull(),
+    powerLow: doublePrecision("power_low").notNull(),
+    powerHigh: doublePrecision("power_high").notNull(),
+    powerRank: integer("power_rank").notNull(),
+    powerRankLow: integer("power_rank_low").notNull(),
+    powerRankHigh: integer("power_rank_high").notNull(),
+    strength: doublePrecision("strength").notNull(),
+    sor: doublePrecision("sor"),
+    sorRank: integer("sor_rank"),
+    sorRankLow: integer("sor_rank_low"),
+    sorRankHigh: integer("sor_rank_high"),
+    sos: doublePrecision("sos"),
+    sosRank: integer("sos_rank"),
+    sosRankLow: integer("sos_rank_low"),
+    sosRankHigh: integer("sos_rank_high"),
+    sov: doublePrecision("sov"),
+    sovRank: integer("sov_rank"),
+    sol: doublePrecision("sol"),
+    recordSos: doublePrecision("record_sos"),
+    recordSosRank: integer("record_sos_rank"),
+    owp: doublePrecision("owp"),
+    oowp: doublePrecision("oowp"),
+    averageOpponentStrength: doublePrecision("average_opponent_strength"),
+    remainingSos: doublePrecision("remaining_sos"),
+    fullSeasonSos: doublePrecision("full_season_sos"),
+    poolWins: integer("pool_wins").notNull(),
+    poolLosses: integer("pool_losses").notNull(),
+    poolTies: integer("pool_ties").notNull(),
+    overallWins: integer("overall_wins").notNull(),
+    overallLosses: integer("overall_losses").notNull(),
+    overallTies: integer("overall_ties").notNull(),
+    poolGames: integer("pool_games").notNull(),
+    tierRecords: jsonb("tier_records").notNull(),
+    isProvisional: boolean("is_provisional").notNull(),
+    explanation: jsonb("explanation").notNull(),
+  },
+  (table) => [
+    unique("rating_snapshots_run_id_school_id_unique").on(
+      table.runId,
+      table.schoolId,
+    ),
+    index("rating_snapshots_school_id_index").on(table.schoolId),
+  ],
+);
+
+export const RATING_JOB_KINDS = [
+  "sync",
+  "compute",
+  "publish",
+  "pipeline",
+] as const;
+export const RATING_JOB_STATUSES = [
+  "running",
+  "succeeded",
+  "skipped",
+  "failed",
+] as const;
+
+/** Every sync/compute/publish attempt, for the admin log and debugging. */
+export const ratingJobsTable = pgTable(
+  "rating_jobs",
+  {
+    ...defaultColumns,
+    poolId: text("pool_id").references(() => ratingPoolsTable.id, {
+      onDelete: "cascade",
+    }),
+    kind: text("kind").notNull(),
+    trigger: text("trigger").notNull(),
+    status: text("status").notNull(),
+    request: jsonb("request"),
+    lines: jsonb("lines").notNull().default(sql`'[]'::jsonb`),
+    error: text("error"),
+    runId: text("run_id").references(() => ratingRunsTable.id, {
+      onDelete: "set null",
+    }),
+    actor: text("actor"),
+    startedAt: timestamp("started_at", { withTimezone: true })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+  },
+  (table) => [
+    check(
+      "rating_jobs_kind_check",
+      sql`${table.kind} in ('sync', 'compute', 'publish', 'pipeline')`,
+    ),
+    check(
+      "rating_jobs_status_check",
+      sql`${table.status} in ('running', 'succeeded', 'skipped', 'failed')`,
+    ),
+    index("rating_jobs_pool_started_index").on(table.poolId, table.startedAt),
+    // At most one running job per pool: the lock that keeps cron and admin from overlapping.
+    uniqueIndex("rating_jobs_one_running_per_pool")
+      .on(table.poolId)
+      .where(sql`${table.status} = 'running'`),
+    index("rating_jobs_run_id_index").on(table.runId),
+  ],
+);
+
+export const ratingPoolsTableRelations = relations(
+  ratingPoolsTable,
+  ({ one, many }) => ({
+    sport: one(sportsTable, {
+      fields: [ratingPoolsTable.sportId],
+      references: [sportsTable.id],
+    }),
+    divisionSport: one(divisionSportsTable, {
+      fields: [ratingPoolsTable.divisionSportId],
+      references: [divisionSportsTable.id],
+    }),
+    runs: many(ratingRunsTable),
+    members: many(ratingPoolMembersTable),
+  }),
+);
+
+export const ratingRunsTableRelations = relations(
+  ratingRunsTable,
+  ({ one, many }) => ({
+    pool: one(ratingPoolsTable, {
+      fields: [ratingRunsTable.poolId],
+      references: [ratingPoolsTable.id],
+    }),
+    season: one(seasonsTable, {
+      fields: [ratingRunsTable.seasonId],
+      references: [seasonsTable.id],
+    }),
+    week: one(weeksTable, {
+      fields: [ratingRunsTable.weekId],
+      references: [weeksTable.id],
+    }),
+    snapshots: many(ratingSnapshotsTable),
+  }),
+);
+
+export const ratingSnapshotsTableRelations = relations(
+  ratingSnapshotsTable,
+  ({ one }) => ({
+    run: one(ratingRunsTable, {
+      fields: [ratingSnapshotsTable.runId],
+      references: [ratingRunsTable.id],
+    }),
+    school: one(schoolsTable, {
+      fields: [ratingSnapshotsTable.schoolId],
+      references: [schoolsTable.id],
+    }),
+  }),
+);
+
+export const ratingPoolMembersTableRelations = relations(
+  ratingPoolMembersTable,
+  ({ one }) => ({
+    pool: one(ratingPoolsTable, {
+      fields: [ratingPoolMembersTable.poolId],
+      references: [ratingPoolsTable.id],
+    }),
+    school: one(schoolsTable, {
+      fields: [ratingPoolMembersTable.schoolId],
+      references: [schoolsTable.id],
+    }),
+  }),
+);
+
+export const gamesTableRelations = relations(gamesTable, ({ one }) => ({
+  season: one(seasonsTable, {
+    fields: [gamesTable.seasonId],
+    references: [seasonsTable.id],
+  }),
+  week: one(weeksTable, {
+    fields: [gamesTable.weekId],
+    references: [weeksTable.id],
+  }),
+}));

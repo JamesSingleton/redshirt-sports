@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
 } from "@redshirt-sports/ui/components/sidebar";
 import {
+  IconChartBar,
   IconDatabase,
   IconHome,
   IconListDetails,
@@ -44,6 +45,11 @@ const data = {
       title: "Polls",
       url: "/polls",
       icon: IconListDetails,
+    },
+    {
+      title: "Ratings & SOS",
+      url: "/ratings",
+      icon: IconChartBar,
     },
     {
       title: "Development",

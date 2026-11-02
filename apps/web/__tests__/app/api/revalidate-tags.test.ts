@@ -260,4 +260,22 @@ describe("POST /api/revalidate-tags", () => {
       cacheTags: ["rankings", "rankings:football:fbs:2026:1"],
     });
   });
+
+  it("accepts ratings cache tags and still rejects anything else", async () => {
+    vi.resetModules();
+    const { POST } = await import("@/app/api/revalidate-tags/route");
+    const send = (cacheTags: string[]) =>
+      POST(
+        new Request("https://example.com/api/revalidate-tags", {
+          method: "POST",
+          body: JSON.stringify({ secret: CACHE_SECRET, cacheTags }),
+        }) as never,
+      );
+
+    expect((await send(["ratings", "ratings:football:fcs"])).status).toBe(200);
+    expect(mockRevalidateTag).toHaveBeenCalledWith("ratings:football:fcs", {
+      expire: 0,
+    });
+    expect((await send(["sanity:post"])).status).toBe(400);
+  });
 });

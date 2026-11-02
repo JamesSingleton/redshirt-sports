@@ -15,7 +15,8 @@ const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=86400",
 } as const;
 
-function clientIp(request: Request): string {
+/** First forwarded client IP; shared by the public JSON/CSV APIs for rate limiting. */
+export function clientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
     const first = forwarded.split(",")[0]?.trim();

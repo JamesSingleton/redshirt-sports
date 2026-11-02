@@ -1,0 +1,206 @@
+{
+  "pool": {
+    "sport": "football",
+    "slug": "fcs",
+    "name": "FCS"
+  },
+  "generatedAt": "2026-11-01T22:41:23.301Z",
+  "seasons": {
+    "burnIn": 2022,
+    "train": [2023, 2024, 2025],
+    "test": 2026
+  },
+  "config": {
+    "marginTransform": {
+      "type": "cap",
+      "cap": 35
+    },
+    "overtimeMargin": 3,
+    "priorGames": 2,
+    "priorCarryover": 0.85,
+    "newcomerPrior": -6,
+    "homeFieldPrior": 0,
+    "homeFieldPriorGames": 20,
+    "powerHalfLifeWeeks": 12,
+    "sigma": 14.72,
+    "benchmark": 8.98,
+    "minRankedGames": 3,
+    "provisionalMinAverageGames": 4,
+    "tierFloors": [0.5, 0.25, 0.1],
+    "posteriorSamples": 1000,
+    "seed": 1
+  },
+  "steps": [
+    {
+      "parameter": "marginTransform",
+      "choice": "cap 35",
+      "logLoss": 0.5312316287303517,
+      "mae": 12.358451326346772
+    },
+    {
+      "parameter": "priorGames",
+      "choice": "2",
+      "logLoss": 0.5312316287303517,
+      "mae": 12.358451326346772
+    },
+    {
+      "parameter": "priorCarryover",
+      "choice": "0.95",
+      "logLoss": 0.5312316287303517,
+      "mae": 12.358451326346772
+    },
+    {
+      "parameter": "newcomerPrior",
+      "choice": "-6",
+      "logLoss": 0.5300113941808675,
+      "mae": 12.323481098777332
+    },
+    {
+      "parameter": "powerHalfLifeWeeks",
+      "choice": "off",
+      "logLoss": 0.5300113941808675,
+      "mae": 12.323481098777332
+    },
+    {
+      "parameter": "homeFieldPrior",
+      "choice": "0",
+      "logLoss": 0.5300113941808675,
+      "mae": 12.323481098777332
+    },
+    {
+      "parameter": "marginTransform",
+      "choice": "cap 35",
+      "logLoss": 0.5300113941808675,
+      "mae": 12.323481098777332
+    },
+    {
+      "parameter": "priorGames",
+      "choice": "2",
+      "logLoss": 0.5300113941808675,
+      "mae": 12.323481098777332
+    },
+    {
+      "parameter": "priorCarryover",
+      "choice": "0.85",
+      "logLoss": 0.5299854896948838,
+      "mae": 12.344135452188938
+    },
+    {
+      "parameter": "newcomerPrior",
+      "choice": "-6",
+      "logLoss": 0.5299854896948838,
+      "mae": 12.344135452188938
+    },
+    {
+      "parameter": "powerHalfLifeWeeks",
+      "choice": "12 weeks",
+      "logLoss": 0.5299270274180377,
+      "mae": 12.324796681302127
+    },
+    {
+      "parameter": "homeFieldPrior",
+      "choice": "0",
+      "logLoss": 0.5299270274180377,
+      "mae": 12.324796681302127
+    }
+  ],
+  "baseline": {
+    "description": "Starting values before calibration",
+    "test": {
+      "games": 395,
+      "marginMae": 12.422125957621294,
+      "marginRmse": 15.991732806253122,
+      "winnerAccuracy": 0.6886075949367089,
+      "logLoss": 0.5612368380595332,
+      "sigma": 14.230152157015638
+    }
+  },
+  "train": {
+    "games": 1914,
+    "marginMae": 12.324796681302127,
+    "marginRmse": 15.90040111533688,
+    "winnerAccuracy": 0.7403343782654127,
+    "logLoss": 0.5299270314349166,
+    "sigma": 14.72
+  },
+  "test": {
+    "games": 395,
+    "marginMae": 12.4800591519568,
+    "marginRmse": 16.002220737122922,
+    "winnerAccuracy": 0.7037974683544304,
+    "logLoss": 0.5611625705957745,
+    "sigma": 14.72
+  },
+  "perSeason": [
+    {
+      "year": 2023,
+      "role": "train",
+      "games": 595,
+      "marginMae": 12.653571424372744,
+      "marginRmse": 16.307436222403084,
+      "winnerAccuracy": 0.7159663865546219,
+      "logLoss": 0.5603429349612646,
+      "sigma": 14.72
+    },
+    {
+      "year": 2024,
+      "role": "train",
+      "games": 661,
+      "marginMae": 12.209213571234024,
+      "marginRmse": 15.827351955619315,
+      "winnerAccuracy": 0.7413010590015129,
+      "logLoss": 0.5266164557454506,
+      "sigma": 14.72
+    },
+    {
+      "year": 2025,
+      "role": "train",
+      "games": 658,
+      "marginMae": 12.143610455812704,
+      "marginRmse": 15.597963770129233,
+      "winnerAccuracy": 0.7613981762917933,
+      "logLoss": 0.5057489583840936,
+      "sigma": 14.72
+    },
+    {
+      "year": 2026,
+      "role": "test",
+      "games": 395,
+      "marginMae": 12.4800591519568,
+      "marginRmse": 16.002220737122922,
+      "winnerAccuracy": 0.7037974683544304,
+      "logLoss": 0.5611625705957745,
+      "sigma": 14.72
+    }
+  ],
+  "championRanks": [
+    {
+      "year": 2022,
+      "champion": "South Dakota State",
+      "sorRank": 1,
+      "powerRank": 1,
+      "sosRank": 3
+    },
+    {
+      "year": 2023,
+      "champion": "South Dakota State",
+      "sorRank": 1,
+      "powerRank": 1,
+      "sosRank": 1
+    },
+    {
+      "year": 2024,
+      "champion": "North Dakota State",
+      "sorRank": 1,
+      "powerRank": 2,
+      "sosRank": 2
+    },
+    {
+      "year": 2025,
+      "champion": "Montana State",
+      "sorRank": 1,
+      "powerRank": 2,
+      "sosRank": 12
+    }
+  ]
+}
