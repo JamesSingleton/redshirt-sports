@@ -1,4 +1,12 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  getTableColumns,
+  type SQL,
+  sql,
+} from "drizzle-orm";
 
 import { primaryDb as db } from "../../client";
 import {
@@ -200,12 +208,31 @@ export type PublishedTeamRow = {
   poolGames: number;
   tierRecords: [RecordLine, RecordLine, RecordLine, RecordLine];
   isProvisional: boolean;
+};
+
+/** A row with its game-by-game explanation, for team sheets and full downloads. */
+export type PublishedTeamSheetRow = PublishedTeamRow & {
   explanation: TeamExplanation;
 };
 
-async function readGetPublishedRun(
+// The snapshot columns a published row needs. Explanations are about 77% of a
+// run on the wire (~700 kB with, ~160 kB without), and only team sheets and
+// full downloads render them, so tables and archives never load them. Row ids,
+// timestamps, and the run/conference ids aren't shown anywhere either.
+const {
+  explanation: _explanation,
+  id: _id,
+  createdAt: _createdAt,
+  updatedAt: _updatedAt,
+  runId: _runId,
+  conferenceId: _conferenceId,
+  ...snapshotTableColumns
+} = getTableColumns(ratingSnapshotsTable);
+
+/** Run details, or null unless the run is published. */
+async function readPublishedRunMeta(
   runId: string,
-): Promise<{ run: PublishedRun; rows: PublishedTeamRow[] } | null> {
+): Promise<PublishedRun | null> {
   const [run] = await db
     .select({
       id: ratingRunsTable.id,
@@ -221,9 +248,22 @@ async function readGetPublishedRun(
     .where(eq(ratingRunsTable.id, runId))
     .limit(1);
   if (run?.status !== "published") return null;
-  const snapshots = await db
+  return {
+    id: run.id,
+    methodVersion: run.methodVersion,
+    params: run.params as EngineConfig,
+    diagnostics: run.diagnostics as RatingDiagnostics,
+    checksum: run.checksum,
+    gameCount: run.gameCount,
+    computedAt: run.computedAt.toISOString(),
+  };
+}
+
+/** Snapshot rows (without explanations) with their school and conference. */
+function selectSnapshotRows(where: SQL | undefined) {
+  return db
     .select({
-      snapshot: ratingSnapshotsTable,
+      snapshot: snapshotTableColumns,
       name: schoolsTable.shortName,
       fullName: schoolsTable.name,
       abbreviation: schoolsTable.abbreviation,
@@ -238,8 +278,14 @@ async function readGetPublishedRun(
       conferencesTable,
       eq(conferencesTable.id, ratingSnapshotsTable.conferenceId),
     )
-    .where(eq(ratingSnapshotsTable.runId, runId));
-  const rows = snapshots.map(({ snapshot: s, ...school }) => ({
+    .where(where);
+}
+
+function toPublishedRow({
+  snapshot: s,
+  ...school
+}: Awaited<ReturnType<typeof selectSnapshotRows>>[number]): PublishedTeamRow {
+  return {
     schoolId: s.schoolId,
     name: school.name ?? school.fullName ?? s.schoolId,
     fullName: school.fullName,
@@ -281,20 +327,88 @@ async function readGetPublishedRun(
     poolGames: s.poolGames,
     tierRecords: s.tierRecords as PublishedTeamRow["tierRecords"],
     isProvisional: s.isProvisional,
-    explanation: s.explanation as TeamExplanation,
-  }));
-  return {
-    run: {
-      id: run.id,
-      methodVersion: run.methodVersion,
-      params: run.params as EngineConfig,
-      diagnostics: run.diagnostics as RatingDiagnostics,
-      checksum: run.checksum,
-      gameCount: run.gameCount,
-      computedAt: run.computedAt.toISOString(),
-    },
-    rows,
   };
+}
+
+async function readGetPublishedRun(
+  runId: string,
+): Promise<{ run: PublishedRun; rows: PublishedTeamRow[] } | null> {
+  const run = await readPublishedRunMeta(runId);
+  if (!run) return null;
+  const snapshots = await selectSnapshotRows(
+    eq(ratingSnapshotsTable.runId, runId),
+  );
+  return { run, rows: snapshots.map(toPublishedRow) };
+}
+
+/** Each team in a run's school id and slug, so a team sheet can link opponents. */
+export type PublishedRunTeam = { schoolId: string; slug: string | null };
+
+/**
+ * One team sheet: the run, the team's row with its explanation, and the run's
+ * id/slug list. About 10 kB instead of the ~150 kB full run.
+ */
+async function readGetPublishedTeamSheet(
+  runId: string,
+  slug: string,
+): Promise<{
+  run: PublishedRun;
+  row: PublishedTeamSheetRow;
+  teams: PublishedRunTeam[];
+} | null> {
+  const run = await readPublishedRunMeta(runId);
+  if (!run) return null;
+  const [found] = await selectSnapshotRows(
+    and(eq(ratingSnapshotsTable.runId, runId), eq(schoolsTable.slug, slug)),
+  ).limit(1);
+  if (!found) return null;
+  const [explanations, teams] = await Promise.all([
+    readListRunExplanations(runId, found.snapshot.schoolId),
+    db
+      .select({
+        schoolId: ratingSnapshotsTable.schoolId,
+        slug: schoolsTable.slug,
+      })
+      .from(ratingSnapshotsTable)
+      .innerJoin(
+        schoolsTable,
+        eq(schoolsTable.id, ratingSnapshotsTable.schoolId),
+      )
+      .where(eq(ratingSnapshotsTable.runId, runId)),
+  ]);
+  const explanation = explanations.get(found.snapshot.schoolId);
+  if (!explanation) return null;
+  return { run, row: { ...toPublishedRow(found), explanation }, teams };
+}
+
+/**
+ * Game-by-game explanations for a published run, keyed by school. Pass
+ * `schoolId` to read one team's (a team sheet needs only its own).
+ */
+async function readListRunExplanations(
+  runId: string,
+  schoolId?: string,
+): Promise<Map<string, TeamExplanation>> {
+  const rows = await db
+    .select({
+      schoolId: ratingSnapshotsTable.schoolId,
+      explanation: ratingSnapshotsTable.explanation,
+    })
+    .from(ratingSnapshotsTable)
+    .innerJoin(
+      ratingRunsTable,
+      eq(ratingRunsTable.id, ratingSnapshotsTable.runId),
+    )
+    .where(
+      and(
+        eq(ratingSnapshotsTable.runId, runId),
+        eq(ratingRunsTable.status, "published"),
+        ...(schoolId ? [eq(ratingSnapshotsTable.schoolId, schoolId)] : []),
+      ),
+    );
+  return new Map(
+    rows.map((row) => [row.schoolId, row.explanation as TeamExplanation]),
+  );
 }
 
 export type PoolPrediction = {
@@ -312,16 +426,9 @@ export type PoolPrediction = {
  * (plus its home field) against the following week's final games. This is the
  * pick record the accuracy page shows.
  */
-async function readListPoolPredictions(
-  poolId: string,
-): Promise<PoolPrediction[]> {
-  const rows = await db.execute<{
-    year: number;
-    season_type: number;
-    week_number: number;
-    predicted: number;
-    actual: number;
-  }>(sql`
+/** One row per out-of-sample prediction (see readListPoolPredictions). */
+function poolPredictionsQuery(poolId: string) {
+  return sql`
     with ordered as (
       select w.id, st.season_id, st.type, w.number,
         lag(w.id) over (partition by st.season_id order by st.type, w.number) as previous_week
@@ -349,14 +456,89 @@ async function readListPoolPredictions(
     join rating_snapshots ph on ph.run_id = runs.id and ph.school_id = g.home_school_id
     join rating_snapshots pa on pa.run_id = runs.id and pa.school_id = g.away_school_id
     where g.status = 'final' and g.home_score is not null and g.away_score is not null
-    order by s.year, o.type, o.number
-  `);
+  `;
+}
+
+async function readListPoolPredictions(
+  poolId: string,
+): Promise<PoolPrediction[]> {
+  const rows = await db.execute<{
+    year: number;
+    season_type: number;
+    week_number: number;
+    predicted: number;
+    actual: number;
+  }>(sql`${poolPredictionsQuery(poolId)} order by s.year, o.type, o.number`);
   return rows.map((row) => ({
     year: Number(row.year),
     seasonType: Number(row.season_type),
     weekNumber: Number(row.week_number),
     predicted: Number(row.predicted),
     actual: Number(row.actual),
+  }));
+}
+
+/**
+ * Pick-record totals for one week and predicted-margin bucket. Bucket i holds
+ * |predicted| in [marginEdges[i-1], marginEdges[i]): 0 below the first edge,
+ * marginEdges.length at or above the last.
+ */
+export type PoolPredictionGroup = {
+  year: number;
+  seasonType: number;
+  weekNumber: number;
+  bucket: number;
+  /** All predictions, including ties. */
+  predictions: number;
+  /** Predictions whose game had a winner. */
+  decided: number;
+  /** Decided games where the predicted winner won. */
+  correct: number;
+  /** Sum of |predicted - actual| over all predictions. */
+  missSum: number;
+};
+
+/**
+ * The accuracy page's totals, summed in Postgres: a few hundred rows instead
+ * of every prediction (~2,900 rows, ~240 kB).
+ */
+async function readListPoolPredictionGroups(
+  poolId: string,
+  marginEdges: number[],
+): Promise<PoolPredictionGroup[]> {
+  const edges = sql`array[${sql.join(
+    marginEdges.map((edge) => sql`${edge}`),
+    sql`, `,
+  )}]::float8[]`;
+  const rows = await db.execute<{
+    year: number;
+    season_type: number;
+    week_number: number;
+    bucket: number;
+    predictions: number;
+    decided: number;
+    correct: number;
+    miss_sum: number;
+  }>(sql`
+    select year, season_type, week_number,
+      width_bucket(abs(predicted), ${edges}) as bucket,
+      count(*)::int as predictions,
+      (count(*) filter (where actual <> 0))::int as decided,
+      (count(*) filter (where actual <> 0 and sign(predicted) = sign(actual)))::int as correct,
+      sum(abs(predicted - actual))::float as miss_sum
+    from (${poolPredictionsQuery(poolId)}) p
+    group by year, season_type, week_number, bucket
+    order by year, season_type, week_number, bucket
+  `);
+  return rows.map((row) => ({
+    year: Number(row.year),
+    seasonType: Number(row.season_type),
+    weekNumber: Number(row.week_number),
+    bucket: Number(row.bucket),
+    predictions: Number(row.predictions),
+    decided: Number(row.decided),
+    correct: Number(row.correct),
+    missSum: Number(row.miss_sum),
   }));
 }
 
@@ -378,7 +560,31 @@ export function getPublishedRun(runId: string) {
   return orNothingPublished(() => readGetPublishedRun(runId), null);
 }
 
+/** Every team's explanation in a published run (printable sheets, JSON download). */
+export function listPublishedRunExplanations(runId: string) {
+  return orNothingPublished(
+    () => readListRunExplanations(runId),
+    new Map<string, TeamExplanation>(),
+  );
+}
+
+/** One team sheet in a published run (see readGetPublishedTeamSheet), or null. */
+export function getPublishedTeamSheet(runId: string, slug: string) {
+  return orNothingPublished(() => readGetPublishedTeamSheet(runId, slug), null);
+}
+
 /** Every pool-vs-pool game predicted out of sample (see readListPoolPredictions). */
 export function listPoolPredictions(poolId: string) {
   return orNothingPublished(() => readListPoolPredictions(poolId), []);
+}
+
+/** Pick-record totals by week and margin bucket (see readListPoolPredictionGroups). */
+export function listPoolPredictionGroups(
+  poolId: string,
+  marginEdges: number[],
+) {
+  return orNothingPublished(
+    () => readListPoolPredictionGroups(poolId, marginEdges),
+    [],
+  );
 }

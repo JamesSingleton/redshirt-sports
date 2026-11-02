@@ -7,7 +7,7 @@ import { RatingsSkeleton } from "@/components/ratings/ratings-skeleton";
 import { RatingsWeekPicker } from "@/components/ratings/ratings-week-picker";
 import { TeamSheet, TierLegend } from "@/components/ratings/team-sheet";
 import { getPageMetadata } from "@/lib/global-seo-settings";
-import { loadRatingsWeek } from "@/lib/ratings/data";
+import { loadRatingsSheets, loadRatingsWeek } from "@/lib/ratings/data";
 import { ratingsPaths, sortRows } from "@/lib/ratings/format";
 
 type Params = Promise<{
@@ -37,7 +37,7 @@ export async function generateMetadata({
 /** Every team's sheet on one page, one per printed page, in SOR order. For committee packets. */
 async function TeamSheets({ params }: { params: Params }) {
   const { sport, pool, year, week } = await params;
-  const model = await loadRatingsWeek({ sport, pool, year, week });
+  const model = await loadRatingsSheets({ sport, pool, year, week });
   const paths = ratingsPaths(sport, pool);
   return (
     <div className="flex flex-col gap-10 py-6">

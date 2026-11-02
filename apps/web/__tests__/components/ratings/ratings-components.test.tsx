@@ -4,6 +4,7 @@ import { createContext, type ReactNode, useContext } from "react";
 import {
   config,
   rows,
+  teamModel,
   teamRow,
   weekModel,
 } from "@/__tests__/helpers/ratings-fixtures";
@@ -501,7 +502,7 @@ describe("TeamSheet", () => {
 
 describe("TeamSheetPage", () => {
   it("links opponents to their latest sheets, the method, and the team page", () => {
-    const model = weekModel();
+    const model = teamModel();
     render(<TeamSheetPage data={{ model, row: model.rows[0]! }} />);
     expect(screen.getByText("FCS ratings · 2025 Postseason")).toHaveAttribute(
       "href",
@@ -523,7 +524,7 @@ describe("TeamSheetPage", () => {
   });
 
   it("links into the archive for an older week, and skips the team page without a slug", () => {
-    const model = weekModel({ isLatest: false });
+    const model = teamModel({ isLatest: false });
     render(<TeamSheetPage data={{ model, row: model.rows[2]! }} />);
     expect(screen.getByText("FCS ratings · 2025 Postseason")).toHaveAttribute(
       "href",

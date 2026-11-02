@@ -3,8 +3,10 @@ import { weekModel } from "@/__tests__/helpers/ratings-fixtures";
 const db = vi.hoisted(() => ({
   getPublicPool: vi.fn(),
   getPublishedRun: vi.fn(),
-  listPoolPredictions: vi.fn(),
+  getPublishedTeamSheet: vi.fn(),
+  listPoolPredictionGroups: vi.fn(),
   listPublicPools: vi.fn(),
+  listPublishedRunExplanations: vi.fn(),
   listPublishedWeeks: vi.fn(),
 }));
 
@@ -21,10 +23,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 import {
-  getCachedPredictions,
+  getCachedPredictionGroups,
   getCachedPublicPools,
   loadRatingsSeason,
   loadRatingsSeasonRuns,
+  loadRatingsSheets,
   loadRatingsTeam,
   loadRatingsWeek,
   requirePool,
@@ -40,14 +43,38 @@ describe("ratings data", () => {
       .mockReset()
       .mockResolvedValue({ run: model.run, rows: model.rows });
     db.listPublicPools.mockReset().mockResolvedValue([model.pool]);
+    db.getPublishedTeamSheet
+      .mockReset()
+      .mockImplementation(async (_runId: string, slug: string) => {
+        const row = model.rows.find((candidate) => candidate.slug === slug);
+        return row
+          ? {
+              run: model.run,
+              row,
+              teams: model.rows.map((r) => ({
+                schoolId: r.schoolId,
+                slug: r.slug,
+              })),
+            }
+          : null;
+      });
+    db.listPublishedRunExplanations
+      .mockReset()
+      .mockResolvedValue(
+        new Map(model.rows.map((row) => [row.schoolId, row.explanation])),
+      );
   });
 
   it("loads a pool's predictions", async () => {
-    db.listPoolPredictions.mockResolvedValue([]);
+    db.listPoolPredictionGroups.mockResolvedValue([]);
     await expect(
-      getCachedPredictions("football", "fcs", "pool-1"),
+      getCachedPredictionGroups("football", "fcs", "pool-1"),
     ).resolves.toEqual([]);
-    expect(db.listPoolPredictions).toHaveBeenCalledWith("pool-1");
+    // Totals are summed in Postgres, bucketed at the page's margin edges.
+    expect(db.listPoolPredictionGroups).toHaveBeenCalledWith(
+      "pool-1",
+      [3, 7, 14, 21],
+    );
   });
 
   it("lists public pools", async () => {
@@ -114,15 +141,40 @@ describe("ratings data", () => {
   });
 
   it("loads one team by slug, or 404s", async () => {
-    const { row } = await loadRatingsTeam({
+    const { model: teamPage, row } = await loadRatingsTeam({
       sport: "football",
       pool: "fcs",
       slug: "montana-state-bobcats",
     });
     expect(row.name).toBe("Montana State");
+    expect(row.explanation.games).toHaveLength(3);
+    // Only this team's sheet and a slug list, never the whole run.
+    expect(db.getPublishedTeamSheet).toHaveBeenCalledWith(
+      model.weeks[0]?.runId,
+      "montana-state-bobcats",
+    );
+    expect(db.getPublishedRun).not.toHaveBeenCalled();
+    expect(teamPage.teams).toHaveLength(model.rows.length);
+    expect(teamPage.isLatest).toBe(true);
     await expect(
       loadRatingsTeam({ sport: "football", pool: "fcs", slug: "nobody" }),
     ).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("loads every team's explanation for printable sheets, skipping any missing", async () => {
+    const [first, ...rest] = model.rows;
+    db.listPublishedRunExplanations.mockResolvedValue(
+      new Map(rest.map((row) => [row.schoolId, row.explanation])),
+    );
+    const sheets = await loadRatingsSheets({ sport: "football", pool: "fcs" });
+    expect(db.listPublishedRunExplanations).toHaveBeenCalledWith(model.run.id);
+    expect(sheets.rows.map((row) => row.schoolId)).toEqual(
+      rest.map((row) => row.schoolId),
+    );
+    expect(sheets.rows.map((row) => row.schoolId)).not.toContain(
+      first?.schoolId,
+    );
+    expect(sheets.rows[0]?.explanation).toEqual(rest[0]?.explanation);
   });
 
   it("loads a season oldest-first with every year, or 404s", async () => {

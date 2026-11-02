@@ -9,8 +9,8 @@ const {
   mockGetLatestFinalRankings,
   mockGetLatestFinalRankingsBySportSlug,
   mockGetSportIdBySlug,
-  mockGetPollBySportAndSlug,
-  mockResolveWeekIdForLegacyWeek,
+  mockGetPollBySportSlugAndPollSlug,
+  mockResolvePollWeekBySlugs,
   mockCountBallotsForPollWeek,
   mockGetBallotsListedBySanityIdForPollWeek,
   mockGetPollWeekVoterChips,
@@ -28,8 +28,8 @@ const {
   mockGetLatestFinalRankings: vi.fn(),
   mockGetLatestFinalRankingsBySportSlug: vi.fn(),
   mockGetSportIdBySlug: vi.fn(),
-  mockGetPollBySportAndSlug: vi.fn(),
-  mockResolveWeekIdForLegacyWeek: vi.fn(),
+  mockGetPollBySportSlugAndPollSlug: vi.fn(),
+  mockResolvePollWeekBySlugs: vi.fn(),
   mockCountBallotsForPollWeek: vi.fn(),
   mockGetBallotsListedBySanityIdForPollWeek: vi.fn(),
   mockGetPollWeekVoterChips: vi.fn(),
@@ -55,8 +55,8 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   getLatestFinalRankings: mockGetLatestFinalRankings,
   getLatestFinalRankingsBySportSlug: mockGetLatestFinalRankingsBySportSlug,
   getSportIdBySlug: mockGetSportIdBySlug,
-  getPollBySportAndSlug: mockGetPollBySportAndSlug,
-  resolveWeekIdForLegacyWeek: mockResolveWeekIdForLegacyWeek,
+  getPollBySportSlugAndPollSlug: mockGetPollBySportSlugAndPollSlug,
+  resolvePollWeekBySlugs: mockResolvePollWeekBySlugs,
   countBallotsForPollWeek: mockCountBallotsForPollWeek,
   getBallotsListedBySanityIdForPollWeek:
     mockGetBallotsListedBySanityIdForPollWeek,
@@ -206,22 +206,26 @@ describe("rankings-data", () => {
     );
   });
 
-  it("getCachedPollWeekBallotContext returns null when sport is unknown", async () => {
-    mockGetSportIdBySlug.mockResolvedValue(null);
+  const ballotContextInput = {
+    sport: "football" as const,
+    division: "fbs",
+    year: 2025,
+    week: 1,
+  };
+
+  it("getCachedPollWeekBallotContext returns null when the poll is unknown", async () => {
+    mockResolvePollWeekBySlugs.mockResolvedValue(null);
     await expect(
-      getCachedPollWeekBallotContext({
-        sport: "football",
-        division: "fbs",
-        year: 2025,
-        week: 1,
-      }),
+      getCachedPollWeekBallotContext(ballotContextInput),
     ).resolves.toBeNull();
   });
 
   it("getCachedPollWeekBallotContext aggregates ballot context", async () => {
-    mockGetSportIdBySlug.mockResolvedValue("sport-1");
-    mockGetPollBySportAndSlug.mockResolvedValue({ id: "poll-1" });
-    mockResolveWeekIdForLegacyWeek.mockResolvedValue("week-1");
+    mockResolvePollWeekBySlugs.mockResolvedValue({
+      sportId: "sport-1",
+      poll: { id: "poll-1" },
+      weekId: "week-1",
+    });
     mockCountBallotsForPollWeek.mockResolvedValue(3);
     mockGetBallotsListedBySanityIdForPollWeek.mockResolvedValue(
       new Map([["school-1", 2]]),
@@ -231,40 +235,34 @@ describe("rankings-data", () => {
     ]);
 
     await expect(
-      getCachedPollWeekBallotContext({
-        sport: "football",
-        division: "fbs",
-        year: 2025,
-        week: 1,
-      }),
+      getCachedPollWeekBallotContext(ballotContextInput),
     ).resolves.toEqual({
       ballotsCounted: 3,
       ballotsListedBySanityId: { "school-1": 2 },
       voterChips: [{ id: "voter-1", label: "AB" }],
     });
+    // Sport, poll, and week resolve in one lookup.
+    expect(mockResolvePollWeekBySlugs).toHaveBeenCalledWith({
+      sport: "football",
+      division: "fbs",
+      year: 2025,
+      legacyWeek: 1,
+    });
+    expect(mockGetSportIdBySlug).not.toHaveBeenCalled();
+    expect(mockCountBallotsForPollWeek).toHaveBeenCalledWith({
+      pollId: "poll-1",
+      weekId: "week-1",
+    });
   });
 
-  it("getCachedPollWeekBallotContext returns null when poll or week is missing", async () => {
-    mockGetSportIdBySlug.mockResolvedValue("sport-1");
-    mockGetPollBySportAndSlug.mockResolvedValue(null);
+  it("getCachedPollWeekBallotContext returns null when the week is missing", async () => {
+    mockResolvePollWeekBySlugs.mockResolvedValue({
+      sportId: "sport-1",
+      poll: { id: "poll-1" },
+      weekId: null,
+    });
     await expect(
-      getCachedPollWeekBallotContext({
-        sport: "football",
-        division: "fbs",
-        year: 2025,
-        week: 1,
-      }),
-    ).resolves.toBeNull();
-
-    mockGetPollBySportAndSlug.mockResolvedValue({ id: "poll-1" });
-    mockResolveWeekIdForLegacyWeek.mockResolvedValue(null);
-    await expect(
-      getCachedPollWeekBallotContext({
-        sport: "football",
-        division: "fbs",
-        year: 2025,
-        week: 1,
-      }),
+      getCachedPollWeekBallotContext(ballotContextInput),
     ).resolves.toBeNull();
   });
 
@@ -293,40 +291,27 @@ describe("rankings-data", () => {
     ).resolves.toEqual({ ballots: [] });
   });
 
-  it("getCachedActivePollVoters returns empty when sport or poll is missing", async () => {
-    mockGetSportIdBySlug.mockResolvedValue(null);
-    await expect(
-      getCachedActivePollVoters({ sport: "football", division: "fbs" }),
-    ).resolves.toEqual([]);
-
-    mockGetSportIdBySlug.mockResolvedValue("sport-1");
-    mockGetPollBySportAndSlug.mockResolvedValue(null);
+  it("getCachedActivePollVoters returns empty when the poll is unknown", async () => {
+    mockGetPollBySportSlugAndPollSlug.mockResolvedValue(null);
     await expect(
       getCachedActivePollVoters({ sport: "football", division: "fbs" }),
     ).resolves.toEqual([]);
   });
 
   it("getCachedActivePollVoters lists voters for the poll", async () => {
-    mockGetSportIdBySlug.mockResolvedValue("sport-1");
-    mockGetPollBySportAndSlug.mockResolvedValue({ id: "poll-1" });
+    mockGetPollBySportSlugAndPollSlug.mockResolvedValue({ id: "poll-1" });
     mockListActivePollVoters.mockResolvedValue([{ id: "voter-1" }]);
     await expect(
       getCachedActivePollVoters({ sport: "football", division: "fbs" }),
     ).resolves.toEqual([{ id: "voter-1" }]);
+    expect(mockGetPollBySportSlugAndPollSlug).toHaveBeenCalledWith({
+      sportSlug: "football",
+      pollSlug: "fbs",
+    });
   });
 
-  it("getCachedPollVoterBallotStatsForSeason returns empty map when sport or poll is missing", async () => {
-    mockGetSportIdBySlug.mockResolvedValue(null);
-    await expect(
-      getCachedPollVoterBallotStatsForSeason({
-        sport: "football",
-        division: "fbs",
-        year: 2026,
-      }),
-    ).resolves.toEqual(new Map());
-
-    mockGetSportIdBySlug.mockResolvedValue("sport-1");
-    mockGetPollBySportAndSlug.mockResolvedValue(null);
+  it("getCachedPollVoterBallotStatsForSeason returns an empty map when the poll is unknown", async () => {
+    mockGetPollBySportSlugAndPollSlug.mockResolvedValue(null);
     await expect(
       getCachedPollVoterBallotStatsForSeason({
         sport: "football",
@@ -340,8 +325,7 @@ describe("rankings-data", () => {
     const stats = new Map([
       ["user-1", { seasonBallotCount: 3, voterSince: new Date("2024-09-01") }],
     ]);
-    mockGetSportIdBySlug.mockResolvedValue("sport-1");
-    mockGetPollBySportAndSlug.mockResolvedValue({ id: "poll-1" });
+    mockGetPollBySportSlugAndPollSlug.mockResolvedValue({ id: "poll-1" });
     mockGetPollVoterBallotStatsForSeason.mockResolvedValue(stats);
     await expect(
       getCachedPollVoterBallotStatsForSeason({

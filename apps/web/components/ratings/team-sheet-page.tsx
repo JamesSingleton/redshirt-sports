@@ -13,7 +13,9 @@ export function TeamSheetPage({
   const { model, row } = data;
   const { pool, week } = model;
   const paths = ratingsPaths(pool.sportSlug, pool.slug);
-  const slugById = new Map(model.rows.map((r) => [r.schoolId, r.slug]));
+  const slugById = new Map(
+    model.teams.map((team) => [team.schoolId, team.slug]),
+  );
   const opponentHref = (schoolId: string) => {
     const slug = slugById.get(schoolId);
     if (!slug) return null;
@@ -36,7 +38,7 @@ export function TeamSheetPage({
       <TeamSheet
         row={row}
         poolName={pool.name}
-        teamCount={model.rows.length}
+        teamCount={model.teams.length}
         opponentHref={opponentHref}
         benchmark={model.run.params.benchmark}
         sigma={model.run.params.sigma}

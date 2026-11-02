@@ -8,13 +8,14 @@ import {
 
 const data = vi.hoisted(() => ({
   loadRatingsWeek: vi.fn(),
+  loadRatingsSheets: vi.fn(),
   loadRatingsTeam: vi.fn(),
   loadRatingsSeason: vi.fn(),
   requirePool: vi.fn(),
   getCachedPublicPools: vi.fn(),
   getCachedWeeks: vi.fn(),
   getCachedRun: vi.fn(),
-  getCachedPredictions: vi.fn(),
+  getCachedPredictionGroups: vi.fn(),
 }));
 const mockGetPageMetadata = vi.hoisted(() => vi.fn((input: unknown) => input));
 const mockValidationReport = vi.hoisted(() => vi.fn());
@@ -131,6 +132,7 @@ describe("ratings pages", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     data.loadRatingsWeek.mockResolvedValue(model);
+    data.loadRatingsSheets.mockResolvedValue(model);
     data.loadRatingsTeam.mockResolvedValue({ model, row: model.rows[0] });
     data.loadRatingsSeason.mockResolvedValue({
       pool: model.pool,
@@ -139,8 +141,17 @@ describe("ratings pages", () => {
     });
     data.requirePool.mockResolvedValue(model.pool);
     data.getCachedPublicPools.mockResolvedValue([model.pool]);
-    data.getCachedPredictions.mockResolvedValue([
-      { year: 2025, seasonType: 2, weekNumber: 2, predicted: 3, actual: 7 },
+    data.getCachedPredictionGroups.mockResolvedValue([
+      {
+        year: 2025,
+        seasonType: 2,
+        weekNumber: 2,
+        bucket: 1,
+        predictions: 1,
+        decided: 1,
+        correct: 1,
+        missSum: 4,
+      },
     ]);
     mockValidationReport.mockReturnValue({ championRanks: [] });
   });
@@ -220,6 +231,8 @@ describe("ratings pages", () => {
     );
     expect(screen.getAllByTestId("legend")).toHaveLength(1);
     expect(screen.getAllByTestId("sheet")).toHaveLength(3);
+    // Metadata uses the light week; only the sheets themselves load explanations.
+    expect(data.loadRatingsSheets).toHaveBeenCalledTimes(1);
     expect(screen.getAllByTestId("sheet")[0]).toHaveAttribute(
       "data-href",
       "null",
@@ -250,7 +263,7 @@ describe("ratings pages", () => {
     });
     render(await resolveSuspense(AccuracyPage({ params: p(pool) })));
     expect(screen.getByTestId("accuracy")).toHaveTextContent("FCS 1");
-    expect(data.getCachedPredictions).toHaveBeenCalledWith(
+    expect(data.getCachedPredictionGroups).toHaveBeenCalledWith(
       "football",
       "fcs",
       "pool-1",

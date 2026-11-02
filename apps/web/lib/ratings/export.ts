@@ -3,6 +3,7 @@ import type { PublishedTeamRow } from "@redshirt-sports/db/ratings";
 import { ratingsColumns } from "@/lib/ratings/columns";
 import type {
   loadRatingsSeasonRuns,
+  RatingsSheetsModel,
   RatingsWeekModel,
 } from "@/lib/ratings/data";
 import { RATINGS_LICENSE_URL } from "@/lib/ratings/dataset-json-ld";
@@ -91,7 +92,7 @@ export function ratingsCsv(model: RatingsWeekModel, canonical: string): string {
 }
 
 /** Everything: the attribution, the exact parameters, and every team with its game-by-game explanation. */
-export function ratingsJson(model: RatingsWeekModel, canonical: string) {
+export function ratingsJson(model: RatingsSheetsModel, canonical: string) {
   return {
     ...attribution(model, canonical),
     pool: {

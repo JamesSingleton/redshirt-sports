@@ -1,4 +1,4 @@
-import type { PublishedTeamRow } from "@redshirt-sports/db/ratings";
+import type { PublishedTeamSheetRow } from "@redshirt-sports/db/ratings";
 import Link from "next/link";
 
 import { TeamLogo } from "@/components/ratings/team-logo";
@@ -74,7 +74,7 @@ export function TeamSheet({
   sigma,
   showTierLegend = true,
 }: {
-  row: PublishedTeamRow;
+  row: PublishedTeamSheetRow;
   poolName: string;
   teamCount: number;
   opponentHref: (schoolId: string) => string | null;

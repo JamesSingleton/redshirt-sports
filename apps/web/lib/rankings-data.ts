@@ -6,7 +6,7 @@ import {
   getFinalRankingsForWeekAndYear,
   getLatestFinalRankings,
   getLatestFinalRankingsBySportSlug,
-  getPollBySportAndSlug,
+  getPollBySportSlugAndPollSlug,
   getPollVoterBallotStatsForSeason,
   getPollWeekVoterChips,
   getRankedSchoolSanityIds,
@@ -16,7 +16,7 @@ import {
   getWeeksThatHaveVotes,
   getYearsThatHaveVotes,
   listActivePollVoters,
-  resolveWeekIdForLegacyWeek,
+  resolvePollWeekBySlugs,
   schoolHasPollRankings,
 } from "@redshirt-sports/db/queries";
 import {
@@ -217,24 +217,16 @@ export async function getCachedPollWeekBallotContext({
   );
   cacheLife(RANKINGS_CACHE_LIFE);
 
-  const sportId = await getSportIdBySlug(sport);
-  if (!sportId) {
-    return null;
-  }
-
-  const poll = await getPollBySportAndSlug({ sportId, slug: division });
-  if (!poll) {
-    return null;
-  }
-
-  const weekId = await resolveWeekIdForLegacyWeek({
-    sportId,
+  const resolved = await resolvePollWeekBySlugs({
+    sport,
+    division,
     year,
     legacyWeek: week,
   });
-  if (!weekId) {
+  if (!resolved?.weekId) {
     return null;
   }
+  const { poll, weekId } = resolved;
 
   const [ballotsCounted, listedMap, voterChips] = await Promise.all([
     countBallotsForPollWeek({ pollId: poll.id, weekId }),
@@ -297,12 +289,10 @@ export async function getCachedActivePollVoters({
   );
   cacheLife(RANKINGS_CACHE_LIFE);
 
-  const sportId = await getSportIdBySlug(sport);
-  if (!sportId) {
-    return [];
-  }
-
-  const poll = await getPollBySportAndSlug({ sportId, slug: division });
+  const poll = await getPollBySportSlugAndPollSlug({
+    sportSlug: sport,
+    pollSlug: division,
+  });
   if (!poll) {
     return [];
   }
@@ -328,12 +318,10 @@ export async function getCachedPollVoterBallotStatsForSeason({
   );
   cacheLife(RANKINGS_CACHE_LIFE);
 
-  const sportId = await getSportIdBySlug(sport);
-  if (!sportId) {
-    return new Map();
-  }
-
-  const poll = await getPollBySportAndSlug({ sportId, slug: division });
+  const poll = await getPollBySportSlugAndPollSlug({
+    sportSlug: sport,
+    pollSlug: division,
+  });
   if (!poll) {
     return new Map();
   }

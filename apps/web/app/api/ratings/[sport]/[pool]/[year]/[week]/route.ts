@@ -1,6 +1,10 @@
 import { getBaseUrl } from "@/lib/get-base-url";
 import { clientIp } from "@/lib/rankings-api-route";
-import { loadRatingsWeek } from "@/lib/ratings/data";
+import {
+  loadRatingsSheets,
+  loadRatingsWeek,
+  type RatingsSheetsModel,
+} from "@/lib/ratings/data";
 import { ratingsCsv, ratingsJson } from "@/lib/ratings/export";
 import { ratingsPaths } from "@/lib/ratings/format";
 import { rankingsApiRatelimit } from "@/server/ratelimit";
@@ -42,18 +46,26 @@ export async function GET(
     );
   }
   const { sport, pool, year, week } = await params;
-  const model = await loadRatingsWeek({ sport, pool, year, week });
+  const format =
+    new URL(request.url).searchParams.get("format") === "json" ? "json" : "csv";
+  // Only the JSON download carries every team's game-by-game explanation.
+  const model =
+    format === "json"
+      ? await loadRatingsSheets({ sport, pool, year, week })
+      : await loadRatingsWeek({ sport, pool, year, week });
   const path = ratingsPaths(sport, pool).week(
     model.week.year,
     model.week.segment,
   );
   const canonical = `${getBaseUrl().replace(/\/$/, "")}${path}`;
   const filename = `redshirt-${sport}-${pool}-${model.week.year}-${model.week.segment}`;
-  const format =
-    new URL(request.url).searchParams.get("format") === "json" ? "json" : "csv";
   if (format === "json") {
     return new Response(
-      JSON.stringify(ratingsJson(model, canonical), null, 2),
+      JSON.stringify(
+        ratingsJson(model as RatingsSheetsModel, canonical),
+        null,
+        2,
+      ),
       {
         headers: {
           ...CACHE_HEADERS,

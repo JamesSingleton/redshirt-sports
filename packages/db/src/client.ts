@@ -17,10 +17,14 @@ import * as schema from "./schema";
 const client = postgres(keys().DATABASE_URL, {
   prepare: false,
   fetch_types: false,
-  max: 5,
-  // Longer idle keeps warm serverless isolates from reconnecting (and
-  // re-authing through Supavisor) on every quiet stretch.
-  idle_timeout: 60,
+  // Supavisor allows 200 client connections in total, and a paused Vercel
+  // instance keeps its idle connections open (its idle timer can't fire) until
+  // the instance is shut down. A burst of re-renders at 5 per instance filled
+  // all 200 on 2026-11-02. 3 per instance roughly halves a burst and still
+  // leaves a connection free beside a poll/week lock holder and its waiter.
+  max: 3,
+  // Release idle connections quickly while the instance is still running.
+  idle_timeout: 10,
   max_lifetime: 0,
   // Default is 30s; keep tighter so hung pooler connects fail fast on serverless.
   connect_timeout: 10,

@@ -11,6 +11,8 @@ import {
 } from "../src/ratings/jobs/lifecycle";
 import {
   getPublishedRun,
+  getPublishedTeamSheet,
+  listPublishedRunExplanations,
   listPublishedWeeks,
 } from "../src/ratings/jobs/public";
 import {
@@ -19,6 +21,8 @@ import {
   ratingJobsTable,
   ratingPoolsTable,
   ratingRunsTable,
+  ratingSnapshotsTable,
+  schoolsTable,
   seasonsTable,
 } from "../src/schema";
 import {
@@ -57,6 +61,35 @@ async function createRun(
     })
     .returning({ id: ratingRunsTable.id });
   return run!.id;
+}
+
+/** A minimal snapshot row with a recognizable explanation. */
+async function addSnapshot(runId: string, schoolId: string, rank: number) {
+  await db.insert(ratingSnapshotsTable).values({
+    runId,
+    schoolId,
+    power: 10 - rank,
+    powerLow: 9 - rank,
+    powerHigh: 11 - rank,
+    powerRank: rank,
+    powerRankLow: rank,
+    powerRankHigh: rank,
+    strength: 1,
+    poolWins: 5,
+    poolLosses: 1,
+    poolTies: 0,
+    overallWins: 6,
+    overallLosses: 1,
+    overallTies: 0,
+    poolGames: 6,
+    tierRecords: [],
+    isProvisional: false,
+    explanation: {
+      games: [{ note: `games for ${schoolId}` }],
+      remaining: [],
+      excluded: [],
+    },
+  });
 }
 
 async function statusOf(runId: string) {
@@ -182,6 +215,45 @@ describe("rating runs", () => {
 });
 
 describe("job lock", () => {
+  it("loads runs without explanations, and explanations only on request", async () => {
+    const run = await createRun(fixture.weekIds[0]!);
+    const [first, second] = fixture.schoolIds;
+    await addSnapshot(run, first!, 1);
+    await addSnapshot(run, second!, 2);
+    const slug = `team-${first}`;
+    await db
+      .update(schoolsTable)
+      .set({ slug })
+      .where(eq(schoolsTable.id, first!));
+
+    // Unpublished: nothing is readable.
+    expect(await getPublishedTeamSheet(run, slug)).toBeNull();
+    expect((await listPublishedRunExplanations(run)).size).toBe(0);
+
+    await publishRun(run, null);
+    const published = await getPublishedRun(run);
+    expect(published?.rows).toHaveLength(2);
+    expect(published?.rows[0]).not.toHaveProperty("explanation");
+
+    // A team sheet gets its own row and explanation, plus every team's slug.
+    const sheet = await getPublishedTeamSheet(run, slug);
+    expect(sheet?.run.id).toBe(run);
+    expect(sheet?.row.schoolId).toBe(first);
+    expect(sheet?.row.powerRank).toBe(1);
+    expect(sheet?.row.explanation).toEqual({
+      games: [{ note: `games for ${first}` }],
+      remaining: [],
+      excluded: [],
+    });
+    expect(sheet?.teams.map((team) => team.schoolId).sort()).toEqual(
+      [first, second].sort(),
+    );
+    expect(await getPublishedTeamSheet(run, "no-such-team")).toBeNull();
+
+    const all = await listPublishedRunExplanations(run);
+    expect([...all.keys()].sort()).toEqual([first, second].sort());
+  });
+
   it("lets one job run per pool and logs both outcomes", async () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => {
