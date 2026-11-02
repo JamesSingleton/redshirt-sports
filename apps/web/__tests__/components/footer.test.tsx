@@ -155,6 +155,36 @@ describe("CachedFooterServer", () => {
     );
   });
 
+  it("sizes the column grid to the editor's columns", async () => {
+    mockSanityFetch.mockResolvedValueOnce({ data: footerData });
+    mockFetchGlobalSeoSettings.mockResolvedValueOnce(settingsData);
+    const { container } = render(
+      await CachedFooterServer({ perspective: "published", stega: false }),
+    );
+
+    const grid = container.querySelector<HTMLElement>(
+      "[style*='--footer-columns']",
+    );
+    expect(grid?.style.getPropertyValue("--footer-columns")).toBe(
+      String(footerData.columns.length),
+    );
+  });
+
+  it("keeps one grid track when the footer has no columns", async () => {
+    mockSanityFetch.mockResolvedValueOnce({
+      data: { subtitle: null, columns: null },
+    });
+    mockFetchGlobalSeoSettings.mockResolvedValueOnce(settingsData);
+    const { container } = render(
+      await CachedFooterServer({ perspective: "published", stega: false }),
+    );
+
+    const grid = container.querySelector<HTMLElement>(
+      "[style*='--footer-columns']",
+    );
+    expect(grid?.style.getPropertyValue("--footer-columns")).toBe("1");
+  });
+
   it("omits social links when none are configured", async () => {
     mockSanityFetch.mockResolvedValueOnce({
       data: { subtitle: null, columns: [] },
