@@ -20,6 +20,31 @@ import type {
 } from "../engine/types";
 import { ratingWeekLabel, ratingWeekSegment } from "../segments";
 
+/** Postgres "undefined_table": the ratings migration hasn't been applied to this database yet. */
+function isMissingTable(error: unknown): boolean {
+  const code =
+    (error as { code?: string })?.code ??
+    (error as { cause?: { code?: string } })?.cause?.code;
+  return code === "42P01";
+}
+
+/**
+ * Public reads run at build time (prerendered pages, sitemaps). A deploy can
+ * build before its migration lands, so a missing table reads as "nothing
+ * published yet" instead of failing the build. Any other error still throws.
+ */
+async function orNothingPublished<T>(
+  read: () => Promise<T>,
+  nothing: T,
+): Promise<T> {
+  try {
+    return await read();
+  } catch (error) {
+    if (isMissingTable(error)) return nothing;
+    throw error;
+  }
+}
+
 export * from "../segments";
 
 export type PublicPool = {
@@ -33,7 +58,7 @@ export type PublicPool = {
 };
 
 /** A pool the public site may show, or null. */
-export async function getPublicPool(
+async function readGetPublicPool(
   sportSlug: string,
   poolSlug: string,
 ): Promise<PublicPool | null> {
@@ -59,7 +84,7 @@ export async function getPublicPool(
   return { ...pool, config: row.config as EngineConfig };
 }
 
-export async function listPublicPools(): Promise<PublicPool[]> {
+async function readListPublicPools(): Promise<PublicPool[]> {
   const rows = await db
     .select({
       id: ratingPoolsTable.id,
@@ -89,7 +114,7 @@ export type PublishedWeek = {
 };
 
 /** Every published week of a pool, newest first. */
-export async function listPublishedWeeks(
+async function readListPublishedWeeks(
   poolId: string,
 ): Promise<PublishedWeek[]> {
   const rows = await db
@@ -178,7 +203,7 @@ export type PublishedTeamRow = {
   explanation: TeamExplanation;
 };
 
-export async function getPublishedRun(
+async function readGetPublishedRun(
   runId: string,
 ): Promise<{ run: PublishedRun; rows: PublishedTeamRow[] } | null> {
   const [run] = await db
@@ -287,7 +312,7 @@ export type PoolPrediction = {
  * (plus its home field) against the following week's final games. This is the
  * pick record the accuracy page shows.
  */
-export async function listPoolPredictions(
+async function readListPoolPredictions(
   poolId: string,
 ): Promise<PoolPrediction[]> {
   const rows = await db.execute<{
@@ -333,4 +358,27 @@ export async function listPoolPredictions(
     predicted: Number(row.predicted),
     actual: Number(row.actual),
   }));
+}
+
+/** A pool the public site may show, or null. */
+export function getPublicPool(sportSlug: string, poolSlug: string) {
+  return orNothingPublished(() => readGetPublicPool(sportSlug, poolSlug), null);
+}
+
+export function listPublicPools() {
+  return orNothingPublished(() => readListPublicPools(), []);
+}
+
+/** Every published week of a pool, newest first. */
+export function listPublishedWeeks(poolId: string) {
+  return orNothingPublished(() => readListPublishedWeeks(poolId), []);
+}
+
+export function getPublishedRun(runId: string) {
+  return orNothingPublished(() => readGetPublishedRun(runId), null);
+}
+
+/** Every pool-vs-pool game predicted out of sample (see readListPoolPredictions). */
+export function listPoolPredictions(poolId: string) {
+  return orNothingPublished(() => readListPoolPredictions(poolId), []);
 }

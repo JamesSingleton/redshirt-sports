@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import {
@@ -34,6 +35,8 @@ async function Methodology() {
       };
     },
   );
+  // Nothing public yet (or the ratings tables aren't migrated): no page to index.
+  if (pools.length === 0) notFound();
   return (
     <div className="mx-auto w-full max-w-site min-w-0 px-4 pb-12 lg:px-6">
       <RatingsMethodology pools={pools} />

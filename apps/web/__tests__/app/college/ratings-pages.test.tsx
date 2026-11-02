@@ -259,6 +259,11 @@ describe("ratings pages", () => {
     expect(screen.getByTestId("method")).toHaveTextContent("FCS football");
   });
 
+  it("methodology 404s until a pool is public", async () => {
+    data.getCachedPublicPools.mockResolvedValue([]);
+    await expect(resolveSuspense(MethodologyPage())).rejects.toThrow();
+  });
+
   it("accuracy summarizes the pool's predictions", async () => {
     await expect(accuracyMeta({ params: p(pool) })).resolves.toMatchObject({
       title: "FCS Ratings Accuracy: Every Pick, Week by Week",

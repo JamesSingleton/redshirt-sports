@@ -40,7 +40,7 @@ unset DATABASE_URL
 5. **Team mapping → Check 2026 members.** It should say every member is mapped.
 6. **Runs:** confirm 2026 Week 9 is published and preview it.
 7. Flip **"Cron syncs and publishes this pool"** on.
-8. Flip **"Ratings pages are public"** on. This expires the web cache, so the pages appear immediately.
+8. Flip **"Ratings pages are public"** on. This expires the web cache, so the pages appear immediately. Until then, and before the migration lands, the ratings pages and `/ratings/methodology` return 404, and builds treat the missing tables as "nothing published yet". That's why Vercel can build before Supabase finishes the migration.
 9. Open https://www.redshirtsports.xyz/college/football/ratings/fcs and spot-check a team sheet, `/ratings/methodology`, and the accuracy page.
 10. Add **Ratings** to the Sanity navbar document (Football → FCS), linking `/college/football/ratings/fcs`.
 
