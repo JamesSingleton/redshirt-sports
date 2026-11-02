@@ -7,15 +7,8 @@
       "port": 3000
     },
     {
-      "name": "web (rating-pools worktree)",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--dir", "/Users/jamessingleton/Code/Businesses/redshirt-sports-rating-pools", "--filter", "web", "dev"],
-      "port": 3000
-    },
-    {
-      "name": "admin (rating-pools worktree)",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--dir", "/Users/jamessingleton/Code/Businesses/redshirt-sports-rating-pools", "--filter", "admin", "dev"],
+      "name": "admin",
+      "url": "http://localhost:3001",
       "port": 3001
     }
   ]
