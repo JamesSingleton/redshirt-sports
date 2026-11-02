@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, getTableColumns, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../../client";
 import {
@@ -200,8 +200,18 @@ export type PublishedTeamRow = {
   poolGames: number;
   tierRecords: [RecordLine, RecordLine, RecordLine, RecordLine];
   isProvisional: boolean;
+};
+
+/** A row with its game-by-game explanation, for team sheets and full downloads. */
+export type PublishedTeamSheetRow = PublishedTeamRow & {
   explanation: TeamExplanation;
 };
+
+// Every snapshot column except `explanation`. Explanations are about 77% of a
+// run on the wire (~700 kB with, ~160 kB without), and only team sheets and
+// full downloads render them, so tables and archives never load them.
+const { explanation: _explanation, ...snapshotTableColumns } =
+  getTableColumns(ratingSnapshotsTable);
 
 async function readGetPublishedRun(
   runId: string,
@@ -223,7 +233,7 @@ async function readGetPublishedRun(
   if (run?.status !== "published") return null;
   const snapshots = await db
     .select({
-      snapshot: ratingSnapshotsTable,
+      snapshot: snapshotTableColumns,
       name: schoolsTable.shortName,
       fullName: schoolsTable.name,
       abbreviation: schoolsTable.abbreviation,
@@ -281,7 +291,6 @@ async function readGetPublishedRun(
     poolGames: s.poolGames,
     tierRecords: s.tierRecords as PublishedTeamRow["tierRecords"],
     isProvisional: s.isProvisional,
-    explanation: s.explanation as TeamExplanation,
   }));
   return {
     run: {
@@ -295,6 +304,36 @@ async function readGetPublishedRun(
     },
     rows,
   };
+}
+
+/**
+ * Game-by-game explanations for a published run, keyed by school. Pass
+ * `schoolId` to read one team's (a team sheet needs only its own).
+ */
+async function readListRunExplanations(
+  runId: string,
+  schoolId?: string,
+): Promise<Map<string, TeamExplanation>> {
+  const rows = await db
+    .select({
+      schoolId: ratingSnapshotsTable.schoolId,
+      explanation: ratingSnapshotsTable.explanation,
+    })
+    .from(ratingSnapshotsTable)
+    .innerJoin(
+      ratingRunsTable,
+      eq(ratingRunsTable.id, ratingSnapshotsTable.runId),
+    )
+    .where(
+      and(
+        eq(ratingSnapshotsTable.runId, runId),
+        eq(ratingRunsTable.status, "published"),
+        ...(schoolId ? [eq(ratingSnapshotsTable.schoolId, schoolId)] : []),
+      ),
+    );
+  return new Map(
+    rows.map((row) => [row.schoolId, row.explanation as TeamExplanation]),
+  );
 }
 
 export type PoolPrediction = {
@@ -376,6 +415,26 @@ export function listPublishedWeeks(poolId: string) {
 
 export function getPublishedRun(runId: string) {
   return orNothingPublished(() => readGetPublishedRun(runId), null);
+}
+
+/** Every team's explanation in a published run (printable sheets, JSON download). */
+export function listPublishedRunExplanations(runId: string) {
+  return orNothingPublished(
+    () => readListRunExplanations(runId),
+    new Map<string, TeamExplanation>(),
+  );
+}
+
+/** One team's explanation in a published run, or null. */
+export async function getPublishedTeamExplanation(
+  runId: string,
+  schoolId: string,
+) {
+  const explanations = await orNothingPublished(
+    () => readListRunExplanations(runId, schoolId),
+    new Map<string, TeamExplanation>(),
+  );
+  return explanations.get(schoolId) ?? null;
 }
 
 /** Every pool-vs-pool game predicted out of sample (see readListPoolPredictions). */

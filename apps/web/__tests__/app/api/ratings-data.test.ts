@@ -1,6 +1,7 @@
 import { weekModel } from "@/__tests__/helpers/ratings-fixtures";
 
-const { mockLimit, mockLoad } = vi.hoisted(() => ({
+const { mockLimit, mockLoad, mockLoadSheets } = vi.hoisted(() => ({
+  mockLoadSheets: vi.fn(),
   mockLimit: vi.fn(),
   mockLoad: vi.fn(),
 }));
@@ -8,7 +9,10 @@ const { mockLimit, mockLoad } = vi.hoisted(() => ({
 vi.mock("@/server/ratelimit", () => ({
   rankingsApiRatelimit: { limit: mockLimit },
 }));
-vi.mock("@/lib/ratings/data", () => ({ loadRatingsWeek: mockLoad }));
+vi.mock("@/lib/ratings/data", () => ({
+  loadRatingsWeek: mockLoad,
+  loadRatingsSheets: mockLoadSheets,
+}));
 
 import { GET } from "@/app/api/ratings/[sport]/[pool]/[year]/[week]/route";
 
@@ -31,6 +35,7 @@ describe("GET /api/ratings/[sport]/[pool]/[year]/[week]", () => {
   beforeEach(() => {
     mockLimit.mockReset().mockResolvedValue({ success: true });
     mockLoad.mockReset().mockResolvedValue(weekModel());
+    mockLoadSheets.mockReset().mockResolvedValue(weekModel());
   });
 
   it("is open to anyone, rate-limited per client IP", async () => {
@@ -71,5 +76,8 @@ describe("GET /api/ratings/[sport]/[pool]/[year]/[week]", () => {
     const body = await res.json();
     expect(body.pool.slug).toBe("fcs");
     expect(body.teams).toHaveLength(3);
+    // Only the JSON download loads every team's explanation.
+    expect(mockLoadSheets).toHaveBeenCalled();
+    expect(mockLoad).not.toHaveBeenCalled();
   });
 });

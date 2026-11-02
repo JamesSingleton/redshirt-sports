@@ -1,10 +1,14 @@
 import {
   getPublicPool,
   getPublishedRun,
+  getPublishedTeamExplanation,
   listPoolPredictions,
   listPublicPools,
+  listPublishedRunExplanations,
   listPublishedWeeks,
   type PublicPool,
+  type PublishedTeamRow,
+  type PublishedTeamSheetRow,
   type PublishedWeek,
   parseRatingWeekSegment,
 } from "@redshirt-sports/db/ratings";
@@ -57,6 +61,34 @@ export async function getCachedRun(sport: string, pool: string, runId: string) {
   return getPublishedRun(runId);
 }
 
+/**
+ * Every team's game-by-game explanation in a run. Only the printable team
+ * sheets and the JSON download need these; tables and archives skip them.
+ */
+export async function getCachedRunExplanations(
+  sport: string,
+  pool: string,
+  runId: string,
+) {
+  "use cache";
+  cacheTag(RATINGS_CACHE_TAG, ratingsPoolTag(sport, pool));
+  cacheLife(RATINGS_CACHE_LIFE);
+  return Object.fromEntries(await listPublishedRunExplanations(runId));
+}
+
+/** One team's explanation in a run, for its team sheet. */
+export async function getCachedTeamExplanation(
+  sport: string,
+  pool: string,
+  runId: string,
+  schoolId: string,
+) {
+  "use cache";
+  cacheTag(RATINGS_CACHE_TAG, ratingsPoolTag(sport, pool));
+  cacheLife(RATINGS_CACHE_LIFE);
+  return getPublishedTeamExplanation(runId, schoolId);
+}
+
 export async function getCachedPredictions(
   sport: string,
   pool: string,
@@ -73,8 +105,13 @@ export type RatingsWeekModel = {
   week: PublishedWeek;
   weeks: PublishedWeek[];
   run: NonNullable<Awaited<ReturnType<typeof getPublishedRun>>>["run"];
-  rows: NonNullable<Awaited<ReturnType<typeof getPublishedRun>>>["rows"];
+  rows: PublishedTeamRow[];
   isLatest: boolean;
+};
+
+/** A week with every team's explanation (printable team sheets, JSON download). */
+export type RatingsSheetsModel = Omit<RatingsWeekModel, "rows"> & {
+  rows: PublishedTeamSheetRow[];
 };
 
 /** A pool that is public, or a 404. */
@@ -136,9 +173,39 @@ export async function loadRatingsTeam(input: {
   week?: string;
 }) {
   const model = await loadRatingsWeek(input);
-  const row = model.rows.find((candidate) => candidate.slug === input.slug);
-  if (!row) notFound();
+  const found = model.rows.find((candidate) => candidate.slug === input.slug);
+  if (!found) notFound();
+  const explanation = await getCachedTeamExplanation(
+    input.sport,
+    input.pool,
+    model.run.id,
+    found.schoolId,
+  );
+  if (!explanation) notFound();
+  const row: PublishedTeamSheetRow = { ...found, explanation };
   return { model, row };
+}
+
+/** A published week with every team's explanation, or a 404. */
+export async function loadRatingsSheets(input: {
+  sport: string;
+  pool: string;
+  year?: string;
+  week?: string;
+}): Promise<RatingsSheetsModel> {
+  const model = await loadRatingsWeek(input);
+  const explanations = await getCachedRunExplanations(
+    input.sport,
+    input.pool,
+    model.run.id,
+  );
+  return {
+    ...model,
+    rows: model.rows.flatMap((row) => {
+      const explanation = explanations[row.schoolId];
+      return explanation ? [{ ...row, explanation }] : [];
+    }),
+  };
 }
 
 /** Published weeks of one season, oldest first, or a 404 if the season has none. */

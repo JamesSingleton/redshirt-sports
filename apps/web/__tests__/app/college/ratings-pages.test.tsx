@@ -8,6 +8,7 @@ import {
 
 const data = vi.hoisted(() => ({
   loadRatingsWeek: vi.fn(),
+  loadRatingsSheets: vi.fn(),
   loadRatingsTeam: vi.fn(),
   loadRatingsSeason: vi.fn(),
   requirePool: vi.fn(),
@@ -131,6 +132,7 @@ describe("ratings pages", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     data.loadRatingsWeek.mockResolvedValue(model);
+    data.loadRatingsSheets.mockResolvedValue(model);
     data.loadRatingsTeam.mockResolvedValue({ model, row: model.rows[0] });
     data.loadRatingsSeason.mockResolvedValue({
       pool: model.pool,
@@ -220,6 +222,8 @@ describe("ratings pages", () => {
     );
     expect(screen.getAllByTestId("legend")).toHaveLength(1);
     expect(screen.getAllByTestId("sheet")).toHaveLength(3);
+    // Metadata uses the light week; only the sheets themselves load explanations.
+    expect(data.loadRatingsSheets).toHaveBeenCalledTimes(1);
     expect(screen.getAllByTestId("sheet")[0]).toHaveAttribute(
       "data-href",
       "null",

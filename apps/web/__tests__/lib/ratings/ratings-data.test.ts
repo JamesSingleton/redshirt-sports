@@ -3,8 +3,10 @@ import { weekModel } from "@/__tests__/helpers/ratings-fixtures";
 const db = vi.hoisted(() => ({
   getPublicPool: vi.fn(),
   getPublishedRun: vi.fn(),
+  getPublishedTeamExplanation: vi.fn(),
   listPoolPredictions: vi.fn(),
   listPublicPools: vi.fn(),
+  listPublishedRunExplanations: vi.fn(),
   listPublishedWeeks: vi.fn(),
 }));
 
@@ -25,6 +27,7 @@ import {
   getCachedPublicPools,
   loadRatingsSeason,
   loadRatingsSeasonRuns,
+  loadRatingsSheets,
   loadRatingsTeam,
   loadRatingsWeek,
   requirePool,
@@ -40,6 +43,18 @@ describe("ratings data", () => {
       .mockReset()
       .mockResolvedValue({ run: model.run, rows: model.rows });
     db.listPublicPools.mockReset().mockResolvedValue([model.pool]);
+    db.getPublishedTeamExplanation
+      .mockReset()
+      .mockImplementation(
+        async (_runId: string, schoolId: string) =>
+          model.rows.find((row) => row.schoolId === schoolId)?.explanation ??
+          null,
+      );
+    db.listPublishedRunExplanations
+      .mockReset()
+      .mockResolvedValue(
+        new Map(model.rows.map((row) => [row.schoolId, row.explanation])),
+      );
   });
 
   it("loads a pool's predictions", async () => {
@@ -120,9 +135,43 @@ describe("ratings data", () => {
       slug: "montana-state-bobcats",
     });
     expect(row.name).toBe("Montana State");
+    // Only this team's explanation is loaded, not the whole run's.
+    expect(row.explanation.games).toHaveLength(3);
+    expect(db.getPublishedTeamExplanation).toHaveBeenCalledWith(
+      model.run.id,
+      row.schoolId,
+    );
+    expect(db.listPublishedRunExplanations).not.toHaveBeenCalled();
     await expect(
       loadRatingsTeam({ sport: "football", pool: "fcs", slug: "nobody" }),
     ).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("404s a team sheet whose explanation is missing", async () => {
+    db.getPublishedTeamExplanation.mockResolvedValue(null);
+    await expect(
+      loadRatingsTeam({
+        sport: "football",
+        pool: "fcs",
+        slug: "montana-state-bobcats",
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("loads every team's explanation for printable sheets, skipping any missing", async () => {
+    const [first, ...rest] = model.rows;
+    db.listPublishedRunExplanations.mockResolvedValue(
+      new Map(rest.map((row) => [row.schoolId, row.explanation])),
+    );
+    const sheets = await loadRatingsSheets({ sport: "football", pool: "fcs" });
+    expect(db.listPublishedRunExplanations).toHaveBeenCalledWith(model.run.id);
+    expect(sheets.rows.map((row) => row.schoolId)).toEqual(
+      rest.map((row) => row.schoolId),
+    );
+    expect(sheets.rows.map((row) => row.schoolId)).not.toContain(
+      first?.schoolId,
+    );
+    expect(sheets.rows[0]?.explanation).toEqual(rest[0]?.explanation);
   });
 
   it("loads a season oldest-first with every year, or 404s", async () => {

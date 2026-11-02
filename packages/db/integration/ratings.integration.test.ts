@@ -11,6 +11,8 @@ import {
 } from "../src/ratings/jobs/lifecycle";
 import {
   getPublishedRun,
+  getPublishedTeamExplanation,
+  listPublishedRunExplanations,
   listPublishedWeeks,
 } from "../src/ratings/jobs/public";
 import {
@@ -19,6 +21,7 @@ import {
   ratingJobsTable,
   ratingPoolsTable,
   ratingRunsTable,
+  ratingSnapshotsTable,
   seasonsTable,
 } from "../src/schema";
 import {
@@ -57,6 +60,35 @@ async function createRun(
     })
     .returning({ id: ratingRunsTable.id });
   return run!.id;
+}
+
+/** A minimal snapshot row with a recognizable explanation. */
+async function addSnapshot(runId: string, schoolId: string, rank: number) {
+  await db.insert(ratingSnapshotsTable).values({
+    runId,
+    schoolId,
+    power: 10 - rank,
+    powerLow: 9 - rank,
+    powerHigh: 11 - rank,
+    powerRank: rank,
+    powerRankLow: rank,
+    powerRankHigh: rank,
+    strength: 1,
+    poolWins: 5,
+    poolLosses: 1,
+    poolTies: 0,
+    overallWins: 6,
+    overallLosses: 1,
+    overallTies: 0,
+    poolGames: 6,
+    tierRecords: [],
+    isProvisional: false,
+    explanation: {
+      games: [{ note: `games for ${schoolId}` }],
+      remaining: [],
+      excluded: [],
+    },
+  });
 }
 
 async function statusOf(runId: string) {
@@ -182,6 +214,30 @@ describe("rating runs", () => {
 });
 
 describe("job lock", () => {
+  it("loads runs without explanations, and explanations only on request", async () => {
+    const run = await createRun(fixture.weekIds[0]!);
+    const [first, second] = fixture.schoolIds;
+    await addSnapshot(run, first!, 1);
+    await addSnapshot(run, second!, 2);
+
+    // Unpublished: nothing is readable.
+    expect(await getPublishedTeamExplanation(run, first!)).toBeNull();
+    expect((await listPublishedRunExplanations(run)).size).toBe(0);
+
+    await publishRun(run, null);
+    const published = await getPublishedRun(run);
+    expect(published?.rows).toHaveLength(2);
+    expect(published?.rows[0]).not.toHaveProperty("explanation");
+
+    expect(await getPublishedTeamExplanation(run, first!)).toEqual({
+      games: [{ note: `games for ${first}` }],
+      remaining: [],
+      excluded: [],
+    });
+    const all = await listPublishedRunExplanations(run);
+    expect([...all.keys()].sort()).toEqual([first, second].sort());
+  });
+
   it("lets one job run per pool and logs both outcomes", async () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => {
