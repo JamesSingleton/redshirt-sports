@@ -4,7 +4,6 @@ import { createContext, type ReactNode, useContext } from "react";
 import {
   config,
   rows,
-  teamModel,
   teamRow,
   weekModel,
 } from "@/__tests__/helpers/ratings-fixtures";
@@ -101,7 +100,6 @@ import { RatingsWeekPicker } from "@/components/ratings/ratings-week-picker";
 import { RatingsWeekView } from "@/components/ratings/ratings-week-view";
 import { TeamLogo } from "@/components/ratings/team-logo";
 import { TeamSheet, TierLegend } from "@/components/ratings/team-sheet";
-import { TeamSheetPage } from "@/components/ratings/team-sheet-page";
 import { summarizePredictions } from "@/lib/ratings/accuracy";
 import { validationReport } from "@/lib/ratings/validation";
 
@@ -500,46 +498,6 @@ describe("TeamSheet", () => {
   });
 });
 
-describe("TeamSheetPage", () => {
-  it("links opponents to their latest sheets, the method, and the team page", () => {
-    const model = teamModel();
-    render(<TeamSheetPage data={{ model, row: model.rows[0]! }} />);
-    expect(screen.getByText("FCS ratings · 2025 Postseason")).toHaveAttribute(
-      "href",
-      "/college/football/ratings/fcs",
-    );
-    expect(
-      screen.getAllByRole("link", { name: "North Dakota State" })[0],
-    ).toHaveAttribute(
-      "href",
-      "/college/football/ratings/fcs/teams/north-dakota-state-bison",
-    );
-    expect(
-      screen.getByText("How every number here is computed"),
-    ).toHaveAttribute("href", "/ratings/methodology");
-    expect(screen.getByText("Montana State team page")).toHaveAttribute(
-      "href",
-      "/college/teams/montana-state-bobcats",
-    );
-  });
-
-  it("links into the archive for an older week, and skips the team page without a slug", () => {
-    const model = teamModel({ isLatest: false });
-    render(<TeamSheetPage data={{ model, row: model.rows[2]! }} />);
-    expect(screen.getByText("FCS ratings · 2025 Postseason")).toHaveAttribute(
-      "href",
-      "/college/football/ratings/fcs/2025/postseason",
-    );
-    expect(
-      screen.getAllByRole("link", { name: "North Dakota State" })[0],
-    ).toHaveAttribute(
-      "href",
-      "/college/football/ratings/fcs/2025/postseason/teams/north-dakota-state-bison",
-    );
-    expect(screen.queryByText(/team page/)).not.toBeInTheDocument();
-  });
-});
-
 describe("RatingsWeekView", () => {
   it("renders the dataset JSON-LD, header, table, and run footer", () => {
     const { container } = render(
@@ -554,25 +512,11 @@ describe("RatingsWeekView", () => {
     ).toContain('"@type":"Dataset"');
     expect(screen.getByRole("link", { name: "Montana State" })).toHaveAttribute(
       "href",
-      "/college/football/ratings/fcs/teams/montana-state-bobcats",
+      "/college/teams/montana-state-bobcats",
     );
     expect(
       screen.getByText(/Method v1 · 691 FCS games · run abcdef012345/),
     ).toBeInTheDocument();
-  });
-
-  it("links teams into the archived week when it isn't the latest", () => {
-    render(
-      <RatingsWeekView
-        model={weekModel({ isLatest: false })}
-        sort="sor"
-        basePath="/x"
-      />,
-    );
-    expect(screen.getByRole("link", { name: "Montana State" })).toHaveAttribute(
-      "href",
-      "/college/football/ratings/fcs/2025/postseason/teams/montana-state-bobcats",
-    );
   });
 });
 

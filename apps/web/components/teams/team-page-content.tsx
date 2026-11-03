@@ -1,3 +1,4 @@
+import type { TeamRatingsHistory } from "@redshirt-sports/db/ratings";
 import type { SchoolRankingHistory } from "@redshirt-sports/db/utils/school-ranking-history";
 import type { SchoolBySlugQueryResult } from "@redshirt-sports/sanity/types";
 import { Badge } from "@redshirt-sports/ui/components/badge";
@@ -13,6 +14,7 @@ import {
   TeamNewsItem,
   type TeamPost,
 } from "@/components/teams/team-post-card";
+import { TeamRatingsInline } from "@/components/teams/team-ratings-inline";
 import { TeamHubLogoTransition } from "@/components/view-transitions/team-hub-logo-transition";
 import type { AdvertisementCreative } from "@/lib/advertisement";
 import {
@@ -30,11 +32,13 @@ export function TeamPageContent({
   school,
   posts,
   rankingHistory,
+  ratings,
   advertisement,
 }: {
   school: NonNullable<SchoolBySlugQueryResult>;
   posts: TeamPost[];
   rankingHistory: SchoolRankingHistory;
+  ratings: TeamRatingsHistory[];
   advertisement: AdvertisementCreative | null;
 }) {
   const teamShortName = school.shortName ?? school.name ?? "Team";
@@ -64,16 +68,19 @@ export function TeamPageContent({
     footballDivisionSlug,
   );
 
+  const ratingsFor = (sportSlug: string) =>
+    ratings.find((entry) => entry.pool.sportSlug === sportSlug) ?? null;
+  const hasRankingCard = (sportSlug: string) =>
+    ratingsFor(sportSlug) != null ||
+    (sportSlug === "football" && footballPoll != null);
+
   const jumpLinks = [
     { id: "latest", label: "Latest" },
     ...TEAM_HUB_SPORT_SECTIONS.filter((section) => {
       const sectionPosts = (postsBySport.get(section.sportSlug) ?? []).filter(
         (post) => !latestPostIds.has(post._id),
       );
-      if (section.sportSlug === "football") {
-        return sectionPosts.length > 0 || footballPoll != null;
-      }
-      return sectionPosts.length > 0;
+      return sectionPosts.length > 0 || hasRankingCard(section.sportSlug);
     }).map((section) => ({
       id: section.id,
       label: section.title,
@@ -196,16 +203,13 @@ export function TeamPageContent({
             const sectionPosts = (
               postsBySport.get(section.sportSlug) ?? []
             ).filter((post) => !latestPostIds.has(post._id));
-            if (sectionPosts.length === 0 && section.sportSlug !== "football") {
-              return null;
-            }
             if (
-              section.sportSlug === "football" &&
               sectionPosts.length === 0 &&
-              !footballPoll
+              !hasRankingCard(section.sportSlug)
             ) {
               return null;
             }
+            const sectionRatings = ratingsFor(section.sportSlug);
 
             return (
               <section
@@ -230,6 +234,14 @@ export function TeamPageContent({
                     <TeamPollRankInline
                       poll={footballPoll}
                       teamName={teamShortName}
+                    />
+                  </div>
+                ) : null}
+                {sectionRatings ? (
+                  <div className="mt-4">
+                    <TeamRatingsInline
+                      ratings={sectionRatings}
+                      teamSlug={school.slug}
                     />
                   </div>
                 ) : null}

@@ -34,11 +34,19 @@ export async function generateMetadata({
   });
 }
 
-/** Every team's sheet on one page, one per printed page, in SOR order. For committee packets. */
+/**
+ * Every team's sheet on one page, one per printed page, in SOR order. Each
+ * sheet has the team's slug as its anchor, so team pages and opponents link in.
+ */
 async function TeamSheets({ params }: { params: Params }) {
   const { sport, pool, year, week } = await params;
   const model = await loadRatingsSheets({ sport, pool, year, week });
   const paths = ratingsPaths(sport, pool);
+  const slugById = new Map(model.rows.map((row) => [row.schoolId, row.slug]));
+  const opponentHref = (schoolId: string) => {
+    const slug = slugById.get(schoolId);
+    return slug ? `#${slug}` : null;
+  };
   return (
     <div className="flex flex-col gap-10 py-6">
       <div className="flex flex-col gap-4 print:break-after-page">
@@ -68,12 +76,16 @@ async function TeamSheets({ params }: { params: Params }) {
         </section>
       </div>
       {sortRows(model.rows, "sor").map((row) => (
-        <div key={row.schoolId} className="print:break-after-page">
+        <div
+          key={row.schoolId}
+          id={row.slug ?? undefined}
+          className="scroll-mt-24 print:break-after-page"
+        >
           <TeamSheet
             row={row}
             poolName={model.pool.name}
             teamCount={model.rows.length}
-            opponentHref={() => null}
+            opponentHref={opponentHref}
             benchmark={model.run.params.benchmark}
             sigma={model.run.params.sigma}
             showTierLegend={false}

@@ -9,12 +9,10 @@ import {
 const data = vi.hoisted(() => ({
   loadRatingsWeek: vi.fn(),
   loadRatingsSheets: vi.fn(),
-  loadRatingsTeam: vi.fn(),
   loadRatingsSeason: vi.fn(),
   requirePool: vi.fn(),
   getCachedPublicPools: vi.fn(),
   getCachedWeeks: vi.fn(),
-  getCachedRun: vi.fn(),
   getCachedPredictionGroups: vi.fn(),
 }));
 const mockGetPageMetadata = vi.hoisted(() => vi.fn((input: unknown) => input));
@@ -52,24 +50,20 @@ vi.mock("@/components/ratings/ratings-week-picker", () => ({
     <div data-testid="picker" data-suffix={suffix} />
   ),
 }));
-vi.mock("@/components/ratings/team-sheet-page", () => ({
-  TeamSheetPage: ({ data: d }: { data: { row: { name: string } } }) => (
-    <div data-testid="team">{d.row.name}</div>
-  ),
-}));
 vi.mock("@/components/ratings/team-sheet", () => ({
   TeamSheet: ({
     row,
     opponentHref,
     showTierLegend,
   }: {
-    row: { name: string };
+    row: { name: string; schoolId: string };
     opponentHref: (id: string) => string | null;
     showTierLegend: boolean;
   }) => (
     <div
       data-testid="sheet"
       data-href={String(opponentHref("x"))}
+      data-self={String(opponentHref(row.schoolId))}
       data-legend={String(showTierLegend)}
     >
       {row.name}
@@ -105,9 +99,6 @@ import WeekPage, {
 import TeamSheetsPage, {
   generateMetadata as teamSheetsMeta,
 } from "@/app/college/[sport]/ratings/[pool]/[year]/[week]/team-sheets/page";
-import WeekTeamPage, {
-  generateMetadata as weekTeamMeta,
-} from "@/app/college/[sport]/ratings/[pool]/[year]/[week]/teams/[slug]/page";
 import AccuracyPage, {
   generateMetadata as accuracyMeta,
 } from "@/app/college/[sport]/ratings/[pool]/accuracy/page";
@@ -116,9 +107,6 @@ import Loading from "@/app/college/[sport]/ratings/[pool]/loading";
 import LatestPage, {
   generateMetadata as latestMeta,
 } from "@/app/college/[sport]/ratings/[pool]/page";
-import TeamPage, {
-  generateMetadata as teamMeta,
-} from "@/app/college/[sport]/ratings/[pool]/teams/[slug]/page";
 import MethodologyPage, {
   generateMetadata as methodologyMeta,
 } from "@/app/ratings/methodology/page";
@@ -133,7 +121,6 @@ describe("ratings pages", () => {
     vi.clearAllMocks();
     data.loadRatingsWeek.mockResolvedValue(model);
     data.loadRatingsSheets.mockResolvedValue(model);
-    data.loadRatingsTeam.mockResolvedValue({ model, row: model.rows[0] });
     data.loadRatingsSeason.mockResolvedValue({
       pool: model.pool,
       weeks: model.weeks.slice(0, 2).reverse(),
@@ -192,34 +179,7 @@ describe("ratings pages", () => {
     expect(screen.getByTestId("week-view")).toHaveAttribute("data-sort", "sor");
   });
 
-  it("latest team sheet is indexable; archived one is noindex", async () => {
-    await expect(
-      teamMeta({ params: p({ ...pool, slug: "montana-state-bobcats" }) }),
-    ).resolves.toMatchObject({
-      title: "Montana State Strength of Schedule & FCS Rating (2025)",
-      slug: "/college/football/ratings/fcs/teams/montana-state-bobcats",
-    });
-    render(
-      await resolveSuspense(
-        TeamPage({ params: p({ ...pool, slug: "montana-state-bobcats" }) }),
-      ),
-    );
-    expect(screen.getByTestId("team")).toHaveTextContent("Montana State");
-
-    const archived = p({
-      ...pool,
-      year: "2025",
-      week: "postseason",
-      slug: "montana-state-bobcats",
-    });
-    await expect(weekTeamMeta({ params: archived })).resolves.toMatchObject({
-      noIndex: true,
-    });
-    render(await resolveSuspense(WeekTeamPage({ params: archived })));
-    expect(screen.getAllByTestId("team")).toHaveLength(2);
-  });
-
-  it("printable team sheets: picker, one tier legend, every team, noindex", async () => {
+  it("team sheets: picker, one tier legend, every team anchored by slug, noindex", async () => {
     const params = p({ ...pool, year: "2025", week: "postseason" });
     await expect(teamSheetsMeta({ params })).resolves.toMatchObject({
       noIndex: true,
@@ -233,10 +193,16 @@ describe("ratings pages", () => {
     expect(screen.getAllByTestId("sheet")).toHaveLength(3);
     // Metadata uses the light week; only the sheets themselves load explanations.
     expect(data.loadRatingsSheets).toHaveBeenCalledTimes(1);
+    // Opponents link to their sheet on the same page; unknown ones don't link.
     expect(screen.getAllByTestId("sheet")[0]).toHaveAttribute(
       "data-href",
       "null",
     );
+    const montana = screen.getByText("Montana State");
+    expect(document.getElementById("montana-state-bobcats")).toContainElement(
+      montana,
+    );
+    expect(montana).toHaveAttribute("data-self", "#montana-state-bobcats");
     expect(screen.getAllByTestId("sheet")[0]).toHaveAttribute(
       "data-legend",
       "false",
@@ -272,7 +238,7 @@ describe("ratings pages", () => {
 });
 
 describe("ratings sitemap", () => {
-  it("lists the methodology, then each public pool's latest, accuracy, weeks, and latest team sheets", async () => {
+  it("lists the methodology, then each public pool's latest, accuracy, and weeks, with no team sheets", async () => {
     data.getCachedPublicPools.mockResolvedValue([
       model.pool,
       { ...model.pool, id: "empty", slug: "fbs" },
@@ -280,7 +246,6 @@ describe("ratings sitemap", () => {
     data.getCachedWeeks.mockImplementation(async (_s: string, slug: string) =>
       slug === "fcs" ? model.weeks : [],
     );
-    data.getCachedRun.mockResolvedValue({ run: model.run, rows: model.rows });
     const urls = (await sitemap()).map((entry) =>
       entry.url.replace(/^https?:\/\/[^/]+/, ""),
     );
@@ -288,20 +253,12 @@ describe("ratings sitemap", () => {
     expect(urls).toContain("/college/football/ratings/fcs");
     expect(urls).toContain("/college/football/ratings/fcs/accuracy");
     expect(urls).toContain("/college/football/ratings/fcs/2025/16");
-    expect(urls).toContain(
-      "/college/football/ratings/fcs/teams/north-dakota-state-bison",
-    );
-    expect(urls.filter((url) => url.includes("/teams/"))).toHaveLength(2);
+    expect(urls.some((url) => url.includes("/teams/"))).toBe(false);
     expect(urls.some((url) => url.includes("/fbs"))).toBe(false);
   });
 
-  it("is empty without public pools, and skips team sheets without a readable run", async () => {
+  it("is empty without public pools", async () => {
     data.getCachedPublicPools.mockResolvedValue([]);
     expect(await sitemap()).toEqual([]);
-    data.getCachedPublicPools.mockResolvedValue([model.pool]);
-    data.getCachedWeeks.mockResolvedValue(model.weeks);
-    data.getCachedRun.mockResolvedValue(null);
-    const urls = (await sitemap()).map((entry) => entry.url);
-    expect(urls.some((url) => url.includes("/teams/"))).toBe(false);
   });
 });
