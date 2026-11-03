@@ -79,9 +79,9 @@ describe("TeamRatingsInline", () => {
     ).toEqual(["sorRank", "powerRank"]);
     expect(screen.getByTestId("x-tick")).toHaveTextContent("W3");
     expect(screen.getByTestId("tooltip")).toHaveTextContent("SOR rank #4");
-    expect(screen.getByText("Full team sheet")).toHaveAttribute(
+    expect(screen.getByText("Team sheet")).toHaveAttribute(
       "href",
-      "/college/football/ratings/fcs/teams/montana",
+      "/college/football/ratings/fcs/2026/2/team-sheets#montana",
     );
     expect(screen.getByText("All ratings")).toHaveAttribute(
       "href",
@@ -98,7 +98,7 @@ describe("TeamRatingsInline", () => {
     );
     expect(screen.queryByTestId("chart")).not.toBeInTheDocument();
     expect(screen.getAllByText("—")).toHaveLength(2);
-    expect(screen.queryByText("Full team sheet")).not.toBeInTheDocument();
+    expect(screen.queryByText("Team sheet")).not.toBeInTheDocument();
   });
 
   it("renders nothing without a published week", () => {

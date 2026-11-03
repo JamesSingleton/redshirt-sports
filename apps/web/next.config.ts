@@ -168,6 +168,13 @@ let nextConfig: NextConfig = {
         destination: "/rankings/sitemap.xml",
         permanent: true,
       },
+      {
+        // Ratings team sheets were in the ratings sitemap; the team page's
+        // ratings card replaced them.
+        source: "/college/:sport/ratings/:pool/teams/:slug",
+        destination: "/college/teams/:slug",
+        permanent: true,
+      },
       ...cmsRedirects,
     ];
   },

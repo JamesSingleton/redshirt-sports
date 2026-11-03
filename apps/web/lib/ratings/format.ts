@@ -12,7 +12,6 @@ export function ratingsPaths(sport: string, pool: string) {
     latest: base,
     week: (year: number | string, segment: string) =>
       `${base}/${year}/${segment}`,
-    team: (slug: string) => `${base}/teams/${slug}`,
     teamSheets: (year: number | string, segment: string) =>
       `${base}/${year}/${segment}/team-sheets`,
     seasonWorkbook: (year: number | string) =>

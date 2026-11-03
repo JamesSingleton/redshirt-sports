@@ -75,7 +75,7 @@ export function RatingsHeader({ model }: { model: RatingsWeekModel }) {
             href={paths.teamSheets(week.year, week.segment)}
             className="hover:underline"
           >
-            Printable team sheets
+            Team sheets
           </Link>
           <RatingsDownloadMenu
             weekLabel={`${week.year} ${week.label}`}

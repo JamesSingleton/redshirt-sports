@@ -4,7 +4,6 @@ import { createContext, type ReactNode, useContext } from "react";
 import {
   config,
   rows,
-  teamModel,
   teamRow,
   weekModel,
 } from "@/__tests__/helpers/ratings-fixtures";
@@ -101,7 +100,6 @@ import { RatingsWeekPicker } from "@/components/ratings/ratings-week-picker";
 import { RatingsWeekView } from "@/components/ratings/ratings-week-view";
 import { TeamLogo } from "@/components/ratings/team-logo";
 import { TeamSheet, TierLegend } from "@/components/ratings/team-sheet";
-import { TeamSheetPage } from "@/components/ratings/team-sheet-page";
 import { summarizePredictions } from "@/lib/ratings/accuracy";
 import { validationReport } from "@/lib/ratings/validation";
 
@@ -497,36 +495,6 @@ describe("TeamSheet", () => {
       />,
     );
     expect(screen.getByText(/Opp\. opp\. 0\.0%/)).toBeInTheDocument();
-  });
-});
-
-describe("TeamSheetPage", () => {
-  it("links opponents to their latest sheets, the method, and the team page", () => {
-    const model = teamModel();
-    render(<TeamSheetPage data={{ model, row: model.rows[0]! }} />);
-    expect(screen.getByText("FCS ratings · 2025 Postseason")).toHaveAttribute(
-      "href",
-      "/college/football/ratings/fcs",
-    );
-    expect(
-      screen.getAllByRole("link", { name: "North Dakota State" })[0],
-    ).toHaveAttribute(
-      "href",
-      "/college/football/ratings/fcs/teams/north-dakota-state-bison",
-    );
-    expect(
-      screen.getByText("How every number here is computed"),
-    ).toHaveAttribute("href", "/ratings/methodology");
-    expect(screen.getByText("Montana State team page")).toHaveAttribute(
-      "href",
-      "/college/teams/montana-state-bobcats",
-    );
-  });
-
-  it("skips the team page link without a slug", () => {
-    const model = teamModel();
-    render(<TeamSheetPage data={{ model, row: model.rows[2]! }} />);
-    expect(screen.queryByText(/team page/)).not.toBeInTheDocument();
   });
 });
 

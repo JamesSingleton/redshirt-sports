@@ -27,7 +27,6 @@ describe("ratings format", () => {
     const paths = ratingsPaths("football", "fcs");
     expect(paths.latest).toBe("/college/football/ratings/fcs");
     expect(paths.week(2025, "3")).toBe("/college/football/ratings/fcs/2025/3");
-    expect(paths.team("x")).toBe("/college/football/ratings/fcs/teams/x");
     expect(paths.teamSheets(2025, "3")).toBe(
       "/college/football/ratings/fcs/2025/3/team-sheets",
     );

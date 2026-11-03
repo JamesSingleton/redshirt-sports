@@ -19,7 +19,7 @@ export function RatingsWeekView({
 }) {
   const { pool } = model;
   // Team names go to the team page: its ratings card has the week-by-week
-  // trend and links the full team sheet.
+  // trend and links its team sheet.
   const teamHref = (slug: string) => `/college/teams/${slug}`;
   return (
     <>

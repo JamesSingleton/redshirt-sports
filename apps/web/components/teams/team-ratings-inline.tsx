@@ -59,11 +59,11 @@ export function TeamRatingsInline({
         <div className="flex gap-4">
           {teamSlug ? (
             <Link
-              href={paths.team(teamSlug)}
+              href={`${paths.teamSheets(year, latest.segment)}#${teamSlug}`}
               prefetch={false}
               className="text-sm font-bold tracking-wide text-destructive uppercase hover:underline"
             >
-              Full team sheet
+              Team sheet
             </Link>
           ) : null}
           <Link

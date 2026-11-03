@@ -3,7 +3,6 @@ import { weekModel } from "@/__tests__/helpers/ratings-fixtures";
 const db = vi.hoisted(() => ({
   getPublicPool: vi.fn(),
   getPublishedRun: vi.fn(),
-  getPublishedTeamSheet: vi.fn(),
   listPoolPredictionGroups: vi.fn(),
   listPublicPools: vi.fn(),
   listPublishedRunExplanations: vi.fn(),
@@ -30,7 +29,6 @@ import {
   loadRatingsSeason,
   loadRatingsSeasonRuns,
   loadRatingsSheets,
-  loadRatingsTeam,
   loadRatingsWeek,
   requirePool,
 } from "@/lib/ratings/data";
@@ -45,21 +43,6 @@ describe("ratings data", () => {
       .mockReset()
       .mockResolvedValue({ run: model.run, rows: model.rows });
     db.listPublicPools.mockReset().mockResolvedValue([model.pool]);
-    db.getPublishedTeamSheet
-      .mockReset()
-      .mockImplementation(async (_runId: string, slug: string) => {
-        const row = model.rows.find((candidate) => candidate.slug === slug);
-        return row
-          ? {
-              run: model.run,
-              row,
-              teams: model.rows.map((r) => ({
-                schoolId: r.schoolId,
-                slug: r.slug,
-              })),
-            }
-          : null;
-      });
     db.listPublishedRunExplanations
       .mockReset()
       .mockResolvedValue(
@@ -148,28 +131,7 @@ describe("ratings data", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
-  it("loads one team by slug, or 404s", async () => {
-    const { model: teamPage, row } = await loadRatingsTeam({
-      sport: "football",
-      pool: "fcs",
-      slug: "montana-state-bobcats",
-    });
-    expect(row.name).toBe("Montana State");
-    expect(row.explanation.games).toHaveLength(3);
-    // Only this team's sheet and a slug list, never the whole run.
-    expect(db.getPublishedTeamSheet).toHaveBeenCalledWith(
-      model.weeks[0]?.runId,
-      "montana-state-bobcats",
-    );
-    expect(db.getPublishedRun).not.toHaveBeenCalled();
-    expect(teamPage.teams).toHaveLength(model.rows.length);
-    expect(teamPage.isLatest).toBe(true);
-    await expect(
-      loadRatingsTeam({ sport: "football", pool: "fcs", slug: "nobody" }),
-    ).rejects.toThrow("NEXT_NOT_FOUND");
-  });
-
-  it("loads every team's explanation for printable sheets, skipping any missing", async () => {
+  it("loads every team's explanation for the team sheets page, skipping any missing", async () => {
     const [first, ...rest] = model.rows;
     db.listPublishedRunExplanations.mockResolvedValue(
       new Map(rest.map((row) => [row.schoolId, row.explanation])),

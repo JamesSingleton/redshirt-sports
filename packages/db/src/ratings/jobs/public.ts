@@ -341,53 +341,11 @@ async function readGetPublishedRun(
   return { run, rows: snapshots.map(toPublishedRow) };
 }
 
-/** Each team in a run's school id and slug, so a team sheet can link opponents. */
-export type PublishedRunTeam = { schoolId: string; slug: string | null };
-
 /**
- * One team sheet: the run, the team's row with its explanation, and the run's
- * id/slug list. About 10 kB instead of the ~150 kB full run.
- */
-async function readGetPublishedTeamSheet(
-  runId: string,
-  slug: string,
-): Promise<{
-  run: PublishedRun;
-  row: PublishedTeamSheetRow;
-  teams: PublishedRunTeam[];
-} | null> {
-  const run = await readPublishedRunMeta(runId);
-  if (!run) return null;
-  const [found] = await selectSnapshotRows(
-    and(eq(ratingSnapshotsTable.runId, runId), eq(schoolsTable.slug, slug)),
-  ).limit(1);
-  if (!found) return null;
-  const [explanations, teams] = await Promise.all([
-    readListRunExplanations(runId, found.snapshot.schoolId),
-    db
-      .select({
-        schoolId: ratingSnapshotsTable.schoolId,
-        slug: schoolsTable.slug,
-      })
-      .from(ratingSnapshotsTable)
-      .innerJoin(
-        schoolsTable,
-        eq(schoolsTable.id, ratingSnapshotsTable.schoolId),
-      )
-      .where(eq(ratingSnapshotsTable.runId, runId)),
-  ]);
-  const explanation = explanations.get(found.snapshot.schoolId);
-  if (!explanation) return null;
-  return { run, row: { ...toPublishedRow(found), explanation }, teams };
-}
-
-/**
- * Game-by-game explanations for a published run, keyed by school. Pass
- * `schoolId` to read one team's (a team sheet needs only its own).
+ * Game-by-game explanations for a published run, keyed by school.
  */
 async function readListRunExplanations(
   runId: string,
-  schoolId?: string,
 ): Promise<Map<string, TeamExplanation>> {
   const rows = await db
     .select({
@@ -403,7 +361,6 @@ async function readListRunExplanations(
       and(
         eq(ratingSnapshotsTable.runId, runId),
         eq(ratingRunsTable.status, "published"),
-        ...(schoolId ? [eq(ratingSnapshotsTable.schoolId, schoolId)] : []),
       ),
     );
   return new Map(
@@ -674,17 +631,12 @@ export function getPublishedRun(runId: string) {
   return orNothingPublished(() => readGetPublishedRun(runId), null);
 }
 
-/** Every team's explanation in a published run (printable sheets, JSON download). */
+/** Every team's explanation in a published run (team sheets, JSON download). */
 export function listPublishedRunExplanations(runId: string) {
   return orNothingPublished(
     () => readListRunExplanations(runId),
     new Map<string, TeamExplanation>(),
   );
-}
-
-/** One team sheet in a published run (see readGetPublishedTeamSheet), or null. */
-export function getPublishedTeamSheet(runId: string, slug: string) {
-  return orNothingPublished(() => readGetPublishedTeamSheet(runId, slug), null);
 }
 
 /** Every pool-vs-pool game predicted out of sample (see readListPoolPredictions). */
