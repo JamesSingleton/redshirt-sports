@@ -11,21 +11,29 @@ import {
 } from "@/lib/sport-nav";
 
 type RankingsMenuSport = NavRankingsMenuItem["sports"][number];
+type RankingsMenuPoll = NonNullable<RankingsMenuSport["polls"]>[number];
+export type RankingsMenuLink = NonNullable<
+  NavRankingsMenuItem["links"]
+>[number] & { href: string };
 
-/** Sports in a Rankings menu that have at least one poll listed. */
+/**
+ * Sports in a Rankings menu with their polls and editor-added links. A sport
+ * shows when it has at least one of either.
+ */
 export function rankingsMenuSports(item: NavRankingsMenuItem) {
-  return item.sports.flatMap((sport) =>
-    sport.polls?.length
-      ? [
-          { ...sport, polls: sport.polls } as RankingsMenuSport & {
-            polls: NonNullable<RankingsMenuSport["polls"]>;
-          },
-        ]
-      : [],
+  const links = (item.links ?? []).filter((link): link is RankingsMenuLink =>
+    Boolean(link.href),
   );
+  return item.sports.flatMap((sport) => {
+    const polls: RankingsMenuPoll[] = sport.polls ?? [];
+    const sportLinks = links.filter((link) => link.sportId === sport._id);
+    return polls.length || sportLinks.length
+      ? [{ ...sport, polls, links: sportLinks }]
+      : [];
+  });
 }
 
-/** Rankings dropdown: each sport's polls, linking to their latest-poll pages. */
+/** Rankings dropdown: each sport's polls, then its extra links. */
 export function RankingsMenuContent({ item }: { item: NavRankingsMenuItem }) {
   const sports = rankingsMenuSports(item);
 
@@ -52,11 +60,23 @@ export function RankingsMenuContent({ item }: { item: NavRankingsMenuItem }) {
                   Latest poll, ballots, and voters
                 </NavListItem>
               ))}
-              <NavListItem
-                href={sportRankingsIndexPath(sport.slug)}
-                title={`All ${label} rankings`}
-                className="text-muted-foreground"
-              />
+              {sport.links.map((link) => (
+                <NavListItem
+                  key={link._key}
+                  href={link.href}
+                  title={link.name}
+                  openInNewTab={link.openInNewTab}
+                >
+                  {link.description}
+                </NavListItem>
+              ))}
+              {sport.polls.length > 0 ? (
+                <NavListItem
+                  href={sportRankingsIndexPath(sport.slug)}
+                  title={`All ${label} rankings`}
+                  className="text-muted-foreground"
+                />
+              ) : null}
             </ul>
           </div>
         );

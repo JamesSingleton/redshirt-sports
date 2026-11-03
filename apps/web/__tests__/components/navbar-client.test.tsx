@@ -15,6 +15,7 @@ import {
   emptyColumn,
   emptyRankingsMenu,
   footballMenu,
+  linksRankingsMenu,
   navItems,
   noPollsSportMenu,
   rankingsMenu,
@@ -228,6 +229,55 @@ describe("NavbarClient", () => {
     ).toHaveAttribute("href", "/college/football/rankings/fcs");
   });
 
+  it("adds editor links to each sport's rankings section", async () => {
+    mockUseIsMobile.mockReturnValue(false);
+    renderNav([linksRankingsMenu]);
+
+    const menu = await openMenu("Rankings");
+
+    const ratings = within(menu).getByRole("link", {
+      name: /FCS Ratings & SOS/,
+    });
+    expect(ratings).toHaveAttribute("href", "/college/football/ratings/fcs");
+    expect(ratings).toHaveTextContent("Computer ratings, FCS games only");
+    expect(ratings).not.toHaveAttribute("target");
+    expect(
+      within(menu).getByRole("link", { name: "How the ratings work" }),
+    ).toHaveAttribute("target", "_blank");
+
+    // Links follow the polls and come before "All … rankings".
+    const names = within(menu)
+      .getAllByRole("link")
+      .map((link) => link.textContent);
+    expect(
+      names.findIndex((name) => name?.includes("FCS Top 25")),
+    ).toBeLessThan(
+      names.findIndex((name) => name?.includes("FCS Ratings & SOS")),
+    );
+    expect(
+      names.findIndex((name) => name?.includes("How the ratings work")),
+    ).toBeLessThan(
+      names.findIndex((name) =>
+        name?.includes("All College Football rankings"),
+      ),
+    );
+
+    // A sport with only links still gets a section, without "All … rankings".
+    expect(within(menu).getByText("Women's Basketball")).toBeInTheDocument();
+    expect(
+      within(menu).getByRole("link", { name: "WBB Bracketology" }),
+    ).toHaveAttribute("href", "/college/womens-basketball/bracketology");
+    expect(
+      within(menu).queryByRole("link", {
+        name: "All Women's Basketball rankings",
+      }),
+    ).toBeNull();
+
+    // No URL, or a sport that isn't in the menu: dropped.
+    expect(within(menu).queryByText("No URL")).toBeNull();
+    expect(within(menu).queryByText("Not In Menu")).toBeNull();
+  });
+
   it("opens a link column with descriptions and new-tab links", async () => {
     mockUseIsMobile.mockReturnValue(false);
     renderNav();
@@ -315,6 +365,29 @@ describe("NavbarClient", () => {
       "href",
       "/college/football/rankings/fcs",
     );
+  });
+
+  it("lists rankings menu links in the mobile sheet", async () => {
+    mockUseIsMobile.mockReturnValue(true);
+    const user = userEvent.setup();
+    renderNav([linksRankingsMenu]);
+
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    const sheet = screen.getByRole("dialog");
+
+    expect(
+      within(sheet).getByRole("link", { name: "FCS Ratings & SOS" }),
+    ).toHaveAttribute("href", "/college/football/ratings/fcs");
+    expect(
+      within(sheet).getByRole("link", { name: "How the ratings work" }),
+    ).toHaveAttribute("target", "_blank");
+    expect(
+      within(sheet).getByRole("link", { name: "FCS Ratings & SOS" }),
+    ).not.toHaveAttribute("target");
+    expect(
+      within(sheet).getByRole("link", { name: "WBB Bracketology" }),
+    ).toBeInTheDocument();
+    expect(within(sheet).queryByText("No URL")).toBeNull();
   });
 
   it("shows the mobile search control when the menu is closed", () => {

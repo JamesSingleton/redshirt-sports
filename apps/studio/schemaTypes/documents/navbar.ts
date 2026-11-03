@@ -172,13 +172,90 @@ const navSportMenu = defineArrayMember({
   },
 });
 
+const navRankingsLink = defineArrayMember({
+  name: "navRankingsLink",
+  type: "object",
+  icon: Link,
+  title: "Rankings Menu Link",
+  description:
+    "An extra link in one sport's section, after its Top 25 polls (e.g. computer ratings or a methodology page).",
+  fields: [
+    defineField({
+      name: "sport",
+      type: "reference",
+      to: [{ type: "sport" }],
+      description: "The section this link appears in.",
+      validation: (rule) => [
+        rule.required(),
+        rule.custom((value, context) => {
+          // Path: items[_key == menu].links[_key == link].sport
+          const menuKey = (context.path?.[1] as { _key?: string } | undefined)
+            ?._key;
+          const items = (context.document?.items ?? []) as Array<{
+            _key?: string;
+            sports?: Array<{ _ref?: string }>;
+          }>;
+          const menu = items.find((item) => item._key === menuKey);
+          if (!value?._ref || !menu) return true;
+          return (menu.sports ?? []).some((sport) => sport._ref === value._ref)
+            ? true
+            : "Pick one of this menu's sports, or add the sport to the menu first.";
+        }),
+      ],
+    }),
+    defineField({
+      name: "name",
+      type: "string",
+      title: "Link Text",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "description",
+      type: "string",
+      title: "Description",
+      description: "Optional line under the link text on desktop.",
+    }),
+    defineField({
+      name: "url",
+      type: "customUrl",
+      title: "Link URL",
+      validation: (rule) => rule.required(),
+    }),
+  ],
+  preview: {
+    select: {
+      title: "name",
+      sportTitle: "sport.title",
+      ...nestedCustomUrlPreviewSelect("url"),
+    },
+    prepare: ({
+      title,
+      sportTitle,
+      ...urlFields
+    }: { title?: string; sportTitle?: string } & CustomUrlPreviewInput) => ({
+      title: title || "Untitled Link",
+      subtitle: [
+        sportTitle,
+        formatCustomUrlLinkSubtitle({
+          urlType: urlFields.urlType,
+          url: resolveCustomUrlPreview(urlFields),
+          openInNewTab: urlFields.openInNewTab,
+        }),
+      ]
+        .filter(Boolean)
+        .join(" · "),
+      media: Link,
+    }),
+  },
+});
+
 const navRankingsMenu = defineArrayMember({
   name: "navRankingsMenu",
   type: "object",
   icon: StarIcon,
   title: "Rankings Menu",
   description:
-    "Lists each sport's Top 25 polls (set on the sport document), grouped by sport.",
+    "Lists each sport's Top 25 polls (set on the sport document), grouped by sport, plus any extra links.",
   fields: [
     defineField({
       name: "label",
@@ -193,12 +270,27 @@ const navRankingsMenu = defineArrayMember({
       of: [defineArrayMember({ type: "reference", to: [{ type: "sport" }] })],
       validation: (rule) => [rule.required().min(1), rule.unique()],
     }),
+    defineField({
+      name: "links",
+      title: "Extra Links",
+      description:
+        "Shown in each sport's section after its polls, in this order (e.g. computer ratings, methodology).",
+      type: "array",
+      of: [navRankingsLink],
+    }),
   ],
   preview: {
-    select: { label: "label", sports: "sports" },
-    prepare: ({ label, sports = [] }) => ({
+    select: { label: "label", sports: "sports", links: "links" },
+    prepare: ({ label, sports = [], links = [] }) => ({
       title: label || "Rankings",
-      subtitle: `${sports.length} sport${sports.length === 1 ? "" : "s"}`,
+      subtitle: [
+        `${sports.length} sport${sports.length === 1 ? "" : "s"}`,
+        links.length
+          ? `${links.length} link${links.length === 1 ? "" : "s"}`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
       media: StarIcon,
     }),
   },

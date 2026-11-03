@@ -526,7 +526,15 @@ export const queryNavbarData = defineQuery(/* groq */ `
       },
       _type == "navRankingsMenu" => {
         "label": coalesce(label, "Rankings"),
-        "sports": sports[defined(@->slug.current)]->{ ${navSportFragment} }
+        "sports": sports[defined(@->slug.current)]->{ ${navSportFragment} },
+        "links": links[defined(sport._ref) && defined(name)]{
+          _key,
+          name,
+          description,
+          "sportId": sport._ref,
+          "openInNewTab": url.openInNewTab,
+          ${customUrlHrefFragment}
+        }
       },
       _type == "navbarColumn" => {
         title,

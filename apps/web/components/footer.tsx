@@ -8,6 +8,7 @@ import type {
   QueryGlobalSeoSettingsResult,
 } from "@redshirt-sports/sanity/types";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 
 import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
 import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
@@ -163,6 +164,14 @@ function Footer({ data, settingsData }: FooterProps) {
   const { logo, footerLogo, footerLogoDarkMode, socialLinks, siteBrand } =
     settingsData;
   const brand = siteBrand ?? "Redshirt Sports";
+  // One grid track per editor-added column, so adding one in Studio never
+  // overflows; minmax(0, 1fr) keeps a long link from widening its column.
+  const gridStyle = {
+    "--footer-columns": Math.max(
+      Array.isArray(columns) ? columns.length : 0,
+      1,
+    ),
+  } as CSSProperties;
 
   return (
     <footer
@@ -172,7 +181,10 @@ function Footer({ data, settingsData }: FooterProps) {
       <h2 className="sr-only" id="footer-heading">
         Footer Navigation and Information
       </h2>
-      <div className="mx-auto grid max-w-site gap-10 px-4 py-12 lg:grid-cols-[1.4fr_repeat(4,1fr)] lg:px-6">
+      <div
+        className="mx-auto grid max-w-site gap-10 px-4 py-12 lg:grid-cols-[1.4fr_repeat(var(--footer-columns),minmax(0,1fr))] lg:px-6"
+        style={gridStyle}
+      >
         <div>
           <Logo
             alt={brand}
