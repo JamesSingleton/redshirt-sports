@@ -458,9 +458,12 @@ export function MatchupPanel({
                   >
                     {row.a}
                   </td>
-                  <td className="text-muted-foreground px-3 py-1.5 text-center text-xs tracking-wide uppercase">
+                  <th
+                    scope="row"
+                    className="text-muted-foreground px-3 py-1.5 text-center text-xs font-normal tracking-wide uppercase"
+                  >
                     {row.label}
-                  </td>
+                  </th>
                   <td
                     className={cn(
                       "py-1.5",

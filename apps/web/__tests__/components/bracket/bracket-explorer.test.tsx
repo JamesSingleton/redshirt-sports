@@ -55,7 +55,7 @@ describe("BracketExplorer", () => {
     expect(screen.queryByTestId("panel")).toBeNull();
 
     const card = screen.getByRole("button", {
-      name: "First round: School 16 vs School 24",
+      name: "First round: No. 16 School 16 vs School 24, at School 16",
     });
     await userEvent.click(card);
 
@@ -100,13 +100,35 @@ describe("BracketExplorer", () => {
     ).not.toBeNull();
   });
 
+  it("reads a finished game's scores and status in its label", () => {
+    renderExplorer(
+      buildBracketView(FCS_SPEC, bracketSlots(), [
+        {
+          gameKey: "r1-16",
+          homeSide: null,
+          siteLabel: "Greene Stadium",
+          kickoffAt: null,
+          status: "final",
+          sideAScore: 14,
+          sideBScore: 31,
+          winnerSide: "b",
+        },
+      ]),
+    );
+    expect(
+      screen.getByRole("button", {
+        name: "First round: No. 16 School 16 14 vs School 24 31, Final, Greene Stadium",
+      }),
+    ).toBeInTheDocument();
+  });
+
   it("titles a team without a short name by its full name", async () => {
     const slots = bracketSlots();
     slots[15]!.team.shortName = null;
     renderExplorer(buildBracketView(FCS_SPEC, slots, []));
     await userEvent.click(
       screen.getByRole("button", {
-        name: "First round: School 16 University vs School 24",
+        name: "First round: No. 16 School 16 University vs School 24, at School 16 University",
       }),
     );
     expect(

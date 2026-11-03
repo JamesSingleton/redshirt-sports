@@ -20,6 +20,7 @@ describe("robots", () => {
         "https://redshirtsports.com/sitemap.xml",
         "https://redshirtsports.com/rankings/sitemap.xml",
         "https://redshirtsports.com/college/sitemap.xml",
+        "https://redshirtsports.com/playoffs/sitemap.xml",
       ]),
     );
   });

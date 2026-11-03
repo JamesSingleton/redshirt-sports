@@ -13,6 +13,7 @@ import {
   getBracketEdition,
   getBracketTeamStats,
   getPublishedBracketEditions,
+  listAllPublishedBracketEditions,
   listPublishedBracketSeasons,
 } from "@redshirt-sports/db/queries";
 import { rankingsDivisionTag } from "@redshirt-sports/db/rankings-cache-tags";
@@ -87,6 +88,14 @@ export async function getCachedBracketSeasons(sport: string, division: string) {
     sportSlug: sport,
     divisionSlug: division,
   });
+}
+
+/** Every published edition, for the sitemap. */
+export async function getCachedAllPublishedBrackets() {
+  "use cache";
+  cacheTag(BRACKETS_CACHE_TAG);
+  cacheLife(BRACKETS_CACHE_LIFE);
+  return listAllPublishedBracketEditions();
 }
 
 /** A published edition laid out for rendering, or null (drafts never render). */

@@ -89,6 +89,24 @@ function sideName(side: BracketSideLike<BracketTeamLike>) {
   return side.team ? teamLabel(side.team) : side.placeholder;
 }
 
+/** What a card says aloud, since its button label replaces its contents. */
+function gameLabel(
+  game: BracketGameLike<BracketTeamLike>,
+  details: (string | null)[],
+) {
+  const side = (s: BracketSideLike<BracketTeamLike>) =>
+    [
+      s.showSeed && s.seed !== null ? `No. ${s.seed}` : null,
+      sideName(s),
+      s.score,
+    ]
+      .filter((part) => part !== null)
+      .join(" ");
+  return [`${game.roundLabel}: ${side(game.sideA)} vs ${side(game.sideB)}`]
+    .concat(details.filter((detail) => detail !== null))
+    .join(", ");
+}
+
 /* Card geometry. A card is a header strip over two team rows, centred in its
  * grid rows, so the midpoint between its teams sits at 50% + head / 2. */
 const TEAMS_MID = "(50% + var(--bracket-head) / 2)";
@@ -171,7 +189,7 @@ function GameCard<T extends BracketTeamLike>({
               type: "button" as const,
               onClick: () => selection.onSelect(game.key),
               "aria-pressed": selection.selectedKey === game.key,
-              "aria-label": `${game.roundLabel}: ${sideName(game.sideA)} vs ${sideName(game.sideB)}`,
+              "aria-label": gameLabel(game, [status, site]),
             }
           : {})}
         className={cn(
@@ -383,13 +401,15 @@ function Half<T extends BracketTeamLike>({
         )}
       </div>,
     );
+    // Column captions, not headings: a bracket sits under any heading level
+    // (an article's h2, the page's h1), and each card names its round itself.
     labels.push(
-      <h3
+      <div
         key={`${column.roundKey}-label`}
         className="w-(--bracket-card) shrink-0 truncate px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase"
       >
         {column.roundLabel}
-      </h3>,
+      </div>,
     );
   });
 
@@ -435,9 +455,9 @@ export function Bracket<T extends BracketTeamLike>({
           selection={selection}
         />
         <div className="flex flex-col gap-3">
-          <h3 className="w-(--bracket-card) truncate px-1 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <div className="w-(--bracket-card) truncate px-1 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             {view.final.roundLabel}
-          </h3>
+          </div>
           <div className="relative flex flex-1 flex-col justify-center">
             <div className="absolute inset-x-0 bottom-[calc(50%+var(--bracket-team-h)+var(--bracket-head)/2+1rem)] flex flex-col items-center gap-1 text-center">
               <span className="text-[0.65rem] font-semibold tracking-[0.18em] text-muted-foreground uppercase">

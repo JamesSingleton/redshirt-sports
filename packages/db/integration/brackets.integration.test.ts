@@ -11,6 +11,7 @@ import {
   getBracketEdition,
   getBracketTeamStats,
   getPublishedBracketEditions,
+  listAllPublishedBracketEditions,
   setBracketEditionStatus,
   setBracketGame,
   setBracketSlot,
@@ -288,6 +289,14 @@ describe("bracket editions", () => {
     });
     expect(after.official?.id).toBe(official);
     expect(after.official?.publishedAt).toBeInstanceOf(Date);
+
+    // The sitemap list holds only published editions; the week-2 draft stays out.
+    const all = (await listAllPublishedBracketEditions()).filter(
+      (row) => row.sportSlug === fixture.sportSlug,
+    );
+    expect(all.map((row) => row.id).sort()).toEqual(
+      [official, week1, week3].sort(),
+    );
   });
 
   it("deletes drafts but never a published edition", async () => {

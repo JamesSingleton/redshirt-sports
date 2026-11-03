@@ -267,6 +267,13 @@ export async function listPublishedBracketSeasons({
   return rows.map((row) => row.year);
 }
 
+/** Every published edition across sports and divisions, for the sitemap. */
+export async function listAllPublishedBracketEditions() {
+  return editionSummaries()
+    .where(eq(bracketEditionsTable.status, "published"))
+    .orderBy(desc(seasonsTable.year), desc(weeksTable.number));
+}
+
 /** Every edition, newest season and week first, for the admin list. */
 export async function listBracketEditions() {
   return editionSummaries().orderBy(

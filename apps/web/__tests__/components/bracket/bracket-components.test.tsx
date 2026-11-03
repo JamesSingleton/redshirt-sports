@@ -124,7 +124,7 @@ describe("BracketPageView", () => {
     // Cards open the matchup panel, so names are text, not team links.
     expect(
       screen.getByRole("button", {
-        name: "First round: School 16 vs School 24",
+        name: "First round: No. 16 School 16 vs School 24, at School 16",
       }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "School 2" })).toBeNull();
