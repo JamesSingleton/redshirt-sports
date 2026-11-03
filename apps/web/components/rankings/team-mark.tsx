@@ -5,7 +5,7 @@ type TeamMarkProps = {
   shortName?: string | null;
   abbreviation?: string | null;
   name?: string | null;
-  size?: "sm" | "md" | "table";
+  size?: "xs" | "sm" | "md" | "table";
   schoolLabel?: string;
 };
 
@@ -26,7 +26,8 @@ export function TeamMark({
   size = "sm",
   schoolLabel,
 }: TeamMarkProps) {
-  const dim = size === "sm" ? 28 : size === "table" ? 32 : 40;
+  const dim =
+    size === "xs" ? 20 : size === "sm" ? 28 : size === "table" ? 32 : 40;
   const label = schoolLabel ?? `${shortName ?? name ?? "Team"} logo`;
 
   if (image) {
@@ -36,11 +37,13 @@ export function TeamMark({
         width={dim}
         height={dim}
         className={
-          size === "sm"
-            ? "size-7 shrink-0 object-contain"
-            : size === "table"
-              ? "size-8 shrink-0 object-contain"
-              : "size-10 shrink-0 object-contain"
+          size === "xs"
+            ? "size-5 shrink-0 object-contain"
+            : size === "sm"
+              ? "size-7 shrink-0 object-contain"
+              : size === "table"
+                ? "size-8 shrink-0 object-contain"
+                : "size-10 shrink-0 object-contain"
         }
         mode="contain"
         alt={label}
@@ -51,9 +54,11 @@ export function TeamMark({
   return (
     <span
       className={
-        size === "table"
-          ? "inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-dashed border-muted-foreground/40 bg-muted font-display text-[0.62em] font-bold tracking-wide text-muted-foreground"
-          : "inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-dashed border-muted-foreground/40 bg-muted font-display text-[0.62em] font-bold tracking-wide text-muted-foreground"
+        size === "xs"
+          ? "inline-flex size-5 shrink-0 items-center justify-center rounded-full border border-dashed border-muted-foreground/40 bg-muted font-display text-[0.5em] font-bold tracking-wide text-muted-foreground"
+          : size === "table"
+            ? "inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-dashed border-muted-foreground/40 bg-muted font-display text-[0.62em] font-bold tracking-wide text-muted-foreground"
+            : "inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-dashed border-muted-foreground/40 bg-muted font-display text-[0.62em] font-bold tracking-wide text-muted-foreground"
       }
       title={shortName ?? name ?? undefined}
       aria-hidden

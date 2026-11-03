@@ -4,7 +4,6 @@ import {
   boolean,
   check,
   doublePrecision,
-  foreignKey,
   index,
   integer,
   jsonb,
@@ -642,28 +641,11 @@ export const ballotEntriesTableRelations = relations(
 );
 
 /**
- * Football subdivision for a playoff bracket (FCS, FBS). Basketball has no row:
- * one NCAA tournament covers every poll slice.
+ * Versioned bracket tree. `spec` is the whole tree (slots, games, feeders) and
+ * never changes once editions point at it: a new format ships as a new row with
+ * a new `key`. `divisionSlug` is the football subdivision ("fcs", "fbs"); null
+ * for basketball, where one NCAA tournament covers every poll slice.
  */
-export const bracketDivisionsTable = pgTable(
-  "bracket_divisions",
-  {
-    ...defaultColumns,
-    sportId: text("sport_id")
-      .notNull()
-      .references(() => sportsTable.id),
-    slug: text("slug").notNull(),
-    label: text("label").notNull(),
-  },
-  (table) => [
-    unique("bracket_divisions_sport_id_slug_unique").on(
-      table.sportId,
-      table.slug,
-    ),
-  ],
-);
-
-/** Versioned bracket tree. `spec` is the empty skeleton, not a seeded field. */
 export const bracketFormatsTable = pgTable(
   "bracket_formats",
   {
@@ -671,7 +653,7 @@ export const bracketFormatsTable = pgTable(
     sportId: text("sport_id")
       .notNull()
       .references(() => sportsTable.id),
-    divisionId: text("division_id").references(() => bracketDivisionsTable.id),
+    divisionSlug: text("division_slug"),
     key: text("key").notNull().unique(),
     effectiveFromYear: integer("effective_from_year").notNull(),
     /** Inclusive. Null means the format is still current. */
@@ -679,11 +661,17 @@ export const bracketFormatsTable = pgTable(
     spec: jsonb("spec").notNull(),
   },
   (table) => [
-    index("bracket_formats_sport_id_index").on(table.sportId),
-    index("bracket_formats_division_id_index").on(table.divisionId),
+    unique("bracket_formats_sport_division_from_year_unique")
+      .on(table.sportId, table.divisionSlug, table.effectiveFromYear)
+      .nullsNotDistinct(),
   ],
 );
 
+/**
+ * One bracket for a format and season: a weekly projection (`weekId` set) or
+ * the committee's official bracket (`weekId` null). Editing a published edition
+ * updates it in place, so every article that embeds it shows the fix.
+ */
 export const bracketEditionsTable = pgTable(
   "bracket_editions",
   {
@@ -695,20 +683,14 @@ export const bracketEditionsTable = pgTable(
       .notNull()
       .references(() => seasonsTable.id),
     kind: text("kind").notNull(),
-    status: text("status").notNull(),
-    sourceWeekId: text("source_week_id")
-      .notNull()
-      .references(() => weeksTable.id),
-    revision: integer("revision").notNull(),
-    clonedFromEditionId: text("cloned_from_edition_id"),
+    status: text("status").notNull().default("draft"),
+    weekId: text("week_id").references(() => weeksTable.id),
     articleUrl: text("article_url"),
     publicNote: text("public_note"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     publishedByUserId: text("published_by_user_id").references(
       () => usersTable.id,
-      {
-        onDelete: "set null",
-      },
+      { onDelete: "set null" },
     ),
   },
   (table) => [
@@ -718,37 +700,37 @@ export const bracketEditionsTable = pgTable(
     ),
     check(
       "bracket_editions_status_check",
-      sql`${table.status} in ('draft', 'published', 'superseded')`,
+      sql`${table.status} in ('draft', 'published')`,
+    ),
+    check(
+      "bracket_editions_week_check",
+      sql`(${table.kind} = 'projection') = (${table.weekId} is not null)`,
+    ),
+    check(
+      "bracket_editions_published_at_check",
+      sql`${table.status} <> 'published' or ${table.publishedAt} is not null`,
     ),
     check(
       "bracket_editions_article_url_check",
       sql`${table.articleUrl} is null or ${table.articleUrl} ~ '^https?://'`,
     ),
-    uniqueIndex("bracket_editions_projection_identity")
-      .on(table.formatId, table.seasonId, table.sourceWeekId, table.revision)
-      .where(sql`${table.kind} = 'projection'`),
-    uniqueIndex("bracket_editions_official_draft")
-      .on(table.formatId, table.seasonId)
-      .where(sql`${table.kind} = 'official' and ${table.status} = 'draft'`),
-    uniqueIndex("bracket_editions_official_published")
-      .on(table.formatId, table.seasonId)
-      .where(sql`${table.kind} = 'official' and ${table.status} = 'published'`),
-    foreignKey({
-      columns: [table.clonedFromEditionId],
-      foreignColumns: [table.id],
-      name: "bracket_editions_cloned_from_edition_id_fk",
-    }).onDelete("set null"),
+    // One projection per week and one official bracket per season. Also
+    // serves the public "editions for this format and season" read.
+    unique("bracket_editions_identity_unique")
+      .on(table.formatId, table.seasonId, table.kind, table.weekId)
+      .nullsNotDistinct(),
     index("bracket_editions_season_id_index").on(table.seasonId),
-    index("bracket_editions_source_week_id_index").on(table.sourceWeekId),
+    index("bracket_editions_week_id_index").on(table.weekId),
     index("bracket_editions_published_by_user_id_index").on(
       table.publishedByUserId,
-    ),
-    index("bracket_editions_cloned_from_edition_id_index").on(
-      table.clonedFromEditionId,
     ),
   ],
 );
 
+/**
+ * A school placed in one of the format's slots. Rows exist only for filled
+ * slots; seed, region and seed visibility come from the format spec.
+ */
 export const bracketSlotsTable = pgTable(
   "bracket_slots",
   {
@@ -757,10 +739,9 @@ export const bracketSlotsTable = pgTable(
       .notNull()
       .references(() => bracketEditionsTable.id, { onDelete: "cascade" }),
     slotKey: text("slot_key").notNull(),
-    seed: integer("seed"),
-    region: text("region"),
-    showSeed: boolean("show_seed").notNull(),
-    schoolId: text("school_id").references(() => schoolsTable.id),
+    schoolId: text("school_id")
+      .notNull()
+      .references(() => schoolsTable.id),
     bidType: text("bid_type"),
     bidLabel: text("bid_label"),
   },
@@ -769,9 +750,10 @@ export const bracketSlotsTable = pgTable(
       table.editionId,
       table.slotKey,
     ),
-    uniqueIndex("bracket_slots_edition_school")
-      .on(table.editionId, table.schoolId)
-      .where(sql`${table.schoolId} is not null`),
+    unique("bracket_slots_edition_id_school_id_unique").on(
+      table.editionId,
+      table.schoolId,
+    ),
     check(
       "bracket_slots_bid_type_check",
       sql`${table.bidType} is null or ${table.bidType} in ('auto', 'at-large')`,
@@ -780,6 +762,11 @@ export const bracketSlotsTable = pgTable(
   ],
 );
 
+/**
+ * State for one game of the format's tree. Rows exist only once a game has a
+ * site, kickoff, score or home override. Sides follow the spec: `a` is the
+ * spec's `sideA`. The winning school comes from the slots, never stored here.
+ */
 export const bracketGamesTable = pgTable(
   "bracket_games",
   {
@@ -788,18 +775,18 @@ export const bracketGamesTable = pgTable(
       .notNull()
       .references(() => bracketEditionsTable.id, { onDelete: "cascade" }),
     gameKey: text("game_key").notNull(),
-    roundKey: text("round_key").notNull(),
-    roundLabel: text("round_label").notNull(),
-    sideASlotKey: text("side_a_slot_key"),
-    sideBSlotKey: text("side_b_slot_key"),
-    sideAFromGameKey: text("side_a_from_game_key"),
-    sideBFromGameKey: text("side_b_from_game_key"),
+    /** Overrides the spec's `host` when set. */
     homeSide: text("home_side"),
     siteLabel: text("site_label"),
+    kickoffAt: timestamp("kickoff_at", { withTimezone: true }),
     status: text("status").notNull().default("scheduled"),
-    winnerSchoolId: text("winner_school_id").references(() => schoolsTable.id),
-    homeScore: integer("home_score"),
-    awayScore: integer("away_score"),
+    sideAScore: integer("side_a_score"),
+    sideBScore: integer("side_b_score"),
+    winnerSide: text("winner_side"),
+    /** The scoreboard row this game was played as, for result sync. */
+    gameId: text("game_id").references(() => gamesTable.id, {
+      onDelete: "set null",
+    }),
   },
   (table) => [
     unique("bracket_games_edition_id_game_key_unique").on(
@@ -811,10 +798,22 @@ export const bracketGamesTable = pgTable(
       sql`${table.homeSide} is null or ${table.homeSide} in ('a', 'b')`,
     ),
     check(
+      "bracket_games_winner_side_check",
+      sql`${table.winnerSide} is null or ${table.winnerSide} in ('a', 'b')`,
+    ),
+    check(
       "bracket_games_status_check",
       sql`${table.status} in ('scheduled', 'final')`,
     ),
-    index("bracket_games_winner_school_id_index").on(table.winnerSchoolId),
+    check(
+      "bracket_games_final_winner_check",
+      sql`(${table.status} = 'final') = (${table.winnerSide} is not null)`,
+    ),
+    check(
+      "bracket_games_scores_check",
+      sql`(${table.sideAScore} is null or ${table.sideAScore} >= 0) and (${table.sideBScore} is null or ${table.sideBScore} >= 0)`,
+    ),
+    index("bracket_games_game_id_index").on(table.gameId),
   ],
 );
 
@@ -851,27 +850,12 @@ export type SelectPoll = typeof pollsTable.$inferSelect;
 export type SelectBallot = typeof ballotsTable.$inferSelect;
 export type SelectPollRanking = typeof pollRankingsTable.$inferSelect;
 
-export const bracketDivisionsTableRelations = relations(
-  bracketDivisionsTable,
-  ({ one, many }) => ({
-    sport: one(sportsTable, {
-      fields: [bracketDivisionsTable.sportId],
-      references: [sportsTable.id],
-    }),
-    formats: many(bracketFormatsTable),
-  }),
-);
-
 export const bracketFormatsTableRelations = relations(
   bracketFormatsTable,
   ({ one, many }) => ({
     sport: one(sportsTable, {
       fields: [bracketFormatsTable.sportId],
       references: [sportsTable.id],
-    }),
-    division: one(bracketDivisionsTable, {
-      fields: [bracketFormatsTable.divisionId],
-      references: [bracketDivisionsTable.id],
     }),
     editions: many(bracketEditionsTable),
   }),
@@ -888,17 +872,13 @@ export const bracketEditionsTableRelations = relations(
       fields: [bracketEditionsTable.seasonId],
       references: [seasonsTable.id],
     }),
-    sourceWeek: one(weeksTable, {
-      fields: [bracketEditionsTable.sourceWeekId],
+    week: one(weeksTable, {
+      fields: [bracketEditionsTable.weekId],
       references: [weeksTable.id],
     }),
     publishedBy: one(usersTable, {
       fields: [bracketEditionsTable.publishedByUserId],
       references: [usersTable.id],
-    }),
-    clonedFrom: one(bracketEditionsTable, {
-      fields: [bracketEditionsTable.clonedFromEditionId],
-      references: [bracketEditionsTable.id],
     }),
     slots: many(bracketSlotsTable),
     games: many(bracketGamesTable),
@@ -926,9 +906,9 @@ export const bracketGamesTableRelations = relations(
       fields: [bracketGamesTable.editionId],
       references: [bracketEditionsTable.id],
     }),
-    winner: one(schoolsTable, {
-      fields: [bracketGamesTable.winnerSchoolId],
-      references: [schoolsTable.id],
+    game: one(gamesTable, {
+      fields: [bracketGamesTable.gameId],
+      references: [gamesTable.id],
     }),
   }),
 );

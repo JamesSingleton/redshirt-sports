@@ -88,6 +88,12 @@ function createComponents(baseUrl: string): PortableTextComponents {
     return `<p><a href="${escapeHTML(href)}">Watch on YouTube</a></p>`;
   };
 
+  // Brackets are interactive and live in Postgres; feeds point readers to the story.
+  const bracketEmbed: PortableTextTypeComponent<BodyMember<"bracketEmbed">> = ({
+    value,
+  }) =>
+    `<p><em>${escapeHTML(value.caption ?? "Playoff bracket")}: view the full bracket on Redshirt Sports.</em></p>`;
+
   return {
     marks: {
       customLink: linkMark,
@@ -95,7 +101,7 @@ function createComponents(baseUrl: string): PortableTextComponents {
       internalLink: linkMark,
       link: linkMark,
     },
-    types: { image, table, twitter, youtubeEmbed },
+    types: { bracketEmbed, image, table, twitter, youtubeEmbed },
   };
 }
 

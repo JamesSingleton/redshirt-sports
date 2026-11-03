@@ -1,4 +1,5 @@
 import { blockContent } from "./block-content";
+import { bracketEmbed } from "./bracket-embed";
 import { customUrl } from "./custom-url";
 import { legalContent } from "./legal-content";
 import { socialLinks } from "./social-links";
@@ -8,6 +9,7 @@ import { twitter } from "./twitter";
 
 export const definitions = [
   blockContent,
+  bracketEmbed,
   customUrl,
   legalContent,
   socialLinks,

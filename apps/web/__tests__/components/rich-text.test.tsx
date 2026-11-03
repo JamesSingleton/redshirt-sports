@@ -23,6 +23,20 @@ vi.mock("@/components/youtube-embed", () => ({
   ),
 }));
 
+vi.mock("@/components/bracket/bracket-embed", () => ({
+  BracketEmbed: ({
+    editionId,
+    caption,
+  }: {
+    editionId: string;
+    caption?: string;
+  }) => (
+    <div data-testid="bracket" data-caption={caption}>
+      {editionId}
+    </div>
+  ),
+}));
+
 vi.mock("@/components/sanity-image", () => ({
   __esModule: true,
   default: ({ image }: { image?: { alt?: string } }) => (
@@ -174,6 +188,11 @@ const richText = [
     url: "https://www.youtube.com/watch?v=abc",
   },
   {
+    _type: "bracketEmbed",
+    editionId: "edition-1",
+    caption: "Week 7 bracket",
+  },
+  {
     _type: "unknown",
     _key: "missing",
   },
@@ -217,6 +236,11 @@ describe("RichText", () => {
     expect(screen.getByText("Source: Getty")).toBeInTheDocument();
     expect(screen.getByText("Source: AP")).toBeInTheDocument();
     expect(screen.getByTestId("youtube")).toHaveTextContent("abc");
+    expect(screen.getByTestId("bracket")).toHaveTextContent("edition-1");
+    expect(screen.getByTestId("bracket")).toHaveAttribute(
+      "data-caption",
+      "Week 7 bracket",
+    );
     expect(logSpy).toHaveBeenCalled();
     logSpy.mockRestore();
   });

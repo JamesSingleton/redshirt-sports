@@ -26,7 +26,7 @@ import {
 } from "./weeks";
 
 /** Omit Sanity LQIP `preview` from school logos in rankings projections. */
-const schoolLogoImage = sql<unknown>`
+export const schoolLogoImage = sql<unknown>`
   CASE
     WHEN ${schoolsTable.image} IS NULL THEN NULL
     ELSE jsonb_strip_nulls(

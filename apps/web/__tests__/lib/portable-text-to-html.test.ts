@@ -301,4 +301,24 @@ describe("portableTextToHtml", () => {
       ]),
     ).toBe("");
   });
+
+  it("renders bracket embeds as a note with an escaped caption", () => {
+    expect(
+      render([
+        {
+          _type: "bracketEmbed",
+          _key: "b1",
+          editionId: "00000000-0000-0000-0000-000000000000",
+          caption: "Our <24-team> bracket",
+        },
+      ]),
+    ).toBe(
+      "<p><em>Our &lt;24-team&gt; bracket: view the full bracket on Redshirt Sports.</em></p>",
+    );
+    expect(
+      render([{ _type: "bracketEmbed", _key: "b2", editionId: "e" }]),
+    ).toBe(
+      "<p><em>Playoff bracket: view the full bracket on Redshirt Sports.</em></p>",
+    );
+  });
 });
