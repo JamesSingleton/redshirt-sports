@@ -3,7 +3,7 @@ import { RatingsHeader } from "@/components/ratings/ratings-header";
 import { RatingsTable } from "@/components/ratings/ratings-table";
 import type { RatingsWeekModel } from "@/lib/ratings/data";
 import { buildRatingsDatasetJsonLd } from "@/lib/ratings/dataset-json-ld";
-import { ratingsPaths, type SortDir, type SortKey } from "@/lib/ratings/format";
+import type { SortDir, SortKey } from "@/lib/ratings/format";
 
 /** The latest page and every archived week render the same view. */
 export function RatingsWeekView({
@@ -18,10 +18,9 @@ export function RatingsWeekView({
   basePath: string;
 }) {
   const { pool } = model;
-  const paths = ratingsPaths(pool.sportSlug, pool.slug);
-  // Past weeks link to the team page, whose ratings trend covers every week.
-  const teamHref = (slug: string) =>
-    model.isLatest ? paths.team(slug) : `/college/teams/${slug}`;
+  // Team names go to the team page: its ratings card has the week-by-week
+  // trend and links the full team sheet.
+  const teamHref = (slug: string) => `/college/teams/${slug}`;
   return (
     <>
       <JsonLdScript

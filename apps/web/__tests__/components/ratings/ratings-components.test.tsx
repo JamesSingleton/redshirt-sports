@@ -544,25 +544,11 @@ describe("RatingsWeekView", () => {
     ).toContain('"@type":"Dataset"');
     expect(screen.getByRole("link", { name: "Montana State" })).toHaveAttribute(
       "href",
-      "/college/football/ratings/fcs/teams/montana-state-bobcats",
+      "/college/teams/montana-state-bobcats",
     );
     expect(
       screen.getByText(/Method v1 · 691 FCS games · run abcdef012345/),
     ).toBeInTheDocument();
-  });
-
-  it("links teams to their team pages when the week isn't the latest", () => {
-    render(
-      <RatingsWeekView
-        model={weekModel({ isLatest: false })}
-        sort="sor"
-        basePath="/x"
-      />,
-    );
-    expect(screen.getByRole("link", { name: "Montana State" })).toHaveAttribute(
-      "href",
-      "/college/teams/montana-state-bobcats",
-    );
   });
 });
 
