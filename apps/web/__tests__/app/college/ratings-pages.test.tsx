@@ -105,9 +105,6 @@ import WeekPage, {
 import TeamSheetsPage, {
   generateMetadata as teamSheetsMeta,
 } from "@/app/college/[sport]/ratings/[pool]/[year]/[week]/team-sheets/page";
-import WeekTeamPage, {
-  generateMetadata as weekTeamMeta,
-} from "@/app/college/[sport]/ratings/[pool]/[year]/[week]/teams/[slug]/page";
 import AccuracyPage, {
   generateMetadata as accuracyMeta,
 } from "@/app/college/[sport]/ratings/[pool]/accuracy/page";
@@ -192,7 +189,7 @@ describe("ratings pages", () => {
     expect(screen.getByTestId("week-view")).toHaveAttribute("data-sort", "sor");
   });
 
-  it("latest team sheet is indexable; archived one is noindex", async () => {
+  it("latest team sheet is indexable", async () => {
     await expect(
       teamMeta({ params: p({ ...pool, slug: "montana-state-bobcats" }) }),
     ).resolves.toMatchObject({
@@ -205,18 +202,6 @@ describe("ratings pages", () => {
       ),
     );
     expect(screen.getByTestId("team")).toHaveTextContent("Montana State");
-
-    const archived = p({
-      ...pool,
-      year: "2025",
-      week: "postseason",
-      slug: "montana-state-bobcats",
-    });
-    await expect(weekTeamMeta({ params: archived })).resolves.toMatchObject({
-      noIndex: true,
-    });
-    render(await resolveSuspense(WeekTeamPage({ params: archived })));
-    expect(screen.getAllByTestId("team")).toHaveLength(2);
   });
 
   it("printable team sheets: picker, one tier legend, every team, noindex", async () => {

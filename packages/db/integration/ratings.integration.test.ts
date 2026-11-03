@@ -14,6 +14,7 @@ import {
   getPublishedTeamSheet,
   listPublishedRunExplanations,
   listPublishedWeeks,
+  listTeamRatings,
 } from "../src/ratings/jobs/public";
 import {
   divisionSportsTable,
@@ -211,6 +212,49 @@ describe("rating runs", () => {
     expect(await unpublishWeek(poolId, fixture.weekIds[0]!)).toBe(1);
     expect(await getPublishedRun(run)).toBeNull();
     expect(await listPublishedWeeks(poolId)).toEqual([]);
+  });
+});
+
+describe("team ratings", () => {
+  it("returns one point per published week, oldest first, from public pools only", async () => {
+    const [first, second] = fixture.schoolIds;
+    const [school] = await db
+      .select({ sanityId: schoolsTable.sanityId })
+      .from(schoolsTable)
+      .where(eq(schoolsTable.id, first!));
+    const sanityId = school!.sanityId!;
+
+    expect(await listTeamRatings(sanityId)).toEqual([]);
+
+    const one = await createRun(fixture.weekIds[0]!);
+    await addSnapshot(one, first!, 2);
+    await addSnapshot(one, second!, 1);
+    const two = await createRun(fixture.weekIds[1]!);
+    await addSnapshot(two, first!, 1);
+    await addSnapshot(two, second!, 2);
+    // A draft run is never shown.
+    const draft = await createRun(fixture.weekIds[1]!);
+    await addSnapshot(draft, first!, 5);
+    await publishRun(one, null);
+    await publishRun(two, null);
+
+    const [history, ...rest] = await listTeamRatings(sanityId);
+    expect(rest).toEqual([]);
+    expect(history).toMatchObject({
+      pool: { slug: "fcs", name: "FCS" },
+      teamCount: 2,
+    });
+    expect(history!.weeks.map((week) => week.powerRank)).toEqual([2, 1]);
+    expect(history!.weeks.map((week) => week.label)).toEqual([
+      "Week 1",
+      "Week 2",
+    ]);
+
+    await db
+      .update(ratingPoolsTable)
+      .set({ isPublic: false })
+      .where(eq(ratingPoolsTable.id, poolId));
+    expect(await listTeamRatings(sanityId)).toEqual([]);
   });
 });
 

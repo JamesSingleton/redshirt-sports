@@ -4,7 +4,7 @@ import { TeamSheet } from "@/components/ratings/team-sheet";
 import type { loadRatingsTeam } from "@/lib/ratings/data";
 import { RATINGS_METHODOLOGY_PATH, ratingsPaths } from "@/lib/ratings/format";
 
-/** A team sheet with its page chrome; shared by the latest and archived URLs. */
+/** The latest team sheet with its page chrome. */
 export function TeamSheetPage({
   data,
 }: {
@@ -18,20 +18,12 @@ export function TeamSheetPage({
   );
   const opponentHref = (schoolId: string) => {
     const slug = slugById.get(schoolId);
-    if (!slug) return null;
-    return model.isLatest
-      ? paths.team(slug)
-      : paths.weekTeam(week.year, week.segment, slug);
+    return slug ? paths.team(slug) : null;
   };
   return (
     <div className="flex flex-col gap-4 py-6">
       <p className="text-muted-foreground text-xs font-medium tracking-[0.18em] uppercase">
-        <Link
-          href={
-            model.isLatest ? paths.latest : paths.week(week.year, week.segment)
-          }
-          className="hover:underline"
-        >
+        <Link href={paths.latest} className="hover:underline">
           {pool.name} ratings · {week.year} {week.label}
         </Link>
       </p>

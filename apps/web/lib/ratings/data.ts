@@ -6,6 +6,7 @@ import {
   listPublicPools,
   listPublishedRunExplanations,
   listPublishedWeeks,
+  listTeamRatings,
   type PublicPool,
   type PublishedRunTeam,
   type PublishedTeamRow,
@@ -90,6 +91,14 @@ export async function getCachedTeamSheet(
   cacheTag(RATINGS_CACHE_TAG, ratingsPoolTag(sport, pool));
   cacheLife(RATINGS_CACHE_LIFE);
   return getPublishedTeamSheet(runId, slug);
+}
+
+/** A team's ratings trend in every public pool, for its team page. */
+export async function getCachedTeamRatings(sanityId: string) {
+  "use cache";
+  cacheTag(RATINGS_CACHE_TAG);
+  cacheLife(RATINGS_CACHE_LIFE);
+  return listTeamRatings(sanityId);
 }
 
 /** Accuracy totals by week and margin bucket, summed in Postgres. */
@@ -185,15 +194,13 @@ export type RatingsTeamModel = Omit<RatingsWeekModel, "rows"> & {
 };
 
 /**
- * One team's sheet in a published week (latest when no year/week), or a 404.
- * Loads that team's row and explanation plus a slug list, not the whole run.
+ * One team's sheet in the latest published week, or a 404. Loads that team's
+ * row and explanation plus a slug list, not the whole run.
  */
 export async function loadRatingsTeam(input: {
   sport: string;
   pool: string;
   slug: string;
-  year?: string;
-  week?: string;
 }): Promise<{ model: RatingsTeamModel; row: PublishedTeamSheetRow }> {
   const { pool, week, weeks } = await resolveRatingsWeek(input);
   const sheet = await getCachedTeamSheet(

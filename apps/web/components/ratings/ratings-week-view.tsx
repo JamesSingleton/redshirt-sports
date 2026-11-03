@@ -17,12 +17,11 @@ export function RatingsWeekView({
   dir?: SortDir;
   basePath: string;
 }) {
-  const { pool, week } = model;
+  const { pool } = model;
   const paths = ratingsPaths(pool.sportSlug, pool.slug);
+  // Past weeks link to the team page, whose ratings trend covers every week.
   const teamHref = (slug: string) =>
-    model.isLatest
-      ? paths.team(slug)
-      : paths.weekTeam(week.year, week.segment, slug);
+    model.isLatest ? paths.team(slug) : `/college/teams/${slug}`;
   return (
     <>
       <JsonLdScript

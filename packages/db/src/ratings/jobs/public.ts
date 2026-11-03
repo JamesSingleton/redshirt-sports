@@ -542,6 +542,115 @@ async function readListPoolPredictionGroups(
   }));
 }
 
+export type TeamRatingsWeek = {
+  segment: string;
+  label: string;
+  sor: number | null;
+  sorRank: number | null;
+  power: number;
+  powerRank: number;
+  sos: number | null;
+  sosRank: number | null;
+};
+
+/** One public pool's ratings for a team across its latest season, oldest week first. */
+export type TeamRatingsHistory = {
+  pool: { slug: string; name: string; sportSlug: string };
+  year: number;
+  /** Teams rated in the latest week, for "#9 of 128". */
+  teamCount: number;
+  weeks: TeamRatingsWeek[];
+};
+
+/**
+ * A team's published ratings in every public pool, latest season only: one
+ * row per published week, for the team page's trend. About 15 rows a season.
+ */
+async function readListTeamRatings(
+  sanityId: string,
+): Promise<TeamRatingsHistory[]> {
+  const rows = await db
+    .select({
+      poolId: ratingPoolsTable.id,
+      poolSlug: ratingPoolsTable.slug,
+      poolName: ratingPoolsTable.name,
+      sportSlug: sportsTable.slug,
+      year: seasonsTable.year,
+      seasonType: seasonTypesTable.type,
+      number: weeksTable.number,
+      sor: ratingSnapshotsTable.sor,
+      sorRank: ratingSnapshotsTable.sorRank,
+      power: ratingSnapshotsTable.power,
+      powerRank: ratingSnapshotsTable.powerRank,
+      sos: ratingSnapshotsTable.sos,
+      sosRank: ratingSnapshotsTable.sosRank,
+      teamCount: sql<number>`(
+        select count(*)::int from ${ratingSnapshotsTable} as all_teams
+        where all_teams.run_id = ${ratingRunsTable.id}
+      )`,
+    })
+    .from(ratingSnapshotsTable)
+    .innerJoin(schoolsTable, eq(schoolsTable.id, ratingSnapshotsTable.schoolId))
+    .innerJoin(
+      ratingRunsTable,
+      eq(ratingRunsTable.id, ratingSnapshotsTable.runId),
+    )
+    .innerJoin(
+      ratingPoolsTable,
+      eq(ratingPoolsTable.id, ratingRunsTable.poolId),
+    )
+    .innerJoin(sportsTable, eq(sportsTable.id, ratingPoolsTable.sportId))
+    .innerJoin(weeksTable, eq(weeksTable.id, ratingRunsTable.weekId))
+    .innerJoin(
+      seasonTypesTable,
+      eq(seasonTypesTable.id, weeksTable.seasonTypeId),
+    )
+    .innerJoin(seasonsTable, eq(seasonsTable.id, ratingRunsTable.seasonId))
+    .where(
+      and(
+        eq(schoolsTable.sanityId, sanityId),
+        eq(ratingRunsTable.status, "published"),
+        eq(ratingPoolsTable.isPublic, true),
+      ),
+    )
+    .orderBy(
+      asc(ratingPoolsTable.slug),
+      asc(seasonsTable.year),
+      asc(weeksTable.startDate),
+    );
+
+  const byPool = new Map<string, typeof rows>();
+  for (const row of rows) {
+    const list = byPool.get(row.poolId) ?? [];
+    list.push(row);
+    byPool.set(row.poolId, list);
+  }
+  return [...byPool.values()].map((poolRows) => {
+    const year = Math.max(...poolRows.map((row) => row.year));
+    const season = poolRows.filter((row) => row.year === year);
+    const first = season[0]!;
+    return {
+      pool: {
+        slug: first.poolSlug,
+        name: first.poolName,
+        sportSlug: first.sportSlug,
+      },
+      year,
+      teamCount: season.at(-1)!.teamCount,
+      weeks: season.map((row) => ({
+        segment: ratingWeekSegment(row.seasonType, row.number),
+        label: ratingWeekLabel(row.seasonType, row.number),
+        sor: row.sor,
+        sorRank: row.sorRank,
+        power: row.power,
+        powerRank: row.powerRank,
+        sos: row.sos,
+        sosRank: row.sosRank,
+      })),
+    };
+  });
+}
+
 /** A pool the public site may show, or null. */
 export function getPublicPool(sportSlug: string, poolSlug: string) {
   return orNothingPublished(() => readGetPublicPool(sportSlug, poolSlug), null);
@@ -549,6 +658,11 @@ export function getPublicPool(sportSlug: string, poolSlug: string) {
 
 export function listPublicPools() {
   return orNothingPublished(() => readListPublicPools(), []);
+}
+
+/** A team's ratings across its latest season in every public pool (see readListTeamRatings). */
+export function listTeamRatings(sanityId: string) {
+  return orNothingPublished(() => readListTeamRatings(sanityId), []);
 }
 
 /** Every published week of a pool, newest first. */

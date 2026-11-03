@@ -8,6 +8,7 @@ const db = vi.hoisted(() => ({
   listPublicPools: vi.fn(),
   listPublishedRunExplanations: vi.fn(),
   listPublishedWeeks: vi.fn(),
+  listTeamRatings: vi.fn(),
 }));
 
 vi.mock("@redshirt-sports/db/ratings", async () => {
@@ -25,6 +26,7 @@ vi.mock("next/navigation", () => ({
 import {
   getCachedPredictionGroups,
   getCachedPublicPools,
+  getCachedTeamRatings,
   loadRatingsSeason,
   loadRatingsSeasonRuns,
   loadRatingsSheets,
@@ -75,6 +77,12 @@ describe("ratings data", () => {
       "pool-1",
       [3, 7, 14, 21],
     );
+  });
+
+  it("loads a team's ratings by its Sanity id", async () => {
+    db.listTeamRatings.mockResolvedValue([]);
+    await expect(getCachedTeamRatings("school-1")).resolves.toEqual([]);
+    expect(db.listTeamRatings).toHaveBeenCalledWith("school-1");
   });
 
   it("lists public pools", async () => {

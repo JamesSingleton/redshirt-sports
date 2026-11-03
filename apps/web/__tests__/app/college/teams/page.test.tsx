@@ -95,6 +95,17 @@ vi.mock("@/components/sanity-image", () => ({
   default: () => <img alt="" />,
 }));
 
+const mockGetCachedTeamRatings = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/ratings/data", () => ({
+  getCachedTeamRatings: mockGetCachedTeamRatings,
+}));
+
+vi.mock("@/components/teams/team-ratings-inline", () => ({
+  TeamRatingsInline: ({ ratings }: { ratings: { pool: { name: string } } }) => (
+    <div data-testid="ratings-inline">{ratings.pool.name}</div>
+  ),
+}));
+
 vi.mock("@/components/teams/team-poll-rank-inline", () => ({
   TeamPollRankInline: () => <div data-testid="football-rank-inline" />,
 }));
@@ -146,6 +157,28 @@ describe("TeamPage", () => {
     mockSanityFetchStaticParams.mockReset();
     mockNotFound.mockClear();
     mockGetCachedSchoolRankingHistory.mockResolvedValue({ polls: [] });
+    mockGetCachedTeamRatings.mockResolvedValue([]);
+  });
+
+  it("shows computer ratings in the matching sport section, even without its posts", async () => {
+    mockSanityFetchPage
+      .mockResolvedValueOnce({ data: sampleSchool })
+      .mockResolvedValueOnce({ data: { posts: [] } });
+    mockGetCachedTeamRatings.mockResolvedValue([
+      { pool: { name: "FCS", slug: "fcs", sportSlug: "football" } },
+    ]);
+
+    const page = await TeamPage({
+      params: Promise.resolve({ slug: "alabama" }),
+    });
+    render(page as ReactNode);
+
+    expect(mockGetCachedTeamRatings).toHaveBeenCalledWith("school-1");
+    expect(screen.getByTestId("ratings-inline")).toHaveTextContent("FCS");
+    expect(screen.getByRole("link", { name: "Football" })).toHaveAttribute(
+      "href",
+      "#football",
+    );
   });
 
   it("generateStaticParams merges post-qualified and ranked slugs", async () => {

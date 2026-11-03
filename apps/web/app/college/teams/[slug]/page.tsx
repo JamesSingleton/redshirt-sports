@@ -32,6 +32,7 @@ import {
   getCachedSchoolHasPollRankings,
   getCachedSchoolRankingHistory,
 } from "@/lib/rankings-data";
+import { getCachedTeamRatings } from "@/lib/ratings/data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { isTeamPageEligible } from "@/lib/team-page-eligibility";
 
@@ -158,7 +159,7 @@ async function renderSchoolTeamPage(
     notFound();
   }
 
-  const [{ data: newsData }, rankingHistory] = await Promise.all([
+  const [{ data: newsData }, rankingHistory, ratings] = await Promise.all([
     sanityFetchPage({
       query: postsBySchoolQuery,
       params: { schoolId: school._id, from: 0, to: TEAM_PAGE_NEWS_FETCH_SIZE },
@@ -166,6 +167,7 @@ async function renderSchoolTeamPage(
       stega,
     }) as Promise<{ data: StegaBranded<PostsBySchoolQueryResult> | null }>,
     getCachedSchoolRankingHistory(school._id),
+    getCachedTeamRatings(school._id),
   ]);
 
   if (
@@ -199,6 +201,7 @@ async function renderSchoolTeamPage(
           school={school}
           posts={posts}
           rankingHistory={rankingHistory}
+          ratings={ratings}
           advertisement={advertisement}
         />
       </div>

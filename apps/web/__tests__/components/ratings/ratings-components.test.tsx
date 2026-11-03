@@ -523,19 +523,9 @@ describe("TeamSheetPage", () => {
     );
   });
 
-  it("links into the archive for an older week, and skips the team page without a slug", () => {
-    const model = teamModel({ isLatest: false });
+  it("skips the team page link without a slug", () => {
+    const model = teamModel();
     render(<TeamSheetPage data={{ model, row: model.rows[2]! }} />);
-    expect(screen.getByText("FCS ratings · 2025 Postseason")).toHaveAttribute(
-      "href",
-      "/college/football/ratings/fcs/2025/postseason",
-    );
-    expect(
-      screen.getAllByRole("link", { name: "North Dakota State" })[0],
-    ).toHaveAttribute(
-      "href",
-      "/college/football/ratings/fcs/2025/postseason/teams/north-dakota-state-bison",
-    );
     expect(screen.queryByText(/team page/)).not.toBeInTheDocument();
   });
 });
@@ -561,7 +551,7 @@ describe("RatingsWeekView", () => {
     ).toBeInTheDocument();
   });
 
-  it("links teams into the archived week when it isn't the latest", () => {
+  it("links teams to their team pages when the week isn't the latest", () => {
     render(
       <RatingsWeekView
         model={weekModel({ isLatest: false })}
@@ -571,7 +561,7 @@ describe("RatingsWeekView", () => {
     );
     expect(screen.getByRole("link", { name: "Montana State" })).toHaveAttribute(
       "href",
-      "/college/football/ratings/fcs/2025/postseason/teams/montana-state-bobcats",
+      "/college/teams/montana-state-bobcats",
     );
   });
 });

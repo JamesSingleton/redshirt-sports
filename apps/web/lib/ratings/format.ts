@@ -13,8 +13,6 @@ export function ratingsPaths(sport: string, pool: string) {
     week: (year: number | string, segment: string) =>
       `${base}/${year}/${segment}`,
     team: (slug: string) => `${base}/teams/${slug}`,
-    weekTeam: (year: number | string, segment: string, slug: string) =>
-      `${base}/${year}/${segment}/teams/${slug}`,
     teamSheets: (year: number | string, segment: string) =>
       `${base}/${year}/${segment}/team-sheets`,
     seasonWorkbook: (year: number | string) =>
