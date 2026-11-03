@@ -16,6 +16,30 @@ vi.mock("@/lib/bracket-data", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/bracket-data")>()),
   getCachedPublishedBracket: mockGetCachedPublishedBracket,
 }));
+vi.mock("@/components/bracket/bracket-edition-picker", () => ({
+  BracketEditionPicker: ({
+    seasons,
+    editions,
+    currentHref,
+  }: {
+    seasons: { year: number; href: string }[];
+    editions: { href: string; label: string }[];
+    currentHref: string;
+  }) => (
+    <ul aria-label="Picker" data-current={currentHref}>
+      {seasons.map((season) => (
+        <li key={season.year} data-href={season.href}>
+          {season.year}
+        </li>
+      ))}
+      {editions.map((option) => (
+        <li key={option.href} data-href={option.href}>
+          {option.label}
+        </li>
+      ))}
+    </ul>
+  ),
+}));
 vi.mock("next/link", () => ({
   __esModule: true,
   default: ({
@@ -56,6 +80,7 @@ describe("BracketPageView", () => {
       <BracketPageView
         model={{
           stats: bracketStats(),
+          seasons: [2026],
           edition,
           view: bracketView(),
           official,
@@ -78,19 +103,21 @@ describe("BracketPageView", () => {
       screen.getByRole("link", { name: "Read how we built this bracket" }),
     ).toHaveAttribute("href", "https://www.redshirtsports.com/week-7");
 
-    const nav = within(
-      screen.getByRole("navigation", { name: "Bracket editions" }),
+    const picker = screen.getByRole("list", { name: "Picker" });
+    expect(picker).toHaveAttribute(
+      "data-current",
+      "/college/football/playoffs/fcs/2026/projections/week-7",
     );
-    expect(nav.getByRole("link", { name: "Official" })).toHaveAttribute(
-      "href",
+    expect(within(picker).getByText("2026")).toHaveAttribute(
+      "data-href",
       "/college/football/playoffs/fcs/2026",
     );
-    expect(nav.getByRole("link", { name: "Week 7" })).toHaveAttribute(
-      "aria-current",
-      "page",
+    expect(within(picker).getByText("Official bracket")).toHaveAttribute(
+      "data-href",
+      "/college/football/playoffs/fcs/2026",
     );
-    expect(nav.getByRole("link", { name: "Week 6" })).toHaveAttribute(
-      "href",
+    expect(within(picker).getByText("Week 6 projection")).toHaveAttribute(
+      "data-href",
       "/college/football/playoffs/fcs/2026/projections/week-6",
     );
 
@@ -106,11 +133,12 @@ describe("BracketPageView", () => {
     ).toBeInTheDocument();
   });
 
-  it("hides the switcher, note and link for a lone official bracket", () => {
+  it("hides the note and link for a lone official bracket", () => {
     render(
       <BracketPageView
         model={{
           stats: bracketStats(),
+          seasons: [2026],
           edition: official,
           view: bracketView(),
           official,
@@ -118,12 +146,17 @@ describe("BracketPageView", () => {
         }}
       />,
     );
-    expect(screen.getByText("Official bracket")).toBeInTheDocument();
-    expect(screen.queryByRole("navigation")).toBeNull();
+    // The page label and the picker option.
+    expect(screen.getAllByText("Official bracket")).toHaveLength(2);
+    expect(
+      within(screen.getByRole("list", { name: "Picker" })).getByText(
+        "Official bracket",
+      ),
+    ).toBeInTheDocument();
     expect(screen.queryByText(/A projection, not the NCAA field/)).toBeNull();
   });
 
-  it("falls back to the full name, and skips the switcher without an official bracket", () => {
+  it("falls back to the full name, and offers no official bracket before one exists", () => {
     const slots = bracketSlots();
     slots[1]!.team.shortName = null;
     slots[2]!.team.name = null;
@@ -132,6 +165,7 @@ describe("BracketPageView", () => {
       <BracketPageView
         model={{
           stats: bracketStats(),
+          seasons: [2026],
           edition,
           view: buildBracketView(FCS_SPEC, slots, []),
           official: null,
@@ -141,7 +175,7 @@ describe("BracketPageView", () => {
     );
     expect(screen.getByText("School 2 University")).toBeInTheDocument();
     expect(screen.getByText("School 3")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Official" })).toBeNull();
+    expect(screen.queryByText("Official bracket")).toBeNull();
   });
 
   it("titles a bracket without a division by its sport", () => {

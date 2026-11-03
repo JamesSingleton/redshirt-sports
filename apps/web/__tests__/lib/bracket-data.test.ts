@@ -26,6 +26,7 @@ import {
   getCachedBracketTeamStats,
   getCachedPublishedBracket,
   loadBracketPage,
+  loadLatestBracketPage,
   parseProjectionWeek,
 } from "@/lib/bracket-data";
 
@@ -49,6 +50,7 @@ describe("bracket data", () => {
       .mockImplementation(async (id: string) =>
         detail([week7, week6, official].find((row) => row.id === id) ?? week7),
       );
+    db.listPublishedBracketSeasons.mockReset().mockResolvedValue([2026]);
     db.getBracketTeamStats.mockReset().mockResolvedValue({
       asOf: { pollWeek: 7, ratingsWeek: 7, ratingsPoolSize: 128 },
       teams: {},
@@ -130,6 +132,28 @@ describe("bracket data", () => {
     await expect(
       loadBracketPage({ sport: "football", division: "fcs", year: "2026" }),
     ).resolves.toMatchObject({ edition: { id: "official" } });
+  });
+
+  it("lands on the newest season's current bracket", async () => {
+    db.listPublishedBracketSeasons.mockResolvedValue([2026, 2025]);
+    const model = await loadLatestBracketPage({
+      sport: "football",
+      division: "fcs",
+    });
+    expect(model.edition.id).toBe("edition-1");
+    expect(model.seasons).toEqual([2026, 2025]);
+    expect(db.getPublishedBracketEditions).toHaveBeenCalledWith({
+      sportSlug: "football",
+      divisionSlug: "fcs",
+      year: 2026,
+    });
+  });
+
+  it("404s the landing page before any bracket is published", async () => {
+    db.listPublishedBracketSeasons.mockResolvedValue([]);
+    await expect(
+      loadLatestBracketPage({ sport: "football", division: "fcs" }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
   it("loads one week's projection", async () => {

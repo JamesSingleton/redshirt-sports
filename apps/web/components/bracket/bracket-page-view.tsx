@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { BracketEditionPicker } from "@/components/bracket/bracket-edition-picker";
 import { BracketExplorer } from "@/components/bracket/bracket-explorer";
 import {
   type BracketPageModel,
@@ -16,11 +15,11 @@ export function bracketTitle(edition: BracketPageModel["edition"]) {
     : `${edition.year} ${sportNavLabel(edition.sportSlug, "")} Playoff Bracket`;
 }
 
-/** Title, edition label, note, article link, edition switcher, bracket. */
+/** Title, edition label, note, article link, season/bracket picker, bracket. */
 export function BracketPageView({ model }: { model: BracketPageModel }) {
-  const { edition, view, stats, official, projections } = model;
+  const { edition, view, stats, official, projections, seasons } = model;
   const paths = bracketPaths(edition.sportSlug, edition.divisionSlug ?? "");
-  const switcher = [...(official ? [official] : []), ...projections];
+  const editions = [...(official ? [official] : []), ...projections];
 
   return (
     <div className="flex flex-col gap-6 pb-12">
@@ -47,33 +46,21 @@ export function BracketPageView({ model }: { model: BracketPageModel }) {
           </p>
         ) : null}
 
-        {switcher.length > 1 ? (
-          <nav aria-label="Bracket editions" className="flex flex-wrap gap-2">
-            {switcher.map((item) => {
-              const active = item.id === edition.id;
-              return (
-                <Link
-                  key={item.id}
-                  href={
-                    item.kind === "official"
-                      ? paths.season(item.year)
-                      : bracketEditionPath(item)
-                  }
-                  aria-current={active ? "page" : undefined}
-                  className={
-                    active
-                      ? "rounded-full border border-foreground bg-foreground px-3 py-1 text-background text-xs font-medium"
-                      : "rounded-full border border-border px-3 py-1 text-xs font-medium hover:bg-muted"
-                  }
-                >
-                  {item.kind === "official"
-                    ? "Official"
-                    : `Week ${item.weekNumber}`}
-                </Link>
-              );
-            })}
-          </nav>
-        ) : null}
+        <BracketEditionPicker
+          seasons={seasons.map((season) => ({
+            year: season,
+            href: paths.season(season),
+          }))}
+          year={edition.year}
+          editions={editions.map((item) => ({
+            href: bracketEditionPath(item),
+            label:
+              item.kind === "official"
+                ? "Official bracket"
+                : `Week ${item.weekNumber} projection`,
+          }))}
+          currentHref={bracketEditionPath(edition)}
+        />
       </header>
 
       <section aria-label="Bracket" className="w-full min-w-0 px-4">

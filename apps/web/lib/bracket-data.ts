@@ -37,6 +37,8 @@ export type BracketPageModel = {
   stats: BracketTeamStatsSet;
   official: BracketEditionSummary | null;
   projections: BracketEditionSummary[];
+  /** Seasons with a published bracket, newest first, for the season picker. */
+  seasons: number[];
 };
 
 export function bracketPaths(sport: string, division: string) {
@@ -163,10 +165,24 @@ export async function loadBracketPage(input: {
   }
   if (!summary) notFound();
 
-  const [published, stats] = await Promise.all([
+  const [published, stats, seasons] = await Promise.all([
     getCachedPublishedBracket(summary.id),
     getCachedBracketTeamStats(summary.id, input.sport, input.division),
+    getCachedBracketSeasons(input.sport, input.division),
   ]);
   if (!published) notFound();
-  return { ...published, stats, ...editions };
+  return { ...published, stats, ...editions, seasons };
+}
+
+/**
+ * The division's front door: the newest season's current bracket, rendered
+ * in place (no redirect). 404s until any bracket is published.
+ */
+export async function loadLatestBracketPage(input: {
+  sport: string;
+  division: string;
+}): Promise<BracketPageModel> {
+  const [latest] = await getCachedBracketSeasons(input.sport, input.division);
+  if (latest === undefined) notFound();
+  return loadBracketPage({ ...input, year: String(latest) });
 }

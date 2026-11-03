@@ -1,66 +1,49 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import {
+  BracketPageView,
+  bracketTitle,
+} from "@/components/bracket/bracket-page-view";
 import { BracketSkeleton } from "@/components/bracket/bracket-skeleton";
-import { bracketPaths, getCachedBracketSeasons } from "@/lib/bracket-data";
+import {
+  bracketEditionLabel,
+  bracketPaths,
+  loadLatestBracketPage,
+} from "@/lib/bracket-data";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 
 type Params = Promise<{ sport: string; division: string }>;
 
-function landingTitle(division: string) {
-  return `${division.toUpperCase()} Playoff Brackets`;
-}
-
+/**
+ * The stable URL for a division's bracket: the newest season's official
+ * bracket once published, else its latest projection. Renders, never
+ * redirects; 404s until any bracket is published.
+ */
 export async function generateMetadata({
   params,
 }: {
   params: Params;
 }): Promise<Metadata> {
   const { sport, division } = await params;
+  const model = await loadLatestBracketPage({ sport, division });
   return getPageMetadata({
-    title: landingTitle(division),
-    description: `Every ${division.toUpperCase()} playoff bracket from Redshirt Sports: weekly projections and the official field.`,
+    title: bracketTitle(model.edition),
+    description: `${bracketEditionLabel(model.edition)}: the full ${bracketTitle(model.edition)}, every seed, matchup and host from Redshirt Sports.`,
     slug: bracketPaths(sport, division).landing,
   });
 }
 
-/** Every season with a published bracket. Renders, never redirects. */
-async function BracketSeasons({ params }: { params: Params }) {
+async function LatestBracket({ params }: { params: Params }) {
   const { sport, division } = await params;
-  const years = await getCachedBracketSeasons(sport, division);
-  if (years.length === 0) notFound();
-  const paths = bracketPaths(sport, division);
-
-  return (
-    <div className="mx-auto flex w-full max-w-site flex-col gap-6 px-4 py-6 pb-12 lg:px-6">
-      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-        {landingTitle(division)}
-      </h1>
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {years.map((year, index) => (
-          <li key={year}>
-            <Link
-              href={paths.season(year)}
-              className="flex flex-col gap-1 rounded-lg border border-border p-4 hover:bg-muted"
-            >
-              <span className="font-display text-xl font-bold">{year}</span>
-              <span className="text-muted-foreground text-sm">
-                {index === 0 ? "Current bracket" : "Final bracket"}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  const model = await loadLatestBracketPage({ sport, division });
+  return <BracketPageView model={model} />;
 }
 
-export default function BracketSeasonsPage({ params }: { params: Params }) {
+export default function LatestBracketPage({ params }: { params: Params }) {
   return (
     <Suspense fallback={<BracketSkeleton />}>
-      <BracketSeasons params={params} />
+      <LatestBracket params={params} />
     </Suspense>
   );
 }

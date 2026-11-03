@@ -9,7 +9,7 @@ import { resolveSuspense } from "@/__tests__/helpers/ratings-fixtures";
 
 const data = vi.hoisted(() => ({
   loadBracketPage: vi.fn(),
-  getCachedBracketSeasons: vi.fn(),
+  loadLatestBracketPage: vi.fn(),
 }));
 const mockGetPageMetadata = vi.hoisted(() => vi.fn((input: unknown) => input));
 
@@ -54,6 +54,7 @@ const model = {
   view: bracketView(),
   official: null,
   projections: [bracketEdition()],
+  seasons: [2026],
 };
 
 describe("playoff bracket pages", () => {
@@ -101,29 +102,18 @@ describe("playoff bracket pages", () => {
     });
   });
 
-  it("lists seasons on the landing page, newest marked current", async () => {
-    data.getCachedBracketSeasons.mockResolvedValue([2026, 2025]);
+  it("renders the latest bracket on the division landing page", async () => {
+    data.loadLatestBracketPage.mockResolvedValue(model);
     const params = Promise.resolve({ sport: "football", division: "fcs" });
     render(await resolveSuspense(LandingPage({ params })));
-    expect(
-      screen.getByRole("heading", { name: "FCS Playoff Brackets" }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /2026/ })).toHaveAttribute(
-      "href",
-      "/college/football/playoffs/fcs/2026",
-    );
-    expect(screen.getByText("Current bracket")).toBeInTheDocument();
-    expect(screen.getByText("Final bracket")).toBeInTheDocument();
-    await expect(landingMetadata({ params })).resolves.toMatchObject({
-      title: "FCS Playoff Brackets",
+    expect(screen.getByTestId("view")).toHaveTextContent("edition-1");
+    expect(data.loadLatestBracketPage).toHaveBeenCalledWith({
+      sport: "football",
+      division: "fcs",
     });
-  });
-
-  it("404s the landing page before any bracket is published", async () => {
-    data.getCachedBracketSeasons.mockResolvedValue([]);
-    const params = Promise.resolve({ sport: "football", division: "fcs" });
-    await expect(resolveSuspense(LandingPage({ params }))).rejects.toThrow(
-      "NEXT_NOT_FOUND",
-    );
+    await expect(landingMetadata({ params })).resolves.toMatchObject({
+      title: "2026 FCS Playoff Bracket",
+      slug: "/college/football/playoffs/fcs",
+    });
   });
 });
