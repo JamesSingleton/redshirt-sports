@@ -278,4 +278,24 @@ describe("POST /api/revalidate-tags", () => {
     });
     expect((await send(["sanity:post"])).status).toBe(400);
   });
+
+  it("accepts bracket cache tags", async () => {
+    vi.resetModules();
+    const { POST } = await import("@/app/api/revalidate-tags/route");
+    const res = await POST(
+      new Request("https://example.com/api/revalidate-tags", {
+        method: "POST",
+        body: JSON.stringify({
+          secret: CACHE_SECRET,
+          cacheTags: ["brackets", "brackets:football:fcs:2026"],
+        }),
+      }) as never,
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockRevalidateTag).toHaveBeenCalledWith(
+      "brackets:football:fcs:2026",
+      { expire: 0 },
+    );
+  });
 });

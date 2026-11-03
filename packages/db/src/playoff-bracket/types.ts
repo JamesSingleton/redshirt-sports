@@ -27,37 +27,6 @@ export type BracketFormatSpec = {
   leagues?: { label: string }[];
 };
 
-export type SkeletonSlot = {
-  slotKey: string;
-  seed: number | null;
-  region: string | null;
-  showSeed: boolean;
-  schoolId: null;
-};
-
-export type SkeletonGame = {
-  gameKey: string;
-  roundKey: string;
-  roundLabel: string;
-  host: BracketHost;
-  sideASlotKey: string | null;
-  sideBSlotKey: string | null;
-  sideAFromGameKey: string | null;
-  sideBFromGameKey: string | null;
-  homeSide: null;
-};
-
-export type Skeleton = {
-  slots: SkeletonSlot[];
-  games: SkeletonGame[];
-};
-
-export type BracketDivisionSeed = {
-  sportSlug: "football";
-  slug: "fcs" | "fbs";
-  label: string;
-};
-
 export type BracketFormatSeed = {
   key: string;
   sportSlug: "football" | "mens-basketball" | "womens-basketball";

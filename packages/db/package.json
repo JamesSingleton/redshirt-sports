@@ -26,6 +26,7 @@
     "./rankings-cache-tags": "./src/rankings-cache-tags.ts",
     "./keys": "./keys.ts",
     "./playoff-bracket": "./src/playoff-bracket/index.ts",
+    "./playoff-bracket/cache-tags": "./src/playoff-bracket/cache-tags.ts",
     "./ratings": "./src/ratings/index.ts",
     "./ratings/cache-tags": "./src/ratings/cache-tags.ts",
     "./ratings/engine": "./src/ratings/engine/index.ts",

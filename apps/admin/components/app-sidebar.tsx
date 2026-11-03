@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
 } from "@redshirt-sports/ui/components/sidebar";
 import {
+  IconBinaryTree,
   IconChartBar,
   IconDatabase,
   IconHome,
@@ -50,6 +51,11 @@ const data = {
       title: "Ratings & SOS",
       url: "/ratings",
       icon: IconChartBar,
+    },
+    {
+      title: "Playoff brackets",
+      url: "/brackets",
+      icon: IconBinaryTree,
     },
     {
       title: "Development",

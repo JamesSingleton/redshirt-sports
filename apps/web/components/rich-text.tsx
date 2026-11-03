@@ -10,6 +10,7 @@ import {
   type PortableTextTypeComponentProps,
 } from "next-sanity";
 
+import { BracketEmbed } from "@/components/bracket/bracket-embed";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { ReactTweet as Tweet } from "@/components/tweet";
 import { PortableTable } from "./portable-table";
@@ -18,6 +19,12 @@ import { YouTubeEmbedComponent } from "./youtube-embed";
 type TwitterEmbedValue = {
   _type: "twitter";
   id: string;
+};
+
+type BracketEmbedValue = {
+  _type: "bracketEmbed";
+  editionId: string;
+  caption?: string;
 };
 
 type YoutubeEmbedValue = {
@@ -135,6 +142,11 @@ export const richTextComponents: Partial<PortableTextReactComponents> = {
       );
     },
     table: ({ value }) => <PortableTable value={value} />,
+    bracketEmbed: ({
+      value,
+    }: PortableTextTypeComponentProps<BracketEmbedValue>) => (
+      <BracketEmbed editionId={value.editionId} caption={value.caption} />
+    ),
     youtubeEmbed: ({
       value,
     }: PortableTextTypeComponentProps<YoutubeEmbedValue>) => {

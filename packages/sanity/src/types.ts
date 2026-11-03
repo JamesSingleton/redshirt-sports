@@ -193,6 +193,12 @@ export type CustomUrl = {
   sportNewsLink?: SportNewsLink;
 };
 
+export type BracketEmbed = {
+  _type: "bracketEmbed";
+  editionId: string;
+  caption?: string;
+};
+
 export type BlockContent = Array<
   | {
       children?: Array<{
@@ -241,6 +247,9 @@ export type BlockContent = Array<
   | ({
       _key: string;
     } & Table)
+  | ({
+      _key: string;
+    } & BracketEmbed)
   | {
       url: string;
       _type: "youtubeEmbed";
@@ -1050,6 +1059,7 @@ export type AllSanitySchemaTypes =
   | AuthorReference
   | LegalReference
   | CustomUrl
+  | BracketEmbed
   | BlockContent
   | Settings
   | SanityImageCrop
@@ -1405,6 +1415,13 @@ export type QueryPostSlugDataResult = {
         level?: number;
         _type: "block";
         _key: string;
+      }
+    | {
+        _key: string;
+        _type: "bracketEmbed";
+        editionId: string;
+        caption?: string;
+        markDefs: null;
       }
     | {
         asset?: SanityImageAssetReference;
@@ -3801,6 +3818,13 @@ export type RssFeedQueryResult = Array<{
         _key: string;
       }
     | {
+        _key: string;
+        _type: "bracketEmbed";
+        editionId: string;
+        caption?: string;
+        markDefs: null;
+      }
+    | {
         asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot: {
@@ -3955,6 +3979,13 @@ export type RssFeedBySportQueryResult = Array<{
         _key: string;
       }
     | {
+        _key: string;
+        _type: "bracketEmbed";
+        editionId: string;
+        caption?: string;
+        markDefs: null;
+      }
+    | {
         asset?: SanityImageAssetReference;
         media?: unknown;
         hotspot: {
@@ -4107,6 +4138,13 @@ export type RssFeedBySportAndDivisionQueryResult = Array<{
         level?: number;
         _type: "block";
         _key: string;
+      }
+    | {
+        _key: string;
+        _type: "bracketEmbed";
+        editionId: string;
+        caption?: string;
+        markDefs: null;
       }
     | {
         asset?: SanityImageAssetReference;

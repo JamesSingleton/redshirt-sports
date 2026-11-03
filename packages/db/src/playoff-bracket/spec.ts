@@ -442,11 +442,6 @@ function basketballSpec(
   };
 }
 
-export const BRACKET_DIVISION_SEEDS = [
-  { sportSlug: "football" as const, slug: "fcs" as const, label: "FCS" },
-  { sportSlug: "football" as const, slug: "fbs" as const, label: "FBS" },
-];
-
 export const BRACKET_FORMAT_SEEDS: BracketFormatSeed[] = [
   {
     key: "fcs-24-seed16-v2024",

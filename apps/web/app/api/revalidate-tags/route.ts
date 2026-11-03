@@ -11,7 +11,9 @@ function isAllowlistedCacheTag(tag: string) {
     tag === "rankings" ||
     tag.startsWith("rankings:") ||
     tag === "ratings" ||
-    tag.startsWith("ratings:")
+    tag.startsWith("ratings:") ||
+    tag === "brackets" ||
+    tag.startsWith("brackets:")
   );
 }
 
@@ -83,7 +85,8 @@ export async function POST(request: NextRequest) {
   if (!cacheTags.every(isAllowlistedCacheTag)) {
     return Response.json(
       {
-        error: "cacheTags must be rankings, rankings:*, ratings, or ratings:*",
+        error:
+          "cacheTags must be rankings, rankings:*, ratings, ratings:*, brackets, or brackets:*",
       },
       { status: 400 },
     );

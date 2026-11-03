@@ -183,6 +183,13 @@
       "when": 1793634473154,
       "tag": "0025_voter_attendance",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1793678715004,
+      "tag": "0026_playoff_bracket_rework",
+      "breakpoints": true
     }
   ]
 }

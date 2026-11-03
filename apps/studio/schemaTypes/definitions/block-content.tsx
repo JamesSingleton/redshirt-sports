@@ -127,6 +127,9 @@ const richTextMembers = [
     type: "table",
   }),
   defineArrayMember({
+    type: "bracketEmbed",
+  }),
+  defineArrayMember({
     name: "youtubeEmbed",
     title: "YouTube Embed",
     type: "object",
