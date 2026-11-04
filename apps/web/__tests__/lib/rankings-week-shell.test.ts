@@ -96,6 +96,18 @@ describe("rankings week shell", () => {
     ).rejects.toThrow("NOT_FOUND");
   });
 
+  it("throws notFound for a week with no published rankings", async () => {
+    await expect(
+      loadRankingsWeekShell({
+        sport: "football",
+        division: "fcs",
+        year: "2026",
+        week: "99",
+        fetchOptions: { perspective: "published", stega: false },
+      }),
+    ).rejects.toThrow("NOT_FOUND");
+  });
+
   it("loadRankingsDivisionShell redirects to latest week", async () => {
     mockGetCachedLatestFinalRankingsBySportSlug.mockResolvedValue([
       { division: "fbs", year: 2026, week: 7 },

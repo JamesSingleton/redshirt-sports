@@ -54,7 +54,12 @@ export async function loadRankingsWeekShell({
     }),
   ]);
 
-  if (!yearsWithVotes.length || !weeksWithVotes.length) {
+  // 404 a week the poll never published (e.g. a guessed `/2026/99`) before
+  // ballots pages fetch its rankings, which would throw "Rankings not found".
+  if (
+    !yearsWithVotes.length ||
+    !weeksWithVotes.some((entry) => entry.week === weekNumber)
+  ) {
     notFound();
   }
 
