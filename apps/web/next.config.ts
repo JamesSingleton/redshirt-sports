@@ -42,7 +42,7 @@ const clerkFrontendApi = "https://electric-alien-91.clerk.accounts.dev";
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
     default-src 'self' vercel.live;
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' vercel.live ${clerkFrontendApi} ${clerkOrigin ?? ""} https://challenges.cloudflare.com https://va.vercel-scripts.com https://*.posthog.com https://*.i.posthog.com;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://p.redshirtsports.com vercel.live ${clerkFrontendApi} ${clerkOrigin ?? ""} https://challenges.cloudflare.com https://va.vercel-scripts.com https://*.posthog.com https://*.i.posthog.com;
     style-src 'self' 'unsafe-inline' https://*.posthog.com https://*.i.posthog.com;
     img-src * blob: data: https://img.clerk.com https://cdn.sanity.io https://*.posthog.com https://*.i.posthog.com;
     media-src 'none';
@@ -83,8 +83,6 @@ const securityHeaders = [
 ];
 
 let nextConfig: NextConfig = {
-  // PostHog reverse proxy (/ingest) requires API paths with trailing slashes.
-  skipTrailingSlashRedirect: true,
   ...config,
   cacheComponents: true,
   partialPrefetching: true,
@@ -182,20 +180,6 @@ let nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      // PostHog reverse proxy: first-party path so ad blockers don't drop events.
-      // https://posthog.com/docs/advanced/proxy/nextjs
-      {
-        source: "/ingest/static/:path*",
-        destination: "https://us-assets.i.posthog.com/static/:path*",
-      },
-      {
-        source: "/ingest/array/:path*",
-        destination: "https://us-assets.i.posthog.com/array/:path*",
-      },
-      {
-        source: "/ingest/:path*",
-        destination: "https://us.i.posthog.com/:path*",
-      },
       // iOS, iMessage previews, and crawlers request these at the root
       // regardless of the <link rel="apple-touch-icon"> tag; serve app/apple-icon.png.
       { source: "/apple-touch-icon.png", destination: "/apple-icon.png" },

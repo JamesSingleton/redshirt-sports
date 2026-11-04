@@ -12,8 +12,8 @@ export const initializeAnalytics = () => {
 
   posthog.init(NEXT_PUBLIC_POSTHOG_KEY, {
     before_send: posthogBeforeSend,
-    // First-party reverse proxy (see rewrites in apps/web/next.config.ts).
-    api_host: "/ingest",
+    // PostHog managed reverse proxy (CNAME p -> PostHog) so ad blockers don't drop events.
+    api_host: "https://p.redshirtsports.com",
     ui_host: "https://us.posthog.com",
     defaults: "2026-01-30",
     capture_dead_clicks: true,
