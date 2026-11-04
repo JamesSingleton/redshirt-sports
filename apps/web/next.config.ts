@@ -42,7 +42,7 @@ const clerkFrontendApi = "https://electric-alien-91.clerk.accounts.dev";
 // https://nextjs.org/docs/advanced-features/security-headers
 const ContentSecurityPolicy = `
     default-src 'self' vercel.live;
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' plausible.io vercel.live ${clerkFrontendApi} ${clerkOrigin ?? ""} https://challenges.cloudflare.com https://va.vercel-scripts.com https://*.posthog.com https://*.i.posthog.com;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://p.redshirtsports.com vercel.live ${clerkFrontendApi} ${clerkOrigin ?? ""} https://challenges.cloudflare.com https://va.vercel-scripts.com https://*.posthog.com https://*.i.posthog.com;
     style-src 'self' 'unsafe-inline' https://*.posthog.com https://*.i.posthog.com;
     img-src * blob: data: https://img.clerk.com https://cdn.sanity.io https://*.posthog.com https://*.i.posthog.com;
     media-src 'none';

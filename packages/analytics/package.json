@@ -6,7 +6,6 @@
     ".": "./index.ts",
     "./instrumentation-client": "./instrumentation-client.ts",
     "./keys": "./keys.ts",
-    "./provider": "./provider.tsx",
     "./server": "./server.ts"
   },
   "scripts": {
@@ -17,7 +16,6 @@
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.13.11",
-    "next-plausible": "^4.0.0",
     "posthog-js": "catalog:",
     "posthog-node": "catalog:",
     "react": "catalog:",

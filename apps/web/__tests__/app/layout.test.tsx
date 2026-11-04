@@ -43,10 +43,6 @@ vi.mock("react-dom", async (importOriginal) => {
   };
 });
 
-vi.mock("@redshirt-sports/analytics/provider", () => ({
-  AnalyticsProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
-}));
-
 vi.mock("@redshirt-sports/sanity/live", () => ({
   PUBLISHED_FETCH_OPTIONS: { perspective: "published", stega: false },
   SanityLive: (props: { waitFor?: string; includeDrafts?: boolean }) => (

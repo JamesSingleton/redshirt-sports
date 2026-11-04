@@ -1,6 +1,5 @@
 import "./styles/redshirt.css";
 
-import { AnalyticsProvider } from "@redshirt-sports/analytics/provider";
 import {
   PUBLISHED_FETCH_OPTIONS,
   SanityLive,
@@ -48,49 +47,47 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <AnalyticsProvider>
-        <body
-          className={`${fontBarlow.variable} ${fontInter.variable} ${fontSourceSerif.variable} flex min-h-screen flex-col font-sans antialiased`}
-        >
-          <Providers>
-            {isDraftMode ? (
-              <Suspense fallback={<NavbarSkeleton />}>
-                <DraftAwareNavbar />
-              </Suspense>
-            ) : (
-              <CachedNavbarServer {...PUBLISHED_FETCH_OPTIONS} />
-            )}
-            <main id="main" className="min-w-0 flex-1 overflow-x-clip">
-              {children}
-            </main>
-            <Suspense fallback={null}>
-              <MetadataConnectionMarker />
-            </Suspense>
-            {isDraftMode ? (
-              <Suspense fallback={<FooterSkeleton />}>
-                <DraftAwareFooter />
-              </Suspense>
-            ) : (
-              <CachedFooterServer {...PUBLISHED_FETCH_OPTIONS} />
-            )}
-          </Providers>
-          <Toaster />
-          <SanityLive includeDrafts={isDraftMode} />
+      <body
+        className={`${fontBarlow.variable} ${fontInter.variable} ${fontSourceSerif.variable} flex min-h-screen flex-col font-sans antialiased`}
+      >
+        <Providers>
           {isDraftMode ? (
-            <>
-              <VisualEditing />
-              <DisableDraftMode />
-            </>
-          ) : null}
-          {isDraftMode ? (
-            <Suspense>
-              <DraftAwareJsonLd />
+            <Suspense fallback={<NavbarSkeleton />}>
+              <DraftAwareNavbar />
             </Suspense>
           ) : (
-            <CachedCombinedJsonLd {...PUBLISHED_FETCH_OPTIONS} />
+            <CachedNavbarServer {...PUBLISHED_FETCH_OPTIONS} />
           )}
-        </body>
-      </AnalyticsProvider>
+          <main id="main" className="min-w-0 flex-1 overflow-x-clip">
+            {children}
+          </main>
+          <Suspense fallback={null}>
+            <MetadataConnectionMarker />
+          </Suspense>
+          {isDraftMode ? (
+            <Suspense fallback={<FooterSkeleton />}>
+              <DraftAwareFooter />
+            </Suspense>
+          ) : (
+            <CachedFooterServer {...PUBLISHED_FETCH_OPTIONS} />
+          )}
+        </Providers>
+        <Toaster />
+        <SanityLive includeDrafts={isDraftMode} />
+        {isDraftMode ? (
+          <>
+            <VisualEditing />
+            <DisableDraftMode />
+          </>
+        ) : null}
+        {isDraftMode ? (
+          <Suspense>
+            <DraftAwareJsonLd />
+          </Suspense>
+        ) : (
+          <CachedCombinedJsonLd {...PUBLISHED_FETCH_OPTIONS} />
+        )}
+      </body>
     </html>
   );
 }

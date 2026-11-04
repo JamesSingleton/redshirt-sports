@@ -12,7 +12,9 @@ export const initializeAnalytics = () => {
 
   posthog.init(NEXT_PUBLIC_POSTHOG_KEY, {
     before_send: posthogBeforeSend,
-    api_host: NEXT_PUBLIC_POSTHOG_HOST,
+    // PostHog managed reverse proxy (CNAME p -> PostHog) so ad blockers don't drop events.
+    api_host: "https://p.redshirtsports.com",
+    ui_host: "https://us.posthog.com",
     defaults: "2026-01-30",
     capture_dead_clicks: true,
     capture_exceptions: true,
