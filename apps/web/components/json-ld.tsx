@@ -86,17 +86,19 @@ export function JsonLdScript<T>({ data, id }: { data: T; id: string }) {
 export function buildSafeImageUrl(
   image?: { asset?: { _ref?: string } } | null,
 ) {
-  return buildCroppedImageUrl(image, 1920, 1080);
-}
-
-function buildCroppedImageUrl(
-  image: { asset?: { _ref?: string } } | null | undefined,
-  width: number,
-  height: number,
-) {
   if (!image?.asset?._ref) {
     return undefined;
   }
+  return buildCroppedImageUrl(image, 1920, 1080);
+}
+
+type ImageWithAsset = { asset?: { _ref?: string } };
+
+function buildCroppedImageUrl(
+  image: ImageWithAsset,
+  width: number,
+  height: number,
+): string {
   return urlFor({ ...image, _id: image.asset?._ref })
     .size(width, height)
     .auto("format")
@@ -190,8 +192,11 @@ export function buildPostPageJsonLd(
   const wordCount = plainText.split(/\s+/).filter(Boolean).length;
   const imageUrl = buildSafeImageUrl(article.image ?? undefined);
   // Google's Article docs recommend 16:9, 4:3 and 1:1 versions of the image.
-  const imageUrl4x3 = buildCroppedImageUrl(article.image, 1200, 900);
-  const imageUrl1x1 = buildCroppedImageUrl(article.image, 1200, 1200);
+  // They share the hero's asset, so they exist exactly when imageUrl does.
+  const extraImageSizes = [
+    { width: 1200, height: 900 },
+    { width: 1200, height: 1200 },
+  ];
   const articleSection = getCollegeSportSection(article.sport);
   const tagNames = getArticleTagNames(article.tags);
   const pageName = article.title
@@ -291,26 +296,19 @@ export function buildPostPageJsonLd(
               alt: article.image?.alt,
               id: imageId,
             }),
-            ...(imageUrl4x3
-              ? [
-                  buildImageObject({
-                    imageUrl: imageUrl4x3,
-                    alt: article.image?.alt,
-                    width: 1200,
-                    height: 900,
-                  }),
-                ]
-              : []),
-            ...(imageUrl1x1
-              ? [
-                  buildImageObject({
-                    imageUrl: imageUrl1x1,
-                    alt: article.image?.alt,
-                    width: 1200,
-                    height: 1200,
-                  }),
-                ]
-              : []),
+            ...extraImageSizes.map(({ width, height }) =>
+              buildImageObject({
+                // imageUrl is only set when article.image has an asset.
+                imageUrl: buildCroppedImageUrl(
+                  article.image as ImageWithAsset,
+                  width,
+                  height,
+                ),
+                alt: article.image?.alt,
+                width,
+                height,
+              }),
+            ),
           ],
           thumbnailUrl: imageUrl,
         }

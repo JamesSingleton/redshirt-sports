@@ -84,6 +84,26 @@ describe("getRootMetadata", () => {
 });
 
 describe("getSEOMetadata", () => {
+  it("brands the title absolutely when the page asks for it", () => {
+    const metadata = getSEOMetadata({
+      title: "College Sports News",
+      slug: "/",
+      includeBrandInTitle: true,
+    });
+
+    // The root layout's title template skips the home page, so the brand
+    // has to be in the absolute title.
+    expect(metadata.title).toEqual({
+      absolute: "College Sports News | Redshirt Sports",
+    });
+  });
+
+  it("leaves the title to the layout template by default", () => {
+    expect(getSEOMetadata({ title: "About", slug: "about" }).title).toBe(
+      "About",
+    );
+  });
+
   it("keeps the site-wide RSS feed when setting a canonical URL", () => {
     const metadata = getSEOMetadata({ slug: "about" });
 
