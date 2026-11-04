@@ -3,7 +3,7 @@ import { Skeleton } from "@redshirt-sports/ui/components/skeleton";
 export default function CollegeTeamsLoading() {
   return (
     <>
-      <div className="border-b bg-gradient-to-b from-muted/60 to-background">
+      <div className="border-b bg-linear-to- from-muted/60 to-background">
         <div className="mx-auto max-w-site px-4 pt-5 pb-6 lg:px-6">
           <Skeleton
             className="h-3 w-40 motion-reduce:animate-none"
@@ -34,11 +34,11 @@ export default function CollegeTeamsLoading() {
             className="h-8 w-12 motion-reduce:animate-none"
             aria-hidden
           />
-          <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr))]">
+          <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))]">
             {Array.from({ length: 8 }).map((_, index) => (
               <Skeleton
                 key={index}
-                className="h-[4.5rem] rounded-xl motion-reduce:animate-none"
+                className="h-18 rounded-xl motion-reduce:animate-none"
                 aria-hidden
               />
             ))}

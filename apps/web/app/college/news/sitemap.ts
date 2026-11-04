@@ -58,6 +58,6 @@ export default async function sitemap(props: {
 
   return posts.map((post) => ({
     url: `${baseUrl}/${post.slug}`,
-    lastModified: post._updatedAt,
+    lastModified: post.lastModified ?? undefined,
   }));
 }

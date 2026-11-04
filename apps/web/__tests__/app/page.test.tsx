@@ -106,6 +106,7 @@ describe("HomePage", () => {
         title: "College Sports News",
         description: "Default site description from CMS.",
         slug: "/",
+        includeBrandInTitle: true,
       },
       "published",
     );

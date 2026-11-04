@@ -84,7 +84,13 @@ async function renderLatestPollPage(
   const year = String(latest.year);
   const weekSegment = formatWeekSegment(latest.week);
   const [model, advertisement] = await Promise.all([
-    loadRankingsWeekPageModel({ sport, division, year, week: weekSegment }),
+    loadRankingsWeekPageModel({
+      sport,
+      division,
+      year,
+      week: weekSegment,
+      pagePath: pollLatestPath(sport, division),
+    }),
     loadAdvertisement({
       placement: "rankings-week-sidebar",
       sportSlugs: [sport],

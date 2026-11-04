@@ -138,6 +138,7 @@ describe("CollegeFootballRankingsPage", () => {
   });
 
   it("generateMetadata builds rankings metadata", async () => {
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
     await generateMetadata({
       params: Promise.resolve({
         sport: "football",
@@ -152,6 +153,21 @@ describe("CollegeFootballRankingsPage", () => {
       }),
       "published",
     );
+  });
+
+  it("generateMetadata 404s a week the poll never published", async () => {
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    await expect(
+      generateMetadata({
+        params: Promise.resolve({
+          sport: "football",
+          division: "fbs",
+          year: "2025",
+          week: "99",
+        }),
+      }),
+    ).rejects.toThrow();
+    expect(mockGetPageMetadata).not.toHaveBeenCalled();
   });
 
   it("keeps the poll tab skeleton as the Suspense fallback during client navigation", async () => {

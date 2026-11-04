@@ -162,6 +162,9 @@ export function HomePageContent({
 
   return (
     <div className="mx-auto max-w-site px-4 lg:px-6" data-testid="home-feed">
+      <h1 className="sr-only">
+        Redshirt Sports: College Football and Basketball News at Every Level
+      </h1>
       <section className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-8">
         <article className="group min-w-0">
           <Link href={`/${lead.slug}`} prefetch={false} className="block">
@@ -178,11 +181,11 @@ export function HomePageContent({
             </div>
           </Link>
           <div className="kicker mt-4 text-primary">{postKicker(lead)}</div>
-          <h1 className="mt-1 font-display text-headline font-extrabold uppercase decoration-4 underline-offset-4 group-hover:underline lg:text-headline-lg">
+          <h2 className="mt-1 font-display text-headline font-extrabold uppercase decoration-4 underline-offset-4 group-hover:underline lg:text-headline-lg">
             <Link href={`/${lead.slug}`} prefetch={false}>
               {lead.title}
             </Link>
-          </h1>
+          </h2>
           {lead.excerpt ? (
             <p className="mt-3 max-w-2xl text-base text-muted-foreground lg:text-lg">
               {lead.excerpt}

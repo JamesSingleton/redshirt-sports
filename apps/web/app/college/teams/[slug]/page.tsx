@@ -47,7 +47,7 @@ function defaultTeamPageTitle({
 }) {
   const teamName = [shortName ?? name, nickname].filter(Boolean).join(" ");
 
-  return `${teamName} Sports Coverage, Recruiting News & Updates`;
+  return `${teamName} News, Rankings and Coverage`;
 }
 
 import { trimMetaDescription } from "@/lib/meta-description";

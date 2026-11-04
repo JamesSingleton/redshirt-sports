@@ -36,7 +36,7 @@ describe("college news sitemap", () => {
 
   it("returns post URLs for the requested chunk", async () => {
     mockSanityFetchMetadata.mockResolvedValue({
-      data: [{ slug: "story-one", _updatedAt: "2026-01-01T00:00:00Z" }],
+      data: [{ slug: "story-one", lastModified: "2026-01-01T00:00:00Z" }],
     });
 
     const urls = await collegeNewsSitemap({ id: Promise.resolve(0) });

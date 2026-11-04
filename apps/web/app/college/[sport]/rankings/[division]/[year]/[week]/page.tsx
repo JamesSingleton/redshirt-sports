@@ -1,15 +1,10 @@
-import {
-  formatWeekSegment,
-  parseWeekSegment,
-  weekTitle,
-} from "@redshirt-sports/clients/espn";
+import { formatWeekSegment, weekTitle } from "@redshirt-sports/clients/espn";
 import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
   PUBLISHED_FETCH_OPTIONS,
 } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 
 import {
   RankingsArchivedWeekNotice,
@@ -23,24 +18,10 @@ import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
   loadRankingsWeekPageModel,
   pollDivisionLabel,
+  requirePublishedPollWeek,
 } from "@/lib/rankings/read-model";
 import { getCachedLatestPublishedPoll } from "@/lib/rankings-data";
 import { sportNavLabel } from "@/lib/sport-nav";
-
-function resolveYearNumber(year: string): number {
-  if (!/^\d{4}$/.test(year)) {
-    notFound();
-  }
-  return Number(year);
-}
-
-function resolveWeekNumber(week: string): number {
-  try {
-    return parseWeekSegment(week);
-  } catch {
-    notFound();
-  }
-}
 
 export async function generateMetadata({
   params,
@@ -54,8 +35,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { division, year, week, sport } = await params;
   const { perspective } = await getDynamicFetchOptions();
-  resolveYearNumber(year);
-  const weekNumber = resolveWeekNumber(week);
+  const { weekNumber } = await requirePublishedPollWeek({
+    division,
+    year,
+    week,
+  });
   const titleWeek = weekTitle(weekNumber);
   const divisionName = pollDivisionLabel(division);
   const sportLabel = sportNavLabel(sport, sport);

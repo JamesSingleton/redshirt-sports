@@ -100,6 +100,14 @@ export const post = defineType({
         "This will be automatically generated when the post is published.",
     }),
     defineField({
+      name: "modifiedAt",
+      type: "datetime",
+      title: "Updated At",
+      group: GROUP.MAIN_CONTENT,
+      description:
+        "Set this only when the story changes in substance (new facts, a tracker update). Typo fixes don't count. Search engines see it as the story's last update.",
+    }),
+    defineField({
       name: "image",
       title: "Image",
       type: "image",

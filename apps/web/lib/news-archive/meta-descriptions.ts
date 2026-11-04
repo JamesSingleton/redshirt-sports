@@ -5,12 +5,12 @@ export function collegeNewsMetaDescription(pageIndex: number): string {
 
   if (pageIndex > 1) {
     return trimMetaDescription(
-      `Page ${pageIndex} of college sports news from ${brand}. More football and basketball coverage, analysis, recruiting notes, and transparent Top 25 rankings updated all season long.`,
+      `Page ${pageIndex} of college football and basketball news from ${brand}, with previews, recaps and analysis at every level.`,
     );
   }
 
   return trimMetaDescription(
-    `Latest college football and basketball news, analysis, and features from ${brand}. Coverage across FBS, FCS, D2, D3, and NAIA with transparent voter ballots on every poll.`,
+    `College football and basketball news from ${brand}, from FBS to Division III and NAIA, with our own Top 25 and every voter's ballot.`,
   );
 }
 
@@ -22,12 +22,12 @@ export function sportNewsMetaDescription(
 
   if (pageIndex > 1) {
     return trimMetaDescription(
-      `Page ${pageIndex} of ${sportLabel} news and analysis from ${brand}. Game previews, roster moves, coaching updates, and in-depth reporting from every division we cover.`,
+      `Page ${pageIndex} of ${sportLabel} news from ${brand}: previews, recaps, coaching changes and analysis at every level.`,
     );
   }
 
   return trimMetaDescription(
-    `Browse the latest ${sportLabel} news, game analysis, recruiting updates, and team coverage from ${brand}. Independent reporting and published Top 25 ballots across NCAA levels.`,
+    `${sportLabel} news from ${brand}: previews, recaps and analysis at every level, plus our own Top 25 with every voter's ballot.`,
   );
 }
 
@@ -38,12 +38,12 @@ export function divisionNewsMetaDescription(
 ): string {
   if (pageIndex > 1) {
     return trimMetaDescription(
-      `More ${divisionName} ${sportTitle} stories on Page ${pageIndex}. Continued coverage of recruiting updates, game previews, injury reports, and in-depth team analysis from Redshirt Sports.`,
+      `Page ${pageIndex} of ${divisionName} ${sportTitle} news from Redshirt Sports: previews, recaps, coaching changes and analysis.`,
     );
   }
 
   return trimMetaDescription(
-    `Complete ${divisionName} ${sportTitle} coverage including breaking news, game analysis, player spotlights, and coaching updates. Your go-to source for ${sportTitle} insights.`,
+    `${divisionName} ${sportTitle} news from Redshirt Sports: game previews, recaps, coaching changes and conference title races.`,
   );
 }
 
@@ -57,11 +57,11 @@ export function conferenceNewsMetaDescription(
 
   if (pageIndex > 1) {
     return trimMetaDescription(
-      `Continue exploring ${conferenceName} ${divisionLabel} ${sportTitle} coverage on Page ${pageIndex}. More detailed articles, updates, and analysis from ${brand}.`,
+      `Page ${pageIndex} of ${conferenceName} ${divisionLabel} ${sportTitle} news from ${brand}: previews, recaps and analysis.`,
     );
   }
 
   return trimMetaDescription(
-    `Stay informed with breaking ${conferenceName} ${divisionLabel} ${sportTitle} news and in-depth analysis. ${brand} delivers comprehensive coverage, articles, and updates you need.`,
+    `${conferenceName} ${divisionLabel} ${sportTitle} news from ${brand}: game previews, recaps, standings races and coaching changes.`,
   );
 }

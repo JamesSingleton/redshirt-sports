@@ -35,9 +35,15 @@ type PostArticle = {
   title?: string | null;
   excerpt?: string | null;
   publishedAt?: string | null;
+  /** Editor-set time of the last substantive update. */
+  modifiedAt?: string | null;
   _updatedAt?: string | null;
   body?: unknown;
-  authors?: Array<{ name?: string | null; slug?: string | null } | null> | null;
+  authors?: Array<{
+    name?: string | null;
+    slug?: string | null;
+    socialLinks?: Record<string, string | null | undefined> | null;
+  } | null> | null;
   image?: {
     alt?: string | null;
     asset?: { _ref?: string };
@@ -76,37 +82,73 @@ export function JsonLdScript<T>({ data, id }: { data: T; id: string }) {
   );
 }
 
+/** 16:9 at the dimensions declared in JSON-LD (1920x1080). */
 export function buildSafeImageUrl(
   image?: { asset?: { _ref?: string } } | null,
+) {
+  return buildCroppedImageUrl(image, 1920, 1080);
+}
+
+function buildCroppedImageUrl(
+  image: { asset?: { _ref?: string } } | null | undefined,
+  width: number,
+  height: number,
 ) {
   if (!image?.asset?._ref) {
     return undefined;
   }
   return urlFor({ ...image, _id: image.asset?._ref })
-    .size(1920, 1080)
-    .dpr(2)
+    .size(width, height)
     .auto("format")
     .quality(80)
     .url();
+}
+
+/**
+ * Logos keep their own aspect ratio (no crop) and are served as PNG so
+ * Google can read them as a publisher or team logo.
+ */
+export function buildLogoUrl(image?: { asset?: { _ref?: string } } | null) {
+  if (!image?.asset?._ref) {
+    return undefined;
+  }
+  return urlFor({ ...image, _id: image.asset?._ref })
+    .width(512)
+    .fit("max")
+    .format("png")
+    .url();
+}
+
+function authorSameAs(
+  socialLinks?: Record<string, string | null | undefined> | null,
+) {
+  const links = Object.values(socialLinks ?? {}).filter(
+    (url): url is string => typeof url === "string" && url.startsWith("http"),
+  );
+  return links.length > 0 ? links : undefined;
 }
 
 function buildImageObject({
   imageUrl,
   alt,
   id,
+  width = 1920,
+  height = 1080,
 }: {
   imageUrl: string;
   alt?: string | null;
-  id: string;
+  id?: string;
+  width?: number;
+  height?: number;
 }): ImageObject {
   return {
     "@type": "ImageObject",
-    "@id": id,
+    ...(id ? { "@id": id } : {}),
     url: imageUrl,
     contentUrl: imageUrl,
     caption: alt ?? undefined,
-    width: "1920",
-    height: "1080",
+    width: String(width),
+    height: String(height),
   } as ImageObject;
 }
 
@@ -147,10 +189,13 @@ export function buildPostPageJsonLd(
   );
   const wordCount = plainText.split(/\s+/).filter(Boolean).length;
   const imageUrl = buildSafeImageUrl(article.image ?? undefined);
+  // Google's Article docs recommend 16:9, 4:3 and 1:1 versions of the image.
+  const imageUrl4x3 = buildCroppedImageUrl(article.image, 1200, 900);
+  const imageUrl1x1 = buildCroppedImageUrl(article.image, 1200, 1200);
   const articleSection = getCollegeSportSection(article.sport);
   const tagNames = getArticleTagNames(article.tags);
   const pageName = article.title
-    ? `${article.title} | ${process.env.NEXT_PUBLIC_APP_NAME}`
+    ? `${article.title} | ${publisher.siteBrand || "Redshirt Sports"}`
     : undefined;
 
   const breadcrumbCrumbs = [
@@ -198,7 +243,7 @@ export function buildPostPageJsonLd(
         }
       : {}),
     datePublished: article.publishedAt ?? undefined,
-    dateModified: article._updatedAt ?? undefined,
+    dateModified: article.modifiedAt ?? article.publishedAt ?? undefined,
     description: article.excerpt ?? undefined,
     breadcrumb: { "@id": breadcrumbId },
     mainEntity: { "@id": articleId },
@@ -227,12 +272,13 @@ export function buildPostPageJsonLd(
             url: author?.slug
               ? `${resolvedBaseUrl}/people/${author.slug}`
               : undefined,
+            sameAs: authorSameAs(author?.socialLinks),
           } as Person;
         })
       : [],
     headline: article.title ?? undefined,
     datePublished: article.publishedAt ?? undefined,
-    dateModified: article._updatedAt ?? undefined,
+    dateModified: article.modifiedAt ?? article.publishedAt ?? undefined,
     description: article.excerpt ?? undefined,
     mainEntityOfPage: { "@id": articleUrl },
     wordCount,
@@ -245,6 +291,26 @@ export function buildPostPageJsonLd(
               alt: article.image?.alt,
               id: imageId,
             }),
+            ...(imageUrl4x3
+              ? [
+                  buildImageObject({
+                    imageUrl: imageUrl4x3,
+                    alt: article.image?.alt,
+                    width: 1200,
+                    height: 900,
+                  }),
+                ]
+              : []),
+            ...(imageUrl1x1
+              ? [
+                  buildImageObject({
+                    imageUrl: imageUrl1x1,
+                    alt: article.image?.alt,
+                    width: 1200,
+                    height: 1200,
+                  }),
+                ]
+              : []),
           ],
           thumbnailUrl: imageUrl,
         }
@@ -315,7 +381,7 @@ export function buildTeamPageJsonLd(school: TeamSchool) {
   const teamName = [school.shortName ?? school.name, school.nickname]
     .filter(Boolean)
     .join(" ");
-  const logoUrl = buildSafeImageUrl(school.image ?? undefined);
+  const logoUrl = buildLogoUrl(school.image ?? undefined);
   const sports =
     school.conferenceAffiliations
       ?.map((affiliation) => affiliation?.sport?.title)
@@ -456,26 +522,15 @@ export function WebSiteJsonLd({ settings }: { settings: any }) {
     "@type": "WebSite",
     "@id": websiteId,
     url: resolvedBaseUrl,
-    name: settings.siteTitle,
+    // Google reads the site name shown in results from WebSite.name, so this
+    // is the brand, not the tagline (settings.siteTitle).
+    name: settings.siteBrand || "Redshirt Sports",
+    alternateName: ["Redshirt", "redshirtsports.com"],
     description: settings.siteDescription || undefined,
+    inLanguage: "en-US",
     publisher: {
       "@id": organizationId,
     },
-    potentialAction: [
-      {
-        "@type": "SearchAction",
-        target: {
-          "@type": "EntryPoint",
-          urlTemplate: `${resolvedBaseUrl}/search?q={search_term_string}`,
-        },
-        // @ts-expect-error query-input is a valid property
-        "query-input": {
-          "@type": "PropertyValueSpecification",
-          valueRequired: true,
-          valueName: "search_term_string",
-        },
-      },
-    ],
   };
 
   return <JsonLdScript data={webSiteJsonLd} id="website-json-ld" />;

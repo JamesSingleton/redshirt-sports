@@ -40,7 +40,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const weekEntries: MetadataRoute.Sitemap = [];
 
   const publishedWeeks = await fetchPublishedWeeksForSitemap();
-  for (const { year, week, division, sport: sportSlug } of publishedWeeks) {
+  for (const {
+    year,
+    week,
+    division,
+    sport: sportSlug,
+    publishedAt,
+  } of publishedWeeks) {
     const sport = SPORT_SLUG_MAP[sportSlug];
     if (!sport) continue;
 
@@ -51,6 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     weekEntries.push({
       url: `${baseUrl}/college/${sport}/rankings/${division}/${year}/${formatWeekSegment(week)}`,
       priority: 0.7,
+      ...(publishedAt ? { lastModified: publishedAt } : {}),
     });
   }
 

@@ -18,6 +18,22 @@ export default defineBlueprint({
       },
     }),
     defineDocumentFunction({
+      name: "modified-at",
+      src: "./functions/modified-at",
+      memory: 1,
+      timeout: 10,
+      event: {
+        // Published posts only fire `update` on publish, not draft autosaves.
+        // `before().publishedAt` skips the first publish. Watching only title
+        // and body means this function's own modifiedAt write can't re-trigger it.
+        on: ["update"],
+        filter:
+          "_type == 'post' && defined(before().publishedAt) && (delta::changedAny(title) || delta::changedAny(body))",
+        projection:
+          "{_id, publishedAt, 'titleChanged': before().title != after().title, 'beforeText': pt::text(before().body), 'afterText': pt::text(after().body)}",
+      },
+    }),
+    defineDocumentFunction({
       name: "auto-redirect",
       src: "./functions/auto-redirect",
       memory: 2,

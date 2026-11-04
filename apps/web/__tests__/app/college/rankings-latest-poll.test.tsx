@@ -120,6 +120,7 @@ describe("LatestPollPage", () => {
       division: "fcs",
       year: "2026",
       week: "8",
+      pagePath: "/college/football/rankings/fcs",
     });
     expect(screen.getByTestId("rankings-latest-context")).toHaveTextContent(
       "Latest poll: 2026 Week 8 · Published Oct 26, 2026 · See all weeks",
