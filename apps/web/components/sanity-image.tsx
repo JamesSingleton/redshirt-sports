@@ -4,6 +4,7 @@ import {
   SANITY_BASE_URL,
   type SanityImageProps,
 } from "@redshirt-sports/sanity/image";
+import type { ComponentProps } from "react";
 import {
   SanityImage as BaseSanityImage,
   type WrapperProps,
@@ -28,8 +29,41 @@ type CustomSanityImageProps = SanityImageProps & {
   priority?: boolean;
 };
 
+type PreviewAwareImgProps = ComponentProps<"img"> & {
+  "data-alt"?: string;
+  "data-lqip"?: boolean;
+};
+
+/**
+ * Element for sanity-image's `as` prop. With a `preview` (LQIP), the library
+ * puts the alt text on the blurred placeholder and renders the real image
+ * with `alt=""` until it loads in the browser. The server HTML that crawlers
+ * get has no alt on the image that matters, and images that never load (lazy
+ * images on a page Next keeps mounted but hidden for back navigation) keep
+ * `alt=""` for good. The placeholder is decorative, so it gets `alt=""`; the
+ * real image always carries the alt text, passed through `data-alt` because
+ * the library overrides `alt` on it. `SanityImage` always sets `data-alt`.
+ */
+function PreviewAwareImg({
+  "data-alt": dataAlt,
+  "data-lqip": isPlaceholder,
+  alt: _libraryAlt,
+  ...props
+}: PreviewAwareImgProps) {
+  if (isPlaceholder) {
+    return <img {...props} alt="" aria-hidden="true" data-lqip />;
+  }
+  return <img {...props} alt={dataAlt} />;
+}
+
 function ImageWrapper(props: WrapperProps<"img">) {
-  return <BaseSanityImage baseUrl={SANITY_BASE_URL} {...props} />;
+  return (
+    <BaseSanityImage
+      as={PreviewAwareImg}
+      baseUrl={SANITY_BASE_URL}
+      {...props}
+    />
+  );
 }
 
 /**
@@ -127,6 +161,7 @@ export function SanityImage({
           : {})}
       sizes={sizes}
       alt={resolvedAlt}
+      data-alt={resolvedAlt}
       queryParams={{ ...queryParams, q: quality }}
     />
   );
