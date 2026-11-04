@@ -1,17 +1,6 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 import { YouTubeEmbedComponent } from "@/components/youtube-embed";
-
-vi.mock("react-player", () => ({
-  __esModule: true,
-  default: ({ src, playing }: { src: string; playing?: boolean }) => (
-    <div
-      data-testid="react-player"
-      data-src={src}
-      data-playing={String(playing)}
-    />
-  ),
-}));
 
 describe("YouTubeEmbedComponent", () => {
   it("renders an error state for empty URLs", () => {
@@ -29,49 +18,57 @@ describe("YouTubeEmbedComponent", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows a loading state before mount", () => {
-    render(
+  it("does not load YouTube until the reader clicks play", () => {
+    const { container } = render(
       <YouTubeEmbedComponent url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" />,
     );
 
-    expect(screen.getByText("Loading video player...")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /play video/i }),
+    ).toBeInTheDocument();
+    expect(container.querySelector("iframe")).toBeNull();
   });
 
-  it("renders the player after mount for supported URLs", async () => {
-    render(
+  it("loads the privacy-enhanced player after the click", () => {
+    const { container } = render(
       <YouTubeEmbedComponent
         url="https://youtu.be/dQw4w9WgXcQ"
-        autoplay
+        title="Game highlights"
         className="custom-player"
       />,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId("react-player")).toBeInTheDocument();
-    });
+    fireEvent.click(screen.getByRole("button", { name: /play video/i }));
 
-    expect(screen.getByTestId("react-player")).toHaveAttribute(
-      "data-src",
-      "https://youtu.be/dQw4w9WgXcQ",
+    const iframe = container.querySelector("iframe");
+    expect(iframe).not.toBeNull();
+    expect(iframe).toHaveAttribute(
+      "src",
+      "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0",
     );
-    expect(screen.getByTestId("react-player")).toHaveAttribute(
-      "data-playing",
-      "true",
-    );
+    expect(iframe).toHaveAttribute("title", "Game highlights");
+    expect(container.firstChild).toHaveClass("custom-player");
   });
 
-  it("parses YouTube shorts URLs", async () => {
-    render(
-      <YouTubeEmbedComponent url="https://www.youtube.com/shorts/abc123xyz" />,
+  it("loads immediately when autoplay is requested", () => {
+    const { container } = render(
+      <YouTubeEmbedComponent url="https://youtu.be/dQw4w9WgXcQ" autoplay />,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId("react-player")).toBeInTheDocument();
-    });
+    expect(container.querySelector("iframe")).not.toBeNull();
   });
 
-  it("returns null for whitespace-only URLs before parsing", () => {
-    render(<YouTubeEmbedComponent url="" />);
-    expect(screen.getByText("Invalid YouTube URL")).toBeInTheDocument();
+  it("parses YouTube shorts URLs", () => {
+    const { container } = render(
+      <YouTubeEmbedComponent
+        url="https://www.youtube.com/shorts/abc123xyz"
+        autoplay
+      />,
+    );
+
+    expect(container.querySelector("iframe")).toHaveAttribute(
+      "src",
+      expect.stringContaining("/embed/abc123xyz"),
+    );
   });
 });

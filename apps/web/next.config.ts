@@ -48,7 +48,7 @@ const ContentSecurityPolicy = `
     media-src 'none';
     connect-src * ${clerkFrontendApi} ${clerkOrigin ?? ""};
     font-src 'self' fonts.gstatic.com https://*.posthog.com https://*.i.posthog.com;
-    frame-src 'self' https://challenges.cloudflare.com https://vercel.live https://www.youtube.com;
+    frame-src 'self' https://challenges.cloudflare.com https://vercel.live https://www.youtube-nocookie.com;
     frame-ancestors ${sanityStudioOrigins};
     worker-src 'self' blob:;
 `;
