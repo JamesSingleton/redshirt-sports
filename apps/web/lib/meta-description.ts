@@ -1,7 +1,7 @@
 import { SITE_BRAND } from "@/lib/seo";
 
-/** Google typically displays ~150–160 characters in SERP snippets. */
-export const META_DESCRIPTION_MAX_LENGTH = 160;
+/** House rule: seoDescription is 155 characters or fewer. */
+export const META_DESCRIPTION_MAX_LENGTH = 155;
 
 export function getBrandName() {
   return process.env.NEXT_PUBLIC_APP_NAME ?? SITE_BRAND;

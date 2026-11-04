@@ -6,6 +6,7 @@ import {
   eq,
   getTableColumns,
   inArray,
+  max,
   sql,
 } from "drizzle-orm";
 
@@ -593,12 +594,14 @@ export async function getVotesForPollWeekByVoter({
 
 export async function getYearsWithVotes() {
   const rows = await db
-    .selectDistinct({
+    .select({
       year: seasonsTable.year,
       weekNumber: weeksTable.number,
       seasonType: seasonTypesTable.type,
       division: pollsTable.slug,
       sport: sportsTable.slug,
+      // When the week's rankings were published; the sitemap's lastmod.
+      publishedAt: max(pollRankingsTable.createdAt),
     })
     .from(pollRankingsTable)
     .innerJoin(pollsTable, eq(pollRankingsTable.pollId, pollsTable.id))
@@ -608,13 +611,21 @@ export async function getYearsWithVotes() {
       seasonTypesTable,
       eq(weeksTable.seasonTypeId, seasonTypesTable.id),
     )
-    .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id));
+    .innerJoin(seasonsTable, eq(seasonTypesTable.seasonId, seasonsTable.id))
+    .groupBy(
+      seasonsTable.year,
+      weeksTable.number,
+      seasonTypesTable.type,
+      pollsTable.slug,
+      sportsTable.slug,
+    );
 
   return rows.map((row) => ({
     year: row.year,
     week: seasonTypeAndNumberToLegacyWeek(row.seasonType, row.weekNumber),
     division: row.division,
     sport: row.sport,
+    publishedAt: row.publishedAt,
   }));
 }
 

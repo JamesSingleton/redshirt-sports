@@ -14,7 +14,8 @@ import { notFound } from "next/navigation";
 import { toPlainText } from "next-sanity";
 
 import { ArticlePageContent } from "@/components/article/article-page-content";
-import { buildSafeImageUrl, PostPageJsonLd } from "@/components/json-ld";
+import ArticleLoadingSkeleton from "@/components/article-loading-skeleton";
+import { buildLogoUrl, PostPageJsonLd } from "@/components/json-ld";
 import { DirectionalPageTransition } from "@/components/view-transitions/directional-page-transition";
 import { loadAdvertisement } from "@/lib/advertisement";
 import { getArticleTagNames } from "@/lib/article-seo";
@@ -82,7 +83,7 @@ export async function generateMetadata({
       articleSection: getCollegeSportSection(data.sport),
       articleTags,
       publishedTime: data.publishedAt ?? undefined,
-      modifiedTime: data._updatedAt ?? undefined,
+      modifiedTime: data.modifiedAt ?? data.publishedAt ?? undefined,
     },
     perspective,
   );
@@ -93,9 +94,14 @@ export default async function PostPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  return draftAwareParamsPage(params, null, renderPostPage, {
-    prerenderPublished: true,
-  });
+  return draftAwareParamsPage(
+    params,
+    <ArticleLoadingSkeleton />,
+    renderPostPage,
+    {
+      prerenderPublished: true,
+    },
+  );
 }
 
 async function renderPostPage(
@@ -138,7 +144,7 @@ async function renderPostPage(
         article={data}
         publisher={{
           siteBrand: settings?.siteBrand,
-          logo: buildSafeImageUrl(settings?.logo),
+          logo: buildLogoUrl(settings?.logo),
         }}
       />
       <ArticlePageContent

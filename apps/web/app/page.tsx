@@ -33,6 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: settings?.siteTitle,
       description: settings?.siteDescription,
       slug: "/",
+      includeBrandInTitle: true,
     },
     perspective,
   );

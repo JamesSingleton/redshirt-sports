@@ -1,5 +1,8 @@
 export type { RankingsWeekPageModel } from "@/lib/rankings/read-model/week-page-model";
-export { loadRankingsWeekPageModel } from "@/lib/rankings/read-model/week-page-model";
+export {
+  loadRankingsWeekPageModel,
+  requirePublishedPollWeek,
+} from "@/lib/rankings/read-model/week-page-model";
 export {
   loadRankingsDivisionShell,
   loadRankingsWeekShell,

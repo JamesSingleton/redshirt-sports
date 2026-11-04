@@ -24,6 +24,31 @@ describe("rankings sitemap", () => {
     mockGetLatestFinalRankings.mockReset().mockResolvedValue(undefined);
   });
 
+  it("dates each week URL by when its rankings were published", async () => {
+    const publishedAt = new Date("2026-10-26T15:00:00Z");
+    mockGetYearsWithVotes.mockResolvedValue([
+      { year: 2026, week: 8, division: "fcs", sport: "football", publishedAt },
+      {
+        year: 2026,
+        week: 7,
+        division: "fcs",
+        sport: "football",
+        publishedAt: null,
+      },
+    ]);
+
+    const entries = await sitemap();
+    const week8 = entries.find((entry) =>
+      entry.url.endsWith("/college/football/rankings/fcs/2026/8"),
+    );
+    const week7 = entries.find((entry) =>
+      entry.url.endsWith("/college/football/rankings/fcs/2026/7"),
+    );
+
+    expect(week8?.lastModified).toEqual(publishedAt);
+    expect(week7).not.toHaveProperty("lastModified");
+  });
+
   it("lists every sport's published rankings pages", async () => {
     mockGetYearsWithVotes.mockResolvedValue([
       { year: 2025, week: 0, division: "fbs", sport: "football" },

@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ).data as SchoolSlugsByIdsQueryResult | null)
       : [];
 
-  const bySlug = new Map<string, { slug: string; _updatedAt: string }>();
+  const bySlug = new Map<string, { slug: string; lastModified: string }>();
   for (const school of postQualified ?? []) {
     bySlug.set(school.slug, school);
   }
@@ -48,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const existing = bySlug.get(school.slug);
     if (
       !existing ||
-      new Date(school._updatedAt) > new Date(existing._updatedAt)
+      new Date(school.lastModified) > new Date(existing.lastModified)
     ) {
       bySlug.set(school.slug, school);
     }
@@ -62,7 +62,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...[...bySlug.values()].map((school) => ({
       url: `${baseUrl}/college/teams/${school.slug}`,
-      lastModified: new Date(school._updatedAt),
+      lastModified: new Date(school.lastModified),
       changeFrequency: "weekly" as const,
       priority: 0.5,
     })),

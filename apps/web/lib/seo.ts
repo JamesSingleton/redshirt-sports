@@ -9,7 +9,7 @@ export const SITE_BRAND = "Redshirt Sports";
 export const DEFAULT_META_TITLE =
   "College Sports News & Analysis at All Levels";
 export const DEFAULT_META_DESCRIPTION =
-  "Redshirt Sports is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.";
+  "Redshirt Sports covers college football and basketball at every level, from FBS to Division III, with our own Top 25, previews, recaps and projections.";
 export const OG_LOCALE = "en_US";
 export const OG_COUNTRY_NAME = "United States";
 
@@ -59,6 +59,12 @@ export interface PageMetadataInput {
   publishedTime?: string;
   modifiedTime?: string;
   noIndex?: boolean;
+  /**
+   * Render "title | brand" as an absolute title. Needed on the home page:
+   * the root layout's title template only applies to child segments, so the
+   * home page title otherwise ships without the brand.
+   */
+  includeBrandInTitle?: boolean;
   /** Section feeds to advertise ahead of the site-wide feed, most specific first. */
   rssFeeds?: RssFeedLink[];
 }
@@ -165,6 +171,7 @@ export function getSEOMetadata(data: PageMetadataInput = {}): Metadata {
     publishedTime,
     modifiedTime,
     noIndex,
+    includeBrandInTitle,
     rssFeeds,
   } = data ?? {};
 
@@ -192,7 +199,7 @@ export function getSEOMetadata(data: PageMetadataInput = {}): Metadata {
   const resolvedOgType = ogType ?? "website";
 
   return {
-    title: metaTitle,
+    title: includeBrandInTitle ? { absolute: fullTitle } : metaTitle,
     description: metaDescription,
     alternates: {
       canonical: pageUrl,

@@ -20,7 +20,7 @@ export async function GET() {
   return createRssResponse({
     feed: getSiteFeed(),
     description:
-      "Redshirt Sports is your go to resource for comprehensive college football and basketball coverage. Get in-depth analysis and insights across all NCAA divisions.",
+      "Redshirt Sports covers college football and basketball at every level, from FBS to Division III, with our own Top 25, previews, recaps and projections.",
     pagePath: "/college/news",
     posts: await fetchPostsForFeed(),
   });

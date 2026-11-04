@@ -8,9 +8,22 @@ export const seoFields = [
     name: "seoTitle",
     title: "SEO meta title override",
     description:
-      "This will override the meta title. If left blank it will inherit the page title.",
+      'Shown in search results. 60 characters or fewer, with no site name: the site adds " | Redshirt Sports". If left blank, the full headline is used, which often runs too long.',
     type: "string",
-    validation: (rule) => rule.warning("A page title is required"),
+    validation: (rule) => [
+      // A custom warning, not required(): older posts have no seoTitle, and
+      // required() would also make the generated type non-optional.
+      rule
+        .custom((value) =>
+          value
+            ? true
+            : "Add an SEO title so search results don't use the full headline",
+        )
+        .warning(),
+      rule
+        .max(60)
+        .error('60 characters or fewer (the site adds " | Redshirt Sports")'),
+    ],
     group: GROUP.SEO,
     components: {
       input: CharacterCountInput,
@@ -24,8 +37,10 @@ export const seoFields = [
     type: "text",
     rows: 2,
     validation: (rule) => [
-      rule.warning("A description is required"),
-      rule.max(160).warning("No more than 160 characters"),
+      rule
+        .custom((value) => (value ? true : "A description is required"))
+        .warning(),
+      rule.max(155).error("155 characters or fewer"),
     ],
     group: GROUP.SEO,
     components: {

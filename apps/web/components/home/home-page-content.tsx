@@ -162,7 +162,13 @@ export function HomePageContent({
 
   return (
     <div className="mx-auto max-w-site px-4 lg:px-6" data-testid="home-feed">
-      <section className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-8">
+      {/* The page's H1, visible but small so it doesn't compete with the
+          lead story. Outline: H1 site, H2 sections (and the lead story),
+          H3 stories. */}
+      <h1 className="kicker pt-5 text-muted-foreground">
+        College football and basketball news at every level
+      </h1>
+      <section className="grid gap-6 pt-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-8">
         <article className="group min-w-0">
           <Link href={`/${lead.slug}`} prefetch={false} className="block">
             <div className="relative aspect-[16/9] overflow-hidden rounded-xl lg:aspect-[2/1]">
@@ -178,11 +184,11 @@ export function HomePageContent({
             </div>
           </Link>
           <div className="kicker mt-4 text-primary">{postKicker(lead)}</div>
-          <h1 className="mt-1 font-display text-headline font-extrabold uppercase decoration-4 underline-offset-4 group-hover:underline lg:text-headline-lg">
+          <h2 className="mt-1 font-display text-headline font-extrabold uppercase decoration-4 underline-offset-4 group-hover:underline lg:text-headline-lg">
             <Link href={`/${lead.slug}`} prefetch={false}>
               {lead.title}
             </Link>
-          </h1>
+          </h2>
           {lead.excerpt ? (
             <p className="mt-3 max-w-2xl text-base text-muted-foreground lg:text-lg">
               {lead.excerpt}
@@ -209,7 +215,7 @@ export function HomePageContent({
           </div>
         </article>
         <div className="grid min-w-0 content-start gap-4 lg:border-l lg:pl-8">
-          <div className="kicker text-muted-foreground">Top stories</div>
+          <h2 className="kicker text-muted-foreground">Top stories</h2>
           {topStories.map((post) => (
             <article
               key={post._id}
@@ -233,11 +239,11 @@ export function HomePageContent({
               </Link>
               <div>
                 <div className="kicker text-primary">{postKicker(post)}</div>
-                <h2 className="mt-1 font-display text-lg font-bold leading-tight group-hover:underline">
+                <h3 className="mt-1 font-display text-lg font-bold leading-tight group-hover:underline">
                   <Link href={`/${post.slug}`} prefetch={false}>
                     {post.title}
                   </Link>
-                </h2>
+                </h3>
                 <div className="mt-1 text-sm text-muted-foreground">
                   {post.authors?.[0]?.name}
                   {post.publishedAt ? (

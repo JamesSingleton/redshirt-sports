@@ -42,19 +42,16 @@ vi.mock("next-sanity", async (importOriginal) => {
   };
 });
 
-vi.mock("@redshirt-sports/sanity/client", () => ({
-  urlFor: () => ({
-    size: () => ({
-      dpr: () => ({
-        auto: () => ({
-          quality: () => ({
-            url: () => "https://cdn.sanity.io/test.jpg",
-          }),
-        }),
-      }),
-    }),
-  }),
-}));
+vi.mock("@redshirt-sports/sanity/client", () => {
+  // Chainable image-URL builder: every transform returns the builder.
+  const builder: Record<string, unknown> = {
+    url: () => "https://cdn.sanity.io/test.jpg",
+  };
+  for (const method of ["size", "width", "fit", "format", "auto", "quality"]) {
+    builder[method] = () => builder;
+  }
+  return { urlFor: () => builder };
+});
 
 import { render } from "@testing-library/react";
 
@@ -103,6 +100,43 @@ describe("buildSafeImageUrl", () => {
 });
 
 describe("buildPostPageJsonLd", () => {
+  it("dates, images and authors follow Google's Article guidance", () => {
+    const data = buildPostPageJsonLd({
+      ...sampleArticle,
+      modifiedAt: "2026-01-05T00:00:00Z",
+      authors: [
+        {
+          name: "Jane Doe",
+          slug: "jane-doe",
+          socialLinks: { twitter: "https://x.com/janedoe", bluesky: null },
+        },
+      ],
+    });
+    const article = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "NewsArticle",
+    ) as Record<string, unknown> | undefined;
+
+    // dateModified is the editor-set update time, not Sanity's _updatedAt.
+    expect(article?.dateModified).toBe("2026-01-05T00:00:00Z");
+    expect(article?.author).toEqual([
+      expect.objectContaining({ sameAs: ["https://x.com/janedoe"] }),
+    ]);
+    const images = article?.image as Array<Record<string, string>>;
+    expect(images.map((image) => `${image.width}x${image.height}`)).toEqual([
+      "1920x1080",
+      "1200x900",
+      "1200x1200",
+    ]);
+  });
+
+  it("falls back to publishedAt for dateModified", () => {
+    const data = buildPostPageJsonLd(sampleArticle);
+    const article = data?.["@graph"]?.find(
+      (node) => typeof node === "object" && node?.["@type"] === "NewsArticle",
+    ) as Record<string, unknown> | undefined;
+    expect(article?.dateModified).toBe("2026-01-01T00:00:00Z");
+  });
+
   it("builds a linked article graph with sport section and tags", () => {
     const data = buildPostPageJsonLd(sampleArticle, {
       siteBrand: "Redshirt Sports",
@@ -430,7 +464,8 @@ describe("WebSiteJsonLd", () => {
     const { container } = render(
       <WebSiteJsonLd
         settings={{
-          siteTitle: "Redshirt Sports",
+          siteBrand: "Redshirt Sports",
+          siteTitle: "College Sports News & Analysis at All Levels",
           siteDescription: "College sports coverage",
         }}
       />,
@@ -440,8 +475,10 @@ describe("WebSiteJsonLd", () => {
     const data = JSON.parse(script?.textContent ?? "{}");
 
     expect(data["@type"]).toBe("WebSite");
+    // Google's site name comes from WebSite.name: the brand, not the tagline.
     expect(data.name).toBe("Redshirt Sports");
-    expect(data.potentialAction[0].target.urlTemplate).toContain("/search?q=");
+    expect(data.alternateName).toContain("redshirtsports.com");
+    expect(data.potentialAction).toBeUndefined();
   });
 });
 

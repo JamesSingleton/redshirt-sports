@@ -102,7 +102,7 @@ vi.mock("@redshirt-sports/sanity/client", () => ({
 
 vi.mock("@/components/json-ld", () => ({
   PostPageJsonLd: () => <script data-testid="post-json-ld" />,
-  buildSafeImageUrl: () => "https://example.com/image.jpg",
+  buildLogoUrl: () => "https://example.com/image.jpg",
 }));
 
 vi.mock("@/components/article-loading-skeleton", () => ({

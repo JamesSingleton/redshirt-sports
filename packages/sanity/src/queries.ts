@@ -7,7 +7,7 @@ export const querySettingsData = defineQuery(/* groq */ `
     siteBrand,
     siteTitle,
     siteDescription,
-    "logo": logo.asset->url + "?w=80&h=40&dpr=3&fit=max",
+    "logo": logo.asset->url + "?w=512&fm=png&fit=max",
     "socialLinks": socialLinks,
     "contactEmail": contactEmail,
   }
@@ -1147,7 +1147,9 @@ export const postsForSitemapQuery = groq`
     _id,
     "slug": slug.current,
     publishedAt,
-    _updatedAt
+    // Editorial update time, not _updatedAt: bulk edits and typo fixes bump
+    // _updatedAt, and Google stops trusting lastmod that moves without cause.
+    "lastModified": coalesce(modifiedAt, publishedAt)
   }
 `;
 
@@ -1300,7 +1302,8 @@ export const postsByStoryTypeQuery = defineQuery(/* groq */ `
 export const schoolSlugsForSitemapQuery = groq`
   *[_type == "school" && defined(slug.current) && count(*[${publishedPostsTaggingSchoolFromParentFilter}]) >= $minPosts]{
     "slug": slug.current,
-    _updatedAt
+    // A team hub changes when a story about the school is published.
+    "lastModified": coalesce(*[${publishedPostsTaggingSchoolFromParentFilter}] | order(publishedAt desc)[0].publishedAt, _updatedAt)
   }
 `;
 
@@ -1309,7 +1312,7 @@ export const schoolSlugsByIdsQuery = defineQuery(/* groq */ `
   *[_type == "school" && defined(slug.current) && _id in $ids]{
     _id,
     "slug": slug.current,
-    _updatedAt
+    "lastModified": coalesce(*[${publishedPostsTaggingSchoolFromParentFilter}] | order(publishedAt desc)[0].publishedAt, _updatedAt)
   }
 `);
 

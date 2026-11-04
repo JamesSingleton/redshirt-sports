@@ -46,16 +46,45 @@ function resolveWeekNumber(week: string): number {
   }
 }
 
+/**
+ * 404 unless the poll published rankings for this year and week. Called from
+ * `generateMetadata` so a missing week gets not-found metadata instead of an
+ * indexable "Week 99" title.
+ */
+export async function requirePublishedPollWeek({
+  division,
+  year,
+  week,
+}: {
+  division: string;
+  year: string;
+  week: string;
+}) {
+  const yearNumber = resolveYearNumber(year);
+  const weekNumber = resolveWeekNumber(week);
+  const weeksWithVotes = await getCachedWeeksThatHaveVotes({
+    year: yearNumber,
+    division,
+  });
+  if (!weeksWithVotes.some((entry) => entry.week === weekNumber)) {
+    notFound();
+  }
+  return { yearNumber, weekNumber };
+}
+
 export async function loadRankingsWeekPageModel({
   division,
   year,
   week,
   sport,
+  pagePath,
 }: {
   sport: string;
   division: string;
   year: string;
   week: string;
+  /** Canonical path when not the week archive (e.g. the latest-poll URL). */
+  pagePath?: string;
 }) {
   const yearNumber = resolveYearNumber(year);
   const weekNumber = resolveWeekNumber(week);
@@ -81,7 +110,10 @@ export async function loadRankingsWeekPageModel({
       ? weeksWithVotesResult.value
       : [];
 
-  if (!yearsWithVotes.length || !weeksWithVotes.length) {
+  if (
+    !yearsWithVotes.length ||
+    !weeksWithVotes.some((entry) => entry.week === weekNumber)
+  ) {
     notFound();
   }
 
@@ -182,14 +214,18 @@ export async function loadRankingsWeekPageModel({
   const voterWord = ballotsCounted === 1 ? "voter" : "voters";
   const ballotWord = ballotsCounted === 1 ? "ballot" : "ballots";
 
+  // The stable latest-poll URL renders this week too; its JSON-LD must name
+  // that canonical URL, not the week archive.
+  const jsonLdPath = pagePath ?? weekPath;
+
   const jsonLd: Graph = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": `${baseUrl}${weekPath}#webpage`,
-        url: `${baseUrl}${weekPath}`,
-        name: `${year} ${titleWeek} ${divisionName} ${sportLabel} Top 25 Rankings | ${process.env.NEXT_PUBLIC_APP_NAME}`,
+        "@id": `${baseUrl}${jsonLdPath}#webpage`,
+        url: `${baseUrl}${jsonLdPath}`,
+        name: `${year} ${titleWeek} ${divisionName} ${sportLabel} Top 25 Rankings | Redshirt Sports`,
         description: `Discover the ${year} ${titleWeek} ${divisionName} ${sportLabel} Top 25 rankings presented by Redshirt Sports.`,
         isPartOf: {
           "@type": "WebSite",
@@ -198,7 +234,7 @@ export async function loadRankingsWeekPageModel({
         inLanguage: "en-US",
         breadcrumb: {
           "@type": "BreadcrumbList",
-          "@id": `${baseUrl}${weekPath}#breadcrumb`,
+          "@id": `${baseUrl}${jsonLdPath}#breadcrumb`,
           itemListElement: [
             {
               "@type": "ListItem",
@@ -222,18 +258,18 @@ export async function loadRankingsWeekPageModel({
               "@type": "ListItem",
               position: 4,
               name: `${year} ${titleWeek} ${divisionName}`,
-              item: `${baseUrl}${weekPath}`,
+              item: `${baseUrl}${jsonLdPath}`,
             },
           ],
         },
         mainEntity: {
-          "@id": `${baseUrl}${weekPath}#rankings`,
+          "@id": `${baseUrl}${jsonLdPath}#rankings`,
         },
       },
       {
         "@type": "ItemList",
-        "@id": `${baseUrl}${weekPath}#rankings`,
-        url: `${baseUrl}${weekPath}`,
+        "@id": `${baseUrl}${jsonLdPath}#rankings`,
+        url: `${baseUrl}${jsonLdPath}`,
         numberOfItems: top25.length,
         itemListOrder: "https://schema.org/ItemListOrderAscending",
         itemListElement: top25.map((team) => ({

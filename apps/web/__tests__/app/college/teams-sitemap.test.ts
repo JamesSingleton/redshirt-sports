@@ -40,10 +40,10 @@ describe("teams sitemap", () => {
   it("merges post-qualified and ranked team URLs", async () => {
     mockSanityFetchMetadata
       .mockResolvedValueOnce({
-        data: [{ slug: "alabama", _updatedAt: "2026-01-01T00:00:00Z" }],
+        data: [{ slug: "alabama", lastModified: "2026-01-01T00:00:00Z" }],
       })
       .mockResolvedValueOnce({
-        data: [{ slug: "georgia", _updatedAt: "2026-02-01T00:00:00Z" }],
+        data: [{ slug: "georgia", lastModified: "2026-02-01T00:00:00Z" }],
       });
     mockGetCachedRankedSchoolSanityIds.mockResolvedValue(["school-2"]);
 
@@ -70,7 +70,7 @@ describe("teams sitemap", () => {
 
   it("skips ranked slug lookup when there are no ranked schools", async () => {
     mockSanityFetchMetadata.mockResolvedValueOnce({
-      data: [{ slug: "alabama", _updatedAt: "2026-01-01T00:00:00Z" }],
+      data: [{ slug: "alabama", lastModified: "2026-01-01T00:00:00Z" }],
     });
     mockGetCachedRankedSchoolSanityIds.mockResolvedValue([]);
 
@@ -90,10 +90,10 @@ describe("teams sitemap", () => {
   it("prefers the newer ranked slug timestamp when merging duplicates", async () => {
     mockSanityFetchMetadata
       .mockResolvedValueOnce({
-        data: [{ slug: "alabama", _updatedAt: "2026-01-01T00:00:00Z" }],
+        data: [{ slug: "alabama", lastModified: "2026-01-01T00:00:00Z" }],
       })
       .mockResolvedValueOnce({
-        data: [{ slug: "alabama", _updatedAt: "2026-03-01T00:00:00Z" }],
+        data: [{ slug: "alabama", lastModified: "2026-03-01T00:00:00Z" }],
       });
     mockGetCachedRankedSchoolSanityIds.mockResolvedValue(["school-1"]);
 
@@ -120,7 +120,7 @@ describe("teams sitemap", () => {
   it("treats null ranked slug payload as empty", async () => {
     mockSanityFetchMetadata
       .mockResolvedValueOnce({
-        data: [{ slug: "alabama", _updatedAt: "2026-01-01T00:00:00Z" }],
+        data: [{ slug: "alabama", lastModified: "2026-01-01T00:00:00Z" }],
       })
       .mockResolvedValueOnce({ data: null });
     mockGetCachedRankedSchoolSanityIds.mockResolvedValue(["school-1"]);
@@ -140,10 +140,10 @@ describe("teams sitemap", () => {
   it("keeps the existing timestamp when ranked slug is older", async () => {
     mockSanityFetchMetadata
       .mockResolvedValueOnce({
-        data: [{ slug: "alabama", _updatedAt: "2026-03-01T00:00:00Z" }],
+        data: [{ slug: "alabama", lastModified: "2026-03-01T00:00:00Z" }],
       })
       .mockResolvedValueOnce({
-        data: [{ slug: "alabama", _updatedAt: "2026-01-01T00:00:00Z" }],
+        data: [{ slug: "alabama", lastModified: "2026-01-01T00:00:00Z" }],
       });
     mockGetCachedRankedSchoolSanityIds.mockResolvedValue(["school-1"]);
 

@@ -96,7 +96,7 @@ export function ArticlePageContent({
           <ArticleByline
             authors={post.authors ?? []}
             publishedAt={post.publishedAt}
-            updatedAt={post._updatedAt}
+            updatedAt={post.modifiedAt}
             readingTimeMinutes={readingTimeMinutes}
             slug={slug}
             title={post.title}

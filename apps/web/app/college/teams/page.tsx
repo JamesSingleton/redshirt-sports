@@ -7,13 +7,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { JsonLdScript } from "@/components/json-ld";
+import CollegeTeamsLoading from "@/components/teams/college-teams-loading";
 import { TeamsDirectory } from "@/components/teams/teams-directory";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { trimMetaDescription } from "@/lib/meta-description";
 import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
 import { getCachedTeamDirectory } from "@/lib/team-directory-data";
-import CollegeTeamsLoading from "./loading";
 
 const COLLEGE_TEAMS_META_DESCRIPTION = trimMetaDescription(
   "Browse every college team Redshirt Sports covers. Open a school hub for football and basketball news, recruiting updates, poll history, and transparent Top 25 rankings.",
