@@ -643,9 +643,6 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.13.11
         version: 0.13.11(typescript@7.0.2)(valibot@1.5.0(typescript@7.0.2))(zod@4.6.7)
-      next-plausible:
-        specifier: ^4.0.0
-        version: 4.0.0(next@16.4.3(@opentelemetry/api@1.10.0)(@playwright/test@1.58.2)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       posthog-js:
         specifier: 'catalog:'
         version: 1.442.0(@types/react@19.3.0)(react@19.3.1)
@@ -7597,13 +7594,6 @@ packages:
 
   native-promise-only@0.8.1:
     resolution: {integrity: sha512-zkVhZUA3y8mbz652WrL5x0fB0ehrBkulWT3TomAQ9iDtyXZvzKeEA6GPxAItBYeNYl5yngKRX612qHOhvMkDeg==}
-
-  next-plausible@4.0.0:
-    resolution: {integrity: sha512-tC48VscREZ4fEvas9T4oj5qJwnpPlms0Wih1Unbgi/ozG08yN1w0IAPGp+/cHB8n6qzEAL5J0MlAS0FOr132jA==}
-    peerDependencies:
-      next: '^11.1.0 || ^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 '
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   next-sanity@13.4.0:
     resolution: {integrity: sha512-YliZsaWV1E/u59cByXWLIH5HgB+IbQHdcaCDowlKhkxDCCH1MZyoy+uPj28INHSUc1HULNjxtE3S7PJiVnjfvg==}
@@ -15721,12 +15711,6 @@ snapshots:
   nanoid@6.0.2: {}
 
   native-promise-only@0.8.1: {}
-
-  next-plausible@4.0.0(next@16.4.3(@opentelemetry/api@1.10.0)(@playwright/test@1.58.2)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
-    dependencies:
-      next: 16.4.3(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.10.0)(@playwright/test@1.58.2)(@types/node@26.6.6)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      react: 19.3.1
-      react-dom: 19.3.1(react@19.3.1)
 
   next-sanity@13.4.0(a5ce7a6a734110f4869c59a7a5cdef9e):
     dependencies:

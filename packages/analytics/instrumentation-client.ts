@@ -12,7 +12,9 @@ export const initializeAnalytics = () => {
 
   posthog.init(NEXT_PUBLIC_POSTHOG_KEY, {
     before_send: posthogBeforeSend,
-    api_host: NEXT_PUBLIC_POSTHOG_HOST,
+    // First-party reverse proxy (see rewrites in apps/web/next.config.ts).
+    api_host: "/ingest",
+    ui_host: "https://us.posthog.com",
     defaults: "2026-01-30",
     capture_dead_clicks: true,
     capture_exceptions: true,
