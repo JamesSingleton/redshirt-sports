@@ -9,6 +9,7 @@ const {
   mockGetCachedWeeks,
   mockGetCachedFinalRankings,
   mockGetCachedPollWeekBallotContext,
+  mockGetCachedLatestPublishedPoll,
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockDraftAwareParamsPage,
@@ -18,6 +19,7 @@ const {
   mockGetCachedWeeks: vi.fn(),
   mockGetCachedFinalRankings: vi.fn(),
   mockGetCachedPollWeekBallotContext: vi.fn(),
+  mockGetCachedLatestPublishedPoll: vi.fn(),
   mockSanityFetchPage: vi.fn().mockResolvedValue({
     data: { title: "College Football" },
   }),
@@ -52,6 +54,7 @@ vi.mock("@/lib/sanity-fetch", () => ({
 }));
 
 vi.mock("@/lib/rankings-data", () => ({
+  getCachedLatestPublishedPoll: mockGetCachedLatestPublishedPoll,
   getCachedYearsThatHaveVotes: mockGetCachedYears,
   getCachedWeeksThatHaveVotes: mockGetCachedWeeks,
   getCachedFinalRankings: mockGetCachedFinalRankings,
@@ -120,6 +123,8 @@ describe("CollegeFootballRankingsPage", () => {
     mockGetCachedWeeks.mockReset();
     mockGetCachedFinalRankings.mockReset();
     mockGetCachedPollWeekBallotContext.mockReset();
+    mockGetCachedLatestPublishedPoll.mockReset();
+    mockGetCachedLatestPublishedPoll.mockResolvedValue(null);
     mockGetCachedPollWeekBallotContext.mockResolvedValue({
       ballotsCounted: 22,
       ballotsListedBySanityId: {},
@@ -375,6 +380,59 @@ describe("CollegeFootballRankingsPage", () => {
     render(page);
 
     expect(screen.getByText(/1 voter · 1 ballot counted/i)).toBeInTheDocument();
+  });
+
+  it("points archived weeks at the current poll", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("stay", 1, 200, "Alabama")],
+    });
+    mockGetCachedLatestPublishedPoll.mockResolvedValue({ year: 2025, week: 9 });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    const notice = screen.getByTestId("rankings-archived-week-notice");
+    expect(notice).toHaveTextContent("You're viewing the 2025 Week 1 poll.");
+    expect(
+      within(notice).getByRole("link", {
+        name: /See this week's FBS Top 25 \(2025 Week 9\)/,
+      }),
+    ).toHaveAttribute("href", "/college/football/rankings/fbs");
+  });
+
+  it("shows no archive notice on the current week", async () => {
+    mockGetCachedYears.mockResolvedValue([{ year: 2025 }]);
+    mockGetCachedWeeks.mockResolvedValue([{ week: 1 }]);
+    mockGetCachedFinalRankings.mockResolvedValue({
+      rankings: [sampleRankingTeam("stay", 1, 200, "Alabama")],
+    });
+    mockGetCachedLatestPublishedPoll.mockResolvedValue({ year: 2025, week: 1 });
+
+    const page = await CollegeFootballRankingsPage({
+      params: Promise.resolve({
+        sport: "football",
+        division: "fbs",
+        year: "2025",
+        week: "1",
+      }),
+    });
+    render(page);
+
+    expect(
+      screen.queryByTestId("rankings-archived-week-notice"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Latest FBS poll/ }),
+    ).toBeInTheDocument();
   });
 
   it("skips week-over-week movement when there is no prior week", async () => {

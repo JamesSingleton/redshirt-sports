@@ -14,6 +14,7 @@ import { RankingsWeekPageBody } from "@/components/rankings/rankings-week-page-b
 import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { latestPollPageTitle } from "@/lib/rankings/page-titles";
 import { pollLatestPath } from "@/lib/rankings/poll-paths";
 import {
   loadRankingsWeekPageModel,
@@ -50,7 +51,12 @@ export async function generateMetadata({
 
   return getPageMetadata(
     {
-      title: `${divisionName} ${sportLabel} Top 25 Rankings`,
+      title: latestPollPageTitle({
+        divisionName,
+        sportLabel,
+        year: latest.year,
+        titleWeek,
+      }),
       description: `The latest ${divisionName} ${sportLabel} Top 25 from Redshirt Sports: the ${latest.year} ${titleWeek} poll, with every voter's ballot.`,
       slug: pollLatestPath(sport, division),
     },

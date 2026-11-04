@@ -181,7 +181,7 @@ describe("LatestPollPage", () => {
 
     expect(mockGetPageMetadata).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "FCS College Football Top 25 Rankings",
+        title: "FCS College Football Top 25 Rankings 2026: Week 8",
         slug: "/college/football/rankings/fcs",
         description: expect.stringContaining("2026 Week 8 poll"),
       }),

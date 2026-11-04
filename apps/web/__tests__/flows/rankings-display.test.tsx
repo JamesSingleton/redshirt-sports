@@ -51,6 +51,7 @@ vi.mock("@/lib/sanity-fetch", () => ({
 }));
 
 vi.mock("@/lib/rankings-data", () => ({
+  getCachedLatestPublishedPoll: vi.fn().mockResolvedValue(null),
   getCachedYearsThatHaveVotes: mockGetCachedYears,
   getCachedWeeksThatHaveVotes: mockGetCachedWeeks,
   getCachedFinalRankings: mockGetCachedFinalRankings,

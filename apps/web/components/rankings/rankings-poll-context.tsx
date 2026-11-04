@@ -61,6 +61,48 @@ export function RankingsLatestPollContext({
   );
 }
 
+/**
+ * Week archive pages that aren't the current poll: a prominent pointer to the
+ * stable latest-poll URL. Old weeks (the preseason poll especially) keep
+ * ranking in search, so readers who land on them need a clear way to this
+ * week's Top 25.
+ */
+export function RankingsArchivedWeekNotice({
+  sport,
+  division,
+  divisionName,
+  viewingLabel,
+  latestLabel,
+}: {
+  sport: string;
+  division: string;
+  divisionName: string;
+  /** e.g. "2026 Preseason" */
+  viewingLabel: string;
+  /** e.g. "2026 Week 9" */
+  latestLabel: string;
+}) {
+  return (
+    <aside
+      aria-label={`Current ${divisionName} Top 25`}
+      className="mt-4 flex flex-col gap-2 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+      data-testid="rankings-archived-week-notice"
+    >
+      <p className="text-muted-foreground">
+        You&apos;re viewing the {viewingLabel} poll.
+      </p>
+      <Link
+        href={pollLatestPath(sport, division)}
+        prefetch={false}
+        className="inline-flex items-center font-semibold text-foreground underline-offset-4 hover:underline"
+      >
+        See this week&apos;s {divisionName} Top 25 ({latestLabel})
+        <ChevronRight className="ml-0.5 size-4 opacity-70" aria-hidden />
+      </Link>
+    </aside>
+  );
+}
+
 /** Week archive pages: jump to whatever poll is current. */
 export function RankingsLatestPollLink({
   sport,

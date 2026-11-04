@@ -1,4 +1,8 @@
-import { parseWeekSegment, weekTitle } from "@redshirt-sports/clients/espn";
+import {
+  formatWeekSegment,
+  parseWeekSegment,
+  weekTitle,
+} from "@redshirt-sports/clients/espn";
 import {
   type DynamicFetchOptions,
   getDynamicFetchOptions,
@@ -7,7 +11,10 @@ import {
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { RankingsLatestPollLink } from "@/components/rankings/rankings-poll-context";
+import {
+  RankingsArchivedWeekNotice,
+  RankingsLatestPollLink,
+} from "@/components/rankings/rankings-poll-context";
 import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { RankingsWeekPageBody } from "@/components/rankings/rankings-week-page-body";
 import { loadAdvertisement } from "@/lib/advertisement";
@@ -17,6 +24,7 @@ import {
   loadRankingsWeekPageModel,
   pollDivisionLabel,
 } from "@/lib/rankings/read-model";
+import { getCachedLatestPublishedPoll } from "@/lib/rankings-data";
 import { sportNavLabel } from "@/lib/sport-nav";
 
 function resolveYearNumber(year: string): number {
@@ -93,27 +101,41 @@ async function renderCollegeFootballRankingsPage(
   },
   fetchOptions: DynamicFetchOptions = PUBLISHED_FETCH_OPTIONS,
 ) {
-  const model = await loadRankingsWeekPageModel({
-    sport,
-    division,
-    year,
-    week,
-  });
-  const advertisement = await loadAdvertisement({
-    placement: "rankings-week-sidebar",
-    sportSlugs: [sport],
-    fetchOptions,
-  });
+  const [model, advertisement, latest] = await Promise.all([
+    loadRankingsWeekPageModel({ sport, division, year, week }),
+    loadAdvertisement({
+      placement: "rankings-week-sidebar",
+      sportSlugs: [sport],
+      fetchOptions,
+    }),
+    getCachedLatestPublishedPoll({ sport, division }),
+  ]);
+  const divisionName = pollDivisionLabel(division);
+  const isArchivedWeek =
+    latest !== null &&
+    (String(latest.year) !== year ||
+      formatWeekSegment(latest.week) !== model.weekSegment);
+
   return (
     <RankingsWeekPageBody
       model={model}
       advertisement={advertisement}
       context={
-        <RankingsLatestPollLink
-          sport={sport}
-          division={division}
-          divisionName={pollDivisionLabel(division)}
-        />
+        isArchivedWeek && latest ? (
+          <RankingsArchivedWeekNotice
+            sport={sport}
+            division={division}
+            divisionName={divisionName}
+            viewingLabel={`${year} ${model.titleWeek}`}
+            latestLabel={`${latest.year} ${weekTitle(latest.week)}`}
+          />
+        ) : (
+          <RankingsLatestPollLink
+            sport={sport}
+            division={division}
+            divisionName={divisionName}
+          />
+        )
       }
     />
   );
