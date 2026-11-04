@@ -3,10 +3,11 @@ import { Suspense } from "react";
 
 import {
   BracketPageView,
+  bracketDescription,
   bracketTitle,
 } from "@/components/bracket/bracket-page-view";
 import { BracketSkeleton } from "@/components/bracket/bracket-skeleton";
-import { bracketEditionLabel, loadBracketPage } from "@/lib/bracket-data";
+import { loadBracketPage } from "@/lib/bracket-data";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 
 type Params = Promise<{
@@ -25,8 +26,8 @@ export async function generateMetadata({
   const { sport, division, year, week } = await params;
   const model = await loadBracketPage({ sport, division, year, week });
   return getPageMetadata({
-    title: `${bracketTitle(model.edition)}: ${bracketEditionLabel(model.edition)}`,
-    description: `If the playoffs started after Week ${model.edition.weekNumber}: our projected ${bracketTitle(model.edition)}, with every seed and first-round matchup.`,
+    title: bracketTitle(model.edition),
+    description: bracketDescription(model.edition),
     slug: `/college/${sport}/playoffs/${division}/${year}/projections/${week}`,
   });
 }

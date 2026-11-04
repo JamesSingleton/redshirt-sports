@@ -26,7 +26,7 @@ export default function TeamHubRouteLoading() {
           />
         </div>
       </div>
-      <div className="grid gap-10 pt-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid grid-cols-1 gap-10 pt-8 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="space-y-8">
           <Skeleton
             className="h-8 w-32 motion-reduce:animate-none"

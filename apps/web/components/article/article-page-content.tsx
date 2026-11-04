@@ -75,7 +75,7 @@ export function ArticlePageContent({
         </nav>
       ) : null}
 
-      <div className="grid gap-10 pt-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid grid-cols-1 gap-10 pt-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <article>
           <div className="kicker text-primary">{articleKicker(post)}</div>
           <h1

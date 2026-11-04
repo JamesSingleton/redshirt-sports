@@ -20,8 +20,10 @@ vi.mock("@/lib/bracket-data", async (importOriginal) => ({
 vi.mock("@/lib/global-seo-settings", () => ({
   getPageMetadata: mockGetPageMetadata,
 }));
-vi.mock("@/components/bracket/bracket-page-view", () => ({
-  bracketTitle: () => "2026 FCS Playoff Bracket",
+vi.mock("@/components/bracket/bracket-page-view", async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import("@/components/bracket/bracket-page-view")
+  >()),
   BracketPageView: ({ model }: { model: { edition: { id: string } } }) => (
     <div data-testid="view">{model.edition.id}</div>
   ),
@@ -77,7 +79,9 @@ describe("playoff bracket pages", () => {
     render(await resolveSuspense(SeasonPage({ params })));
     expect(screen.getByTestId("view")).toHaveTextContent("edition-1");
     await expect(seasonMetadata({ params })).resolves.toMatchObject({
-      title: "2026 FCS Playoff Bracket",
+      title: "2026 FCS Playoff Bracket Projection After Week 7",
+      description:
+        "If the playoffs started after Week 7: our projected 2026 FCS Playoff Bracket, with every seed, first-round matchup and host.",
       slug: "/college/football/playoffs/fcs/2026",
     });
   });
@@ -97,7 +101,9 @@ describe("playoff bracket pages", () => {
       week: "week-7",
     });
     await expect(projectionMetadata({ params })).resolves.toMatchObject({
-      title: "2026 FCS Playoff Bracket: Projection after Week 7",
+      title: "2026 FCS Playoff Bracket Projection After Week 7",
+      description:
+        "If the playoffs started after Week 7: our projected 2026 FCS Playoff Bracket, with every seed, first-round matchup and host.",
       slug: "/college/football/playoffs/fcs/2026/projections/week-7",
     });
   });
@@ -112,7 +118,9 @@ describe("playoff bracket pages", () => {
       division: "fcs",
     });
     await expect(landingMetadata({ params })).resolves.toMatchObject({
-      title: "2026 FCS Playoff Bracket",
+      title: "2026 FCS Playoff Bracket Projection After Week 7",
+      description:
+        "If the playoffs started after Week 7: our projected 2026 FCS Playoff Bracket, with every seed, first-round matchup and host.",
       slug: "/college/football/playoffs/fcs",
     });
   });

@@ -173,7 +173,7 @@ export function TeamPageContent({
         </nav>
       </header>
 
-      <div className="grid gap-10 pt-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid grid-cols-1 gap-10 pt-8 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-10">
           <section id="latest" className="scroll-mt-24 border-t pt-6">
             <h2 className="font-display text-2xl font-extrabold uppercase">

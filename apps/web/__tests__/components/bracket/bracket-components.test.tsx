@@ -59,6 +59,7 @@ vi.mock("next/link", () => ({
 import { BracketEmbed } from "@/components/bracket/bracket-embed";
 import {
   BracketPageView,
+  bracketDescription,
   bracketTitle,
 } from "@/components/bracket/bracket-page-view";
 import { BracketSkeleton } from "@/components/bracket/bracket-skeleton";
@@ -92,10 +93,10 @@ describe("BracketPageView", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "2026 FCS Playoff Bracket",
+        name: "2026 FCS Playoff Bracket Projection After Week 7",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Projection after Week 7")).toBeInTheDocument();
+    expect(screen.getByText("Projection")).toBeInTheDocument();
     expect(
       screen.getByText("If the playoffs started today."),
     ).toBeInTheDocument();
@@ -183,7 +184,17 @@ describe("BracketPageView", () => {
       bracketTitle(
         bracketEdition({ divisionSlug: null, sportSlug: "mens-basketball" }),
       ),
-    ).toMatch(/^2026 .*Playoff Bracket$/);
+    ).toMatch(/^2026 .*Playoff Bracket Projection After Week 7$/);
+  });
+
+  it("names the week in a projection's title and description only", () => {
+    expect(bracketTitle(official)).toBe("2026 FCS Playoff Bracket");
+    expect(bracketDescription(official)).toBe(
+      "The official 2026 FCS Playoff Bracket: every seed, matchup, host and result, from Redshirt Sports.",
+    );
+    expect(bracketDescription(bracketEdition({ weekNumber: 8 }))).toBe(
+      "If the playoffs started after Week 8: our projected 2026 FCS Playoff Bracket, with every seed, first-round matchup and host.",
+    );
   });
 });
 

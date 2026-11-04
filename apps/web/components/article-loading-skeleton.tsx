@@ -12,7 +12,7 @@ export default function ArticlePageSkeleton() {
       </span>
       <div aria-hidden="true">
         <Skeleton className="mt-5 h-3 w-48" />
-        <div className="grid gap-10 pt-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="grid grid-cols-1 gap-10 pt-4 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div>
             <Skeleton className="h-3 w-28" />
             <Skeleton className="mt-3 h-12 w-full max-w-3xl" />

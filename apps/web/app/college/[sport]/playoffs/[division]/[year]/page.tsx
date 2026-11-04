@@ -3,10 +3,11 @@ import { Suspense } from "react";
 
 import {
   BracketPageView,
+  bracketDescription,
   bracketTitle,
 } from "@/components/bracket/bracket-page-view";
 import { BracketSkeleton } from "@/components/bracket/bracket-skeleton";
-import { bracketEditionLabel, loadBracketPage } from "@/lib/bracket-data";
+import { loadBracketPage } from "@/lib/bracket-data";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 
 type Params = Promise<{ sport: string; division: string; year: string }>;
@@ -24,7 +25,7 @@ export async function generateMetadata({
   const model = await loadBracketPage({ sport, division, year });
   return getPageMetadata({
     title: bracketTitle(model.edition),
-    description: `${bracketEditionLabel(model.edition)}: the full ${bracketTitle(model.edition)}, every seed, matchup and host from Redshirt Sports.`,
+    description: bracketDescription(model.edition),
     slug: `/college/${sport}/playoffs/${division}/${year}`,
   });
 }
