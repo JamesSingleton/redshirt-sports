@@ -1,0 +1,23 @@
+{
+  "name": "@redshirt-sports/functions",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "check:types": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@sanity/client": "catalog:",
+    "@sanity/functions": "^1.10.1"
+  },
+  "devDependencies": {
+    "@redshirt-sports/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -16,14 +16,14 @@ import { RANKINGS_CACHE_LIFE } from "@/lib/rankings-data";
 import { SPORT_SLUG_MAP } from "@/lib/vote-ballot";
 
 async function fetchPublishedWeeksForSitemap() {
-  "use cache";
+  "use cache: remote";
   cacheTag(RANKINGS_CACHE_TAG);
   cacheLife(RANKINGS_CACHE_LIFE);
   return getYearsWithVotes();
 }
 
 async function fetchLatestPollForSitemap(sport: SportParam, division: string) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RANKINGS_CACHE_TAG);
   cacheLife(RANKINGS_CACHE_LIFE);
   return (await getLatestFinalRankings({ division, sport })) ?? null;

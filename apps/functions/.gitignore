@@ -1,0 +1,4 @@
+# Sanity Functions build output and local env
+**/.env*
+**/.build/
+node_modules/

@@ -32,14 +32,14 @@ export const RATINGS_CACHE_LIFE = {
 } as const;
 
 export async function getCachedPublicPools() {
-  "use cache";
+  "use cache: remote";
   cacheTag(RATINGS_CACHE_TAG);
   cacheLife(RATINGS_CACHE_LIFE);
   return listPublicPools();
 }
 
 export async function getCachedPool(sport: string, pool: string) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RATINGS_CACHE_TAG, ratingsPoolTag(sport, pool));
   cacheLife(RATINGS_CACHE_LIFE);
   return getPublicPool(sport, pool);
@@ -50,14 +50,14 @@ export async function getCachedWeeks(
   pool: string,
   poolId: string,
 ) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RATINGS_CACHE_TAG, ratingsPoolTag(sport, pool));
   cacheLife(RATINGS_CACHE_LIFE);
   return listPublishedWeeks(poolId);
 }
 
 export async function getCachedRun(sport: string, pool: string, runId: string) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RATINGS_CACHE_TAG, ratingsPoolTag(sport, pool));
   cacheLife(RATINGS_CACHE_LIFE);
   return getPublishedRun(runId);
@@ -72,7 +72,7 @@ export async function getCachedRunExplanations(
   pool: string,
   runId: string,
 ) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RATINGS_CACHE_TAG, ratingsPoolTag(sport, pool));
   cacheLife(RATINGS_CACHE_LIFE);
   return Object.fromEntries(await listPublishedRunExplanations(runId));
@@ -80,7 +80,7 @@ export async function getCachedRunExplanations(
 
 /** A team's ratings trend in every public pool, for its team page. */
 export async function getCachedTeamRatings(sanityId: string) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RATINGS_CACHE_TAG);
   cacheLife(RATINGS_CACHE_LIFE);
   return listTeamRatings(sanityId);
@@ -92,7 +92,7 @@ export async function getCachedPredictionGroups(
   pool: string,
   poolId: string,
 ) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RATINGS_CACHE_TAG, ratingsPoolTag(sport, pool));
   cacheLife(RATINGS_CACHE_LIFE);
   return listPoolPredictionGroups(poolId, MARGIN_EDGES);

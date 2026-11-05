@@ -17,9 +17,9 @@ describe("GlobalError", () => {
 
   it("renders global error UI with html/body and reports to Sentry", () => {
     const error = new Error("fatal");
-    const reset = vi.fn();
+    const retry = vi.fn();
 
-    render(<GlobalError error={error} reset={reset} />);
+    render(<GlobalError error={error} retry={retry} />);
 
     expect(
       screen.getByRole("heading", { name: "Something went wrong!" }),
@@ -27,6 +27,6 @@ describe("GlobalError", () => {
     expect(mockCaptureException).toHaveBeenCalledWith(error);
 
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-    expect(reset).toHaveBeenCalled();
+    expect(retry).toHaveBeenCalled();
   });
 });

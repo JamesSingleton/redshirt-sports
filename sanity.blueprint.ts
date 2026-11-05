@@ -8,7 +8,7 @@ export default defineBlueprint({
   resources: [
     defineDocumentFunction({
       name: "published-at",
-      src: "./functions/published-at",
+      src: "./apps/functions/published-at",
       memory: 1,
       timeout: 10,
       event: {
@@ -19,7 +19,7 @@ export default defineBlueprint({
     }),
     defineDocumentFunction({
       name: "modified-at",
-      src: "./functions/modified-at",
+      src: "./apps/functions/modified-at",
       memory: 1,
       timeout: 10,
       event: {
@@ -35,7 +35,7 @@ export default defineBlueprint({
     }),
     defineDocumentFunction({
       name: "auto-redirect",
-      src: "./functions/auto-redirect",
+      src: "./apps/functions/auto-redirect",
       memory: 2,
       timeout: 30,
       event: {
@@ -47,7 +47,7 @@ export default defineBlueprint({
       },
     }),
     defineDocumentFunction({
-      src: "./functions/auto-summary",
+      src: "./apps/functions/auto-summary",
       memory: 2,
       timeout: 30,
       name: "auto-summary",
@@ -60,7 +60,7 @@ export default defineBlueprint({
     }),
     defineDocumentFunction({
       name: "auto-tag",
-      src: "./functions/auto-tag",
+      src: "./apps/functions/auto-tag",
       memory: 2,
       timeout: 30,
       event: {
@@ -72,7 +72,7 @@ export default defineBlueprint({
     }),
     defineDocumentFunction({
       name: "sync-school",
-      src: "./functions/sync-school",
+      src: "./apps/functions/sync-school",
       memory: 1,
       timeout: 30,
       event: {
@@ -83,6 +83,7 @@ export default defineBlueprint({
       },
     }),
     defineSyncTagInvalidateFunction({
+      src: "./apps/functions/cache-invalidate",
       event: {
         resource: {
           id: "8pbt9f8w.production",

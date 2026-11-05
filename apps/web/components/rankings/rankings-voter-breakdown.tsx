@@ -38,7 +38,7 @@ async function getCachedVoterBallots({
   week,
   sport,
 }: Omit<RankingsVoterBreakdownProps, "consensusRanks">) {
-  "use cache";
+  "use cache: remote";
   cacheTag(
     RANKINGS_CACHE_TAG,
     rankingsSportTag(sport),

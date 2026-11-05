@@ -32,6 +32,14 @@ import type { SchoolRankingHistory } from "@redshirt-sports/db/utils/school-rank
 import { cacheLife, cacheTag } from "next/cache";
 
 /**
+ * Every Postgres-backed reader in the web app uses `"use cache: remote"`, not
+ * plain `"use cache"`. Plain `"use cache"` is per-instance memory on Vercel,
+ * so each page regeneration on a fresh instance re-ran its queries. On
+ * 2026-11-05 one Sanity edit staled ~40 team pages at once and their
+ * background regenerations filled all 200 Supavisor connections (EMAXCONN).
+ * The remote cache is shared across instances, so a regeneration reads
+ * rankings and ratings from it and Postgres sees one query per entry.
+ *
  * Next.js `weeks` profile: 5m client stale, 1w background revalidate,
  * 30d expire. Publish, voter display edits, and school logo/name sync
  * expire tags immediately. This lifetime is the missed-webhook backup.
@@ -59,7 +67,7 @@ export async function getCachedYearsThatHaveVotes({
 }: {
   division: string;
 }) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RANKINGS_CACHE_TAG, rankingsDivisionYearsTag(division));
   cacheLife(RANKINGS_CACHE_LIFE);
   return getYearsThatHaveVotes({ division });
@@ -72,7 +80,7 @@ export async function getCachedWeeksThatHaveVotes({
   year: number;
   division: string;
 }) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RANKINGS_CACHE_TAG, rankingsDivisionWeeksTag(division, year));
   cacheLife(RANKINGS_CACHE_LIFE);
   return getWeeksThatHaveVotes({ year, division });
@@ -89,7 +97,7 @@ export async function getCachedFinalRankings({
   division: string;
   sport: SportParam;
 }) {
-  "use cache";
+  "use cache: remote";
   cacheTag(
     RANKINGS_CACHE_TAG,
     rankingsSportTag(sport),
@@ -111,7 +119,7 @@ export async function getCachedFinalRankingsForLegacyWeeksInYear({
   sport: SportParam;
   legacyWeeks: number[];
 }) {
-  "use cache";
+  "use cache: remote";
   cacheTag(
     RANKINGS_CACHE_TAG,
     rankingsSportTag(sport),
@@ -132,7 +140,7 @@ export async function getCachedLatestFinalRankings({
 }: {
   division: string;
 }) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RANKINGS_CACHE_TAG, rankingsDivisionYearsTag(division));
   cacheLife(RANKINGS_CACHE_LIFE);
   return getLatestFinalRankings({ division });
@@ -151,7 +159,7 @@ export async function getCachedLatestPublishedPoll({
   sport: string;
   division: string;
 }) {
-  "use cache";
+  "use cache: remote";
   cacheTag(rankingsDivisionTag(sport, division));
   cacheLife(RANKINGS_CACHE_LIFE);
   return (await getLatestFinalRankings({ division, sport })) ?? null;
@@ -160,7 +168,7 @@ export async function getCachedLatestPublishedPoll({
 export async function getCachedLatestFinalRankingsBySportSlug(
   sportSlug: string,
 ) {
-  "use cache";
+  "use cache: remote";
   cacheTag(RANKINGS_CACHE_TAG, rankingsSportTag(sportSlug));
   cacheLife(RANKINGS_CACHE_LIFE);
   return getLatestFinalRankingsBySportSlug(sportSlug);
@@ -169,7 +177,7 @@ export async function getCachedLatestFinalRankingsBySportSlug(
 export async function getCachedSchoolRankingHistory(
   sanityId: string,
 ): Promise<SchoolRankingHistory> {
-  "use cache";
+  "use cache: remote";
   cacheTag(RANKINGS_CACHE_TAG);
   cacheLife(RANKINGS_CACHE_LIFE);
   return getSchoolRankingHistory(sanityId);
@@ -178,14 +186,14 @@ export async function getCachedSchoolRankingHistory(
 export async function getCachedSchoolHasPollRankings(
   sanityId: string,
 ): Promise<boolean> {
-  "use cache";
+  "use cache: remote";
   cacheTag(RANKINGS_CACHE_TAG);
   cacheLife(RANKINGS_CACHE_LIFE);
   return schoolHasPollRankings(sanityId);
 }
 
 export async function getCachedRankedSchoolSanityIds(): Promise<string[]> {
-  "use cache";
+  "use cache: remote";
   cacheTag(RANKINGS_CACHE_TAG);
   cacheLife(RANKINGS_CACHE_LIFE);
   return getRankedSchoolSanityIds();
@@ -208,7 +216,7 @@ export async function getCachedPollWeekBallotContext({
   division: string;
   sport: SportParam;
 }): Promise<PollWeekBallotContext | null> {
-  "use cache";
+  "use cache: remote";
   cacheTag(
     RANKINGS_CACHE_TAG,
     rankingsSportTag(sport),
@@ -252,7 +260,7 @@ export async function getCachedVotesForWeekAndYearByVoter({
   division: string;
   sport: SportParam;
 }) {
-  "use cache";
+  "use cache: remote";
   cacheTag(
     RANKINGS_CACHE_TAG,
     rankingsSportTag(sport),
@@ -281,7 +289,7 @@ export async function getCachedActivePollVoters({
   division: string;
   sport: SportParam;
 }) {
-  "use cache";
+  "use cache: remote";
   cacheTag(
     RANKINGS_CACHE_TAG,
     rankingsSportTag(sport),
@@ -309,7 +317,7 @@ export async function getCachedPollVoterBallotStatsForSeason({
   sport: SportParam;
   year: number;
 }) {
-  "use cache";
+  "use cache: remote";
   cacheTag(
     RANKINGS_CACHE_TAG,
     rankingsSportTag(sport),

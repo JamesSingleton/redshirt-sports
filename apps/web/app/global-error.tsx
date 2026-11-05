@@ -6,10 +6,10 @@ import { useEffect } from "react";
 
 export default function GlobalError({
   error,
-  reset,
+  retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
 }) {
   useEffect(() => {
     Sentry.captureException(error);
@@ -20,7 +20,7 @@ export default function GlobalError({
     <html lang="en-US">
       <body>
         <h2>Something went wrong!</h2>
-        <Button onClick={() => reset()}>Try again</Button>
+        <Button onClick={() => retry()}>Try again</Button>
       </body>
     </html>
   );

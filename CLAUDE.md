@@ -40,6 +40,11 @@ Redshirt Sports is a college sports news website built as a Turborepo monorepo w
 - `pnpm type` - Extract schema and generate TypeScript types
 - `pnpm check:types` - TypeScript check
 
+**Sanity Functions** (`apps/functions`, deployed by the root `sanity.blueprint.ts`):
+- Each function lives in `apps/functions/<name>/`; runtime deps go in `apps/functions/package.json`
+- From the repo root: `pnpm blueprints:plan` previews a deploy, `pnpm blueprints:deploy` applies it
+- `.sanity/blueprint.config.json` is committed and links the repo to the "production" stack. Never run `blueprints init` without `--stack-id`: it creates a second stack, and every function then runs twice
+
 **Packages**:
 - `packages/ui` - Run `pnpm test` or `pnpm test:watch` for component tests
 - `packages/clients` - Run `pnpm test` or `pnpm test:watch` for API client tests
@@ -62,12 +67,13 @@ pnpm --filter @redshirt-sports/clients test
 
 ### Monorepo Structure
 
-This is a Turborepo monorepo with three applications and shared packages:
+This is a Turborepo monorepo with four applications and shared packages:
 
 **Applications** (`apps/`):
 - `web` - Main public-facing Next.js website
 - `admin` - Internal admin dashboard (Next.js)
 - `studio` - Sanity Studio CMS
+- `functions` - Sanity Functions (deployed from the root `sanity.blueprint.ts`)
 
 **Packages** (`packages/`):
 - `ui` - Shared UI components (ShadCN components, Tailwind config)
