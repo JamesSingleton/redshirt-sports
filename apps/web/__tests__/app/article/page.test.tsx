@@ -211,25 +211,20 @@ describe("PostPage", () => {
     ]);
   });
 
-  it("generateStaticParams pre-renders 50 posts outside production", async () => {
-    vi.stubEnv("VERCEL_ENV", "preview");
-    mockSanityFetchStaticParams.mockResolvedValue({ data: [] });
-    await generateStaticParams();
-    expect(mockSanityFetchStaticParams).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { limit: 50 } }),
-    );
-    vi.unstubAllEnvs();
-  });
-
-  it("generateStaticParams pre-renders the whole archive in production builds", async () => {
-    vi.stubEnv("VERCEL_ENV", "production");
-    mockSanityFetchStaticParams.mockResolvedValue({ data: [] });
-    await generateStaticParams();
-    expect(mockSanityFetchStaticParams).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { limit: 5000 } }),
-    );
-    vi.unstubAllEnvs();
-  });
+  it.each(["preview", "production"])(
+    "generateStaticParams pre-renders only the newest 50 posts in %s builds",
+    async (env) => {
+      // Larger archives exhausted build memory on Vercel; older posts render
+      // on first request.
+      vi.stubEnv("VERCEL_ENV", env);
+      mockSanityFetchStaticParams.mockResolvedValue({ data: [] });
+      await generateStaticParams();
+      expect(mockSanityFetchStaticParams).toHaveBeenCalledWith(
+        expect.objectContaining({ params: { limit: 50 } }),
+      );
+      vi.unstubAllEnvs();
+    },
+  );
 
   it("generateMetadata throws notFound when post is missing", async () => {
     mockSanityFetchMetadata.mockResolvedValue({ data: null });
