@@ -87,7 +87,7 @@ export async function getCachedWeekVotesByVoter({
   division: string;
   sport: SportParam;
 }) {
-  "use cache";
+  "use cache: remote";
   cacheTag(
     RANKINGS_CACHE_TAG,
     rankingsSportTag(sport),

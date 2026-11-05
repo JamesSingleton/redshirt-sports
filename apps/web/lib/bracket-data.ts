@@ -70,7 +70,7 @@ async function getCachedPublishedEditions(
   division: string,
   year: number,
 ) {
-  "use cache";
+  "use cache: remote";
   cacheTag(BRACKETS_CACHE_TAG, bracketSeasonTag(sport, division, year));
   cacheLife(BRACKETS_CACHE_LIFE);
   return getPublishedBracketEditions({
@@ -81,7 +81,7 @@ async function getCachedPublishedEditions(
 }
 
 export async function getCachedBracketSeasons(sport: string, division: string) {
-  "use cache";
+  "use cache: remote";
   cacheTag(BRACKETS_CACHE_TAG);
   cacheLife(BRACKETS_CACHE_LIFE);
   return listPublishedBracketSeasons({
@@ -92,7 +92,7 @@ export async function getCachedBracketSeasons(sport: string, division: string) {
 
 /** Every published edition, for the sitemap. */
 export async function getCachedAllPublishedBrackets() {
-  "use cache";
+  "use cache: remote";
   cacheTag(BRACKETS_CACHE_TAG);
   cacheLife(BRACKETS_CACHE_LIFE);
   return listAllPublishedBracketEditions();
@@ -100,7 +100,7 @@ export async function getCachedAllPublishedBrackets() {
 
 /** A published edition laid out for rendering, or null (drafts never render). */
 export async function getCachedPublishedBracket(editionId: string) {
-  "use cache";
+  "use cache: remote";
   cacheTag(BRACKETS_CACHE_TAG, bracketEditionTag(editionId));
   cacheLife(BRACKETS_CACHE_LIFE);
   const detail = await getBracketEdition(editionId);
@@ -120,7 +120,7 @@ export async function getCachedBracketTeamStats(
   sport: string,
   division: string,
 ): Promise<BracketTeamStatsSet> {
-  "use cache";
+  "use cache: remote";
   cacheTag(
     BRACKETS_CACHE_TAG,
     bracketEditionTag(editionId),

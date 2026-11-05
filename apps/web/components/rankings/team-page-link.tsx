@@ -20,7 +20,7 @@ export function TeamPageLink({
     <Link
       href={`/college/teams/${slug}`}
       className={className ?? "hover:underline"}
-      prefetch={true}
+      prefetch={false}
       transitionTypes={[...NAV_FORWARD_TRANSITION]}
     >
       {children}
