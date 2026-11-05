@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "sanity",
+  "installCommand": "pnpm install --filter @redshirt-sports/studio...",
   "buildCommand": "sanity build && sanity schema deploy --manifest-dir ./dist/static"
 }

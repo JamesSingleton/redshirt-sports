@@ -31,16 +31,14 @@ import { getCollegeSportSection } from "@/lib/sport-section";
 import { validateSport } from "@/lib/vote-ballot";
 
 /**
- * Production builds (staged or live) pre-render the whole archive so a new
- * deployment starts warm: build-time pages are not ISR writes, while pages
- * rendered on first request after a deploy are, and crawlers walk the full
- * archive. Preview and local builds stay small.
+ * Pre-render only the newest posts at build time. Pre-rendering thousands of
+ * posts made production builds exhaust memory (Vercel support advised 50);
+ * older posts render on first request and are then cached.
  */
 export async function generateStaticParams() {
-  const limit = process.env.VERCEL_ENV === "production" ? 5000 : 50;
   const { data } = await sanityFetchStaticParams({
     query: queryPostPaths,
-    params: { limit },
+    params: { limit: 50 },
   });
   return data?.map(({ slug }) => ({ slug })) ?? [];
 }
