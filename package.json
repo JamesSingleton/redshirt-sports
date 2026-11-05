@@ -19,11 +19,14 @@
     "check:types": "turbo run check:types",
     "ci": "turbo run lint check:types test --affected",
     "db:sync-from-prod": "pnpm --filter @redshirt-sports/db db:sync-from-prod",
-    "ratings": "pnpm --filter @redshirt-sports/db ratings"
+    "ratings": "pnpm --filter @redshirt-sports/db ratings",
+    "blueprints:plan": "pnpm dlx sanity@latest blueprints plan",
+    "blueprints:deploy": "pnpm dlx sanity@latest blueprints deploy"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.4",
     "@redshirt-sports/typescript-config": "workspace:*",
+    "@sanity/blueprints": "^0.31.0",
     "turbo": "^2.11.10",
     "typescript": "catalog:"
   }

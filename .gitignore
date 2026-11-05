@@ -55,3 +55,7 @@ scripts/
 
 # Ignore test-results
 **/*/test-results/
+
+# Sanity Blueprints: keep the stack link, ignore everything else the CLI writes
+/.sanity/*
+!/.sanity/blueprint.config.json

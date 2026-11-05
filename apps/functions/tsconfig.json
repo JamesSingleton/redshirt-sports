@@ -1,0 +1,11 @@
+{
+  "extends": "@redshirt-sports/typescript-config/base.json",
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "**/.build"],
+  "compilerOptions": {
+    "types": ["node"],
+    "module": "EsNext",
+    "moduleResolution": "bundler",
+    "noUncheckedIndexedAccess": false
+  }
+}

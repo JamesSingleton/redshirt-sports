@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  countChangedWords,
-  decideModifiedAt,
-} from "@/functions/modified-at/change-size";
+import { countChangedWords, decideModifiedAt } from "./change-size";
 
 const publishedAt = "2026-11-01T18:00:00.000Z";
 const now = new Date("2026-11-03T18:00:00.000Z");
