@@ -8,6 +8,11 @@ import type { NextConfig } from "next";
 export const config: NextConfig = {
   reactCompiler: true,
   typedRoutes: true,
+  experimental: {
+    // rootTtlMs: 0 drops cached work immediately instead of keeping it for the
+    // default 3 days; Vercel support recommended this to cut build memory.
+    turbopackGc: { rootTtlMs: 0 },
+  },
   logging: {
     fetches: {},
   },

@@ -1,4 +1,5 @@
 {
+  "installCommand": "pnpm install --filter @redshirt-sports/web...",
   "crons": [
     { "path": "/api/cron/ratings", "schedule": "*/30 16-23 * * 6" },
     { "path": "/api/cron/ratings", "schedule": "*/30 0-11 * * 0" },
