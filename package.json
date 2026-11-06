@@ -24,9 +24,9 @@
     "blueprints:deploy": "pnpm dlx sanity@latest blueprints deploy"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.6.4",
+    "@biomejs/biome": "^2.6.5",
     "@redshirt-sports/typescript-config": "workspace:*",
-    "@sanity/blueprints": "^0.31.0",
+    "@sanity/blueprints": "^0.33.0",
     "turbo": "^2.11.10",
     "typescript": "catalog:"
   }
