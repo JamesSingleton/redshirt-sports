@@ -1,5 +1,6 @@
 "use client";
 
+import { analytics } from "@redshirt-sports/analytics";
 import { Play } from "lucide-react";
 import { useState } from "react";
 
@@ -84,7 +85,14 @@ export function YouTubeEmbedComponent({
         ) : (
           <button
             type="button"
-            onClick={() => setActivated(true)}
+            onClick={() => {
+              analytics?.capture("video_played", {
+                video_id: videoId,
+                video_title: title,
+                page_path: window.location.pathname,
+              });
+              setActivated(true);
+            }}
             className="group absolute inset-0 flex h-full w-full flex-col items-center justify-center gap-3 text-white focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-white"
             aria-label={`Play video: ${title}`}
           >

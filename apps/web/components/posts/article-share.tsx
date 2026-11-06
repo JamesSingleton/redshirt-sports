@@ -1,5 +1,6 @@
 "use client";
 
+import { analytics } from "@redshirt-sports/analytics";
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Card,
@@ -35,18 +36,33 @@ const shareArticle = ({
   window.open(shareUrl, "_blank", "noopener,noreferrer");
 };
 
-const ShareButtons = ({ url, title }: { url: string; title: string }) => (
+type ShareMethod = "twitter" | "facebook" | "copy_link" | "native_share";
+
+const trackShare = (method: ShareMethod, slug: string) => {
+  analytics?.capture("share_clicked", { method, slug });
+};
+
+const ShareButtons = ({
+  url,
+  title,
+  slug,
+}: {
+  url: string;
+  title: string;
+  slug: string;
+}) => (
   <>
     <Button
       variant="outline"
       size="icon"
-      onClick={() =>
+      onClick={() => {
+        trackShare("twitter", slug);
         shareArticle({
           platform: "twitter",
           url,
           title,
-        })
-      }
+        });
+      }}
     >
       <Twitter className="h-5 w-5" />
       <span className="sr-only">Share on X</span>
@@ -54,13 +70,14 @@ const ShareButtons = ({ url, title }: { url: string; title: string }) => (
     <Button
       variant="outline"
       size="icon"
-      onClick={() =>
+      onClick={() => {
+        trackShare("facebook", slug);
         shareArticle({
           platform: "facebook",
           url,
           title,
-        })
-      }
+        });
+      }}
     >
       <Facebook className="h-5 w-5" />
       <span className="sr-only">Share on Facebook</span>
@@ -103,6 +120,7 @@ export function ArticleShareToolbar({
   const articleUrl = `${getBaseUrl()}/${slug}`;
 
   const onShare = async () => {
+    trackShare("native_share", slug);
     await shareArticleUrl({ url: articleUrl, title });
   };
 
@@ -131,6 +149,7 @@ export const LargeArticleSocialShare = ({
   const articleUrl = `${getBaseUrl()}/${slug}`;
 
   const copyToClipboard = () => {
+    trackShare("copy_link", slug);
     navigator.clipboard.writeText(articleUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -158,7 +177,7 @@ export const LargeArticleSocialShare = ({
           </div>
         </div>
         <div className="flex justify-start gap-2">
-          <ShareButtons url={articleUrl} title={title} />
+          <ShareButtons url={articleUrl} title={title} slug={slug} />
         </div>
       </CardContent>
     </Card>
@@ -176,6 +195,7 @@ export const SmallArticleSocialShare = ({
   const articleUrl = `${getBaseUrl()}/${slug}`;
 
   const copyToClipboard = () => {
+    trackShare("copy_link", slug);
     navigator.clipboard.writeText(articleUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -197,7 +217,7 @@ export const SmallArticleSocialShare = ({
           </div>
         </div>
         <div className="flex justify-start gap-2">
-          <ShareButtons url={articleUrl} title={title} />
+          <ShareButtons url={articleUrl} title={title} slug={slug} />
         </div>
       </div>
     </div>

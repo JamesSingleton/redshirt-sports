@@ -2,6 +2,7 @@ import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
+import { ArticleAnalytics } from "@/components/analytics/article-analytics";
 import { ArticleByline } from "@/components/article/article-byline";
 import { ArticleRelatedPosts } from "@/components/article/article-related-posts";
 import { ArticleSidebar } from "@/components/article/article-sidebar";
@@ -16,7 +17,9 @@ import {
   buildArticleBreadcrumbs,
 } from "@/lib/article-page";
 import { getArticleRelatedPosts } from "@/lib/article-related";
+import { getArticleTagNames } from "@/lib/article-seo";
 import type { RankingsWidgetPoll } from "@/lib/rankings-widget-data";
+import { getCollegeSportSection } from "@/lib/sport-section";
 
 type ArticlePost = NonNullable<QueryPostSlugDataResult>;
 
@@ -134,6 +137,16 @@ export function ArticlePageContent({
           <RichText
             richText={post.body}
             className="prose-headings:font-display prose-headings:font-bold prose-headings:uppercase prose-headings:not-prose prose-a:text-primary prose-a:underline-offset-2 mx-auto mt-8 max-w-prose font-serif text-[1.15rem] leading-[1.7] prose-zinc dark:prose-invert [&_p]:mb-5"
+          />
+
+          <ArticleAnalytics
+            slug={slug}
+            title={post.title}
+            sport={getCollegeSportSection(post.sport)}
+            storyType={post.storyType}
+            authors={(post.authors ?? []).map((author) => author.name)}
+            tags={getArticleTagNames(post.tags)}
+            publishedAt={post.publishedAt}
           />
 
           <ArticleRelatedPosts posts={relatedArticles} />

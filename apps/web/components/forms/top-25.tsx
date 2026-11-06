@@ -14,7 +14,7 @@ import {
 } from "@redshirt-sports/ui/components/form";
 import { Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useImperativeHandle, useMemo } from "react";
+import { useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -135,6 +135,18 @@ function Top25Form({
     division?: "fbs" | "fcs" | "d2" | "d3" | "mid-major" | "power-conferences";
   };
   const router = useRouter();
+
+  // Fire `ballot_started` once, on the voter's first manual edit. Programmatic
+  // setValue calls (e.g. pre-filling the previous ballot) have no `type`.
+  const ballotStartedRef = useRef(false);
+  useEffect(() => {
+    const subscription = form.watch((_values, { type }) => {
+      if (type !== "change" || ballotStartedRef.current) return;
+      ballotStartedRef.current = true;
+      analytics?.capture("ballot_started", { sport, division });
+    });
+    return () => subscription.unsubscribe();
+  }, [form, sport, division]);
 
   useImperativeHandle(ref, () => ({
     populateWithPreviousBallot,

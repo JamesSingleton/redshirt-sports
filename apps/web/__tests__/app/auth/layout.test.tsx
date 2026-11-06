@@ -6,6 +6,10 @@ vi.mock("@redshirt-sports/auth/provider", () => ({
   ),
 }));
 
+vi.mock("@/components/analytics/auth-analytics", () => ({
+  AuthAnalytics: () => <span data-testid="auth-analytics" />,
+}));
+
 import AuthLayout from "@/app/(auth)/layout";
 
 describe("AuthLayout", () => {
@@ -17,6 +21,7 @@ describe("AuthLayout", () => {
     );
 
     expect(screen.getByTestId("auth-provider")).toBeInTheDocument();
+    expect(screen.getByTestId("auth-analytics")).toBeInTheDocument();
     expect(screen.getByText("child content")).toBeInTheDocument();
   });
 });

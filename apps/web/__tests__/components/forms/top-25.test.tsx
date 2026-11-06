@@ -286,6 +286,32 @@ describe("Top25 form", () => {
     });
   });
 
+  it("fires ballot_started once on the first manual edit, not on prefill", async () => {
+    const ref = createRef<Top25FormRef>();
+
+    render(
+      <Top25
+        ref={ref}
+        schools={makeSchools(25)}
+        previousBallot={makePreviousBallot(25)}
+      />,
+    );
+
+    await populateWithPreviousBallot(ref);
+    expect(mockCapture).not.toHaveBeenCalledWith(
+      "ballot_started",
+      expect.anything(),
+    );
+
+    const [firstSelect, secondSelect] = screen.getAllByLabelText("team-select");
+    fireEvent.change(firstSelect as HTMLElement, { target: { value: "x" } });
+    fireEvent.change(secondSelect as HTMLElement, { target: { value: "y" } });
+
+    expect(
+      mockCapture.mock.calls.filter(([event]) => event === "ballot_started"),
+    ).toHaveLength(1);
+  });
+
   it("shows validation errors for duplicate team selections", async () => {
     const ref = createRef<Top25FormRef>();
 
