@@ -517,9 +517,25 @@ export async function publishPollRankingsForWeek({
     const { missedUserIds, lockedOutUserIds } =
       await recordMissedBallotsForPollWeek({ pollId: poll.id, weekId }, tx);
 
+    // For cache invalidation: a school ranked in this poll season for the
+    // first time has no team-page cache tag for it yet.
+    const rankedSchoolIds = rankings.map((row) => row.schoolId);
+    const rankedSchoolSanityIds =
+      rankedSchoolIds.length === 0
+        ? []
+        : (
+            await tx
+              .select({ sanityId: schoolsTable.sanityId })
+              .from(schoolsTable)
+              .where(inArray(schoolsTable.id, rankedSchoolIds))
+          )
+            .map((row) => row.sanityId)
+            .filter((id): id is string => typeof id === "string" && id !== "");
+
     return {
       pollId: poll.id,
       weekId,
+      rankedSchoolSanityIds,
       teams: rankings.length,
       ballots: new Set(votes.map((vote) => vote.userId)).size,
       missed: missedUserIds.length,

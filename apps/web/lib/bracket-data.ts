@@ -17,7 +17,7 @@ import {
   listPublishedBracketSeasons,
 } from "@redshirt-sports/db/queries";
 import { rankingsDivisionTag } from "@redshirt-sports/db/rankings-cache-tags";
-import { RATINGS_CACHE_TAG } from "@redshirt-sports/db/ratings/cache-tags";
+import { ratingsSportTag } from "@redshirt-sports/db/ratings/cache-tags";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 
@@ -124,7 +124,7 @@ export async function getCachedBracketTeamStats(
   cacheTag(
     BRACKETS_CACHE_TAG,
     bracketEditionTag(editionId),
-    RATINGS_CACHE_TAG,
+    ratingsSportTag(sport),
     rankingsDivisionTag(sport, division),
   );
   cacheLife(BRACKETS_CACHE_LIFE);

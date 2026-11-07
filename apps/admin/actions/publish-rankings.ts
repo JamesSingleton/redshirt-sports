@@ -120,6 +120,7 @@ export async function publishRankings({
       division,
       year,
       weekKey,
+      schoolSanityIds: result.rankedSchoolSanityIds,
     });
   });
   return result;

@@ -6,8 +6,14 @@ import { safeCompare } from "@/lib/safe-compare";
 const sanityRevalidateSecret = process.env.SANITY_REVALIDATE_SECRET;
 const cacheRevalidateSecret = process.env.CACHE_REVALIDATE_SECRET;
 
+/** Post-list tags from `@redshirt-sports/sanity/cache-tags`, sent by the `post-cache-tags` Sanity Function. */
+function isPostListTag(tag: string) {
+  return tag.startsWith("post:") || tag.startsWith("posts:");
+}
+
 function isAllowlistedCacheTag(tag: string) {
   return (
+    isPostListTag(tag) ||
     tag === "rankings" ||
     tag.startsWith("rankings:") ||
     tag === "ratings" ||
@@ -59,12 +65,8 @@ export async function POST(request: NextRequest) {
     console.info("Revalidating Sanity tags from expirator service", { tags });
 
     for (const tag of tags) {
-      // Most Sanity content is safe to regenerate in the background. Rankings
-      // remain immediately expired because they can change vote availability.
-      revalidateTag(
-        `sanity:${tag}`,
-        tag === "rankings" ? { expire: 0 } : "max",
-      );
+      // Sanity content is safe to regenerate in the background.
+      revalidateTag(`sanity:${tag}`, "max");
     }
 
     return Response.json({
@@ -86,7 +88,7 @@ export async function POST(request: NextRequest) {
     return Response.json(
       {
         error:
-          "cacheTags must be rankings, rankings:*, ratings, ratings:*, brackets, or brackets:*",
+          "cacheTags must be post:*, posts:*, rankings, rankings:*, ratings, ratings:*, brackets, or brackets:*",
       },
       { status: 400 },
     );
@@ -95,7 +97,10 @@ export async function POST(request: NextRequest) {
   console.info("Expiring app cache tags", { cacheTags });
 
   for (const tag of cacheTags) {
-    revalidateTag(tag, { expire: 0 });
+    // Every allowlisted tag is display data: serve the cached page while it
+    // regenerates. Voting reads Postgres directly, never these caches, so a
+    // stale rankings page can't open or close a ballot.
+    revalidateTag(tag, "max");
   }
 
   return Response.json({

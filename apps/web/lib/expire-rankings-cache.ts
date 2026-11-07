@@ -53,6 +53,7 @@ export function rankingsVoterDisplayChanged(
 /** Expire public rankings `"use cache"` entries after a display-field write. */
 export function expireRankingsCache() {
   after(() => {
-    revalidateTag(RANKINGS_CACHE_TAG, { expire: 0 });
+    // Stale-while-revalidate: display data only (voting reads Postgres).
+    revalidateTag(RANKINGS_CACHE_TAG, "max");
   });
 }

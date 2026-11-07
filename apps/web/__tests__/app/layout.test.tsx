@@ -135,6 +135,20 @@ describe("RootLayout", () => {
     expect(viewport).toEqual({ themeColor: "#E80022" });
   });
 
+  it("waits for the cache-invalidate function in production", async () => {
+    const originalEnv = process.env.VERCEL_ENV;
+    process.env.VERCEL_ENV = "production";
+    try {
+      render(await RootLayout({ children: <div>Page content</div> }));
+      expect(screen.getByTestId("sanity-live")).toHaveAttribute(
+        "data-wait-for",
+        "function",
+      );
+    } finally {
+      process.env.VERCEL_ENV = originalEnv;
+    }
+  });
+
   it("renders published navbar and footer in the shell", async () => {
     const layout = await RootLayout({ children: <div>Page content</div> });
     render(layout);

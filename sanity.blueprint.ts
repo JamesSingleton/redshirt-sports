@@ -53,8 +53,11 @@ export default defineBlueprint({
       name: "auto-summary",
       event: {
         on: ["create", "update"],
+        // Only fills an empty excerpt. Regenerating on every body edit
+        // republished the post with new text each time, so every edit rewrote
+        // every cached page that lists it. Clear the excerpt to regenerate.
         filter:
-          "_type == 'post' && (delta::changedAny(body) || (delta::operation() == 'create' && defined(body)))",
+          "_type == 'post' && !defined(excerpt) && (delta::changedAny(body) || (delta::operation() == 'create' && defined(body)))",
         projection: "{_id}",
       },
     }),
@@ -65,9 +68,26 @@ export default defineBlueprint({
       timeout: 30,
       event: {
         on: ["create", "update"],
+        // Only tags an untagged post. The patch writes fresh `_key`s, so even
+        // the same tags counted as a change and republished the post.
         filter:
-          "_type == 'post' && (delta::changedAny(body) || (delta::operation() == 'create' && defined(body)))",
+          "_type == 'post' && count(coalesce(tags, [])) == 0 && (delta::changedAny(body) || (delta::operation() == 'create' && defined(body)))",
         projection: "{_id}",
+      },
+    }),
+    defineDocumentFunction({
+      name: "post-cache-tags",
+      src: "./apps/functions/post-cache-tags",
+      memory: 1,
+      timeout: 10,
+      event: {
+        on: ["create", "update", "delete"],
+        filter: "_type == 'post'",
+        // Plain fields are the post as it is now (the deleted post on
+        // delete). before() adds refs a change removed, so dropping a school
+        // or author from a post expires that school's or author's list too.
+        projection:
+          "{_id, 'teams': coalesce(teams[]._ref, []) + coalesce(before().teams[]._ref, []), 'authors': coalesce(authors[]._ref, []) + coalesce(before().authors[]._ref, [])}",
       },
     }),
     defineDocumentFunction({

@@ -6,12 +6,13 @@ import {
   sanityTutorialsWidget,
 } from "@sanity/dashboard";
 import { visionTool } from "@sanity/vision";
+import { CogIcon, PanelBottomIcon, PanelTopDashedIcon } from "lucide-react";
 import type {
   InputProps,
   PortableTextInputProps,
   PortableTextPluginsProps,
 } from "sanity";
-import { defineConfig } from "sanity";
+import { defineConfig, defineSingleton } from "sanity";
 import { presentationTool } from "sanity/presentation";
 import { structureTool } from "sanity/structure";
 import { media } from "sanity-plugin-media";
@@ -88,6 +89,28 @@ export default defineConfig({
     },
   },
   document: {
+    // Fixed-id documents the web app reads by `_id`. Studio hides them from
+    // every "create new" menu and removes Duplicate; `structure.ts` lists them.
+    singletons: [
+      defineSingleton({
+        documentId: "navbar",
+        schemaType: "navbar",
+        title: "Navigation",
+        icon: PanelTopDashedIcon,
+      }),
+      defineSingleton({
+        documentId: "footer",
+        schemaType: "footer",
+        title: "Footer",
+        icon: PanelBottomIcon,
+      }),
+      defineSingleton({
+        documentId: "settings",
+        schemaType: "settings",
+        title: "Global Settings",
+        icon: CogIcon,
+      }),
+    ],
     newDocumentOptions: (prev, { creationContext, currentUser }) => {
       const { type } = creationContext;
       const isAdmin = currentUser?.roles?.find(
@@ -98,11 +121,7 @@ export default defineConfig({
         if (!isAdmin) {
           return prev.filter(
             (option) =>
-              option.templateId !== "settings" &&
-              option.templateId !== "legal" &&
-              option.templateId !== "redirect" &&
-              option.templateId !== "footer" &&
-              option.templateId !== "navbar",
+              option.templateId !== "legal" && option.templateId !== "redirect",
           );
         }
 

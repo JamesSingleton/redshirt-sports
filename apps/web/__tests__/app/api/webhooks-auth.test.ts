@@ -355,7 +355,7 @@ describe("POST /api/webhooks/auth", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", { expire: 0 });
+    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", "max");
   });
 
   it("does not expire rankings cache when only voter credentials change", async () => {

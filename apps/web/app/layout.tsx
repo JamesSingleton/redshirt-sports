@@ -73,7 +73,21 @@ export default async function RootLayout({
           )}
         </Providers>
         <Toaster />
-        <SanityLive includeDrafts={isDraftMode} />
+        {/*
+          waitFor="function" (production only): published events reach the
+          browser after the `cache-invalidate` Sanity Function has expired the
+          tags, and each tab then just calls router.refresh(). Without it,
+          every open tab runs revalidateTag itself, repeating the function's
+          work once per tab. The function only revalidates the production
+          site, so previews and local dev keep revalidating themselves.
+          next-sanity ignores waitFor in draft mode.
+        */}
+        <SanityLive
+          includeDrafts={isDraftMode}
+          waitFor={
+            process.env.VERCEL_ENV === "production" ? "function" : undefined
+          }
+        />
         {isDraftMode ? (
           <>
             <VisualEditing />

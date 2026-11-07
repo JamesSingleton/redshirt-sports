@@ -3,7 +3,7 @@ import {
   getDynamicFetchOptions,
   sanityFetchMetadata,
 } from "@redshirt-sports/sanity/live";
-import { authorBySlug, postsByAuthor } from "@redshirt-sports/sanity/queries";
+import { authorBySlug } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import type { Graph } from "schema-dts";
@@ -21,6 +21,7 @@ import { getBaseUrl } from "@/lib/get-base-url";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { personArchiveMetaDescription } from "@/lib/page-meta-descriptions";
 import { personHref } from "@/lib/person-href";
+import { getCachedAuthorPosts } from "@/lib/post-lists";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { validatePageIndex } from "@/utils/validate-page-index";
 
@@ -115,12 +116,9 @@ async function cachedRenderPersonPage({
       perspective,
       stega,
     }),
-    sanityFetchPage({
-      query: postsByAuthor,
-      params: { slug, from, to },
-      perspective,
-      stega,
-    }),
+    getCachedAuthorPosts({ slug, from, to, perspective, stega }).then(
+      (data) => ({ data }),
+    ),
   ]);
 
   if (!author) {

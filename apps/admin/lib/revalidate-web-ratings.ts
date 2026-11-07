@@ -7,7 +7,11 @@ import { resolvePublicSiteUrl } from "@/lib/site";
  * Expire the public ratings pages for a pool after publish, unpublish, or rollback.
  * Same `/api/revalidate-tags` path as rankings. Soft-skips when CACHE_REVALIDATE_SECRET is unset.
  */
-export async function revalidateWebRatingsCache(sport: string, pool: string) {
+export async function revalidateWebRatingsCache(
+  sport: string,
+  pool: string,
+  options?: { visibilityChanged?: boolean },
+) {
   const secret = env.CACHE_REVALIDATE_SECRET;
   if (!secret) {
     console.warn(
@@ -22,7 +26,7 @@ export async function revalidateWebRatingsCache(sport: string, pool: string) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         secret,
-        cacheTags: ratingsInvalidationTags(sport, pool),
+        cacheTags: ratingsInvalidationTags(sport, pool, options),
       }),
     });
     if (!res.ok) {

@@ -40,8 +40,11 @@ export async function GET(request: Request) {
         division: result.division,
         year: result.year,
         week: result.week,
+        schoolSanityIds: result.rankedSchoolSanityIds,
       })) {
-        revalidateTag(tag, { expire: 0 });
+        // Stale-while-revalidate: voting reads Postgres directly, so the old
+        // page is only display data until it regenerates.
+        revalidateTag(tag, "max");
       }
       if (result.lockedOutUserIds.length > 0) {
         Sentry.captureMessage(

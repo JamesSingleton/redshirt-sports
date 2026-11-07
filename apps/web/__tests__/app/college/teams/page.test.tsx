@@ -7,7 +7,7 @@ const {
   mockSanityFetchStaticParams,
   mockGetCachedRankedSchoolSanityIds,
   mockGetCachedSchoolRankingHistory,
-  mockGetCachedSchoolHasPollRankings,
+  mockGetCachedSchoolPosts,
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
@@ -17,7 +17,7 @@ const {
   mockSanityFetchStaticParams: vi.fn(),
   mockGetCachedRankedSchoolSanityIds: vi.fn().mockResolvedValue([]),
   mockGetCachedSchoolRankingHistory: vi.fn().mockResolvedValue({ polls: [] }),
-  mockGetCachedSchoolHasPollRankings: vi.fn().mockResolvedValue(false),
+  mockGetCachedSchoolPosts: vi.fn(),
   mockGetDynamicFetchOptions: vi
     .fn()
     .mockResolvedValue({ perspective: "published", stega: false }),
@@ -45,6 +45,18 @@ vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
 }));
 
+vi.mock("@/lib/post-lists", () => ({
+  getCachedSchoolPosts: mockGetCachedSchoolPosts,
+}));
+
+/** A school's posts payload; eligible (10 posts in total) unless told otherwise. */
+function schoolPosts(
+  data: { posts?: unknown[]; totalPosts?: number } | null,
+  totalPosts = 10,
+) {
+  return data && { posts: [], totalPosts, ...data };
+}
+
 vi.mock("@redshirt-sports/sanity/live", () => ({
   PUBLISHED_FETCH_OPTIONS: {
     perspective: "published",
@@ -71,7 +83,6 @@ vi.mock("@/lib/global-seo-settings", () => ({
 
 vi.mock("@/lib/rankings-data", () => ({
   getCachedRankedSchoolSanityIds: mockGetCachedRankedSchoolSanityIds,
-  getCachedSchoolHasPollRankings: mockGetCachedSchoolHasPollRankings,
   getCachedSchoolRankingHistory: mockGetCachedSchoolRankingHistory,
 }));
 
@@ -130,29 +141,28 @@ const sampleSchool = {
   shortName: "Alabama",
   nickname: "Crimson Tide",
   slug: "alabama",
-  postCount: 10,
   image: null,
   socialLinks: {},
   overview: "Team overview",
 };
 
 function mockTeamPageFetches() {
-  mockSanityFetchPage
-    .mockResolvedValueOnce({ data: sampleSchool })
-    .mockResolvedValueOnce({
-      data: {
-        posts: Array.from({ length: 8 }, (_, i) => ({
-          _id: `post-${i}`,
-          title: `Post ${i}`,
-          sport: { slug: "football", title: "Football" },
-        })),
-      },
-    });
+  mockSanityFetchPage.mockResolvedValueOnce({ data: sampleSchool });
+  mockGetCachedSchoolPosts.mockResolvedValueOnce(
+    schoolPosts({
+      posts: Array.from({ length: 8 }, (_, i) => ({
+        _id: `post-${i}`,
+        title: `Post ${i}`,
+        sport: { slug: "football", title: "Football" },
+      })),
+    }),
+  );
 }
 
 describe("TeamPage", () => {
   beforeEach(() => {
     mockSanityFetchPage.mockReset();
+    mockGetCachedSchoolPosts.mockReset().mockResolvedValue(schoolPosts({}));
     mockSanityFetchMetadata.mockReset();
     mockSanityFetchStaticParams.mockReset();
     mockNotFound.mockClear();
@@ -161,9 +171,8 @@ describe("TeamPage", () => {
   });
 
   it("shows computer ratings in the matching sport section, even without its posts", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({ data: sampleSchool })
-      .mockResolvedValueOnce({ data: { posts: [] } });
+    mockSanityFetchPage.mockResolvedValueOnce({ data: sampleSchool });
+    mockGetCachedSchoolPosts.mockResolvedValueOnce(schoolPosts({ posts: [] }));
     mockGetCachedTeamRatings.mockResolvedValue([
       { pool: { name: "FCS", slug: "fcs", sportSlug: "football" } },
     ]);
@@ -230,10 +239,19 @@ describe("TeamPage", () => {
   });
 
   it("generateMetadata throws notFound when school is ineligible", async () => {
-    mockSanityFetchMetadata.mockResolvedValue({
-      data: { ...sampleSchool, postCount: 0 },
-    });
-    mockGetCachedSchoolHasPollRankings.mockResolvedValue(false);
+    mockSanityFetchMetadata.mockResolvedValue({ data: sampleSchool });
+    mockGetCachedSchoolPosts.mockResolvedValue(schoolPosts({}, 0));
+    mockGetCachedSchoolRankingHistory.mockResolvedValueOnce({ polls: [] });
+
+    await expect(
+      generateMetadata({ params: Promise.resolve({ slug: "alabama" }) }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("generateMetadata treats a null posts payload as no posts", async () => {
+    mockSanityFetchMetadata.mockResolvedValue({ data: sampleSchool });
+    mockGetCachedSchoolPosts.mockResolvedValue(null);
+    mockGetCachedSchoolRankingHistory.mockResolvedValueOnce({ polls: [] });
 
     await expect(
       generateMetadata({ params: Promise.resolve({ slug: "alabama" }) }),
@@ -260,20 +278,19 @@ describe("TeamPage", () => {
   });
 
   it("passes unique conference sport slugs to the team sidebar sponsorship", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          ...sampleSchool,
-          conferenceAffiliations: [
-            { sport: { slug: "football" } },
-            { sport: { slug: "football" } },
-            { sport: { slug: "basketball" } },
-            { sport: null },
-            { sport: { slug: "" } },
-          ],
-        },
-      })
-      .mockResolvedValueOnce({ data: { posts: [] } });
+    mockSanityFetchPage.mockResolvedValueOnce({
+      data: {
+        ...sampleSchool,
+        conferenceAffiliations: [
+          { sport: { slug: "football" } },
+          { sport: { slug: "football" } },
+          { sport: { slug: "basketball" } },
+          { sport: null },
+          { sport: { slug: "" } },
+        ],
+      },
+    });
+    mockGetCachedSchoolPosts.mockResolvedValueOnce(schoolPosts({ posts: [] }));
     mockGetCachedSchoolRankingHistory.mockResolvedValue({
       polls: [{ pollId: "poll-1" }],
     });
@@ -284,7 +301,7 @@ describe("TeamPage", () => {
     render(page as ReactNode);
 
     expect(mockSanityFetchPage).toHaveBeenNthCalledWith(
-      3,
+      2,
       expect.objectContaining({
         query: "queryActiveAdvertisement",
         params: expect.objectContaining({
@@ -303,9 +320,8 @@ describe("TeamPage", () => {
   });
 
   it("throws notFound when school is ineligible", async () => {
-    mockSanityFetchPage.mockResolvedValue({
-      data: { ...sampleSchool, postCount: 0 },
-    });
+    mockSanityFetchPage.mockResolvedValue({ data: sampleSchool });
+    mockGetCachedSchoolPosts.mockResolvedValue(schoolPosts({}, 0));
     mockGetCachedSchoolRankingHistory.mockResolvedValue({ polls: [] });
 
     await expect(
@@ -315,7 +331,9 @@ describe("TeamPage", () => {
 
   it("generateMetadata returns metadata for eligible school", async () => {
     mockSanityFetchMetadata.mockResolvedValue({ data: sampleSchool });
-    mockGetCachedSchoolHasPollRankings.mockResolvedValue(true);
+    mockGetCachedSchoolRankingHistory.mockResolvedValueOnce({
+      polls: [{ pollSlug: "fbs", years: [2026] }],
+    });
     await generateMetadata({ params: Promise.resolve({ slug: "alabama" }) });
     expect(mockGetPageMetadata).toHaveBeenCalledWith(
       expect.objectContaining({ slug: "/college/teams/alabama" }),
@@ -340,7 +358,9 @@ describe("TeamPage", () => {
         nickname: null,
       },
     });
-    mockGetCachedSchoolHasPollRankings.mockResolvedValue(true);
+    mockGetCachedSchoolRankingHistory.mockResolvedValueOnce({
+      polls: [{ pollSlug: "fbs", years: [2026] }],
+    });
     await generateMetadata({ params: Promise.resolve({ slug: "alabama" }) });
     expect(mockGetPageMetadata).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -359,7 +379,9 @@ describe("TeamPage", () => {
         seoTitle: null,
       },
     });
-    mockGetCachedSchoolHasPollRankings.mockResolvedValue(true);
+    mockGetCachedSchoolRankingHistory.mockResolvedValueOnce({
+      polls: [{ pollSlug: "fbs", years: [2026] }],
+    });
     await generateMetadata({ params: Promise.resolve({ slug: "alabama" }) });
     expect(mockGetPageMetadata).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -379,22 +401,21 @@ describe("TeamPage", () => {
   });
 
   it("renders school logo when image is present", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          ...sampleSchool,
-          image: { asset: { _ref: "image-1" }, alt: "Alabama" },
-        },
-      })
-      .mockResolvedValueOnce({
-        data: {
-          posts: Array.from({ length: 8 }, (_, i) => ({
-            _id: `post-${i}`,
-            title: `Post ${i}`,
-            sport: { slug: "football", title: "Football" },
-          })),
-        },
-      });
+    mockSanityFetchPage.mockResolvedValueOnce({
+      data: {
+        ...sampleSchool,
+        image: { asset: { _ref: "image-1" }, alt: "Alabama" },
+      },
+    });
+    mockGetCachedSchoolPosts.mockResolvedValueOnce(
+      schoolPosts({
+        posts: Array.from({ length: 8 }, (_, i) => ({
+          _id: `post-${i}`,
+          title: `Post ${i}`,
+          sport: { slug: "football", title: "Football" },
+        })),
+      }),
+    );
 
     const page = await TeamPage({
       params: Promise.resolve({ slug: "alabama" }),
@@ -405,15 +426,14 @@ describe("TeamPage", () => {
   });
 
   it("falls back to Team when shortName and name are missing", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({
-        data: {
-          ...sampleSchool,
-          shortName: null,
-          name: null,
-        },
-      })
-      .mockResolvedValueOnce({ data: { posts: [] } });
+    mockSanityFetchPage.mockResolvedValueOnce({
+      data: {
+        ...sampleSchool,
+        shortName: null,
+        name: null,
+      },
+    });
+    mockGetCachedSchoolPosts.mockResolvedValueOnce(schoolPosts({ posts: [] }));
     mockGetCachedSchoolRankingHistory.mockResolvedValue({
       polls: [{ pollId: "poll-1", sportSlug: "football", pollSlug: "fcs" }],
     });
@@ -430,10 +450,12 @@ describe("TeamPage", () => {
   });
 
   it("treats a null news payload as an empty post list", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({ data: sampleSchool })
-      .mockResolvedValueOnce({ data: null });
-    mockGetCachedSchoolRankingHistory.mockResolvedValue({ polls: [] });
+    mockSanityFetchPage.mockResolvedValueOnce({ data: sampleSchool });
+    mockGetCachedSchoolPosts.mockResolvedValueOnce(schoolPosts(null));
+    // No posts payload means no posts, so only rankings history keeps the page up.
+    mockGetCachedSchoolRankingHistory.mockResolvedValue({
+      polls: [{ pollId: "poll-1", sportSlug: "football", pollSlug: "fcs" }],
+    });
 
     const page = await TeamPage({
       params: Promise.resolve({ slug: "alabama" }),
@@ -444,9 +466,8 @@ describe("TeamPage", () => {
   });
 
   it("renders team page without posts when news feed is empty", async () => {
-    mockSanityFetchPage
-      .mockResolvedValueOnce({ data: sampleSchool })
-      .mockResolvedValueOnce({ data: { posts: [] } });
+    mockSanityFetchPage.mockResolvedValueOnce({ data: sampleSchool });
+    mockGetCachedSchoolPosts.mockResolvedValueOnce(schoolPosts({ posts: [] }));
     mockGetCachedSchoolRankingHistory.mockResolvedValue({
       polls: [
         {

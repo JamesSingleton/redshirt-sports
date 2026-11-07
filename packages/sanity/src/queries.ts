@@ -1,7 +1,7 @@
 import { defineQuery, groq } from "next-sanity";
 
 export const querySettingsData = defineQuery(/* groq */ `
-  *[_type == "settings"][0]{
+  *[_type == "settings" && _id == "settings"][0]{
     _id,
     _type,
     siteBrand,
@@ -292,17 +292,31 @@ export const queryPostSlugData = defineQuery(/* groq */ `
       nickname,
       "slug": slug.current,
       ${schoolImageFragment}
-    },
+    }
+  }
+`);
+
+/**
+ * The article page's related, up-next, and more-from-author lists. Kept out
+ * of `queryPostSlugData` because any `_type == "post"` list gets Sanity's
+ * type-wide sync tag; the web app fetches this without sync tags and tags it
+ * by the listed posts instead (see `@redshirt-sports/sanity/cache-tags`).
+ * Every list only holds posts published before the article, so new posts
+ * never change an existing article's page.
+ */
+export const queryArticleLists = defineQuery(/* groq */ `
+  {
     "relatedPosts": *[
       _type == "post"
       && defined(publishedAt)
       && defined(slug.current)
-      && _id != ^._id
+      && _id != $postId
+      && (!defined($publishedAt) || publishedAt < $publishedAt)
       && (
-        (defined(^.sport._ref) && sport._ref == ^.sport._ref)
-        || count(conferences[@._ref in ^.^.conferences[]._ref]) > 0
-        || count(tags[@._ref in ^.^.tags[]._ref]) > 0
-        || count(teams[@._ref in ^.^.teams[]._ref]) > 0
+        (defined($sportId) && sport._ref == $sportId)
+        || count(conferences[@._ref in $conferenceIds]) > 0
+        || count(tags[@._ref in $tagIds]) > 0
+        || count(teams[@._ref in $teamIds]) > 0
       )
     ] | order(publishedAt desc, _id desc)[0...3] {
       _id,
@@ -319,10 +333,10 @@ export const queryPostSlugData = defineQuery(/* groq */ `
       _type == "post"
       && defined(publishedAt)
       && defined(slug.current)
-      && _id != ^._id
-      && defined(^.publishedAt)
-      && publishedAt < ^.publishedAt
-      && (!defined(^.sport._ref) || sport._ref == ^.sport._ref)
+      && _id != $postId
+      && defined($publishedAt)
+      && publishedAt < $publishedAt
+      && (!defined($sportId) || sport._ref == $sportId)
     ] | order(publishedAt desc)[0] {
       _id,
       title,
@@ -335,14 +349,15 @@ export const queryPostSlugData = defineQuery(/* groq */ `
     },
     "moreFromAuthor": *[
       _type == "post"
-      && _id != ^._id
-      && count(authors[@._ref in ^.authors[]._ref]) > 0
+      && defined(publishedAt)
+      && _id != $postId
+      && (!defined($publishedAt) || publishedAt < $publishedAt)
+      && count(authors[@._ref in $authorIds]) > 0
     ] | order(publishedAt desc)[0...3]{
       _id,
       title,
       "slug": slug.current
     }
-
   }
 `);
 
@@ -476,7 +491,7 @@ export const queryFooterData = defineQuery(/* groq */ `
 `);
 
 export const queryGlobalSeoSettings = defineQuery(/* groq */ `
-  *[_type == "settings"][0]{
+  *[_type == "settings" && _id == "settings"][0]{
     _id,
     _type,
     siteBrand,
@@ -718,6 +733,7 @@ export const authorBySlug = defineQuery(/* groq */ `
 
 export const postsByAuthor = defineQuery(/* groq */ `
   *[_type == "author" && slug.current == $slug && archived == false][0]{
+    "authorId": _id,
     "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[$from...$to]{
       ...,
       "slug": slug.current,
@@ -1212,7 +1228,6 @@ export const schoolBySlugQuery = defineQuery(/* groq */ `
     seoImage,
     ogTitle,
     ogDescription,
-    "postCount": count(*[${publishedPostsTaggingSchoolFromParentFilter}]),
     ${schoolImageFragment},
     conferenceAffiliations[]{
       _key,

@@ -17,11 +17,14 @@ export async function revalidateWebRankingsCache({
   division,
   year,
   weekKey,
+  schoolSanityIds,
 }: {
   sport: string;
   division: string;
   year: number;
   weekKey: string;
+  /** The week's ranked schools, on publish; see `rankingsInvalidationTags`. */
+  schoolSanityIds?: readonly string[];
 }) {
   const secret = env.CACHE_REVALIDATE_SECRET;
   if (!secret) {
@@ -41,7 +44,13 @@ export async function revalidateWebRankingsCache({
     parsed.seasonType,
     parsed.weekNumber,
   );
-  const cacheTags = rankingsInvalidationTags({ sport, division, year, week });
+  const cacheTags = rankingsInvalidationTags({
+    sport,
+    division,
+    year,
+    week,
+    schoolSanityIds,
+  });
   const baseUrl = resolvePublicSiteUrl(env.NEXT_PUBLIC_SITE_URL);
 
   try {

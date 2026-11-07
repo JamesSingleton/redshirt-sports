@@ -67,7 +67,9 @@ describe("ratings admin actions", () => {
     });
     expect(db.setPoolFlags).toHaveBeenCalledWith("pool-1", { isPublic: true });
     expect(result.message).toBe("Ratings pages are now public.");
-    expect(mockRevalidateWeb).toHaveBeenCalledWith("football", "fcs");
+    expect(mockRevalidateWeb).toHaveBeenCalledWith("football", "fcs", {
+      visibilityChanged: true,
+    });
   });
 
   it("reports hiding and pausing, and failures", async () => {
@@ -98,6 +100,10 @@ describe("ratings admin actions", () => {
       allowBlockers: false,
     });
     expect(result.ok).toBe(true);
-    expect(mockRevalidateWeb).toHaveBeenCalledWith("football", "fcs");
+    expect(mockRevalidateWeb).toHaveBeenCalledWith(
+      "football",
+      "fcs",
+      undefined,
+    );
   });
 });

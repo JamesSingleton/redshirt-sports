@@ -72,9 +72,10 @@ describe("GET /api/cron/ratings", () => {
       pool: { sportSlug: "football", slug: "fcs" },
       trigger: "cron",
     });
-    expect(mockRevalidateTag).toHaveBeenCalledWith("ratings:football:fcs", {
-      expire: 0,
-    });
+    expect(mockRevalidateTag).toHaveBeenCalledWith(
+      "ratings:football:fcs",
+      "max",
+    );
 
     mockRevalidateTag.mockClear();
     mockRunPipeline.mockResolvedValueOnce({

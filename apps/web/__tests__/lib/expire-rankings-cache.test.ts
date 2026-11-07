@@ -127,6 +127,6 @@ describe("expireRankingsCache", () => {
     expireRankingsCache();
 
     expect(mockAfter).toHaveBeenCalledOnce();
-    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", { expire: 0 });
+    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", "max");
   });
 });

@@ -8,7 +8,7 @@ export const resolve: PresentationPluginOptions["resolve"] = {
   mainDocuments: defineDocuments([
     {
       route: "/",
-      filter: `_type == "settings"`,
+      filter: `_type == "settings" && _id == "settings"`,
     },
     {
       route: "/authors/:slug",

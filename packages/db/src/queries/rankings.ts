@@ -535,19 +535,6 @@ export async function replacePollRankings(
   });
 }
 
-export async function schoolHasPollRankings(
-  sanityId: string,
-): Promise<boolean> {
-  const [row] = await db
-    .select({ id: pollRankingsTable.id })
-    .from(pollRankingsTable)
-    .innerJoin(schoolsTable, eq(pollRankingsTable.schoolId, schoolsTable.id))
-    .where(eq(schoolsTable.sanityId, sanityId))
-    .limit(1);
-
-  return !!row;
-}
-
 /** Distinct Sanity school ids that appear in published poll rankings. */
 export async function getRankedSchoolSanityIds(): Promise<string[]> {
   const rows = await db

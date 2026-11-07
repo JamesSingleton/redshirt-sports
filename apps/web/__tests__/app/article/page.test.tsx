@@ -10,6 +10,7 @@ const {
   mockGetPageMetadata,
   mockNotFound,
   mockGetCachedRankingsWidgetPolls,
+  mockGetCachedArticleLists,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
   mockSanityFetchMetadata: vi.fn(),
@@ -26,7 +27,10 @@ const {
     throw new Error("NEXT_NOT_FOUND");
   }),
   mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
+  mockGetCachedArticleLists: vi.fn(),
 }));
+
+const emptyLists = { relatedPosts: [], upNextInFeed: null, moreFromAuthor: [] };
 
 vi.mock("@/lib/draft-cache", () => ({
   draftAwareParamsPage: (
@@ -44,6 +48,12 @@ vi.mock("@/lib/draft-cache", () => ({
 
 vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
+}));
+
+vi.mock("@/lib/post-lists", async (importOriginal) => ({
+  articleListParams: (await importOriginal<typeof import("@/lib/post-lists")>())
+    .articleListParams,
+  getCachedArticleLists: mockGetCachedArticleLists,
 }));
 
 vi.mock("@/lib/rankings-widget-data", () => ({
@@ -155,6 +165,7 @@ import PostPage, {
 } from "@/app/[slug]/page";
 
 const samplePost = {
+  _id: "post-1",
   title: "Big Game Preview",
   excerpt: "A look ahead at Saturday.",
   slug: "big-game-preview",
@@ -178,6 +189,10 @@ const samplePost = {
       ],
     },
   ],
+};
+
+const sampleLists = {
+  ...emptyLists,
   relatedPosts: [
     {
       _id: "related-1",
@@ -196,6 +211,7 @@ describe("PostPage", () => {
     mockSanityFetchMetadata.mockReset();
     mockSanityFetchStaticParams.mockReset();
     mockNotFound.mockClear();
+    mockGetCachedArticleLists.mockReset().mockResolvedValue(emptyLists);
     mockGetCachedRankingsWidgetPolls.mockResolvedValue([
       { id: "poll-1", label: "FBS" },
     ]);
@@ -318,6 +334,7 @@ describe("PostPage", () => {
 
   it("renders article with breadcrumbs, photo credit, and related articles", async () => {
     mockSanityFetchPage.mockResolvedValue({ data: samplePost });
+    mockGetCachedArticleLists.mockResolvedValue(sampleLists);
 
     const page = await PostPage({
       params: Promise.resolve({ slug: "big-game-preview" }),
@@ -340,6 +357,15 @@ describe("PostPage", () => {
     expect(screen.getByText("Related Article")).toBeInTheDocument();
     expect(screen.getByText("Photo: Getty")).toBeInTheDocument();
     expect(mockGetCachedRankingsWidgetPolls).toHaveBeenCalledWith("football");
+    expect(mockGetCachedArticleLists).toHaveBeenCalledWith({
+      params: expect.objectContaining({
+        postId: samplePost._id,
+        publishedAt: samplePost.publishedAt,
+        sportId: "sport-1",
+      }),
+      perspective: "published",
+      stega: false,
+    });
   });
 
   it("generateStaticParams returns empty array when Sanity has no paths", async () => {

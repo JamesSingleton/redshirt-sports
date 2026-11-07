@@ -9,6 +9,7 @@
   },
   "exports": {
     "./api": "./src/api.ts",
+    "./cache-tags": "./src/cache-tags.ts",
     "./client": "./src/client.ts",
     "./live": "./src/live.ts",
     "./queries": "./src/queries.ts",

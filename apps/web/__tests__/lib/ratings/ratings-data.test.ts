@@ -1,3 +1,5 @@
+import { cacheTag } from "next/cache";
+
 import { weekModel } from "@/__tests__/helpers/ratings-fixtures";
 
 const db = vi.hoisted(() => ({
@@ -66,6 +68,19 @@ describe("ratings data", () => {
     db.listTeamRatings.mockResolvedValue([]);
     await expect(getCachedTeamRatings("school-1")).resolves.toEqual([]);
     expect(db.listTeamRatings).toHaveBeenCalledWith("school-1");
+  });
+
+  it("tags a team's ratings with each pool it appears in", async () => {
+    db.listTeamRatings.mockResolvedValue([
+      { pool: { sportSlug: "football", slug: "fcs" } },
+      { pool: { sportSlug: "football", slug: "fbs" } },
+    ]);
+    await getCachedTeamRatings("school-1");
+    expect(cacheTag).toHaveBeenCalledWith(
+      "ratings",
+      "ratings:football:fcs",
+      "ratings:football:fbs",
+    );
   });
 
   it("lists public pools", async () => {

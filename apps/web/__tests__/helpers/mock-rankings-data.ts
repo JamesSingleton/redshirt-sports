@@ -8,7 +8,6 @@ export type RankingsDataMocks = {
   getCachedFinalRankings: Mock;
   getCachedBallotsForWeek: Mock;
   getCachedSchoolRankingHistory: Mock;
-  getCachedSchoolHasPollRankings: Mock;
   getCachedRankedSchoolSanityIds: Mock;
 };
 
@@ -31,7 +30,6 @@ export function createRankingsDataMocks(): RankingsDataMocks {
     getCachedFinalRankings: vi.fn().mockResolvedValue(sampleFinalRankings),
     getCachedBallotsForWeek: vi.fn().mockResolvedValue([]),
     getCachedSchoolRankingHistory: vi.fn().mockResolvedValue({}),
-    getCachedSchoolHasPollRankings: vi.fn().mockResolvedValue(true),
     getCachedRankedSchoolSanityIds: vi
       .fn()
       .mockResolvedValue(["school-1", "school-2"]),
