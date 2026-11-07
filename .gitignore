@@ -59,3 +59,4 @@ scripts/
 # Sanity Blueprints: keep the stack link, ignore everything else the CLI writes
 /.sanity/*
 !/.sanity/blueprint.config.json
+.env*
