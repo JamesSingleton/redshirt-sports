@@ -4,7 +4,6 @@ const {
   mockGetFinalRankingsForWeekAndYear,
   mockGetFinalRankingsForLegacyWeeksInYear,
   mockGetSchoolRankingHistory,
-  mockSchoolHasPollRankings,
   mockGetRankedSchoolSanityIds,
   mockGetLatestFinalRankings,
   mockGetLatestFinalRankingsBySportSlug,
@@ -23,7 +22,6 @@ const {
   mockGetFinalRankingsForWeekAndYear: vi.fn(),
   mockGetFinalRankingsForLegacyWeeksInYear: vi.fn(),
   mockGetSchoolRankingHistory: vi.fn(),
-  mockSchoolHasPollRankings: vi.fn(),
   mockGetRankedSchoolSanityIds: vi.fn(),
   mockGetLatestFinalRankings: vi.fn(),
   mockGetLatestFinalRankingsBySportSlug: vi.fn(),
@@ -50,7 +48,6 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   getFinalRankingsForLegacyWeeksInYear:
     mockGetFinalRankingsForLegacyWeeksInYear,
   getSchoolRankingHistory: mockGetSchoolRankingHistory,
-  schoolHasPollRankings: mockSchoolHasPollRankings,
   getRankedSchoolSanityIds: mockGetRankedSchoolSanityIds,
   getLatestFinalRankings: mockGetLatestFinalRankings,
   getLatestFinalRankingsBySportSlug: mockGetLatestFinalRankingsBySportSlug,
@@ -78,7 +75,6 @@ import {
   getCachedPollVoterBallotStatsForSeason,
   getCachedPollWeekBallotContext,
   getCachedRankedSchoolSanityIds,
-  getCachedSchoolHasPollRankings,
   getCachedSchoolRankingHistory,
   getCachedVotesForWeekAndYearByVoter,
   getCachedWeeksThatHaveVotes,
@@ -137,18 +133,32 @@ describe("rankings-data", () => {
     });
   });
 
-  it("getCachedSchoolRankingHistory delegates to db", async () => {
-    mockGetSchoolRankingHistory.mockResolvedValue({ seasons: [] });
-    await expect(getCachedSchoolRankingHistory("school-1")).resolves.toEqual({
-      seasons: [],
-    });
+  it("getCachedSchoolRankingHistory tags the school and each poll season it appears in", async () => {
+    const history = {
+      polls: [
+        { pollSlug: "fcs", years: [2025, 2026] },
+        { pollSlug: "fbs", years: [2026] },
+      ],
+    };
+    mockGetSchoolRankingHistory.mockResolvedValue(history);
+    await expect(getCachedSchoolRankingHistory("school-1")).resolves.toBe(
+      history,
+    );
+    expect(cacheTag).toHaveBeenCalledWith(
+      "rankings:school:school-1",
+      "rankings:fcs:2025:weeks",
+      "rankings:fcs:2026:weeks",
+      "rankings:fbs:2026:weeks",
+    );
+    expect(cacheTag).not.toHaveBeenCalledWith(
+      expect.stringMatching(/^rankings$/),
+    );
   });
 
-  it("getCachedSchoolHasPollRankings delegates to db", async () => {
-    mockSchoolHasPollRankings.mockResolvedValue(true);
-    await expect(getCachedSchoolHasPollRankings("school-1")).resolves.toBe(
-      true,
-    );
+  it("getCachedSchoolRankingHistory tags an unranked school by school only", async () => {
+    mockGetSchoolRankingHistory.mockResolvedValue({ polls: [] });
+    await getCachedSchoolRankingHistory("school-2");
+    expect(cacheTag).toHaveBeenCalledWith("rankings:school:school-2");
   });
 
   it("getCachedRankedSchoolSanityIds delegates to db", async () => {

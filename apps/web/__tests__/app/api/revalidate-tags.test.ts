@@ -210,7 +210,7 @@ describe("POST /api/revalidate-tags", () => {
     });
   });
 
-  it("prefixes rankings values in tags as Sanity ids", async () => {
+  it("prefixes every Sanity tag and serves it stale while it regenerates", async () => {
     vi.resetModules();
     const { POST } = await import("@/app/api/revalidate-tags/route");
 
@@ -226,9 +226,30 @@ describe("POST /api/revalidate-tags", () => {
     );
 
     expect(res.status).toBe(200);
-    expect(mockRevalidateTag).toHaveBeenCalledWith("sanity:rankings", {
-      expire: 0,
-    });
+    expect(mockRevalidateTag).toHaveBeenCalledWith("sanity:rankings", "max");
+  });
+
+  it("serves post-list tags stale while they regenerate", async () => {
+    vi.resetModules();
+    const { POST } = await import("@/app/api/revalidate-tags/route");
+
+    const res = await POST(
+      new Request("https://example.com/api/revalidate-tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          secret: CACHE_SECRET,
+          cacheTags: ["post:post-1", "posts:school:school-1"],
+        }),
+      }) as never,
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockRevalidateTag).toHaveBeenCalledWith("post:post-1", "max");
+    expect(mockRevalidateTag).toHaveBeenCalledWith(
+      "posts:school:school-1",
+      "max",
+    );
   });
 
   it("revalidates allowlisted cacheTags without a sanity prefix", async () => {
@@ -247,12 +268,10 @@ describe("POST /api/revalidate-tags", () => {
     );
 
     expect(res.status).toBe(200);
-    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", {
-      expire: 0,
-    });
+    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", "max");
     expect(mockRevalidateTag).toHaveBeenCalledWith(
       "rankings:football:fbs:2026:1",
-      { expire: 0 },
+      "max",
     );
     await expect(res.json()).resolves.toEqual({
       service: "redshirtsports.com",
@@ -273,9 +292,10 @@ describe("POST /api/revalidate-tags", () => {
       );
 
     expect((await send(["ratings", "ratings:football:fcs"])).status).toBe(200);
-    expect(mockRevalidateTag).toHaveBeenCalledWith("ratings:football:fcs", {
-      expire: 0,
-    });
+    expect(mockRevalidateTag).toHaveBeenCalledWith(
+      "ratings:football:fcs",
+      "max",
+    );
     expect((await send(["sanity:post"])).status).toBe(400);
   });
 
@@ -295,7 +315,7 @@ describe("POST /api/revalidate-tags", () => {
     expect(res.status).toBe(200);
     expect(mockRevalidateTag).toHaveBeenCalledWith(
       "brackets:football:fcs:2026",
-      { expire: 0 },
+      "max",
     );
   });
 });

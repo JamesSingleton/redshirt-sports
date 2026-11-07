@@ -195,6 +195,7 @@ export type AutoPublishResult =
       ballots: number;
       missed: number;
       lockedOutUserIds: string[];
+      rankedSchoolSanityIds: string[];
     })
   | (AutoPublishPoll & {
       status: "skipped" | "failed";
@@ -304,6 +305,7 @@ export async function autoPublishDueRankings(
         ballots: result.ballots,
         missed: result.missed,
         lockedOutUserIds: result.lockedOutUserIds,
+        rankedSchoolSanityIds: result.rankedSchoolSanityIds,
       });
     } catch (error) {
       results.push({

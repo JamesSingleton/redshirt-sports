@@ -1,14 +1,11 @@
 import { ComposeIcon } from "@sanity/icons/Compose";
 import { LinkIcon } from "@sanity/icons/Link";
 import {
-  CogIcon,
   FileText,
   Folder,
   GavelIcon,
   type LucideIcon,
   Megaphone,
-  PanelBottomIcon,
-  PanelTopDashedIcon,
   RefreshCcw,
   Settings2,
   TagIcon,
@@ -22,7 +19,7 @@ import type {
 } from "sanity/structure";
 import DocumentsPane from "sanity-plugin-documents-pane";
 
-import type { SchemaType, SingletonType } from "@/schemaTypes";
+import type { SchemaType } from "@/schemaTypes";
 import { getTitleCase } from "@/utils/helper";
 
 type Base<T = SchemaType> = {
@@ -32,10 +29,6 @@ type Base<T = SchemaType> = {
   title?: string;
   icon?: LucideIcon;
 };
-
-type CreateSingleTon = {
-  S: StructureBuilder;
-} & Base<SingletonType>;
 
 const postReferences = (S: StructureBuilder) =>
   S.view
@@ -83,14 +76,6 @@ export const getDefaultDocumentNode: DefaultDocumentNodeResolver = (
     default:
       return S.document().views([S.view.form()]);
   }
-};
-
-const createSingleTon = ({ S, type, title, icon }: CreateSingleTon) => {
-  const newTitle = title ?? getTitleCase(type);
-  return S.listItem()
-    .title(newTitle)
-    .icon(icon ?? Folder)
-    .child(S.document().schemaType(type).documentId(type));
 };
 
 type CreateList = {
@@ -284,24 +269,10 @@ export const structure = async (
           S.list()
             .title("Site Configuration")
             .items([
-              createSingleTon({
-                S,
-                type: "navbar",
-                title: "Navigation",
-                icon: PanelTopDashedIcon,
-              }),
-              createSingleTon({
-                S,
-                type: "footer",
-                title: "Footer",
-                icon: PanelBottomIcon,
-              }),
-              createSingleTon({
-                S,
-                type: "settings",
-                title: "Global Settings",
-                icon: CogIcon,
-              }),
+              // Titles and icons come from `document.singletons` in sanity.config.ts.
+              S.listItem().singleton("navbar"),
+              S.listItem().singleton("footer"),
+              S.listItem().singleton("settings"),
               createList({
                 S,
                 type: "advertisement",

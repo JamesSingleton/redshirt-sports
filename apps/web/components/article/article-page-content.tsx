@@ -18,10 +18,12 @@ import {
 } from "@/lib/article-page";
 import { getArticleRelatedPosts } from "@/lib/article-related";
 import { getArticleTagNames } from "@/lib/article-seo";
+import type { ArticleLists } from "@/lib/post-lists";
 import type { RankingsWidgetPoll } from "@/lib/rankings-widget-data";
 import { getCollegeSportSection } from "@/lib/sport-section";
 
-type ArticlePost = NonNullable<QueryPostSlugDataResult>;
+/** The article plus its related/up-next/more-from-author lists (see `@/lib/post-lists`). */
+type ArticlePost = NonNullable<QueryPostSlugDataResult> & Partial<ArticleLists>;
 
 export function ArticlePageContent({
   post,

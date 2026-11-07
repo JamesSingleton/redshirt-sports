@@ -47,10 +47,17 @@ function failure(error: unknown, lines: string[] = []): RatingsActionResult {
   return { ok: false, message, lines };
 }
 
-function refresh(sportSlug: string, poolSlug: string, publicChange: boolean) {
+function refresh(
+  sportSlug: string,
+  poolSlug: string,
+  publicChange: boolean,
+  options?: { visibilityChanged?: boolean },
+) {
   after(async () => {
     revalidatePath("/ratings");
-    if (publicChange) await revalidateWebRatingsCache(sportSlug, poolSlug);
+    if (publicChange) {
+      await revalidateWebRatingsCache(sportSlug, poolSlug, options);
+    }
   });
 }
 
@@ -318,7 +325,9 @@ export async function setRatingsPoolFlags(input: {
       ...(input.isActive === undefined ? {} : { isActive: input.isActive }),
       ...(input.isPublic === undefined ? {} : { isPublic: input.isPublic }),
     });
-    refresh(pool.sportSlug, pool.slug, input.isPublic !== undefined);
+    refresh(pool.sportSlug, pool.slug, input.isPublic !== undefined, {
+      visibilityChanged: input.isPublic !== undefined,
+    });
     const message =
       input.isPublic !== undefined
         ? input.isPublic

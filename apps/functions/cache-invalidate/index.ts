@@ -48,8 +48,14 @@ export const handler = syncTagInvalidateEventHandler(
     console.info(`Forwarding ${syncTags.length} tags to api`);
 
     const secret = process.env.SANITY_REVALIDATE_SECRET!;
-    await expireTags(target, syncTags, secret);
+    try {
+      await expireTags(target, syncTags, secret);
+    } catch (error) {
+      console.error(`Error forwarding tags to ${target}`, error);
+    }
 
+    // Always ack: production <SanityLive waitFor="function"> holds each event
+    // until this callback runs.
     await ack(done, syncTags);
     console.info(
       `Total handler time: ${Math.round(performance.now() - start)}ms`,

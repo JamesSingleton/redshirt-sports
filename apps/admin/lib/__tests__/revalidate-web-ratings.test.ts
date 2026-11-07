@@ -41,8 +41,25 @@ describe("revalidateWebRatingsCache", () => {
     expect(url).toMatch(/\/api\/revalidate-tags$/);
     expect(JSON.parse(String(init.body))).toEqual({
       secret: "s",
-      cacheTags: ["ratings", "ratings:football:fcs"],
+      cacheTags: [
+        "ratings:football:fcs",
+        "ratings:pools",
+        "ratings:sport:football",
+      ],
     });
+  });
+
+  it("also expires every ratings entry when a pool's visibility changes", async () => {
+    mockEnv.CACHE_REVALIDATE_SECRET = "s";
+    mockFetch.mockResolvedValue(new Response("{}", { status: 200 }));
+    const { revalidateWebRatingsCache } = await import(
+      "@/lib/revalidate-web-ratings"
+    );
+    await revalidateWebRatingsCache("football", "fcs", {
+      visibilityChanged: true,
+    });
+    const [, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(String(init.body)).cacheTags).toContain("ratings");
   });
 
   it("logs, but doesn't throw, when the web app fails", async () => {

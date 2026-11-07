@@ -14,6 +14,7 @@ import {
 } from "@redshirt-sports/db/ratings";
 import {
   RATINGS_CACHE_TAG,
+  RATINGS_POOLS_TAG,
   ratingsPoolTag,
 } from "@redshirt-sports/db/ratings/cache-tags";
 import { cacheLife, cacheTag } from "next/cache";
@@ -33,7 +34,7 @@ export const RATINGS_CACHE_LIFE = {
 
 export async function getCachedPublicPools() {
   "use cache: remote";
-  cacheTag(RATINGS_CACHE_TAG);
+  cacheTag(RATINGS_CACHE_TAG, RATINGS_POOLS_TAG);
   cacheLife(RATINGS_CACHE_LIFE);
   return listPublicPools();
 }
@@ -78,12 +79,21 @@ export async function getCachedRunExplanations(
   return Object.fromEntries(await listPublishedRunExplanations(runId));
 }
 
-/** A team's ratings trend in every public pool, for its team page. */
+/**
+ * A team's ratings trend in every public pool, for its team page. Tagged with
+ * each pool it appears in, so a pool publish expires only that pool's teams.
+ * A team rated in a pool for the first time picks it up within the cache
+ * life's revalidate window; a pool going public expires `RATINGS_CACHE_TAG`.
+ */
 export async function getCachedTeamRatings(sanityId: string) {
   "use cache: remote";
-  cacheTag(RATINGS_CACHE_TAG);
   cacheLife(RATINGS_CACHE_LIFE);
-  return listTeamRatings(sanityId);
+  const ratings = await listTeamRatings(sanityId);
+  cacheTag(
+    RATINGS_CACHE_TAG,
+    ...ratings.map(({ pool }) => ratingsPoolTag(pool.sportSlug, pool.slug)),
+  );
+  return ratings;
 }
 
 /** Accuracy totals by week and margin bucket, summed in Postgres. */

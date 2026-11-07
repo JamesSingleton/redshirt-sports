@@ -44,8 +44,10 @@ export async function GET(request: Request) {
     try {
       const result = await runPipeline({ pool, trigger: "cron" });
       if (result.status === "published") {
+        // Stale-while-revalidate: ratings are display-only, so the next visitor
+        // gets the cached page while it regenerates in the background.
         for (const tag of ratingsInvalidationTags(pool.sportSlug, pool.slug)) {
-          revalidateTag(tag, { expire: 0 });
+          revalidateTag(tag, "max");
         }
       }
       if (result.status === "blocked") {

@@ -41,6 +41,24 @@ vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
 }));
 
+// Author posts come from their own tagged loader; forward it to the same mock
+// so each test's fixtures stay in call order (author, then posts).
+vi.mock("@/lib/post-lists", () => ({
+  getCachedAuthorPosts: (args: {
+    slug: string;
+    from: number;
+    to: number;
+    perspective: string;
+    stega: boolean;
+  }) =>
+    mockSanityFetchPage({
+      query: "postsByAuthor",
+      params: { slug: args.slug, from: args.from, to: args.to },
+      perspective: args.perspective,
+      stega: args.stega,
+    }).then((result: { data: unknown } | undefined) => result?.data ?? null),
+}));
+
 vi.mock("@redshirt-sports/sanity/live", () => ({
   PUBLISHED_FETCH_OPTIONS: {
     perspective: "published",

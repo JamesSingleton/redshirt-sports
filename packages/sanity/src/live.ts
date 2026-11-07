@@ -66,6 +66,47 @@ export async function cachedSanity<const QueryString extends string>({
   return sanityFetch({ query, params, perspective, stega });
 }
 
+/**
+ * For queries whose Sanity sync tags are too broad. Any GROQ list filtered on
+ * `_type == "post"` gets the type-wide sync tag, so `sanityFetch` would expire
+ * every page showing it on every post publish. Published reads here add no
+ * sync tags: the caller must `cacheTag` (see `./cache-tags`) and `cacheLife`
+ * the entry itself. Drafts still go through `sanityFetch`, so live preview
+ * keeps working.
+ *
+ * Call only from inside a `"use cache"` function, like `sanityFetch`.
+ */
+export async function fetchWithoutSyncTags<const QueryString extends string>({
+  query,
+  params = {},
+  perspective,
+  stega,
+}: {
+  query: QueryString;
+  params?: QueryParams;
+  perspective: LivePerspective;
+  stega: boolean;
+}): Promise<{
+  data: Awaited<ReturnType<typeof sanityFetch<QueryString>>>["data"];
+}> {
+  if (perspective !== "published" || stega) {
+    const { data } = await sanityFetch({ query, params, perspective, stega });
+    return { data };
+  }
+  const data = await client.fetch(query, params, {
+    perspective: "published",
+    stega: false,
+    useCdn: true,
+    // Like sanityFetch: never serve a CDN response older than the latest publish.
+    cacheMode: "noStale",
+    tag: "next-loader.fetch.custom-tags",
+  });
+  // Same shape sanityFetch returns with stega off; its type is only stega-branded.
+  return {
+    data: data as Awaited<ReturnType<typeof sanityFetch<QueryString>>>["data"],
+  };
+}
+
 /** For usage within `generateStaticParams` only. */
 export async function sanityFetchStaticParams<
   const QueryString extends string,

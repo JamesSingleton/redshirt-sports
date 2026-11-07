@@ -128,7 +128,7 @@ describe("POST /api/webhooks/sanity/school", () => {
       }),
     );
     expect(res.status).toBe(200);
-    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", { expire: 0 });
+    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", "max");
   });
 
   it("does not expire rankings when only nickname changes", async () => {
@@ -216,7 +216,7 @@ describe("POST /api/webhooks/sanity/school", () => {
     );
 
     expect(res.status).toBe(200);
-    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", { expire: 0 });
+    expect(mockRevalidateTag).toHaveBeenCalledWith("rankings", "max");
   });
 
   it("does not expire rankings when unauthorized", async () => {

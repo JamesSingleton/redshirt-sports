@@ -6,20 +6,17 @@ import {
 } from "@redshirt-sports/sanity/live";
 import {
   MIN_TEAM_PAGE_POSTS,
-  postsBySchoolQuery,
   querySchoolPaths,
   schoolBySlugQuery,
   schoolSlugsByIdsQuery,
   TEAM_PAGE_NEWS_FETCH_SIZE,
 } from "@redshirt-sports/sanity/queries";
 import type {
-  PostsBySchoolQueryResult,
   SchoolBySlugQueryResult,
   SchoolSlugsByIdsQueryResult,
 } from "@redshirt-sports/sanity/types";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import type { StegaBranded } from "next-sanity";
 
 import { TeamPageJsonLd } from "@/components/json-ld";
 import { TeamPageContent } from "@/components/teams/team-page-content";
@@ -27,9 +24,9 @@ import { DirectionalPageTransition } from "@/components/view-transitions/directi
 import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
+import { getCachedSchoolPosts } from "@/lib/post-lists";
 import {
   getCachedRankedSchoolSanityIds,
-  getCachedSchoolHasPollRankings,
   getCachedSchoolRankingHistory,
 } from "@/lib/rankings-data";
 import { getCachedTeamRatings } from "@/lib/ratings/data";
@@ -107,11 +104,21 @@ export async function generateMetadata({
     notFound();
   }
 
-  const hasRankings = await getCachedSchoolHasPollRankings(school._id);
+  // Same cache entries the page renders from, so metadata and page agree.
+  const [rankingHistory, schoolPosts] = await Promise.all([
+    getCachedSchoolRankingHistory(school._id),
+    getCachedSchoolPosts({
+      schoolId: school._id,
+      from: 0,
+      to: TEAM_PAGE_NEWS_FETCH_SIZE,
+      perspective,
+      stega: false,
+    }),
+  ]);
   if (
     !isTeamPageEligible({
-      postCount: school.postCount,
-      hasRankings,
+      postCount: schoolPosts?.totalPosts ?? 0,
+      hasRankings: rankingHistory.polls.length > 0,
     })
   ) {
     notFound();
@@ -159,20 +166,21 @@ async function renderSchoolTeamPage(
     notFound();
   }
 
-  const [{ data: newsData }, rankingHistory, ratings] = await Promise.all([
-    sanityFetchPage({
-      query: postsBySchoolQuery,
-      params: { schoolId: school._id, from: 0, to: TEAM_PAGE_NEWS_FETCH_SIZE },
+  const [newsData, rankingHistory, ratings] = await Promise.all([
+    getCachedSchoolPosts({
+      schoolId: school._id,
+      from: 0,
+      to: TEAM_PAGE_NEWS_FETCH_SIZE,
       perspective,
       stega,
-    }) as Promise<{ data: StegaBranded<PostsBySchoolQueryResult> | null }>,
+    }),
     getCachedSchoolRankingHistory(school._id),
     getCachedTeamRatings(school._id),
   ]);
 
   if (
     !isTeamPageEligible({
-      postCount: school.postCount,
+      postCount: newsData?.totalPosts ?? 0,
       hasRankings: rankingHistory.polls.length > 0,
     })
   ) {

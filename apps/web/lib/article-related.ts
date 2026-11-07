@@ -1,8 +1,10 @@
 import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
 
 import { postArchiveKicker } from "@/lib/news-archive";
+import type { ArticleLists } from "@/lib/post-lists";
 
-type ArticlePost = NonNullable<QueryPostSlugDataResult>;
+/** The article plus its related/up-next/more-from-author lists (see `@/lib/post-lists`). */
+type ArticlePost = NonNullable<QueryPostSlugDataResult> & Partial<ArticleLists>;
 
 type RelatedSource = {
   _id: string;

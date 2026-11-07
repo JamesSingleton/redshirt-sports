@@ -17,14 +17,15 @@ import {
   getYearsThatHaveVotes,
   listActivePollVoters,
   resolvePollWeekBySlugs,
-  schoolHasPollRankings,
 } from "@redshirt-sports/db/queries";
 import {
   RANKINGS_CACHE_TAG,
+  RANKINGS_PUBLISHED_TAG,
   rankingsDivisionTag,
   rankingsDivisionWeeksTag,
   rankingsDivisionYearsTag,
   rankingsInvalidationTags,
+  rankingsSchoolTag,
   rankingsSportTag,
   rankingsWeekTag,
 } from "@redshirt-sports/db/rankings-cache-tags";
@@ -54,10 +55,12 @@ export const RANKINGS_CACHE_LIFE = {
 
 export {
   RANKINGS_CACHE_TAG,
+  RANKINGS_PUBLISHED_TAG,
   rankingsDivisionTag,
   rankingsDivisionWeeksTag,
   rankingsDivisionYearsTag,
   rankingsInvalidationTags,
+  rankingsSchoolTag,
   rankingsSportTag,
   rankingsWeekTag,
 };
@@ -174,27 +177,33 @@ export async function getCachedLatestFinalRankingsBySportSlug(
   return getLatestFinalRankingsBySportSlug(sportSlug);
 }
 
+/**
+ * A school's poll history for its team page. Tagged per school and per poll
+ * season it appears in, so a publish expires only the schools in that poll
+ * season (and, via `rankingsSchoolTag`, any it ranks for the first time), not
+ * every team page. No `RANKINGS_CACHE_TAG`: school and voter display edits
+ * expire that, and the history shows neither.
+ */
 export async function getCachedSchoolRankingHistory(
   sanityId: string,
 ): Promise<SchoolRankingHistory> {
   "use cache: remote";
-  cacheTag(RANKINGS_CACHE_TAG);
   cacheLife(RANKINGS_CACHE_LIFE);
-  return getSchoolRankingHistory(sanityId);
-}
-
-export async function getCachedSchoolHasPollRankings(
-  sanityId: string,
-): Promise<boolean> {
-  "use cache: remote";
-  cacheTag(RANKINGS_CACHE_TAG);
-  cacheLife(RANKINGS_CACHE_LIFE);
-  return schoolHasPollRankings(sanityId);
+  const history = await getSchoolRankingHistory(sanityId);
+  cacheTag(
+    rankingsSchoolTag(sanityId),
+    ...new Set(
+      history.polls.flatMap((poll) =>
+        poll.years.map((year) => rankingsDivisionWeeksTag(poll.pollSlug, year)),
+      ),
+    ),
+  );
+  return history;
 }
 
 export async function getCachedRankedSchoolSanityIds(): Promise<string[]> {
   "use cache: remote";
-  cacheTag(RANKINGS_CACHE_TAG);
+  cacheTag(RANKINGS_CACHE_TAG, RANKINGS_PUBLISHED_TAG);
   cacheLife(RANKINGS_CACHE_LIFE);
   return getRankedSchoolSanityIds();
 }

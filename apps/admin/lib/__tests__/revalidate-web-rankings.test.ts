@@ -81,6 +81,7 @@ describe("revalidateWebRankingsCache", () => {
       division: "fbs",
       year: 2026,
       weekKey: "2-1",
+      schoolSanityIds: ["school-a", "school-b", "school-a"],
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
@@ -90,12 +91,14 @@ describe("revalidateWebRankingsCache", () => {
         body: JSON.stringify({
           secret: "shared-secret",
           cacheTags: [
-            "rankings",
+            "rankings:published",
             "rankings:football",
             "rankings:football:fbs",
             "rankings:football:fbs:2026:1",
             "rankings:fbs:years",
             "rankings:fbs:2026:weeks",
+            "rankings:school:school-a",
+            "rankings:school:school-b",
           ],
         }),
       }),

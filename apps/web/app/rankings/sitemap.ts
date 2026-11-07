@@ -6,7 +6,10 @@ import {
   getLatestFinalRankings,
   getYearsWithVotes,
 } from "@redshirt-sports/db/queries";
-import { RANKINGS_CACHE_TAG } from "@redshirt-sports/db/rankings-cache-tags";
+import {
+  RANKINGS_CACHE_TAG,
+  RANKINGS_PUBLISHED_TAG,
+} from "@redshirt-sports/db/rankings-cache-tags";
 import type { MetadataRoute } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 
@@ -17,14 +20,14 @@ import { SPORT_SLUG_MAP } from "@/lib/vote-ballot";
 
 async function fetchPublishedWeeksForSitemap() {
   "use cache: remote";
-  cacheTag(RANKINGS_CACHE_TAG);
+  cacheTag(RANKINGS_CACHE_TAG, RANKINGS_PUBLISHED_TAG);
   cacheLife(RANKINGS_CACHE_LIFE);
   return getYearsWithVotes();
 }
 
 async function fetchLatestPollForSitemap(sport: SportParam, division: string) {
   "use cache: remote";
-  cacheTag(RANKINGS_CACHE_TAG);
+  cacheTag(RANKINGS_CACHE_TAG, RANKINGS_PUBLISHED_TAG);
   cacheLife(RANKINGS_CACHE_LIFE);
   return (await getLatestFinalRankings({ division, sport })) ?? null;
 }
@@ -32,7 +35,7 @@ async function fetchLatestPollForSitemap(sport: SportParam, division: string) {
 /**
  * Every sport's rankings URLs. Built only from published poll weeks, so a
  * sport (and its rankings index) joins once its first poll publishes;
- * publishing expires the rankings cache tag.
+ * publishing expires the published-rankings tag.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl();

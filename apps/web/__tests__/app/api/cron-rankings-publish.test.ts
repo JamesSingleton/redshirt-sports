@@ -10,19 +10,6 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   autoPublishDueRankings: mockAutoPublish,
   isAutoPublishTime: mockIsTime,
 }));
-vi.mock("@redshirt-sports/db/rankings-cache-tags", () => ({
-  rankingsInvalidationTags: ({
-    sport,
-    division,
-    year,
-    week,
-  }: {
-    sport: string;
-    division: string;
-    year: number;
-    week: number;
-  }) => ["rankings", `rankings:${sport}:${division}:${year}:${week}`],
-}));
 vi.mock("next/cache", () => ({ revalidateTag: mockRevalidateTag }));
 vi.mock("@sentry/nextjs", () => ({ captureMessage: mockMessage }));
 
@@ -46,6 +33,7 @@ const published = {
   ballots: 20,
   missed: 2,
   lockedOutUserIds: [] as string[],
+  rankedSchoolSanityIds: ["school-a"],
 };
 
 describe("GET /api/cron/rankings", () => {
@@ -92,7 +80,15 @@ describe("GET /api/cron/rankings", () => {
     expect(res.status).toBe(200);
     expect(mockRevalidateTag).toHaveBeenCalledWith(
       "rankings:football:fcs:2026:10",
-      { expire: 0 },
+      "max",
+    );
+    expect(mockRevalidateTag).toHaveBeenCalledWith(
+      "rankings:school:school-a",
+      "max",
+    );
+    expect(mockRevalidateTag).not.toHaveBeenCalledWith(
+      "rankings",
+      expect.anything(),
     );
     expect(mockRevalidateTag).not.toHaveBeenCalledWith(
       expect.stringContaining("fbs"),
