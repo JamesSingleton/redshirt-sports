@@ -7,6 +7,8 @@
  *             Without --week, only weeks that have ended (the cron handles the current one).
  *   pipeline  What the cron does right now (respects --now <ISO>; --any-time ignores the window).
  *   status    Members, games, and runs per week.
+ *   relink-conferences  Link members and snapshots whose provider conference label
+ *             never matched. Dry run; --apply writes. Every season of the pool.
  *
  * Writes go to DATABASE_URL. Anything but a local database needs --allow-remote.
  */
@@ -155,8 +157,59 @@ switch (command) {
     console.table(rows);
     break;
   }
+  case "relink-conferences": {
+    const apply = hasFlag("--apply");
+    log(`Database host: ${new URL(process.env.DATABASE_URL ?? "").hostname}`);
+    const result = await ratings.relinkConferences(pool, { apply });
+    const summary = new Map<
+      string,
+      {
+        members: number;
+        membersLinked: number;
+        snapshots: number;
+        snapshotsLinked: number;
+      }
+    >();
+    const tally = (
+      rows: typeof result.members,
+      total: "members" | "snapshots",
+      linked: "membersLinked" | "snapshotsLinked",
+    ) => {
+      for (const row of rows) {
+        const key = `${row.seasonYear} ${row.conferenceName}`;
+        const entry = summary.get(key) ?? {
+          members: 0,
+          membersLinked: 0,
+          snapshots: 0,
+          snapshotsLinked: 0,
+        };
+        entry[total] += row.rows;
+        if (row.conferenceId) entry[linked] += row.rows;
+        summary.set(key, entry);
+      }
+    };
+    tally(result.members, "members", "membersLinked");
+    tally(result.snapshots, "snapshots", "snapshotsLinked");
+    console.table(
+      [...summary]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, entry]) => ({ season: key, ...entry })),
+    );
+    const count = (rows: typeof result.members, linkedOnly: boolean) =>
+      rows
+        .filter((row) => !linkedOnly || row.conferenceId)
+        .reduce((sum, row) => sum + row.rows, 0);
+    log(
+      apply
+        ? `Linked ${result.membersUpdated} members and ${result.snapshotsUpdated} snapshots.`
+        : `Would link ${count(result.members, true)} of ${count(result.members, false)} members and ${count(result.snapshots, true)} of ${count(result.snapshots, false)} snapshots. Pass --apply to write.`,
+    );
+    break;
+  }
   default:
-    console.log("Commands: sync | compute | publish | pipeline | status");
+    console.log(
+      "Commands: sync | compute | publish | pipeline | status | relink-conferences",
+    );
 }
 
 await (await import("../src/client")).primaryDb.$client.end();

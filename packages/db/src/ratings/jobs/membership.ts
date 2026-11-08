@@ -2,7 +2,7 @@ import {
   fetchEspnGroupConferences,
   fetchEspnGroupMembers,
 } from "@redshirt-sports/clients/scores";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../../client";
 import {
@@ -11,9 +11,13 @@ import {
   divisionsTable,
   ratingPoolMembersTable,
   ratingPoolsTable,
+  ratingRunsTable,
+  ratingSnapshotsTable,
   schoolConferenceAffiliationsTable,
   schoolExternalIdsTable,
+  seasonsTable,
 } from "../../schema";
+import { createConferenceMatcher } from "./conference-matching";
 import type { Pool, SeasonCalendar } from "./store";
 
 /** provider id → school id. */
@@ -38,35 +42,40 @@ export type MembershipResult = {
   unmappedExternalIds: string[];
 };
 
-/** Today's Redshirt conference per school in a sport, with names for matching. */
-async function currentConferences(
-  sportId: string,
-): Promise<Map<string, { id: string; names: string[] }>> {
-  const rows = await db
-    .select({
-      schoolId: schoolConferenceAffiliationsTable.schoolId,
-      conferenceId: schoolConferenceAffiliationsTable.conferenceId,
-      name: conferencesTable.name,
-      shortName: conferencesTable.shortName,
-      abbreviation: conferencesTable.abbreviation,
-    })
-    .from(schoolConferenceAffiliationsTable)
-    .innerJoin(
-      conferencesTable,
-      eq(conferencesTable.id, schoolConferenceAffiliationsTable.conferenceId),
-    )
-    .where(eq(schoolConferenceAffiliationsTable.sportId, sportId));
-  return new Map(
-    rows.map((row) => [
-      row.schoolId,
-      {
-        id: row.conferenceId,
-        names: [row.name, row.shortName, row.abbreviation]
-          .filter((name): name is string => !!name)
-          .map((name) => name.toLowerCase()),
-      },
-    ]),
-  );
+/** Every conference, plus today's affiliations in a sport (used only to break ties). */
+export async function loadConferenceMatching(sportId: string): Promise<{
+  match: ReturnType<typeof createConferenceMatcher>;
+  sportConferenceIds: Set<string>;
+  currentBySchool: Map<string, Set<string>>;
+}> {
+  const [conferences, affiliations] = await Promise.all([
+    db
+      .select({
+        id: conferencesTable.id,
+        name: conferencesTable.name,
+        shortName: conferencesTable.shortName,
+        abbreviation: conferencesTable.abbreviation,
+      })
+      .from(conferencesTable),
+    db
+      .select({
+        schoolId: schoolConferenceAffiliationsTable.schoolId,
+        conferenceId: schoolConferenceAffiliationsTable.conferenceId,
+      })
+      .from(schoolConferenceAffiliationsTable)
+      .where(eq(schoolConferenceAffiliationsTable.sportId, sportId)),
+  ]);
+  const currentBySchool = new Map<string, Set<string>>();
+  for (const row of affiliations) {
+    const ids = currentBySchool.get(row.schoolId) ?? new Set<string>();
+    ids.add(row.conferenceId);
+    currentBySchool.set(row.schoolId, ids);
+  }
+  return {
+    match: createConferenceMatcher(conferences),
+    sportConferenceIds: new Set(affiliations.map((row) => row.conferenceId)),
+    currentBySchool,
+  };
 }
 
 /** Decide who is in the pool this season, without writing anything. */
@@ -161,8 +170,9 @@ export async function saveMembership(
   membership: Pick<MembershipResult, "schoolIds" | "conferenceNames">,
 ): Promise<void> {
   const { schoolIds, conferenceNames } = membership;
-  // Link today's Redshirt conference only when it is the one the school played in that season.
-  const current = await currentConferences(pool.sportId);
+  // Link the conference the school played in that season, found by its provider label.
+  const { match, sportConferenceIds, currentBySchool } =
+    await loadConferenceMatching(pool.sportId);
   await db.transaction(async (tx) => {
     await tx
       .delete(ratingPoolMembersTable)
@@ -178,13 +188,11 @@ export async function saveMembership(
           poolId: pool.id,
           seasonId: calendar.seasonId,
           schoolId,
-          conferenceId: (() => {
-            const today = current.get(schoolId);
-            const season = conferenceNames.get(schoolId)?.toLowerCase();
-            return today && season && today.names.includes(season)
-              ? today.id
-              : null;
-          })(),
+          conferenceId: match(conferenceNames.get(schoolId), {
+            seasonYear: calendar.year,
+            sportConferenceIds,
+            currentConferenceIds: currentBySchool.get(schoolId),
+          }),
           conferenceName: conferenceNames.get(schoolId) ?? null,
         })),
       );
@@ -215,4 +223,157 @@ export async function loadMembers(
         eq(ratingPoolMembersTable.seasonId, seasonId),
       ),
     );
+}
+
+export type ConferenceRelink = {
+  seasonId: string;
+  seasonYear: number;
+  schoolId: string;
+  conferenceName: string;
+  /** Rows with this season, school, and label still missing a conference. */
+  rows: number;
+  conferenceId: string | null;
+};
+
+/**
+ * Link stored members and snapshots that have a provider conference label but
+ * no conference, using the same matching as a sync. Each table is matched from
+ * its own label, so snapshots are fixed even when their member was relinked
+ * since (or left the pool). Dry run unless `apply`. Neither table feeds a
+ * run's checksum, so nothing recomputes.
+ */
+export async function relinkConferences(
+  pool: Pick<Pool, "id" | "sportId">,
+  options: { apply: boolean },
+): Promise<{
+  members: ConferenceRelink[];
+  snapshots: ConferenceRelink[];
+  membersUpdated: number;
+  snapshotsUpdated: number;
+}> {
+  const rows = sql<number>`count(*)::int`;
+  const [memberRows, snapshotRows, matching] = await Promise.all([
+    db
+      .select({
+        seasonId: ratingPoolMembersTable.seasonId,
+        seasonYear: seasonsTable.year,
+        schoolId: ratingPoolMembersTable.schoolId,
+        conferenceName: ratingPoolMembersTable.conferenceName,
+        rows,
+      })
+      .from(ratingPoolMembersTable)
+      .innerJoin(
+        seasonsTable,
+        eq(seasonsTable.id, ratingPoolMembersTable.seasonId),
+      )
+      .where(
+        and(
+          eq(ratingPoolMembersTable.poolId, pool.id),
+          isNull(ratingPoolMembersTable.conferenceId),
+          isNotNull(ratingPoolMembersTable.conferenceName),
+        ),
+      )
+      .groupBy(
+        ratingPoolMembersTable.seasonId,
+        seasonsTable.year,
+        ratingPoolMembersTable.schoolId,
+        ratingPoolMembersTable.conferenceName,
+      ),
+    db
+      .select({
+        seasonId: ratingRunsTable.seasonId,
+        seasonYear: seasonsTable.year,
+        schoolId: ratingSnapshotsTable.schoolId,
+        conferenceName: ratingSnapshotsTable.conferenceName,
+        rows,
+      })
+      .from(ratingSnapshotsTable)
+      .innerJoin(
+        ratingRunsTable,
+        eq(ratingRunsTable.id, ratingSnapshotsTable.runId),
+      )
+      .innerJoin(seasonsTable, eq(seasonsTable.id, ratingRunsTable.seasonId))
+      .where(
+        and(
+          eq(ratingRunsTable.poolId, pool.id),
+          isNull(ratingSnapshotsTable.conferenceId),
+          isNotNull(ratingSnapshotsTable.conferenceName),
+        ),
+      )
+      .groupBy(
+        ratingRunsTable.seasonId,
+        seasonsTable.year,
+        ratingSnapshotsTable.schoolId,
+        ratingSnapshotsTable.conferenceName,
+      ),
+    loadConferenceMatching(pool.sportId),
+  ]);
+  const { match, sportConferenceIds, currentBySchool } = matching;
+  const resolve = (row: (typeof memberRows)[number]): ConferenceRelink => ({
+    ...row,
+    conferenceName: row.conferenceName ?? "",
+    conferenceId: match(row.conferenceName, {
+      seasonYear: row.seasonYear,
+      sportConferenceIds,
+      currentConferenceIds: currentBySchool.get(row.schoolId),
+    }),
+  });
+  const members = memberRows.map(resolve);
+  const snapshots = snapshotRows.map(resolve);
+  if (!options.apply) {
+    return { members, snapshots, membersUpdated: 0, snapshotsUpdated: 0 };
+  }
+  const linked = (list: ConferenceRelink[]) =>
+    list.filter(
+      (row): row is ConferenceRelink & { conferenceId: string } =>
+        row.conferenceId != null,
+    );
+  const counts = await db.transaction(async (tx) => {
+    let membersUpdated = 0;
+    let snapshotsUpdated = 0;
+    for (const row of linked(members)) {
+      const updated = await tx
+        .update(ratingPoolMembersTable)
+        .set({ conferenceId: row.conferenceId })
+        .where(
+          and(
+            eq(ratingPoolMembersTable.poolId, pool.id),
+            eq(ratingPoolMembersTable.seasonId, row.seasonId),
+            eq(ratingPoolMembersTable.schoolId, row.schoolId),
+            eq(ratingPoolMembersTable.conferenceName, row.conferenceName),
+            isNull(ratingPoolMembersTable.conferenceId),
+          ),
+        )
+        .returning({ id: ratingPoolMembersTable.id });
+      membersUpdated += updated.length;
+    }
+    for (const row of linked(snapshots)) {
+      const updated = await tx
+        .update(ratingSnapshotsTable)
+        .set({ conferenceId: row.conferenceId })
+        .where(
+          and(
+            eq(ratingSnapshotsTable.schoolId, row.schoolId),
+            eq(ratingSnapshotsTable.conferenceName, row.conferenceName),
+            isNull(ratingSnapshotsTable.conferenceId),
+            inArray(
+              ratingSnapshotsTable.runId,
+              tx
+                .select({ id: ratingRunsTable.id })
+                .from(ratingRunsTable)
+                .where(
+                  and(
+                    eq(ratingRunsTable.poolId, pool.id),
+                    eq(ratingRunsTable.seasonId, row.seasonId),
+                  ),
+                ),
+            ),
+          ),
+        )
+        .returning({ id: ratingSnapshotsTable.id });
+      snapshotsUpdated += updated.length;
+    }
+    return { membersUpdated, snapshotsUpdated };
+  });
+  return { members, snapshots, ...counts };
 }
