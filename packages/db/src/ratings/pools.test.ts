@@ -297,10 +297,12 @@ function cronFires(expression: string, at: Date): boolean {
   );
 }
 
-describe("vercel.json cron schedule", () => {
-  const crons = JSON.parse(
-    fs.readFileSync(path.join(repoRoot, "apps/web/vercel.json"), "utf8"),
-  ).crons as Array<{ path: string; schedule: string }>;
+describe("vercel.json ratings schedules", () => {
+  const crons = Object.values(
+    JSON.parse(
+      fs.readFileSync(path.join(repoRoot, "apps/web/vercel.json"), "utf8"),
+    ).schedules as Record<string, { path: string; schedule: string }>,
+  );
   const schedule = poolScheduleSchema.parse(seededJson("cadence"));
   // Every 30-minute slot of one week, starting Sunday 2026-11-01 00:00 UTC.
   const slots = Array.from(

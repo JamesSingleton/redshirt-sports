@@ -1,12 +1,37 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "pnpm install --filter @redshirt-sports/web...",
   "ignoreCommand": "npx --yes turbo@^2.11.10 query affected --packages @redshirt-sports/web --base \"${VERCEL_GIT_PREVIOUS_SHA:-HEAD^1}\" --exit-code",
-  "crons": [
-    { "path": "/api/cron/ratings", "schedule": "*/30 16-23 * * 6" },
-    { "path": "/api/cron/ratings", "schedule": "*/30 0-11 * * 0" },
-    { "path": "/api/cron/ratings", "schedule": "*/30 22-23 * * 1" },
-    { "path": "/api/cron/ratings", "schedule": "*/30 0-7 * * 2" },
-    { "path": "/api/cron/rankings", "schedule": "0 14 * * 1" },
-    { "path": "/api/cron/rankings", "schedule": "0 15 * * 1" }
-  ]
+  "schedules": {
+    "ratings-saturday": {
+      "schedule": "*/30 16-23 * * 6",
+      "path": "/api/cron/ratings",
+      "requestMethod": "GET"
+    },
+    "ratings-sunday": {
+      "schedule": "*/30 0-11 * * 0",
+      "path": "/api/cron/ratings",
+      "requestMethod": "GET"
+    },
+    "ratings-monday": {
+      "schedule": "*/30 22-23 * * 1",
+      "path": "/api/cron/ratings",
+      "requestMethod": "GET"
+    },
+    "ratings-tuesday": {
+      "schedule": "*/30 0-7 * * 2",
+      "path": "/api/cron/ratings",
+      "requestMethod": "GET"
+    },
+    "rankings-monday-14utc": {
+      "schedule": "0 14 * * 1",
+      "path": "/api/cron/rankings",
+      "requestMethod": "GET"
+    },
+    "rankings-monday-15utc": {
+      "schedule": "0 15 * * 1",
+      "path": "/api/cron/rankings",
+      "requestMethod": "GET"
+    }
+  }
 }
