@@ -21,6 +21,7 @@
     "@redshirt-sports/observability": "workspace:*",
     "@redshirt-sports/sanity": "workspace:*",
     "@redshirt-sports/ui": "workspace:*",
+    "@sentry/nextjs": "catalog:",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tabler/icons-react": "^3.50.0",
     "drizzle-orm": "catalog:",

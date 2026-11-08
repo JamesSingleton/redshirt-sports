@@ -16,6 +16,7 @@ import { AutoPublishNote } from "@/components/auto-publish-note";
 import { MissedBallotsCard } from "@/components/missed-ballots-card";
 import { getDashboardData } from "@/lib/dashboard-data";
 import { PUBLIC_SITE_URL, publicSiteLabel } from "@/lib/site";
+import { timedStep } from "@/lib/slow-steps";
 
 function DashboardFallback() {
   return (
@@ -36,10 +37,11 @@ function progressPercent(submitted: number | null, assigned: number) {
 }
 
 async function DashboardContent() {
-  const [data, attendance] = await Promise.all([
-    getDashboardData(),
-    getAttendanceData(),
-  ]);
+  // The admin home page has hit Vercel's 15 s limit with the database idle; these
+  // steps log (and trace in Sentry) whichever part is slow or never finishes.
+  const [data, attendance] = await timedStep("home: data", () =>
+    Promise.all([getDashboardData(), getAttendanceData()]),
+  );
   const outstanding = data.panels.reduce((sum, panel) => {
     if (panel.submittedCount == null) return sum;
     return sum + Math.max(0, panel.assignedCount - panel.submittedCount);
