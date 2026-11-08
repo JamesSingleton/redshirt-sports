@@ -10,7 +10,9 @@ const {
   mockArePollRankingsPublished,
   mockClientFetch,
   mockRedirect,
+  mockConnection,
 } = vi.hoisted(() => ({
+  mockConnection: vi.fn(),
   mockAuthProtect: vi.fn(),
   mockGetSportIdBySlug: vi.fn(),
   mockGetVoterBallots: vi.fn(),
@@ -49,6 +51,10 @@ vi.mock("next/navigation", () => ({
   redirect: mockRedirect,
 }));
 
+vi.mock("next/server", () => ({
+  connection: mockConnection,
+}));
+
 vi.mock("next/link", () => ({
   __esModule: true,
   default: ({ children, href }: { children: ReactNode; href: string }) => (
@@ -69,6 +75,7 @@ import VoteConfirmationPage, {
 
 describe("VoteConfirmationContent", () => {
   beforeEach(() => {
+    mockConnection.mockReset().mockResolvedValue(undefined);
     mockAuthProtect.mockReset().mockResolvedValue({ userId: "user-1" });
     mockGetSportIdBySlug.mockReset().mockResolvedValue("sport_football");
     mockRequireVotingSeasonInfo.mockReset().mockResolvedValue({
@@ -86,6 +93,20 @@ describe("VoteConfirmationContent", () => {
     mockArePollRankingsPublished.mockReset().mockResolvedValue(false);
     mockClientFetch.mockReset();
     mockRedirect.mockClear();
+  });
+
+  it("renders at request time before reading the current season", async () => {
+    mockGetVoterBallots.mockResolvedValue([]);
+
+    await expect(
+      VoteConfirmationContent({
+        params: Promise.resolve({ sport: "football", division: "fcs" }),
+      }),
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(mockConnection).toHaveBeenCalledTimes(1);
+    expect(mockConnection.mock.invocationCallOrder[0]).toBeLessThan(
+      mockRequireVotingSeasonInfo.mock.invocationCallOrder[0] ?? 0,
+    );
   });
 
   it("redirects back to vote page when there is no ballot", async () => {

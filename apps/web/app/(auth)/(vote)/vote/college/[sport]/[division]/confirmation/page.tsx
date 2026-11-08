@@ -14,6 +14,7 @@ import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import CustomImage from "@/components/sanity-image";
@@ -69,6 +70,10 @@ export async function VoteConfirmationContent({
 }: {
   params: Promise<{ sport: string; division: string }>;
 }) {
+  // A voter's own ballot for the current week: never part of a prerendered shell.
+  // Without this, the on-demand shell for a new sport/division got as far as the
+  // season lookup, whose `new Date()` default Next.js rejects while prerendering.
+  await connection();
   const { sport, division } = await params;
   const header = generateConfirmationHeader(sport, division);
   const { userId } = await auth.protect();
