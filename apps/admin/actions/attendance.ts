@@ -10,10 +10,11 @@ import {
 import { revalidatePath } from "next/cache";
 
 import { requireAdmin } from "@/lib/require-admin";
+import { timedStep } from "@/lib/slow-steps";
 
 export async function getAttendanceData() {
   await requireAdmin();
-  return listPollAttendance();
+  return timedStep("home: poll attendance", () => listPollAttendance());
 }
 
 export async function excuseMissedBallot({
