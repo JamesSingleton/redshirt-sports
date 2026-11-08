@@ -12,6 +12,7 @@
     "db:seed:users-with-ballots": "tsx seeds/users-with-ballots.ts",
     "test:integration": "vitest run --config vitest.integration.config.mts",
     "db:sync-from-prod": "tsx cli/db-sync-from-prod.ts",
+    "team-ids": "tsx cli/team-ids.mts",
     "ratings": "tsx cli/ratings.mts",
     "ratings:calibrate": "tsx cli/ratings-calibrate.mts"
   },

@@ -296,6 +296,7 @@ export async function mapTeamToSchool(input: {
       schoolId: input.schoolId,
     });
     revalidatePath("/ratings");
+    revalidatePath("/school-ids");
     return {
       ok: true,
       message: "Mapped. Sync the season again so its games pick up the school.",
