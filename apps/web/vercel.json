@@ -3,23 +3,21 @@
   "installCommand": "pnpm install --filter @redshirt-sports/web...",
   "ignoreCommand": "npx --yes turbo@^2.11.10 query affected --packages @redshirt-sports/web --base \"${VERCEL_GIT_PREVIOUS_SHA:-HEAD^1}\" --exit-code",
   "schedules": {
-    "ratings-saturday": {
-      "schedule": "*/30 16-23 * * 6",
+    "ratings-sunday-overnight": {
+      "schedule": "0 0 * 8-12,1 0",
+      "timezone": "America/Los_Angeles",
       "path": "/api/cron/ratings",
       "requestMethod": "GET"
     },
-    "ratings-sunday": {
-      "schedule": "*/30 0-11 * * 0",
+    "ratings-sunday-morning": {
+      "schedule": "0 6 * 8-12,1 0",
+      "timezone": "America/New_York",
       "path": "/api/cron/ratings",
       "requestMethod": "GET"
     },
-    "ratings-monday": {
-      "schedule": "*/30 22-23 * * 1",
-      "path": "/api/cron/ratings",
-      "requestMethod": "GET"
-    },
-    "ratings-tuesday": {
-      "schedule": "*/30 0-7 * * 2",
+    "ratings-tuesday-morning": {
+      "schedule": "0 6 * 8-12,1 2",
+      "timezone": "America/New_York",
       "path": "/api/cron/ratings",
       "requestMethod": "GET"
     },
