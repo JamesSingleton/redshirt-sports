@@ -22,12 +22,28 @@ const validation = JSON.parse(
   ),
 );
 
+const trimMigration = fs.readFileSync(
+  path.join(
+    repoRoot,
+    "apps/web/supabase/migrations/0027_ratings_schedule_trim.sql",
+  ),
+  "utf8",
+);
 function seededJson(key: string): unknown {
   const match = migration.match(new RegExp(`'(\\{"${key}".*?\\})'::jsonb`));
   if (!match?.[1]) throw new Error(`No seeded ${key} JSON in migration.`);
   return JSON.parse(match[1]);
 }
 
+/** The FCS pool's schedule: seeded in 0024, windows narrowed in 0027. */
+function fcsSchedule() {
+  const windows = trimMigration.match(/'(\[.*?\])'::jsonb/)?.[1];
+  if (!windows) throw new Error("No windows JSON in 0027 migration.");
+  return poolScheduleSchema.parse({
+    ...(seededJson("cadence") as object),
+    windows: JSON.parse(windows),
+  });
+}
 describe("FCS pool seed", () => {
   it("ships the calibrated config from the validation report", () => {
     const config = engineConfigSchema.parse(seededJson("marginTransform"));
@@ -40,51 +56,28 @@ describe("FCS pool seed", () => {
 });
 
 describe("cron windows", () => {
-  const schedule = poolScheduleSchema.parse(seededJson("cadence"));
+  const schedule = fcsSchedule();
+  const open = (iso: string) => scheduleIsOpen(schedule, new Date(iso));
 
-  it("is open from Saturday 16:00 UTC through Sunday noon UTC", () => {
-    expect(scheduleIsOpen(schedule, new Date("2026-10-31T15:59:00Z"))).toBe(
-      false,
-    );
-    expect(scheduleIsOpen(schedule, new Date("2026-10-31T16:00:00Z"))).toBe(
-      true,
-    );
-    expect(scheduleIsOpen(schedule, new Date("2026-11-01T06:30:00Z"))).toBe(
-      true,
-    );
-    expect(scheduleIsOpen(schedule, new Date("2026-11-01T11:59:00Z"))).toBe(
-      true,
-    );
-    expect(scheduleIsOpen(schedule, new Date("2026-11-01T12:00:00Z"))).toBe(
-      false,
-    );
+  it("is open Sunday 07:00 through noon UTC, midnight Pacific to 6 a.m. Eastern in either DST offset", () => {
+    expect(open("2026-11-01T06:59:00Z")).toBe(false);
+    expect(open("2026-11-01T07:00:00Z")).toBe(true);
+    expect(open("2026-11-01T11:59:00Z")).toBe(true);
+    expect(open("2026-11-01T12:00:00Z")).toBe(false);
   });
 
-  it("is open Monday 22:00 through Tuesday 08:00 UTC, for Monday games like Labor Day", () => {
-    expect(scheduleIsOpen(schedule, new Date("2026-11-02T21:59:00Z"))).toBe(
-      false,
-    );
-    expect(scheduleIsOpen(schedule, new Date("2026-11-02T22:00:00Z"))).toBe(
-      true,
-    );
-    expect(scheduleIsOpen(schedule, new Date("2026-11-03T07:30:00Z"))).toBe(
-      true,
-    );
-    expect(scheduleIsOpen(schedule, new Date("2026-11-03T08:00:00Z"))).toBe(
-      false,
-    );
+  it("is open Tuesday 10:00 through noon UTC, for Monday games", () => {
+    expect(open("2026-11-03T09:59:00Z")).toBe(false);
+    expect(open("2026-11-03T10:00:00Z")).toBe(true);
+    expect(open("2026-11-03T11:59:00Z")).toBe(true);
+    expect(open("2026-11-03T12:00:00Z")).toBe(false);
   });
 
-  it("is closed the rest of the week", () => {
-    expect(scheduleIsOpen(schedule, new Date("2026-11-02T15:00:00Z"))).toBe(
-      false,
-    );
-    expect(scheduleIsOpen(schedule, new Date("2026-11-03T15:30:00Z"))).toBe(
-      false,
-    );
-    expect(scheduleIsOpen(schedule, new Date("2026-11-04T15:30:00Z"))).toBe(
-      false,
-    );
+  it("is closed Saturday, Monday night, and the rest of the week", () => {
+    expect(open("2026-10-31T20:00:00Z")).toBe(false);
+    expect(open("2026-11-02T23:00:00Z")).toBe(false);
+    expect(open("2026-11-03T03:00:00Z")).toBe(false);
+    expect(open("2026-11-04T10:30:00Z")).toBe(false);
   });
 
   it("freezes a week 10 hours after its last kickoff", () => {
@@ -271,8 +264,37 @@ describe("week URL segments", () => {
   });
 });
 
-/** Does a 5-field cron expression fire at this UTC minute? Supports *, a-b, lists, and step. */
-function cronFires(expression: string, at: Date): boolean {
+const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/** The wall-clock fields of `at` in an IANA time zone. */
+function localFields(at: Date, timeZone: string) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      hourCycle: "h23",
+      minute: "numeric",
+      hour: "numeric",
+      day: "numeric",
+      month: "numeric",
+      weekday: "short",
+    })
+      .formatToParts(at)
+      .map((part) => [part.type, part.value]),
+  );
+  return {
+    minute: Number(parts.minute),
+    hour: Number(parts.hour),
+    day: Number(parts.day),
+    month: Number(parts.month),
+    weekday: weekdays.indexOf(parts.weekday ?? ""),
+  };
+}
+
+/**
+ * Does a 5-field cron expression fire at this minute in `timeZone` (default UTC)?
+ * Supports *, a-b, lists, and step.
+ */
+function cronFires(expression: string, at: Date, timeZone = "UTC"): boolean {
   const [minute, hour, day, month, weekday] = expression.split(" ");
   const matches = (field: string | undefined, value: number) =>
     (field ?? "*").split(",").some((part) => {
@@ -288,48 +310,74 @@ function cronFires(expression: string, at: Date): boolean {
         ? (value - (Number.isFinite(lo) ? lo : 0)) % Number(step) === 0
         : true;
     });
+  const local = localFields(at, timeZone);
   return (
-    matches(minute, at.getUTCMinutes()) &&
-    matches(hour, at.getUTCHours()) &&
-    matches(day, at.getUTCDate()) &&
-    matches(month, at.getUTCMonth() + 1) &&
-    matches(weekday, at.getUTCDay())
+    matches(minute, local.minute) &&
+    matches(hour, local.hour) &&
+    matches(day, local.day) &&
+    matches(month, local.month) &&
+    matches(weekday, local.weekday)
   );
 }
 
 describe("vercel.json ratings schedules", () => {
-  const crons = Object.values(
+  const ratings = Object.values(
     JSON.parse(
       fs.readFileSync(path.join(repoRoot, "apps/web/vercel.json"), "utf8"),
-    ).schedules as Record<string, { path: string; schedule: string }>,
+    ).schedules as Record<
+      string,
+      { path: string; schedule: string; timezone?: string }
+    >,
+  ).filter((entry) => entry.path === "/api/cron/ratings");
+  const schedule = fcsSchedule();
+  // Every hour of 2026, UTC. All three zones sit on whole-hour offsets.
+  const hours = Array.from(
+    { length: 365 * 24 },
+    (_, i) => new Date(Date.UTC(2026, 0, 1) + i * 3_600_000),
   );
-  const schedule = poolScheduleSchema.parse(seededJson("cadence"));
-  // Every 30-minute slot of one week, starting Sunday 2026-11-01 00:00 UTC.
-  const slots = Array.from(
-    { length: 7 * 48 },
-    (_, i) => new Date(Date.UTC(2026, 10, 1) + i * 30 * 60 * 1000),
+  const fires = hours.filter((at) =>
+    ratings.some((entry) => cronFires(entry.schedule, at, entry.timezone)),
   );
-  const fires = (at: Date) =>
-    crons.some(
-      (cron) =>
-        cron.path === "/api/cron/ratings" && cronFires(cron.schedule, at),
-    );
+  const firesBetween = (from: string, to: string) =>
+    fires
+      .filter((at) => at >= new Date(from) && at < new Date(to))
+      .map((at) => at.toISOString());
 
-  it("fires in every slot where the FCS pool's window is open", () => {
-    const missed = slots.filter(
-      (at) => scheduleIsOpen(schedule, at) && !fires(at),
+  it("only fires inside the pool's windows, with room for 15 minutes of jitter", () => {
+    const outside = fires.filter(
+      (at) =>
+        !scheduleIsOpen(schedule, at) ||
+        !scheduleIsOpen(schedule, new Date(at.getTime() + 15 * 60_000)),
     );
-    expect(missed.map((at) => at.toISOString())).toEqual([]);
+    expect(outside.map((at) => at.toISOString())).toEqual([]);
   });
 
-  it("never fires when no pool would act", () => {
-    const wasted = slots.filter(
-      (at) => fires(at) && !scheduleIsOpen(schedule, at),
-    );
-    expect(wasted.map((at) => at.toISOString())).toEqual([]);
+  it("fires midnight Pacific and 6 a.m. Eastern Sunday, and 6 a.m. Eastern Tuesday, under daylight time", () => {
+    expect(
+      firesBetween("2026-09-05T00:00:00Z", "2026-09-12T00:00:00Z"),
+    ).toEqual([
+      "2026-09-06T07:00:00.000Z",
+      "2026-09-06T10:00:00.000Z",
+      "2026-09-08T10:00:00.000Z",
+    ]);
   });
 
-  it("is 60 calls a week", () => {
-    expect(slots.filter(fires)).toHaveLength(60);
+  it("keeps the same local times under standard time", () => {
+    expect(
+      firesBetween("2026-11-07T00:00:00Z", "2026-11-14T00:00:00Z"),
+    ).toEqual([
+      "2026-11-08T08:00:00.000Z",
+      "2026-11-08T11:00:00.000Z",
+      "2026-11-10T11:00:00.000Z",
+    ]);
+  });
+
+  it("runs through the January title game and skips the offseason", () => {
+    expect(
+      firesBetween("2026-01-01T00:00:00Z", "2026-02-01T00:00:00Z"),
+    ).not.toEqual([]);
+    expect(
+      firesBetween("2026-02-01T00:00:00Z", "2026-08-01T00:00:00Z"),
+    ).toEqual([]);
   });
 });
