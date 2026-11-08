@@ -14,6 +14,7 @@ import {
   IconChartBar,
   IconDatabase,
   IconHome,
+  IconId,
   IconListDetails,
   IconTrophy,
   IconUsers,
@@ -51,6 +52,11 @@ const data = {
       title: "Ratings & SOS",
       url: "/ratings",
       icon: IconChartBar,
+    },
+    {
+      title: "School IDs",
+      url: "/school-ids",
+      icon: IconId,
     },
     {
       title: "Playoff brackets",

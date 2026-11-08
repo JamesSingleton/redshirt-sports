@@ -4,8 +4,10 @@ import { fetchJson } from "../../http";
 import {
   espnIdFromRef,
   espnScoreboardUrl,
+  fetchSeasonTeamIds,
   mapEspnStatus,
   parseEspnScoreboard,
+  parseTeamList,
 } from "../espn";
 import { parseNcaaScoreboard } from "../ncaa";
 import week1 from "./fixtures/espn-fcs-2025-week1.json";
@@ -173,5 +175,76 @@ describe("fetchJson", () => {
       }),
     ).resolves.toEqual({ via: "fallback" });
     expect(fetchImpl.mock.calls[1]?.[0]).toBe("https://y.test/a");
+  });
+});
+
+describe("team lists", () => {
+  it("parses a site API team list and drops nameless placeholders", () => {
+    const teams = parseTeamList({
+      sports: [
+        {
+          leagues: [
+            {
+              teams: [
+                {
+                  team: {
+                    id: "2390",
+                    location: "Miami",
+                    name: "Hurricanes",
+                    displayName: "Miami Hurricanes",
+                    abbreviation: "MIA",
+                  },
+                },
+                {
+                  team: { id: "193", location: "Miami (OH)", name: "RedHawks" },
+                },
+                { team: { id: "9999" } },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(teams).toEqual([
+      {
+        espnId: "2390",
+        displayName: "Miami Hurricanes",
+        shortDisplayName: null,
+        abbreviation: "MIA",
+        location: "Miami",
+        mascot: "Hurricanes",
+      },
+      {
+        espnId: "193",
+        displayName: "Miami (OH) RedHawks",
+        shortDisplayName: null,
+        abbreviation: null,
+        location: "Miami (OH)",
+        mascot: "RedHawks",
+      },
+    ]);
+  });
+
+  it("pages through a season's team refs", async () => {
+    const ref = (id: number) => ({
+      $ref: `http://example.test/v2/sports/basketball/leagues/mens-college-basketball/seasons/2027/teams/${id}?lang=en`,
+    });
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({ pageCount: 2, items: [ref(30), ref(2)] }),
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ pageCount: 2, items: [ref(2), ref(5)] })),
+      );
+    await expect(
+      fetchSeasonTeamIds(
+        { league: "basketball/mens-college-basketball", seasonYear: 2027 },
+        { fetchImpl },
+      ),
+    ).resolves.toEqual(["2", "5", "30"]);
+    expect(fetchImpl.mock.calls[1]?.[0]).toContain("page=2");
   });
 });

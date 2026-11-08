@@ -346,3 +346,86 @@ export async function fetchEspnGroupConferences(
   }
   return byTeam;
 }
+
+const teamListSchema = z.looseObject({
+  sports: z
+    .array(
+      z.looseObject({
+        leagues: z
+          .array(
+            z.looseObject({
+              teams: z.array(z.looseObject({ team: z.unknown() })).default([]),
+            }),
+          )
+          .default([]),
+      }),
+    )
+    .default([]),
+});
+
+/** Teams from a league team list. Placeholder teams with no name are dropped. */
+export function parseTeamList(payload: unknown): EspnTeam[] {
+  const body = teamListSchema.parse(payload);
+  const teams: EspnTeam[] = [];
+  for (const sport of body.sports) {
+    for (const league of sport.leagues) {
+      for (const entry of league.teams) {
+        try {
+          teams.push(parseEspnTeam(entry.team));
+        } catch {}
+      }
+    }
+  }
+  return teams;
+}
+
+/**
+ * Every team listed for a league, names included, in one request. College football
+ * lists every division (~760 teams); the basketball leagues list Division I only and
+ * ignore `groups`, so lower divisions need {@link fetchSeasonTeamIds}.
+ */
+export async function fetchTeamList(
+  input: { league: string },
+  options?: FetchJsonOptions,
+): Promise<EspnTeam[]> {
+  const { sport, league } = leaguePath(input.league);
+  const url = `${SITE}/${sport}/${league}/teams?limit=2000`;
+  return parseTeamList(
+    await fetchJson(url, { fallbackUrl: siteFallback(url), ...options }),
+  );
+}
+
+const seasonSchema = z.looseObject({ year: z.number() });
+
+/** The season the provider calls current for a league (2027 for basketball from July 2026). */
+export async function fetchCurrentSeasonYear(
+  input: { league: string },
+  options?: FetchJsonOptions,
+): Promise<number> {
+  const { sport, league } = leaguePath(input.league);
+  return seasonSchema.parse(
+    await fetchJson(`${CORE}/${sport}/leagues/${league}/season`, options),
+  ).year;
+}
+
+/**
+ * Every team id in a league's season, every division included (~1,100 in men's
+ * basketball). Ids only: names need {@link fetchEspnTeam}, one request per team.
+ */
+export async function fetchSeasonTeamIds(
+  input: { league: string; seasonYear: number },
+  options?: FetchJsonOptions,
+): Promise<string[]> {
+  const { sport, league } = leaguePath(input.league);
+  const ids = new Set<string>();
+  for (let page = 1; page <= 20; page += 1) {
+    const url = `${CORE}/${sport}/leagues/${league}/seasons/${input.seasonYear}/teams?limit=1000&page=${page}`;
+    const body = membershipSchema.parse(await fetchJson(url, options));
+    for (const item of body.items) {
+      const id = espnIdFromRef(item.$ref);
+      if (id) ids.add(id);
+    }
+    if ((body.pageCount ?? 1) <= page) break;
+  }
+  return [...ids].sort((a, b) => Number(a) - Number(b));
+}

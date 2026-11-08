@@ -14,14 +14,32 @@
     {
       "name": "web (start dev server)",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "web", "dev"],
+      "runtimeArgs": [
+        "--filter",
+        "web",
+        "dev"
+      ],
       "port": 3000
     },
     {
       "name": "web (production build)",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "web", "start"],
+      "runtimeArgs": [
+        "--filter",
+        "web",
+        "start"
+      ],
       "port": 3000
+    },
+    {
+      "name": "admin (start dev server)",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "admin",
+        "dev"
+      ],
+      "port": 3001
     }
   ]
 }
