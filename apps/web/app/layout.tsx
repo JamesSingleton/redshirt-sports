@@ -13,6 +13,10 @@ import { Suspense } from "react";
 import { preconnect, prefetchDNS } from "react-dom";
 
 import { fontBarlow, fontInter, fontSourceSerif } from "@/app/fonts";
+import {
+  CachedBreakingNewsServer,
+  DraftAwareBreakingNews,
+} from "@/components/breaking-news";
 import { DisableDraftMode } from "@/components/disable-draft-mode";
 import { CachedFooterServer, FooterSkeleton } from "@/components/footer";
 import { CachedCombinedJsonLd } from "@/components/json-ld";
@@ -57,6 +61,13 @@ export default async function RootLayout({
             </Suspense>
           ) : (
             <CachedNavbarServer {...PUBLISHED_FETCH_OPTIONS} />
+          )}
+          {isDraftMode ? (
+            <Suspense fallback={null}>
+              <DraftAwareBreakingNews />
+            </Suspense>
+          ) : (
+            <CachedBreakingNewsServer {...PUBLISHED_FETCH_OPTIONS} />
           )}
           <main id="main" className="min-w-0 flex-1 overflow-x-clip">
             {children}

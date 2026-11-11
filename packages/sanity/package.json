@@ -17,7 +17,9 @@
     "./token": "./src/token.ts",
     "./image": "./src/image.ts",
     "./keys": "./keys.ts",
-    "./ad-placements": "./src/ad-placements.ts"
+    "./ad-placements": "./src/ad-placements.ts",
+    "./story-types": "./src/story-types.ts",
+    "./external-refs": "./src/external-refs.ts"
   },
   "dependencies": {
     "@sanity/asset-utils": "^2.3.0",

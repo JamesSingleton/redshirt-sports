@@ -1,123 +1,88 @@
-/**
- * governing-body.ts
- *
- * Represents a collegiate athletic governing body or association.
- * Keeping this as a document (rather than a string enum on `classification`)
- * means editors can add new governing bodies — CCCAA, USCAA, any future
- * regional or faith-based association — directly in the Studio without
- * waiting for a schema change or deployment.
- *
- * Seed documents to create on first deploy:
- *   NCAA    National Collegiate Athletic Association
- *   NAIA    National Association of Intercollegiate Athletics
- *   NJCAA   National Junior College Athletic Association
- *   NCCAA   National Christian College Athletic Association
- *   CCCAA   California Community College Athletic Association
- *   USCAA   United States Collegiate Athletic Association
- *
- * Note on USCAA: it operates across traditional NCAA/NAIA lines. A school
- * like Virginia State University is NCAA Division II for football (CIAA)
- * but USCAA for baseball (New South Athletic Conference) and soccer
- * (independent). This is handled at the school level via per-sport
- * conferenceAffiliations — the governing body document itself just needs
- * to exist.
- *
- * Document cost: 6–10 documents total, fixed. Not a quota concern.
- */
-
+import { EarthAmericasIcon } from "@sanity/icons/EarthAmericas";
 import { defineField, defineType } from "sanity";
 
-import { createSlug } from "@/utils/slug";
+import { createSlug, isUniqueWithinType } from "@/utils/slug";
 
+/**
+ * A collegiate athletic association: NCAA, NAIA, NJCAA, NCCAA, CCCAA, USCAA.
+ * A document rather than a fixed list so a new association can be added in
+ * the Studio. A school can sit under different bodies by sport; that is
+ * recorded per sport on the school's conference affiliations.
+ */
 export const governingBody = defineType({
   name: "governingBody",
-  title: "Governing Body",
   type: "document",
+  icon: EarthAmericasIcon,
   fields: [
     defineField({
       name: "abbreviation",
-      title: "Abbreviation",
       type: "string",
-      description:
-        'The widely recognized short form. e.g. "NCAA", "NAIA", "NJCAA"',
-      validation: (rule) => rule.required(),
+      description: 'The short form everyone uses: "NCAA", "NAIA", "NJCAA".',
+      validation: (rule) => [
+        rule.required().error("Add the abbreviation."),
+        rule
+          .custom((value: string | undefined) =>
+            !value || value === value.toUpperCase()
+              ? true
+              : "Abbreviations are written in capitals.",
+          )
+          .error(),
+      ],
     }),
     defineField({
       name: "name",
-      title: "Full Name",
+      title: "Full name",
       type: "string",
-      description:
-        'The official full name. e.g. "National Collegiate Athletic Association"',
-      validation: (rule) => rule.required(),
+      description: 'e.g. "National Collegiate Athletic Association".',
+      validation: (rule) => rule.required().error("Add the full name."),
     }),
     defineField({
       name: "slug",
-      title: "Slug",
       type: "slug",
       options: {
-        // Source from abbreviation so slugs are short: "ncaa", "naia", "njcaa"
         source: "abbreviation",
         slugify: createSlug,
-        // Need to bring this back
-        // isUnique,
+        isUnique: isUniqueWithinType,
       },
-      validation: (rule) => rule.required(),
+      validation: (rule) => rule.required().error("Press Generate."),
     }),
     defineField({
       name: "description",
-      title: "Description",
       type: "text",
       rows: 2,
       description:
-        "A brief plain-language description for editors. Who does this body govern? What level of competition?",
+        "Who this body governs and at what level, in plain language.",
     }),
     defineField({
       name: "website",
-      title: "Official Website",
+      title: "Official website",
       type: "url",
-      description:
-        "Optional. Used for editorial reference — not displayed on the site.",
       validation: (rule) => rule.uri({ scheme: ["https", "http"] }),
     }),
     defineField({
       name: "logo",
-      title: "Logo",
       type: "image",
-      options: {
-        hotspot: true,
-      },
+      options: { hotspot: true },
       fields: [
         defineField({
           name: "alt",
-          title: "Alt Text",
+          title: "Alt text",
           type: "string",
-          validation: (rule) => rule.required(),
+          validation: (rule) => rule.required().error("Describe the logo."),
         }),
       ],
     }),
     defineField({
       name: "active",
-      title: "Active",
       type: "boolean",
       initialValue: true,
       description:
-        "Uncheck to retire a governing body without deleting it. Inactive bodies are hidden from all article and classification forms.",
+        "Turn off to retire a governing body without deleting it. It disappears from the division picker.",
     }),
   ],
-
   preview: {
-    select: {
-      title: "abbreviation",
-      subtitle: "name",
-      media: "logo",
-    },
-    prepare: ({ title, subtitle, media }) => ({
-      title,
-      subtitle,
-      media,
-    }),
+    select: { title: "abbreviation", subtitle: "name", media: "logo" },
   },
-
   orderings: [
     {
       title: "Abbreviation A-Z",

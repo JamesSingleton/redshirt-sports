@@ -1,32 +1,29 @@
-// import React from 'react'
-// import type { PreviewProps } from 'sanity'
+import { TwitterIcon } from "@sanity/icons/Twitter";
 import { defineField, defineType } from "sanity";
 
-import TweetPreview from "../../components/tweet";
-
-// const Preview = (props: PreviewProps & { id?: string }) => {
-//   const tweetId = props.id!
-
-//   return <Tweet id={tweetId} />
-// }
+import { PostIdInput } from "@/components/post-id-input";
+import TweetPreview from "@/components/tweet";
 
 export const twitter = defineType({
   name: "twitter",
   type: "object",
-  title: "Twitter Embed",
+  title: "X post",
+  icon: TwitterIcon,
   fields: [
     defineField({
       name: "id",
       type: "string",
-      title: "Twitter tweet ID",
+      title: "Post URL or ID",
+      description:
+        "Paste the post's link from X; only the number at the end is kept.",
+      components: { input: PostIdInput },
+      validation: (rule) =>
+        rule
+          .required()
+          .regex(/^\d{5,25}$/, { name: "post ID" })
+          .error("Paste the post's link, or the number at the end of it."),
     }),
   ],
-  preview: {
-    select: {
-      title: "id",
-    },
-  },
-  components: {
-    preview: TweetPreview,
-  },
+  preview: { select: { title: "id" } },
+  components: { preview: TweetPreview },
 });

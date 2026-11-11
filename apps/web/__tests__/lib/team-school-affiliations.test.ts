@@ -15,10 +15,10 @@ const fcsFootballAffiliation = [
       name: "Big Sky Conference",
       shortName: "Big Sky",
       primaryClassification: { slug: "d1", name: "Division I" },
-      sportSubdivisions: [
+      sportSubdivisionAffiliations: [
         {
           sport: { slug: "football" },
-          subdivision: { shortName: "FCS", name: "FCS", slug: "fcs" },
+          subgrouping: { shortName: "FCS", name: "FCS", slug: "fcs" },
         },
       ],
     },
@@ -50,7 +50,7 @@ describe("team school affiliations", () => {
               shortName: "Big Sky",
               slug: "big-sky",
               primaryClassification: { slug: "d1", name: "Division I" },
-              sportSubdivisions: null,
+              sportSubdivisionAffiliations: null,
             },
           },
         ],
@@ -130,10 +130,10 @@ describe("team school affiliations", () => {
           conference: {
             shortName: "SEC",
             name: "SEC",
-            sportSubdivisions: [
+            sportSubdivisionAffiliations: [
               {
                 sport: { slug: "football" },
-                subdivision: { slug: "fbs", shortName: "FBS", name: "FBS" },
+                subgrouping: { slug: "fbs", shortName: "FBS", name: "FBS" },
               },
             ],
           },
@@ -191,10 +191,10 @@ describe("team school affiliations", () => {
           conference: {
             name: null,
             shortName: "MWC",
-            sportSubdivisions: [
+            sportSubdivisionAffiliations: [
               {
                 sport: { slug: "football" },
-                subdivision: { slug: "d2", shortName: "D2", name: "D2" },
+                subgrouping: { slug: "d2", shortName: "D2", name: "D2" },
               },
             ],
           },
@@ -268,10 +268,10 @@ describe("team school affiliations", () => {
             name: null,
             shortName: "ACC",
             slug: "acc",
-            sportSubdivisions: [
+            sportSubdivisionAffiliations: [
               {
                 sport: { slug: "mens-basketball" },
-                subdivision: {
+                subgrouping: {
                   shortName: null,
                   name: null,
                   slug: "power-conferences",

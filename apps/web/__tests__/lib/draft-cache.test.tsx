@@ -156,7 +156,18 @@ describe("draftAwareParamsPage", () => {
     if (!isValidElement(tree)) {
       throw new Error("expected element");
     }
-    expect(tree.type).not.toBe(Suspense);
+    // URL data is read behind Suspense so the shared App Shell stays URL-free.
+    expect(tree.type).toBe(Suspense);
+    const child = (tree.props as { children: React.ReactElement }).children;
+    await (
+      child.type as (p: {
+        params: Promise<{ slug: string }>;
+        render: typeof renderFn;
+      }) => Promise<unknown>
+    )({
+      params: Promise.resolve({ slug: "hello" }),
+      render: renderFn,
+    });
     expect(renderFn).toHaveBeenCalledWith(
       { slug: "hello" },
       { perspective: "published", stega: false },

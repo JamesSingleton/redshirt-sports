@@ -54,7 +54,7 @@ describe("articleKicker", () => {
         storyType: "analysis",
         tags: [],
       } as never),
-    ).toBe("FBS · analysis");
+    ).toBe("FBS · Analysis");
     expect(articleKicker({ tags: [] } as never)).toBe("News");
     expect(
       articleKicker({

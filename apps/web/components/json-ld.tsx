@@ -4,6 +4,7 @@ import {
   type DynamicFetchOptions,
 } from "@redshirt-sports/sanity/live";
 import { querySettingsData } from "@redshirt-sports/sanity/queries";
+import { storySchemaType } from "@redshirt-sports/sanity/story-types";
 import { toPlainText } from "next-sanity";
 import type {
   BreadcrumbList,
@@ -12,13 +13,20 @@ import type {
   ImageObject,
   NewsArticle,
   Organization,
-  Person,
   SportsTeam,
   WebPage,
   WebSite,
   WithContext,
 } from "schema-dts";
 
+import {
+  type ArticleAuthorInput,
+  type ArticleEntityInput,
+  buildArticleAbout,
+  buildArticleAuthor,
+  buildArticleCorrections,
+  buildArticleMentions,
+} from "@/lib/article-entities";
 import { getArticleTagNames } from "@/lib/article-seo";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
@@ -30,7 +38,7 @@ const baseUrl = getBaseUrl();
 export const organizationId = `${baseUrl}/#organization`;
 export const websiteId = `${baseUrl}/#website`;
 
-type PostArticle = {
+type PostArticle = ArticleEntityInput & {
   slug?: string | null;
   title?: string | null;
   excerpt?: string | null;
@@ -39,16 +47,14 @@ type PostArticle = {
   modifiedAt?: string | null;
   _updatedAt?: string | null;
   body?: unknown;
-  authors?: Array<{
-    name?: string | null;
-    slug?: string | null;
-    socialLinks?: Record<string, string | null | undefined> | null;
-  } | null> | null;
+  authors?: ArticleAuthorInput[] | null;
   image?: {
     alt?: string | null;
     asset?: { _ref?: string };
   } | null;
   sport?: { slug?: string | null; title?: string | null } | null;
+  editorsNote?: string | null;
+  storyType?: string | null;
   tags?: Array<{ name?: string | null } | null> | null;
 };
 
@@ -119,15 +125,6 @@ export function buildLogoUrl(image?: { asset?: { _ref?: string } } | null) {
     .fit("max")
     .format("png")
     .url();
-}
-
-function authorSameAs(
-  socialLinks?: Record<string, string | null | undefined> | null,
-) {
-  const links = Object.values(socialLinks ?? {}).filter(
-    (url): url is string => typeof url === "string" && url.startsWith("http"),
-  );
-  return links.length > 0 ? links : undefined;
 }
 
 function buildImageObject({
@@ -265,22 +262,18 @@ export function buildPostPageJsonLd(
     ],
   };
 
+  const about = buildArticleAbout(article, resolvedBaseUrl);
+  const mentions = buildArticleMentions(article);
+  const corrections = buildArticleCorrections(article);
+
   const newsArticle: NewsArticle = {
-    "@type": "NewsArticle",
+    // The format's NewsArticle subtype: reporting, analysis, opinion, or background.
+    "@type": storySchemaType(article.storyType) as "NewsArticle",
     "@id": articleId,
     isPartOf: { "@id": websiteId },
-    author: article.authors
-      ? article.authors.filter(Boolean).map((author) => {
-          return {
-            "@type": "Person",
-            name: author?.name ?? undefined,
-            url: author?.slug
-              ? `${resolvedBaseUrl}/people/${author.slug}`
-              : undefined,
-            sameAs: authorSameAs(author?.socialLinks),
-          } as Person;
-        })
-      : [],
+    author: (article.authors ?? [])
+      .filter(Boolean)
+      .map((author) => buildArticleAuthor(author, resolvedBaseUrl)),
     headline: article.title ?? undefined,
     datePublished: article.publishedAt ?? undefined,
     dateModified: article.modifiedAt ?? article.publishedAt ?? undefined,
@@ -317,6 +310,10 @@ export function buildPostPageJsonLd(
     inLanguage: "en-US",
     ...(articleSection ? { articleSection } : {}),
     ...(tagNames.length > 0 ? { keywords: tagNames.join(", ") } : {}),
+    ...(about.length > 0 ? { about } : {}),
+    ...(mentions.length > 0 ? { mentions } : {}),
+    ...(corrections.length > 0 ? { correction: corrections } : {}),
+    ...(article.editorsNote ? { backstory: article.editorsNote } : {}),
     ...(article.publishedAt
       ? { copyrightYear: new Date(article.publishedAt).getFullYear() }
       : {}),
@@ -475,6 +472,34 @@ export function TeamPageJsonLd({
   return <JsonLdScript data={data} id={`team-json-ld-${school.slug}`} />;
 }
 
+const NEWSROOM_POLICY_KEYS = [
+  "publishingPrinciples",
+  "correctionsPolicy",
+  "ethicsPolicy",
+  "ownershipFundingInfo",
+] as const;
+
+/**
+ * Links to the newsroom's policy pages (set in Studio settings), as the
+ * NewsMediaOrganization properties Google News reads. Relative paths are
+ * made absolute; empty ones are left out.
+ */
+export function newsroomPolicyLinks(
+  policies:
+    | Partial<Record<(typeof NEWSROOM_POLICY_KEYS)[number], string | null>>
+    | null
+    | undefined,
+  base: string,
+) {
+  const links: Partial<Record<(typeof NEWSROOM_POLICY_KEYS)[number], string>> =
+    {};
+  for (const key of NEWSROOM_POLICY_KEYS) {
+    const value = policies?.[key];
+    if (value) links[key] = new URL(value, base).toString();
+  }
+  return links;
+}
+
 export function OrganizationJsonLd({ settings }: { settings: any }) {
   if (!settings) return null;
 
@@ -505,6 +530,7 @@ export function OrganizationJsonLd({ settings }: { settings: any }) {
         } as ContactPoint)
       : undefined,
     sameAs: socialLinks?.length ? socialLinks : undefined,
+    ...newsroomPolicyLinks(settings.newsroomPolicies, resolvedBaseUrl),
   };
 
   return <JsonLdScript data={organizationJsonLd} id="organization-json-ld" />;

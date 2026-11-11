@@ -5,3 +5,7 @@ export const buildSearchQuery = (input: string) => {
     .map((term) => `${term.toLowerCase()}:*`)
     .join(" & ");
 };
+
+/** A LIKE pattern matching `term` anywhere, with its own wildcards escaped. */
+export const likeContains = (term: string) =>
+  `%${term.replace(/[\\%_]/g, (char) => `\\${char}`)}%`;

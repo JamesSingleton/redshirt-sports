@@ -83,6 +83,31 @@ describe("PaginationControls", () => {
     expect(screen.getByText("More pages")).toBeInTheDocument();
   });
 
+  it("puts the cursor on the next links only", () => {
+    nav.useSearchParams.mockReturnValue(
+      new URLSearchParams({ page: "2", after: "n~old~cursor" }),
+    );
+    render(<PaginationControls totalPosts={100} nextCursor="n~next~cursor" />);
+
+    expect(screen.getByRole("link", { name: "3" })).toHaveAttribute(
+      "href",
+      "/college/news?page=3&after=n%7Enext%7Ecursor",
+    );
+    expect(screen.getByRole("link", { name: /next/i })).toHaveAttribute(
+      "href",
+      "/college/news?page=3&after=n%7Enext%7Ecursor",
+    );
+    // Earlier pages drop the cursor this page arrived with.
+    expect(screen.getByRole("link", { name: "1" })).toHaveAttribute(
+      "href",
+      "/college/news",
+    );
+    expect(screen.getByRole("link", { name: /previous/i })).toHaveAttribute(
+      "href",
+      "/college/news",
+    );
+  });
+
   it("removes the page query param when navigating to page one", () => {
     nav.useSearchParams.mockReturnValue(
       new URLSearchParams({ page: "2", tag: "news" }),

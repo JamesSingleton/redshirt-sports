@@ -5,6 +5,7 @@ import {
   CachedCombinedJsonLd,
   DynamicCombinedJsonLd,
   JsonLdScript,
+  newsroomPolicyLinks,
   OrganizationJsonLd,
   organizationId,
   PostPageJsonLd,
@@ -513,5 +514,48 @@ describe("DynamicCombinedJsonLd", () => {
 
     expect(container.querySelector("#organization-json-ld")).toBeTruthy();
     expect(container.querySelector("#website-json-ld")).toBeTruthy();
+  });
+});
+
+describe("article entities and newsroom policies", () => {
+  it("adds what the article is about, corrections, and the editor's note", () => {
+    const data = buildPostPageJsonLd({
+      slug: "brawl",
+      title: "Brawl of the Wild",
+      sport: { slug: "football", title: "Football" },
+      teams: [{ name: "Montana", slug: "montana-grizzlies" }],
+      conferences: [{ name: "Big Sky Conference" }],
+      game: "espn:401|Montana at Montana State",
+      players: ["espn:5|Keali'i Ah Yat · Montana"],
+      corrections: [{ text: "Fixed the score.", date: "2026-11-02T00:00:00Z" }],
+      editorsNote: "The author attended Montana.",
+    });
+    const article = (data?.["@graph"] ?? []).find(
+      (node) => (node as { "@type"?: string })["@type"] === "NewsArticle",
+    ) as Record<string, unknown>;
+    expect(article.about).toHaveLength(2);
+    expect(article.mentions).toHaveLength(2);
+    expect(article.correction).toEqual([
+      expect.objectContaining({ "@type": "CorrectionComment" }),
+    ]);
+    expect(article.backstory).toBe("The author attended Montana.");
+  });
+
+  it("makes policy links absolute and skips empty ones", () => {
+    expect(
+      newsroomPolicyLinks(
+        {
+          publishingPrinciples: "/legal/editorial-standards",
+          correctionsPolicy: "https://example.com/corrections",
+          ethicsPolicy: null,
+        },
+        "https://www.redshirtsports.com",
+      ),
+    ).toEqual({
+      publishingPrinciples:
+        "https://www.redshirtsports.com/legal/editorial-standards",
+      correctionsPolicy: "https://example.com/corrections",
+    });
+    expect(newsroomPolicyLinks(undefined, "https://x.com")).toEqual({});
   });
 });

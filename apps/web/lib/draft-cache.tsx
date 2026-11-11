@@ -87,20 +87,38 @@ export function draftAwareParamsPage<P>(
   );
 }
 
+async function PublishedParamsRender<P>({
+  params,
+  render,
+}: {
+  params: Promise<P>;
+  render: (resolved: P, options: DynamicFetchOptions) => Promise<ReactNode>;
+}) {
+  return render(await params, PUBLISHED_FETCH_OPTIONS);
+}
+
+/**
+ * `params` is read inside Suspense even for published pages: the App Shell is
+ * shared by every link to the route, so it can't depend on one URL (Next's
+ * "URL data outside of Suspense" insight). Slugs from `generateStaticParams`
+ * still prerender in full, because their cached content resolves at build
+ * time; other slugs stream in behind `fallback`.
+ */
 async function prerenderPublishedParamsPage<P>(
   params: Promise<P>,
   fallback: ReactNode,
   render: (resolved: P, options: DynamicFetchOptions) => Promise<ReactNode>,
 ) {
   const { isEnabled } = await draftMode();
-  if (isEnabled) {
-    return (
-      <Suspense fallback={fallback}>
+  return (
+    <Suspense fallback={fallback}>
+      {isEnabled ? (
         <DraftAwareParamsRender params={params} render={render} />
-      </Suspense>
-    );
-  }
-  return render(await params, PUBLISHED_FETCH_OPTIONS);
+      ) : (
+        <PublishedParamsRender params={params} render={render} />
+      )}
+    </Suspense>
+  );
 }
 
 async function DraftAwareSearchParamsRender<P>({

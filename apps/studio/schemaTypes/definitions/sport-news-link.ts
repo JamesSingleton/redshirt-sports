@@ -25,7 +25,7 @@ export const sportNewsLink = defineType({
       description: "How specific the news archive link should be",
       options: createRadioListLayout([
         { title: "Sport news hub", value: "sportNews" },
-        { title: "Division or subgrouping", value: "divisionNews" },
+        { title: "Level or subdivision", value: "divisionNews" },
         { title: "Conference", value: "conferenceNews" },
       ]),
       initialValue: () => "sportNews",
@@ -33,11 +33,11 @@ export const sportNewsLink = defineType({
     }),
     defineField({
       name: "segment",
-      title: "Division or subgrouping",
+      title: "Level or subdivision",
       type: "reference",
       description:
-        "The division or sport subgrouping segment used in the URL (e.g. fbs, power-conference)",
-      to: [{ type: "division" }, { type: "sportSubgrouping" }],
+        "The level (d2, naia) or subdivision (fcs, mid-major) segment of the URL",
+      to: [{ type: "classification" }, { type: "sportSubgrouping" }],
       options: {
         disableNew: true,
         filter: ({ parent }) => {
@@ -48,7 +48,7 @@ export const sportNewsLink = defineType({
           }
           return {
             filter:
-              "_type == 'division' || (_type == 'sportSubgrouping' && $sportId in applicableSports[]._ref)",
+              "_type == 'classification' || (_type == 'sportSubgrouping' && $sportId in applicableSports[]._ref)",
             params: { sportId: sportRef },
           };
         },
@@ -65,7 +65,7 @@ export const sportNewsLink = defineType({
               routeDepth === "conferenceNews") &&
             !value?._ref
           ) {
-            return "Division or subgrouping is required";
+            return "Pick a level or subdivision";
           }
           return true;
         }),
@@ -87,7 +87,7 @@ export const sportNewsLink = defineType({
             return { filter: "false" };
           }
           return {
-            filter: `$sportId in sports[]._ref && (division._ref == $segmentId || count(sportSubdivisionAffiliations[subgrouping._ref == $segmentId && sport._ref == $sportId]) > 0)`,
+            filter: `$sportId in sports[]._ref && (primaryClassification._ref == $segmentId || count(sportSubdivisionAffiliations[subgrouping._ref == $segmentId && sport._ref == $sportId]) > 0)`,
             params: { sportId: sportRef, segmentId: segmentRef },
           };
         },

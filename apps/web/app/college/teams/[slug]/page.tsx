@@ -20,6 +20,7 @@ import { notFound } from "next/navigation";
 
 import { TeamPageJsonLd } from "@/components/json-ld";
 import { TeamPageContent } from "@/components/teams/team-page-content";
+import { TeamPageSkeleton } from "@/components/teams/team-page-skeleton";
 import { DirectionalPageTransition } from "@/components/view-transitions/directional-page-transition";
 import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
@@ -146,9 +147,14 @@ export default async function SchoolTeamPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  return draftAwareParamsPage(params, null, renderSchoolTeamPage, {
-    prerenderPublished: true,
-  });
+  return draftAwareParamsPage(
+    params,
+    <TeamPageSkeleton />,
+    renderSchoolTeamPage,
+    {
+      prerenderPublished: true,
+    },
+  );
 }
 
 async function renderSchoolTeamPage(

@@ -5,21 +5,22 @@ import {
   projectUsersWidget,
   sanityTutorialsWidget,
 } from "@sanity/dashboard";
+import { debugLiveSyncTags } from "@sanity/debug-live-sync-tags";
+import { BellIcon } from "@sanity/icons/Bell";
 import { visionTool } from "@sanity/vision";
 import { CogIcon, PanelBottomIcon, PanelTopDashedIcon } from "lucide-react";
-import type {
-  InputProps,
-  PortableTextInputProps,
-  PortableTextPluginsProps,
-} from "sanity";
+import type { PortableTextPluginsProps } from "sanity";
 import { defineConfig, defineSingleton } from "sanity";
 import { presentationTool } from "sanity/presentation";
 import { structureTool } from "sanity/structure";
+import { documentListWidget } from "sanity-plugin-dashboard-widget-document-list";
 import { media } from "sanity-plugin-media";
 
-import { CharacterCountInputPTE } from "@/components/character-count";
 import { Logo } from "@/components/logo";
 import { env } from "@/env";
+import { STORY_TYPES } from "@/house-rules/post";
+import { ArticleCheckBadge } from "@/plugins/article-check-badge";
+import { useArticleFieldActions } from "@/plugins/assist-field-actions";
 import { EditorialHealthWidget } from "@/plugins/editorial-health-widget";
 import { presentationUrl } from "@/plugins/presentation-url";
 import { resolve } from "@/presentation/resolve";
@@ -33,7 +34,12 @@ export default defineConfig({
   icon: Logo,
   dataset: env.SANITY_STUDIO_DATASET,
   plugins: [
-    assist(),
+    assist({
+      fieldActions: {
+        title: "Redshirt Sports",
+        useFieldActions: useArticleFieldActions,
+      },
+    }),
     structureTool({
       structure,
       defaultDocumentNode: getDefaultDocumentNode,
@@ -57,6 +63,20 @@ export default defineConfig({
           component: EditorialHealthWidget,
           layout: { width: "medium" },
         },
+        documentListWidget({
+          title: "Just published",
+          types: ["post"],
+          order: "publishedAt desc",
+          limit: 8,
+          layout: { width: "medium" },
+        }),
+        documentListWidget({
+          title: "Recently edited",
+          types: ["post"],
+          order: "_updatedAt desc",
+          limit: 8,
+          layout: { width: "medium" },
+        }),
         projectInfoWidget(),
         projectUsersWidget(),
       ],
@@ -66,16 +86,18 @@ export default defineConfig({
         enabled: true,
       },
     }),
+    // Shows which cache tags each query gets. Development only.
+    ...(process.env.NODE_ENV === "development" ? [debugLiveSyncTags()] : []),
   ],
+  // Newsroom workflow, built into Studio. Scheduled drafts publish one article
+  // at a set time, and Tasks hand an article to an editor for review.
+  // Releases (articles that publish together) aren't on the current plan;
+  // enable them here after an upgrade.
+  releases: { enabled: false },
+  scheduledDrafts: { enabled: true },
+  tasks: { enabled: true },
   form: {
     components: {
-      input: (props: InputProps) => {
-        if (props.schemaType.name === "blockContent") {
-          return CharacterCountInputPTE(props as PortableTextInputProps);
-        }
-
-        return props.renderDefault(props);
-      },
       portableText: {
         plugins: (props: PortableTextPluginsProps) =>
           props.renderDefault({
@@ -92,6 +114,12 @@ export default defineConfig({
     // Fixed-id documents the web app reads by `_id`. Studio hides them from
     // every "create new" menu and removes Duplicate; `structure.ts` lists them.
     singletons: [
+      defineSingleton({
+        documentId: "breakingNews",
+        schemaType: "breakingNews",
+        title: "Breaking news banner",
+        icon: BellIcon,
+      }),
       defineSingleton({
         documentId: "navbar",
         schemaType: "navbar",
@@ -118,17 +146,38 @@ export default defineConfig({
       );
 
       if (type === "global") {
+        // Parameterized templates only make sense from their own lists.
+        const creatable = prev.filter(
+          (option) =>
+            option.templateId !== "post-by-sport" &&
+            option.templateId !== "post-by-article-type",
+        );
         if (!isAdmin) {
-          return prev.filter(
-            (option) =>
-              option.templateId !== "legal" && option.templateId !== "redirect",
+          // Taxonomy and site documents are admin-managed, so writers can't
+          // mint a stray tag, level, or redirect from the "+" menu.
+          const adminOnly = [
+            "collection",
+            "legal",
+            "redirect",
+            "advertisement",
+            "tag",
+            "sport",
+            "governingBody",
+            "classification",
+            "sportSubgrouping",
+            "conference",
+          ];
+          return creatable.filter(
+            (option) => !adminOnly.includes(option.templateId),
           );
         }
 
-        return prev;
+        return creatable;
       }
       return prev;
     },
+    badges: (badges, context) =>
+      context.schemaType === "post" ? [...badges, ArticleCheckBadge] : badges,
     actions: (actions, context) =>
       context.schemaType === "post"
         ? actions.map((actionItem) =>
@@ -144,7 +193,7 @@ export default defineConfig({
       ...prev,
       {
         id: "post-by-sport",
-        title: "Post by Sport",
+        title: "Article by sport",
         schemaType: "post",
         parameters: [{ name: "sportId", type: "string" }],
         value: ({ sportId }: { sportId: string }) => ({
@@ -152,23 +201,19 @@ export default defineConfig({
         }),
       },
       {
-        id: "post-recruiting",
-        title: "Recruiting Article",
+        id: "post-by-article-type",
+        title: "Article by type",
         schemaType: "post",
-        value: { storyType: "recruiting" },
+        parameters: [{ name: "storyType", type: "string" }],
+        value: ({ storyType }: { storyType: string }) => ({ storyType }),
       },
-      {
-        id: "post-transfer",
-        title: "Transfer Portal Article",
+      // One entry per article type in the global "+" menu.
+      ...STORY_TYPES.filter((type) => type.value !== "news").map((type) => ({
+        id: `post-${type.value}`,
+        title: type.title,
         schemaType: "post",
-        value: { storyType: "transfer" },
-      },
-      {
-        id: "post-game-recap",
-        title: "Game Recap",
-        schemaType: "post",
-        value: { storyType: "game-recap" },
-      },
+        value: { storyType: type.value },
+      })),
     ],
   },
 });

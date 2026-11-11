@@ -46,7 +46,7 @@ export function resolveCustomUrlPreview(
     const internalPaths: Record<string, string> = {
       post: `/${input.internalSlug}`,
       school: `/college/teams/${input.internalSlug}`,
-      author: `/authors/${input.internalSlug}`,
+      author: `/people/${input.internalSlug}`,
       legal: `/legal/${input.internalSlug}`,
     };
     if (input.internalDocType) {

@@ -1,12 +1,12 @@
 import { ComposeIcon } from "@sanity/icons/Compose";
-import { InsertAboveIcon } from "@sanity/icons/InsertAbove";
 import { SearchIcon } from "@sanity/icons/Search";
 import type { FieldGroupDefinition } from "sanity";
 
+export { STORY_TYPES, type StoryType } from "@/house-rules/post";
+
 export const GROUP = {
-  SEO: "seo",
   MAIN_CONTENT: "main-content",
-  OG: "og",
+  SEO: "seo",
 };
 
 export const GROUPS: FieldGroupDefinition[] = [
@@ -16,21 +16,8 @@ export const GROUPS: FieldGroupDefinition[] = [
     title: "Content",
     default: true,
   },
-  { name: GROUP.SEO, icon: SearchIcon, title: "SEO" },
-  {
-    name: GROUP.OG,
-    icon: InsertAboveIcon,
-    title: "Open Graph",
-  },
+  { name: GROUP.SEO, icon: SearchIcon, title: "Search & social" },
 ];
 
-export const STORY_TYPES = [
-  { title: "News", value: "news" },
-  { title: "Recruiting", value: "recruiting" },
-  { title: "Transfer Portal", value: "transfer" },
-  { title: "Analysis", value: "analysis" },
-  { title: "Opinion", value: "opinion" },
-  { title: "Game Recap", value: "game-recap" },
-] as const;
-
-export type StoryType = (typeof STORY_TYPES)[number]["value"];
+/** GROQ API version for Studio-side queries. */
+export const API_VERSION = "2025-06-11";

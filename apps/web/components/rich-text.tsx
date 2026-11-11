@@ -39,10 +39,79 @@ type YoutubeEmbedValue = {
   width?: number | string;
 };
 
+type PullQuoteValue = {
+  _type: "pullQuote";
+  quote?: string;
+  attribution?: string;
+  role?: string;
+};
+
+type CalloutValue = {
+  _type: "callout";
+  kind?: "context" | "numbers" | "update";
+  title?: string;
+  text?: string;
+};
+
+type RelatedArticleValue = {
+  _type: "relatedArticle";
+  label?: string;
+  post?: { title?: string | null; slug?: string | null } | null;
+};
+
+type SocialEmbedValue = {
+  _type: "socialEmbed";
+  url?: string;
+  caption?: string;
+};
+
+const CALLOUT_LABEL: Record<NonNullable<CalloutValue["kind"]>, string> = {
+  context: "Context",
+  numbers: "By the numbers",
+  update: "Update",
+};
+
+function socialHost(url: string): string | null {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
+/** Card for a story placed inside another story's body. */
+function RelatedArticleCard({
+  label,
+  post,
+}: {
+  label?: string | null;
+  post?: {
+    title?: string | null;
+    slug?: string | null;
+    excerpt?: string | null;
+  } | null;
+}) {
+  if (!post?.slug || !post.title) return null;
+  return (
+    <aside className="not-prose my-6 rounded-xl border bg-muted/40 p-4">
+      <p className="kicker text-primary">{label || "Related"}</p>
+      <Link
+        href={`/${post.slug}`}
+        prefetch={false}
+        className="mt-1 block font-display text-xl font-bold uppercase leading-tight hover:text-primary"
+      >
+        {post.title}
+      </Link>
+    </aside>
+  );
+}
+
 type SiteLinkMarkValue = {
   _type: string;
   href?: string;
   openInNewTab?: boolean;
+  /** Old-format links stored the new-tab choice as `blank`. */
+  blank?: boolean;
 };
 
 function SiteLinkMark({
@@ -50,7 +119,7 @@ function SiteLinkMark({
   value,
 }: PortableTextMarkComponentProps<SiteLinkMarkValue>) {
   const href = value?.href;
-  const openInNewTab = value?.openInNewTab;
+  const openInNewTab = value?.openInNewTab ?? value?.blank;
   if (!href) return <>{children}</>;
   if (openInNewTab) {
     return (
@@ -90,24 +159,9 @@ export const richTextComponents: Partial<PortableTextReactComponents> = {
         </Link>
       );
     },
-    link: ({ value, children }: PortableTextMarkComponentProps) => {
-      return value?.blank ? (
-        <a
-          className="hover:text-muted-foreground underline"
-          href={value?.href}
-          rel="noreferrer noopener"
-          target="_blank"
-          aria-label={`Opens ${value?.href} in a new tab`}
-          title={`Opens ${value?.href} in a new tab`}
-        >
-          {children}
-        </a>
-      ) : (
-        <a className="hover:text-muted-foreground underline" href={value?.href}>
-          {children}
-        </a>
-      );
-    },
+    // The current link annotation; `href` and `openInNewTab` are resolved in
+    // the query. Old-format links share the type name and resolve the same.
+    link: SiteLinkMark,
   },
   types: {
     twitter: ({ value }: PortableTextTypeComponentProps<TwitterEmbedValue>) => {
@@ -142,6 +196,67 @@ export const richTextComponents: Partial<PortableTextReactComponents> = {
       );
     },
     table: ({ value }) => <PortableTable value={value} />,
+    pullQuote: ({ value }: PortableTextTypeComponentProps<PullQuoteValue>) => {
+      if (!value.quote) return null;
+      return (
+        <figure className="not-prose my-8 border-l-4 border-primary pl-5">
+          <blockquote className="font-serif text-2xl font-semibold leading-snug">
+            “{value.quote}”
+          </blockquote>
+          {value.attribution ? (
+            <figcaption className="mt-3 text-sm text-muted-foreground">
+              {value.attribution}
+              {value.role ? `, ${value.role}` : ""}
+            </figcaption>
+          ) : null}
+        </figure>
+      );
+    },
+    callout: ({ value }: PortableTextTypeComponentProps<CalloutValue>) => {
+      if (!value.text) return null;
+      return (
+        <aside className="not-prose my-6 rounded-xl border bg-muted/40 p-5">
+          <p className="kicker text-primary">
+            {CALLOUT_LABEL[value.kind ?? "context"]}
+          </p>
+          {value.title ? (
+            <p className="mt-1 font-display text-xl font-bold uppercase leading-tight">
+              {value.title}
+            </p>
+          ) : null}
+          <p className="mt-2 whitespace-pre-line font-serif text-base leading-relaxed">
+            {value.text}
+          </p>
+        </aside>
+      );
+    },
+    relatedArticle: ({
+      value,
+    }: PortableTextTypeComponentProps<RelatedArticleValue>) => (
+      <RelatedArticleCard label={value.label} post={value.post} />
+    ),
+    // Shown as a captioned link: third-party embed scripts aren't loaded.
+    socialEmbed: ({
+      value,
+    }: PortableTextTypeComponentProps<SocialEmbedValue>) => {
+      if (!value.url) return null;
+      const host = socialHost(value.url);
+      return (
+        <aside className="not-prose my-6 rounded-xl border p-4">
+          {value.caption ? (
+            <p className="font-serif text-base">{value.caption}</p>
+          ) : null}
+          <a
+            href={value.url}
+            rel="noreferrer noopener"
+            target="_blank"
+            className="mt-2 inline-block text-sm text-primary underline underline-offset-2"
+          >
+            View the post{host ? ` on ${host}` : ""}
+          </a>
+        </aside>
+      );
+    },
     bracketEmbed: ({
       value,
     }: PortableTextTypeComponentProps<BracketEmbedValue>) => (

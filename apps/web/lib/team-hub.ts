@@ -77,14 +77,13 @@ export function footballAffiliationDivisionSlug(
   if (!conference) {
     return null;
   }
-  const fromAffiliations = conference.sportSubdivisionAffiliations?.find(
-    (row) => row.sport?.slug === "football",
-  )?.subgrouping?.slug;
-  if (fromAffiliations) {
-    return fromAffiliations;
+  // The school's own override wins over its conference's subdivision.
+  if (football?.subgroupingOverride?.slug) {
+    return football.subgroupingOverride.slug;
   }
-  const match = conference.sportSubdivisions?.find(
-    (row) => row.sport?.slug === "football",
+  return (
+    conference.sportSubdivisionAffiliations?.find(
+      (row) => row.sport?.slug === "football",
+    )?.subgrouping?.slug ?? null
   );
-  return match?.subdivision?.slug ?? null;
 }

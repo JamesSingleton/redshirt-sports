@@ -1,107 +1,94 @@
-/**
- * classification.ts
- *
- * Represents a level within a governing body — e.g. "NCAA Division I",
- * "NAIA", "NJCAA Division II". References the `governingBody` document
- * so editors can add new governing bodies in the Studio without a
- * schema change or deployment.
- *
- * Slug conventions (must match your Next.js route segments):
- *   NCAA Division I    → d1       (kept short; guarded by $division != "d1")
- *   NCAA Division II   → d2
- *   NCAA Division III  → d3
- *   NAIA               → naia
- *   NJCAA Division I   → njcaa-d1 (prefixed to avoid colliding with NCAA d1)
- *   NJCAA Division II  → njcaa-d2
- *   NJCAA Division III → njcaa-d3
- *   NCCAA Division I   → nccaa-d1
- *   NCCAA Division II  → nccaa-d2
- *   CCCAA              → cccaa
- *   USCAA              → uscaa
- *
- * Single-level bodies (NAIA, CCCAA, USCAA) have one classification
- * document each. Multi-level bodies (NCAA, NJCAA, NCCAA) have one
- * document per division level.
- *
- * Migration from `division`:
- *   1. Deploy this schema alongside the existing `division` schema.
- *   2. Create the governing body seed documents.
- *   3. Create the classification seed documents above.
- *   4. Run a migration to update all `division._ref` fields across
- *      `post`, `conference`, `sportSubgrouping`, and `school` documents
- *      to point at the equivalent `classification` document.
- *   5. Remove the `division` schema once all references are migrated.
- */
-
+import { TiersIcon } from "@sanity/icons/Tiers";
 import { defineField, defineType } from "sanity";
 
-import { createSlug } from "@/utils/slug";
+import { createSlug, isUniqueWithinType } from "@/utils/slug";
 
+/**
+ * A division within a governing body (the type is `classification` because
+ * NAIA and others aren't NCAA-style divisions, but Studio and the site say
+ * "division"): "NCAA Division I", "NAIA",
+ * "NJCAA Division II". Sits between `governingBody` and `sportSubgrouping`:
+ *
+ *   NCAA (governing body)
+ *   └─ NCAA Division I (classification)
+ *      ├─ Football → FBS, FCS (subgroupings)
+ *      └─ Basketball → Power Conferences, Mid-Major (subgroupings)
+ *
+ * The slug is a URL segment (/college/football/news/d2), so it must match the
+ * route conventions: NCAA divisions are d1, d2, d3; single-level bodies use their
+ * abbreviation (naia); other bodies are prefixed (njcaa-d1, nccaa-d2).
+ */
 export const classification = defineType({
   name: "classification",
-  title: "Classification",
+  title: "Division",
   type: "document",
+  icon: TiersIcon,
   fields: [
     defineField({
       name: "governingBody",
-      title: "Governing Body",
       type: "reference",
       to: [{ type: "governingBody" }],
-      description:
-        "The association that governs this classification. e.g. NCAA, NAIA, NJCAA.",
-      options: {
-        disableNew: false,
-        filter: "active == true",
-      },
-      validation: (rule) => rule.required(),
+      description: "The association this division belongs to.",
+      options: { filter: "active != false" },
+      validation: (rule) => rule.required().error("Pick the governing body."),
     }),
     defineField({
       name: "name",
-      title: "Name",
       type: "string",
       description:
-        'Full display name. e.g. "NCAA Division I", "NAIA", "NJCAA Division II"',
-      validation: (rule) => rule.required(),
+        'Full name with the governing body: "NCAA Division I", "NAIA", "NJCAA Division II". Used in page titles.',
+      validation: (rule) => rule.required().error("A division needs a name."),
     }),
     defineField({
       name: "shortName",
-      title: "Short Name",
       type: "string",
       description:
-        'Abbreviated label used in UI and previews. e.g. "NCAA D1", "NAIA", "NJCAA D2"',
-      validation: (rule) => rule.required(),
+        'Compact label for badges and menus: "NCAA DI", "NAIA", "NJCAA DII".',
+      validation: (rule) => [
+        rule.required().error("A division needs a short name."),
+        rule.max(12).error("Keep the short name to 12 characters."),
+      ],
     }),
     defineField({
       name: "slug",
-      title: "Slug",
+      title: "URL segment",
       type: "slug",
       description:
-        "Used in URLs. Follow the slug conventions in the schema comments. Do not edit an existing slug — it will break live routes.",
+        "Its part of news URLs, e.g. /college/football/news/d2. Changing it breaks those URLs.",
       options: {
         source: "name",
         slugify: createSlug,
-        // isUnique,
+        isUnique: isUniqueWithinType,
       },
-      validation: (rule) => rule.required(),
+      validation: (rule) =>
+        rule.required().error("A division needs a URL segment."),
+    }),
+    defineField({
+      name: "description",
+      type: "text",
+      rows: 2,
+      description:
+        "One or two sentences on what this division is. Used as the introduction on its news pages.",
     }),
   ],
-
   preview: {
     select: {
       title: "name",
-      governingBodyAbbr: "governingBody.abbreviation",
-      governingBodyLogo: "governingBody.logo",
+      shortName: "shortName",
+      slug: "slug.current",
+      media: "governingBody.logo",
     },
-    prepare: ({ title, governingBodyAbbr, governingBodyLogo }) => ({
-      title: title ?? "Unnamed classification",
-      subtitle: governingBodyAbbr,
-      media: governingBodyLogo,
+    prepare: ({ title, shortName, slug, media }) => ({
+      title: title ?? "Unnamed division",
+      subtitle: [shortName, slug ? `/${slug}` : null]
+        .filter(Boolean)
+        .join(" · "),
+      media,
     }),
   },
-
   orderings: [
     {
-      title: "Governing Body, then Name",
+      title: "Governing body, then name",
       name: "governingBodyThenName",
       by: [
         { field: "governingBody.abbreviation", direction: "asc" },

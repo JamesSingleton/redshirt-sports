@@ -10,6 +10,7 @@ export const querySettingsData = defineQuery(/* groq */ `
     "logo": logo.asset->url + "?w=512&fm=png&fit=max",
     "socialLinks": socialLinks,
     "contactEmail": contactEmail,
+    newsroomPolicies,
   }
 `);
 
@@ -25,7 +26,7 @@ const customUrlHrefSelect = /* groq */ `
       "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,
     type == "internal" && internal->_type == "post" => "/" + internal->slug.current,
     type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,
-    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,
+    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,
     type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,
     href
   )
@@ -44,15 +45,36 @@ const customLinkMarkFragment = /* groq */ `
       "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,
     customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,
     customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,
-    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,
+    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,
     customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,
     customLink.href
+  )
+`;
+
+/** Site path for a document a link references: article, team, author, legal. */
+const linkReferencePath = /* groq */ `
+  select(
+    reference->_type == "post" => "/" + reference->slug.current,
+    reference->_type == "school" => "/college/teams/" + reference->slug.current,
+    reference->_type == "author" => "/people/" + reference->slug.current,
+    reference->_type == "legal" => "/legal/" + reference->slug.current
   )
 `;
 
 const markDefsFragment = /* groq */ `
   markDefs[]{
     ...,
+    // The current link annotation. An old-format link (only an href) has no
+    // linkType, so it falls through to its href unchanged.
+    _type == "link" => {
+      ...,
+      "href": select(
+        linkType == "internal" => ${linkReferencePath},
+        linkType == "path" => path,
+        href
+      ),
+      "openInNewTab": coalesce(openInNewTab, blank, false)
+    },
     _type == "customLink" => {
       ...,
       ${customLinkMarkFragment}
@@ -66,7 +88,7 @@ const markDefsFragment = /* groq */ `
       "href": select(
         reference->_type == "post" => "/" + reference->slug.current,
         reference->_type == "school" => "/college/teams/" + reference->slug.current,
-        reference->_type == "author" => "/authors/" + reference->slug.current,
+        reference->_type == "author" => "/people/" + reference->slug.current,
         "#"
       )
     }
@@ -85,7 +107,7 @@ const customUrlHrefFragment = /* groq */ `
       "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,
     url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,
     url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,
-    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,
+    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,
     url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,
     url.href
   )
@@ -93,7 +115,7 @@ const customUrlHrefFragment = /* groq */ `
 
 const imageGeometryProjection = /* groq */ `
   "id": asset._ref,
-  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),
+  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),
   "width": asset->metadata.dimensions.width,
   "height": asset->metadata.dimensions.height,
   // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...
@@ -144,7 +166,7 @@ const schoolImageFragment = /* groq */ `
 `;
 
 const postImageFragment = /* groq */ `
-  "image": coalesce(image, mainImage){
+  image{
     ...,
     ${imageMetadataProjection}
   }
@@ -191,10 +213,10 @@ const homePostCardFragment = /* groq */ `
   "divisionLabel": coalesce(
     sportSubgrouping->shortName,
     sportSubgrouping->name,
-    division->shortName,
-    division->name
+    classification->shortName,
+    classification->name
   ),
-  "divisionSlug": division->slug.current,
+  "divisionSlug": classification->slug.current,
   "subgroupingSlug": sportSubgrouping->slug.current,
   "tagNames": tags[]->name,
   "sportTitle": sport->title,
@@ -210,17 +232,21 @@ const postSportFragment = /* groq */ `
 `;
 
 export const queryImageType = defineQuery(`
-  *[_type == "post" && defined(coalesce(image, mainImage))][0]{
+  *[_type == "post" && defined(image)][0]{
     ${postImageFragment}
   }.image
 `);
 
+/**
+ * A post's level of play. The Sanity type is `classification`; the key stays
+ * `division` because that is what the site's routes and components call it.
+ */
 const divisionFragment = /* groq */ `
-  division->{
+  "division": classification->{
     _id,
-    name,
-    "slug": slug.current,
-    ${logoFragment}
+    "name": coalesce(shortName, name),
+    "fullName": name,
+    "slug": slug.current
   }
 `;
 
@@ -238,7 +264,7 @@ const conferencesFragment = /* groq */ `
     shortName,
     "slug": slug.current,
     ${logoFragment},
-    division->{
+    "division": primaryClassification->{
       "slug": slug.current,
     },
     sportSubdivisionAffiliations[]{
@@ -263,6 +289,16 @@ const richTextFragment = /* groq */ `
       ...,
       ${imageMetadataProjection}
     },
+    _type == 'relatedArticle' => {
+      ...,
+      "post": post->{
+        _id,
+        title,
+        excerpt,
+        "slug": slug.current,
+        ${postImageFragment}
+      }
+    },
   }
 `;
 
@@ -278,7 +314,15 @@ export const queryPostSlugData = defineQuery(/* groq */ `
     ${divisionFragment},
     ${sportSubgroupingFragment},
     ${conferencesFragment},
-    ${postAuthorFragment},
+    authors[]->{
+      ...,
+      "slug": slug.current,
+      ${imageFragment},
+      // For the author's Person structured data.
+      "knowsAbout": beats[]->title
+    },
+    "contributors": contributors[]->{ _id, name, "slug": slug.current, archived },
+    "editedBy": editedBy->{ _id, name, "slug": slug.current },
     ${postImageFragment},
     ${richTextFragment},
     tags[]->{
@@ -325,7 +369,7 @@ export const queryArticleLists = defineQuery(/* groq */ `
       ${postImageFragment},
       "slug": slug.current,
       "tagNames": tags[]->name,
-      division->{ name },
+      "division": classification->{ "name": coalesce(shortName, name) },
       sportSubgrouping->{ shortName, name },
       ${postAuthorFragment}
     },
@@ -344,7 +388,7 @@ export const queryArticleLists = defineQuery(/* groq */ `
       ${postImageFragment},
       "slug": slug.current,
       "tagNames": tags[]->name,
-      division->{ name },
+      "division": classification->{ "name": coalesce(shortName, name) },
       sportSubgrouping->{ shortName, name }
     },
     "moreFromAuthor": *[
@@ -421,16 +465,59 @@ export const queryTeamDirectorySchoolsByIds = defineQuery(/* groq */ `
   }
 `);
 
+/*
+ * Archive filters compare reference ids, never `->` lookups. A lookup inside a
+ * filter runs for every candidate article (1.2 s per archive page at 1,000
+ * articles, growing with every one published); these subqueries don't depend
+ * on the article, so they resolve once (about 250 ms for the same page).
+ */
+const sportIdBySlug = /* groq */ `*[_type == "sport" && slug.current == $sport][0]._id`;
+/**
+ * The division (`d2`) or subdivision (`fcs`) named by `$division`.
+ *
+ * Transitional: `division` documents and fields are read too, so archives
+ * are right before and after the editorial-01 migration moves them to
+ * `classification`. Remove the `division` parts after editorial-10.
+ */
+const segmentIdsBySlug = /* groq */ `*[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id`;
+const postInSegment = /* groq */ `(sportSubgrouping._ref in ${segmentIdsBySlug} || classification._ref in ${segmentIdsBySlug} || division._ref in ${segmentIdsBySlug})`;
+/** The archive's "Type" filter: the article's format (`storyType`), e.g. "analysis". */
+const storyTypeFilter = /* groq */ `($storyType == "" || storyType == $storyType)`;
+/**
+ * The conference `$conference`, when it belongs on the `$division` page for
+ * `$sport`: through its subdivision for that sport, or its division when that
+ * division isn't split (not d1).
+ */
+const archiveConferenceIds = /* groq */ `*[
+  _type == "conference" &&
+  slug.current == $conference &&
+  (
+    count(sportSubdivisionAffiliations[sport._ref == ${sportIdBySlug} && subgrouping._ref in ${segmentIdsBySlug}]) > 0 ||
+    ($division != "d1" && (primaryClassification._ref in ${segmentIdsBySlug} || division._ref in ${segmentIdsBySlug}))
+  )
+]._id`;
+
+/*
+ * Archive pagination. `?page=N` slices, which sorts and skips every earlier
+ * article (219 ms at page 40 and growing). The "Next" link also carries the
+ * last article it showed as `$afterAt`/`$afterId`, and the next page starts
+ * right after it (18 ms at any depth). Both are null for a plain `?page=N`.
+ * `_id` breaks ties so articles published in the same second never repeat
+ * or drop between pages.
+ */
+const afterCursorNewest = /* groq */ `(!defined($afterAt) || publishedAt < $afterAt || (publishedAt == $afterAt && _id < $afterId))`;
+const afterCursorOldest = /* groq */ `(!defined($afterAt) || publishedAt > $afterAt || (publishedAt == $afterAt && _id > $afterId))`;
+
 const sportsNewsFilter = /* groq */ `
   _type == "post" &&
-  sport->slug.current == $sport &&
+  sport._ref == ${sportIdBySlug} &&
   ($search == "" || title match "*" + $search + "*") &&
-  ($storyType == "" || $storyType in tags[]->name)
+  ${storyTypeFilter}
 `;
 
 export const querySportsNews = defineQuery(/* groq */ `
   {
-    "posts": *[${sportsNewsFilter}] | order(publishedAt desc)[$from...$to]{
+    "posts": *[${sportsNewsFilter} && ${afterCursorNewest}] | order(publishedAt desc, _id desc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${sportsNewsFilter}])
@@ -439,7 +526,7 @@ export const querySportsNews = defineQuery(/* groq */ `
 
 export const querySportsNewsOldest = defineQuery(/* groq */ `
   {
-    "posts": *[${sportsNewsFilter}] | order(publishedAt asc)[$from...$to]{
+    "posts": *[${sportsNewsFilter} && ${afterCursorOldest}] | order(publishedAt asc, _id asc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${sportsNewsFilter}])
@@ -448,16 +535,16 @@ export const querySportsNewsOldest = defineQuery(/* groq */ `
 
 const sportsDivisionNewsFilter = /* groq */ `
   _type == "post" &&
-  sport->slug.current == $sport &&
-  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&
+  sport._ref == ${sportIdBySlug} &&
+  ${postInSegment} &&
   $division != "d1" &&
   ($search == "" || title match "*" + $search + "*") &&
-  ($storyType == "" || $storyType in tags[]->name)
+  ${storyTypeFilter}
 `;
 
 export const querySportsAndDivisionNews = defineQuery(/* groq */ `
   {
-    "posts": *[${sportsDivisionNewsFilter}] | order(publishedAt desc)[$from...$to]{
+    "posts": *[${sportsDivisionNewsFilter} && ${afterCursorNewest}] | order(publishedAt desc, _id desc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${sportsDivisionNewsFilter}])
@@ -466,7 +553,7 @@ export const querySportsAndDivisionNews = defineQuery(/* groq */ `
 
 export const querySportsAndDivisionNewsOldest = defineQuery(/* groq */ `
   {
-    "posts": *[${sportsDivisionNewsFilter}] | order(publishedAt asc)[$from...$to]{
+    "posts": *[${sportsDivisionNewsFilter} && ${afterCursorOldest}] | order(publishedAt asc, _id asc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${sportsDivisionNewsFilter}])
@@ -583,9 +670,37 @@ export const queryHomePageData = defineQuery(/* groq */ `
   }
 `);
 
+const homeTopStoryIds = /* groq */ `coalesce(*[_type == "collection" && key == "home-top-stories"][0].articles[]._ref, [])`;
+
+/**
+ * The homepage river: the editors' "Homepage top stories" collection first,
+ * in their order, then the latest articles. A pinned article that is
+ * unpublished or deleted is skipped (the collection holds weak references).
+ */
 export const queryHomeFeed = defineQuery(/* groq */ `
-  *[_type == "post"] | order(publishedAt desc)[0...48]{
-    ${homePostCardFragment}
+  (
+    coalesce((*[_type == "collection" && key == "home-top-stories"][0].articles[]->{
+      ${homePostCardFragment}
+    })[defined(slug) && defined(publishedAt)], []) +
+    *[_type == "post" && !(_id in ${homeTopStoryIds})] | order(publishedAt desc)[0...48]{
+      ${homePostCardFragment}
+    }
+  )[0...48]
+`);
+
+/**
+ * The site-wide breaking-news banner, when there is a live one. The page
+ * hides it at expiresAt on the reader's clock, because a cached page can
+ * outlive the alert.
+ */
+export const queryBreakingNews = defineQuery(/* groq */ `
+  *[_id == "breakingNews" && defined(article) && dateTime(expiresAt) > dateTime(now())][0]{
+    "label": coalesce(label, "Breaking"),
+    expiresAt,
+    // Null when the article was unpublished or deleted (a weak reference).
+    "article": select(
+      defined(article->publishedAt) => article->{ title, "slug": slug.current }
+    )
   }
 `);
 
@@ -597,6 +712,35 @@ export const queryLatestArticles = defineQuery(/* groq */ `
     "slug": slug.current,
     publishedAt,
     ${postImageFragment},
+    ${postAuthorFragment}
+  }
+`);
+
+export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
+  *[
+    _type == "post" &&
+    (
+      classification._ref in *[_type == "classification" && name == $division]._id ||
+      sportSubgrouping._ref in *[_type == "sportSubgrouping" && name == $division]._id
+    ) &&
+    sport._ref in *[_type == "sport" && title match $sport]._id &&
+    !(_id in $articleIds)
+  ] | order(publishedAt desc)[0..4]{
+    _id,
+    title,
+    excerpt,
+    "slug": slug.current,
+    ${postImageFragment},
+    publishedAt,
+    "division": classification->{
+      "name": coalesce(shortName, name),
+      "slug": slug.current
+    },
+    conferences[]->{
+      name,
+      "slug": slug.current,
+      shortName
+    },
     ${postAuthorFragment}
   }
 `);
@@ -618,36 +762,6 @@ export const queryMostReadFallbackPosts = defineQuery(/* groq */ `
   }
 `);
 
-export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
-  *[_type == "post" && (division->name == $division || sportSubgrouping->name == $division) && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{
-    _id,
-    title,
-    excerpt,
-    "slug": slug.current,
-    ${postImageFragment},
-    publishedAt,
-    division->{
-      name,
-      "slug": slug.current
-    },
-    conferences[]->{
-      name,
-      "slug": slug.current,
-      shortName
-    },
-    ${postAuthorFragment}
-  }
-`);
-
-export const queryCollegeSportsArticlesForSitemap = defineQuery(/* groq */ `
-  *[_type == "post" && defined(slug.current) && sport->title match $sport] | order(publishedAt desc){
-    _id,
-    _updatedAt,
-    publishedAt,
-    "slug": slug.current,
-  }
-`);
-
 export const querySitemapData = defineQuery(/* groq */ `{
   "authors": *[_type == "author" && defined(slug.current) && archived == false] {
     "slug": slug.current,
@@ -661,21 +775,20 @@ export const querySitemapData = defineQuery(/* groq */ `{
 
 const sportDivisionConferenceNewsFilter = /* groq */ `
   _type == "post" &&
-  sport->slug.current == $sport &&
-  $conference in conferences[]->slug.current &&
-  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&
-  $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current &&
+  sport._ref == ${sportIdBySlug} &&
+  count(conferences[@._ref in ${archiveConferenceIds}]) > 0 &&
+  ${postInSegment} &&
   ($search == "" || title match "*" + $search + "*") &&
-  ($storyType == "" || $storyType in tags[]->name)
+  ${storyTypeFilter}
 `;
 
 export const queryArticlesBySportDivisionAndConference =
   defineQuery(/* groq */ `
   {
-    "posts": *[${sportDivisionConferenceNewsFilter}] | order(publishedAt desc) [$from...$to]{
+    "posts": *[${sportDivisionConferenceNewsFilter} && ${afterCursorNewest}] | order(publishedAt desc, _id desc)[$from...$to]{
       ${homePostCardFragment}
     },
-    "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))][0]{
+    "conferenceInfo": *[_id in ${archiveConferenceIds}][0]{
       _id,
       name,
       shortName
@@ -687,10 +800,10 @@ export const queryArticlesBySportDivisionAndConference =
 export const queryArticlesBySportDivisionAndConferenceOldest =
   defineQuery(/* groq */ `
   {
-    "posts": *[${sportDivisionConferenceNewsFilter}] | order(publishedAt asc) [$from...$to]{
+    "posts": *[${sportDivisionConferenceNewsFilter} && ${afterCursorOldest}] | order(publishedAt asc, _id asc)[$from...$to]{
       ${homePostCardFragment}
     },
-    "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))][0]{
+    "conferenceInfo": *[_id in ${archiveConferenceIds}][0]{
       _id,
       name,
       shortName
@@ -699,21 +812,30 @@ export const queryArticlesBySportDivisionAndConferenceOldest =
   }
 `);
 
+const searchFilter = /* groq */ `
+  _type == "post" &&
+  defined(publishedAt) &&
+  (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")
+`;
+
+/** Search results: card fields only, best match first, newest breaking ties. */
 export const searchQuery = defineQuery(/* groq */ `
 {
-  "posts": *[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")] | score(
+  "posts": *[${searchFilter}] | score(
     boost(title match $q, 4),
     boost(excerpt match $q, 3),
     boost(pt::text(body) match $q, 2),
-  ) | order(publishedAt desc, _score desc)[$from...$to]{
-    ...,
+  ) | order(_score desc, publishedAt desc)[$from...$to]{
+    _id,
+    title,
+    excerpt,
+    publishedAt,
     "slug": slug.current,
-    ${divisionFragment},
-    ${conferencesFragment},
-    ${postAuthorFragment},
+    ${postImageFragment},
+    "authors": authors[]->{ _id, name, "slug": slug.current },
     "sport": sport->title,
   },
-  "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])
+  "totalPosts": count(*[${searchFilter}])
 }
 `);
 
@@ -737,6 +859,7 @@ export const postsByAuthor = defineQuery(/* groq */ `
     "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[$from...$to]{
       ...,
       "slug": slug.current,
+      "division": classification->{ "name": coalesce(shortName, name) },
       ${postImageFragment},
       ${postAuthorFragment},
     },
@@ -780,47 +903,30 @@ export const queryLegalDocumentPaths = defineQuery(/* groq */ `
   *[_type == "legal" && defined(slug.current)]{"slug": slug.current}
 `);
 
-export const schoolsByDivisionQuery = defineQuery(/* groq */ `
-  *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){
-  _id,
-  name,
-  shortName,
-  abbreviation,
-  ${schoolImageFragment},
-  conference->{
-    name,
-    shortName
-  }
-}
-`);
+const subgroupingIdsBySlug = /* groq */ `*[_type == "sportSubgrouping" && slug.current == $subgrouping]._id`;
 
+/** Conferences that play `$sport` in the subdivision `$subgrouping`. */
+const conferenceIdsInSubgrouping = /* groq */ `*[
+  _type == "conference" &&
+  count(sportSubdivisionAffiliations[
+    sport._ref == ${sportIdBySlug} && subgrouping._ref in ${subgroupingIdsBySlug}
+  ]) > 0
+]._id`;
+
+/**
+ * Schools on a ballot: those that play `$sport` in `$subgrouping`, through
+ * their own override when set, otherwise through their conference. Matches
+ * on ids instead of resolving a conference for each of 1,100+ schools.
+ */
 export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
-  *[_type == "school"
-  ] {
-    _id,
-    name,
-    shortName,
-    abbreviation,
-    ${schoolImageFragment},
-    conferenceAffiliations,
-    "relevantAffiliation": conferenceAffiliations[sport->slug.current == $sport][0]
-  }[defined(relevantAffiliation)] {
-    _id,
-    name,
-    shortName,
-    abbreviation,
-    ${schoolImageFragment},
-    relevantAffiliation,
-    "conferenceDetails": *[_type == "conference" && _id == ^.relevantAffiliation.conference._ref][0] {
-      name,
-      shortName,
-      abbreviation,
-      sportSubdivisionAffiliations
-    }
-  }[
-    count(conferenceDetails.sportSubdivisionAffiliations[
-      sport->slug.current == $sport &&
-      subgrouping->slug.current == $subgrouping
+  *[
+    _type == "school" &&
+    count(conferenceAffiliations[
+      sport._ref == ${sportIdBySlug} &&
+      select(
+        defined(subgroupingOverride) => subgroupingOverride._ref in ${subgroupingIdsBySlug},
+        conference._ref in ${conferenceIdsInSubgrouping}
+      )
     ]) > 0
   ] | order(shortName asc) {
     _id,
@@ -829,7 +935,8 @@ export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
     abbreviation,
     ${schoolImageFragment},
     "conferenceInfo": {
-      "conference": conferenceDetails {
+      // By _ref: a sport-> lookup per affiliation row cost 1 s on 264 schools.
+      "conference": conferenceAffiliations[sport._ref == ${sportIdBySlug}][0].conference->{
         name,
         shortName,
         abbreviation
@@ -841,12 +948,12 @@ export const schoolsBySportAndSubgroupingStringQuery = defineQuery(/* groq */ `
 const collegeNewsFilter = /* groq */ `
   _type == "post" &&
   ($search == "" || title match "*" + $search + "*") &&
-  ($storyType == "" || $storyType in tags[]->name)
+  ${storyTypeFilter}
 `;
 
 export const queryCollegeNews = defineQuery(/* groq */ `
   {
-    "posts": *[${collegeNewsFilter}] | order(publishedAt desc)[$from...$to]{
+    "posts": *[${collegeNewsFilter} && ${afterCursorNewest}] | order(publishedAt desc, _id desc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${collegeNewsFilter}])
@@ -855,7 +962,7 @@ export const queryCollegeNews = defineQuery(/* groq */ `
 
 export const queryCollegeNewsOldest = defineQuery(/* groq */ `
   {
-    "posts": *[${collegeNewsFilter}] | order(publishedAt asc)[$from...$to]{
+    "posts": *[${collegeNewsFilter} && ${afterCursorOldest}] | order(publishedAt asc, _id asc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${collegeNewsFilter}])
@@ -869,103 +976,56 @@ export const conferenceInfoBySlugQuery = defineQuery(/* groq */ `
   *[_type == "conference" && slug.current == $slug][0]
 `);
 
+/**
+ * Sport → division/subdivision → conference menus for the news archives,
+ * listing only conferences with a published article in that sport.
+ *
+ * Each sport's conferences are found in one pass over its articles
+ * (`conferenceIds`). Counting articles per conference instead took 16+ s at
+ * 1,000 articles and expired on every publish.
+ *
+ * A division appears as its own group only for a sport it doesn't split:
+ * football at Division I is FBS/FCS, so "d1" never appears for football.
+ */
 export const globalNavigationQuery = defineQuery(/* groq */ `
-  *[_type == "sport" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc) {
+  *[_type == "sport"]{
+    _id,
+    title,
+    "slug": slug.current,
+    "conferenceIds": array::unique(*[_type == "post" && sport._ref == ^._id && defined(publishedAt)].conferences[]._ref)
+  }[count(conferenceIds) > 0] | order(title asc) {
     _id,
     "name": title,
-    "slug": slug.current,
-    "groupings": select(
-      slug.current == "football" => [
-        // FBS Subgrouping
-        *[_type == "sportSubgrouping" && shortName == "FBS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
-          _id,
-          "name": coalesce(shortName, name),
-          "slug": slug.current,
-          "type": "subgrouping",
-          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
-            _id,
-            name,
-            "slug": slug.current,
-            shortName
-          }
-        },
-        // FCS Subgrouping
-        *[_type == "sportSubgrouping" && shortName == "FCS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
-          _id,
-          "name": coalesce(shortName, name),
-          "slug": slug.current,
-          "type": "subgrouping",
-          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
-            _id,
-            name,
-            "slug": slug.current,
-            shortName
-          }
-        },
-        // Division II
-        *[_type == "division" && title == "Division II" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
-          _id,
-          "name": name,
-          "slug": slug.current,
-          "type": "division",
-          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
-            _id,
-            name,
-            "slug": slug.current,
-            shortName
-          }
-        },
-        // Division III
-        *[_type == "division" && title == "Division III" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{
-          _id,
-          "name": name,
-          "slug": slug.current,
-          "type": "division",
-          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {
-            _id,
-            name,
-            "slug": slug.current,
-            shortName
-          }
-        }
-      ],
-      true => (
-        // Generic subgroupings
-        *[_type == "sportSubgrouping" && ^._id in applicableSports[]._ref] | order(name asc) {
-          _id,
-          "name": coalesce(shortName, name),
-          "slug": slug.current,
-          "type": "subgrouping",
-          "conferences": *[_type == "conference" && count(sportSubdivisionAffiliations[subgrouping._ref == ^.^._id && sport._ref == ^.^.^._id]) > 0 && count(*[_type == "post" && references(^._id) && sport._ref == ^.^.^._id]) > 0] | order(name asc) {
-            _id,
-            name,
-            shortName,
-            "slug": slug.current
-          }
-        } +
-        // Generic divisions (excluding specific football and basketball divisions)
-        *[_type == "division"
-          && !(title == "FBS" || title == "FCS")
-          && !(
-            (title == "Division I")
-            && (
-              ^.slug.current == "mens-basketball" || ^.slug.current == "womens-basketball"
-            )
-          )
-        ] | order(name asc) {
-          _id,
-          "name": title,
-          "slug": slug.current,
-          "type": "division",
-          "conferences": *[_type == "conference" && division._ref == ^.^._id && count(*[_type == "post" && references(^._id) && sport->slug.current == ^.^.slug.current]) > 0] | order(name asc) {
-            _id,
-            name,
-            shortName,
-            "slug": slug.current
-          }
-        }
-      )[defined(conferences) && count(conferences) > 0]
-    )
+    slug,
+    "groupings": (
+      *[_type == "sportSubgrouping" && ^._id in applicableSports[]._ref] | order(name asc) {
+        _id,
+        "name": coalesce(shortName, name),
+        "slug": slug.current,
+        "type": "subgrouping",
+        "conferences": *[
+          _type == "conference" &&
+          _id in ^.^.conferenceIds &&
+          count(sportSubdivisionAffiliations[subgrouping._ref == ^.^._id && sport._ref == ^.^.^._id]) > 0
+        ] | order(name asc) { _id, name, shortName, "slug": slug.current }
+      } +
+      *[
+        _type == "classification" &&
+        count(*[_type == "sportSubgrouping" && parentClassification._ref == ^._id && ^.^._id in applicableSports[]._ref]) == 0
+      ] | order(slug.current asc) {
+        _id,
+        "name": coalesce(shortName, name),
+        "slug": slug.current,
+        "type": "division",
+        "conferences": *[
+          _type == "conference" &&
+          _id in ^.^.conferenceIds &&
+          // Transitional: also match the retired division field until
+          // editorial-01 has run (see segmentIdsBySlug).
+          (primaryClassification._ref == ^._id || division->slug.current == ^.slug.current)
+        ] | order(name asc) { _id, name, shortName, "slug": slug.current }
+      }
+    )[count(conferences) > 0]
   }
 `);
 
@@ -979,7 +1039,7 @@ const rssFeedItemFragment = /* groq */ `
   ${richTextFragment},
   "authors": authors[]->name,
   "sport": sport->title,
-  "division": division->title,
+  "division": classification->name,
   "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),
   "conferences": conferences[]->{ name, shortName },
   "tags": tags[]->name,
@@ -995,7 +1055,7 @@ export const rssFeedQuery = defineQuery(/* groq */ `
 
 // Extra conditions go in a chained filter: typegen drops the `defined()` narrowing when they share one.
 export const rssFeedBySportQuery = defineQuery(/* groq */ `
-  *[${rssFeedPostFilter}][sport->slug.current == $sport]
+  *[${rssFeedPostFilter}][sport._ref == ${sportIdBySlug}]
   | order(publishedAt desc)[0...50] {
     ${rssFeedItemFragment}
   }
@@ -1004,8 +1064,8 @@ export const rssFeedBySportQuery = defineQuery(/* groq */ `
 /** Matches `querySportsAndDivisionNews`: `$division` is a subgrouping or division slug, excluding the catch-all D1. */
 export const rssFeedBySportAndDivisionQuery = defineQuery(/* groq */ `
   *[${rssFeedPostFilter}][
-    sport->slug.current == $sport &&
-    (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&
+    sport._ref == ${sportIdBySlug} &&
+    ${postInSegment} &&
     $division != "d1"
   ] | order(publishedAt desc)[0...50] {
     ${rssFeedItemFragment}
@@ -1035,18 +1095,20 @@ export const sportInfoQuery = defineQuery(
   }`,
 );
 
+/**
+ * Levels of play for the admin loader, shaped like the Postgres `divisions`
+ * table it fills (which predates the `classification` type).
+ */
 export const divisionsQuery = defineQuery(/* groq */ `
-  *[_type == "division"]{
+  *[_type == "classification"]{
     _id,
     _createdAt,
     _updatedAt,
-    name,
-    title,
-    heading,
-    longName,
+    "name": shortName,
+    "title": name,
+    "longName": name,
     "slug": slug.current,
-    description,
-    ${logoFragment}
+    description
   }
   `);
 
@@ -1059,7 +1121,7 @@ export const conferencesQuery = defineQuery(/* groq */ `
     shortName,
     abbreviation,
     "slug": slug.current,
-    "divisionId": division->_id,
+    "divisionId": primaryClassification->_id,
     ${logoFragment},
     "sports": sports[]->_id
   }
@@ -1092,7 +1154,7 @@ export const subdivisionsQuery = defineQuery(/* groq */ `
     name,
     shortName,
     "slug": slug.current,
-    "parentDivisionId": parentDivision->_id,
+    "parentDivisionId": parentClassification->_id,
     "applicableSports": applicableSports[]->_id
   }
 `);
@@ -1159,7 +1221,7 @@ export const schoolsForVotesQuery = groq`*[_type == "school" && _id in $schoolId
   }`;
 
 export const postsForSitemapQuery = groq`
-  *[_type == "post" && defined(publishedAt) && defined(slug.current)][$start...$end]{
+  *[_type == "post" && defined(publishedAt) && defined(slug.current)] | order(publishedAt asc, _id asc)[$start...$end]{
     _id,
     "slug": slug.current,
     publishedAt,
@@ -1174,13 +1236,13 @@ export const countOfPostsQuery = groq`
   `;
 
 export const queryForCollegeSitemap = groq`
-*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){
+*[_type == "post" && defined(sport._ref) && defined(publishedAt)] | order(publishedAt desc){
   "sport": sport->slug.current,
-  "division": division->slug.current,
+  "division": classification->slug.current,
   "sportSubgrouping": sportSubgrouping->slug.current,
   "conferences": conferences[]->{
       "slug": slug.current,
-      "division": division->slug.current,
+      "division": primaryClassification->slug.current,
       "subgroupings": sportSubdivisionAffiliations[]{
         "sport": sport->slug.current,
         "subgrouping": subgrouping->slug.current
@@ -1194,16 +1256,16 @@ export const queryDivisionOrSubgroupingDisplayName = defineQuery(
   `
   *[
     (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||
-    (_type == "division" && slug.current == $slugOrShortName)
+    (_type == "classification" && slug.current == $slugOrShortName)
   ][0]{
     _type,
     "displayName": select(
       _type == "sportSubgrouping" => shortName,
-      _type == "division" => title
+      _type == "classification" => name
     ),
     "archiveKicker": select(
       _type == "sportSubgrouping" => name,
-      _type == "division" => title
+      _type == "classification" => name
     )
   }
 `,
@@ -1231,6 +1293,7 @@ export const schoolBySlugQuery = defineQuery(/* groq */ `
     ${schoolImageFragment},
     conferenceAffiliations[]{
       _key,
+      subgroupingOverride->{ shortName, name, "slug": slug.current },
       sport->{
         _id,
         title,
@@ -1242,10 +1305,6 @@ export const schoolBySlugQuery = defineQuery(/* groq */ `
         shortName,
         "slug": slug.current,
         primaryClassification->{ "slug": slug.current, name },
-        sportSubdivisions[]{
-          sport->{ "slug": slug.current },
-          subdivision->{ shortName, name, "slug": slug.current }
-        },
         sportSubdivisionAffiliations[]{
           sport->{ "slug": slug.current },
           subgrouping->{ shortName, name, "slug": slug.current }
@@ -1371,5 +1430,23 @@ export const queryActiveAdvertisement = defineQuery(/* groq */ `
       "preview": asset->metadata.lqip,
       "dominantColor": asset->metadata.palette.dominant.background
     }
+  }
+`);
+
+/**
+ * Google News sitemap: articles published in the last two days (Google
+ * ignores older entries), newest first, capped at Google's 1,000.
+ */
+export const newsSitemapQuery = defineQuery(/* groq */ `
+  *[
+    _type == "post" &&
+    defined(slug.current) &&
+    defined(publishedAt) &&
+    dateTime(publishedAt) > dateTime(now()) - 60 * 60 * 48
+  ] | order(publishedAt desc)[0...1000]{
+    _id,
+    title,
+    publishedAt,
+    "slug": slug.current
   }
 `);

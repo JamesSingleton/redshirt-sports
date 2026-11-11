@@ -1,5 +1,7 @@
 export type TeamConferenceAffiliationInput = {
   sport: { slug: string | null } | null;
+  /** The school's own subdivision for this sport, when it differs from its conference's. */
+  subgroupingOverride?: SportSubgroup | null;
   conference: {
     name: string | null;
     shortName: string | null;
@@ -8,14 +10,6 @@ export type TeamConferenceAffiliationInput = {
       slug: string | null;
       name: string | null;
     } | null;
-    sportSubdivisions?: Array<{
-      sport: { slug: string | null } | null;
-      subdivision: {
-        shortName: string | null;
-        name: string | null;
-        slug: string | null;
-      } | null;
-    }> | null;
     sportSubdivisionAffiliations?: Array<{
       sport: { slug: string | null } | null;
       subgrouping: {
@@ -42,14 +36,21 @@ function sportSubgroup(
   const fromAffiliations = conference.sportSubdivisionAffiliations?.find(
     (row) => row.sport?.slug === sportSlug,
   )?.subgrouping;
-  if (fromAffiliations) {
-    return fromAffiliations;
-  }
+  return fromAffiliations ?? null;
+}
 
-  const fromSubdivisions = conference.sportSubdivisions?.find(
-    (row) => row.sport?.slug === sportSlug,
-  )?.subdivision;
-  return fromSubdivisions ?? null;
+/**
+ * A school's subdivision for a sport: its own override when set, otherwise
+ * the one its conference plays in.
+ */
+function affiliationSubgroup(
+  affiliation: TeamConferenceAffiliationInput,
+  sportSlug: string,
+): SportSubgroup | null {
+  if (affiliation.subgroupingOverride) return affiliation.subgroupingOverride;
+  return affiliation.conference
+    ? sportSubgroup(affiliation.conference, sportSlug)
+    : null;
 }
 
 function footballSubdivisionSlug(
@@ -61,7 +62,7 @@ function footballSubdivisionSlug(
   if (!football?.conference) {
     return null;
   }
-  return sportSubgroup(football.conference, FOOTBALL_SPORT_SLUG)?.slug ?? null;
+  return affiliationSubgroup(football, FOOTBALL_SPORT_SLUG)?.slug ?? null;
 }
 
 export function buildTeamHubKicker(
@@ -95,7 +96,7 @@ export function buildTeamHubKicker(
     if (!row?.conference) {
       continue;
     }
-    const subgroup = sportSubgroup(row.conference, sportSlug);
+    const subgroup = affiliationSubgroup(row, sportSlug);
     const classSlug =
       subgroup?.slug ?? row.conference.primaryClassification?.slug;
     const label =
@@ -115,7 +116,8 @@ export function buildTeamHubKicker(
     parts.push(label);
   }
 
-  return parts.length > 0 ? parts.join(" · ") : null;
+  // Men's and women's basketball often share a label ("Mid-Major basketball").
+  return parts.length > 0 ? [...new Set(parts)].join(" · ") : null;
 }
 
 export type TeamInfoFactRow = { label: string; value: string };
@@ -161,9 +163,9 @@ function subgroupDisplayName(subgroup: SportSubgroup): string | null {
 }
 
 function footballSubdivisionLabel(
-  conference: NonNullable<TeamConferenceAffiliationInput["conference"]>,
+  affiliation: TeamConferenceAffiliationInput,
 ): string | null {
-  const match = sportSubgroup(conference, FOOTBALL_SPORT_SLUG);
+  const match = affiliationSubgroup(affiliation, FOOTBALL_SPORT_SLUG);
   return (
     match?.shortName ??
     match?.name ??
@@ -182,14 +184,14 @@ function sportAffiliationValue(
   const conf = conferenceLabel(conference);
 
   if (sportSlug === FOOTBALL_SPORT_SLUG) {
-    const subdivision = footballSubdivisionLabel(conference);
+    const subdivision = footballSubdivisionLabel(affiliation);
     if (subdivision && conf) {
       return `${subdivision} · ${conf}`;
     }
     return subdivision ?? conf;
   }
 
-  const subgroup = sportSubgroup(conference, sportSlug);
+  const subgroup = affiliationSubgroup(affiliation, sportSlug);
   const division = subgroup
     ? subgroupDisplayName(subgroup)
     : classificationDisplayName(

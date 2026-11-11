@@ -21,34 +21,9 @@ type ArrayOf<T> = Array<
 >;
 
 // Source: schema.json
-export type SanityImageAssetReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-};
-
-export type SeoImage = {
-  asset?: SanityImageAssetReference;
-  media?: unknown; // Unable to locate the referenced type "media" in schema
-  hotspot?: SanityImageHotspot;
-  crop?: SanityImageCrop;
-  _type: "image";
-};
-
-export type SocialLinks1 = {
-  twitter?: string;
-  facebook?: string;
-  youtube?: string;
-  instagram?: string;
-  linkedin?: string;
-  bluesky?: string;
-  threads?: string;
-};
-
 export type Twitter = {
   _type: "twitter";
-  id?: string;
+  id: string;
 };
 
 export type Table = {
@@ -89,11 +64,11 @@ export type SportReference = {
   [internalGroqTypeReferenceTo]?: "sport";
 };
 
-export type DivisionReference = {
+export type ClassificationReference = {
   _ref: string;
   _type: "reference";
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "division";
+  [internalGroqTypeReferenceTo]?: "classification";
 };
 
 export type SportSubgroupingReference = {
@@ -114,7 +89,7 @@ export type SportNewsLink = {
   _type: "sportNewsLink";
   sport?: SportReference;
   routeDepth: "sportNews" | "divisionNews" | "conferenceNews";
-  segment?: DivisionReference | SportSubgroupingReference;
+  segment?: ClassificationReference | SportSubgroupingReference;
   conference?: ConferenceReference;
 };
 
@@ -128,30 +103,6 @@ export type SocialLinks = {
   bluesky?: string;
   threads?: string;
 };
-
-export type LegalContent = Array<
-  | {
-      children?: Array<{
-        marks?: Array<string>;
-        text?: string;
-        _type: "span";
-        _key: string;
-      }>;
-      style?: "normal" | "h2" | "h3" | "h4" | "blockquote";
-      listItem?: "bullet" | "number";
-      markDefs?: Array<{
-        customLink?: CustomUrl;
-        _type: "customLink";
-        _key: string;
-      }>;
-      level?: number;
-      _type: "block";
-      _key: string;
-    }
-  | ({
-      _key: string;
-    } & Table)
->;
 
 export type PostReference = {
   _ref: string;
@@ -181,6 +132,47 @@ export type LegalReference = {
   [internalGroqTypeReferenceTo]?: "legal";
 };
 
+export type Link = {
+  _type: "link";
+  linkType?: "internal" | "path" | "external";
+  reference?:
+    | PostReference
+    | SchoolReference
+    | AuthorReference
+    | LegalReference;
+  path?: string;
+  href?: string;
+  openInNewTab?: boolean;
+};
+
+export type LegalContent = Array<
+  | {
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "normal" | "h2" | "h3" | "h4" | "blockquote";
+      listItem?: "bullet" | "number";
+      markDefs?: Array<
+        {
+          _key: string;
+        } & Link
+      >;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }
+  | ({
+      _key: string;
+    } & Table)
+>;
+
+export type PlayerRef = string;
+
+export type GameRef = string;
+
 export type CustomUrl = {
   _type: "customUrl";
   type: "internal" | "external";
@@ -199,6 +191,13 @@ export type BracketEmbed = {
   caption?: string;
 };
 
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+};
+
 export type BlockContent = Array<
   | {
       children?: Array<{
@@ -207,25 +206,12 @@ export type BlockContent = Array<
         _type: "span";
         _key: string;
       }>;
-      style?: "normal" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+      style?: "normal" | "h2" | "h3" | "h4" | "blockquote";
       listItem?: "bullet" | "number";
       markDefs?: Array<
-        | {
-            customLink?: CustomUrl;
-            _type: "customLink";
-            _key: string;
-          }
-        | {
-            href?: string;
-            blank?: boolean;
-            _type: "link";
-            _key: string;
-          }
-        | {
-            reference?: PostReference | SchoolReference | AuthorReference;
-            _type: "internalLink";
-            _key: string;
-          }
+        {
+          _key: string;
+        } & Link
       >;
       level?: number;
       _type: "block";
@@ -236,25 +222,51 @@ export type BlockContent = Array<
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
-      caption: string;
-      attribution: string;
+      alt?: string;
+      attribution?: string;
       _type: "image";
       _key: string;
     }
-  | ({
+  | {
+      quote: string;
+      attribution: string;
+      role?: string;
+      _type: "pullQuote";
       _key: string;
-    } & Twitter)
+    }
+  | {
+      kind: "context" | "numbers" | "update";
+      title?: string;
+      text: string;
+      _type: "callout";
+      _key: string;
+    }
+  | {
+      post: PostReference;
+      label?: string;
+      _type: "relatedArticle";
+      _key: string;
+    }
   | ({
       _key: string;
     } & Table)
   | ({
       _key: string;
-    } & BracketEmbed)
+    } & Twitter)
   | {
       url: string;
       _type: "youtubeEmbed";
       _key: string;
     }
+  | {
+      url: string;
+      caption: string;
+      _type: "socialEmbed";
+      _key: string;
+    }
+  | ({
+      _key: string;
+    } & BracketEmbed)
 >;
 
 export type Settings = {
@@ -296,7 +308,21 @@ export type Settings = {
     _type: "image";
   };
   contactEmail?: string;
-  socialLinks?: SocialLinks1;
+  socialLinks?: {
+    twitter?: string;
+    facebook?: string;
+    youtube?: string;
+    instagram?: string;
+    linkedin?: string;
+    bluesky?: string;
+    threads?: string;
+  };
+  newsroomPolicies?: {
+    publishingPrinciples?: string;
+    correctionsPolicy?: string;
+    ethicsPolicy?: string;
+    ownershipFundingInfo?: string;
+  };
 };
 
 export type SanityImageCrop = {
@@ -326,7 +352,9 @@ export type Navbar = {
     | {
         sport: SportReference;
         label?: string;
-        divisions?: ArrayOf<SportSubgroupingReference | DivisionReference>;
+        divisions?: ArrayOf<
+          SportSubgroupingReference | ClassificationReference
+        >;
         _type: "navSportMenu";
         _key: string;
       }
@@ -367,26 +395,6 @@ export type Navbar = {
         _key: string;
       }
   >;
-  columns?: Array<
-    | {
-        title?: string;
-        links: Array<{
-          name?: string;
-          description?: string;
-          url?: CustomUrl;
-          _type: "navbarColumnLink";
-          _key: string;
-        }>;
-        _type: "navbarColumn";
-        _key: string;
-      }
-    | {
-        name?: string;
-        url?: CustomUrl;
-        _type: "navbarLink";
-        _key: string;
-      }
-  >;
 };
 
 export type Footer = {
@@ -410,6 +418,17 @@ export type Footer = {
   }>;
 };
 
+export type BreakingNews = {
+  _id: string;
+  _type: "breakingNews";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  article: PostReference;
+  label?: string;
+  expiresAt: string;
+};
+
 export type Tag = {
   _id: string;
   _type: "tag";
@@ -417,98 +436,15 @@ export type Tag = {
   _updatedAt: string;
   _rev: string;
   name: string;
+  kind: "beat" | "series" | "topic";
   slug: Slug;
+  description?: string;
 };
 
 export type Slug = {
   _type: "slug";
   current: string;
   source?: string;
-};
-
-export type Redirect = {
-  _id: string;
-  _type: "redirect";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  source: Slug;
-  destination: Slug;
-  permanent?: boolean;
-};
-
-export type TagReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "tag";
-};
-
-export type Post = {
-  _id: string;
-  _type: "post";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title: string;
-  slug?: Slug;
-  storyType:
-    | "news"
-    | "recruiting"
-    | "transfer"
-    | "analysis"
-    | "opinion"
-    | "game-recap";
-  authors: Array<
-    {
-      _key: string;
-    } & AuthorReference
-  >;
-  publishedAt?: string;
-  modifiedAt?: string;
-  image?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    caption: string;
-    attribution: string;
-    _type: "image";
-  };
-  mainImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    caption: string;
-    attribution: string;
-    _type: "image";
-  };
-  sport?: SportReference;
-  division?: DivisionReference;
-  sportSubgrouping?: SportSubgroupingReference;
-  conferences?: Array<
-    {
-      _key: string;
-    } & ConferenceReference
-  >;
-  teams?: Array<
-    {
-      _key: string;
-    } & SchoolReference
-  >;
-  tags?: Array<
-    {
-      _key: string;
-    } & TagReference
-  >;
-  excerpt: string;
-  body: BlockContent;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: SeoImage;
-  ogTitle?: string;
-  ogDescription?: string;
 };
 
 export type School = {
@@ -545,14 +481,142 @@ export type School = {
   conferenceAffiliations?: Array<{
     sport: SportReference;
     conference: ConferenceReference;
+    subgroupingOverride?: SportSubgroupingReference;
     _type: "conferenceAffiliation";
     _key: string;
   }>;
   seoTitle?: string;
   seoDescription?: string;
-  seoImage?: SeoImage;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
   ogTitle?: string;
   ogDescription?: string;
+};
+
+export type Redirect = {
+  _id: string;
+  _type: "redirect";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  source: Slug;
+  destination: Slug;
+  permanent?: boolean;
+};
+
+export type TagReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "tag";
+};
+
+export type Post = {
+  _id: string;
+  _type: "post";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  slug: Slug;
+  storyType:
+    | "news"
+    | "analysis"
+    | "feature"
+    | "opinion"
+    | "explainer"
+    | "interview"
+    | "notebook"
+    | "rankings"
+    | "predictions"
+    | "game-preview"
+    | "game-recap";
+  authors: Array<
+    {
+      _key: string;
+    } & AuthorReference
+  >;
+  image: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    attribution?: string;
+    _type: "image";
+  };
+  excerpt: string;
+  body: BlockContent;
+  sport?: SportReference;
+  classification?: ClassificationReference;
+  sportSubgrouping?: SportSubgroupingReference;
+  conferences?: Array<
+    {
+      _key: string;
+    } & ConferenceReference
+  >;
+  teams?: Array<
+    {
+      _key: string;
+    } & SchoolReference
+  >;
+  game?: GameRef;
+  players?: Array<
+    {
+      _key: string;
+    } & PlayerRef
+  >;
+  tags?: Array<
+    {
+      _key: string;
+    } & TagReference
+  >;
+  keyTakeaways?: Array<string>;
+  faqs?: Array<{
+    question?: string;
+    answer?: string;
+    _type: "faq";
+    _key: string;
+  }>;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  ogTitle?: string;
+  ogDescription?: string;
+  publishedAt?: string;
+  modifiedAt?: string;
+  contributors?: Array<
+    {
+      _key: string;
+    } & AuthorReference
+  >;
+  editedBy?: AuthorReference;
+  sources?: Array<{
+    title: string;
+    publisher?: string;
+    url: string;
+    _type: "source";
+    _key: string;
+  }>;
+  editorsNote?: string;
+  corrections?: Array<{
+    kind: "correction" | "clarification" | "update";
+    date?: string;
+    text?: string;
+    _type: "correction";
+    _key: string;
+  }>;
 };
 
 export type Legal = {
@@ -569,11 +633,19 @@ export type Legal = {
   body: LegalContent;
 };
 
-export type ClassificationReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "classification";
+export type Collection = {
+  _id: string;
+  _type: "collection";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  key: "home-top-stories";
+  articles: Array<
+    {
+      _key: string;
+    } & PostReference
+  >;
 };
 
 export type Conference = {
@@ -595,14 +667,7 @@ export type Conference = {
     _type: "image";
   };
   primaryClassification: ClassificationReference;
-  sportSubdivisions?: Array<{
-    sport: SportReference;
-    subdivision: SportSubgroupingReference;
-    _type: "sportSubdivisionAssignment";
-    _key: string;
-  }>;
-  division: DivisionReference;
-  sports?: Array<
+  sports: Array<
     {
       _key: string;
     } & SportReference
@@ -622,37 +687,16 @@ export type SportSubgrouping = {
   _updatedAt: string;
   _rev: string;
   name: string;
-  shortName?: string;
-  slug?: Slug;
+  shortName: string;
+  slug: Slug;
   parentClassification: ClassificationReference;
   applicableSports: Array<
     {
       _key: string;
     } & SportReference
   >;
-  parentDivision: DivisionReference;
-};
-
-export type Division = {
-  _id: string;
-  _type: "division";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name: string;
-  title: string;
-  heading: string;
-  longName: string;
-  slug: Slug;
-  description?: string;
-  logo?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt: string;
-    _type: "image";
-  };
+  kind: "official" | "common";
+  definition?: string;
 };
 
 export type Sport = {
@@ -688,6 +732,7 @@ export type Classification = {
   name: string;
   shortName: string;
   slug: Slug;
+  description?: string;
 };
 
 export type GoverningBody = {
@@ -720,18 +765,17 @@ export type Author = {
   _rev: string;
   name: string;
   slug: Slug;
-  archived?: boolean;
   roles: Array<
-    | "Contributor"
-    | "Correspondent"
-    | "Editor"
     | "Founder"
+    | "Editor"
+    | "Senior Writer"
+    | "Correspondent"
+    | "Contributor"
     | "Guest Writer"
+    | "Recruiting Analyst"
+    | "Transfer Portal Analyst"
     | "Historian"
     | "Podcast Host"
-    | "Recruiting Analyst"
-    | "Senior Writer"
-    | "Transfer Portal Analyst"
   >;
   image: {
     asset?: SanityImageAssetReference;
@@ -741,7 +785,22 @@ export type Author = {
     _type: "image";
   };
   biography: string;
-  socialLinks?: SocialLinks1;
+  socialLinks?: {
+    twitter?: string;
+    facebook?: string;
+    youtube?: string;
+    instagram?: string;
+    linkedin?: string;
+    bluesky?: string;
+    threads?: string;
+  };
+  beats?: Array<
+    {
+      _key: string;
+    } & SportReference
+  >;
+  credentials?: Array<string>;
+  archived?: boolean;
 };
 
 export type Advertisement = {
@@ -1043,41 +1102,42 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
-  | SanityImageAssetReference
-  | SeoImage
-  | SocialLinks1
   | Twitter
   | Table
   | SportReference
-  | DivisionReference
+  | ClassificationReference
   | SportSubgroupingReference
   | ConferenceReference
   | SportNewsLink
   | SocialLinks
-  | LegalContent
   | PostReference
   | SchoolReference
   | AuthorReference
   | LegalReference
+  | Link
+  | LegalContent
+  | PlayerRef
+  | GameRef
   | CustomUrl
   | BracketEmbed
+  | SanityImageAssetReference
   | BlockContent
   | Settings
   | SanityImageCrop
   | SanityImageHotspot
   | Navbar
   | Footer
+  | BreakingNews
   | Tag
   | Slug
+  | School
   | Redirect
   | TagReference
   | Post
-  | School
   | Legal
-  | ClassificationReference
+  | Collection
   | Conference
   | SportSubgrouping
-  | Division
   | Sport
   | GoverningBodyReference
   | Classification
@@ -1111,7 +1171,7 @@ export type AllSanitySchemaTypes =
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: querySettingsData
-// Query: *[_type == "settings" && _id == "settings"][0]{    _id,    _type,    siteBrand,    siteTitle,    siteDescription,    "logo": logo.asset->url + "?w=512&fm=png&fit=max",    "socialLinks": socialLinks,    "contactEmail": contactEmail,  }
+// Query: *[_type == "settings" && _id == "settings"][0]{    _id,    _type,    siteBrand,    siteTitle,    siteDescription,    "logo": logo.asset->url + "?w=512&fm=png&fit=max",    "socialLinks": socialLinks,    "contactEmail": contactEmail,    newsroomPolicies,  }
 export type QuerySettingsDataResult = {
   _id: "settings";
   _type: "settings";
@@ -1119,13 +1179,27 @@ export type QuerySettingsDataResult = {
   siteTitle: string;
   siteDescription: string;
   logo: string | null;
-  socialLinks: SocialLinks1 | null;
+  socialLinks: {
+    twitter?: string;
+    facebook?: string;
+    youtube?: string;
+    instagram?: string;
+    linkedin?: string;
+    bluesky?: string;
+    threads?: string;
+  } | null;
   contactEmail: string | null;
+  newsroomPolicies: {
+    publishingPrinciples?: string;
+    correctionsPolicy?: string;
+    ethicsPolicy?: string;
+    ownershipFundingInfo?: string;
+  } | null;
 } | null;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryImageType
-// Query: *[_type == "post" && defined(coalesce(image, mainImage))][0]{      "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }.image
+// Query: *[_type == "post" && defined(image)][0]{      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }.image
 export type QueryImageTypeResult = {
   asset?: SanityImageAssetReference;
   media?: unknown;
@@ -1141,21 +1215,20 @@ export type QueryImageTypeResult = {
     right: number;
     top: number;
   } | null;
-  caption: string;
-  attribution: string;
+  alt: string | "Image-Broken";
+  attribution?: string;
   _type: "image";
   id: string | null;
-  alt: string;
   width: number | null;
   height: number | null;
   preview: string | null;
   dominantColor: string | null;
-  credit: string;
+  credit: string | null;
 } | null;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryPostSlugData
-// Query: *[_type == "post" && slug.current == $slug][0]{    ...,    "slug": slug.current,    sport->{      _id,      "slug": slug.current,      title    },      division->{    _id,    name,    "slug": slug.current,      logo{    ...,        "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  }  },      sportSubgrouping->{    ...,    "slug": slug.current,  },      conferences[]->{    _id,    name,    shortName,    "slug": slug.current,      logo{    ...,        "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },    division->{      "slug": slug.current,    },    sportSubdivisionAffiliations[]{        _key,        sport->{          _id, // Need this _id for client-side comparison        },        subgrouping->{          "slug": slug.current,          name,          shortName        }      }  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },      "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      body[]{    ...,      markDefs[]{    ...,    _type == "customLink" => {      ...,        "openInNewTab": customLink.openInNewTab,  "href": select(    customLink.type == "external" => customLink.external,    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,    customLink.href  )    },    _type == "customUrl" => {      ...,      "href":   select(    type == "external" => external,    type == "internal" && internalType == "custom" => internalUrl,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news",    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,    href  )    },    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        reference->_type == "school" => "/college/teams/" + reference->slug.current,        reference->_type == "author" => "/authors/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,            "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)    },  },    tags[]->{      _id,      name    },    teams[]->{      _id,      name,      shortName,      nickname,      "slug": slug.current,        image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  }    }  }
+// Query: *[_type == "post" && slug.current == $slug][0]{    ...,    "slug": slug.current,    sport->{      _id,      "slug": slug.current,      title    },      "division": classification->{    _id,    "name": coalesce(shortName, name),    "fullName": name,    "slug": slug.current  },      sportSubgrouping->{    ...,    "slug": slug.current,  },      conferences[]->{    _id,    name,    shortName,    "slug": slug.current,      logo{    ...,        "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },    "division": primaryClassification->{      "slug": slug.current,    },    sportSubdivisionAffiliations[]{        _key,        sport->{          _id, // Need this _id for client-side comparison        },        subgrouping->{          "slug": slug.current,          name,          shortName        }      }  },    authors[]->{      ...,      "slug": slug.current,        image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      // For the author's Person structured data.      "knowsAbout": beats[]->title    },    "contributors": contributors[]->{ _id, name, "slug": slug.current, archived },    "editedBy": editedBy->{ _id, name, "slug": slug.current },      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      body[]{    ...,      markDefs[]{    ...,    // The current link annotation. An old-format link (only an href) has no    // linkType, so it falls through to its href unchanged.    _type == "link" => {      ...,      "href": select(        linkType == "internal" =>   select(    reference->_type == "post" => "/" + reference->slug.current,    reference->_type == "school" => "/college/teams/" + reference->slug.current,    reference->_type == "author" => "/people/" + reference->slug.current,    reference->_type == "legal" => "/legal/" + reference->slug.current  ),        linkType == "path" => path,        href      ),      "openInNewTab": coalesce(openInNewTab, blank, false)    },    _type == "customLink" => {      ...,        "openInNewTab": customLink.openInNewTab,  "href": select(    customLink.type == "external" => customLink.external,    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,    customLink.href  )    },    _type == "customUrl" => {      ...,      "href":   select(    type == "external" => external,    type == "internal" && internalType == "custom" => internalUrl,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news",    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,    href  )    },    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        reference->_type == "school" => "/college/teams/" + reference->slug.current,        reference->_type == "author" => "/people/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,            "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)    },    _type == 'relatedArticle' => {      ...,      "post": post->{        _id,        title,        excerpt,        "slug": slug.current,          image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }      }    },  },    tags[]->{      _id,      name    },    teams[]->{      _id,      name,      shortName,      nickname,      "slug": slug.current,        image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  }    }  }
 export type QueryPostSlugDataResult = {
   _id: string;
   _type: "post";
@@ -1163,14 +1236,19 @@ export type QueryPostSlugDataResult = {
   _updatedAt: string;
   _rev: string;
   title: string;
-  slug: string | null;
+  slug: string;
   storyType:
     | "analysis"
+    | "explainer"
+    | "feature"
+    | "game-preview"
     | "game-recap"
+    | "interview"
     | "news"
+    | "notebook"
     | "opinion"
-    | "recruiting"
-    | "transfer";
+    | "predictions"
+    | "rankings";
   authors: Array<{
     _id: string;
     _type: "author";
@@ -1179,7 +1257,6 @@ export type QueryPostSlugDataResult = {
     _rev: string;
     name: string;
     slug: string;
-    archived?: boolean;
     roles: Array<
       | "Contributor"
       | "Correspondent"
@@ -1217,10 +1294,24 @@ export type QueryPostSlugDataResult = {
       credit: null;
     };
     biography: string;
-    socialLinks?: SocialLinks1;
+    socialLinks?: {
+      twitter?: string;
+      facebook?: string;
+      youtube?: string;
+      instagram?: string;
+      linkedin?: string;
+      bluesky?: string;
+      threads?: string;
+    };
+    beats?: Array<
+      {
+        _key: string;
+      } & SportReference
+    >;
+    credentials?: Array<string>;
+    archived?: boolean;
+    knowsAbout: Array<string> | null;
   }>;
-  publishedAt?: string;
-  modifiedAt?: string;
   image: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -1236,59 +1327,189 @@ export type QueryPostSlugDataResult = {
       right: number;
       top: number;
     } | null;
-    caption: string;
-    attribution: string;
+    alt: string | "Image-Broken";
+    attribution?: string;
     _type: "image";
     id: string | null;
-    alt: string;
     width: number | null;
     height: number | null;
     preview: string | null;
     dominantColor: string | null;
-    credit: string;
-  } | null;
-  mainImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    caption: string;
-    attribution: string;
-    _type: "image";
+    credit: string | null;
   };
+  excerpt: string;
+  body: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "blockquote" | "h2" | "h3" | "h4" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs: Array<{
+          _key: string;
+          _type: "link";
+          linkType?: "external" | "internal" | "path";
+          reference?:
+            | AuthorReference
+            | LegalReference
+            | PostReference
+            | SchoolReference;
+          path?: string;
+          href: string | null;
+          openInNewTab: boolean | false;
+        }> | null;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        _key: string;
+        _type: "bracketEmbed";
+        editionId: string;
+        caption?: string;
+        markDefs: null;
+      }
+    | {
+        kind: "context" | "numbers" | "update";
+        title?: string;
+        text: string;
+        _type: "callout";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot: {
+          x: number;
+          y: number;
+          height: number;
+          width: number;
+        } | null;
+        crop: {
+          bottom: number;
+          left: number;
+          right: number;
+          top: number;
+        } | null;
+        alt: string | "Image-Broken";
+        attribution?: string;
+        _type: "image";
+        _key: string;
+        markDefs: null;
+        id: string | null;
+        width: number | null;
+        height: number | null;
+        preview: string | null;
+        dominantColor: string | null;
+        credit: string | null;
+      }
+    | {
+        quote: string;
+        attribution: string;
+        role?: string;
+        _type: "pullQuote";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        post: {
+          _id: string;
+          title: string;
+          excerpt: string;
+          slug: string;
+          image: {
+            asset?: SanityImageAssetReference;
+            media?: unknown;
+            hotspot: {
+              x: number;
+              y: number;
+              height: number;
+              width: number;
+            } | null;
+            crop: {
+              bottom: number;
+              left: number;
+              right: number;
+              top: number;
+            } | null;
+            alt: string | "Image-Broken";
+            attribution?: string;
+            _type: "image";
+            id: string | null;
+            width: number | null;
+            height: number | null;
+            preview: string | null;
+            dominantColor: string | null;
+            credit: string | null;
+          };
+        };
+        label?: string;
+        _type: "relatedArticle";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        url: string;
+        caption: string;
+        _type: "socialEmbed";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        _key: string;
+        _type: "table";
+        headerRows?: number;
+        rows?: Array<{
+          cells?: Array<{
+            value?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "normal";
+              listItem?: never;
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+            _type: "cell";
+            _key: string;
+          }>;
+          _type: "row";
+          _key: string;
+        }>;
+        markDefs: null;
+      }
+    | {
+        _key: string;
+        _type: "twitter";
+        id: string;
+        markDefs: null;
+      }
+    | {
+        url: string;
+        _type: "youtubeEmbed";
+        _key: string;
+        markDefs: null;
+      }
+  >;
   sport: {
     _id: string;
     slug: string;
     title: string;
   } | null;
-  division: {
-    _id: string;
-    name: string;
-    slug: string;
-    logo: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot: {
-        x: number;
-        y: number;
-        height: number;
-        width: number;
-      } | null;
-      crop: {
-        bottom: number;
-        left: number;
-        right: number;
-        top: number;
-      } | null;
-      alt: string | "Image-Broken";
-      _type: "image";
-      id: string | null;
-      width: number | null;
-      height: number | null;
-      preview: string | null;
-      dominantColor: string | null;
-    } | null;
-  } | null;
+  classification?: ClassificationReference;
   sportSubgrouping: {
     _id: string;
     _type: "sportSubgrouping";
@@ -1296,15 +1517,16 @@ export type QueryPostSlugDataResult = {
     _updatedAt: string;
     _rev: string;
     name: string;
-    shortName?: string;
-    slug: string | null;
+    shortName: string;
+    slug: string;
     parentClassification: ClassificationReference;
     applicableSports: Array<
       {
         _key: string;
       } & SportReference
     >;
-    parentDivision: DivisionReference;
+    kind: "common" | "official";
+    definition?: string;
   } | null;
   conferences: Array<{
     _id: string;
@@ -1343,9 +1565,9 @@ export type QueryPostSlugDataResult = {
         _id: string;
       };
       subgrouping: {
-        slug: string | null;
+        slug: string;
         name: string;
-        shortName: string | null;
+        shortName: string;
       };
     }> | null;
   }> | null;
@@ -1378,136 +1600,73 @@ export type QueryPostSlugDataResult = {
       height: number | null;
     };
   }> | null;
+  game?: GameRef;
+  players?: Array<
+    {
+      _key: string;
+    } & PlayerRef
+  >;
   tags: Array<{
     _id: string;
     name: string;
   }> | null;
-  excerpt: string;
-  body: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: "span";
-          _key: string;
-        }>;
-        style?: "blockquote" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
-        listItem?: "bullet" | "number";
-        markDefs: Array<
-          | {
-              customLink?: CustomUrl;
-              _type: "customLink";
-              _key: string;
-              openInNewTab: boolean | null;
-              href: string | null;
-            }
-          | {
-              reference?: AuthorReference | PostReference | SchoolReference;
-              _type: "internalLink";
-              _key: string;
-              href: string | "#" | null;
-            }
-          | {
-              href?: string;
-              blank?: boolean;
-              _type: "link";
-              _key: string;
-            }
-        > | null;
-        level?: number;
-        _type: "block";
-        _key: string;
-      }
-    | {
-        _key: string;
-        _type: "bracketEmbed";
-        editionId: string;
-        caption?: string;
-        markDefs: null;
-      }
-    | {
-        asset?: SanityImageAssetReference;
-        media?: unknown;
-        hotspot: {
-          x: number;
-          y: number;
-          height: number;
-          width: number;
-        } | null;
-        crop: {
-          bottom: number;
-          left: number;
-          right: number;
-          top: number;
-        } | null;
-        caption: string;
-        attribution: string;
-        _type: "image";
-        _key: string;
-        markDefs: null;
-        id: string | null;
-        alt: string;
-        width: number | null;
-        height: number | null;
-        preview: string | null;
-        dominantColor: string | null;
-        credit: string;
-      }
-    | {
-        _key: string;
-        _type: "table";
-        headerRows?: number;
-        rows?: Array<{
-          cells?: Array<{
-            value?: Array<{
-              children?: Array<{
-                marks?: Array<string>;
-                text?: string;
-                _type: "span";
-                _key: string;
-              }>;
-              style?: "normal";
-              listItem?: never;
-              markDefs?: Array<{
-                href?: string;
-                _type: "link";
-                _key: string;
-              }>;
-              level?: number;
-              _type: "block";
-              _key: string;
-            }>;
-            _type: "cell";
-            _key: string;
-          }>;
-          _type: "row";
-          _key: string;
-        }>;
-        markDefs: null;
-      }
-    | {
-        _key: string;
-        _type: "twitter";
-        id?: string;
-        markDefs: null;
-      }
-    | {
-        url: string;
-        _type: "youtubeEmbed";
-        _key: string;
-        markDefs: null;
-      }
-  >;
+  keyTakeaways?: Array<string>;
+  faqs?: Array<{
+    question?: string;
+    answer?: string;
+    _type: "faq";
+    _key: string;
+  }>;
   seoTitle?: string;
   seoDescription?: string;
-  seoImage?: SeoImage;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
   ogTitle?: string;
   ogDescription?: string;
+  publishedAt?: string;
+  modifiedAt?: string;
+  contributors: Array<{
+    _id: string;
+    name: string;
+    slug: string;
+    archived: boolean | null;
+  }> | null;
+  editedBy: {
+    _id: string;
+    name: string;
+    slug: string;
+  } | null;
+  sources?: Array<{
+    title: string;
+    publisher?: string;
+    url: string;
+    _type: "source";
+    _key: string;
+  }>;
+  editorsNote?: string;
+  corrections?: Array<{
+    kind: "clarification" | "correction" | "update";
+    date?: string;
+    text?: string;
+    _type: "correction";
+    _key: string;
+  }>;
+  division: {
+    _id: string;
+    name: string;
+    fullName: string;
+    slug: string;
+  } | null;
 } | null;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryArticleLists
-// Query: {    "relatedPosts": *[      _type == "post"      && defined(publishedAt)      && defined(slug.current)      && _id != $postId      && (!defined($publishedAt) || publishedAt < $publishedAt)      && (        (defined($sportId) && sport._ref == $sportId)        || count(conferences[@._ref in $conferenceIds]) > 0        || count(tags[@._ref in $tagIds]) > 0        || count(teams[@._ref in $teamIds]) > 0      )    ] | order(publishedAt desc, _id desc)[0...3] {      _id,      title,      publishedAt,        "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      "slug": slug.current,      "tagNames": tags[]->name,      division->{ name },      sportSubgrouping->{ shortName, name },        authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }    },    "upNextInFeed": *[      _type == "post"      && defined(publishedAt)      && defined(slug.current)      && _id != $postId      && defined($publishedAt)      && publishedAt < $publishedAt      && (!defined($sportId) || sport._ref == $sportId)    ] | order(publishedAt desc)[0] {      _id,      title,      publishedAt,        "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      "slug": slug.current,      "tagNames": tags[]->name,      division->{ name },      sportSubgrouping->{ shortName, name }    },    "moreFromAuthor": *[      _type == "post"      && defined(publishedAt)      && _id != $postId      && (!defined($publishedAt) || publishedAt < $publishedAt)      && count(authors[@._ref in $authorIds]) > 0    ] | order(publishedAt desc)[0...3]{      _id,      title,      "slug": slug.current    }  }
+// Query: {    "relatedPosts": *[      _type == "post"      && defined(publishedAt)      && defined(slug.current)      && _id != $postId      && (!defined($publishedAt) || publishedAt < $publishedAt)      && (        (defined($sportId) && sport._ref == $sportId)        || count(conferences[@._ref in $conferenceIds]) > 0        || count(tags[@._ref in $tagIds]) > 0        || count(teams[@._ref in $teamIds]) > 0      )    ] | order(publishedAt desc, _id desc)[0...3] {      _id,      title,      publishedAt,        image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      "slug": slug.current,      "tagNames": tags[]->name,      "division": classification->{ "name": coalesce(shortName, name) },      sportSubgrouping->{ shortName, name },        authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }    },    "upNextInFeed": *[      _type == "post"      && defined(publishedAt)      && defined(slug.current)      && _id != $postId      && defined($publishedAt)      && publishedAt < $publishedAt      && (!defined($sportId) || sport._ref == $sportId)    ] | order(publishedAt desc)[0] {      _id,      title,      publishedAt,        image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      "slug": slug.current,      "tagNames": tags[]->name,      "division": classification->{ "name": coalesce(shortName, name) },      sportSubgrouping->{ shortName, name }    },    "moreFromAuthor": *[      _type == "post"      && defined(publishedAt)      && _id != $postId      && (!defined($publishedAt) || publishedAt < $publishedAt)      && count(authors[@._ref in $authorIds]) > 0    ] | order(publishedAt desc)[0...3]{      _id,      title,      "slug": slug.current    }  }
 export type QueryArticleListsResult = {
   relatedPosts: Array<{
     _id: string;
@@ -1528,24 +1687,23 @@ export type QueryArticleListsResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
-    slug: string | null;
+      credit: string | null;
+    };
+    slug: string;
     tagNames: Array<string> | null;
     division: {
       name: string;
     } | null;
     sportSubgrouping: {
-      shortName: string | null;
+      shortName: string;
       name: string;
     } | null;
     authors: Array<{
@@ -1556,7 +1714,6 @@ export type QueryArticleListsResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -1594,7 +1751,22 @@ export type QueryArticleListsResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
   }>;
   upNextInFeed: {
@@ -1616,31 +1788,30 @@ export type QueryArticleListsResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
-    slug: string | null;
+      credit: string | null;
+    };
+    slug: string;
     tagNames: Array<string> | null;
     division: {
       name: string;
     } | null;
     sportSubgrouping: {
-      shortName: string | null;
+      shortName: string;
       name: string;
     } | null;
   } | null;
   moreFromAuthor: Array<{
     _id: string;
     title: string;
-    slug: string | null;
+    slug: string;
   }>;
 };
 
@@ -1660,7 +1831,7 @@ export type QuerySchoolPathsResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryTeamDirectorySchools
-// Query: *[    _type == "school" &&    defined(slug.current) &&    count(*[  _type == "post" &&  defined(publishedAt) &&  ^._id in teams[]._ref]) > 0  ] | order(coalesce(shortName, name) asc) {      _id,  name,  shortName,  nickname,  "slug": slug.current,    image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  }  }
+// Query: *[    _type == "school" &&    defined(slug.current) &&    count(*[  _type == "post" &&  defined(publishedAt) &&  ^._id in teams[]._ref]) > 0  ] | order(coalesce(shortName, name) asc) {      _id,  name,  shortName,  nickname,  "slug": slug.current,    image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  }  }
 export type QueryTeamDirectorySchoolsResult = Array<{
   _id: string;
   name: string;
@@ -1693,7 +1864,7 @@ export type QueryTeamDirectorySchoolsResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryTeamDirectorySchoolsByIds
-// Query: *[    _type == "school" &&    defined(slug.current) &&    _id in $ids  ] | order(coalesce(shortName, name) asc) {      _id,  name,  shortName,  nickname,  "slug": slug.current,    image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  }  }
+// Query: *[    _type == "school" &&    defined(slug.current) &&    _id in $ids  ] | order(coalesce(shortName, name) asc) {      _id,  name,  shortName,  nickname,  "slug": slug.current,    image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  }  }
 export type QueryTeamDirectorySchoolsByIdsResult = Array<{
   _id: string;
   name: string;
@@ -1726,13 +1897,13 @@ export type QueryTeamDirectorySchoolsByIdsResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: querySportsNews
-// Query: {    "posts": *[  _type == "post" &&  sport->slug.current == $sport &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)] | order(publishedAt desc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    division->shortName,    division->name  ),  "divisionSlug": division->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  sport->slug.current == $sport &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)])  }
+// Query: {    "posts": *[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType) && (!defined($afterAt) || publishedAt < $afterAt || (publishedAt == $afterAt && _id < $afterId))] | order(publishedAt desc, _id desc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    classification->shortName,    classification->name  ),  "divisionSlug": classification->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType)])  }
 export type QuerySportsNewsResult = {
   posts: Array<{
     _id: string;
     title: string;
     excerpt: string;
-    slug: string | null;
+    slug: string;
     publishedAt: string | null;
     image: {
       asset?: SanityImageAssetReference;
@@ -1749,17 +1920,16 @@ export type QuerySportsNewsResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
       _type: "author";
@@ -1768,7 +1938,6 @@ export type QuerySportsNewsResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -1806,7 +1975,22 @@ export type QuerySportsNewsResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
     divisionLabel: string | null;
     divisionSlug: string | null;
@@ -1820,13 +2004,13 @@ export type QuerySportsNewsResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: querySportsNewsOldest
-// Query: {    "posts": *[  _type == "post" &&  sport->slug.current == $sport &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)] | order(publishedAt asc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    division->shortName,    division->name  ),  "divisionSlug": division->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  sport->slug.current == $sport &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)])  }
+// Query: {    "posts": *[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType) && (!defined($afterAt) || publishedAt > $afterAt || (publishedAt == $afterAt && _id > $afterId))] | order(publishedAt asc, _id asc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    classification->shortName,    classification->name  ),  "divisionSlug": classification->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType)])  }
 export type QuerySportsNewsOldestResult = {
   posts: Array<{
     _id: string;
     title: string;
     excerpt: string;
-    slug: string | null;
+    slug: string;
     publishedAt: string | null;
     image: {
       asset?: SanityImageAssetReference;
@@ -1843,17 +2027,16 @@ export type QuerySportsNewsOldestResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
       _type: "author";
@@ -1862,7 +2045,6 @@ export type QuerySportsNewsOldestResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -1900,7 +2082,22 @@ export type QuerySportsNewsOldestResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
     divisionLabel: string | null;
     divisionSlug: string | null;
@@ -1914,13 +2111,13 @@ export type QuerySportsNewsOldestResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: querySportsAndDivisionNews
-// Query: {    "posts": *[  _type == "post" &&  sport->slug.current == $sport &&  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&  $division != "d1" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)] | order(publishedAt desc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    division->shortName,    division->name  ),  "divisionSlug": division->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  sport->slug.current == $sport &&  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&  $division != "d1" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)])  }
+// Query: {    "posts": *[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&  $division != "d1" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType) && (!defined($afterAt) || publishedAt < $afterAt || (publishedAt == $afterAt && _id < $afterId))] | order(publishedAt desc, _id desc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    classification->shortName,    classification->name  ),  "divisionSlug": classification->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&  $division != "d1" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType)])  }
 export type QuerySportsAndDivisionNewsResult = {
   posts: Array<{
     _id: string;
     title: string;
     excerpt: string;
-    slug: string | null;
+    slug: string;
     publishedAt: string | null;
     image: {
       asset?: SanityImageAssetReference;
@@ -1937,17 +2134,16 @@ export type QuerySportsAndDivisionNewsResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
       _type: "author";
@@ -1956,7 +2152,6 @@ export type QuerySportsAndDivisionNewsResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -1994,7 +2189,22 @@ export type QuerySportsAndDivisionNewsResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
     divisionLabel: string | null;
     divisionSlug: string | null;
@@ -2008,13 +2218,13 @@ export type QuerySportsAndDivisionNewsResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: querySportsAndDivisionNewsOldest
-// Query: {    "posts": *[  _type == "post" &&  sport->slug.current == $sport &&  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&  $division != "d1" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)] | order(publishedAt asc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    division->shortName,    division->name  ),  "divisionSlug": division->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  sport->slug.current == $sport &&  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&  $division != "d1" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)])  }
+// Query: {    "posts": *[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&  $division != "d1" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType) && (!defined($afterAt) || publishedAt > $afterAt || (publishedAt == $afterAt && _id > $afterId))] | order(publishedAt asc, _id asc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    classification->shortName,    classification->name  ),  "divisionSlug": classification->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&  $division != "d1" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType)])  }
 export type QuerySportsAndDivisionNewsOldestResult = {
   posts: Array<{
     _id: string;
     title: string;
     excerpt: string;
-    slug: string | null;
+    slug: string;
     publishedAt: string | null;
     image: {
       asset?: SanityImageAssetReference;
@@ -2031,17 +2241,16 @@ export type QuerySportsAndDivisionNewsOldestResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
       _type: "author";
@@ -2050,7 +2259,6 @@ export type QuerySportsAndDivisionNewsOldestResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -2088,7 +2296,22 @@ export type QuerySportsAndDivisionNewsOldestResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
     divisionLabel: string | null;
     divisionSlug: string | null;
@@ -2102,7 +2325,7 @@ export type QuerySportsAndDivisionNewsOldestResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryFooterData
-// Query: *[_type == "footer" && _id == "footer"][0]{    _id,    subtitle,    columns[]{      _key,      title,      links[]{        _key,        name,        "openInNewTab": url.openInNewTab,          "href": select(    url.type == "external" => url.external,    url.type == "internal" && url.internalType == "custom" => url.internalUrl,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news",    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,    url.href  )      }    },  }
+// Query: *[_type == "footer" && _id == "footer"][0]{    _id,    subtitle,    columns[]{      _key,      title,      links[]{        _key,        name,        "openInNewTab": url.openInNewTab,          "href": select(    url.type == "external" => url.external,    url.type == "internal" && url.internalType == "custom" => url.internalUrl,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news",    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,    url.href  )      }    },  }
 export type QueryFooterDataResult = {
   _id: "footer";
   subtitle: string | null;
@@ -2120,7 +2343,7 @@ export type QueryFooterDataResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryGlobalSeoSettings
-// Query: *[_type == "settings" && _id == "settings"][0]{    _id,    _type,    siteBrand,    siteTitle,    siteDescription,      logo{    ...,        "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },      footerLogo{    ...,        "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },      footerLogoDarkMode{    ...,        "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },    "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",    socialLinks{      facebook,      twitter,      youtube,      instagram,      bluesky,      threads    }  }
+// Query: *[_type == "settings" && _id == "settings"][0]{    _id,    _type,    siteBrand,    siteTitle,    siteDescription,      logo{    ...,        "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },      footerLogo{    ...,        "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },      footerLogoDarkMode{    ...,        "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },    "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",    socialLinks{      facebook,      twitter,      youtube,      instagram,      bluesky,      threads    }  }
 export type QueryGlobalSeoSettingsResult = {
   _id: "settings";
   _type: "settings";
@@ -2209,7 +2432,7 @@ export type QueryGlobalSeoSettingsResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryNavbarData
-// Query: *[_type == "navbar" && _id == "navbar"][0]{    _id,    "items": items[]{      _key,      _type,      _type == "navSportMenu" => {        label,        "sport": sport->{   _id,  "name": title,  "slug": slug.current,  "polls": polls[defined(slug)]{ _key, slug, label } },        "divisions": divisions[defined(@->slug.current)]->{          _id,          "name": coalesce(shortName, name, title),          "slug": slug.current        }      },      _type == "navRankingsMenu" => {        "label": coalesce(label, "Rankings"),        "sports": sports[defined(@->slug.current)]->{   _id,  "name": title,  "slug": slug.current,  "polls": polls[defined(slug)]{ _key, slug, label } },        "links": links[defined(sport._ref) && defined(name)]{          _key,          name,          description,          "sportId": sport._ref,          "openInNewTab": url.openInNewTab,            "href": select(    url.type == "external" => url.external,    url.type == "internal" && url.internalType == "custom" => url.internalUrl,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news",    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,    url.href  )        }      },      _type == "navbarColumn" => {        title,        links[]{          _key,          name,          description,          "openInNewTab": url.openInNewTab,            "href": select(    url.type == "external" => url.external,    url.type == "internal" && url.internalType == "custom" => url.internalUrl,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news",    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,    url.href  )        }      },      _type == "navbarLink" => {        name,        "openInNewTab": url.openInNewTab,          "href": select(    url.type == "external" => url.external,    url.type == "internal" && url.internalType == "custom" => url.internalUrl,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news",    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,    url.href  )      }    }  }
+// Query: *[_type == "navbar" && _id == "navbar"][0]{    _id,    "items": items[]{      _key,      _type,      _type == "navSportMenu" => {        label,        "sport": sport->{   _id,  "name": title,  "slug": slug.current,  "polls": polls[defined(slug)]{ _key, slug, label } },        "divisions": divisions[defined(@->slug.current)]->{          _id,          "name": coalesce(shortName, name, title),          "slug": slug.current        }      },      _type == "navRankingsMenu" => {        "label": coalesce(label, "Rankings"),        "sports": sports[defined(@->slug.current)]->{   _id,  "name": title,  "slug": slug.current,  "polls": polls[defined(slug)]{ _key, slug, label } },        "links": links[defined(sport._ref) && defined(name)]{          _key,          name,          description,          "sportId": sport._ref,          "openInNewTab": url.openInNewTab,            "href": select(    url.type == "external" => url.external,    url.type == "internal" && url.internalType == "custom" => url.internalUrl,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news",    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,    url.href  )        }      },      _type == "navbarColumn" => {        title,        links[]{          _key,          name,          description,          "openInNewTab": url.openInNewTab,            "href": select(    url.type == "external" => url.external,    url.type == "internal" && url.internalType == "custom" => url.internalUrl,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news",    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,    url.href  )        }      },      _type == "navbarLink" => {        name,        "openInNewTab": url.openInNewTab,          "href": select(    url.type == "external" => url.external,    url.type == "internal" && url.internalType == "custom" => url.internalUrl,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news",    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,    url.href  )      }    }  }
 export type QueryNavbarDataResult = {
   _id: "navbar";
   items: Array<
@@ -2281,31 +2504,24 @@ export type QueryNavbarDataResult = {
             label: string | null;
           }> | null;
         };
-        divisions: Array<
-          | {
-              _id: string;
-              name: string;
-              slug: string | null;
-            }
-          | {
-              _id: string;
-              name: string;
-              slug: string;
-            }
-        > | null;
+        divisions: Array<{
+          _id: string;
+          name: string;
+          slug: string;
+        }> | null;
       }
   > | null;
 } | null;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryHomePageData
-// Query: *[_type == "post"] | order(publishedAt desc)[0...3]{    _id,    _type,    title,    excerpt,    "slug": slug.current,      "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    publishedAt,      authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }  }
+// Query: *[_type == "post"] | order(publishedAt desc)[0...3]{    _id,    _type,    title,    excerpt,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    publishedAt,      authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }  }
 export type QueryHomePageDataResult = Array<{
   _id: string;
   _type: "post";
   title: string;
   excerpt: string;
-  slug: string | null;
+  slug: string;
   image: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -2321,17 +2537,16 @@ export type QueryHomePageDataResult = Array<{
       right: number;
       top: number;
     } | null;
-    caption: string;
-    attribution: string;
+    alt: string | "Image-Broken";
+    attribution?: string;
     _type: "image";
     id: string | null;
-    alt: string;
     width: number | null;
     height: number | null;
     preview: string | null;
     dominantColor: string | null;
-    credit: string;
-  } | null;
+    credit: string | null;
+  };
   publishedAt: string | null;
   authors: Array<{
     _id: string;
@@ -2341,7 +2556,6 @@ export type QueryHomePageDataResult = Array<{
     _rev: string;
     name: string;
     slug: string;
-    archived?: boolean;
     roles: Array<
       | "Contributor"
       | "Correspondent"
@@ -2379,109 +2593,352 @@ export type QueryHomePageDataResult = Array<{
       credit: null;
     };
     biography: string;
-    socialLinks?: SocialLinks1;
+    socialLinks?: {
+      twitter?: string;
+      facebook?: string;
+      youtube?: string;
+      instagram?: string;
+      linkedin?: string;
+      bluesky?: string;
+      threads?: string;
+    };
+    beats?: Array<
+      {
+        _key: string;
+      } & SportReference
+    >;
+    credentials?: Array<string>;
+    archived?: boolean;
   }>;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryHomeFeed
-// Query: *[_type == "post"] | order(publishedAt desc)[0...48]{      _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    division->shortName,    division->name  ),  "divisionSlug": division->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current  }
-export type QueryHomeFeedResult = Array<{
-  _id: string;
-  title: string;
-  excerpt: string;
-  slug: string | null;
-  publishedAt: string | null;
-  image: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot: {
-      x: number;
-      y: number;
-      height: number;
-      width: number;
-    } | null;
-    crop: {
-      bottom: number;
-      left: number;
-      right: number;
-      top: number;
-    } | null;
-    caption: string;
-    attribution: string;
-    _type: "image";
-    id: string | null;
-    alt: string;
-    width: number | null;
-    height: number | null;
-    preview: string | null;
-    dominantColor: string | null;
-    credit: string;
-  } | null;
-  authors: Array<{
-    _id: string;
-    _type: "author";
-    _createdAt: string;
-    _updatedAt: string;
-    _rev: string;
-    name: string;
+// Query: (    coalesce((*[_type == "collection" && key == "home-top-stories"][0].articles[]->{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    classification->shortName,    classification->name  ),  "divisionSlug": classification->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    })[defined(slug) && defined(publishedAt)], []) +    *[_type == "post" && !(_id in coalesce(*[_type == "collection" && key == "home-top-stories"][0].articles[]._ref, []))] | order(publishedAt desc)[0...48]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    classification->shortName,    classification->name  ),  "divisionSlug": classification->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    }  )[0...48]
+export type QueryHomeFeedResult =
+  | Array<
+      | {
+          _id: string;
+          title: string;
+          excerpt: string;
+          slug: string;
+          publishedAt: string;
+          image: {
+            asset?: SanityImageAssetReference;
+            media?: unknown;
+            hotspot: {
+              x: number;
+              y: number;
+              height: number;
+              width: number;
+            } | null;
+            crop: {
+              bottom: number;
+              left: number;
+              right: number;
+              top: number;
+            } | null;
+            alt: string | "Image-Broken";
+            attribution?: string;
+            _type: "image";
+            id: string | null;
+            width: number | null;
+            height: number | null;
+            preview: string | null;
+            dominantColor: string | null;
+            credit: string | null;
+          };
+          authors: Array<{
+            _id: string;
+            _type: "author";
+            _createdAt: string;
+            _updatedAt: string;
+            _rev: string;
+            name: string;
+            slug: string;
+            roles: Array<
+              | "Contributor"
+              | "Correspondent"
+              | "Editor"
+              | "Founder"
+              | "Guest Writer"
+              | "Historian"
+              | "Podcast Host"
+              | "Recruiting Analyst"
+              | "Senior Writer"
+              | "Transfer Portal Analyst"
+            >;
+            image: {
+              asset?: SanityImageAssetReference;
+              media?: unknown;
+              hotspot: {
+                x: number;
+                y: number;
+                height: number;
+                width: number;
+              } | null;
+              crop: {
+                bottom: number;
+                left: number;
+                right: number;
+                top: number;
+              } | null;
+              _type: "image";
+              id: string | null;
+              alt: string | "Image-Broken";
+              width: number | null;
+              height: number | null;
+              preview: string | null;
+              dominantColor: string | null;
+              credit: null;
+            };
+            biography: string;
+            socialLinks?: {
+              twitter?: string;
+              facebook?: string;
+              youtube?: string;
+              instagram?: string;
+              linkedin?: string;
+              bluesky?: string;
+              threads?: string;
+            };
+            beats?: Array<
+              {
+                _key: string;
+              } & SportReference
+            >;
+            credentials?: Array<string>;
+            archived?: boolean;
+          }>;
+          divisionLabel: string | null;
+          divisionSlug: string | null;
+          subgroupingSlug: string | null;
+          tagNames: Array<string> | null;
+          sportTitle: string | null;
+          sportSlug: string | null;
+        }
+      | {
+          _id: string;
+          title: string;
+          excerpt: string;
+          slug: string;
+          publishedAt: string | null;
+          image: {
+            asset?: SanityImageAssetReference;
+            media?: unknown;
+            hotspot: {
+              x: number;
+              y: number;
+              height: number;
+              width: number;
+            } | null;
+            crop: {
+              bottom: number;
+              left: number;
+              right: number;
+              top: number;
+            } | null;
+            alt: string | "Image-Broken";
+            attribution?: string;
+            _type: "image";
+            id: string | null;
+            width: number | null;
+            height: number | null;
+            preview: string | null;
+            dominantColor: string | null;
+            credit: string | null;
+          };
+          authors: Array<{
+            _id: string;
+            _type: "author";
+            _createdAt: string;
+            _updatedAt: string;
+            _rev: string;
+            name: string;
+            slug: string;
+            roles: Array<
+              | "Contributor"
+              | "Correspondent"
+              | "Editor"
+              | "Founder"
+              | "Guest Writer"
+              | "Historian"
+              | "Podcast Host"
+              | "Recruiting Analyst"
+              | "Senior Writer"
+              | "Transfer Portal Analyst"
+            >;
+            image: {
+              asset?: SanityImageAssetReference;
+              media?: unknown;
+              hotspot: {
+                x: number;
+                y: number;
+                height: number;
+                width: number;
+              } | null;
+              crop: {
+                bottom: number;
+                left: number;
+                right: number;
+                top: number;
+              } | null;
+              _type: "image";
+              id: string | null;
+              alt: string | "Image-Broken";
+              width: number | null;
+              height: number | null;
+              preview: string | null;
+              dominantColor: string | null;
+              credit: null;
+            };
+            biography: string;
+            socialLinks?: {
+              twitter?: string;
+              facebook?: string;
+              youtube?: string;
+              instagram?: string;
+              linkedin?: string;
+              bluesky?: string;
+              threads?: string;
+            };
+            beats?: Array<
+              {
+                _key: string;
+              } & SportReference
+            >;
+            credentials?: Array<string>;
+            archived?: boolean;
+          }>;
+          divisionLabel: string | null;
+          divisionSlug: string | null;
+          subgroupingSlug: string | null;
+          tagNames: Array<string> | null;
+          sportTitle: string | null;
+          sportSlug: string | null;
+        }
+    >
+  | Array<{
+      _id: string;
+      title: string;
+      excerpt: string;
+      slug: string;
+      publishedAt: string | null;
+      image: {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot: {
+          x: number;
+          y: number;
+          height: number;
+          width: number;
+        } | null;
+        crop: {
+          bottom: number;
+          left: number;
+          right: number;
+          top: number;
+        } | null;
+        alt: string | "Image-Broken";
+        attribution?: string;
+        _type: "image";
+        id: string | null;
+        width: number | null;
+        height: number | null;
+        preview: string | null;
+        dominantColor: string | null;
+        credit: string | null;
+      };
+      authors: Array<{
+        _id: string;
+        _type: "author";
+        _createdAt: string;
+        _updatedAt: string;
+        _rev: string;
+        name: string;
+        slug: string;
+        roles: Array<
+          | "Contributor"
+          | "Correspondent"
+          | "Editor"
+          | "Founder"
+          | "Guest Writer"
+          | "Historian"
+          | "Podcast Host"
+          | "Recruiting Analyst"
+          | "Senior Writer"
+          | "Transfer Portal Analyst"
+        >;
+        image: {
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot: {
+            x: number;
+            y: number;
+            height: number;
+            width: number;
+          } | null;
+          crop: {
+            bottom: number;
+            left: number;
+            right: number;
+            top: number;
+          } | null;
+          _type: "image";
+          id: string | null;
+          alt: string | "Image-Broken";
+          width: number | null;
+          height: number | null;
+          preview: string | null;
+          dominantColor: string | null;
+          credit: null;
+        };
+        biography: string;
+        socialLinks?: {
+          twitter?: string;
+          facebook?: string;
+          youtube?: string;
+          instagram?: string;
+          linkedin?: string;
+          bluesky?: string;
+          threads?: string;
+        };
+        beats?: Array<
+          {
+            _key: string;
+          } & SportReference
+        >;
+        credentials?: Array<string>;
+        archived?: boolean;
+      }>;
+      divisionLabel: string | null;
+      divisionSlug: string | null;
+      subgroupingSlug: string | null;
+      tagNames: Array<string> | null;
+      sportTitle: string | null;
+      sportSlug: string | null;
+    }>;
+
+// Source: ../../packages/sanity/src/queries.ts
+// Variable: queryBreakingNews
+// Query: *[_id == "breakingNews" && defined(article) && dateTime(expiresAt) > dateTime(now())][0]{    "label": coalesce(label, "Breaking"),    expiresAt,    // Null when the article was unpublished or deleted (a weak reference).    "article": select(      defined(article->publishedAt) => article->{ title, "slug": slug.current }    )  }
+export type QueryBreakingNewsResult = {
+  label: string | "Breaking";
+  expiresAt: string;
+  article: {
+    title: string;
     slug: string;
-    archived?: boolean;
-    roles: Array<
-      | "Contributor"
-      | "Correspondent"
-      | "Editor"
-      | "Founder"
-      | "Guest Writer"
-      | "Historian"
-      | "Podcast Host"
-      | "Recruiting Analyst"
-      | "Senior Writer"
-      | "Transfer Portal Analyst"
-    >;
-    image: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot: {
-        x: number;
-        y: number;
-        height: number;
-        width: number;
-      } | null;
-      crop: {
-        bottom: number;
-        left: number;
-        right: number;
-        top: number;
-      } | null;
-      _type: "image";
-      id: string | null;
-      alt: string | "Image-Broken";
-      width: number | null;
-      height: number | null;
-      preview: string | null;
-      dominantColor: string | null;
-      credit: null;
-    };
-    biography: string;
-    socialLinks?: SocialLinks1;
-  }>;
-  divisionLabel: string | null;
-  divisionSlug: string | null;
-  subgroupingSlug: string | null;
-  tagNames: Array<string> | null;
-  sportTitle: string | null;
-  sportSlug: string | null;
-}>;
+  };
+} | null;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryLatestArticles
-// Query: *[_type == "post"] | order(publishedAt desc)[3..6]{    _id,    title,    excerpt,    "slug": slug.current,    publishedAt,      "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }  }
+// Query: *[_type == "post"] | order(publishedAt desc)[3..6]{    _id,    title,    excerpt,    "slug": slug.current,    publishedAt,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }  }
 export type QueryLatestArticlesResult = Array<{
   _id: string;
   title: string;
   excerpt: string;
-  slug: string | null;
+  slug: string;
   publishedAt: string | null;
   image: {
     asset?: SanityImageAssetReference;
@@ -2498,17 +2955,16 @@ export type QueryLatestArticlesResult = Array<{
       right: number;
       top: number;
     } | null;
-    caption: string;
-    attribution: string;
+    alt: string | "Image-Broken";
+    attribution?: string;
     _type: "image";
     id: string | null;
-    alt: string;
     width: number | null;
     height: number | null;
     preview: string | null;
     dominantColor: string | null;
-    credit: string;
-  } | null;
+    credit: string | null;
+  };
   authors: Array<{
     _id: string;
     _type: "author";
@@ -2517,7 +2973,6 @@ export type QueryLatestArticlesResult = Array<{
     _rev: string;
     name: string;
     slug: string;
-    archived?: boolean;
     roles: Array<
       | "Contributor"
       | "Correspondent"
@@ -2555,36 +3010,33 @@ export type QueryLatestArticlesResult = Array<{
       credit: null;
     };
     biography: string;
-    socialLinks?: SocialLinks1;
+    socialLinks?: {
+      twitter?: string;
+      facebook?: string;
+      youtube?: string;
+      instagram?: string;
+      linkedin?: string;
+      bluesky?: string;
+      threads?: string;
+    };
+    beats?: Array<
+      {
+        _key: string;
+      } & SportReference
+    >;
+    credentials?: Array<string>;
+    archived?: boolean;
   }>;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
-// Variable: queryPostsBySlugs
-// Query: *[_type == "post" && slug.current in $slugs]{    _id,    title,    "slug": slug.current  }
-export type QueryPostsBySlugsResult = Array<{
-  _id: string;
-  title: string;
-  slug: string | null;
-}>;
-
-// Source: ../../packages/sanity/src/queries.ts
-// Variable: queryMostReadFallbackPosts
-// Query: *[_type == "post"] | order(publishedAt desc)[0...5]{    _id,    title,    "slug": slug.current  }
-export type QueryMostReadFallbackPostsResult = Array<{
-  _id: string;
-  title: string;
-  slug: string | null;
-}>;
-
-// Source: ../../packages/sanity/src/queries.ts
 // Variable: queryLatestCollegeSportsArticles
-// Query: *[_type == "post" && (division->name == $division || sportSubgrouping->name == $division) && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{    _id,    title,    excerpt,    "slug": slug.current,      "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    publishedAt,    division->{      name,      "slug": slug.current    },    conferences[]->{      name,      "slug": slug.current,      shortName    },      authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }  }
+// Query: *[    _type == "post" &&    (      classification._ref in *[_type == "classification" && name == $division]._id ||      sportSubgrouping._ref in *[_type == "sportSubgrouping" && name == $division]._id    ) &&    sport._ref in *[_type == "sport" && title match $sport]._id &&    !(_id in $articleIds)  ] | order(publishedAt desc)[0..4]{    _id,    title,    excerpt,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    publishedAt,    "division": classification->{      "name": coalesce(shortName, name),      "slug": slug.current    },    conferences[]->{      name,      "slug": slug.current,      shortName    },      authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }  }
 export type QueryLatestCollegeSportsArticlesResult = Array<{
   _id: string;
   title: string;
   excerpt: string;
-  slug: string | null;
+  slug: string;
   image: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -2600,17 +3052,16 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
       right: number;
       top: number;
     } | null;
-    caption: string;
-    attribution: string;
+    alt: string | "Image-Broken";
+    attribution?: string;
     _type: "image";
     id: string | null;
-    alt: string;
     width: number | null;
     height: number | null;
     preview: string | null;
     dominantColor: string | null;
-    credit: string;
-  } | null;
+    credit: string | null;
+  };
   publishedAt: string | null;
   division: {
     name: string;
@@ -2629,7 +3080,6 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
     _rev: string;
     name: string;
     slug: string;
-    archived?: boolean;
     roles: Array<
       | "Contributor"
       | "Correspondent"
@@ -2667,18 +3117,41 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
       credit: null;
     };
     biography: string;
-    socialLinks?: SocialLinks1;
+    socialLinks?: {
+      twitter?: string;
+      facebook?: string;
+      youtube?: string;
+      instagram?: string;
+      linkedin?: string;
+      bluesky?: string;
+      threads?: string;
+    };
+    beats?: Array<
+      {
+        _key: string;
+      } & SportReference
+    >;
+    credentials?: Array<string>;
+    archived?: boolean;
   }>;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
-// Variable: queryCollegeSportsArticlesForSitemap
-// Query: *[_type == "post" && defined(slug.current) && sport->title match $sport] | order(publishedAt desc){    _id,    _updatedAt,    publishedAt,    "slug": slug.current,  }
-export type QueryCollegeSportsArticlesForSitemapResult = Array<{
+// Variable: queryPostsBySlugs
+// Query: *[_type == "post" && slug.current in $slugs]{    _id,    title,    "slug": slug.current  }
+export type QueryPostsBySlugsResult = Array<{
   _id: string;
-  _updatedAt: string;
-  publishedAt: string | null;
-  slug: string | null;
+  title: string;
+  slug: string;
+}>;
+
+// Source: ../../packages/sanity/src/queries.ts
+// Variable: queryMostReadFallbackPosts
+// Query: *[_type == "post"] | order(publishedAt desc)[0...5]{    _id,    title,    "slug": slug.current  }
+export type QueryMostReadFallbackPostsResult = Array<{
+  _id: string;
+  title: string;
+  slug: string;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
@@ -2697,13 +3170,13 @@ export type QuerySitemapDataResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryArticlesBySportDivisionAndConference
-// Query: {    "posts": *[  _type == "post" &&  sport->slug.current == $sport &&  $conference in conferences[]->slug.current &&  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&  $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)] | order(publishedAt desc) [$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    division->shortName,    division->name  ),  "divisionSlug": division->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))][0]{      _id,      name,      shortName    },    "totalPosts": count(*[  _type == "post" &&  sport->slug.current == $sport &&  $conference in conferences[]->slug.current &&  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&  $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)]),  }
+// Query: {    "posts": *[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  count(conferences[@._ref in *[  _type == "conference" &&  slug.current == $conference &&  (    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))  )]._id]) > 0 &&  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType) && (!defined($afterAt) || publishedAt < $afterAt || (publishedAt == $afterAt && _id < $afterId))] | order(publishedAt desc, _id desc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    classification->shortName,    classification->name  ),  "divisionSlug": classification->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "conferenceInfo": *[_id in *[  _type == "conference" &&  slug.current == $conference &&  (    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))  )]._id][0]{      _id,      name,      shortName    },    "totalPosts": count(*[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  count(conferences[@._ref in *[  _type == "conference" &&  slug.current == $conference &&  (    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))  )]._id]) > 0 &&  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType)]),  }
 export type QueryArticlesBySportDivisionAndConferenceResult = {
   posts: Array<{
     _id: string;
     title: string;
     excerpt: string;
-    slug: string | null;
+    slug: string;
     publishedAt: string | null;
     image: {
       asset?: SanityImageAssetReference;
@@ -2720,17 +3193,16 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
       _type: "author";
@@ -2739,7 +3211,6 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -2777,7 +3248,22 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
     divisionLabel: string | null;
     divisionSlug: string | null;
@@ -2786,23 +3272,50 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
     sportTitle: string | null;
     sportSlug: string | null;
   }>;
-  conferenceInfo: {
-    _id: string;
-    name: string;
-    shortName: string;
-  } | null;
+  conferenceInfo:
+    | {
+        _id: string;
+        name: null;
+        shortName: null;
+      }
+    | {
+        _id: string;
+        name: string;
+        shortName: null;
+      }
+    | {
+        _id: string;
+        name: string;
+        shortName: string;
+      }
+    | {
+        _id: string;
+        name: string;
+        shortName: string | null;
+      }
+    | {
+        _id: string;
+        name: Slug | null;
+        shortName: null;
+      }
+    | {
+        _id: string;
+        name: string | null;
+        shortName: null;
+      }
+    | null;
   totalPosts: number;
 };
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryArticlesBySportDivisionAndConferenceOldest
-// Query: {    "posts": *[  _type == "post" &&  sport->slug.current == $sport &&  $conference in conferences[]->slug.current &&  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&  $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)] | order(publishedAt asc) [$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    division->shortName,    division->name  ),  "divisionSlug": division->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))][0]{      _id,      name,      shortName    },    "totalPosts": count(*[  _type == "post" &&  sport->slug.current == $sport &&  $conference in conferences[]->slug.current &&  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&  $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != 'd1'))].slug.current &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)]),  }
+// Query: {    "posts": *[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  count(conferences[@._ref in *[  _type == "conference" &&  slug.current == $conference &&  (    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))  )]._id]) > 0 &&  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType) && (!defined($afterAt) || publishedAt > $afterAt || (publishedAt == $afterAt && _id > $afterId))] | order(publishedAt asc, _id asc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    classification->shortName,    classification->name  ),  "divisionSlug": classification->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "conferenceInfo": *[_id in *[  _type == "conference" &&  slug.current == $conference &&  (    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))  )]._id][0]{      _id,      name,      shortName    },    "totalPosts": count(*[  _type == "post" &&  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&  count(conferences[@._ref in *[  _type == "conference" &&  slug.current == $conference &&  (    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))  )]._id]) > 0 &&  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType)]),  }
 export type QueryArticlesBySportDivisionAndConferenceOldestResult = {
   posts: Array<{
     _id: string;
     title: string;
     excerpt: string;
-    slug: string | null;
+    slug: string;
     publishedAt: string | null;
     image: {
       asset?: SanityImageAssetReference;
@@ -2819,17 +3332,16 @@ export type QueryArticlesBySportDivisionAndConferenceOldestResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
       _type: "author";
@@ -2838,7 +3350,6 @@ export type QueryArticlesBySportDivisionAndConferenceOldestResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -2876,7 +3387,22 @@ export type QueryArticlesBySportDivisionAndConferenceOldestResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
     divisionLabel: string | null;
     divisionSlug: string | null;
@@ -2885,192 +3411,82 @@ export type QueryArticlesBySportDivisionAndConferenceOldestResult = {
     sportTitle: string | null;
     sportSlug: string | null;
   }>;
-  conferenceInfo: {
-    _id: string;
-    name: string;
-    shortName: string;
-  } | null;
+  conferenceInfo:
+    | {
+        _id: string;
+        name: null;
+        shortName: null;
+      }
+    | {
+        _id: string;
+        name: string;
+        shortName: null;
+      }
+    | {
+        _id: string;
+        name: string;
+        shortName: string;
+      }
+    | {
+        _id: string;
+        name: string;
+        shortName: string | null;
+      }
+    | {
+        _id: string;
+        name: Slug | null;
+        shortName: null;
+      }
+    | {
+        _id: string;
+        name: string | null;
+        shortName: null;
+      }
+    | null;
   totalPosts: number;
 };
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: searchQuery
-// Query: {  "posts": *[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")] | score(    boost(title match $q, 4),    boost(excerpt match $q, 3),    boost(pt::text(body) match $q, 2),  ) | order(publishedAt desc, _score desc)[$from...$to]{    ...,    "slug": slug.current,      division->{    _id,    name,    "slug": slug.current,      logo{    ...,        "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  }  },      conferences[]->{    _id,    name,    shortName,    "slug": slug.current,      logo{    ...,        "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },    division->{      "slug": slug.current,    },    sportSubdivisionAffiliations[]{        _key,        sport->{          _id, // Need this _id for client-side comparison        },        subgrouping->{          "slug": slug.current,          name,          shortName        }      }  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },    "sport": sport->title,  },  "totalPosts": count(*[_type == 'post' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])}
+// Query: {  "posts": *[  _type == "post" &&  defined(publishedAt) &&  (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")] | score(    boost(title match $q, 4),    boost(excerpt match $q, 3),    boost(pt::text(body) match $q, 2),  ) | order(_score desc, publishedAt desc)[$from...$to]{    _id,    title,    excerpt,    publishedAt,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    "authors": authors[]->{ _id, name, "slug": slug.current },    "sport": sport->title,  },  "totalPosts": count(*[  _type == "post" &&  defined(publishedAt) &&  (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])}
 export type SearchQueryResult = {
   posts: Array<{
     _id: string;
-    _type: "post";
-    _createdAt: string;
-    _updatedAt: string;
-    _rev: string;
     title: string;
-    slug: string | null;
-    storyType:
-      | "analysis"
-      | "game-recap"
-      | "news"
-      | "opinion"
-      | "recruiting"
-      | "transfer";
+    excerpt: string;
+    publishedAt: string | null;
+    slug: string;
+    image: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot: {
+        x: number;
+        y: number;
+        height: number;
+        width: number;
+      } | null;
+      crop: {
+        bottom: number;
+        left: number;
+        right: number;
+        top: number;
+      } | null;
+      alt: string | "Image-Broken";
+      attribution?: string;
+      _type: "image";
+      id: string | null;
+      width: number | null;
+      height: number | null;
+      preview: string | null;
+      dominantColor: string | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
-      _type: "author";
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
-      roles: Array<
-        | "Contributor"
-        | "Correspondent"
-        | "Editor"
-        | "Founder"
-        | "Guest Writer"
-        | "Historian"
-        | "Podcast Host"
-        | "Recruiting Analyst"
-        | "Senior Writer"
-        | "Transfer Portal Analyst"
-      >;
-      image: {
-        asset?: SanityImageAssetReference;
-        media?: unknown;
-        hotspot: {
-          x: number;
-          y: number;
-          height: number;
-          width: number;
-        } | null;
-        crop: {
-          bottom: number;
-          left: number;
-          right: number;
-          top: number;
-        } | null;
-        _type: "image";
-        id: string | null;
-        alt: string | "Image-Broken";
-        width: number | null;
-        height: number | null;
-        preview: string | null;
-        dominantColor: string | null;
-        credit: null;
-      };
-      biography: string;
-      socialLinks?: SocialLinks1;
     }>;
-    publishedAt?: string;
-    modifiedAt?: string;
-    image?: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      caption: string;
-      attribution: string;
-      _type: "image";
-    };
-    mainImage?: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      caption: string;
-      attribution: string;
-      _type: "image";
-    };
     sport: string | null;
-    division: {
-      _id: string;
-      name: string;
-      slug: string;
-      logo: {
-        asset?: SanityImageAssetReference;
-        media?: unknown;
-        hotspot: {
-          x: number;
-          y: number;
-          height: number;
-          width: number;
-        } | null;
-        crop: {
-          bottom: number;
-          left: number;
-          right: number;
-          top: number;
-        } | null;
-        alt: string | "Image-Broken";
-        _type: "image";
-        id: string | null;
-        width: number | null;
-        height: number | null;
-        preview: string | null;
-        dominantColor: string | null;
-      } | null;
-    } | null;
-    sportSubgrouping?: SportSubgroupingReference;
-    conferences: Array<{
-      _id: string;
-      name: string;
-      shortName: string;
-      slug: string;
-      logo: {
-        asset?: SanityImageAssetReference;
-        media?: unknown;
-        hotspot: {
-          x: number;
-          y: number;
-          height: number;
-          width: number;
-        } | null;
-        crop: {
-          bottom: number;
-          left: number;
-          right: number;
-          top: number;
-        } | null;
-        alt: string | "Image-Broken";
-        _type: "image";
-        id: string | null;
-        width: number | null;
-        height: number | null;
-        preview: string | null;
-        dominantColor: string | null;
-      } | null;
-      division: {
-        slug: string;
-      };
-      sportSubdivisionAffiliations: Array<{
-        _key: string;
-        sport: {
-          _id: string;
-        };
-        subgrouping: {
-          slug: string | null;
-          name: string;
-          shortName: string | null;
-        };
-      }> | null;
-    }> | null;
-    teams?: Array<
-      {
-        _key: string;
-      } & SchoolReference
-    >;
-    tags?: Array<
-      {
-        _key: string;
-      } & TagReference
-    >;
-    excerpt: string;
-    body: BlockContent;
-    seoTitle?: string;
-    seoDescription?: string;
-    seoImage?: SeoImage;
-    ogTitle?: string;
-    ogDescription?: string;
-    _score: number;
   }>;
   totalPosts: number;
 };
@@ -3085,7 +3501,7 @@ export type SportInfoBySlugResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: authorBySlug
-// Query: *[_type == "author" && slug.current == $slug && archived == false][0]{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },  }
+// Query: *[_type == "author" && slug.current == $slug && archived == false][0]{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },  }
 export type AuthorBySlugResult = {
   _id: string;
   _type: "author";
@@ -3094,7 +3510,6 @@ export type AuthorBySlugResult = {
   _rev: string;
   name: string;
   slug: string;
-  archived?: boolean;
   roles: Array<
     | "Contributor"
     | "Correspondent"
@@ -3132,12 +3547,27 @@ export type AuthorBySlugResult = {
     credit: null;
   };
   biography: string;
-  socialLinks?: SocialLinks1;
+  socialLinks?: {
+    twitter?: string;
+    facebook?: string;
+    youtube?: string;
+    instagram?: string;
+    linkedin?: string;
+    bluesky?: string;
+    threads?: string;
+  };
+  beats?: Array<
+    {
+      _key: string;
+    } & SportReference
+  >;
+  credentials?: Array<string>;
+  archived?: boolean;
 } | null;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: postsByAuthor
-// Query: *[_type == "author" && slug.current == $slug && archived == false][0]{    "authorId": _id,    "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[$from...$to]{      ...,      "slug": slug.current,        "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },        authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },    },    "totalPosts": count(*[_type == "post" && references(^._id)])  }
+// Query: *[_type == "author" && slug.current == $slug && archived == false][0]{    "authorId": _id,    "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[$from...$to]{      ...,      "slug": slug.current,      "division": classification->{ "name": coalesce(shortName, name) },        image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },        authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },    },    "totalPosts": count(*[_type == "post" && references(^._id)])  }
 export type PostsByAuthorResult = {
   authorId: string;
   posts: Array<{
@@ -3147,14 +3577,19 @@ export type PostsByAuthorResult = {
     _updatedAt: string;
     _rev: string;
     title: string;
-    slug: string | null;
+    slug: string;
     storyType:
       | "analysis"
+      | "explainer"
+      | "feature"
+      | "game-preview"
       | "game-recap"
+      | "interview"
       | "news"
+      | "notebook"
       | "opinion"
-      | "recruiting"
-      | "transfer";
+      | "predictions"
+      | "rankings";
     authors: Array<{
       _id: string;
       _type: "author";
@@ -3163,7 +3598,6 @@ export type PostsByAuthorResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -3201,10 +3635,23 @@ export type PostsByAuthorResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
-    publishedAt?: string;
-    modifiedAt?: string;
     image: {
       asset?: SanityImageAssetReference;
       media?: unknown;
@@ -3220,28 +3667,20 @@ export type PostsByAuthorResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
-    mainImage?: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      caption: string;
-      attribution: string;
-      _type: "image";
+      credit: string | null;
     };
+    excerpt: string;
+    body: BlockContent;
     sport?: SportReference;
-    division?: DivisionReference;
+    classification?: ClassificationReference;
     sportSubgrouping?: SportSubgroupingReference;
     conferences?: Array<
       {
@@ -3253,25 +3692,68 @@ export type PostsByAuthorResult = {
         _key: string;
       } & SchoolReference
     >;
+    game?: GameRef;
+    players?: Array<
+      {
+        _key: string;
+      } & PlayerRef
+    >;
     tags?: Array<
       {
         _key: string;
       } & TagReference
     >;
-    excerpt: string;
-    body: BlockContent;
+    keyTakeaways?: Array<string>;
+    faqs?: Array<{
+      question?: string;
+      answer?: string;
+      _type: "faq";
+      _key: string;
+    }>;
     seoTitle?: string;
     seoDescription?: string;
-    seoImage?: SeoImage;
+    seoImage?: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    };
     ogTitle?: string;
     ogDescription?: string;
+    publishedAt?: string;
+    modifiedAt?: string;
+    contributors?: Array<
+      {
+        _key: string;
+      } & AuthorReference
+    >;
+    editedBy?: AuthorReference;
+    sources?: Array<{
+      title: string;
+      publisher?: string;
+      url: string;
+      _type: "source";
+      _key: string;
+    }>;
+    editorsNote?: string;
+    corrections?: Array<{
+      kind: "clarification" | "correction" | "update";
+      date?: string;
+      text?: string;
+      _type: "correction";
+      _key: string;
+    }>;
+    division: {
+      name: string;
+    } | null;
   }>;
   totalPosts: number;
 } | null;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: authorsListNotArchived
-// Query: *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {    _id,    name,    roles,    "slug": slug.current,      image{    ...,        "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,    "alt": coalesce(caption, asset->altText, ^.name, asset->originalFilename, "Image-Broken"),  },    socialLinks  }
+// Query: *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {    _id,    name,    roles,    "slug": slug.current,      image{    ...,        "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,    "alt": coalesce(caption, asset->altText, ^.name, asset->originalFilename, "Image-Broken"),  },    socialLinks  }
 export type AuthorsListNotArchivedResult = Array<{
   _id: string;
   name: string;
@@ -3311,12 +3793,20 @@ export type AuthorsListNotArchivedResult = Array<{
     preview: string | null;
     dominantColor: string | null;
   };
-  socialLinks: SocialLinks1 | null;
+  socialLinks: {
+    twitter?: string;
+    facebook?: string;
+    youtube?: string;
+    instagram?: string;
+    linkedin?: string;
+    bluesky?: string;
+    threads?: string;
+  } | null;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryLegalDocumentBySlug
-// Query: *[_type == "legal" && slug.current == $slug][0]{    _id,    _type,    title,    "slug": slug.current,    summary,    effectiveDate,    "lastUpdated": coalesce(lastUpdated, effectiveDate),    body[]{      ...,        markDefs[]{    ...,    _type == "customLink" => {      ...,        "openInNewTab": customLink.openInNewTab,  "href": select(    customLink.type == "external" => customLink.external,    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,    customLink.href  )    },    _type == "customUrl" => {      ...,      "href":   select(    type == "external" => external,    type == "internal" && internalType == "custom" => internalUrl,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news",    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,    href  )    },    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        reference->_type == "school" => "/college/teams/" + reference->slug.current,        reference->_type == "author" => "/authors/" + reference->slug.current,        "#"      )    }  }    },    "otherDocuments": *[_type == "legal" && defined(slug.current) && slug.current != $slug] | order(title asc){      _id,      title,      "slug": slug.current    }  }
+// Query: *[_type == "legal" && slug.current == $slug][0]{    _id,    _type,    title,    "slug": slug.current,    summary,    effectiveDate,    "lastUpdated": coalesce(lastUpdated, effectiveDate),    body[]{      ...,        markDefs[]{    ...,    // The current link annotation. An old-format link (only an href) has no    // linkType, so it falls through to its href unchanged.    _type == "link" => {      ...,      "href": select(        linkType == "internal" =>   select(    reference->_type == "post" => "/" + reference->slug.current,    reference->_type == "school" => "/college/teams/" + reference->slug.current,    reference->_type == "author" => "/people/" + reference->slug.current,    reference->_type == "legal" => "/legal/" + reference->slug.current  ),        linkType == "path" => path,        href      ),      "openInNewTab": coalesce(openInNewTab, blank, false)    },    _type == "customLink" => {      ...,        "openInNewTab": customLink.openInNewTab,  "href": select(    customLink.type == "external" => customLink.external,    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,    customLink.href  )    },    _type == "customUrl" => {      ...,      "href":   select(    type == "external" => external,    type == "internal" && internalType == "custom" => internalUrl,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news",    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,    href  )    },    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        reference->_type == "school" => "/college/teams/" + reference->slug.current,        reference->_type == "author" => "/people/" + reference->slug.current,        "#"      )    }  }    },    "otherDocuments": *[_type == "legal" && defined(slug.current) && slug.current != $slug] | order(title asc){      _id,      title,      "slug": slug.current    }  }
 export type QueryLegalDocumentBySlugResult = {
   _id: string;
   _type: "legal";
@@ -3336,11 +3826,17 @@ export type QueryLegalDocumentBySlugResult = {
         style?: "blockquote" | "h2" | "h3" | "h4" | "normal";
         listItem?: "bullet" | "number";
         markDefs: Array<{
-          customLink?: CustomUrl;
-          _type: "customLink";
           _key: string;
-          openInNewTab: boolean | null;
+          _type: "link";
+          linkType?: "external" | "internal" | "path";
+          reference?:
+            | AuthorReference
+            | LegalReference
+            | PostReference
+            | SchoolReference;
+          path?: string;
           href: string | null;
+          openInNewTab: boolean | false;
         }> | null;
         level?: number;
         _type: "block";
@@ -3394,41 +3890,8 @@ export type QueryLegalDocumentPathsResult = Array<{
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
-// Variable: schoolsByDivisionQuery
-// Query: *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){  _id,  name,  shortName,  abbreviation,    image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },  conference->{    name,    shortName  }}
-export type SchoolsByDivisionQueryResult = Array<{
-  _id: string;
-  name: string;
-  shortName: string | null;
-  abbreviation: string | null;
-  image: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot: {
-      x: number;
-      y: number;
-      height: number;
-      width: number;
-    } | null;
-    crop: {
-      bottom: number;
-      left: number;
-      right: number;
-      top: number;
-    } | null;
-    caption: string;
-    _type: "image";
-    id: string | null;
-    alt: string;
-    width: number | null;
-    height: number | null;
-  };
-  conference: null;
-}>;
-
-// Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsBySportAndSubgroupingStringQuery
-// Query: *[_type == "school"  ] {    _id,    name,    shortName,    abbreviation,      image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },    conferenceAffiliations,    "relevantAffiliation": conferenceAffiliations[sport->slug.current == $sport][0]  }[defined(relevantAffiliation)] {    _id,    name,    shortName,    abbreviation,      image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },    relevantAffiliation,    "conferenceDetails": *[_type == "conference" && _id == ^.relevantAffiliation.conference._ref][0] {      name,      shortName,      abbreviation,      sportSubdivisionAffiliations    }  }[    count(conferenceDetails.sportSubdivisionAffiliations[      sport->slug.current == $sport &&      subgrouping->slug.current == $subgrouping    ]) > 0  ] | order(shortName asc) {    _id,    name,    shortName,    abbreviation,      image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },    "conferenceInfo": {      "conference": conferenceDetails {        name,        shortName,        abbreviation      }    }  }
+// Query: *[    _type == "school" &&    count(conferenceAffiliations[      sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&      select(        defined(subgroupingOverride) => subgroupingOverride._ref in *[_type == "sportSubgrouping" && slug.current == $subgrouping]._id,        conference._ref in *[  _type == "conference" &&  count(sportSubdivisionAffiliations[    sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type == "sportSubgrouping" && slug.current == $subgrouping]._id  ]) > 0]._id      )    ]) > 0  ] | order(shortName asc) {    _id,    name,    shortName,    abbreviation,      image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },    "conferenceInfo": {      // By _ref: a sport-> lookup per affiliation row cost 1 s on 264 schools.      "conference": conferenceAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id][0].conference->{        name,        shortName,        abbreviation      }    }  }
 export type SchoolsBySportAndSubgroupingStringQueryResult = Array<{
   _id: string;
   name: string;
@@ -3467,13 +3930,13 @@ export type SchoolsBySportAndSubgroupingStringQueryResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryCollegeNews
-// Query: {    "posts": *[  _type == "post" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)] | order(publishedAt desc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    division->shortName,    division->name  ),  "divisionSlug": division->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)])  }
+// Query: {    "posts": *[  _type == "post" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType) && (!defined($afterAt) || publishedAt < $afterAt || (publishedAt == $afterAt && _id < $afterId))] | order(publishedAt desc, _id desc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    classification->shortName,    classification->name  ),  "divisionSlug": classification->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType)])  }
 export type QueryCollegeNewsResult = {
   posts: Array<{
     _id: string;
     title: string;
     excerpt: string;
-    slug: string | null;
+    slug: string;
     publishedAt: string | null;
     image: {
       asset?: SanityImageAssetReference;
@@ -3490,17 +3953,16 @@ export type QueryCollegeNewsResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
       _type: "author";
@@ -3509,7 +3971,6 @@ export type QueryCollegeNewsResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -3547,7 +4008,22 @@ export type QueryCollegeNewsResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
     divisionLabel: string | null;
     divisionSlug: string | null;
@@ -3561,13 +4037,13 @@ export type QueryCollegeNewsResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryCollegeNewsOldest
-// Query: {    "posts": *[  _type == "post" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)] | order(publishedAt asc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    division->shortName,    division->name  ),  "divisionSlug": division->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || $storyType in tags[]->name)])  }
+// Query: {    "posts": *[  _type == "post" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType) && (!defined($afterAt) || publishedAt > $afterAt || (publishedAt == $afterAt && _id > $afterId))] | order(publishedAt asc, _id asc)[$from...$to]{        _id,  title,  excerpt,  "slug": slug.current,  publishedAt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  },  "divisionLabel": coalesce(    sportSubgrouping->shortName,    sportSubgrouping->name,    classification->shortName,    classification->name  ),  "divisionSlug": classification->slug.current,  "subgroupingSlug": sportSubgrouping->slug.current,  "tagNames": tags[]->name,  "sportTitle": sport->title,  "sportSlug": sport->slug.current    },    "totalPosts": count(*[  _type == "post" &&  ($search == "" || title match "*" + $search + "*") &&  ($storyType == "" || storyType == $storyType)])  }
 export type QueryCollegeNewsOldestResult = {
   posts: Array<{
     _id: string;
     title: string;
     excerpt: string;
-    slug: string | null;
+    slug: string;
     publishedAt: string | null;
     image: {
       asset?: SanityImageAssetReference;
@@ -3584,17 +4060,16 @@ export type QueryCollegeNewsOldestResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
       _type: "author";
@@ -3603,7 +4078,6 @@ export type QueryCollegeNewsOldestResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -3641,7 +4115,22 @@ export type QueryCollegeNewsOldestResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
     divisionLabel: string | null;
     divisionSlug: string | null;
@@ -3675,14 +4164,7 @@ export type ConferenceInfoBySlugQueryResult = {
     _type: "image";
   };
   primaryClassification: ClassificationReference;
-  sportSubdivisions?: Array<{
-    sport: SportReference;
-    subdivision: SportSubgroupingReference;
-    _type: "sportSubdivisionAssignment";
-    _key: string;
-  }>;
-  division: DivisionReference;
-  sports?: Array<
+  sports: Array<
     {
       _key: string;
     } & SportReference
@@ -3697,70 +4179,42 @@ export type ConferenceInfoBySlugQueryResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: globalNavigationQuery
-// Query: *[_type == "sport" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc) {    _id,    "name": title,    "slug": slug.current,    "groupings": select(      slug.current == "football" => [        // FBS Subgrouping        *[_type == "sportSubgrouping" && shortName == "FBS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{          _id,          "name": coalesce(shortName, name),          "slug": slug.current,          "type": "subgrouping",          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {            _id,            name,            "slug": slug.current,            shortName          }        },        // FCS Subgrouping        *[_type == "sportSubgrouping" && shortName == "FCS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{          _id,          "name": coalesce(shortName, name),          "slug": slug.current,          "type": "subgrouping",          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {            _id,            name,            "slug": slug.current,            shortName          }        },        // Division II        *[_type == "division" && title == "Division II" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{          _id,          "name": name,          "slug": slug.current,          "type": "division",          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {            _id,            name,            "slug": slug.current,            shortName          }        },        // Division III        *[_type == "division" && title == "Division III" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{          _id,          "name": name,          "slug": slug.current,          "type": "division",          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {            _id,            name,            "slug": slug.current,            shortName          }        }      ],      true => (        // Generic subgroupings        *[_type == "sportSubgrouping" && ^._id in applicableSports[]._ref] | order(name asc) {          _id,          "name": coalesce(shortName, name),          "slug": slug.current,          "type": "subgrouping",          "conferences": *[_type == "conference" && count(sportSubdivisionAffiliations[subgrouping._ref == ^.^._id && sport._ref == ^.^.^._id]) > 0 && count(*[_type == "post" && references(^._id) && sport._ref == ^.^.^._id]) > 0] | order(name asc) {            _id,            name,            shortName,            "slug": slug.current          }        } +        // Generic divisions (excluding specific football and basketball divisions)        *[_type == "division"          && !(title == "FBS" || title == "FCS")          && !(            (title == "Division I")            && (              ^.slug.current == "mens-basketball" || ^.slug.current == "womens-basketball"            )          )        ] | order(name asc) {          _id,          "name": title,          "slug": slug.current,          "type": "division",          "conferences": *[_type == "conference" && division._ref == ^.^._id && count(*[_type == "post" && references(^._id) && sport->slug.current == ^.^.slug.current]) > 0] | order(name asc) {            _id,            name,            shortName,            "slug": slug.current          }        }      )[defined(conferences) && count(conferences) > 0]    )  }
+// Query: *[_type == "sport"]{    _id,    title,    "slug": slug.current,    "conferenceIds": array::unique(*[_type == "post" && sport._ref == ^._id && defined(publishedAt)].conferences[]._ref)  }[count(conferenceIds) > 0] | order(title asc) {    _id,    "name": title,    slug,    "groupings": (      *[_type == "sportSubgrouping" && ^._id in applicableSports[]._ref] | order(name asc) {        _id,        "name": coalesce(shortName, name),        "slug": slug.current,        "type": "subgrouping",        "conferences": *[          _type == "conference" &&          _id in ^.^.conferenceIds &&          count(sportSubdivisionAffiliations[subgrouping._ref == ^.^._id && sport._ref == ^.^.^._id]) > 0        ] | order(name asc) { _id, name, shortName, "slug": slug.current }      } +      *[        _type == "classification" &&        count(*[_type == "sportSubgrouping" && parentClassification._ref == ^._id && ^.^._id in applicableSports[]._ref]) == 0      ] | order(slug.current asc) {        _id,        "name": coalesce(shortName, name),        "slug": slug.current,        "type": "division",        "conferences": *[          _type == "conference" &&          _id in ^.^.conferenceIds &&          // Transitional: also match the retired division field until          // editorial-01 has run (see segmentIdsBySlug).          (primaryClassification._ref == ^._id || division->slug.current == ^.slug.current)        ] | order(name asc) { _id, name, shortName, "slug": slug.current }      }    )[count(conferences) > 0]  }
 export type GlobalNavigationQueryResult = Array<{
   _id: string;
   name: string;
   slug: string;
-  groupings:
-    | Array<
-        | {
-            _id: string;
-            name: string;
-            slug: string;
-            type: "division";
-            conferences: Array<{
-              _id: string;
-              name: string;
-              shortName: string;
-              slug: string;
-            }>;
-          }
-        | {
-            _id: string;
-            name: string;
-            slug: string | null;
-            type: "subgrouping";
-            conferences: Array<{
-              _id: string;
-              name: string;
-              shortName: string;
-              slug: string;
-            }>;
-          }
-      >
-    | Array<
-        | {
-            _id: string;
-            name: string;
-            slug: string;
-            type: "division";
-            conferences: Array<{
-              _id: string;
-              name: string;
-              slug: string;
-              shortName: string;
-            }>;
-          }
-        | null
-        | {
-            _id: string;
-            name: string;
-            slug: string | null;
-            type: "subgrouping";
-            conferences: Array<{
-              _id: string;
-              name: string;
-              slug: string;
-              shortName: string;
-            }>;
-          }
-      >;
+  groupings: Array<
+    | {
+        _id: string;
+        name: string;
+        slug: string;
+        type: "division";
+        conferences: Array<{
+          _id: string;
+          name: string;
+          shortName: string;
+          slug: string;
+        }>;
+      }
+    | {
+        _id: string;
+        name: string;
+        slug: string;
+        type: "subgrouping";
+        conferences: Array<{
+          _id: string;
+          name: string;
+          shortName: string;
+          slug: string;
+        }>;
+      }
+  >;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: rssFeedQuery
-// Query: *[_type == "post" && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc)[0...50] {      _id,  title,  "slug": slug.current,  publishedAt,  excerpt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    body[]{    ...,      markDefs[]{    ...,    _type == "customLink" => {      ...,        "openInNewTab": customLink.openInNewTab,  "href": select(    customLink.type == "external" => customLink.external,    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,    customLink.href  )    },    _type == "customUrl" => {      ...,      "href":   select(    type == "external" => external,    type == "internal" && internalType == "custom" => internalUrl,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news",    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,    href  )    },    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        reference->_type == "school" => "/college/teams/" + reference->slug.current,        reference->_type == "author" => "/authors/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,            "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)    },  },  "authors": authors[]->name,  "sport": sport->title,  "division": division->title,  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),  "conferences": conferences[]->{ name, shortName },  "tags": tags[]->name,  }
+// Query: *[_type == "post" && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc)[0...50] {      _id,  title,  "slug": slug.current,  publishedAt,  excerpt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    body[]{    ...,      markDefs[]{    ...,    // The current link annotation. An old-format link (only an href) has no    // linkType, so it falls through to its href unchanged.    _type == "link" => {      ...,      "href": select(        linkType == "internal" =>   select(    reference->_type == "post" => "/" + reference->slug.current,    reference->_type == "school" => "/college/teams/" + reference->slug.current,    reference->_type == "author" => "/people/" + reference->slug.current,    reference->_type == "legal" => "/legal/" + reference->slug.current  ),        linkType == "path" => path,        href      ),      "openInNewTab": coalesce(openInNewTab, blank, false)    },    _type == "customLink" => {      ...,        "openInNewTab": customLink.openInNewTab,  "href": select(    customLink.type == "external" => customLink.external,    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,    customLink.href  )    },    _type == "customUrl" => {      ...,      "href":   select(    type == "external" => external,    type == "internal" && internalType == "custom" => internalUrl,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news",    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,    href  )    },    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        reference->_type == "school" => "/college/teams/" + reference->slug.current,        reference->_type == "author" => "/people/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,            "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)    },    _type == 'relatedArticle' => {      ...,      "post": post->{        _id,        title,        excerpt,        "slug": slug.current,          image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }      }    },  },  "authors": authors[]->name,  "sport": sport->title,  "division": classification->name,  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),  "conferences": conferences[]->{ name, shortName },  "tags": tags[]->name,  }
 export type RssFeedQueryResult = Array<{
   _id: string;
   title: string;
@@ -3782,17 +4236,16 @@ export type RssFeedQueryResult = Array<{
       right: number;
       top: number;
     } | null;
-    caption: string;
-    attribution: string;
+    alt: string | "Image-Broken";
+    attribution?: string;
     _type: "image";
     id: string | null;
-    alt: string;
     width: number | null;
     height: number | null;
     preview: string | null;
     dominantColor: string | null;
-    credit: string;
-  } | null;
+    credit: string | null;
+  };
   body: Array<
     | {
         children?: Array<{
@@ -3801,29 +4254,21 @@ export type RssFeedQueryResult = Array<{
           _type: "span";
           _key: string;
         }>;
-        style?: "blockquote" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        style?: "blockquote" | "h2" | "h3" | "h4" | "normal";
         listItem?: "bullet" | "number";
-        markDefs: Array<
-          | {
-              customLink?: CustomUrl;
-              _type: "customLink";
-              _key: string;
-              openInNewTab: boolean | null;
-              href: string | null;
-            }
-          | {
-              reference?: AuthorReference | PostReference | SchoolReference;
-              _type: "internalLink";
-              _key: string;
-              href: string | "#" | null;
-            }
-          | {
-              href?: string;
-              blank?: boolean;
-              _type: "link";
-              _key: string;
-            }
-        > | null;
+        markDefs: Array<{
+          _key: string;
+          _type: "link";
+          linkType?: "external" | "internal" | "path";
+          reference?:
+            | AuthorReference
+            | LegalReference
+            | PostReference
+            | SchoolReference;
+          path?: string;
+          href: string | null;
+          openInNewTab: boolean | false;
+        }> | null;
         level?: number;
         _type: "block";
         _key: string;
@@ -3833,6 +4278,14 @@ export type RssFeedQueryResult = Array<{
         _type: "bracketEmbed";
         editionId: string;
         caption?: string;
+        markDefs: null;
+      }
+    | {
+        kind: "context" | "numbers" | "update";
+        title?: string;
+        text: string;
+        _type: "callout";
+        _key: string;
         markDefs: null;
       }
     | {
@@ -3850,18 +4303,69 @@ export type RssFeedQueryResult = Array<{
           right: number;
           top: number;
         } | null;
-        caption: string;
-        attribution: string;
+        alt: string | "Image-Broken";
+        attribution?: string;
         _type: "image";
         _key: string;
         markDefs: null;
         id: string | null;
-        alt: string;
         width: number | null;
         height: number | null;
         preview: string | null;
         dominantColor: string | null;
-        credit: string;
+        credit: string | null;
+      }
+    | {
+        quote: string;
+        attribution: string;
+        role?: string;
+        _type: "pullQuote";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        post: {
+          _id: string;
+          title: string;
+          excerpt: string;
+          slug: string;
+          image: {
+            asset?: SanityImageAssetReference;
+            media?: unknown;
+            hotspot: {
+              x: number;
+              y: number;
+              height: number;
+              width: number;
+            } | null;
+            crop: {
+              bottom: number;
+              left: number;
+              right: number;
+              top: number;
+            } | null;
+            alt: string | "Image-Broken";
+            attribution?: string;
+            _type: "image";
+            id: string | null;
+            width: number | null;
+            height: number | null;
+            preview: string | null;
+            dominantColor: string | null;
+            credit: string | null;
+          };
+        };
+        label?: string;
+        _type: "relatedArticle";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        url: string;
+        caption: string;
+        _type: "socialEmbed";
+        _key: string;
+        markDefs: null;
       }
     | {
         _key: string;
@@ -3898,7 +4402,7 @@ export type RssFeedQueryResult = Array<{
     | {
         _key: string;
         _type: "twitter";
-        id?: string;
+        id: string;
         markDefs: null;
       }
     | {
@@ -3921,7 +4425,7 @@ export type RssFeedQueryResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: rssFeedBySportQuery
-// Query: *[_type == "post" && defined(slug.current) && defined(publishedAt)][sport->slug.current == $sport]  | order(publishedAt desc)[0...50] {      _id,  title,  "slug": slug.current,  publishedAt,  excerpt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    body[]{    ...,      markDefs[]{    ...,    _type == "customLink" => {      ...,        "openInNewTab": customLink.openInNewTab,  "href": select(    customLink.type == "external" => customLink.external,    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,    customLink.href  )    },    _type == "customUrl" => {      ...,      "href":   select(    type == "external" => external,    type == "internal" && internalType == "custom" => internalUrl,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news",    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,    href  )    },    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        reference->_type == "school" => "/college/teams/" + reference->slug.current,        reference->_type == "author" => "/authors/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,            "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)    },  },  "authors": authors[]->name,  "sport": sport->title,  "division": division->title,  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),  "conferences": conferences[]->{ name, shortName },  "tags": tags[]->name,  }
+// Query: *[_type == "post" && defined(slug.current) && defined(publishedAt)][sport._ref == *[_type == "sport" && slug.current == $sport][0]._id]  | order(publishedAt desc)[0...50] {      _id,  title,  "slug": slug.current,  publishedAt,  excerpt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    body[]{    ...,      markDefs[]{    ...,    // The current link annotation. An old-format link (only an href) has no    // linkType, so it falls through to its href unchanged.    _type == "link" => {      ...,      "href": select(        linkType == "internal" =>   select(    reference->_type == "post" => "/" + reference->slug.current,    reference->_type == "school" => "/college/teams/" + reference->slug.current,    reference->_type == "author" => "/people/" + reference->slug.current,    reference->_type == "legal" => "/legal/" + reference->slug.current  ),        linkType == "path" => path,        href      ),      "openInNewTab": coalesce(openInNewTab, blank, false)    },    _type == "customLink" => {      ...,        "openInNewTab": customLink.openInNewTab,  "href": select(    customLink.type == "external" => customLink.external,    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,    customLink.href  )    },    _type == "customUrl" => {      ...,      "href":   select(    type == "external" => external,    type == "internal" && internalType == "custom" => internalUrl,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news",    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,    href  )    },    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        reference->_type == "school" => "/college/teams/" + reference->slug.current,        reference->_type == "author" => "/people/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,            "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)    },    _type == 'relatedArticle' => {      ...,      "post": post->{        _id,        title,        excerpt,        "slug": slug.current,          image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }      }    },  },  "authors": authors[]->name,  "sport": sport->title,  "division": classification->name,  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),  "conferences": conferences[]->{ name, shortName },  "tags": tags[]->name,  }
 export type RssFeedBySportQueryResult = Array<{
   _id: string;
   title: string;
@@ -3943,17 +4447,16 @@ export type RssFeedBySportQueryResult = Array<{
       right: number;
       top: number;
     } | null;
-    caption: string;
-    attribution: string;
+    alt: string | "Image-Broken";
+    attribution?: string;
     _type: "image";
     id: string | null;
-    alt: string;
     width: number | null;
     height: number | null;
     preview: string | null;
     dominantColor: string | null;
-    credit: string;
-  } | null;
+    credit: string | null;
+  };
   body: Array<
     | {
         children?: Array<{
@@ -3962,29 +4465,21 @@ export type RssFeedBySportQueryResult = Array<{
           _type: "span";
           _key: string;
         }>;
-        style?: "blockquote" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        style?: "blockquote" | "h2" | "h3" | "h4" | "normal";
         listItem?: "bullet" | "number";
-        markDefs: Array<
-          | {
-              customLink?: CustomUrl;
-              _type: "customLink";
-              _key: string;
-              openInNewTab: boolean | null;
-              href: string | null;
-            }
-          | {
-              reference?: AuthorReference | PostReference | SchoolReference;
-              _type: "internalLink";
-              _key: string;
-              href: string | "#" | null;
-            }
-          | {
-              href?: string;
-              blank?: boolean;
-              _type: "link";
-              _key: string;
-            }
-        > | null;
+        markDefs: Array<{
+          _key: string;
+          _type: "link";
+          linkType?: "external" | "internal" | "path";
+          reference?:
+            | AuthorReference
+            | LegalReference
+            | PostReference
+            | SchoolReference;
+          path?: string;
+          href: string | null;
+          openInNewTab: boolean | false;
+        }> | null;
         level?: number;
         _type: "block";
         _key: string;
@@ -3994,6 +4489,14 @@ export type RssFeedBySportQueryResult = Array<{
         _type: "bracketEmbed";
         editionId: string;
         caption?: string;
+        markDefs: null;
+      }
+    | {
+        kind: "context" | "numbers" | "update";
+        title?: string;
+        text: string;
+        _type: "callout";
+        _key: string;
         markDefs: null;
       }
     | {
@@ -4011,18 +4514,69 @@ export type RssFeedBySportQueryResult = Array<{
           right: number;
           top: number;
         } | null;
-        caption: string;
-        attribution: string;
+        alt: string | "Image-Broken";
+        attribution?: string;
         _type: "image";
         _key: string;
         markDefs: null;
         id: string | null;
-        alt: string;
         width: number | null;
         height: number | null;
         preview: string | null;
         dominantColor: string | null;
-        credit: string;
+        credit: string | null;
+      }
+    | {
+        quote: string;
+        attribution: string;
+        role?: string;
+        _type: "pullQuote";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        post: {
+          _id: string;
+          title: string;
+          excerpt: string;
+          slug: string;
+          image: {
+            asset?: SanityImageAssetReference;
+            media?: unknown;
+            hotspot: {
+              x: number;
+              y: number;
+              height: number;
+              width: number;
+            } | null;
+            crop: {
+              bottom: number;
+              left: number;
+              right: number;
+              top: number;
+            } | null;
+            alt: string | "Image-Broken";
+            attribution?: string;
+            _type: "image";
+            id: string | null;
+            width: number | null;
+            height: number | null;
+            preview: string | null;
+            dominantColor: string | null;
+            credit: string | null;
+          };
+        };
+        label?: string;
+        _type: "relatedArticle";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        url: string;
+        caption: string;
+        _type: "socialEmbed";
+        _key: string;
+        markDefs: null;
       }
     | {
         _key: string;
@@ -4059,7 +4613,7 @@ export type RssFeedBySportQueryResult = Array<{
     | {
         _key: string;
         _type: "twitter";
-        id?: string;
+        id: string;
         markDefs: null;
       }
     | {
@@ -4082,7 +4636,7 @@ export type RssFeedBySportQueryResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: rssFeedBySportAndDivisionQuery
-// Query: *[_type == "post" && defined(slug.current) && defined(publishedAt)][    sport->slug.current == $sport &&    (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&    $division != "d1"  ] | order(publishedAt desc)[0...50] {      _id,  title,  "slug": slug.current,  publishedAt,  excerpt,    "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    body[]{    ...,      markDefs[]{    ...,    _type == "customLink" => {      ...,        "openInNewTab": customLink.openInNewTab,  "href": select(    customLink.type == "external" => customLink.external,    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,    customLink.href  )    },    _type == "customUrl" => {      ...,      "href":   select(    type == "external" => external,    type == "internal" && internalType == "custom" => internalUrl,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news",    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,    href  )    },    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        reference->_type == "school" => "/college/teams/" + reference->slug.current,        reference->_type == "author" => "/authors/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,            "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)    },  },  "authors": authors[]->name,  "sport": sport->title,  "division": division->title,  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),  "conferences": conferences[]->{ name, shortName },  "tags": tags[]->name,  }
+// Query: *[_type == "post" && defined(slug.current) && defined(publishedAt)][    sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&    (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&    $division != "d1"  ] | order(publishedAt desc)[0...50] {      _id,  title,  "slug": slug.current,  publishedAt,  excerpt,    image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    body[]{    ...,      markDefs[]{    ...,    // The current link annotation. An old-format link (only an href) has no    // linkType, so it falls through to its href unchanged.    _type == "link" => {      ...,      "href": select(        linkType == "internal" =>   select(    reference->_type == "post" => "/" + reference->slug.current,    reference->_type == "school" => "/college/teams/" + reference->slug.current,    reference->_type == "author" => "/people/" + reference->slug.current,    reference->_type == "legal" => "/legal/" + reference->slug.current  ),        linkType == "path" => path,        href      ),      "openInNewTab": coalesce(openInNewTab, blank, false)    },    _type == "customLink" => {      ...,        "openInNewTab": customLink.openInNewTab,  "href": select(    customLink.type == "external" => customLink.external,    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,    customLink.href  )    },    _type == "customUrl" => {      ...,      "href":   select(    type == "external" => external,    type == "internal" && internalType == "custom" => internalUrl,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news",    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,    href  )    },    _type == "internalLink" => {      ...,      "href": select(        reference->_type == "post" => "/" + reference->slug.current,        reference->_type == "school" => "/college/teams/" + reference->slug.current,        reference->_type == "author" => "/people/" + reference->slug.current,        "#"      )    }  },    _type == 'image' => {      ...,            "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)    },    _type == 'relatedArticle' => {      ...,      "post": post->{        _id,        title,        excerpt,        "slug": slug.current,          image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }      }    },  },  "authors": authors[]->name,  "sport": sport->title,  "division": classification->name,  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),  "conferences": conferences[]->{ name, shortName },  "tags": tags[]->name,  }
 export type RssFeedBySportAndDivisionQueryResult = Array<{
   _id: string;
   title: string;
@@ -4104,17 +4658,16 @@ export type RssFeedBySportAndDivisionQueryResult = Array<{
       right: number;
       top: number;
     } | null;
-    caption: string;
-    attribution: string;
+    alt: string | "Image-Broken";
+    attribution?: string;
     _type: "image";
     id: string | null;
-    alt: string;
     width: number | null;
     height: number | null;
     preview: string | null;
     dominantColor: string | null;
-    credit: string;
-  } | null;
+    credit: string | null;
+  };
   body: Array<
     | {
         children?: Array<{
@@ -4123,29 +4676,21 @@ export type RssFeedBySportAndDivisionQueryResult = Array<{
           _type: "span";
           _key: string;
         }>;
-        style?: "blockquote" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        style?: "blockquote" | "h2" | "h3" | "h4" | "normal";
         listItem?: "bullet" | "number";
-        markDefs: Array<
-          | {
-              customLink?: CustomUrl;
-              _type: "customLink";
-              _key: string;
-              openInNewTab: boolean | null;
-              href: string | null;
-            }
-          | {
-              reference?: AuthorReference | PostReference | SchoolReference;
-              _type: "internalLink";
-              _key: string;
-              href: string | "#" | null;
-            }
-          | {
-              href?: string;
-              blank?: boolean;
-              _type: "link";
-              _key: string;
-            }
-        > | null;
+        markDefs: Array<{
+          _key: string;
+          _type: "link";
+          linkType?: "external" | "internal" | "path";
+          reference?:
+            | AuthorReference
+            | LegalReference
+            | PostReference
+            | SchoolReference;
+          path?: string;
+          href: string | null;
+          openInNewTab: boolean | false;
+        }> | null;
         level?: number;
         _type: "block";
         _key: string;
@@ -4155,6 +4700,14 @@ export type RssFeedBySportAndDivisionQueryResult = Array<{
         _type: "bracketEmbed";
         editionId: string;
         caption?: string;
+        markDefs: null;
+      }
+    | {
+        kind: "context" | "numbers" | "update";
+        title?: string;
+        text: string;
+        _type: "callout";
+        _key: string;
         markDefs: null;
       }
     | {
@@ -4172,18 +4725,69 @@ export type RssFeedBySportAndDivisionQueryResult = Array<{
           right: number;
           top: number;
         } | null;
-        caption: string;
-        attribution: string;
+        alt: string | "Image-Broken";
+        attribution?: string;
         _type: "image";
         _key: string;
         markDefs: null;
         id: string | null;
-        alt: string;
         width: number | null;
         height: number | null;
         preview: string | null;
         dominantColor: string | null;
-        credit: string;
+        credit: string | null;
+      }
+    | {
+        quote: string;
+        attribution: string;
+        role?: string;
+        _type: "pullQuote";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        post: {
+          _id: string;
+          title: string;
+          excerpt: string;
+          slug: string;
+          image: {
+            asset?: SanityImageAssetReference;
+            media?: unknown;
+            hotspot: {
+              x: number;
+              y: number;
+              height: number;
+              width: number;
+            } | null;
+            crop: {
+              bottom: number;
+              left: number;
+              right: number;
+              top: number;
+            } | null;
+            alt: string | "Image-Broken";
+            attribution?: string;
+            _type: "image";
+            id: string | null;
+            width: number | null;
+            height: number | null;
+            preview: string | null;
+            dominantColor: string | null;
+            credit: string | null;
+          };
+        };
+        label?: string;
+        _type: "relatedArticle";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        url: string;
+        caption: string;
+        _type: "socialEmbed";
+        _key: string;
+        markDefs: null;
       }
     | {
         _key: string;
@@ -4220,7 +4824,7 @@ export type RssFeedBySportAndDivisionQueryResult = Array<{
     | {
         _key: string;
         _type: "twitter";
-        id?: string;
+        id: string;
         markDefs: null;
       }
     | {
@@ -4243,7 +4847,7 @@ export type RssFeedBySportAndDivisionQueryResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsByIdQuery
-// Query: *[_type == "school" && _id in $ids[].id]{    _id,    "_order": $ids[id == ^._id][0].rank,    name,    shortName,    abbreviation,      image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },  }| order(_order)
+// Query: *[_type == "school" && _id in $ids[].id]{    _id,    "_order": $ids[id == ^._id][0].rank,    name,    shortName,    abbreviation,      image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },  }| order(_order)
 export type SchoolsByIdQueryResult = Array<{
   _id: string;
   _order: unknown | null;
@@ -4287,45 +4891,21 @@ export type SportInfoQueryResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: divisionsQuery
-// Query: *[_type == "division"]{    _id,    _createdAt,    _updatedAt,    name,    title,    heading,    longName,    "slug": slug.current,    description,      logo{    ...,        "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  }  }
+// Query: *[_type == "classification"]{    _id,    _createdAt,    _updatedAt,    "name": shortName,    "title": name,    "longName": name,    "slug": slug.current,    description  }
 export type DivisionsQueryResult = Array<{
   _id: string;
   _createdAt: string;
   _updatedAt: string;
   name: string;
   title: string;
-  heading: string;
   longName: string;
   slug: string;
   description: string | null;
-  logo: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot: {
-      x: number;
-      y: number;
-      height: number;
-      width: number;
-    } | null;
-    crop: {
-      bottom: number;
-      left: number;
-      right: number;
-      top: number;
-    } | null;
-    alt: string | "Image-Broken";
-    _type: "image";
-    id: string | null;
-    width: number | null;
-    height: number | null;
-    preview: string | null;
-    dominantColor: string | null;
-  } | null;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: conferencesQuery
-// Query: *[_type == "conference"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    abbreviation,    "slug": slug.current,    "divisionId": division->_id,      logo{    ...,        "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },    "sports": sports[]->_id  }
+// Query: *[_type == "conference"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    abbreviation,    "slug": slug.current,    "divisionId": primaryClassification->_id,      logo{    ...,        "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background  },    "sports": sports[]->_id  }
 export type ConferencesQueryResult = Array<{
   _id: string;
   _createdAt: string;
@@ -4358,12 +4938,12 @@ export type ConferencesQueryResult = Array<{
     preview: string | null;
     dominantColor: string | null;
   } | null;
-  sports: Array<string> | null;
+  sports: Array<string>;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsQuery
-// Query: *[_type == "school"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    abbreviation,    nickname,    "slug": slug.current,    top25VotingEligible,      image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },    conferenceAffiliations[] {      "conferenceId": conference->_id,      "sportId": sport->_id,    }  }
+// Query: *[_type == "school"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    abbreviation,    nickname,    "slug": slug.current,    top25VotingEligible,      image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },    conferenceAffiliations[] {      "conferenceId": conference->_id,      "sportId": sport->_id,    }  }
 export type SchoolsQueryResult = Array<{
   _id: string;
   _createdAt: string;
@@ -4404,21 +4984,21 @@ export type SchoolsQueryResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: subdivisionsQuery
-// Query: *[_type == "sportSubgrouping"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    "slug": slug.current,    "parentDivisionId": parentDivision->_id,    "applicableSports": applicableSports[]->_id  }
+// Query: *[_type == "sportSubgrouping"]{    _id,    _createdAt,    _updatedAt,    name,    shortName,    "slug": slug.current,    "parentDivisionId": parentClassification->_id,    "applicableSports": applicableSports[]->_id  }
 export type SubdivisionsQueryResult = Array<{
   _id: string;
   _createdAt: string;
   _updatedAt: string;
   name: string;
-  shortName: string | null;
-  slug: string | null;
+  shortName: string;
+  slug: string;
   parentDivisionId: string;
   applicableSports: Array<string>;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsByIdOrderedByPoints
-// Query: *[_type == "school" && _id in $ids[].id]{  _id,  "_points": $ids[id == ^._id][0].totalPoints,  name,  shortName,  abbreviation,    image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },} | order(_points desc)
+// Query: *[_type == "school" && _id in $ids[].id]{  _id,  "_points": $ids[id == ^._id][0].totalPoints,  name,  shortName,  abbreviation,    image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },} | order(_points desc)
 export type SchoolsByIdOrderedByPointsResult = Array<{
   _id: string;
   _points: unknown | null;
@@ -4451,7 +5031,7 @@ export type SchoolsByIdOrderedByPointsResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolWithVoteOrder
-// Query: *[_type == "school" && _id in $ids[].teamId]{  _id,  "_order": $ids[teamId == ^._id][0].rank,  name,  shortName,  abbreviation,    image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },} | order(_order)
+// Query: *[_type == "school" && _id in $ids[].teamId]{  _id,  "_order": $ids[teamId == ^._id][0].rank,  name,  shortName,  abbreviation,    image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },} | order(_order)
 export type SchoolWithVoteOrderResult = Array<{
   _id: string;
   _order: unknown | null;
@@ -4484,7 +5064,7 @@ export type SchoolWithVoteOrderResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsByIdsQuery
-// Query: *[_type == "school" && _id in $ids]{  _id,  name,  shortName,  abbreviation,    image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },}
+// Query: *[_type == "school" && _id in $ids]{  _id,  name,  shortName,  abbreviation,    image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },}
 export type SchoolsByIdsQueryResult = Array<{
   _id: string;
   name: string;
@@ -4521,14 +5101,14 @@ export type PostsSearchQueryResult = Array<{
   _id: string;
   title: string;
   _score: number;
-  slug: string | null;
+  slug: string;
   publishedAt: string | null;
   excerpt: string;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolsForVotesQuery
-// Query: *[_type == "school" && _id in $schoolIds]{    _id,    name,    shortName,    abbreviation,    nickname,      image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  }  }
+// Query: *[_type == "school" && _id in $schoolIds]{    _id,    name,    shortName,    abbreviation,    nickname,      image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  }  }
 export type SchoolsForVotesQueryResult = Array<{
   _id: string;
   name: string;
@@ -4561,7 +5141,7 @@ export type SchoolsForVotesQueryResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: postsForSitemapQuery
-// Query: *[_type == "post" && defined(publishedAt) && defined(slug.current)][$start...$end]{    _id,    "slug": slug.current,    publishedAt,    // Editorial update time, not _updatedAt: bulk edits and typo fixes bump    // _updatedAt, and Google stops trusting lastmod that moves without cause.    "lastModified": coalesce(modifiedAt, publishedAt)  }
+// Query: *[_type == "post" && defined(publishedAt) && defined(slug.current)] | order(publishedAt asc, _id asc)[$start...$end]{    _id,    "slug": slug.current,    publishedAt,    // Editorial update time, not _updatedAt: bulk edits and typo fixes bump    // _updatedAt, and Google stops trusting lastmod that moves without cause.    "lastModified": coalesce(modifiedAt, publishedAt)  }
 export type PostsForSitemapQueryResult = Array<{
   _id: string;
   slug: string;
@@ -4576,9 +5156,9 @@ export type CountOfPostsQueryResult = number;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryForCollegeSitemap
-// Query: *[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){  "sport": sport->slug.current,  "division": division->slug.current,  "sportSubgrouping": sportSubgrouping->slug.current,  "conferences": conferences[]->{      "slug": slug.current,      "division": division->slug.current,      "subgroupings": sportSubdivisionAffiliations[]{        "sport": sport->slug.current,        "subgrouping": subgrouping->slug.current      }    },  _updatedAt}
+// Query: *[_type == "post" && defined(sport._ref) && defined(publishedAt)] | order(publishedAt desc){  "sport": sport->slug.current,  "division": classification->slug.current,  "sportSubgrouping": sportSubgrouping->slug.current,  "conferences": conferences[]->{      "slug": slug.current,      "division": primaryClassification->slug.current,      "subgroupings": sportSubdivisionAffiliations[]{        "sport": sport->slug.current,        "subgrouping": subgrouping->slug.current      }    },  _updatedAt}
 export type QueryForCollegeSitemapResult = Array<{
-  sport: string | null;
+  sport: string;
   division: string | null;
   sportSubgrouping: string | null;
   conferences: Array<{
@@ -4586,7 +5166,7 @@ export type QueryForCollegeSitemapResult = Array<{
     division: string;
     subgroupings: Array<{
       sport: string;
-      subgrouping: string | null;
+      subgrouping: string;
     }> | null;
   }> | null;
   _updatedAt: string;
@@ -4594,23 +5174,23 @@ export type QueryForCollegeSitemapResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryDivisionOrSubgroupingDisplayName
-// Query: *[    (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||    (_type == "division" && slug.current == $slugOrShortName)  ][0]{    _type,    "displayName": select(      _type == "sportSubgrouping" => shortName,      _type == "division" => title    ),    "archiveKicker": select(      _type == "sportSubgrouping" => name,      _type == "division" => title    )  }
+// Query: *[    (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||    (_type == "classification" && slug.current == $slugOrShortName)  ][0]{    _type,    "displayName": select(      _type == "sportSubgrouping" => shortName,      _type == "classification" => name    ),    "archiveKicker": select(      _type == "sportSubgrouping" => name,      _type == "classification" => name    )  }
 export type QueryDivisionOrSubgroupingDisplayNameResult =
   | {
-      _type: "division";
+      _type: "classification";
       displayName: string;
       archiveKicker: string;
     }
   | {
       _type: "sportSubgrouping";
-      displayName: string | null;
+      displayName: string;
       archiveKicker: string;
     }
   | null;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: schoolBySlugQuery
-// Query: *[    _type == "school" &&    slug.current == $slug  ][0]{    _id,    name,    shortName,    abbreviation,    nickname,    "slug": slug.current,    overview,    websiteUrl,    socialLinks,    seoTitle,    seoDescription,    seoImage,    ogTitle,    ogDescription,      image{    ...,      "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },    conferenceAffiliations[]{      _key,      sport->{        _id,        title,        "slug": slug.current      },      conference->{        _id,        name,        shortName,        "slug": slug.current,        primaryClassification->{ "slug": slug.current, name },        sportSubdivisions[]{          sport->{ "slug": slug.current },          subdivision->{ shortName, name, "slug": slug.current }        },        sportSubdivisionAffiliations[]{          sport->{ "slug": slug.current },          subgrouping->{ shortName, name, "slug": slug.current }        }      }    }  }
+// Query: *[    _type == "school" &&    slug.current == $slug  ][0]{    _id,    name,    shortName,    abbreviation,    nickname,    "slug": slug.current,    overview,    websiteUrl,    socialLinks,    seoTitle,    seoDescription,    seoImage,    ogTitle,    ogDescription,      image{    ...,      "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  }  },    conferenceAffiliations[]{      _key,      subgroupingOverride->{ shortName, name, "slug": slug.current },      sport->{        _id,        title,        "slug": slug.current      },      conference->{        _id,        name,        shortName,        "slug": slug.current,        primaryClassification->{ "slug": slug.current, name },        sportSubdivisionAffiliations[]{          sport->{ "slug": slug.current },          subgrouping->{ shortName, name, "slug": slug.current }        }      }    }  }
 export type SchoolBySlugQueryResult = {
   _id: string;
   name: string;
@@ -4631,7 +5211,13 @@ export type SchoolBySlugQueryResult = {
   } | null;
   seoTitle: string | null;
   seoDescription: string | null;
-  seoImage: SeoImage | null;
+  seoImage: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
   ogTitle: string | null;
   ogDescription: string | null;
   image: {
@@ -4658,6 +5244,11 @@ export type SchoolBySlugQueryResult = {
   };
   conferenceAffiliations: Array<{
     _key: string;
+    subgroupingOverride: {
+      shortName: string;
+      name: string;
+      slug: string;
+    } | null;
     sport: {
       _id: string;
       title: string;
@@ -4672,24 +5263,14 @@ export type SchoolBySlugQueryResult = {
         slug: string;
         name: string;
       };
-      sportSubdivisions: Array<{
-        sport: {
-          slug: string;
-        };
-        subdivision: {
-          shortName: string | null;
-          name: string;
-          slug: string | null;
-        };
-      }> | null;
       sportSubdivisionAffiliations: Array<{
         sport: {
           slug: string;
         };
         subgrouping: {
-          shortName: string | null;
+          shortName: string;
           name: string;
-          slug: string | null;
+          slug: string;
         };
       }> | null;
     };
@@ -4698,7 +5279,7 @@ export type SchoolBySlugQueryResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: postsBySchoolQuery
-// Query: {    "posts": *[  _type == "post" &&  defined(publishedAt) &&  $schoolId in teams[]._ref] | order(publishedAt desc)[$from...$to]{      _id,      title,      excerpt,      storyType,      publishedAt,      "slug": slug.current,        sport->{    _id,    "slug": slug.current,    title  },        "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },        authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }    },    "totalPosts": count(*[  _type == "post" &&  defined(publishedAt) &&  $schoolId in teams[]._ref])  }
+// Query: {    "posts": *[  _type == "post" &&  defined(publishedAt) &&  $schoolId in teams[]._ref] | order(publishedAt desc)[$from...$to]{      _id,      title,      excerpt,      storyType,      publishedAt,      "slug": slug.current,        sport->{    _id,    "slug": slug.current,    title  },        image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },        authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }    },    "totalPosts": count(*[  _type == "post" &&  defined(publishedAt) &&  $schoolId in teams[]._ref])  }
 export type PostsBySchoolQueryResult = {
   posts: Array<{
     _id: string;
@@ -4706,13 +5287,18 @@ export type PostsBySchoolQueryResult = {
     excerpt: string;
     storyType:
       | "analysis"
+      | "explainer"
+      | "feature"
+      | "game-preview"
       | "game-recap"
+      | "interview"
       | "news"
+      | "notebook"
       | "opinion"
-      | "recruiting"
-      | "transfer";
+      | "predictions"
+      | "rankings";
     publishedAt: string | null;
-    slug: string | null;
+    slug: string;
     sport: {
       _id: string;
       slug: string;
@@ -4733,17 +5319,16 @@ export type PostsBySchoolQueryResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
       _type: "author";
@@ -4752,7 +5337,6 @@ export type PostsBySchoolQueryResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -4790,7 +5374,22 @@ export type PostsBySchoolQueryResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
   }>;
   totalPosts: number;
@@ -4798,13 +5397,13 @@ export type PostsBySchoolQueryResult = {
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: postsBySchoolAndStoryTypeQuery
-// Query: *[      _type == "post" &&  defined(publishedAt) &&  $schoolId in teams[]._ref &&    storyType == $storyType  ] | order(publishedAt desc)[0...6]{    _id,    title,    excerpt,    publishedAt,    "slug": slug.current,      sport->{    _id,    "slug": slug.current,    title  },      "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }  }
+// Query: *[      _type == "post" &&  defined(publishedAt) &&  $schoolId in teams[]._ref &&    storyType == $storyType  ] | order(publishedAt desc)[0...6]{    _id,    title,    excerpt,    publishedAt,    "slug": slug.current,      sport->{    _id,    "slug": slug.current,    title  },      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },      authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }  }
 export type PostsBySchoolAndStoryTypeQueryResult = Array<{
   _id: string;
   title: string;
   excerpt: string;
   publishedAt: string | null;
-  slug: string | null;
+  slug: string;
   sport: {
     _id: string;
     slug: string;
@@ -4825,17 +5424,16 @@ export type PostsBySchoolAndStoryTypeQueryResult = Array<{
       right: number;
       top: number;
     } | null;
-    caption: string;
-    attribution: string;
+    alt: string | "Image-Broken";
+    attribution?: string;
     _type: "image";
     id: string | null;
-    alt: string;
     width: number | null;
     height: number | null;
     preview: string | null;
     dominantColor: string | null;
-    credit: string;
-  } | null;
+    credit: string | null;
+  };
   authors: Array<{
     _id: string;
     _type: "author";
@@ -4844,7 +5442,6 @@ export type PostsBySchoolAndStoryTypeQueryResult = Array<{
     _rev: string;
     name: string;
     slug: string;
-    archived?: boolean;
     roles: Array<
       | "Contributor"
       | "Correspondent"
@@ -4882,13 +5479,28 @@ export type PostsBySchoolAndStoryTypeQueryResult = Array<{
       credit: null;
     };
     biography: string;
-    socialLinks?: SocialLinks1;
+    socialLinks?: {
+      twitter?: string;
+      facebook?: string;
+      youtube?: string;
+      instagram?: string;
+      linkedin?: string;
+      bluesky?: string;
+      threads?: string;
+    };
+    beats?: Array<
+      {
+        _key: string;
+      } & SportReference
+    >;
+    credentials?: Array<string>;
+    archived?: boolean;
   }>;
 }>;
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: postsByStoryTypeQuery
-// Query: {    "posts": *[      _type == "post" &&      defined(publishedAt) &&      storyType == $storyType &&      ($sport == "" || sport->slug.current == $sport)    ] | order(publishedAt desc)[$from...$to]{      _id,      title,      excerpt,      storyType,      publishedAt,      "slug": slug.current,        "image": coalesce(image, mainImage){    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },        authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }    },    "totalPosts": count(*[      _type == "post" &&      defined(publishedAt) &&      storyType == $storyType &&      ($sport == "" || sport->slug.current == $sport)    ])  }
+// Query: {    "posts": *[      _type == "post" &&      defined(publishedAt) &&      storyType == $storyType &&      ($sport == "" || sport->slug.current == $sport)    ] | order(publishedAt desc)[$from...$to]{      _id,      title,      excerpt,      storyType,      publishedAt,      "slug": slug.current,        image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },        authors[]->{    ...,    "slug": slug.current,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  }  }    },    "totalPosts": count(*[      _type == "post" &&      defined(publishedAt) &&      storyType == $storyType &&      ($sport == "" || sport->slug.current == $sport)    ])  }
 export type PostsByStoryTypeQueryResult = {
   posts: Array<{
     _id: string;
@@ -4896,13 +5508,18 @@ export type PostsByStoryTypeQueryResult = {
     excerpt: string;
     storyType:
       | "analysis"
+      | "explainer"
+      | "feature"
+      | "game-preview"
       | "game-recap"
+      | "interview"
       | "news"
+      | "notebook"
       | "opinion"
-      | "recruiting"
-      | "transfer";
+      | "predictions"
+      | "rankings";
     publishedAt: string | null;
-    slug: string | null;
+    slug: string;
     image: {
       asset?: SanityImageAssetReference;
       media?: unknown;
@@ -4918,17 +5535,16 @@ export type PostsByStoryTypeQueryResult = {
         right: number;
         top: number;
       } | null;
-      caption: string;
-      attribution: string;
+      alt: string | "Image-Broken";
+      attribution?: string;
       _type: "image";
       id: string | null;
-      alt: string;
       width: number | null;
       height: number | null;
       preview: string | null;
       dominantColor: string | null;
-      credit: string;
-    } | null;
+      credit: string | null;
+    };
     authors: Array<{
       _id: string;
       _type: "author";
@@ -4937,7 +5553,6 @@ export type PostsByStoryTypeQueryResult = {
       _rev: string;
       name: string;
       slug: string;
-      archived?: boolean;
       roles: Array<
         | "Contributor"
         | "Correspondent"
@@ -4975,7 +5590,22 @@ export type PostsByStoryTypeQueryResult = {
         credit: null;
       };
       biography: string;
-      socialLinks?: SocialLinks1;
+      socialLinks?: {
+        twitter?: string;
+        facebook?: string;
+        youtube?: string;
+        instagram?: string;
+        linkedin?: string;
+        bluesky?: string;
+        threads?: string;
+      };
+      beats?: Array<
+        {
+          _key: string;
+        } & SportReference
+      >;
+      credentials?: Array<string>;
+      archived?: boolean;
     }>;
   }>;
   totalPosts: number;
@@ -5000,7 +5630,7 @@ export type SchoolSlugsByIdsQueryResult = Array<{
 
 // Source: ../../packages/sanity/src/queries.ts
 // Variable: queryActiveAdvertisement
-// Query: *[    _type == "advertisement" &&    active == true &&    defined(image.asset) &&    $placement in placements &&    (      $includeScheduled == true ||      (        (!defined(startsAt) || startsAt <= now()) &&        (!defined(endsAt) || endsAt >= now())      )    ) &&    (      !defined(sports) ||      count(sports) == 0 ||      count(sports[@->slug.current in $sportSlugs]) > 0    )  ] | order(priority desc, _updatedAt desc)[0]{    _id,    sponsorName,    "openInNewTab": url.openInNewTab,      "href": select(    url.type == "external" => url.external,    url.type == "internal" && url.internalType == "custom" => url.internalUrl,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news",    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,    url.href  ),    image{      ...,      "id": asset._ref,      "alt": coalesce(alt, asset->altText, ^.sponsorName, "Advertisement"),      "width": asset->metadata.dimensions.width,      "height": asset->metadata.dimensions.height,      hotspot { x, y, height, width },      crop { bottom, left, right, top },      "preview": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background    }  }
+// Query: *[    _type == "advertisement" &&    active == true &&    defined(image.asset) &&    $placement in placements &&    (      $includeScheduled == true ||      (        (!defined(startsAt) || startsAt <= now()) &&        (!defined(endsAt) || endsAt >= now())      )    ) &&    (      !defined(sports) ||      count(sports) == 0 ||      count(sports[@->slug.current in $sportSlugs]) > 0    )  ] | order(priority desc, _updatedAt desc)[0]{    _id,    sponsorName,    "openInNewTab": url.openInNewTab,      "href": select(    url.type == "external" => url.external,    url.type == "internal" && url.internalType == "custom" => url.internalUrl,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news",    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,    url.href  ),    image{      ...,      "id": asset._ref,      "alt": coalesce(alt, asset->altText, ^.sponsorName, "Advertisement"),      "width": asset->metadata.dimensions.width,      "height": asset->metadata.dimensions.height,      hotspot { x, y, height, width },      crop { bottom, left, right, top },      "preview": asset->metadata.lqip,      "dominantColor": asset->metadata.palette.dominant.background    }  }
 export type QueryActiveAdvertisementResult = {
   _id: string;
   sponsorName: string;
@@ -5031,72 +5661,82 @@ export type QueryActiveAdvertisementResult = {
   };
 } | null;
 
+// Source: ../../packages/sanity/src/queries.ts
+// Variable: newsSitemapQuery
+// Query: *[    _type == "post" &&    defined(slug.current) &&    defined(publishedAt) &&    dateTime(publishedAt) > dateTime(now()) - 60 * 60 * 48  ] | order(publishedAt desc)[0...1000]{    _id,    title,    publishedAt,    "slug": slug.current  }
+export type NewsSitemapQueryResult = Array<{
+  _id: string;
+  title: string;
+  publishedAt: string | null;
+  slug: string;
+}>;
+
 // Query TypeMap
 declare global {
   interface SanityQueries {
-    '\n  *[_type == "settings" && _id == "settings"][0]{\n    _id,\n    _type,\n    siteBrand,\n    siteTitle,\n    siteDescription,\n    "logo": logo.asset->url + "?w=512&fm=png&fit=max",\n    "socialLinks": socialLinks,\n    "contactEmail": contactEmail,\n  }\n': QuerySettingsDataResult;
-    '\n  *[_type == "post" && defined(coalesce(image, mainImage))][0]{\n    \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }.image\n': QueryImageTypeResult;
-    '\n  *[_type == "post" && slug.current == $slug][0]{\n    ...,\n    "slug": slug.current,\n    sport->{\n      _id,\n      "slug": slug.current,\n      title\n    },\n    \n  division->{\n    _id,\n    name,\n    "slug": slug.current,\n    \n  logo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n\n  }\n,\n    \n  sportSubgrouping->{\n    ...,\n    "slug": slug.current,\n  }\n,\n    \n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n    \n  logo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    division->{\n      "slug": slug.current,\n    },\n    sportSubdivisionAffiliations[]{\n        _key,\n        sport->{\n          _id, // Need this _id for client-side comparison\n        },\n        subgrouping->{\n          "slug": slug.current,\n          name,\n          shortName\n        }\n      }\n  }\n,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n    \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    _type == "customLink" => {\n      ...,\n      \n  "openInNewTab": customLink.openInNewTab,\n  "href": select(\n    customLink.type == "external" => customLink.external,\n    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,\n    customLink.href\n  )\n\n    },\n    _type == "customUrl" => {\n      ...,\n      "href": \n  select(\n    type == "external" => external,\n    type == "internal" && internalType == "custom" => internalUrl,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news",\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,\n    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,\n    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,\n    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,\n    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,\n    href\n  )\n\n    },\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        reference->_type == "school" => "/college/teams/" + reference->slug.current,\n        reference->_type == "author" => "/authors/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n,\n    _type == \'image\' => {\n      ...,\n      \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n    },\n  }\n,\n    tags[]->{\n      _id,\n      name\n    },\n    teams[]->{\n      _id,\n      name,\n      shortName,\n      nickname,\n      "slug": slug.current,\n      \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n\n    }\n  }\n': QueryPostSlugDataResult;
-    '\n  {\n    "relatedPosts": *[\n      _type == "post"\n      && defined(publishedAt)\n      && defined(slug.current)\n      && _id != $postId\n      && (!defined($publishedAt) || publishedAt < $publishedAt)\n      && (\n        (defined($sportId) && sport._ref == $sportId)\n        || count(conferences[@._ref in $conferenceIds]) > 0\n        || count(tags[@._ref in $tagIds]) > 0\n        || count(teams[@._ref in $teamIds]) > 0\n      )\n    ] | order(publishedAt desc, _id desc)[0...3] {\n      _id,\n      title,\n      publishedAt,\n      \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      "slug": slug.current,\n      "tagNames": tags[]->name,\n      division->{ name },\n      sportSubgrouping->{ shortName, name },\n      \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n    },\n    "upNextInFeed": *[\n      _type == "post"\n      && defined(publishedAt)\n      && defined(slug.current)\n      && _id != $postId\n      && defined($publishedAt)\n      && publishedAt < $publishedAt\n      && (!defined($sportId) || sport._ref == $sportId)\n    ] | order(publishedAt desc)[0] {\n      _id,\n      title,\n      publishedAt,\n      \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      "slug": slug.current,\n      "tagNames": tags[]->name,\n      division->{ name },\n      sportSubgrouping->{ shortName, name }\n    },\n    "moreFromAuthor": *[\n      _type == "post"\n      && defined(publishedAt)\n      && _id != $postId\n      && (!defined($publishedAt) || publishedAt < $publishedAt)\n      && count(authors[@._ref in $authorIds]) > 0\n    ] | order(publishedAt desc)[0...3]{\n      _id,\n      title,\n      "slug": slug.current\n    }\n  }\n': QueryArticleListsResult;
+    '\n  *[_type == "settings" && _id == "settings"][0]{\n    _id,\n    _type,\n    siteBrand,\n    siteTitle,\n    siteDescription,\n    "logo": logo.asset->url + "?w=512&fm=png&fit=max",\n    "socialLinks": socialLinks,\n    "contactEmail": contactEmail,\n    newsroomPolicies,\n  }\n': QuerySettingsDataResult;
+    '\n  *[_type == "post" && defined(image)][0]{\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }.image\n': QueryImageTypeResult;
+    '\n  *[_type == "post" && slug.current == $slug][0]{\n    ...,\n    "slug": slug.current,\n    sport->{\n      _id,\n      "slug": slug.current,\n      title\n    },\n    \n  "division": classification->{\n    _id,\n    "name": coalesce(shortName, name),\n    "fullName": name,\n    "slug": slug.current\n  }\n,\n    \n  sportSubgrouping->{\n    ...,\n    "slug": slug.current,\n  }\n,\n    \n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n    \n  logo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    "division": primaryClassification->{\n      "slug": slug.current,\n    },\n    sportSubdivisionAffiliations[]{\n        _key,\n        sport->{\n          _id, // Need this _id for client-side comparison\n        },\n        subgrouping->{\n          "slug": slug.current,\n          name,\n          shortName\n        }\n      }\n  }\n,\n    authors[]->{\n      ...,\n      "slug": slug.current,\n      \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      // For the author\'s Person structured data.\n      "knowsAbout": beats[]->title\n    },\n    "contributors": contributors[]->{ _id, name, "slug": slug.current, archived },\n    "editedBy": editedBy->{ _id, name, "slug": slug.current },\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    // The current link annotation. An old-format link (only an href) has no\n    // linkType, so it falls through to its href unchanged.\n    _type == "link" => {\n      ...,\n      "href": select(\n        linkType == "internal" => \n  select(\n    reference->_type == "post" => "/" + reference->slug.current,\n    reference->_type == "school" => "/college/teams/" + reference->slug.current,\n    reference->_type == "author" => "/people/" + reference->slug.current,\n    reference->_type == "legal" => "/legal/" + reference->slug.current\n  )\n,\n        linkType == "path" => path,\n        href\n      ),\n      "openInNewTab": coalesce(openInNewTab, blank, false)\n    },\n    _type == "customLink" => {\n      ...,\n      \n  "openInNewTab": customLink.openInNewTab,\n  "href": select(\n    customLink.type == "external" => customLink.external,\n    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,\n    customLink.href\n  )\n\n    },\n    _type == "customUrl" => {\n      ...,\n      "href": \n  select(\n    type == "external" => external,\n    type == "internal" && internalType == "custom" => internalUrl,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news",\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,\n    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,\n    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,\n    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,\n    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,\n    href\n  )\n\n    },\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        reference->_type == "school" => "/college/teams/" + reference->slug.current,\n        reference->_type == "author" => "/people/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n,\n    _type == \'image\' => {\n      ...,\n      \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n    },\n    _type == \'relatedArticle\' => {\n      ...,\n      "post": post->{\n        _id,\n        title,\n        excerpt,\n        "slug": slug.current,\n        \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n      }\n    },\n  }\n,\n    tags[]->{\n      _id,\n      name\n    },\n    teams[]->{\n      _id,\n      name,\n      shortName,\n      nickname,\n      "slug": slug.current,\n      \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n\n    }\n  }\n': QueryPostSlugDataResult;
+    '\n  {\n    "relatedPosts": *[\n      _type == "post"\n      && defined(publishedAt)\n      && defined(slug.current)\n      && _id != $postId\n      && (!defined($publishedAt) || publishedAt < $publishedAt)\n      && (\n        (defined($sportId) && sport._ref == $sportId)\n        || count(conferences[@._ref in $conferenceIds]) > 0\n        || count(tags[@._ref in $tagIds]) > 0\n        || count(teams[@._ref in $teamIds]) > 0\n      )\n    ] | order(publishedAt desc, _id desc)[0...3] {\n      _id,\n      title,\n      publishedAt,\n      \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      "slug": slug.current,\n      "tagNames": tags[]->name,\n      "division": classification->{ "name": coalesce(shortName, name) },\n      sportSubgrouping->{ shortName, name },\n      \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n    },\n    "upNextInFeed": *[\n      _type == "post"\n      && defined(publishedAt)\n      && defined(slug.current)\n      && _id != $postId\n      && defined($publishedAt)\n      && publishedAt < $publishedAt\n      && (!defined($sportId) || sport._ref == $sportId)\n    ] | order(publishedAt desc)[0] {\n      _id,\n      title,\n      publishedAt,\n      \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      "slug": slug.current,\n      "tagNames": tags[]->name,\n      "division": classification->{ "name": coalesce(shortName, name) },\n      sportSubgrouping->{ shortName, name }\n    },\n    "moreFromAuthor": *[\n      _type == "post"\n      && defined(publishedAt)\n      && _id != $postId\n      && (!defined($publishedAt) || publishedAt < $publishedAt)\n      && count(authors[@._ref in $authorIds]) > 0\n    ] | order(publishedAt desc)[0...3]{\n      _id,\n      title,\n      "slug": slug.current\n    }\n  }\n': QueryArticleListsResult;
     '\n  *[_type == "post" && defined(slug.current)]| order(publishedAt desc)[0...$limit]{"slug": slug.current}\n': QueryPostPathsResult;
     '\n  *[\n    _type == "school" &&\n    defined(slug.current) &&\n    count(*[\n  _type == "post" &&\n  defined(publishedAt) &&\n  ^._id in teams[]._ref\n]) >= $minPosts\n  ] | order(_updatedAt desc) [0...100]{"slug": slug.current}\n': QuerySchoolPathsResult;
-    '\n  *[\n    _type == "school" &&\n    defined(slug.current) &&\n    count(*[\n  _type == "post" &&\n  defined(publishedAt) &&\n  ^._id in teams[]._ref\n]) > 0\n  ] | order(coalesce(shortName, name) asc) {\n    \n  _id,\n  name,\n  shortName,\n  nickname,\n  "slug": slug.current,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n\n\n  }\n': QueryTeamDirectorySchoolsResult;
-    '\n  *[\n    _type == "school" &&\n    defined(slug.current) &&\n    _id in $ids\n  ] | order(coalesce(shortName, name) asc) {\n    \n  _id,\n  name,\n  shortName,\n  nickname,\n  "slug": slug.current,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n\n\n  }\n': QueryTeamDirectorySchoolsByIdsResult;
-    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n] | order(publishedAt desc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    division->shortName,\n    division->name\n  ),\n  "divisionSlug": division->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n])\n  }\n': QuerySportsNewsResult;
-    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n] | order(publishedAt asc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    division->shortName,\n    division->name\n  ),\n  "divisionSlug": division->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n])\n  }\n': QuerySportsNewsOldestResult;
-    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&\n  $division != "d1" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n] | order(publishedAt desc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    division->shortName,\n    division->name\n  ),\n  "divisionSlug": division->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&\n  $division != "d1" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n])\n  }\n': QuerySportsAndDivisionNewsResult;
-    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&\n  $division != "d1" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n] | order(publishedAt asc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    division->shortName,\n    division->name\n  ),\n  "divisionSlug": division->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&\n  $division != "d1" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n])\n  }\n': QuerySportsAndDivisionNewsOldestResult;
-    '\n  *[_type == "footer" && _id == "footer"][0]{\n    _id,\n    subtitle,\n    columns[]{\n      _key,\n      title,\n      links[]{\n        _key,\n        name,\n        "openInNewTab": url.openInNewTab,\n        \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n\n      }\n    },\n  }\n': QueryFooterDataResult;
-    '\n  *[_type == "settings" && _id == "settings"][0]{\n    _id,\n    _type,\n    siteBrand,\n    siteTitle,\n    siteDescription,\n    \n  logo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    \n  footerLogo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    \n  footerLogoDarkMode{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",\n    socialLinks{\n      facebook,\n      twitter,\n      youtube,\n      instagram,\n      bluesky,\n      threads\n    }\n  }\n': QueryGlobalSeoSettingsResult;
-    '\n  *[_type == "navbar" && _id == "navbar"][0]{\n    _id,\n    "items": items[]{\n      _key,\n      _type,\n      _type == "navSportMenu" => {\n        label,\n        "sport": sport->{ \n  _id,\n  "name": title,\n  "slug": slug.current,\n  "polls": polls[defined(slug)]{ _key, slug, label }\n },\n        "divisions": divisions[defined(@->slug.current)]->{\n          _id,\n          "name": coalesce(shortName, name, title),\n          "slug": slug.current\n        }\n      },\n      _type == "navRankingsMenu" => {\n        "label": coalesce(label, "Rankings"),\n        "sports": sports[defined(@->slug.current)]->{ \n  _id,\n  "name": title,\n  "slug": slug.current,\n  "polls": polls[defined(slug)]{ _key, slug, label }\n },\n        "links": links[defined(sport._ref) && defined(name)]{\n          _key,\n          name,\n          description,\n          "sportId": sport._ref,\n          "openInNewTab": url.openInNewTab,\n          \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n\n        }\n      },\n      _type == "navbarColumn" => {\n        title,\n        links[]{\n          _key,\n          name,\n          description,\n          "openInNewTab": url.openInNewTab,\n          \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n\n        }\n      },\n      _type == "navbarLink" => {\n        name,\n        "openInNewTab": url.openInNewTab,\n        \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n\n      }\n    }\n  }\n': QueryNavbarDataResult;
-    '\n  *[_type == "post"] | order(publishedAt desc)[0...3]{\n    _id,\n    _type,\n    title,\n    excerpt,\n    "slug": slug.current,\n    \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    publishedAt,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n  }\n': QueryHomePageDataResult;
-    '\n  *[_type == "post"] | order(publishedAt desc)[0...48]{\n    \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    division->shortName,\n    division->name\n  ),\n  "divisionSlug": division->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n  }\n': QueryHomeFeedResult;
-    '\n *[_type == "post"] | order(publishedAt desc)[3..6]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    publishedAt,\n    \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n  }\n': QueryLatestArticlesResult;
+    '\n  *[\n    _type == "school" &&\n    defined(slug.current) &&\n    count(*[\n  _type == "post" &&\n  defined(publishedAt) &&\n  ^._id in teams[]._ref\n]) > 0\n  ] | order(coalesce(shortName, name) asc) {\n    \n  _id,\n  name,\n  shortName,\n  nickname,\n  "slug": slug.current,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n\n\n  }\n': QueryTeamDirectorySchoolsResult;
+    '\n  *[\n    _type == "school" &&\n    defined(slug.current) &&\n    _id in $ids\n  ] | order(coalesce(shortName, name) asc) {\n    \n  _id,\n  name,\n  shortName,\n  nickname,\n  "slug": slug.current,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n\n\n  }\n': QueryTeamDirectorySchoolsByIdsResult;
+    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n && (!defined($afterAt) || publishedAt < $afterAt || (publishedAt == $afterAt && _id < $afterId))] | order(publishedAt desc, _id desc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    classification->shortName,\n    classification->name\n  ),\n  "divisionSlug": classification->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n])\n  }\n': QuerySportsNewsResult;
+    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n && (!defined($afterAt) || publishedAt > $afterAt || (publishedAt == $afterAt && _id > $afterId))] | order(publishedAt asc, _id asc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    classification->shortName,\n    classification->name\n  ),\n  "divisionSlug": classification->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n])\n  }\n': QuerySportsNewsOldestResult;
+    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&\n  $division != "d1" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n && (!defined($afterAt) || publishedAt < $afterAt || (publishedAt == $afterAt && _id < $afterId))] | order(publishedAt desc, _id desc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    classification->shortName,\n    classification->name\n  ),\n  "divisionSlug": classification->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&\n  $division != "d1" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n])\n  }\n': QuerySportsAndDivisionNewsResult;
+    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&\n  $division != "d1" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n && (!defined($afterAt) || publishedAt > $afterAt || (publishedAt == $afterAt && _id > $afterId))] | order(publishedAt asc, _id asc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    classification->shortName,\n    classification->name\n  ),\n  "divisionSlug": classification->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&\n  $division != "d1" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n])\n  }\n': QuerySportsAndDivisionNewsOldestResult;
+    '\n  *[_type == "footer" && _id == "footer"][0]{\n    _id,\n    subtitle,\n    columns[]{\n      _key,\n      title,\n      links[]{\n        _key,\n        name,\n        "openInNewTab": url.openInNewTab,\n        \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n\n      }\n    },\n  }\n': QueryFooterDataResult;
+    '\n  *[_type == "settings" && _id == "settings"][0]{\n    _id,\n    _type,\n    siteBrand,\n    siteTitle,\n    siteDescription,\n    \n  logo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    \n  footerLogo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    \n  footerLogoDarkMode{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    "defaultOpenGraphImage": defaultOpenGraphImage.asset->url + "?w=1200&h=630&dpr=3&fit=max",\n    socialLinks{\n      facebook,\n      twitter,\n      youtube,\n      instagram,\n      bluesky,\n      threads\n    }\n  }\n': QueryGlobalSeoSettingsResult;
+    '\n  *[_type == "navbar" && _id == "navbar"][0]{\n    _id,\n    "items": items[]{\n      _key,\n      _type,\n      _type == "navSportMenu" => {\n        label,\n        "sport": sport->{ \n  _id,\n  "name": title,\n  "slug": slug.current,\n  "polls": polls[defined(slug)]{ _key, slug, label }\n },\n        "divisions": divisions[defined(@->slug.current)]->{\n          _id,\n          "name": coalesce(shortName, name, title),\n          "slug": slug.current\n        }\n      },\n      _type == "navRankingsMenu" => {\n        "label": coalesce(label, "Rankings"),\n        "sports": sports[defined(@->slug.current)]->{ \n  _id,\n  "name": title,\n  "slug": slug.current,\n  "polls": polls[defined(slug)]{ _key, slug, label }\n },\n        "links": links[defined(sport._ref) && defined(name)]{\n          _key,\n          name,\n          description,\n          "sportId": sport._ref,\n          "openInNewTab": url.openInNewTab,\n          \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n\n        }\n      },\n      _type == "navbarColumn" => {\n        title,\n        links[]{\n          _key,\n          name,\n          description,\n          "openInNewTab": url.openInNewTab,\n          \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n\n        }\n      },\n      _type == "navbarLink" => {\n        name,\n        "openInNewTab": url.openInNewTab,\n        \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n\n      }\n    }\n  }\n': QueryNavbarDataResult;
+    '\n  *[_type == "post"] | order(publishedAt desc)[0...3]{\n    _id,\n    _type,\n    title,\n    excerpt,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    publishedAt,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n  }\n': QueryHomePageDataResult;
+    '\n  (\n    coalesce((*[_type == "collection" && key == "home-top-stories"][0].articles[]->{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    classification->shortName,\n    classification->name\n  ),\n  "divisionSlug": classification->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    })[defined(slug) && defined(publishedAt)], []) +\n    *[_type == "post" && !(_id in coalesce(*[_type == "collection" && key == "home-top-stories"][0].articles[]._ref, []))] | order(publishedAt desc)[0...48]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    classification->shortName,\n    classification->name\n  ),\n  "divisionSlug": classification->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    }\n  )[0...48]\n': QueryHomeFeedResult;
+    '\n  *[_id == "breakingNews" && defined(article) && dateTime(expiresAt) > dateTime(now())][0]{\n    "label": coalesce(label, "Breaking"),\n    expiresAt,\n    // Null when the article was unpublished or deleted (a weak reference).\n    "article": select(\n      defined(article->publishedAt) => article->{ title, "slug": slug.current }\n    )\n  }\n': QueryBreakingNewsResult;
+    '\n *[_type == "post"] | order(publishedAt desc)[3..6]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    publishedAt,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n  }\n': QueryLatestArticlesResult;
+    '\n  *[\n    _type == "post" &&\n    (\n      classification._ref in *[_type == "classification" && name == $division]._id ||\n      sportSubgrouping._ref in *[_type == "sportSubgrouping" && name == $division]._id\n    ) &&\n    sport._ref in *[_type == "sport" && title match $sport]._id &&\n    !(_id in $articleIds)\n  ] | order(publishedAt desc)[0..4]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    publishedAt,\n    "division": classification->{\n      "name": coalesce(shortName, name),\n      "slug": slug.current\n    },\n    conferences[]->{\n      name,\n      "slug": slug.current,\n      shortName\n    },\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n  }\n': QueryLatestCollegeSportsArticlesResult;
     '\n  *[_type == "post" && slug.current in $slugs]{\n    _id,\n    title,\n    "slug": slug.current\n  }\n': QueryPostsBySlugsResult;
     '\n  *[_type == "post"] | order(publishedAt desc)[0...5]{\n    _id,\n    title,\n    "slug": slug.current\n  }\n': QueryMostReadFallbackPostsResult;
-    '\n  *[_type == "post" && (division->name == $division || sportSubgrouping->name == $division) && sport->title match $sport && !(_id in $articleIds)] | order(publishedAt desc)[0..4]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    publishedAt,\n    division->{\n      name,\n      "slug": slug.current\n    },\n    conferences[]->{\n      name,\n      "slug": slug.current,\n      shortName\n    },\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n  }\n': QueryLatestCollegeSportsArticlesResult;
-    '\n  *[_type == "post" && defined(slug.current) && sport->title match $sport] | order(publishedAt desc){\n    _id,\n    _updatedAt,\n    publishedAt,\n    "slug": slug.current,\n  }\n': QueryCollegeSportsArticlesForSitemapResult;
     '{\n  "authors": *[_type == "author" && defined(slug.current) && archived == false] {\n    "slug": slug.current,\n    "lastModified": _updatedAt\n  },\n  "legal": *[_type == "legal" && defined(slug.current)] {\n    "slug": slug.current,\n    "lastModified": coalesce(lastUpdated, effectiveDate, _updatedAt)\n  },\n}': QuerySitemapDataResult;
-    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  $conference in conferences[]->slug.current &&\n  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&\n  $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != \'d1\'))].slug.current &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n] | order(publishedAt desc) [$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    division->shortName,\n    division->name\n  ),\n  "divisionSlug": division->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != \'d1\'))][0]{\n      _id,\n      name,\n      shortName\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  $conference in conferences[]->slug.current &&\n  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&\n  $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != \'d1\'))].slug.current &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n]),\n  }\n': QueryArticlesBySportDivisionAndConferenceResult;
-    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  $conference in conferences[]->slug.current &&\n  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&\n  $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != \'d1\'))].slug.current &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n] | order(publishedAt asc) [$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    division->shortName,\n    division->name\n  ),\n  "divisionSlug": division->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "conferenceInfo": *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != \'d1\'))][0]{\n      _id,\n      name,\n      shortName\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport->slug.current == $sport &&\n  $conference in conferences[]->slug.current &&\n  (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&\n  $conference in *[_type == "conference" && slug.current == $conference && (count(sportSubdivisionAffiliations[sport->slug.current == $sport && subgrouping->slug.current == $division]) > 0 || (division->slug.current == $division && division->slug.current != \'d1\'))].slug.current &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n]),\n  }\n': QueryArticlesBySportDivisionAndConferenceOldestResult;
-    '\n{\n  "posts": *[_type == \'post\' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")] | score(\n    boost(title match $q, 4),\n    boost(excerpt match $q, 3),\n    boost(pt::text(body) match $q, 2),\n  ) | order(publishedAt desc, _score desc)[$from...$to]{\n    ...,\n    "slug": slug.current,\n    \n  division->{\n    _id,\n    name,\n    "slug": slug.current,\n    \n  logo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n\n  }\n,\n    \n  conferences[]->{\n    _id,\n    name,\n    shortName,\n    "slug": slug.current,\n    \n  logo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    division->{\n      "slug": slug.current,\n    },\n    sportSubdivisionAffiliations[]{\n        _key,\n        sport->{\n          _id, // Need this _id for client-side comparison\n        },\n        subgrouping->{\n          "slug": slug.current,\n          name,\n          shortName\n        }\n      }\n  }\n,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n    "sport": sport->title,\n  },\n  "totalPosts": count(*[_type == \'post\' && (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")])\n}\n': SearchQueryResult;
+    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  count(conferences[@._ref in *[\n  _type == "conference" &&\n  slug.current == $conference &&\n  (\n    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||\n    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))\n  )\n]._id]) > 0 &&\n  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n && (!defined($afterAt) || publishedAt < $afterAt || (publishedAt == $afterAt && _id < $afterId))] | order(publishedAt desc, _id desc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    classification->shortName,\n    classification->name\n  ),\n  "divisionSlug": classification->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "conferenceInfo": *[_id in *[\n  _type == "conference" &&\n  slug.current == $conference &&\n  (\n    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||\n    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))\n  )\n]._id][0]{\n      _id,\n      name,\n      shortName\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  count(conferences[@._ref in *[\n  _type == "conference" &&\n  slug.current == $conference &&\n  (\n    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||\n    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))\n  )\n]._id]) > 0 &&\n  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n]),\n  }\n': QueryArticlesBySportDivisionAndConferenceResult;
+    '\n  {\n    "posts": *[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  count(conferences[@._ref in *[\n  _type == "conference" &&\n  slug.current == $conference &&\n  (\n    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||\n    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))\n  )\n]._id]) > 0 &&\n  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n && (!defined($afterAt) || publishedAt > $afterAt || (publishedAt == $afterAt && _id > $afterId))] | order(publishedAt asc, _id asc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    classification->shortName,\n    classification->name\n  ),\n  "divisionSlug": classification->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "conferenceInfo": *[_id in *[\n  _type == "conference" &&\n  slug.current == $conference &&\n  (\n    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||\n    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))\n  )\n]._id][0]{\n      _id,\n      name,\n      shortName\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n  count(conferences[@._ref in *[\n  _type == "conference" &&\n  slug.current == $conference &&\n  (\n    count(sportSubdivisionAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id]) > 0 ||\n    ($division != "d1" && (primaryClassification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id))\n  )\n]._id]) > 0 &&\n  (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n]),\n  }\n': QueryArticlesBySportDivisionAndConferenceOldestResult;
+    '\n{\n  "posts": *[\n  _type == "post" &&\n  defined(publishedAt) &&\n  (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")\n] | score(\n    boost(title match $q, 4),\n    boost(excerpt match $q, 3),\n    boost(pt::text(body) match $q, 2),\n  ) | order(_score desc, publishedAt desc)[$from...$to]{\n    _id,\n    title,\n    excerpt,\n    publishedAt,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    "authors": authors[]->{ _id, name, "slug": slug.current },\n    "sport": sport->title,\n  },\n  "totalPosts": count(*[\n  _type == "post" &&\n  defined(publishedAt) &&\n  (title match "*" + $q + "*" || excerpt match "*" + $q + "*" || pt::text(body) match "*" + $q + "*")\n])\n}\n': SearchQueryResult;
     '\n*[_type == "sport" && slug.current == $slug][0]{\n  _id,\n  title,\n}': SportInfoBySlugResult;
-    '\n  *[_type == "author" && slug.current == $slug && archived == false][0]{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  }\n': AuthorBySlugResult;
-    '\n  *[_type == "author" && slug.current == $slug && archived == false][0]{\n    "authorId": _id,\n    "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[$from...$to]{\n      ...,\n      "slug": slug.current,\n      \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n    },\n    "totalPosts": count(*[_type == "post" && references(^._id)])\n  }\n': PostsByAuthorResult;
-    '\n  *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {\n    _id,\n    name,\n    roles,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n    "alt": coalesce(caption, asset->altText, ^.name, asset->originalFilename, "Image-Broken"),\n  }\n,\n    socialLinks\n  }\n': AuthorsListNotArchivedResult;
-    '\n  *[_type == "legal" && slug.current == $slug][0]{\n    _id,\n    _type,\n    title,\n    "slug": slug.current,\n    summary,\n    effectiveDate,\n    "lastUpdated": coalesce(lastUpdated, effectiveDate),\n    body[]{\n      ...,\n      \n  markDefs[]{\n    ...,\n    _type == "customLink" => {\n      ...,\n      \n  "openInNewTab": customLink.openInNewTab,\n  "href": select(\n    customLink.type == "external" => customLink.external,\n    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,\n    customLink.href\n  )\n\n    },\n    _type == "customUrl" => {\n      ...,\n      "href": \n  select(\n    type == "external" => external,\n    type == "internal" && internalType == "custom" => internalUrl,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news",\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,\n    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,\n    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,\n    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,\n    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,\n    href\n  )\n\n    },\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        reference->_type == "school" => "/college/teams/" + reference->slug.current,\n        reference->_type == "author" => "/authors/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n\n    },\n    "otherDocuments": *[_type == "legal" && defined(slug.current) && slug.current != $slug] | order(title asc){\n      _id,\n      title,\n      "slug": slug.current\n    }\n  }\n': QueryLegalDocumentBySlugResult;
+    '\n  *[_type == "author" && slug.current == $slug && archived == false][0]{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  }\n': AuthorBySlugResult;
+    '\n  *[_type == "author" && slug.current == $slug && archived == false][0]{\n    "authorId": _id,\n    "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[$from...$to]{\n      ...,\n      "slug": slug.current,\n      "division": classification->{ "name": coalesce(shortName, name) },\n      \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n    },\n    "totalPosts": count(*[_type == "post" && references(^._id)])\n  }\n': PostsByAuthorResult;
+    '\n  *[_type == "author" && archived != true] | order(_createdAt asc, name asc) {\n    _id,\n    name,\n    roles,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n    "alt": coalesce(caption, asset->altText, ^.name, asset->originalFilename, "Image-Broken"),\n  }\n,\n    socialLinks\n  }\n': AuthorsListNotArchivedResult;
+    '\n  *[_type == "legal" && slug.current == $slug][0]{\n    _id,\n    _type,\n    title,\n    "slug": slug.current,\n    summary,\n    effectiveDate,\n    "lastUpdated": coalesce(lastUpdated, effectiveDate),\n    body[]{\n      ...,\n      \n  markDefs[]{\n    ...,\n    // The current link annotation. An old-format link (only an href) has no\n    // linkType, so it falls through to its href unchanged.\n    _type == "link" => {\n      ...,\n      "href": select(\n        linkType == "internal" => \n  select(\n    reference->_type == "post" => "/" + reference->slug.current,\n    reference->_type == "school" => "/college/teams/" + reference->slug.current,\n    reference->_type == "author" => "/people/" + reference->slug.current,\n    reference->_type == "legal" => "/legal/" + reference->slug.current\n  )\n,\n        linkType == "path" => path,\n        href\n      ),\n      "openInNewTab": coalesce(openInNewTab, blank, false)\n    },\n    _type == "customLink" => {\n      ...,\n      \n  "openInNewTab": customLink.openInNewTab,\n  "href": select(\n    customLink.type == "external" => customLink.external,\n    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,\n    customLink.href\n  )\n\n    },\n    _type == "customUrl" => {\n      ...,\n      "href": \n  select(\n    type == "external" => external,\n    type == "internal" && internalType == "custom" => internalUrl,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news",\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,\n    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,\n    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,\n    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,\n    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,\n    href\n  )\n\n    },\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        reference->_type == "school" => "/college/teams/" + reference->slug.current,\n        reference->_type == "author" => "/people/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n\n    },\n    "otherDocuments": *[_type == "legal" && defined(slug.current) && slug.current != $slug] | order(title asc){\n      _id,\n      title,\n      "slug": slug.current\n    }\n  }\n': QueryLegalDocumentBySlugResult;
     '\n  *[_type == "legal" && defined(slug.current)]{"slug": slug.current}\n': QueryLegalDocumentPathsResult;
-    '\n  *[_type == "school" && division->slug.current == $division && top25VotingEligible != false]| order(shortName asc){\n  _id,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n  conference->{\n    name,\n    shortName\n  }\n}\n': SchoolsByDivisionQueryResult;
-    '\n  *[_type == "school"\n  ] {\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    conferenceAffiliations,\n    "relevantAffiliation": conferenceAffiliations[sport->slug.current == $sport][0]\n  }[defined(relevantAffiliation)] {\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    relevantAffiliation,\n    "conferenceDetails": *[_type == "conference" && _id == ^.relevantAffiliation.conference._ref][0] {\n      name,\n      shortName,\n      abbreviation,\n      sportSubdivisionAffiliations\n    }\n  }[\n    count(conferenceDetails.sportSubdivisionAffiliations[\n      sport->slug.current == $sport &&\n      subgrouping->slug.current == $subgrouping\n    ]) > 0\n  ] | order(shortName asc) {\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    "conferenceInfo": {\n      "conference": conferenceDetails {\n        name,\n        shortName,\n        abbreviation\n      }\n    }\n  }\n': SchoolsBySportAndSubgroupingStringQueryResult;
-    '\n  {\n    "posts": *[\n  _type == "post" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n] | order(publishedAt desc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    division->shortName,\n    division->name\n  ),\n  "divisionSlug": division->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n])\n  }\n': QueryCollegeNewsResult;
-    '\n  {\n    "posts": *[\n  _type == "post" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n] | order(publishedAt asc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    division->shortName,\n    division->name\n  ),\n  "divisionSlug": division->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || $storyType in tags[]->name)\n])\n  }\n': QueryCollegeNewsOldestResult;
+    '\n  *[\n    _type == "school" &&\n    count(conferenceAffiliations[\n      sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n      select(\n        defined(subgroupingOverride) => subgroupingOverride._ref in *[_type == "sportSubgrouping" && slug.current == $subgrouping]._id,\n        conference._ref in *[\n  _type == "conference" &&\n  count(sportSubdivisionAffiliations[\n    sport._ref == *[_type == "sport" && slug.current == $sport][0]._id && subgrouping._ref in *[_type == "sportSubgrouping" && slug.current == $subgrouping]._id\n  ]) > 0\n]._id\n      )\n    ]) > 0\n  ] | order(shortName asc) {\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    "conferenceInfo": {\n      // By _ref: a sport-> lookup per affiliation row cost 1 s on 264 schools.\n      "conference": conferenceAffiliations[sport._ref == *[_type == "sport" && slug.current == $sport][0]._id][0].conference->{\n        name,\n        shortName,\n        abbreviation\n      }\n    }\n  }\n': SchoolsBySportAndSubgroupingStringQueryResult;
+    '\n  {\n    "posts": *[\n  _type == "post" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n && (!defined($afterAt) || publishedAt < $afterAt || (publishedAt == $afterAt && _id < $afterId))] | order(publishedAt desc, _id desc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    classification->shortName,\n    classification->name\n  ),\n  "divisionSlug": classification->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n])\n  }\n': QueryCollegeNewsResult;
+    '\n  {\n    "posts": *[\n  _type == "post" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n && (!defined($afterAt) || publishedAt > $afterAt || (publishedAt == $afterAt && _id > $afterId))] | order(publishedAt asc, _id asc)[$from...$to]{\n      \n  _id,\n  title,\n  excerpt,\n  "slug": slug.current,\n  publishedAt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n,\n  "divisionLabel": coalesce(\n    sportSubgrouping->shortName,\n    sportSubgrouping->name,\n    classification->shortName,\n    classification->name\n  ),\n  "divisionSlug": classification->slug.current,\n  "subgroupingSlug": sportSubgrouping->slug.current,\n  "tagNames": tags[]->name,\n  "sportTitle": sport->title,\n  "sportSlug": sport->slug.current\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  ($search == "" || title match "*" + $search + "*") &&\n  ($storyType == "" || storyType == $storyType)\n])\n  }\n': QueryCollegeNewsOldestResult;
     '\n  *[_type == "conference" && slug.current == $slug][0]\n': ConferenceInfoBySlugQueryResult;
-    '\n  *[_type == "sport" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc) {\n    _id,\n    "name": title,\n    "slug": slug.current,\n    "groupings": select(\n      slug.current == "football" => [\n        // FBS Subgrouping\n        *[_type == "sportSubgrouping" && shortName == "FBS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{\n          _id,\n          "name": coalesce(shortName, name),\n          "slug": slug.current,\n          "type": "subgrouping",\n          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {\n            _id,\n            name,\n            "slug": slug.current,\n            shortName\n          }\n        },\n        // FCS Subgrouping\n        *[_type == "sportSubgrouping" && shortName == "FCS" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{\n          _id,\n          "name": coalesce(shortName, name),\n          "slug": slug.current,\n          "type": "subgrouping",\n          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {\n            _id,\n            name,\n            "slug": slug.current,\n            shortName\n          }\n        },\n        // Division II\n        *[_type == "division" && title == "Division II" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{\n          _id,\n          "name": name,\n          "slug": slug.current,\n          "type": "division",\n          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {\n            _id,\n            name,\n            "slug": slug.current,\n            shortName\n          }\n        },\n        // Division III\n        *[_type == "division" && title == "Division III" && count(*[_type == "conference" && references(^._id) && count(*[_type == "post" && references(^._id)]) > 0]) > 0][0]{\n          _id,\n          "name": name,\n          "slug": slug.current,\n          "type": "division",\n          "conferences": *[_type == "conference" && references(^._id) && ^.^._id in sports[]._ref && count(*[_type == "post" && references(^._id)]) > 0] | order(name asc) {\n            _id,\n            name,\n            "slug": slug.current,\n            shortName\n          }\n        }\n      ],\n      true => (\n        // Generic subgroupings\n        *[_type == "sportSubgrouping" && ^._id in applicableSports[]._ref] | order(name asc) {\n          _id,\n          "name": coalesce(shortName, name),\n          "slug": slug.current,\n          "type": "subgrouping",\n          "conferences": *[_type == "conference" && count(sportSubdivisionAffiliations[subgrouping._ref == ^.^._id && sport._ref == ^.^.^._id]) > 0 && count(*[_type == "post" && references(^._id) && sport._ref == ^.^.^._id]) > 0] | order(name asc) {\n            _id,\n            name,\n            shortName,\n            "slug": slug.current\n          }\n        } +\n        // Generic divisions (excluding specific football and basketball divisions)\n        *[_type == "division"\n          && !(title == "FBS" || title == "FCS")\n          && !(\n            (title == "Division I")\n            && (\n              ^.slug.current == "mens-basketball" || ^.slug.current == "womens-basketball"\n            )\n          )\n        ] | order(name asc) {\n          _id,\n          "name": title,\n          "slug": slug.current,\n          "type": "division",\n          "conferences": *[_type == "conference" && division._ref == ^.^._id && count(*[_type == "post" && references(^._id) && sport->slug.current == ^.^.slug.current]) > 0] | order(name asc) {\n            _id,\n            name,\n            shortName,\n            "slug": slug.current\n          }\n        }\n      )[defined(conferences) && count(conferences) > 0]\n    )\n  }\n': GlobalNavigationQueryResult;
-    '\n  *[_type == "post" && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc)[0...50] {\n    \n  _id,\n  title,\n  "slug": slug.current,\n  publishedAt,\n  excerpt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    _type == "customLink" => {\n      ...,\n      \n  "openInNewTab": customLink.openInNewTab,\n  "href": select(\n    customLink.type == "external" => customLink.external,\n    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,\n    customLink.href\n  )\n\n    },\n    _type == "customUrl" => {\n      ...,\n      "href": \n  select(\n    type == "external" => external,\n    type == "internal" && internalType == "custom" => internalUrl,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news",\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,\n    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,\n    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,\n    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,\n    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,\n    href\n  )\n\n    },\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        reference->_type == "school" => "/college/teams/" + reference->slug.current,\n        reference->_type == "author" => "/authors/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n,\n    _type == \'image\' => {\n      ...,\n      \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n    },\n  }\n,\n  "authors": authors[]->name,\n  "sport": sport->title,\n  "division": division->title,\n  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),\n  "conferences": conferences[]->{ name, shortName },\n  "tags": tags[]->name,\n\n  }\n': RssFeedQueryResult;
-    '\n  *[_type == "post" && defined(slug.current) && defined(publishedAt)][sport->slug.current == $sport]\n  | order(publishedAt desc)[0...50] {\n    \n  _id,\n  title,\n  "slug": slug.current,\n  publishedAt,\n  excerpt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    _type == "customLink" => {\n      ...,\n      \n  "openInNewTab": customLink.openInNewTab,\n  "href": select(\n    customLink.type == "external" => customLink.external,\n    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,\n    customLink.href\n  )\n\n    },\n    _type == "customUrl" => {\n      ...,\n      "href": \n  select(\n    type == "external" => external,\n    type == "internal" && internalType == "custom" => internalUrl,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news",\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,\n    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,\n    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,\n    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,\n    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,\n    href\n  )\n\n    },\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        reference->_type == "school" => "/college/teams/" + reference->slug.current,\n        reference->_type == "author" => "/authors/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n,\n    _type == \'image\' => {\n      ...,\n      \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n    },\n  }\n,\n  "authors": authors[]->name,\n  "sport": sport->title,\n  "division": division->title,\n  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),\n  "conferences": conferences[]->{ name, shortName },\n  "tags": tags[]->name,\n\n  }\n': RssFeedBySportQueryResult;
-    '\n  *[_type == "post" && defined(slug.current) && defined(publishedAt)][\n    sport->slug.current == $sport &&\n    (sportSubgrouping->slug.current == $division || division->slug.current == $division) &&\n    $division != "d1"\n  ] | order(publishedAt desc)[0...50] {\n    \n  _id,\n  title,\n  "slug": slug.current,\n  publishedAt,\n  excerpt,\n  \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    _type == "customLink" => {\n      ...,\n      \n  "openInNewTab": customLink.openInNewTab,\n  "href": select(\n    customLink.type == "external" => customLink.external,\n    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "author" => "/authors/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,\n    customLink.href\n  )\n\n    },\n    _type == "customUrl" => {\n      ...,\n      "href": \n  select(\n    type == "external" => external,\n    type == "internal" && internalType == "custom" => internalUrl,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news",\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,\n    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,\n    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,\n    type == "internal" && internal->_type == "author" => "/authors/" + internal->slug.current,\n    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,\n    href\n  )\n\n    },\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        reference->_type == "school" => "/college/teams/" + reference->slug.current,\n        reference->_type == "author" => "/authors/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n,\n    _type == \'image\' => {\n      ...,\n      \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n    },\n  }\n,\n  "authors": authors[]->name,\n  "sport": sport->title,\n  "division": division->title,\n  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),\n  "conferences": conferences[]->{ name, shortName },\n  "tags": tags[]->name,\n\n  }\n': RssFeedBySportAndDivisionQueryResult;
-    '*[_type == "school" && _id in $ids[].id]{\n    _id,\n    "_order": $ids[id == ^._id][0].rank,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n  }| order(_order)': SchoolsByIdQueryResult;
+    '\n  *[_type == "sport"]{\n    _id,\n    title,\n    "slug": slug.current,\n    "conferenceIds": array::unique(*[_type == "post" && sport._ref == ^._id && defined(publishedAt)].conferences[]._ref)\n  }[count(conferenceIds) > 0] | order(title asc) {\n    _id,\n    "name": title,\n    slug,\n    "groupings": (\n      *[_type == "sportSubgrouping" && ^._id in applicableSports[]._ref] | order(name asc) {\n        _id,\n        "name": coalesce(shortName, name),\n        "slug": slug.current,\n        "type": "subgrouping",\n        "conferences": *[\n          _type == "conference" &&\n          _id in ^.^.conferenceIds &&\n          count(sportSubdivisionAffiliations[subgrouping._ref == ^.^._id && sport._ref == ^.^.^._id]) > 0\n        ] | order(name asc) { _id, name, shortName, "slug": slug.current }\n      } +\n      *[\n        _type == "classification" &&\n        count(*[_type == "sportSubgrouping" && parentClassification._ref == ^._id && ^.^._id in applicableSports[]._ref]) == 0\n      ] | order(slug.current asc) {\n        _id,\n        "name": coalesce(shortName, name),\n        "slug": slug.current,\n        "type": "division",\n        "conferences": *[\n          _type == "conference" &&\n          _id in ^.^.conferenceIds &&\n          // Transitional: also match the retired division field until\n          // editorial-01 has run (see segmentIdsBySlug).\n          (primaryClassification._ref == ^._id || division->slug.current == ^.slug.current)\n        ] | order(name asc) { _id, name, shortName, "slug": slug.current }\n      }\n    )[count(conferences) > 0]\n  }\n': GlobalNavigationQueryResult;
+    '\n  *[_type == "post" && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc)[0...50] {\n    \n  _id,\n  title,\n  "slug": slug.current,\n  publishedAt,\n  excerpt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    // The current link annotation. An old-format link (only an href) has no\n    // linkType, so it falls through to its href unchanged.\n    _type == "link" => {\n      ...,\n      "href": select(\n        linkType == "internal" => \n  select(\n    reference->_type == "post" => "/" + reference->slug.current,\n    reference->_type == "school" => "/college/teams/" + reference->slug.current,\n    reference->_type == "author" => "/people/" + reference->slug.current,\n    reference->_type == "legal" => "/legal/" + reference->slug.current\n  )\n,\n        linkType == "path" => path,\n        href\n      ),\n      "openInNewTab": coalesce(openInNewTab, blank, false)\n    },\n    _type == "customLink" => {\n      ...,\n      \n  "openInNewTab": customLink.openInNewTab,\n  "href": select(\n    customLink.type == "external" => customLink.external,\n    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,\n    customLink.href\n  )\n\n    },\n    _type == "customUrl" => {\n      ...,\n      "href": \n  select(\n    type == "external" => external,\n    type == "internal" && internalType == "custom" => internalUrl,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news",\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,\n    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,\n    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,\n    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,\n    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,\n    href\n  )\n\n    },\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        reference->_type == "school" => "/college/teams/" + reference->slug.current,\n        reference->_type == "author" => "/people/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n,\n    _type == \'image\' => {\n      ...,\n      \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n    },\n    _type == \'relatedArticle\' => {\n      ...,\n      "post": post->{\n        _id,\n        title,\n        excerpt,\n        "slug": slug.current,\n        \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n      }\n    },\n  }\n,\n  "authors": authors[]->name,\n  "sport": sport->title,\n  "division": classification->name,\n  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),\n  "conferences": conferences[]->{ name, shortName },\n  "tags": tags[]->name,\n\n  }\n': RssFeedQueryResult;
+    '\n  *[_type == "post" && defined(slug.current) && defined(publishedAt)][sport._ref == *[_type == "sport" && slug.current == $sport][0]._id]\n  | order(publishedAt desc)[0...50] {\n    \n  _id,\n  title,\n  "slug": slug.current,\n  publishedAt,\n  excerpt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    // The current link annotation. An old-format link (only an href) has no\n    // linkType, so it falls through to its href unchanged.\n    _type == "link" => {\n      ...,\n      "href": select(\n        linkType == "internal" => \n  select(\n    reference->_type == "post" => "/" + reference->slug.current,\n    reference->_type == "school" => "/college/teams/" + reference->slug.current,\n    reference->_type == "author" => "/people/" + reference->slug.current,\n    reference->_type == "legal" => "/legal/" + reference->slug.current\n  )\n,\n        linkType == "path" => path,\n        href\n      ),\n      "openInNewTab": coalesce(openInNewTab, blank, false)\n    },\n    _type == "customLink" => {\n      ...,\n      \n  "openInNewTab": customLink.openInNewTab,\n  "href": select(\n    customLink.type == "external" => customLink.external,\n    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,\n    customLink.href\n  )\n\n    },\n    _type == "customUrl" => {\n      ...,\n      "href": \n  select(\n    type == "external" => external,\n    type == "internal" && internalType == "custom" => internalUrl,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news",\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,\n    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,\n    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,\n    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,\n    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,\n    href\n  )\n\n    },\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        reference->_type == "school" => "/college/teams/" + reference->slug.current,\n        reference->_type == "author" => "/people/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n,\n    _type == \'image\' => {\n      ...,\n      \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n    },\n    _type == \'relatedArticle\' => {\n      ...,\n      "post": post->{\n        _id,\n        title,\n        excerpt,\n        "slug": slug.current,\n        \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n      }\n    },\n  }\n,\n  "authors": authors[]->name,\n  "sport": sport->title,\n  "division": classification->name,\n  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),\n  "conferences": conferences[]->{ name, shortName },\n  "tags": tags[]->name,\n\n  }\n': RssFeedBySportQueryResult;
+    '\n  *[_type == "post" && defined(slug.current) && defined(publishedAt)][\n    sport._ref == *[_type == "sport" && slug.current == $sport][0]._id &&\n    (sportSubgrouping._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || classification._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id || division._ref in *[_type in ["sportSubgrouping", "classification", "division"] && slug.current == $division]._id) &&\n    $division != "d1"\n  ] | order(publishedAt desc)[0...50] {\n    \n  _id,\n  title,\n  "slug": slug.current,\n  publishedAt,\n  excerpt,\n  \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n  \n  body[]{\n    ...,\n    \n  markDefs[]{\n    ...,\n    // The current link annotation. An old-format link (only an href) has no\n    // linkType, so it falls through to its href unchanged.\n    _type == "link" => {\n      ...,\n      "href": select(\n        linkType == "internal" => \n  select(\n    reference->_type == "post" => "/" + reference->slug.current,\n    reference->_type == "school" => "/college/teams/" + reference->slug.current,\n    reference->_type == "author" => "/people/" + reference->slug.current,\n    reference->_type == "legal" => "/legal/" + reference->slug.current\n  )\n,\n        linkType == "path" => path,\n        href\n      ),\n      "openInNewTab": coalesce(openInNewTab, blank, false)\n    },\n    _type == "customLink" => {\n      ...,\n      \n  "openInNewTab": customLink.openInNewTab,\n  "href": select(\n    customLink.type == "external" => customLink.external,\n    customLink.type == "internal" && customLink.internalType == "custom" => customLink.internalUrl,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news",\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current,\n    customLink.type == "internal" && customLink.internalType == "sportNews" && customLink.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + customLink.sportNewsLink.sport->slug.current + "/news/" + customLink.sportNewsLink.segment->slug.current + "/" + customLink.sportNewsLink.conference->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "post" => "/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "school" => "/college/teams/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "author" => "/people/" + customLink.internal->slug.current,\n    customLink.type == "internal" && customLink.internal->_type == "legal" => "/legal/" + customLink.internal->slug.current,\n    customLink.href\n  )\n\n    },\n    _type == "customUrl" => {\n      ...,\n      "href": \n  select(\n    type == "external" => external,\n    type == "internal" && internalType == "custom" => internalUrl,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news",\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current,\n    type == "internal" && internalType == "sportNews" && sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + sportNewsLink.sport->slug.current + "/news/" + sportNewsLink.segment->slug.current + "/" + sportNewsLink.conference->slug.current,\n    type == "internal" && internal->_type == "post" => "/" + internal->slug.current,\n    type == "internal" && internal->_type == "school" => "/college/teams/" + internal->slug.current,\n    type == "internal" && internal->_type == "author" => "/people/" + internal->slug.current,\n    type == "internal" && internal->_type == "legal" => "/legal/" + internal->slug.current,\n    href\n  )\n\n    },\n    _type == "internalLink" => {\n      ...,\n      "href": select(\n        reference->_type == "post" => "/" + reference->slug.current,\n        reference->_type == "school" => "/college/teams/" + reference->slug.current,\n        reference->_type == "author" => "/people/" + reference->slug.current,\n        "#"\n      )\n    }\n  }\n,\n    _type == \'image\' => {\n      ...,\n      \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n    },\n    _type == \'relatedArticle\' => {\n      ...,\n      "post": post->{\n        _id,\n        title,\n        excerpt,\n        "slug": slug.current,\n        \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n      }\n    },\n  }\n,\n  "authors": authors[]->name,\n  "sport": sport->title,\n  "division": classification->name,\n  "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),\n  "conferences": conferences[]->{ name, shortName },\n  "tags": tags[]->name,\n\n  }\n': RssFeedBySportAndDivisionQueryResult;
+    '*[_type == "school" && _id in $ids[].id]{\n    _id,\n    "_order": $ids[id == ^._id][0].rank,\n    name,\n    shortName,\n    abbreviation,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n  }| order(_order)': SchoolsByIdQueryResult;
     '*[_type == "sport" && defined(slug.current)]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    title,\n    "slug": slug.current,\n  }': SportInfoQueryResult;
-    '\n  *[_type == "division"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    title,\n    heading,\n    longName,\n    "slug": slug.current,\n    description,\n    \n  logo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n\n  }\n  ': DivisionsQueryResult;
-    '\n  *[_type == "conference"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    "slug": slug.current,\n    "divisionId": division->_id,\n    \n  logo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    "sports": sports[]->_id\n  }\n  ': ConferencesQueryResult;
-    '\n  *[_type == "school"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    "slug": slug.current,\n    top25VotingEligible,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    conferenceAffiliations[] {\n      "conferenceId": conference->_id,\n      "sportId": sport->_id,\n    }\n  }\n  ': SchoolsQueryResult;
-    '\n    *[_type == "sportSubgrouping"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    "slug": slug.current,\n    "parentDivisionId": parentDivision->_id,\n    "applicableSports": applicableSports[]->_id\n  }\n': SubdivisionsQueryResult;
-    '\n*[_type == "school" && _id in $ids[].id]{\n  _id,\n  "_points": $ids[id == ^._id][0].totalPoints,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n} | order(_points desc)\n': SchoolsByIdOrderedByPointsResult;
-    '\n*[_type == "school" && _id in $ids[].teamId]{\n  _id,\n  "_order": $ids[teamId == ^._id][0].rank,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n} | order(_order)\n': SchoolWithVoteOrderResult;
-    '\n*[_type == "school" && _id in $ids]{\n  _id,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n}\n': SchoolsByIdsQueryResult;
+    '\n  *[_type == "classification"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    "name": shortName,\n    "title": name,\n    "longName": name,\n    "slug": slug.current,\n    description\n  }\n  ': DivisionsQueryResult;
+    '\n  *[_type == "conference"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    "slug": slug.current,\n    "divisionId": primaryClassification->_id,\n    \n  logo{\n    ...,\n    \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n\n  }\n,\n    "sports": sports[]->_id\n  }\n  ': ConferencesQueryResult;
+    '\n  *[_type == "school"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    "slug": slug.current,\n    top25VotingEligible,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    conferenceAffiliations[] {\n      "conferenceId": conference->_id,\n      "sportId": sport->_id,\n    }\n  }\n  ': SchoolsQueryResult;
+    '\n    *[_type == "sportSubgrouping"]{\n    _id,\n    _createdAt,\n    _updatedAt,\n    name,\n    shortName,\n    "slug": slug.current,\n    "parentDivisionId": parentClassification->_id,\n    "applicableSports": applicableSports[]->_id\n  }\n': SubdivisionsQueryResult;
+    '\n*[_type == "school" && _id in $ids[].id]{\n  _id,\n  "_points": $ids[id == ^._id][0].totalPoints,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n} | order(_points desc)\n': SchoolsByIdOrderedByPointsResult;
+    '\n*[_type == "school" && _id in $ids[].teamId]{\n  _id,\n  "_order": $ids[teamId == ^._id][0].rank,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n} | order(_order)\n': SchoolWithVoteOrderResult;
+    '\n*[_type == "school" && _id in $ids]{\n  _id,\n  name,\n  shortName,\n  abbreviation,\n  \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n}\n': SchoolsByIdsQueryResult;
     '\n*[_type == \'post\' && (\n  title match "*" + $q + "*" ||\n  excerpt match "*" + $q + "*" ||\n  pt::text(body) match "*" + $q + "*" ||\n  authors[]->name match "*" + $q + "*" ||\n  conferences[]->name match "*" + $q + "*"\n)] | score(\n  boost(title match "*" + $q + "*", 5),\n  boost(excerpt match "*" + $q + "*", 3),\n  boost(pt::text(body) match "*" + $q + "*", 2),\n) | order(_score desc, publishedAt desc)[0...5]{\n  _id,\n  title,\n  _score,\n  "slug": slug.current,\n  publishedAt,\n  excerpt\n}': PostsSearchQueryResult;
-    '*[_type == "school" && _id in $schoolIds]{\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n\n  }': SchoolsForVotesQueryResult;
-    '\n  *[_type == "post" && defined(publishedAt) && defined(slug.current)][$start...$end]{\n    _id,\n    "slug": slug.current,\n    publishedAt,\n    // Editorial update time, not _updatedAt: bulk edits and typo fixes bump\n    // _updatedAt, and Google stops trusting lastmod that moves without cause.\n    "lastModified": coalesce(modifiedAt, publishedAt)\n  }\n': PostsForSitemapQueryResult;
+    '*[_type == "school" && _id in $schoolIds]{\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n\n  }': SchoolsForVotesQueryResult;
+    '\n  *[_type == "post" && defined(publishedAt) && defined(slug.current)] | order(publishedAt asc, _id asc)[$start...$end]{\n    _id,\n    "slug": slug.current,\n    publishedAt,\n    // Editorial update time, not _updatedAt: bulk edits and typo fixes bump\n    // _updatedAt, and Google stops trusting lastmod that moves without cause.\n    "lastModified": coalesce(modifiedAt, publishedAt)\n  }\n': PostsForSitemapQueryResult;
     '\n  count(*[_type == "post" && defined(slug.current) && defined(publishedAt)])\n  ': CountOfPostsQueryResult;
-    '\n*[_type == "post" && defined(sport->slug.current)] | order(publishedAt desc){\n  "sport": sport->slug.current,\n  "division": division->slug.current,\n  "sportSubgrouping": sportSubgrouping->slug.current,\n  "conferences": conferences[]->{\n      "slug": slug.current,\n      "division": division->slug.current,\n      "subgroupings": sportSubdivisionAffiliations[]{\n        "sport": sport->slug.current,\n        "subgrouping": subgrouping->slug.current\n      }\n    },\n  _updatedAt\n}': QueryForCollegeSitemapResult;
-    '\n  *[\n    (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||\n    (_type == "division" && slug.current == $slugOrShortName)\n  ][0]{\n    _type,\n    "displayName": select(\n      _type == "sportSubgrouping" => shortName,\n      _type == "division" => title\n    ),\n    "archiveKicker": select(\n      _type == "sportSubgrouping" => name,\n      _type == "division" => title\n    )\n  }\n': QueryDivisionOrSubgroupingDisplayNameResult;
-    '\n  *[\n    _type == "school" &&\n    slug.current == $slug\n  ][0]{\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    "slug": slug.current,\n    overview,\n    websiteUrl,\n    socialLinks,\n    seoTitle,\n    seoDescription,\n    seoImage,\n    ogTitle,\n    ogDescription,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    conferenceAffiliations[]{\n      _key,\n      sport->{\n        _id,\n        title,\n        "slug": slug.current\n      },\n      conference->{\n        _id,\n        name,\n        shortName,\n        "slug": slug.current,\n        primaryClassification->{ "slug": slug.current, name },\n        sportSubdivisions[]{\n          sport->{ "slug": slug.current },\n          subdivision->{ shortName, name, "slug": slug.current }\n        },\n        sportSubdivisionAffiliations[]{\n          sport->{ "slug": slug.current },\n          subgrouping->{ shortName, name, "slug": slug.current }\n        }\n      }\n    }\n  }\n': SchoolBySlugQueryResult;
-    '\n  {\n    "posts": *[\n  _type == "post" &&\n  defined(publishedAt) &&\n  $schoolId in teams[]._ref\n] | order(publishedAt desc)[$from...$to]{\n      _id,\n      title,\n      excerpt,\n      storyType,\n      publishedAt,\n      "slug": slug.current,\n      \n  sport->{\n    _id,\n    "slug": slug.current,\n    title\n  }\n,\n      \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  defined(publishedAt) &&\n  $schoolId in teams[]._ref\n])\n  }\n': PostsBySchoolQueryResult;
-    '\n  *[\n    \n  _type == "post" &&\n  defined(publishedAt) &&\n  $schoolId in teams[]._ref\n &&\n    storyType == $storyType\n  ] | order(publishedAt desc)[0...6]{\n    _id,\n    title,\n    excerpt,\n    publishedAt,\n    "slug": slug.current,\n    \n  sport->{\n    _id,\n    "slug": slug.current,\n    title\n  }\n,\n    \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n  }\n': PostsBySchoolAndStoryTypeQueryResult;
-    '\n  {\n    "posts": *[\n      _type == "post" &&\n      defined(publishedAt) &&\n      storyType == $storyType &&\n      ($sport == "" || sport->slug.current == $sport)\n    ] | order(publishedAt desc)[$from...$to]{\n      _id,\n      title,\n      excerpt,\n      storyType,\n      publishedAt,\n      "slug": slug.current,\n      \n  "image": coalesce(image, mainImage){\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n    },\n    "totalPosts": count(*[\n      _type == "post" &&\n      defined(publishedAt) &&\n      storyType == $storyType &&\n      ($sport == "" || sport->slug.current == $sport)\n    ])\n  }\n': PostsByStoryTypeQueryResult;
+    '\n*[_type == "post" && defined(sport._ref) && defined(publishedAt)] | order(publishedAt desc){\n  "sport": sport->slug.current,\n  "division": classification->slug.current,\n  "sportSubgrouping": sportSubgrouping->slug.current,\n  "conferences": conferences[]->{\n      "slug": slug.current,\n      "division": primaryClassification->slug.current,\n      "subgroupings": sportSubdivisionAffiliations[]{\n        "sport": sport->slug.current,\n        "subgrouping": subgrouping->slug.current\n      }\n    },\n  _updatedAt\n}': QueryForCollegeSitemapResult;
+    '\n  *[\n    (_type == "sportSubgrouping" && lower(shortName) == lower($slugOrShortName)) ||\n    (_type == "classification" && slug.current == $slugOrShortName)\n  ][0]{\n    _type,\n    "displayName": select(\n      _type == "sportSubgrouping" => shortName,\n      _type == "classification" => name\n    ),\n    "archiveKicker": select(\n      _type == "sportSubgrouping" => name,\n      _type == "classification" => name\n    )\n  }\n': QueryDivisionOrSubgroupingDisplayNameResult;
+    '\n  *[\n    _type == "school" &&\n    slug.current == $slug\n  ][0]{\n    _id,\n    name,\n    shortName,\n    abbreviation,\n    nickname,\n    "slug": slug.current,\n    overview,\n    websiteUrl,\n    socialLinks,\n    seoTitle,\n    seoDescription,\n    seoImage,\n    ogTitle,\n    ogDescription,\n    \n  image{\n    ...,\n    \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n\n  }\n,\n    conferenceAffiliations[]{\n      _key,\n      subgroupingOverride->{ shortName, name, "slug": slug.current },\n      sport->{\n        _id,\n        title,\n        "slug": slug.current\n      },\n      conference->{\n        _id,\n        name,\n        shortName,\n        "slug": slug.current,\n        primaryClassification->{ "slug": slug.current, name },\n        sportSubdivisionAffiliations[]{\n          sport->{ "slug": slug.current },\n          subgrouping->{ shortName, name, "slug": slug.current }\n        }\n      }\n    }\n  }\n': SchoolBySlugQueryResult;
+    '\n  {\n    "posts": *[\n  _type == "post" &&\n  defined(publishedAt) &&\n  $schoolId in teams[]._ref\n] | order(publishedAt desc)[$from...$to]{\n      _id,\n      title,\n      excerpt,\n      storyType,\n      publishedAt,\n      "slug": slug.current,\n      \n  sport->{\n    _id,\n    "slug": slug.current,\n    title\n  }\n,\n      \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n    },\n    "totalPosts": count(*[\n  _type == "post" &&\n  defined(publishedAt) &&\n  $schoolId in teams[]._ref\n])\n  }\n': PostsBySchoolQueryResult;
+    '\n  *[\n    \n  _type == "post" &&\n  defined(publishedAt) &&\n  $schoolId in teams[]._ref\n &&\n    storyType == $storyType\n  ] | order(publishedAt desc)[0...6]{\n    _id,\n    title,\n    excerpt,\n    publishedAt,\n    "slug": slug.current,\n    \n  sport->{\n    _id,\n    "slug": slug.current,\n    title\n  }\n,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n  }\n': PostsBySchoolAndStoryTypeQueryResult;
+    '\n  {\n    "posts": *[\n      _type == "post" &&\n      defined(publishedAt) &&\n      storyType == $storyType &&\n      ($sport == "" || sport->slug.current == $sport)\n    ] | order(publishedAt desc)[$from...$to]{\n      _id,\n      title,\n      excerpt,\n      storyType,\n      publishedAt,\n      "slug": slug.current,\n      \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n      \n  authors[]->{\n    ...,\n    "slug": slug.current,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n\n  }\n\n    },\n    "totalPosts": count(*[\n      _type == "post" &&\n      defined(publishedAt) &&\n      storyType == $storyType &&\n      ($sport == "" || sport->slug.current == $sport)\n    ])\n  }\n': PostsByStoryTypeQueryResult;
     '\n  *[_type == "school" && defined(slug.current) && count(*[\n  _type == "post" &&\n  defined(publishedAt) &&\n  ^._id in teams[]._ref\n]) >= $minPosts]{\n    "slug": slug.current,\n    // A team hub changes when a story about the school is published.\n    "lastModified": coalesce(*[\n  _type == "post" &&\n  defined(publishedAt) &&\n  ^._id in teams[]._ref\n] | order(publishedAt desc)[0].publishedAt, _updatedAt)\n  }\n': SchoolSlugsForSitemapQueryResult;
     '\n  *[_type == "school" && defined(slug.current) && _id in $ids]{\n    _id,\n    "slug": slug.current,\n    "lastModified": coalesce(*[\n  _type == "post" &&\n  defined(publishedAt) &&\n  ^._id in teams[]._ref\n] | order(publishedAt desc)[0].publishedAt, _updatedAt)\n  }\n': SchoolSlugsByIdsQueryResult;
-    '\n  *[\n    _type == "advertisement" &&\n    active == true &&\n    defined(image.asset) &&\n    $placement in placements &&\n    (\n      $includeScheduled == true ||\n      (\n        (!defined(startsAt) || startsAt <= now()) &&\n        (!defined(endsAt) || endsAt >= now())\n      )\n    ) &&\n    (\n      !defined(sports) ||\n      count(sports) == 0 ||\n      count(sports[@->slug.current in $sportSlugs]) > 0\n    )\n  ] | order(priority desc, _updatedAt desc)[0]{\n    _id,\n    sponsorName,\n    "openInNewTab": url.openInNewTab,\n    \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/authors/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n,\n    image{\n      ...,\n      "id": asset._ref,\n      "alt": coalesce(alt, asset->altText, ^.sponsorName, "Advertisement"),\n      "width": asset->metadata.dimensions.width,\n      "height": asset->metadata.dimensions.height,\n      hotspot { x, y, height, width },\n      crop { bottom, left, right, top },\n      "preview": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background\n    }\n  }\n': QueryActiveAdvertisementResult;
+    '\n  *[\n    _type == "advertisement" &&\n    active == true &&\n    defined(image.asset) &&\n    $placement in placements &&\n    (\n      $includeScheduled == true ||\n      (\n        (!defined(startsAt) || startsAt <= now()) &&\n        (!defined(endsAt) || endsAt >= now())\n      )\n    ) &&\n    (\n      !defined(sports) ||\n      count(sports) == 0 ||\n      count(sports[@->slug.current in $sportSlugs]) > 0\n    )\n  ] | order(priority desc, _updatedAt desc)[0]{\n    _id,\n    sponsorName,\n    "openInNewTab": url.openInNewTab,\n    \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n,\n    image{\n      ...,\n      "id": asset._ref,\n      "alt": coalesce(alt, asset->altText, ^.sponsorName, "Advertisement"),\n      "width": asset->metadata.dimensions.width,\n      "height": asset->metadata.dimensions.height,\n      hotspot { x, y, height, width },\n      crop { bottom, left, right, top },\n      "preview": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background\n    }\n  }\n': QueryActiveAdvertisementResult;
+    '\n  *[\n    _type == "post" &&\n    defined(slug.current) &&\n    defined(publishedAt) &&\n    dateTime(publishedAt) > dateTime(now()) - 60 * 60 * 48\n  ] | order(publishedAt desc)[0...1000]{\n    _id,\n    title,\n    publishedAt,\n    "slug": slug.current\n  }\n': NewsSitemapQueryResult;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

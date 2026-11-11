@@ -146,13 +146,14 @@ const navSportMenu = defineArrayMember({
     }),
     defineField({
       name: "divisions",
-      title: "Division News Links",
-      description: 'Shown as "By division" news links, in this order.',
+      title: "Level news links",
+      description:
+        'Shown as "By division" news links, in this order. Pick a subdivision (FCS, Mid-Major) or a whole level (NCAA DII).',
       type: "array",
       of: [
         defineArrayMember({
           type: "reference",
-          to: [{ type: "sportSubgrouping" }, { type: "division" }],
+          to: [{ type: "sportSubgrouping" }, { type: "classification" }],
         }),
       ],
       validation: (rule) => rule.unique(),
@@ -319,17 +320,6 @@ export const navbar = defineType({
       description:
         "Top-level navigation, left to right: sport menus, a rankings menu, single links, or columns of links.",
       of: [navSportMenu, navRankingsMenu, navbarLink, navbarColumn],
-    }),
-    defineField({
-      name: "columns",
-      type: "array",
-      title: "Navigation Structure (Deprecated)",
-      deprecated: {
-        reason: 'Replaced by "Menu Items". Will be removed after migration.',
-      },
-      readOnly: true,
-      hidden: ({ value }) => value === undefined,
-      of: [navbarColumn, navbarLink],
     }),
   ],
   preview: {

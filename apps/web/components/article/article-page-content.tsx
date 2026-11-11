@@ -6,6 +6,12 @@ import { ArticleAnalytics } from "@/components/analytics/article-analytics";
 import { ArticleByline } from "@/components/article/article-byline";
 import { ArticleRelatedPosts } from "@/components/article/article-related-posts";
 import { ArticleSidebar } from "@/components/article/article-sidebar";
+import {
+  ArticleEditorsNote,
+  ArticleFaq,
+  ArticleFooterNotes,
+  ArticleKeyTakeaways,
+} from "@/components/article/article-standards";
 import { ArticleTaggedTeamsRow } from "@/components/article/article-tagged-teams-row";
 import { RichText } from "@/components/rich-text";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
@@ -122,13 +128,7 @@ export function ArticlePageContent({
               </ArticleHeroTransition>
               {post.image.credit ? (
                 <figcaption className="mt-2 text-sm text-muted-foreground">
-                  {post.image.caption
-                    ? `${post.image.caption} · Photo: ${post.image.credit}`
-                    : `Photo: ${post.image.credit}`}
-                </figcaption>
-              ) : post.image.caption ? (
-                <figcaption className="mt-2 text-sm text-muted-foreground">
-                  {post.image.caption}
+                  Photo: {post.image.credit}
                 </figcaption>
               ) : null}
             </figure>
@@ -136,9 +136,19 @@ export function ArticlePageContent({
 
           <ArticleTaggedTeamsRow teams={teamsInStory} />
 
+          <ArticleEditorsNote note={post.editorsNote} />
+          <ArticleKeyTakeaways items={post.keyTakeaways} />
+
           <RichText
             richText={post.body}
             className="prose-headings:font-display prose-headings:font-bold prose-headings:uppercase prose-headings:not-prose prose-a:text-primary prose-a:underline-offset-2 mx-auto mt-8 max-w-prose font-serif text-[1.15rem] leading-[1.7] prose-zinc dark:prose-invert [&_p]:mb-5"
+          />
+
+          <ArticleFaq faqs={post.faqs} />
+          <ArticleFooterNotes
+            contributors={post.contributors}
+            sources={post.sources}
+            corrections={post.corrections}
           />
 
           <ArticleAnalytics

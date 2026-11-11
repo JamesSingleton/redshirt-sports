@@ -1,21 +1,22 @@
+import { HomeIcon } from "@sanity/icons/Home";
 import { defineField, defineType } from "sanity";
 
 import { SchoolSlugFieldComponent } from "../../components/school-slug-field-component";
 import { GROUP, GROUPS } from "../../utils/constant";
-import { ogFields } from "../../utils/og-fields";
 import {
   createSchoolSlug,
   createSchoolSlugSource,
 } from "../../utils/school-slug";
-import { seoFields } from "../../utils/seo-fields";
 import { isUnique } from "../../utils/slug";
 import { documentSlugField } from "../common";
 import { socialLinks } from "../definitions/social-links";
+import { seoFields } from "../shared/seo-fields";
 
 export const school = defineType({
   name: "school",
   title: "School",
   type: "document",
+  icon: HomeIcon,
   groups: GROUPS,
   fields: [
     defineField({
@@ -115,7 +116,8 @@ export const school = defineType({
       name: "conferenceAffiliations",
       title: "Conference Affiliations",
       type: "array",
-      description: "What conferences is this school in for each sport?",
+      description:
+        "The conference this school plays in for each sport. The school's subdivision (FBS, FCS, Mid-Major) comes from the conference; set an override only when this school is the exception.",
       group: GROUP.MAIN_CONTENT,
       of: [
         {
@@ -162,14 +164,41 @@ export const school = defineType({
                 },
               },
             }),
+            defineField({
+              name: "subgroupingOverride",
+              title: "Subdivision override",
+              type: "reference",
+              to: [{ type: "sportSubgrouping" }],
+              description:
+                "Leave empty to inherit the conference's subdivision for this sport. Set it when this school differs: a program reclassifying from FCS to FBS, or a power-level program in a mid-major league.",
+              options: {
+                disableNew: true,
+                filter: ({ parent }) => {
+                  const sportRef =
+                    parent &&
+                    !Array.isArray(parent) &&
+                    typeof parent === "object"
+                      ? (parent as { sport?: { _ref?: string } }).sport?._ref
+                      : undefined;
+                  return sportRef
+                    ? {
+                        filter: "$sportId in applicableSports[]._ref",
+                        params: { sportId: sportRef },
+                      }
+                    : { filter: "false" };
+                },
+              },
+            }),
           ],
           preview: {
             select: {
               sport: "sport.title",
               conference: "conference.name",
+              override: "subgroupingOverride.shortName",
             },
-            prepare: ({ sport, conference }) => ({
-              title: `${sport || "Unknown Sport"} - ${conference || "Unknown Conference"}`,
+            prepare: ({ sport, conference, override }) => ({
+              title: `${sport || "Unknown sport"} → ${conference || "Unknown conference"}`,
+              subtitle: override ? `Override: ${override}` : undefined,
             }),
           },
         },
@@ -196,8 +225,14 @@ export const school = defineType({
           return true;
         }),
     }),
-    ...seoFields,
-    ...ogFields,
+    ...seoFields({ group: GROUP.SEO, titleField: "name" }),
+  ],
+  orderings: [
+    {
+      title: "Name A-Z",
+      name: "nameAsc",
+      by: [{ field: "name", direction: "asc" }],
+    },
   ],
   preview: {
     select: {
