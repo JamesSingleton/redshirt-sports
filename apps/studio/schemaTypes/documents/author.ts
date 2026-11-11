@@ -1,27 +1,55 @@
-import { User } from "lucide-react";
-import { defineField, defineType } from "sanity";
+import { UserIcon } from "@sanity/icons/User";
+import { defineArrayMember, defineField, defineType } from "sanity";
 
-import { CharacterCountInput } from "../../components/character-count";
-import { createSlug, isUnique } from "../../utils/slug";
+import { budgetInput } from "@/components/text-budget-input";
+import { LIMITS } from "@/house-rules/limits";
+import { createSlug, isUnique } from "@/utils/slug";
 import { documentSlugField } from "../common";
 import { socialLinks } from "../definitions/social-links";
 
+export const AUTHOR_ROLES = [
+  "Founder",
+  "Editor",
+  "Senior Writer",
+  "Correspondent",
+  "Contributor",
+  "Guest Writer",
+  "Recruiting Analyst",
+  "Transfer Portal Analyst",
+  "Historian",
+  "Podcast Host",
+];
+
 export const author = defineType({
   name: "author",
-  title: "Author",
   type: "document",
-  icon: User,
+  icon: UserIcon,
+  groups: [
+    { name: "profile", title: "Profile", default: true },
+    { name: "expertise", title: "Expertise" },
+  ],
   fields: [
     defineField({
       name: "name",
-      title: "Name",
       type: "string",
-      validation: (rule) => rule.required().error("Author name is required"),
+      group: "profile",
+      description: "As it appears in bylines.",
+      validation: (rule) => [
+        rule.required().error("An author needs a name."),
+        rule
+          .custom((value: string | undefined) =>
+            value && value !== value.trim().replace(/\s+/g, " ")
+              ? "Remove the extra spaces in the name."
+              : true,
+          )
+          .error(),
+      ],
     }),
     documentSlugField("author", {
-      title: "Author URL",
+      group: "profile",
+      title: "Profile URL",
       description:
-        "The web address for this author's profile page (automatically created from name)",
+        "The author's page address, made from the name. Changing it creates a redirect.",
       required: true,
       slugOptions: {
         source: "name",
@@ -31,69 +59,126 @@ export const author = defineType({
       },
     }),
     defineField({
-      name: "archived",
-      title: "Archived",
-      type: "boolean",
-      description: "This will hide the author from the site",
-      initialValue: false,
-    }),
-    defineField({
-      title: "Roles",
       name: "roles",
       type: "array",
+      group: "profile",
+      description: "Shown next to the name. Most senior role first.",
       of: [
-        {
-          type: "string",
-          options: {
-            list: [
-              "Contributor",
-              "Correspondent",
-              "Editor",
-              "Founder",
-              "Guest Writer",
-              "Historian",
-              "Podcast Host",
-              "Recruiting Analyst",
-              "Senior Writer",
-              "Transfer Portal Analyst",
-            ],
-          },
-        },
+        defineArrayMember({ type: "string", options: { list: AUTHOR_ROLES } }),
       ],
-      validation: (rule) => rule.required(),
+      validation: (rule) => [
+        rule.required().min(1).error("Give the author at least one role."),
+        rule.unique(),
+        rule
+          .max(3)
+          .warning("More than three roles is hard to read in a byline."),
+      ],
     }),
     defineField({
       name: "image",
-      title: "Image",
+      title: "Headshot",
       type: "image",
-      options: {
-        hotspot: true,
-      },
-      validation: (rule) => rule.required(),
+      group: "profile",
+      description:
+        "A square-ish photo of the author's face. Set the hotspot on the face.",
+      options: { hotspot: true },
+      validation: (rule) => rule.required().error("Add a headshot."),
     }),
     defineField({
       name: "biography",
       title: "Bio",
-      description:
-        "A short paragraph about the author's background and expertise",
       type: "text",
-      validation: (rule) => rule.required().error("Bio is required"),
+      rows: 4,
+      group: "profile",
+      description: `Third person, present tense. Say what they cover and why they know it: beats, years covering the sport, where else they've been published. ${LIMITS.authorBio.min} to ${LIMITS.authorBio.max} characters.`,
       components: {
-        input: CharacterCountInput,
+        input: budgetInput({
+          max: LIMITS.authorBio.max,
+          min: LIMITS.authorBio.min,
+        }),
       },
-      rows: 3,
+      validation: (rule) => [
+        rule
+          .required()
+          .error(
+            "Write a bio. Readers and search engines use it to judge who is behind the article.",
+          ),
+        rule
+          .max(LIMITS.authorBio.max)
+          .error(`Keep the bio to ${LIMITS.authorBio.max} characters.`),
+        rule
+          .min(LIMITS.authorBio.min)
+          .warning(
+            `A bio under ${LIMITS.authorBio.min} characters rarely says what the author covers.`,
+          ),
+        rule
+          .custom((value: string | undefined) =>
+            value && /\b(?:I|my|me)\b/.test(value)
+              ? "Write the bio in the third person."
+              : true,
+          )
+          .warning(),
+      ],
     }),
-    socialLinks,
+    defineField({ ...socialLinks, group: "profile" }),
+    defineField({
+      name: "beats",
+      type: "array",
+      group: "expertise",
+      description:
+        "Sports this author covers regularly. Shown on their profile.",
+      of: [
+        defineArrayMember({
+          type: "reference",
+          to: [{ type: "sport" }],
+          options: { disableNew: true },
+        }),
+      ],
+      validation: (rule) => rule.unique(),
+    }),
+    defineField({
+      name: "credentials",
+      type: "array",
+      group: "expertise",
+      description:
+        'Verifiable credentials, one per line: "FWAA member", "Stats Perform FCS Top 25 voter", "Covering the Big Sky since 2015".',
+      of: [
+        defineArrayMember({
+          type: "string",
+          validation: (rule) => rule.required().max(100),
+        }),
+      ],
+      validation: (rule) => [rule.unique(), rule.max(6)],
+    }),
+    defineField({
+      name: "archived",
+      title: "No longer writing for us",
+      type: "boolean",
+      group: "profile",
+      description:
+        "Removes the author from the staff page and from byline pickers. Their articles and profile stay online.",
+      initialValue: false,
+    }),
+  ],
+  orderings: [
+    {
+      title: "Name A-Z",
+      name: "nameAsc",
+      by: [{ field: "name", direction: "asc" }],
+    },
   ],
   preview: {
     select: {
       title: "name",
-      subtitle: "roles",
+      roles: "roles",
       media: "image",
+      archived: "archived",
     },
-    prepare: ({ title, subtitle, media }) => ({
+    prepare: ({ title, roles, media, archived }) => ({
       title,
-      subtitle: subtitle?.join(", "),
+      subtitle: [archived ? "Archived" : null, ...(roles ?? [])]
+        .filter(Boolean)
+        .join(" · "),
       media,
     }),
   },

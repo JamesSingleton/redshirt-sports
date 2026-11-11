@@ -1,8 +1,8 @@
 import { GavelIcon } from "lucide-react";
 import { defineField, defineType } from "sanity";
 
-import { CharacterCountInput } from "../../components/character-count";
-import { createSlug, isUnique } from "../../utils/slug";
+import { budgetInput } from "../../components/text-budget-input";
+import { createSlug, isUniqueWithinType } from "../../utils/slug";
 
 export const legal = defineType({
   name: "legal",
@@ -25,7 +25,7 @@ export const legal = defineType({
       options: {
         source: "title",
         maxLength: 96,
-        isUnique,
+        isUnique: isUniqueWithinType,
         slugify: createSlug,
       },
       validation: (rule) =>
@@ -45,7 +45,7 @@ export const legal = defineType({
       description:
         "A plain-language overview shown under the title and used as the search engine description",
       components: {
-        input: CharacterCountInput,
+        input: budgetInput({ max: 160 }),
       },
       validation: (rule) =>
         rule

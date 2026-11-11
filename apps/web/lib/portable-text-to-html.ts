@@ -94,6 +94,40 @@ function createComponents(baseUrl: string): PortableTextComponents {
   }) =>
     `<p><em>${escapeHTML(value.caption ?? "Playoff bracket")}: view the full bracket on Redshirt Sports.</em></p>`;
 
+  const pullQuote: PortableTextTypeComponent<BodyMember<"pullQuote">> = ({
+    value,
+  }) => {
+    if (!value.quote) return "";
+    const by = [value.attribution, value.role].filter(Boolean).join(", ");
+    return `<blockquote><p>${escapeHTML(value.quote)}</p>${by ? `<cite>${escapeHTML(by)}</cite>` : ""}</blockquote>`;
+  };
+
+  const callout: PortableTextTypeComponent<BodyMember<"callout">> = ({
+    value,
+  }) => {
+    if (!value.text) return "";
+    const title = value.title
+      ? `<strong>${escapeHTML(value.title)}</strong><br />`
+      : "";
+    return `<p>${title}${escapeHTML(value.text)}</p>`;
+  };
+
+  const relatedArticle: PortableTextTypeComponent<
+    BodyMember<"relatedArticle">
+  > = ({ value }) => {
+    if (!value.post?.slug || !value.post.title) return "";
+    const href = new URL(`/${value.post.slug}`, baseUrl).toString();
+    return `<p>${escapeHTML(value.label || "Related")}: <a href="${escapeHTML(href)}">${escapeHTML(value.post.title)}</a></p>`;
+  };
+
+  const socialEmbed: PortableTextTypeComponent<BodyMember<"socialEmbed">> = ({
+    value,
+  }) => {
+    const href = value.url ? toAbsoluteUrl(value.url, baseUrl) : null;
+    if (!href) return "";
+    return `<p><a href="${escapeHTML(href)}">${escapeHTML(value.caption || "View the post")}</a></p>`;
+  };
+
   return {
     marks: {
       customLink: linkMark,
@@ -101,7 +135,17 @@ function createComponents(baseUrl: string): PortableTextComponents {
       internalLink: linkMark,
       link: linkMark,
     },
-    types: { bracketEmbed, image, table, twitter, youtubeEmbed },
+    types: {
+      bracketEmbed,
+      callout,
+      image,
+      pullQuote,
+      relatedArticle,
+      socialEmbed,
+      table,
+      twitter,
+      youtubeEmbed,
+    },
   };
 }
 

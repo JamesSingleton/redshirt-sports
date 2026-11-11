@@ -1,9 +1,10 @@
+import { ActivityIcon } from "@sanity/icons/Activity";
 import { StarIcon } from "@sanity/icons/Star";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 import { SportPollInput } from "../../components/sport-poll-input";
 import { GROUPS } from "../../utils/constant";
-import { createSlug, isUnique } from "../../utils/slug";
+import { createSlug, isUniqueWithinType } from "../../utils/slug";
 import {
   ALL_POLL_OPTIONS,
   pollTitle,
@@ -14,6 +15,7 @@ export const sport = defineType({
   name: "sport",
   title: "Sport",
   type: "document",
+  icon: ActivityIcon,
   groups: GROUPS,
   fields: [
     defineField({
@@ -29,7 +31,7 @@ export const sport = defineType({
       options: {
         source: "title",
         slugify: createSlug,
-        isUnique,
+        isUnique: isUniqueWithinType,
       },
       validation: (rule) => rule.required(),
     }),

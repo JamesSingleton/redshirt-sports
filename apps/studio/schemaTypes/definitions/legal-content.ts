@@ -1,10 +1,12 @@
-import { LinkIcon } from "@sanity/icons/Link";
-import { defineArrayMember, defineField, defineType } from "sanity";
+import { blockInsertPicker } from "@sanity/block-insert-picker";
+import { defineArrayMember, defineType } from "sanity";
 
 import { warnWhenHeadingOrBlockIsAllBold } from "../../utils/portable-text-validations";
 
 export const legalContent = defineType({
   name: "legalContent",
+  // Type "/" (or Cmd/Ctrl+/) to insert any block this field allows.
+  components: { portableText: { plugins: blockInsertPicker() } },
   title: "Legal Content",
   type: "array",
   of: [
@@ -28,20 +30,7 @@ export const legalContent = defineType({
           { title: "Emphasis", value: "em" },
           { title: "Underline", value: "underline" },
         ],
-        annotations: [
-          defineArrayMember({
-            name: "customLink",
-            type: "object",
-            title: "Internal/External Link",
-            icon: LinkIcon,
-            fields: [
-              defineField({
-                name: "customLink",
-                type: "customUrl",
-              }),
-            ],
-          }),
-        ],
+        annotations: [defineArrayMember({ type: "link" })],
       },
     }),
     defineArrayMember({

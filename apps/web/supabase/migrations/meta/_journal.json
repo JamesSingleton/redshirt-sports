@@ -197,6 +197,13 @@
       "when": 1794111529801,
       "tag": "0027_ratings_schedule_trim",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794197929801,
+      "tag": "0028_divisions_sanity_classification_ids",
+      "breakpoints": true
     }
   ]
 }

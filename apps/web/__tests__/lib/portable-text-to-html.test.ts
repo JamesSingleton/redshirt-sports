@@ -322,3 +322,73 @@ describe("portableTextToHtml", () => {
     );
   });
 });
+
+describe("portableTextToHtml editorial blocks", () => {
+  const html = (block: Record<string, unknown>) =>
+    portableTextToHtml([{ _key: "k", ...block }] as never, baseUrl);
+
+  it("renders a pull quote with and without a speaker", () => {
+    expect(
+      html({
+        _type: "pullQuote",
+        quote: "We earned <this>.",
+        attribution: "Bobby Hauck",
+        role: "Montana head coach",
+      }),
+    ).toBe(
+      "<blockquote><p>We earned &lt;this&gt;.</p><cite>Bobby Hauck, Montana head coach</cite></blockquote>",
+    );
+    expect(html({ _type: "pullQuote", quote: "Alone." })).toBe(
+      "<blockquote><p>Alone.</p></blockquote>",
+    );
+    expect(html({ _type: "pullQuote" })).toBe("");
+  });
+
+  it("renders a callout with and without a title", () => {
+    expect(
+      html({ _type: "callout", title: "The streak", text: "Eleven wins." }),
+    ).toBe("<p><strong>The streak</strong><br />Eleven wins.</p>");
+    expect(html({ _type: "callout", text: "Eleven wins." })).toBe(
+      "<p>Eleven wins.</p>",
+    );
+    expect(html({ _type: "callout" })).toBe("");
+  });
+
+  it("renders a related story as an absolute link", () => {
+    expect(
+      html({
+        _type: "relatedArticle",
+        label: "Earlier",
+        post: { title: "Griz clinch", slug: "griz-clinch" },
+      }),
+    ).toBe(
+      '<p>Earlier: <a href="https://www.redshirtsports.com/griz-clinch">Griz clinch</a></p>',
+    );
+    expect(
+      html({
+        _type: "relatedArticle",
+        post: { title: "Griz clinch", slug: "griz-clinch" },
+      }),
+    ).toContain("<p>Related: ");
+    expect(html({ _type: "relatedArticle", post: { title: "x" } })).toBe("");
+    expect(html({ _type: "relatedArticle", post: { slug: "x" } })).toBe("");
+    expect(html({ _type: "relatedArticle" })).toBe("");
+  });
+
+  it("renders a social post as a link and drops unsafe URLs", () => {
+    expect(
+      html({
+        _type: "socialEmbed",
+        url: "https://www.instagram.com/p/abc/",
+        caption: "Locker room celebration",
+      }),
+    ).toBe(
+      '<p><a href="https://www.instagram.com/p/abc/">Locker room celebration</a></p>',
+    );
+    expect(
+      html({ _type: "socialEmbed", url: "https://bsky.app/profile/x/post/1" }),
+    ).toContain(">View the post</a>");
+    expect(html({ _type: "socialEmbed", url: "javascript:alert(1)" })).toBe("");
+    expect(html({ _type: "socialEmbed" })).toBe("");
+  });
+});

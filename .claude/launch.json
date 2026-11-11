@@ -40,6 +40,16 @@
         "dev"
       ],
       "port": 3001
+    },
+    {
+      "name": "studio (start dev server)",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@redshirt-sports/studio",
+        "dev"
+      ],
+      "port": 3333
     }
   ]
 }

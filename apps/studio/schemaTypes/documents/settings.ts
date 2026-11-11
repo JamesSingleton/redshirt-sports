@@ -85,6 +85,48 @@ export const settings = defineType({
       validation: (rule) => rule.email(),
     }),
     socialLinks,
+    defineField({
+      name: "newsroomPolicies",
+      title: "Newsroom policies",
+      type: "object",
+      description:
+        "Links to the pages that explain how the newsroom works. Shown to search engines in the site's structured data; Google News uses them as trust signals. Leave a field empty until its page exists.",
+      options: { collapsible: true, collapsed: false },
+      fields: [
+        defineField({
+          name: "publishingPrinciples",
+          title: "Editorial standards",
+          type: "url",
+          description: "How articles are reported, sourced, and edited.",
+          validation: (rule) =>
+            rule.uri({ allowRelative: true, scheme: ["https"] }),
+        }),
+        defineField({
+          name: "correctionsPolicy",
+          title: "Corrections policy",
+          type: "url",
+          description: "How errors are corrected and noted.",
+          validation: (rule) =>
+            rule.uri({ allowRelative: true, scheme: ["https"] }),
+        }),
+        defineField({
+          name: "ethicsPolicy",
+          title: "Ethics policy",
+          type: "url",
+          description: "Conflicts of interest, gifts, sponsorships.",
+          validation: (rule) =>
+            rule.uri({ allowRelative: true, scheme: ["https"] }),
+        }),
+        defineField({
+          name: "ownershipFundingInfo",
+          title: "Ownership and funding",
+          type: "url",
+          description: "Who owns and pays for the site.",
+          validation: (rule) =>
+            rule.uri({ allowRelative: true, scheme: ["https"] }),
+        }),
+      ],
+    }),
   ],
   preview: {
     select: {

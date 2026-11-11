@@ -212,7 +212,7 @@ export function getSlugPreviewPath(
 
   switch (documentType) {
     case "author":
-      return `/authors/${segment}`;
+      return `/people/${segment}`;
     case "school":
       return `/college/teams/${segment}`;
     case "post":

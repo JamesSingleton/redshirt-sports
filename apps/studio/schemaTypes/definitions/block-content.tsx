@@ -1,182 +1,311 @@
+import { blockInsertPicker } from "@sanity/block-insert-picker";
+import { BlockquoteIcon } from "@sanity/icons/Blockquote";
+import { BulbOutlineIcon } from "@sanity/icons/BulbOutline";
+import { DocumentTextIcon } from "@sanity/icons/DocumentText";
 import { ImageIcon } from "@sanity/icons/Image";
-import { LinkIcon } from "@sanity/icons/Link";
 import { PlayIcon } from "@sanity/icons/Play";
+import { ShareIcon } from "@sanity/icons/Share";
 import { TwitterIcon } from "@sanity/icons/Twitter";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
-import { warnWhenHeadingOrBlockIsAllBold } from "../../utils/portable-text-validations";
+import { warnWhenHeadingOrBlockIsAllBold } from "@/utils/portable-text-validations";
+import { editorialImageFields } from "../shared/image-fields";
 
-const SanityLogoIcon = () => (
-  <svg
-    width={12}
-    height={12}
-    viewBox="0 0 654 869"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <g fill="currentColor" fillRule="nonzero">
-      <path d="M343.36,744.64 C251.78,744.64 187.08,704.35 159.98,630.86 L0.46,630.86 C34.6,780.14 162,868.65 344.77,868.65 C453.44,868.65 546.21,830.93 600.45,764.96 C598.22,697.56 576,647.43 529,609.34 C513.78,693.66 445.35,744.64 343.36,744.64 Z" />
-      <path d="M320.67,123.39 C429.86,123.39 473.76,185.33 491.09,228.56 L643.69,228.56 C608.91,83.5 491.64,0.76 319.25,0.76 C214.4,0.76 124.31,39.4 71,107 C73.64,167.86 97.19,215.7 143.35,252.26 C160.62,172.94 227.15,123.39 320.67,123.39 Z" />
-      <path d="M436.38,381 L277.65,343.62 C234.863333,332.62 197.98,318.646667 167,301.7 C97.3,263.5 57.17,210 45.6,140 C45.17,140.87 44.76,141.76 44.34,142.63 C28.55,175.42 20.34,212.07 20.34,250.63 C20.34,371.11 89.02,445.51 230.34,478.08 L386.18,514 C432.4,526.19 471.41,540.84 503.74,558.49 C577.39,598.69 616.34,654.49 626.53,732.16 C626.9,731.44 627.25,730.71 627.61,729.99 C644.78,696.05 653.47,657.76 653.47,615.61 C653.49,463.53 535.43,404.08 436.38,381 Z" />
-    </g>
-  </svg>
-);
+const YOUTUBE_HOST = /(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i;
+const YOUTUBE_ID =
+  /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([^&\n?#]+)/;
 
-const richTextMembers = [
-  defineArrayMember({
-    name: "block",
-    type: "block",
-    styles: [
-      { title: "Normal", value: "normal" },
-      { title: "Heading 2", value: "h2" },
-      { title: "Heading 3", value: "h3" },
-      { title: "Heading 4", value: "h4" },
-      { title: "Heading 5", value: "h5" },
-      { title: "Heading 6", value: "h6" },
-      { title: "Quote", value: "blockquote" },
-    ],
-    validation: (rule) => [warnWhenHeadingOrBlockIsAllBold(rule)],
-    marks: {
-      annotations: [
-        {
-          name: "customLink",
-          type: "object",
-          title: "Internal/External Link",
-          icon: LinkIcon,
-          fields: [
-            defineField({
-              name: "customLink",
-              type: "customUrl",
-            }),
-          ],
-        },
-        {
-          title: "URL (Legacy)",
-          name: "link",
-          type: "object",
-          fields: [
-            {
-              title: "URL",
-              name: "href",
-              type: "url",
-              description: `Only use this if you are linking to a website outside of ${process.env.NEXT_PUBLIC_APP_NAME}. If you are linking to a ${process.env.NEXT_PUBLIC_APP_NAME} page, use the internal link option.`,
-              validation: (rule) =>
-                rule.uri({
-                  scheme: ["https", "mailto", "tel"],
-                }),
-            },
-            {
-              title: "Open in new tab",
-              name: "blank",
-              description: "Read https://css-tricks.com/use-target_blank/",
-              type: "boolean",
-              initialValue: true,
-            },
-          ],
-        },
+export const SOCIAL_EMBED_PLATFORMS = [
+  { title: "Instagram", hosts: ["instagram.com"] },
+  { title: "TikTok", hosts: ["tiktok.com"] },
+  { title: "Bluesky", hosts: ["bsky.app"] },
+  { title: "Threads", hosts: ["threads.net", "threads.com"] },
+  { title: "Facebook", hosts: ["facebook.com", "fb.watch"] },
+] as const;
 
-        {
-          name: "internalLink",
-          title: "Internal Link (legacy)",
-          type: "object",
-          description:
-            "Deprecated — use Site Link instead. Existing links still work.",
-          icon: SanityLogoIcon,
-          fields: [
-            {
-              title: "Reference",
-              name: "reference",
-              type: "reference",
-              to: [{ type: "post" }, { type: "school" }, { type: "author" }],
-            },
-          ],
-        },
-      ],
-    },
-  }),
-  defineArrayMember({
-    name: "image",
-    title: "Image",
-    type: "image",
-    icon: ImageIcon,
-    options: {
-      hotspot: true,
-    },
-    fields: [
-      {
-        name: "caption",
-        type: "string",
-        title: "Caption",
-        description:
-          "Just a brief description of the image as this will be used for alt text for accessibility.",
-        validation: (rule) => rule.required(),
-      },
-      {
-        name: "attribution",
-        type: "string",
-        title: "Attribution",
-        description: "Where did the photo come from?",
-        validation: (rule) => rule.required(),
-      },
-    ],
-  }),
-  defineArrayMember({
-    type: "twitter",
-    icon: TwitterIcon,
-  }),
-  defineArrayMember({
-    type: "table",
-  }),
-  defineArrayMember({
-    type: "bracketEmbed",
-  }),
-  defineArrayMember({
-    name: "youtubeEmbed",
-    title: "YouTube Embed",
-    type: "object",
-    icon: PlayIcon,
-    fields: [
-      defineField({
-        name: "url",
-        title: "YouTube URL",
-        type: "url",
-        description:
-          "Enter a YouTube video URL (e.g., https://youtube.com/watch?v=dQw4w9WgXcQ)",
-        validation: (Rule) =>
-          Rule.required()
-            .uri({
-              scheme: ["http", "https"],
-            })
-            .custom((url) => {
-              if (!url) return "YouTube URL is required";
-              const isYouTube =
-                /(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i.test(url);
-              return isYouTube || "Please enter a valid YouTube URL";
-            }),
-      }),
-    ],
-    preview: {
-      select: {
-        url: "url",
-      },
-      prepare({ url }) {
-        // Extract video title from URL if possible, otherwise show URL
-        const videoId = url?.match(
-          /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-        )?.[1];
-        const title = videoId ? `YouTube Video (${videoId})` : "YouTube Embed";
+export function socialPlatformFor(url: string | undefined): string | null {
+  if (!url) return null;
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    const platform = SOCIAL_EMBED_PLATFORMS.find((entry) =>
+      entry.hosts.some(
+        (allowed) => host === allowed || host.endsWith(`.${allowed}`),
+      ),
+    );
+    return platform?.title ?? null;
+  } catch {
+    return null;
+  }
+}
 
-        return {
-          title,
-          subtitle: `🎥 ${url}`,
-          media: PlayIcon,
-        };
-      },
-    },
-  }),
-];
-
+/**
+ * The article body. Styles and marks are limited to what the article template
+ * renders: three heading levels, quotes, two list types, bold, italic, links.
+ */
 export const blockContent = defineType({
   name: "blockContent",
+  // Type "/" (or Cmd/Ctrl+/) to insert any block this field allows.
+  components: { portableText: { plugins: blockInsertPicker() } },
+  title: "Article body",
   type: "array",
-  of: richTextMembers,
+  of: [
+    defineArrayMember({
+      name: "block",
+      type: "block",
+      styles: [
+        { title: "Paragraph", value: "normal" },
+        { title: "Heading 2", value: "h2" },
+        { title: "Heading 3", value: "h3" },
+        { title: "Heading 4", value: "h4" },
+        { title: "Quote", value: "blockquote" },
+      ],
+      lists: [
+        { title: "Bulleted list", value: "bullet" },
+        { title: "Numbered list", value: "number" },
+      ],
+      marks: {
+        decorators: [
+          { title: "Bold", value: "strong" },
+          { title: "Italic", value: "em" },
+        ],
+        annotations: [defineArrayMember({ type: "link" })],
+      },
+      validation: (rule) => [warnWhenHeadingOrBlockIsAllBold(rule)],
+    }),
+    defineArrayMember({
+      name: "image",
+      title: "Photo",
+      type: "image",
+      icon: ImageIcon,
+      options: { hotspot: true },
+      fields: editorialImageFields,
+    }),
+    defineArrayMember({
+      name: "pullQuote",
+      title: "Pull quote",
+      type: "object",
+      icon: BlockquoteIcon,
+      description:
+        "A quote lifted out of the article for emphasis. For a quote that is part of the running text, use the Quote style instead.",
+      fields: [
+        defineField({
+          name: "quote",
+          type: "text",
+          rows: 3,
+          description: "The exact words, without quotation marks.",
+          validation: (rule) => [
+            rule.required().error("A pull quote needs the quote."),
+            rule.max(300).error("Keep a pull quote to 300 characters."),
+            rule
+              .custom((value: string | undefined) =>
+                value && /^["“”']|["“”']$/.test(value.trim())
+                  ? "Leave out the quotation marks. The site adds them."
+                  : true,
+              )
+              .warning(),
+          ],
+        }),
+        defineField({
+          name: "attribution",
+          title: "Who said it",
+          type: "string",
+          description: 'Full name, e.g. "Bobby Hauck".',
+          validation: (rule) =>
+            rule.required().error("Say who the quote is from."),
+        }),
+        defineField({
+          name: "role",
+          title: "Their role",
+          type: "string",
+          description: 'e.g. "Montana head coach".',
+        }),
+      ],
+      preview: {
+        select: { quote: "quote", attribution: "attribution", role: "role" },
+        prepare: ({ quote, attribution, role }) => ({
+          title: quote ? `“${quote}”` : "Pull quote",
+          subtitle: [attribution, role].filter(Boolean).join(", "),
+          media: BlockquoteIcon,
+        }),
+      },
+    }),
+    defineArrayMember({
+      name: "callout",
+      type: "object",
+      icon: BulbOutlineIcon,
+      description:
+        "A short boxed note set apart from the article: background, how something works, or a late update.",
+      fields: [
+        defineField({
+          name: "kind",
+          type: "string",
+          options: {
+            layout: "radio",
+            direction: "horizontal",
+            list: [
+              { title: "Context", value: "context" },
+              { title: "By the numbers", value: "numbers" },
+              { title: "Update", value: "update" },
+            ],
+          },
+          initialValue: "context",
+          validation: (rule) => rule.required(),
+        }),
+        defineField({
+          name: "title",
+          type: "string",
+          description: 'e.g. "How the FCS playoff field is picked".',
+          validation: (rule) =>
+            rule.max(80).error("Keep the title to 80 characters."),
+        }),
+        defineField({
+          name: "text",
+          type: "text",
+          rows: 4,
+          validation: (rule) => [
+            rule.required().error("A callout needs text."),
+            rule
+              .max(600)
+              .error(
+                "Keep a callout to 600 characters. Longer belongs in the article.",
+              ),
+          ],
+        }),
+      ],
+      preview: {
+        select: { title: "title", text: "text", kind: "kind" },
+        prepare: ({ title, text, kind }) => ({
+          title: title || text || "Callout",
+          subtitle: `Callout · ${kind ?? "context"}`,
+          media: BulbOutlineIcon,
+        }),
+      },
+    }),
+    defineArrayMember({
+      name: "relatedArticle",
+      title: "Related article",
+      type: "object",
+      icon: DocumentTextIcon,
+      description:
+        "A card linking to another Redshirt Sports article, placed where it is relevant.",
+      fields: [
+        defineField({
+          name: "post",
+          title: "Article",
+          type: "reference",
+          // Weak for the same reason as body links: placing a card must not
+          // block unpublishing the article it shows. A missing one is skipped.
+          weak: true,
+          to: [{ type: "post" }],
+          options: {
+            disableNew: true,
+            filter: "defined(publishedAt)",
+          },
+          validation: (rule) => [
+            rule.required().error("Pick the article to link to."),
+            rule.custom((value, context) => {
+              const self = context.document?._id?.replace(/^drafts\./, "");
+              return value?._ref && value._ref === self
+                ? "An article can't link to itself."
+                : true;
+            }),
+          ],
+        }),
+        defineField({
+          name: "label",
+          type: "string",
+          description: 'Optional kicker above the card. Defaults to "Related".',
+          validation: (rule) => rule.max(30),
+        }),
+      ],
+      preview: {
+        select: { title: "post.title", media: "post.image", label: "label" },
+        prepare: ({ title, media, label }) => ({
+          title: title ?? "Related article",
+          subtitle: label || "Related",
+          media: media ?? DocumentTextIcon,
+        }),
+      },
+    }),
+    defineArrayMember({ type: "table" }),
+    defineArrayMember({ type: "twitter", icon: TwitterIcon }),
+    defineArrayMember({
+      name: "youtubeEmbed",
+      title: "YouTube video",
+      type: "object",
+      icon: PlayIcon,
+      fields: [
+        defineField({
+          name: "url",
+          title: "YouTube URL",
+          type: "url",
+          description: "Paste the video link from YouTube.",
+          validation: (rule) =>
+            rule
+              .required()
+              .uri({ scheme: ["https"] })
+              .custom((url) =>
+                !url || YOUTUBE_HOST.test(url)
+                  ? true
+                  : "That isn't a YouTube link.",
+              ),
+        }),
+      ],
+      preview: {
+        select: { url: "url" },
+        prepare({ url }) {
+          const videoId = url?.match(YOUTUBE_ID)?.[1];
+          return {
+            title: videoId ? `YouTube video (${videoId})` : "YouTube video",
+            subtitle: url,
+            media: PlayIcon,
+          };
+        },
+      },
+    }),
+    defineArrayMember({
+      name: "socialEmbed",
+      title: "Social post",
+      type: "object",
+      icon: ShareIcon,
+      description: `A post from ${SOCIAL_EMBED_PLATFORMS.map((p) => p.title).join(", ")}. For X use "X post"; for YouTube use "YouTube video".`,
+      fields: [
+        defineField({
+          name: "url",
+          title: "Post URL",
+          type: "url",
+          validation: (rule) =>
+            rule
+              .required()
+              .uri({ scheme: ["https"] })
+              .custom((url) =>
+                !url || socialPlatformFor(url)
+                  ? true
+                  : `Paste a link from ${SOCIAL_EMBED_PLATFORMS.map((p) => p.title).join(", ")}.`,
+              ),
+        }),
+        defineField({
+          name: "caption",
+          type: "string",
+          description:
+            "One line saying what the post shows. Displayed if the embed can't load, and read by search engines.",
+          validation: (rule) =>
+            rule
+              .required()
+              .error(
+                "Describe the post so the article still reads if it's deleted.",
+              ),
+        }),
+      ],
+      preview: {
+        select: { url: "url", caption: "caption" },
+        prepare: ({ url, caption }) => ({
+          title: caption || "Social post",
+          subtitle: [socialPlatformFor(url), url].filter(Boolean).join(" · "),
+          media: ShareIcon,
+        }),
+      },
+    }),
+    defineArrayMember({ type: "bracketEmbed" }),
+  ],
 });

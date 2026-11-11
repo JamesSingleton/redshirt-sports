@@ -13,6 +13,7 @@ import type {
 } from "@/lib/college-news-filters";
 import {
   type NewsArchiveSearchParams,
+  parseStoryTypeParam,
   STORY_TYPE_OPTIONS,
 } from "@/lib/news-archive";
 
@@ -31,7 +32,7 @@ export function CollegeNewsArchiveFilters({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [storyType, setStoryType] = useState(initial.type ?? "");
+  const [storyType, setStoryType] = useState(parseStoryTypeParam(initial.type));
   const [sort, setSort] = useState(initial.sort ?? "newest");
   const [query, setQuery] = useState(initial.q ?? "");
 
@@ -44,6 +45,7 @@ export function CollegeNewsArchiveFilters({
     if (query.trim()) params.set("q", query.trim());
     else params.delete("q");
     params.delete("page");
+    params.delete("after");
     const qs = params.toString();
     router.push(qs ? `${pathname}?${qs}` : pathname);
   }, [pathname, query, router, searchParams, sort, storyType]);
@@ -123,10 +125,7 @@ export function CollegeNewsArchiveFilters({
           value={storyType}
           onValueChange={setStoryType}
           allLabel="All types"
-          options={STORY_TYPE_OPTIONS.map((type) => ({
-            value: type,
-            label: type,
-          }))}
+          options={STORY_TYPE_OPTIONS}
         />
         <NewsArchiveFilterSelect
           id="news-f-sort"

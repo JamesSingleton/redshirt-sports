@@ -286,15 +286,15 @@ export async function fetchAndLoadDivisions() {
 
     const data = await sanity.fetch(divisionsQuery);
 
+    // Levels come from Sanity `classification` documents. `heading` and
+    // `logo` are no longer sourced from Sanity, so existing values are kept.
     const mappedDivisions = data.map((d: DivisionsQueryResult[number]) => ({
       sanityId: d._id,
       name: d.name,
       title: d.title,
       description: d.description,
-      heading: d.heading,
       longName: d.longName,
       slug: d.slug,
-      logo: d.logo,
       createdAt: new Date(d._createdAt),
       updatedAt: new Date(d._updatedAt),
     }));
@@ -308,10 +308,8 @@ export async function fetchAndLoadDivisions() {
           name: sql`excluded.name`,
           title: sql`excluded.title`,
           description: sql`excluded.description`,
-          heading: sql`excluded.heading`,
           longName: sql`excluded.long_name`,
           slug: sql`excluded.slug`,
-          logo: sql`excluded.logo`,
           updatedAt: sql`excluded.updated_at`,
         },
       });

@@ -85,6 +85,11 @@ vi.mock("@/components/navbar", () => ({
   NavbarSkeleton: () => <nav data-testid="navbar-skeleton" />,
 }));
 
+vi.mock("@/components/breaking-news", () => ({
+  CachedBreakingNewsServer: () => <aside data-testid="breaking-news" />,
+  DraftAwareBreakingNews: () => <aside data-testid="draft-breaking-news" />,
+}));
+
 vi.mock("@/components/providers", () => ({
   Providers: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));

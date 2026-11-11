@@ -11,7 +11,7 @@ export const resolve: PresentationPluginOptions["resolve"] = {
       filter: `_type == "settings" && _id == "settings"`,
     },
     {
-      route: "/authors/:slug",
+      route: "/people/:slug",
       filter: `_type == "author" && slug.current == $slug`,
     },
     {
@@ -75,7 +75,7 @@ export const resolve: PresentationPluginOptions["resolve"] = {
         locations: [
           {
             title: doc?.title || "Untitled",
-            href: `/authors/${doc?.slug}`,
+            href: `/people/${doc?.slug}`,
           },
         ],
       }),

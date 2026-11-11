@@ -1,3 +1,4 @@
+import { storyTypeTitle } from "@redshirt-sports/sanity/story-types";
 import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
 
 import { sportNavLabel } from "@/lib/sport-nav";
@@ -14,7 +15,7 @@ export function divisionNewsSegment(
   sportSubgrouping: ArticlePost["sportSubgrouping"],
 ): { label: string; slug: string } | null {
   if (!division) return null;
-  if (division.name === "D1" && sportSubgrouping?.slug) {
+  if (division.slug === "d1" && sportSubgrouping?.slug) {
     return {
       label: sportSubgrouping.shortName ?? sportSubgrouping.name ?? "D-I",
       slug: sportSubgrouping.slug,
@@ -105,8 +106,7 @@ export function articleKicker(post: ArticlePost): string {
     parts.push(division.label);
   }
   const typeLabel =
-    (post as ArticlePost & { storyType?: string | null }).storyType ??
-    post.tags?.[0]?.name;
+    storyTypeTitle(post.storyType) ?? post.tags?.[0]?.name ?? undefined;
   if (typeLabel) {
     parts.push(typeLabel);
   }

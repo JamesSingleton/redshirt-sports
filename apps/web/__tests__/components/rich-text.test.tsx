@@ -112,12 +112,24 @@ const richText = [
       },
       { _key: "custom-same", _type: "customUrl", href: "/custom-same" },
       { _key: "missing", _type: "customLink" },
+      {
+        _key: "current",
+        _type: "link",
+        linkType: "path",
+        href: "/college/football/news/fcs",
+        openInNewTab: false,
+      },
     ],
     children: [
       {
         _type: "span",
         text: "internal ",
         marks: ["internal"],
+      },
+      {
+        _type: "span",
+        text: "current ",
+        marks: ["current"],
       },
       {
         _type: "span",
@@ -214,11 +226,10 @@ describe("RichText", () => {
       "href",
       "/internal",
     );
-    expect(
-      screen.getByRole("link", {
-        name: "Opens https://external.com in a new tab",
-      }),
-    ).toHaveAttribute("target", "_blank");
+    expect(screen.getByRole("link", { name: "blank" })).toHaveAttribute(
+      "target",
+      "_blank",
+    );
     expect(screen.getByRole("link", { name: "same" })).toHaveAttribute(
       "href",
       "https://same-tab.com",
@@ -232,6 +243,13 @@ describe("RichText", () => {
       "/custom-same",
     );
     expect(screen.getByText("missing")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "current" })).toHaveAttribute(
+      "href",
+      "/college/football/news/fcs",
+    );
+    expect(screen.getByRole("link", { name: "current" })).not.toHaveAttribute(
+      "target",
+    );
     expect(screen.getByTestId("tweet")).toHaveTextContent("tweet-1");
     expect(screen.getByText("Source: Getty")).toBeInTheDocument();
     expect(screen.getByText("Source: AP")).toBeInTheDocument();

@@ -18,8 +18,14 @@ export const handler = documentEventHandler(async ({ context, event }) => {
           type: "field",
           path: "body",
         },
+        title: {
+          type: "field",
+          path: "title",
+        },
       },
-      instruction: `Based on the $content, write a summary that is between 140 and 160 characters.`,
+      // Matches the Studio house rule for summaries (house-rules/limits.ts):
+      // 120-160 characters reads best on cards and in search results.
+      instruction: `Using $content, write a summary of 120 to 160 characters for the line under the headline $title on article cards and in search results. One or two sentences, plain language. Name the team or person and say what happened or why it matters. Do not repeat the headline word for word. No hashtags, emoji, or quotation marks.`,
       target: {
         path: "excerpt",
       },

@@ -49,7 +49,7 @@ export async function isUnique(
   return result.length === 0;
 }
 
-export const createSlug: SlugifierFn = (input, _, { parent }) => {
+export const createSlug: SlugifierFn = (input) => {
   const slug = slugify(input, {
     lower: true,
     remove: /[^a-zA-Z0-9 ]/g,
@@ -58,3 +58,23 @@ export const createSlug: SlugifierFn = (input, _, { parent }) => {
 
   return slug;
 };
+
+/**
+ * Unique among documents of the same type. Taxonomy types share slugs with
+ * each other on purpose (the "naia" classification and the "naia" governing
+ * body), so their uniqueness can't be checked across the whole dataset.
+ */
+export async function isUniqueWithinType(
+  slug: string,
+  context: SlugValidationContext,
+): Promise<boolean> {
+  const { document, getClient } = context;
+  if (!document) return true;
+  const client = getClient({ apiVersion: "2025-02-10" });
+  const id = getPublishedId(document._id);
+  const count = await client.fetch<number>(
+    "count(*[_type == $type && !(_id in [$draft, $published]) && slug.current == $slug])",
+    { type: document._type, draft: getDraftId(id), published: id, slug },
+  );
+  return count === 0;
+}

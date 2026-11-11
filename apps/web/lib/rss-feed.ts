@@ -8,7 +8,12 @@ import { getBaseUrl, getSiteEmailDomain } from "@/lib/get-base-url";
 import { portableTextToHtml } from "@/lib/portable-text-to-html";
 import type { RssFeedLink } from "@/lib/rss-feed-links";
 
-type FeedPost = RssFeedQueryResult[number];
+type RawFeedPost = RssFeedQueryResult[number];
+/**
+ * Feeds are fetched with stega-typed strings, which don't narrow to the
+ * literal unions inside body blocks, so the body is typed where it is used.
+ */
+type FeedPost = Omit<RawFeedPost, "body"> & { body: unknown };
 
 const listFormat = new Intl.ListFormat("en", { type: "conjunction" });
 
@@ -35,7 +40,7 @@ function getEnclosure(image: FeedPost["image"]) {
 }
 
 function getContent(post: FeedPost, baseUrl: string) {
-  const body = portableTextToHtml(post.body, baseUrl);
+  const body = portableTextToHtml(post.body as RawFeedPost["body"], baseUrl);
   // content:encoded also triggers the dc namespace used by dc:creator, so it must never be empty.
   return body || `<p>${escapeHTML(post.excerpt)}</p>`;
 }

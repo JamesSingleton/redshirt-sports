@@ -12,7 +12,7 @@ export function renderNewsArchiveFromFilters(
   filterParams: NewsArchiveSearchParams,
   options: DynamicFetchOptions,
 ) {
-  const { pageIndex, search, storyType, sort } =
+  const { pageIndex, search, storyType, sort, cursor } =
     parseNewsArchiveFilters(filterParams);
   return cachedRenderNewsArchivePage({
     scope,
@@ -20,6 +20,7 @@ export function renderNewsArchiveFromFilters(
     search,
     storyType,
     sort,
+    cursor,
     filterParams,
     perspective: options.perspective,
     stega: options.stega,
