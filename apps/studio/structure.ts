@@ -108,6 +108,7 @@ function storyList(
     .id(options.id)
     .title(options.title)
     .schemaType("post")
+    .menuItems(S.orderingMenuItemsForType("post"))
     .filter(`_type == "post" && (${options.filter})`)
     .apiVersion(API_VERSION)
     .params(options.params ?? {})
@@ -134,6 +135,7 @@ function coverageMap(S: StructureBuilder, context: StructureResolverContext) {
     S.documentList()
       .title("Member schools")
       .schemaType("school")
+      .menuItems(S.orderingMenuItemsForType("school"))
       .filter(
         `_type == "school" && count(conferenceAffiliations[sport._ref == $sportId && conference._ref == $conferenceId]) > 0`,
       )
@@ -166,6 +168,7 @@ function coverageMap(S: StructureBuilder, context: StructureResolverContext) {
     S.documentList()
       .title(title)
       .schemaType("conference")
+      .menuItems(S.orderingMenuItemsForType("conference"))
       .filter(`_type == "conference" && ${filter}`)
       .apiVersion(API_VERSION)
       .params(params)
@@ -227,6 +230,7 @@ function coverageMap(S: StructureBuilder, context: StructureResolverContext) {
                       S.documentList()
                         .title(`${title} overrides`)
                         .schemaType("school")
+                        .menuItems(S.orderingMenuItemsForType("school"))
                         .filter(
                           `_type == "school" && count(conferenceAffiliations[sport._ref == $sportId && subgroupingOverride._ref == $subgroupingId]) > 0`,
                         )
@@ -271,6 +275,7 @@ function coverageMap(S: StructureBuilder, context: StructureResolverContext) {
           S.documentList()
             .title("Divisions")
             .schemaType("classification")
+            .menuItems(S.orderingMenuItemsForType("classification"))
             .filter(
               `_type == "classification" && governingBody._ref == $governingBodyId`,
             )
@@ -300,12 +305,8 @@ export const structure = async (
     { perspective: "drafts" },
   );
 
-  const storyChecks = HEALTH_CHECKS.filter((check) =>
-    check.filter.startsWith(`_type == "post"`),
-  );
-  const taxonomyChecks = HEALTH_CHECKS.filter(
-    (check) => !check.filter.startsWith(`_type == "post"`),
-  );
+  const storyChecks = HEALTH_CHECKS.filter((check) => check.type === "post");
+  const taxonomyChecks = HEALTH_CHECKS.filter((check) => check.type !== "post");
 
   const items = [
     S.divider().title("Newsroom"),
@@ -414,7 +415,8 @@ export const structure = async (
                   S.documentList()
                     .id(check.id)
                     .title(check.title)
-                    .schemaType("post")
+                    .schemaType(check.type)
+                    .menuItems(S.orderingMenuItemsForType(check.type))
                     .filter(check.filter)
                     .apiVersion(API_VERSION)
                     .defaultOrdering(NEWEST_FIRST),
@@ -430,6 +432,8 @@ export const structure = async (
                   S.documentList()
                     .id(check.id)
                     .title(check.title)
+                    .schemaType(check.type)
+                    .menuItems(S.orderingMenuItemsForType(check.type))
                     .filter(check.filter)
                     .apiVersion(API_VERSION)
                     .defaultOrdering(NAME_ASC),
@@ -448,6 +452,7 @@ export const structure = async (
           .id("authors")
           .title("Authors")
           .schemaType("author")
+          .menuItems(S.orderingMenuItemsForType("author"))
           .filter(`_type == "author" && archived != true`)
           .apiVersion(API_VERSION)
           .defaultOrdering(NAME_ASC),
@@ -461,6 +466,7 @@ export const structure = async (
           .id("authors-archived")
           .title("Former authors")
           .schemaType("author")
+          .menuItems(S.orderingMenuItemsForType("author"))
           .filter(`_type == "author" && archived == true`)
           .apiVersion(API_VERSION)
           .defaultOrdering(NAME_ASC),

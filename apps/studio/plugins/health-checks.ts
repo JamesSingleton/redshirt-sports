@@ -9,21 +9,25 @@ export const HEALTH_CHECKS = [
   {
     id: "no-sport-or-level",
     title: "Articles with no sport or division",
+    type: "post",
     filter: `_type == "post" && (!defined(sport) || !defined(classification))`,
   },
   {
     id: "no-alt",
     title: "Articles whose lead image has no alt text",
+    type: "post",
     filter: `_type == "post" && !defined(image.alt)`,
   },
   {
     id: "long-headline-no-seo-title",
     title: "Long headlines with no SEO title",
+    type: "post",
     filter: `_type == "post" && length(title) > ${LIMITS.seoTitle.max} && !defined(seoTitle)`,
   },
   {
     id: "old-links",
     title: "Articles with old-format links",
+    type: "post",
     // Same rule as `isLegacyLink`: an old annotation type, or a `link` from
     // before `linkType`. Only blocks with `markDefs`: photos and embeds have
     // none, and `body[].markDefs[...]` would count their nulls as matches.
@@ -32,21 +36,25 @@ export const HEALTH_CHECKS = [
   {
     id: "no-teams",
     title: "Articles with no teams tagged",
+    type: "post",
     filter: `_type == "post" && count(coalesce(teams, [])) == 0`,
   },
   {
     id: "no-tags",
     title: "Articles with no tags",
+    type: "post",
     filter: `_type == "post" && count(coalesce(tags, [])) == 0`,
   },
   {
     id: "conference-no-level",
     title: "Conferences with no division",
+    type: "conference",
     filter: `_type == "conference" && !defined(primaryClassification)`,
   },
   {
     id: "school-no-conference",
     title: "Schools with no conference",
+    type: "school",
     filter: `_type == "school" && count(coalesce(conferenceAffiliations, [])) == 0`,
   },
 ] as const;

@@ -1,3 +1,4 @@
+import { ThListIcon } from "@sanity/icons/ThList";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 export const table = defineType({
@@ -47,4 +48,31 @@ export const table = defineType({
       ],
     }),
   ],
+  preview: {
+    select: { rows: "rows" },
+    prepare: ({ rows }: { rows?: TableRow[] }) => {
+      const count = rows?.length ?? 0;
+      const columns = rows?.[0]?.cells?.length ?? 0;
+      return {
+        title: count
+          ? `Table · ${count} rows × ${columns} columns`
+          : "Empty table",
+        subtitle: rows?.[0]?.cells?.map(cellText).join(" · "),
+        media: ThListIcon,
+      };
+    },
+  },
 });
+
+type TableRow = {
+  cells?: Array<{ value?: Array<{ children?: Array<{ text?: string }> }> }>;
+};
+
+/** A cell's plain text, for the preview. */
+function cellText(cell: NonNullable<TableRow["cells"]>[number]): string {
+  return (cell.value ?? [])
+    .flatMap((block) => block.children ?? [])
+    .map((span) => span.text ?? "")
+    .join("")
+    .trim();
+}
