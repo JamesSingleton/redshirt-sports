@@ -12,6 +12,12 @@ describe("isOutlierPick", () => {
     expect(isOutlierPick({ voterRank: 22, publishedRank: 30 })).toBe(true);
   });
 
+  it("uses an 8-spot threshold in both directions", () => {
+    expect(isOutlierPick({ voterRank: 10, publishedRank: 17 })).toBe(false);
+    expect(isOutlierPick({ voterRank: 10, publishedRank: 18 })).toBe(true);
+    expect(isOutlierPick({ voterRank: 18, publishedRank: 10 })).toBe(true);
+  });
+
   it("does not treat RV picks as gap outliers when published rank is unknown", () => {
     expect(isOutlierPick({ voterRank: 20, publishedRank: null })).toBe(false);
   });

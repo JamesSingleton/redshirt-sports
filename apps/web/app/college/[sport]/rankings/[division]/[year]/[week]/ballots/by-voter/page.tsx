@@ -159,6 +159,9 @@ async function renderByVoterPage(
           ballotsHref={shell.ballotsHref}
           byVoterPath={shell.byVoterHref}
           initialVoterSlug={query.voter?.trim() || null}
+          poll={shell.divisionName}
+          season={year}
+          week={shell.weekNumber}
         />
       </Suspense>
     </>

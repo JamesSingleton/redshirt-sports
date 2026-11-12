@@ -18,29 +18,76 @@ import {
   TooltipTrigger,
 } from "@redshirt-sports/ui/components/tooltip";
 import { cn } from "@redshirt-sports/ui/lib/utils";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { BallotDiffChip } from "@/components/rankings/ballot-diff-chip";
 import { BallotMatchRadial } from "@/components/rankings/ballot-match-radial";
 import { TeamMark } from "@/components/rankings/team-mark";
 import { OUTLIER_RANK_GAP } from "@/lib/ballot-outliers";
 import { describeBallotPickContext } from "@/lib/ballot-pick-context";
+import { buildImageRows, buildPostText } from "@/lib/ballot-share";
+import {
+  type BallotImageInput,
+  downloadBallotImage,
+} from "@/lib/ballot-share-canvas";
 import type { VoterBallotCardData } from "@/lib/ballots-by-voter-data";
 
 const PAGE_SIZE = 6;
 
 type SortKey = "outliers" | "closest" | "farthest" | "name";
 
+type ShareContext = {
+  poll: string;
+  season: string;
+  week: number;
+  totalBallots: number;
+  byVoterUrl: string;
+};
+
 function VoterBallotCard({
   card,
   ballotsHrefBase,
+  share,
 }: {
   card: VoterBallotCardData;
   ballotsHrefBase: string;
+  share: ShareContext;
 }) {
+  const handleDownload = useCallback(() => {
+    const rows = buildImageRows(card.picks);
+    const pageUrl = `${window.location.host}${share.byVoterUrl}`;
+    const input: BallotImageInput = {
+      poll: share.poll,
+      season: share.season,
+      week: share.week,
+      voterName: card.name,
+      voterOutlet: card.organization,
+      rows,
+      matchPercent: card.matchPercent,
+      avgGap: card.avgGap,
+      pageUrl,
+    };
+    const filename = `redshirt-${share.poll.toLowerCase()}-${share.season}-week-${share.week}-${card.slug}.png`;
+    downloadBallotImage(input, filename);
+  }, [card, share]);
+
+  const handleCopyPost = useCallback(() => {
+    const url = `${window.location.origin}${share.byVoterUrl}`;
+    const text = buildPostText({
+      week: share.week,
+      poll: share.poll.toUpperCase(),
+      totalBallots: share.totalBallots,
+      url,
+    });
+    navigator.clipboard.writeText(text).then(
+      () => toast.success("Post text copied"),
+      () => toast.error("Could not copy to clipboard"),
+    );
+  }, [share]);
   return (
     <Card
       id={card.slug}
@@ -139,6 +186,27 @@ function VoterBallotCard({
             Included every team in the published Top 25 this week.
           </p>
         )}
+        <div className="flex flex-wrap gap-2 pt-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={handleDownload}
+          >
+            <Download className="size-3.5" aria-hidden />
+            Download image
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={handleCopyPost}
+          >
+            Copy post text
+          </Button>
+        </div>
       </div>
     </Card>
   );
@@ -149,11 +217,17 @@ export function BallotsByVoterPanel({
   ballotsHref,
   initialVoterSlug,
   byVoterPath,
+  poll,
+  season,
+  week,
 }: {
   cards: VoterBallotCardData[];
   ballotsHref: string;
   initialVoterSlug?: string | null;
   byVoterPath: string;
+  poll: string;
+  season: string;
+  week: number;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -302,6 +376,13 @@ export function BallotsByVoterPanel({
               key={card.userId}
               card={card}
               ballotsHrefBase={ballotsHref}
+              share={{
+                poll,
+                season,
+                week,
+                totalBallots: cards.length,
+                byVoterUrl: byVoterPath,
+              }}
             />
           ))}
         </div>
