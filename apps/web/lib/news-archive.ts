@@ -9,42 +9,9 @@ export type NewsArchiveSearchParams = {
   type?: string;
   sort?: string;
   q?: string;
-  /** Cursor from the previous page's "Next" link; see `archiveCursor`. */
-  after?: string;
 };
 
 export type ArchiveSort = "newest" | "oldest";
-
-/** Where the next page starts: just past this article in the current sort. */
-export type ArchiveCursor = { at: string; id: string };
-
-const SORT_PREFIX: Record<ArchiveSort, string> = { newest: "n", oldest: "o" };
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
-const DOCUMENT_ID = /^[A-Za-z0-9._-]{1,128}$/;
-
-/**
- * The `after` value for the link to the page following `lastPost`. It names
- * the sort it was made for, so a cursor carried into the other sort order is
- * ignored instead of skipping the wrong articles.
- */
-export function archiveCursor(
-  lastPost: { publishedAt?: string | null; _id: string } | undefined,
-  sort: ArchiveSort,
-): string | undefined {
-  if (!lastPost?.publishedAt) return undefined;
-  return `${SORT_PREFIX[sort]}~${lastPost.publishedAt}~${lastPost._id}`;
-}
-
-/** Parse an `after` value; anything malformed or for another sort is ignored. */
-export function parseArchiveCursor(
-  value: string | undefined,
-  sort: ArchiveSort,
-): ArchiveCursor | null {
-  const [prefix, at, id, ...rest] = (value ?? "").split("~");
-  if (rest.length > 0 || prefix !== SORT_PREFIX[sort]) return null;
-  if (!at || !ISO_DATE.test(at) || !id || !DOCUMENT_ID.test(id)) return null;
-  return { at, id };
-}
 
 /** Options for the archive "Type" filter: the article formats. */
 export const STORY_TYPE_OPTIONS = STORY_TYPES.map((type) => ({
@@ -73,7 +40,6 @@ export function parseNewsArchiveFilters(
   search: string;
   storyType: string;
   sort: ArchiveSort;
-  cursor: ArchiveCursor | null;
 } {
   const pageIndex = Math.max(
     1,
@@ -82,11 +48,8 @@ export function parseNewsArchiveFilters(
   const search = (searchParams.q ?? "").trim();
   const storyType = parseStoryTypeParam(searchParams.type);
   const sort = searchParams.sort === "oldest" ? "oldest" : "newest";
-  // Page 1 never needs a cursor.
-  const cursor =
-    pageIndex > 1 ? parseArchiveCursor(searchParams.after, sort) : null;
 
-  return { pageIndex, search, storyType, sort, cursor };
+  return { pageIndex, search, storyType, sort };
 }
 
 export function postArchiveKicker(post: HomePost): string {

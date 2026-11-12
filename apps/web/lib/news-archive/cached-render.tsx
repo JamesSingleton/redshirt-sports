@@ -21,12 +21,7 @@ import { NewsArchiveSidebar } from "@/components/news/news-archive-sidebar";
 import PaginationControls from "@/components/pagination-controls";
 import { perPage } from "@/lib/constants";
 import type { DivisionDisplayMeta } from "@/lib/division-display-meta";
-import {
-  type ArchiveCursor,
-  type ArchiveSort,
-  archiveCursor,
-  type NewsArchiveSearchParams,
-} from "@/lib/news-archive";
+import type { ArchiveSort, NewsArchiveSearchParams } from "@/lib/news-archive";
 import {
   CollegeNewsFiltersSlot,
   FolderConferencePickerSlot,
@@ -50,8 +45,6 @@ export type CachedNewsArchiveInput = DynamicFetchOptions & {
   search: string;
   storyType: string;
   sort: ArchiveSort;
-  /** From the previous page's "Next" link; null for a plain `?page=N`. */
-  cursor?: ArchiveCursor | null;
   filterParams: NewsArchiveSearchParams;
 };
 
@@ -79,16 +72,8 @@ function newsQueryParams(
   to: number,
   search: string,
   storyType: string,
-  cursor: ArchiveCursor | null,
 ) {
-  const base = {
-    from,
-    to,
-    search,
-    storyType,
-    afterAt: cursor?.at ?? null,
-    afterId: cursor?.id ?? null,
-  };
+  const base = { from, to, search, storyType };
   switch (scope.type) {
     case "college":
       return base;
@@ -115,25 +100,15 @@ export async function cachedRenderNewsArchivePage(
     search,
     storyType,
     sort,
-    cursor = null,
     perspective,
     stega,
     filterParams,
   } = input;
 
-  // With a cursor the page starts right after the previous page's last
-  // article, so there is nothing to skip.
-  const from = cursor ? 0 : (pageIndex - 1) * perPage;
+  const from = (pageIndex - 1) * perPage;
   const to = from + perPage;
   const newsQuery = newsQueryForScope(scope, sort);
-  const queryParams = newsQueryParams(
-    scope,
-    from,
-    to,
-    search,
-    storyType,
-    cursor,
-  );
+  const queryParams = newsQueryParams(scope, from, to, search, storyType);
 
   const sportSlug = scope.type === "college" ? null : scope.sport;
   const needsSportMeta = scope.type !== "college";
@@ -202,10 +177,7 @@ export async function cachedRenderNewsArchivePage(
   const pagination =
     totalPages > 1 ? (
       <nav aria-label="Pagination" className="pt-6">
-        <PaginationControls
-          totalPosts={news.totalPosts ?? news.posts.length}
-          nextCursor={archiveCursor(news.posts.at(-1), sort)}
-        />
+        <PaginationControls totalPosts={news.totalPosts ?? news.posts.length} />
       </nav>
     ) : null;
 

@@ -500,15 +500,11 @@ const archiveConferenceIds = /* groq */ `*[
 ]._id`;
 
 /*
- * Archive pagination. `?page=N` slices, which sorts and skips every earlier
- * article (219 ms at page 40 and growing). The "Next" link also carries the
- * last article it showed as `$afterAt`/`$afterId`, and the next page starts
- * right after it (18 ms at any depth). Both are null for a plain `?page=N`.
- * `_id` breaks ties so articles published in the same second never repeat
- * or drop between pages.
+ * Archive pagination is a plain `?page=N` slice, so page URLs stay stable and
+ * cacheable. `_id` breaks ties so articles published in the same second never
+ * repeat or drop between pages. Deep pages cost more to sort and skip (about
+ * 219 ms at page 40), but each is rendered once and then served from cache.
  */
-const afterCursorNewest = /* groq */ `(!defined($afterAt) || publishedAt < $afterAt || (publishedAt == $afterAt && _id < $afterId))`;
-const afterCursorOldest = /* groq */ `(!defined($afterAt) || publishedAt > $afterAt || (publishedAt == $afterAt && _id > $afterId))`;
 
 const sportsNewsFilter = /* groq */ `
   _type == "post" &&
@@ -519,7 +515,7 @@ const sportsNewsFilter = /* groq */ `
 
 export const querySportsNews = defineQuery(/* groq */ `
   {
-    "posts": *[${sportsNewsFilter} && ${afterCursorNewest}] | order(publishedAt desc, _id desc)[$from...$to]{
+    "posts": *[${sportsNewsFilter}] | order(publishedAt desc, _id desc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${sportsNewsFilter}])
@@ -528,7 +524,7 @@ export const querySportsNews = defineQuery(/* groq */ `
 
 export const querySportsNewsOldest = defineQuery(/* groq */ `
   {
-    "posts": *[${sportsNewsFilter} && ${afterCursorOldest}] | order(publishedAt asc, _id asc)[$from...$to]{
+    "posts": *[${sportsNewsFilter}] | order(publishedAt asc, _id asc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${sportsNewsFilter}])
@@ -546,7 +542,7 @@ const sportsDivisionNewsFilter = /* groq */ `
 
 export const querySportsAndDivisionNews = defineQuery(/* groq */ `
   {
-    "posts": *[${sportsDivisionNewsFilter} && ${afterCursorNewest}] | order(publishedAt desc, _id desc)[$from...$to]{
+    "posts": *[${sportsDivisionNewsFilter}] | order(publishedAt desc, _id desc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${sportsDivisionNewsFilter}])
@@ -555,7 +551,7 @@ export const querySportsAndDivisionNews = defineQuery(/* groq */ `
 
 export const querySportsAndDivisionNewsOldest = defineQuery(/* groq */ `
   {
-    "posts": *[${sportsDivisionNewsFilter} && ${afterCursorOldest}] | order(publishedAt asc, _id asc)[$from...$to]{
+    "posts": *[${sportsDivisionNewsFilter}] | order(publishedAt asc, _id asc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${sportsDivisionNewsFilter}])
@@ -787,7 +783,7 @@ const sportDivisionConferenceNewsFilter = /* groq */ `
 export const queryArticlesBySportDivisionAndConference =
   defineQuery(/* groq */ `
   {
-    "posts": *[${sportDivisionConferenceNewsFilter} && ${afterCursorNewest}] | order(publishedAt desc, _id desc)[$from...$to]{
+    "posts": *[${sportDivisionConferenceNewsFilter}] | order(publishedAt desc, _id desc)[$from...$to]{
       ${homePostCardFragment}
     },
     "conferenceInfo": *[_id in ${archiveConferenceIds}][0]{
@@ -802,7 +798,7 @@ export const queryArticlesBySportDivisionAndConference =
 export const queryArticlesBySportDivisionAndConferenceOldest =
   defineQuery(/* groq */ `
   {
-    "posts": *[${sportDivisionConferenceNewsFilter} && ${afterCursorOldest}] | order(publishedAt asc, _id asc)[$from...$to]{
+    "posts": *[${sportDivisionConferenceNewsFilter}] | order(publishedAt asc, _id asc)[$from...$to]{
       ${homePostCardFragment}
     },
     "conferenceInfo": *[_id in ${archiveConferenceIds}][0]{
@@ -955,7 +951,7 @@ const collegeNewsFilter = /* groq */ `
 
 export const queryCollegeNews = defineQuery(/* groq */ `
   {
-    "posts": *[${collegeNewsFilter} && ${afterCursorNewest}] | order(publishedAt desc, _id desc)[$from...$to]{
+    "posts": *[${collegeNewsFilter}] | order(publishedAt desc, _id desc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${collegeNewsFilter}])
@@ -964,7 +960,7 @@ export const queryCollegeNews = defineQuery(/* groq */ `
 
 export const queryCollegeNewsOldest = defineQuery(/* groq */ `
   {
-    "posts": *[${collegeNewsFilter} && ${afterCursorOldest}] | order(publishedAt asc, _id asc)[$from...$to]{
+    "posts": *[${collegeNewsFilter}] | order(publishedAt asc, _id asc)[$from...$to]{
       ${homePostCardFragment}
     },
     "totalPosts": count(*[${collegeNewsFilter}])
