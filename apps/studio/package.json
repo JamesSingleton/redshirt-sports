@@ -47,6 +47,7 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "groq-js": "1.30.3",
     "vite": "catalog:",
     "vitest": "catalog:"
   }
