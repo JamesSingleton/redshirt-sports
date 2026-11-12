@@ -107,9 +107,7 @@ export function RankingsWeekPageBody({
             currentRankingsById={currentRankingsById}
             ballotsListedBySanityId={ballotsListedBySanityId}
           />
-          <div className="mt-10">
-            <NewsletterGate variant="inline" />
-          </div>
+          <NewsletterGate variant="inline" className="mt-10" />
         </>
       ) : (
         <div className="mx-auto max-w-md py-16 text-center">

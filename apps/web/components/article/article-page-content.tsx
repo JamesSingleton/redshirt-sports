@@ -152,9 +152,10 @@ export function ArticlePageContent({
             corrections={post.corrections}
           />
 
-          <div className="mx-auto mt-10 max-w-prose">
-            <NewsletterGate variant="inline" />
-          </div>
+          <NewsletterGate
+            variant="inline"
+            className="mx-auto mt-10 max-w-prose"
+          />
 
           <ArticleAnalytics
             slug={slug}

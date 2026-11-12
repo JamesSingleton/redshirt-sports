@@ -101,9 +101,10 @@ export function BracketPageView({ model }: { model: BracketPageModel }) {
         </p>
       ) : null}
 
-      <div className="mx-auto w-full max-w-site px-4 lg:px-6">
-        <NewsletterGate variant="inline" />
-      </div>
+      <NewsletterGate
+        variant="inline"
+        className="mx-auto w-full max-w-site px-4 lg:px-6"
+      />
     </div>
   );
 }
