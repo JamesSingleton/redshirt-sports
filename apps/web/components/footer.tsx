@@ -22,6 +22,7 @@ import {
   YouTubeIcon,
 } from "./icons";
 import { Logo } from "./logo";
+import { NewsletterGate } from "./newsletter/newsletter-gate";
 
 interface SocialLinksProps {
   data: NonNullable<NonNullable<QueryGlobalSeoSettingsResult>["socialLinks"]>;
@@ -204,6 +205,7 @@ function Footer({ data, settingsData }: FooterProps) {
               <SocialLinks data={socialLinks} />
             </div>
           ) : null}
+          <NewsletterGate variant="compact" />
         </div>
         {Array.isArray(columns) &&
           columns.map((column) => (

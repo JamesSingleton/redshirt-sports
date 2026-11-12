@@ -1,5 +1,6 @@
 import { BracketEditionPicker } from "@/components/bracket/bracket-edition-picker";
 import { BracketExplorer } from "@/components/bracket/bracket-explorer";
+import { NewsletterGate } from "@/components/newsletter/newsletter-gate";
 import {
   type BracketPageModel,
   bracketEditionPath,
@@ -99,6 +100,10 @@ export function BracketPageView({ model }: { model: BracketPageModel }) {
           the higher seed hosts unless a game notes another site.
         </p>
       ) : null}
+
+      <div className="mx-auto w-full max-w-site px-4 lg:px-6">
+        <NewsletterGate variant="inline" />
+      </div>
     </div>
   );
 }
