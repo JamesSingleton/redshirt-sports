@@ -77,6 +77,10 @@ export const PHASE1_COVERAGE_EXCLUDES = [
   "lib/rankings-widget-data.ts",
   "lib/team-directory-data.ts",
   "lib/team-school-affiliations.ts",
+  // Canvas 2D drawing — browser-only, no testable logic (logic is in lib/ballot-share.ts).
+  "lib/ballot-share-canvas.ts",
+  // Share sheet / clipboard / popup flow over the canvas render — browser-only.
+  "components/rankings/ballot-share.tsx",
   // Toolbar share path has an unreachable `navigator` guard in happy-dom.
   "components/posts/article-share.tsx",
 ] as const;
