@@ -36,3 +36,11 @@ export const newsletterRatelimit = new Ratelimit({
   analytics: true,
   prefix: "@upstash/ratelimit/newsletter",
 });
+
+/** Newsletter confirmation emails — ~90 per day, global key. */
+export const newsletterDailyRatelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(90, "86400 s"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/newsletter-daily",
+});

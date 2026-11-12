@@ -1,8 +1,9 @@
 import { createHmac } from "node:crypto";
 import { NextRequest } from "next/server";
 
-const { mockContactsUpdate } = vi.hoisted(() => ({
+const { mockContactsUpdate, mockIsNewsletterEnabled } = vi.hoisted(() => ({
   mockContactsUpdate: vi.fn(),
+  mockIsNewsletterEnabled: vi.fn(),
 }));
 
 vi.mock("resend", () => ({
@@ -10,6 +11,14 @@ vi.mock("resend", () => ({
     return { contacts: { update: mockContactsUpdate } };
   }),
 }));
+
+vi.mock("@/lib/newsletter", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/newsletter")>();
+  return {
+    ...actual,
+    isNewsletterEnabled: mockIsNewsletterEnabled,
+  };
+});
 
 import { GET } from "@/app/api/newsletter/confirm/route";
 
@@ -34,11 +43,20 @@ describe("GET /api/newsletter/confirm", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
     vi.clearAllMocks();
+    mockIsNewsletterEnabled.mockReturnValue(true);
     mockContactsUpdate.mockResolvedValue({ data: {}, error: null });
   });
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it("returns 503 when newsletter is disabled", async () => {
+    mockIsNewsletterEnabled.mockReturnValue(false);
+    const res = await GET(makeRequest({ email: "a@b.com" }));
+    expect(res.status).toBe(503);
+    const html = await res.text();
+    expect(html).toContain("isn't available yet");
   });
 
   it("confirms subscription with valid signature", async () => {

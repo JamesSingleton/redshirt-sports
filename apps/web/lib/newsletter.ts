@@ -8,14 +8,34 @@ const UNSUBSCRIBE_TTL_SECONDS = 60 * 60 * 24 * 365; // 1 year
 
 type Purpose = "confirm" | "unsubscribe";
 
+/** True only when every newsletter env var is set. */
+export function isNewsletterEnabled(): boolean {
+  return !!(
+    env.RESEND_API_KEY &&
+    env.RESEND_NEWSLETTER_AUDIENCE_ID &&
+    env.NEWSLETTER_FROM_EMAIL &&
+    env.NEWSLETTER_SIGNING_SECRET
+  );
+}
+
+function getSigningSecret(): string {
+  const secret = env.NEWSLETTER_SIGNING_SECRET;
+  if (!secret) {
+    throw new Error("NEWSLETTER_SIGNING_SECRET is not configured");
+  }
+  return secret;
+}
+
 function sign(payload: string): string {
-  return createHmac("sha256", env.NEWSLETTER_SIGNING_SECRET)
-    .update(payload)
-    .digest("hex");
+  return createHmac("sha256", getSigningSecret()).update(payload).digest("hex");
 }
 
 function makePayload(email: string, purpose: Purpose, expires: number): string {
   return `${email}:${purpose}:${expires}`;
+}
+
+export function normalizeEmail(raw: string): string {
+  return raw.trim().toLowerCase();
 }
 
 export function createSignedUrl(email: string, purpose: Purpose): string {

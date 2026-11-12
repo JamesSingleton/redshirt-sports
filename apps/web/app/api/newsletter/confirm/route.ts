@@ -2,9 +2,7 @@ import type { NextRequest } from "next/server";
 import { Resend } from "resend";
 
 import { env } from "@/env";
-import { verifySignature } from "@/lib/newsletter";
-
-const resend = new Resend(env.RESEND_API_KEY);
+import { isNewsletterEnabled, verifySignature } from "@/lib/newsletter";
 
 function htmlResponse(heading: string, message: string, status: number) {
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${heading}</title></head><body><h1>${heading}</h1><p>${message}</p></body></html>`;
@@ -15,6 +13,14 @@ function htmlResponse(heading: string, message: string, status: number) {
 }
 
 export async function GET(request: NextRequest) {
+  if (!isNewsletterEnabled()) {
+    return htmlResponse(
+      "Unavailable",
+      "Newsletter signup isn't available yet.",
+      503,
+    );
+  }
+
   const { searchParams } = request.nextUrl;
   const email = searchParams.get("email");
   const expires = searchParams.get("expires");
@@ -37,10 +43,12 @@ export async function GET(request: NextRequest) {
     return htmlResponse("Invalid link", message, 400);
   }
 
+  const resend = new Resend(env.RESEND_API_KEY);
+
   const { error } = await resend.contacts
     .update({
       email,
-      audienceId: env.RESEND_NEWSLETTER_AUDIENCE_ID,
+      audienceId: env.RESEND_NEWSLETTER_AUDIENCE_ID!,
       unsubscribed: false,
     })
     .catch((cause: unknown) => ({ error: cause }));

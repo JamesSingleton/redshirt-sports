@@ -5,13 +5,78 @@ vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "https://redshirtsports.com",
 }));
 
-import { createSignedUrl, verifySignature } from "@/lib/newsletter";
+import {
+  createSignedUrl,
+  isNewsletterEnabled,
+  normalizeEmail,
+  verifySignature,
+} from "@/lib/newsletter";
 
 const SECRET = process.env.NEWSLETTER_SIGNING_SECRET!;
 
 function sign(payload: string) {
   return createHmac("sha256", SECRET).update(payload).digest("hex");
 }
+
+describe("isNewsletterEnabled", () => {
+  const originalEnv = { ...process.env };
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+    vi.resetModules();
+  });
+
+  it("returns true when all four env vars are set", () => {
+    expect(isNewsletterEnabled()).toBe(true);
+  });
+
+  it("returns false when RESEND_API_KEY is missing", async () => {
+    delete process.env.RESEND_API_KEY;
+    vi.resetModules();
+    const { isNewsletterEnabled: fn } = await import("@/lib/newsletter");
+    expect(fn()).toBe(false);
+  });
+
+  it("returns false when RESEND_NEWSLETTER_AUDIENCE_ID is missing", async () => {
+    delete process.env.RESEND_NEWSLETTER_AUDIENCE_ID;
+    vi.resetModules();
+    const { isNewsletterEnabled: fn } = await import("@/lib/newsletter");
+    expect(fn()).toBe(false);
+  });
+
+  it("returns false when NEWSLETTER_FROM_EMAIL is missing", async () => {
+    delete process.env.NEWSLETTER_FROM_EMAIL;
+    vi.resetModules();
+    const { isNewsletterEnabled: fn } = await import("@/lib/newsletter");
+    expect(fn()).toBe(false);
+  });
+
+  it("returns false when NEWSLETTER_SIGNING_SECRET is missing", async () => {
+    delete process.env.NEWSLETTER_SIGNING_SECRET;
+    vi.resetModules();
+    const { isNewsletterEnabled: fn } = await import("@/lib/newsletter");
+    expect(fn()).toBe(false);
+  });
+
+  it("createSignedUrl throws when NEWSLETTER_SIGNING_SECRET is missing", async () => {
+    delete process.env.NEWSLETTER_SIGNING_SECRET;
+    vi.resetModules();
+    const { createSignedUrl: fn } = await import("@/lib/newsletter");
+    expect(() => fn("a@b.com", "confirm")).toThrow(
+      "NEWSLETTER_SIGNING_SECRET is not configured",
+    );
+  });
+});
+
+describe("normalizeEmail", () => {
+  it("trims and lowercases email", () => {
+    expect(normalizeEmail("  User@Example.COM  ")).toBe("user@example.com");
+  });
+
+  it("passes through already-clean email", () => {
+    expect(normalizeEmail("a@b.com")).toBe("a@b.com");
+  });
+});
 
 describe("createSignedUrl", () => {
   beforeEach(() => {
