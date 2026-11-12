@@ -1,8 +1,10 @@
 import { UserIcon } from "@sanity/icons/User";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
+import { StudioAccountInput } from "@/components/studio-account-input";
 import { budgetInput } from "@/components/text-budget-input";
 import { LIMITS } from "@/house-rules/limits";
+import { API_VERSION } from "@/utils/constant";
 import { createSlug, isUnique } from "@/utils/slug";
 import { documentSlugField } from "../common";
 import { socialLinks } from "../definitions/social-links";
@@ -149,6 +151,29 @@ export const author = defineType({
         }),
       ],
       validation: (rule) => [rule.unique(), rule.max(6)],
+    }),
+    defineField({
+      name: "studioUserId",
+      title: "Studio account",
+      type: "string",
+      group: "profile",
+      description:
+        "The Studio login of the person who writes as this author. New articles they create start with them in the byline.",
+      components: { input: StudioAccountInput },
+      validation: (rule) =>
+        rule.custom(async (value: string | undefined, context) => {
+          if (!value) return true;
+          const id = context.document?._id?.replace(/^drafts\./, "") ?? "";
+          const other = await context
+            .getClient({ apiVersion: API_VERSION })
+            .fetch<string | null>(
+              `*[_type == "author" && studioUserId == $value && !(_id in [$id, "drafts." + $id])][0].name`,
+              { value, id },
+            );
+          return other
+            ? `This Studio account is already linked to ${other}. Unlink it there first.`
+            : true;
+        }),
     }),
     defineField({
       name: "archived",

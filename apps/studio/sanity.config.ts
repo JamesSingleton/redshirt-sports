@@ -27,6 +27,7 @@ import { resolve } from "@/presentation/resolve";
 import { schemaTypes } from "@/schemaTypes";
 import { getDefaultDocumentNode, structure } from "@/structure";
 import { createCustomPostDuplicateAction } from "@/utils/actions";
+import { isAdministrator } from "@/utils/current-user";
 
 export default defineConfig({
   title: env.SANITY_STUDIO_TITLE,
@@ -86,9 +87,14 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    // Shows which cache tags each query gets. Development only.
-    ...(process.env.NODE_ENV === "development" ? [debugLiveSyncTags()] : []),
+    // Shows which cache tags each query gets. Administrators only (see `tools`).
+    debugLiveSyncTags(),
   ],
+  // Debugging tools aren't for writers.
+  tools: (prev, { currentUser }) =>
+    isAdministrator(currentUser)
+      ? prev
+      : prev.filter((tool) => tool.name !== "debug-live-sync-tags"),
   // Newsroom workflow, built into Studio. Scheduled drafts publish one article
   // at a set time, and Tasks hand an article to an editor for review.
   // Releases (articles that publish together) aren't on the current plan;
@@ -141,9 +147,7 @@ export default defineConfig({
     ],
     newDocumentOptions: (prev, { creationContext, currentUser }) => {
       const { type } = creationContext;
-      const isAdmin = currentUser?.roles?.find(
-        ({ name }) => name === "administrator",
-      );
+      const isAdmin = isAdministrator(currentUser);
 
       if (type === "global") {
         // Parameterized templates only make sense from their own lists.
