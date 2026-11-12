@@ -1,7 +1,12 @@
 import { eq, inArray, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
-import { schoolsTable } from "../schema";
+import {
+  conferencesTable,
+  schoolConferenceAffiliationsTable,
+  schoolsTable,
+  sportsTable,
+} from "../schema";
 
 export type SchoolBySanityId = {
   id: string;
@@ -136,4 +141,81 @@ export async function upsertSchoolFromSanity(payload: SanitySchoolSyncPayload) {
     action: inserted ? ("inserted" as const) : ("updated" as const),
     id: row.id,
   };
+}
+
+/** One row of a Sanity school's `conferenceAffiliations`, by Sanity ids. */
+export type SanityConferenceAffiliation = {
+  conferenceId?: string | null;
+  sportId?: string | null;
+};
+
+/**
+ * Makes a school's conference affiliations in Postgres match Sanity, the
+ * source of truth. Sanity conference ids map to Postgres rows by
+ * `sanity_id`; sport ids are the same in both. A conference Postgres
+ * doesn't have yet (created in Sanity, not loaded) is skipped and
+ * returned, so the caller can report it; run the admin conference loader.
+ */
+export async function replaceSchoolConferenceAffiliations(
+  schoolId: string,
+  affiliations: SanityConferenceAffiliation[],
+) {
+  const wanted = affiliations.filter(
+    (row): row is { conferenceId: string; sportId: string } =>
+      Boolean(row.conferenceId && row.sportId),
+  );
+  const conferenceSanityIds = [
+    ...new Set(wanted.map((row) => row.conferenceId)),
+  ];
+  const sportIds = [...new Set(wanted.map((row) => row.sportId))];
+
+  return db.transaction(async (tx) => {
+    const conferences = conferenceSanityIds.length
+      ? await tx
+          .select({
+            id: conferencesTable.id,
+            sanityId: conferencesTable.sanityId,
+          })
+          .from(conferencesTable)
+          .where(inArray(conferencesTable.sanityId, conferenceSanityIds))
+      : [];
+    const sports = sportIds.length
+      ? await tx
+          .select({ id: sportsTable.id })
+          .from(sportsTable)
+          .where(inArray(sportsTable.id, sportIds))
+      : [];
+    const conferenceIdBySanityId = new Map(
+      conferences.map((row) => [row.sanityId, row.id]),
+    );
+    const knownSports = new Set(sports.map((row) => row.id));
+
+    const rows: Array<{
+      schoolId: string;
+      sportId: string;
+      conferenceId: string;
+    }> = [];
+    const skipped: SanityConferenceAffiliation[] = [];
+    const seen = new Set<string>();
+    for (const row of wanted) {
+      const conferenceId = conferenceIdBySanityId.get(row.conferenceId);
+      if (!conferenceId || !knownSports.has(row.sportId)) {
+        skipped.push(row);
+        continue;
+      }
+      const key = `${row.sportId}|${conferenceId}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      rows.push({ schoolId, sportId: row.sportId, conferenceId });
+    }
+
+    await tx
+      .delete(schoolConferenceAffiliationsTable)
+      .where(eq(schoolConferenceAffiliationsTable.schoolId, schoolId));
+    if (rows.length > 0) {
+      await tx.insert(schoolConferenceAffiliationsTable).values(rows);
+    }
+
+    return { replaced: rows.length, skipped };
+  });
 }

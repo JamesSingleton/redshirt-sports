@@ -50,22 +50,6 @@ subdivision.
 
 ## School conferences (not a migration)
 
-"Schools with no conference" is filled from the data providers by a CLI in
-`packages/db`, because the data comes from ESPN, the NCAA, and Postgres:
-
-```bash
-pnpm --filter @redshirt-sports/db school-conferences --out plan.json
-```
-
-It changes nothing without a flag. Review `plan.json`, then:
-
-- `--apply` adds the conference for every school and sport that has none
-- `--create-conferences` first creates the 16 Division II and III conferences
-  Sanity lacks (from the NCAA's 2024-25 data; confirm each still exists)
-- `--apply-changed` replaces conferences the providers list differently
-  (2026 realignment, such as the OVC adding football)
-- `--add-conference-sports` adds a sport to a conference's list when its
-  members play it there
-
-Schools no provider covers (NAIA, junior colleges, closed or merged schools)
-are listed as `stillWithout` in the plan.
+Edit a school's conferences in the Studio when it changes conference.
+Publishing syncs them to Postgres (`sync-school`); a new conference needs the
+admin "Load conferences" action first.

@@ -1,12 +1,18 @@
-const { mockGetSchoolDisplay, mockUpsertSchool, mockRevalidateTag } =
-  vi.hoisted(() => ({
-    mockGetSchoolDisplay: vi.fn(),
-    mockUpsertSchool: vi.fn(),
-    mockRevalidateTag: vi.fn(),
-  }));
+const {
+  mockGetSchoolDisplay,
+  mockUpsertSchool,
+  mockReplaceAffiliations,
+  mockRevalidateTag,
+} = vi.hoisted(() => ({
+  mockGetSchoolDisplay: vi.fn(),
+  mockUpsertSchool: vi.fn(),
+  mockReplaceAffiliations: vi.fn(),
+  mockRevalidateTag: vi.fn(),
+}));
 
 vi.mock("@redshirt-sports/db/queries", () => ({
   getSchoolRankingsDisplayBySanityId: mockGetSchoolDisplay,
+  replaceSchoolConferenceAffiliations: mockReplaceAffiliations,
   upsertSchoolFromSanity: mockUpsertSchool,
 }));
 
@@ -62,7 +68,67 @@ describe("POST /api/webhooks/sanity/school", () => {
       action: "updated",
       id: "db-school-1",
     });
+    mockReplaceAffiliations
+      .mockReset()
+      .mockResolvedValue({ replaced: 0, skipped: [] });
     mockRevalidateTag.mockReset();
+  });
+
+  const post = (school: Record<string, unknown>) =>
+    POST(
+      new Request("http://localhost/api/webhooks/sanity/school", {
+        method: "POST",
+        headers: { Authorization: "Bearer school_sync_secret" },
+        body: JSON.stringify({ school: { ...validPayload.school, ...school } }),
+      }),
+    );
+
+  describe("conference affiliations", () => {
+    it("leaves them alone when the payload doesn't include them", async () => {
+      const res = await post({});
+      expect(res.status).toBe(200);
+      expect(mockReplaceAffiliations).not.toHaveBeenCalled();
+      expect(await res.json()).not.toHaveProperty("affiliations");
+    });
+
+    it("replaces them with Sanity's", async () => {
+      mockReplaceAffiliations.mockResolvedValue({ replaced: 2, skipped: [] });
+      const affiliations = [
+        { conferenceId: "big-sky", sportId: "football" },
+        { conferenceId: "big-sky", sportId: "mens-basketball" },
+      ];
+
+      const res = await post({ conferenceAffiliations: affiliations });
+
+      expect(mockReplaceAffiliations).toHaveBeenCalledWith(
+        "db-school-1",
+        affiliations,
+      );
+      expect(await res.json()).toMatchObject({
+        affiliations: 2,
+        skippedAffiliations: 0,
+      });
+    });
+
+    it("clears them when Sanity has none", async () => {
+      await post({ conferenceAffiliations: null });
+      expect(mockReplaceAffiliations).toHaveBeenCalledWith("db-school-1", []);
+    });
+
+    it("reports conferences Postgres doesn't have yet", async () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const skipped = [{ conferenceId: "new-conf", sportId: "football" }];
+      mockReplaceAffiliations.mockResolvedValue({ replaced: 0, skipped });
+
+      const res = await post({ conferenceAffiliations: skipped });
+
+      expect(await res.json()).toMatchObject({ skippedAffiliations: 1 });
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining("admin conference loader"),
+        skipped,
+      );
+      warn.mockRestore();
+    });
   });
 
   it("returns 401 for missing or wrong bearer token", async () => {
