@@ -8,6 +8,13 @@ import { ShareIcon } from "@sanity/icons/Share";
 import { TwitterIcon } from "@sanity/icons/Twitter";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
+import {
+  CalloutPreview,
+  PullQuotePreview,
+  RelatedArticlePreview,
+  SocialEmbedPreview,
+  YouTubePreview,
+} from "@/components/block-previews";
 import { warnWhenHeadingOrBlockIsAllBold } from "@/utils/portable-text-validations";
 import { editorialImageFields } from "../shared/image-fields";
 
@@ -123,11 +130,13 @@ export const blockContent = defineType({
       preview: {
         select: { quote: "quote", attribution: "attribution", role: "role" },
         prepare: ({ quote, attribution, role }) => ({
-          title: quote ? `“${quote}”` : "Pull quote",
-          subtitle: [attribution, role].filter(Boolean).join(", "),
+          title: quote,
+          subtitle: attribution,
+          description: role,
           media: BlockquoteIcon,
         }),
       },
+      components: { preview: PullQuotePreview },
     }),
     defineArrayMember({
       name: "callout",
@@ -175,11 +184,13 @@ export const blockContent = defineType({
       preview: {
         select: { title: "title", text: "text", kind: "kind" },
         prepare: ({ title, text, kind }) => ({
-          title: title || text || "Callout",
-          subtitle: `Callout · ${kind ?? "context"}`,
+          title,
+          subtitle: kind ?? "context",
+          description: text,
           media: BulbOutlineIcon,
         }),
       },
+      components: { preview: CalloutPreview },
     }),
     defineArrayMember({
       name: "relatedArticle",
@@ -226,6 +237,7 @@ export const blockContent = defineType({
           media: media ?? DocumentTextIcon,
         }),
       },
+      components: { preview: RelatedArticlePreview },
     }),
     defineArrayMember({ type: "table" }),
     defineArrayMember({ type: "twitter", icon: TwitterIcon }),
@@ -254,14 +266,14 @@ export const blockContent = defineType({
       preview: {
         select: { url: "url" },
         prepare({ url }) {
-          const videoId = url?.match(YOUTUBE_ID)?.[1];
           return {
-            title: videoId ? `YouTube video (${videoId})` : "YouTube video",
+            title: url?.match(YOUTUBE_ID)?.[1],
             subtitle: url,
             media: PlayIcon,
           };
         },
       },
+      components: { preview: YouTubePreview },
     }),
     defineArrayMember({
       name: "socialEmbed",
@@ -300,11 +312,13 @@ export const blockContent = defineType({
       preview: {
         select: { url: "url", caption: "caption" },
         prepare: ({ url, caption }) => ({
-          title: caption || "Social post",
-          subtitle: [socialPlatformFor(url), url].filter(Boolean).join(" · "),
+          title: caption,
+          subtitle: socialPlatformFor(url) ?? undefined,
+          description: url,
           media: ShareIcon,
         }),
       },
+      components: { preview: SocialEmbedPreview },
     }),
     defineArrayMember({ type: "bracketEmbed" }),
   ],

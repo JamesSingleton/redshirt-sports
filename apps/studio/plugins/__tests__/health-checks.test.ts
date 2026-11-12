@@ -99,3 +99,11 @@ describe("other health checks", () => {
     expect(await matches("school-no-conference", dataset)).toEqual(["school"]);
   });
 });
+
+describe("health check types", () => {
+  it("name the type their filter lists, so the list sorts as that type", () => {
+    for (const check of HEALTH_CHECKS) {
+      expect(check.filter.startsWith(`_type == "${check.type}"`)).toBe(true);
+    }
+  });
+});
