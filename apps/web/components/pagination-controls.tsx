@@ -15,25 +15,17 @@ import { perPage } from "@/lib/constants";
 
 export default function PaginationControls({
   totalPosts,
-  nextCursor,
 }: {
   totalPosts: number;
-  /**
-   * Where the next page starts (see `archiveCursor`). Only the "Next" link
-   * carries it: following it skips no articles, however deep the page.
-   */
-  nextCursor?: string;
 }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const totalPages = Math.ceil(totalPosts / perPage);
 
-  const createPageUrl = (pageNumber: number | string, after?: string) => {
+  const createPageUrl = (pageNumber: number | string) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", pageNumber.toString());
-    if (after) params.set("after", after);
-    else params.delete("after");
     if (pageNumber === 1 || pageNumber === 0) {
       params.delete("page");
     }
@@ -51,10 +43,7 @@ export default function PaginationControls({
           <PaginationLink
             key={`${currentPage}${i}`}
             isActive={i === currentPage}
-            href={createPageUrl(
-              i,
-              i === currentPage + 1 ? nextCursor : undefined,
-            )}
+            href={createPageUrl(i)}
           >
             {i}
           </PaginationLink>,
@@ -93,11 +82,7 @@ export default function PaginationControls({
         )}
         <PaginationItem>
           <PaginationNext
-            href={
-              isNextDisabled
-                ? undefined
-                : createPageUrl(currentPage + 1, nextCursor)
-            }
+            href={isNextDisabled ? undefined : createPageUrl(currentPage + 1)}
             aria-disabled={isNextDisabled}
             tabIndex={isNextDisabled ? -1 : undefined}
             className={

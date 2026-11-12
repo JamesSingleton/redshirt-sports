@@ -45,7 +45,6 @@ export function CollegeNewsArchiveFilters({
     if (query.trim()) params.set("q", query.trim());
     else params.delete("q");
     params.delete("page");
-    params.delete("after");
     const qs = params.toString();
     router.push(qs ? `${pathname}?${qs}` : pathname);
   }, [pathname, query, router, searchParams, sort, storyType]);

@@ -93,46 +93,7 @@ describe("cachedRenderNewsArchivePage", () => {
     expect(screen.getByTestId("river")).toBeInTheDocument();
   });
 
-  it("starts after the cursor instead of skipping earlier pages", async () => {
-    mockSanityFetchPage.mockResolvedValueOnce({
-      data: {
-        posts: [
-          {
-            _id: "a",
-            slug: "a",
-            title: "A",
-            publishedAt: "2026-11-02T00:00:00Z",
-          },
-        ],
-        totalPosts: 100,
-      },
-    });
-
-    await cachedRenderNewsArchivePage({
-      scope: { type: "college" },
-      pageIndex: 40,
-      search: "",
-      storyType: "",
-      sort: "newest",
-      cursor: { at: "2026-11-03T00:00:00Z", id: "z" },
-      filterParams: {},
-      perspective: "published",
-      stega: false,
-    });
-
-    expect(mockSanityFetchPage).toHaveBeenCalledWith(
-      expect.objectContaining({
-        params: expect.objectContaining({
-          from: 0,
-          to: 12,
-          afterAt: "2026-11-03T00:00:00Z",
-          afterId: "z",
-        }),
-      }),
-    );
-  });
-
-  it("slices by page number without a cursor", async () => {
+  it("slices by page number", async () => {
     mockSanityFetchPage.mockResolvedValueOnce({
       data: { posts: [{ _id: "a", slug: "a", title: "A" }], totalPosts: 100 },
     });
@@ -150,12 +111,7 @@ describe("cachedRenderNewsArchivePage", () => {
 
     expect(mockSanityFetchPage).toHaveBeenCalledWith(
       expect.objectContaining({
-        params: expect.objectContaining({
-          from: 24,
-          to: 36,
-          afterAt: null,
-          afterId: null,
-        }),
+        params: { from: 24, to: 36, search: "", storyType: "" },
       }),
     );
   });
