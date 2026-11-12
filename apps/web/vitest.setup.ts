@@ -20,6 +20,11 @@ process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ??= "pk_test_clerk_publishable";
 process.env.NEXT_PUBLIC_POSTHOG_KEY ??= "phc_test_posthog_key";
 process.env.NEXT_PUBLIC_POSTHOG_HOST ??= "https://app.posthog.com";
 process.env.NEXT_PUBLIC_APP_NAME ??= "Redshirt Sports";
+process.env.RESEND_API_KEY ??= "re_test_resend_api_key";
+process.env.RESEND_NEWSLETTER_AUDIENCE_ID ??= "test-audience-id";
+process.env.NEWSLETTER_FROM_EMAIL ??= "newsletter@test.redshirtsports.com";
+process.env.NEWSLETTER_SIGNING_SECRET ??=
+  "test-signing-secret-that-is-at-least-32-chars";
 
 vi.mock("next/cache", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/cache")>();

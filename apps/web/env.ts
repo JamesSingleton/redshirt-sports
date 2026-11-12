@@ -19,6 +19,10 @@ export const env = createEnv({
     CRON_SECRET: z.string().min(16).optional(),
     UPSTASH_REDIS_REST_URL: z.url(),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
+    RESEND_API_KEY: z.string().startsWith("re_"),
+    RESEND_NEWSLETTER_AUDIENCE_ID: z.string().min(1),
+    NEWSLETTER_FROM_EMAIL: z.string().email(),
+    NEWSLETTER_SIGNING_SECRET: z.string().min(32),
   },
   client: {},
   runtimeEnv: {
@@ -29,5 +33,9 @@ export const env = createEnv({
     CRON_SECRET: process.env.CRON_SECRET,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_NEWSLETTER_AUDIENCE_ID: process.env.RESEND_NEWSLETTER_AUDIENCE_ID,
+    NEWSLETTER_FROM_EMAIL: process.env.NEWSLETTER_FROM_EMAIL,
+    NEWSLETTER_SIGNING_SECRET: process.env.NEWSLETTER_SIGNING_SECRET,
   },
 });

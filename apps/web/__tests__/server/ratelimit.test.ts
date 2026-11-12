@@ -21,9 +21,11 @@ vi.mock("@upstash/ratelimit", () => ({
 }));
 
 describe("ratelimit", () => {
-  it("exports a configured Ratelimit instance", async () => {
+  it("exports configured Ratelimit instances", async () => {
     const { Ratelimit } = await import("@upstash/ratelimit");
-    const { ratelimit } = await import("@/server/ratelimit");
+    const { ratelimit, newsletterRatelimit } = await import(
+      "@/server/ratelimit"
+    );
 
     expect(ratelimit).toBeDefined();
     expect(Ratelimit).toHaveBeenCalledWith(
@@ -33,5 +35,14 @@ describe("ratelimit", () => {
       }),
     );
     expect(Ratelimit.slidingWindow).toHaveBeenCalledWith(10, "100 s");
+
+    expect(newsletterRatelimit).toBeDefined();
+    expect(Ratelimit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        analytics: true,
+        prefix: "@upstash/ratelimit/newsletter",
+      }),
+    );
+    expect(Ratelimit.slidingWindow).toHaveBeenCalledWith(3, "3600 s");
   });
 });
