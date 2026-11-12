@@ -26,7 +26,7 @@ import type {
 import DocumentsPane from "sanity-plugin-documents-pane";
 
 import { STORY_TYPES } from "@/house-rules/post";
-import { HEALTH_CHECKS } from "@/plugins/editorial-health-widget";
+import { HEALTH_CHECKS } from "@/plugins/health-checks";
 import { API_VERSION } from "@/utils/constant";
 import { ArticleCheck } from "@/views/article-check";
 

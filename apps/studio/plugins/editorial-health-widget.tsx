@@ -2,56 +2,10 @@ import { Card, Flex, Stack, Text } from "@sanity/ui";
 import { useEffect, useState } from "react";
 import { useClient } from "sanity";
 
-import { LIMITS } from "@/house-rules/limits";
+import { HEALTH_CHECKS } from "@/plugins/health-checks";
 import { API_VERSION } from "@/utils/constant";
 
-/**
- * Counts of published content that breaks a house rule the dataset can
- * answer for. Each row matches a list under Newsroom → Needs attention.
- */
-export const HEALTH_CHECKS = [
-  {
-    id: "no-sport-or-level",
-    title: "Articles with no sport or division",
-    filter: `_type == "post" && (!defined(sport) || !defined(classification))`,
-  },
-  {
-    id: "no-alt",
-    title: "Articles whose lead image has no alt text",
-    filter: `_type == "post" && !defined(image.alt)`,
-  },
-  {
-    id: "long-headline-no-seo-title",
-    title: "Long headlines with no SEO title",
-    filter: `_type == "post" && length(title) > ${LIMITS.seoTitle.max} && !defined(seoTitle)`,
-  },
-  {
-    id: "old-links",
-    title: "Articles with old-format links",
-    filter: `_type == "post" && count(body[].markDefs[_type in ["link", "internalLink", "customUrl"]]) > 0`,
-  },
-  {
-    id: "no-teams",
-    title: "Articles with no teams tagged",
-    filter: `_type == "post" && count(coalesce(teams, [])) == 0`,
-  },
-  {
-    id: "no-tags",
-    title: "Articles with no tags",
-    filter: `_type == "post" && count(coalesce(tags, [])) == 0`,
-  },
-  {
-    id: "conference-no-level",
-    title: "Conferences with no division",
-    filter: `_type == "conference" && !defined(primaryClassification)`,
-  },
-  {
-    id: "school-no-conference",
-    title: "Schools with no conference",
-    filter: `_type == "school" && count(coalesce(conferenceAffiliations, [])) == 0`,
-  },
-] as const;
-
+/** Counts for each check in `HEALTH_CHECKS`. */
 type Counts = Record<string, number>;
 
 const QUERY = `{${HEALTH_CHECKS.map(
