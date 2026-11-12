@@ -4,14 +4,15 @@ import { env } from "@/env";
 import { getBaseUrl } from "@/lib/get-base-url";
 
 const CONFIRM_TTL_SECONDS = 60 * 60 * 24; // 24 hours
-const UNSUBSCRIBE_TTL_SECONDS = 60 * 60 * 24 * 365; // 1 year
 
-type Purpose = "confirm" | "unsubscribe";
+// Only confirm links are signed here. Unsubscribes are handled by Resend's
+// hosted page via {{{RESEND_UNSUBSCRIBE_URL}}} in Broadcasts.
+type Purpose = "confirm";
 
 /** True only when every newsletter env var is set. */
 export function isNewsletterEnabled(): boolean {
   return !!(
-    env.RESEND_API_KEY &&
+    env.RESEND_API_KEY_NEWSLETTER &&
     env.RESEND_NEWSLETTER_AUDIENCE_ID &&
     env.NEWSLETTER_FROM_EMAIL &&
     env.NEWSLETTER_SIGNING_SECRET
@@ -39,22 +40,15 @@ export function normalizeEmail(raw: string): string {
 }
 
 export function createSignedUrl(email: string, purpose: Purpose): string {
-  const ttl =
-    purpose === "confirm" ? CONFIRM_TTL_SECONDS : UNSUBSCRIBE_TTL_SECONDS;
-  const expires = Math.floor(Date.now() / 1000) + ttl;
+  const expires = Math.floor(Date.now() / 1000) + CONFIRM_TTL_SECONDS;
   const payload = makePayload(email, purpose, expires);
   const signature = sign(payload);
-  const base = getBaseUrl();
-  const path =
-    purpose === "confirm"
-      ? "/api/newsletter/confirm"
-      : "/api/newsletter/unsubscribe";
   const params = new URLSearchParams({
     email,
     expires: String(expires),
     sig: signature,
   });
-  return `${base}${path}?${params.toString()}`;
+  return `${getBaseUrl()}/api/newsletter/confirm?${params.toString()}`;
 }
 
 export function verifySignature(

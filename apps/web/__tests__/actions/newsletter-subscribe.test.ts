@@ -102,12 +102,7 @@ describe("newsletterSubscribe", () => {
     expect(mockEmailsSend).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "user@example.com",
-        headers: expect.objectContaining({
-          "List-Unsubscribe": expect.stringContaining(
-            "/api/newsletter/unsubscribe",
-          ),
-          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-        }),
+        html: expect.stringContaining("/api/newsletter/confirm"),
       }),
     );
   });
@@ -261,14 +256,12 @@ describe("newsletterSubscribe", () => {
     expect(mockRatelimit).toHaveBeenLastCalledWith("newsletter:anonymous");
   });
 
-  it("confirmation email includes unsubscribe link in body", async () => {
+  it("confirmation email has no unsubscribe link or headers (Resend handles unsubscribes for Broadcasts)", async () => {
     await newsletterSubscribe(makeFormData({ email: "user@example.com" }));
 
-    expect(mockEmailsSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        html: expect.stringContaining("/api/newsletter/unsubscribe"),
-      }),
-    );
+    const sent = mockEmailsSend.mock.calls[0]?.[0];
+    expect(sent.headers).toBeUndefined();
+    expect(sent.html).not.toContain("unsubscribe");
   });
 
   it("skips email but keeps contact when daily send limit is reached", async () => {

@@ -30,8 +30,8 @@ describe("isNewsletterEnabled", () => {
     expect(isNewsletterEnabled()).toBe(true);
   });
 
-  it("returns false when RESEND_API_KEY is missing", async () => {
-    delete process.env.RESEND_API_KEY;
+  it("returns false when RESEND_API_KEY_NEWSLETTER is missing", async () => {
+    delete process.env.RESEND_API_KEY_NEWSLETTER;
     vi.resetModules();
     const { isNewsletterEnabled: fn } = await import("@/lib/newsletter");
     expect(fn()).toBe(false);
@@ -99,13 +99,6 @@ describe("createSignedUrl", () => {
     expect(parsed.searchParams.get("sig")).toBeTruthy();
   });
 
-  it("returns an unsubscribe URL with the correct path", () => {
-    const url = createSignedUrl("test@example.com", "unsubscribe");
-    const parsed = new URL(url);
-
-    expect(parsed.pathname).toBe("/api/newsletter/unsubscribe");
-  });
-
   it("confirm URL expires in 24 hours", () => {
     const url = createSignedUrl("test@example.com", "confirm");
     const parsed = new URL(url);
@@ -113,15 +106,6 @@ describe("createSignedUrl", () => {
     const nowSeconds = Math.floor(Date.now() / 1000);
 
     expect(expires - nowSeconds).toBe(60 * 60 * 24);
-  });
-
-  it("unsubscribe URL expires in 1 year", () => {
-    const url = createSignedUrl("test@example.com", "unsubscribe");
-    const parsed = new URL(url);
-    const expires = Number(parsed.searchParams.get("expires"));
-    const nowSeconds = Math.floor(Date.now() / 1000);
-
-    expect(expires - nowSeconds).toBe(60 * 60 * 24 * 365);
   });
 });
 

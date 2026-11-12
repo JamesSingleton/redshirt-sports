@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     return htmlResponse("Invalid link", message, 400);
   }
 
-  const resend = new Resend(env.RESEND_API_KEY);
+  const resend = new Resend(env.RESEND_API_KEY_NEWSLETTER);
 
   const { error } = await resend.contacts
     .update({

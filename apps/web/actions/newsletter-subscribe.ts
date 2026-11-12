@@ -23,7 +23,7 @@ const schema = z.object({
 const GENERIC_SUCCESS = { success: true } as const;
 
 function createResend() {
-  return new Resend(env.RESEND_API_KEY);
+  return new Resend(env.RESEND_API_KEY_NEWSLETTER);
 }
 
 export async function newsletterSubscribe(formData: FormData) {
@@ -99,23 +99,18 @@ export async function newsletterSubscribe(formData: FormData) {
   }
 
   const confirmUrl = createSignedUrl(email, "confirm");
-  const unsubscribeUrl = createSignedUrl(email, "unsubscribe");
   const baseUrl = getBaseUrl();
 
   const { error: sendError } = await resend.emails.send({
     from: env.NEWSLETTER_FROM_EMAIL!,
     to: email,
     subject: "Confirm your Redshirt Sports newsletter subscription",
-    headers: {
-      "List-Unsubscribe": `<${unsubscribeUrl}>`,
-      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-    },
     html: [
       "<p>Thanks for signing up for the Redshirt Sports newsletter!</p>",
       `<p><a href="${confirmUrl}">Confirm your subscription</a></p>`,
       "<p>This link expires in 24 hours. If you didn't request this, you can ignore this email.</p>",
       "<hr>",
-      `<p style="font-size:12px"><a href="${unsubscribeUrl}">Unsubscribe</a> · <a href="${baseUrl}">Redshirt Sports</a></p>`,
+      `<p style="font-size:12px"><a href="${baseUrl}">Redshirt Sports</a></p>`,
     ].join(""),
   });
 
