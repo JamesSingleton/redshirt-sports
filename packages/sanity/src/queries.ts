@@ -213,10 +213,10 @@ const homePostCardFragment = /* groq */ `
   "divisionLabel": coalesce(
     sportSubgrouping->shortName,
     sportSubgrouping->name,
-    classification->shortName,
-    classification->name
+    coalesce(classification, division)->shortName,
+    coalesce(classification, division)->name
   ),
-  "divisionSlug": classification->slug.current,
+  "divisionSlug": coalesce(classification, division)->slug.current,
   "subgroupingSlug": sportSubgrouping->slug.current,
   "tagNames": tags[]->name,
   "sportTitle": sport->title,
@@ -240,9 +240,11 @@ export const queryImageType = defineQuery(`
 /**
  * A post's level of play. The Sanity type is `classification`; the key stays
  * `division` because that is what the site's routes and components call it.
+ * Projections read `coalesce(classification, division)` so posts editorial-01
+ * hasn't moved yet keep their level; drop the fallback after editorial-10.
  */
 const divisionFragment = /* groq */ `
-  "division": classification->{
+  "division": coalesce(classification, division)->{
     _id,
     "name": coalesce(shortName, name),
     "fullName": name,
@@ -369,7 +371,7 @@ export const queryArticleLists = defineQuery(/* groq */ `
       ${postImageFragment},
       "slug": slug.current,
       "tagNames": tags[]->name,
-      "division": classification->{ "name": coalesce(shortName, name) },
+      "division": coalesce(classification, division)->{ "name": coalesce(shortName, name) },
       sportSubgrouping->{ shortName, name },
       ${postAuthorFragment}
     },
@@ -388,7 +390,7 @@ export const queryArticleLists = defineQuery(/* groq */ `
       ${postImageFragment},
       "slug": slug.current,
       "tagNames": tags[]->name,
-      "division": classification->{ "name": coalesce(shortName, name) },
+      "division": coalesce(classification, division)->{ "name": coalesce(shortName, name) },
       sportSubgrouping->{ shortName, name }
     },
     "moreFromAuthor": *[
@@ -732,7 +734,7 @@ export const queryLatestCollegeSportsArticles = defineQuery(/* groq */ `
     "slug": slug.current,
     ${postImageFragment},
     publishedAt,
-    "division": classification->{
+    "division": coalesce(classification, division)->{
       "name": coalesce(shortName, name),
       "slug": slug.current
     },
@@ -859,7 +861,7 @@ export const postsByAuthor = defineQuery(/* groq */ `
     "posts": *[_type == "post" && references(^._id)] | order(publishedAt desc)[$from...$to]{
       ...,
       "slug": slug.current,
-      "division": classification->{ "name": coalesce(shortName, name) },
+      "division": coalesce(classification, division)->{ "name": coalesce(shortName, name) },
       ${postImageFragment},
       ${postAuthorFragment},
     },
@@ -1039,7 +1041,7 @@ const rssFeedItemFragment = /* groq */ `
   ${richTextFragment},
   "authors": authors[]->name,
   "sport": sport->title,
-  "division": classification->name,
+  "division": coalesce(classification, division)->name,
   "sportSubgrouping": coalesce(sportSubgrouping->shortName, sportSubgrouping->name),
   "conferences": conferences[]->{ name, shortName },
   "tags": tags[]->name,
@@ -1238,7 +1240,7 @@ export const countOfPostsQuery = groq`
 export const queryForCollegeSitemap = groq`
 *[_type == "post" && defined(sport._ref) && defined(publishedAt)] | order(publishedAt desc){
   "sport": sport->slug.current,
-  "division": classification->slug.current,
+  "division": coalesce(classification, division)->slug.current,
   "sportSubgrouping": sportSubgrouping->slug.current,
   "conferences": conferences[]->{
       "slug": slug.current,

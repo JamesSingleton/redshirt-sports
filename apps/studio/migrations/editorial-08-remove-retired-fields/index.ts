@@ -14,7 +14,9 @@ import {
  *
  * - post.author: single byline from before `authors`. In production every
  *   one is already in `authors`; any that isn't is added before removal.
- * - post.featuredArticle, post.mainImage: unused.
+ * - post.featuredArticle: unused.
+ * - post.mainImage: the old hero image field. Copied to `image` when a post
+ *   has no `image` yet (production had none when this was written).
  * - school.conferenceAffiliationsBySport: an older copy of
  *   `conferenceAffiliations`. Sports only it has are copied over first.
  * - conference.description: unused.
@@ -81,6 +83,12 @@ export default defineMigration({
               : at("conferenceAffiliations", set(missing)),
           );
         }
+      }
+
+      // The hero image moved from mainImage to image. Keep any that never
+      // made the move rather than deleting it.
+      if (doc._type === "post" && doc.mainImage && !doc.image) {
+        patches.push(at("image", set(doc.mainImage)));
       }
 
       for (const field of RETIRED[doc._type] ?? []) {
