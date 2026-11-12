@@ -37,6 +37,7 @@ import {
 import type { BodyBlock, Finding } from "@/house-rules/types";
 import { documentSlugField } from "@/schemaTypes/common";
 import { API_VERSION } from "@/utils/constant";
+import { authorsForUser } from "@/utils/current-user";
 import { editorialImageFields } from "../shared/image-fields";
 import { seoFields } from "../shared/seo-fields";
 
@@ -121,6 +122,13 @@ export const post = defineType({
       type: "array",
       group: GROUP.STORY,
       description: `Who wrote it, in byline order. Up to ${LIMITS.authors.max}.`,
+      // A new article starts with whoever is creating it, when their Studio
+      // account is linked to an author (or their name matches one exactly).
+      initialValue: (_params, context) =>
+        authorsForUser(
+          context.currentUser,
+          context.getClient({ apiVersion: API_VERSION }),
+        ),
       of: [
         defineArrayMember({
           type: "reference",

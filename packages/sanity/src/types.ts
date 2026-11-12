@@ -800,6 +800,7 @@ export type Author = {
     } & SportReference
   >;
   credentials?: Array<string>;
+  studioUserId?: string;
   archived?: boolean;
 };
 
@@ -1309,6 +1310,7 @@ export type QueryPostSlugDataResult = {
       } & SportReference
     >;
     credentials?: Array<string>;
+    studioUserId?: string;
     archived?: boolean;
     knowsAbout: Array<string> | null;
   }>;
@@ -1766,6 +1768,7 @@ export type QueryArticleListsResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
   }>;
@@ -1990,6 +1993,7 @@ export type QuerySportsNewsResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
     divisionLabel: string | null;
@@ -2097,6 +2101,7 @@ export type QuerySportsNewsOldestResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
     divisionLabel: string | null;
@@ -2204,6 +2209,7 @@ export type QuerySportsAndDivisionNewsResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
     divisionLabel: string | null;
@@ -2311,6 +2317,7 @@ export type QuerySportsAndDivisionNewsOldestResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
     divisionLabel: string | null;
@@ -2608,6 +2615,7 @@ export type QueryHomePageDataResult = Array<{
       } & SportReference
     >;
     credentials?: Array<string>;
+    studioUserId?: string;
     archived?: boolean;
   }>;
 }>;
@@ -2708,6 +2716,7 @@ export type QueryHomeFeedResult =
               } & SportReference
             >;
             credentials?: Array<string>;
+            studioUserId?: string;
             archived?: boolean;
           }>;
           divisionLabel: string | null;
@@ -2808,6 +2817,7 @@ export type QueryHomeFeedResult =
               } & SportReference
             >;
             credentials?: Array<string>;
+            studioUserId?: string;
             archived?: boolean;
           }>;
           divisionLabel: string | null;
@@ -2909,6 +2919,7 @@ export type QueryHomeFeedResult =
           } & SportReference
         >;
         credentials?: Array<string>;
+        studioUserId?: string;
         archived?: boolean;
       }>;
       divisionLabel: string | null;
@@ -3025,6 +3036,7 @@ export type QueryLatestArticlesResult = Array<{
       } & SportReference
     >;
     credentials?: Array<string>;
+    studioUserId?: string;
     archived?: boolean;
   }>;
 }>;
@@ -3132,6 +3144,7 @@ export type QueryLatestCollegeSportsArticlesResult = Array<{
       } & SportReference
     >;
     credentials?: Array<string>;
+    studioUserId?: string;
     archived?: boolean;
   }>;
 }>;
@@ -3263,6 +3276,7 @@ export type QueryArticlesBySportDivisionAndConferenceResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
     divisionLabel: string | null;
@@ -3402,6 +3416,7 @@ export type QueryArticlesBySportDivisionAndConferenceOldestResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
     divisionLabel: string | null;
@@ -3562,6 +3577,7 @@ export type AuthorBySlugResult = {
     } & SportReference
   >;
   credentials?: Array<string>;
+  studioUserId?: string;
   archived?: boolean;
 } | null;
 
@@ -3650,6 +3666,7 @@ export type PostsByAuthorResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
     image: {
@@ -4023,6 +4040,7 @@ export type QueryCollegeNewsResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
     divisionLabel: string | null;
@@ -4130,6 +4148,7 @@ export type QueryCollegeNewsOldestResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
     divisionLabel: string | null;
@@ -5389,6 +5408,7 @@ export type PostsBySchoolQueryResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
   }>;
@@ -5494,6 +5514,7 @@ export type PostsBySchoolAndStoryTypeQueryResult = Array<{
       } & SportReference
     >;
     credentials?: Array<string>;
+    studioUserId?: string;
     archived?: boolean;
   }>;
 }>;
@@ -5605,6 +5626,7 @@ export type PostsByStoryTypeQueryResult = {
         } & SportReference
       >;
       credentials?: Array<string>;
+      studioUserId?: string;
       archived?: boolean;
     }>;
   }>;
