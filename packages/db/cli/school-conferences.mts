@@ -6,8 +6,13 @@
  *
  *   Football, all NCAA divisions     ESPN, current season
  *   Division I basketball            ESPN, current season
- *   Division II and III basketball   NCAA scoreboards, 2024-25 (the feed's last season)
+ *   Division II and III basketball   stats.ncaa.org, current season, with --ncaa-stats;
+ *                                    otherwise NCAA scoreboards, 2024-25 (the feed's last season)
  *   NAIA, junior colleges            No source: left for review
+ *
+ * --ncaa-stats <file> reads a snapshot of stats.ncaa.org's conference team
+ * lists (see src/school-conferences/ncaa-stats.ts for the shape). The site
+ * refuses scripted requests, so save it from a browser.
  *
  * Teams match schools by ESPN id (Postgres school_external_ids) or, for the
  * NCAA feed, by name with the same matcher as `pnpm team-ids`. Nothing is
@@ -32,6 +37,10 @@ import { randomUUID } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
 
+import {
+  type NcaaStatsSnapshot,
+  ncaaStatsMemberships,
+} from "../src/school-conferences/ncaa-stats";
 import {
   type AffiliationChange,
   dedupeAcrossDivisions,
@@ -368,6 +377,20 @@ if (cacheFile && existsSync(cacheFile)) {
     ...(await ncaaMemberships()),
   ];
   if (cacheFile) writeFileSync(cacheFile, JSON.stringify(memberships));
+}
+
+// This season's Division II and III basketball conferences, saved from
+// stats.ncaa.org in a browser (it refuses scripts). Outranks the old feed.
+const statsFile = readFlag("--ncaa-stats");
+if (statsFile) {
+  const snapshot = JSON.parse(
+    readFileSync(statsFile, "utf8"),
+  ) as NcaaStatsSnapshot;
+  const stats = ncaaStatsMemberships(snapshot, memberships);
+  memberships.push(...stats);
+  log(
+    `stats.ncaa.org ${snapshot.season}: ${stats.length} memberships from ${statsFile}`,
+  );
 }
 
 const schools: SanitySchool[] = sanity.schools.map((school) => ({

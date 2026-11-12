@@ -21,7 +21,8 @@ export type ProviderConference = {
 
 /** One team's membership in one conference for one sport, from a provider. */
 export type ProviderMembership = {
-  source: "espn" | "ncaa";
+  /** "ncaa-stats" is stats.ncaa.org's current lists; "ncaa" the older scoreboard feed. */
+  source: "espn" | "ncaa-stats" | "ncaa";
   /** Season the list is from, e.g. "2026" or "2024-25". */
   season: string;
   sport: SportSlug;
@@ -431,9 +432,13 @@ export type AffiliationPlan = {
   }>;
 };
 
-/** ESPN is preferred over the NCAA feed: it is current, the feed is a season old. */
+/**
+ * Current lists beat old ones: ESPN and stats.ncaa.org are this season's,
+ * the NCAA scoreboard feed stops at 2024-25.
+ */
 const SOURCE_RANK: Record<ProviderMembership["source"], number> = {
-  espn: 2,
+  espn: 3,
+  "ncaa-stats": 2,
   ncaa: 1,
 };
 

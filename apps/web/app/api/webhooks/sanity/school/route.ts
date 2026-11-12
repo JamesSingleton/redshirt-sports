@@ -1,5 +1,6 @@
 import {
   getSchoolRankingsDisplayBySanityId,
+  replaceSchoolConferenceAffiliations,
   upsertSchoolFromSanity,
 } from "@redshirt-sports/db/queries";
 import { NextResponse } from "next/server";
@@ -22,6 +23,17 @@ const SchoolPayloadSchema = z.object({
     slug: z.string().optional().nullable(),
     image: z.unknown().optional().nullable(),
     top25VotingEligible: z.boolean().optional().nullable(),
+    // Absent when the sender doesn't project it: affiliations are left as
+    // they are. Null means the school has none in Sanity.
+    conferenceAffiliations: z
+      .array(
+        z.object({
+          conferenceId: z.string().optional().nullable(),
+          sportId: z.string().optional().nullable(),
+        }),
+      )
+      .optional()
+      .nullable(),
   }),
 });
 
@@ -72,9 +84,28 @@ export async function POST(request: Request) {
     expireRankingsCache();
   }
 
+  // Sanity is the source of truth for which conference a school plays in.
+  const affiliations =
+    school.conferenceAffiliations === undefined
+      ? null
+      : await replaceSchoolConferenceAffiliations(
+          result.id,
+          school.conferenceAffiliations ?? [],
+        );
+  if (affiliations && affiliations.skipped.length > 0) {
+    console.warn(
+      `School ${school._id}: ${affiliations.skipped.length} affiliations name a conference or sport Postgres doesn't have; run the admin conference loader.`,
+      affiliations.skipped,
+    );
+  }
+
   return NextResponse.json({
     ok: true,
     action: result.action,
     id: result.id,
+    ...(affiliations && {
+      affiliations: affiliations.replaced,
+      skippedAffiliations: affiliations.skipped.length,
+    }),
   });
 }

@@ -1,6 +1,7 @@
 import { HomeIcon } from "@sanity/icons/Home";
 import { defineField, defineType } from "sanity";
 
+import { uniqueName } from "@/utils/unique-name";
 import { SchoolSlugFieldComponent } from "../../components/school-slug-field-component";
 import { GROUP, GROUPS } from "../../utils/constant";
 import {
@@ -23,7 +24,16 @@ export const school = defineType({
       name: "name",
       title: "Name",
       type: "string",
-      validation: (rule) => rule.required(),
+      validation: (rule) => [
+        rule.required(),
+        rule.custom(
+          uniqueName({
+            type: "school",
+            label: "school",
+            against: ["name", "shortName"],
+          }),
+        ),
+      ],
       description:
         "The name of the college or university. i.e. Virginia Military Institute",
       group: GROUP.MAIN_CONTENT,
@@ -34,6 +44,14 @@ export const school = defineType({
       type: "string",
       description:
         "The short name of the college or university. i.e. Virginia Tech",
+      validation: (rule) =>
+        rule.custom(
+          uniqueName({
+            type: "school",
+            label: "school",
+            against: ["name", "shortName"],
+          }),
+        ),
       group: GROUP.MAIN_CONTENT,
     }),
     defineField({

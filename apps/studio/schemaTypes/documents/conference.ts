@@ -8,6 +8,7 @@ import {
 
 import { API_VERSION } from "@/utils/constant";
 import { createSlug, isUniqueWithinType } from "@/utils/slug";
+import { uniqueName } from "@/utils/unique-name";
 
 type Affiliation = {
   _key?: string;
@@ -31,14 +32,35 @@ export const conference = defineType({
       type: "string",
       group: "identity",
       description: 'Full name: "Missouri Valley Football Conference".',
-      validation: (rule) => rule.required().error("A conference needs a name."),
+      validation: (rule) => [
+        rule.required().error("A conference needs a name."),
+        rule.custom(
+          uniqueName({
+            type: "conference",
+            label: "conference",
+            against: ["name"],
+          }),
+        ),
+      ],
     }),
     defineField({
       name: "shortName",
       type: "string",
       group: "identity",
       description: 'How it is said in copy: "Missouri Valley", "Big Sky".',
-      validation: (rule) => rule.required().error("Add the short name."),
+      validation: (rule) => [
+        rule.required().error("Add the short name."),
+        // "MAC" is the Mid-American in Division I and the Middle Atlantic in
+        // Division III, so short names only clash within one division.
+        rule.custom(
+          uniqueName({
+            type: "conference",
+            label: "conference in this division",
+            against: ["shortName"],
+            sameField: "primaryClassification",
+          }),
+        ),
+      ],
     }),
     defineField({
       name: "abbreviation",

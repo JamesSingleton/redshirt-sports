@@ -1,8 +1,8 @@
 import { TagIcon } from "@sanity/icons/Tag";
 import { defineField, defineType } from "sanity";
 
-import { API_VERSION } from "@/utils/constant";
 import { createSlug, isUniqueWithinType } from "@/utils/slug";
+import { uniqueName } from "@/utils/unique-name";
 
 export const TAG_KINDS = [
   {
@@ -46,17 +46,9 @@ export const tag = defineType({
           if (/[#,]/.test(value)) return "No # or commas in tag names.";
           return true;
         }),
-        rule.custom(async (value: string | undefined, context) => {
-          if (!value) return true;
-          const id = context.document?._id?.replace(/^drafts\./, "") ?? "";
-          const existing = await context
-            .getClient({ apiVersion: API_VERSION })
-            .fetch<string | null>(
-              `*[_type == "tag" && !(_id in [$id, "drafts." + $id]) && lower(name) == lower($name)][0].name`,
-              { id, name: value.trim() },
-            );
-          return existing ? `The tag "${existing}" already exists.` : true;
-        }),
+        rule.custom(
+          uniqueName({ type: "tag", label: "tag", against: ["name"] }),
+        ),
       ],
     }),
     defineField({
