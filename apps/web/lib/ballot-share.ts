@@ -1,43 +1,57 @@
-export type BallotImageRow = {
+export type BallotShareTeam = {
   rank: number;
-  teamName: string;
-  diffLabel: string;
-  isOutlier: boolean;
+  name: string;
+  /** Short code drawn in place of the logo when the school has none. */
+  abbreviation: string;
+  logoUrl: string | null;
 };
 
-export function diffLabel(diff: number | "rv" | "equal"): string {
-  if (diff === "rv") return "RV";
-  if (diff === "equal") return "=";
-  if (diff > 0) return `+${diff}`;
-  return `${diff}`;
+export type BallotShareInput = {
+  /** Poll label, e.g. "FCS". */
+  poll: string;
+  season: number;
+  week: number;
+  voterName: string;
+  voterOutlet: string;
+  teams: BallotShareTeam[];
+  /** Light-on-dark wordmark drawn in the header; text fallback when null. */
+  wordmarkUrl: string | null;
+};
+
+/** Printed in the image footer, whatever host served the page. */
+export const BALLOT_SHARE_SITE_HOST = "redshirtsports.com";
+
+export function ballotShareTitle({
+  poll,
+  week,
+}: Pick<BallotShareInput, "poll" | "week">): string {
+  return week === 0
+    ? `${poll} Preseason Top 25 Ballot`
+    : `${poll} Top 25 Ballot · Week ${week}`;
 }
 
-export function buildImageRows(
-  picks: ReadonlyArray<{
-    voterRank: number;
-    shortName: string;
-    diff: number | "rv" | "equal";
-    isOutlier: boolean;
-  }>,
-): BallotImageRow[] {
-  return picks.map((p) => ({
-    rank: p.voterRank,
-    teamName: p.shortName,
-    diffLabel: diffLabel(p.diff),
-    isOutlier: p.isOutlier,
-  }));
+export function ballotShareFilename({
+  poll,
+  season,
+  week,
+}: Pick<BallotShareInput, "poll" | "season" | "week">): string {
+  const slug = poll.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  return `redshirt-sports-${slug}-${season}-week-${week}-ballot.png`;
 }
 
 export function buildPostText({
-  week,
   poll,
-  totalBallots,
+  week,
   url,
 }: {
-  week: number;
   poll: string;
-  totalBallots: number;
+  week: number;
   url: string;
 }): string {
-  return `My Week ${week} @_redshirtsports ${poll} Top 25 ballot. All ${totalBallots} ballots: ${url}`;
+  const which = week === 0 ? "preseason" : `Week ${week}`;
+  return `My ${which} ${poll} Top 25 ballot for @_redshirtsports is in. Follow the poll: ${url}`;
+}
+
+export function xIntentUrl(text: string): string {
+  return `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
 }

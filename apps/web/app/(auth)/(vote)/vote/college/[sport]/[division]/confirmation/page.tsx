@@ -3,12 +3,13 @@ import {
   arePollRankingsPublished,
   getPollBySportAndSlug,
   getSportIdBySlug,
+  getUserDisplayFields,
   getVoterBallots,
   requireVotingSeasonInfo,
   resolveWeekIdForLegacyWeek,
   type SportParam,
 } from "@redshirt-sports/db/queries";
-import { client } from "@redshirt-sports/sanity/client";
+import { client, urlFor } from "@redshirt-sports/sanity/client";
 import { schoolsByIdQuery } from "@redshirt-sports/sanity/queries";
 import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import type { Metadata } from "next";
@@ -17,7 +18,12 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
+import { BallotShare } from "@/components/rankings/ballot-share";
 import CustomImage from "@/components/sanity-image";
+import type { BallotShareInput } from "@/lib/ballot-share";
+import { getBaseUrl } from "@/lib/get-base-url";
+import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
+import { pollDivisionLabel } from "@/lib/rankings-widget-data";
 import { noIndexRobots } from "@/lib/seo";
 import { transformBallotToTeamIds } from "@/utils/process-ballots";
 
@@ -113,9 +119,33 @@ export async function VoteConfirmationContent({
       : false;
   const canEdit = !published;
 
-  const schools = await client.fetch(schoolsByIdQuery, {
-    ids: transformBallotToTeamIds(ballot),
-  });
+  const [schools, voter, settings] = await Promise.all([
+    client.fetch(schoolsByIdQuery, {
+      ids: transformBallotToTeamIds(ballot),
+    }),
+    getUserDisplayFields(userId),
+    fetchGlobalSeoSettings(),
+  ]);
+
+  const baseUrl = getBaseUrl();
+  const share: BallotShareInput = {
+    poll: pollDivisionLabel(division),
+    season: year,
+    week: votingWeek,
+    voterName: `${voter?.firstName ?? ""} ${voter?.lastName ?? ""}`.trim(),
+    voterOutlet: voter?.organization ?? "",
+    teams: schools.map((school, index) => ({
+      rank: index + 1,
+      name: school.shortName ?? school.name ?? "",
+      abbreviation: school.abbreviation ?? school.shortName ?? "",
+      logoUrl: school.image?.asset
+        ? urlFor(school.image).width(128).height(128).url()
+        : null,
+    })),
+    wordmarkUrl: settings?.footerLogoDarkMode?.asset
+      ? urlFor(settings.footerLogoDarkMode).width(800).url()
+      : null,
+  };
 
   return (
     <div className="container flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8">
@@ -150,6 +180,10 @@ export async function VoteConfirmationContent({
           </div>
         ))}
       </div>
+      <BallotShare
+        input={share}
+        pollUrl={`${baseUrl}/college/${sport}/rankings/${division}`}
+      />
       <div className="flex flex-wrap items-center justify-center gap-3">
         {canEdit ? (
           <Link

@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
 
+const { mockGetUserDisplayFields, mockFetchGlobalSeoSettings } = vi.hoisted(
+  () => ({
+    mockGetUserDisplayFields: vi.fn(),
+    mockFetchGlobalSeoSettings: vi.fn(),
+  }),
+);
+
 const {
   mockAuthProtect,
   mockGetSportIdBySlug,
@@ -31,6 +38,7 @@ vi.mock("@redshirt-sports/auth/server", () => ({
 }));
 
 vi.mock("@redshirt-sports/db/queries", () => ({
+  getUserDisplayFields: (id: string) => mockGetUserDisplayFields(id),
   getSportIdBySlug: mockGetSportIdBySlug,
   getVoterBallots: mockGetVoterBallots,
   requireVotingSeasonInfo: mockRequireVotingSeasonInfo,
@@ -41,6 +49,38 @@ vi.mock("@redshirt-sports/db/queries", () => ({
 
 vi.mock("@redshirt-sports/sanity/client", () => ({
   client: { fetch: mockClientFetch },
+  urlFor: () => ({
+    width: () => ({
+      height: () => ({ url: () => "logo.png" }),
+      url: () => "wordmark.png",
+    }),
+  }),
+}));
+
+vi.mock("@/lib/global-seo-settings", () => ({
+  fetchGlobalSeoSettings: () => mockFetchGlobalSeoSettings(),
+}));
+
+vi.mock("@/lib/rankings-widget-data", () => ({
+  pollDivisionLabel: (division: string) => division.toUpperCase(),
+}));
+
+vi.mock("@/components/rankings/ballot-share", () => ({
+  BallotShare: ({
+    input,
+    pollUrl,
+  }: {
+    input: { poll: string; voterName: string };
+    pollUrl: string;
+  }) => (
+    <div
+      data-testid="ballot-share"
+      data-input={JSON.stringify(input)}
+      data-poll-url={pollUrl}
+    >
+      {input.poll} ballot by {input.voterName}
+    </div>
+  ),
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
@@ -93,6 +133,61 @@ describe("VoteConfirmationContent", () => {
     mockArePollRankingsPublished.mockReset().mockResolvedValue(false);
     mockClientFetch.mockReset();
     mockRedirect.mockClear();
+    mockGetUserDisplayFields.mockReset().mockResolvedValue({
+      firstName: "Chuck",
+      lastName: "Burton",
+      organization: "College Sports Journal",
+      organizationRole: null,
+    });
+    mockFetchGlobalSeoSettings.mockReset().mockResolvedValue(null);
+  });
+
+  it("builds the share image from logos, the wordmark, and a missing voter profile", async () => {
+    mockGetUserDisplayFields.mockResolvedValue(undefined);
+    mockFetchGlobalSeoSettings.mockResolvedValue({
+      footerLogoDarkMode: { asset: { _ref: "image-wordmark" } },
+    });
+    mockGetVoterBallots.mockResolvedValue([
+      {
+        teamId: "school-1",
+        rank: 1,
+        points: 25,
+        userId: "user-1",
+        division: "fcs",
+        week: 1,
+        year: 2025,
+        id: "1",
+        createdAt: new Date(),
+      },
+    ]);
+    mockClientFetch.mockResolvedValue([
+      {
+        _id: "school-1",
+        shortName: null,
+        abbreviation: null,
+        name: null,
+        image: { asset: { _ref: "image-logo" } },
+      },
+    ]);
+
+    const ui = await VoteConfirmationContent({
+      params: Promise.resolve({ sport: "football", division: "fcs" }),
+    });
+    render(ui as ReactNode);
+
+    const share = screen.getByTestId("ballot-share");
+    expect(JSON.parse(share.dataset.input ?? "{}")).toEqual({
+      poll: "FCS",
+      season: 2025,
+      week: 1,
+      voterName: "",
+      voterOutlet: "",
+      teams: [{ rank: 1, name: "", abbreviation: "", logoUrl: "logo.png" }],
+      wordmarkUrl: "wordmark.png",
+    });
+    expect(share.dataset.pollUrl).toBe(
+      "http://localhost:3000/college/football/rankings/fcs",
+    );
   });
 
   it("renders at request time before reading the current season", async () => {
@@ -178,6 +273,9 @@ describe("VoteConfirmationContent", () => {
     expect(
       screen.getByText(/until this week's rankings are published/i),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("ballot-share")).toHaveTextContent(
+      "FBS ballot by Chuck Burton",
+    );
   });
 
   it("hides the edit CTA after rankings are published", async () => {

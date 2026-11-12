@@ -42,9 +42,6 @@ describe("BallotsByVoterPanel", () => {
         cards={[card]}
         ballotsHref="/ballots"
         byVoterPath="/ballots/by-voter"
-        poll="FCS"
-        season="2026"
-        week={10}
       />,
     );
 
