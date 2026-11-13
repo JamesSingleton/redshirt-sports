@@ -16,6 +16,10 @@ vi.mock("@/lib/bracket-data", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/bracket-data")>()),
   getCachedPublishedBracket: mockGetCachedPublishedBracket,
 }));
+vi.mock("@/components/newsletter/newsletter-gate", () => ({
+  NewsletterGate: () => null,
+}));
+
 vi.mock("@/components/bracket/bracket-edition-picker", () => ({
   BracketEditionPicker: ({
     seasons,
