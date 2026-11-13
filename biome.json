@@ -35,6 +35,7 @@
       "!**/.agents",
       "!**/.temp",
       "!**/.branches",
+      "!**/supabase/seed",
       "!**/*.svg"
     ]
   },

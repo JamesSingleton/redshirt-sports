@@ -30,6 +30,12 @@
       "schedule": "0 15 * * 1",
       "path": "/api/cron/rankings",
       "requestMethod": "GET"
+    },
+    "portal-push-nightly": {
+      "schedule": "0 3 * * *",
+      "timezone": "America/Denver",
+      "path": "/api/cron/portal-push",
+      "requestMethod": "GET"
     }
   }
 }

@@ -36,11 +36,25 @@ export class PortalWriteError extends Error {
   }
 }
 
+/** Advisory lock key shared by every player write (shared) and the push (exclusive). */
+export const PORTAL_PUSH_LOCK_SQL = sql`hashtextextended('portal:push', 0)`;
+
 /**
- * Serialize every write for one player. Transaction-scoped advisory lock:
- * released on commit/rollback, and safe through the Supavisor transaction pooler.
+ * Serialize every write for one player, and keep it out of a running push.
+ *
+ * Writes hold the push lock in shared mode, so they never block each other but
+ * wait while a push holds it exclusively: a save can't commit between the
+ * push reading a player and clearing their pending flag, which would leave
+ * that save marked as published when it wasn't.
+ *
+ * Transaction-scoped advisory locks: released on commit/rollback, and safe
+ * through the Supavisor transaction pooler. Always push lock first, then the
+ * player, so the two can't deadlock.
  */
 export async function lockPlayer(tx: DbTransaction, playerId: number) {
+  await tx.execute(
+    sql`select pg_advisory_xact_lock_shared(${PORTAL_PUSH_LOCK_SQL})`,
+  );
   await tx.execute(
     sql`select pg_advisory_xact_lock(hashtextextended(${`player:${playerId}`}, 0))`,
   );

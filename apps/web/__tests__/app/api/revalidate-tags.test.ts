@@ -318,4 +318,23 @@ describe("POST /api/revalidate-tags", () => {
       "max",
     );
   });
+
+  it("accepts transfer portal and player tags", async () => {
+    vi.resetModules();
+    const { POST } = await import("@/app/api/revalidate-tags/route");
+    const send = (cacheTags: string[]) =>
+      POST(
+        new Request("https://example.com/api/revalidate-tags", {
+          method: "POST",
+          body: JSON.stringify({ secret: CACHE_SECRET, cacheTags }),
+        }) as never,
+      );
+
+    const tags = ["portal:players", "portal:football:2027", "player:100000"];
+    expect((await send(tags)).status).toBe(200);
+    for (const tag of tags) {
+      expect(mockRevalidateTag).toHaveBeenCalledWith(tag, "max");
+    }
+    expect((await send(["players:100000"])).status).toBe(400);
+  });
 });

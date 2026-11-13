@@ -7,6 +7,7 @@ export * from "./games";
 export * from "./missed-ballots";
 export * from "./players";
 export * from "./polls";
+export * from "./portal-publish";
 export * from "./publish-rankings";
 export * from "./rankings";
 export * from "./recruitments";
