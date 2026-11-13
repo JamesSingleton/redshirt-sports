@@ -53,9 +53,27 @@ describe("playerPath / parsePlayerSlugId", () => {
     "tavari-johnson-147731-",
     "tavari-johnson-1477310000000000000000",
     "../etc/passwd-147731",
+    "-147731",
+    `${"a".repeat(200)}-147731`,
     "",
   ])("rejects %j", (segment) => {
     expect(parsePlayerSlugId(segment)).toBeNull();
+  });
+
+  it("stays fast on hostile input", () => {
+    const hostile = [
+      "-".repeat(100_000),
+      `a${"-a".repeat(50_000)}!`,
+      `${"1-".repeat(50_000)}x`,
+    ];
+    const started = performance.now();
+    for (const input of hostile) {
+      parsePlayerSlugId(input);
+      playerSlug(input, input, input);
+      normalizePlayerName(input);
+    }
+    expect(performance.now() - started).toBeLessThan(50);
+    expect(playerSlug("-".repeat(100_000), "")).toBe("player");
   });
 });
 
