@@ -31,7 +31,9 @@
     "./ratings": "./src/ratings/index.ts",
     "./ratings/cache-tags": "./src/ratings/cache-tags.ts",
     "./ratings/engine": "./src/ratings/engine/index.ts",
-    "./ratings/segments": "./src/ratings/segments.ts"
+    "./ratings/segments": "./src/ratings/segments.ts",
+    "./portal": "./src/portal/index.ts",
+    "./portal/cache-tags": "./src/portal/cache-tags.ts"
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.13.11",

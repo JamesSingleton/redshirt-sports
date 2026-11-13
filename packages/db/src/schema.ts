@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { relations, sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
+  bigint,
   boolean,
   check,
   doublePrecision,
@@ -9,12 +11,27 @@ import {
   jsonb,
   pgTable,
   serial,
+  smallint,
   text,
   timestamp,
   unique,
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
+
+import {
+  CLOSED_RECRUITMENT_STATUSES,
+  EVENT_SOURCE_TYPES,
+  FIRST_PLAYER_ID,
+  PLAYER_CLASS_CODES,
+  PLAYER_SUBMISSION_STATUSES,
+  PLAYER_SUBMITTER_ROLES,
+  PORTAL_PUSH_TRIGGERS,
+  RECRUITMENT_EVENT_TYPES,
+  RECRUITMENT_KINDS,
+  RECRUITMENT_STATUSES,
+  SCHOOL_EVENT_TYPES,
+} from "./portal/constants";
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).default(
@@ -1310,3 +1327,716 @@ export const gamesTableRelations = relations(gamesTable, ({ one }) => ({
     references: [weeksTable.id],
   }),
 }));
+
+// ---------------------------------------------------------------------------
+// Players, recruitments, and the transfer portal.
+//
+// Working tables (players … recruitment_events) are written by admin and hold
+// the integrity rules. Public pages never read them: the push copies what is
+// ready into `published_players` and `published_wire_events`.
+//
+// These tables use identity keys rather than the text UUIDs above: the player
+// id is public (`/players/<name>-<id>`) and the rest follow it for consistency.
+// ---------------------------------------------------------------------------
+
+const identityId = () =>
+  bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity();
+
+const requiredTimestamps = {
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+};
+
+/** `column in ('a', 'b')` from one of the `as const` arrays in `portal/constants`. */
+const inList = (column: AnyPgColumn, values: readonly string[]) =>
+  sql`${column} in (${sql.raw(values.map((value) => `'${value}'`).join(", "))})`;
+
+/** A school we know (`school_id`) or one we don't yet (`school_name`, e.g. NAIA or JUCO). */
+const hasSchool = (schoolId: AnyPgColumn, schoolName: AnyPgColumn) =>
+  sql`(${schoolId} is not null or ${schoolName} is not null)`;
+
+/** A person. One row for life, across sports, schools, and recruitments. */
+export const playersTable = pgTable(
+  "players",
+  {
+    /** Permanent and public: the number in `/players/<name>-<id>`. */
+    id: bigint("id", { mode: "number" })
+      .primaryKey()
+      .generatedAlwaysAsIdentity({ startWith: FIRST_PLAYER_ID }),
+    firstName: text("first_name").notNull(),
+    lastName: text("last_name").notNull(),
+    suffix: text("suffix"),
+    /** From the name. Not unique and never used to find a player. */
+    slug: text("slug").notNull(),
+    /** `normalizePlayerName(first, last, suffix)`, for duplicate matching. */
+    nameSearch: text("name_search").notNull(),
+    hometownCity: text("hometown_city"),
+    hometownState: text("hometown_state"),
+    highSchoolName: text("high_school_name"),
+    hsGradYear: smallint("hs_grad_year"),
+    /** Reserved. The site shows a silhouette while this is null. */
+    headshot: jsonb("headshot"),
+    /** Set when this row was merged into another; the row stays so its URL can redirect. */
+    mergedIntoId: bigint("merged_into_id", { mode: "number" }).references(
+      (): AnyPgColumn => playersTable.id,
+    ),
+    hiddenAt: timestamp("hidden_at", { withTimezone: true }),
+    /** When the oldest unpublished change was saved. Null once pushed. */
+    pendingSince: timestamp("pending_since", { withTimezone: true }),
+    ...requiredTimestamps,
+  },
+  (table) => [
+    check(
+      "players_merged_into_id_check",
+      sql`${table.mergedIntoId} is null or ${table.mergedIntoId} <> ${table.id}`,
+    ),
+    check(
+      "players_hs_grad_year_check",
+      sql`${table.hsGradYear} is null or ${table.hsGradYear} between 1990 and 2100`,
+    ),
+    index("players_name_search_trgm_index").using(
+      "gin",
+      sql`${table.nameSearch} extensions.gin_trgm_ops`,
+    ),
+    index("players_pending_since_index")
+      .on(table.pendingSince)
+      .where(sql`${table.pendingSince} is not null`),
+    index("players_merged_into_id_index")
+      .on(table.mergedIntoId)
+      .where(sql`${table.mergedIntoId} is not null`),
+  ],
+);
+
+/** A player in one sport. Position and measurables belong here, not on the person. */
+export const playerSportsTable = pgTable(
+  "player_sports",
+  {
+    id: identityId(),
+    playerId: bigint("player_id", { mode: "number" })
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id),
+    /** A code from `POSITIONS_BY_SPORT`; validated in code because it depends on the sport. */
+    position: text("position"),
+    heightIn: smallint("height_in"),
+    weightLb: smallint("weight_lb"),
+    ...requiredTimestamps,
+  },
+  (table) => [
+    unique("player_sports_player_id_sport_id_unique").on(
+      table.playerId,
+      table.sportId,
+    ),
+    check(
+      "player_sports_height_in_check",
+      sql`${table.heightIn} is null or ${table.heightIn} between 48 and 96`,
+    ),
+    check(
+      "player_sports_weight_lb_check",
+      sql`${table.weightLb} is null or ${table.weightLb} between 80 and 500`,
+    ),
+    index("player_sports_sport_id_index").on(table.sportId),
+  ],
+);
+
+/** Where a player is or was rostered. The row with no `end_year` is the current school. */
+export const playerEnrollmentsTable = pgTable(
+  "player_enrollments",
+  {
+    id: identityId(),
+    playerSportId: bigint("player_sport_id", { mode: "number" })
+      .notNull()
+      .references(() => playerSportsTable.id, { onDelete: "cascade" }),
+    schoolId: text("school_id").references(() => schoolsTable.id),
+    schoolName: text("school_name"),
+    /** First season at the school. */
+    startYear: smallint("start_year").notNull(),
+    /** Last season at the school; null while still there. */
+    endYear: smallint("end_year"),
+    /** The recruitment whose `enrolled` event created this row. */
+    viaRecruitmentId: bigint("via_recruitment_id", {
+      mode: "number",
+    }).references((): AnyPgColumn => recruitmentsTable.id, {
+      onDelete: "set null",
+    }),
+    ...requiredTimestamps,
+  },
+  (table) => [
+    check(
+      "player_enrollments_school_check",
+      hasSchool(table.schoolId, table.schoolName),
+    ),
+    check(
+      "player_enrollments_years_check",
+      sql`${table.endYear} is null or ${table.endYear} >= ${table.startYear}`,
+    ),
+    uniqueIndex("player_enrollments_one_current_per_player_sport")
+      .on(table.playerSportId)
+      .where(sql`${table.endYear} is null`),
+    index("player_enrollments_player_sport_id_index").on(table.playerSportId),
+    index("player_enrollments_school_id_start_year_index").on(
+      table.schoolId,
+      table.startYear,
+    ),
+    index("player_enrollments_via_recruitment_id_index").on(
+      table.viaRecruitmentId,
+    ),
+  ],
+);
+
+/**
+ * One trip through the market: a portal entry now, a high school recruitment
+ * later. Open from `entered` until the player enrolls somewhere or withdraws,
+ * however many times they commit and re-enter in between.
+ *
+ * The status columns are derived from `recruitment_events` by
+ * `reduceRecruitment` and rewritten in the same transaction as every event.
+ */
+export const recruitmentsTable = pgTable(
+  "recruitments",
+  {
+    id: identityId(),
+    playerSportId: bigint("player_sport_id", { mode: "number" })
+      .notNull()
+      .references(() => playerSportsTable.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull().default("transfer"),
+    /** The cycle's label: the season the player would next play (2027 for the January 2027 window). */
+    cycleYear: smallint("cycle_year").notNull(),
+    originEnrollmentId: bigint("origin_enrollment_id", {
+      mode: "number",
+    }).references((): AnyPgColumn => playerEnrollmentsTable.id, {
+      onDelete: "set null",
+    }),
+    // Origin and destination are snapshots: a school that later changes
+    // division or conference must not rewrite this move.
+    originSchoolId: text("origin_school_id").references(() => schoolsTable.id),
+    originSchoolName: text("origin_school_name"),
+    originDivisionId: text("origin_division_id").references(
+      () => divisionsTable.id,
+    ),
+    originConferenceId: text("origin_conference_id").references(
+      () => conferencesTable.id,
+    ),
+    /** A `PLAYER_CLASSES` code, frozen for this cycle. */
+    classAtEntry: text("class_at_entry"),
+    eligibilityYears: smallint("eligibility_years"),
+    isGradTransfer: boolean("is_grad_transfer").notNull().default(false),
+    status: text("status").notNull().default("entered"),
+    statusAt: timestamp("status_at", { withTimezone: true }).notNull(),
+    enteredAt: timestamp("entered_at", { withTimezone: true }).notNull(),
+    destinationSchoolId: text("destination_school_id").references(
+      () => schoolsTable.id,
+    ),
+    destinationSchoolName: text("destination_school_name"),
+    destinationDivisionId: text("destination_division_id").references(
+      () => divisionsTable.id,
+    ),
+    destinationConferenceId: text("destination_conference_id").references(
+      () => conferencesTable.id,
+    ),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+    ...requiredTimestamps,
+  },
+  (table) => [
+    check("recruitments_kind_check", inList(table.kind, RECRUITMENT_KINDS)),
+    check(
+      "recruitments_status_check",
+      inList(table.status, RECRUITMENT_STATUSES),
+    ),
+    check(
+      "recruitments_class_at_entry_check",
+      sql`${table.classAtEntry} is null or ${inList(table.classAtEntry, PLAYER_CLASS_CODES)}`,
+    ),
+    check(
+      "recruitments_cycle_year_check",
+      sql`${table.cycleYear} between 2000 and 2100`,
+    ),
+    check(
+      "recruitments_eligibility_years_check",
+      sql`${table.eligibilityYears} is null or ${table.eligibilityYears} between 0 and 6`,
+    ),
+    check(
+      "recruitments_closed_check",
+      sql`(${inList(table.status, CLOSED_RECRUITMENT_STATUSES)}) = (${table.closedAt} is not null)`,
+    ),
+    check(
+      "recruitments_destination_check",
+      sql`${table.status} not in ('committed', 'signed', 'enrolled') or ${hasSchool(table.destinationSchoolId, table.destinationSchoolName)}`,
+    ),
+    check(
+      "recruitments_transfer_origin_check",
+      sql`${table.kind} <> 'transfer' or ${hasSchool(table.originSchoolId, table.originSchoolName)}`,
+    ),
+    // The rule that makes re-entry work: a player has at most one open
+    // recruitment per sport, and can only start another once it has closed.
+    uniqueIndex("recruitments_one_open_per_player_sport")
+      .on(table.playerSportId)
+      .where(sql`${table.closedAt} is null`),
+    index("recruitments_player_sport_id_entered_at_index").on(
+      table.playerSportId,
+      table.enteredAt,
+    ),
+    index("recruitments_kind_cycle_year_status_at_index").on(
+      table.kind,
+      table.cycleYear,
+      table.statusAt,
+      table.id,
+    ),
+    index("recruitments_origin_enrollment_id_index").on(
+      table.originEnrollmentId,
+    ),
+    index("recruitments_origin_school_id_index").on(table.originSchoolId),
+    index("recruitments_origin_division_id_index").on(table.originDivisionId),
+    index("recruitments_origin_conference_id_index").on(
+      table.originConferenceId,
+    ),
+    index("recruitments_destination_school_id_index").on(
+      table.destinationSchoolId,
+    ),
+    index("recruitments_destination_division_id_index").on(
+      table.destinationDivisionId,
+    ),
+    index("recruitments_destination_conference_id_index").on(
+      table.destinationConferenceId,
+    ),
+  ],
+);
+
+/**
+ * Everything that happened in a recruitment, one row each. Append-only: a
+ * mistake is voided, not deleted, so the history stays honest.
+ */
+export const recruitmentEventsTable = pgTable(
+  "recruitment_events",
+  {
+    id: identityId(),
+    recruitmentId: bigint("recruitment_id", { mode: "number" })
+      .notNull()
+      .references(() => recruitmentsTable.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+    schoolId: text("school_id").references(() => schoolsTable.id),
+    schoolName: text("school_name"),
+    // Source fields are internal. They are never copied to the published tables.
+    sourceType: text("source_type"),
+    sourceUrl: text("source_url"),
+    sourceNote: text("source_note"),
+    voidedAt: timestamp("voided_at", { withTimezone: true }),
+    voidReason: text("void_reason"),
+    createdByUserId: text("created_by_user_id").references(
+      () => usersTable.id,
+      { onDelete: "set null" },
+    ),
+    ...requiredTimestamps,
+  },
+  (table) => [
+    check(
+      "recruitment_events_type_check",
+      inList(table.type, RECRUITMENT_EVENT_TYPES),
+    ),
+    check(
+      "recruitment_events_source_type_check",
+      sql`${table.sourceType} is null or ${inList(table.sourceType, EVENT_SOURCE_TYPES)}`,
+    ),
+    check(
+      "recruitment_events_school_check",
+      sql`(${inList(table.type, SCHOOL_EVENT_TYPES)}) = ${hasSchool(table.schoolId, table.schoolName)}`,
+    ),
+    check(
+      "recruitment_events_source_url_check",
+      sql`${table.sourceUrl} is null or ${table.sourceUrl} ~ '^https://'`,
+    ),
+    index("recruitment_events_recruitment_id_occurred_at_index").on(
+      table.recruitmentId,
+      table.occurredAt,
+      table.id,
+    ),
+    uniqueIndex("recruitment_events_one_live_entered")
+      .on(table.recruitmentId)
+      .where(sql`${table.type} = 'entered' and ${table.voidedAt} is null`),
+    uniqueIndex("recruitment_events_one_live_offer_per_school")
+      .on(table.recruitmentId, table.schoolId)
+      .where(
+        sql`${table.type} = 'offered' and ${table.voidedAt} is null and ${table.schoolId} is not null`,
+      ),
+    uniqueIndex("recruitment_events_one_live_offer_per_school_name")
+      .on(table.recruitmentId, sql`lower(${table.schoolName})`)
+      .where(
+        sql`${table.type} = 'offered' and ${table.voidedAt} is null and ${table.schoolId} is null`,
+      ),
+    index("recruitment_events_school_id_index").on(table.schoolId),
+    index("recruitment_events_created_by_user_id_index").on(
+      table.createdByUserId,
+    ),
+  ],
+);
+
+/** Pairs an admin has ruled are different people, so the duplicate queue stops offering them. */
+export const playerDuplicateDismissalsTable = pgTable(
+  "player_duplicate_dismissals",
+  {
+    id: identityId(),
+    playerAId: bigint("player_a_id", { mode: "number" })
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    playerBId: bigint("player_b_id", { mode: "number" })
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    dismissedByUserId: text("dismissed_by_user_id").references(
+      () => usersTable.id,
+      { onDelete: "set null" },
+    ),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    // Stored smaller id first so a pair has exactly one row.
+    check(
+      "player_duplicate_dismissals_order_check",
+      sql`${table.playerAId} < ${table.playerBId}`,
+    ),
+    unique("player_duplicate_dismissals_pair_unique").on(
+      table.playerAId,
+      table.playerBId,
+    ),
+    index("player_duplicate_dismissals_player_b_id_index").on(table.playerBId),
+    index("player_duplicate_dismissals_dismissed_by_user_id_index").on(
+      table.dismissedByUserId,
+    ),
+  ],
+);
+
+/** Each "Push to site". `revalidated_at` stays null until the web caches were expired. */
+export const portalPushesTable = pgTable(
+  "portal_pushes",
+  {
+    id: identityId(),
+    /** Null when the nightly job pushed. */
+    actorUserId: text("actor_user_id").references(() => usersTable.id, {
+      onDelete: "set null",
+    }),
+    trigger: text("trigger").notNull(),
+    playerCount: integer("player_count").notNull(),
+    /** Cache tags this push must expire, kept so a failed expiry can be retried. */
+    tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
+    committedAt: timestamp("committed_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    revalidatedAt: timestamp("revalidated_at", { withTimezone: true }),
+    error: text("error"),
+  },
+  (table) => [
+    check(
+      "portal_pushes_trigger_check",
+      inList(table.trigger, PORTAL_PUSH_TRIGGERS),
+    ),
+    index("portal_pushes_unrevalidated_index")
+      .on(table.committedAt)
+      .where(sql`${table.revalidatedAt} is null`),
+    index("portal_pushes_actor_user_id_index").on(table.actorUserId),
+  ],
+);
+
+/** Every change to player data. Rows with no `push_id` are what "N pending" counts. */
+export const playerAuditLogTable = pgTable(
+  "player_audit_log",
+  {
+    id: identityId(),
+    playerId: bigint("player_id", { mode: "number" })
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    /** Table the change was made to, e.g. "recruitment_events". */
+    entity: text("entity").notNull(),
+    entityId: bigint("entity_id", { mode: "number" }).notNull(),
+    action: text("action").notNull(),
+    before: jsonb("before"),
+    after: jsonb("after"),
+    actorUserId: text("actor_user_id").references(() => usersTable.id, {
+      onDelete: "set null",
+    }),
+    pushId: bigint("push_id", { mode: "number" }).references(
+      () => portalPushesTable.id,
+      { onDelete: "set null" },
+    ),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("player_audit_log_player_id_created_at_index").on(
+      table.playerId,
+      table.createdAt,
+    ),
+    index("player_audit_log_unpushed_index")
+      .on(table.createdAt)
+      .where(sql`${table.pushId} is null`),
+    index("player_audit_log_push_id_index").on(table.pushId),
+    index("player_audit_log_actor_user_id_index").on(table.actorUserId),
+  ],
+);
+
+/**
+ * What the public site knows about a player, written only by the push. Also
+ * the id-to-slug index the proxy checks and the source of the player sitemap.
+ */
+export const publishedPlayersTable = pgTable(
+  "published_players",
+  {
+    playerId: bigint("player_id", { mode: "number" })
+      .primaryKey()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    slug: text("slug").notNull(),
+    indexable: boolean("indexable").notNull().default(false),
+    /** Set for a merged player: the URL redirects to this one. */
+    redirectToPlayerId: bigint("redirect_to_player_id", {
+      mode: "number",
+    }).references(() => playersTable.id, { onDelete: "cascade" }),
+    /** The whole profile page: bio, career, history, offers. No source fields. */
+    doc: jsonb("doc").notNull(),
+    pushId: bigint("push_id", { mode: "number" }).references(
+      () => portalPushesTable.id,
+      { onDelete: "set null" },
+    ),
+    publishedAt: timestamp("published_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("published_players_redirect_to_player_id_index").on(
+      table.redirectToPlayerId,
+    ),
+    index("published_players_push_id_index").on(table.pushId),
+  ],
+);
+
+/** The public wire: one row per move, written only by the push. Offers are not wire rows. */
+export const publishedWireEventsTable = pgTable(
+  "published_wire_events",
+  {
+    eventId: bigint("event_id", { mode: "number" })
+      .primaryKey()
+      .references(() => recruitmentEventsTable.id, { onDelete: "cascade" }),
+    recruitmentId: bigint("recruitment_id", { mode: "number" })
+      .notNull()
+      .references(() => recruitmentsTable.id, { onDelete: "cascade" }),
+    playerId: bigint("player_id", { mode: "number" })
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id),
+    kind: text("kind").notNull(),
+    cycleYear: smallint("cycle_year").notNull(),
+    type: text("type").notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+    /** A commitment the player later dropped. Still shown, struck through. */
+    superseded: boolean("superseded").notNull().default(false),
+    /** The row as the site renders it. School ids, not names: those are joined live. */
+    row: jsonb("row").notNull(),
+    pushId: bigint("push_id", { mode: "number" }).references(
+      () => portalPushesTable.id,
+      { onDelete: "set null" },
+    ),
+  },
+  (table) => [
+    check(
+      "published_wire_events_kind_check",
+      inList(table.kind, RECRUITMENT_KINDS),
+    ),
+    check(
+      "published_wire_events_type_check",
+      inList(table.type, RECRUITMENT_EVENT_TYPES),
+    ),
+    index("published_wire_events_wire_index").on(
+      table.sportId,
+      table.kind,
+      table.cycleYear,
+      table.occurredAt.desc().nullsFirst(),
+      table.eventId.desc().nullsFirst(),
+    ),
+    index("published_wire_events_recruitment_id_index").on(table.recruitmentId),
+    index("published_wire_events_player_id_index").on(table.playerId),
+    index("published_wire_events_push_id_index").on(table.pushId),
+  ],
+);
+
+/**
+ * Tips from the public form. An inbox only: nothing here reaches the working
+ * tables until an admin accepts it through the normal entry form.
+ */
+export const playerSubmissionsTable = pgTable(
+  "player_submissions",
+  {
+    id: identityId(),
+    status: text("status").notNull().default("new"),
+    submitterRole: text("submitter_role").notNull(),
+    submitterName: text("submitter_name"),
+    submitterEmail: text("submitter_email").notNull(),
+    /** What they told us, as submitted. */
+    payload: jsonb("payload").notNull(),
+    matchedPlayerId: bigint("matched_player_id", {
+      mode: "number",
+    }).references(() => playersTable.id, { onDelete: "set null" }),
+    reviewedByUserId: text("reviewed_by_user_id").references(
+      () => usersTable.id,
+      { onDelete: "set null" },
+    ),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewNote: text("review_note"),
+    ...requiredTimestamps,
+  },
+  (table) => [
+    check(
+      "player_submissions_status_check",
+      inList(table.status, PLAYER_SUBMISSION_STATUSES),
+    ),
+    check(
+      "player_submissions_submitter_role_check",
+      inList(table.submitterRole, PLAYER_SUBMITTER_ROLES),
+    ),
+    index("player_submissions_status_created_at_index").on(
+      table.status,
+      table.createdAt,
+    ),
+    index("player_submissions_matched_player_id_index").on(
+      table.matchedPlayerId,
+    ),
+    index("player_submissions_reviewed_by_user_id_index").on(
+      table.reviewedByUserId,
+    ),
+  ],
+);
+
+export const playersTableRelations = relations(
+  playersTable,
+  ({ one, many }) => ({
+    mergedInto: one(playersTable, {
+      fields: [playersTable.mergedIntoId],
+      references: [playersTable.id],
+    }),
+    sports: many(playerSportsTable),
+    published: one(publishedPlayersTable, {
+      fields: [playersTable.id],
+      references: [publishedPlayersTable.playerId],
+    }),
+  }),
+);
+
+export const playerSportsTableRelations = relations(
+  playerSportsTable,
+  ({ one, many }) => ({
+    player: one(playersTable, {
+      fields: [playerSportsTable.playerId],
+      references: [playersTable.id],
+    }),
+    sport: one(sportsTable, {
+      fields: [playerSportsTable.sportId],
+      references: [sportsTable.id],
+    }),
+    enrollments: many(playerEnrollmentsTable),
+    recruitments: many(recruitmentsTable),
+  }),
+);
+
+export const playerEnrollmentsTableRelations = relations(
+  playerEnrollmentsTable,
+  ({ one }) => ({
+    playerSport: one(playerSportsTable, {
+      fields: [playerEnrollmentsTable.playerSportId],
+      references: [playerSportsTable.id],
+    }),
+    school: one(schoolsTable, {
+      fields: [playerEnrollmentsTable.schoolId],
+      references: [schoolsTable.id],
+    }),
+    viaRecruitment: one(recruitmentsTable, {
+      fields: [playerEnrollmentsTable.viaRecruitmentId],
+      references: [recruitmentsTable.id],
+    }),
+  }),
+);
+
+export const recruitmentsTableRelations = relations(
+  recruitmentsTable,
+  ({ one, many }) => ({
+    playerSport: one(playerSportsTable, {
+      fields: [recruitmentsTable.playerSportId],
+      references: [playerSportsTable.id],
+    }),
+    originEnrollment: one(playerEnrollmentsTable, {
+      fields: [recruitmentsTable.originEnrollmentId],
+      references: [playerEnrollmentsTable.id],
+    }),
+    originSchool: one(schoolsTable, {
+      fields: [recruitmentsTable.originSchoolId],
+      references: [schoolsTable.id],
+      relationName: "recruitmentOriginSchool",
+    }),
+    destinationSchool: one(schoolsTable, {
+      fields: [recruitmentsTable.destinationSchoolId],
+      references: [schoolsTable.id],
+      relationName: "recruitmentDestinationSchool",
+    }),
+    events: many(recruitmentEventsTable),
+  }),
+);
+
+export const recruitmentEventsTableRelations = relations(
+  recruitmentEventsTable,
+  ({ one }) => ({
+    recruitment: one(recruitmentsTable, {
+      fields: [recruitmentEventsTable.recruitmentId],
+      references: [recruitmentsTable.id],
+    }),
+    school: one(schoolsTable, {
+      fields: [recruitmentEventsTable.schoolId],
+      references: [schoolsTable.id],
+    }),
+  }),
+);
+
+export const playerAuditLogTableRelations = relations(
+  playerAuditLogTable,
+  ({ one }) => ({
+    player: one(playersTable, {
+      fields: [playerAuditLogTable.playerId],
+      references: [playersTable.id],
+    }),
+    push: one(portalPushesTable, {
+      fields: [playerAuditLogTable.pushId],
+      references: [portalPushesTable.id],
+    }),
+  }),
+);
+
+export const publishedWireEventsTableRelations = relations(
+  publishedWireEventsTable,
+  ({ one }) => ({
+    player: one(playersTable, {
+      fields: [publishedWireEventsTable.playerId],
+      references: [playersTable.id],
+    }),
+    recruitment: one(recruitmentsTable, {
+      fields: [publishedWireEventsTable.recruitmentId],
+      references: [recruitmentsTable.id],
+    }),
+  }),
+);
+
+export type SelectPlayer = typeof playersTable.$inferSelect;
+export type InsertPlayer = typeof playersTable.$inferInsert;
+export type SelectPlayerSport = typeof playerSportsTable.$inferSelect;
+export type SelectPlayerEnrollment = typeof playerEnrollmentsTable.$inferSelect;
+export type SelectRecruitment = typeof recruitmentsTable.$inferSelect;
+export type SelectRecruitmentEvent = typeof recruitmentEventsTable.$inferSelect;
+export type InsertRecruitmentEvent = typeof recruitmentEventsTable.$inferInsert;
+export type SelectPortalPush = typeof portalPushesTable.$inferSelect;
+export type SelectPlayerSubmission = typeof playerSubmissionsTable.$inferSelect;
