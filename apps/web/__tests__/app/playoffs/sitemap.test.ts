@@ -81,6 +81,7 @@ describe("playoffs sitemap", () => {
         priority: 0.6,
       },
       { url: `${BASE}/2025/projections/week-12`, priority: 0.6 },
+      { url: `${BASE}/builder`, changeFrequency: "monthly", priority: 0.5 },
     ]);
   });
 });

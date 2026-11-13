@@ -1,4 +1,5 @@
 import { cn } from "@redshirt-sports/ui/lib/utils";
+import { Check } from "lucide-react";
 import type * as React from "react";
 
 /*
@@ -62,9 +63,42 @@ export type BracketSelection = {
   onSelect: (gameKey: string) => void;
 };
 
+/** Which row of which game a render prop is drawing. */
+export type BracketSideAt = { gameKey: string; side: Side };
+
+/**
+ * Makes each team row a button that reports the game and side, for brackets
+ * the reader fills in, once the game has both teams. The picked side is the
+ * one marked `isWinner`. Rows are buttons, so `renderTeam` must not render
+ * links.
+ */
+export type BracketPicking = {
+  onPick: (gameKey: string, side: Side) => void;
+};
+
 type BracketProps<T extends BracketTeamLike> = {
   /** With selection, cards are buttons, so `renderTeam` must not render links. */
   selection?: BracketSelection;
+  picking?: BracketPicking;
+  /**
+   * Replaces the whole row of a side with no team (null keeps the italic
+   * placeholder), e.g. a control that fills the slot, or nothing at all on a
+   * blank printout.
+   */
+  renderEmpty?: (
+    side: BracketSideLike<T>,
+    at: BracketSideAt,
+  ) => React.ReactNode;
+  /**
+   * Leaves out the seed column for a team with no seed to show, so it starts
+   * at the card's edge. Suits brackets where many teams are unseeded.
+   */
+  tightSeeds?: boolean;
+  /** An extra control at the end of a row that has a team, e.g. "change". */
+  renderTeamAction?: (
+    side: BracketSideLike<T>,
+    at: BracketSideAt,
+  ) => React.ReactNode;
   view: BracketViewLike<T>;
   /** Logo and name for one team; the host app decides how teams link. */
   renderTeam: (team: T) => React.ReactNode;
@@ -115,34 +149,82 @@ const UPPER_ROW = "(50% + var(--bracket-head) / 2 - var(--bracket-team-h) / 2)";
 
 function TeamLine<T extends BracketTeamLike>({
   side,
+  at,
   renderTeam,
+  renderEmpty,
+  renderTeamAction,
+  tightSeeds,
+  pick,
 }: {
   side: BracketSideLike<T>;
+  at: BracketSideAt;
   renderTeam: (team: T) => React.ReactNode;
+  renderEmpty?: BracketProps<T>["renderEmpty"];
+  renderTeamAction?: BracketProps<T>["renderTeamAction"];
+  tightSeeds?: boolean;
+  /** Set in picking mode: the row's spoken label and what a click does. */
+  pick?: { label: string; onPick: () => void };
 }) {
-  return (
-    <div
-      className={cn(
-        "flex h-(--bracket-team-h) items-center gap-2 px-2 text-sm",
-        side.isWinner && "font-semibold",
-        side.isLoser && "text-muted-foreground",
+  const row = "flex h-(--bracket-team-h) w-full items-stretch text-sm";
+  const tone = cn(
+    side.isWinner && "font-semibold",
+    side.isLoser && "text-muted-foreground",
+  );
+  const seedCell =
+    "w-5 shrink-0 text-right text-xs text-muted-foreground tabular-nums";
+
+  if (!side.team) {
+    const custom = renderEmpty?.(side, at) ?? null;
+    if (custom !== null) return <div className={row}>{custom}</div>;
+    return (
+      <div className={cn(row, "items-center gap-2 px-2")}>
+        <span className={seedCell} />
+        {/* Wraps instead of truncating, with room for the italic overhang. */}
+        <span className="min-w-0 flex-1 pr-1 text-[0.8125rem] leading-tight text-muted-foreground italic">
+          {side.placeholder}
+        </span>
+      </div>
+    );
+  }
+
+  const content = (
+    <>
+      {tightSeeds && !side.showSeed ? null : (
+        <span className={seedCell}>{side.showSeed ? side.seed : null}</span>
       )}
-    >
-      <span className="w-5 shrink-0 text-right text-xs text-muted-foreground tabular-nums">
-        {side.team && side.showSeed ? side.seed : null}
-      </span>
       <span className="flex min-w-0 flex-1 items-center gap-2 truncate">
-        {side.team ? (
-          renderTeam(side.team)
-        ) : (
-          <span className="truncate text-muted-foreground italic">
-            {side.placeholder}
-          </span>
-        )}
+        {renderTeam(side.team)}
       </span>
       {side.score !== null ? (
         <span className="shrink-0 tabular-nums">{side.score}</span>
       ) : null}
+    </>
+  );
+  const action = renderTeamAction?.(side, at) ?? null;
+  const cell = "flex min-w-0 flex-1 items-center gap-2 px-2 text-left";
+
+  return (
+    <div className={cn(row, tone, pick && side.isWinner && "bg-primary/10")}>
+      {pick ? (
+        <button
+          type="button"
+          onClick={pick.onPick}
+          aria-pressed={side.isWinner}
+          aria-label={pick.label}
+          className={cn(
+            cell,
+            "cursor-pointer outline-none transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset",
+          )}
+        >
+          {content}
+          {side.isWinner ? (
+            <Check className="size-3.5 shrink-0 text-primary" aria-hidden />
+          ) : null}
+        </button>
+      ) : (
+        <div className={cell}>{content}</div>
+      )}
+      {action}
     </div>
   );
 }
@@ -150,14 +232,22 @@ function TeamLine<T extends BracketTeamLike>({
 function GameCard<T extends BracketTeamLike>({
   game,
   renderTeam,
+  renderEmpty,
+  renderTeamAction,
+  tightSeeds,
   selection,
+  picking,
   shift,
   className,
   style,
 }: {
   game: BracketGameLike<T>;
   renderTeam: (team: T) => React.ReactNode;
+  renderEmpty?: BracketProps<T>["renderEmpty"];
+  renderTeamAction?: BracketProps<T>["renderTeamAction"];
+  tightSeeds?: boolean;
   selection?: BracketSelection;
+  picking?: BracketPicking;
   /** Moves the card so its line meets the slot it feeds head-on. */
   shift?: "up" | "down";
   className?: string;
@@ -176,6 +266,29 @@ function GameCard<T extends BracketTeamLike>({
       : game.kickoffAt
         ? kickoffFormat.format(game.kickoffAt)
         : null;
+  const lines = (["a", "b"] as const).map((which) => {
+    const side = which === "a" ? game.sideA : game.sideB;
+    return (
+      <TeamLine
+        key={which}
+        side={side}
+        at={{ gameKey: game.key, side: which }}
+        renderTeam={renderTeam}
+        renderEmpty={renderEmpty}
+        renderTeamAction={renderTeamAction}
+        tightSeeds={tightSeeds}
+        pick={
+          // A winner needs someone to beat.
+          picking && game.sideA.team && game.sideB.team
+            ? {
+                label: `${game.roundLabel}: pick ${sideName(side)} to win`,
+                onPick: () => picking.onPick(game.key, which),
+              }
+            : undefined
+        }
+      />
+    );
+  });
 
   return (
     <div
@@ -209,10 +322,7 @@ function GameCard<T extends BracketTeamLike>({
           <span className="shrink-0">{status ?? game.roundLabel}</span>
           {site ? <span className="truncate normal-case">{site}</span> : null}
         </div>
-        <div className="divide-y divide-border">
-          <TeamLine side={game.sideA} renderTeam={renderTeam} />
-          <TeamLine side={game.sideB} renderTeam={renderTeam} />
-        </div>
+        <div className="divide-y divide-border">{lines}</div>
       </Card>
     </div>
   );
@@ -304,12 +414,20 @@ function Half<T extends BracketTeamLike>({
   half,
   side,
   renderTeam,
+  renderEmpty,
+  renderTeamAction,
+  tightSeeds,
   selection,
+  picking,
 }: {
   selection?: BracketSelection;
+  picking?: BracketPicking;
   half: BracketHalfLike<T>;
   side: "left" | "right";
   renderTeam: (team: T) => React.ReactNode;
+  renderEmpty?: BracketProps<T>["renderEmpty"];
+  renderTeamAction?: BracketProps<T>["renderTeamAction"];
+  tightSeeds?: boolean;
 }) {
   const mirrored = side === "right";
   const { columns, stacked } = stackLastColumn(half);
@@ -390,7 +508,11 @@ function Half<T extends BracketTeamLike>({
               key={game.key}
               game={game}
               renderTeam={renderTeam}
+              renderEmpty={renderEmpty}
+              renderTeamAction={renderTeamAction}
+              tightSeeds={tightSeeds}
               selection={selection}
+              picking={picking}
               shift={shifts.get(game.key)}
               style={{
                 gridRow: `${game.row + 1} / span ${game.span}`,
@@ -436,9 +558,21 @@ function Half<T extends BracketTeamLike>({
 export function Bracket<T extends BracketTeamLike>({
   view,
   renderTeam,
+  renderEmpty,
+  renderTeamAction,
+  tightSeeds,
   selection,
+  picking,
   className,
 }: BracketProps<T>) {
+  const shared = {
+    renderTeam,
+    renderEmpty,
+    renderTeamAction,
+    tightSeeds,
+    selection,
+    picking,
+  };
   return (
     <div
       className={cn(
@@ -448,12 +582,7 @@ export function Bracket<T extends BracketTeamLike>({
       )}
     >
       <div className="mx-auto flex w-max items-stretch">
-        <Half
-          half={view.left}
-          side="left"
-          renderTeam={renderTeam}
-          selection={selection}
-        />
+        <Half half={view.left} side="left" {...shared} />
         <div className="flex flex-col gap-3">
           <div className="w-(--bracket-card) truncate px-1 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             {view.final.roundLabel}
@@ -469,19 +598,10 @@ export function Bracket<T extends BracketTeamLike>({
                 </span>
               ) : null}
             </div>
-            <GameCard
-              game={view.final}
-              renderTeam={renderTeam}
-              selection={selection}
-            />
+            <GameCard game={view.final} {...shared} />
           </div>
         </div>
-        <Half
-          half={view.right}
-          side="right"
-          renderTeam={renderTeam}
-          selection={selection}
-        />
+        <Half half={view.right} side="right" {...shared} />
       </div>
     </div>
   );

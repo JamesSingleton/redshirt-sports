@@ -8,6 +8,7 @@ const db = vi.hoisted(() => ({
   getBracketEdition: vi.fn(),
   getBracketTeamStats: vi.fn(),
   getPublishedBracketEditions: vi.fn(),
+  listBracketBuilderSchools: vi.fn(),
   listPublishedBracketSeasons: vi.fn(),
 }));
 
@@ -22,9 +23,11 @@ import {
   bracketEditionLabel,
   bracketEditionPath,
   bracketPaths,
+  currentSeasonYear,
   getCachedBracketSeasons,
   getCachedBracketTeamStats,
   getCachedPublishedBracket,
+  loadBracketBuilder,
   loadBracketPage,
   loadLatestBracketPage,
   parseProjectionWeek,
@@ -181,5 +184,109 @@ describe("bracket data", () => {
       projections: [],
     });
     await expect(load({ year: "2026" })).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  describe("bracket builder", () => {
+    const school = { ...bracketSlots(1)[0]!.team, conference: "Big Sky" };
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-11-13T12:00:00Z"));
+      db.listBracketBuilderSchools.mockReset().mockResolvedValue([school]);
+    });
+    afterEach(() => vi.useRealTimers());
+
+    it("runs a football season from July to June", () => {
+      expect(currentSeasonYear()).toBe(2026);
+      expect(currentSeasonYear(new Date("2027-01-10T12:00:00Z"))).toBe(2026);
+      expect(currentSeasonYear(new Date("2027-07-01T12:00:00Z"))).toBe(2027);
+      expect(bracketPaths("football", "fcs").builder).toBe(
+        "/college/football/playoffs/fcs/builder",
+      );
+    });
+
+    it("offers this season's format, schools and our newest projection", async () => {
+      const model = await loadBracketBuilder({
+        sport: "football",
+        division: "fcs",
+      });
+      expect(model).toMatchObject({
+        sport: "football",
+        division: "fcs",
+        year: 2026,
+        formatKey: "fcs-24-seed16-v2024",
+        schools: [school],
+        projection: { edition: { id: "edition-1" } },
+      });
+      expect(model.spec).toEqual(FCS_SPEC);
+      expect(model.projection?.slots).toHaveLength(24);
+      expect(db.listBracketBuilderSchools).toHaveBeenCalledWith({
+        sportSlug: "football",
+        divisionSlug: "fcs",
+        year: 2026,
+      });
+    });
+
+    it("starts from the official bracket once it is published", async () => {
+      db.getPublishedBracketEditions.mockResolvedValue({
+        official,
+        projections: [week7],
+      });
+      const model = await loadBracketBuilder({
+        sport: "football",
+        division: "fcs",
+      });
+      expect(model.projection?.edition.id).toBe("official");
+    });
+
+    it("has nothing to start from before a bracket is published", async () => {
+      db.getPublishedBracketEditions.mockResolvedValue({
+        official: null,
+        projections: [],
+      });
+      await expect(
+        loadBracketBuilder({ sport: "football", division: "fbs" }),
+      ).resolves.toMatchObject({
+        formatKey: "cfp-12-straight-v2025",
+        projection: null,
+      });
+      expect(db.getBracketEdition).not.toHaveBeenCalled();
+    });
+
+    it("ignores a bracket on another format or one that was unpublished", async () => {
+      db.getPublishedBracketEditions.mockResolvedValue({
+        official: null,
+        projections: [bracketEdition({ formatKey: "fcs-older" })],
+      });
+      await expect(
+        loadBracketBuilder({ sport: "football", division: "fcs" }),
+      ).resolves.toMatchObject({ projection: null });
+
+      db.getPublishedBracketEditions.mockResolvedValue({
+        official: null,
+        projections: [week7],
+      });
+      db.getBracketEdition.mockResolvedValueOnce(
+        detail(bracketEdition({ status: "draft" })),
+      );
+      await expect(
+        loadBracketBuilder({ sport: "football", division: "fcs" }),
+      ).resolves.toMatchObject({ projection: null });
+    });
+
+    it("404s without a query where there is no playoff format", async () => {
+      await expect(
+        loadBracketBuilder({ sport: "football", division: "d2" }),
+      ).rejects.toThrow("NEXT_NOT_FOUND");
+      await expect(
+        loadBracketBuilder({ sport: "mens-basketball", division: "fcs" }),
+      ).rejects.toThrow("NEXT_NOT_FOUND");
+      vi.setSystemTime(new Date("2024-03-01T12:00:00Z"));
+      await expect(
+        loadBracketBuilder({ sport: "football", division: "fcs" }),
+      ).rejects.toThrow("NEXT_NOT_FOUND");
+      expect(db.getPublishedBracketEditions).not.toHaveBeenCalled();
+      expect(db.listBracketBuilderSchools).not.toHaveBeenCalled();
+    });
   });
 });

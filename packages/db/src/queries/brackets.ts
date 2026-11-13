@@ -20,6 +20,8 @@ import {
   bracketFormatsTable,
   bracketGamesTable,
   bracketSlotsTable,
+  conferencesTable,
+  divisionsTable,
   gamesTable,
   pollRankingsTable,
   pollsTable,
@@ -28,6 +30,7 @@ import {
   ratingRunsTable,
   ratingSnapshotsTable,
   SEASON_TYPE_CODES,
+  schoolConferenceAffiliationsTable,
   schoolsTable,
   seasonsTable,
   seasonTypesTable,
@@ -383,6 +386,118 @@ export async function listBracketSchoolOptions({
     .from(schoolsTable)
     .where(sql`${schoolsTable.name} is not null`)
     .orderBy(asc(schoolsTable.shortName));
+}
+
+/**
+ * Schools a reader can place in their own bracket, with logos: the
+ * division's rating-pool members (pool slugs match division slugs) for the
+ * newest season up to `year` that has any.
+ *
+ * A subdivision with no rating pool (FBS today) falls back to the sport's
+ * NCAA Division I schools that are in no rating pool at all. Postgres only
+ * knows a school's division through its conference; FBS/FCS lives in Sanity,
+ * so "DI and not in the FCS pool" is how FBS is told apart here.
+ */
+export async function listBracketBuilderSchools({
+  sportSlug,
+  divisionSlug,
+  year,
+}: {
+  sportSlug: string;
+  divisionSlug: string;
+  year: number;
+}) {
+  const school = {
+    schoolId: schoolsTable.id,
+    name: schoolsTable.name,
+    shortName: schoolsTable.shortName,
+    abbreviation: schoolsTable.abbreviation,
+    slug: schoolsTable.slug,
+    image: schoolLogoImage,
+  };
+  const poolMembers = () =>
+    db
+      .select({ ...school, conference: ratingPoolMembersTable.conferenceName })
+      .from(ratingPoolMembersTable)
+      .innerJoin(
+        ratingPoolsTable,
+        eq(ratingPoolMembersTable.poolId, ratingPoolsTable.id),
+      )
+      .innerJoin(sportsTable, eq(ratingPoolsTable.sportId, sportsTable.id))
+      .innerJoin(
+        seasonsTable,
+        eq(ratingPoolMembersTable.seasonId, seasonsTable.id),
+      )
+      .innerJoin(
+        schoolsTable,
+        eq(ratingPoolMembersTable.schoolId, schoolsTable.id),
+      )
+      .$dynamic();
+  const inPool = and(
+    eq(sportsTable.slug, sportSlug),
+    eq(ratingPoolsTable.slug, divisionSlug),
+  );
+
+  const [latest] = await db
+    .select({ year: seasonsTable.year })
+    .from(ratingPoolMembersTable)
+    .innerJoin(
+      ratingPoolsTable,
+      eq(ratingPoolMembersTable.poolId, ratingPoolsTable.id),
+    )
+    .innerJoin(sportsTable, eq(ratingPoolsTable.sportId, sportsTable.id))
+    .innerJoin(
+      seasonsTable,
+      eq(ratingPoolMembersTable.seasonId, seasonsTable.id),
+    )
+    .where(and(inPool, sql`${seasonsTable.year} <= ${year}`))
+    .orderBy(desc(seasonsTable.year))
+    .limit(1);
+  if (latest) {
+    return poolMembers()
+      .where(and(inPool, eq(seasonsTable.year, latest.year)))
+      .orderBy(asc(schoolsTable.shortName));
+  }
+
+  return db
+    .selectDistinctOn([schoolsTable.shortName, schoolsTable.id], {
+      ...school,
+      conference: sql<
+        string | null
+      >`coalesce(${conferencesTable.shortName}, ${conferencesTable.name})`,
+    })
+    .from(schoolConferenceAffiliationsTable)
+    .innerJoin(
+      sportsTable,
+      eq(schoolConferenceAffiliationsTable.sportId, sportsTable.id),
+    )
+    .innerJoin(
+      conferencesTable,
+      eq(schoolConferenceAffiliationsTable.conferenceId, conferencesTable.id),
+    )
+    .innerJoin(
+      divisionsTable,
+      eq(conferencesTable.divisionId, divisionsTable.id),
+    )
+    .innerJoin(
+      schoolsTable,
+      eq(schoolConferenceAffiliationsTable.schoolId, schoolsTable.id),
+    )
+    .where(
+      and(
+        eq(sportsTable.slug, sportSlug),
+        eq(divisionsTable.slug, "d1"),
+        sql`${schoolsTable.name} is not null`,
+        sql`not exists (
+          select 1 from ${ratingPoolMembersTable}
+          inner join ${ratingPoolsTable}
+            on ${ratingPoolMembersTable.poolId} = ${ratingPoolsTable.id}
+          where ${ratingPoolsTable.sportId} = ${sportsTable.id}
+            and ${ratingPoolMembersTable.schoolId} = ${schoolsTable.id}
+        )`,
+      ),
+    )
+    .orderBy(asc(schoolsTable.shortName), asc(schoolsTable.id));
 }
 
 /**

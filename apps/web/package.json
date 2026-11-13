@@ -46,6 +46,7 @@
     "feed": "^6.0.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "catalog:",
+    "modern-screenshot": "4.7.0",
     "next": "catalog:",
     "next-sanity": "catalog:",
     "next-themes": "catalog:",
