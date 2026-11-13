@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { BracketEditionPicker } from "@/components/bracket/bracket-edition-picker";
 import { BracketExplorer } from "@/components/bracket/bracket-explorer";
 import {
@@ -79,6 +81,15 @@ export function BracketPageView({ model }: { model: BracketPageModel }) {
           }))}
           currentHref={bracketEditionPath(edition)}
         />
+        <p className="text-sm">
+          <Link
+            href={paths.builder}
+            prefetch={false}
+            className="font-medium underline underline-offset-4"
+          >
+            Make your own bracket
+          </Link>
+        </p>
       </header>
 
       <section aria-label="Bracket" className="w-full min-w-0 px-4">

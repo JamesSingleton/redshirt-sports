@@ -7,6 +7,11 @@ type TeamMarkProps = {
   name?: string | null;
   size?: "xs" | "sm" | "md" | "table";
   schoolLabel?: string;
+  /**
+   * Loads the logo at once and with CORS, for markup that gets printed or
+   * drawn to an image, where a lazy or tainted logo would be missing.
+   */
+  eager?: boolean;
 };
 
 function initialsForTeam(
@@ -25,6 +30,7 @@ export function TeamMark({
   name,
   size = "sm",
   schoolLabel,
+  eager = false,
 }: TeamMarkProps) {
   const dim =
     size === "xs" ? 20 : size === "sm" ? 28 : size === "table" ? 32 : 40;
@@ -47,6 +53,9 @@ export function TeamMark({
         }
         mode="contain"
         alt={label}
+        {...(eager
+          ? { loading: "eager" as const, crossOrigin: "anonymous" as const }
+          : {})}
       />
     );
   }

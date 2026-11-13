@@ -8,6 +8,7 @@ import {
 import { resolveSuspense } from "@/__tests__/helpers/ratings-fixtures";
 
 const data = vi.hoisted(() => ({
+  loadBracketBuilder: vi.fn(),
   loadBracketPage: vi.fn(),
   loadLatestBracketPage: vi.fn(),
 }));
@@ -18,7 +19,21 @@ vi.mock("@/lib/bracket-data", async (importOriginal) => ({
   ...data,
 }));
 vi.mock("@/lib/global-seo-settings", () => ({
+  fetchGlobalSeoSettings: async () => ({ footerLogo: { id: "image-logo" } }),
   getPageMetadata: mockGetPageMetadata,
+}));
+vi.mock("@/components/bracket/builder/bracket-builder", () => ({
+  BracketBuilder: ({
+    model,
+    logo,
+  }: {
+    model: { formatKey: string };
+    logo: { id: string };
+  }) => (
+    <div data-testid="builder">
+      {model.formatKey} {logo.id}
+    </div>
+  ),
 }));
 vi.mock("@/components/bracket/bracket-page-view", async (importOriginal) => ({
   ...(await importOriginal<
@@ -46,6 +61,9 @@ import SeasonPage, {
 import ProjectionPage, {
   generateMetadata as projectionMetadata,
 } from "@/app/college/[sport]/playoffs/[division]/[year]/projections/[week]/page";
+import BuilderPage, {
+  generateMetadata as builderMetadata,
+} from "@/app/college/[sport]/playoffs/[division]/builder/page";
 import DivisionLayout from "@/app/college/[sport]/playoffs/[division]/layout";
 import LandingPage, {
   generateMetadata as landingMetadata,
@@ -122,6 +140,27 @@ describe("playoff bracket pages", () => {
       description:
         "If the playoffs started after Week 7: our projected 2026 FCS Playoff Bracket, with every seed, first-round matchup and host.",
       slug: "/college/football/playoffs/fcs",
+    });
+  });
+
+  it("renders the bracket builder with the site logo and its metadata", async () => {
+    data.loadBracketBuilder.mockResolvedValue({
+      year: 2026,
+      formatKey: "fcs-24-seed16-v2024",
+    });
+    const params = Promise.resolve({ sport: "football", division: "fcs" });
+    render(await resolveSuspense(BuilderPage({ params })));
+    expect(screen.getByTestId("builder")).toHaveTextContent(
+      "fcs-24-seed16-v2024 image-logo",
+    );
+    await expect(builderMetadata({ params })).resolves.toMatchObject({
+      title: "2026 FCS Playoff Bracket Builder",
+      description: expect.stringContaining("Make your own 2026 FCS Playoff"),
+      slug: "/college/football/playoffs/fcs/builder",
+    });
+    expect(data.loadBracketBuilder).toHaveBeenCalledWith({
+      sport: "football",
+      division: "fcs",
     });
   });
 });

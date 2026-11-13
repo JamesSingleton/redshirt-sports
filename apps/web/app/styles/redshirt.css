@@ -3,7 +3,8 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
+:root,
+.light {
   --radius: 0.5rem;
 
   --background: oklch(0.992 0.002 75);
@@ -294,5 +295,32 @@
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
+  }
+}
+
+/*
+ * The bracket builder prints only its export frame: on a page that has one,
+ * the navbar, footer and everything else outside <main> are left out, and the
+ * sheet is landscape (where the browser honours a page size).
+ */
+@page bracket {
+  size: landscape;
+  margin: 0.4in;
+}
+
+@media print {
+  body:has([data-print-frame]) > :not(main) {
+    display: none !important;
+  }
+
+  body:has([data-print-frame]) {
+    min-height: 0;
+    background: #fff;
+  }
+
+  [data-print-frame] {
+    page: bracket;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }

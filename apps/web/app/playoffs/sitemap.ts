@@ -40,6 +40,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const paths = bracketPaths(edition.sportSlug, edition.divisionSlug);
     const date = edition.updatedAt ?? edition.publishedAt ?? undefined;
     add(paths.landing, date, { changeFrequency: "weekly", priority: 0.8 });
+    // The builder exists wherever a format does; listing it beside a
+    // published bracket keeps it to divisions readers can already reach.
+    add(paths.builder, undefined, {
+      changeFrequency: "monthly",
+      priority: 0.5,
+    });
     add(paths.season(edition.year), date, { priority: 0.7 });
     if (edition.kind === "projection") {
       add(bracketEditionPath(edition), date, { priority: 0.6 });
