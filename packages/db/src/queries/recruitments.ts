@@ -339,114 +339,122 @@ export interface OpenRecruitmentInput extends EventSource {
 export async function openRecruitment(input: OpenRecruitmentInput) {
   return db.transaction(async (tx) => {
     await lockPlayer(tx, input.playerId);
-    await requireActivePlayer(tx, input.playerId);
-    const playerSport = await ensurePlayerSport(
-      tx,
-      input.playerId,
-      input.sportId,
-      input.attributes,
+    return openRecruitmentLocked(tx, input);
+  });
+}
+
+/** `openRecruitment` inside a transaction that already holds `lockPlayer`. */
+export async function openRecruitmentLocked(
+  tx: DbTransaction,
+  input: OpenRecruitmentInput,
+) {
+  await requireActivePlayer(tx, input.playerId);
+  const playerSport = await ensurePlayerSport(
+    tx,
+    input.playerId,
+    input.sportId,
+    input.attributes,
+  );
+
+  const [open] = await tx
+    .select({ id: recruitmentsTable.id })
+    .from(recruitmentsTable)
+    .where(
+      and(
+        eq(recruitmentsTable.playerSportId, playerSport.id),
+        isNull(recruitmentsTable.closedAt),
+      ),
     );
-
-    const [open] = await tx
-      .select({ id: recruitmentsTable.id })
-      .from(recruitmentsTable)
-      .where(
-        and(
-          eq(recruitmentsTable.playerSportId, playerSport.id),
-          isNull(recruitmentsTable.closedAt),
-        ),
-      );
-    if (open) {
-      throw new PortalWriteError(
-        "recruitment_open",
-        "Player is already in the portal. Record the next move on that entry.",
-      );
-    }
-
-    const origin = toSchool(input.origin);
-    const enrollmentColumns = {
-      id: playerEnrollmentsTable.id,
-      schoolId: playerEnrollmentsTable.schoolId,
-      schoolName: playerEnrollmentsTable.schoolName,
-    };
-    let [enrollment] = await tx
-      .select(enrollmentColumns)
-      .from(playerEnrollmentsTable)
-      .where(
-        and(
-          eq(playerEnrollmentsTable.playerSportId, playerSport.id),
-          isNull(playerEnrollmentsTable.endYear),
-        ),
-      );
-    if (enrollment && !sameSchool(enrollment, origin)) {
-      throw new PortalWriteError(
-        "current_school_mismatch",
-        "Player's current school on file is different from the one they are leaving.",
-      );
-    }
-    if (!enrollment) {
-      [enrollment] = await tx
-        .insert(playerEnrollmentsTable)
-        .values({
-          playerSportId: playerSport.id,
-          ...origin,
-          startYear: input.originStartYear ?? input.cycleYear - 1,
-        })
-        .returning(enrollmentColumns);
-    }
-    if (!enrollment) throw new Error("Enrollment insert returned no row.");
-
-    const placement = await getSchoolPlacement(
-      tx,
-      origin.schoolId,
-      input.sportId,
+  if (open) {
+    throw new PortalWriteError(
+      "recruitment_open",
+      "Player is already in the portal. Record the next move on that entry.",
     );
-    const [recruitment] = await tx
-      .insert(recruitmentsTable)
+  }
+
+  const origin = toSchool(input.origin);
+  const enrollmentColumns = {
+    id: playerEnrollmentsTable.id,
+    schoolId: playerEnrollmentsTable.schoolId,
+    schoolName: playerEnrollmentsTable.schoolName,
+  };
+  let [enrollment] = await tx
+    .select(enrollmentColumns)
+    .from(playerEnrollmentsTable)
+    .where(
+      and(
+        eq(playerEnrollmentsTable.playerSportId, playerSport.id),
+        isNull(playerEnrollmentsTable.endYear),
+      ),
+    );
+  if (enrollment && !sameSchool(enrollment, origin)) {
+    throw new PortalWriteError(
+      "current_school_mismatch",
+      "Player's current school on file is different from the one they are leaving.",
+    );
+  }
+  if (!enrollment) {
+    [enrollment] = await tx
+      .insert(playerEnrollmentsTable)
       .values({
         playerSportId: playerSport.id,
-        kind: input.kind ?? "transfer",
-        cycleYear: input.cycleYear,
-        originEnrollmentId: enrollment.id,
-        originSchoolId: origin.schoolId,
-        originSchoolName: origin.schoolName,
-        originConferenceId: placement.conferenceId,
-        originDivisionId: placement.divisionId,
-        classAtEntry: input.classAtEntry ?? null,
-        eligibilityYears: input.eligibilityYears ?? null,
-        isGradTransfer: input.isGradTransfer ?? false,
-        status: "entered",
-        statusAt: input.enteredAt,
-        enteredAt: input.enteredAt,
+        ...origin,
+        startYear: input.originStartYear ?? input.cycleYear - 1,
       })
-      .returning(recruitmentColumns);
-    if (!recruitment) throw new Error("Recruitment insert returned no row.");
+      .returning(enrollmentColumns);
+  }
+  if (!enrollment) throw new Error("Enrollment insert returned no row.");
 
-    const [event] = await tx
-      .insert(recruitmentEventsTable)
-      .values({
-        recruitmentId: recruitment.id,
-        type: "entered",
-        occurredAt: input.enteredAt,
-        sourceType: input.sourceType ?? null,
-        sourceUrl: input.sourceUrl ?? null,
-        sourceNote: input.sourceNote ?? null,
-        createdByUserId: input.actorUserId ?? null,
-      })
-      .returning({ id: recruitmentEventsTable.id });
-    if (!event) throw new Error("Event insert returned no row.");
+  const placement = await getSchoolPlacement(
+    tx,
+    origin.schoolId,
+    input.sportId,
+  );
+  const [recruitment] = await tx
+    .insert(recruitmentsTable)
+    .values({
+      playerSportId: playerSport.id,
+      kind: input.kind ?? "transfer",
+      cycleYear: input.cycleYear,
+      originEnrollmentId: enrollment.id,
+      originSchoolId: origin.schoolId,
+      originSchoolName: origin.schoolName,
+      originConferenceId: placement.conferenceId,
+      originDivisionId: placement.divisionId,
+      classAtEntry: input.classAtEntry ?? null,
+      eligibilityYears: input.eligibilityYears ?? null,
+      isGradTransfer: input.isGradTransfer ?? false,
+      status: "entered",
+      statusAt: input.enteredAt,
+      enteredAt: input.enteredAt,
+    })
+    .returning(recruitmentColumns);
+  if (!recruitment) throw new Error("Recruitment insert returned no row.");
 
-    await writePlayerAudit(tx, {
-      playerId: input.playerId,
-      entity: "recruitment_events",
-      entityId: event.id,
-      action: "entered",
-      after: { recruitmentId: recruitment.id, ...origin },
-      actorUserId: input.actorUserId,
-    });
-    await markPlayerPending(tx, input.playerId);
-    return { recruitment, event, playerSport };
+  const [event] = await tx
+    .insert(recruitmentEventsTable)
+    .values({
+      recruitmentId: recruitment.id,
+      type: "entered",
+      occurredAt: input.enteredAt,
+      sourceType: input.sourceType ?? null,
+      sourceUrl: input.sourceUrl ?? null,
+      sourceNote: input.sourceNote ?? null,
+      createdByUserId: input.actorUserId ?? null,
+    })
+    .returning({ id: recruitmentEventsTable.id });
+  if (!event) throw new Error("Event insert returned no row.");
+
+  await writePlayerAudit(tx, {
+    playerId: input.playerId,
+    entity: "recruitment_events",
+    entityId: event.id,
+    action: "entered",
+    after: { recruitmentId: recruitment.id, ...origin },
+    actorUserId: input.actorUserId,
   });
+  await markPlayerPending(tx, input.playerId);
+  return { recruitment, event, playerSport };
 }
 
 export interface RecordEventInput extends EventSource {

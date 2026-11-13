@@ -42,9 +42,4 @@ export const LIMITS = {
 } as const;
 
 export const SITE_NAME = "Redshirt Sports";
-export const SITE_HOSTS = [
-  "redshirtsports.com",
-  "www.redshirtsports.com",
-  "redshirtsports.xyz",
-  "www.redshirtsports.xyz",
-];
+export const SITE_HOSTS = ["redshirtsports.com", "www.redshirtsports.com"];

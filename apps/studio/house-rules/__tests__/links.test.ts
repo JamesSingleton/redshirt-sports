@@ -102,7 +102,7 @@ describe("link helpers", () => {
   });
 
   it("extracts the path from our own URLs only", () => {
-    expect(ownSitePath("https://redshirtsports.xyz/a?b=1#c")).toBe("/a?b=1#c");
+    expect(ownSitePath("https://redshirtsports.com/a?b=1#c")).toBe("/a?b=1#c");
     expect(ownSitePath("https://x.com/_redshirtsports")).toBeNull();
     expect(ownSitePath("not a url")).toBeNull();
   });

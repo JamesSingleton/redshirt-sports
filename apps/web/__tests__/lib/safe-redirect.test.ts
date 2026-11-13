@@ -1,6 +1,6 @@
 import { safeRedirectPath } from "@/lib/safe-redirect";
 
-const ORIGIN = "https://www.redshirtsports.xyz";
+const ORIGIN = "https://www.redshirtsports.com";
 
 describe("safeRedirectPath", () => {
   it("returns null for empty values", () => {
@@ -26,7 +26,7 @@ describe("safeRedirectPath", () => {
     "//evil.example/phish",
     "/\\evil.example",
     "javascript:alert(1)",
-    "http://www.redshirtsports.xyz/downgrade",
+    "http://www.redshirtsports.com/downgrade",
   ])("rejects off-site or non-http target %s", (value) => {
     expect(safeRedirectPath(value, ORIGIN)).toBeNull();
   });

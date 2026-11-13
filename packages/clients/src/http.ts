@@ -1,4 +1,4 @@
-const USER_AGENT = "RedshirtSports/1.0 (+https://www.redshirtsports.xyz)";
+const USER_AGENT = "RedshirtSports/1.0 (+https://www.redshirtsports.com)";
 
 export type FetchJsonOptions = {
   /** Per-attempt timeout. */
