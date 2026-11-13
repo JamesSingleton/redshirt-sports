@@ -19,7 +19,10 @@ function isAllowlistedCacheTag(tag: string) {
     tag === "ratings" ||
     tag.startsWith("ratings:") ||
     tag === "brackets" ||
-    tag.startsWith("brackets:")
+    tag.startsWith("brackets:") ||
+    // Transfer portal and player pages, from `@redshirt-sports/db/portal/cache-tags`.
+    tag.startsWith("portal:") ||
+    tag.startsWith("player:")
   );
 }
 
@@ -88,7 +91,7 @@ export async function POST(request: NextRequest) {
     return Response.json(
       {
         error:
-          "cacheTags must be post:*, posts:*, rankings, rankings:*, ratings, ratings:*, brackets, or brackets:*",
+          "cacheTags must be post:*, posts:*, rankings, rankings:*, ratings, ratings:*, brackets, brackets:*, portal:*, or player:*",
       },
       { status: 400 },
     );
