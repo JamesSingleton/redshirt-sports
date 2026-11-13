@@ -107,7 +107,7 @@ describe("revalidateWebRankingsCache", () => {
 
   it("normalizes host-only NEXT_PUBLIC_SITE_URL with https", async () => {
     mockEnv.CACHE_REVALIDATE_SECRET = "shared-secret";
-    mockEnv.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.xyz";
+    mockEnv.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.com";
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
@@ -125,7 +125,7 @@ describe("revalidateWebRankingsCache", () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://www.redshirtsports.xyz/api/revalidate-tags",
+      "https://www.redshirtsports.com/api/revalidate-tags",
       expect.objectContaining({ method: "POST" }),
     );
   });
@@ -157,8 +157,8 @@ describe("revalidateWebRankingsCache", () => {
 describe("resolvePublicSiteUrl", () => {
   it("adds https for host-only values", async () => {
     const { resolvePublicSiteUrl } = await import("@/lib/site");
-    expect(resolvePublicSiteUrl("www.redshirtsports.xyz")).toBe(
-      "https://www.redshirtsports.xyz",
+    expect(resolvePublicSiteUrl("www.redshirtsports.com")).toBe(
+      "https://www.redshirtsports.com",
     );
   });
 

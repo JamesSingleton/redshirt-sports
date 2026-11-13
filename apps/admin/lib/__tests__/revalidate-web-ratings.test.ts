@@ -15,7 +15,7 @@ describe("revalidateWebRatingsCache", () => {
   beforeEach(() => {
     mockFetch.mockReset();
     mockEnv.CACHE_REVALIDATE_SECRET = undefined;
-    mockEnv.NEXT_PUBLIC_SITE_URL = "https://www.redshirtsports.xyz";
+    mockEnv.NEXT_PUBLIC_SITE_URL = "https://www.redshirtsports.com";
     vi.resetModules();
   });
 

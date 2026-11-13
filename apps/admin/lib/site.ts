@@ -3,7 +3,7 @@ export const PUBLIC_SITE_URL = "https://www.redshirtsports.com";
 
 /**
  * Absolute public web origin for server-side fetches (cache revalidation, etc.).
- * Accepts host-only values like `www.redshirtsports.xyz` from Vercel env.
+ * Accepts host-only values like `www.redshirtsports.com` from Vercel env.
  */
 export function resolvePublicSiteUrl(
   configured: string | undefined = process.env.NEXT_PUBLIC_SITE_URL,
