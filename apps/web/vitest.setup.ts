@@ -14,6 +14,7 @@ process.env.UPSTASH_REDIS_REST_TOKEN ??= "test-upstash-token";
 process.env.UPSTASH_REDIS_REST_URL ??= "https://test.upstash.io";
 process.env.DATABASE_URL ??= "postgresql://test:test@localhost:5432/test";
 process.env.SCHOOL_SYNC_SECRET ??= "school_sync_secret";
+process.env.CONFERENCE_SYNC_SECRET ??= "conference_sync_secret";
 process.env.CLERK_SECRET_KEY ??= "sk_test_clerk_secret_key";
 process.env.CLERK_WEBHOOK_SECRET ??= "whsec_test_clerk_webhook_secret";
 process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ??= "pk_test_clerk_publishable";

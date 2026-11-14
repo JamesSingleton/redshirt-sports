@@ -30,15 +30,15 @@ const ConferencePayloadSchema = z.object({
 /**
  * Keeps a Postgres conference, its sports, and its per-sport subdivisions
  * (FBS, FCS, Mid-Major, Power Conferences) in sync with Sanity. Called by
- * the sync-conference Sanity Function on publish, with the school sync's
- * secret.
+ * the sync-conference Sanity Function on publish, authenticated with
+ * CONFERENCE_SYNC_SECRET.
  */
 export async function POST(request: Request) {
   const auth = request.headers.get("authorization");
   const token = auth?.startsWith("Bearer ")
     ? auth.slice("Bearer ".length)
     : null;
-  if (!token || !safeCompare(token, env.SCHOOL_SYNC_SECRET)) {
+  if (!token || !safeCompare(token, env.CONFERENCE_SYNC_SECRET)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

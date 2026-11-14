@@ -4,7 +4,8 @@ import { documentEventHandler } from "@sanity/functions";
  * On conference create/update, POST the document projection to the web app
  * so Postgres `conferences`, `conference_sports`, and
  * `conference_sport_subdivisions` (FBS, FCS, Mid-Major, Power Conferences)
- * stay in sync with Sanity. Uses the same secret as sync-school.
+ * stay in sync with Sanity. Sends CONFERENCE_SYNC_SECRET, which must match
+ * the web app's.
  */
 export const handler = documentEventHandler(async ({ context, event }) => {
   const { data } = event;
@@ -13,10 +14,10 @@ export const handler = documentEventHandler(async ({ context, event }) => {
   const target =
     process.env.CONFERENCE_SYNC_URL ??
     "https://www.redshirtsports.com/api/webhooks/sanity/conference";
-  const secret = process.env.SCHOOL_SYNC_SECRET;
+  const secret = process.env.CONFERENCE_SYNC_SECRET;
 
   if (!secret) {
-    console.error("SCHOOL_SYNC_SECRET is not configured");
+    console.error("CONFERENCE_SYNC_SECRET is not configured");
     return;
   }
 
