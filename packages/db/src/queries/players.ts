@@ -28,7 +28,8 @@ export class PortalWriteError extends Error {
       | "invalid_transition"
       | "event_not_found"
       | "event_already_voided"
-      | "later_recruitment_exists",
+      | "later_recruitment_exists"
+      | "merge_same_player",
     message: string,
   ) {
     super(message);
