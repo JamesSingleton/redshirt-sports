@@ -54,7 +54,7 @@ export function BracketExportFrame({
               Redshirt Sports
             </span>
           )}
-          <div className="text-right">
+          <div className="whitespace-nowrap text-right">
             <p className="font-display text-2xl font-bold tracking-tight">
               {title}
             </p>
