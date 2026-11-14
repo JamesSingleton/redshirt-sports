@@ -302,8 +302,17 @@ export function bracketBuilderName(division: string, year: number) {
   return `${year} ${division.toUpperCase()} Playoff Bracket`;
 }
 
-export function bracketExportFilename(division: string, year: number) {
-  return `redshirt-sports-${division}-playoff-bracket-${year}.png`;
+export function bracketExportFilename(
+  division: string,
+  year: number,
+  kind: "image" | "pdf" | "pdf_blank" = "image",
+) {
+  const name = `redshirt-sports-${division}-playoff-bracket-${year}`;
+  return kind === "image"
+    ? `${name}.png`
+    : kind === "pdf"
+      ? `${name}.pdf`
+      : `${name}-blank.pdf`;
 }
 
 /**

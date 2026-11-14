@@ -51,7 +51,7 @@ import {
   setDraftTitle,
   slotsBySide,
 } from "@/lib/bracket-builder";
-import { captureBracketImage } from "@/lib/bracket-capture";
+import { captureBracketImage, captureBracketPdf } from "@/lib/bracket-capture";
 import type { BracketBuilderModel } from "@/lib/bracket-data";
 import { downloadBlob } from "@/lib/download-blob";
 
@@ -84,7 +84,6 @@ export function BracketBuilder({
   // Until the saved draft has been looked for, don't ask how to start.
   const [restored, setRestored] = useState(false);
   const [confirmRestart, setConfirmRestart] = useState(false);
-  const [capturing, setCapturing] = useState(false);
   const [printBlank, setPrintBlank] = useState(false);
 
   // Read the saved draft after mount, so the server HTML is the blank bracket.
@@ -176,8 +175,8 @@ export function BracketBuilder({
     }
   }
 
-  // The printed page is the export frame, shrunk to fit one landscape sheet.
-  // This also covers the browser's own Print command.
+  // The browser's own Print command prints the export frame, shrunk to fit
+  // one landscape sheet.
   useEffect(() => {
     const fit = () => {
       const frame = frameRef.current;
@@ -187,48 +186,45 @@ export function BracketBuilder({
         String(printZoom(frame.offsetWidth, frame.offsetHeight)),
       );
     };
-    const done = () => setPrintBlank(false);
     window.addEventListener("beforeprint", fit);
-    window.addEventListener("afterprint", done);
-    return () => {
-      window.removeEventListener("beforeprint", fit);
-      window.removeEventListener("afterprint", done);
-    };
+    return () => window.removeEventListener("beforeprint", fit);
   }, []);
 
-  function print(blank: boolean) {
-    // The frame must show the right bracket before the print dialog opens.
-    flushSync(() => setPrintBlank(blank));
-    analytics?.capture("bracket_builder_exported", {
-      ...draftAnalytics(draft, context),
-      method: blank ? "print_blank" : "print",
-      has_champion: view.champion !== null,
-    });
-    window.print();
-  }
+  type ExportKind = "image" | "pdf" | "pdf_blank";
+  const [exporting, setExporting] = useState<ExportKind | null>(null);
 
-  async function download() {
+  /**
+   * Renders the export frame to a file and downloads it. A blank PDF shows
+   * the empty bracket in the frame just for the capture; the reader's own
+   * bracket is untouched. Built in the browser, so it works on phones, where
+   * `window.print()` is mostly ignored.
+   */
+  async function exportBracket(kind: ExportKind) {
     const frame = frameRef.current;
-    if (!frame) return;
-    setCapturing(true);
+    if (!frame || exporting) return;
+    setExporting(kind);
+    // The frame must show the right bracket before it is captured.
+    flushSync(() => setPrintBlank(kind === "pdf_blank"));
     try {
-      downloadBlob(
-        await captureBracketImage(frame),
-        bracketExportFilename(division, year),
-      );
+      const file =
+        kind === "image"
+          ? await captureBracketImage(frame)
+          : await captureBracketPdf(frame);
+      downloadBlob(file, bracketExportFilename(division, year, kind));
       analytics?.capture("bracket_builder_exported", {
         ...draftAnalytics(draft, context),
-        method: "image",
+        method: kind,
         has_champion: view.champion !== null,
       });
     } catch {
-      analytics?.capture(
-        "bracket_builder_export_failed",
-        draftAnalytics(draft, context),
-      );
-      toast.error("Couldn't make the image. Try again, or print instead.");
+      analytics?.capture("bracket_builder_export_failed", {
+        ...draftAnalytics(draft, context),
+        method: kind,
+      });
+      toast.error("Couldn't make the file. Please try again.");
     } finally {
-      setCapturing(false);
+      setPrintBlank(false);
+      setExporting(null);
     }
   }
 
@@ -334,30 +330,31 @@ export function BracketBuilder({
         ) : null}
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={capturing}
-            onClick={() => void download()}
-          >
-            {capturing ? (
-              <Loader2 className="animate-spin" aria-hidden />
-            ) : (
-              <Download aria-hidden />
-            )}
-            Download image
-          </Button>
-          <Button type="button" variant="outline" onClick={() => print(false)}>
-            <Printer aria-hidden />
-            Print or save as PDF
-          </Button>
-          <Button type="button" variant="outline" onClick={() => print(true)}>
-            <FileText aria-hidden />
-            Print a blank bracket
-          </Button>
+          {(
+            [
+              { kind: "image", label: "Download image", Icon: Download },
+              { kind: "pdf", label: "Download PDF", Icon: Printer },
+              { kind: "pdf_blank", label: "Blank PDF", Icon: FileText },
+            ] as const
+          ).map(({ kind, label, Icon }) => (
+            <Button
+              key={kind}
+              type="button"
+              variant="outline"
+              disabled={exporting !== null}
+              onClick={() => void exportBracket(kind)}
+            >
+              {exporting === kind ? (
+                <Loader2 className="animate-spin" aria-hidden />
+              ) : (
+                <Icon aria-hidden />
+              )}
+              {label}
+            </Button>
+          ))}
           <p className="basis-full text-muted-foreground text-xs">
-            Printing fits one page in landscape. To get a PDF, choose "Save as
-            PDF" in the print dialog.
+            PDFs are one landscape page, ready to print. The blank one is empty,
+            to fill in by hand.
           </p>
         </div>
       </div>
