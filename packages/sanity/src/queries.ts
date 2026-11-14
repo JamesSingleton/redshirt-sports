@@ -1121,7 +1121,11 @@ export const conferencesQuery = defineQuery(/* groq */ `
     "slug": slug.current,
     "divisionId": primaryClassification->_id,
     ${logoFragment},
-    "sports": sports[]->_id
+    "sports": sports[]->_id,
+    "subdivisions": sportSubdivisionAffiliations[]{
+      "sportId": sport._ref,
+      "subdivisionId": subgrouping._ref
+    }
   }
   `);
 
@@ -1140,6 +1144,7 @@ export const schoolsQuery = defineQuery(/* groq */ `
     conferenceAffiliations[] {
       "conferenceId": conference->_id,
       "sportId": sport->_id,
+      "subdivisionOverrideId": subgroupingOverride._ref,
     }
   }
   `);

@@ -99,7 +99,19 @@ export default defineBlueprint({
         on: ["create", "update"],
         filter: "_type == 'school'",
         projection:
-          "{_id, name, shortName, abbreviation, nickname, image, 'slug': slug.current, top25VotingEligible, 'conferenceAffiliations': conferenceAffiliations[]{'conferenceId': conference._ref, 'sportId': sport._ref}}",
+          "{_id, name, shortName, abbreviation, nickname, image, 'slug': slug.current, top25VotingEligible, 'conferenceAffiliations': conferenceAffiliations[]{'conferenceId': conference._ref, 'sportId': sport._ref, 'subdivisionOverrideId': subgroupingOverride._ref}}",
+      },
+    }),
+    defineDocumentFunction({
+      name: "sync-conference",
+      src: "./apps/functions/sync-conference",
+      memory: 1,
+      timeout: 30,
+      event: {
+        on: ["create", "update"],
+        filter: "_type == 'conference'",
+        projection:
+          "{_id, name, shortName, abbreviation, 'slug': slug.current, 'divisionSanityId': primaryClassification._ref, 'sportIds': sports[]._ref, 'subdivisions': sportSubdivisionAffiliations[]{'sportId': sport._ref, 'subdivisionId': subgrouping._ref}}",
       },
     }),
     defineSyncTagInvalidateFunction({

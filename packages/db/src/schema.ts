@@ -237,12 +237,49 @@ export const schoolConferenceAffiliationsTable = pgTable(
     schoolId: text("school_id").notNull(),
     sportId: text("sport_id").notNull(),
     conferenceId: text("conference_id").notNull(),
+    /**
+     * The school's own subdivision for this sport when it differs from its
+     * conference's (Sanity `subgroupingOverride`), e.g. a program moving up.
+     */
+    subdivisionOverrideId: text("subdivision_override_id").references(
+      () => divisionsTable.id,
+      { onDelete: "set null" },
+    ),
   },
   (table) => [
     unique().on(table.schoolId, table.sportId, table.conferenceId),
     index("school_conference_affiliations_sport_id_index").on(table.sportId),
     index("school_conference_affiliations_conference_id_index").on(
       table.conferenceId,
+    ),
+  ],
+);
+
+/**
+ * The subdivision a conference plays a sport in: Big Sky football is FCS,
+ * Big Sky basketball is Mid-Major. From Sanity's
+ * `conference.sportSubdivisionAffiliations`. A school's subdivision for a
+ * sport is its affiliation's override, else its conference's row here.
+ */
+export const conferenceSportSubdivisionsTable = pgTable(
+  "conference_sport_subdivisions",
+  {
+    ...defaultColumns,
+    conferenceId: text("conference_id")
+      .notNull()
+      .references(() => conferencesTable.id, { onDelete: "cascade" }),
+    sportId: text("sport_id")
+      .notNull()
+      .references(() => sportsTable.id, { onDelete: "cascade" }),
+    subdivisionId: text("subdivision_id")
+      .notNull()
+      .references(() => divisionsTable.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    unique().on(table.conferenceId, table.sportId),
+    index("conference_sport_subdivisions_sport_id_index").on(table.sportId),
+    index("conference_sport_subdivisions_subdivision_id_index").on(
+      table.subdivisionId,
     ),
   ],
 );
@@ -1521,6 +1558,10 @@ export const recruitmentsTable = pgTable(
     originDivisionId: text("origin_division_id").references(
       () => divisionsTable.id,
     ),
+    /** FBS, FCS, Mid-Major, Power Conferences; null where the level has none. */
+    originSubdivisionId: text("origin_subdivision_id").references(
+      () => divisionsTable.id,
+    ),
     originConferenceId: text("origin_conference_id").references(
       () => conferencesTable.id,
     ),
@@ -1536,6 +1577,9 @@ export const recruitmentsTable = pgTable(
     ),
     destinationSchoolName: text("destination_school_name"),
     destinationDivisionId: text("destination_division_id").references(
+      () => divisionsTable.id,
+    ),
+    destinationSubdivisionId: text("destination_subdivision_id").references(
       () => divisionsTable.id,
     ),
     destinationConferenceId: text("destination_conference_id").references(
@@ -1594,6 +1638,9 @@ export const recruitmentsTable = pgTable(
     ),
     index("recruitments_origin_school_id_index").on(table.originSchoolId),
     index("recruitments_origin_division_id_index").on(table.originDivisionId),
+    index("recruitments_origin_subdivision_id_index").on(
+      table.originSubdivisionId,
+    ),
     index("recruitments_origin_conference_id_index").on(
       table.originConferenceId,
     ),
@@ -1602,6 +1649,9 @@ export const recruitmentsTable = pgTable(
     ),
     index("recruitments_destination_division_id_index").on(
       table.destinationDivisionId,
+    ),
+    index("recruitments_destination_subdivision_id_index").on(
+      table.destinationSubdivisionId,
     ),
     index("recruitments_destination_conference_id_index").on(
       table.destinationConferenceId,

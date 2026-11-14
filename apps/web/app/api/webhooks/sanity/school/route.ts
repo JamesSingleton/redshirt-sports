@@ -30,6 +30,7 @@ const SchoolPayloadSchema = z.object({
         z.object({
           conferenceId: z.string().optional().nullable(),
           sportId: z.string().optional().nullable(),
+          subdivisionOverrideId: z.string().optional().nullable(),
         }),
       )
       .optional()
@@ -92,6 +93,12 @@ export async function POST(request: Request) {
           result.id,
           school.conferenceAffiliations ?? [],
         );
+  if (affiliations && affiliations.unknownSubdivisions.length > 0) {
+    console.warn(
+      `School ${school._id}: subdivision overrides Postgres doesn't have; run the admin subdivision loader.`,
+      affiliations.unknownSubdivisions,
+    );
+  }
   if (affiliations && affiliations.skipped.length > 0) {
     console.warn(
       `School ${school._id}: ${affiliations.skipped.length} affiliations name a conference or sport Postgres doesn't have; run the admin conference loader.`,

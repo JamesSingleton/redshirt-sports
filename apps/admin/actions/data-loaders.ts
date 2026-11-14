@@ -7,6 +7,10 @@ import {
 } from "@redshirt-sports/clients/espn";
 import { primaryDb as db } from "@redshirt-sports/db/client";
 import {
+  replaceConferenceSportSubdivisions,
+  subdivisionIdsBySanityId,
+} from "@redshirt-sports/db/queries";
+import {
   conferenceSportsTable,
   conferencesTable,
   divisionSportsTable,
@@ -341,6 +345,7 @@ export async function fetchAndLoadSchools() {
       schoolSanityId: string;
       conferenceId: string;
       sportId: string;
+      subdivisionOverrideSanityId: string | null;
     }[] = [];
 
     const mappedSchools = data.map((d: SchoolsQueryResult[number]) => {
@@ -358,6 +363,8 @@ export async function fetchAndLoadSchools() {
               schoolSanityId: d._id,
               conferenceId: conference.id,
               sportId: affiliation.sportId,
+              subdivisionOverrideSanityId:
+                affiliation.subdivisionOverrideId ?? null,
             });
           }
         },
@@ -401,6 +408,12 @@ export async function fetchAndLoadSchools() {
         .map((school) => [school.sanityId as string, school.id]),
     );
 
+    const subdivisionBySanityId = await subdivisionIdsBySanityId(
+      db,
+      schoolConferenceAffiliations.map(
+        (affiliation) => affiliation.subdivisionOverrideSanityId,
+      ),
+    );
     const affiliationRows = schoolConferenceAffiliations.flatMap(
       (affiliation) => {
         const schoolId = schoolIdBySanityId.get(affiliation.schoolSanityId);
@@ -412,6 +425,11 @@ export async function fetchAndLoadSchools() {
             schoolId,
             conferenceId: affiliation.conferenceId,
             sportId: affiliation.sportId,
+            subdivisionOverrideId: affiliation.subdivisionOverrideSanityId
+              ? (subdivisionBySanityId.get(
+                  affiliation.subdivisionOverrideSanityId,
+                ) ?? null)
+              : null,
           },
         ];
       },
@@ -506,8 +524,12 @@ export async function fetchAndLoadConferences() {
       });
     }
 
+    const subdivisions = await loadConferenceSubdivisions(
+      data as ConferencesQueryResult,
+    );
+
     if (!mappedConferences.length) {
-      return "No new conferences to load.";
+      return `No new conferences to load. ${subdivisions}`;
     }
 
     const dbConferences = await db
@@ -532,8 +554,44 @@ export async function fetchAndLoadConferences() {
         .onConflictDoNothing();
     }
 
-    return `Inserted ${dbConferences.length} conferences.`;
+    // The new conferences' subdivisions, now that they have rows.
+    const newSubdivisions = await loadConferenceSubdivisions(
+      (data as ConferencesQueryResult).filter((conference) =>
+        dbConferences.some((row) => row.sanityId === conference._id),
+      ),
+    );
+
+    return `Inserted ${dbConferences.length} conferences. ${subdivisions} ${newSubdivisions}`;
   });
+}
+
+/**
+ * Replaces each conference's per-sport subdivisions (FBS, FCS, Mid-Major,
+ * Power Conferences) with Sanity's. Conferences not loaded yet are skipped.
+ */
+async function loadConferenceSubdivisions(
+  conferences: ConferencesQueryResult,
+): Promise<string> {
+  const rows = await db
+    .select({ id: conferencesTable.id, sanityId: conferencesTable.sanityId })
+    .from(conferencesTable);
+  const idBySanityId = new Map(rows.map((row) => [row.sanityId, row.id]));
+  let replaced = 0;
+  let skipped = 0;
+  await db.transaction(async (tx) => {
+    for (const conference of conferences) {
+      const conferenceId = idBySanityId.get(conference._id);
+      if (!conferenceId) continue;
+      const result = await replaceConferenceSportSubdivisions(
+        tx,
+        conferenceId,
+        conference.subdivisions ?? [],
+      );
+      replaced += result.replaced;
+      skipped += result.skipped.length;
+    }
+  });
+  return `Set ${replaced} conference subdivisions${skipped ? ` (${skipped} skipped: run Load subdivisions first)` : ""}.`;
 }
 
 export async function fetchAndLoadSubdivisions() {
