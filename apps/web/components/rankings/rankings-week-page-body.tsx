@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { AdSlot } from "@/components/ad-slot";
 import { JsonLdScript } from "@/components/json-ld";
+import { NewsletterGate } from "@/components/newsletter/newsletter-gate";
 import { RankingsBallotsCta } from "@/components/rankings/rankings-ballots-cta";
 import { RankingsBeyondTop25 } from "@/components/rankings/rankings-beyond-top-25";
 import { RankingsBiggestMovers } from "@/components/rankings/rankings-biggest-movers";
@@ -106,6 +107,7 @@ export function RankingsWeekPageBody({
             currentRankingsById={currentRankingsById}
             ballotsListedBySanityId={ballotsListedBySanityId}
           />
+          <NewsletterGate variant="inline" className="mt-10" />
         </>
       ) : (
         <div className="mx-auto max-w-md py-16 text-center">

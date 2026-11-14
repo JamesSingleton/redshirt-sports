@@ -87,6 +87,10 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("@/components/newsletter/newsletter-gate", () => ({
+  NewsletterGate: () => null,
+}));
+
 vi.mock("@/components/json-ld", () => ({
   JsonLdScript: ({ data }: { data: { "@graph": unknown[] } }) => (
     <script

@@ -61,6 +61,10 @@ vi.mock("@/components/copyright-year", () => ({
   CopyrightYear: () => new Date().getFullYear(),
 }));
 
+vi.mock("@/components/newsletter/newsletter-gate", () => ({
+  NewsletterGate: () => null,
+}));
+
 const footerData = {
   subtitle: "College sports coverage",
   columns: [

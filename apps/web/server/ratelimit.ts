@@ -28,3 +28,19 @@ export const rankingsApiRatelimit = new Ratelimit({
   analytics: true,
   prefix: "@upstash/ratelimit/rankings-api",
 });
+
+/** Newsletter subscribe — 3 requests per hour per IP. */
+export const newsletterRatelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(3, "3600 s"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/newsletter",
+});
+
+/** Newsletter confirmation emails — ~90 per day, global key. */
+export const newsletterDailyRatelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(90, "86400 s"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/newsletter-daily",
+});

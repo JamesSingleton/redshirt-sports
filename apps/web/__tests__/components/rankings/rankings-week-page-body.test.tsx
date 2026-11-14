@@ -11,6 +11,10 @@ vi.mock("@/components/rankings/rankings-poll-table", () => ({
   RankingsPollTable: () => <div data-testid="poll-table" />,
 }));
 
+vi.mock("@/components/newsletter/newsletter-gate", () => ({
+  NewsletterGate: () => null,
+}));
+
 function baseModel(
   overrides: Partial<RankingsWeekPageModel> = {},
 ): RankingsWeekPageModel {

@@ -13,6 +13,7 @@ import {
   ArticleKeyTakeaways,
 } from "@/components/article/article-standards";
 import { ArticleTaggedTeamsRow } from "@/components/article/article-tagged-teams-row";
+import { NewsletterGate } from "@/components/newsletter/newsletter-gate";
 import { RichText } from "@/components/rich-text";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { ArticleHeroTransition } from "@/components/view-transitions/article-hero-transition";
@@ -149,6 +150,11 @@ export function ArticlePageContent({
             contributors={post.contributors}
             sources={post.sources}
             corrections={post.corrections}
+          />
+
+          <NewsletterGate
+            variant="inline"
+            className="mx-auto mt-10 max-w-prose"
           />
 
           <ArticleAnalytics
