@@ -28,6 +28,8 @@ export const publishedSchoolSchema = z.object({
 
 export const publishedPlacementSchema = publishedSchoolSchema.extend({
   divisionId: z.string().optional(),
+  /** FBS, FCS, Mid-Major, Power Conferences. Absent where the level has none. */
+  subdivisionId: z.string().optional(),
   conferenceId: z.string().optional(),
 });
 

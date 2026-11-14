@@ -3,16 +3,28 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import {
+  publishedPlayerDocSchema,
+  publishedWireRowSchema,
+} from "../src/portal/published";
+import {
   replaceConferenceSportSubdivisions,
   upsertConferenceFromSanity,
 } from "../src/queries/conferences";
-import { getSchoolPlacement } from "../src/queries/recruitments";
+import { createPortalPlayer } from "../src/queries/portal-admin";
+import { pushPortal } from "../src/queries/portal-publish";
+import {
+  getSchoolPlacement,
+  recordRecruitmentEvent,
+} from "../src/queries/recruitments";
 import { replaceSchoolConferenceAffiliations } from "../src/queries/schools";
 import {
   conferenceSportSubdivisionsTable,
   conferenceSportsTable,
   conferencesTable,
   divisionsTable,
+  publishedPlayersTable,
+  publishedWireEventsTable,
+  recruitmentsTable,
   schoolsTable,
   sportsTable,
 } from "../src/schema";
@@ -251,6 +263,77 @@ describe("a school's subdivision", () => {
       conferenceId: null,
       divisionId: null,
       subdivisionId: null,
+    });
+  });
+});
+
+describe("the published portal", () => {
+  it("carries each move's subdivision, snapshotted when it was saved", async () => {
+    await replaceConferenceSportSubdivisions(db, ids.bigSky, [
+      { sportId: ids.football, subdivisionId: "sanity-fcs" },
+    ]);
+    await replaceSchoolConferenceAffiliations(ids.montana, [
+      { conferenceId: "sanity-big-sky", sportId: ids.football },
+    ]);
+    const [idaho] = await db
+      .insert(schoolsTable)
+      .values({ name: "Idaho", sanityId: "sanity-idaho" })
+      .returning({ id: schoolsTable.id });
+    // A program moving up: its own override beats the conference's FCS.
+    await replaceSchoolConferenceAffiliations(idaho!.id, [
+      {
+        conferenceId: "sanity-big-sky",
+        sportId: ids.football,
+        subdivisionOverrideId: "sanity-fbs",
+      },
+    ]);
+
+    const player = await createPortalPlayer({
+      firstName: "Jalen",
+      lastName: "Brooks",
+      entry: {
+        sportId: ids.football,
+        cycleYear: 2026,
+        origin: { schoolId: ids.montana },
+        enteredAt: new Date(Date.UTC(2026, 0, 2)),
+      },
+    });
+    const [recruitment] = await db
+      .select({ id: recruitmentsTable.id })
+      .from(recruitmentsTable);
+    await recordRecruitmentEvent({
+      recruitmentId: recruitment!.id,
+      type: "committed",
+      occurredAt: new Date(Date.UTC(2026, 0, 5)),
+      school: { schoolId: idaho!.id },
+    });
+    await pushPortal({ trigger: "admin" });
+
+    const rows = await db
+      .select({ row: publishedWireEventsTable.row })
+      .from(publishedWireEventsTable);
+    expect(rows).toHaveLength(2);
+    for (const { row } of rows) {
+      const wire = publishedWireRowSchema.parse(row);
+      expect(wire.origin).toMatchObject({
+        schoolId: ids.montana,
+        divisionId: ids.d1,
+        subdivisionId: ids.fcs,
+      });
+      expect(wire.destination).toMatchObject({
+        schoolId: idaho!.id,
+        subdivisionId: ids.fbs,
+      });
+    }
+
+    const [published] = await db
+      .select({ doc: publishedPlayersTable.doc })
+      .from(publishedPlayersTable)
+      .where(eq(publishedPlayersTable.playerId, player.id));
+    const doc = publishedPlayerDocSchema.parse(published!.doc);
+    expect(doc.sports[0]!.recruitments[0]).toMatchObject({
+      origin: { subdivisionId: ids.fcs },
+      destination: { subdivisionId: ids.fbs },
     });
   });
 });
