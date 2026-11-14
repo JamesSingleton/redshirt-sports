@@ -325,7 +325,11 @@ function GameCard<T extends BracketTeamLike>({
           className="flex h-(--bracket-head) items-center justify-between gap-2 border-b border-border bg-muted/50 px-2 text-[0.65rem] font-medium tracking-wide text-muted-foreground uppercase"
           title={[status, site].filter(Boolean).join(" · ") || undefined}
         >
-          <span className="shrink-0">{status ?? game.roundLabel}</span>
+          {/* nowrap: an image capture pins this to its measured width, and
+              text a hair wider there would otherwise break onto two lines. */}
+          <span className="shrink-0 whitespace-nowrap">
+            {status ?? game.roundLabel}
+          </span>
           {site ? <span className="truncate normal-case">{site}</span> : null}
         </div>
         <div className="divide-y divide-border">{lines}</div>
@@ -595,7 +599,7 @@ export function Bracket<T extends BracketTeamLike>({
           </div>
           <div className="relative flex flex-1 flex-col justify-center">
             <div className="absolute inset-x-0 bottom-[calc(50%+var(--bracket-team-h)+var(--bracket-head)/2+1rem)] flex flex-col items-center gap-1 text-center">
-              <span className="text-[0.65rem] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+              <span className="text-[0.65rem] font-semibold tracking-[0.18em] whitespace-nowrap text-muted-foreground uppercase">
                 {view.champion ? "Champion" : "National championship"}
               </span>
               {view.champion ? (
