@@ -15,6 +15,7 @@ import {
   reduceRecruitment,
 } from "../portal/reduce-recruitment";
 import {
+  conferenceSportSubdivisionsTable,
   conferencesTable,
   divisionsTable,
   playerEnrollmentsTable,
@@ -91,6 +92,7 @@ const recruitmentColumns = {
   originSchoolName: recruitmentsTable.originSchoolName,
   originConferenceId: recruitmentsTable.originConferenceId,
   originDivisionId: recruitmentsTable.originDivisionId,
+  originSubdivisionId: recruitmentsTable.originSubdivisionId,
   status: recruitmentsTable.status,
   statusAt: recruitmentsTable.statusAt,
   enteredAt: recruitmentsTable.enteredAt,
@@ -98,6 +100,7 @@ const recruitmentColumns = {
   destinationSchoolName: recruitmentsTable.destinationSchoolName,
   destinationConferenceId: recruitmentsTable.destinationConferenceId,
   destinationDivisionId: recruitmentsTable.destinationDivisionId,
+  destinationSubdivisionId: recruitmentsTable.destinationSubdivisionId,
   closedAt: recruitmentsTable.closedAt,
 };
 export type RecruitmentSummary = Pick<
@@ -126,21 +129,39 @@ function reduceOrReject(events: RecruitmentEventInput[]): RecruitmentState {
   }
 }
 
+export type SchoolPlacement = {
+  conferenceId: string | null;
+  divisionId: string | null;
+  /** FBS, FCS, Mid-Major, or Power Conferences; null where the level has none. */
+  subdivisionId: string | null;
+};
+
+const NO_PLACEMENT: SchoolPlacement = {
+  conferenceId: null,
+  divisionId: null,
+  subdivisionId: null,
+};
+
 /**
- * A school's conference and division for a sport right now, to snapshot onto a
- * recruitment. Null where we have no affiliation on file.
+ * A school's conference, division, and subdivision for a sport right now, to
+ * snapshot onto a recruitment. The subdivision is the school's own override
+ * when it has one, else its conference's for the sport. Null where we have no
+ * affiliation on file.
  */
 export async function getSchoolPlacement(
   executor: DbExecutor,
   schoolId: string | null,
   sportId: string,
-): Promise<{ conferenceId: string | null; divisionId: string | null }> {
-  if (!schoolId) return { conferenceId: null, divisionId: null };
+): Promise<SchoolPlacement> {
+  if (!schoolId) return NO_PLACEMENT;
   const [row] = await executor
     .select({
       conferenceId: conferencesTable.id,
       // `conferences.division_id` has no foreign key; only trust ids that resolve.
       divisionId: divisionsTable.id,
+      subdivisionId: sql<
+        string | null
+      >`coalesce(${schoolConferenceAffiliationsTable.subdivisionOverrideId}, ${conferenceSportSubdivisionsTable.subdivisionId})`,
     })
     .from(schoolConferenceAffiliationsTable)
     .innerJoin(
@@ -150,6 +171,13 @@ export async function getSchoolPlacement(
     .leftJoin(
       divisionsTable,
       eq(divisionsTable.id, conferencesTable.divisionId),
+    )
+    .leftJoin(
+      conferenceSportSubdivisionsTable,
+      and(
+        eq(conferenceSportSubdivisionsTable.conferenceId, conferencesTable.id),
+        eq(conferenceSportSubdivisionsTable.sportId, sportId),
+      ),
     )
     .where(
       and(
@@ -162,6 +190,7 @@ export async function getSchoolPlacement(
   return {
     conferenceId: row?.conferenceId ?? null,
     divisionId: row?.divisionId ?? null,
+    subdivisionId: row?.subdivisionId ?? null,
   };
 }
 
@@ -292,6 +321,7 @@ async function applyState(
     ? {
         conferenceId: recruitment.destinationConferenceId,
         divisionId: recruitment.destinationDivisionId,
+        subdivisionId: recruitment.destinationSubdivisionId,
       }
     : await getSchoolPlacement(tx, destination.schoolId, sportId);
 
@@ -305,6 +335,7 @@ async function applyState(
       destinationSchoolName: destination.schoolName,
       destinationConferenceId: placement.conferenceId,
       destinationDivisionId: placement.divisionId,
+      destinationSubdivisionId: placement.subdivisionId,
       closedAt: state.closedAt,
     })
     .where(eq(recruitmentsTable.id, recruitment.id))
@@ -421,6 +452,7 @@ export async function openRecruitmentLocked(
       originSchoolName: origin.schoolName,
       originConferenceId: placement.conferenceId,
       originDivisionId: placement.divisionId,
+      originSubdivisionId: placement.subdivisionId,
       classAtEntry: input.classAtEntry ?? null,
       eligibilityYears: input.eligibilityYears ?? null,
       isGradTransfer: input.isGradTransfer ?? false,

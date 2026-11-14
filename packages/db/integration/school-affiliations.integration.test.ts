@@ -74,7 +74,11 @@ describe("replaceSchoolConferenceAffiliations", () => {
       { conferenceId: "sanity-big-sky", sportId: sport.basketball },
     ]);
 
-    expect(result).toEqual({ replaced: 2, skipped: [] });
+    expect(result).toEqual({
+      replaced: 2,
+      skipped: [],
+      unknownSubdivisions: [],
+    });
     expect(await affiliationsOf(schoolId)).toEqual(
       expect.arrayContaining([
         { sportId: sport.football, conferenceId: conference.bigSky },
@@ -114,7 +118,7 @@ describe("replaceSchoolConferenceAffiliations", () => {
 
     await expect(
       replaceSchoolConferenceAffiliations(schoolId, []),
-    ).resolves.toEqual({ replaced: 0, skipped: [] });
+    ).resolves.toEqual({ replaced: 0, skipped: [], unknownSubdivisions: [] });
     expect(await affiliationsOf(schoolId)).toEqual([]);
   });
 });

@@ -70,7 +70,7 @@ describe("POST /api/webhooks/sanity/school", () => {
     });
     mockReplaceAffiliations
       .mockReset()
-      .mockResolvedValue({ replaced: 0, skipped: [] });
+      .mockResolvedValue({ replaced: 0, skipped: [], unknownSubdivisions: [] });
     mockRevalidateTag.mockReset();
   });
 
@@ -92,7 +92,11 @@ describe("POST /api/webhooks/sanity/school", () => {
     });
 
     it("replaces them with Sanity's", async () => {
-      mockReplaceAffiliations.mockResolvedValue({ replaced: 2, skipped: [] });
+      mockReplaceAffiliations.mockResolvedValue({
+        replaced: 2,
+        skipped: [],
+        unknownSubdivisions: [],
+      });
       const affiliations = [
         { conferenceId: "big-sky", sportId: "football" },
         { conferenceId: "big-sky", sportId: "mens-basketball" },
@@ -110,6 +114,35 @@ describe("POST /api/webhooks/sanity/school", () => {
       });
     });
 
+    it("passes subdivision overrides and reports unknown ones", async () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      mockReplaceAffiliations.mockResolvedValue({
+        replaced: 1,
+        skipped: [],
+        unknownSubdivisions: ["sanity-new-subdivision"],
+      });
+      const affiliations = [
+        {
+          conferenceId: "big-sky",
+          sportId: "football",
+          subdivisionOverrideId: "sanity-new-subdivision",
+        },
+      ];
+
+      const res = await post({ conferenceAffiliations: affiliations });
+
+      expect(res.status).toBe(200);
+      expect(mockReplaceAffiliations).toHaveBeenCalledWith(
+        "db-school-1",
+        affiliations,
+      );
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining("admin subdivision loader"),
+        ["sanity-new-subdivision"],
+      );
+      warn.mockRestore();
+    });
+
     it("clears them when Sanity has none", async () => {
       await post({ conferenceAffiliations: null });
       expect(mockReplaceAffiliations).toHaveBeenCalledWith("db-school-1", []);
@@ -118,7 +151,11 @@ describe("POST /api/webhooks/sanity/school", () => {
     it("reports conferences Postgres doesn't have yet", async () => {
       const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
       const skipped = [{ conferenceId: "new-conf", sportId: "football" }];
-      mockReplaceAffiliations.mockResolvedValue({ replaced: 0, skipped });
+      mockReplaceAffiliations.mockResolvedValue({
+        replaced: 0,
+        skipped,
+        unknownSubdivisions: [],
+      });
 
       const res = await post({ conferenceAffiliations: skipped });
 
