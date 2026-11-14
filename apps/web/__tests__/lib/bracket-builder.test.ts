@@ -53,6 +53,12 @@ describe("bracket builder drafts", () => {
       `redshirt:bracket-builder:football:fcs:${KEY}`,
     );
     expect(bracketBuilderName("fcs", 2026)).toBe("2026 FCS Playoff Bracket");
+    expect(bracketExportFilename("fcs", 2026, "pdf")).toBe(
+      "redshirt-sports-fcs-playoff-bracket-2026.pdf",
+    );
+    expect(bracketExportFilename("fcs", 2026, "pdf_blank")).toBe(
+      "redshirt-sports-fcs-playoff-bracket-2026-blank.pdf",
+    );
     expect(bracketExportFilename("fcs", 2026)).toBe(
       "redshirt-sports-fcs-playoff-bracket-2026.png",
     );

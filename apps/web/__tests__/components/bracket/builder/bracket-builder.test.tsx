@@ -24,6 +24,7 @@ import type { BracketBuilderModel } from "@/lib/bracket-data";
 const mocks = vi.hoisted(() => ({
   capture: vi.fn(),
   captureImage: vi.fn(),
+  capturePdf: vi.fn(),
   downloadBlob: vi.fn(),
   toastError: vi.fn(),
   frameDetached: false,
@@ -37,6 +38,7 @@ vi.mock("@redshirt-sports/analytics", () => ({
 vi.mock("sonner", () => ({ toast: { error: mocks.toastError } }));
 vi.mock("@/lib/bracket-capture", () => ({
   captureBracketImage: mocks.captureImage,
+  captureBracketPdf: mocks.capturePdf,
 }));
 vi.mock("@/lib/download-blob", () => ({ downloadBlob: mocks.downloadBlob }));
 vi.mock("@/components/sanity-image", () => ({
@@ -123,12 +125,11 @@ describe("BracketBuilder", () => {
     window.localStorage.clear();
     mocks.capture.mockReset();
     mocks.captureImage.mockReset().mockResolvedValue(new Blob(["png"]));
+    mocks.capturePdf.mockReset();
     mocks.downloadBlob.mockReset();
     mocks.toastError.mockReset();
     mocks.frameDetached = false;
     mocks.nextSchool = null;
-    // happy-dom has no print dialog.
-    window.print = vi.fn();
   });
   afterEach(() => vi.restoreAllMocks());
 
@@ -345,43 +346,47 @@ describe("BracketBuilder", () => {
     expect(mocks.downloadBlob).toHaveBeenCalledTimes(1);
   });
 
-  it("prints the bracket, or a blank one, without touching the draft", async () => {
+  it("saves a PDF of the bracket, or a blank one, without touching the draft", async () => {
     const draft = seedDraft(KEY, FCS_SPEC, bracketSlots());
     save(draft);
     render(<BracketBuilder model={model()} logo={null} />);
-    const printed: string[] = [];
-    vi.mocked(window.print).mockImplementation(() => {
-      printed.push(frame().textContent ?? "");
+    // What the frame showed when each PDF was made.
+    const captured: string[] = [];
+    mocks.capturePdf.mockImplementation(async (node: HTMLElement) => {
+      captured.push(node.textContent ?? "");
+      return new Blob(["%PDF"]);
     });
 
+    // The browser's own Print command still fits the frame to one page.
     fireEvent(window, new Event("beforeprint"));
     expect(
       (frame() as HTMLElement).style.getPropertyValue("--bracket-print-zoom"),
     ).toBe("1");
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Print or save as PDF" }),
+    await userEvent.click(screen.getByRole("button", { name: "Download PDF" }));
+    expect(captured[0]).toContain("My 2026 FCS Playoff Bracket");
+    expect(captured[0]).toContain("School 1");
+    expect(mocks.downloadBlob).toHaveBeenLastCalledWith(
+      expect.any(Blob),
+      "redshirt-sports-fcs-playoff-bracket-2026.pdf",
     );
-    expect(printed[0]).toContain("My 2026 FCS Playoff Bracket");
-    expect(printed[0]).toContain("School 1");
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Print a blank bracket" }),
+    await userEvent.click(screen.getByRole("button", { name: "Blank PDF" }));
+    expect(captured[1]).toContain("2026 FCS Playoff Bracket");
+    expect(captured[1]).toContain("Fill in your picks");
+    expect(captured[1]).not.toContain("School 1");
+    expect(captured[1]).not.toContain("TBD");
+    expect(mocks.downloadBlob).toHaveBeenLastCalledWith(
+      expect.any(Blob),
+      "redshirt-sports-fcs-playoff-bracket-2026-blank.pdf",
     );
-    expect(printed[1]).toContain("2026 FCS Playoff Bracket");
-    expect(printed[1]).toContain("Fill in your picks");
-    expect(printed[1]).not.toContain("School 1");
-    expect(printed[1]).not.toContain("TBD");
-    expect(frame()).toHaveTextContent("Fill in your picks");
 
-    act(() => {
-      fireEvent(window, new Event("afterprint"));
-    });
+    // Back to the reader's own bracket, which was never changed.
     expect(frame()).toHaveTextContent("My 2026 FCS Playoff Bracket");
     expect(saved()).toEqual(draft);
     expect(
       events("bracket_builder_exported").map(([, props]) => props.method),
-    ).toEqual(["print", "print_blank"]);
+    ).toEqual(["pdf", "pdf_blank"]);
   });
 
   it("replaces the bracket only after confirming", async () => {
