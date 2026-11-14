@@ -58,6 +58,8 @@ describe("robots", () => {
         "https://redshirtsports.com/rankings/sitemap.xml",
         "https://redshirtsports.com/college/sitemap.xml",
         "https://redshirtsports.com/playoffs/sitemap.xml",
+        "https://redshirtsports.com/transfer-portal/sitemap.xml",
+        "https://redshirtsports.com/players/sitemap.xml",
       ]),
     );
   });

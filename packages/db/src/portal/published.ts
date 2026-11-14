@@ -112,6 +112,9 @@ export const publishedWireRowSchema = publishedSchoolSchema.extend({
   firstName: z.string(),
   lastName: z.string(),
   suffix: z.string().optional(),
+  highSchoolName: z.string().optional(),
+  hometownCity: z.string().optional(),
+  hometownState: z.string().optional(),
   position: z.string().optional(),
   heightIn: z.number().optional(),
   weightLb: z.number().optional(),
@@ -121,6 +124,8 @@ export const publishedWireRowSchema = publishedSchoolSchema.extend({
   /** Where the recruitment stands now, for the one-row-per-player view. */
   status: z.enum(RECRUITMENT_STATUSES),
   origin: publishedPlacementSchema,
+  /** Schools before the one they're leaving, oldest first. */
+  path: z.array(publishedSchoolSchema).optional(),
   destination: publishedPlacementSchema.optional(),
 });
 

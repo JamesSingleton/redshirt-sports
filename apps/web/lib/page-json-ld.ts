@@ -12,7 +12,7 @@ export type PageListItem = {
   path: string;
 };
 
-function absoluteUrl(path: string) {
+export function absoluteUrl(path: string) {
   const base = getBaseUrl().replace(/\/$/, "");
   if (path === "/") {
     return base;

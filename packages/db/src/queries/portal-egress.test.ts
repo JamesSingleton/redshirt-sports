@@ -13,6 +13,8 @@ const FILES = [
   "portal-publish.ts",
   "portal-admin.ts",
   "player-duplicates.ts",
+  "portal-wire.ts",
+  "portal-player.ts",
 ];
 
 describe("portal queries name their columns", () => {
