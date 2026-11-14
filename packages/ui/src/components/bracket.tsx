@@ -292,7 +292,13 @@ function GameCard<T extends BracketTeamLike>({
 
   return (
     <div
-      className={cn("relative z-10 flex flex-col justify-center", className)}
+      // The wrapper fills the card's grid rows, and a stacked semifinal's
+      // rows cover the quarterfinal cards beside it: only the card itself
+      // may take clicks, or it would block theirs.
+      className={cn(
+        "pointer-events-none relative z-10 flex flex-col justify-center",
+        className,
+      )}
       style={style}
       data-game-key={game.key}
     >
@@ -306,7 +312,7 @@ function GameCard<T extends BracketTeamLike>({
             }
           : {})}
         className={cn(
-          "w-(--bracket-card) overflow-hidden rounded-md border border-border bg-card text-left text-card-foreground shadow-xs",
+          "pointer-events-auto w-(--bracket-card) overflow-hidden rounded-md border border-border bg-card text-left text-card-foreground shadow-xs",
           selection &&
             "cursor-pointer outline-none transition-colors hover:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
           selection?.selectedKey === game.key &&
