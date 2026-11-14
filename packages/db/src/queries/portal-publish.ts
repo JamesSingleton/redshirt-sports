@@ -31,13 +31,16 @@ const PUSH_LOCK_TIMEOUT = "15s";
 /** `r` = recruitments. A school plus its division and conference, or null. */
 const originText = `jsonb_build_object(
   'schoolId', r.origin_school_id, 'schoolName', r.origin_school_name,
-  'divisionId', r.origin_division_id, 'conferenceId', r.origin_conference_id)`;
+  'divisionId', r.origin_division_id, 'subdivisionId', r.origin_subdivision_id,
+  'conferenceId', r.origin_conference_id)`;
 
 const destinationText = `case
   when r.destination_school_id is null and r.destination_school_name is null then null
   else jsonb_build_object(
     'schoolId', r.destination_school_id, 'schoolName', r.destination_school_name,
-    'divisionId', r.destination_division_id, 'conferenceId', r.destination_conference_id)
+    'divisionId', r.destination_division_id,
+    'subdivisionId', r.destination_subdivision_id,
+    'conferenceId', r.destination_conference_id)
   end`;
 
 /**
