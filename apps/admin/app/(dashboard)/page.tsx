@@ -1,3 +1,4 @@
+import { currentUser } from "@redshirt-sports/auth/server";
 import { Button } from "@redshirt-sports/ui/components/button";
 import { Separator } from "@redshirt-sports/ui/components/separator";
 import {
@@ -12,8 +13,11 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { getAttendanceData } from "@/actions/attendance";
+import { getPortalPending } from "@/actions/portal";
 import { AutoPublishNote } from "@/components/auto-publish-note";
 import { MissedBallotsCard } from "@/components/missed-ballots-card";
+import { StaffHome } from "@/components/staff-home";
+import { requireStaff } from "@/lib/access";
 import { getDashboardData } from "@/lib/dashboard-data";
 import { PUBLIC_SITE_URL, publicSiteLabel } from "@/lib/site";
 import { timedStep } from "@/lib/slow-steps";
@@ -36,7 +40,7 @@ function progressPercent(submitted: number | null, assigned: number) {
   return Math.min(100, Math.round((submitted / assigned) * 100));
 }
 
-async function DashboardContent() {
+async function AdminDashboard() {
   // The admin home page has hit Vercel's 15 s limit with the database idle; these
   // steps log (and trace in Sentry) whichever part is slow or never finishes.
   const [data, attendance] = await timedStep("home: data", () =>
@@ -322,10 +326,27 @@ async function DashboardContent() {
   );
 }
 
+/** Admins get the operations dashboard; other staff, a card per area. */
+async function HomeContent() {
+  const { areas } = await requireStaff();
+  if (areas.has("admin")) return <AdminDashboard />;
+  const [user, pending] = await Promise.all([
+    currentUser(),
+    areas.has("portal") ? getPortalPending() : null,
+  ]);
+  return (
+    <StaffHome
+      firstName={user?.firstName ?? null}
+      areas={[...areas]}
+      portalPending={pending?.players ?? null}
+    />
+  );
+}
+
 export default function AdminHomePage() {
   return (
     <Suspense fallback={<DashboardFallback />}>
-      <DashboardContent />
+      <HomeContent />
     </Suspense>
   );
 }

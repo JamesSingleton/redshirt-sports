@@ -17,12 +17,12 @@ import {
   type EditorGame,
   type EditorSlot,
 } from "@/components/bracket-editor";
+import { requireArea } from "@/lib/access";
 import {
   bracketEditionName,
   bracketFormatLabel,
   dateToEasternInput,
 } from "@/lib/bracket-season";
-import { requireAdmin } from "@/lib/require-admin";
 import { resolvePublicSiteUrl } from "@/lib/site";
 
 type Params = Promise<{ editionId: string }>;
@@ -44,7 +44,7 @@ function EditionFallback() {
 }
 
 async function EditionContent({ params }: { params: Params }) {
-  await requireAdmin();
+  await requireArea("admin");
   const { editionId } = await params;
   const detail = await getBracketEdition(editionId);
   if (!detail) notFound();

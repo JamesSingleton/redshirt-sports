@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireStaff } from "@/lib/access";
 
 function DashboardShellFallback() {
   return (
@@ -22,7 +22,8 @@ async function AuthenticatedDashboard({
 }: {
   children: React.ReactNode;
 }) {
-  await requireAdmin();
+  // Any staff role gets the shell; each area's layout and action checks its own.
+  const { areas } = await requireStaff();
 
   return (
     <SidebarProvider
@@ -33,7 +34,7 @@ async function AuthenticatedDashboard({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar variant="inset" areas={[...areas]} />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">

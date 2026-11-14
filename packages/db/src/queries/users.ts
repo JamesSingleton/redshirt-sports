@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { asc, eq, ilike, or, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
 import { usersTable } from "../schema";
@@ -11,6 +11,8 @@ type ClerkUserFields = {
   organizationRole?: string | null;
   isAdmin?: boolean;
   isVoter?: boolean;
+  /** Staff roles from Clerk public metadata; omitted keeps the stored value. */
+  roles?: string[];
 };
 
 /**
@@ -63,6 +65,58 @@ export async function updateUser({
 export async function deactivateUser(id: string) {
   await db
     .update(usersTable)
-    .set({ isAdmin: false, isVoter: false })
+    .set({ isAdmin: false, isVoter: false, roles: [] })
     .where(eq(usersTable.id, id));
+}
+
+const staffColumns = {
+  id: usersTable.id,
+  firstName: usersTable.firstName,
+  lastName: usersTable.lastName,
+  organization: usersTable.organization,
+  isAdmin: usersTable.isAdmin,
+  isVoter: usersTable.isVoter,
+  roles: usersTable.roles,
+};
+
+/** Everyone with a staff role (or the old `isAdmin` flag), by last name. */
+export function listStaffUsers() {
+  return db
+    .select(staffColumns)
+    .from(usersTable)
+    .where(
+      or(
+        eq(usersTable.isAdmin, true),
+        sql`cardinality(${usersTable.roles}) > 0`,
+      ),
+    )
+    .orderBy(asc(usersTable.lastName), asc(usersTable.firstName));
+}
+
+/** Accounts whose first or last name starts with the query, to add as staff. */
+export function searchUsersByName(query: string, limit = 10) {
+  const term = `${query.trim().replace(/[%_\\]/g, (c) => `\\${c}`)}%`;
+  return db
+    .select(staffColumns)
+    .from(usersTable)
+    .where(
+      or(ilike(usersTable.firstName, term), ilike(usersTable.lastName, term)),
+    )
+    .orderBy(asc(usersTable.lastName), asc(usersTable.firstName))
+    .limit(limit);
+}
+
+/**
+ * Store a user's staff roles right away, so the Staff page is current before
+ * Clerk's webhook arrives (which then writes the same values).
+ */
+export async function setUserRoles(input: {
+  id: string;
+  roles: string[];
+  isAdmin: boolean;
+}) {
+  await db
+    .update(usersTable)
+    .set({ roles: input.roles, isAdmin: input.isAdmin })
+    .where(eq(usersTable.id, input.id));
 }
