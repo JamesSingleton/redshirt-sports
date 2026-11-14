@@ -68,6 +68,14 @@ export const AD_PLACEMENTS = [
     height: 250,
     sizes: "300px",
   },
+  {
+    id: "player-sidebar",
+    title: "Player page sidebar",
+    hint: "300×250",
+    width: 300,
+    height: 250,
+    sizes: "300px",
+  },
 ] as const;
 
 export type AdPlacementId = (typeof AD_PLACEMENTS)[number]["id"];

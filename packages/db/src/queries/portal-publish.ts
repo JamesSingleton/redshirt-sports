@@ -55,7 +55,27 @@ const supersededText = `(e.type in ('committed', 'signed') and exists (
     and d.type in ('decommitted', 'withdrew')
     and (d.occurred_at, d.id) > (e.occurred_at, e.id)))`;
 
+/**
+ * `r` = recruitments. The schools a player was at before the one they're
+ * leaving, oldest first: the start of their path on the wire. Enrollments
+ * from earlier `enrolled` moves; null (so absent) when there were none.
+ */
+const pathText = `(
+  select jsonb_agg(
+           jsonb_strip_nulls(jsonb_build_object(
+             'schoolId', pe.school_id, 'schoolName', pe.school_name))
+           order by pe.start_year, pe.id)
+  from public.player_enrollments pe
+  where pe.player_sport_id = r.player_sport_id
+    and pe.id is distinct from r.origin_enrollment_id
+    and pe.via_recruitment_id is distinct from r.id
+    and pe.start_year < coalesce(
+      (select oe.start_year from public.player_enrollments oe
+       where oe.id = r.origin_enrollment_id),
+      r.cycle_year))`;
+
 const originSql = sql.raw(originText);
+const pathSql = sql.raw(pathText);
 const destinationSql = sql.raw(destinationText);
 const supersededSql = sql.raw(supersededText);
 
@@ -215,11 +235,15 @@ export async function pushPortal({
                    'playerId', p.id, 'slug', p.slug,
                    'firstName', p.first_name, 'lastName', p.last_name,
                    'suffix', p.suffix,
+                   'highSchoolName', p.high_school_name,
+                   'hometownCity', p.hometown_city,
+                   'hometownState', p.hometown_state,
                    'position', ps.position, 'heightIn', ps.height_in,
                    'weightLb', ps.weight_lb,
                    'classAtEntry', r.class_at_entry,
                    'isGradTransfer', r.is_grad_transfer,
                    'recruitmentId', r.id, 'status', r.status,
+                   'path', ${pathSql},
                    'origin', ${originSql}, 'destination', ${destinationSql})),
                  ${push.id}
           from public.recruitment_events e

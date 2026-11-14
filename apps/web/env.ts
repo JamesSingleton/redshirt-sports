@@ -17,6 +17,11 @@ export const env = createEnv({
     SCHOOL_SYNC_SECRET: z.string().min(1),
     /** Bearer token the sync-conference Sanity Function sends. Separate from the school sync's. */
     CONFERENCE_SYNC_SECRET: z.string().min(1),
+    /**
+     * "true" puts the transfer portal wire and player pages on the public site.
+     * Anything else keeps them 404 while players are entered in admin.
+     */
+    PORTAL_PUBLIC: z.enum(["true", "false"]).optional(),
     /** Vercel Cron sends `Authorization: Bearer $CRON_SECRET`. The ratings cron refuses to run without it. */
     CRON_SECRET: z.string().min(16).optional(),
     UPSTASH_REDIS_REST_URL: z.url(),
@@ -29,6 +34,7 @@ export const env = createEnv({
     CACHE_REVALIDATE_SECRET: process.env.CACHE_REVALIDATE_SECRET,
     SCHOOL_SYNC_SECRET: process.env.SCHOOL_SYNC_SECRET,
     CONFERENCE_SYNC_SECRET: process.env.CONFERENCE_SYNC_SECRET,
+    PORTAL_PUBLIC: process.env.PORTAL_PUBLIC,
     CRON_SECRET: process.env.CRON_SECRET,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,

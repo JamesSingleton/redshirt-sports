@@ -28,3 +28,11 @@ export const rankingsApiRatelimit = new Ratelimit({
   analytics: true,
   prefix: "@upstash/ratelimit/rankings-api",
 });
+
+/** Public transfer portal JSON: 60 requests per minute per IP, on CDN misses only. */
+export const portalApiRatelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(60, "60 s"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/portal-api",
+});

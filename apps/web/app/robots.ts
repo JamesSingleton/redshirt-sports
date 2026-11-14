@@ -55,6 +55,8 @@ export default function robots(): MetadataRoute.Robots {
       `${baseUrl}/news-sitemap.xml`,
       `${baseUrl}/rankings/sitemap.xml`,
       `${baseUrl}/ratings/sitemap.xml`,
+      `${baseUrl}/transfer-portal/sitemap.xml`,
+      `${baseUrl}/players/sitemap.xml`,
       `${baseUrl}/playoffs/sitemap.xml`,
       `${baseUrl}/college/sitemap.xml`,
       `${baseUrl}/college/news/sitemap/0.xml`,
