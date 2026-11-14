@@ -113,6 +113,10 @@ export interface PortalPlayerListItem {
   lastName: string;
   suffix: string | null;
   slug: string;
+  hometownCity: string | null;
+  hometownState: string | null;
+  highSchoolName: string | null;
+  hsGradYear: number | null;
   pendingSince: Date | null;
   hiddenAt: Date | null;
   /** Latest recruitment per sport. */
@@ -121,17 +125,20 @@ export interface PortalPlayerListItem {
 
 /**
  * Players newest first, 50 at a time. Keyset on id: pass the last id shown as
- * `beforeId` for the next page.
+ * `beforeId` for the next page. `ids` fetches those players instead.
  */
 export async function listPortalPlayers({
   beforeId,
   pendingOnly = false,
   limit = 50,
+  ids,
 }: {
   beforeId?: number;
   pendingOnly?: boolean;
   limit?: number;
+  ids?: number[];
 } = {}): Promise<PortalPlayerListItem[]> {
+  if (ids && ids.length === 0) return [];
   const players = await db
     .select({
       id: playersTable.id,
@@ -139,6 +146,10 @@ export async function listPortalPlayers({
       lastName: playersTable.lastName,
       suffix: playersTable.suffix,
       slug: playersTable.slug,
+      hometownCity: playersTable.hometownCity,
+      hometownState: playersTable.hometownState,
+      highSchoolName: playersTable.highSchoolName,
+      hsGradYear: playersTable.hsGradYear,
       pendingSince: playersTable.pendingSince,
       hiddenAt: playersTable.hiddenAt,
     })
@@ -146,6 +157,7 @@ export async function listPortalPlayers({
     .where(
       and(
         sql`${playersTable.mergedIntoId} is null`,
+        ids ? inArray(playersTable.id, ids) : undefined,
         beforeId === undefined ? undefined : lt(playersTable.id, beforeId),
         pendingOnly ? isNotNull(playersTable.pendingSince) : undefined,
       ),

@@ -12,6 +12,7 @@ const FILES = [
   "recruitments.ts",
   "portal-publish.ts",
   "portal-admin.ts",
+  "player-duplicates.ts",
 ];
 
 describe("portal queries name their columns", () => {

@@ -42,9 +42,14 @@ async function PortalContent({ searchParams }: { searchParams: SearchParams }) {
             push; sources are never published.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/portal/new">Add player</Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <Link href="/portal/duplicates">Possible duplicates</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/portal/new">Add player</Link>
+          </Button>
+        </div>
       </div>
 
       <PortalPushBar pending={pending} />

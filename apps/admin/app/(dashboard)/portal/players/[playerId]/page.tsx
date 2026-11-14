@@ -48,9 +48,17 @@ async function PlayerContent({ params }: { params: Params }) {
           ) : null}
           {player.hiddenAt ? <Badge variant="destructive">Hidden</Badge> : null}
         </div>
-        <p className="text-muted-foreground font-mono text-xs">
-          /players/{player.slug}-{player.id}
-        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-muted-foreground font-mono text-xs">
+            /players/{player.slug}-{player.id}
+          </p>
+          <Link
+            href={`/portal/duplicates/compare?a=${player.id}`}
+            className="text-muted-foreground text-xs hover:underline"
+          >
+            Merge with another player…
+          </Link>
+        </div>
       </div>
       <PortalPushBar pending={page.pending} />
       {/* Keyed on the data so every save resets the forms to what was saved. */}

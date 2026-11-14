@@ -8,14 +8,18 @@ import {
 } from "@redshirt-sports/db/portal";
 import {
   createPortalPlayer,
+  dismissDuplicate,
   expirePendingPortalPushes,
   findSimilarPlayers,
   getPortalPendingSummary,
   getPortalPlayer,
+  listDuplicateCandidates,
   listPortalPlayers,
   listPortalSports,
+  mergePlayers,
   openRecruitment,
   PortalWriteError,
+  previewMerge,
   pushPortal,
   recordRecruitmentEvent,
   resolvePortalActor,
@@ -402,4 +406,87 @@ export async function pushPortalToSite(): Promise<PortalActionResult> {
     };
   }
   return { ok: true, message: published };
+}
+
+// ---------- Duplicates ----------
+
+const pairSchema = z
+  .tuple([playerId, playerId])
+  .refine(([a, b]) => a !== b, { message: "Pick two different players." });
+
+/** Likely duplicates among recently added players, with a card for each player. */
+export async function getDuplicateQueue() {
+  await requireAdmin();
+  const pairs = await listDuplicateCandidates();
+  const ids = [
+    ...new Set(pairs.flatMap((pair) => [pair.playerAId, pair.playerBId])),
+  ];
+  const players = await listPortalPlayers({ ids, limit: ids.length });
+  const byId = new Map(players.map((player) => [player.id, player]));
+  return pairs.flatMap((pair) => {
+    const a = byId.get(pair.playerAId);
+    const b = byId.get(pair.playerBId);
+    return a && b ? [{ ...pair, a, b }] : [];
+  });
+}
+
+export type DuplicateQueue = Awaited<ReturnType<typeof getDuplicateQueue>>;
+
+/** Two players side by side, and what merging either way would do. */
+export async function getMergeComparison(aId: number, bId: number) {
+  await requireAdmin();
+  const [a, b] = await Promise.all([
+    getPortalPlayer(aId),
+    getPortalPlayer(bId),
+  ]);
+  if (!a || !b || a.id === b.id) return null;
+  const [keepA, keepB] = await Promise.all([
+    previewMerge(a.id, b.id),
+    previewMerge(b.id, a.id),
+  ]);
+  return { a, b, keepA, keepB };
+}
+
+export type MergeComparison = NonNullable<
+  Awaited<ReturnType<typeof getMergeComparison>>
+>;
+
+export async function dismissPortalDuplicate(input: {
+  playerIds: unknown;
+}): Promise<PortalActionResult> {
+  await requireAdmin();
+  const pair = pairSchema.safeParse(input.playerIds);
+  if (!pair.success) return invalid(pair.error);
+  try {
+    await dismissDuplicate({
+      playerIds: pair.data,
+      actorUserId: await actorId(),
+    });
+    revalidatePath("/portal/duplicates");
+    return { ok: true, message: "Marked as different people." };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function mergePortalPlayers(input: {
+  survivorId: unknown;
+  loserId: unknown;
+}): Promise<PortalActionResult> {
+  await requireAdmin();
+  const pair = pairSchema.safeParse([input.survivorId, input.loserId]);
+  if (!pair.success) return invalid(pair.error);
+  const [survivorId, loserId] = pair.data;
+  try {
+    await mergePlayers({ survivorId, loserId, actorUserId: await actorId() });
+    refresh(survivorId);
+    revalidatePath("/portal/duplicates");
+    return {
+      ok: true,
+      message: `Merged #${loserId} into #${survivorId}. Push to update the site.`,
+      playerId: survivorId,
+    };
+  } catch (error) {
+    return failure(error);
+  }
 }

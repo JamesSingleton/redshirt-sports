@@ -5,6 +5,7 @@ export * from "./auto-publish";
 export * from "./brackets";
 export * from "./games";
 export * from "./missed-ballots";
+export * from "./player-duplicates";
 export * from "./players";
 export * from "./polls";
 export * from "./portal-admin";

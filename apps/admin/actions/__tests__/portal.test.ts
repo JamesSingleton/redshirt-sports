@@ -12,6 +12,10 @@ const db = vi.hoisted(() => {
   return {
     PortalWriteError,
     createPortalPlayer: vi.fn(),
+    dismissDuplicate: vi.fn(),
+    listDuplicateCandidates: vi.fn(),
+    mergePlayers: vi.fn(),
+    previewMerge: vi.fn(),
     expirePendingPortalPushes: vi.fn(),
     findSimilarPlayers: vi.fn(),
     getPortalPendingSummary: vi.fn(),
@@ -52,11 +56,15 @@ vi.mock("@sentry/nextjs", () => ({
 
 import {
   createPortalPlayerAction,
+  dismissPortalDuplicate,
   enterPortal,
   findPortalDuplicates,
   findPortalSchools,
+  getDuplicateQueue,
+  getMergeComparison,
   getPortalDesk,
   getPortalPlayerPage,
+  mergePortalPlayers,
   pushPortalToSite,
   recordPortalMove,
   savePlayerBio,
@@ -398,6 +406,75 @@ describe("portal admin actions", () => {
       expect(result.ok).toBe(false);
       expect(mockCapture).toHaveBeenCalled();
       expect(db.expirePendingPortalPushes).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("duplicates", () => {
+    it("pairs each candidate with both players' cards", async () => {
+      db.listDuplicateCandidates.mockResolvedValue([
+        { playerAId: 1, playerBId: 2, score: 0.8 },
+        { playerAId: 1, playerBId: 3, score: 0.7 },
+      ]);
+      db.listPortalPlayers.mockResolvedValue([{ id: 1 }, { id: 2 }]);
+      expect(await getDuplicateQueue()).toEqual([
+        { playerAId: 1, playerBId: 2, score: 0.8, a: { id: 1 }, b: { id: 2 } },
+      ]);
+      expect(db.listPortalPlayers).toHaveBeenCalledWith({
+        ids: [1, 2, 3],
+        limit: 3,
+      });
+    });
+
+    it("compares two players with both merge previews", async () => {
+      db.getPortalPlayer.mockImplementation(async (id: number) =>
+        id === 9 ? null : { id },
+      );
+      db.previewMerge.mockImplementation(async (keep: number) => [{ keep }]);
+      expect(await getMergeComparison(1, 2)).toEqual({
+        a: { id: 1 },
+        b: { id: 2 },
+        keepA: [{ keep: 1 }],
+        keepB: [{ keep: 2 }],
+      });
+      expect(await getMergeComparison(1, 9)).toBeNull();
+      expect(await getMergeComparison(1, 1)).toBeNull();
+    });
+
+    it("dismisses a pair", async () => {
+      expect((await dismissPortalDuplicate({ playerIds: [2, "1"] })).ok).toBe(
+        true,
+      );
+      expect(db.dismissDuplicate).toHaveBeenCalledWith({
+        playerIds: [2, 1],
+        actorUserId: "user_admin",
+      });
+      expect((await dismissPortalDuplicate({ playerIds: [1, 1] })).ok).toBe(
+        false,
+      );
+      expect((await dismissPortalDuplicate({ playerIds: "x" })).ok).toBe(false);
+      db.dismissDuplicate.mockRejectedValueOnce(new Error("boom"));
+      expect((await dismissPortalDuplicate({ playerIds: [1, 2] })).ok).toBe(
+        false,
+      );
+    });
+
+    it("merges and explains a refusal", async () => {
+      const result = await mergePortalPlayers({ survivorId: 1, loserId: "2" });
+      expect(result).toMatchObject({ ok: true, playerId: 1 });
+      expect(db.mergePlayers).toHaveBeenCalledWith({
+        survivorId: 1,
+        loserId: 2,
+        actorUserId: "user_admin",
+      });
+      expect((await mergePortalPlayers({ survivorId: 1, loserId: 1 })).ok).toBe(
+        false,
+      );
+      db.mergePlayers.mockRejectedValueOnce(
+        new db.PortalWriteError("player_merged", "Player was merged into 3."),
+      );
+      expect(
+        (await mergePortalPlayers({ survivorId: 1, loserId: 2 })).message,
+      ).toBe("Player was merged into 3.");
     });
   });
 });
