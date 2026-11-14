@@ -15,6 +15,8 @@ export const env = createEnv({
     SANITY_REVALIDATE_SECRET: z.string().min(1),
     CACHE_REVALIDATE_SECRET: z.string().min(1),
     SCHOOL_SYNC_SECRET: z.string().min(1),
+    /** Bearer token the sync-conference Sanity Function sends. Separate from the school sync's. */
+    CONFERENCE_SYNC_SECRET: z.string().min(1),
     /** Vercel Cron sends `Authorization: Bearer $CRON_SECRET`. The ratings cron refuses to run without it. */
     CRON_SECRET: z.string().min(16).optional(),
     UPSTASH_REDIS_REST_URL: z.url(),
@@ -26,6 +28,7 @@ export const env = createEnv({
     SANITY_REVALIDATE_SECRET: process.env.SANITY_REVALIDATE_SECRET,
     CACHE_REVALIDATE_SECRET: process.env.CACHE_REVALIDATE_SECRET,
     SCHOOL_SYNC_SECRET: process.env.SCHOOL_SYNC_SECRET,
+    CONFERENCE_SYNC_SECRET: process.env.CONFERENCE_SYNC_SECRET,
     CRON_SECRET: process.env.CRON_SECRET,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,

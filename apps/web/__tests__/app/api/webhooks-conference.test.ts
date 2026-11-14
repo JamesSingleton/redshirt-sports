@@ -7,7 +7,10 @@ vi.mock("@redshirt-sports/db/queries", () => ({
 }));
 
 vi.mock("@/env", () => ({
-  env: { SCHOOL_SYNC_SECRET: "school_sync_secret" },
+  env: {
+    CONFERENCE_SYNC_SECRET: "conference_sync_secret",
+    SCHOOL_SYNC_SECRET: "school_sync_secret",
+  },
 }));
 
 import { POST } from "@/app/api/webhooks/sanity/conference/route";
@@ -26,7 +29,7 @@ const conference = {
   ],
 };
 
-const post = (body: unknown, authorization = "Bearer school_sync_secret") =>
+const post = (body: unknown, authorization = "Bearer conference_sync_secret") =>
   POST(
     new Request("http://localhost/api/webhooks/sanity/conference", {
       method: "POST",
@@ -50,7 +53,14 @@ describe("POST /api/webhooks/sanity/conference", () => {
     expect((await post({ conference }, "")).status).toBe(401);
     expect((await post({ conference }, "Bearer wrong")).status).toBe(401);
     expect(
-      (await post({ conference }, "Basic school_sync_secret")).status,
+      (await post({ conference }, "Basic conference_sync_secret")).status,
+    ).toBe(401);
+    expect(mockUpsertConference).not.toHaveBeenCalled();
+  });
+
+  it("refuses the school sync's secret", async () => {
+    expect(
+      (await post({ conference }, "Bearer school_sync_secret")).status,
     ).toBe(401);
     expect(mockUpsertConference).not.toHaveBeenCalled();
   });
