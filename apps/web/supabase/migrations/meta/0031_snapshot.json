@@ -90,12 +90,8 @@
           "name": "ballot_entries_ballot_id_ballots_id_fk",
           "tableFrom": "ballot_entries",
           "tableTo": "ballots",
-          "columnsFrom": [
-            "ballot_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["ballot_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -103,12 +99,8 @@
           "name": "ballot_entries_school_id_schools_id_fk",
           "tableFrom": "ballot_entries",
           "tableTo": "schools",
-          "columnsFrom": [
-            "school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -118,18 +110,12 @@
         "ballot_entries_ballot_id_rank_unique": {
           "name": "ballot_entries_ballot_id_rank_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "ballot_id",
-            "rank"
-          ]
+          "columns": ["ballot_id", "rank"]
         },
         "ballot_entries_ballot_id_school_id_unique": {
           "name": "ballot_entries_ballot_id_school_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "ballot_id",
-            "school_id"
-          ]
+          "columns": ["ballot_id", "school_id"]
         }
       },
       "policies": {},
@@ -250,12 +236,8 @@
           "name": "ballots_poll_id_polls_id_fk",
           "tableFrom": "ballots",
           "tableTo": "polls",
-          "columnsFrom": [
-            "poll_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["poll_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -263,12 +245,8 @@
           "name": "ballots_user_id_users_table_id_fk",
           "tableFrom": "ballots",
           "tableTo": "users_table",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -276,12 +254,8 @@
           "name": "ballots_week_id_weeks_id_fk",
           "tableFrom": "ballots",
           "tableTo": "weeks",
-          "columnsFrom": [
-            "week_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -291,11 +265,7 @@
         "ballots_poll_id_user_id_week_id_unique": {
           "name": "ballots_poll_id_user_id_week_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "poll_id",
-            "user_id",
-            "week_id"
-          ]
+          "columns": ["poll_id", "user_id", "week_id"]
         }
       },
       "policies": {},
@@ -434,12 +404,8 @@
           "name": "bracket_editions_format_id_bracket_formats_id_fk",
           "tableFrom": "bracket_editions",
           "tableTo": "bracket_formats",
-          "columnsFrom": [
-            "format_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["format_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -447,12 +413,8 @@
           "name": "bracket_editions_season_id_seasons_id_fk",
           "tableFrom": "bracket_editions",
           "tableTo": "seasons",
-          "columnsFrom": [
-            "season_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["season_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -460,12 +422,8 @@
           "name": "bracket_editions_week_id_weeks_id_fk",
           "tableFrom": "bracket_editions",
           "tableTo": "weeks",
-          "columnsFrom": [
-            "week_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -473,12 +431,8 @@
           "name": "bracket_editions_published_by_user_id_users_table_id_fk",
           "tableFrom": "bracket_editions",
           "tableTo": "users_table",
-          "columnsFrom": [
-            "published_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["published_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -488,12 +442,7 @@
         "bracket_editions_identity_unique": {
           "name": "bracket_editions_identity_unique",
           "nullsNotDistinct": true,
-          "columns": [
-            "format_id",
-            "season_id",
-            "kind",
-            "week_id"
-          ]
+          "columns": ["format_id", "season_id", "kind", "week_id"]
         }
       },
       "policies": {},
@@ -588,12 +537,8 @@
           "name": "bracket_formats_sport_id_sports_id_fk",
           "tableFrom": "bracket_formats",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -603,18 +548,12 @@
         "bracket_formats_key_unique": {
           "name": "bracket_formats_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "key"
-          ]
+          "columns": ["key"]
         },
         "bracket_formats_sport_division_from_year_unique": {
           "name": "bracket_formats_sport_division_from_year_unique",
           "nullsNotDistinct": true,
-          "columns": [
-            "sport_id",
-            "division_slug",
-            "effective_from_year"
-          ]
+          "columns": ["sport_id", "division_slug", "effective_from_year"]
         }
       },
       "policies": {},
@@ -729,12 +668,8 @@
           "name": "bracket_games_edition_id_bracket_editions_id_fk",
           "tableFrom": "bracket_games",
           "tableTo": "bracket_editions",
-          "columnsFrom": [
-            "edition_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["edition_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -742,12 +677,8 @@
           "name": "bracket_games_game_id_games_id_fk",
           "tableFrom": "bracket_games",
           "tableTo": "games",
-          "columnsFrom": [
-            "game_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["game_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -757,10 +688,7 @@
         "bracket_games_edition_id_game_key_unique": {
           "name": "bracket_games_edition_id_game_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "edition_id",
-            "game_key"
-          ]
+          "columns": ["edition_id", "game_key"]
         }
       },
       "policies": {},
@@ -865,12 +793,8 @@
           "name": "bracket_slots_edition_id_bracket_editions_id_fk",
           "tableFrom": "bracket_slots",
           "tableTo": "bracket_editions",
-          "columnsFrom": [
-            "edition_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["edition_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -878,12 +802,8 @@
           "name": "bracket_slots_school_id_schools_id_fk",
           "tableFrom": "bracket_slots",
           "tableTo": "schools",
-          "columnsFrom": [
-            "school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -893,18 +813,12 @@
         "bracket_slots_edition_id_slot_key_unique": {
           "name": "bracket_slots_edition_id_slot_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "edition_id",
-            "slot_key"
-          ]
+          "columns": ["edition_id", "slot_key"]
         },
         "bracket_slots_edition_id_school_id_unique": {
           "name": "bracket_slots_edition_id_school_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "edition_id",
-            "school_id"
-          ]
+          "columns": ["edition_id", "school_id"]
         }
       },
       "policies": {},
@@ -996,12 +910,8 @@
           "name": "conference_sport_subdivisions_conference_id_conferences_id_fk",
           "tableFrom": "conference_sport_subdivisions",
           "tableTo": "conferences",
-          "columnsFrom": [
-            "conference_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["conference_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1009,12 +919,8 @@
           "name": "conference_sport_subdivisions_sport_id_sports_id_fk",
           "tableFrom": "conference_sport_subdivisions",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1022,12 +928,8 @@
           "name": "conference_sport_subdivisions_subdivision_id_divisions_id_fk",
           "tableFrom": "conference_sport_subdivisions",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "subdivision_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["subdivision_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1037,10 +939,7 @@
         "conference_sport_subdivisions_conference_id_sport_id_unique": {
           "name": "conference_sport_subdivisions_conference_id_sport_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "conference_id",
-            "sport_id"
-          ]
+          "columns": ["conference_id", "sport_id"]
         }
       },
       "policies": {},
@@ -1107,10 +1006,7 @@
         "conference_sports_conference_id_sport_id_unique": {
           "name": "conference_sports_conference_id_sport_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "conference_id",
-            "sport_id"
-          ]
+          "columns": ["conference_id", "sport_id"]
         }
       },
       "policies": {},
@@ -1207,9 +1103,7 @@
         "conferences_sanity_id_unique": {
           "name": "conferences_sanity_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "sanity_id"
-          ]
+          "columns": ["sanity_id"]
         }
       },
       "policies": {},
@@ -1276,10 +1170,7 @@
         "division_sports_sport_id_division_id_unique": {
           "name": "division_sports_sport_id_division_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "sport_id",
-            "division_id"
-          ]
+          "columns": ["sport_id", "division_id"]
         }
       },
       "policies": {},
@@ -1394,9 +1285,7 @@
         "divisions_sanity_id_unique": {
           "name": "divisions_sanity_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "sanity_id"
-          ]
+          "columns": ["sanity_id"]
         }
       },
       "policies": {},
@@ -1614,12 +1503,8 @@
           "name": "games_season_id_seasons_id_fk",
           "tableFrom": "games",
           "tableTo": "seasons",
-          "columnsFrom": [
-            "season_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["season_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1627,12 +1512,8 @@
           "name": "games_week_id_weeks_id_fk",
           "tableFrom": "games",
           "tableTo": "weeks",
-          "columnsFrom": [
-            "week_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1640,12 +1521,8 @@
           "name": "games_home_school_id_schools_id_fk",
           "tableFrom": "games",
           "tableTo": "schools",
-          "columnsFrom": [
-            "home_school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["home_school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1653,12 +1530,8 @@
           "name": "games_away_school_id_schools_id_fk",
           "tableFrom": "games",
           "tableTo": "schools",
-          "columnsFrom": [
-            "away_school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["away_school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1668,18 +1541,12 @@
         "games_source_source_game_id_unique": {
           "name": "games_source_source_game_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "source",
-            "source_game_id"
-          ]
+          "columns": ["source", "source_game_id"]
         },
         "games_season_id_dedupe_key_unique": {
           "name": "games_season_id_dedupe_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "season_id",
-            "dedupe_key"
-          ]
+          "columns": ["season_id", "dedupe_key"]
         }
       },
       "policies": {},
@@ -1846,12 +1713,8 @@
           "name": "player_audit_log_player_id_players_id_fk",
           "tableFrom": "player_audit_log",
           "tableTo": "players",
-          "columnsFrom": [
-            "player_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["player_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1859,12 +1722,8 @@
           "name": "player_audit_log_actor_user_id_users_table_id_fk",
           "tableFrom": "player_audit_log",
           "tableTo": "users_table",
-          "columnsFrom": [
-            "actor_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["actor_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1872,12 +1731,8 @@
           "name": "player_audit_log_push_id_portal_pushes_id_fk",
           "tableFrom": "player_audit_log",
           "tableTo": "portal_pushes",
-          "columnsFrom": [
-            "push_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["push_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1972,12 +1827,8 @@
           "name": "player_duplicate_dismissals_player_a_id_players_id_fk",
           "tableFrom": "player_duplicate_dismissals",
           "tableTo": "players",
-          "columnsFrom": [
-            "player_a_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["player_a_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1985,12 +1836,8 @@
           "name": "player_duplicate_dismissals_player_b_id_players_id_fk",
           "tableFrom": "player_duplicate_dismissals",
           "tableTo": "players",
-          "columnsFrom": [
-            "player_b_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["player_b_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1998,12 +1845,8 @@
           "name": "player_duplicate_dismissals_dismissed_by_user_id_users_table_id_fk",
           "tableFrom": "player_duplicate_dismissals",
           "tableTo": "users_table",
-          "columnsFrom": [
-            "dismissed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["dismissed_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2013,10 +1856,7 @@
         "player_duplicate_dismissals_pair_unique": {
           "name": "player_duplicate_dismissals_pair_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "player_a_id",
-            "player_b_id"
-          ]
+          "columns": ["player_a_id", "player_b_id"]
         }
       },
       "policies": {},
@@ -2174,12 +2014,8 @@
           "name": "player_enrollments_player_sport_id_player_sports_id_fk",
           "tableFrom": "player_enrollments",
           "tableTo": "player_sports",
-          "columnsFrom": [
-            "player_sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["player_sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2187,12 +2023,8 @@
           "name": "player_enrollments_school_id_schools_id_fk",
           "tableFrom": "player_enrollments",
           "tableTo": "schools",
-          "columnsFrom": [
-            "school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2200,12 +2032,8 @@
           "name": "player_enrollments_via_recruitment_id_recruitments_id_fk",
           "tableFrom": "player_enrollments",
           "tableTo": "recruitments",
-          "columnsFrom": [
-            "via_recruitment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["via_recruitment_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2313,12 +2141,8 @@
           "name": "player_sports_player_id_players_id_fk",
           "tableFrom": "player_sports",
           "tableTo": "players",
-          "columnsFrom": [
-            "player_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["player_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2326,12 +2150,8 @@
           "name": "player_sports_sport_id_sports_id_fk",
           "tableFrom": "player_sports",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2341,10 +2161,7 @@
         "player_sports_player_id_sport_id_unique": {
           "name": "player_sports_player_id_sport_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "player_id",
-            "sport_id"
-          ]
+          "columns": ["player_id", "sport_id"]
         }
       },
       "policies": {},
@@ -2509,12 +2326,8 @@
           "name": "player_submissions_matched_player_id_players_id_fk",
           "tableFrom": "player_submissions",
           "tableTo": "players",
-          "columnsFrom": [
-            "matched_player_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["matched_player_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -2522,12 +2335,8 @@
           "name": "player_submissions_reviewed_by_user_id_users_table_id_fk",
           "tableFrom": "player_submissions",
           "tableTo": "users_table",
-          "columnsFrom": [
-            "reviewed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2715,12 +2524,8 @@
           "name": "players_merged_into_id_players_id_fk",
           "tableFrom": "players",
           "tableTo": "players",
-          "columnsFrom": [
-            "merged_into_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["merged_into_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2853,12 +2658,8 @@
           "name": "poll_missed_ballots_poll_id_polls_id_fk",
           "tableFrom": "poll_missed_ballots",
           "tableTo": "polls",
-          "columnsFrom": [
-            "poll_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["poll_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2866,12 +2667,8 @@
           "name": "poll_missed_ballots_user_id_users_table_id_fk",
           "tableFrom": "poll_missed_ballots",
           "tableTo": "users_table",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2879,12 +2676,8 @@
           "name": "poll_missed_ballots_week_id_weeks_id_fk",
           "tableFrom": "poll_missed_ballots",
           "tableTo": "weeks",
-          "columnsFrom": [
-            "week_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2894,11 +2687,7 @@
         "poll_missed_ballots_poll_id_user_id_week_id_unique": {
           "name": "poll_missed_ballots_poll_id_user_id_week_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "poll_id",
-            "user_id",
-            "week_id"
-          ]
+          "columns": ["poll_id", "user_id", "week_id"]
         }
       },
       "policies": {},
@@ -3056,12 +2845,8 @@
           "name": "poll_rankings_poll_id_polls_id_fk",
           "tableFrom": "poll_rankings",
           "tableTo": "polls",
-          "columnsFrom": [
-            "poll_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["poll_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3069,12 +2854,8 @@
           "name": "poll_rankings_week_id_weeks_id_fk",
           "tableFrom": "poll_rankings",
           "tableTo": "weeks",
-          "columnsFrom": [
-            "week_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3082,12 +2863,8 @@
           "name": "poll_rankings_school_id_schools_id_fk",
           "tableFrom": "poll_rankings",
           "tableTo": "schools",
-          "columnsFrom": [
-            "school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3097,11 +2874,7 @@
         "poll_rankings_poll_id_week_id_school_id_unique": {
           "name": "poll_rankings_poll_id_week_id_school_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "poll_id",
-            "week_id",
-            "school_id"
-          ]
+          "columns": ["poll_id", "week_id", "school_id"]
         }
       },
       "policies": {},
@@ -3210,12 +2983,8 @@
           "name": "poll_voters_poll_id_polls_id_fk",
           "tableFrom": "poll_voters",
           "tableTo": "polls",
-          "columnsFrom": [
-            "poll_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["poll_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3223,12 +2992,8 @@
           "name": "poll_voters_user_id_users_table_id_fk",
           "tableFrom": "poll_voters",
           "tableTo": "users_table",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3238,10 +3003,7 @@
         "poll_voters_poll_id_user_id_unique": {
           "name": "poll_voters_poll_id_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "poll_id",
-            "user_id"
-          ]
+          "columns": ["poll_id", "user_id"]
         }
       },
       "policies": {},
@@ -3348,12 +3110,8 @@
           "name": "polls_sport_id_sports_id_fk",
           "tableFrom": "polls",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3361,12 +3119,8 @@
           "name": "polls_division_sport_id_division_sports_id_fk",
           "tableFrom": "polls",
           "tableTo": "division_sports",
-          "columnsFrom": [
-            "division_sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["division_sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3376,10 +3130,7 @@
         "polls_sport_id_slug_unique": {
           "name": "polls_sport_id_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "sport_id",
-            "slug"
-          ]
+          "columns": ["sport_id", "slug"]
         }
       },
       "policies": {},
@@ -3490,12 +3241,8 @@
           "name": "portal_pushes_actor_user_id_users_table_id_fk",
           "tableFrom": "portal_pushes",
           "tableTo": "users_table",
-          "columnsFrom": [
-            "actor_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["actor_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3597,12 +3344,8 @@
           "name": "published_players_player_id_players_id_fk",
           "tableFrom": "published_players",
           "tableTo": "players",
-          "columnsFrom": [
-            "player_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["player_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3610,12 +3353,8 @@
           "name": "published_players_redirect_to_player_id_players_id_fk",
           "tableFrom": "published_players",
           "tableTo": "players",
-          "columnsFrom": [
-            "redirect_to_player_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["redirect_to_player_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3623,12 +3362,8 @@
           "name": "published_players_push_id_portal_pushes_id_fk",
           "tableFrom": "published_players",
           "tableTo": "portal_pushes",
-          "columnsFrom": [
-            "push_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["push_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3802,12 +3537,8 @@
           "name": "published_wire_events_event_id_recruitment_events_id_fk",
           "tableFrom": "published_wire_events",
           "tableTo": "recruitment_events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3815,12 +3546,8 @@
           "name": "published_wire_events_recruitment_id_recruitments_id_fk",
           "tableFrom": "published_wire_events",
           "tableTo": "recruitments",
-          "columnsFrom": [
-            "recruitment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["recruitment_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3828,12 +3555,8 @@
           "name": "published_wire_events_player_id_players_id_fk",
           "tableFrom": "published_wire_events",
           "tableTo": "players",
-          "columnsFrom": [
-            "player_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["player_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3841,12 +3564,8 @@
           "name": "published_wire_events_sport_id_sports_id_fk",
           "tableFrom": "published_wire_events",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3854,12 +3573,8 @@
           "name": "published_wire_events_push_id_portal_pushes_id_fk",
           "tableFrom": "published_wire_events",
           "tableTo": "portal_pushes",
-          "columnsFrom": [
-            "push_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["push_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -4031,12 +3746,8 @@
           "name": "rating_jobs_pool_id_rating_pools_id_fk",
           "tableFrom": "rating_jobs",
           "tableTo": "rating_pools",
-          "columnsFrom": [
-            "pool_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pool_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4044,12 +3755,8 @@
           "name": "rating_jobs_run_id_rating_runs_id_fk",
           "tableFrom": "rating_jobs",
           "tableTo": "rating_runs",
-          "columnsFrom": [
-            "run_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["run_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -4161,12 +3868,8 @@
           "name": "rating_pool_members_pool_id_rating_pools_id_fk",
           "tableFrom": "rating_pool_members",
           "tableTo": "rating_pools",
-          "columnsFrom": [
-            "pool_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pool_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4174,12 +3877,8 @@
           "name": "rating_pool_members_season_id_seasons_id_fk",
           "tableFrom": "rating_pool_members",
           "tableTo": "seasons",
-          "columnsFrom": [
-            "season_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["season_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4187,12 +3886,8 @@
           "name": "rating_pool_members_school_id_schools_id_fk",
           "tableFrom": "rating_pool_members",
           "tableTo": "schools",
-          "columnsFrom": [
-            "school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4200,12 +3895,8 @@
           "name": "rating_pool_members_conference_id_conferences_id_fk",
           "tableFrom": "rating_pool_members",
           "tableTo": "conferences",
-          "columnsFrom": [
-            "conference_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["conference_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4215,11 +3906,7 @@
         "rating_pool_members_pool_season_school_unique": {
           "name": "rating_pool_members_pool_season_school_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "pool_id",
-            "season_id",
-            "school_id"
-          ]
+          "columns": ["pool_id", "season_id", "school_id"]
         }
       },
       "policies": {},
@@ -4341,12 +4028,8 @@
           "name": "rating_pools_division_sport_id_division_sports_id_fk",
           "tableFrom": "rating_pools",
           "tableTo": "division_sports",
-          "columnsFrom": [
-            "division_sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["division_sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4354,12 +4037,8 @@
           "name": "rating_pools_sport_id_sports_id_fk",
           "tableFrom": "rating_pools",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4369,10 +4048,7 @@
         "rating_pools_sport_id_slug_unique": {
           "name": "rating_pools_sport_id_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "sport_id",
-            "slug"
-          ]
+          "columns": ["sport_id", "slug"]
         }
       },
       "policies": {},
@@ -4570,12 +4246,8 @@
           "name": "rating_runs_pool_id_rating_pools_id_fk",
           "tableFrom": "rating_runs",
           "tableTo": "rating_pools",
-          "columnsFrom": [
-            "pool_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pool_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4583,12 +4255,8 @@
           "name": "rating_runs_season_id_seasons_id_fk",
           "tableFrom": "rating_runs",
           "tableTo": "seasons",
-          "columnsFrom": [
-            "season_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["season_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4596,12 +4264,8 @@
           "name": "rating_runs_week_id_weeks_id_fk",
           "tableFrom": "rating_runs",
           "tableTo": "weeks",
-          "columnsFrom": [
-            "week_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4902,12 +4566,8 @@
           "name": "rating_snapshots_run_id_rating_runs_id_fk",
           "tableFrom": "rating_snapshots",
           "tableTo": "rating_runs",
-          "columnsFrom": [
-            "run_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["run_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4915,12 +4575,8 @@
           "name": "rating_snapshots_school_id_schools_id_fk",
           "tableFrom": "rating_snapshots",
           "tableTo": "schools",
-          "columnsFrom": [
-            "school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4928,12 +4584,8 @@
           "name": "rating_snapshots_conference_id_conferences_id_fk",
           "tableFrom": "rating_snapshots",
           "tableTo": "conferences",
-          "columnsFrom": [
-            "conference_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["conference_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4943,10 +4595,7 @@
         "rating_snapshots_run_id_school_id_unique": {
           "name": "rating_snapshots_run_id_school_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "run_id",
-            "school_id"
-          ]
+          "columns": ["run_id", "school_id"]
         }
       },
       "policies": {},
@@ -5179,12 +4828,8 @@
           "name": "recruitment_events_recruitment_id_recruitments_id_fk",
           "tableFrom": "recruitment_events",
           "tableTo": "recruitments",
-          "columnsFrom": [
-            "recruitment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["recruitment_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5192,12 +4837,8 @@
           "name": "recruitment_events_school_id_schools_id_fk",
           "tableFrom": "recruitment_events",
           "tableTo": "schools",
-          "columnsFrom": [
-            "school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5205,12 +4846,8 @@
           "name": "recruitment_events_created_by_user_id_users_table_id_fk",
           "tableFrom": "recruitment_events",
           "tableTo": "users_table",
-          "columnsFrom": [
-            "created_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -5615,12 +5252,8 @@
           "name": "recruitments_player_sport_id_player_sports_id_fk",
           "tableFrom": "recruitments",
           "tableTo": "player_sports",
-          "columnsFrom": [
-            "player_sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["player_sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5628,12 +5261,8 @@
           "name": "recruitments_origin_enrollment_id_player_enrollments_id_fk",
           "tableFrom": "recruitments",
           "tableTo": "player_enrollments",
-          "columnsFrom": [
-            "origin_enrollment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["origin_enrollment_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -5641,12 +5270,8 @@
           "name": "recruitments_origin_school_id_schools_id_fk",
           "tableFrom": "recruitments",
           "tableTo": "schools",
-          "columnsFrom": [
-            "origin_school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["origin_school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5654,12 +5279,8 @@
           "name": "recruitments_origin_division_id_divisions_id_fk",
           "tableFrom": "recruitments",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "origin_division_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["origin_division_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5667,12 +5288,8 @@
           "name": "recruitments_origin_subdivision_id_divisions_id_fk",
           "tableFrom": "recruitments",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "origin_subdivision_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["origin_subdivision_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5680,12 +5297,8 @@
           "name": "recruitments_origin_conference_id_conferences_id_fk",
           "tableFrom": "recruitments",
           "tableTo": "conferences",
-          "columnsFrom": [
-            "origin_conference_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["origin_conference_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5693,12 +5306,8 @@
           "name": "recruitments_destination_school_id_schools_id_fk",
           "tableFrom": "recruitments",
           "tableTo": "schools",
-          "columnsFrom": [
-            "destination_school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["destination_school_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5706,12 +5315,8 @@
           "name": "recruitments_destination_division_id_divisions_id_fk",
           "tableFrom": "recruitments",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "destination_division_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["destination_division_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5719,12 +5324,8 @@
           "name": "recruitments_destination_subdivision_id_divisions_id_fk",
           "tableFrom": "recruitments",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "destination_subdivision_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["destination_subdivision_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5732,12 +5333,8 @@
           "name": "recruitments_destination_conference_id_conferences_id_fk",
           "tableFrom": "recruitments",
           "tableTo": "conferences",
-          "columnsFrom": [
-            "destination_conference_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["destination_conference_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5867,12 +5464,8 @@
           "name": "school_conference_affiliations_subdivision_override_id_divisions_id_fk",
           "tableFrom": "school_conference_affiliations",
           "tableTo": "divisions",
-          "columnsFrom": [
-            "subdivision_override_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["subdivision_override_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -5882,11 +5475,7 @@
         "school_conference_affiliations_school_id_sport_id_conference_id_unique": {
           "name": "school_conference_affiliations_school_id_sport_id_conference_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "school_id",
-            "sport_id",
-            "conference_id"
-          ]
+          "columns": ["school_id", "sport_id", "conference_id"]
         }
       },
       "policies": {},
@@ -5942,12 +5531,8 @@
           "name": "school_external_ids_school_id_schools_id_fk",
           "tableFrom": "school_external_ids",
           "tableTo": "schools",
-          "columnsFrom": [
-            "school_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["school_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5957,18 +5542,12 @@
         "school_external_ids_provider_external_id_unique": {
           "name": "school_external_ids_provider_external_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "provider",
-            "external_id"
-          ]
+          "columns": ["provider", "external_id"]
         },
         "school_external_ids_school_id_provider_unique": {
           "name": "school_external_ids_school_id_provider_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "school_id",
-            "provider"
-          ]
+          "columns": ["school_id", "provider"]
         }
       },
       "policies": {},
@@ -6060,16 +5639,12 @@
         "schools_sanity_id_unique": {
           "name": "schools_sanity_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "sanity_id"
-          ]
+          "columns": ["sanity_id"]
         },
         "schools_slug_unique": {
           "name": "schools_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -6131,12 +5706,8 @@
           "name": "season_types_season_id_seasons_id_fk",
           "tableFrom": "season_types",
           "tableTo": "seasons",
-          "columnsFrom": [
-            "season_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["season_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -6146,10 +5717,7 @@
         "season_types_season_id_type_unique": {
           "name": "season_types_season_id_type_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "season_id",
-            "type"
-          ]
+          "columns": ["season_id", "type"]
         }
       },
       "policies": {},
@@ -6217,12 +5785,8 @@
           "name": "seasons_sport_id_sports_id_fk",
           "tableFrom": "seasons",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6232,10 +5796,7 @@
         "seasons_sport_id_year_unique": {
           "name": "seasons_sport_id_year_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "sport_id",
-            "year"
-          ]
+          "columns": ["sport_id", "year"]
         }
       },
       "policies": {},
@@ -6299,9 +5860,7 @@
         "sports_slug_unique": {
           "name": "sports_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -6466,12 +6025,8 @@
           "name": "voter_ballot_sport_id_sports_id_fk",
           "tableFrom": "voter_ballot",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6565,12 +6120,8 @@
           "name": "weekly_final_rankings_sport_id_sports_id_fk",
           "tableFrom": "weekly_final_rankings",
           "tableTo": "sports",
-          "columnsFrom": [
-            "sport_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sport_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6580,11 +6131,7 @@
         "weekly_final_rankings_division_year_week_unique": {
           "name": "weekly_final_rankings_division_year_week_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "division",
-            "year",
-            "week"
-          ]
+          "columns": ["division", "year", "week"]
         }
       },
       "policies": {},
@@ -6696,11 +6243,7 @@
         "weekly_team_rankings_division_sport_id_school_id_week_id_unique": {
           "name": "weekly_team_rankings_division_sport_id_school_id_week_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "division_sport_id",
-            "school_id",
-            "week_id"
-          ]
+          "columns": ["division_sport_id", "school_id", "week_id"]
         }
       },
       "policies": {},
@@ -6768,12 +6311,8 @@
           "name": "weeks_season_type_id_season_types_id_fk",
           "tableFrom": "weeks",
           "tableTo": "season_types",
-          "columnsFrom": [
-            "season_type_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["season_type_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -6783,10 +6322,7 @@
         "weeks_season_type_id_number_unique": {
           "name": "weeks_season_type_id_number_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "season_type_id",
-            "number"
-          ]
+          "columns": ["season_type_id", "number"]
         }
       },
       "policies": {},
